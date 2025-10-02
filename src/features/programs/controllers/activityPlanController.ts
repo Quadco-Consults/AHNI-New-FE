@@ -211,6 +211,31 @@ export const useEditActivityPlan = (id: string) => {
   return { editActivityPlan, data, isLoading, isSuccess, error };
 };
 
+// Update Activity Plan Status
+export const useUpdateActivityPlanStatus = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    TActivityPlanData,
+    Error,
+    { status: string }
+  >({
+    endpoint: `/programs/plans/activity/${id}/`,
+    queryKey: ["activity-plans", "activity-plan"],
+    isAuth: true,
+    method: "PATCH",
+  });
+
+  const updateStatus = async (status: string) => {
+    try {
+      await callApi({ status });
+    } catch (error) {
+      console.error("Activity plan status update error:", error);
+      throw error;
+    }
+  };
+
+  return { updateStatus, data, isLoading, isSuccess, error };
+};
+
 // Delete Activity Plan
 export const useDeleteActivityPlan = (id: string) => {
   const { callApi, isLoading, isSuccess, error, data } = useApiManager<

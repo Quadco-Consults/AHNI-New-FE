@@ -22,6 +22,7 @@ import {
   useGetAllPurchaseOrders,
   useGetSinglePurchaseOrder,
 } from "@/features/procurement/controllers/purchaseOrderController";
+import { useGetAllUsers } from "@/features/auth/controllers/userController";
 import { toast } from "sonner";
 import GoodReceiveNoteLayout from "./Layout";
 import { useRouter } from "next/navigation";
@@ -37,6 +38,7 @@ export default function CreateGoodReceiveNote() {
       invoice_number: "",
       waybill_number: "",
       remark: "",
+      received_by: "",
       items: [],
     },
   });
@@ -65,6 +67,26 @@ export default function CreateGoodReceiveNote() {
   const { data: singlePurchaseOrder } = useGetSinglePurchaseOrder(
     purchaseOrderId || ""
   );
+
+  // Get users for acceptor selection (filter for relevant roles)
+  const { data: usersData } = useGetAllUsers({
+    page: 1,
+    size: 1000,
+  });
+
+  const acceptorOptions = useMemo(() => {
+    if (!usersData?.data?.results) return [];
+
+    // Filter for users who can accept GRNs (AHNI_STAFF, ADMIN, STORE_KEEPER)
+    const eligibleUsers = usersData.data.results.filter((user: any) =>
+      ['AHNI_STAFF', 'ADMIN', 'STORE_KEEPER'].includes(user.user_type)
+    );
+
+    return eligibleUsers.map((user: any) => ({
+      label: `${user.first_name} ${user.last_name} (${user.user_type})`,
+      value: user.id,
+    }));
+  }, [usersData]);
 
 
   const { fields, replace } = useFieldArray({
@@ -102,6 +124,7 @@ export default function CreateGoodReceiveNote() {
         invoice_number: data.invoice_number,
         waybill_number: data.waybill_number,
         remark: data.remark,
+        ...(data.received_by && { received_by: data.received_by }),
         grn_items: grn_items,
       };
 
@@ -165,65 +188,122 @@ export default function CreateGoodReceiveNote() {
               />
 
               {singlePurchaseOrder && (
-                <h3 className='font-bold text-xl'>Description of Goods</h3>
+                <div className='bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6'>
+                  <h3 className='font-bold text-xl text-blue-900 mb-2'>📦 Items to Receive</h3>
+                  <p className='text-blue-700 text-sm'>
+                    Review each item from Purchase Order <strong>{singlePurchaseOrder?.data?.purchase_order_number}</strong> and
+                    enter the actual quantities received along with your comments.
+                  </p>
+                  <div className='mt-2 text-sm text-blue-600'>
+                    <strong>Vendor:</strong> {singlePurchaseOrder?.data?.vendor_detail?.company_name || 'N/A'}
+                  </div>
+                </div>
               )}
 
               {fields.map((field, index) => {
                 const purchaseOrderItem =
                   singlePurchaseOrder?.data?.purchase_order_items?.[index];
+
+                const itemName = purchaseOrderItem?.item_detail?.name || purchaseOrderItem?.description || 'N/A';
+                const itemUOM = purchaseOrderItem?.item_detail?.uom || 'N/A';
+                const unitPrice = purchaseOrderItem?.unit_price || '0';
+
                 return (
-                  <div
-                    key={field.id}
-                    className='grid grid-cols-4 gap-6 items-center'
-                  >
-                    <span className='font-medium'>
-                      {purchaseOrderItem?.item_detail?.name ||
-                        purchaseOrderItem?.description}
-                    </span>
+                  <Card key={field.id} className='p-4 border border-gray-200 bg-gray-50'>
+                    {/* Item Header Information */}
+                    <div className='mb-4 pb-3 border-b border-gray-300'>
+                      <h4 className='font-semibold text-lg text-gray-800 mb-2'>
+                        {itemName}
+                      </h4>
+                      <div className='grid grid-cols-3 gap-4 text-sm'>
+                        <div>
+                          <span className='text-gray-600'>Unit of Measurement:</span>
+                          <div className='font-medium text-gray-800'>{itemUOM}</div>
+                        </div>
+                        <div>
+                          <span className='text-gray-600'>Unit Price:</span>
+                          <div className='font-medium text-gray-800'>
+                            ₦{parseFloat(unitPrice || '0').toLocaleString()}
+                          </div>
+                        </div>
+                        <div>
+                          <span className='text-gray-600'>FCO Number:</span>
+                          <div className='font-medium text-gray-800'>
+                            {purchaseOrderItem?.fco_number || 'N/A'}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
 
-                    <FormInput
-                      label='Quantity Ordered'
-                      name={`items.${index}.quantity_ordered`}
-                      disabled
-                    />
+                    {/* Input Fields */}
+                    <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+                      <FormInput
+                        label='Quantity Ordered'
+                        name={`items.${index}.quantity_ordered`}
+                        disabled
+                        className='bg-gray-100'
+                      />
 
-                    <FormInput
-                      label='Quantity Received'
-                      name={`items.${index}.quantity_received`}
-                      placeholder='Enter Quantity Received'
-                      required
-                    />
+                      <FormInput
+                        label='Quantity Received'
+                        name={`items.${index}.quantity_received`}
+                        placeholder='Enter Quantity Received'
+                        required
+                        type='number'
+                        min='0'
+                        step='0.01'
+                      />
 
-                    <FormInput
-                      label='Comment'
-                      name={`items.${index}.comment`}
-                      placeholder='Enter Comment'
-                      required
-                    />
-                  </div>
+                      <FormTextArea
+                        label='Comment'
+                        name={`items.${index}.comment`}
+                        placeholder='Enter your comments about this item...'
+                        required
+                        rows={2}
+                      />
+                    </div>
+                  </Card>
                 );
               })}
 
-              <FormInput
-                label='Invoice Number'
-                name='invoice_number'
-                placeholder='Enter Invoice Number'
-                required
-              />
+              {/* GRN Information Section */}
+              <div className='bg-gray-50 border border-gray-200 rounded-lg p-4 my-6'>
+                <h3 className='font-bold text-xl text-gray-900 mb-2'>📋 Good Receive Note Information</h3>
+                <p className='text-gray-700 text-sm mb-4'>
+                  Enter the delivery and invoice details for this goods receipt.
+                </p>
 
-              <FormInput
-                label='Waybill Number'
-                name='waybill_number'
-                placeholder='Enter Waybill Number'
-                required
-              />
+                <div className='space-y-4'>
+                  <FormInput
+                    label='Invoice Number'
+                    name='invoice_number'
+                    placeholder='Enter Invoice Number'
+                    required
+                  />
 
-              <FormTextArea
-                label='Remark'
-                name='remark'
-                placeholder='Enter Remark'
-                required
-              />
+                  <FormInput
+                    label='Waybill Number'
+                    name='waybill_number'
+                    placeholder='Enter Waybill Number'
+                    required
+                  />
+
+                  <FormTextArea
+                    label='Remark'
+                    name='remark'
+                    placeholder='Enter Remark'
+                    required
+                  />
+
+                  <FormSelect
+                    label='Received By (Store Keeper/Admin)'
+                    name='received_by'
+                    placeholder='Select who will receive the goods'
+                    options={acceptorOptions}
+                  />
+                </div>
+              </div>
+
               <div className='flex justify-end'>
                 <FormButton
                   size='lg'

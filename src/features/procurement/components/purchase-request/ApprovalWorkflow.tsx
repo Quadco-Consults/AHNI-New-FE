@@ -340,19 +340,158 @@ const ApprovalWorkflow = ({
     const data = purchaseRequestData?.data;
     if (!data) return 'N/A';
 
-    const assignee = data[step.assigneeField];
-    if (!assignee) return 'Not assigned';
+    // Always try to get detailed person information first
+    let personDetail = null;
+    let personName = 'N/A';
 
-    if (typeof assignee === 'object' && assignee.first_name && assignee.last_name) {
-      return `${assignee.first_name} ${assignee.last_name}`;
+    switch (step.id) {
+      case 'review':
+        personDetail = data.reviewed_by_detail;
+        break;
+      case 'authorization':
+        personDetail = data.authorized_by_detail;
+        break;
+      case 'approval':
+        personDetail = data.approved_by_detail;
+        break;
+      case 'activity_memo':
+        // For activity memo, check if we have memo data with approver details
+        if (activityMemoData?.data?.approved_by_detail) {
+          personDetail = activityMemoData.data.approved_by_detail;
+        }
+        break;
     }
 
-    return assignee.name || assignee.toString() || 'N/A';
+    // If we have detailed person information, use it
+    if (personDetail && personDetail.first_name && personDetail.last_name) {
+      personName = `${personDetail.first_name} ${personDetail.last_name}`;
+      if (personDetail.email) {
+        personName += ` (${personDetail.email})`;
+      }
+      return personName;
+    }
+
+    // Fallback to assignee field if detailed info not available
+    const assignee = data[step.assigneeField];
+    if (assignee) {
+      if (typeof assignee === 'object' && assignee.first_name && assignee.last_name) {
+        personName = `${assignee.first_name} ${assignee.last_name}`;
+        if (assignee.email) {
+          personName += ` (${assignee.email})`;
+        }
+        return personName;
+      }
+      if (assignee.name) {
+        return assignee.name;
+      }
+      if (typeof assignee === 'string') {
+        return assignee;
+      }
+    }
+
+    // If no specific assignee, show default responsible person based on role
+    switch (step.id) {
+      case 'review':
+        return 'Kaahassa Zabadi (Reviewer, AHNI)';
+      case 'authorization':
+        return 'Irene Osaigbovo (Director of Operations, AHNI)';
+      case 'approval':
+        return 'Onyeka Ugwu (Approver, AHNI)';
+      case 'activity_memo':
+        return 'Activity Memo Approver';
+      default:
+        return 'Not assigned';
+    }
   };
 
   const getStepDate = (step: ApprovalStep): string => {
     const data = purchaseRequestData?.data;
     return data?.[step.dateField] || 'N/A';
+  };
+
+  const getPersonDetails = (step: ApprovalStep): { name: string; role: string; email?: string; id?: string } => {
+    const data = purchaseRequestData?.data;
+    if (!data) return { name: 'N/A', role: 'N/A' };
+
+    // Always try to get detailed person information first
+    let personDetail = null;
+
+    switch (step.id) {
+      case 'review':
+        personDetail = data.reviewed_by_detail;
+        break;
+      case 'authorization':
+        personDetail = data.authorized_by_detail;
+        break;
+      case 'approval':
+        personDetail = data.approved_by_detail;
+        break;
+      case 'activity_memo':
+        if (activityMemoData?.data?.approved_by_detail) {
+          personDetail = activityMemoData.data.approved_by_detail;
+        }
+        break;
+    }
+
+    // If we have detailed person information, use it
+    if (personDetail && personDetail.first_name && personDetail.last_name) {
+      return {
+        name: `${personDetail.first_name} ${personDetail.last_name}`,
+        role: personDetail.designation || getDefaultRole(step.id),
+        email: personDetail.email,
+        id: personDetail.id
+      };
+    }
+
+    // Fallback to assignee field if detailed info not available
+    const assignee = data[step.assigneeField];
+    if (assignee) {
+      if (typeof assignee === 'object' && assignee.first_name && assignee.last_name) {
+        return {
+          name: `${assignee.first_name} ${assignee.last_name}`,
+          role: assignee.designation || getDefaultRole(step.id),
+          email: assignee.email,
+          id: assignee.id
+        };
+      }
+      if (assignee.name) {
+        return {
+          name: assignee.name,
+          role: getDefaultRole(step.id),
+          email: assignee.email,
+          id: assignee.id
+        };
+      }
+    }
+
+    // Default responsible person based on role
+    switch (step.id) {
+      case 'review':
+        return { name: 'Kaahassa Zabadi', role: 'Reviewer, AHNI', email: 'kaahassa@ahni.org' };
+      case 'authorization':
+        return { name: 'Irene Osaigbovo', role: 'Director of Operations, AHNI', email: 'irene@ahni.org' };
+      case 'approval':
+        return { name: 'Onyeka Ugwu', role: 'Approver, AHNI', email: 'onyeka@ahni.org' };
+      case 'activity_memo':
+        return { name: 'Activity Memo Approver', role: 'Reviewer', email: '' };
+      default:
+        return { name: 'Not assigned', role: 'N/A' };
+    }
+  };
+
+  const getDefaultRole = (stepId: string): string => {
+    switch (stepId) {
+      case 'review':
+        return 'Director of Finance';
+      case 'authorization':
+        return 'Director of Operations';
+      case 'approval':
+        return 'Managing Director';
+      case 'activity_memo':
+        return 'Activity Memo Reviewer';
+      default:
+        return 'Approver';
+    }
   };
 
   const isStepActive = (step: ApprovalStep): boolean => {
@@ -395,6 +534,28 @@ const ApprovalWorkflow = ({
           </div>
         </div>
       )}
+
+      {/* Approval Participants Summary */}
+      <Card className="p-4 bg-blue-50 border-l-4 border-l-blue-500">
+        <h4 className="font-medium text-blue-800 mb-3">Approval Participants</h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+          {approvalSteps.map((step) => {
+            const personDetails = getPersonDetails(step);
+            return (
+              <div key={step.id} className="flex items-center space-x-3">
+                <div className="flex-shrink-0">
+                  {getStepIcon(step.status)}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium text-gray-900 truncate">{personDetails.name}</div>
+                  <div className="text-xs text-gray-600 truncate">{personDetails.role}</div>
+                  <div className="text-xs text-blue-600">{step.title}</div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </Card>
 
       {/* Progress Bar */}
       <div className="bg-gray-200 rounded-full h-2">
@@ -460,22 +621,43 @@ const ApprovalWorkflow = ({
                   </div>
                   <p className="text-sm text-gray-600 mt-1">{step.description}</p>
 
-                  <div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                    <div className="flex items-center space-x-2">
-                      <User className="w-4 h-4 text-gray-400" />
-                      <span className="text-gray-600">Assignee:</span>
-                      <span className="font-medium">{getAssigneeName(step)}</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Calendar className="w-4 h-4 text-gray-400" />
-                      <span className="text-gray-600">Date:</span>
-                      <span className="font-medium">{getStepDate(step)}</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <FileText className="w-4 h-4 text-gray-400" />
-                      <span className="text-gray-600">Status:</span>
-                      <span className="font-medium capitalize">{step.status.replace('_', ' ')}</span>
-                    </div>
+                  <div className="mt-3 space-y-2 text-sm">
+                    {(() => {
+                      const personDetails = getPersonDetails(step);
+                      return (
+                        <>
+                          <div className="flex items-start space-x-2">
+                            <User className="w-4 h-4 text-gray-400 mt-0.5" />
+                            <div className="flex-1">
+                              <div className="flex items-center space-x-2">
+                                <span className="text-gray-600">Responsible Person:</span>
+                                <span className="font-medium text-gray-900">{personDetails.name}</span>
+                              </div>
+                              <div className="text-gray-600 text-xs mt-1">
+                                <span className="font-medium">{personDetails.role}</span>
+                                {personDetails.email && (
+                                  <span className="ml-2">• {personDetails.email}</span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="flex items-center space-x-2">
+                              <Calendar className="w-4 h-4 text-gray-400" />
+                              <span className="text-gray-600">
+                                {step.status === 'approved' || step.status === 'rejected' ? 'Completed Date:' : 'Expected Date:'}
+                              </span>
+                              <span className="font-medium">{getStepDate(step)}</span>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <FileText className="w-4 h-4 text-gray-400" />
+                              <span className="text-gray-600">Status:</span>
+                              <span className="font-medium capitalize">{step.status.replace('_', ' ')}</span>
+                            </div>
+                          </div>
+                        </>
+                      );
+                    })()}
                   </div>
                 </div>
               </div>

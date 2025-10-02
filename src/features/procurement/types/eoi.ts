@@ -11,10 +11,12 @@ export type EOIResultsData = {
   closing_date: string;
   document: string;
   eoi_number: string;
+  type?: string;
+  solicitation?: string;
   financial_year: {
     year: string;
     is_current: boolean;
-  };
+  } | string;
   categories: CategoryResultsData[];
 };
 

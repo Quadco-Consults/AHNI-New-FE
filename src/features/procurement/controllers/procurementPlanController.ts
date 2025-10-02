@@ -53,15 +53,17 @@ export const useGetAllProcurementPlans = ({
   size = 20,
   search = "",
   status = "",
+  year = "",
   enabled = true,
-}: TRequest & { enabled?: boolean }) => {
+}: TRequest & { year?: string; enabled?: boolean }) => {
   return useQuery({
-    queryKey: ["procurement-plans", page, size, search, status],
+    queryKey: ["procurement-plans", page, size, search, status, year],
     queryFn: async () => {
       try {
         const params: any = { page, size };
         if (search) params.search = search;
         if (status) params.status = status;
+        if (year) params.financial_year = year;
 
         const response = await AxiosWithToken.get(BASE_URL, { params });
         return response.data;
@@ -69,7 +71,7 @@ export const useGetAllProcurementPlans = ({
         const axiosError = error as AxiosError;
         console.error("Procurement plans fetch error:", axiosError);
         throw new Error(
-          axiosError.response?.data?.message ||
+          (axiosError.response?.data as any)?.message ||
           axiosError.message ||
           "Failed to fetch procurement plans"
         );

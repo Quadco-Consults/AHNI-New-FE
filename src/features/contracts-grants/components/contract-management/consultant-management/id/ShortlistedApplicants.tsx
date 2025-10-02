@@ -15,47 +15,94 @@ export default function ShortlistedAppplicants() {
 
   const [currentPage, setCurrentPage] = useState(1);
 
+  console.log("🔍 Query Parameters:", {
+    page: currentPage,
+    size: 10,
+    consultants: id,
+    status: "SHORTLISTED",
+  });
+
   const { data, isFetching } = useGetAllConsultancyStaffs(
     id
       ? {
           page: currentPage,
           size: 10,
-          consultant_id: id,
+          consultants: id,
           status: "SHORTLISTED",
         }
       : skipToken
   );
 
   // Map API response to expected format for shortlisted applicants
-  const mappedShortlistedApplicants = data?.data?.results?.map(applicant => ({
-    ...applicant,
-    // Map name fields
-    first_name: applicant.first_name || applicant.name || 'Unknown',
-    last_name: applicant.last_name || applicant.contractor_name || '',
-    name: applicant.name || `${applicant.first_name || ''} ${applicant.last_name || ''}`.trim() || 'Unknown',
-    // Ensure consultant_id is present
-    consultant_id: applicant.consultant_id || id,
-    consultancy: applicant.consultancy || id,
-    // Handle potentially problematic fields
-    technical_monitor_user: typeof applicant.technical_monitor_user === 'object'
-      ? applicant.technical_monitor_user?.name || 'N/A'
-      : applicant.technical_monitor_user || 'N/A',
-    location: typeof applicant.location === 'object'
-      ? applicant.location?.name || 'N/A'
-      : applicant.location || 'N/A',
-    project: typeof applicant.project === 'object'
-      ? applicant.project?.name || 'N/A'
-      : applicant.project || 'N/A',
-    contract_request: typeof applicant.contract_request === 'object'
-      ? applicant.contract_request?.name || 'N/A'
-      : applicant.contract_request || 'N/A',
-  })) || [];
+  const mappedShortlistedApplicants = data?.data?.results
+    ?.filter(applicant => {
+      // Filter out applicants that don't belong to this consultant management
+      // Check if ID is in the consultants array (ManyToMany relationship)
+      // If consultants field is undefined, trust the backend filtering (backward compatibility)
+      const belongsToThisConsultant =
+        applicant.consultants === undefined || // Backend filtered already, trust it
+        applicant.consultants?.includes(id) ||
+        applicant.consultancy === id ||
+        applicant.consultant_id === id;
+
+      if (!belongsToThisConsultant) {
+        console.warn("⚠️ Filtering out applicant with wrong consultant_id:", {
+          applicantName: applicant.name,
+          applicantId: applicant.id,
+          applicantConsultants: applicant.consultants,
+          applicantConsultancy: applicant.consultancy,
+          expectedId: id
+        });
+      }
+
+      return belongsToThisConsultant;
+    })
+    ?.map(applicant => ({
+      ...applicant,
+      // Map name fields
+      first_name: applicant.first_name || applicant.name || 'Unknown',
+      last_name: applicant.last_name || applicant.contractor_name || '',
+      name: applicant.name || `${applicant.first_name || ''} ${applicant.last_name || ''}`.trim() || 'Unknown',
+      // Ensure consultant_id is present
+      consultant_id: applicant.consultant_id || id,
+      consultancy: applicant.consultancy || id,
+      // Handle potentially problematic fields
+      technical_monitor_user: typeof applicant.technical_monitor_user === 'object'
+        ? applicant.technical_monitor_user?.name || 'N/A'
+        : applicant.technical_monitor_user || 'N/A',
+      location: typeof applicant.location === 'object'
+        ? applicant.location?.name || 'N/A'
+        : applicant.location || 'N/A',
+      project: typeof applicant.project === 'object'
+        ? applicant.project?.name || 'N/A'
+        : applicant.project || 'N/A',
+      contract_request: typeof applicant.contract_request === 'object'
+        ? applicant.contract_request?.name || 'N/A'
+        : applicant.contract_request || 'N/A',
+    })) || [];
 
   console.log("🔍 ShortlistedApplicants Debug:");
   console.log("- Current Consultant ID:", id);
   console.log("- Original Results Count:", data?.data?.results?.length || 0);
   console.log("- Mapped Results Count:", mappedShortlistedApplicants.length);
   console.log("- Is Fetching:", isFetching);
+
+  // Log raw applicant data to see consultancy values
+  if (data?.data?.results && data.data.results.length > 0) {
+    console.log("📋 Raw API Response - All Applicants:");
+    data.data.results.forEach((applicant, index) => {
+      console.log(`  Applicant ${index + 1}:`, {
+        name: applicant.name,
+        id: applicant.id,
+        consultants: applicant.consultants,
+        consultancy: applicant.consultancy,
+        consultant_id: applicant.consultant_id,
+        status: applicant.status,
+        expectedId: id,
+        belongsHere: applicant.consultants?.includes(id as string)
+      });
+    });
+  }
 
   if (mappedShortlistedApplicants.length > 0) {
     console.log("✅ SHORTLISTED APPLICANT DATA:");
@@ -64,7 +111,10 @@ export default function ShortlistedAppplicants() {
         name: `${applicant.first_name} ${applicant.last_name}`,
         email: applicant.email,
         status: applicant.status,
-        id: applicant.id
+        id: applicant.id,
+        consultancy: applicant.consultancy,
+        consultant_id: applicant.consultant_id,
+        expectedConsultantId: id
       });
     });
   }

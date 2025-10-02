@@ -1,7 +1,6 @@
 "use client";
 
-import LongArrowLeft from "components/icons/LongArrowLeft";
-import { useRouter } from "next/navigation";
+import GoBack from "components/GoBack";
 import CreatePurchaseRequestForm from "./form";
 import BreadcrumbCard from "components/Breadcrumb";
 import { useSearchParams } from "next/navigation";
@@ -11,15 +10,28 @@ import { useGetPurchaseRequestById } from "@/features/procurement/controllers/pu
 function CreatePurchaseRequest() {
   const searchParams = useSearchParams();
   const id = searchParams.get("request");
-  const router = useRouter();
 
-  const { data: requestsDetails } = useGetPurchaseRequestById({ id: id as string, enabled: !!id });
+  // Only fetch purchase request data if the ID looks like a purchase request ID
+  // Activity memo IDs are UUIDs (with dashes), purchase request IDs have different format
+  const isUUID = id && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+  const isPurchaseRequestId = id && !isUUID; // If it's not a UUID, assume it's a purchase request ID
 
-  console.log({ requestsDetails });
+  const { data: requestsDetails } = useGetPurchaseRequestById({
+    id: id as string,
+    enabled: !!id && isPurchaseRequestId
+  });
 
-  const goBack = () => {
-    router.back();
-  };
+  console.log("🔍 ID from URL:", id);
+  console.log("🔍 Is UUID (Activity Memo ID):", isUUID);
+  console.log("🔍 Is Purchase Request ID:", isPurchaseRequestId);
+  console.log("🔍 Purchase Request Details:", requestsDetails);
+
+  if (isUUID) {
+    console.log("🔍 This appears to be an Activity Memo ID - will use Redux data");
+  } else if (isPurchaseRequestId) {
+    console.log("🔍 This appears to be a Purchase Request ID - will use API data");
+  }
+
 
   const breadcrumbs = [
     { name: "Procurement", icon: true },
@@ -31,19 +43,14 @@ function CreatePurchaseRequest() {
     <section className='space-y-6'>
       <BreadcrumbCard list={breadcrumbs} />
 
-      <button
-        onClick={goBack}
-        className='w-[3rem] aspect-square rounded-full drop-shadow-md bg-white flex items-center justify-center'
-      >
-        <LongArrowLeft />
-      </button>
+      <GoBack />
       <span className='block space-y-2'>
         <h3 className='font-semibold text-xl text-black text-[24px]'>
           Purchase Request Form
         </h3>
       </span>
 
-      <CreatePurchaseRequestForm expenses={requestsDetails?.expenses} />
+      <CreatePurchaseRequestForm expenses={isPurchaseRequestId ? requestsDetails?.data?.items : null} />
     </section>
   );
 }

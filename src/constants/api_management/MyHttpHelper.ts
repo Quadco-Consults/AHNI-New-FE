@@ -10,4 +10,33 @@ const Axios = axios.create({
   timeout: 60000,
 });
 
+// Add request interceptor for logging
+Axios.interceptors.request.use(
+  (config) => {
+    const url = `${config.baseURL || ''}${config.url || ''}`;
+    console.log('API Request:', config.method?.toUpperCase(), url);
+    return config;
+  },
+  (error) => {
+    console.error('Request interceptor error:', error);
+    return Promise.reject(error);
+  }
+);
+
+// Add response interceptor for better error handling
+Axios.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    console.error('Response interceptor error:', {
+      code: error.code,
+      message: error.message,
+      status: error.response?.status,
+      data: error.response?.data
+    });
+    return Promise.reject(error);
+  }
+);
+
 export default Axios;

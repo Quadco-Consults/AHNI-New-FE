@@ -1,5 +1,5 @@
 import useApiManager from "@/constants/mainController";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { AxiosError } from "axios";
 import {
@@ -137,3 +137,76 @@ export const useDeleteSupervisionPlanMutation = useDeleteSupervisionPlan;
 
 // Missing named export
 export const useCreateSupervisionPlanController = useCreateSupervisionPlan;
+
+// Approve/Reject Supervision Plan (3-Level Workflow)
+export const useApproveSupervisionPlan = (id: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      action,
+      comments,
+    }: {
+      action: "approve" | "reject";
+      comments?: string;
+    }) => {
+      try {
+        const response = await AxiosWithToken.post(
+          `${BASE_URL}${id}/approve/`,
+          {
+            action,
+            comments,
+          }
+        );
+        return response.data;
+      } catch (error: any) {
+        if (error.response?.status === 404) {
+          throw new Error(
+            "Supervision plan not found. It may have been deleted or you don't have permission to access it."
+          );
+        }
+        if (error.response?.status === 403) {
+          throw new Error(
+            "You don't have permission to approve this supervision plan at this level."
+          );
+        }
+        if (error.response?.status === 400) {
+          throw new Error(
+            error.response?.data?.message ||
+              "Cannot approve at this time. Check the approval workflow status."
+          );
+        }
+        throw new Error(
+          error.response?.data?.message || "Failed to process approval"
+        );
+      }
+    },
+    onSuccess: () => {
+      // Refresh supervision plan data
+      queryClient.invalidateQueries({ queryKey: ["supervision-plans"] });
+      queryClient.invalidateQueries({ queryKey: ["supervision-plan", id] });
+    },
+  });
+};
+
+// Get approval status for a supervision plan
+export const useGetSupervisionPlanApprovalStatus = (id: string) => {
+  return useQuery({
+    queryKey: ["supervision-plan-approval-status", id],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get(
+          `${BASE_URL}${id}/approval-status/`
+        );
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error(
+          "Sorry: " + (axiosError.response?.data as any)?.message
+        );
+      }
+    },
+    enabled: !!id,
+    refetchOnWindowFocus: false,
+  });
+};

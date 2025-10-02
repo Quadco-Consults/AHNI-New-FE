@@ -1,6 +1,12 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 
-const initialState: any = {
+interface VendorState {
+  currentVendor: any;
+  vendors: any[];
+}
+
+const initialState: VendorState = {
+  currentVendor: {},
   vendors: [],
 };
 
@@ -10,6 +16,15 @@ const vendorsSlice = createSlice({
   reducers: {
     addVendors: (state, { payload }: PayloadAction<any>) => {
       state.vendors.push(payload);
+    },
+    updateCurrentVendor: (state, { payload }: PayloadAction<any>) => {
+      state.currentVendor = { ...state.currentVendor, ...payload };
+    },
+    setCurrentVendor: (state, { payload }: PayloadAction<any>) => {
+      state.currentVendor = payload;
+    },
+    clearCurrentVendor: (state) => {
+      state.currentVendor = {};
     },
     clearVendors: (state) => {
       state.vendors = [];
