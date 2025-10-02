@@ -20,13 +20,25 @@ import { useState } from "react";
 import { format, startOfMonth, endOfMonth, eachWeekOfInterval, startOfWeek, endOfWeek } from "date-fns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { getNextAvailableTimesheetId, createTimesheetUrl } from "../../utils/timesheetIdGenerator";
 
 const TimesheetManagement = () => {
+  const router = useRouter();
   const [timesheets] = useState<TimesheetSummary[]>(mockTimesheetData);
   const [monthlyTimesheets] = useState<MonthlyTimesheetSummary[]>(mockMonthlyData);
   const [isLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("weekly");
   const [currentMonth, setCurrentMonth] = useState(new Date());
+
+  const handleCreateTimesheet = async () => {
+    // Generate unique timesheet ID
+    const timesheetId = await getNextAvailableTimesheetId();
+
+    // Navigate to the timesheet detail page
+    const timesheetUrl = createTimesheetUrl(timesheetId);
+    router.push(timesheetUrl);
+  };
 
   return (
     <div className="space-y-6">
@@ -44,11 +56,9 @@ const TimesheetManagement = () => {
             <FilterIcon />
           </Button>
         </div>
-        <Link href="/dashboard/hr/timesheet-management/create">
-          <Button>
-            <AddSquareIcon /> Create Timesheet
-          </Button>
-        </Link>
+        <Button onClick={handleCreateTimesheet}>
+          <AddSquareIcon /> Create Timesheet
+        </Button>
       </div>
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <div className="flex items-center justify-between mb-4">
