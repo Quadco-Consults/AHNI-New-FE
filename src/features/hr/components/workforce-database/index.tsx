@@ -223,10 +223,7 @@ const WorkforceDatabase = () => {
       />
 
       <Dialog open={isUploadModalOpen} onOpenChange={setIsUploadModalOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Upload Employee Data</DialogTitle>
-          </DialogHeader>
+        <DialogContent className="max-w-2xl">
           <EmployeeUploadModal
             onClose={() => setIsUploadModalOpen(false)}
             onUpload={handleUploadComplete}
