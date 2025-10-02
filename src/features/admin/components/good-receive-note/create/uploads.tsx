@@ -31,6 +31,11 @@ export default function GRNFileUploads() {
     if (storedData) {
       try {
         const parsedData = JSON.parse(storedData);
+        console.log("🔍 Raw localStorage data:", storedData);
+        console.log("🔍 Parsed GRN data:", parsedData);
+        console.log("🔍 items in parsed data:", parsedData?.formData?.items);
+        console.log("🔍 grn_items in parsed data:", parsedData?.formData?.grn_items);
+        console.log("🔍 All formData keys:", Object.keys(parsedData?.formData || {}));
         setGrnData(parsedData);
       } catch (error) {
         console.error("Failed to parse GRN form data:", error);
@@ -66,34 +71,75 @@ export default function GRNFileUploads() {
     }
 
     try {
-      // Validate grn_items exists
-      if (!grnData.formData.grn_items || grnData.formData.grn_items.length === 0) {
+      // Check if we have files - if not, send as JSON instead of FormData
+      const hasFiles = files && files.length > 0;
+
+      // Check for items in different possible locations
+      const itemsToProcess = grnData.formData.items || grnData.formData.grn_items || [];
+
+      // Validate items exist
+      if (!itemsToProcess || itemsToProcess.length === 0) {
+        console.error("❌ No items found in form data!");
+        console.error("❌ Full form data:", grnData.formData);
+        console.error("❌ Available keys:", Object.keys(grnData.formData || {}));
         toast.error("No items found to process. Please go back and add items.");
         return;
       }
 
+      console.log("📋 GRN Items being processed:", itemsToProcess);
+      console.log("📋 Has files:", hasFiles);
+
+      // Transform items to match backend expectations (grn_items)
+      const transformedItems = itemsToProcess.map(item => ({
+        // Handle different possible field names
+        purchase_order_item: item.item_id || item.purchase_order_item,
+        received_quantity: item.quantity_received || item.received_quantity,
+        remark: item.comment || item.remark,
+      }));
+
       let res;
 
-      // Send data based on whether there are files or not
-      if (!files || files.length === 0) {
-        // No files - send as JSON
+      if (!hasFiles) {
+        // Send as JSON when no files
+        const jsonPayload = {
+          purchase_order: grnData.formData.purchase_order,
+          invoice_number: grnData.formData.invoice_number,
+          waybill_number: grnData.formData.waybill_number,
+          remark: grnData.formData.remark,
+          grn_items: transformedItems,
+        };
+
+        console.log("📤 Sending as JSON (no files):", jsonPayload);
+
         if (grnData.isEdit) {
-          res = await modifyGoodReceiveNote(grnData.formData as any);
+          res = await modifyGoodReceiveNote(jsonPayload);
         } else {
-          res = await createGoodReceiveNote(grnData.formData as any);
+          res = await createGoodReceiveNote(jsonPayload);
         }
       } else {
-        // With files - send as FormData
+        // If we have files, use FormData
         const formData = new FormData();
 
         // Append all GRN data fields
         Object.entries(grnData.formData).forEach(([key, value]) => {
           if (value !== undefined && value !== null) {
-            if (key === "grn_items" && Array.isArray(value)) {
-              formData.append(key, JSON.stringify(value));
+            if (key === "items") {
+              // Transform "items" to "grn_items" with correct field mapping
+              console.log(`📤 Transforming items to grn_items (${transformedItems.length} items):`, transformedItems);
+
+              // Send each item as individual form fields (Django array format)
+              transformedItems.forEach((item, index) => {
+                formData.append(`grn_items[${index}][purchase_order_item]`, String(item.purchase_order_item));
+                formData.append(`grn_items[${index}][received_quantity]`, String(item.received_quantity));
+                formData.append(`grn_items[${index}][remark]`, String(item.remark));
+              });
+
+              console.log(`📤 Added ${transformedItems.length} items as individual form fields`);
+
             } else if (typeof value === "object" && Array.isArray(value)) {
               formData.append(key, JSON.stringify(value));
             } else {
+              console.log(`📤 Appending ${key}:`, String(value));
               formData.append(key, String(value));
             }
           }

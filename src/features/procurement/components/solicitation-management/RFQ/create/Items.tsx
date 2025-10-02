@@ -31,8 +31,6 @@ const RFQItemSchema = z.object({
   unit: z.string().min(1, "Unit is required"),
   specifications: z.string().optional(),
   lot: z.string().optional(), // Optional lot field
-  frequency: z.string().min(1, "Frequency is required").default("1"),
-  number_of_days: z.string().min(1, "Number of days is required").default("1"),
 });
 
 const RFQItemsFormSchema = z.object({
@@ -57,8 +55,6 @@ const Items = () => {
           unit: "", // Auto-populated when item is selected
           specifications: "",
           lot: "",
-          frequency: "1", // Default to 1 as per backend
-          number_of_days: "1", // Default to 1 as per backend
         },
       ],
     },
@@ -121,8 +117,6 @@ const Items = () => {
           unit: fullItemDetails?.uom || prItem.unit || "pieces",
           specifications: prItem.specifications || prItem.description || "",
           lot: "",
-          frequency: "1", // Default frequency
-          number_of_days: "1", // Default number of days
         };
       });
 
@@ -154,8 +148,6 @@ const Items = () => {
             quantity: parseInt(item.quantity),
             description: item.description, // Keep description for reference
             specification: item.specifications || "", // Keep specifications
-            frequency: parseInt(item.frequency) || 1, // Convert to integer
-            number_of_days: parseInt(item.number_of_days) || 1, // Convert to integer
           };
 
           // Include lot field (null if no lot selected)
@@ -212,8 +204,6 @@ const Items = () => {
       unit: "", // Auto-populated when item is selected
       specifications: "",
       lot: "",
-      frequency: "1", // Default frequency
-      number_of_days: "1", // Default number of days
     });
   };
 
@@ -362,33 +352,13 @@ const Items = () => {
                       />
                       <FormInput
                         name={`items.${index}.unit`}
-                        label="Unit"
+                        label="UOM"
                         placeholder="e.g., pieces, kg, meters"
                         required
                       />
                     </div>
                   </div>
 
-                </div>
-
-                {/* Frequency and Number of Days */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormInput
-                    name={`items.${index}.frequency`}
-                    label="Frequency"
-                    placeholder="e.g., 1"
-                    type="number"
-                    min="1"
-                    required
-                  />
-                  <FormInput
-                    name={`items.${index}.number_of_days`}
-                    label="Number of Days"
-                    placeholder="e.g., 30"
-                    type="number"
-                    min="1"
-                    required
-                  />
                 </div>
 
                 <div className="grid grid-cols-1 gap-4">

@@ -1,8 +1,7 @@
 "use client";
 
-import LongArrowLeft from "components/icons/LongArrowLeft";
+import GoBack from "components/GoBack";
 import { Label } from "components/ui/label";
-import { useRouter } from "next/navigation";
 import { Check, ChevronsUpDown, MinusCircle, PlusCircle } from "lucide-react";
 import { cn } from "lib/utils";
 import { Button } from "components/ui/button";
@@ -39,8 +38,11 @@ import MultiSelectFormField from "components/ui/multiselect";
 import FormSelect from "components/atoms/FormSelect";
 import { useGetAllItems } from "@/features/modules/controllers/config/itemController";
 import { useGetAllFCONumbersQuery } from "@/features/modules/controllers";
+import { useRouter } from "next/navigation";
+import { useGetAllUsers } from "@/features/auth/controllers/userController";
 
 const PurchaseOrderNew = () => {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [opens, setOpens] = useState(false);
   const [opensPurchase, setOpensPurchase] = useState(false);
@@ -48,10 +50,6 @@ const PurchaseOrderNew = () => {
   const [requestValue, setRequestValue] = useState("");
   const [purchaseValue, setPurchaseValue] = useState("");
 
-  const router = useRouter();
-  const goBack = () => {
-    router.back();
-  };
 
   const { data: vendors, isLoading: vendorsIsLoading } = useGetVendors({
     page: 1,
@@ -73,6 +71,23 @@ const PurchaseOrderNew = () => {
     page: 1,
     size: 2000000,
   });
+
+  // Debug FCO data
+  console.log("🔍 FCO API Response:", fco);
+  console.log("🔍 FCO Data:", fco?.data);
+  console.log("🔍 FCO Data Structure:", JSON.stringify(fco?.data, null, 2));
+  console.log("🔍 FCO Results:", fco?.data?.results);
+  console.log("🔍 FCO Data Keys:", Object.keys(fco?.data || {}));
+
+  // Get users for approver selection
+  const { data: users, isLoading: usersIsLoading } = useGetAllUsers({
+    page: 1,
+    size: 2000000,
+  });
+
+  // Debug users data to see the structure
+  console.log('🔍 Users data:', users);
+  console.log('🔍 First user:', users?.results?.[0]);
 
   const { data: item } = useGetAllItems({
     page: 1,
@@ -106,32 +121,125 @@ const PurchaseOrderNew = () => {
     },
   });
 
-  const { setValue, control, handleSubmit } = form;
+  const { setValue, control, handleSubmit, watch, trigger } = form;
 
   const data = useMemo(() => {
     const items = requestsDetails?.data?.items || requestsDetails?.items;
+    console.log("🔍 Full Purchase Request Response:", requestsDetails);
+    console.log("🔍 Purchase Request Data:", requestsDetails?.data);
+    console.log("🔍 Items from purchase request:", items);
+
+    // Log the first item structure for debugging
+    if (items && items.length > 0) {
+      console.log("🔍 Sample first item structure:", JSON.stringify(items[0], null, 2));
+    }
+
     if (!items) return [];
 
-    return items.map((data: any) => ({
-      item_id: data?.item || "",
-      fco: data?.fco || "",
-      quantity: data?.quantity || 0,
-      unit_cost: data?.unit_cost || 0,
-      description: data?.item?.name || data?.name || "",
-      uom: data?.item?.uom === null ? "" : data?.item?.uom || data?.uom || "",
-      total: data?.sub_total_amount || data?.total || 0,
-      name: data?.item_detail?.name || data?.item?.name || data?.name || "",
-    }));
+    const mappedItems = items.map((data: any) => {
+      console.log("🔍 Processing PR item:", data);
+      console.log("🔍 Item details:", data?.item_detail);
+      console.log("🔍 Item object:", data?.item);
+      console.log("🔍 Full item structure:", JSON.stringify(data, null, 2));
+
+      // Extract UOM from the item structure based on your API response
+      const extractUOM = () => {
+        // Based on your structure: item.uom is the direct field
+        if (data?.item_detail?.uom) {
+          console.log("🔍 UOM found in item_detail.uom:", data.item_detail.uom);
+          return data.item_detail.uom;
+        }
+        // This is likely the main path based on your item structure
+        if (data?.item?.uom) {
+          console.log("🔍 UOM found in item.uom:", data.item.uom);
+          return data.item.uom;
+        }
+        // Fallback to direct uom property
+        if (data?.uom) {
+          console.log("🔍 UOM found in direct uom property:", data.uom);
+          return data.uom;
+        }
+
+        console.log("🔍 No UOM found. Available item properties:", Object.keys(data?.item || {}));
+        console.log("🔍 Item object:", data?.item);
+        return "";
+      };
+
+      // Extract description/name from various sources based on your API structure
+      const extractDescription = () => {
+        // Based on your structure: item.name contains the item name
+        if (data?.item?.name) {
+          console.log("🔍 Description found in item.name:", data.item.name);
+          return data.item.name;
+        }
+        if (data?.item_detail?.name) {
+          console.log("🔍 Description found in item_detail.name:", data.item_detail.name);
+          return data.item_detail.name;
+        }
+        if (data?.description) {
+          console.log("🔍 Description found in direct description:", data.description);
+          return data.description;
+        }
+        if (data?.name) {
+          console.log("🔍 Description found in direct name:", data.name);
+          return data.name;
+        }
+
+        console.log("🔍 No description found. Available item properties:", Object.keys(data?.item || {}));
+        return "No description";
+      };
+
+      // Extract FCO from various sources
+      const extractFCO = () => {
+        return data?.fco_number ||
+               data?.fco ||
+               data?.item_detail?.fco_number ||
+               data?.item?.fco_number ||
+               "";
+      };
+
+      const mappedItem = {
+        item_id: data?.item || data?.item_detail?.id || "",
+        fco: extractFCO(),
+        quantity: data?.quantity || 0,
+        unit_cost: data?.unit_cost || 0,
+        description: extractDescription(),
+        uom: extractUOM(),
+        total: (data?.sub_total_amount || data?.total || 0).toString(),
+        fco_number: extractFCO() ? [extractFCO()] : [], // Initialize with existing FCO if available
+        name: extractDescription(),
+      };
+
+      console.log("🔍 Mapped item result:", mappedItem);
+      return mappedItem;
+    });
+
+    console.log("🔍 Mapped items for form:", mappedItems);
+    return mappedItems;
   }, [requestsDetails]);
 
   useEffect(() => {
-    if (data) {
-      setValue("items", data);
+    if (data && data.length > 0) {
+      console.log("🔄 Setting form items:", data);
+      console.log("🔄 First item UOM:", data[0]?.uom);
+      console.log("🔄 First item structure:", data[0]);
+
+      // Use form.reset to properly update all form fields
+      form.reset({
+        ...form.getValues(),
+        items: data,
+        purchase_request: purchaseValue || ""
+      });
+
+      // Force update all UOM and total fields after reset
+      setTimeout(() => {
+        data.forEach((_, index) => {
+          trigger(`items.${index}.uom`);
+          trigger(`items.${index}.total`);
+        });
+      }, 100);
     }
-    if (purchaseValue) {
-      setValue("purchase_request", purchaseValue);
-    }
-  }, [data, setValue, purchaseValue]);
+  }, [data, form, purchaseValue, trigger]);
 
   useEffect(() => {
     if (vendorValue) {
@@ -149,34 +257,31 @@ const PurchaseOrderNew = () => {
   }, []);
 
   const onSubmit = async (data: z.infer<typeof PurchaseOrderListSchema>) => {
+    console.log("📝 Form submission data:", data);
+
+    // Transform data to match PurchaseOrderSchema format
     const formData = {
       purchase_request: data?.purchase_request,
       vendor: vendorValue,
-      purchase_order_items: data?.items.map((item) => {
-        const total_price = Number(item?.unit_cost) * Number(item?.quantity);
-
-        return {
-          // item: item?.description,
-          item: item?.description,
-          quantity: item?.quantity,
-          unit_price: item?.unit_cost,
-          fco_number: item?.fco_number?.[0] || "",
-          total_price: total_price,
-        };
-      }),
-
-      delivery_lead_time: data?.delivery_lead_time,
-      payment_terms: data?.payment_terms,
+      items: data?.items.map((item) => ({
+        item_id: item?.description || "",
+        fco: item?.fco_number?.[0] || "",
+        unit_cost: item?.unit_cost || 0,
+        quantity: item?.quantity || 0,
+      })),
     };
+
+    console.log("📤 Sending form data:", formData);
 
     try {
       const res = await createPurchcaseOrderMutation(formData);
+      console.log("✅ API Response:", res);
 
-      if (res?.status === "success") {
+      if (res?.data || res?.status === "success") {
         router.push(RouteEnum.PURCHASE_ORDER);
       }
     } catch (error) {
-      console.log(error);
+      console.error("❌ Form submission error:", error);
     }
   };
 
@@ -190,12 +295,7 @@ const PurchaseOrderNew = () => {
     <div className="space-y-5">
       <BreadcrumbCard list={breadcrumbs} />
 
-      <button
-        onClick={goBack}
-        className="flex aspect-square w-[3rem] items-center justify-center rounded-full bg-white drop-shadow-md"
-      >
-        <LongArrowLeft />
-      </button>
+      <GoBack />
 
       <p className="text-[24px] font-semibold">Purchase Order Form</p>
 
@@ -423,16 +523,25 @@ const PurchaseOrderNew = () => {
                     <td className="w-fit p-2 text-center">
                       <FormInput
                         label=""
-                        name={`items.[${index}].quantity`}
+                        name={`items.${index}.quantity`}
                         type="number"
                         className="w-24"
+                        onChange={(e) => {
+                          const quantity = parseFloat(e.target.value) || 0;
+                          const unitCost = parseFloat(String(watch(`items.${index}.unit_cost`) || "0")) || 0;
+                          const total = quantity * unitCost;
+                          setValue(`items.${index}.total`, total.toString());
+                          // Force re-render of form
+                          trigger(`items.${index}.total`);
+                        }}
                       />
                     </td>
                     <td className="w-fit p-2 text-center">
                       <FormInput
                         label=""
-                        name={`items.[${index}].uom`}
-                        className="w-24"
+                        name={`items.${index}.uom`}
+                        disabled
+                        className="w-24 bg-gray-100"
                       />
                     </td>
                     <td className="w-fit p-2 text-center ">
@@ -444,11 +553,41 @@ const PurchaseOrderNew = () => {
                           <FormItem className=" mt-2">
                             <FormControl>
                               <MultiSelectFormField
-                                options={(fco?.data?.results || []).map((item: any) => ({
-                                  id: item.id,
-                                  name: item.number || item.name || item.id
-                                }))}
+                                options={(() => {
+                                  // Based on your FCO API structure: { data: { data: { results: [...] } } }
+                                  let fcoData = [];
+
+                                  if (fco?.data?.data?.results) {
+                                    // Your FCO API structure: { data: { data: { results: [...] } } }
+                                    fcoData = fco.data.data.results;
+                                    console.log("🔍 Found FCO data in fco.data.data.results:", fcoData);
+                                  } else if (fco?.data?.results) {
+                                    // Standard paginated response: { data: { results: [...] } }
+                                    fcoData = fco.data.results;
+                                    console.log("🔍 Found FCO data in fco.data.results:", fcoData);
+                                  } else if (Array.isArray(fco?.data?.data)) {
+                                    // Direct array in nested data: { data: { data: [...] } }
+                                    fcoData = fco.data.data;
+                                    console.log("🔍 Found FCO data in fco.data.data:", fcoData);
+                                  } else if (Array.isArray(fco?.data)) {
+                                    // Direct array: { data: [...] }
+                                    fcoData = fco.data;
+                                    console.log("🔍 Found FCO data in fco.data:", fcoData);
+                                  } else {
+                                    console.log("🔍 No FCO data found in any expected location");
+                                    console.log("🔍 Full FCO structure for debugging:", fco?.data);
+                                  }
+
+                                  console.log("🔍 Final FCO data being used for options:", fcoData);
+
+                                  return fcoData.map((item: any) => ({
+                                    id: item.id,
+                                    name: item.code || item.name || item.id
+                                  }));
+                                })()}
                                 onValueChange={field.onChange}
+                                defaultValue={field.value}
+                                value={field.value}
                                 placeholder="Select"
                                 variant="inverted"
                               />
@@ -461,12 +600,25 @@ const PurchaseOrderNew = () => {
                       <FormInput
                         label=""
                         type="number"
-                        name={`items.[${index}].unit_cost`}
+                        name={`items.${index}.unit_cost`}
                         className="w-24"
+                        onChange={(e) => {
+                          const unitCost = parseFloat(e.target.value) || 0;
+                          const quantity = parseFloat(String(watch(`items.${index}.quantity`) || "0")) || 0;
+                          const total = unitCost * quantity;
+                          setValue(`items.${index}.total`, total.toString());
+                          // Force re-render of form
+                          trigger(`items.${index}.total`);
+                        }}
                       />
                     </td>
                     <td className="w-fit p-2 text-center">
-                      <FormInput label="" name={`items.[${index}].total`} />
+                      <FormInput
+                        label=""
+                        name={`items.${index}.total`}
+                        disabled
+                        className="bg-gray-100"
+                      />
                     </td>
                     <td className="flex items-center justify-center py-5">
                       <Button variant="ghost" size="icon">
@@ -503,7 +655,193 @@ const PurchaseOrderNew = () => {
               Add More
             </Button>
           </div>
-          <div className="flex items-center justify-end">
+
+          {/* Approval Workflow Section */}
+          <div className="mt-8 border-t pt-6">
+            <h3 className="text-lg font-semibold mb-4">Approval Workflow</h3>
+            <div className="grid grid-cols-2 gap-5">
+              <FormField
+                control={form.control}
+                name="authorized_by"
+                render={({ field }) => (
+                  <FormItem>
+                    <Label>Director of Finance (Authorizer) *</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            className={cn(
+                              "w-full justify-between",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value
+                              ? String(users?.results?.find(
+                                  (user) => user.id === field.value
+                                )?.fullName || "Unknown User")
+                              : "Select Director of Finance"}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-full p-0">
+                        <Command>
+                          <CommandInput placeholder="Search users..." />
+                          <CommandEmpty>No user found.</CommandEmpty>
+                          <CommandGroup>
+                            {!usersIsLoading &&
+                              users?.results?.filter(user => user && user.id && user.fullName)?.map((user) => (
+                                <CommandItem
+                                  value={String(user.fullName || "")}
+                                  key={user.id}
+                                  onSelect={() => {
+                                    field.onChange(user.id);
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      user.id === field.value
+                                        ? "opacity-100"
+                                        : "opacity-0"
+                                    )}
+                                  />
+                                  {String(user.fullName || "Unknown User")}
+                                </CommandItem>
+                              ))}
+                          </CommandGroup>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="approved_by"
+                render={({ field }) => (
+                  <FormItem>
+                    <Label>Director of Operations (Approver) *</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            className={cn(
+                              "w-full justify-between",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value
+                              ? String(users?.results?.find(
+                                  (user) => user.id === field.value
+                                )?.fullName || "Unknown User")
+                              : "Select Director of Operations"}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-full p-0">
+                        <Command>
+                          <CommandInput placeholder="Search users..." />
+                          <CommandEmpty>No user found.</CommandEmpty>
+                          <CommandGroup>
+                            {!usersIsLoading &&
+                              users?.results?.filter(user => user && user.id && user.fullName)?.map((user) => (
+                                <CommandItem
+                                  value={String(user.fullName || "")}
+                                  key={user.id}
+                                  onSelect={() => {
+                                    field.onChange(user.id);
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      user.id === field.value
+                                        ? "opacity-100"
+                                        : "opacity-0"
+                                    )}
+                                  />
+                                  {String(user.fullName || "Unknown User")}
+                                </CommandItem>
+                              ))}
+                          </CommandGroup>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-5 mt-4">
+              <FormField
+                control={form.control}
+                name="agreed_by"
+                render={({ field }) => (
+                  <FormItem>
+                    <Label>Vendor Representative (Optional)</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            className={cn(
+                              "w-full justify-between",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value
+                              ? String(users?.results?.find(
+                                  (user) => user.id === field.value
+                                )?.fullName || "Unknown User")
+                              : "Select Vendor Representative"}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-full p-0">
+                        <Command>
+                          <CommandInput placeholder="Search users..." />
+                          <CommandEmpty>No user found.</CommandEmpty>
+                          <CommandGroup>
+                            {!usersIsLoading &&
+                              users?.results?.filter(user => user && user.id && user.fullName)?.map((user) => (
+                                <CommandItem
+                                  value={String(user.fullName || "")}
+                                  key={user.id}
+                                  onSelect={() => {
+                                    field.onChange(user.id);
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      user.id === field.value
+                                        ? "opacity-100"
+                                        : "opacity-0"
+                                    )}
+                                  />
+                                  {String(user.fullName || "Unknown User")}
+                                </CommandItem>
+                              ))}
+                          </CommandGroup>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                  </FormItem>
+                )}
+              />
+            </div>
+          </div>
+
+          <div className="flex items-center justify-end mt-6">
             {/* <Link href={generatePath(RouteEnum.PURCHASE_ORDER)}> */}
             <FormButton
               loading={creatingOrder}

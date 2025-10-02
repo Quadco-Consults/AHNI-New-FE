@@ -3,10 +3,7 @@ import welcomePng from "assets/imgs/welcome.png";
 import {
   VendorsResultsData,
   TVendors,
-  KeyStaff,
-  AssociatedEntities,
-  Questionairs,
-} from "definations/procurement-types/vendors";
+} from "@/features/procurement/types/vendors";
 
 const Questionnaire = (data: VendorsResultsData) => {
   console.log({ data });
@@ -15,7 +12,7 @@ const Questionnaire = (data: VendorsResultsData) => {
     <div className='space-y-5'>
       <div className='bg-white border shadow-sm rounded-2xl dark:bg-[hsl(15,13%,6%)]'>
         <div className='p-5 '>
-          <h4 className='font-bold text-lg'>Vendor Questionniare</h4>
+          <h4 className='font-bold text-lg'>Vendor details</h4>
         </div>
 
         <hr />
@@ -124,94 +121,8 @@ const Questionnaire = (data: VendorsResultsData) => {
         </div>
       </div>
 
-      <div className='bg-white border shadow-sm rounded-2xl dark:bg-[hsl(15,13%,6%)]'>
-        <div className='p-5 '>
-          <h4 className='font-bold text-lg'>
-            Names & Qualifications of Key Staff
-          </h4>
-        </div>
 
-        <hr />
 
-        <div className='p-5 grid grid-cols-2 gap-5'>
-          {data?.key_staff.map((keyStaff: KeyStaff, index: number) => (
-            <Card key={index} className='border-yellow-darker space-y-3'>
-              <div className='flex items-center gap-5'>
-                <h4 className='w-full max-w-[140px]  font-medium'>Name:</h4>
-                <h4>{keyStaff.name}</h4>
-              </div>
-              <div className='flex items-center gap-5'>
-                <h4 className='w-full max-w-[140px]  font-medium'>
-                  Qualification:
-                </h4>
-                <h4>{keyStaff.qualification}</h4>
-              </div>
-              <div className='flex items-center gap-5'>
-                <h4 className='w-full max-w-[140px]  font-medium'>Tel:</h4>
-                <h4>{keyStaff.phone_number}</h4>
-              </div>
-            </Card>
-          ))}
-        </div>
-      </div>
-
-      <div className='bg-white border shadow-sm rounded-2xl dark:bg-[hsl(15,13%,6%)]'>
-        <div className='p-5 '>
-          <h4 className='font-bold text-lg'>
-            Subsidiaries, Associates, Affiliates or technical Partners
-          </h4>
-        </div>
-
-        <hr />
-
-        <div className='p-5 grid grid-cols-2 gap-5'>
-          {data?.associated_entities.map(
-            (entity: AssociatedEntities, index: number) => (
-              <Card key={index} className='border-yellow-darker space-y-3'>
-                <div className='flex items-center gap-5'>
-                  <h4 className='w-full max-w-[140px] font-medium'>Name:</h4>
-                  <h4>{entity.name}</h4>
-                </div>
-                <div className='flex items-center gap-5'>
-                  <h4 className='w-full max-w-[140px] font-medium'>
-                    Qualification:
-                  </h4>
-                  <h4>{entity.address}</h4>
-                </div>
-                <div className='flex items-center gap-5'>
-                  <h4 className='w-full max-w-[140px] font-medium'>
-                    Entity Type:
-                  </h4>
-                  <h4>{entity.entity_type}</h4>
-                </div>
-                <div className='flex items-center gap-5'>
-                  <h4 className='w-full max-w-[140px] font-medium'>Tel:</h4>
-                  <h4>{entity.phone_number}</h4>
-                </div>
-              </Card>
-            )
-          )}
-        </div>
-      </div>
-
-      <div className='bg-white border shadow-sm rounded-2xl dark:bg-[hsl(15,13%,6%)]'>
-        <div className='p-5 '>
-          <h4 className='font-bold text-lg'>Questions</h4>
-        </div>
-
-        <hr />
-
-        <div className='p-5 grid gap-5 grid-cols-2'>
-          {data?.questionnaires?.map((question: Questionairs) => (
-            <div key={question.questionaire} className='space-y-2'>
-              <h2 className='text-yellow-darker font-semibold'>
-                {question.name}
-              </h2>
-              <h6>{question.response}</h6>
-            </div>
-          ))}
-        </div>
-      </div>
 
       <div className='bg-white border shadow-sm rounded-2xl dark:bg-[hsl(15,13%,6%)]'>
         <div className='p-5 '>

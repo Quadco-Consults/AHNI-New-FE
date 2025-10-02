@@ -17,6 +17,7 @@ import { useGetSingleConsultantManagement } from "@/features/contracts-grants/co
 import Applications from "./applicants/ConsultancyStaffList";
 import ShortlistedAppplicants from "./ShortlistedApplicants";
 import InterviewedApplicants from "./InterviewedApplicants";
+import AcceptedApplicants from "./AcceptedApplicants";
 
 export default function ConsultancyDetailsPage() {
   const [tabValue, setTabValue] = useState("job-details");
@@ -62,6 +63,8 @@ export default function ConsultancyDetailsPage() {
             <TabsTrigger value='shortlisted'>Shortlist</TabsTrigger>
 
             <TabsTrigger value='interviewed'>Interviewed</TabsTrigger>
+
+            <TabsTrigger value='accepted'>Accepted Candidates</TabsTrigger>
           </TabsList>
         </div>
         {tabValue === "applications" && (
@@ -103,6 +106,10 @@ export default function ConsultancyDetailsPage() {
 
             <TabsContent value='interviewed'>
               <InterviewedApplicants />
+            </TabsContent>
+
+            <TabsContent value='accepted'>
+              <AcceptedApplicants />
             </TabsContent>
           </Card>
         )}

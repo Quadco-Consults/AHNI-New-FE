@@ -14,7 +14,8 @@ let retryCount = 0;
 AxiosWithToken.interceptors.request.use(
   async (config) => {
     // Debug: Log the full request URL
-    console.log('API Request:', config.method?.toUpperCase(), config.baseURL + config.url);
+    const url = `${config.baseURL || ''}${config.url || ''}`;
+    console.log('API Request:', config.method?.toUpperCase(), url);
 
     const token = localStorage.getItem("token");
 
@@ -47,14 +48,27 @@ AxiosWithToken.interceptors.response.use(
     return response;
   },
   async (error) => {
-    if (error.response && error.response.status === 401) {
-      window.location.href = "/auth/login";
+    // Enhanced error logging
+    console.error('AxiosWithToken Response Error:', {
+      code: error.code,
+      message: error.message,
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      data: error.response?.data,
+      config: {
+        url: error.config?.url,
+        method: error.config?.method,
+        baseURL: error.config?.baseURL
+      }
+    });
 
+    if (error.response && error.response.status === 401) {
+      console.warn('Unauthorized access - redirecting to login');
+      window.location.href = "/auth/login";
       return Promise.reject(error);
     }
 
     // Handle other error cases here if needed
-
     return Promise.reject(error);
   }
 );

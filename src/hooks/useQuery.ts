@@ -1,5 +1,5 @@
 import { useSearchParams } from "next/navigation";
 
-export default function useQuery() {
+export default function useUrlQuery() {
     return useSearchParams();
 }

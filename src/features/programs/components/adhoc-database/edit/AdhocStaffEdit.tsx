@@ -13,77 +13,173 @@ import FormSelect from "components/atoms/FormSelect";
 import FormButton from "@/components/FormButton";
 import { toast } from "sonner";
 import { AdhocStaffSchema, TAdhocStaffFormData } from "@/features/programs/types/adhoc-staff";
+import { useGetSingleConsultancyApplicant, useUpdateConsultancyApplicant } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
+import { useGetAllProjects } from "@/features/projects/controllers/projectController";
+import { useGetAllFacilities } from "@/features/modules/controllers/program/facilityController";
+import { useEffect, useMemo } from "react";
 
 // Gender options
 const genderOptions = [
   { label: "Male", value: "MALE" },
   { label: "Female", value: "FEMALE" },
-  { label: "Other", value: "Other" },
+  { label: "Other", value: "OTHER" },
 ];
-
-// Mock hooks for now - replace with actual API calls
-const useGetSingleAdhocStaff = (id: string) => {
-  // This would be replaced with actual API call
-  return {
-    data: null,
-    isLoading: false,
-    error: null
-  };
-};
-
-const useUpdateAdhocStaff = (id: string) => {
-  // This would be replaced with actual API call
-  return {
-    updateAdhocStaff: async (data: TAdhocStaffFormData) => {
-      console.log("Updating adhoc staff:", data);
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-    },
-    isLoading: false
-  };
-};
 
 export default function AdhocStaffEdit() {
   const params = useParams();
   const router = useRouter();
   const staffId = params?.id as string;
 
-  const { data: staffData, isLoading: isFetchLoading, error } = useGetSingleAdhocStaff(staffId);
-  const { updateAdhocStaff, isLoading: isUpdateLoading } = useUpdateAdhocStaff(staffId);
+  // Fetch consultancy applicant data
+  const { data: applicantResponse, isLoading: isFetchLoading, error } = useGetSingleConsultancyApplicant(staffId);
+  const { updateConsultancyApplicant, isLoading: isUpdateLoading } = useUpdateConsultancyApplicant(staffId);
+
+  // Fetch all projects for dropdown
+  const { data: projectsData } = useGetAllProjects({ page: 1, size: 1000 });
+
+  // Fetch all facilities for dropdown
+  const { data: facilitiesData } = useGetAllFacilities({ page: 1, size: 1000 });
+
+  const applicant = applicantResponse?.data;
+
+  // Transform projects for dropdown
+  const projectOptions = useMemo(() => {
+    const projects = projectsData?.data?.results || [];
+    return projects.map(project => ({
+      label: `${project.title} (${project.project_id})`,
+      value: project.id
+    }));
+  }, [projectsData]);
+
+  // Transform facilities for dropdown
+  const facilityOptions = useMemo(() => {
+    const facilities = facilitiesData?.data?.results || [];
+    return facilities.map(facility => ({
+      label: facility.name,
+      value: facility.name // Using name as value since health_facility is stored as text
+    }));
+  }, [facilitiesData]);
+
+  // Extract unique LGAs from facilities for dropdown
+  const lgaOptions = useMemo(() => {
+    const facilities = facilitiesData?.data?.results || [];
+    const uniqueLgas = new Set(
+      facilities
+        .map(f => f.state)
+        .filter(Boolean)
+    );
+    return Array.from(uniqueLgas).map(lga => ({
+      label: lga!,
+      value: lga!
+    }));
+  }, [facilitiesData]);
+
+  // Transform applicant data to form structure
+  const nameParts = applicant?.name?.split(' ') || [];
+  const surname = nameParts[0] || '';
+  const otherNames = nameParts.slice(1).join(' ') || '';
+
+  const qualifications = applicant?.education
+    ?.map(edu => edu.degree || edu.major)
+    .filter(Boolean)
+    .join(', ') || '';
 
   const form = useForm<TAdhocStaffFormData>({
     resolver: zodResolver(AdhocStaffSchema),
     defaultValues: {
-      sur_name: staffData?.sur_name || "",
-      other_names: staffData?.other_names || "",
-      gender: staffData?.gender || "MALE",
-      state_of_origin: staffData?.state_of_origin || "",
-      designation: staffData?.designation || "",
-      phone_number: staffData?.phone_number || "",
-      email_address: staffData?.email_address || "",
-      qualifications: staffData?.qualifications || "",
-      health_facility: staffData?.health_facility || "",
-      spoke_site_name: staffData?.spoke_site_name || "",
-      lga: staffData?.lga || "",
-      status_of_adhoc_staff: staffData?.status_of_adhoc_staff || "",
-      qmap_backstop: staffData?.qmap_backstop || "",
-      programs_officer: staffData?.programs_officer || "",
-      stl: staffData?.stl || "",
-      seo: staffData?.seo || "",
-      lga2: staffData?.lga2 || "",
-      cluster: staffData?.cluster || "",
-      account_name: staffData?.account_name || "",
-      bank_name: staffData?.bank_name || "",
-      account_number: staffData?.account_number || "",
-      sort_code: staffData?.sort_code || "",
+      sur_name: "",
+      other_names: "",
+      gender: "MALE",
+      state_of_origin: "",
+      designation: "",
+      phone_number: "",
+      email_address: "",
+      qualifications: "",
+      health_facility: "",
+      spoke_site_name: "",
+      lga: "",
+      status_of_adhoc_staff: "",
+      qmap_backstop: "",
+      programs_officer: "",
+      stl: "",
+      seo: "",
+      lga2: "",
+      cluster: "",
+      account_name: "",
+      bank_name: "",
+      account_number: "",
+      sort_code: "",
+      project: "",
     },
   });
 
+  // Update form when applicant data is loaded
+  useEffect(() => {
+    if (applicant) {
+      form.reset({
+        sur_name: surname,
+        other_names: otherNames,
+        gender: applicant.gender || "MALE",
+        state_of_origin: applicant.state_of_origin || "",
+        designation: applicant.position_under_contract || "",
+        phone_number: applicant.phone_number || "",
+        email_address: applicant.email || "",
+        qualifications: qualifications,
+        health_facility: applicant.health_facility || "",
+        spoke_site_name: applicant.spoke_site_name || "",
+        lga: applicant.lga || "",
+        status_of_adhoc_staff: applicant.offer_accepted ? "Active" : "Pending",
+        qmap_backstop: applicant.qmap_backstop || "",
+        programs_officer: applicant.programs_officer || "",
+        stl: applicant.stl || "",
+        seo: applicant.seo || "",
+        lga2: applicant.lga2 || "",
+        cluster: applicant.cluster || "",
+        account_name: applicant.account_name || "",
+        bank_name: applicant.bank_name || "",
+        account_number: applicant.account_number || "",
+        sort_code: applicant.sort_code || "",
+        project: applicant.project || "",
+      });
+    }
+  }, [applicant, form]);
+
   const onSubmit = async (data: TAdhocStaffFormData) => {
     try {
-      await updateAdhocStaff(data);
+      // Combine surname and other names back into full name
+      const fullName = `${data.sur_name} ${data.other_names}`.trim();
+
+      // Prepare update payload - merge form data with existing applicant data
+      const updatePayload = {
+        name: fullName,
+        email: data.email_address,
+        phone_number: data.phone_number,
+        position_under_contract: data.designation,
+        // Add all the new adhoc-specific fields
+        gender: data.gender,
+        state_of_origin: data.state_of_origin,
+        health_facility: data.health_facility,
+        spoke_site_name: data.spoke_site_name,
+        lga: data.lga,
+        qmap_backstop: data.qmap_backstop,
+        programs_officer: data.programs_officer,
+        stl: data.stl,
+        seo: data.seo,
+        lga2: data.lga2,
+        cluster: data.cluster,
+        account_name: data.account_name,
+        bank_name: data.bank_name,
+        account_number: data.account_number,
+        sort_code: data.sort_code,
+        project: data.project,
+      };
+
+      console.log("Updating adhoc staff with payload:", updatePayload);
+
+      await updateConsultancyApplicant(updatePayload as any);
+
       toast.success("Adhoc staff details updated successfully!");
-      router.push(`/dashboard/programs/adhoc-database/${staffId}/view`);
+      router.push(`/dashboard/programs/adhoc-database`);
     } catch (error) {
       console.error("Update error:", error);
       toast.error("Failed to update adhoc staff details. Please try again.");
@@ -186,28 +282,84 @@ export default function AdhocStaffEdit() {
                     required
                     placeholder="Enter qualifications"
                   />
-                  <FormInput
+                  <FormSelect
                     label="Health Facility/Assignment Location"
                     name="health_facility"
                     required
-                    placeholder="Enter health facility or assignment location"
+                    placeholder="Select health facility"
+                    options={facilityOptions}
                   />
                   <FormInput
                     label="Spoke Site Name"
                     name="spoke_site_name"
                     placeholder="Enter spoke site name"
                   />
-                  <FormInput
+                  <FormSelect
                     label="LGA"
                     name="lga"
                     required
-                    placeholder="Enter LGA"
+                    placeholder="Select LGA"
+                    options={lgaOptions}
                   />
                   <FormInput
                     label="Status of Adhoc Staff"
                     name="status_of_adhoc_staff"
                     placeholder="Enter status"
                   />
+                </div>
+              </div>
+            </Card>
+
+            {/* Project Assignment */}
+            <Card>
+              <div className="p-6">
+                <h2 className="text-xl font-semibold text-gray-800 mb-4">Project Assignment</h2>
+                <div className="grid grid-cols-1 gap-6">
+                  <FormSelect
+                    label="Assigned Project"
+                    name="project"
+                    placeholder="Select project"
+                    options={projectOptions}
+                  />
+                  {applicant?.project && projectsData?.data?.results && (
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                      <h3 className="font-semibold text-blue-900 mb-2">Project Details</h3>
+                      {(() => {
+                        const selectedProject = projectsData.data.results.find(p => p.id === applicant.project);
+                        if (selectedProject) {
+                          return (
+                            <div className="grid grid-cols-2 gap-4 text-sm">
+                              <div>
+                                <p className="text-gray-600">Project Title:</p>
+                                <p className="font-medium text-gray-900">{selectedProject.title}</p>
+                              </div>
+                              <div>
+                                <p className="text-gray-600">Project ID:</p>
+                                <p className="font-medium text-gray-900">{selectedProject.project_id}</p>
+                              </div>
+                              <div>
+                                <p className="text-gray-600">Budget:</p>
+                                <p className="font-medium text-gray-900">{selectedProject.currency} {selectedProject.budget}</p>
+                              </div>
+                              <div>
+                                <p className="text-gray-600">Duration:</p>
+                                <p className="font-medium text-gray-900">
+                                  {new Date(selectedProject.start_date).toLocaleDateString()} - {new Date(selectedProject.end_date).toLocaleDateString()}
+                                </p>
+                              </div>
+                              <div className="col-span-2">
+                                <p className="text-gray-600">Funding Sources:</p>
+                                <p className="font-medium text-gray-900">
+                                  {selectedProject.funding_sources.map(fs => fs.name).join(', ')}
+                                </p>
+                              </div>
+                            </div>
+                          );
+                        }
+                        return null;
+                      })()}
+                    </div>
+                  )}
                 </div>
               </div>
             </Card>

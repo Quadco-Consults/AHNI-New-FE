@@ -6,28 +6,32 @@ import {
     SelectTrigger,
     SelectValue,
 } from "components/ui/select";
-import { useAppSelector } from "hooks/useStore";
+import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { FormEvent, useState } from "react";
 import { toast } from "sonner";
+import { useUpdateActivityPlanStatus } from "@/features/programs/controllers/activityPlanController";
+import { closeDialog } from "store/ui";
 
 const statusOptions = [
     "DONE",
-    "STARTED BUT NOT FINISHED",
+    "STARTED_BUT_NOT_FINISHED",
     "ONGOING",
-    "NO LONGER APPLICABLE",
-    "NOT DONE",
+    "NO_LONGER_APPLICABLE",
+    "NOT_DONE",
 ].map((option) => ({
-    label: option,
+    label: option.replace(/_/g, " "),
     value: option,
 }));
 
 export default function ActivityPlanStatusModal() {
     const { dailog } = useAppSelector((state) => state.ui);
+    const dispatch = useAppDispatch();
 
     const id = dailog?.dialogProps?.id as string;
     const prevStatus = dailog?.dialogProps?.status as string;
 
     const [status, setStatus] = useState(prevStatus);
+    const { updateStatus, isLoading } = useUpdateActivityPlanStatus(id);
 
     const handleChangeStatus = (value: string) => {
         setStatus(value);
@@ -36,8 +40,15 @@ export default function ActivityPlanStatusModal() {
     const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
+        if (!status) {
+            toast.error("Please select a status");
+            return;
+        }
+
         try {
-            console.log("Submitting");
+            await updateStatus(status);
+            toast.success("Activity plan status updated successfully");
+            dispatch(closeDialog());
         } catch (error: any) {
             toast.error(error.response?.data?.message ?? error.message ?? "Something went wrong");
         }
@@ -66,8 +77,8 @@ export default function ActivityPlanStatusModal() {
             </Select>
 
             <div className="flex justify-end">
-                <FormButton type="submit" loading={false}>
-                    Submit
+                <FormButton type="submit" loading={isLoading} disabled={isLoading}>
+                    {isLoading ? "Updating..." : "Submit"}
                 </FormButton>
             </div>
         </form>
