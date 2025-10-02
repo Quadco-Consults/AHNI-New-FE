@@ -83,7 +83,12 @@ export const useGetSingleSubGrant = (id: string, enabled: boolean = true) => {
     queryKey: ["subGrant", id],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get(`${BASE_URL}${id}`);
+        // Try with expand parameter to get related grant data
+        const response = await AxiosWithToken.get(`${BASE_URL}${id}`, {
+          params: {
+            expand: 'grant,sub_grant_administrator,technical_staff'
+          }
+        });
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
