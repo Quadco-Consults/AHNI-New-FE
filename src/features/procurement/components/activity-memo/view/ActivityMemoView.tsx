@@ -29,11 +29,6 @@ const ActivityMemoView = () => {
     }
   };
 
-  console.log("Activity Memo View - ID:", memoId);
-  console.log("Activity Memo View - Data:", data);
-  console.log("Activity Memo View - Loading:", isLoading);
-  console.log("Activity Memo View - Error:", error);
-
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -225,14 +220,14 @@ const ActivityMemoView = () => {
               {/* Budget Information */}
               <div className="grid grid-cols-2 gap-8 mb-6 text-sm">
                 <div className="space-y-2">
-                  <div><span className="font-semibold">Budget Line #:</span> {memoData.budget_line?.[0] || "N/A"}</div>
-                  <div><span className="font-semibold">Intervention:</span> {memoData.intervention_areas?.[0] || "N/A"}</div>
-                  <div><span className="font-semibold">Cost Grouping #:</span> {memoData.cost_categories?.[0] || "N/A"}</div>
+                  <div><span className="font-semibold">Budget Line #:</span> {(memoData as any).budget_line_details?.[0]?.name || memoData.budget_line?.[0] || "-"}</div>
+                  <div><span className="font-semibold">Intervention:</span> {(memoData as any).intervention_areas_details?.[0]?.code || memoData.intervention_areas?.[0] || "-"}</div>
+                  <div><span className="font-semibold">Cost Grouping #:</span> {(memoData as any).cost_categories_details?.[0]?.name || memoData.cost_categories?.[0] || "-"}</div>
                 </div>
                 <div className="space-y-2">
-                  <div><span className="font-semibold">FCO#:</span> {memoData.fconumber_details?.[0]?.name || memoData.fconumber?.[0] || "N/A"}</div>
-                  <div><span className="font-semibold">Cost Input #:</span> {memoData.cost_input?.[0] || "N/A"}</div>
-                  <div><span className="font-semibold">Funding Source:</span> {memoData.funding_source?.[0] || "N/A"}</div>
+                  <div><span className="font-semibold">FCO#:</span> {memoData.fconumber_details?.[0]?.name || memoData.fconumber?.[0] || "-"}</div>
+                  <div><span className="font-semibold">Cost Input #:</span> {(memoData as any).cost_input_details?.[0]?.name || memoData.cost_input?.[0] || "-"}</div>
+                  <div><span className="font-semibold">Funding Source:</span> {(memoData as any).funding_source_details?.[0]?.name || memoData.funding_source?.[0] || "-"}</div>
                 </div>
               </div>
 
@@ -321,23 +316,23 @@ const ActivityMemoView = () => {
                 <tbody>
                   <tr className="border-b border-black">
                     <td className="border-r border-black p-3 bg-blue-100 font-semibold w-1/2">
-                      Intervention: {memoData.intervention_areas?.[0] || "N/A"}
+                      Intervention: {(memoData as any).intervention_areas_details?.[0]?.code || memoData.intervention_areas?.[0] || "-"}
                     </td>
                     <td className="p-3 bg-blue-100 font-semibold">
-                      Budget Line #: {memoData.budget_line?.[0] || "N/A"}
+                      Budget Line #: {(memoData as any).budget_line_details?.[0]?.name || memoData.budget_line?.[0] || "-"}
                     </td>
                   </tr>
                   <tr className="border-b border-black">
                     <td className="border-r border-black p-3 bg-blue-100 font-semibold">
-                      Cost Grouping #: {memoData.cost_categories?.[0] || "N/A"}
+                      Cost Grouping #: {(memoData as any).cost_categories_details?.[0]?.name || memoData.cost_categories?.[0] || "-"}
                     </td>
                     <td className="p-3 bg-blue-100 font-semibold">
-                      Cost Input #: {memoData.cost_input?.[0] || "N/A"}
+                      Cost Input #: {(memoData as any).cost_input_details?.[0]?.name || memoData.cost_input?.[0] || "-"}
                     </td>
                   </tr>
                   <tr className="border-b border-black">
                     <td className="border-r border-black p-3 bg-blue-100 font-semibold">
-                      Funding Source: {memoData.funding_source?.[0] || "N/A"}
+                      Funding Source: {(memoData as any).funding_source_details?.[0]?.name || memoData.funding_source?.[0] || "-"}
                     </td>
                     <td className="p-3 bg-blue-100 font-semibold"></td>
                   </tr>

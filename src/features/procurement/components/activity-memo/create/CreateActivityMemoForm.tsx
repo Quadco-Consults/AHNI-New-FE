@@ -21,7 +21,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "c
 import { MinusCircle } from "lucide-react";
 
 // Import controllers
-import { useGetAllUsers } from "@/features/auth/controllers/userController";
+import { useGetAllUsers, useGetUserProfile } from "@/features/auth/controllers/userController";
 import { useGetAllActivityPlans } from "@/features/programs/controllers/activityPlanController";
 import { useGetAllFCONumbers } from "@/features/modules/controllers/finance/fcoNumberController";
 import { useGetAllBudgetLines } from "@/features/modules/controllers/finance/budgetLineController";
@@ -39,6 +39,7 @@ const CreateActivityMemoForm = () => {
 
   // Fetch all required data
   const { data: users } = useGetAllUsers({ page: 1, size: 2000000 });
+  const { data: profile } = useGetUserProfile();
   const { data: activites } = useGetAllActivityPlans({ page: 1, size: 2000000 });
   const { data: fco } = useGetAllFCONumbers({ page: 1, size: 2000000 });
   const { data: budgetLines } = useGetAllBudgetLines({ page: 1, size: 2000000 });
@@ -241,6 +242,13 @@ const CreateActivityMemoForm = () => {
     }, 0);
   };
 
+  // Auto-set created_by to current user
+  useEffect(() => {
+    if (profile?.data?.id) {
+      setValue('created_by', profile.data.id);
+    }
+  }, [profile, setValue]);
+
   const onSubmit = async (data: z.infer<typeof SampleMemoSchema>) => {
     try {
       setIsSubmitting(true);
@@ -287,8 +295,8 @@ const CreateActivityMemoForm = () => {
         <Form {...form}>
           <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
 
-            {/* Reviewer and Authorizer */}
-            <div className="grid grid-cols-2 gap-5">
+            {/* Reviewer, Authorizer, and Approver */}
+            <div className="grid grid-cols-3 gap-5">
               <div>
                 <Label className="font-semibold">Reviewer</Label>
                 <FormField
@@ -327,6 +335,15 @@ const CreateActivityMemoForm = () => {
                       </FormControl>
                     </FormItem>
                   )}
+                />
+              </div>
+              <div>
+                <FormSelect
+                  label="Approver (To)"
+                  name="approved_by"
+                  required
+                  placeholder="Select Approver"
+                  options={usersOptionsFn}
                 />
               </div>
             </div>
@@ -617,127 +634,6 @@ const CreateActivityMemoForm = () => {
               placeholder="Enter any additional comments"
               rows={4}
             />
-
-            {/* Approval Workflow Section */}
-            <div className="p-6 bg-gradient-to-br from-gray-50 to-blue-50 border-2 border-blue-200 rounded-lg shadow-sm">
-              <h3 className="text-xl font-semibold text-gray-800 mb-4 pb-2 border-b-2 border-blue-200">
-                Approval Workflow
-              </h3>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                {/* Created By */}
-                <div className="space-y-2">
-                  <FormSelect
-                    label="Created By"
-                    name="created_by"
-                    required
-                    placeholder="Select Creator"
-                    options={usersOptionsFn}
-                  />
-                  <p className="text-xs text-gray-600">Person creating this activity memo</p>
-                </div>
-
-                {/* Approver */}
-                <div className="space-y-2">
-                  <FormSelect
-                    label="Approver"
-                    name="approved_by"
-                    required
-                    placeholder="Select Approver"
-                    options={usersOptionsFn}
-                  />
-                  <p className="text-xs text-gray-600">Final approver for this memo</p>
-                </div>
-              </div>
-
-              {/* Routing Information */}
-              <div className="mt-6 pt-4 border-t border-blue-200">
-                <h4 className="text-md font-semibold text-gray-700 mb-3">Memo Routing</h4>
-
-                <div className="space-y-4">
-                  {/* Reviewer Field */}
-                  <div className="p-3 bg-white border border-blue-200 rounded-lg">
-                    <div className="flex items-center gap-2 mb-2">
-                      <svg className="h-5 w-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      <span className="font-medium text-gray-700">Reviewer</span>
-                    </div>
-                    <p className="text-xs text-gray-600 ml-7">
-                      Selected users in "Reviewer" field above will review this memo
-                    </p>
-                  </div>
-
-                  {/* Authorizer Field */}
-                  <div className="p-3 bg-white border border-green-200 rounded-lg">
-                    <div className="flex items-center gap-2 mb-2">
-                      <svg className="h-5 w-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 5.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                      </svg>
-                      <span className="font-medium text-gray-700">Authorizer</span>
-                    </div>
-                    <p className="text-xs text-gray-600 ml-7">
-                      Selected users in "Authorizer" field above will authorize this memo
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Workflow Diagram */}
-              <div className="mt-6 p-4 bg-white border-2 border-blue-300 rounded-lg">
-                <h4 className="text-sm font-semibold text-blue-900 mb-3 flex items-center gap-2">
-                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  Approval Flow
-                </h4>
-                <div className="flex items-center justify-between text-sm">
-                  <div className="flex flex-col items-center">
-                    <div className="w-12 h-12 rounded-full bg-blue-100 border-2 border-blue-500 flex items-center justify-center mb-2">
-                      <span className="font-bold text-blue-700">1</span>
-                    </div>
-                    <p className="text-xs text-center font-medium">Created By</p>
-                    <p className="text-xs text-gray-500">Initiates</p>
-                  </div>
-
-                  <div className="flex-1 mx-2 border-t-2 border-dashed border-gray-400"></div>
-
-                  <div className="flex flex-col items-center">
-                    <div className="w-12 h-12 rounded-full bg-purple-100 border-2 border-purple-500 flex items-center justify-center mb-2">
-                      <span className="font-bold text-purple-700">2</span>
-                    </div>
-                    <p className="text-xs text-center font-medium">Reviewer</p>
-                    <p className="text-xs text-gray-500">Reviews</p>
-                  </div>
-
-                  <div className="flex-1 mx-2 border-t-2 border-dashed border-gray-400"></div>
-
-                  <div className="flex flex-col items-center">
-                    <div className="w-12 h-12 rounded-full bg-amber-100 border-2 border-amber-500 flex items-center justify-center mb-2">
-                      <span className="font-bold text-amber-700">3</span>
-                    </div>
-                    <p className="text-xs text-center font-medium">Authorizer</p>
-                    <p className="text-xs text-gray-500">Authorizes</p>
-                  </div>
-
-                  <div className="flex-1 mx-2 border-t-2 border-dashed border-gray-400"></div>
-
-                  <div className="flex flex-col items-center">
-                    <div className="w-12 h-12 rounded-full bg-green-100 border-2 border-green-500 flex items-center justify-center mb-2">
-                      <span className="font-bold text-green-700">4</span>
-                    </div>
-                    <p className="text-xs text-center font-medium">Approver</p>
-                    <p className="text-xs text-gray-500">Final Approval</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                <p className="text-xs text-blue-800">
-                  <strong>ℹ️ Note:</strong> Make sure to select users in the "Reviewer" and "Authorizer" fields at the top of the form. The workflow goes: Created By → Reviewer → Authorizer → Approver.
-                </p>
-              </div>
-            </div>
 
             {/* Action Buttons */}
             <div className="flex justify-end gap-4 pt-6 border-t">

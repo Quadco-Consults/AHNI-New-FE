@@ -42,10 +42,6 @@ const ActivityMemoList = ({ status }: ActivityMemoListProps) => {
     status: status === 'approved' ? 'approved' : '',
   });
 
-  console.log("Activity Memos API Response:", data);
-  console.log("Activity Memos Loading:", isLoading);
-  console.log("Activity Memos Error:", error);
-
   const activityMemos = data?.data?.results || [];
 
   const columns: ColumnDef<ActivityMemoData>[] = [
@@ -62,9 +58,12 @@ const ActivityMemoList = ({ status }: ActivityMemoListProps) => {
       header: "Activity",
       accessorKey: "activity",
       size: 250,
-      cell: ({ getValue }) => {
-        const activity = getValue() as string;
-        return activity || "N/A";
+      cell: ({ row }) => {
+        const activityDetail = (row.original as any).activity_detail;
+        if (activityDetail) {
+          return activityDetail.name || activityDetail.code || "-";
+        }
+        return (row.original as any).activity || "-";
       },
     },
     {

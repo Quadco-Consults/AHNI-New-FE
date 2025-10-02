@@ -545,298 +545,305 @@ const CreateActivityMemo = () => {
     <div className='pt-5'>
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col gap-6'>
+          {/* Activity and Subject */}
           <div className='grid grid-cols-2 gap-5'>
-            <div>
-              <Label className='font-semibold'>Through</Label>
-              <FormField
-                control={form.control}
-                name='through'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <MultiSelectFormField
-                        options={usersOptions || []}
-                        defaultValue={field.value}
-                        onValueChange={field.onChange}
-                        placeholder='Please Select'
-                        variant='inverted'
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-
-              {errors.copy && (
-                <span className='text-sm text-red-500 font-medium'>
-                  {errors.copy.message}
-                </span>
-              )}
-            </div>{" "}
-            <div>
-              <Label className='font-semibold'>CC</Label>
-              <FormField
-                control={form.control}
-                name='copy'
-                render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                      <MultiSelectFormField
-                        options={usersOptions || []}
-                        defaultValue={field.value}
-                        onValueChange={field.onChange}
-                        placeholder='Please Select'
-                        variant='inverted'
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-
-              {errors.copy && (
-                <span className='text-sm text-red-500 font-medium'>
-                  {errors.copy.message}
-                </span>
-              )}
-            </div>{" "}
-          </div>
-
-          <div className='grid grid-cols-2 gap-5'>
-            {usersOptionsFn && (
-              <FormSelect
-                label='To'
-                name='approved_by'
-                required
-                options={usersOptionsFn}
-              />
-            )}
-          </div>
-          <div className='grid gap-5'>
             {activitiesOptions && (
-              <>
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => refetchActivities()}
-                    className="text-xs bg-blue-500 text-white px-2 py-1 rounded"
-                  >
-                    Refresh Activities ({activitiesOptions.length} available)
-                  </button>
-                  {activitiesLoading && <span className="text-xs text-gray-500">Loading...</span>}
-                  {activitiesError && <span className="text-xs text-red-500">Error loading activities</span>}
-                </div>
+              <div>
                 <FormSelect
                   label='Activity (Optional)'
                   name='activity'
                   required={false}
                   options={activitiesOptions}
+                  placeholder='Select Activity'
                 />
                 <small className="text-gray-600 mt-1 block">
-                  Note: Activity selection is currently for display only. ✓ = Memo typically required for this activity.
+                  ✓ = Memo typically required for this activity
                 </small>
-              </>
+              </div>
             )}
+            <FormInput
+              label='Subject'
+              name='subject'
+              required
+              placeholder='Enter subject'
+            />
           </div>
+
+          {/* Requested Date */}
           <div className='grid grid-cols-2 gap-5'>
             <FormInput
               label='Requested Date'
               name='requested_date'
               type='date'
-              placeholder='01/01/2024'
+              required
             />
-            <div>
-              <Label className='font-semibold'>FCO</Label>
-              {fcoLoading ? (
-                <div className="p-4 text-center text-gray-500">Loading FCO numbers...</div>
-              ) : (
-                <FormField
-                  control={form.control}
-                  name='fconumber'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <MultiSelectFormField
-                          options={fcoOptions}
-                          defaultValue={field.value}
-                          onValueChange={field.onChange}
-                          placeholder={fcoOptions.length === 0 ? 'No FCO numbers available' : 'Select FCOs'}
-                          variant='inverted'
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              )}
-
-              {errors.fconumber && (
-                <span className='text-sm text-red-500 font-medium'>
-                  {errors.fconumber.message}
-                </span>
-              )}
-            </div>{" "}
           </div>
-          <div className='grid gap-5'>
-            <div>
-              <Label className='font-semibold'>Intervention Areas</Label>
-              {interventionsLoading ? (
-                <div className="p-4 text-center text-gray-500">Loading intervention areas...</div>
-              ) : (
-                <FormField
-                  control={form.control}
-                  name='intervention_areas'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <MultiSelectFormField
-                          options={interventionsOptions || []}
-                          defaultValue={field.value}
-                          onValueChange={field.onChange}
-                          placeholder={interventionsOptions.length === 0 ? 'No intervention areas available' : 'Select Intervention Areas'}
-                          variant='inverted'
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              )}
 
-              {errors.fconumber && (
-                <span className='text-sm text-red-500 font-medium'>
-                  {errors.fconumber.message}
-                </span>
-              )}
-            </div>{" "}
-          </div>
-          <div className='grid gap-5'>
-            <div>
-              <Label className='font-semibold'>Budget Line</Label>
-              {budgetLinesLoading ? (
-                <div className="p-4 text-center text-gray-500">Loading budget lines...</div>
-              ) : (
-                <FormField
-                  control={form.control}
-                  name='budget_line'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <MultiSelectFormField
-                          options={budgetLinesOptions}
-                          defaultValue={field.value}
-                          onValueChange={field.onChange}
-                          placeholder={budgetLinesOptions.length === 0 ? 'No budget lines available' : 'Select Budget Lines'}
-                          variant='inverted'
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              )}
+          {/* Financial Information Section */}
+          <div className='bg-gray-50 p-4 rounded-lg space-y-4'>
+            <h3 className='text-lg font-semibold text-gray-800'>Financial Information</h3>
 
-              {errors.budget_line && (
-                <span className='text-sm text-red-500 font-medium'>
-                  {errors.budget_line.message}
-                </span>
-              )}
-            </div>{" "}
-            <div>
-              <Label className='font-semibold'>Cost Categories</Label>
-              {costCategoriesLoading ? (
-                <div className="p-4 text-center text-gray-500">Loading cost categories...</div>
-              ) : (
-                <FormField
-                  control={form.control}
-                  name='cost_categories'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <MultiSelectFormField
-                          options={costCategoriesOptions}
-                          defaultValue={field.value}
-                          onValueChange={field.onChange}
-                          placeholder={costCategoriesOptions.length === 0 ? 'No cost categories available' : 'Select Cost Categories'}
-                          variant='inverted'
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              )}
+            <div className='grid grid-cols-2 gap-5'>
+              <div>
+                <Label className='font-semibold'>FCO Number</Label>
+                {fcoLoading ? (
+                  <div className="p-4 text-center text-gray-500">Loading FCO numbers...</div>
+                ) : (
+                  <FormField
+                    control={form.control}
+                    name='fconumber'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <MultiSelectFormField
+                            options={fcoOptions}
+                            defaultValue={field.value}
+                            onValueChange={field.onChange}
+                            placeholder={fcoOptions.length === 0 ? 'No FCO numbers available' : 'Select FCO Number'}
+                            variant='inverted'
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                )}
+                {errors.fconumber && (
+                  <span className='text-sm text-red-500 font-medium'>
+                    {errors.fconumber.message}
+                  </span>
+                )}
+              </div>
 
-              {errors.cost_categories && (
-                <span className='text-sm text-red-500 font-medium'>
-                  {errors.cost_categories.message}
-                </span>
-              )}
-            </div>{" "}
-          </div>
-          <div className='grid grid-cols-2 gap-5'>
-            <div>
-              <Label className='font-semibold'>Cost Input</Label>
-              {costInputLoading ? (
-                <div className="p-4 text-center text-gray-500">Loading cost inputs...</div>
-              ) : (
-                <FormField
-                  control={form.control}
-                  name='cost_input'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <MultiSelectFormField
-                          options={costInputOptions}
-                          defaultValue={field.value}
-                          onValueChange={field.onChange}
-                          placeholder={costInputOptions.length === 0 ? 'No cost inputs available' : 'Select Cost Inputs'}
-                          variant='inverted'
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              )}
+              <div>
+                <Label className='font-semibold'>Budget Line</Label>
+                {budgetLinesLoading ? (
+                  <div className="p-4 text-center text-gray-500">Loading budget lines...</div>
+                ) : (
+                  <FormField
+                    control={form.control}
+                    name='budget_line'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <MultiSelectFormField
+                            options={budgetLinesOptions}
+                            defaultValue={field.value}
+                            onValueChange={field.onChange}
+                            placeholder={budgetLinesOptions.length === 0 ? 'No budget lines available' : 'Select Budget Line'}
+                            variant='inverted'
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                )}
+                {errors.budget_line && (
+                  <span className='text-sm text-red-500 font-medium'>
+                    {errors.budget_line.message}
+                  </span>
+                )}
+              </div>
+            </div>
 
-              {errors.cost_input && (
-                <span className='text-sm text-red-500 font-medium'>
-                  {errors.cost_input.message}
-                </span>
-              )}
-            </div>{" "}
-            <div>
-              <Label className='font-semibold'>Funding Sources</Label>
-              {fundingSourceLoading ? (
-                <div className="p-4 text-center text-gray-500">Loading funding sources...</div>
-              ) : (
-                <FormField
-                  control={form.control}
-                  name='funding_source'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <MultiSelectFormField
-                          options={fundingSourceOptions}
-                          defaultValue={field.value}
-                          onValueChange={field.onChange}
-                          placeholder={fundingSourceOptions.length === 0 ? 'No funding sources available' : 'Select Funding Sources'}
-                          variant='inverted'
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              )}
+            <div className='grid grid-cols-2 gap-5'>
+              <div>
+                <Label className='font-semibold'>Cost Category</Label>
+                {costCategoriesLoading ? (
+                  <div className="p-4 text-center text-gray-500">Loading cost categories...</div>
+                ) : (
+                  <FormField
+                    control={form.control}
+                    name='cost_categories'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <MultiSelectFormField
+                            options={costCategoriesOptions}
+                            defaultValue={field.value}
+                            onValueChange={field.onChange}
+                            placeholder={costCategoriesOptions.length === 0 ? 'No cost categories available' : 'Select Cost Category'}
+                            variant='inverted'
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                )}
+                {errors.cost_categories && (
+                  <span className='text-sm text-red-500 font-medium'>
+                    {errors.cost_categories.message}
+                  </span>
+                )}
+              </div>
 
-              {errors.funding_source && (
-                <span className='text-sm text-red-500 font-medium'>
-                  {errors.funding_source.message}
-                </span>
-              )}
+              <div>
+                <Label className='font-semibold'>Cost Input</Label>
+                {costInputLoading ? (
+                  <div className="p-4 text-center text-gray-500">Loading cost inputs...</div>
+                ) : (
+                  <FormField
+                    control={form.control}
+                    name='cost_input'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <MultiSelectFormField
+                            options={costInputOptions}
+                            defaultValue={field.value}
+                            onValueChange={field.onChange}
+                            placeholder={costInputOptions.length === 0 ? 'No cost inputs available' : 'Select Cost Input'}
+                            variant='inverted'
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                )}
+                {errors.cost_input && (
+                  <span className='text-sm text-red-500 font-medium'>
+                    {errors.cost_input.message}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <div className='grid grid-cols-2 gap-5'>
+              <div>
+                <Label className='font-semibold'>Funding Source</Label>
+                {fundingSourceLoading ? (
+                  <div className="p-4 text-center text-gray-500">Loading funding sources...</div>
+                ) : (
+                  <FormField
+                    control={form.control}
+                    name='funding_source'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <MultiSelectFormField
+                            options={fundingSourceOptions}
+                            defaultValue={field.value}
+                            onValueChange={field.onChange}
+                            placeholder={fundingSourceOptions.length === 0 ? 'No funding sources available' : 'Select Funding Source'}
+                            variant='inverted'
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                )}
+                {errors.funding_source && (
+                  <span className='text-sm text-red-500 font-medium'>
+                    {errors.funding_source.message}
+                  </span>
+                )}
+              </div>
+
+              <div>
+                <Label className='font-semibold'>Intervention Area</Label>
+                {interventionsLoading ? (
+                  <div className="p-4 text-center text-gray-500">Loading intervention areas...</div>
+                ) : (
+                  <FormField
+                    control={form.control}
+                    name='intervention_areas'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <MultiSelectFormField
+                            options={interventionsOptions || []}
+                            defaultValue={field.value}
+                            onValueChange={field.onChange}
+                            placeholder={interventionsOptions.length === 0 ? 'No intervention areas available' : 'Select Intervention Area'}
+                            variant='inverted'
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                )}
+                {errors.intervention_areas && (
+                  <span className='text-sm text-red-500 font-medium'>
+                    {errors.intervention_areas.message}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
 
-          <div className='grid gap-5'>
-            <FormInput label='Subject' name='subject' type='text' />
+          {/* Memo Content */}
+          <FormTextArea
+            label='Memo Content'
+            name='comment'
+            placeholder='Enter memo content'
+            rows={4}
+          />
+
+          <Separator className='my-4' />
+
+          {/* Approval Section */}
+          <div className='space-y-4'>
+            <h3 className='font-semibold text-lg text-gray-800'>Approval & Routing</h3>
+
+            <div className='grid grid-cols-3 gap-5'>
+              {/* Reviewer */}
+              <div>
+                <Label className='font-semibold'>Reviewer</Label>
+                <FormField
+                  control={form.control}
+                  name='through'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <MultiSelectFormField
+                          options={usersOptions || []}
+                          defaultValue={field.value}
+                          onValueChange={field.onChange}
+                          placeholder='Select Reviewer(s)'
+                          variant='inverted'
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              {/* Authorizer */}
+              <div>
+                <Label className='font-semibold'>Authorizer</Label>
+                <FormField
+                  control={form.control}
+                  name='copy'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <MultiSelectFormField
+                          options={usersOptions || []}
+                          defaultValue={field.value}
+                          onValueChange={field.onChange}
+                          placeholder='Select Authorizer(s)'
+                          variant='inverted'
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              {/* Approver (To) */}
+              <div>
+                {usersOptionsFn && (
+                  <FormSelect
+                    label='Approver (To)'
+                    name='approved_by'
+                    required
+                    placeholder='Select Approver'
+                    options={usersOptionsFn}
+                  />
+                )}
+              </div>
+            </div>
           </div>
-          <div className='grid gap-5'>
-            <FormTextArea label='Memo content' name='comment' type='text' />
-          </div>
+
           <Separator className='my-4' />
           <span className='block space-y-2'>
             <h3 className='font-semibold text-xl text-black'>Expenses</h3>
@@ -866,40 +873,26 @@ const CreateActivityMemo = () => {
             >
               Click to add New
             </Button>
-            <div className='flex items-center justify-end gap-3'>
-              <FormButton
-                type='button'
-                className='flex items-center justify-center gap-2'
-                onClick={() =>
-                  append({
-                    item: "",
-                    uom: "",
-                    quantity: "",
-                    unit_cost: "",
-                    total_cost: 0,
-                  })
-                }
-              >
-                <AddSquareIcon />
-                Add new expenses item row
-              </FormButton>
-
-              {/*  */}
-              {/* <Link className='w-fit' href={generatePath(RouteEnum.SAMPLE_PREVIEW)}> */}
-              <FormButton
-                loading={isSubmitting || isCreating}
-                disabled={isSubmitting || isCreating}
-                type='submit'
-                className='flex items-center justify-center gap-2'
-                onClick={() => console.log("🖱️ Next button clicked!")}
-              >
-                <LongArrowRight />
-                {isSubmitting || isCreating ? "Creating..." : "Next"}
-              </FormButton>
-              {/* </Link> */}
-            </div>
+            <FormButton
+              type='button'
+              className='flex items-center justify-center gap-2'
+              onClick={() =>
+                append({
+                  item: "",
+                  uom: "",
+                  quantity: "",
+                  unit_cost: "",
+                  total_cost: 0,
+                })
+              }
+            >
+              <AddSquareIcon />
+              Add new expenses item row
+            </FormButton>
           </div>
-          <div className='flex gap-3 items-center justify-center'>
+
+          {/* Action Buttons */}
+          <div className='flex gap-3 items-center justify-between pt-6 border-t'>
             <Button
               type='button'
               variant='outline'
@@ -914,16 +907,18 @@ const CreateActivityMemo = () => {
             >
               Clear Draft
             </Button>
-            <FormButton
-              loading={isSubmitting || isCreating}
-              disabled={isSubmitting || isCreating}
-              type='submit'
-              className='flex items-center justify-center gap-2'
-              onClick={() => console.log("🖱️ Save button clicked!")}
-            >
-              <LongArrowRight />
-              {isSubmitting || isCreating ? "Creating..." : "Save"}
-            </FormButton>
+            <div className='flex items-center justify-end gap-3'>
+              <FormButton
+                loading={isSubmitting || isCreating}
+                disabled={isSubmitting || isCreating}
+                type='submit'
+                className='flex items-center justify-center gap-2'
+                onClick={() => console.log("🖱️ Save button clicked!")}
+              >
+                <LongArrowRight />
+                {isSubmitting || isCreating ? "Creating..." : "Save & Next"}
+              </FormButton>
+            </div>
           </div>
         </form>
       </Form>
