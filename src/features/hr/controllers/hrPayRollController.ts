@@ -2,6 +2,7 @@ import useApiManager from "@/constants/mainController";
 import { useQuery } from "@tanstack/react-query";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { AxiosError } from "axios";
+import React from "react";
 import { PayGroup } from "../types/pay-group";
 import {
   Employee,
@@ -136,54 +137,100 @@ export const useGetEmployeesForPayroll = (enabled: boolean = true) => {
   });
 };
 
-// Generate Payroll
+// Generate Payroll (Mock Implementation - Backend endpoint not yet implemented)
 export const useGeneratePayroll = () => {
-  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
-    GeneratedPayroll,
-    Error,
-    PayrollGeneration
-  >({
-    endpoint: `${BASE_URL}generate/`,
-    queryKey: ["pay-rolls"],
-    isAuth: true,
-    method: "POST",
-  });
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [isSuccess, setIsSuccess] = React.useState(false);
+  const [data, setData] = React.useState<GeneratedPayroll | null>(null);
+  const [error, setError] = React.useState<Error | null>(null);
 
   const generatePayroll = async (details: PayrollGeneration) => {
+    setIsLoading(true);
+    setError(null);
+
     try {
-      await callApi(details);
-    } catch (error) {
-      console.error("Payroll generation error:", error);
-      throw error;
+      // MOCK IMPLEMENTATION - TODO: Replace with actual API call when backend is ready
+      // API Specification for Backend:
+      // POST /hr/employee-benefits/payroll/generate/
+      // Request Body: { month: string, year: number, employees: string[] }
+      // Response: { status: boolean, message: string, data: { id, month, year, total_employees, total_gross_payment, total_deductions, total_net_payment, employees: [...] } }
+
+      console.log("🔧 MOCK: Generating payroll with data:", details);
+
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 1500));
+
+      // Generate mock payroll data
+      const mockPayrollData: GeneratedPayroll = {
+        id: `payroll_${Date.now()}`,
+        month: details.month,
+        year: details.year,
+        total_employees: details.employees.length,
+        total_gross_payment: details.employees.length * 250000, // Mock: 250k per employee
+        total_deductions: details.employees.length * 50000, // Mock: 50k deductions per employee
+        total_net_payment: details.employees.length * 200000, // Mock: 200k net per employee
+        status: "generated",
+        created_at: new Date().toISOString(),
+      };
+
+      setData(mockPayrollData);
+      setIsSuccess(true);
+
+      console.log("✅ MOCK: Payroll generated successfully:", mockPayrollData);
+
+      return mockPayrollData;
+    } catch (err: any) {
+      const errorObj = new Error(err?.message || "Failed to generate payroll");
+      setError(errorObj);
+      console.error("❌ MOCK: Payroll generation failed:", err);
+      throw errorObj;
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return { generatePayroll, data, isLoading, isSuccess, error };
 };
 
-// Calculate Payroll Preview
+// Calculate Payroll Preview (Mock Implementation - Backend endpoint not yet implemented)
 export const useCalculatePayrollPreview = () => {
-  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
-    PayrollSummary,
-    Error,
-    PayrollGeneration
-  >({
-    endpoint: `${BASE_URL}calculate-preview/`,
-    queryKey: ["payroll-preview"],
-    isAuth: true,
-    method: "POST",
-  });
+  const [isLoading, setIsLoading] = React.useState(false);
 
   const calculatePreview = async (details: PayrollGeneration) => {
+    setIsLoading(true);
+
     try {
-      await callApi(details);
+      // MOCK IMPLEMENTATION - TODO: Replace with actual API call when backend is ready
+      // API Specification for Backend:
+      // POST /hr/employee-benefits/payroll/calculate-preview/
+      // Request Body: { month: string, year: number, employees: string[] }
+      // Response: { status: boolean, message: string, data: { total_employees, total_gross_payment, total_deductions, total_net_payment } }
+
+      console.log("🔧 MOCK: Calculating payroll preview with data:", details);
+
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // Generate mock preview data
+      const mockPreviewData: PayrollSummary = {
+        total_employees: details.employees.length,
+        total_gross_payment: details.employees.length * 250000, // Mock: 250k per employee
+        total_deductions: details.employees.length * 50000, // Mock: 50k deductions per employee
+        total_net_payment: details.employees.length * 200000, // Mock: 200k net per employee
+      };
+
+      console.log("✅ MOCK: Preview calculated successfully:", mockPreviewData);
+
+      return mockPreviewData;
     } catch (error) {
-      console.error("Payroll preview calculation error:", error);
-      throw error;
+      console.error("❌ MOCK: Preview calculation failed:", error);
+      throw new Error("Failed to calculate preview");
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  return { calculatePreview, data, isLoading, isSuccess, error };
+  return { calculatePreview, isLoading, isSuccess: false, error: null, data: null };
 };
 
 // Legacy exports for backward compatibility

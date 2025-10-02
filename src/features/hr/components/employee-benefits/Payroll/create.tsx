@@ -18,7 +18,9 @@ import {
   useGeneratePayroll,
   useCalculatePayrollPreview
 } from "@/features/hr/controllers/hrPayRollController";
-import { Employee, PayrollSummary } from "@/features/hr/types/payroll";
+import { Employee, PayrollSummary, GeneratedPayroll } from "@/features/hr/types/payroll";
+import PayrollReport from "./PayrollReport";
+import { useGetCompensationsSpread } from "@/features/hr/controllers/hrCompensationSpreadController";
 
 // Form Schema
 const PayrollGenerationSchema = z.object({
@@ -34,9 +36,12 @@ const PayrollCreate: React.FC = () => {
   const [selectedEmployees, setSelectedEmployees] = useState<string[]>([]);
   const [showPreview, setShowPreview] = useState(false);
   const [previewData, setPreviewData] = useState<PayrollSummary | null>(null);
+  const [generatedPayroll, setGeneratedPayroll] = useState<any>(null);
+  const [showPayrollReport, setShowPayrollReport] = useState(false);
 
   // API Hooks
   const { data: employeesData, isLoading: loadingEmployees } = useGetEmployeesForPayroll();
+  const { data: compensationData } = useGetCompensationsSpread();
   const { generatePayroll, isLoading: generating, isSuccess } = useGeneratePayroll();
   const { calculatePreview, isLoading: calculatingPreview } = useCalculatePayrollPreview();
 
@@ -125,33 +130,109 @@ const PayrollCreate: React.FC = () => {
   // Generate Payroll
   const handleGeneratePayroll = async (data: PayrollGenerationFormValues) => {
     try {
-      await generatePayroll({
-        month: `${data.year}-${data.month}`,
-        year: data.year,
-        employees: data.employees,
-      });
+      const month = `${data.year}-${data.month}`;
 
-      toast.success("Payroll generated successfully!");
-      router.push("/dashboard/hr/employee-benefit/pay-roll");
+      // Generate payroll data for all selected employees
+      const employeesPayrollData = selectedEmployees.map((employeeId) => {
+        const employee = getEmployeeData(employeeId);
+        const compensation = getEmployeeCompensation(employeeId);
+
+        if (!employee) return null;
+
+        const basicSalary = getCompensationValue(compensation?.basic) || employee.basic_salary || 0;
+        const housing = getCompensationValue(compensation?.housing);
+        const transport = getCompensationValue(compensation?.transport);
+        const meal = getCompensationValue(compensation?.meal);
+        const miscellaneous = getCompensationValue(compensation?.miscellaneous);
+
+        const grossSalary = basicSalary + housing + transport + meal + miscellaneous;
+        const pension = grossSalary * 0.08;
+        const tax = grossSalary * 0.07;
+        const nhis = 500;
+        const totalDeductions = pension + tax + nhis;
+        const netSalary = grossSalary - totalDeductions;
+
+        return {
+          employee_id: employee.id,
+          employee_name: employee.name,
+          employee_number: employee.employee_id,
+          position: typeof employee.position === 'object' ? employee.position?.name : employee.position || 'N/A',
+          basic_salary: basicSalary,
+          allowances: { housing, transport, meal, miscellaneous },
+          deductions: { tax, pension, nhis, loan: 0 },
+          gross_salary: grossSalary,
+          total_deductions: totalDeductions,
+          net_salary: netSalary,
+        };
+      }).filter(Boolean);
+
+      const totalGross = employeesPayrollData.reduce((sum, emp: any) => sum + emp.gross_salary, 0);
+      const totalDeductions = employeesPayrollData.reduce((sum, emp: any) => sum + emp.total_deductions, 0);
+      const totalNet = employeesPayrollData.reduce((sum, emp: any) => sum + emp.net_salary, 0);
+
+      const payrollReport = {
+        payroll_id: `payroll_${Date.now()}`,
+        month,
+        year: data.year,
+        total_employees: employeesPayrollData.length,
+        total_gross_payment: totalGross,
+        total_deductions: totalDeductions,
+        total_net_payment: totalNet,
+        employees: employeesPayrollData,
+      };
+
+      setGeneratedPayroll(payrollReport);
+      setShowPayrollReport(true);
+      toast.success("Payroll generated successfully! Review below.");
     } catch (error: any) {
       toast.error(error?.message || "Failed to generate payroll");
     }
   };
 
-  // Handle success redirect
-  React.useEffect(() => {
-    if (isSuccess) {
-      router.push("/dashboard/hr/employee-benefit/pay-roll");
-    }
-  }, [isSuccess, router]);
+  // Save Payroll
+  const handleSavePayroll = () => {
+    // TODO: Save to backend when API is ready
+    console.log("Saving payroll:", generatedPayroll);
+
+    // For now, save to localStorage as a placeholder
+    const savedPayrolls = JSON.parse(localStorage.getItem("payrolls") || "[]");
+    savedPayrolls.unshift(generatedPayroll);
+    localStorage.setItem("payrolls", JSON.stringify(savedPayrolls));
+
+    toast.success("Payroll saved successfully!");
+    router.push("/dashboard/hr/employee-benefit/pay-roll");
+  };
 
   // Safely extract employees array from API response
   const employees = employeesData?.data?.results || employeesData?.data || [];
+
+  // Helper to get employee compensation data
+  const getEmployeeCompensation = (employeeId: string) => {
+    const compensations = compensationData?.data?.results || [];
+    return compensations.find((comp: any) => comp.employee === employeeId);
+  };
+
+  // Helper to get employee data
+  const getEmployeeData = (employeeId: string) => {
+    return employees.find((emp: Employee) => emp.id === employeeId);
+  };
+
+  // Helper to extract numeric value from compensation data
+  const getCompensationValue = (value: any): number => {
+    if (!value) return 0;
+    if (typeof value === 'number') return value;
+    if (typeof value === 'object' && value.amount) return Number(value.amount) || 0;
+    if (typeof value === 'string') return Number(value) || 0;
+    return 0;
+  };
 
   // Debug log to understand the data structure
   React.useEffect(() => {
     console.log('Employees data structure:', employeesData);
     console.log('Extracted employees:', employees);
+    if (employees.length > 0) {
+      console.log('First employee sample:', employees[0]);
+    }
   }, [employeesData, employees]);
 
   return (
@@ -225,14 +306,14 @@ const PayrollCreate: React.FC = () => {
                       onCheckedChange={() => handleEmployeeToggle(employee.id)}
                     />
                     <div className="flex-1">
-                      <p className="font-medium">{employee.name}</p>
+                      <p className="font-medium">{employee.name || 'N/A'}</p>
                       <p className="text-sm text-gray-500">
-                        {employee.employee_id} • {employee.position?.name}
+                        {employee.employee_id || 'N/A'} • {typeof employee.position === 'object' ? employee.position?.name : employee.position || 'N/A'}
                       </p>
                     </div>
                     <div className="text-right">
                       <p className="text-sm font-medium">
-                        ₦{employee.basic_salary?.toLocaleString() || 'N/A'}
+                        ₦{typeof employee.basic_salary === 'number' ? employee.basic_salary.toLocaleString() : 'N/A'}
                       </p>
                     </div>
                   </div>
@@ -309,6 +390,18 @@ const PayrollCreate: React.FC = () => {
           </Card>
         </form>
       </Form>
+
+      {/* Generated Payroll Report */}
+      {showPayrollReport && generatedPayroll && (
+        <PayrollReport
+          data={generatedPayroll}
+          onSave={handleSavePayroll}
+          onCancel={() => {
+            setShowPayrollReport(false);
+            setGeneratedPayroll(null);
+          }}
+        />
+      )}
     </div>
   );
 };
