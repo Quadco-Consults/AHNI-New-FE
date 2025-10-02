@@ -32,18 +32,32 @@ const PerformanceManagement: React.FC = () => {
       size: 20,
     });
 
-  console.log("Performance Assessment Data:", performanceAssesmentData);
-  console.log("Data array:", performanceAssesmentData?.data);
-  console.log("Is Loading:", isLoading);
-
-  // Try fetching specific ID to test
+  // Refetch data when component mounts or becomes visible
   React.useEffect(() => {
-    if (performanceAssesmentData?.data?.length === 0) {
-      console.warn("⚠️ BACKEND ISSUE: List endpoint returns empty results even after successful creation.");
-      console.warn("📋 This is a backend problem - the GET list endpoint is not returning created assessments.");
-      console.warn("💡 Contact backend team to check the list endpoint filtering/permissions.");
+    refetch();
+  }, [refetch]);
+
+  React.useEffect(() => {
+    console.log("=== PERFORMANCE ASSESSMENT DEBUG ===");
+    console.log("Full response:", performanceAssesmentData);
+    console.log("Data array:", performanceAssesmentData?.data);
+    console.log("Data array length:", performanceAssesmentData?.data?.length);
+    console.log("Is Loading:", isLoading);
+    console.log("Data type:", typeof performanceAssesmentData?.data);
+    console.log("Is array:", Array.isArray(performanceAssesmentData?.data));
+
+    if (performanceAssesmentData && !isLoading) {
+      if (!performanceAssesmentData?.data) {
+        console.error("❌ No data property in response!");
+      } else if (performanceAssesmentData?.data?.length === 0) {
+        console.warn("⚠️ BACKEND ISSUE: List endpoint returns empty array even after successful creation.");
+        console.warn("📋 This is a backend problem - the GET list endpoint is not returning created assessments.");
+        console.warn("💡 Contact backend team to check the list endpoint filtering/permissions.");
+      } else {
+        console.log("✅ Successfully loaded", performanceAssesmentData?.data?.length, "assessments");
+      }
     }
-  }, [performanceAssesmentData]);
+  }, [performanceAssesmentData, isLoading]);
 
   const columns: ColumnDef<any>[] = [
     {
@@ -171,7 +185,9 @@ const PerformanceManagement: React.FC = () => {
           pagination={{
             total: performanceAssesmentData?.data?.length || 0,
             pageSize: 20,
-            onChange: (page: number) => {},
+            onChange: (page: number) => {
+              console.log("Page changed to:", page);
+            },
           }}
         />
       </div>

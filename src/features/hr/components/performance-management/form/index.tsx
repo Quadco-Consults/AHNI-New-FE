@@ -113,20 +113,24 @@ const NewPerformance = () => {
   console.log({ employees, user, employeeOptions });
 
   const onSubmit = async (data: any) => {
+    console.log("=== CREATING PERFORMANCE ASSESSMENT ===");
     console.log("Form data being submitted:", data);
     console.log("Evaluators data:", JSON.stringify(data.evaluators, null, 2));
     try {
       const response = await createPerformanceAssesment(data);
-      console.log("Create response:", response);
-      console.log("Created assessment ID:", response?.data?.data?.id);
+      console.log("✅ CREATE SUCCESS - Full response:", response);
+      console.log("✅ Response structure:", {
+        status: response?.status,
+        message: response?.message,
+        data: response?.data,
+        id: response?.data?.id || response?.data?.data?.id
+      });
       toast.success("Performance appraisal created successfully");
 
-      // Wait a bit before redirecting to allow the backend to process
-      setTimeout(() => {
-        router.push(HrRoutes.PERFORMANCE_MANAGEMENT);
-      }, 1000);
+      // Redirect to list page - cache should auto-invalidate
+      router.push(HrRoutes.PERFORMANCE_MANAGEMENT);
     } catch (e) {
-      console.error("Error creating assessment:", e);
+      console.error("❌ Error creating assessment:", e);
       toast.error("Something went wrong");
     }
   };

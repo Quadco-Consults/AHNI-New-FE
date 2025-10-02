@@ -65,7 +65,7 @@ export const useAddProject = () => {
     TProjectFormValues
   >({
     endpoint: BASE_URL,
-    queryKey: ["projects"],
+    queryKey: "projects",
     isAuth: true,
     method: "POST",
   });

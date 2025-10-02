@@ -15,12 +15,21 @@ import { SelectContent, SelectItem } from "components/ui/select";
 
 import { EmployeeOnboarding } from "definations/hr-types/employee-onboarding";
 import { useGetEmployeeOnboardings } from "@/features/hr/controllers/employeeOnboardingController";
+import { useGetAllProjects } from "@/features/projects/controllers/projectController";
 
 const CreateSeparationManagement = () => {
   const { data: employeeData, isLoading: fetchingEmployeeData } =
     useGetEmployeeOnboardings({ page: 1, size: 20 });
+  const { data: projectData, isLoading: fetchingProjectData } =
+    useGetAllProjects({ page: 1, size: 1000 });
   const router = useRouter();
   const form = useForm();
+
+  console.log("=== SEPARATION MANAGEMENT - PROJECTS DEBUG ===");
+  console.log("Project data:", projectData);
+  console.log("Projects results:", projectData?.data?.results);
+  console.log("Projects count:", projectData?.data?.results?.length);
+  console.log("Is loading projects:", fetchingProjectData);
 
   const options = ["Voluntary Separation", "End Of Project", "Dismissal"].map(
     (option) => ({
@@ -72,9 +81,20 @@ const CreateSeparationManagement = () => {
                 <FormSelect
                   name='project'
                   label='Project'
-                  options={[]}
                   required
-                />
+                >
+                  <SelectContent>
+                    {fetchingProjectData ? (
+                      <LoadingSpinner />
+                    ) : (
+                      projectData?.data?.results?.map((project) => (
+                        <SelectItem key={project?.id} value={project?.id}>
+                          {project?.project_name || project?.title}
+                        </SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </FormSelect>
               </div>
 
               <div className='col-span-1'>

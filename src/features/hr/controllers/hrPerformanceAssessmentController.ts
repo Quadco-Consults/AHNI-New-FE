@@ -43,16 +43,31 @@ export const useGetPerformanceAssesments = ({
         });
         console.log("Raw API Response:", response.data);
 
-        // Backend returns nested structure: data.data.results
-        const results = response.data?.data?.results || [];
+        // Handle multiple possible response structures
+        let results: PerformanceAssesment[] = [];
+
+        if (Array.isArray(response.data?.data?.results)) {
+          // Backend returns nested structure: data.data.results
+          results = response.data.data.results;
+        } else if (Array.isArray(response.data?.data)) {
+          // Backend returns: data.data as array
+          results = response.data.data;
+        } else if (Array.isArray(response.data)) {
+          // Backend returns array directly
+          results = response.data;
+        }
+
         console.log("Extracted results:", results);
+        console.log("Results count:", results.length);
 
         return {
-          ...response.data,
+          status: response.data?.status ?? true,
+          message: response.data?.message ?? "Success",
           data: results,
         };
       } catch (error) {
         const axiosError = error as AxiosError;
+        console.error("Performance assessments fetch error:", axiosError);
         throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
       }
     },
@@ -87,7 +102,7 @@ export const useCreatePerformanceAssesment = () => {
     Partial<PerformanceAssesment>
   >({
     endpoint: BASE_URL,
-    queryKey: ["performance-assessments"],
+    queryKey: "performance-assessments",
     isAuth: true,
     method: "POST",
   });
