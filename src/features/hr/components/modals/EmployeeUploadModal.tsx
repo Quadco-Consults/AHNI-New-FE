@@ -9,7 +9,8 @@ import { useAppDispatch } from "hooks/useStore";
 import { closeDialog } from "store/ui";
 import { useRouter } from "next/navigation";
 import { HrRoutes } from "constants/RouterConstants";
-import { CheckCircle, AlertTriangle, FileSpreadsheet, Upload } from "lucide-react";
+import { CheckCircle, AlertTriangle, FileSpreadsheet, Upload, Download } from "lucide-react";
+import * as XLSX from "xlsx";
 
 interface EmployeeUploadModalProps {
   onClose?: () => void;
@@ -137,13 +138,108 @@ export default function EmployeeUploadModal({ onClose, onUpload }: EmployeeUploa
     }
   };
 
+  const downloadTemplate = () => {
+    // Define the template structure with all required employee fields
+    const templateData = [
+      {
+        "Staff ID": "AHNI-001",
+        "First Name": "John",
+        "Last Name": "Doe",
+        "Email": "john.doe@example.com",
+        "Phone Number": "+234-XXX-XXX-XXXX",
+        "Employment Type": "Full-Time",
+        "Position": "Software Engineer",
+        "Department": "Engineering",
+        "Location": "Lagos",
+        "Start Date": "2025-01-01",
+        "Date of Birth": "1990-01-15",
+        "Gender": "Male",
+        "Marital Status": "Single",
+        "Address": "123 Main Street, Lagos",
+        "Bank Name": "First Bank",
+        "Account Number": "1234567890",
+        "Account Name": "John Doe",
+        "Emergency Contact Name": "Jane Doe",
+        "Emergency Contact Phone": "+234-XXX-XXX-XXXX",
+        "Emergency Contact Relationship": "Spouse",
+      }
+    ];
+
+    // Create workbook
+    const ws = XLSX.utils.json_to_sheet(templateData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Employee Template");
+
+    // Set column widths for better readability
+    const colWidths = [
+      { wch: 12 },  // Staff ID
+      { wch: 15 },  // First Name
+      { wch: 15 },  // Last Name
+      { wch: 25 },  // Email
+      { wch: 18 },  // Phone Number
+      { wch: 15 },  // Employment Type
+      { wch: 20 },  // Position
+      { wch: 15 },  // Department
+      { wch: 15 },  // Location
+      { wch: 12 },  // Start Date
+      { wch: 12 },  // Date of Birth
+      { wch: 10 },  // Gender
+      { wch: 15 },  // Marital Status
+      { wch: 30 },  // Address
+      { wch: 15 },  // Bank Name
+      { wch: 15 },  // Account Number
+      { wch: 20 },  // Account Name
+      { wch: 20 },  // Emergency Contact Name
+      { wch: 18 },  // Emergency Contact Phone
+      { wch: 20 },  // Emergency Contact Relationship
+    ];
+    ws['!cols'] = colWidths;
+
+    // Generate file
+    const fileName = `Employee_Upload_Template_${new Date().toISOString().split('T')[0]}.xlsx`;
+    XLSX.writeFile(wb, fileName);
+
+    toast.success("Template downloaded successfully!");
+  };
+
   return (
     <div className="flex flex-col gap-6">
       <div className="space-y-2">
-        <h3 className="text-lg font-semibold">Upload Employees Data</h3>
-        <p className="text-sm text-gray-600">
-          Upload a CSV or Excel file containing multiple employee records for bulk processing.
-        </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-semibold">Upload Employees Data</h3>
+            <p className="text-sm text-gray-600">
+              Upload a CSV or Excel file containing multiple employee records for bulk processing.
+            </p>
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={downloadTemplate}
+            disabled={isUploading}
+            className="flex items-center gap-2"
+          >
+            <Download className="w-4 h-4" />
+            Download Template
+          </Button>
+        </div>
+      </div>
+
+      {/* Instructions */}
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div className="flex items-start gap-2">
+          <FileSpreadsheet className="w-5 h-5 text-blue-600 mt-0.5" />
+          <div className="text-sm text-blue-900 space-y-1">
+            <p className="font-medium">Instructions:</p>
+            <ol className="list-decimal list-inside space-y-1 text-blue-800">
+              <li>Click "Download Template" to get the Excel template</li>
+              <li>Fill in employee details in the template</li>
+              <li>Save the file and upload it below</li>
+              <li>Review and confirm the uploaded data</li>
+            </ol>
+          </div>
+        </div>
       </div>
 
       {/* File Upload Section */}
