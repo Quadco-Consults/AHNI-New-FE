@@ -7,7 +7,11 @@
       "Bash(git add:*)",
       "Bash(git commit -m \"$(cat <<''EOF''\nIntegrate performance appraisal system with backend API\n\n- Updated type definitions to match backend response structure\n- Added evaluation_category and competency fields to evaluator form\n- Integrated create/update/list endpoints for performance assessments\n- Fixed data extraction from paginated API responses\n- Updated evaluation form to submit correct data structure\n- Added real-time data display in performance management list\n- Configured form to redirect after successful creation\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
       "Bash(git push:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(git config:*)",
+      "Bash(git branch:*)",
+      "Bash(git fetch:*)",
+      "Bash(git pull:*)"
     ],
     "deny": [],
     "ask": []

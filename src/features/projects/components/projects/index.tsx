@@ -23,7 +23,7 @@ export default function ProjectHomePage() {
         wait: 500,
     });
 
-    const { data: project, isLoading } = useGetAllProjects({
+    const { data: project, isLoading, refetch } = useGetAllProjects({
         page,
         size: 10,
         search: debounceSearchQuery,
@@ -34,7 +34,9 @@ export default function ProjectHomePage() {
     useEffect(() => {
         dispatch(clearPartners());
         dispatch(clearObjectives());
-    }, []);
+        // Refetch projects when component mounts
+        refetch();
+    }, [refetch]);
 
     return (
         <section>
