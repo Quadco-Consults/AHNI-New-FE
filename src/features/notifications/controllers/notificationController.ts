@@ -71,7 +71,7 @@ export const useGetNotifications = (params?: NotificationFilters) => {
         if (status && status !== 'all' && status !== 'all_status') searchParams.append('status', status);
         if (search) searchParams.append('search', search);
         
-        const response = await AxiosWithToken.get(`/notifications?${searchParams.toString()}`);
+        const response = await AxiosWithToken.get(`notifications?${searchParams.toString()}`);
         
         // Sort notifications by priority and date
         const sortedResults = response.data.results?.sort((a: TNotification, b: TNotification) => {
@@ -133,7 +133,7 @@ export const useInfiniteNotifications = (params?: Omit<NotificationFilters, 'pag
         if (status && status !== 'all' && status !== 'all_status') searchParams.append('status', status);
         if (search) searchParams.append('search', search);
         
-        const response = await AxiosWithToken.get(`/notifications?${searchParams.toString()}`);
+        const response = await AxiosWithToken.get(`notifications?${searchParams.toString()}`);
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
@@ -170,7 +170,7 @@ export const useMarkNotificationAsRead = () => {
   return useMutation({
     mutationFn: async (notificationId: string) => {
       try {
-        const response = await AxiosWithToken.post(`/notifications/${notificationId}/mark_as_read/`);
+        const response = await AxiosWithToken.post(`notifications/${notificationId}/mark_as_read/`);
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
@@ -194,7 +194,7 @@ export const useDeleteNotification = () => {
   return useMutation({
     mutationFn: async (notificationId: string) => {
       try {
-        const response = await AxiosWithToken.delete(`/notifications/${notificationId}/`);
+        const response = await AxiosWithToken.delete(`notifications/${notificationId}/`);
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
@@ -218,7 +218,7 @@ export const useMarkNotificationAsUnread = () => {
   return useMutation({
     mutationFn: async (notificationId: string) => {
       try {
-        const response = await AxiosWithToken.post(`/notifications/${notificationId}/mark_as_unread/`);
+        const response = await AxiosWithToken.post(`notifications/${notificationId}/mark_as_unread/`);
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
@@ -245,22 +245,22 @@ export const useBulkMarkAsRead = () => {
         if (notificationIds && notificationIds.length > 0) {
           // Mark specific notifications as read
           const promises = notificationIds.map(id =>
-            AxiosWithToken.post(`/notifications/${id}/mark_as_read/`)
+            AxiosWithToken.post(`notifications/${id}/mark_as_read/`)
           );
           await Promise.all(promises);
           return { count: notificationIds.length, success: true };
         } else {
           // Try bulk endpoint first, fallback to individual calls
           try {
-            const response = await AxiosWithToken.post(`/notifications/mark_all_read/`);
+            const response = await AxiosWithToken.post(`notifications/mark_all_read/`);
             return response.data;
           } catch (bulkError) {
             // Fallback to individual calls if bulk endpoint doesn't exist
-            const notificationsResponse = await AxiosWithToken.get(`/notifications/?status=Pending&size=1000`);
+            const notificationsResponse = await AxiosWithToken.get(`notifications/?status=Pending&size=1000`);
             const unreadNotifications = notificationsResponse.data.results || [];
             
             const promises = unreadNotifications.map((notification: TNotification) =>
-              AxiosWithToken.post(`/notifications/${notification.id}/mark_as_read/`)
+              AxiosWithToken.post(`notifications/${notification.id}/mark_as_read/`)
             );
             
             await Promise.all(promises);
@@ -294,14 +294,14 @@ export const useBulkDeleteNotifications = () => {
       try {
         // Try bulk delete endpoint first
         try {
-          const response = await AxiosWithToken.delete(`/notifications/bulk_delete/`, {
+          const response = await AxiosWithToken.delete(`notifications/bulk_delete/`, {
             data: { notification_ids: notificationIds }
           });
           return response.data;
         } catch (bulkError) {
           // Fallback to individual deletes
           const promises = notificationIds.map(id =>
-            AxiosWithToken.delete(`/notifications/${id}/`)
+            AxiosWithToken.delete(`notifications/${id}/`)
           );
           await Promise.all(promises);
           return { count: notificationIds.length, success: true };
@@ -334,7 +334,7 @@ export const useGetUnreadCount = (enabled: boolean = true) => {
     queryFn: async () => {
       try {
         // Get count of unread notifications by filtering status=Pending
-        const response = await AxiosWithToken.get(`/notifications/?status=Pending&size=1`);
+        const response = await AxiosWithToken.get(`notifications/?status=Pending&size=1`);
         return { count: response.data.count || 0 };
       } catch (error) {
         const axiosError = error as AxiosError;

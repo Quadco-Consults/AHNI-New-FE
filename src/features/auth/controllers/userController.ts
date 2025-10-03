@@ -17,7 +17,7 @@ export const useGetCurrentUser = () => {
     queryKey: ["currentUser"],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get("/auth/me/");
+        const response = await AxiosWithToken.get("auth/me/");
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
@@ -41,7 +41,7 @@ export const useGetAllUsers = ({
     queryKey: ["users", page, size, search, status, user_type],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get("/users/", {
+        const response = await AxiosWithToken.get("users/", {
           params: { page, size, search, status, user_type },
         });
         return response.data;
@@ -61,7 +61,7 @@ export const useGetSingleUser = (id: string, enabled: boolean = true) => {
     queryKey: ["user", id],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get(`/users/${id}/`);
+        const response = await AxiosWithToken.get(`users/${id}/`);
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
@@ -79,7 +79,7 @@ export const useGetUserProfile = (enabled: boolean = true) => {
     queryKey: ["user-profile"],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get("/users/profile/");
+        const response = await AxiosWithToken.get("users/profile/");
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
@@ -98,7 +98,7 @@ export const useCreateUser = () => {
     Error,
     TCreateUserFormValues
   >({
-    endpoint: "/users/",
+    endpoint: "users/",
     queryKey: ["users"],
     isAuth: true,
     method: "POST",
@@ -124,7 +124,7 @@ export const useUpdateUser = (id: string) => {
     Error,
     TUpdateUserFormValues
   >({
-    endpoint: `/users/${id}/`,
+    endpoint: `users/${id}/`,
     queryKey: ["users", "user"],
     isAuth: true,
     method: "PATCH",
@@ -148,7 +148,7 @@ export const useAddUserToRole = (id: string) => {
     Error,
     { roles: string[] }
   >({
-    endpoint: `/users/${id}/roles/`,
+    endpoint: `users/${id}/roles/`,
     queryKey: ["users"],
     isAuth: true,
     method: "POST",
@@ -172,7 +172,7 @@ export const useActivateUser = (id: string) => {
     Error,
     Record<string, never>
   >({
-    endpoint: `/users/${id}/activate/`,
+    endpoint: `users/${id}/activate/`,
     queryKey: ["users"],
     isAuth: true,
     method: "POST",
@@ -196,7 +196,7 @@ export const useDeactivateUser = (id: string) => {
     Error,
     Record<string, never>
   >({
-    endpoint: `/users/${id}/deactivate/`,
+    endpoint: `users/${id}/deactivate/`,
     queryKey: ["users"],
     isAuth: true,
     method: "POST",

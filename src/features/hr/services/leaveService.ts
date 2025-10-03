@@ -12,36 +12,9 @@ export class LeaveService {
   private readonly HEALTH_CHECK_INTERVAL = 60000; // 1 minute
 
   private async checkBackendHealth(): Promise<boolean> {
-    const now = Date.now();
-    
-    // Return cached result if recent
-    if (this.backendAvailable !== null && (now - this.lastHealthCheck) < this.HEALTH_CHECK_INTERVAL) {
-      return this.backendAvailable;
-    }
-
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 3000);
-      
-      const response = await fetch(`${API_BASE}/health/`, {
-        method: 'GET',
-        signal: controller.signal,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      
-      clearTimeout(timeoutId);
-      
-      this.backendAvailable = response.ok;
-      this.lastHealthCheck = now;
-      return this.backendAvailable;
-    } catch (error) {
-      console.warn('Backend health check failed, using mock data:', error);
-      this.backendAvailable = false;
-      this.lastHealthCheck = now;
-      return false;
-    }
+    // Always return true - backend is available
+    // Health checks disabled to match rest of application behavior
+    return true;
   }
 
   private async request<T>(endpoint: string, options?: RequestInit): Promise<T> {
@@ -260,7 +233,7 @@ export class LeaveService {
   }
 
   // File Upload
-  async uploadAttachment(file: File): Promise<{
+  async uploadAttachment(file: File, leaveRequestId?: string): Promise<{
     success: boolean;
     data: {
       fileName: string;
@@ -287,7 +260,13 @@ export class LeaveService {
         headers['Authorization'] = `Bearer ${localStorage.getItem('authToken')}`;
       }
 
-      const response = await fetch(`${API_BASE}/leave-attachments/`, {
+      // If leaveRequestId is provided, use the backend endpoint that requires it
+      // Otherwise fall back to mock for preview uploads during form creation
+      const uploadUrl = leaveRequestId
+        ? `${API_BASE}/hr/leave-request/${leaveRequestId}/upload_document/`
+        : `${API_BASE}/hr/leave-attachments/`; // Fallback URL
+
+      const response = await fetch(uploadUrl, {
         method: 'POST',
         headers: headers,
         body: formData,
