@@ -2,14 +2,15 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Card } from "components/ui/card";
 import { Button } from "components/ui/button";
 import { Badge } from "components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
-import { 
-  Plus, 
-  Calendar, 
-  Users, 
+import {
+  Plus,
+  Calendar,
+  Users,
   Clock,
   CheckCircle,
   XCircle,
@@ -24,18 +25,22 @@ import { ColumnDef } from "@tanstack/react-table";
 import LeaveBalanceCard from "./LeaveBalanceCard";
 import BackendStatusBanner from "./BackendStatusBanner";
 import { LeaveRequest, LeaveStatus } from "../../types/leave";
-import { useDashboardData } from "../../services/leaveService";
+import { useGetLeaveDashboard } from "../../controllers/leaveRequestController";
+import { useGetUserProfile } from "@/features/auth/controllers/userController";
 import { format } from "date-fns";
 
 
 const LeaveDashboard = () => {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState("overview");
-  
-  // Get current user ID - replace with actual auth logic
-  const currentEmployeeId = "emp-001"; // This should come from your auth context
-  
+
+  // Get current user ID from auth
+  const { data: userProfileData } = useGetUserProfile();
+  const currentEmployeeId = userProfileData?.data?.id || "";
+
   // API hook
-  const { data, loading, error } = useDashboardData(currentEmployeeId);
+  const { data: dashboardResponse, isLoading: loading, error } = useGetLeaveDashboard(currentEmployeeId, !!currentEmployeeId);
+  const data = dashboardResponse?.data;
   
   // Show loading state
   if (loading) {
@@ -83,16 +88,23 @@ const LeaveDashboard = () => {
   };
 
   // Recent Requests Table Columns
-  const recentRequestsColumns: ColumnDef<LeaveRequest>[] = [
+  const recentRequestsColumns: ColumnDef<any>[] = [
+    {
+      header: "Employee",
+      cell: ({ row }) => (
+        <div>
+          <div className="font-medium">
+            {row.original.employee?.first_name} {row.original.employee?.last_name}
+          </div>
+          <div className="text-sm text-gray-500">{row.original.employee?.email}</div>
+        </div>
+      ),
+    },
     {
       header: "Leave Type",
       cell: ({ row }) => (
         <div className="flex items-center gap-2">
-          <div 
-            className="w-3 h-3 rounded-full" 
-            style={{ backgroundColor: row.original.leaveType.color }}
-          />
-          <span className="font-medium">{row.original.leaveType.name}</span>
+          <span className="font-medium">{row.original.leave_type?.name || 'N/A'}</span>
         </div>
       ),
     },
@@ -101,22 +113,38 @@ const LeaveDashboard = () => {
       cell: ({ row }) => (
         <div>
           <div className="font-medium">
-            {format(new Date(row.original.fromDate), 'MMM dd')} - {format(new Date(row.original.toDate), 'MMM dd')}
+            {row.original.from_date && row.original.to_date ? (
+              <>
+                {format(new Date(row.original.from_date), 'MMM dd')} - {format(new Date(row.original.to_date), 'MMM dd')}
+              </>
+            ) : 'N/A'}
           </div>
-          <div className="text-sm text-gray-500">{row.original.numberOfDays} days</div>
+          <div className="text-sm text-gray-500">{row.original.number_of_days || 0} days</div>
         </div>
       ),
     },
     {
       header: "Status",
-      cell: ({ row }) => <StatusBadge status={row.original.status} />,
+      cell: ({ row }) => <StatusBadge status={row.original.status || 'pending'} />,
     },
     {
       header: "Applied",
       cell: ({ row }) => (
         <div className="text-sm text-gray-600">
-          {format(new Date(row.original.appliedDate), 'MMM dd, yyyy')}
+          {row.original.created_at ? format(new Date(row.original.created_at), 'MMM dd, yyyy') : 'N/A'}
         </div>
+      ),
+    },
+    {
+      header: "Actions",
+      cell: ({ row }) => (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => router.push(`/dashboard/hr/leave-management/${row.original.id}/details`)}
+        >
+          View
+        </Button>
       ),
     },
   ];
@@ -233,23 +261,24 @@ const LeaveDashboard = () => {
             <div>
               <h3 className="text-lg font-semibold mb-4">Upcoming Leaves</h3>
               <div className="grid gap-4">
-                {data.myUpcomingLeaves.map((leave) => (
-                  <Card key={leave.id} className="p-4">
+                {data.myUpcomingLeaves.map((leave: any) => (
+                  <Card key={leave.id} className="p-4 cursor-pointer hover:shadow-md transition-shadow"
+                    onClick={() => router.push(`/dashboard/hr/leave-management/${leave.id}/details`)}>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div 
-                          className="w-4 h-4 rounded-full" 
-                          style={{ backgroundColor: leave.leaveType?.color || '#gray' }}
-                        />
                         <div>
-                          <div className="font-medium">{leave.leaveType?.name || 'Unknown Leave Type'}</div>
+                          <div className="font-medium">{leave.leave_type?.name || 'Unknown Leave Type'}</div>
                           <div className="text-sm text-gray-600">
-                            {format(new Date(leave.fromDate), 'MMM dd')} - {format(new Date(leave.toDate), 'MMM dd')} 
-                            ({leave.numberOfDays} days)
+                            {leave.from_date && leave.to_date ? (
+                              <>
+                                {format(new Date(leave.from_date), 'MMM dd')} - {format(new Date(leave.to_date), 'MMM dd')}
+                                ({leave.number_of_days || 0} days)
+                              </>
+                            ) : 'N/A'}
                           </div>
                         </div>
                       </div>
-                      <StatusBadge status={leave.status} />
+                      <StatusBadge status={leave.status || 'pending'} />
                     </div>
                     {leave.reason && (
                       <p className="text-sm text-gray-600 mt-2">{leave.reason}</p>

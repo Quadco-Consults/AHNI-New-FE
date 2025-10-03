@@ -7,27 +7,28 @@ export const API_CONFIG = {
 
 export const API_ENDPOINTS = {
   // Leave Types (Backend uses 'leave-package')
-  LEAVE_TYPES: '/hr/leave-package/',
+  // Note: No leading slashes because BASE_URL already has trailing slash
+  LEAVE_TYPES: 'hr/leave-package/',
 
   // Leave Balances
-  LEAVE_BALANCES: (employeeId: string) => `/hr/leave-balance/?employee=${employeeId}`,
+  LEAVE_BALANCES: (employeeId: string) => `hr/leave-balance/?employee=${employeeId}`,
 
   // Leave Requests (Backend uses 'leave-request' singular)
-  LEAVE_REQUESTS: '/hr/leave-request/',
-  LEAVE_REQUEST: (id: string) => `/hr/leave-request/${id}/`,
-  LEAVE_REQUEST_SUBMIT: (id: string) => `/hr/leave-request/${id}/submit/`,
-  LEAVE_REQUEST_APPROVE: (id: string) => `/hr/leave-request/${id}/approve/`,
-  LEAVE_REQUEST_REJECT: (id: string) => `/hr/leave-request/${id}/reject/`,
-  LEAVE_REQUEST_CANCEL: (id: string) => `/hr/leave-request/${id}/cancel/`,
-  LEAVE_REQUEST_WORKFLOW: (id: string) => `/hr/leave-request/${id}/workflow/`,
-  LEAVE_REQUEST_VALIDATE: '/hr/leave-request/validate/',
-  LEAVE_DASHBOARD: '/hr/leave-request/dashboard/',
+  LEAVE_REQUESTS: 'hr/leave-request/',
+  LEAVE_REQUEST: (id: string) => `hr/leave-request/${id}/`,
+  LEAVE_REQUEST_SUBMIT: (id: string) => `hr/leave-request/${id}/submit/`,
+  LEAVE_REQUEST_APPROVE: (id: string) => `hr/leave-request/${id}/approve/`,
+  LEAVE_REQUEST_REJECT: (id: string) => `hr/leave-request/${id}/reject/`,
+  LEAVE_REQUEST_CANCEL: (id: string) => `hr/leave-request/${id}/cancel/`,
+  LEAVE_REQUEST_WORKFLOW: (id: string) => `hr/leave-request/${id}/workflow/`,
+  LEAVE_REQUEST_VALIDATE: 'hr/leave-request/validate/',
+  LEAVE_DASHBOARD: 'hr/leave-request/dashboard/',
 
   // File Uploads (Backend uses leave-request upload_document)
-  LEAVE_ATTACHMENTS: (leaveRequestId: string) => `/hr/leave-request/${leaveRequestId}/upload_document/`,
+  LEAVE_ATTACHMENTS: (leaveRequestId: string) => `hr/leave-request/${leaveRequestId}/upload_document/`,
 
   // Employees
-  EMPLOYEES: '/hr/employees/',
+  EMPLOYEES: 'hr/employees/',
 } as const;
 
 export const HTTP_STATUS = {
