@@ -33,11 +33,14 @@ import type { TimesheetEntry } from "@/features/hr/types/timesheet";
 const TimesheetManagementFull = () => {
   const params = useParams();
   const timesheetId = params?.id as string;
+  const isCreateMode = !timesheetId || timesheetId === "create";
 
-  // Fetch timesheet data from backend
+  console.log("Timesheet page - timesheetId:", timesheetId, "isCreateMode:", isCreateMode);
+
+  // Fetch timesheet data from backend (only if not in create mode)
   const { data: timesheetData, isLoading: isLoadingTimesheet, refetch } = useGetTimesheetById(
-    timesheetId,
-    !!timesheetId && timesheetId !== "create"
+    timesheetId || "create",
+    !isCreateMode
   );
   const timesheet = timesheetData?.data;
 
