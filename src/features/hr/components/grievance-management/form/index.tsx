@@ -59,6 +59,14 @@ const GrievanceManagementForm = () => {
     data
   ) => {
     try {
+      console.log("Form data received:", data);
+
+      // Validate required fields
+      if (!data.title) {
+        toast.error("Please select a title (Complaint or Whistleblowing)");
+        return;
+      }
+
       // Create complaint without document first
       const complaintData: any = {
         type: data.title,

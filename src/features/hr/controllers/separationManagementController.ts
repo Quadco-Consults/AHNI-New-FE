@@ -88,9 +88,13 @@ export const useGetSeparationManagementById = (id: string, enabled: boolean = tr
     queryFn: async () => {
       try {
         const response = await AxiosWithToken.get(`${BASE_URL}${id}/`);
+        console.log("🔍 Separation Detail API Response:", response.data);
+        console.log("🔍 Separation Data:", response.data?.data);
+        console.log("🔍 Employee Data:", response.data?.data?.employee);
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
+        console.error("Separation fetch error:", axiosError);
         throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
       }
     },
