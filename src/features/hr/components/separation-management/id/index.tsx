@@ -16,6 +16,13 @@ const SeparationManagementDetail = () => {
 
   const separationData = data?.data;
 
+  // Debug logging to see what data we're getting
+  console.log("Separation Management Data:", {
+    fullData: data,
+    separationData: separationData,
+    employee: separationData?.employee
+  });
+
   const TABS = [
     {
       label: "Exit Summary",

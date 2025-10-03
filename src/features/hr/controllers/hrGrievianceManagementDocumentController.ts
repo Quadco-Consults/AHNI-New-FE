@@ -78,19 +78,21 @@ export const useCreateGrievianceManagementDocument = () => {
   const { callApi, isLoading, isSuccess, error, data } = useApiManager<
     GrievianceManagementDocument,
     Error,
-    Partial<GrievianceManagementDocument>
+    Partial<GrievianceManagementDocument> | FormData
   >({
     endpoint: BASE_URL,
     queryKey: ["grievance-management-documents"],
     isAuth: true,
     method: "POST",
+    contentType: null, // This allows FormData uploads with proper multipart/form-data headers
   });
 
-  const createGrievianceManagementDocument = async (details: Partial<GrievianceManagementDocument>) => {
+  const createGrievianceManagementDocument = async (details: Partial<GrievianceManagementDocument> | FormData) => {
     try {
-      await callApi(details);
+      await callApi(details as any);
     } catch (error) {
       console.error("Grievance management document create error:", error);
+      throw error; // Re-throw to allow component to handle error
     }
   };
 

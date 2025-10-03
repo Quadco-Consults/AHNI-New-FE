@@ -9,7 +9,9 @@ import { useAppDispatch } from "hooks/useStore";
 import { closeDialog } from "store/ui";
 import { useRouter } from "next/navigation";
 import { HrRoutes } from "constants/RouterConstants";
-import { CheckCircle, AlertTriangle, FileSpreadsheet, Upload } from "lucide-react";
+import { CheckCircle, AlertTriangle, FileSpreadsheet, Upload, Download } from "lucide-react";
+import * as XLSX from "xlsx";
+import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 
 interface EmployeeUploadModalProps {
   onClose?: () => void;
@@ -56,7 +58,7 @@ export default function EmployeeUploadModal({ onClose, onUpload }: EmployeeUploa
     }
   };
 
-  const simulateUpload = async () => {
+  const handleUpload = async () => {
     if (!file) {
       setError("Please select a file to upload");
       return;
@@ -68,57 +70,69 @@ export default function EmployeeUploadModal({ onClose, onUpload }: EmployeeUploa
     setStatusMessage("Uploading employee data file...");
 
     try {
-      // Simulate upload progress
-      for (let i = 0; i <= 100; i += 10) {
-        await new Promise(resolve => setTimeout(resolve, 200));
-        setUploadProgress(i);
+      // Create FormData
+      const formData = new FormData();
+      formData.append('file', file);
 
-        if (i === 30) setStatusMessage("Validating file format...");
-        if (i === 60) setStatusMessage("Processing employee records...");
-        if (i === 90) setStatusMessage("Finalizing upload...");
+      // Upload to backend with progress tracking
+      setUploadProgress(30);
+      setStatusMessage("Validating file format...");
+
+      const response = await AxiosWithToken.post('/hr/employees/bulk-upload/', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        onUploadProgress: (progressEvent) => {
+          if (progressEvent.total) {
+            const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            setUploadProgress(Math.min(percentCompleted, 90));
+          }
+        }
+      });
+
+      setUploadProgress(90);
+      setStatusMessage("Processing employee records...");
+
+      // Processing phase
+      setUploadStatus('processing');
+      setStatusMessage("Creating employee records in database...");
+
+      // Wait a bit for processing to complete
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // Extract results from response
+      const result = response.data;
+      const successCount = result.data?.success_count || result.data?.created_count || 0;
+      const errorCount = result.data?.error_count || 0;
+      const errors = result.data?.errors || [];
+
+      setUploadProgress(100);
+      setUploadStatus('success');
+
+      if (errorCount > 0) {
+        setStatusMessage(`Processed ${successCount} employees. ${errorCount} errors found.`);
+        toast.warning(`Upload completed with warnings. ${successCount} created, ${errorCount} errors.`);
+        console.warn("Upload errors:", errors);
+      } else {
+        setStatusMessage(`Successfully processed ${successCount} employee records!`);
+        toast.success(`Upload completed! ${successCount} employees created.`);
       }
 
-      // Simulate processing phase
-      setUploadStatus('processing');
-      setStatusMessage("Processing employee data and creating records...");
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      // Store the uploaded file info for demo purposes
-      const uploadedFile = {
-        file: {
-          name: file.name,
-          size: file.size,
-          type: file.type,
-          lastModified: file.lastModified
-        },
-        timestamp: Date.now(),
-        status: "processed",
-        employeeCount: Math.floor(Math.random() * 50) + 10 // Random count for demo
-      };
-
-      const tempUploads = JSON.parse(sessionStorage.getItem('tempEmployeeUploads') || '[]');
-      tempUploads.push(uploadedFile);
-      sessionStorage.setItem('tempEmployeeUploads', JSON.stringify(tempUploads));
-
-      setUploadStatus('success');
-      setStatusMessage(`Successfully processed ${uploadedFile.employeeCount} employee records!`);
-
-      toast.success(`Upload completed! ${uploadedFile.employeeCount} employees processed.`);
-
       // Call the onUpload callback if provided
-      onUpload?.(file, uploadedFile);
+      onUpload?.(file, result);
 
       // Auto-close after success
       setTimeout(() => {
         onClose?.() || dispatch(closeDialog());
       }, 2000);
 
-    } catch (error) {
+    } catch (error: any) {
       setUploadStatus('error');
-      setStatusMessage("Upload failed. Please try again.");
+      const errorMessage = error?.response?.data?.message || error?.message || "Upload failed. Please try again.";
+      setStatusMessage(errorMessage);
       setIsUploading(false);
       console.error("Upload error:", error);
-      toast.error("Failed to upload employee data. Please try again.");
+      toast.error(errorMessage);
     }
   };
 
@@ -137,13 +151,110 @@ export default function EmployeeUploadModal({ onClose, onUpload }: EmployeeUploa
     }
   };
 
+  const downloadTemplate = async () => {
+    try {
+      // Try to download from backend first
+      const response = await AxiosWithToken.get('/hr/employees/bulk-upload-template/', {
+        responseType: 'blob'
+      });
+
+      // Create download link
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `Employee_Upload_Template_${new Date().toISOString().split('T')[0]}.xlsx`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+      toast.success("Template downloaded successfully!");
+    } catch (error) {
+      console.warn("Backend template download failed, using client-side generation:", error);
+
+      // Fallback to client-side generation
+      const templateData = [
+        {
+          "Staff ID": "AHNI-001",
+          "First Name": "John",
+          "Last Name": "Doe",
+          "Email": "john.doe@example.com",
+          "Phone Number": "+234-XXX-XXX-XXXX",
+          "Employment Type": "Full-Time",
+          "Position": "Software Engineer",
+          "Department": "Engineering",
+          "Location": "Lagos",
+          "Start Date": "2025-01-01",
+          "Date of Birth": "1990-01-15",
+          "Gender": "Male",
+          "Marital Status": "Single",
+          "Address": "123 Main Street, Lagos",
+          "Bank Name": "First Bank",
+          "Account Number": "1234567890",
+          "Account Name": "John Doe",
+          "Emergency Contact Name": "Jane Doe",
+          "Emergency Contact Phone": "+234-XXX-XXX-XXXX",
+          "Emergency Contact Relationship": "Spouse",
+        }
+      ];
+
+      const ws = XLSX.utils.json_to_sheet(templateData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Employee Template");
+
+      const colWidths = [
+        { wch: 12 }, { wch: 15 }, { wch: 15 }, { wch: 25 }, { wch: 18 },
+        { wch: 15 }, { wch: 20 }, { wch: 15 }, { wch: 15 }, { wch: 12 },
+        { wch: 12 }, { wch: 10 }, { wch: 15 }, { wch: 30 }, { wch: 15 },
+        { wch: 15 }, { wch: 20 }, { wch: 20 }, { wch: 18 }, { wch: 20 },
+      ];
+      ws['!cols'] = colWidths;
+
+      const fileName = `Employee_Upload_Template_${new Date().toISOString().split('T')[0]}.xlsx`;
+      XLSX.writeFile(wb, fileName);
+
+      toast.success("Template downloaded successfully!");
+    }
+  };
+
   return (
     <div className="flex flex-col gap-6">
       <div className="space-y-2">
-        <h3 className="text-lg font-semibold">Upload Employees Data</h3>
-        <p className="text-sm text-gray-600">
-          Upload a CSV or Excel file containing multiple employee records for bulk processing.
-        </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-semibold">Upload Employees Data</h3>
+            <p className="text-sm text-gray-600">
+              Upload a CSV or Excel file containing multiple employee records for bulk processing.
+            </p>
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={downloadTemplate}
+            disabled={isUploading}
+            className="flex items-center gap-2"
+          >
+            <Download className="w-4 h-4" />
+            Download Template
+          </Button>
+        </div>
+      </div>
+
+      {/* Instructions */}
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div className="flex items-start gap-2">
+          <FileSpreadsheet className="w-5 h-5 text-blue-600 mt-0.5" />
+          <div className="text-sm text-blue-900 space-y-1">
+            <p className="font-medium">Instructions:</p>
+            <ol className="list-decimal list-inside space-y-1 text-blue-800">
+              <li>Click "Download Template" to get the Excel template</li>
+              <li>Fill in employee details in the template</li>
+              <li>Save the file and upload it below</li>
+              <li>Review and confirm the uploaded data</li>
+            </ol>
+          </div>
+        </div>
       </div>
 
       {/* File Upload Section */}
@@ -247,7 +358,7 @@ export default function EmployeeUploadModal({ onClose, onUpload }: EmployeeUploa
 
           {uploadStatus !== 'success' && (
             <Button
-              onClick={simulateUpload}
+              onClick={handleUpload}
               disabled={!file || isUploading}
             >
               {isUploading ? 'Uploading...' : 'Upload Data'}
