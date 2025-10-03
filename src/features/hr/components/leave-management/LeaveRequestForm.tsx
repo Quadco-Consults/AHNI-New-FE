@@ -33,7 +33,15 @@ import GoBack from "components/GoBack";
 import BackendStatusBanner from "./BackendStatusBanner";
 
 import { LeaveType, LeaveRequestFormData } from "../../types/leave";
-import { leaveService, useLeaveTypes, useLeaveBalances } from "../../services/leaveService";
+import { leaveService, useLeaveTypes as useLeaveTypesService, useLeaveBalances as useLeaveBalancesService } from "../../services/leaveService";
+import {
+  useCreateLeaveRequest,
+  useValidateLeaveRequest,
+  useGetLeaveTypes,
+  useGetLeaveBalances
+} from "../../controllers/leaveRequestController";
+import { useGetUserProfile } from "@/features/auth/controllers/userController";
+import { toast } from "sonner";
 
 // Validation Schema
 const leaveRequestSchema = z.object({
@@ -67,13 +75,20 @@ const EnhancedLeaveRequestForm = () => {
   const [employees, setEmployees] = useState<Array<{id: string; name: string; department: string; employeeId: string; position: string}>>([]);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [validationWarnings, setValidationWarnings] = useState<string[]>([]);
-  
-  // Get current user ID - replace with actual auth logic
-  const currentEmployeeId = "emp-001"; // This should come from your auth context
-  
-  // API hooks
-  const { leaveTypes, loading: loadingTypes, error: typesError } = useLeaveTypes();
-  const { balances, loading: loadingBalances, error: balancesError } = useLeaveBalances(currentEmployeeId);
+
+  // Get current user from auth
+  const { data: userProfileData } = useGetUserProfile();
+  const currentEmployeeId = userProfileData?.data?.id || "";
+
+  // API hooks from controller
+  const { data: leaveTypesData, isLoading: loadingTypes, error: typesError } = useGetLeaveTypes();
+  const { data: balancesData, isLoading: loadingBalances, error: balancesError } = useGetLeaveBalances(currentEmployeeId, !!currentEmployeeId);
+  const { createLeaveRequest, isLoading: isCreating } = useCreateLeaveRequest();
+  const { validateLeaveRequest, isLoading: isValidating } = useValidateLeaveRequest();
+
+  // Extract data from API responses
+  const leaveTypes = leaveTypesData?.data || [];
+  const balances = balancesData?.data || [];
   
   // Load employees for backup person selection
   useEffect(() => {
@@ -189,15 +204,15 @@ const EnhancedLeaveRequestForm = () => {
   // Submit form
   const onSubmit = async (data: LeaveRequestFormData) => {
     setIsSubmitting(true);
-    
+
     try {
       // Final validation check
       if (validationErrors.length > 0) {
-        alert('Please fix validation errors before submitting.');
+        toast.error('Please fix validation errors before submitting');
         setIsSubmitting(false);
         return;
       }
-      
+
       // Prepare request data
       const requestData = {
         employeeId: currentEmployeeId,
@@ -218,19 +233,14 @@ const EnhancedLeaveRequestForm = () => {
           fileType: file.type
         }))
       };
-      
-      const response = await leaveService.createLeaveRequest(requestData);
-      
-      if (response.success) {
-        alert('Leave request submitted successfully!');
-        router.push('/dashboard/hr/leave-management');
-      } else {
-        throw new Error('Failed to submit leave request');
-      }
+
+      await createLeaveRequest(requestData);
+      toast.success('Leave request submitted successfully!');
+      router.push('/dashboard/hr/leave-management');
       
     } catch (error) {
       console.error('Error submitting leave request:', error);
-      alert(error instanceof Error ? error.message : 'Failed to submit leave request. Please try again.');
+      toast.error(error instanceof Error ? error.message : 'Failed to submit leave request. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -258,7 +268,7 @@ const EnhancedLeaveRequestForm = () => {
         <div className="text-center">
           <AlertCircle className="w-8 h-8 text-red-600 mx-auto mb-2" />
           <p className="text-red-600">Failed to load leave information</p>
-          <p className="text-sm text-gray-600">{typesError || balancesError}</p>
+          <p className="text-sm text-gray-600">{(typesError || balancesError)?.message || "Unknown error"}</p>
         </div>
       </div>
     );
