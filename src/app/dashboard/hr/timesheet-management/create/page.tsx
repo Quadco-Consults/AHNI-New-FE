@@ -3,8 +3,8 @@
 import { Loading } from "@/components/Loading";
 import dynamic from "next/dynamic";
 
-const CreateTimesheet = dynamic(
-  () => import("@/features/hr/components/timesheet-management/CreateTimesheet"),
+const TimesheetManagementFull = dynamic(
+  () => import("@/features/hr/components/timesheet-management/id/index"),
   {
     ssr: false,
     loading: () => <Loading />,
@@ -12,5 +12,5 @@ const CreateTimesheet = dynamic(
 );
 
 export default function TimesheetManagementCreatePage() {
-  return <CreateTimesheet />;
+  return <TimesheetManagementFull />;
 }

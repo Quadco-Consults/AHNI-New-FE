@@ -14,30 +14,52 @@ import SearchIcon from "components/icons/SearchIcon";
 import FilterIcon from "components/icons/FilterIcon";
 import AddSquareIcon from "components/icons/AddSquareIcon";
 import Card from "components/Card";
-import { TimesheetSummary, TimesheetResults } from "../../types/timesheet";
+import { Timesheet } from "../../types/timesheet";
 import { Badge } from "components/ui/badge";
 import { useState } from "react";
-import { format, startOfMonth, endOfMonth, eachWeekOfInterval, startOfWeek, endOfWeek } from "date-fns";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { format } from "date-fns";
 import { useRouter } from "next/navigation";
-import { getNextAvailableTimesheetId, createTimesheetUrl } from "../../utils/timesheetIdGenerator";
+import { useGetTimesheets, useDeleteTimesheet } from "../../controllers/timesheetController";
+import { toast } from "sonner";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
 
 const TimesheetManagement = () => {
   const router = useRouter();
-  const [timesheets] = useState<TimesheetSummary[]>(mockTimesheetData);
-  const [monthlyTimesheets] = useState<MonthlyTimesheetSummary[]>(mockMonthlyData);
-  const [isLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState("weekly");
-  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [itemToDelete, setItemToDelete] = useState("");
 
-  const handleCreateTimesheet = async () => {
-    // Generate unique timesheet ID
-    const timesheetId = await getNextAvailableTimesheetId();
+  // Fetch timesheets from backend
+  const { data: timesheetsData, isLoading, refetch } = useGetTimesheets({
+    page: currentPage,
+    page_size: 20,
+    status: statusFilter === "all" ? "" : (statusFilter as any),
+    search: searchQuery,
+    enabled: true,
+  });
 
-    // Navigate to the timesheet detail page
-    const timesheetUrl = createTimesheetUrl(timesheetId);
-    router.push(timesheetUrl);
+  const timesheets = timesheetsData?.data?.results || [];
+
+  // Delete hook
+  const { deleteTimesheet, isLoading: isDeleting } = useDeleteTimesheet(itemToDelete);
+
+  const handleCreateTimesheet = () => {
+    router.push(`${HrRoutes.TIMESHEET_MANAGEMENT}/create`);
+  };
+
+  const handleDelete = async (id: string) => {
+    const confirmed = window.confirm("Are you sure you want to delete this timesheet?");
+    if (!confirmed) return;
+
+    setItemToDelete(id);
+    try {
+      await deleteTimesheet();
+      toast.success("Timesheet deleted successfully");
+      refetch();
+    } catch (error: any) {
+      toast.error(error?.message || "Failed to delete timesheet");
+    }
   };
 
   return (
@@ -47,62 +69,34 @@ const TimesheetManagement = () => {
           <span className="flex items-center w-1/3 px-2 py-2 border rounded-lg">
             <SearchIcon />
             <input
-              placeholder="Search"
+              placeholder="Search by employee name"
               type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="ml-2 h-6 border-none bg-none focus:outline-none outline-none"
             />
           </span>
-          <Button className="shadow-sm" variant="ghost">
-            <FilterIcon />
-          </Button>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Filter by status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Statuses</SelectItem>
+              <SelectItem value="draft">Draft</SelectItem>
+              <SelectItem value="submitted">Submitted</SelectItem>
+              <SelectItem value="approved">Approved</SelectItem>
+              <SelectItem value="rejected">Rejected</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
         <Button onClick={handleCreateTimesheet}>
           <AddSquareIcon /> Create Timesheet
         </Button>
       </div>
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <div className="flex items-center justify-between mb-4">
-          <TabsList>
-            <TabsTrigger value="weekly">Weekly View</TabsTrigger>
-            <TabsTrigger value="monthly">Monthly View</TabsTrigger>
-          </TabsList>
-          
-          {/* Month Navigation (only show in monthly view) */}
-          {activeTab === "monthly" && (
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1))}
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </Button>
-              <span className="font-medium px-4">
-                {format(currentMonth, 'MMMM yyyy')}
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1))}
-              >
-                <ChevronRight className="w-4 h-4" />
-              </Button>
-            </div>
-          )}
-        </div>
 
-        <TabsContent value="weekly">
-          <Card>
-            <DataTable data={timesheets} columns={timesheetColumns} isLoading={isLoading} />
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="monthly">
-          <Card>
-            <DataTable data={monthlyTimesheets} columns={monthlyTimesheetColumns} isLoading={isLoading} />
-          </Card>
-        </TabsContent>
-      </Tabs>
+      <Card>
+        <DataTable data={timesheets} columns={timesheetColumns(handleDelete)} isLoading={isLoading} />
+      </Card>
     </div>
   );
 };
@@ -368,8 +362,8 @@ const mockTimesheetData: TimesheetSummary[] = [
   }
 ];
 
-// New columns for enhanced timesheet summary
-const timesheetColumns: ColumnDef<TimesheetSummary>[] = [
+// Columns for timesheet list (updated for backend data)
+const timesheetColumns = (handleDelete: (id: string) => void): ColumnDef<Timesheet>[] => [
   {
     id: "select",
     size: 50,
@@ -388,50 +382,51 @@ const timesheetColumns: ColumnDef<TimesheetSummary>[] = [
   },
   {
     header: "Employee",
-    accessorKey: "employee.name",
-    size: 150,
-    cell: ({ row }) => (
-      <div>
-        <div className="font-medium">{row.original.employee.name}</div>
-        <div className="text-sm text-gray-500">{row.original.employee.department}</div>
-      </div>
-    ),
+    cell: ({ row }) => {
+      const employee = row.original.employee_detail;
+      return (
+        <div>
+          <div className="font-medium">
+            {employee?.legal_firstname} {employee?.legal_lastname}
+          </div>
+          <div className="text-sm text-gray-500">{employee?.designation?.name || "N/A"}</div>
+        </div>
+      );
+    },
   },
   {
-    header: "Week Period",
-    id: "weekPeriod",
-    size: 120,
+    header: "Period",
     cell: ({ row }) => (
       <div className="text-sm">
-        {format(new Date(row.original.weekPeriod.startDate), 'MMM dd')} - {format(new Date(row.original.weekPeriod.endDate), 'MMM dd, yyyy')}
+        {format(new Date(row.original.start_date), "MMM dd")} -{" "}
+        {format(new Date(row.original.end_date), "MMM dd, yyyy")}
       </div>
     ),
   },
   {
-    header: "Projects & Activities",
-    id: "projects",
-    size: 350,
-    cell: ({ row }) => <ProjectActivityList data={row.original} />,
+    header: "Entries",
+    cell: ({ row }) => (
+      <div className="text-sm">
+        <div className="font-medium">{row.original.entries?.length || 0} entries</div>
+        <div className="text-gray-500">
+          {row.original.entries?.length > 0
+            ? `${new Set(row.original.entries.map(e => e.project)).size} projects`
+            : "No entries"}
+        </div>
+      </div>
+    ),
   },
   {
     header: "Total Hours",
-    accessorKey: "totalHours",
-    size: 100,
-    cell: ({ row }) => (
-      <div className="font-medium">{row.original.totalHours}h</div>
-    ),
+    cell: ({ row }) => <div className="font-medium">{row.original.total_hours?.toFixed(2) || "0.00"}h</div>,
   },
   {
     header: "Status",
-    accessorKey: "status",
-    size: 100,
     cell: ({ row }) => <TimesheetStatusBadge status={row.original.status} />,
   },
   {
     header: "Actions",
-    id: "actions",
-    size: 80,
-    cell: ({ row }) => <TimesheetActionList timesheet={row.original} />,
+    cell: ({ row }) => <TimesheetActionList timesheet={row.original} onDelete={handleDelete} />,
   },
 ];
 
@@ -575,14 +570,14 @@ const ProjectActivityList = ({ data }: { data: TimesheetSummary }) => {
 };
 
 // Status badge component
-const TimesheetStatusBadge = ({ status }: { status: TimesheetSummary['status'] }) => {
+const TimesheetStatusBadge = ({ status }: { status: Timesheet["status"] }) => {
   const statusConfig = {
-    draft: { variant: 'secondary' as const, label: 'Draft', className: '' },
-    submitted: { variant: 'default' as const, label: 'Submitted', className: '' },
-    approved: { variant: 'default' as const, label: 'Approved', className: 'bg-green-100 text-green-800' },
-    rejected: { variant: 'destructive' as const, label: 'Rejected', className: '' },
+    draft: { variant: "secondary" as const, label: "Draft", className: "" },
+    submitted: { variant: "default" as const, label: "Submitted", className: "" },
+    approved: { variant: "default" as const, label: "Approved", className: "bg-green-100 text-green-800" },
+    rejected: { variant: "destructive" as const, label: "Rejected", className: "" },
   };
-  
+
   const config = statusConfig[status];
   return (
     <Badge variant={config.variant} className={config.className}>
@@ -697,32 +692,8 @@ const MonthlyActionList = ({ data }: { data: MonthlyTimesheetSummary }) => {
   );
 };
 
-// Enhanced action list with timesheet-specific actions
-const TimesheetActionList = ({ timesheet }: { timesheet: TimesheetSummary }) => {
-  const handleApprove = () => {
-    // In real app, make API call to approve timesheet
-    console.log('Approving timesheet:', timesheet.id);
-    alert('Timesheet approved!');
-  };
-
-  const handleReject = () => {
-    const reason = window.prompt('Please provide rejection reason:');
-    if (reason) {
-      // In real app, make API call to reject timesheet with reason
-      console.log('Rejecting timesheet:', timesheet.id, 'Reason:', reason);
-      alert('Timesheet rejected!');
-    }
-  };
-
-  const handleDelete = () => {
-    const confirmDelete = window.confirm('Are you sure you want to delete this timesheet?');
-    if (confirmDelete) {
-      // In real app, make API call to delete timesheet
-      console.log('Deleting timesheet:', timesheet.id);
-      alert('Timesheet deleted!');
-    }
-  };
-
+// Action list with timesheet-specific actions
+const TimesheetActionList = ({ timesheet, onDelete }: { timesheet: Timesheet; onDelete: (id: string) => void }) => {
   return (
     <div className="flex items-center gap-2">
       <Popover>
@@ -733,51 +704,19 @@ const TimesheetActionList = ({ timesheet }: { timesheet: TimesheetSummary }) => 
         </PopoverTrigger>
         <PopoverContent className="w-fit">
           <div className="flex flex-col items-start justify-between gap-1">
-            <Link href={`/dashboard/hr/timesheet-management/${timesheet.id}`}>
+            <Link href={`${HrRoutes.TIMESHEET_MANAGEMENT}/${timesheet.id}`}>
               <Button className="w-full flex items-center justify-start gap-2" variant="ghost">
                 <EyeIcon />
                 View Details
               </Button>
             </Link>
-            
-            {/* Edit option - only for draft and rejected timesheets */}
-            {(timesheet.status === 'draft' || timesheet.status === 'rejected') && (
-              <Link href={`/dashboard/hr/timesheet-management/${timesheet.id}/edit`}>
-                <Button className="w-full flex items-center justify-start gap-2" variant="ghost">
-                  <EyeIcon />
-                  Edit
-                </Button>
-              </Link>
-            )}
-
-            {/* Approval actions - only for submitted timesheets */}
-            {timesheet.status === 'submitted' && (
-              <>
-                <Button 
-                  className="w-full flex items-center justify-start gap-2" 
-                  variant="ghost"
-                  onClick={handleApprove}
-                >
-                  <EyeIcon />
-                  Approve
-                </Button>
-                <Button 
-                  className="w-full flex items-center justify-start gap-2" 
-                  variant="ghost"
-                  onClick={handleReject}
-                >
-                  <EyeIcon />
-                  Reject
-                </Button>
-              </>
-            )}
 
             {/* Delete option - available for draft and rejected timesheets */}
-            {(timesheet.status === 'draft' || timesheet.status === 'rejected') && (
-              <Button 
-                className="w-full flex items-center justify-start gap-2" 
+            {(timesheet.status === "draft" || timesheet.status === "rejected") && (
+              <Button
+                className="w-full flex items-center justify-start gap-2"
                 variant="ghost"
-                onClick={handleDelete}
+                onClick={() => onDelete(timesheet.id)}
               >
                 <DeleteIcon />
                 Delete
