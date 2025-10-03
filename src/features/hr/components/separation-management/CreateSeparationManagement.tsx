@@ -79,13 +79,15 @@ const CreateSeparationManagement = () => {
                     {fetchingEmployeeData ? (
                       <LoadingSpinner />
                     ) : (
-                      employeeData?.data?.results.map(
-                        (data: EmployeeOnboarding) => (
-                          <SelectItem key={data?.id} value={data?.id}>
-                            {data?.legal_firstname} {data?.legal_lastname}
-                          </SelectItem>
+                      employeeData?.data?.results
+                        .filter((data: EmployeeOnboarding) => data?.id && data.id.trim() !== '')
+                        .map(
+                          (data: EmployeeOnboarding) => (
+                            <SelectItem key={data?.id} value={data?.id}>
+                              {data?.legal_firstname} {data?.legal_lastname}
+                            </SelectItem>
+                          )
                         )
-                      )
                     )}
                   </SelectContent>
                 </FormSelect>
@@ -112,11 +114,13 @@ const CreateSeparationManagement = () => {
                     {fetchingProjectData ? (
                       <LoadingSpinner />
                     ) : (
-                      (projectData as any)?.data?.results?.map((project: any) => (
-                        <SelectItem key={project?.id} value={project?.id}>
-                          {project?.project_name || project?.title}
-                        </SelectItem>
-                      ))
+                      (projectData as any)?.data?.results
+                        ?.filter((project: any) => project?.id && project.id.trim() !== '')
+                        ?.map((project: any) => (
+                          <SelectItem key={project?.id} value={project?.id}>
+                            {project?.project_name || project?.title}
+                          </SelectItem>
+                        ))
                     )}
                   </SelectContent>
                 </FormSelect>

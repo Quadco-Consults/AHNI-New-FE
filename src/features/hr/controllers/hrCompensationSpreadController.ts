@@ -37,7 +37,8 @@ interface CompensationSpreadFilterParams {
   enabled?: boolean;
 }
 
-const BASE_URL = "/hr/employee-benefits/employee-compensation-spread/";
+// Updated to match backend fix: compensation-spread (CRUD) vs employee-compensation (read-only)
+const BASE_URL = "/hr/employee-benefits/compensation-spread/";
 
 // ===== COMPENSATION SPREAD HOOKS =====
 

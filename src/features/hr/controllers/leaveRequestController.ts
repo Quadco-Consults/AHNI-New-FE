@@ -145,9 +145,35 @@ export const usePatchLeaveRequest = (id: string) => {
   return { patchLeaveRequest, data, isLoading, isSuccess, error };
 };
 
+// Delete Leave Request
+export const useDeleteLeaveRequest = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    any,
+    Error,
+    Record<string, never>
+  >({
+    endpoint: `${BASE_URL}${id}/`,
+    queryKey: ["leave-requests"],
+    isAuth: true,
+    method: "DELETE",
+  });
+
+  const deleteLeaveRequest = async () => {
+    try {
+      await callApi({} as Record<string, never>);
+    } catch (error) {
+      console.error("Leave request delete error:", error);
+      throw error;
+    }
+  };
+
+  return { deleteLeaveRequest, data, isLoading, isSuccess, error };
+};
+
 // Legacy exports for backward compatibility
 export const useGetLeaveRequestsQuery = useGetLeaveRequests;
 export const useGetLeaveRequestQuery = useGetLeaveRequest;
 export const useCreateLeaveRequestMutation = useCreateLeaveRequest;
 export const useUpdateLeaveRequestMutation = useUpdateLeaveRequest;
 export const usePatchLeaveRequestMutation = usePatchLeaveRequest;
+export const useDeleteLeaveRequestMutation = useDeleteLeaveRequest;
