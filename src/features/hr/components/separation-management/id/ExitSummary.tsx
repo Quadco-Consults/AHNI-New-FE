@@ -7,26 +7,51 @@ interface ExitSummaryProps {
 }
 
 const ExitSummary = ({ data }: ExitSummaryProps) => {
-  if (!data) return null;
+  // Debug logging
+  console.log("ExitSummary - Received props data:", data);
+  console.log("ExitSummary - Type of data:", typeof data);
+  console.log("ExitSummary - Keys in data:", data ? Object.keys(data) : 'no data');
 
-  const employeeName = `${data.employee?.legal_firstname || ""} ${data.employee?.legal_lastname || ""}`.toUpperCase();
-  const submitDate = data.submit_date ? new Date(data.submit_date).toLocaleDateString() : "N/A";
-  const exitDate = data.exit_date ? new Date(data.exit_date).toLocaleDateString() : "N/A";
+  if (!data) {
+    console.log("ExitSummary - No data provided");
+    return null;
+  }
+
+  // Check if data has the API wrapper structure {status, message, data}
+  const actualData = (data as any).data || data;
+
+  console.log("ExitSummary - Actual data to use:", actualData);
+  console.log("ExitSummary - Employee data:", actualData?.employee);
+  console.log("ExitSummary - Employee type:", typeof actualData?.employee);
+
+  const employeeName = `${actualData.employee?.legal_firstname || ""} ${actualData.employee?.legal_lastname || ""}`.toUpperCase();
+  const submitDate = actualData.submit_date ? new Date(actualData.submit_date).toLocaleDateString() : "N/A";
+  const exitDate = actualData.exit_date ? new Date(actualData.exit_date).toLocaleDateString() : "N/A";
+
+  console.log("ExitSummary - Calculated values:", {
+    employeeName,
+    submitDate,
+    exitDate,
+    employeeNumber: actualData.employee?.employee_number,
+    position: actualData.employee?.position,
+    grade: actualData.employee?.grade,
+    location: actualData.employee?.location
+  });
 
   return (
     <div className="space-y-6">
       <h4 className="font-semibold text-xl">{employeeName}</h4>
 
       <Card className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <DescriptionCard label="Employee Number" description={data.employee?.employee_number || "N/A"} />
-        <DescriptionCard label="Position" description={data.employee?.position?.name || "N/A"} />
-        <DescriptionCard label="Grade" description={data.employee?.grade || "N/A"} />
-        <DescriptionCard label="Location" description={data.employee?.location?.name || "N/A"} />
+        <DescriptionCard label="Employee Number" description={actualData.employee?.employee_number || "N/A"} />
+        <DescriptionCard label="Position" description={actualData.employee?.position?.name || "N/A"} />
+        <DescriptionCard label="Grade" description={actualData.employee?.grade || "N/A"} />
+        <DescriptionCard label="Location" description={actualData.employee?.location?.name || "N/A"} />
       </Card>
 
       <Card className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <DescriptionCard label="Exit Method" description={data.exit_method} />
-        <DescriptionCard label="Project" description={data.project?.title || data.project?.project_name || "N/A"} />
+        <DescriptionCard label="Exit Method" description={actualData.exit_method || "N/A"} />
+        <DescriptionCard label="Project" description={actualData.project?.title || actualData.project?.project_name || "N/A"} />
         <DescriptionCard label="Submission Date" description={submitDate} />
         <DescriptionCard label="Exit Date" description={exitDate} />
       </Card>
@@ -36,38 +61,38 @@ const ExitSummary = ({ data }: ExitSummaryProps) => {
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <DescriptionCard
             label="Status"
-            description={data.status}
+            description={actualData.status || "N/A"}
           />
           <DescriptionCard
             label="Clearance Status"
-            description={data.clearance_status || "N/A"}
+            description={actualData.clearance_status || "N/A"}
           />
           <DescriptionCard
             label="Handover Completed"
-            description={data.handover_completed ? "Yes" : "No"}
+            description={actualData.handover_completed ? "Yes" : "No"}
           />
         </div>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <DescriptionCard
             label="Assets Returned"
-            description={data.assets_returned ? "Yes" : "No"}
+            description={actualData.assets_returned ? "Yes" : "No"}
           />
           <DescriptionCard
             label="Notice Period"
-            description={data.notice_period ? `${data.notice_period} days` : "N/A"}
+            description={actualData.notice_period ? `${actualData.notice_period} days` : "N/A"}
           />
           <DescriptionCard
             label="Rehire Eligible"
-            description={data.rehire_eligible ? "Yes" : "No"}
+            description={actualData.rehire_eligible ? "Yes" : "No"}
           />
         </div>
       </Card>
 
-      {data.reason_for_leaving && (
+      {actualData.reason_for_leaving && (
         <Card>
           <DescriptionCard
             label="Reason for Leaving"
-            description={data.reason_for_leaving}
+            description={actualData.reason_for_leaving}
           />
         </Card>
       )}

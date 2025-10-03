@@ -271,7 +271,7 @@ export class LeaveService {
   }> {
     try {
       const isBackendAvailable = await this.checkBackendHealth();
-      
+
       if (!isBackendAvailable) {
         throw new Error('Backend not available');
       }
@@ -279,13 +279,17 @@ export class LeaveService {
       const formData = new FormData();
       formData.append('file', file);
 
+      // Don't set Content-Type header - let browser set it automatically with boundary
+      // When using FormData, browser sets: Content-Type: multipart/form-data; boundary=...
+      const headers: HeadersInit = {};
+
+      if (typeof window !== 'undefined' && localStorage.getItem('authToken')) {
+        headers['Authorization'] = `Bearer ${localStorage.getItem('authToken')}`;
+      }
+
       const response = await fetch(`${API_BASE}/leave-attachments/`, {
         method: 'POST',
-        headers: {
-          ...(typeof window !== 'undefined' && localStorage.getItem('authToken') && {
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-          }),
-        },
+        headers: headers,
         body: formData,
       });
 

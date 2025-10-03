@@ -9,15 +9,20 @@ interface SeveranceProps {
 const Severance = ({ data }: SeveranceProps) => {
   if (!data) return null;
 
-  const employeeName = `${data.employee?.legal_firstname || ""} ${data.employee?.legal_lastname || ""}`.toUpperCase();
+  // Handle API wrapper structure
+  const actualData = (data as any).data || data;
+
+  const employeeName = `${actualData.employee?.legal_firstname || ""} ${actualData.employee?.legal_lastname || ""}`.toUpperCase();
 
   const formatCurrency = (amount?: number) => {
     if (!amount) return "₦0.00";
     return `₦${amount.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   };
 
-  const totalPayment = (data.severance_amount || 0) + (data.final_pay_amount || 0) + (data.unused_leave_amount || 0);
-  const paymentDate = data.payment_date ? new Date(data.payment_date).toLocaleDateString() : "N/A";
+  const totalPayment = (actualData.severance_amount || 0) + (actualData.final_pay_amount || 0) + (actualData.unused_leave_amount || 0);
+  const paymentDate = actualData.payment_date && actualData.payment_date.trim() !== ""
+    ? new Date(actualData.payment_date).toLocaleDateString()
+    : "N/A";
 
   return (
     <div className="space-y-6">
@@ -33,28 +38,28 @@ const Severance = ({ data }: SeveranceProps) => {
         <div className="grid grid-cols-1 gap-10 md:grid-cols-3">
           <DescriptionCard
             label="Severance Amount"
-            description={formatCurrency(data.severance_amount)}
+            description={formatCurrency(actualData.severance_amount)}
           />
           <DescriptionCard
             label="Final Pay Amount"
-            description={formatCurrency(data.final_pay_amount)}
+            description={formatCurrency(actualData.final_pay_amount)}
           />
           <DescriptionCard
             label="Unused Leave Days"
-            description={data.unused_leave_days ? `${data.unused_leave_days} days` : "N/A"}
+            description={actualData.unused_leave_days ? `${actualData.unused_leave_days} days` : "N/A"}
           />
           <DescriptionCard
             label="Unused Leave Amount"
-            description={formatCurrency(data.unused_leave_amount)}
+            description={formatCurrency(actualData.unused_leave_amount)}
           />
         </div>
       </Card>
 
-      {data.benefits_info && (
+      {actualData.benefits_info && (
         <Card>
           <DescriptionCard
             label="Benefits Information"
-            description={data.benefits_info}
+            description={actualData.benefits_info}
           />
         </Card>
       )}
