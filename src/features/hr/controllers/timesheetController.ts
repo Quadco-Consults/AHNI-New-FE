@@ -179,13 +179,16 @@ export const useSubmitTimesheet = (id: string) => {
     Error,
     SubmitTimesheetRequest
   >({
-    endpoint: `${BASE_URL}${id}/submit/`,
+    endpoint: `${BASE_URL}${id || 'placeholder'}/submit/`,
     queryKey: ["timesheets", id],
     isAuth: true,
     method: "POST",
   });
 
   const submitTimesheet = async (approver_id?: string) => {
+    if (!id || id === "create") {
+      throw new Error("Invalid timesheet ID");
+    }
     try {
       await callApi(approver_id ? { approver_id } : {});
     } catch (error) {
@@ -279,13 +282,16 @@ export const useValidateTimesheet = (id: string) => {
     Error,
     Record<string, never>
   >({
-    endpoint: `${BASE_URL}${id}/validate/`,
+    endpoint: `${BASE_URL}${id || 'placeholder'}/validate/`,
     queryKey: ["timesheet-validate", id],
     isAuth: true,
     method: "POST",
   });
 
   const validateTimesheet = async () => {
+    if (!id || id === "create") {
+      throw new Error("Invalid timesheet ID");
+    }
     try {
       await callApi({} as Record<string, never>);
       return data;
