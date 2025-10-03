@@ -56,10 +56,15 @@ export const useGetPerformanceAssesments = ({
             ...(search && { search }),
           },
         });
+        console.log("🔍 API Raw Response:", response);
+        console.log("🔍 Response Data:", response.data);
+        console.log("🔍 Response Data.data:", response.data?.data);
+        console.log("🔍 Response Data.data.results:", response.data?.data?.results);
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
         console.error("Performance assessments fetch error:", axiosError);
+        console.error("Error response:", axiosError.response);
         throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
       }
     },
