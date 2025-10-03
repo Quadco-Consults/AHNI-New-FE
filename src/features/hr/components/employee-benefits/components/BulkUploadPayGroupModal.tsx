@@ -152,10 +152,10 @@ const BulkUploadPayGroupModal = (props: PropsType) => {
     try {
       for (const row of parsedData) {
         try {
-          // Find matching position, grade, and level IDs
-          const positionName = row["Position"];
-          const gradeName = row["Grade"];
-          const levelName = row["Level"];
+          // Find matching position, grade, and level IDs - trim whitespace
+          const positionName = row["Position"]?.trim();
+          const gradeName = row["Grade"]?.trim();
+          const levelName = row["Level"]?.trim();
 
           let positionId = undefined;
           let gradeId = undefined;
@@ -164,7 +164,7 @@ const BulkUploadPayGroupModal = (props: PropsType) => {
           // Find position ID
           if (positionName && positionsData?.data?.results) {
             const matchingPosition = positionsData.data.results.find((p: any) =>
-              p?.name?.toLowerCase() === positionName?.toLowerCase()
+              p?.name?.toLowerCase()?.trim() === positionName?.toLowerCase()
             );
             positionId = matchingPosition?.id;
           }
@@ -172,7 +172,7 @@ const BulkUploadPayGroupModal = (props: PropsType) => {
           // Find grade ID
           if (gradeName && gradesData?.data?.results) {
             const matchingGrade = gradesData.data.results.find((g: any) =>
-              g?.name?.toLowerCase() === gradeName?.toLowerCase()
+              g?.name?.toLowerCase()?.trim() === gradeName?.toLowerCase()
             );
             gradeId = matchingGrade?.id;
           }
@@ -180,20 +180,29 @@ const BulkUploadPayGroupModal = (props: PropsType) => {
           // Find level ID
           if (levelName && levelsData?.data?.results) {
             const matchingLevel = levelsData.data.results.find((l: any) =>
-              l?.name?.toLowerCase() === levelName?.toLowerCase()
+              l?.name?.toLowerCase()?.trim() === levelName?.toLowerCase()
             );
             levelId = matchingLevel?.id;
           }
 
-          // Validate all IDs found
+          // Validate all IDs found - skip if missing
           if (!positionId) {
-            throw new Error(`Position "${positionName}" not found`);
+            console.warn(`Position "${positionName}" not found - skipping row`);
+            errorCount++;
+            errors.push(`${positionName} + ${gradeName} + ${levelName}: Position not found in system`);
+            continue;
           }
           if (!gradeId) {
-            throw new Error(`Grade "${gradeName}" not found`);
+            console.warn(`Grade "${gradeName}" not found - skipping row`);
+            errorCount++;
+            errors.push(`${positionName} + ${gradeName} + ${levelName}: Grade not found in system`);
+            continue;
           }
           if (!levelId) {
-            throw new Error(`Level "${levelName}" not found`);
+            console.warn(`Level "${levelName}" not found - skipping row`);
+            errorCount++;
+            errors.push(`${positionName} + ${gradeName} + ${levelName}: Level not found in system`);
+            continue;
           }
 
           const payGroupData = {
@@ -213,15 +222,20 @@ const BulkUploadPayGroupModal = (props: PropsType) => {
 
       if (successCount > 0) {
         toast.success(`Successfully uploaded ${successCount} pay groups!`);
+      }
+
+      if (errorCount > 0) {
+        toast.warning(`${errorCount} rows skipped. Missing positions/grades/levels in system.`);
+        console.log("Upload errors:", errors);
+      }
+
+      if (successCount > 0) {
         props.onSuccess();
         props.onCancel();
         setFile(null);
         setParsedData([]);
-      }
-
-      if (errorCount > 0) {
-        toast.warning(`${errorCount} pay groups failed to upload. Check console for details.`);
-        console.log("Upload errors:", errors);
+      } else if (errorCount > 0) {
+        toast.error("All rows failed. Please ensure positions, grades, and levels exist in the system first.");
       }
     } catch (error) {
       toast.error("Error during bulk upload");
