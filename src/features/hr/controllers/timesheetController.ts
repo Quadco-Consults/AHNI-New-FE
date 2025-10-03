@@ -15,7 +15,8 @@ import type {
 } from "@/features/hr/types/timesheet";
 
 // Backend API base URL (matches backend documentation)
-const BASE_URL = "/hr/time-sheet/time-sheet/";
+// Note: No leading slash because baseURL already has trailing slash
+const BASE_URL = "hr/time-sheet/time-sheet/";
 
 // API Response interface
 interface ApiResponse<TData = unknown> {

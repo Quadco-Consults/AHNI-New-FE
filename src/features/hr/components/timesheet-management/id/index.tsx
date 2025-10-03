@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { ColumnDef } from "@tanstack/react-table";
 import Card from "components/Card";
@@ -8,11 +8,12 @@ import DataTable from "components/Table/DataTable";
 import { Button } from "components/ui/button";
 import { Badge } from "components/ui/badge";
 import { Input } from "components/ui/input";
+import { Textarea } from "components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
 import { Calendar } from "components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { useGetAllProjects } from "@/features/projects/controllers/projectController";
-import { useGetSingleWorkPlan } from "@/features/programs/controllers/workPlanController";
+import { useGetAllWorkPlan, useGetSingleWorkPlan } from "@/features/programs/controllers/workPlanController";
 import {
   useGetTimesheetById,
   useCreateTimesheet,
@@ -76,12 +77,12 @@ const TimesheetManagementFull = () => {
   const timesheetStatus = timesheet?.status || "draft";
 
   // Check if date is blocked
-  const isDateBlocked = (dateStr: string) => {
+  const isDateBlocked = useCallback((dateStr: string) => {
     return blockedDates.some((blocked) => blocked.date === dateStr);
-  };
+  }, [blockedDates]);
 
   // Get date info for display
-  const getDateInfo = (dateStr: string) => {
+  const getDateInfo = useCallback((dateStr: string) => {
     const blocked = blockedDates.find((b) => b.date === dateStr);
     return blocked
       ? {
@@ -90,43 +91,47 @@ const TimesheetManagementFull = () => {
           isBlocked: true,
         }
       : null;
-  };
+  }, [blockedDates]);
 
   // Add new entry
-  const addEntry = () => {
+  const addEntry = useCallback(() => {
     const newEntry: TimesheetEntry = {
       project: "",
-      custom_activity: "", // Default to custom activity instead of workplan
+      custom_activity: "New Activity", // Default to custom activity with placeholder text
       date: format(new Date(), "yyyy-MM-dd"),
       hours_worked: 0,
       description: "",
     };
     setEntries((prev) => [...prev, newEntry]);
-  };
+  }, []);
 
   // Remove entry
-  const removeEntry = (index: number) => {
+  const removeEntry = useCallback((index: number) => {
     setEntries((prev) => prev.filter((_, i) => i !== index));
-  };
+  }, []);
 
   // Copy entry
-  const copyEntry = (index: number) => {
-    const entryToCopy = entries[index];
-    setEntries((prev) => [
-      ...prev,
-      {
-        ...entryToCopy,
-        id: undefined, // Remove ID so it creates a new entry
-      },
-    ]);
-  };
+  const copyEntry = useCallback((index: number) => {
+    setEntries((prev) => {
+      const entryToCopy = prev[index];
+      return [
+        ...prev,
+        {
+          ...entryToCopy,
+          id: undefined, // Remove ID so it creates a new entry
+        },
+      ];
+    });
+  }, []);
 
   // Update entry field
-  const updateEntry = (index: number, field: keyof TimesheetEntry, value: any) => {
-    const updated = [...entries];
-    updated[index] = { ...updated[index], [field]: value };
-    setEntries(updated);
-  };
+  const updateEntry = useCallback((index: number, field: keyof TimesheetEntry, value: any) => {
+    setEntries((prev) => {
+      const updated = [...prev];
+      updated[index] = { ...updated[index], [field]: value };
+      return updated;
+    });
+  }, []);
 
   // Save timesheet (create or update)
   const handleSave = async () => {
@@ -174,6 +179,18 @@ const TimesheetManagementFull = () => {
 
   // Submit for approval with validation
   const handleSubmitForApproval = async () => {
+    // Check approver selection
+    if (!selectedApprover) {
+      toast.error("Please select an approver");
+      return;
+    }
+
+    // For new timesheets (create mode), save first before submitting
+    if (timesheetId === "create") {
+      toast.error("Please save the timesheet first before submitting");
+      return;
+    }
+
     // Validate first
     try {
       const validationResult = await validateTimesheet();
@@ -188,12 +205,6 @@ const TimesheetManagementFull = () => {
       }
     } catch (error) {
       console.warn("Validation API call failed, proceeding anyway:", error);
-    }
-
-    // Check approver selection
-    if (!selectedApprover) {
-      toast.error("Please select an approver");
-      return;
     }
 
     // Submit
@@ -261,11 +272,15 @@ const TimesheetManagementFull = () => {
               No projects found
             </SelectItem>
           ) : (
-            projects.map((project: any) => (
-              <SelectItem key={project.id} value={project.id}>
-                {project.project_name || project.title || project.project_id}
-              </SelectItem>
-            ))
+            projects.map((project: any) => {
+              // Use project title as the value since workplan API filters by project title
+              const projectTitle = project.project_name || project.title || project.project_id;
+              return (
+                <SelectItem key={project.id} value={projectTitle}>
+                  {projectTitle}
+                </SelectItem>
+              );
+            })
           )}
         </SelectContent>
       </Select>
@@ -279,9 +294,13 @@ const TimesheetManagementFull = () => {
 
     const handleTypeChange = (type: string) => {
       if (type === "planned") {
+        // Switch to planned: clear custom_activity
         onChange(rowIndex, "custom_activity", undefined);
+        onChange(rowIndex, "activity_plan", "");
       } else {
+        // Switch to custom: clear activity_plan and set custom_activity
         onChange(rowIndex, "activity_plan", undefined);
+        onChange(rowIndex, "custom_activity", "");
       }
     };
 
@@ -301,16 +320,29 @@ const TimesheetManagementFull = () => {
   // Activity Selection Component (shows ActivityPlan dropdown OR custom input)
   const ActivityInput = ({ value, onChange, rowIndex }: any) => {
     const entry = entries[rowIndex];
-    const selectedProjectId = entry?.project;
+    const selectedProjectTitle = entry?.project; // This is now the project title
     const activityType = entry?.activity_plan ? "planned" : entry?.custom_activity ? "custom" : "";
 
-    // For planned activities: fetch workplan activities
-    const { data: workplanData, isLoading: isLoadingActivities } = useGetSingleWorkPlan(selectedProjectId || "", !!selectedProjectId);
-    // Handle different possible data structures
-    const activities = workplanData?.data?.activities || workplanData?.activities || [];
+    // For planned activities: fetch workplan by project title
+    const { data: workplansData, isLoading: isLoadingActivities, error: workplanError } = useGetAllWorkPlan({
+      project_title: selectedProjectTitle || "",
+      page: 1,
+      size: 10,
+      enabled: !!selectedProjectTitle
+    });
 
-    console.log("Workplan data for project", selectedProjectId, ":", workplanData);
+    // Extract the first workplan and its activities
+    // Response structure: {data: {results: [], pagination: {}}}
+    // Type cast needed because controller type annotation doesn't match runtime response
+    const workplan = (workplansData as any)?.data?.results?.[0];
+    const activities = workplan?.activities || [];
+
+    console.log("Workplans for project", selectedProjectTitle, ":", workplansData);
+    console.log("Selected workplan:", workplan);
     console.log("Extracted activities:", activities);
+    if (workplanError) {
+      console.log("Workplan error:", workplanError);
+    }
 
     if (activityType === "custom") {
       // Custom text input
@@ -329,13 +361,13 @@ const TimesheetManagementFull = () => {
       <Select
         value={entry?.activity_plan || ""}
         onValueChange={(val) => onChange(rowIndex, "activity_plan", val)}
-        disabled={!selectedProjectId}
+        disabled={!selectedProjectTitle}
       >
         <SelectTrigger className="w-full min-w-[200px]">
-          <SelectValue placeholder={selectedProjectId ? "Select activity" : "Select project first"} />
+          <SelectValue placeholder={selectedProjectTitle ? "Select activity" : "Select project first"} />
         </SelectTrigger>
         <SelectContent>
-          {!selectedProjectId ? (
+          {!selectedProjectTitle ? (
             <SelectItem value="no-project" disabled>
               Please select a project first
             </SelectItem>
@@ -343,9 +375,13 @@ const TimesheetManagementFull = () => {
             <SelectItem value="loading-activities" disabled>
               Loading activities...
             </SelectItem>
+          ) : workplanError ? (
+            <SelectItem value="no-workplan" disabled>
+              No workplan found for this project
+            </SelectItem>
           ) : activities.length === 0 ? (
             <SelectItem value="no-activities" disabled>
-              No activities found
+              No activities found in workplan
             </SelectItem>
           ) : (
             activities.map((activity: any) => (
@@ -410,8 +446,8 @@ const TimesheetManagementFull = () => {
     );
   };
 
-  // Table columns
-  const columns: ColumnDef<TimesheetEntry>[] = [
+  // Table columns (memoized to prevent re-creation on every render)
+  const columns: ColumnDef<TimesheetEntry>[] = useMemo(() => [
     {
       header: "Project",
       cell: ({ row }) => (
@@ -457,11 +493,12 @@ const TimesheetManagementFull = () => {
     {
       header: "Description",
       cell: ({ row }) => (
-        <Input
+        <Textarea
           placeholder="Enter description"
           value={row.original.description || ""}
           onChange={(e) => updateEntry(row.index, "description", e.target.value)}
-          className="min-w-[200px]"
+          className="min-w-[300px] min-h-[60px] resize-y"
+          rows={2}
         />
       ),
     },
@@ -488,7 +525,7 @@ const TimesheetManagementFull = () => {
         </div>
       ),
     },
-  ];
+  ], [entries, timesheetStatus, blockedDates, updateEntry, copyEntry, removeEntry, getDateInfo, isDateBlocked]);
 
   if (isLoadingTimesheet && timesheetId !== "create") {
     return <div className="p-8 text-center">Loading timesheet...</div>;

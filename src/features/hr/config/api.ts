@@ -1,33 +1,33 @@
 export const API_CONFIG = {
-  BASE_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api',
+  BASE_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1',
   TIMEOUT: 30000, // 30 seconds
   RETRY_ATTEMPTS: 3,
   RETRY_DELAY: 1000, // 1 second
 };
 
 export const API_ENDPOINTS = {
-  // Leave Types
-  LEAVE_TYPES: '/leave-types/',
-  
+  // Leave Types (Backend uses 'leave-package')
+  LEAVE_TYPES: '/hr/leave-package/',
+
   // Leave Balances
-  LEAVE_BALANCES: (employeeId: string) => `/leave-balances/${employeeId}/`,
-  
-  // Leave Requests
-  LEAVE_REQUESTS: '/leave-requests/',
-  LEAVE_REQUEST: (id: string) => `/leave-requests/${id}/`,
-  LEAVE_REQUEST_SUBMIT: (id: string) => `/leave-requests/${id}/submit/`,
-  LEAVE_REQUEST_APPROVE: (id: string) => `/leave-requests/${id}/approve/`,
-  LEAVE_REQUEST_REJECT: (id: string) => `/leave-requests/${id}/reject/`,
-  LEAVE_REQUEST_CANCEL: (id: string) => `/leave-requests/${id}/cancel/`,
-  LEAVE_REQUEST_WORKFLOW: (id: string) => `/leave-requests/${id}/workflow/`,
-  LEAVE_REQUEST_VALIDATE: '/leave-requests/validate/',
-  LEAVE_DASHBOARD: '/leave-requests/dashboard/',
-  
-  // File Uploads
-  LEAVE_ATTACHMENTS: '/leave-attachments/',
-  
+  LEAVE_BALANCES: (employeeId: string) => `/hr/leave-balance/?employee=${employeeId}`,
+
+  // Leave Requests (Backend uses 'leave-request' singular)
+  LEAVE_REQUESTS: '/hr/leave-request/',
+  LEAVE_REQUEST: (id: string) => `/hr/leave-request/${id}/`,
+  LEAVE_REQUEST_SUBMIT: (id: string) => `/hr/leave-request/${id}/submit/`,
+  LEAVE_REQUEST_APPROVE: (id: string) => `/hr/leave-request/${id}/approve/`,
+  LEAVE_REQUEST_REJECT: (id: string) => `/hr/leave-request/${id}/reject/`,
+  LEAVE_REQUEST_CANCEL: (id: string) => `/hr/leave-request/${id}/cancel/`,
+  LEAVE_REQUEST_WORKFLOW: (id: string) => `/hr/leave-request/${id}/workflow/`,
+  LEAVE_REQUEST_VALIDATE: '/hr/leave-request/validate/',
+  LEAVE_DASHBOARD: '/hr/leave-request/dashboard/',
+
+  // File Uploads (Backend uses leave-request upload_document)
+  LEAVE_ATTACHMENTS: (leaveRequestId: string) => `/hr/leave-request/${leaveRequestId}/upload_document/`,
+
   // Employees
-  EMPLOYEES: '/employees/',
+  EMPLOYEES: '/hr/employees/',
 } as const;
 
 export const HTTP_STATUS = {
