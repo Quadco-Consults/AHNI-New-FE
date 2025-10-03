@@ -72,7 +72,7 @@ const TableMenu = ({
             toast.success("Submission Deleted");
             setDialogOpen(false);
         } catch (error: any) {
-            toast.error(error.data.message ?? "Something went wrong");
+            toast.error(error?.data?.message || error?.message || "Something went wrong");
         }
     };
 

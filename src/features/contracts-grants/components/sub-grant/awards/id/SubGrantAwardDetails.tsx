@@ -32,12 +32,8 @@ const SubGrantAwardDetails = ({
   submission_start_date,
   submission_end_date,
   status: initialStatus,
-<<<<<<< HEAD
   locations,
 }: ISubGrantSingleData) => {
-=======
-}: ISubGrantSingleData & { project?: any }) => {
->>>>>>> 6895d90f (subgrant-ongoing)
   const [status, setStatus] = useState<string>(initialStatus || "DRAFT");
 
   const { publishSubGrant, isLoading: isPublishing } = usePublishSubGrant(id);
@@ -155,66 +151,39 @@ const SubGrantAwardDetails = ({
 
       {
         id: 9,
-<<<<<<< HEAD
+        label: "Business Unit",
+        value: departmentData?.data?.name || business_unit || "Business Unit Not Available",
+      },
+      {
+        id: 10,
         label: "Project Locations",
         value: locations && locations.length > 0
           ? locations.map(loc => loc.name || loc.city).join(", ")
           : "N/A",
-=======
-        label: "Business Unit",
-        value: departmentData?.data?.name || business_unit || "Business Unit Not Available",
->>>>>>> 6895d90f (subgrant-ongoing)
       },
       {
-        id: 10,
+        id: 11,
         label: "Subaward Life of Project Value (USD)",
         value: formatNumberCurrency(amount_usd, "USD"),
       },
       {
-        id: 11,
+        id: 12,
         label: "Subaward Life of Project Value (Local Currency)",
         value: formatNumberCurrency(amount_ngn, "NGN"),
       },
 
-<<<<<<< HEAD
-      { id: 12, label: "Start Date", value: start_date },
+      { id: 13, label: "Start Date", value: start_date || "N/A" },
 
-      { id: 13, label: "End Date", value: end_date },
-
-      {
-        id: 14,
-        label: "Submission Start Date",
-        value: submission_start_date,
-      },
+      { id: 14, label: "End Date", value: end_date || "N/A" },
 
       {
         id: 15,
-        label: "Submission End Date",
-        value: submission_end_date,
-      },
-
-      {
-        id: 16,
-        label: "Commitees",
-        value: evaluation_applicants
-          .map((member) => `${member.first_name} ${member.last_name}`)
-          .join(", "),
-      },
-    ];
-  }, [title, sub_grant_administrator, award_type, technical_staff, business_unit, locations, amount_usd, amount_ngn, start_date, end_date, submission_start_date, submission_end_date, evaluation_applicants]);
-=======
-      { id: 12, label: "Start Date", value: start_date || "N/A" },
-
-      { id: 13, label: "End Date", value: end_date || "N/A" },
-
-      {
-        id: 14,
         label: "Submission Start Date",
         value: submission_start_date || "N/A",
       },
 
       {
-        id: 15,
+        id: 16,
         label: "Submission End Date",
         value: submission_end_date || "N/A",
       },
@@ -228,6 +197,7 @@ const SubGrantAwardDetails = ({
     business_unit,
     departmentData,
     award_type,
+    locations,
     amount_usd,
     amount_ngn,
     start_date,
@@ -235,7 +205,6 @@ const SubGrantAwardDetails = ({
     submission_start_date,
     submission_end_date,
   ]);
->>>>>>> 6895d90f (subgrant-ongoing)
 
   return (
     <div className="bg-white rounded-2xl flex flex-col gap-y-[1.25rem] py-5 px-10">

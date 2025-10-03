@@ -11,11 +11,7 @@ import { RadioGroup, RadioGroupItem } from "components/ui/radio-group";
 import { Textarea } from "components/ui/textarea";
 import { toast } from "sonner";
 import { FileCheck, Save, Award } from "lucide-react";
-<<<<<<< HEAD
-import { useStartAssessment } from "@/features/contracts-grants/controllers/preAwardAssessmentController";
-=======
 import { useStartAssessment, useGetAllAssessments, useSubmitAssessment } from "@/features/contracts-grants/controllers/preAwardAssessmentController";
->>>>>>> 6895d90f (subgrant-ongoing)
 import { useGetSingleSubGrantSubmission } from "@/features/contracts-grants/controllers/submissionController";
 import { technicalCapacityQuestions, financialPreAwardQuestions } from "./questions";
 import { Loading } from "components/Loading";
@@ -34,12 +30,6 @@ export default function PreAwardAssessment() {
     const assessmentType = searchParams?.get("type") || "technical";
 
     const [answers, setAnswers] = useState<Record<string, Answer>>({});
-<<<<<<< HEAD
-    const { startAssessment, isLoading: isStarting } = useStartAssessment();
-    const { data: submissionData, isLoading: isLoadingSubmission } = useGetSingleSubGrantSubmission(submissionId);
-
-    const isCreating = isStarting;
-=======
     const [assessmentId, setAssessmentId] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -59,7 +49,6 @@ export default function PreAwardAssessment() {
         size: 10,
         enabled: true,
     });
->>>>>>> 6895d90f (subgrant-ongoing)
 
     const questions = assessmentType === "technical"
         ? technicalCapacityQuestions
@@ -138,19 +127,7 @@ export default function PreAwardAssessment() {
                 const answer = answers[q.id];
                 // For text type questions, check if answer exists in either answer or keyFindings field
                 if (q.options.type === "text") {
-<<<<<<< HEAD
-                    // Check if the main answer is provided
-                    if (!answer?.answer?.trim()) {
-                        return true;
-                    }
-                    // If requires_explanation, also check keyFindings
-                    if (q.requires_explanation && !answer?.keyFindings?.trim()) {
-                        return true;
-                    }
-                    return false;
-=======
                     return !answer?.answer?.trim() && !answer?.keyFindings?.trim();
->>>>>>> 6895d90f (subgrant-ongoing)
                 }
                 // For boolean questions, check if yes/no is selected
                 if (!answer?.answer) {
@@ -180,60 +157,6 @@ export default function PreAwardAssessment() {
                 return;
             }
 
-<<<<<<< HEAD
-            // Step 1: Start/create the assessment
-            console.log("Starting assessment for submission:", submissionId, "partner:", partnerId);
-            const response = await startAssessment(submissionId, partnerId);
-            console.log("Start assessment response:", response);
-
-            const currentAssessmentId = response?.data?.data?.id || response?.data?.id;
-            console.log("Extracted assessment ID:", currentAssessmentId);
-
-            if (!currentAssessmentId) {
-                toast.error("Failed to create assessment. Please try again.");
-                console.error("No assessment ID found in response:", response);
-                return;
-            }
-
-            // Step 2: Build the assessment data structure with answers
-            const assessmentData = {
-                rating_scale: questions.rating_scale,
-                forms: questions.forms.map(form => ({
-                    category_name: form.category_name,
-                    category_description: form.category_description || "",
-                    questions: form.questions.map(q => {
-                        const answer = answers[q.id];
-                        return {
-                            question: q.question,
-                            answer: {
-                                text: answer?.keyFindings || "",
-                                rating_type: q.options.type === "boolean"
-                                    ? (answer?.answer === "yes" ? q.options.yesRating : q.options.noRating)
-                                    : "",
-                                boolean: q.options.type === "boolean" ? (answer?.answer === "yes") : false
-                            },
-                            requires_explanation: q.requires_explanation || false
-                        };
-                    })
-                }))
-            };
-
-            // Step 3: Update the assessment with the data using direct API call
-            await AxiosWithToken.patch(
-                `/contract-grants/award/assessments/${currentAssessmentId}/`,
-                { assessment_data: assessmentData }
-            );
-
-            toast.success(`${assessmentType === "technical" ? "Technical Capacity" : "Financial Pre-Award"} Assessment submitted successfully!`);
-
-            // After technical assessment, redirect to financial assessment
-            if (assessmentType === "technical") {
-                router.push(`/dashboard/c-and-g/sub-grant/awards/submission/${submissionId}/preaward-assessment?type=financial`);
-            } else {
-                // After financial assessment (final stage), redirect to submission details or assessment results
-                // Navigate back twice to get out of the assessment flow
-                router.push(`/dashboard/c-and-g/sub-grant/awards/submission/${submissionId}`);
-=======
             let currentAssessmentId = assessmentId || existingAssessment?.id;
 
             // Step 1: Create assessment if it doesn't exist
@@ -382,7 +305,6 @@ export default function PreAwardAssessment() {
                 } else {
                     router.back();
                 }
->>>>>>> 6895d90f (subgrant-ongoing)
             }
         } catch (error: any) {
             console.error("Assessment submission error:", error);
