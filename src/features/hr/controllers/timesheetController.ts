@@ -161,6 +161,9 @@ export const useUpdateTimesheet = (id: string) => {
   });
 
   const updateTimesheet = async (details: UpdateTimesheetRequest) => {
+    if (!id || id === "create" || id === "") {
+      throw new Error("Cannot update a timesheet that hasn't been created yet");
+    }
     try {
       await callApi(details);
     } catch (error) {
@@ -186,8 +189,8 @@ export const useSubmitTimesheet = (id: string) => {
   });
 
   const submitTimesheet = async (approver_id?: string) => {
-    if (!id || id === "create") {
-      throw new Error("Invalid timesheet ID");
+    if (!id || id === "create" || id === "") {
+      throw new Error("Please save the timesheet first before submitting");
     }
     try {
       await callApi(approver_id ? { approver_id } : {});
@@ -289,8 +292,8 @@ export const useValidateTimesheet = (id: string) => {
   });
 
   const validateTimesheet = async () => {
-    if (!id || id === "create") {
-      throw new Error("Invalid timesheet ID");
+    if (!id || id === "create" || id === "") {
+      throw new Error("Please save the timesheet first before validating");
     }
     try {
       await callApi({} as Record<string, never>);

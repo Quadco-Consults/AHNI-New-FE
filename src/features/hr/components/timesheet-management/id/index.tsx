@@ -48,13 +48,14 @@ const TimesheetManagementFull = () => {
   const [rejectionReason, setRejectionReason] = useState<string>("");
   const [isRejectModalOpen, setIsRejectModalOpen] = useState<boolean>(false);
 
-  // API hooks
+  // API hooks - use empty string for "create" mode to avoid invalid UUID errors
+  const validTimesheetId = timesheetId === "create" ? "" : timesheetId;
   const { createTimesheet, isLoading: isCreating } = useCreateTimesheet();
-  const { updateTimesheet, isLoading: isUpdating } = useUpdateTimesheet(timesheetId);
-  const { submitTimesheet, isLoading: isSubmitting } = useSubmitTimesheet(timesheetId);
-  const { approveTimesheet, isLoading: isApproving } = useApproveTimesheet(timesheetId);
-  const { rejectTimesheet, isLoading: isRejecting } = useRejectTimesheet(timesheetId);
-  const { validateTimesheet } = useValidateTimesheet(timesheetId);
+  const { updateTimesheet, isLoading: isUpdating } = useUpdateTimesheet(validTimesheetId);
+  const { submitTimesheet, isLoading: isSubmitting } = useSubmitTimesheet(validTimesheetId);
+  const { approveTimesheet, isLoading: isApproving } = useApproveTimesheet(validTimesheetId);
+  const { rejectTimesheet, isLoading: isRejecting } = useRejectTimesheet(validTimesheetId);
+  const { validateTimesheet } = useValidateTimesheet(validTimesheetId);
 
   // Fetch blocked dates
   const { data: blockedDatesData } = useGetBlockedDates(timesheetId, !!timesheetId && timesheetId !== "create");
@@ -288,8 +289,7 @@ const TimesheetManagementFull = () => {
   };
 
   // Activity Type Toggle Component (Hybrid: ActivityPlan OR Custom)
-  const ActivityTypeSelect = ({ value, onChange, rowIndex }: any) => {
-    const entry = entries[rowIndex];
+  const ActivityTypeSelect = ({ value, onChange, rowIndex, entry }: any) => {
     const activityType = entry?.activity_plan ? "planned" : entry?.custom_activity ? "custom" : "";
 
     const handleTypeChange = (type: string) => {
@@ -318,8 +318,7 @@ const TimesheetManagementFull = () => {
   };
 
   // Activity Selection Component (shows ActivityPlan dropdown OR custom input)
-  const ActivityInput = ({ value, onChange, rowIndex }: any) => {
-    const entry = entries[rowIndex];
+  const ActivityInput = ({ value, onChange, rowIndex, entry }: any) => {
     const selectedProjectTitle = entry?.project; // This is now the project title
     const activityType = entry?.activity_plan ? "planned" : entry?.custom_activity ? "custom" : "";
 
@@ -457,7 +456,7 @@ const TimesheetManagementFull = () => {
     {
       header: "Activity Type",
       cell: ({ row }) => (
-        <ActivityTypeSelect value="" onChange={updateEntry} rowIndex={row.index} />
+        <ActivityTypeSelect value="" onChange={updateEntry} rowIndex={row.index} entry={row.original} />
       ),
     },
     {
@@ -467,6 +466,7 @@ const TimesheetManagementFull = () => {
           value={row.original.activity_plan || row.original.custom_activity}
           onChange={updateEntry}
           rowIndex={row.index}
+          entry={row.original}
         />
       ),
     },
