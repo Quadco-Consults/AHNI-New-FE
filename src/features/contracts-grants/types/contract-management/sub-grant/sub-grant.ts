@@ -133,6 +133,10 @@ export interface ISubGrantSubmissionPaginatedData {
     has_conflict_of_interest: boolean;
     created_by: string;
     updated_by: string | null;
+    status?: string;
+    is_shortlisted?: boolean;
+    has_assessment?: boolean;
+    assessment_score?: number;
 }
 
 export interface ISubGrantSubmissionSingleData {

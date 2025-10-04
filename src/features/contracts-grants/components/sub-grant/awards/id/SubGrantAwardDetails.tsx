@@ -13,6 +13,8 @@ import {
 } from "@/features/contracts-grants/controllers/subGrantWorkflowController";
 import { useSubGrantScheduler } from "@/hooks/useSubGrantScheduler";
 import { useGetSingleDepartment } from "@/features/modules/controllers/config/departmentController";
+import { useGetAllSubGrantManualSub } from "@/features/contracts-grants/controllers/submissionController";
+import { useGetAllAssessments } from "@/features/contracts-grants/controllers/preAwardAssessmentController";
 import { PlayCircle, StopCircle, Edit, Clock, Zap } from "lucide-react";
 import Link from "next/link";
 
@@ -49,6 +51,48 @@ const SubGrantAwardDetails = ({
     !!business_unit && typeof business_unit === 'string'
   );
 
+  // Fetch shortlisted submissions
+  const { data: submissionsData } = useGetAllSubGrantManualSub({
+    sub_grant: id,
+    page: 1,
+    size: 100,
+    enabled: !!id,
+  });
+
+  // Fetch all assessments
+  const { data: assessmentsData } = useGetAllAssessments({
+    page: 1,
+    size: 100,
+    enabled: !!id,
+  });
+
+  // Check if all shortlisted submissions have completed assessments
+  const shortlistedSubmissions = useMemo(() => {
+    return (submissionsData?.data?.results || []).filter(
+      (submission: any) => submission.status === "SHORTLISTED" || submission.is_shortlisted
+    );
+  }, [submissionsData]);
+
+  const allShortlistedAssessed = useMemo(() => {
+    if (shortlistedSubmissions.length === 0) return false;
+
+    const assessments = assessmentsData?.data?.results || [];
+
+    return shortlistedSubmissions.every((submission: any) => {
+      const assessment = assessments.find(
+        (a: any) => a.submission === submission.id || a.submission?.id === submission.id
+      );
+      return assessment && assessment.status === "COMPLETED";
+    });
+  }, [shortlistedSubmissions, assessmentsData]);
+
+  // Determine display status
+  const displayStatus = useMemo(() => {
+    if (allShortlistedAssessed && shortlistedSubmissions.length > 0) {
+      return "ASSESSED";
+    }
+    return status;
+  }, [allShortlistedAssessed, shortlistedSubmissions.length, status]);
 
   const handlePublish = async () => {
     try {
@@ -211,8 +255,11 @@ const SubGrantAwardDetails = ({
       <div className="flex items-center justify-between">
         <h3 className="text-xl font-bold">Award Details</h3>
         <div className="flex items-center gap-3">
-          <Badge variant={status === "DRAFT" ? "secondary" : "default"}>
-            {status}
+          <Badge
+            variant={displayStatus === "DRAFT" ? "secondary" : "default"}
+            className={displayStatus === "ASSESSED" ? "bg-blue-600 text-white" : ""}
+          >
+            {displayStatus}
           </Badge>
           <Link href={`/dashboard/c-and-g/sub-grant/create-sub-grant?editId=${id}`}>
             <Button variant="outline" size="sm">
