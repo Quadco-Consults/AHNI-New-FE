@@ -82,18 +82,11 @@ export default function ScopeOfWork() {
   const { data: users } = useGetAllUsers({ page: 1, size: 10 });
 
   const onSubmit: SubmitHandler<TScopeOfWorkFormData> = async (data) => {
-    console.log("=== SCOPE OF WORK SUBMISSION START ===");
-    console.log("Form data:", data);
-    console.log("Pathname:", pathname);
-    console.log("Consultant ID:", consultantId);
-
     try {
       const applicationDetails: TConsultantanagementDetailsFormData =
         JSON.parse(
           sessionStorage.getItem("consultantManagementFormData") || "{}"
         );
-
-      console.log("Application details from sessionStorage:", applicationDetails);
 
       let payload = {
         ...applicationDetails,
@@ -134,40 +127,24 @@ export default function ScopeOfWork() {
         };
         // Remove consultant-specific field
         delete payload.consultants_number;
-
-        // Debug: Log the final payload
-        console.log("Facilitator payload:", JSON.stringify(payload, null, 2));
       }
 
       if (consultantId) {
-        console.log("Updating consultant management...");
         await updateConsultantManagement(payload);
       } else if (pathname?.includes("facilitator-management")) {
-        console.log("Creating facilitator...");
         await createFacilitator(payload);
       } else {
-        console.log("Creating consultant advertisement...");
         await createConsultantAdvertisement(payload);
       }
 
-      console.log("API call completed successfully");
-
-      console.log("Navigating after successful submission...");
       if (pathname?.includes("adhoc-management")) {
-        console.log("Redirecting to adhoc management");
         router.push(ProgramRoutes.ADHOC_MANAGEMENT);
       } else if (pathname?.includes("facilitator-management")) {
-        console.log("Redirecting to facilitator management");
         router.push(CG_ROUTES.FACILITATOR_ADVERT);
       } else {
-        console.log("Redirecting to consultancy");
         router.push(CG_ROUTES.CONSULTANCY);
       }
     } catch (error: any) {
-      console.log("=== SUBMISSION ERROR ===");
-      console.error("Full error object:", error);
-      console.error("Error message:", error?.message);
-      console.error("Error data:", error?.data);
       toast.error(error?.data?.message || error?.message || "Something went wrong");
     }
   };

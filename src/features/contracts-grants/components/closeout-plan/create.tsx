@@ -24,19 +24,13 @@ import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
 import {
-  useCreateCloseOutPlan,
-  useGetSingleCloseOutPlan,
-  useModifyCloseOutPlan,
   useCreateCloseOutPlanMutation,
   useModifyCloseOutPlanMutation,
   useGetSingleCloseOutPlanQuery,
 } from "@/features/contracts-grants/controllers/closeoutPlanController";
 import { useGetAllDepartments } from "@/features/modules/controllers/config/departmentController";
 import { useGetAllLocations } from "@/features/modules/controllers/config/locationController";
-import {
-  useGetAllProjects,
-  useGetAllProjectsQuery,
-} from "@/features/projects/controllers/projectController";
+import { useGetAllProjectsQuery } from "@/features/projects/controllers/projectController";
 import { toast } from "sonner";
 
 export default function CreateCloseOutPlan() {
@@ -50,17 +44,19 @@ export default function CreateCloseOutPlan() {
     resolver: zodResolver(CloseOutPlanSchema),
     defaultValues: {
       project: "",
-      department: "",
+      department: "PRE-CLOSEOUT & CLOSE-OUT ACTIVITIES",
       location: "",
       tasks: [
         {
           key_task: "",
           activities: [
             {
+              description: "",
               designation: "",
               remarks: "",
               start_date: "",
               end_date: "",
+              status: "Pending",
             },
           ],
         },
@@ -87,8 +83,8 @@ export default function CreateCloseOutPlan() {
       project?.data.results.map(({ title, id }) => ({
         label: title,
         value: id,
-      })),
-    [project]
+      })) || [],
+    [project?.data.results]
   );
 
   const { data: department } = useGetAllDepartments({
@@ -102,8 +98,8 @@ export default function CreateCloseOutPlan() {
       department?.data.results.map(({ name, id }) => ({
         label: name,
         value: id,
-      })),
-    [project]
+      })) || [],
+    [department?.data.results]
   );
 
   const { data: location } = useGetAllLocations({
@@ -116,23 +112,41 @@ export default function CreateCloseOutPlan() {
       location?.data.results.map(({ name, id }) => ({
         label: name,
         value: id,
-      })),
-    [project]
+      })) || [],
+    [location?.data.results]
   );
 
   const { createCloseoutPlan: createCloseOutPlan, isLoading: isCreateLoading } =
     useCreateCloseOutPlanMutation();
 
   const { updateCloseoutPlan: modifyCloseOutPlan, isLoading: isModifyLoading } =
-    useModifyCloseOutPlanMutation();
+    useModifyCloseOutPlanMutation(id || "");
 
   const onSubmit: SubmitHandler<TCloseOutPlanFormData> = async (data) => {
     try {
+      // Transform nested structure to flat structure for backend
+      // Backend expects tasks array with activity fields directly, not nested activities
+      const transformedData = {
+        project: data.project,
+        department: data.department,
+        location: data.location,
+        key_task: data.tasks[0]?.key_task || null, // Use first task's key_task
+        tasks: data.tasks.flatMap(task =>
+          task.activities.map(activity => ({
+            designation: activity.designation,
+            remarks: activity.remarks,
+            status: activity.status,
+            start_date: activity.start_date,
+            end_date: activity.end_date,
+          }))
+        )
+      };
+
       if (id) {
-        await modifyCloseOutPlan({ id, body: data });
+        await modifyCloseOutPlan(transformedData as any);
         toast.success("Close Out Plan Updated");
       } else {
-        await createCloseOutPlan(data);
+        await createCloseOutPlan(transformedData as any);
         toast.success("Close Out Plan Created");
       }
 
@@ -142,22 +156,35 @@ export default function CreateCloseOutPlan() {
     }
   };
 
-  const { data } = useGetSingleCloseOutPlanQuery(id ?? skipToken);
+  const { data: closeoutPlanData } = useGetSingleCloseOutPlanQuery(id ?? skipToken);
 
   useEffect(() => {
-    if (data) {
-      const {
-        data: { project, department, location },
-      } = data;
+    if (closeoutPlanData?.data && id) {
+      const { project: proj, department: dept, location: loc, tasks, key_task } = closeoutPlanData.data;
 
-      // form.reset({
-      //     ...data.data,
-      //     project: project.id,
-      //     department: department.id,
-      //     location: location.id,
-      // });
+      // Transform flat backend structure to nested form structure
+      // Backend returns tasks array with activity fields directly
+      // Form expects tasks with nested activities arrays
+      const formTasks = [{
+        key_task: key_task || "",
+        activities: tasks.map((task: any) => ({
+          description: task.description || "",
+          designation: task.designation || "",
+          remarks: task.remarks || "",
+          start_date: task.start_date || "",
+          end_date: task.end_date || "",
+          status: task.status || "Pending",
+        }))
+      }];
+
+      form.reset({
+        project: proj.id,
+        department: dept.id,
+        location: loc.id,
+        tasks: formTasks,
+      });
     }
-  }, [data, project, department, location]);
+  }, [closeoutPlanData, id, form]);
 
   return (
     <Card>
@@ -174,12 +201,12 @@ export default function CreateCloseOutPlan() {
               options={projectOptions}
             />
 
-            <FormSelect
-              label='Department'
+            <FormInput
+              label='Main Plan Title'
               name='department'
-              placeholder='Select Department'
-              required
-              options={departmentOptions}
+              value='PRE-CLOSEOUT & CLOSE-OUT ACTIVITIES'
+              disabled
+              className='bg-gray-100'
             />
 
             <FormSelect
@@ -198,6 +225,7 @@ export default function CreateCloseOutPlan() {
                   removeTask={removeTask}
                   control={form.control}
                   register={form.register}
+                  canDelete={taskFields.length > 1}
                 />
               ))}
 
@@ -205,14 +233,29 @@ export default function CreateCloseOutPlan() {
                 type='button'
                 size='lg'
                 className='text-primary'
-                onClick={() => appendTask({ key_task: "", activities: [] })}
+                onClick={() => appendTask({
+                  key_task: "",
+                  activities: [{
+                    description: "",
+                    designation: "",
+                    remarks: "",
+                    start_date: "",
+                    end_date: "",
+                    status: "Pending",
+                  }]
+                })}
               >
                 <AddSquareIcon /> Add Task
               </FadedButton>
             </div>
 
             <div className='flex justify-end items-center gap-x-5'>
-              <FadedButton type='button' size='lg' className='text-primary'>
+              <FadedButton
+                type='button'
+                size='lg'
+                className='text-primary'
+                onClick={() => router.push(CG_ROUTES.CLOSE_OUT)}
+              >
                 Cancel
               </FadedButton>
               <FormButton
@@ -234,11 +277,13 @@ function TaskItem({
   removeTask,
   control,
   register,
+  canDelete,
 }: {
   taskIndex: number;
   removeTask: (index: number) => void;
   control: any;
   register: any;
+  canDelete: boolean;
 }) {
   const {
     fields: activityFields,
@@ -249,54 +294,108 @@ function TaskItem({
     name: `tasks.${taskIndex}.activities`,
   });
 
+  // Section heading options
+  const sectionHeadingOptions = [
+    { label: "FILES, DATA AND RECORDS", value: "FILES, DATA AND RECORDS" },
+    { label: "PROGRAM/TECHNICAL", value: "PROGRAM/TECHNICAL" },
+    { label: "Final Project Report", value: "Final Project Report:" },
+    { label: "HUMAN RESOURCES", value: "HUMAN RESOURCES" },
+    { label: "ADMIN/INVENTORY", value: "ADMIN/INVENTORY" },
+    { label: "FINANCE/ACCOUNTING", value: "FINANCE/ACCOUNTING" },
+    { label: "IT", value: "IT" },
+  ];
+
   return (
     <Card className='space-y-5'>
-      <FormTextArea
-        label='Key Task'
-        name={`tasks.${taskIndex}.key_task`}
-        placeholder='Enter Key Task'
-        required
-      />
+      <div className='flex justify-between items-start gap-4'>
+        <div className='flex-1'>
+          <FormSelect
+            label='Section Heading (Optional)'
+            name={`tasks.${taskIndex}.key_task`}
+            placeholder='Select section heading'
+            options={sectionHeadingOptions}
+          />
+          <p className='text-xs text-gray-500 mt-1'>
+            Select a section heading to group activities, or leave blank if not needed
+          </p>
+        </div>
+        {canDelete && (
+          <Button
+            type='button'
+            variant='ghost'
+            size='sm'
+            onClick={() => removeTask(taskIndex)}
+            className='text-red-600 hover:text-red-700 hover:bg-red-50 mt-6'
+          >
+            <DeleteIcon />
+            Remove Task
+          </Button>
+        )}
+      </div>
 
       {activityFields.map((activity, activityIndex) => (
-        <div key={activity.id} className='space-y-3'>
-          <h3 className='text-lg font-semibold'>
-            Activity {activityIndex + 1}
-          </h3>
+        <div key={activity.id} className='space-y-3 p-4 border rounded-lg bg-gray-50'>
+          <div className='flex justify-between items-center'>
+            <h3 className='text-lg font-semibold'>
+              Activity {activityIndex + 1}
+            </h3>
+            {activityFields.length > 1 && (
+              <Button
+                type='button'
+                variant='ghost'
+                size='sm'
+                onClick={() => removeActivity(activityIndex)}
+                className='text-red-600 hover:text-red-700 hover:bg-red-50'
+              >
+                <DeleteIcon />
+              </Button>
+            )}
+          </div>
           <div className='space-y-5'>
             <FormTextArea
               label='Description'
               name={`tasks.${taskIndex}.activities.${activityIndex}.description`}
-              placeholder='Enter Description'
+              placeholder='Enter Activity Description (or Section Heading like "FILES, DATA AND RECORDS")'
               required
             />
+            <p className='text-xs text-gray-500 -mt-3'>
+              💡 Tip: To create a section header, just fill in the description and leave dates/designation empty
+            </p>
             <div className='grid grid-cols-2 gap-5'>
               <FormInput
-                label='Designation'
+                label='Designation / Responsible'
                 name={`tasks.${taskIndex}.activities.${activityIndex}.designation`}
-                placeholder='Enter Designation'
-                required
+                placeholder='Enter Designation (e.g., STO, Program Manager) - Optional for headers'
               />
 
-              <FormInput
-                label='Remarks'
-                name={`tasks.${taskIndex}.activities.${activityIndex}.remarks`}
-                placeholder='Enter Remarks'
-                required
+              <FormSelect
+                label='Status'
+                name={`tasks.${taskIndex}.activities.${activityIndex}.status`}
+                placeholder='Select Status'
+                options={[
+                  { label: "Pending", value: "Pending" },
+                  { label: "In Progress", value: "In Progress" },
+                  { label: "Completed", value: "Completed" },
+                  { label: "On Hold", value: "On Hold" },
+                ]}
               />
 
               <FormInput
                 type='date'
                 label='Start Date'
                 name={`tasks.${taskIndex}.activities.${activityIndex}.start_date`}
-                required
               />
 
               <FormInput
                 type='date'
                 label='End Date'
                 name={`tasks.${taskIndex}.activities.${activityIndex}.end_date`}
-                required
+              />
+
+              <FormTextArea
+                label='Remarks'
+                name={`tasks.${taskIndex}.activities.${activityIndex}.remarks`}
+                placeholder='Enter Remarks (optional)'
               />
             </div>
           </div>
@@ -313,6 +412,7 @@ function TaskItem({
             remarks: "",
             start_date: "",
             end_date: "",
+            status: "Pending",
           })
         }
       >

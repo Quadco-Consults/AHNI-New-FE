@@ -34,6 +34,7 @@ export default function CreateSubGrantSubDetails() {
             principal_one_name: "",
             principal_one_designaation: "",
             principal_two_name: "",
+            principal_two_designation: "",
             address: "",
             phone_number: "",
             fax: "",
@@ -41,6 +42,7 @@ export default function CreateSubGrantSubDetails() {
             web_address: "",
             duns_number: "",
             has_conflict_of_interest: "",
+            organisation_type: undefined,
         },
     });
 
@@ -48,9 +50,9 @@ export default function CreateSubGrantSubDetails() {
 
     const { id: subGrantId } = useParams();
 
-    const [searchParams] = useSearchParams();
+    const searchParams = useSearchParams();
 
-    const submissionId = searchParams.get("partnerSubId");
+    const submissionId = searchParams?.get("partnerSubId");
 
     const { data: partner } = useGetAllPartners({
         page: 1,
@@ -66,38 +68,40 @@ export default function CreateSubGrantSubDetails() {
         [partner]
     );
 
-    const { createSubGrantManualSub, isLoading: isCreateLoading } =
+    const { createSubGrantSubmission, isLoading: isCreateLoading } =
         useCreateSubGrantManualSub();
 
-    const { modifySubGrantManualSub, isLoading: isModifyLoading } =
-        useModifySubGrantManualSub();
+    const { updateSubGrantSubmission, isLoading: isModifyLoading } =
+        useModifySubGrantManualSub(submissionId || "");
 
     const onSubmit: SubmitHandler<TSubGrantSubmissionFormData> = async (
         data
     ) => {
         try {
             if (subGrantId && submissionId) {
-                await modifySubGrantManualSub({
-                    submissionId: submissionId ?? "",
-                    body: { ...data, sub_grant: subGrantId },
-                })();
-                toast.success("Manual Submission Updated");
-            } else {
-                await createSubGrantManualSub({
+                const responseData = await updateSubGrantSubmission({
                     ...data,
                     sub_grant: subGrantId ?? "",
-                })();
+                });
+                toast.success("Manual Submission Updated");
+                const newSubmissionId = submissionId || responseData?.data?.id || "";
+                router.push(`/dashboard/c-and-g/sub-grant/awards/${subGrantId}/submission/create/upload?partnerSubId=${newSubmissionId}`);
+            } else {
+                const responseData = await createSubGrantSubmission({
+                    ...data,
+                    sub_grant: subGrantId ?? "",
+                });
                 toast.success("Manual Submission Created");
+                const newSubmissionId = submissionId || responseData?.data?.id || "";
+                router.push(`/dashboard/c-and-g/sub-grant/awards/${subGrantId}/submission/create/upload?partnerSubId=${newSubmissionId}`);
             }
-
-            router.push(`/dashboard/c-and-g/sub-grant/awards/submission/create/upload?partnerSubId=${submissionId ?? ""}`);
         } catch (error: any) {
-            toast.error(error.data.message ?? "Something went wrong");
+            toast.error(error?.data?.message ?? error?.message ?? "Something went wrong");
         }
     };
 
     const { data } = useGetSingleSubGrantManualSub(
-        submissionId ?? skipToken
+        submissionId || skipToken
     );
 
     useEffect(() => {
@@ -219,11 +223,11 @@ export default function CreateSubGrantSubDetails() {
                                 label="Organization Type "
                                 name="organisation_type"
                                 options={[
-                                    { label: "NGO", value: "NGO" },
-                                    {
-                                        label: "Profit",
-                                        value: "Profit Organization",
-                                    },
+                                    { label: "For Profit", value: "FOR_PROFIT" },
+                                    { label: "Not for Profit or Nongovernmental", value: "NON_PROFIT" },
+                                    { label: "Governmental", value: "GOVERNMENT" },
+                                    { label: "University", value: "UNIVERSITY" },
+                                    { label: "Other", value: "OTHER" },
                                 ]}
                                 placeholder="Select Organization Type"
                                 required

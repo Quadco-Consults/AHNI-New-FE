@@ -48,10 +48,7 @@ export default function ApplicationDetails() {
 
   const {
     formState: { errors },
-    getValues,
   } = form;
-  const vn = getValues();
-  console.log({ vn });
 
   const { data: location } = useGetAllLocations({
     page: 1,
