@@ -137,7 +137,8 @@ export const useCreateTimesheet = () => {
 
   const createTimesheet = async (details: CreateTimesheetRequest) => {
     try {
-      await callApi(details);
+      const response = await callApi(details);
+      return response;
     } catch (error) {
       console.error("Timesheet create error:", error);
       throw error;
@@ -149,12 +150,14 @@ export const useCreateTimesheet = () => {
 
 // Update Timesheet
 export const useUpdateTimesheet = (id: string) => {
+  // Use placeholder for hook initialization to avoid invalid endpoint
+  const safeId = id || "placeholder";
   const { callApi, isLoading, isSuccess, error, data } = useApiManager<
     ApiResponse<Timesheet>,
     Error,
     UpdateTimesheetRequest
   >({
-    endpoint: `${BASE_URL}${id}/`,
+    endpoint: `${BASE_URL}${safeId}/`,
     queryKey: ["timesheets", id],
     isAuth: true,
     method: "PATCH",

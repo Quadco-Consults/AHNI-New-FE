@@ -116,9 +116,9 @@ export default function DataTable<TData>({
                   return rows.length > 0 ? (
                     rows.map((row) => (
                   <TableRow
-                    className='cursor-pointer text-[#756D6D] text-sm dark:text-white'
+                    className={`text-[#756D6D] text-sm dark:text-white ${onRowClick ? 'cursor-pointer' : ''}`}
                     key={row.id}
-                    onClick={() => onRowClick && onRowClick(row)}
+                    onClick={onRowClick ? () => onRowClick(row) : undefined}
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id}>

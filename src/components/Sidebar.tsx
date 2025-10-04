@@ -941,7 +941,16 @@ const getDeparmentalLinks = () => {
         },
         {
           name: "Timesheet Management",
-          path: "/dashboard/hr/timesheet-management",
+          sublinks: [
+            {
+              name: "My Timesheets",
+              path: "/dashboard/hr/timesheet-management",
+            },
+            {
+              name: "Approvals",
+              path: "/dashboard/hr/timesheet-management/approvals",
+            },
+          ],
         },
         {
           name: "Leave Management",
