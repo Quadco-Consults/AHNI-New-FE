@@ -12,11 +12,11 @@ import {
 } from "../../types";
 
 // GET Operations (Queries)
-export const useGetAllDepartmentsManager = ({ 
-  page = 1, 
-  size = 20, 
+export const useGetAllDepartmentsManager = ({
+  page = 1,
+  size = 20,
   search = "",
-  enabled = true 
+  enabled = true
 }: FilterParams & { enabled?: boolean } = {}) => {
   return useQuery<ApiResponse<TPaginatedResponse<DepartmentData>>>({
     queryKey: ["departments", page, size, search],
@@ -27,6 +27,19 @@ export const useGetAllDepartmentsManager = ({
       return response.data;
     },
     enabled,
+    refetchOnWindowFocus: false,
+  });
+};
+
+// Get Single Department
+export const useGetSingleDepartment = (id: string, enabled: boolean = true) => {
+  return useQuery<ApiResponse<DepartmentData>>({
+    queryKey: ["department", id],
+    queryFn: async () => {
+      const response = await AxiosWithToken.get(`/config/departments/${id}/`);
+      return response.data;
+    },
+    enabled: enabled && !!id,
     refetchOnWindowFocus: false,
   });
 };

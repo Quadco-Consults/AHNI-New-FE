@@ -3,15 +3,17 @@
 import DataTable from "@/components/Table/DataTable";
 import TableFilters from "@/components/Table/TableFilters";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, Upload } from "lucide-react";
 import Link from "next/link";
 import Card from "@/components/Card";
 import { useState } from "react";
 import { assetColumn } from "@/features/admin/components/table-columns/inventory-management/asset";
 import { useGetAllItemsQuery } from "@/features/modules/controllers/config/itemController";
+import AssetBulkUploadDialog from "./BulkUploadDialog";
 
 export default function AssetHomePage() {
   const [page, setPage] = useState(1);
+  const [bulkUploadOpen, setBulkUploadOpen] = useState(false);
 
   const { data: asset, isLoading } = useGetAllItemsQuery({
     page,
@@ -22,7 +24,14 @@ export default function AssetHomePage() {
 
   return (
     <div className='space-y-5'>
-      <div className='flex justify-end'>
+      <div className='flex justify-end gap-3'>
+        <Button
+          variant="outline"
+          onClick={() => setBulkUploadOpen(true)}
+        >
+          <Upload size={20} />
+          Bulk Upload
+        </Button>
         <Link href='/dashboard/admin/assets/create'>
           <Button>
             <Plus size={20} />
@@ -45,6 +54,12 @@ export default function AssetHomePage() {
           />
         </TableFilters>
       </Card>
+
+      <AssetBulkUploadDialog
+        open={bulkUploadOpen}
+        onOpenChange={setBulkUploadOpen}
+        categoryId="17ca9ee7-603a-43a9-91e8-979652a8231c"
+      />
     </div>
   );
 }

@@ -19,6 +19,16 @@ import { Badge } from "components/ui/badge";
 import { cn } from "lib/utils";
 import { ISubGrantPaginatedData } from "@/features/contracts-grants/types/contract-management/sub-grant/sub-grant";
 
+const generatePath = (route: string, params?: Record<string, any>): string => {
+  let path = route;
+  if (params) {
+    Object.entries(params).forEach(([key, value]) => {
+      path = path.replace(`:${key}`, String(value));
+    });
+  }
+  return path;
+};
+
 export const subGrantAwardColumns: ColumnDef<ISubGrantPaginatedData>[] = [
     {
         header: "Project",

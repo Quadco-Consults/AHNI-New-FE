@@ -438,11 +438,19 @@ export const CG_ROUTES = {
   SUBGRANT_CREATE_PRE_AWARD_ASSESSMENT:
     "/dashboard/c-and-g/sub-grant/:id/create-pre-award-assessment",
   CREATE_SUBGRANT_SUBMISSION_DETAILS:
-    "/dashboard/c-and-g/sub-grant/manual-submission/organization-details/:id",
+    "/dashboard/c-and-g/sub-grant/awards/:id/submission/create",
   CREATE_SUBGRANT_SUBMISSION_UPLOADS:
-    "/dashboard/c-and-g/sub-grant/manual-submission/document-upload/:id",
+    "/dashboard/c-and-g/sub-grant/awards/:id/submission/create/upload",
   SUBGRANT_SUBMISSION_DETAILS:
     "/dashboard/c-and-g/sub-grant/:subGrantId/submission/:partnerSubId",
+
+  // Assessment routes
+  SUBGRANT_SUBMISSION_ASSESSMENT:
+    "/dashboard/c-and-g/sub-grant/awards/submission/:id/assessment",
+  SUBGRANT_ASSESSMENT_DETAILS:
+    "/dashboard/c-and-g/sub-grant/awards/submission/:id/assessment/:assessmentId",
+  SUBGRANT_ASSESSMENTS_LIST:
+    "/dashboard/c-and-g/sub-grant/awards/submission/:id/assessments",
 
   PRE_AWARD_ASSESSMENT: "/dashboard/c-and-g/sub-grant/preaward-assessment",
 
@@ -468,17 +476,20 @@ export const CG_ROUTES = {
   // CONSULTANCY
   CONSULTANCY: "/dashboard/c-and-g/consultancy",
   CREATE_CONSULTANCY_DETAILS:
-    "/dashboard/c-and-g/consultancy/application-details",
+    "/dashboard/c-and-g/consultancy/create-consultancy-details",
   CREATE_CONSULTANCY_WORK_SCOPE:
-    "/dashboard/c-and-g/consultancy/create/scope-of-work",
+    "/dashboard/c-and-g/consultancy/create-scope-of-work",
   CONSULTANCY_DETAILS: "/dashboard/c-and-g/consultancy/:id/details",
   CREATE_CONSULTANCY_APPLICANT:
     "/dashboard/c-and-g/consultancy/:id/applicant/create",
   CREATE_CONSULTANCY_INTERVIEW:
     "/dashboard/c-and-g/consultancy/:id/create-interview",
-
-  CONSULTANCY_APPLICATION_DETAILS:
+  CONSULTANCY_APPLICANT_DETAILS:
     "/dashboard/c-and-g/consultancy/:id/applicant/:applicantId/details",
+  CONSULTANCY_APPLICANT_INTERVIEW:
+    "/dashboard/c-and-g/consultancy/:id/applicant/:applicantId/interview",
+  CONSULTANCY_CONTRACT_ACCEPTANCE:
+    "/dashboard/c-and-g/consultancy/:id/applicant/:applicantId/contract-acceptance",
   CONSULTANCY_SHORTLIST_METRIC:
     "/api/v1/consultancy/shortlisted-applications-metrics/:id",
   CONSULTANCY_SLA: "/dashboard/c-and-g/consultancy/sla",
