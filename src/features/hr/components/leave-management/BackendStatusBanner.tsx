@@ -3,50 +3,51 @@
 import React, { useState, useEffect } from 'react';
 import { Alert, AlertDescription } from 'components/ui/alert';
 import { Button } from 'components/ui/button';
-import { 
-  AlertTriangle, 
-  CheckCircle, 
+import {
+  AlertTriangle,
+  CheckCircle,
   RefreshCw,
   X,
   Info
 } from 'lucide-react';
-import { leaveService } from '../../services/leaveService';
+import { useGetLeaveTypes } from '../../controllers/leaveRequestController';
 
 interface BackendStatusBannerProps {
   onStatusChange?: (isAvailable: boolean) => void;
 }
 
 const BackendStatusBanner: React.FC<BackendStatusBannerProps> = ({ onStatusChange }) => {
-  const [isBackendAvailable, setIsBackendAvailable] = useState<boolean | null>(null);
-  const [isChecking, setIsChecking] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
-  const [lastCheck, setLastCheck] = useState<Date | null>(null);
 
-  const checkBackendStatus = async () => {
-    setIsChecking(true);
-    try {
-      // Try to get leave types as a health check
-      const response = await leaveService.getLeaveTypes();
-      const isAvailable = response.success && !response.data.some((type: any) => type.id === 'lt-001' && type.name === 'Annual Leave');
-      setIsBackendAvailable(isAvailable);
-      setLastCheck(new Date());
-      onStatusChange?.(isAvailable);
-    } catch (error) {
-      setIsBackendAvailable(false);
-      setLastCheck(new Date());
-      onStatusChange?.(false);
-    } finally {
-      setIsChecking(false);
-    }
-  };
+  // Use React Query hook to check backend status
+  const { data: leaveTypesData, isLoading, error, refetch } = useGetLeaveTypes();
 
+  // Determine if backend is available based on the response
+  const isBackendAvailable = React.useMemo(() => {
+    if (isLoading) return null;
+    if (error) return false;
+
+    // Check if we got real data (not mock data)
+    // Mock data has specific IDs like 'lt-001', 'lt-002', etc.
+    const data = Array.isArray(leaveTypesData?.data)
+      ? leaveTypesData.data
+      : Array.isArray(leaveTypesData?.data?.results)
+      ? leaveTypesData.data.results
+      : [];
+
+    const hasMockData = data.some((type: any) =>
+      type.id === 'lt-001' && type.name === 'Annual Leave'
+    );
+
+    return !hasMockData && data.length > 0;
+  }, [leaveTypesData, isLoading, error]);
+
+  // Notify parent component of status changes
   useEffect(() => {
-    checkBackendStatus();
-    
-    // Check every 2 minutes
-    const interval = setInterval(checkBackendStatus, 120000);
-    return () => clearInterval(interval);
-  }, []);
+    if (isBackendAvailable !== null) {
+      onStatusChange?.(isBackendAvailable);
+    }
+  }, [isBackendAvailable, onStatusChange]);
 
   const getBannerConfig = () => {
     if (isBackendAvailable) {
@@ -107,16 +108,7 @@ const BackendStatusBanner: React.FC<BackendStatusBannerProps> = ({ onStatusChang
             <p className={`text-sm ${config.textColor} opacity-90`}>
               {config.message}
             </p>
-            
-            {lastCheck && (
-              <div className="flex items-center gap-2 mt-2">
-                <Info className={`w-4 h-4 ${config.iconColor} opacity-60`} />
-                <span className={`text-xs ${config.textColor} opacity-60`}>
-                  Last checked: {lastCheck.toLocaleTimeString()}
-                </span>
-              </div>
-            )}
-            
+
             {!isBackendAvailable && (
               <div className="mt-3 space-y-2">
                 <p className={`text-xs ${config.textColor} opacity-80`}>
@@ -140,13 +132,13 @@ const BackendStatusBanner: React.FC<BackendStatusBannerProps> = ({ onStatusChang
           <Button
             variant="ghost"
             size="sm"
-            onClick={checkBackendStatus}
-            disabled={isChecking}
+            onClick={() => refetch()}
+            disabled={isLoading}
             className="h-8 px-2"
           >
-            <RefreshCw className={`w-4 h-4 ${isChecking ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
           </Button>
-          
+
           <Button
             variant="ghost"
             size="sm"

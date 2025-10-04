@@ -11,7 +11,7 @@ export const API_ENDPOINTS = {
   LEAVE_TYPES: 'hr/leave-package/',
 
   // Leave Balances
-  LEAVE_BALANCES: (employeeId: string) => `hr/leave-balance/?employee=${employeeId}`,
+  LEAVE_BALANCES: (employeeId: string) => `hr/leave-balance/?employee_id=${employeeId}`,
 
   // Leave Requests (Backend uses 'leave-request' singular)
   LEAVE_REQUESTS: 'hr/leave-request/',

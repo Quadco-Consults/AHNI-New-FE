@@ -19,25 +19,28 @@ export class LeaveService {
 
   private async request<T>(endpoint: string, options?: RequestInit): Promise<T> {
     const isBackendAvailable = await this.checkBackendHealth();
-    
+
     if (!isBackendAvailable) {
       throw new Error('Backend not available - falling back to mock data');
     }
 
     const url = `${API_BASE}${endpoint}`;
-    
+
+    // Get token from localStorage (same key as AxiosWithToken uses)
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+
     const defaultOptions: RequestInit = {
       headers: {
         'Content-Type': 'application/json',
         // Add auth token if available
-        ...(typeof window !== 'undefined' && localStorage.getItem('authToken') && {
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        ...(token && {
+          'Authorization': `Bearer ${token}`
         }),
       },
     };
 
     const response = await fetch(url, { ...defaultOptions, ...options });
-    
+
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
@@ -225,7 +228,7 @@ export class LeaveService {
   // Dashboard
   async getDashboardData(employeeId: string): Promise<{ success: boolean; data: LeaveDashboardData }> {
     try {
-      return await this.request<{ success: boolean; data: LeaveDashboardData }>(`${API_ENDPOINTS.LEAVE_DASHBOARD}?employeeId=${employeeId}`);
+      return await this.request<{ success: boolean; data: LeaveDashboardData }>(`${API_ENDPOINTS.LEAVE_DASHBOARD}?employee_id=${employeeId}`);
     } catch (error) {
       console.info('Using mock dashboard data');
       return await mockLeaveService.getDashboardData(employeeId);

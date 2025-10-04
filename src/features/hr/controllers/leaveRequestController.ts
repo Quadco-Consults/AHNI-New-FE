@@ -37,6 +37,7 @@ export const useGetLeaveRequests = ({
     queryKey: ["leave-requests", page, size, status, search],
     queryFn: async () => {
       try {
+        console.log("Fetching leave requests with params:", { page, size, status, search });
         const response = await AxiosWithToken.get(BASE_URL, {
           params: {
             page,
@@ -45,14 +46,20 @@ export const useGetLeaveRequests = ({
             ...(search && { search }),
           },
         });
+        console.log("Leave requests response:", response.data);
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
+        console.error("Leave requests error:", {
+          status: axiosError.response?.status,
+          data: axiosError.response?.data,
+        });
         throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
       }
     },
     enabled: enabled,
     refetchOnWindowFocus: false,
+    staleTime: 0,
   });
 };
 
@@ -63,9 +70,11 @@ export const useGetLeaveRequest = (id: string, enabled: boolean = true) => {
     queryFn: async () => {
       try {
         const response = await AxiosWithToken.get(`${BASE_URL}${id}/`);
+        console.log("Leave request API response:", response.data);
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
+        console.error("Leave request fetch error:", axiosError.response?.data);
         throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
       }
     },
@@ -280,7 +289,6 @@ export const useValidateLeaveRequest = () => {
     any,
     Error,
     {
-      employeeId: string;
       leaveTypeId: string;
       fromDate: string;
       toDate: string;
@@ -294,13 +302,13 @@ export const useValidateLeaveRequest = () => {
   });
 
   const validateLeaveRequest = async (details: {
-    employeeId: string;
     leaveTypeId: string;
     fromDate: string;
     toDate: string;
     duration: string;
   }) => {
     try {
+      // Backend uses request.user.employee, no need to pass employeeId
       await callApi(details);
       return data;
     } catch (error) {
@@ -319,10 +327,17 @@ export const useGetLeaveTypes = (enabled: boolean = true) => {
     queryFn: async () => {
       try {
         const response = await AxiosWithToken.get("hr/leave-package/");
+        console.log("Leave types response:", response.data);
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        console.error("Leave types error:", {
+          status: axiosError.response?.status,
+          data: axiosError.response?.data,
+          message: axiosError.message
+        });
+        const errorMessage = (axiosError.response?.data as any)?.message || axiosError.message || "Failed to fetch leave types";
+        throw new Error(errorMessage);
       }
     },
     enabled: enabled,
@@ -331,38 +346,54 @@ export const useGetLeaveTypes = (enabled: boolean = true) => {
 };
 
 // Get Leave Balances
-export const useGetLeaveBalances = (employeeId: string, enabled: boolean = true) => {
+// Supports both old signature (employeeId, enabled) and new signature (enabled only)
+export const useGetLeaveBalances = (enabledOrEmployeeId?: boolean | string, enabled: boolean = true) => {
+  // Handle backward compatibility
+  const isEnabled = typeof enabledOrEmployeeId === 'boolean' ? enabledOrEmployeeId : enabled;
+
   return useQuery<ApiResponse<any[]>>({
-    queryKey: ["leave-balances", employeeId],
+    queryKey: ["leave-balances"],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get(`hr/leave-balance/?employee=${employeeId}`);
+        // Backend uses request.user.employee to get current employee's balances
+        const response = await AxiosWithToken.get(`hr/leave-balance/`);
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
         throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
       }
     },
-    enabled: enabled && !!employeeId,
+    enabled: isEnabled,
     refetchOnWindowFocus: false,
   });
 };
 
 // Get Leave Dashboard
-export const useGetLeaveDashboard = (employeeId: string, enabled: boolean = true) => {
+export const useGetLeaveDashboard = (enabled: boolean = true) => {
   return useQuery<ApiResponse<any>>({
-    queryKey: ["leave-dashboard", employeeId],
+    queryKey: ["leave-dashboard"],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get(`${BASE_URL}dashboard/?employeeId=${employeeId}`);
+        // Backend uses request.user.employee to get current employee
+        // No need to pass employee_id - it's inferred from the authenticated user
+        console.log("Fetching leave dashboard...");
+        const response = await AxiosWithToken.get(`${BASE_URL}dashboard/`);
+        console.log("Dashboard response:", response.data);
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        console.error("Dashboard error:", {
+          status: axiosError.response?.status,
+          data: axiosError.response?.data,
+          message: axiosError.message
+        });
+        const errorMessage = (axiosError.response?.data as any)?.message || axiosError.message || "Failed to load dashboard";
+        throw new Error(errorMessage);
       }
     },
-    enabled: enabled && !!employeeId,
+    enabled: enabled,
     refetchOnWindowFocus: false,
+    staleTime: 0, // Always consider data stale to ensure fresh data on refetch
   });
 };
 
@@ -376,11 +407,17 @@ export const useGetLeaveWorkflow = (id: string, enabled: boolean = true) => {
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
+        // 404 means no workflow created yet - this is expected, return null instead of throwing
+        if (axiosError.response?.status === 404) {
+          console.log("No workflow created for this leave request yet");
+          return null;
+        }
         throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
       }
     },
     enabled: enabled && !!id,
     refetchOnWindowFocus: false,
+    retry: false, // Don't retry on 404
   });
 };
 
