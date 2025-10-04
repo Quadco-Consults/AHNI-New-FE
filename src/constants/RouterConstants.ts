@@ -596,6 +596,7 @@ export const HrRoutes = {
     "/dashboard/hr/timesheet-management/:id/create",
   TIMESHEET_MANAGEMENT_CREATE:
     "/dashboard/hr/timesheet-management/create-timesheet-management",
+  TIMESHEET_APPROVALS: "/dashboard/hr/timesheet-management/approvals",
 };
 
 /* *************** PROGRAM ROUTES *************** */
