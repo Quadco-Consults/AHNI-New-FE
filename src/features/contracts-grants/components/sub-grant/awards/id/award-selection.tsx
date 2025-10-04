@@ -17,15 +17,14 @@ import { Checkbox } from "components/ui/checkbox";
 import BackNavigation from "components/atoms/BackNavigation";
 import { useGetSingleSubGrantSubmission } from "@/features/contracts-grants/controllers/submissionController";
 import { useGetSingleSubGrant } from "@/features/contracts-grants/controllers/subGrantController";
-import { useCreateAward } from "@/features/contracts-grants/controllers/subGrantAwardController";
+import { useMakeAward, useCreateCommittee } from "@/features/contracts-grants/controllers/subGrantWorkflowController";
 import { Loading } from "components/Loading";
 
 const AwardSchema = z.object({
-    award_amount_usd: z.string().min(1, "Please enter award amount in USD"),
-    award_amount_local: z.string().min(1, "Please enter award amount in local currency"),
-    award_start_date: z.string().min(1, "Please select start date"),
-    award_end_date: z.string().min(1, "Please select end date"),
-    award_notes: z.string().optional(),
+    award_amount: z.string().min(1, "Please enter award amount"),
+    award_currency: z.enum(["USD", "NGN"], { required_error: "Please select currency" }),
+    award_date: z.string().min(1, "Please select award date"),
+    notes: z.string().optional(),
 });
 
 type AwardFormData = z.infer<typeof AwardSchema>;
@@ -48,37 +47,84 @@ export default function AwardSelection({ submissionId: propSubmissionId }: Award
         subGrantId,
         !!subGrantId
     );
-    const { createAward, isLoading: isAwarding } = useCreateAward();
+    const { makeAward, isLoading: isAwarding } = useMakeAward(subGrantId);
+    const { createCommittee, isLoading: isCreatingCommittee } = useCreateCommittee(subGrantId);
 
     const form = useForm<AwardFormData>({
         resolver: zodResolver(AwardSchema),
         defaultValues: {
-            award_amount_usd: "",
-            award_amount_local: "",
-            award_start_date: "",
-            award_end_date: "",
-            award_notes: "",
+            award_amount: "",
+            award_currency: "USD",
+            award_date: "",
+            notes: "",
         },
     });
 
-    // Pre-fill with sub-grant amounts
+    // Pre-fill with sub-grant amount
     useEffect(() => {
         if (subGrantData?.data) {
-            form.setValue("award_amount_usd", subGrantData.data.amount_usd || "");
-            form.setValue("award_amount_local", subGrantData.data.amount_ngn || "");
+            form.setValue("award_amount", subGrantData.data.amount_usd || "");
         }
     }, [subGrantData, form]);
 
     const onSubmit = async (data: AwardFormData) => {
         try {
-            await createAward({
-                sub_grant: subGrantId,
-                submission: submissionId,
-                award_amount_usd: data.award_amount_usd,
-                award_amount_ngn: data.award_amount_local,
-                award_start_date: data.award_start_date,
-                award_end_date: data.award_end_date,
-                award_notes: data.award_notes,
+            // Step 1: Create committee to transition to ASSESSMENT status
+            // Use sub-grant administrator as chairperson
+            const subGrant = subGrantData?.data;
+            console.log("Sub-grant data:", subGrant);
+            console.log("Administrator:", subGrant?.sub_grant_administrator);
+
+            const adminId = typeof subGrant?.sub_grant_administrator === 'string'
+                ? subGrant.sub_grant_administrator
+                : subGrant?.sub_grant_administrator?.id;
+
+            console.log("Extracted admin ID:", adminId);
+
+            if (!adminId) {
+                toast.error("Unable to determine sub-grant administrator");
+                return;
+            }
+
+            // Step 1: Create committee to transition to ASSESSMENT status
+            try {
+                // Set assessment deadline to 7 days from now
+                const deadline = new Date();
+                deadline.setDate(deadline.getDate() + 7);
+
+                const committeePayload = {
+                    committee_members: [adminId],  // Array of user UUIDs
+                    chairperson: adminId,           // Chairperson UUID
+                    assessment_deadline: deadline.toISOString().split('T')[0]  // YYYY-MM-DD format
+                };
+                console.log("Creating committee with payload:", JSON.stringify(committeePayload, null, 2));
+                const result = await createCommittee(committeePayload);
+                console.log("Committee creation result:", result);
+                toast.success("Assessment committee created and sub-grant moved to assessment status");
+            } catch (committeeError: any) {
+                // Log the error
+                console.error("Committee creation error:", committeeError);
+                console.error("Error message:", committeeError?.message);
+
+                // Check if error indicates committee already exists
+                const errorMsg = committeeError?.message?.toLowerCase() || '';
+                if (errorMsg.includes('already exists') || errorMsg.includes('already created')) {
+                    console.log("Committee already exists, continuing...");
+                    toast.info("Committee already exists");
+                } else {
+                    // For other errors, stop and show error
+                    toast.error("Failed to create committee: " + committeeError?.message);
+                    throw committeeError;
+                }
+            }
+
+            // Step 2: Make award decision
+            await makeAward({
+                applicantId: submissionId,
+                awardAmount: parseFloat(data.award_amount),
+                awardCurrency: data.award_currency,
+                awardDate: data.award_date,
+                notes: data.notes,
             });
 
             toast.success("Sub-grant awarded successfully!");
@@ -182,40 +228,35 @@ export default function AwardSelection({ submissionId: propSubmissionId }: Award
 
                         <div className="grid grid-cols-2 gap-6">
                             <FormInput
-                                label="Award Amount (USD)"
-                                name="award_amount_usd"
+                                label="Award Amount"
+                                name="award_amount"
                                 type="number"
-                                placeholder="Enter amount in USD"
+                                placeholder="Enter award amount"
+                                required
+                            />
+
+                            <FormSelect
+                                label="Currency"
+                                name="award_currency"
+                                options={[
+                                    { label: "USD", value: "USD" },
+                                    { label: "NGN", value: "NGN" }
+                                ]}
                                 required
                             />
 
                             <FormInput
-                                label="Award Amount (Local Currency)"
-                                name="award_amount_local"
-                                type="number"
-                                placeholder="Enter amount in NGN"
-                                required
-                            />
-
-                            <FormInput
-                                label="Award Start Date"
-                                name="award_start_date"
-                                type="date"
-                                required
-                            />
-
-                            <FormInput
-                                label="Award End Date"
-                                name="award_end_date"
+                                label="Award Date"
+                                name="award_date"
                                 type="date"
                                 required
                             />
                         </div>
 
                         <FormInput
-                            label="Award Notes (Optional)"
-                            name="award_notes"
-                            placeholder="Additional notes or conditions for this award"
+                            label="Notes (Optional)"
+                            name="notes"
+                            placeholder="Award decision notes or conditions"
                             isTextArea
                             rows={4}
                         />
@@ -233,11 +274,11 @@ export default function AwardSelection({ submissionId: propSubmissionId }: Award
                             <Button
                                 type="submit"
                                 size="lg"
-                                disabled={isAwarding}
+                                disabled={isAwarding || isCreatingCommittee}
                                 className="bg-green-600 hover:bg-green-700"
                             >
                                 <Award size={16} className="mr-2" />
-                                {isAwarding ? "Awarding..." : "Award Sub-Grant"}
+                                {isCreatingCommittee ? "Creating Committee..." : isAwarding ? "Awarding..." : "Award Sub-Grant"}
                             </Button>
                         </div>
                     </form>

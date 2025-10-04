@@ -11,6 +11,7 @@ import { skipToken } from "@reduxjs/toolkit/query";
 import { useGetSingleSubGrantManualSub } from "@/features/contracts-grants/controllers/submissionController";
 import { useGetSingleSubGrant } from "@/features/contracts-grants/controllers/subGrantController";
 import { useShortlistSubmissions } from "@/features/contracts-grants/controllers/subGrantWorkflowController";
+import { useGetAllAssessments } from "@/features/contracts-grants/controllers/preAwardAssessmentController";
 import OrganizationDetails from "./organization-details";
 import SubGrantUploadDetail from "./uploads";
 import Card from "components/Card";
@@ -38,6 +39,19 @@ export default function SubGrantSubmissionDetailWithTabs() {
 
     const { shortlistSubmissions, isLoading: shortlistLoading } = useShortlistSubmissions(
         typeof subGrantId === 'string' ? subGrantId : (subGrantId as any)?.id || ""
+    );
+
+    // Fetch assessments to check if this submission has been assessed
+    const { data: assessmentsData } = useGetAllAssessments({
+        submission: submissionId,
+        page: 1,
+        size: 10,
+        enabled: !!submissionId,
+    });
+
+    // Check if submission has completed assessment
+    const hasCompletedAssessment = assessmentsData?.data?.results?.some(
+        (assessment: any) => assessment.status === "COMPLETED"
     );
 
     const handleShortlist = async () => {
@@ -132,12 +146,16 @@ export default function SubGrantSubmissionDetailWithTabs() {
                         <div className="flex items-center gap-3 mt-2">
                             <Badge
                                 className={
-                                    isShortlisted
-                                        ? "bg-green-100 text-green-700"
+                                    hasCompletedAssessment
+                                        ? "bg-blue-100 text-blue-700"
+                                        : isShortlisted
+                                        ? "bg-yellow-100 text-yellow-700"
                                         : "bg-gray-100 text-gray-700"
                                 }
                             >
-                                {isShortlisted
+                                {hasCompletedAssessment
+                                    ? "Assessed"
+                                    : isShortlisted
                                     ? "Shortlisted"
                                     : "Pending Review"}
                             </Badge>

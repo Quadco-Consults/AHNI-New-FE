@@ -6,7 +6,7 @@ import { awardedBeneficiariesColumn } from "@/features/contracts-grants/componen
 import DataTable from "components/Table/DataTable";
 import TableFilters from "components/Table/TableFilters";
 import { useState } from "react";
-import { useGetAllSubGrants } from "@/features/contracts-grants/controllers/subGrantController";
+import { useGetAllSubGrantSubmissions } from "@/features/contracts-grants/controllers/submissionController";
 
 export default function AwardedBeneficiaries() {
     const [page, setPage] = useState(1);
@@ -16,11 +16,16 @@ export default function AwardedBeneficiaries() {
         wait: 500,
     });
 
-    const { data, isFetching } = useGetAllSubGrants({
+    const { data, isFetching } = useGetAllSubGrantSubmissions({
         page,
         size: 10,
         search: debouncedSearchQuery,
     });
+
+    // Filter awarded submissions
+    const awardedSubmissions = data?.data?.results?.filter(
+        (submission: any) => submission.status === "AWARDED"
+    ) || [];
 
     return (
         <section className="space-y-5">
@@ -37,11 +42,11 @@ export default function AwardedBeneficiaries() {
                 >
                     <DataTable
                         columns={awardedBeneficiariesColumn}
-                        data={data?.data?.results || []}
+                        data={awardedSubmissions}
                         isLoading={isFetching}
                         pagination={{
-                            total: data?.data?.pagination?.count ?? 0,
-                            pageSize: data?.data?.pagination?.page_size ?? 10,
+                            total: data?.data?.paginator?.count ?? 0,
+                            pageSize: data?.data?.paginator?.page_size ?? 10,
                             onChange: (page: number) => setPage(page),
                         }}
                     />

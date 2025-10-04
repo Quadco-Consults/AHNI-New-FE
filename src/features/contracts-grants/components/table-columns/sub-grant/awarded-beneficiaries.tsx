@@ -1,106 +1,93 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { ISubGrantPaginatedData } from "@/features/contracts-grants/types/contract-management/sub-grant/sub-grant";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { Button } from "components/ui/button";
 import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
-import PencilIcon from "components/icons/PencilIcon";
 import DeleteIcon from "components/icons/DeleteIcon";
 import { useState } from "react";
 import Link from "next/link";
 import EyeIcon from "components/icons/EyeIcon";
-import { CG_ROUTES } from "constants/RouterConstants";
 import { toast } from "sonner";
-import { useDeleteSubGrant } from "@/features/contracts-grants/controllers/subGrantController";
+import { useDeleteSubGrantManualSub } from "@/features/contracts-grants/controllers/submissionController";
 import ConfirmationDialog from "components/ConfirmationDialog";
-import { formatNumberCurrency } from "utils/utls";
+import { ISubGrantSubmissionPaginatedData } from "@/features/contracts-grants/types/contract-management/sub-grant/submission";
 
-const generatePath = (route: string, params?: Record<string, any>): string => {
-  let path = route;
-  if (params) {
-    Object.entries(params).forEach(([key, value]) => {
-      path = path.replace(`:${key}`, String(value));
-    });
-  }
-  return path;
-};
-
-export const awardedBeneficiariesColumn: ColumnDef<ISubGrantPaginatedData>[] = [
+export const awardedBeneficiariesColumn: ColumnDef<ISubGrantSubmissionPaginatedData>[] = [
     {
         header: "Grant Name",
-        id: "title",
-        accessorKey: "title",
+        id: "sub_grant",
+        accessorKey: "sub_grant",
         size: 200,
     },
 
     {
         header: "Donor",
-        id: "project",
-        accessorKey: "project",
+        id: "partner",
+        accessorKey: "partner",
         size: 200,
     },
 
     {
         header: "Project",
-        id: "business_unit",
-        accessorKey: "business_unit",
+        id: "project",
+        accessorFn: () => "N/A", // Not available in submission data
         size: 200,
     },
 
     {
         header: "Sub Grantee Name",
-        id: "_",
-        accessorKey: "_",
+        id: "organisation_name",
+        accessorKey: "organisation_name",
         size: 200,
     },
 
     {
         header: "Sub Grantee Address",
-        id: "_",
-        accessorKey: "_",
+        id: "address",
+        accessorKey: "address",
         size: 200,
     },
 
     {
         header: "Sub Grantee Email",
-        id: "_",
-        accessorKey: "_",
+        id: "email",
+        accessorKey: "email",
         size: 200,
     },
 
     {
         header: "Sub Grantee Phone Number",
-        id: "_",
-        accessorKey: "_",
+        id: "phone_number",
+        accessorKey: "phone_number",
         size: 200,
     },
 
     {
         header: "Subaward Life of Project Value (USD)",
-        id: "_",
-        accessorKey: "_",
+        id: "award_usd",
+        accessorFn: () => "N/A", // Award amounts not in submission, need to fetch from awards table
         size: 200,
     },
 
     {
         header: "Subaward Life of Project Value (Local Currency)",
-        id: "_",
-        accessorKey: "_",
+        id: "award_ngn",
+        accessorFn: () => "N/A", // Award amounts not in submission, need to fetch from awards table
         size: 200,
     },
 
     {
         header: "Start Date",
-        id: "_",
-        accessorKey: "_",
+        id: "start_date",
+        accessorFn: () => "N/A", // Award dates not in submission, need to fetch from awards table
         size: 200,
     },
 
     {
         header: "End Date",
-        id: "_",
-        accessorKey: "_",
+        id: "end_date",
+        accessorFn: () => "N/A", // Award dates not in submission, need to fetch from awards table
         size: 200,
     },
 
@@ -112,19 +99,18 @@ export const awardedBeneficiariesColumn: ColumnDef<ISubGrantPaginatedData>[] = [
     },
 ];
 
-const TableMenu = ({ id }: ISubGrantPaginatedData) => {
+const TableMenu = ({ id, sub_grant_id }: ISubGrantSubmissionPaginatedData) => {
     const [isDialogOpen, setDialogOpen] = useState(false);
 
-    const { deleteSubGrant, isLoading: isDeleteLoading } =
-        useDeleteSubGrant();
+    const { deleteSubGrantSubmission, isLoading: isDeleteLoading } = useDeleteSubGrantManualSub(id);
 
     const handleDelete = async () => {
         try {
-            await deleteSubGrant(id)();
-            toast.success("Sub Grant Deleted");
+            await deleteSubGrantSubmission();
+            toast.success("Submission Deleted");
             setDialogOpen(false);
         } catch (error: any) {
-            toast.error(error.data.message ?? "Something went wrong");
+            toast.error(error?.message ?? "Something went wrong");
         }
     };
 
@@ -139,39 +125,25 @@ const TableMenu = ({ id }: ISubGrantPaginatedData) => {
                     </PopoverTrigger>
                     <PopoverContent className="w-fit">
                         <Link
-                            href={generatePath(CG_ROUTES.SUBGRANT_AWARD_DETAILS, {
-                                id,
-                            })}
+                            className="w-full"
+                            href={`/dashboard/c-and-g/sub-grant/awards/${sub_grant_id || ''}`}
                         >
                             <Button
                                 className="w-full flex items-center justify-start gap-2"
                                 variant="ghost"
                             >
                                 <EyeIcon />
-                                View
+                                View Sub-Grant
                             </Button>
                         </Link>
-                        <Link
-                            href={{
-                                pathname: CG_ROUTES.CREATE_SUBGRANT_AWARD,
-                                search: `?id=${id}`,
-                            }}
-                        >
-                            <Button
-                                className="w-full flex items-center justify-start gap-2"
-                                variant="ghost"
-                            >
-                                <PencilIcon />
-                                Edit
-                            </Button>
-                        </Link>
+
                         <Button
                             className="w-full flex items-center justify-start gap-2"
                             variant="ghost"
                             onClick={() => setDialogOpen(true)}
                         >
                             <DeleteIcon />
-                            Delete
+                            Delete Submission
                         </Button>
                     </PopoverContent>
                 </Popover>
@@ -179,7 +151,7 @@ const TableMenu = ({ id }: ISubGrantPaginatedData) => {
 
             <ConfirmationDialog
                 open={isDialogOpen}
-                title="Are you sure you want to delete this sub grant?"
+                title="Are you sure you want to delete this submission?"
                 loading={isDeleteLoading}
                 onCancel={() => setDialogOpen(false)}
                 onOk={handleDelete}
