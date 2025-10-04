@@ -150,24 +150,53 @@ const PerformanceDetails = () => {
             <h3 className='text-yellow-darker font-semibold mb-4'>Employee Goals</h3>
             {assessment.goals && assessment.goals.length > 0 ? (
               <div className='grid gap-4'>
-                {assessment.goals.map((goal, index) => (
-                  <Card key={goal.id || index}>
-                    <CardHeader>
-                      <div className='flex justify-between items-start'>
-                        <CardTitle className='text-base'>{goal.goal}</CardTitle>
-                        <Badge variant='outline'>Weight: {goal.weight}%</Badge>
-                      </div>
-                    </CardHeader>
-                    {goal.average_rating && (
-                      <CardContent>
-                        <p className='text-sm'>
-                          <span className='font-semibold'>Average Rating: </span>
-                          {goal.average_rating}/5
-                        </p>
-                      </CardContent>
-                    )}
-                  </Card>
-                ))}
+                {assessment.goals.map((goal, index) => {
+                  const totalWeight = goal.total_weight || goal.narratives?.reduce((sum, n) => sum + parseFloat(n.weight?.toString() || '0'), 0);
+
+                  return (
+                    <Card key={goal.id || index}>
+                      <CardHeader>
+                        <div className='flex justify-between items-start'>
+                          <div className='flex-1'>
+                            <CardTitle className='text-base'>{goal.title || goal.goal || "Untitled Goal"}</CardTitle>
+                            {goal.description && (
+                              <p className='text-sm text-gray-600 mt-1'>{goal.description}</p>
+                            )}
+
+                            {/* Narratives/Tasks */}
+                            {goal.narratives && goal.narratives.length > 0 && (
+                              <div className='mt-3 pl-2 border-l-2 border-gray-200'>
+                                <p className='text-xs font-medium text-gray-500 mb-1'>Tasks:</p>
+                                <ul className='space-y-1'>
+                                  {goal.narratives.map((narrative, idx) => (
+                                    <li key={idx} className='text-xs flex items-start gap-2'>
+                                      <span className='text-gray-400'>•</span>
+                                      <span className='flex-1'>{narrative.description}</span>
+                                      <Badge variant='secondary' className='text-xs h-4'>
+                                        {parseFloat(narrative.weight?.toString() || '0').toFixed(0)}%
+                                      </Badge>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                          </div>
+                          <Badge variant='outline'>
+                            Weight: {totalWeight ? parseFloat(totalWeight.toString()).toFixed(0) : goal.weight || 0}%
+                          </Badge>
+                        </div>
+                      </CardHeader>
+                      {goal.average_rating && (
+                        <CardContent>
+                          <p className='text-sm'>
+                            <span className='font-semibold'>Average Rating: </span>
+                            {goal.average_rating}/5
+                          </p>
+                        </CardContent>
+                      )}
+                    </Card>
+                  );
+                })}
               </div>
             ) : (
               <p className='text-gray-500'>No goals set for this assessment</p>

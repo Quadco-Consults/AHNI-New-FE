@@ -906,6 +906,10 @@ const getDeparmentalLinks = () => {
               name: "Performance Appraisal",
               path: "/dashboard/hr/performance-management",
             },
+            {
+              name: "Goal Setting",
+              path: "/dashboard/hr/goals-management",
+            },
           ],
         },
         {

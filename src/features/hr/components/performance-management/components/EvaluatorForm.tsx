@@ -133,8 +133,34 @@ const EvaluatorForm: React.FC<EvaluatorFormProps> = ({ assessmentId, evaluatorId
             <Card key={goal.id || index}>
               <CardHeader>
                 <div className="flex justify-between items-start">
-                  <CardTitle className="text-base">{goal.goal}</CardTitle>
-                  <Badge variant="outline">Weight: {goal.weight}%</Badge>
+                  <div className="flex-1">
+                    <CardTitle className="text-base">{goal.title || "Untitled Goal"}</CardTitle>
+                    {goal.description && (
+                      <p className="text-sm text-gray-600 mt-1">{goal.description}</p>
+                    )}
+
+                    {/* Narratives/Tasks */}
+                    {goal.narratives && goal.narratives.length > 0 && (
+                      <div className="mt-3 pl-2 border-l-2 border-gray-200">
+                        <p className="text-xs font-medium text-gray-500 mb-1">Tasks:</p>
+                        <ul className="space-y-1">
+                          {goal.narratives.map((narrative, idx) => (
+                            <li key={idx} className="text-xs flex items-start gap-2">
+                              <span className="text-gray-400">•</span>
+                              <span className="flex-1">{narrative.description}</span>
+                              <Badge variant="secondary" className="text-xs h-4">
+                                {parseFloat(narrative.weight?.toString() || '0').toFixed(0)}%
+                              </Badge>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                  <Badge variant="outline">
+                    Weight: {goal.total_weight ? parseFloat(goal.total_weight.toString()).toFixed(0) :
+                             goal.narratives?.reduce((sum, n) => sum + parseFloat(n.weight?.toString() || '0'), 0).toFixed(0) || 0}%
+                  </Badge>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
