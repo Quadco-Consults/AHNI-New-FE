@@ -75,12 +75,29 @@ export interface GoalRating {
 
 export interface Goal {
   id?: string;
-  goal: string;
-  weight: number;           // Percentage weight
+  title?: string;           // Backend uses 'title'
+  description?: string;     // Backend uses 'description'
+  status?: string;
+  narratives?: Array<{      // Backend uses narratives for sub-goals
+    description: string;
+    weight: number;
+    completed: boolean;
+  }>;
+  employee?: string;
+
+  // For backward compatibility and display
+  goal?: string;            // = title
+  competency?: string;      // = description
+  weight?: number;          // Percentage weight (calculated from narratives)
   category?: string;
+
+  // For evaluation
   ratings?: GoalRating[];   // Ratings from each evaluator
   average_rating?: number;  // Calculated average
+
+  created_at?: string;
   created_datetime?: string;
+  updated_at?: string;
   updated_datetime?: string;
 }
 

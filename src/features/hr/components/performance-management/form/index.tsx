@@ -23,6 +23,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 // Validation schema
 const PerformanceAssessmentSchema = z.object({
+  employee: z.string().min(1, "Employee is required"),
   description: z.string().min(1, "Description is required"),
   cycle_name: z.string().min(1, "Cycle is required"),
   start_date: z.string().optional(),
@@ -39,11 +40,12 @@ type PerformanceAssessmentFormData = z.infer<typeof PerformanceAssessmentSchema>
 
 const NewPerformance = () => {
   const router = useRouter();
-  const [currentUserId, setCurrentUserId] = useState<string>("");
+  const [selectedEmployee, setSelectedEmployee] = useState<string>("");
 
   const form = useForm<PerformanceAssessmentFormData>({
     resolver: zodResolver(PerformanceAssessmentSchema),
     defaultValues: {
+      employee: "",
       description: "",
       cycle_name: "",
       start_date: "",
@@ -58,12 +60,14 @@ const NewPerformance = () => {
     name: "evaluators",
   });
 
-  // Get current user ID from local storage or auth context
+  // Watch employee field for selection
+  const watchedEmployee = watch("employee") as any;
+
   useEffect(() => {
-    // TODO: Replace with actual auth context
-    const userId = localStorage.getItem('user_id') || "";
-    setCurrentUserId(userId);
-  }, []);
+    if (watchedEmployee) {
+      setSelectedEmployee(watchedEmployee);
+    }
+  }, [watchedEmployee]);
 
   const cycleOptions = useMemo(
     () =>
@@ -91,8 +95,8 @@ const NewPerformance = () => {
 
   // Fetch employee goals to display
   const { data: employeeGoals, isLoading: isLoadingGoals } = useGetEmployeeGoals(
-    currentUserId,
-    !!currentUserId
+    selectedEmployee,
+    !!selectedEmployee
   );
 
   const { createPerformanceAssesment, isLoading: isCreating } = useCreatePerformanceAssesment();
@@ -120,14 +124,14 @@ const NewPerformance = () => {
         cycle_name: data.cycle_name,
         start_date: data.start_date,
         end_date: data.end_date,
-        employee: currentUserId,
+        employee: data.employee,
         status: 'draft' as const,
         evaluators: data.evaluators.map(ev => ({
           evaluator: ev.evaluator,
           evaluator_type: ev.evaluator_type,
           status: 'pending' as const,
         })),
-        created_by: currentUserId,
+        created_by: data.employee,
       };
 
       const response = await createPerformanceAssesment(payload);
@@ -170,21 +174,60 @@ const NewPerformance = () => {
                   </div>
                 ) : (
                   <div className='space-y-3'>
-                    {goals.map((goal) => (
-                      <div key={goal.id} className='p-3 border rounded-lg'>
-                        <div className='flex justify-between items-start'>
-                          <p className='font-medium'>{goal.goal}</p>
-                          <Badge variant='outline'>{goal.weight}% weight</Badge>
+                    {goals.map((goal) => {
+                      const totalWeight = goal.total_weight || goal.narratives?.reduce((sum, n) => sum + parseFloat(n.weight?.toString() || '0'), 0);
+
+                      return (
+                        <div key={goal.id} className='p-3 border rounded-lg'>
+                          <div className='flex justify-between items-start mb-2'>
+                            <div className='flex-1'>
+                              <p className='font-medium'>{goal.title}</p>
+                              {goal.description && (
+                                <p className='text-sm text-gray-600 mt-1'>{goal.description}</p>
+                              )}
+                            </div>
+                            <Badge variant='outline'>{totalWeight ? parseFloat(totalWeight.toString()).toFixed(0) : 0}%</Badge>
+                          </div>
+
+                          {/* Narratives/Tasks */}
+                          {goal.narratives && goal.narratives.length > 0 && (
+                            <div className='mt-2 pl-2 border-l-2 border-gray-200'>
+                              <p className='text-xs font-medium text-gray-500 mb-1'>Tasks:</p>
+                              <ul className='space-y-1'>
+                                {goal.narratives.map((narrative, idx) => (
+                                  <li key={idx} className='text-xs flex items-start gap-2'>
+                                    <span className='text-gray-400'>•</span>
+                                    <span className='flex-1'>{narrative.description}</span>
+                                    <Badge variant='secondary' className='text-xs h-4'>
+                                      {parseFloat(narrative.weight?.toString() || '0').toFixed(0)}%
+                                    </Badge>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
                         </div>
-                        {goal.competency && (
-                          <p className='text-sm text-gray-600 mt-1'>{goal.competency}</p>
-                        )}
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </CardContent>
             </Card>
+
+            {/* Employee Selection */}
+            <div className=''>
+              <h3 className='text-yellow-darker'>Employee Selection</h3>
+            </div>
+
+            <FormSelect
+              label='Select Employee'
+              name='employee'
+              placeholder='Select employee to evaluate'
+              required
+              options={userOptions}
+            >
+              <SelectContent></SelectContent>
+            </FormSelect>
 
             {/* Appraisal Information */}
             <div className=''>
