@@ -247,7 +247,7 @@ const StaffInformation = ({ info }: { info: EmployeeOnboarding }) => {
 
       <div className='grid grid-cols-1 items-center gap-x-5 gap-y-8 md:grid-cols-2 lg:grid-cols-2'>
         <DescriptionCard label='Department/Unit' description={data?.group} />
-        <DescriptionCard label='Location' description={data?.location.state} />
+        <DescriptionCard label='Location' description={data?.location?.state} />
         <DescriptionCard
           label='Employment Type'
           description={data?.employment_type}
