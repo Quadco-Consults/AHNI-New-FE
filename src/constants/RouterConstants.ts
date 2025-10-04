@@ -583,8 +583,8 @@ export const HrRoutes = {
   GRIEVANCE_MANAGEMENT: "/dashboard/hr/grievance-management",
   GRIEVANCE_MANAGEMENT_CREATE: "/dashboard/hr/grievance-management/create",
   GRIEVANCE_MANAGEMENT_DETAILS: "/dashboard/hr/grievance-management/:id",
-  LEAVE_MANAGEMENT_REQUEST_LEAVE:
-    "/dashboard/hr/leave-management/request-leave",
+  LEAVE_MANAGEMENT_APPLY:
+    "/dashboard/hr/leave-management/apply",
   LEAVE_MANAGEMENT_LEAVE_LIST: "/dashboard/hr/leave-management/leave-list",
   LEAVE_MANAGEMENT_ASSIGN_LEAVE: "/dashboard/hr/leave-management/assign-leave",
   LEAVE_MANAGEMENT_LEAVE_LIST_DETAIL:

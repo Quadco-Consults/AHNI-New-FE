@@ -5,17 +5,13 @@ import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { format, differenceInDays, addDays, parseISO, isWeekend } from "date-fns";
-import { 
-  CalendarDays, 
-  Clock, 
-  AlertCircle, 
-  User, 
-  FileText, 
-  Upload,
-  X,
+import { format } from "date-fns";
+import {
+  CalendarDays,
+  AlertCircle,
+  User,
+  FileText,
   Search,
-  Info,
   Shield,
   UserCheck
 } from "lucide-react";
@@ -30,30 +26,27 @@ import { Label } from "components/ui/label";
 import { RadioGroup, RadioGroupItem } from "components/ui/radio-group";
 import { Checkbox } from "components/ui/checkbox";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "components/ui/form";
-import { Separator } from "components/ui/separator";
 import GoBack from "components/GoBack";
 import BackendStatusBanner from "./BackendStatusBanner";
 
-import { LeaveType, LeaveRequestFormData } from "../../types/leave";
-import { leaveService, useLeaveTypes, useLeaveBalances } from "../../services/leaveService";
+import { useGetLeaveTypes } from "../../controllers/leaveRequestController";
+import { useGetEmployeeOnboardings } from "../../controllers/employeeOnboardingController";
+import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
+import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 
-// Enhanced validation schema for admin assign leave
+// Simple validation schema
 const assignLeaveSchema = z.object({
   employeeId: z.string().min(1, "Please select an employee"),
   leaveTypeId: z.string().min(1, "Please select a leave type"),
   fromDate: z.string().min(1, "Please select start date"),
   toDate: z.string().min(1, "Please select end date"),
-  duration: z.enum(['full_day', 'half_day_morning', 'half_day_afternoon', 'custom']),
-  customHours: z.number().optional(),
+  duration: z.enum(['full_day', 'half_day_morning', 'half_day_afternoon']),
   reason: z.string().min(5, "Please provide a reason (minimum 5 characters)"),
   adminNotes: z.string().optional(),
   isEmergency: z.boolean(),
-  emergencyContactInfo: z.string().optional(),
-  handoverNotes: z.string().optional(),
-  backupPersonId: z.string().optional(),
   notifyEmployee: z.boolean(),
   skipApproval: z.boolean(),
-  effectiveDate: z.string().optional(),
 }).refine((data) => {
   const fromDate = new Date(data.fromDate);
   const toDate = new Date(data.toDate);
@@ -63,254 +56,190 @@ const assignLeaveSchema = z.object({
   path: ["toDate"]
 });
 
-interface Employee {
-  id: string;
-  name: string;
-  employeeId: string;
-  department: string;
-  position: string;
-  email?: string;
+type FormData = z.infer<typeof assignLeaveSchema>;
+
+interface AssignLeaveFormProps {
+  onSuccess?: () => void;
 }
 
-const AssignLeaveForm = () => {
+const AssignLeaveForm = ({ onSuccess }: AssignLeaveFormProps = {}) => {
   const router = useRouter();
-  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
-  const [selectedLeaveType, setSelectedLeaveType] = useState<LeaveType | null>(null);
-  const [calculatedDays, setCalculatedDays] = useState(0);
-  const [workingDays, setWorkingDays] = useState(0);
-  const [attachments, setAttachments] = useState<File[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [employees, setEmployees] = useState<Employee[]>([]);
+  const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState('');
-  const [filteredEmployees, setFilteredEmployees] = useState<Employee[]>([]);
-  const [validationErrors, setValidationErrors] = useState<string[]>([]);
-  const [validationWarnings, setValidationWarnings] = useState<string[]>([]);
-  
-  // API hooks
-  const { leaveTypes, loading: loadingTypes, error: typesError } = useLeaveTypes();
-  const { balances, loading: loadingBalances, error: balancesError } = useLeaveBalances(
-    selectedEmployee?.id || ''
-  );
-  
-  // Load employees
-  useEffect(() => {
-    const loadEmployees = async () => {
-      try {
-        const response = await leaveService.getEmployees();
-        if (response.success) {
-          setEmployees(response.data);
-          setFilteredEmployees(response.data);
-        }
-      } catch (error) {
-        console.error('Failed to load employees:', error);
-      }
-    };
-    loadEmployees();
-  }, []);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Fetch data
+  const { data: leaveTypesData, isLoading: loadingTypes, error: typesError } = useGetLeaveTypes();
+  const { data: employeesData, isLoading: loadingEmployees } = useGetEmployeeOnboardings({ size: 100 });
+
+  // Extract and clean leave types - convert everything to primitives
+  const leaveTypes = React.useMemo(() => {
+    const rawData = Array.isArray(leaveTypesData?.data)
+      ? leaveTypesData.data
+      : Array.isArray(leaveTypesData?.data?.results)
+      ? leaveTypesData.data.results
+      : [];
+
+    return rawData.map((lt: any) => ({
+      id: String(lt.id || ''),
+      name: String(lt.name || 'Unknown')
+    }));
+  }, [leaveTypesData]);
+
+  // Extract and clean employees - convert everything to primitives
+  const employees = React.useMemo(() => {
+    const rawData = Array.isArray(employeesData?.data)
+      ? employeesData.data
+      : Array.isArray(employeesData?.data?.results)
+      ? employeesData.data.results
+      : [];
+
+    return rawData.map((emp: any) => ({
+      id: String(emp.id || ''),
+      firstName: String(emp.first_name || ''),
+      lastName: String(emp.last_name || ''),
+      employeeId: String(emp.employee_id || emp.id || ''),
+      department: String(emp.department || 'N/A'),
+      email: String(emp.email || '')
+    }));
+  }, [employeesData]);
 
   // Filter employees based on search
-  useEffect(() => {
-    if (!searchQuery.trim()) {
-      setFilteredEmployees(employees);
-    } else {
-      const filtered = employees.filter(emp => 
-        emp.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        emp.employeeId.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        emp.department.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-      setFilteredEmployees(filtered);
-    }
-  }, [searchQuery, employees]);
+  const filteredEmployees = React.useMemo(() => {
+    if (!searchQuery.trim()) return employees;
 
-  const form = useForm<LeaveRequestFormData & {
-    employeeId: string;
-    adminNotes: string;
-    notifyEmployee: boolean;
-    skipApproval: boolean;
-    effectiveDate?: string;
-  }>({
+    const query = searchQuery.toLowerCase();
+    return employees.filter(emp =>
+      emp.firstName.toLowerCase().includes(query) ||
+      emp.lastName.toLowerCase().includes(query) ||
+      emp.employeeId.toLowerCase().includes(query) ||
+      emp.department.toLowerCase().includes(query) ||
+      emp.email.toLowerCase().includes(query)
+    );
+  }, [employees, searchQuery]);
+
+  const form = useForm<FormData>({
     resolver: zodResolver(assignLeaveSchema),
     defaultValues: {
+      employeeId: '',
+      leaveTypeId: '',
+      fromDate: '',
+      toDate: '',
       duration: 'full_day',
-      isEmergency: false,
       reason: '',
       adminNotes: '',
+      isEmergency: false,
       notifyEmployee: true,
       skipApproval: false,
     }
   });
 
-  const { watch, setValue } = form;
-  const watchedValues = watch();
+  const selectedEmployeeId = form.watch('employeeId');
+  const selectedEmployee = employees.find(e => e.id === selectedEmployeeId);
 
-  // Calculate days and validate when dates or employee change
-  useEffect(() => {
-    const validateLeave = async () => {
-      const { fromDate, toDate, duration, leaveTypeId, employeeId } = watchedValues;
-      if (fromDate && toDate && leaveTypeId && employeeId) {
+  const onSubmit = async (data: FormData) => {
+    setIsSubmitting(true);
+
+    try {
+      // Prepare request data for backend
+      const requestData: any = {
+        employee: data.employeeId,
+        leave_type: data.leaveTypeId,
+        from_date: data.fromDate,
+        to_date: data.toDate,
+        duration: data.duration,
+        reason: data.reason,
+        is_emergency: data.isEmergency,
+      };
+
+      console.log('Submitting leave assignment:', requestData);
+
+      // Call the API
+      const response = await AxiosWithToken.post("hr/leave-request/", requestData);
+
+      const leaveRequestId = response.data?.data?.id;
+
+      if (leaveRequestId) {
+        // Automatically submit the leave request for approval
         try {
-          const response = await leaveService.validateLeaveRequest({
-            employeeId,
-            leaveTypeId,
-            fromDate,
-            toDate,
-            duration: duration || 'full_day'
-          });
-          
-          if (response.success) {
-            setCalculatedDays(response.calculatedDays.totalDays);
-            setWorkingDays(response.calculatedDays.workDaysCount);
-            setValidationErrors(response.errors || []);
-            setValidationWarnings(response.warnings || []);
-          }
-        } catch (error) {
-          console.error('Validation error:', error);
-          // Fallback to client-side calculation
-          const start = parseISO(fromDate);
-          const end = parseISO(toDate);
-          const totalDays = differenceInDays(end, start) + 1;
-          
-          let workDays = 0;
-          for (let i = 0; i < totalDays; i++) {
-            const currentDate = addDays(start, i);
-            if (!isWeekend(currentDate)) {
-              workDays += duration === 'full_day' ? 1 : 0.5;
-            }
-          }
-          
-          setCalculatedDays(totalDays);
-          setWorkingDays(workDays);
+          await AxiosWithToken.post(`hr/leave-request/${leaveRequestId}/submit/`);
+          console.log("Leave request submitted successfully");
+        } catch (submitError) {
+          console.error("Error submitting leave request:", submitError);
+          // Continue even if submission fails - the leave is created
         }
       }
-    };
-    
-    const timeoutId = setTimeout(validateLeave, 500);
-    return () => clearTimeout(timeoutId);
-  }, [watchedValues.fromDate, watchedValues.toDate, watchedValues.duration, watchedValues.leaveTypeId, watchedValues.employeeId]);
 
-  // Handle employee selection
-  const handleEmployeeSelect = (employeeId: string) => {
-    const employee = employees.find(emp => emp.id === employeeId);
-    setSelectedEmployee(employee || null);
-    setValue('employeeId', employeeId);
-    setSearchQuery('');
-    
-    // Clear validation messages when employee changes
-    setValidationErrors([]);
-    setValidationWarnings([]);
-  };
+      // Invalidate queries to refresh data
+      await queryClient.invalidateQueries({ queryKey: ["leave-requests"] });
+      await queryClient.invalidateQueries({ queryKey: ["leave-dashboard"] });
+      await queryClient.invalidateQueries({ queryKey: ["leave-balances"] });
 
-  // Handle leave type selection
-  const handleLeaveTypeChange = (leaveTypeId: string) => {
-    const leaveType = leaveTypes.find(lt => lt.id === leaveTypeId);
-    setSelectedLeaveType(leaveType || null);
-    
-    // Set default dates based on leave type requirements
-    if (leaveType?.canApplyInAdvance && leaveType.advanceNoticeDays > 0) {
-      const minFromDate = format(addDays(new Date(), leaveType.advanceNoticeDays), 'yyyy-MM-dd');
-      setValue('fromDate', minFromDate);
-    }
-    
-    // Clear validation messages when leave type changes
-    setValidationErrors([]);
-    setValidationWarnings([]);
-  };
+      toast.success(`Leave assigned and submitted successfully for ${selectedEmployee?.firstName} ${selectedEmployee?.lastName}!`);
 
-  // Handle file uploads
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(event.target.files || []);
-    
-    for (const file of files) {
-      try {
-        await leaveService.uploadAttachment(file);
-      } catch (error) {
-        console.error('File upload failed:', error);
-        alert(`Failed to upload ${file.name}. Please try again.`);
-        return;
-      }
-    }
-    
-    setAttachments(prev => [...prev, ...files]);
-  };
+      // Small delay to ensure queries are refetched
+      await new Promise(resolve => setTimeout(resolve, 500));
 
-  const removeAttachment = (index: number) => {
-    setAttachments(prev => prev.filter((_, i) => i !== index));
-  };
-
-  // Submit form
-  const onSubmit = async (data: any) => {
-    setIsSubmitting(true);
-    
-    try {
-      if (validationErrors.length > 0 && !data.skipApproval) {
-        alert('Please fix validation errors or enable "Skip Approval" to override.');
-        setIsSubmitting(false);
-        return;
-      }
-      
-      const requestData = {
-        employeeId: data.employeeId,
-        leaveTypeId: data.leaveTypeId,
-        fromDate: data.fromDate,
-        toDate: data.toDate,
-        duration: data.duration === 'custom' ? 'full_day' : data.duration,
-        reason: data.reason,
-        workCoverage: {
-          backupPersonId: data.backupPersonId,
-          handoverNotes: data.handoverNotes,
-          clientNotificationRequired: false
-        },
-        isEmergency: data.isEmergency,
-        adminNotes: data.adminNotes,
-        skipApproval: data.skipApproval,
-        notifyEmployee: data.notifyEmployee,
-        attachments: attachments.map(file => ({
-          fileName: file.name,
-          fileUrl: '',
-          fileType: file.type
-        }))
-      };
-      
-      const response = await leaveService.createLeaveRequest(requestData);
-      
-      if (response.success) {
-        alert(`Leave assigned successfully for ${selectedEmployee?.name}!`);
-        router.push('/dashboard/hr/leave-management');
+      // Call onSuccess callback if provided (for dialog), otherwise navigate
+      if (onSuccess) {
+        onSuccess();
       } else {
-        throw new Error('Failed to assign leave');
+        router.push('/dashboard/hr/leave-management');
       }
-      
-    } catch (error) {
+
+    } catch (error: any) {
       console.error('Error assigning leave:', error);
-      alert(error instanceof Error ? error.message : 'Failed to assign leave. Please try again.');
+
+      // Handle validation errors from backend
+      const responseData = error.response?.data;
+      let errorMessage = "Failed to assign leave. Please try again.";
+
+      if (responseData) {
+        // Check for field-level validation errors
+        if (typeof responseData === 'object' && !responseData.message) {
+          const fieldErrors: string[] = [];
+          Object.entries(responseData).forEach(([field, errors]) => {
+            if (Array.isArray(errors)) {
+              fieldErrors.push(...errors);
+            } else if (typeof errors === 'string') {
+              fieldErrors.push(errors);
+            }
+          });
+          if (fieldErrors.length > 0) {
+            errorMessage = fieldErrors.join('\n');
+          }
+        } else if (responseData.message) {
+          errorMessage = responseData.message;
+        }
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Get leave balance for selected type
-  const getLeaveBalance = (leaveTypeId: string) => {
-    return balances.find(balance => balance.leaveTypeId === leaveTypeId);
-  };
-  
-  // Show loading state
-  if (loadingTypes) {
+  // Loading state
+  if (loadingTypes || loadingEmployees) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-600 border-t-transparent" />
-        <span className="ml-2">Loading assign leave form...</span>
+        <span className="ml-2">Loading form...</span>
       </div>
     );
   }
-  
-  // Show error state
+
+  // Error state
   if (typesError) {
+    const errorMessage = typesError instanceof Error ? typesError.message : String(typesError || "Unknown error");
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <AlertCircle className="w-8 h-8 text-red-600 mx-auto mb-2" />
-          <p className="text-red-600">Failed to load leave information</p>
-          <p className="text-sm text-gray-600">{typesError}</p>
+          <p className="text-red-600">Failed to load form data</p>
+          <p className="text-sm text-gray-600">{errorMessage}</p>
         </div>
       </div>
     );
@@ -318,25 +247,26 @@ const AssignLeaveForm = () => {
 
   return (
     <div className="space-y-6">
-      <GoBack />
-      
-      {/* Backend Status Banner */}
-      <BackendStatusBanner />
-      
+      {!onSuccess && <GoBack />}
+
+      {!onSuccess && <BackendStatusBanner />}
+
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="flex items-center gap-2">
-            <Shield className="w-6 h-6 text-blue-600" />
-            <h1 className="text-2xl font-bold">Assign Leave to Staff</h1>
+      {!onSuccess && (
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="flex items-center gap-2">
+              <Shield className="w-6 h-6 text-blue-600" />
+              <h1 className="text-2xl font-bold">Assign Leave to Staff</h1>
+            </div>
+            <p className="text-gray-600">Create a leave request on behalf of an employee</p>
           </div>
-          <p className="text-gray-600">Create a leave request on behalf of an employee</p>
+          <Badge variant="outline" className="text-sm">
+            <CalendarDays className="w-4 h-4 mr-1" />
+            {format(new Date(), 'MMM dd, yyyy')}
+          </Badge>
         </div>
-        <Badge variant="outline" className="text-sm">
-          <CalendarDays className="w-4 h-4 mr-1" />
-          {format(new Date(), 'MMM dd, yyyy')}
-        </Badge>
-      </div>
+      )}
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -368,10 +298,7 @@ const AssignLeaveForm = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Employee *</FormLabel>
-                    <Select 
-                      value={field.value} 
-                      onValueChange={handleEmployeeSelect}
-                    >
+                    <Select value={field.value} onValueChange={field.onChange}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select an employee" />
@@ -380,15 +307,7 @@ const AssignLeaveForm = () => {
                       <SelectContent className="max-h-[200px] overflow-y-auto">
                         {filteredEmployees.map((employee) => (
                           <SelectItem key={employee.id} value={employee.id}>
-                            <div className="flex flex-col">
-                              <div className="flex items-center gap-2">
-                                <span className="font-medium">{employee.name}</span>
-                                <span className="text-xs text-gray-500">({employee.employeeId})</span>
-                              </div>
-                              <div className="text-xs text-gray-500">
-                                {employee.department} - {employee.position}
-                              </div>
-                            </div>
+                            {employee.firstName} {employee.lastName} ({employee.employeeId}) - {employee.department}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -408,7 +327,7 @@ const AssignLeaveForm = () => {
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
                       <div className="text-gray-600">Name</div>
-                      <div className="font-semibold">{selectedEmployee.name}</div>
+                      <div className="font-semibold">{selectedEmployee.firstName} {selectedEmployee.lastName}</div>
                     </div>
                     <div>
                       <div className="text-gray-600">Employee ID</div>
@@ -419,8 +338,8 @@ const AssignLeaveForm = () => {
                       <div className="font-semibold">{selectedEmployee.department}</div>
                     </div>
                     <div>
-                      <div className="text-gray-600">Position</div>
-                      <div className="font-semibold">{selectedEmployee.position}</div>
+                      <div className="text-gray-600">Email</div>
+                      <div className="font-semibold">{selectedEmployee.email}</div>
                     </div>
                   </div>
                 </div>
@@ -442,29 +361,16 @@ const AssignLeaveForm = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Leave Type *</FormLabel>
-                    <Select 
-                      value={field.value} 
-                      onValueChange={(value) => {
-                        field.onChange(value);
-                        handleLeaveTypeChange(value);
-                      }}
-                    >
+                    <Select value={field.value} onValueChange={field.onChange}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select leave type" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {leaveTypes.filter(lt => lt.isActive).map((leaveType) => (
+                        {leaveTypes.map((leaveType) => (
                           <SelectItem key={leaveType.id} value={leaveType.id}>
-                            <div className="flex items-center gap-2">
-                              <div 
-                                className="w-3 h-3 rounded-full" 
-                                style={{ backgroundColor: leaveType.color }}
-                              />
-                              <span>{leaveType.name}</span>
-                              <span className="text-sm text-gray-500">({leaveType.code})</span>
-                            </div>
+                            {leaveType.name}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -473,46 +379,6 @@ const AssignLeaveForm = () => {
                   </FormItem>
                 )}
               />
-
-              {/* Leave Balance Display */}
-              {selectedLeaveType && selectedEmployee && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Info className="w-4 h-4 text-blue-600" />
-                    <span className="font-medium text-blue-900">Employee Leave Balance</span>
-                  </div>
-                  {(() => {
-                    const balance = getLeaveBalance(selectedLeaveType.id);
-                    if (balance) {
-                      return (
-                        <div className="grid grid-cols-5 gap-4 text-sm">
-                          <div>
-                            <div className="text-gray-600">Entitled</div>
-                            <div className="font-semibold">{balance.entitled} days</div>
-                          </div>
-                          <div>
-                            <div className="text-gray-600">Used</div>
-                            <div className="font-semibold text-red-600">{balance.used} days</div>
-                          </div>
-                          <div>
-                            <div className="text-gray-600">Pending</div>
-                            <div className="font-semibold text-amber-600">{balance.pending} days</div>
-                          </div>
-                          <div>
-                            <div className="text-gray-600">Scheduled</div>
-                            <div className="font-semibold text-blue-600">{balance.scheduled} days</div>
-                          </div>
-                          <div>
-                            <div className="text-gray-600">Available</div>
-                            <div className="font-semibold text-green-600">{balance.available} days</div>
-                          </div>
-                        </div>
-                      );
-                    }
-                    return <p className="text-sm text-gray-600">No balance information available</p>;
-                  })()}
-                </div>
-              )}
             </div>
           </Card>
 
@@ -580,48 +446,6 @@ const AssignLeaveForm = () => {
                   </FormItem>
                 )}
               />
-
-              {/* Days Summary */}
-              {calculatedDays > 0 && (
-                <div className="bg-gray-50 border rounded-lg p-4">
-                  <div className="grid grid-cols-3 gap-4 text-sm">
-                    <div>
-                      <div className="text-gray-600">Total Days</div>
-                      <div className="font-semibold">{calculatedDays} days</div>
-                    </div>
-                    <div>
-                      <div className="text-gray-600">Working Days</div>
-                      <div className="font-semibold">{workingDays} days</div>
-                    </div>
-                    <div>
-                      <div className="text-gray-600">Weekends</div>
-                      <div className="font-semibold">{calculatedDays - Math.ceil(workingDays)} days</div>
-                    </div>
-                  </div>
-                </div>
-              )}
-              
-              {/* Validation Messages */}
-              {(validationErrors.length > 0 || validationWarnings.length > 0) && (
-                <div className="space-y-2">
-                  {validationErrors.map((error, index) => (
-                    <div key={index} className="bg-red-50 border border-red-200 rounded p-3 text-sm text-red-800">
-                      <div className="flex items-center gap-2">
-                        <AlertCircle className="w-4 h-4" />
-                        <span>{error}</span>
-                      </div>
-                    </div>
-                  ))}
-                  {validationWarnings.map((warning, index) => (
-                    <div key={index} className="bg-amber-50 border border-amber-200 rounded p-3 text-sm text-amber-800">
-                      <div className="flex items-center gap-2">
-                        <Info className="w-4 h-4" />
-                        <span>{warning}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
             </div>
           </Card>
 
@@ -640,10 +464,10 @@ const AssignLeaveForm = () => {
                   <FormItem>
                     <FormLabel>Reason for Leave *</FormLabel>
                     <FormControl>
-                      <Textarea 
+                      <Textarea
                         placeholder="Please provide detailed reason for the leave request..."
                         className="min-h-[100px]"
-                        {...field} 
+                        {...field}
                       />
                     </FormControl>
                     <FormMessage />
@@ -658,10 +482,10 @@ const AssignLeaveForm = () => {
                   <FormItem>
                     <FormLabel>Admin Notes (Internal)</FormLabel>
                     <FormControl>
-                      <Textarea 
+                      <Textarea
                         placeholder="Internal notes for HR/Admin use only..."
                         className="min-h-[80px]"
-                        {...field} 
+                        {...field}
                       />
                     </FormControl>
                     <FormMessage />
@@ -676,7 +500,7 @@ const AssignLeaveForm = () => {
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                       <FormControl>
-                        <Checkbox 
+                        <Checkbox
                           checked={field.value}
                           onCheckedChange={field.onChange}
                         />
@@ -697,7 +521,7 @@ const AssignLeaveForm = () => {
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                       <FormControl>
-                        <Checkbox 
+                        <Checkbox
                           checked={field.value}
                           onCheckedChange={field.onChange}
                         />
@@ -718,7 +542,7 @@ const AssignLeaveForm = () => {
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                       <FormControl>
-                        <Checkbox 
+                        <Checkbox
                           checked={field.value}
                           onCheckedChange={field.onChange}
                         />
@@ -736,124 +560,6 @@ const AssignLeaveForm = () => {
             </div>
           </Card>
 
-          {/* Work Coverage */}
-          <Card className="p-6">
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <User className="w-5 h-5" />
-                <h3 className="text-lg font-semibold">Work Coverage</h3>
-              </div>
-
-              <FormField
-                control={form.control}
-                name="backupPersonId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Backup Person (Optional)</FormLabel>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select backup person" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {employees
-                          .filter(emp => emp.id !== selectedEmployee?.id)
-                          .map((employee) => (
-                          <SelectItem key={employee.id} value={employee.id}>
-                            <div>
-                              <div>{employee.name}</div>
-                              <div className="text-sm text-gray-500">{employee.department} - {employee.position}</div>
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="handoverNotes"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Handover Notes (Optional)</FormLabel>
-                    <FormControl>
-                      <Textarea 
-                        placeholder="Provide instructions for pending work, important contacts, or tasks that need attention..."
-                        className="min-h-[80px]"
-                        {...field} 
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-          </Card>
-
-          {/* Attachments */}
-          <Card className="p-6">
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <Upload className="w-5 h-5" />
-                <h3 className="text-lg font-semibold">Attachments</h3>
-              </div>
-
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6">
-                <div className="text-center">
-                  <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                  <p className="text-sm text-gray-600 mb-2">
-                    Upload supporting documents (medical certificates, etc.)
-                  </p>
-                  <Input
-                    type="file"
-                    multiple
-                    accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-                    onChange={handleFileUpload}
-                    className="hidden"
-                    id="file-upload"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => document.getElementById('file-upload')?.click()}
-                  >
-                    Choose Files
-                  </Button>
-                </div>
-              </div>
-
-              {/* Attachment List */}
-              {attachments.length > 0 && (
-                <div className="space-y-2">
-                  <p className="text-sm font-medium">Attached Files:</p>
-                  {attachments.map((file, index) => (
-                    <div key={index} className="flex items-center justify-between bg-gray-50 rounded p-2">
-                      <div className="flex items-center gap-2">
-                        <FileText className="w-4 h-4" />
-                        <span className="text-sm">{file.name}</span>
-                        <span className="text-xs text-gray-500">
-                          ({(file.size / 1024 / 1024).toFixed(2)} MB)
-                        </span>
-                      </div>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeAttachment(index)}
-                      >
-                        <X className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </Card>
-
           {/* Form Actions */}
           <div className="flex justify-end gap-4">
             <Button
@@ -866,7 +572,7 @@ const AssignLeaveForm = () => {
             </Button>
             <Button
               type="submit"
-              disabled={isSubmitting || workingDays === 0 || !selectedEmployee}
+              disabled={isSubmitting || !selectedEmployee}
               className="min-w-[120px]"
             >
               {isSubmitting ? (

@@ -3,8 +3,8 @@
 import { Loading } from "@/components/Loading";
 import dynamic from "next/dynamic";
 
-const LeaveRequestForm = dynamic(
-  () => import("@/features/hr/components/leave-management/LeaveRequestForm"),
+const LeaveForm = dynamic(
+  () => import("@/features/hr/components/leave-management/form"),
   {
     ssr: false,
     loading: () => <Loading />,
@@ -12,5 +12,5 @@ const LeaveRequestForm = dynamic(
 );
 
 export default function RequestLeavePage() {
-  return <LeaveRequestForm />;
+  return <LeaveForm />;
 }
