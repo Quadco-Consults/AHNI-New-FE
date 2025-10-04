@@ -48,17 +48,17 @@ export const shortlistedSubmissionColumns: ColumnDef<ISubGrantSubmissionPaginate
             size: 150,
         },
         {
-            header: "Assessment Status",
-            id: "assessment_status",
+            header: "Status",
+            id: "status",
             size: 150,
             cell: ({ row }) => {
                 const hasAssessment = row.original?.has_assessment || false;
                 return (
                     <Badge
                         variant={hasAssessment ? "default" : "secondary"}
-                        className={hasAssessment ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700"}
+                        className={hasAssessment ? "bg-blue-100 text-blue-700" : "bg-yellow-100 text-yellow-700"}
                     >
-                        {hasAssessment ? "Assessed" : "Pending"}
+                        {hasAssessment ? "Assessed" : "Shortlisted"}
                     </Badge>
                 );
             },

@@ -120,12 +120,34 @@ export const useShortlistSubmissions = (id: string) => {
   return { shortlistSubmissions, data, isLoading, isSuccess, error };
 };
 
+// ===== BEGIN ASSESSMENT =====
+
+export const useBeginAssessment = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager({
+    endpoint: `${BASE_URL}${id}/begin-assessment/`,
+    queryKey: ["subGrants", "subGrant", id],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const beginAssessment = async () => {
+    try {
+      return await callApi({} as Record<string, never>);
+    } catch (error) {
+      console.error("Begin assessment error:", error);
+      throw error;
+    }
+  };
+
+  return { beginAssessment, data, isLoading, isSuccess, error };
+};
+
 // ===== CREATE ASSESSMENT COMMITTEE =====
 
 interface CreateCommitteePayload {
-  committee_member_ids: string[];
-  chairperson_id: string;
-  assessment_deadline: string;
+  committee_members: string[];  // Array of user UUIDs
+  chairperson: string;           // UUID of chairperson
+  assessment_deadline?: string;  // Optional deadline
 }
 
 export const useCreateCommittee = (id: string) => {
@@ -155,12 +177,11 @@ export const useCreateCommittee = (id: string) => {
 // ===== MAKE AWARD DECISION =====
 
 interface MakeAwardPayload {
-  awarded_submission_id: string;
-  award_amount_usd: string;
-  award_amount_ngn: string;
-  award_date: string;
-  award_justification: string;
-  special_conditions?: string;
+  applicantId: string;
+  awardAmount: number;
+  awardCurrency: string;
+  awardDate: string;
+  notes?: string;
 }
 
 export const useMakeAward = (id: string) => {
@@ -194,6 +215,7 @@ const SubGrantWorkflowAPI = {
   useOpenSubmissions,
   useCloseSubmissions,
   useShortlistSubmissions,
+  useBeginAssessment,
   useCreateCommittee,
   useMakeAward,
 };

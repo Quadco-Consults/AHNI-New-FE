@@ -16,6 +16,9 @@ AxiosWithToken.interceptors.request.use(
     // Debug: Log the full request URL
     const url = `${config.baseURL || ''}${config.url || ''}`;
     console.log('API Request:', config.method?.toUpperCase(), url);
+    if (config.data && config.url?.includes('create-committee')) {
+      console.log('Committee Request Body:', JSON.stringify(config.data, null, 2));
+    }
 
     const token = localStorage.getItem("token");
 
