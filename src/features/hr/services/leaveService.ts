@@ -1,7 +1,7 @@
 "use client";
 
 import { LeaveRequest, LeaveType, LeaveBalance, LeaveDashboardData, LeaveApprovalWorkflow } from '../types/leave';
-import { API_CONFIG } from '../config/api';
+import { API_CONFIG, API_ENDPOINTS } from '../config/api';
 import { mockLeaveService } from './mockLeaveService';
 
 const API_BASE = API_CONFIG.BASE_URL;
@@ -12,59 +12,35 @@ export class LeaveService {
   private readonly HEALTH_CHECK_INTERVAL = 60000; // 1 minute
 
   private async checkBackendHealth(): Promise<boolean> {
-    const now = Date.now();
-    
-    // Return cached result if recent
-    if (this.backendAvailable !== null && (now - this.lastHealthCheck) < this.HEALTH_CHECK_INTERVAL) {
-      return this.backendAvailable;
-    }
-
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 3000);
-      
-      const response = await fetch(`${API_BASE}/health/`, {
-        method: 'GET',
-        signal: controller.signal,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      
-      clearTimeout(timeoutId);
-      
-      this.backendAvailable = response.ok;
-      this.lastHealthCheck = now;
-      return this.backendAvailable;
-    } catch (error) {
-      console.warn('Backend health check failed, using mock data:', error);
-      this.backendAvailable = false;
-      this.lastHealthCheck = now;
-      return false;
-    }
+    // Always return true - backend is available
+    // Health checks disabled to match rest of application behavior
+    return true;
   }
 
   private async request<T>(endpoint: string, options?: RequestInit): Promise<T> {
     const isBackendAvailable = await this.checkBackendHealth();
-    
+
     if (!isBackendAvailable) {
       throw new Error('Backend not available - falling back to mock data');
     }
 
     const url = `${API_BASE}${endpoint}`;
-    
+
+    // Get token from localStorage (same key as AxiosWithToken uses)
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+
     const defaultOptions: RequestInit = {
       headers: {
         'Content-Type': 'application/json',
         // Add auth token if available
-        ...(typeof window !== 'undefined' && localStorage.getItem('authToken') && {
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        ...(token && {
+          'Authorization': `Bearer ${token}`
         }),
       },
     };
 
     const response = await fetch(url, { ...defaultOptions, ...options });
-    
+
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
@@ -76,7 +52,7 @@ export class LeaveService {
   // Leave Types
   async getLeaveTypes(): Promise<{ success: boolean; data: LeaveType[] }> {
     try {
-      return await this.request<{ success: boolean; data: LeaveType[] }>('/leave-types/');
+      return await this.request<{ success: boolean; data: LeaveType[] }>(`${API_ENDPOINTS.LEAVE_TYPES}`);
     } catch (error) {
       console.info('Using mock leave types data');
       return await mockLeaveService.getLeaveTypes();
@@ -86,7 +62,7 @@ export class LeaveService {
   // Leave Balances
   async getLeaveBalances(employeeId: string): Promise<{ success: boolean; data: LeaveBalance[] }> {
     try {
-      return await this.request<{ success: boolean; data: LeaveBalance[] }>(`/leave-balances/${employeeId}/`);
+      return await this.request<{ success: boolean; data: LeaveBalance[] }>(`${API_ENDPOINTS.LEAVE_BALANCES(employeeId)}`);
     } catch (error) {
       console.info('Using mock leave balances data');
       return await mockLeaveService.getLeaveBalances(employeeId);
@@ -110,12 +86,12 @@ export class LeaveService {
     }
     
     return this.request<{ success: boolean; data: LeaveRequest[]; pagination?: any }>(
-      `/leave-requests/?${params.toString()}`
+      `${API_ENDPOINTS.LEAVE_REQUESTS}?${params.toString()}`
     );
   }
 
   async getLeaveRequest(id: string): Promise<{ success: boolean; data: LeaveRequest }> {
-    return this.request<{ success: boolean; data: LeaveRequest }>(`/leave-requests/${id}/`);
+    return this.request<{ success: boolean; data: LeaveRequest }>(`${API_ENDPOINTS.LEAVE_REQUEST(id)}`);
   }
 
   async createLeaveRequest(data: {
@@ -138,7 +114,7 @@ export class LeaveService {
     }[];
   }): Promise<{ success: boolean; data: LeaveRequest }> {
     try {
-      return await this.request<{ success: boolean; data: LeaveRequest }>('/leave-requests/', {
+      return await this.request<{ success: boolean; data: LeaveRequest }>(`${API_ENDPOINTS.LEAVE_REQUESTS}`, {
         method: 'POST',
         body: JSON.stringify(data),
       });
@@ -149,7 +125,7 @@ export class LeaveService {
   }
 
   async updateLeaveRequest(id: string, data: Partial<LeaveRequest>): Promise<{ success: boolean; data: LeaveRequest }> {
-    return this.request<{ success: boolean; data: LeaveRequest }>(`/leave-requests/${id}/`, {
+    return this.request<{ success: boolean; data: LeaveRequest }>(`${API_ENDPOINTS.LEAVE_REQUEST(id)}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     });
@@ -157,7 +133,7 @@ export class LeaveService {
 
   // Workflow Actions
   async submitLeaveRequest(id: string): Promise<{ success: boolean; data: LeaveRequest }> {
-    return this.request<{ success: boolean; data: LeaveRequest }>(`/leave-requests/${id}/submit/`, {
+    return this.request<{ success: boolean; data: LeaveRequest }>(`${API_ENDPOINTS.LEAVE_REQUEST_SUBMIT(id)}`, {
       method: 'POST',
     });
   }
@@ -167,7 +143,7 @@ export class LeaveService {
     comments?: string;
   }): Promise<{ success: boolean; data: LeaveRequest }> {
     try {
-      return await this.request<{ success: boolean; data: LeaveRequest }>(`/leave-requests/${id}/approve/`, {
+      return await this.request<{ success: boolean; data: LeaveRequest }>(`${API_ENDPOINTS.LEAVE_REQUEST_APPROVE(id)}`, {
         method: 'POST',
         body: JSON.stringify(data),
       });
@@ -182,7 +158,7 @@ export class LeaveService {
     reason: string;
   }): Promise<{ success: boolean; data: LeaveRequest }> {
     try {
-      return await this.request<{ success: boolean; data: LeaveRequest }>(`/leave-requests/${id}/reject/`, {
+      return await this.request<{ success: boolean; data: LeaveRequest }>(`${API_ENDPOINTS.LEAVE_REQUEST_REJECT(id)}`, {
         method: 'POST',
         body: JSON.stringify(data),
       });
@@ -193,7 +169,7 @@ export class LeaveService {
   }
 
   async cancelLeaveRequest(id: string): Promise<{ success: boolean; data: LeaveRequest }> {
-    return this.request<{ success: boolean; data: LeaveRequest }>(`/leave-requests/${id}/cancel/`, {
+    return this.request<{ success: boolean; data: LeaveRequest }>(`${API_ENDPOINTS.LEAVE_REQUEST_CANCEL(id)}`, {
       method: 'POST',
     });
   }
@@ -201,7 +177,7 @@ export class LeaveService {
   // Workflow
   async getLeaveWorkflow(id: string): Promise<{ success: boolean; data: LeaveApprovalWorkflow }> {
     try {
-      return await this.request<{ success: boolean; data: LeaveApprovalWorkflow }>(`/leave-requests/${id}/workflow/`);
+      return await this.request<{ success: boolean; data: LeaveApprovalWorkflow }>(`${API_ENDPOINTS.LEAVE_REQUEST_WORKFLOW(id)}`);
     } catch (error) {
       console.info('Using mock workflow data');
       return await mockLeaveService.getLeaveWorkflow(id);
@@ -239,7 +215,7 @@ export class LeaveService {
           weekendDays: number;
           holidayDays: number;
         };
-      }>('/leave-requests/validate/', {
+      }>(`${API_ENDPOINTS.LEAVE_REQUEST_VALIDATE}`, {
         method: 'POST',
         body: JSON.stringify(data),
       });
@@ -252,7 +228,7 @@ export class LeaveService {
   // Dashboard
   async getDashboardData(employeeId: string): Promise<{ success: boolean; data: LeaveDashboardData }> {
     try {
-      return await this.request<{ success: boolean; data: LeaveDashboardData }>(`/leave-requests/dashboard/?employeeId=${employeeId}`);
+      return await this.request<{ success: boolean; data: LeaveDashboardData }>(`${API_ENDPOINTS.LEAVE_DASHBOARD}?employee_id=${employeeId}`);
     } catch (error) {
       console.info('Using mock dashboard data');
       return await mockLeaveService.getDashboardData(employeeId);
@@ -260,7 +236,7 @@ export class LeaveService {
   }
 
   // File Upload
-  async uploadAttachment(file: File): Promise<{
+  async uploadAttachment(file: File, leaveRequestId?: string): Promise<{
     success: boolean;
     data: {
       fileName: string;
@@ -287,7 +263,13 @@ export class LeaveService {
         headers['Authorization'] = `Bearer ${localStorage.getItem('authToken')}`;
       }
 
-      const response = await fetch(`${API_BASE}/leave-attachments/`, {
+      // If leaveRequestId is provided, use the backend endpoint that requires it
+      // Otherwise fall back to generic attachments endpoint
+      const uploadUrl = leaveRequestId
+        ? `${API_BASE}/${API_ENDPOINTS.LEAVE_ATTACHMENTS(leaveRequestId)}`
+        : `${API_BASE}/${API_ENDPOINTS.LEAVE_REQUESTS}attachments/`; // Fallback URL
+
+      const response = await fetch(uploadUrl, {
         method: 'POST',
         headers: headers,
         body: formData,
@@ -327,7 +309,7 @@ export class LeaveService {
           department: string;
           position: string;
         }>
-      }>(`/employees/${params}`);
+      }>(`${API_ENDPOINTS.EMPLOYEES}${params}`);
     } catch (error) {
       console.info('Using mock employees data');
       return await mockLeaveService.getEmployees();

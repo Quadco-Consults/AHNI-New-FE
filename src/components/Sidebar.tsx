@@ -906,6 +906,10 @@ const getDeparmentalLinks = () => {
               name: "Performance Appraisal",
               path: "/dashboard/hr/performance-management",
             },
+            {
+              name: "Goal Setting",
+              path: "/dashboard/hr/goals-management",
+            },
           ],
         },
         {
@@ -941,14 +945,23 @@ const getDeparmentalLinks = () => {
         },
         {
           name: "Timesheet Management",
-          path: "/dashboard/hr/timesheet-management",
+          sublinks: [
+            {
+              name: "My Timesheets",
+              path: "/dashboard/hr/timesheet-management",
+            },
+            {
+              name: "Approvals",
+              path: "/dashboard/hr/timesheet-management/approvals",
+            },
+          ],
         },
         {
           name: "Leave Management",
           sublinks: [
             {
-              name: "Apply",
-              path: "/dashboard/hr/leave-management/request-leave",
+              name: "My Dashboard",
+              path: "/dashboard/hr/leave-management",
             },
             {
               name: "Assign",
@@ -957,6 +970,10 @@ const getDeparmentalLinks = () => {
             {
               name: "Leave List",
               path: "/dashboard/hr/leave-management/leave-list",
+            },
+            {
+              name: "Configuration",
+              path: "/dashboard/hr/leave-management/configuration",
             },
           ],
         },

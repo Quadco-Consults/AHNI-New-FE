@@ -5,7 +5,6 @@ import { toast } from "sonner";
 import {
   useCreateGoodReceiveNote,
   useModifyGoodReceiveNote,
-  useDebugCreateGoodReceiveNote,
 } from "@/features/admin/controllers/goodReceiveNoteController";
 import AddSquareIcon from "components/icons/AddSquareIcon";
 import React, { useEffect, useState } from "react";
@@ -43,7 +42,6 @@ export default function GRNFileUploads() {
         toast.error("Failed to load form data");
       }
     } else {
-      console.error("❌ No GRN form data found in localStorage");
       toast.error("No form data found. Please go back and fill the form again.");
     }
   }, []);
@@ -58,9 +56,6 @@ export default function GRNFileUploads() {
 
   const { createGoodReceiveNote, isLoading: isCreateLoading } =
     useCreateGoodReceiveNote();
-
-  const { debugCreateGoodReceiveNote, isLoading: isDebugLoading } =
-    useDebugCreateGoodReceiveNote();
 
   const { modifyGoodReceiveNote, isLoading: isModifyLoading } =
     useModifyGoodReceiveNote(grnData?.editId || "");
@@ -102,6 +97,8 @@ export default function GRNFileUploads() {
         remark: item.comment || item.remark,
       }));
 
+      let res;
+
       if (!hasFiles) {
         // Send as JSON when no files
         const jsonPayload = {
@@ -114,108 +111,61 @@ export default function GRNFileUploads() {
 
         console.log("📤 Sending as JSON (no files):", jsonPayload);
 
-        await createGoodReceiveNote(jsonPayload);
-        toast.success("GRN created successfully!");
-        return;
-      }
-
-      // If we have files, use FormData
-      const formData = new FormData();
-
-      // Append all GRN data fields
-      Object.entries(grnData.formData).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          if (key === "items") {
-            // Transform "items" to "grn_items" with correct field mapping
-            console.log(`📤 Transforming items to grn_items (${transformedItems.length} items):`, transformedItems);
-
-            // Send each item as individual form fields (Django array format)
-            transformedItems.forEach((item, index) => {
-              formData.append(`grn_items[${index}][purchase_order_item]`, String(item.purchase_order_item));
-              formData.append(`grn_items[${index}][received_quantity]`, String(item.received_quantity));
-              formData.append(`grn_items[${index}][remark]`, String(item.remark));
-            });
-
-            console.log(`📤 Added ${transformedItems.length} items as individual form fields`);
-
-          } else if (typeof value === "object" && Array.isArray(value)) {
-            formData.append(key, JSON.stringify(value));
-          } else {
-            console.log(`📤 Appending ${key}:`, String(value));
-            formData.append(key, String(value));
-          }
+        if (grnData.isEdit) {
+          res = await modifyGoodReceiveNote(jsonPayload);
+        } else {
+          res = await createGoodReceiveNote(jsonPayload);
         }
-      });
+      } else {
+        // If we have files, use FormData
+        const formData = new FormData();
 
-      // Append files if any
-      if (files && files.length > 0) {
+        // Append all GRN data fields
+        Object.entries(grnData.formData).forEach(([key, value]) => {
+          if (value !== undefined && value !== null) {
+            if (key === "items") {
+              // Transform "items" to "grn_items" with correct field mapping
+              console.log(`📤 Transforming items to grn_items (${transformedItems.length} items):`, transformedItems);
+
+              // Send each item as individual form fields (Django array format)
+              transformedItems.forEach((item, index) => {
+                formData.append(`grn_items[${index}][purchase_order_item]`, String(item.purchase_order_item));
+                formData.append(`grn_items[${index}][received_quantity]`, String(item.received_quantity));
+                formData.append(`grn_items[${index}][remark]`, String(item.remark));
+              });
+
+              console.log(`📤 Added ${transformedItems.length} items as individual form fields`);
+
+            } else if (typeof value === "object" && Array.isArray(value)) {
+              formData.append(key, JSON.stringify(value));
+            } else {
+              console.log(`📤 Appending ${key}:`, String(value));
+              formData.append(key, String(value));
+            }
+          }
+        });
+
+        // Append files
         files.forEach((file) => {
           formData.append(`document`, file);
         });
-      }
 
-      // Debug: Log FormData contents
-      console.log("📤 FormData being sent:");
-      for (let [key, value] of formData.entries()) {
-        console.log(`${key}:`, value);
-      }
-
-      let res;
-
-      // DEBUG MODE: Test with debug endpoint first to see what backend receives
-      const DEBUG_MODE = true; // Set to false to use real endpoint
-
-      if (DEBUG_MODE) {
-        console.log("🔬 DEBUG MODE: Using debug endpoint");
-        try {
-          if (!files || files.length === 0) {
-            console.log("🔬 DEBUG: Testing JSON payload");
-            res = await debugCreateGoodReceiveNote(grnData.formData as any);
-          } else {
-            console.log("🔬 DEBUG: Testing FormData payload");
-            res = await debugCreateGoodReceiveNote(formData as any);
-          }
-
-          if (res) {
-            toast.success("Debug: Data structure sent successfully! Check backend logs.");
-            console.log("🔬 Debug response:", res);
-          }
-        } catch (error: any) {
-          console.log("🔬 Debug endpoint not available, falling back to regular creation");
-          // Fall back to regular creation if debug endpoint doesn't exist
-        }
-      }
-
-      // Regular creation flow
-      if (!DEBUG_MODE || !res) {
-        // Test: Try sending as JSON first (without files) to isolate the issue
-        if (!files || files.length === 0) {
-          console.log("🧪 Testing: Sending as JSON (no files)");
-          console.log("🧪 JSON payload:", grnData.formData);
-
-          // Send as regular JSON instead of FormData
-          if (grnData.isEdit) {
-            res = await modifyGoodReceiveNote(grnData.formData as any);
-          } else {
-            res = await createGoodReceiveNote(grnData.formData as any);
-          }
+        if (grnData.isEdit) {
+          res = await modifyGoodReceiveNote(formData as any);
         } else {
-          console.log("🧪 Testing: Sending as FormData (with files)");
-          if (grnData.isEdit) {
-            res = await modifyGoodReceiveNote(formData as any);
-          } else {
-            res = await createGoodReceiveNote(formData as any);
-          }
+          res = await createGoodReceiveNote(formData as any);
         }
       }
 
-      if (res?.status === "success") {
-        // toast.success("Good Receive Note saved successfully");
+      if (res?.status === "success" || res) {
+        toast.success(`Good Receive Note ${grnData.isEdit ? 'updated' : 'created'} successfully`);
         localStorage.removeItem("grnFormData");
         router.push(AdminRoutes.GRN);
       }
     } catch (error: any) {
-      console.error(error?.data?.message ?? "Something went wrong");
+      const errorMessage = error?.data?.message || error?.message || "Failed to save GRN";
+      toast.error(errorMessage);
+      console.error("GRN save error:", error);
     }
   };
 
@@ -248,7 +198,7 @@ export default function GRNFileUploads() {
             </Button>
           </Link>
 
-          <FormButton size='lg' loading={isCreateLoading || isModifyLoading || isDebugLoading}>
+          <FormButton size='lg' loading={isCreateLoading || isModifyLoading}>
             Finish
           </FormButton>
         </div>

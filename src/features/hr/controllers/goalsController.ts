@@ -10,25 +10,39 @@ interface ApiResponse<TData = unknown> {
   data: TData;
 }
 
-// Goal interface
-export interface Goal {
-  id: string;
-  goal: string;
-  competency: string;
-  weight: string;
-  employee_id: string;
-  created_at: string;
-  updated_at: string;
-}
-
-// Narrative interface for backend
+// Narrative interface (matches backend)
 export interface GoalNarrative {
+  id?: string;
   description: string;
-  weight: number;
+  weight: number;  // Decimal (e.g., 25.00)
   completed: boolean;
+  created_datetime?: string;
+  updated_datetime?: string;
 }
 
-// Goal creation payload to match backend schema
+// Goal interface (matches backend response)
+export interface Goal {
+  id?: string;
+  title: string;
+  description?: string;
+  employee?: string;
+  employee_name?: string;
+  status?: "not_started" | "in_progress" | "completed" | "on_hold" | "cancelled";
+  start_date?: string;
+  end_date?: string;
+  total_weight?: string;  // Backend returns as string (e.g., "40.00")
+  approved?: boolean;
+  narratives: GoalNarrative[];
+  created_datetime?: string;
+  updated_datetime?: string;
+  created_at?: string;
+  updated_at?: string;
+
+  // Computed property for display
+  weight?: number;  // Calculated from total_weight or sum of narratives
+}
+
+// Goal creation payload (matches backend expectation)
 export interface CreateGoalPayload {
   employee: string;
   title: string;
@@ -36,7 +50,7 @@ export interface CreateGoalPayload {
   status?: "not_started" | "in_progress" | "completed" | "on_hold" | "cancelled";
   start_date?: string;
   end_date?: string;
-  narratives: GoalNarrative[];
+  narratives: Omit<GoalNarrative, 'id' | 'created_datetime' | 'updated_datetime'>[];
 }
 
 const BASE_URL = "hr/employees/goal/";
@@ -46,13 +60,18 @@ const CREATE_GOALS_URL = "hr/employees/goal/";
 export const validateGoalPayload = (payload: CreateGoalPayload): string[] => {
   const errors: string[] = [];
 
-  // Check narrative weights sum to 100
-  const totalWeight = payload.narratives.reduce((sum, n) => sum + n.weight, 0);
-  if (totalWeight !== 100) {
-    errors.push(`Narrative weights must sum to 100, got ${totalWeight}`);
+  // Check narratives
+  if (!payload.narratives || payload.narratives.length === 0) {
+    errors.push("At least one narrative is required");
   }
 
-  // Check individual weight ranges
+  // Check narrative weights sum to 100
+  const totalWeight = payload.narratives.reduce((sum, n) => sum + n.weight, 0);
+  if (Math.abs(totalWeight - 100) > 0.01) {  // Allow small floating point differences
+    errors.push(`Narrative weights must sum to 100, got ${totalWeight.toFixed(2)}`);
+  }
+
+  // Check individual weights
   payload.narratives.forEach((narrative, index) => {
     if (narrative.weight < 0 || narrative.weight > 100) {
       errors.push(`Narrative ${index + 1} weight must be between 0-100`);
@@ -72,9 +91,6 @@ export const validateGoalPayload = (payload: CreateGoalPayload): string[] => {
   if (!payload.title?.trim()) {
     errors.push("Goal title is required");
   }
-  if (payload.narratives.length === 0) {
-    errors.push("At least one narrative is required");
-  }
 
   return errors;
 };
@@ -88,14 +104,21 @@ export const useGetEmployeeGoals = (employeeId: string, enabled: boolean = true)
     queryFn: async () => {
       try {
         const response = await AxiosWithToken.get(`${BASE_URL}?employee=${employeeId}`);
+        console.log("Raw API Response:", response.data);
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
+        console.error("Employee Goals API Error:", {
+          status: axiosError.response?.status,
+          data: axiosError.response?.data,
+          message: (axiosError.response?.data as any)?.message
+        });
         throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
       }
     },
     enabled: enabled && !!employeeId,
     refetchOnWindowFocus: false,
+    retry: false, // Don't retry on 500 errors
   });
 };
 

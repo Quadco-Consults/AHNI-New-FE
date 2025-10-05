@@ -290,4 +290,22 @@ export const hr = [
         import("pages/protectedPages/hr/timesheet-management/CreateTimesheet")
     ),
   },
+  {
+    path: HrRoutes.GOALS_MANAGEMENT,
+    element: lazy(
+      () => import("pages/protectedPages/hr/goals-management/index")
+    ),
+  },
+  {
+    path: HrRoutes.GOALS_MANAGEMENT_CREATE,
+    element: lazy(
+      () => import("pages/protectedPages/hr/goals-management/form/index")
+    ),
+  },
+  {
+    path: HrRoutes.GOALS_MANAGEMENT_DETAIL,
+    element: lazy(
+      () => import("pages/protectedPages/hr/goals-management/id/index")
+    ),
+  },
 ];

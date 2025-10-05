@@ -146,6 +146,33 @@ export const useDeleteItem = () => {
   return [deleteItem, { data, isLoading, isSuccess, error }] as const;
 };
 
+// Bulk Upload Operations
+export const useBulkUploadItems = () => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    any,
+    Error,
+    FormData
+  >({
+    endpoint: "/config/items/bulk-upload/",
+    queryKey: ["items"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const bulkUploadItems = async (file: File) => {
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      await callApi(formData);
+    } catch (error) {
+      console.error("Bulk upload error:", error);
+      throw error;
+    }
+  };
+
+  return { bulkUploadItems, data, isLoading, isSuccess, error };
+};
+
 // Additional missing exports
 export const useGetSingleItem = useGetSingleItemManager;
 export const useAddItem = CreateItemManager;

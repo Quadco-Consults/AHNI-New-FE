@@ -20,29 +20,33 @@ interface LeaveBalanceCardProps {
   className?: string;
 }
 
-const LeaveBalanceCard: React.FC<LeaveBalanceCardProps> = ({ 
-  balance, 
+const LeaveBalanceCard: React.FC<LeaveBalanceCardProps> = ({
+  balance,
   showDetails = true,
-  className = "" 
+  className = ""
 }) => {
+  if (!balance || !balance.leaveType) {
+    return null; // Don't render if balance is invalid
+  }
+
   const utilizationPercentage = (balance.used / balance.entitled) * 100;
   const pendingPercentage = (balance.pending / balance.entitled) * 100;
-  
+
   return (
     <Card className={`p-6 ${className}`}>
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div 
-            className="w-4 h-4 rounded-full" 
-            style={{ backgroundColor: balance.leaveType.color }}
+          <div
+            className="w-4 h-4 rounded-full"
+            style={{ backgroundColor: balance.leaveType?.color || '#999' }}
           />
           <div>
-            <h3 className="font-semibold text-lg">{balance.leaveType.name}</h3>
-            <p className="text-sm text-gray-600">{balance.leaveType.description}</p>
+            <h3 className="font-semibold text-lg">{balance.leaveType?.name || 'Unknown'}</h3>
+            <p className="text-sm text-gray-600">{balance.leaveType?.description || ''}</p>
           </div>
         </div>
         <Badge variant="outline" className="text-xs">
-          {balance.year}
+          {balance.year || new Date().getFullYear()}
         </Badge>
       </div>
 

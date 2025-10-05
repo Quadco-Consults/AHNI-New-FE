@@ -25,23 +25,42 @@ export default function SubgrantAdvertCard({
     id,
     title,
     created_datetime,
-    start_date,
     end_date,
+    start_date,
+    award_type,
+    business_unit,
+    amount_usd,
+    amount_ngn,
+    tender_type,
+    status,
+    submission_end_date,
+    locations,
 }: ISubGrantPaginatedData) {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const { deleteSubGrant, isLoading: isDeleteLoading } =
-        useDeleteSubGrant();
+        useDeleteSubGrant(id);
 
     const handleDelete = async () => {
         try {
-            await deleteSubGrant(id)();
+            await deleteSubGrant();
             toast.success("Sub Grant Deleted");
             setIsModalOpen(false);
         } catch (error: any) {
-            toast.error(error.data.message ?? "Something went wrong");
+            toast.error(error?.data?.message ?? error?.message ?? "Something went wrong");
         }
     };
+
+    // Calculate duration in months
+    const calculateDuration = () => {
+        if (!start_date || !end_date) return null;
+        const start = new Date(start_date);
+        const end = new Date(end_date);
+        const months = Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24 * 30));
+        return months;
+    };
+
+    const duration = calculateDuration();
 
     return (
         <div className="w-[49.5%]">
@@ -54,11 +73,13 @@ export default function SubgrantAdvertCard({
                             <span className="font-medium">Date Posted: </span>
                             {format(created_datetime, "MMM dd, yyy")}
                         </p>
-                        <p
-                            className={`bg-[#26B94133] text-[.625rem] py-1 px-[.625rem] w-fit rounded-full text-[#26B941]`}
-                        >
-                            {/* {status} */}
-                        </p>
+                        {status && (
+                            <p
+                                className={`bg-[#26B94133] text-[.625rem] py-1 px-[.625rem] w-fit rounded-full text-[#26B941]`}
+                            >
+                                {status}
+                            </p>
+                        )}
                     </div>
                     <div className="flex items-center justify-between">
                         <CardTitle
@@ -69,7 +90,7 @@ export default function SubgrantAdvertCard({
                         </CardTitle>
 
                         <div className="flex items-center">
-                            <Link href="/">
+                            <Link href={`/dashboard/c-and-g/sub-grant/create-sub-grant?editId=${id}`}>
                                 <Button variant="ghost">
                                     <PencilIcon />
                                 </Button>
@@ -83,46 +104,62 @@ export default function SubgrantAdvertCard({
                         </div>
                     </div>
                     <div className="w-full flex flex-wrap items-center justify-start gap-x-[.625rem] gap-y-[1rem]">
-                        <DetailsTag
-                            icon={<PeoplePositionsSvg />}
-                            label=""
-                            // label={`${consultants_number} people`}
-                        />
-                        <DetailsTag
-                            icon={<ClockTimingSvg />}
-                            label=""
-                            // label={`${duration} months with possibility of extension`}
-                        />
+                        {award_type && (
+                            <DetailsTag
+                                icon={<SuiteCase />}
+                                label={award_type}
+                            />
+                        )}
+                        {duration && (
+                            <DetailsTag
+                                icon={<ClockTimingSvg />}
+                                label={`${duration} month${duration > 1 ? 's' : ''}`}
+                            />
+                        )}
                         <DetailsTag
                             icon={<DataCalenderSvg />}
-                            label={format(end_date, "MMM dd, yyy")}
+                            label={`Ends: ${format(end_date, "MMM dd, yyy")}`}
                         />
-                        <DetailsTag
-                            icon={<LocationSvg />}
-                            label=""
-                            // label={locations.join(", ")}
-                        />
-                        <DetailsTag icon={<SuiteCase />} label="Internal" />
-
-                        <DetailsTag
-                            icon={<PersonClusterSvg />}
-                            label="Cluster Leads"
-                        />
+                        {submission_end_date && (
+                            <DetailsTag
+                                icon={<DataCalenderSvg />}
+                                label={`Submission: ${format(submission_end_date, "MMM dd, yyy")}`}
+                            />
+                        )}
+                        {business_unit && (
+                            <DetailsTag
+                                icon={<PersonClusterSvg />}
+                                label={business_unit}
+                            />
+                        )}
+                        {locations && locations.length > 0 && (
+                            <DetailsTag
+                                icon={<LocationSvg />}
+                                label={`${locations.length} Location${locations.length > 1 ? 's' : ''}: ${locations.map(loc => loc.name || loc.city).slice(0, 2).join(", ")}${locations.length > 2 ? `, +${locations.length - 2} more` : ''}`}
+                            />
+                        )}
+                        {tender_type && (
+                            <DetailsTag
+                                icon={<SuiteCase />}
+                                label={tender_type}
+                            />
+                        )}
+                        {amount_usd && (
+                            <DetailsTag
+                                icon={<PeoplePositionsSvg />}
+                                label={`$${parseFloat(amount_usd).toLocaleString()}`}
+                            />
+                        )}
                     </div>
                 </div>
 
-                {/* <div className="relative">
-                    <p className="text-sm">{evaluation_comments}</p>
-                    <div className="w-full flex flex-col items-center justify-center absolute bottom-0 left-0 py-[.75rem] bg-gradient-to-b from-white/50 via-white/60 to-white/90">
-                        <div className="bg-white w-fit">
-                            <Link href="/">
-                                <Button className="bg-white text-primary z-[99] border border-[#00000012]">
-                                    Tap to View
-                                </Button>
-                            </Link>
-                        </div>
-                    </div>
-                </div> */}
+                <div className="flex justify-center items-center">
+                    <Link href={`/dashboard/c-and-g/sub-grant/awards/${id}`}>
+                        <Button variant="outline" size="sm" className="w-full">
+                            Tap to view
+                        </Button>
+                    </Link>
+                </div>
             </Card>
 
             <ConfirmationDialog

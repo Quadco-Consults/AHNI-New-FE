@@ -20,7 +20,8 @@ interface LeaveRequestFilterParams {
   enabled?: boolean;
 }
 
-const BASE_URL = "/hr/leave-request/";
+// Note: No leading slash because baseURL already has trailing slash
+const BASE_URL = "hr/leave-request/";
 
 // ===== LEAVE REQUEST HOOKS =====
 
@@ -36,6 +37,7 @@ export const useGetLeaveRequests = ({
     queryKey: ["leave-requests", page, size, status, search],
     queryFn: async () => {
       try {
+        console.log("Fetching leave requests with params:", { page, size, status, search });
         const response = await AxiosWithToken.get(BASE_URL, {
           params: {
             page,
@@ -44,14 +46,20 @@ export const useGetLeaveRequests = ({
             ...(search && { search }),
           },
         });
+        console.log("Leave requests response:", response.data);
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
+        console.error("Leave requests error:", {
+          status: axiosError.response?.status,
+          data: axiosError.response?.data,
+        });
         throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
       }
     },
     enabled: enabled,
     refetchOnWindowFocus: false,
+    staleTime: 0,
   });
 };
 
@@ -62,9 +70,11 @@ export const useGetLeaveRequest = (id: string, enabled: boolean = true) => {
     queryFn: async () => {
       try {
         const response = await AxiosWithToken.get(`${BASE_URL}${id}/`);
+        console.log("Leave request API response:", response.data);
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
+        console.error("Leave request fetch error:", axiosError.response?.data);
         throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
       }
     },
@@ -170,6 +180,247 @@ export const useDeleteLeaveRequest = (id: string) => {
   return { deleteLeaveRequest, data, isLoading, isSuccess, error };
 };
 
+// Submit Leave Request for Approval
+export const useSubmitLeaveRequest = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    ApiResponse<LeaveRequest>,
+    Error,
+    Record<string, never>
+  >({
+    endpoint: `${BASE_URL}${id}/submit/`,
+    queryKey: ["leave-requests", id],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const submitLeaveRequest = async () => {
+    if (!id || id === "create" || id === "") {
+      throw new Error("Please save the leave request first before submitting");
+    }
+    try {
+      await callApi({} as Record<string, never>);
+    } catch (error) {
+      console.error("Leave request submit error:", error);
+      throw error;
+    }
+  };
+
+  return { submitLeaveRequest, data, isLoading, isSuccess, error };
+};
+
+// Approve Leave Request
+export const useApproveLeaveRequest = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    ApiResponse<LeaveRequest>,
+    Error,
+    { comments?: string }
+  >({
+    endpoint: `${BASE_URL}${id}/approve/`,
+    queryKey: ["leave-requests", id],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const approveLeaveRequest = async (comments?: string) => {
+    try {
+      await callApi(comments ? { comments } : {});
+    } catch (error) {
+      console.error("Leave request approve error:", error);
+      throw error;
+    }
+  };
+
+  return { approveLeaveRequest, data, isLoading, isSuccess, error };
+};
+
+// Reject Leave Request
+export const useRejectLeaveRequest = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    ApiResponse<LeaveRequest>,
+    Error,
+    { reason: string; comments?: string }
+  >({
+    endpoint: `${BASE_URL}${id}/reject/`,
+    queryKey: ["leave-requests", id],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const rejectLeaveRequest = async (reason: string, comments?: string) => {
+    try {
+      await callApi({ reason, ...(comments && { comments }) });
+    } catch (error) {
+      console.error("Leave request reject error:", error);
+      throw error;
+    }
+  };
+
+  return { rejectLeaveRequest, data, isLoading, isSuccess, error };
+};
+
+// Cancel Leave Request
+export const useCancelLeaveRequest = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    ApiResponse<LeaveRequest>,
+    Error,
+    Record<string, never>
+  >({
+    endpoint: `${BASE_URL}${id}/cancel/`,
+    queryKey: ["leave-requests", id],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const cancelLeaveRequest = async () => {
+    try {
+      await callApi({} as Record<string, never>);
+    } catch (error) {
+      console.error("Leave request cancel error:", error);
+      throw error;
+    }
+  };
+
+  return { cancelLeaveRequest, data, isLoading, isSuccess, error };
+};
+
+// Validate Leave Request
+export const useValidateLeaveRequest = () => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    any,
+    Error,
+    {
+      leaveTypeId: string;
+      fromDate: string;
+      toDate: string;
+      duration: string;
+    }
+  >({
+    endpoint: `${BASE_URL}validate/`,
+    queryKey: ["leave-request-validate"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const validateLeaveRequest = async (details: {
+    leaveTypeId: string;
+    fromDate: string;
+    toDate: string;
+    duration: string;
+  }) => {
+    try {
+      // Backend uses request.user.employee, no need to pass employeeId
+      await callApi(details);
+      return data;
+    } catch (error) {
+      console.error("Leave request validation error:", error);
+      throw error;
+    }
+  };
+
+  return { validateLeaveRequest, data, isLoading, isSuccess, error };
+};
+
+// Get Leave Types
+export const useGetLeaveTypes = (enabled: boolean = true) => {
+  return useQuery<ApiResponse<any[]>>({
+    queryKey: ["leave-types"],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get("hr/leave-package/");
+        console.log("Leave types response:", response.data);
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        console.error("Leave types error:", {
+          status: axiosError.response?.status,
+          data: axiosError.response?.data,
+          message: axiosError.message
+        });
+        const errorMessage = (axiosError.response?.data as any)?.message || axiosError.message || "Failed to fetch leave types";
+        throw new Error(errorMessage);
+      }
+    },
+    enabled: enabled,
+    refetchOnWindowFocus: false,
+  });
+};
+
+// Get Leave Balances
+// Supports both old signature (employeeId, enabled) and new signature (enabled only)
+export const useGetLeaveBalances = (enabledOrEmployeeId?: boolean | string, enabled: boolean = true) => {
+  // Handle backward compatibility
+  const isEnabled = typeof enabledOrEmployeeId === 'boolean' ? enabledOrEmployeeId : enabled;
+
+  return useQuery<ApiResponse<any[]>>({
+    queryKey: ["leave-balances"],
+    queryFn: async () => {
+      try {
+        // Backend uses request.user.employee to get current employee's balances
+        const response = await AxiosWithToken.get(`hr/leave-balance/`);
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    enabled: isEnabled,
+    refetchOnWindowFocus: false,
+  });
+};
+
+// Get Leave Dashboard
+export const useGetLeaveDashboard = (enabled: boolean = true) => {
+  return useQuery<ApiResponse<any>>({
+    queryKey: ["leave-dashboard"],
+    queryFn: async () => {
+      try {
+        // Backend uses request.user.employee to get current employee
+        // No need to pass employee_id - it's inferred from the authenticated user
+        console.log("Fetching leave dashboard...");
+        const response = await AxiosWithToken.get(`${BASE_URL}dashboard/`);
+        console.log("Dashboard response:", response.data);
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        console.error("Dashboard error:", {
+          status: axiosError.response?.status,
+          data: axiosError.response?.data,
+          message: axiosError.message
+        });
+        const errorMessage = (axiosError.response?.data as any)?.message || axiosError.message || "Failed to load dashboard";
+        throw new Error(errorMessage);
+      }
+    },
+    enabled: enabled,
+    refetchOnWindowFocus: false,
+    staleTime: 0, // Always consider data stale to ensure fresh data on refetch
+  });
+};
+
+// Get Leave Workflow
+export const useGetLeaveWorkflow = (id: string, enabled: boolean = true) => {
+  return useQuery<ApiResponse<any>>({
+    queryKey: ["leave-workflow", id],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get(`${BASE_URL}${id}/workflow/`);
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        // 404 means no workflow created yet - this is expected, return null instead of throwing
+        if (axiosError.response?.status === 404) {
+          console.log("No workflow created for this leave request yet");
+          return null;
+        }
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    enabled: enabled && !!id,
+    refetchOnWindowFocus: false,
+    retry: false, // Don't retry on 404
+  });
+};
+
 // Legacy exports for backward compatibility
 export const useGetLeaveRequestsQuery = useGetLeaveRequests;
 export const useGetLeaveRequestQuery = useGetLeaveRequest;
@@ -177,3 +428,7 @@ export const useCreateLeaveRequestMutation = useCreateLeaveRequest;
 export const useUpdateLeaveRequestMutation = useUpdateLeaveRequest;
 export const usePatchLeaveRequestMutation = usePatchLeaveRequest;
 export const useDeleteLeaveRequestMutation = useDeleteLeaveRequest;
+export const useSubmitLeaveRequestMutation = useSubmitLeaveRequest;
+export const useApproveLeaveRequestMutation = useApproveLeaveRequest;
+export const useRejectLeaveRequestMutation = useRejectLeaveRequest;
+export const useCancelLeaveRequestMutation = useCancelLeaveRequest;

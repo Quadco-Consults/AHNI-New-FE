@@ -33,7 +33,16 @@ import GoBack from "components/GoBack";
 import BackendStatusBanner from "./BackendStatusBanner";
 
 import { LeaveType, LeaveRequestFormData } from "../../types/leave";
-import { leaveService, useLeaveTypes, useLeaveBalances } from "../../services/leaveService";
+import { leaveService, useLeaveTypes as useLeaveTypesService, useLeaveBalances as useLeaveBalancesService } from "../../services/leaveService";
+import {
+  useCreateLeaveRequest,
+  useValidateLeaveRequest,
+  useGetLeaveTypes,
+  useGetLeaveBalances
+} from "../../controllers/leaveRequestController";
+import { useGetEmployeeOnboardings } from "../../controllers/employeeOnboardingController";
+import { useGetUserProfile } from "@/features/auth/controllers/userController";
+import { toast } from "sonner";
 
 // Validation Schema
 const leaveRequestSchema = z.object({
@@ -64,31 +73,67 @@ const EnhancedLeaveRequestForm = () => {
   const [workingDays, setWorkingDays] = useState(0);
   const [attachments, setAttachments] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [employees, setEmployees] = useState<Array<{id: string; name: string; department: string; employeeId: string; position: string}>>([]);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [validationWarnings, setValidationWarnings] = useState<string[]>([]);
-  
-  // Get current user ID - replace with actual auth logic
-  const currentEmployeeId = "emp-001"; // This should come from your auth context
-  
-  // API hooks
-  const { leaveTypes, loading: loadingTypes, error: typesError } = useLeaveTypes();
-  const { balances, loading: loadingBalances, error: balancesError } = useLeaveBalances(currentEmployeeId);
-  
-  // Load employees for backup person selection
-  useEffect(() => {
-    const loadEmployees = async () => {
-      try {
-        const response = await leaveService.getEmployees();
-        if (response.success) {
-          setEmployees(response.data);
-        }
-      } catch (error) {
-        console.error('Failed to load employees:', error);
-      }
-    };
-    loadEmployees();
-  }, []);
+
+  // Get current user from auth
+  const { data: userProfileData } = useGetUserProfile();
+  const currentEmployeeId = userProfileData?.data?.id || "";
+
+  // API hooks from controller (backend gets employee from request.user.employee)
+  const { data: leaveTypesData, isLoading: loadingTypes, error: typesError } = useGetLeaveTypes();
+  const { data: balancesData, isLoading: loadingBalances, error: balancesError } = useGetLeaveBalances();
+  const { data: employeesData, isLoading: loadingEmployees } = useGetEmployeeOnboardings({ size: 100 });
+  const { createLeaveRequest, isLoading: isCreating } = useCreateLeaveRequest();
+  const { validateLeaveRequest, data: validationData, isLoading: isValidating } = useValidateLeaveRequest();
+
+  // Extract data from API responses
+  const leaveTypes = Array.isArray(leaveTypesData?.data)
+    ? leaveTypesData.data
+    : Array.isArray(leaveTypesData?.data?.results)
+    ? leaveTypesData.data.results
+    : [];
+
+  // Debug: Log leave types to see structure
+  console.log('Leave types:', leaveTypes);
+  if (leaveTypes.length > 0) {
+    console.log('First leave type:', JSON.stringify(leaveTypes[0], null, 2));
+  }
+
+  const balances = Array.isArray(balancesData?.data)
+    ? balancesData.data
+    : Array.isArray(balancesData?.data?.results)
+    ? balancesData.data.results
+    : [];
+
+  console.log('Balances:', balances);
+  if (balances.length > 0) {
+    console.log('First balance:', JSON.stringify(balances[0], null, 2));
+  }
+
+  // Extract employees from API response
+  const employees = Array.isArray(employeesData?.data)
+    ? employeesData.data.map((emp: any) => ({
+        id: emp.id,
+        name: `${emp.first_name} ${emp.last_name}`,
+        department: emp.department || 'N/A',
+        employeeId: emp.employee_id || emp.id,
+        position: emp.position || emp.job_title || 'N/A'
+      }))
+    : Array.isArray(employeesData?.data?.results)
+    ? employeesData.data.results.map((emp: any) => ({
+        id: emp.id,
+        name: `${emp.first_name} ${emp.last_name}`,
+        department: emp.department || 'N/A',
+        employeeId: emp.employee_id || emp.id,
+        position: emp.position || emp.job_title || 'N/A'
+      }))
+    : [];
+
+  console.log('Employees:', employees);
+  if (employees.length > 0) {
+    console.log('First employee:', JSON.stringify(employees[0], null, 2));
+  }
 
   const form = useForm<LeaveRequestFormData>({
     resolver: zodResolver(leaveRequestSchema),
@@ -108,19 +153,19 @@ const EnhancedLeaveRequestForm = () => {
       const { fromDate, toDate, duration, leaveTypeId } = watchedValues;
       if (fromDate && toDate && leaveTypeId) {
         try {
-          const response = await leaveService.validateLeaveRequest({
-            employeeId: currentEmployeeId,
+          // Use controller hook - backend gets employee from request.user.employee
+          const result = await validateLeaveRequest({
             leaveTypeId,
             fromDate,
             toDate,
             duration: duration || 'full_day'
           });
-          
-          if (response.success) {
-            setCalculatedDays(response.calculatedDays.totalDays);
-            setWorkingDays(response.calculatedDays.workDaysCount);
-            setValidationErrors(response.errors || []);
-            setValidationWarnings(response.warnings || []);
+
+          if (result?.success) {
+            setCalculatedDays(result.calculatedDays.totalDays);
+            setWorkingDays(result.calculatedDays.workDaysCount);
+            setValidationErrors(result.errors || []);
+            setValidationWarnings(result.warnings || []);
           }
         } catch (error) {
           console.error('Validation error:', error);
@@ -151,13 +196,7 @@ const EnhancedLeaveRequestForm = () => {
   const handleLeaveTypeChange = (leaveTypeId: string) => {
     const leaveType = leaveTypes.find(lt => lt.id === leaveTypeId);
     setSelectedLeaveType(leaveType || null);
-    
-    // Set default dates based on leave type requirements
-    if (leaveType?.canApplyInAdvance && leaveType.advanceNoticeDays > 0) {
-      const minFromDate = format(addDays(new Date(), leaveType.advanceNoticeDays), 'yyyy-MM-dd');
-      setValue('fromDate', minFromDate);
-    }
-    
+
     // Clear validation messages when leave type changes
     setValidationErrors([]);
     setValidationWarnings([]);
@@ -189,48 +228,34 @@ const EnhancedLeaveRequestForm = () => {
   // Submit form
   const onSubmit = async (data: LeaveRequestFormData) => {
     setIsSubmitting(true);
-    
+
     try {
       // Final validation check
       if (validationErrors.length > 0) {
-        alert('Please fix validation errors before submitting.');
+        toast.error('Please fix validation errors before submitting');
         setIsSubmitting(false);
         return;
       }
-      
-      // Prepare request data
+
+      // Prepare request data - backend uses snake_case and gets employee from request.user.employee
       const requestData = {
-        employeeId: currentEmployeeId,
-        leaveTypeId: data.leaveTypeId,
-        fromDate: data.fromDate,
-        toDate: data.toDate,
+        leave_type: data.leaveTypeId,
+        from_date: data.fromDate,
+        to_date: data.toDate,
         duration: data.duration === 'custom' ? 'full_day' : data.duration,
         reason: data.reason,
-        workCoverage: {
-          backupPersonId: data.backupPersonId,
-          handoverNotes: data.handoverNotes,
-          clientNotificationRequired: false // You can add this to the form if needed
-        },
-        isEmergency: data.isEmergency,
-        attachments: attachments.map(file => ({
-          fileName: file.name,
-          fileUrl: '', // This would be set by the file upload response
-          fileType: file.type
-        }))
+        is_emergency: data.isEmergency || false,
+        ...(data.backupPersonId && { backup_person: data.backupPersonId }),
+        ...(data.handoverNotes && { handover_notes: data.handoverNotes })
       };
-      
-      const response = await leaveService.createLeaveRequest(requestData);
-      
-      if (response.success) {
-        alert('Leave request submitted successfully!');
-        router.push('/dashboard/hr/leave-management');
-      } else {
-        throw new Error('Failed to submit leave request');
-      }
+
+      await createLeaveRequest(requestData);
+      toast.success('Leave request submitted successfully!');
+      router.push('/dashboard/hr/leave-management');
       
     } catch (error) {
       console.error('Error submitting leave request:', error);
-      alert(error instanceof Error ? error.message : 'Failed to submit leave request. Please try again.');
+      toast.error(error instanceof Error ? error.message : 'Failed to submit leave request. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -253,12 +278,18 @@ const EnhancedLeaveRequestForm = () => {
   
   // Show error state
   if (typesError || balancesError) {
+    const errorMessage = typesError instanceof Error
+      ? typesError.message
+      : balancesError instanceof Error
+      ? balancesError.message
+      : String(typesError || balancesError || "Unknown error");
+
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <AlertCircle className="w-8 h-8 text-red-600 mx-auto mb-2" />
           <p className="text-red-600">Failed to load leave information</p>
-          <p className="text-sm text-gray-600">{typesError || balancesError}</p>
+          <p className="text-sm text-gray-600">{errorMessage}</p>
         </div>
       </div>
     );
@@ -312,18 +343,23 @@ const EnhancedLeaveRequestForm = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {leaveTypes.filter(lt => lt.isActive).map((leaveType) => (
-                          <SelectItem key={leaveType.id} value={leaveType.id}>
-                            <div className="flex items-center gap-2">
-                              <div 
-                                className="w-3 h-3 rounded-full" 
-                                style={{ backgroundColor: leaveType.color }}
-                              />
-                              <span>{leaveType.name}</span>
-                              <span className="text-sm text-gray-500">({leaveType.code})</span>
-                            </div>
-                          </SelectItem>
-                        ))}
+                        {leaveTypes.filter(lt => lt.is_active !== false).map((leaveType) => {
+                          const displayName = typeof leaveType.name === 'string'
+                            ? leaveType.name
+                            : typeof leaveType.name === 'object' && leaveType.name?.name
+                            ? leaveType.name.name
+                            : typeof leaveType.leave_type_name === 'string'
+                            ? leaveType.leave_type_name
+                            : 'Unknown';
+
+                          return (
+                            <SelectItem key={leaveType.id} value={leaveType.id}>
+                              <div className="flex items-center gap-2">
+                                <span>{displayName}</span>
+                              </div>
+                            </SelectItem>
+                          );
+                        })}
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -341,27 +377,34 @@ const EnhancedLeaveRequestForm = () => {
                   {(() => {
                     const balance = getLeaveBalance(selectedLeaveType.id);
                     if (balance) {
+                      // Ensure values are numbers, not objects
+                      const entitled = typeof balance.entitled === 'number' ? balance.entitled : 0;
+                      const used = typeof balance.used === 'number' ? balance.used : 0;
+                      const pending = typeof balance.pending === 'number' ? balance.pending : 0;
+                      const scheduled = typeof balance.scheduled === 'number' ? balance.scheduled : 0;
+                      const available = typeof balance.available === 'number' ? balance.available : 0;
+
                       return (
                         <div className="grid grid-cols-5 gap-4 text-sm">
                           <div>
                             <div className="text-gray-600">Entitled</div>
-                            <div className="font-semibold">{balance.entitled} days</div>
+                            <div className="font-semibold">{entitled} days</div>
                           </div>
                           <div>
                             <div className="text-gray-600">Used</div>
-                            <div className="font-semibold text-red-600">{balance.used} days</div>
+                            <div className="font-semibold text-red-600">{used} days</div>
                           </div>
                           <div>
                             <div className="text-gray-600">Pending</div>
-                            <div className="font-semibold text-amber-600">{balance.pending} days</div>
+                            <div className="font-semibold text-amber-600">{pending} days</div>
                           </div>
                           <div>
                             <div className="text-gray-600">Scheduled</div>
-                            <div className="font-semibold text-blue-600">{balance.scheduled} days</div>
+                            <div className="font-semibold text-blue-600">{scheduled} days</div>
                           </div>
                           <div>
                             <div className="text-gray-600">Available</div>
-                            <div className="font-semibold text-green-600">{balance.available} days</div>
+                            <div className="font-semibold text-green-600">{available} days</div>
                           </div>
                         </div>
                       );

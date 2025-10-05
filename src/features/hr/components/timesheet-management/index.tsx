@@ -64,6 +64,13 @@ const TimesheetManagement = () => {
 
   return (
     <div className="space-y-6">
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h2 className="text-2xl font-bold">My Timesheets</h2>
+          <p className="text-sm text-gray-600">Manage your timesheets</p>
+        </div>
+      </div>
+
       <div className="flex items-center justify-between">
         <div className="flex w-full items-center justify-start gap-2">
           <span className="flex items-center w-1/3 px-2 py-2 border rounded-lg">
@@ -418,7 +425,10 @@ const timesheetColumns = (handleDelete: (id: string) => void): ColumnDef<Timeshe
   },
   {
     header: "Total Hours",
-    cell: ({ row }) => <div className="font-medium">{row.original.total_hours?.toFixed(2) || "0.00"}h</div>,
+    cell: ({ row }) => {
+      const hours = parseFloat(row.original.total_hours as any) || 0;
+      return <div className="font-medium">{hours.toFixed(2)}h</div>;
+    },
   },
   {
     header: "Status",
