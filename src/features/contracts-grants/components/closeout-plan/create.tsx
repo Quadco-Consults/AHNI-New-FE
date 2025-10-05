@@ -31,6 +31,7 @@ import {
 import { useGetAllDepartments } from "@/features/modules/controllers/config/departmentController";
 import { useGetAllLocations } from "@/features/modules/controllers/config/locationController";
 import { useGetAllProjectsQuery } from "@/features/projects/controllers/projectController";
+import { useGetAllUsers } from "@/features/auth/controllers/userController";
 import { toast } from "sonner";
 
 export default function CreateCloseOutPlan() {
@@ -116,6 +117,22 @@ export default function CreateCloseOutPlan() {
     [location?.data.results]
   );
 
+  const { data: users } = useGetAllUsers({
+    page: 1,
+    size: 2000000,
+    search: "",
+    enabled: true,
+  });
+
+  const userOptions = useMemo(
+    () =>
+      users?.data.results.map((user) => ({
+        label: `${user.first_name} ${user.last_name}`,
+        value: user.id,
+      })) || [],
+    [users?.data.results]
+  );
+
   const { createCloseoutPlan: createCloseOutPlan, isLoading: isCreateLoading } =
     useCreateCloseOutPlanMutation();
 
@@ -179,7 +196,7 @@ export default function CreateCloseOutPlan() {
 
       form.reset({
         project: proj.id,
-        department: dept.id,
+        department: typeof dept === 'string' ? dept : dept.id, // Handle both string and object
         location: loc.id,
         tasks: formTasks,
       });
@@ -226,6 +243,7 @@ export default function CreateCloseOutPlan() {
                   control={form.control}
                   register={form.register}
                   canDelete={taskFields.length > 1}
+                  userOptions={userOptions}
                 />
               ))}
 
@@ -278,12 +296,14 @@ function TaskItem({
   control,
   register,
   canDelete,
+  userOptions,
 }: {
   taskIndex: number;
   removeTask: (index: number) => void;
   control: any;
   register: any;
   canDelete: boolean;
+  userOptions: { label: string; value: string }[];
 }) {
   const {
     fields: activityFields,
@@ -362,10 +382,11 @@ function TaskItem({
               💡 Tip: To create a section header, just fill in the description and leave dates/designation empty
             </p>
             <div className='grid grid-cols-2 gap-5'>
-              <FormInput
+              <FormSelect
                 label='Designation / Responsible'
                 name={`tasks.${taskIndex}.activities.${activityIndex}.designation`}
-                placeholder='Enter Designation (e.g., STO, Program Manager) - Optional for headers'
+                placeholder='Select Employee - Optional for headers'
+                options={userOptions}
               />
 
               <FormSelect

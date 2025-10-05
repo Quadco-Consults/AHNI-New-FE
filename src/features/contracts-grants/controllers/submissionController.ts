@@ -67,6 +67,7 @@ export const useGetAllSubGrantSubmissions = ({
           params: {
             page,
             size,
+            expand: 'sub_grant,sub_grant.project', // Expand to get full sub_grant data including project
             ...(search && { search }),
             ...(sub_grant && { sub_grant }),
           },
