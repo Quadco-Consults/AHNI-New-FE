@@ -434,7 +434,8 @@ export const CG_ROUTES = {
   /* SUB GRANT */
   SUBGRANT_ADVERT: "/dashboard/c-and-g/sub-grant",
   CREATE_SUBGRANT_ADVERT: "/dashboard/c-and-g/sub-grant/create-sub-grant",
-  SUBGRANT_ADVERT_DETAILS: "/dashboard/c-and-g/sub-grant/:id",
+  SUBGRANT_ADVERT_DETAILS: "/dashboard/c-and-g/sub-grant/awards/:id",
+  SUBGRANT_AWARD_DETAILS: "/dashboard/c-and-g/sub-grant/:id/details",
   SUBGRANT_CREATE_PRE_AWARD_ASSESSMENT:
     "/dashboard/c-and-g/sub-grant/:id/create-pre-award-assessment",
   CREATE_SUBGRANT_SUBMISSION_DETAILS:
@@ -458,7 +459,6 @@ export const CG_ROUTES = {
     "/dashboard/c-and-g/sub-grant/:subGrantId/submission/:partnerSubId/preaward-assessment",
 
   SUBGRANT_AWARD: "/dashboard/c-and-g/sub-grant/awards",
-  SUBGRANT_AWARD_DETAILS: "/dashboard/c-and-g/sub-grant/awards/:id",
   /* SUB GRANT */
 
   // close out

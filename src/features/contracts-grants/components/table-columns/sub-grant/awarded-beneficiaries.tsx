@@ -17,8 +17,14 @@ export const awardedBeneficiariesColumn: ColumnDef<ISubGrantSubmissionPaginatedD
 
     {
         header: "Donor",
-        id: "partner",
-        accessorKey: "partner",
+        id: "donor",
+        accessorFn: (row) => {
+            const subGrant = row.sub_grant;
+            if (typeof subGrant === 'object' && subGrant.project?.funding_sources) {
+                return subGrant.project.funding_sources[0]?.name || "N/A";
+            }
+            return "N/A";
+        },
         size: 200,
     },
 
@@ -38,28 +44,67 @@ export const awardedBeneficiariesColumn: ColumnDef<ISubGrantSubmissionPaginatedD
     {
         header: "Sub Grantee Name",
         id: "organisation_name",
-        accessorKey: "organisation_name",
+        accessorFn: (row) => {
+            // Check if there's awarded submission data
+            if (row.awarded_submission) {
+                return row.awarded_submission.organisation_name || "N/A";
+            }
+            // Check if there's award data with submission
+            if (row.award?.submission) {
+                const submission = row.award.submission;
+                return typeof submission === 'object' ? submission.organisation_name : "N/A";
+            }
+            // Fallback to direct field
+            return row.organisation_name || "N/A";
+        },
         size: 200,
     },
 
     {
         header: "Sub Grantee Address",
         id: "address",
-        accessorKey: "address",
+        accessorFn: (row) => {
+            if (row.awarded_submission) {
+                return row.awarded_submission.address || "N/A";
+            }
+            if (row.award?.submission) {
+                const submission = row.award.submission;
+                return typeof submission === 'object' ? submission.address : "N/A";
+            }
+            return row.address || "N/A";
+        },
         size: 200,
     },
 
     {
         header: "Sub Grantee Email",
         id: "email",
-        accessorKey: "email",
+        accessorFn: (row) => {
+            if (row.awarded_submission) {
+                return row.awarded_submission.email || "N/A";
+            }
+            if (row.award?.submission) {
+                const submission = row.award.submission;
+                return typeof submission === 'object' ? submission.email : "N/A";
+            }
+            return row.email || "N/A";
+        },
         size: 200,
     },
 
     {
         header: "Sub Grantee Phone Number",
         id: "phone_number",
-        accessorKey: "phone_number",
+        accessorFn: (row) => {
+            if (row.awarded_submission) {
+                return row.awarded_submission.phone_number || "N/A";
+            }
+            if (row.award?.submission) {
+                const submission = row.award.submission;
+                return typeof submission === 'object' ? submission.phone_number : "N/A";
+            }
+            return row.phone_number || "N/A";
+        },
         size: 200,
     },
 

@@ -5,15 +5,20 @@ import { TotalExpenditureSvg, TotalIncomeSvg } from "assets/svgs/CAndGSvgs";
 import DataTable from "components/Table/DataTable";
 import { expenditureColumns } from "@/features/contracts-grants/components/table-columns/grant/expenditure";
 import { ISubGrantSingleData } from "@/features/contracts-grants/types/contract-management/sub-grant/sub-grant";
-import { useParams } from "next/navigation";
 import { useGetAllSubGrantExpenditures } from "@/features/contracts-grants/controllers/subGrantExpenditureController";
-import { useGetAwardsBySubGrant } from "@/features/contracts-grants/controllers/subGrantAwardController";
 import { formatNumberCurrency } from "utils/utls";
 
-const SubGrantExpenditureHistory: React.FC<any> = ({
+interface SubGrantExpenditureHistoryProps {
+    subGrantId: string;
+    total_expenditure_amount?: string | number;
+    total_obligation_amount?: string | number;
+}
+
+const SubGrantExpenditureHistory: React.FC<SubGrantExpenditureHistoryProps> = ({
+    subGrantId,
     total_expenditure_amount,
     total_obligation_amount,
-}: ISubGrantSingleData) => {
+}) => {
     const StatsCard = useMemo(() => {
         // Calculate balance: Total Obligation - Total Expenditure
         let obligation = 0;
@@ -57,18 +62,11 @@ const SubGrantExpenditureHistory: React.FC<any> = ({
 
     const [page, setPage] = useState(1);
 
-    const { id } = useParams();
-    const subGrantId = typeof id === 'string' ? id : Array.isArray(id) ? id[0] : undefined;
-
-    // Get the award for this subgrant
-    const { data: awardData } = useGetAwardsBySubGrant(subGrantId || "", !!subGrantId);
-    const awardId = awardData?.data?.[0]?.id;
-
     const { data, isFetching, error } = useGetAllSubGrantExpenditures({
-        awardId: awardId || "",
+        subGrantId: subGrantId || "",
         page,
         size: 10,
-        enabled: !!awardId,
+        enabled: !!subGrantId,
     });
 
     return (

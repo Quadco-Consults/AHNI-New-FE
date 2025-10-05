@@ -35,20 +35,20 @@ interface PaginatedResponse<T> {
 
 // Filter parameters interface
 interface SubGrantExpenditureFilterParams {
-  subGrantId: string;
+  subGrantId: string;  // Changed from awardId to subGrantId
   page?: number;
   size?: number;
   search?: string;
   enabled?: boolean;
 }
 
-const BASE_URL = "/contract-grants/sub-grants/";
+const BASE_URL = "/contract-grants/sub-grants/";  // Changed from sub-grant-awards to sub-grants
 
 // ===== SUB-GRANT EXPENDITURE HOOKS =====
 
 // Get All Expenditures for a specific sub-grant
 export const useGetAllSubGrantExpenditures = ({
-  subGrantId,
+  subGrantId,  // Changed parameter name
   page = 1,
   size = 20,
   search = "",
@@ -59,7 +59,7 @@ export const useGetAllSubGrantExpenditures = ({
     queryFn: async () => {
       try {
         const response = await AxiosWithToken.get(
-          `${BASE_URL}${subGrantId}/expenditures/`,
+          `${BASE_URL}${subGrantId}/expenditures/`,  // Use subGrantId
           {
             params: {
               page,
@@ -74,19 +74,19 @@ export const useGetAllSubGrantExpenditures = ({
         throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
       }
     },
-    enabled: enabled && !!subGrantId,
+    enabled: enabled && !!subGrantId,  // Check subGrantId
     refetchOnWindowFocus: false,
   });
 };
 
 // Create Expenditure for a specific sub-grant
-export const useCreateSubGrantExpenditure = (subGrantId: string) => {
-  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+export const useCreateSubGrantExpenditure = (subGrantId: string) => {  // Changed parameter
+  const { callApi, isLoading, isSuccess, error, data} = useApiManager<
     IExpenditureSingleData,
     Error,
     TExpenditureFormData
   >({
-    endpoint: `${BASE_URL}${subGrantId}/expenditures/`,
+    endpoint: `${BASE_URL}${subGrantId}/expenditures/`,  // Use subGrantId
     queryKey: ["subGrantExpenditures", "subGrants"],
     isAuth: true,
     method: "POST",
@@ -105,7 +105,7 @@ export const useCreateSubGrantExpenditure = (subGrantId: string) => {
 
 // Update Expenditure for a specific sub-grant
 export const useUpdateSubGrantExpenditure = (
-  subGrantId: string,
+  subGrantId: string,  // Changed from awardId
   expenditureId: string
 ) => {
   const { callApi, isLoading, isSuccess, error, data } = useApiManager<
@@ -113,7 +113,7 @@ export const useUpdateSubGrantExpenditure = (
     Error,
     TExpenditureFormData
   >({
-    endpoint: `${BASE_URL}${subGrantId}/expenditures/${expenditureId}/`,
+    endpoint: `${BASE_URL}${subGrantId}/expenditures/${expenditureId}/`,  // Use subGrantId
     queryKey: ["subGrantExpenditures", "subGrants"],
     isAuth: true,
     method: "PUT",
@@ -132,7 +132,7 @@ export const useUpdateSubGrantExpenditure = (
 
 // Delete Expenditure for a specific sub-grant
 export const useDeleteSubGrantExpenditure = (
-  subGrantId: string,
+  subGrantId: string,  // Changed from awardId
   expenditureId: string
 ) => {
   const { callApi, isLoading, isSuccess, error, data } = useApiManager<
@@ -140,7 +140,7 @@ export const useDeleteSubGrantExpenditure = (
     Error,
     Record<string, never>
   >({
-    endpoint: `${BASE_URL}${subGrantId}/expenditures/${expenditureId}/`,
+    endpoint: `${BASE_URL}${subGrantId}/expenditures/${expenditureId}/`,  // Use subGrantId
     queryKey: ["subGrantExpenditures", "subGrants"],
     isAuth: true,
     method: "DELETE",

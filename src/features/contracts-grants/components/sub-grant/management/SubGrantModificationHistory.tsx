@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import DataTable from "components/Table/DataTable";
-import { useParams } from "next/navigation";
 import { formatNumberCurrency } from "utils/utls";
 import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "components/ui/button";
@@ -16,27 +15,37 @@ import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import { useAppDispatch } from "hooks/useStore";
 import { useGetAllSubGrantModifications } from "@/features/contracts-grants/controllers/subGrantModificationController";
-import { useGetAwardsBySubGrant } from "@/features/contracts-grants/controllers/subGrantAwardController";
-import { ISubGrantSingleData } from "@/features/contracts-grants/types/contract-management/sub-grant/sub-grant";
 
 interface ModificationData {
   id: string;
-  title: string;
-  amount: string;
-  description: string;
-  date: string;
+  modification_number: string;
+  modification_type: string;
+  reason: string;
+  amount_usd: string;
+  amount_ngn: string;
+  effective_date: string;
+  approval_date: string;
   created_datetime: string;
+}
+
+interface SubGrantModificationHistoryProps {
+  subGrantId: string;
 }
 
 const modificationColumns: ColumnDef<ModificationData>[] = [
   {
-    header: "Title",
-    accessorKey: "title",
-    size: 200,
+    header: "Modification #",
+    accessorKey: "modification_number",
+    size: 150,
   },
   {
-    header: "Amount",
-    accessorKey: "amount",
+    header: "Type",
+    accessorKey: "modification_type",
+    size: 150,
+  },
+  {
+    header: "Amount (USD)",
+    accessorKey: "amount_usd",
     cell: ({ getValue }) => {
       const value = getValue() as string;
       return formatNumberCurrency(value || "0", "USD");
@@ -44,25 +53,25 @@ const modificationColumns: ColumnDef<ModificationData>[] = [
     size: 150,
   },
   {
-    header: "Description",
-    accessorKey: "description",
+    header: "Reason",
+    accessorKey: "reason",
     size: 300,
   },
   {
-    header: "Date",
-    accessorKey: "date",
+    header: "Effective Date",
+    accessorKey: "effective_date",
     cell: ({ getValue }) => {
       const value = getValue() as string;
-      return new Date(value).toLocaleDateString("en-US");
+      return value ? new Date(value).toLocaleDateString("en-US") : "N/A";
     },
     size: 120,
   },
   {
-    header: "Created",
-    accessorKey: "created_datetime",
+    header: "Approval Date",
+    accessorKey: "approval_date",
     cell: ({ getValue }) => {
       const value = getValue() as string;
-      return new Date(value).toLocaleDateString("en-US");
+      return value ? new Date(value).toLocaleDateString("en-US") : "N/A";
     },
     size: 120,
   },
@@ -102,33 +111,32 @@ const ModificationTableMenu = (data: ModificationData) => {
     }
   };
 
-  // Don't render anything if there's no valid id
   if (!id) {
     return null;
   }
 
   return (
-    <div className='flex items-center gap-2'>
+    <div className="flex items-center gap-2">
       <Popover>
         <PopoverTrigger asChild>
-          <Button variant='ghost' className='flex gap-2 py-6'>
+          <Button variant="ghost" className="flex gap-2 py-6">
             <MoreOptionsHorizontalIcon />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className='w-fit'>
-          <div className='flex flex-col items-start justify-between gap-1'>
+        <PopoverContent className="w-fit">
+          <div className="flex flex-col items-start justify-between gap-1">
             <Button
               onClick={handleEdit}
-              className='w-full flex items-center justify-start gap-2'
-              variant='ghost'
+              className="w-full flex items-center justify-start gap-2"
+              variant="ghost"
             >
               <PencilIcon />
               Edit
             </Button>
 
             <Button
-              className='w-full flex items-center justify-start gap-2'
-              variant='ghost'
+              className="w-full flex items-center justify-start gap-2"
+              variant="ghost"
               onClick={() => setDeleteDialogOpen(true)}
             >
               <DeleteIcon />
@@ -140,7 +148,7 @@ const ModificationTableMenu = (data: ModificationData) => {
 
       <ConfirmationDialog
         open={isDeleteDialogOpen}
-        title='Are you sure you want to delete this modification?'
+        title="Are you sure you want to delete this modification?"
         loading={false}
         onCancel={() => setDeleteDialogOpen(false)}
         onOk={handleDelete}
@@ -149,21 +157,23 @@ const ModificationTableMenu = (data: ModificationData) => {
   );
 };
 
-const SubGrantModificationHistory: React.FC = () => {
+/**
+ * SubGrant Modification History Component
+ *
+ * Displays modifications for an awarded subgrant.
+ * Uses SubGrant ID directly (not award ID) because the backend
+ * endpoint is /sub-grants/{sub_grant_id}/modifications/
+ */
+const SubGrantModificationHistory: React.FC<SubGrantModificationHistoryProps> = ({
+  subGrantId,
+}) => {
   const [page, setPage] = useState(1);
 
-  const params = useParams();
-  const subGrantId = typeof params?.id === 'string' ? params.id : Array.isArray(params?.id) ? params.id[0] : undefined;
-
-  // Get the award for this subgrant
-  const { data: awardData } = useGetAwardsBySubGrant(subGrantId || "", !!subGrantId);
-  const awardId = awardData?.data?.[0]?.id;
-
   const { data, isFetching, error } = useGetAllSubGrantModifications({
-    awardId: awardId || "",
+    subGrantId: subGrantId,  // Use subGrantId, not awardId
     page,
     size: 10,
-    enabled: !!awardId
+    enabled: !!subGrantId,
   });
 
   return (
@@ -176,13 +186,17 @@ const SubGrantModificationHistory: React.FC = () => {
         {error && (
           <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
             <p className="text-red-800 font-medium">Error loading modification data:</p>
-            <p className="text-red-600 text-sm mt-1">{error.message}</p>
+            <p className="text-red-600 text-sm mt-1">
+              {(error as any)?.message || "Unknown error"}
+            </p>
           </div>
         )}
         {!subGrantId && (
           <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
             <p className="text-yellow-800 font-medium">No Sub-Grant ID found</p>
-            <p className="text-yellow-600 text-sm mt-1">Unable to load modification data without a valid sub-grant ID</p>
+            <p className="text-yellow-600 text-sm mt-1">
+              Unable to load modification data without a valid sub-grant ID
+            </p>
           </div>
         )}
 

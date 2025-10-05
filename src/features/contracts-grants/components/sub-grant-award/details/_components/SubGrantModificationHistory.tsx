@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import DataTable from "components/Table/DataTable";
-import { useParams } from "next/navigation";
 import { formatNumberCurrency } from "utils/utls";
 import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "components/ui/button";
@@ -16,7 +15,6 @@ import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import { useAppDispatch } from "hooks/useStore";
 import { useGetAllSubGrantModifications } from "@/features/contracts-grants/controllers/subGrantModificationController";
-import { useGetAwardsBySubGrant } from "@/features/contracts-grants/controllers/subGrantAwardController";
 import { ISubGrantSingleData } from "@/features/contracts-grants/types/contract-management/sub-grant/sub-grant";
 
 interface ModificationData {
@@ -149,21 +147,18 @@ const ModificationTableMenu = (data: ModificationData) => {
   );
 };
 
-const SubGrantModificationHistory: React.FC = () => {
+interface SubGrantModificationHistoryProps {
+  subGrantId: string;
+}
+
+const SubGrantModificationHistory: React.FC<SubGrantModificationHistoryProps> = ({ subGrantId }) => {
   const [page, setPage] = useState(1);
 
-  const params = useParams();
-  const subGrantId = typeof params?.id === 'string' ? params.id : Array.isArray(params?.id) ? params.id[0] : undefined;
-
-  // Get the award for this subgrant
-  const { data: awardData } = useGetAwardsBySubGrant(subGrantId || "", !!subGrantId);
-  const awardId = awardData?.data?.[0]?.id;
-
   const { data, isFetching, error } = useGetAllSubGrantModifications({
-    awardId: awardId || "",
+    subGrantId: subGrantId || "",
     page,
     size: 10,
-    enabled: !!awardId
+    enabled: !!subGrantId
   });
 
   return (
