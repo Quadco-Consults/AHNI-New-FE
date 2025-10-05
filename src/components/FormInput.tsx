@@ -56,7 +56,15 @@ const FormInput: FC<InputProps> = ({ name, label, disabled, ...rest }) => {
                   }
                   placeholder={rest.placeholder}
                   disabled={disabled}
-                  onChange={onChange}
+                  onChange={(e) => {
+                    // Convert to number for number inputs
+                    if (type === 'number') {
+                      const value = e.target.value === '' ? '' : parseFloat(e.target.value);
+                      onChange(value);
+                    } else {
+                      onChange(e);
+                    }
+                  }}
                   value={value || ""} // Ensure value is never undefined
                   className={cn(
                     "font-medium bg-[#F9F9F9] placeholder:text-black/30",

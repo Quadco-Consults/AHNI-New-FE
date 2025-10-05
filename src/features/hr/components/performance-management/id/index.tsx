@@ -19,8 +19,15 @@ const PerformanceDetails = () => {
 
   // Get current user ID
   useEffect(() => {
-    const userId = localStorage.getItem('user_id') || "";
-    setCurrentUserId(userId);
+    try {
+      const userString = localStorage.getItem('user');
+      const user = userString ? JSON.parse(userString) : null;
+      const userId = user?.id || "";
+      setCurrentUserId(userId);
+      console.log("Current User ID for evaluation:", userId);
+    } catch (error) {
+      console.error("Error parsing user data:", error);
+    }
   }, []);
 
   // Fetch assessment details

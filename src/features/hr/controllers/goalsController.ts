@@ -53,8 +53,8 @@ export interface CreateGoalPayload {
   narratives: Omit<GoalNarrative, 'id' | 'created_datetime' | 'updated_datetime'>[];
 }
 
-const BASE_URL = "hr/employees/goal/";
-const CREATE_GOALS_URL = "hr/employees/goal/";
+const BASE_URL = "hr/performance/goals/";
+const CREATE_GOALS_URL = "hr/performance/goals/";
 
 // Validation helper function
 export const validateGoalPayload = (payload: CreateGoalPayload): string[] => {

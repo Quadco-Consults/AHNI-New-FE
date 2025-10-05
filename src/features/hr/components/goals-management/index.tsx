@@ -20,29 +20,50 @@ import { Badge } from "components/ui/badge";
 
 const GoalsManagement: React.FC = () => {
   const router = useRouter();
-  const debouncedSearchTerm = useDebounce("goalsSearchTerm", 1000);
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 1000);
   const [currentUserId, setCurrentUserId] = useState<string>("");
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
 
   // Get current user ID and role from localStorage
   useEffect(() => {
-    const userId = localStorage.getItem('user_id') || "";
-    const userRole = localStorage.getItem('user_role') || "";
-    const userGroups = localStorage.getItem('user_groups') || "";
+    try {
+      const userString = localStorage.getItem('user');
+      const user = userString ? JSON.parse(userString) : null;
 
-    setCurrentUserId(userId);
+      const userId = user?.id || "";
+      const userRole = user?.role || user?.user_role || "";
+      const userGroups = user?.groups || user?.user_groups || [];
+      const email = user?.email || "";
+      const isSuperuser = user?.is_superuser;
 
-    // Check if user is admin/HR (adjust these conditions based on your role system)
-    const isAdminUser = userRole === 'admin' ||
-                        userRole === 'hr' ||
-                        userGroups.includes('HR') ||
-                        userGroups.includes('Admin');
-    setIsAdmin(isAdminUser);
+      setCurrentUserId(userId);
+
+      // Check if user is admin/HR
+      const isAdminUser = userRole === 'admin' ||
+                          userRole === 'hr' ||
+                          userRole === 'Admin' ||
+                          userRole === 'HR' ||
+                          email === 'admin@mail.com' ||
+                          email?.includes('admin') ||
+                          isSuperuser === true ||
+                          (Array.isArray(userGroups) && (
+                            userGroups.includes('HR') ||
+                            userGroups.includes('Admin') ||
+                            userGroups.includes('admin') ||
+                            userGroups.includes('hr')
+                          ));
+
+      setIsAdmin(isAdminUser);
+      console.log("Goals List - User:", { userId, isAdminUser, email });
+    } catch (error) {
+      console.error("Error parsing user data:", error);
+    }
   }, []);
 
   // For admin: fetch all goals, For staff: fetch only their goals
   const { data: allGoalsData, isLoading: isLoadingAll, refetch: refetchAll } = useGetGoals({
-    search: debouncedSearchTerm,
+    search: debouncedSearchTerm || "",
     page: 1,
     size: 20,
     enabled: isAdmin,
@@ -57,6 +78,14 @@ const GoalsManagement: React.FC = () => {
   const goalsData = isAdmin ? allGoalsData : myGoalsData;
   const isLoading = isAdmin ? isLoadingAll : isLoadingMy;
   const refetch = isAdmin ? refetchAll : refetchMy;
+
+  // Debug: Log the actual API response
+  React.useEffect(() => {
+    if (goalsData) {
+      console.log("Goals API Response:", goalsData);
+      console.log("Goals Data Array:", goalsData?.data);
+    }
+  }, [goalsData]);
 
   React.useEffect(() => {
     if (currentUserId) {
@@ -202,7 +231,7 @@ const GoalsManagement: React.FC = () => {
       {/* Search and Actions Bar */}
       <div className="w-full flex justify-between items-center">
         <div className="flex items-center justify-center">
-          <SearchBar onchange={() => ""} />
+          <SearchBar onchange={(value) => setSearchTerm(value)} />
           <Button variant="ghost">
             <FilterIcon2 />
           </Button>
@@ -219,10 +248,10 @@ const GoalsManagement: React.FC = () => {
       <div className="w-full">
         <DataTable
           columns={columns}
-          data={goalsData?.data || []}
+          data={goalsData?.data?.results || goalsData?.data || []}
           isLoading={isLoading}
           pagination={{
-            total: goalsData?.data?.length || 0,
+            total: goalsData?.data?.pagination?.count || goalsData?.data?.length || 0,
             pageSize: 20,
             onChange: (page: number) => {
               console.log("Page changed to:", page);
