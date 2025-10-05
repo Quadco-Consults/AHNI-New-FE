@@ -22,8 +22,8 @@ const GrantDetails: React.FC = () => {
   const [tabValue, setTabValue] = useState("details");
 
   const { id } = useParams();
-  const grantId = typeof id === 'string' ? id : Array.isArray(id) ? id[0] : undefined;
-  
+  const grantId =
+    typeof id === "string" ? id : Array.isArray(id) ? id[0] : undefined;
 
   const { data, isLoading } = useGetSingleProject(id ?? skipToken);
 
@@ -32,46 +32,49 @@ const GrantDetails: React.FC = () => {
   const dispatch = useAppDispatch();
 
   return (
-    <section className='space-y-5'>
-      <div className='flex items-center justify-between'>
+    <section className="space-y-5">
+      <div className="flex items-center justify-between">
         <BackNavigation />
 
-        {(tabValue === "expenditure" || tabValue === "obligation" || tabValue === "modifications") && grantId && (
-          <Button
-            className='flex gap-2 py-6'
-            type='button'
-            onClick={() => {
-              dispatch(
-                openDialog({
-                  type:
-                    tabValue === "expenditure"
-                      ? DialogType.ExpenditureModal
-                      : tabValue === "obligation"
-                      ? DialogType.ADD_OBLIGATION_MODAL
-                      : DialogType.MODIFY_GRANT,
-                  dialogProps: {
-                    header:
+        {(tabValue === "expenditure" ||
+          tabValue === "obligation" ||
+          tabValue === "modifications") &&
+          grantId && (
+            <Button
+              className="flex gap-2 py-6"
+              type="button"
+              onClick={() => {
+                dispatch(
+                  openDialog({
+                    type:
                       tabValue === "expenditure"
-                        ? "Add Expenditure"
+                        ? DialogType.ExpenditureModal
                         : tabValue === "obligation"
-                        ? "Add Obligation"
-                        : "Add Modification",
-                    width: "max-w-lg",
-                    grantId: grantId,
-                    data: { id: grantId, title: data?.data?.title },
-                  },
-                })
-              );
-            }}
-          >
-            <AddSquareIcon />
-            {tabValue === "expenditure" 
-              ? "Add Expenditure" 
-              : tabValue === "obligation" 
-              ? "Add Obligation"
-              : "Add Modification"}
-          </Button>
-        )}
+                        ? DialogType.ADD_OBLIGATION_MODAL
+                        : DialogType.MODIFY_GRANT,
+                    dialogProps: {
+                      header:
+                        tabValue === "expenditure"
+                          ? "Add Expenditure"
+                          : tabValue === "obligation"
+                          ? "Add Obligation"
+                          : "Add Modification",
+                      width: "max-w-lg",
+                      grantId: grantId,
+                      data: { id: grantId, title: data?.data?.title },
+                    },
+                  })
+                );
+              }}
+            >
+              <AddSquareIcon />
+              {tabValue === "expenditure"
+                ? "Add Expenditure"
+                : tabValue === "obligation"
+                ? "Add Obligation"
+                : "Add Modification"}
+            </Button>
+          )}
       </div>
 
       {isLoading ? (
@@ -81,31 +84,31 @@ const GrantDetails: React.FC = () => {
           defaultValue={tabValue}
           value={tabValue}
           onValueChange={(value) => setTabValue(value)}
-          className='space-y-5'
+          className="space-y-5"
         >
-          <TabsList className='ml-10'>
-            <TabsTrigger value='details'>Details</TabsTrigger>
+          <TabsList className="ml-10">
+            <TabsTrigger value="details">Details</TabsTrigger>
 
-            <TabsTrigger value='expenditure'>Expenditure History</TabsTrigger>
+            <TabsTrigger value="expenditure">Expenditure History</TabsTrigger>
 
-            <TabsTrigger value='obligation'>Obligations</TabsTrigger>
+            <TabsTrigger value="obligation">Obligations</TabsTrigger>
 
-            <TabsTrigger value='modifications'>Modifications</TabsTrigger>
+            <TabsTrigger value="modifications">Modifications</TabsTrigger>
           </TabsList>
 
-          <TabsContent value='details'>
+          <TabsContent value="details">
             {data && <GrantDetailsCard {...data?.data} />}
           </TabsContent>
 
-          <TabsContent value='expenditure'>
+          <TabsContent value="expenditure">
             {data && <ExpenditureHistory {...data?.data} />}
           </TabsContent>
 
-          <TabsContent value='obligation'>
+          <TabsContent value="obligation">
             {data && <ObligationHistory {...data?.data} />}
           </TabsContent>
 
-          <TabsContent value='modifications'>
+          <TabsContent value="modifications">
             <ModificationHistory />
           </TabsContent>
         </Tabs>
