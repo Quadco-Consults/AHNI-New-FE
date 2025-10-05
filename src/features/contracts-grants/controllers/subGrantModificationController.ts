@@ -35,20 +35,20 @@ interface PaginatedResponse<T> {
 
 // Filter parameters interface
 interface SubGrantModificationFilterParams {
-  subGrantId: string;
+  subGrantId: string;  // Changed from awardId to subGrantId
   page?: number;
   size?: number;
   search?: string;
   enabled?: boolean;
 }
 
-const BASE_URL = "/contract-grants/sub-grants/";
+const BASE_URL = "/contract-grants/sub-grants/";  // Changed from sub-grant-awards to sub-grants
 
 // ===== SUB-GRANT MODIFICATION HOOKS =====
 
 // Get All Modifications for a specific sub-grant
 export const useGetAllSubGrantModifications = ({
-  subGrantId,
+  subGrantId,  // Changed parameter name
   page = 1,
   size = 20,
   search = "",
@@ -59,7 +59,7 @@ export const useGetAllSubGrantModifications = ({
     queryFn: async () => {
       try {
         const response = await AxiosWithToken.get(
-          `${BASE_URL}${subGrantId}/modifications/`,
+          `${BASE_URL}${subGrantId}/modifications/`,  // Use subGrantId
           {
             params: {
               page,
@@ -74,19 +74,19 @@ export const useGetAllSubGrantModifications = ({
         throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
       }
     },
-    enabled: enabled && !!subGrantId,
+    enabled: enabled && !!subGrantId,  // Check subGrantId
     refetchOnWindowFocus: false,
   });
 };
 
 // Create Modification for a specific sub-grant
-export const useCreateSubGrantModification = (subGrantId: string) => {
+export const useCreateSubGrantModification = (subGrantId: string) => {  // Changed parameter
   const { callApi, isLoading, isSuccess, error, data } = useApiManager<
     IModificationSingleData,
     Error,
     TModificationFormData
   >({
-    endpoint: `${BASE_URL}${subGrantId}/modifications/`,
+    endpoint: `${BASE_URL}${subGrantId}/modifications/`,  // Use subGrantId
     queryKey: ["subGrantModifications", "subGrants"],
     isAuth: true,
     method: "POST",
@@ -105,7 +105,7 @@ export const useCreateSubGrantModification = (subGrantId: string) => {
 
 // Update Modification for a specific sub-grant
 export const useUpdateSubGrantModification = (
-  subGrantId: string,
+  subGrantId: string,  // Changed from awardId
   modificationId: string
 ) => {
   const { callApi, isLoading, isSuccess, error, data } = useApiManager<
@@ -113,7 +113,7 @@ export const useUpdateSubGrantModification = (
     Error,
     TModificationFormData
   >({
-    endpoint: `${BASE_URL}${subGrantId}/modifications/${modificationId}/`,
+    endpoint: `${BASE_URL}${subGrantId}/modifications/${modificationId}/`,  // Use subGrantId
     queryKey: ["subGrantModifications", "subGrants"],
     isAuth: true,
     method: "PUT",
@@ -132,7 +132,7 @@ export const useUpdateSubGrantModification = (
 
 // Delete Modification for a specific sub-grant
 export const useDeleteSubGrantModification = (
-  subGrantId: string,
+  subGrantId: string,  // Changed from awardId
   modificationId: string
 ) => {
   const { callApi, isLoading, isSuccess, error, data } = useApiManager<
@@ -140,7 +140,7 @@ export const useDeleteSubGrantModification = (
     Error,
     Record<string, never>
   >({
-    endpoint: `${BASE_URL}${subGrantId}/modifications/${modificationId}/`,
+    endpoint: `${BASE_URL}${subGrantId}/modifications/${modificationId}/`,  // Use subGrantId
     queryKey: ["subGrantModifications", "subGrants"],
     isAuth: true,
     method: "DELETE",

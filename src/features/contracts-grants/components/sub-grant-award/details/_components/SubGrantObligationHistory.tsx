@@ -2,17 +2,23 @@ import React, { useMemo, useState } from "react";
 import { TotalExpenditureSvg, TotalIncomeSvg } from "assets/svgs/CAndGSvgs";
 import DataTable from "components/Table/DataTable";
 import { ISubGrantSingleData } from "@/features/contracts-grants/types/contract-management/sub-grant/sub-grant";
-import { useParams } from "next/navigation";
 import { obligationColumns } from "@/features/contracts-grants/components/table-columns/grant/obligation";
 import { useGetAllSubGrantObligations } from "@/features/contracts-grants/controllers/subGrantObligationController";
-import { useGetAwardsBySubGrant } from "@/features/contracts-grants/controllers/subGrantAwardController";
 import { formatNumberCurrency } from "utils/utls";
 
-const SubGrantObligationHistory: React.FC<any> = ({
+interface SubGrantObligationHistoryProps {
+  subGrantId: string;
+  total_obligation_amount?: string | number;
+  current_month_obligation_amount?: string | number;
+  remaining_award_amount?: string | number;
+}
+
+const SubGrantObligationHistory: React.FC<SubGrantObligationHistoryProps> = ({
+  subGrantId,
   total_obligation_amount,
   current_month_obligation_amount,
   remaining_award_amount,
-}: ISubGrantSingleData) => {
+}) => {
   const StatsCard = useMemo(() => {
     return [
       {
@@ -48,18 +54,11 @@ const SubGrantObligationHistory: React.FC<any> = ({
 
   const [page, setPage] = useState(1);
 
-  const { id } = useParams();
-  const subGrantId = typeof id === 'string' ? id : Array.isArray(id) ? id[0] : undefined;
-
-  // Get the award for this subgrant
-  const { data: awardData } = useGetAwardsBySubGrant(subGrantId || "", !!subGrantId);
-  const awardId = awardData?.data?.[0]?.id;
-
   const { data, isFetching } = useGetAllSubGrantObligations({
-    awardId: awardId || "",
+    subGrantId: subGrantId || "",
     page,
     size: 10,
-    enabled: !!awardId,
+    enabled: !!subGrantId,
   });
 
   return (

@@ -271,3 +271,153 @@ export const useModifyContractStatusMutation = useUpdateContractStatus;
 // Missing named exports
 export const useModifyContractStatus = useUpdateContractStatus;
 export const useModifyContractRequest = useUpdateContractRequest;
+
+// ===== APPROVAL WORKFLOW HOOKS =====
+
+// Submit Contract Request (DRAFT → SUBMITTED)
+export const useSubmitContractRequest = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    IContractRequestSingleData,
+    Error,
+    Record<string, never>
+  >({
+    endpoint: `${BASE_URL}${id}/submit/`,
+    queryKey: ["contractRequests", "contractRequest"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const submitContractRequest = async () => {
+    try {
+      await callApi({} as Record<string, never>);
+    } catch (error) {
+      console.error("Contract request submit error:", error);
+    }
+  };
+
+  return { submitContractRequest, data, isLoading, isSuccess, error };
+};
+
+// Review Contract Request (SUBMITTED → UNDER_REVIEW)
+export const useReviewContractRequest = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    IContractRequestSingleData,
+    Error,
+    Record<string, never>
+  >({
+    endpoint: `${BASE_URL}${id}/review/`,
+    queryKey: ["contractRequests", "contractRequest"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const reviewContractRequest = async () => {
+    try {
+      await callApi({} as Record<string, never>);
+    } catch (error) {
+      console.error("Contract request review error:", error);
+    }
+  };
+
+  return { reviewContractRequest, data, isLoading, isSuccess, error };
+};
+
+// Complete Review of Contract Request (UNDER_REVIEW → REVIEWED)
+export const useCompleteReviewContractRequest = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    IContractRequestSingleData,
+    Error,
+    Record<string, never>
+  >({
+    endpoint: `${BASE_URL}${id}/complete_review/`,
+    queryKey: ["contractRequests", "contractRequest"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const completeReviewContractRequest = async () => {
+    try {
+      await callApi({} as Record<string, never>);
+    } catch (error) {
+      console.error("Contract request complete review error:", error);
+    }
+  };
+
+  return { completeReviewContractRequest, data, isLoading, isSuccess, error };
+};
+
+// Authorize Contract Request (REVIEWED → AUTHORIZED)
+export const useAuthorizeContractRequest = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    IContractRequestSingleData,
+    Error,
+    Record<string, never>
+  >({
+    endpoint: `${BASE_URL}${id}/authorize/`,
+    queryKey: ["contractRequests", "contractRequest"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const authorizeContractRequest = async () => {
+    try {
+      await callApi({} as Record<string, never>);
+    } catch (error) {
+      console.error("Contract request authorize error:", error);
+    }
+  };
+
+  return { authorizeContractRequest, data, isLoading, isSuccess, error };
+};
+
+// Approve Contract Request (AUTHORIZED → APPROVED)
+export const useApproveContractRequest = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    IContractRequestSingleData,
+    Error,
+    Record<string, never>
+  >({
+    endpoint: `${BASE_URL}${id}/approve/`,
+    queryKey: ["contractRequests", "contractRequest"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const approveContractRequest = async () => {
+    try {
+      await callApi({} as Record<string, never>);
+    } catch (error) {
+      console.error("Contract request approve error:", error);
+    }
+  };
+
+  return { approveContractRequest, data, isLoading, isSuccess, error };
+};
+
+// Reject Contract Request (ANY → REJECTED) - Requires comment
+interface RejectContractRequestPayload {
+  comment: string;
+}
+
+export const useRejectContractRequest = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    IContractRequestSingleData,
+    Error,
+    RejectContractRequestPayload
+  >({
+    endpoint: `${BASE_URL}${id}/reject/`,
+    queryKey: ["contractRequests", "contractRequest"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const rejectContractRequest = async (comment: string) => {
+    try {
+      await callApi({ comment });
+    } catch (error) {
+      console.error("Contract request reject error:", error);
+    }
+  };
+
+  return { rejectContractRequest, data, isLoading, isSuccess, error };
+};

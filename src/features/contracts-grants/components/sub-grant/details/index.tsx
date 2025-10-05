@@ -8,33 +8,21 @@ import SubGrantAwardDetails from "./SubGrantAwardDetails";
 import SubGrantSubmissionDetails from "./submission";
 import ShortlistedSubmissionsList from "./shortlisted";
 import AssessmentResults from "./assessment-results";
-import SubGrantExpenditureHistory from "./_components/SubGrantExpenditureHistory";
-import SubGrantObligationHistory from "./_components/SubGrantObligationHistory";
-import SubGrantModificationHistory from "./_components/SubGrantModificationHistory";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
 import { useGetSingleSubGrant } from "@/features/contracts-grants/controllers/subGrantController";
-import { useGetAwardsBySubGrant } from "@/features/contracts-grants/controllers/subGrantAwardController";
 import { skipToken } from "@reduxjs/toolkit/query";
 import { LoadingSpinner } from "components/Loading";
 import { useState } from "react";
-import { openDialog } from "store/ui";
-import { DialogType } from "constants/dailogs";
-import { useAppDispatch } from "hooks/useStore";
 
 const SubGrantDetails = () => {
     const [tabValue, setTabValue] = useState("details");
 
     const params = useParams();
     const id = params?.id as string;
-    const dispatch = useAppDispatch();
 
     const { data, isLoading } = useGetSingleSubGrant(id ?? skipToken);
-
-    // Get the award for this subgrant
-    const { data: awardData } = useGetAwardsBySubGrant(id || "", !!id);
-    const awardId = awardData?.data?.[0]?.id;
 
     if (isLoading) {
         return <LoadingSpinner />;
@@ -86,46 +74,6 @@ const SubGrantDetails = () => {
                         </Link>
                     </div>
                 )}
-
-                {(tabValue === "expenditure" ||
-                    tabValue === "obligation" ||
-                    tabValue === "modifications") &&
-                    awardId && (
-                        <Button
-                            className="flex gap-2 py-6"
-                            type="button"
-                            onClick={() => {
-                                dispatch(
-                                    openDialog({
-                                        type:
-                                            tabValue === "expenditure"
-                                                ? DialogType.ExpenditureModal
-                                                : tabValue === "obligation"
-                                                ? DialogType.ADD_SUBGRANT_OBLIGATION_MODAL
-                                                : DialogType.MODIFY_SUBGRANT,
-                                        dialogProps: {
-                                            header:
-                                                tabValue === "expenditure"
-                                                    ? "Add Expenditure"
-                                                    : tabValue === "obligation"
-                                                    ? "Add Obligation"
-                                                    : "Add Modification",
-                                            width: "max-w-lg",
-                                            awardId: awardId,
-                                            data: { id: awardId, title: data?.data?.title },
-                                        },
-                                    })
-                                );
-                            }}
-                        >
-                            <AddSquareIcon />
-                            {tabValue === "expenditure"
-                                ? "Add Expenditure"
-                                : tabValue === "obligation"
-                                ? "Add Obligation"
-                                : "Add Modification"}
-                        </Button>
-                    )}
             </div>
 
             {isLoading ? (
@@ -145,12 +93,6 @@ const SubGrantDetails = () => {
                         <TabsTrigger value="shortlisted">Shortlisted Sub-Grantees</TabsTrigger>
 
                         <TabsTrigger value="assessment-results">Assessment Results</TabsTrigger>
-
-                        <TabsTrigger value="expenditure">Expenditure History</TabsTrigger>
-
-                        <TabsTrigger value="obligation">Obligations</TabsTrigger>
-
-                        <TabsTrigger value="modifications">Modifications</TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="details">
@@ -167,18 +109,6 @@ const SubGrantDetails = () => {
 
                     <TabsContent value="assessment-results">
                         <AssessmentResults />
-                    </TabsContent>
-
-                    <TabsContent value="expenditure">
-                        {data && <SubGrantExpenditureHistory {...data?.data} />}
-                    </TabsContent>
-
-                    <TabsContent value="obligation">
-                        {data && <SubGrantObligationHistory {...data?.data} />}
-                    </TabsContent>
-
-                    <TabsContent value="modifications">
-                        <SubGrantModificationHistory />
                     </TabsContent>
                 </Tabs>
             )}

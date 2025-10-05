@@ -1,5 +1,5 @@
-import SubGrantAwardsDetail from "@/features/contracts-grants/components/sub-grant/awards/id/index";
+import SubGrantDetails from "@/features/contracts-grants/components/sub-grant/details/index";
 
-export default function SubGrantAwardsDetailPage() {
-  return <SubGrantAwardsDetail />;
+export default function SubGrantAdvertDetailsPage() {
+  return <SubGrantDetails />;
 }
