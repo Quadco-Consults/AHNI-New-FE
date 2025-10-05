@@ -1,23 +1,17 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { Button } from "components/ui/button";
-import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
-import DeleteIcon from "components/icons/DeleteIcon";
-import { useState } from "react";
-import Link from "next/link";
-import EyeIcon from "components/icons/EyeIcon";
-import { toast } from "sonner";
-import { useDeleteSubGrantManualSub } from "@/features/contracts-grants/controllers/submissionController";
-import ConfirmationDialog from "components/ConfirmationDialog";
-import { ISubGrantSubmissionPaginatedData } from "@/features/contracts-grants/types/contract-management/sub-grant/submission";
+import { ISubGrantSubmissionPaginatedData } from "@/features/contracts-grants/types/contract-management/sub-grant/sub-grant";
+import { formatNumberCurrency } from "utils/utls";
 
 export const awardedBeneficiariesColumn: ColumnDef<ISubGrantSubmissionPaginatedData>[] = [
     {
         header: "Grant Name",
         id: "sub_grant",
-        accessorKey: "sub_grant",
+        accessorFn: (row) => {
+            const subGrant = row.sub_grant;
+            return typeof subGrant === 'object' ? subGrant.title : subGrant;
+        },
         size: 200,
     },
 
@@ -31,7 +25,13 @@ export const awardedBeneficiariesColumn: ColumnDef<ISubGrantSubmissionPaginatedD
     {
         header: "Project",
         id: "project",
-        accessorFn: () => "N/A", // Not available in submission data
+        accessorFn: (row) => {
+            const subGrant = row.sub_grant;
+            if (typeof subGrant === 'object' && subGrant.project) {
+                return subGrant.project?.title || "N/A";
+            }
+            return "N/A";
+        },
         size: 200,
     },
 
@@ -66,96 +66,46 @@ export const awardedBeneficiariesColumn: ColumnDef<ISubGrantSubmissionPaginatedD
     {
         header: "Subaward Life of Project Value (USD)",
         id: "award_usd",
-        accessorFn: () => "N/A", // Award amounts not in submission, need to fetch from awards table
+        accessorFn: (row) => {
+            const subGrant = row.sub_grant;
+            if (typeof subGrant === 'object' && subGrant.amount_usd) {
+                return formatNumberCurrency(subGrant.amount_usd, "USD");
+            }
+            return "N/A";
+        },
         size: 200,
     },
 
     {
         header: "Subaward Life of Project Value (Local Currency)",
         id: "award_ngn",
-        accessorFn: () => "N/A", // Award amounts not in submission, need to fetch from awards table
+        accessorFn: (row) => {
+            const subGrant = row.sub_grant;
+            if (typeof subGrant === 'object' && subGrant.amount_ngn) {
+                return formatNumberCurrency(subGrant.amount_ngn, "NGN");
+            }
+            return "N/A";
+        },
         size: 200,
     },
 
     {
         header: "Start Date",
         id: "start_date",
-        accessorFn: () => "N/A", // Award dates not in submission, need to fetch from awards table
+        accessorFn: (row) => {
+            const subGrant = row.sub_grant;
+            return typeof subGrant === 'object' ? (subGrant.start_date || "N/A") : "N/A";
+        },
         size: 200,
     },
 
     {
         header: "End Date",
         id: "end_date",
-        accessorFn: () => "N/A", // Award dates not in submission, need to fetch from awards table
+        accessorFn: (row) => {
+            const subGrant = row.sub_grant;
+            return typeof subGrant === 'object' ? (subGrant.end_date || "N/A") : "N/A";
+        },
         size: 200,
     },
-
-    {
-        header: "",
-        id: "actions",
-        size: 50,
-        cell: ({ row }) => <TableMenu {...row.original} />,
-    },
 ];
-
-const TableMenu = ({ id, sub_grant_id }: ISubGrantSubmissionPaginatedData) => {
-    const [isDialogOpen, setDialogOpen] = useState(false);
-
-    const { deleteSubGrantSubmission, isLoading: isDeleteLoading } = useDeleteSubGrantManualSub(id);
-
-    const handleDelete = async () => {
-        try {
-            await deleteSubGrantSubmission();
-            toast.success("Submission Deleted");
-            setDialogOpen(false);
-        } catch (error: any) {
-            toast.error(error?.message ?? "Something went wrong");
-        }
-    };
-
-    return (
-        <div className="flex items-center gap-2">
-            <>
-                <Popover>
-                    <PopoverTrigger asChild>
-                        <Button variant="ghost" className="flex gap-2 py-6">
-                            <MoreOptionsHorizontalIcon />
-                        </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-fit">
-                        <Link
-                            className="w-full"
-                            href={`/dashboard/c-and-g/sub-grant/awards/${sub_grant_id || ''}`}
-                        >
-                            <Button
-                                className="w-full flex items-center justify-start gap-2"
-                                variant="ghost"
-                            >
-                                <EyeIcon />
-                                View Sub-Grant
-                            </Button>
-                        </Link>
-
-                        <Button
-                            className="w-full flex items-center justify-start gap-2"
-                            variant="ghost"
-                            onClick={() => setDialogOpen(true)}
-                        >
-                            <DeleteIcon />
-                            Delete Submission
-                        </Button>
-                    </PopoverContent>
-                </Popover>
-            </>
-
-            <ConfirmationDialog
-                open={isDialogOpen}
-                title="Are you sure you want to delete this submission?"
-                loading={isDeleteLoading}
-                onCancel={() => setDialogOpen(false)}
-                onOk={handleDelete}
-            />
-        </div>
-    );
-};
