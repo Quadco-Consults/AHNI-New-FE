@@ -45,6 +45,7 @@ interface SubGrantUploadFilterParams {
   page?: number;
   size?: number;
   search?: string;
+  sub_grant_submission?: string;
   enabled?: boolean;
 }
 
@@ -57,10 +58,11 @@ export const useGetAllSubGrantUploads = ({
   page = 1,
   size = 20,
   search = "",
+  sub_grant_submission = "",
   enabled = true,
 }: SubGrantUploadFilterParams) => {
   return useQuery<PaginatedResponse<ISubGrantUploadData>>({
-    queryKey: ["subGrantUploads", page, size, search],
+    queryKey: ["subGrantUploads", page, size, search, sub_grant_submission],
     queryFn: async () => {
       try {
         const response = await AxiosWithToken.get(BASE_URL, {
@@ -68,6 +70,7 @@ export const useGetAllSubGrantUploads = ({
             page,
             size,
             ...(search && { search }),
+            ...(sub_grant_submission && { sub_grant_submission }),
           },
         });
         return response.data;
@@ -86,19 +89,21 @@ export const useCreateSubGrantUpload = () => {
   const { callApi, isLoading, isSuccess, error, data } = useApiManager<
     ISubGrantUploadData,
     Error,
-    TSubGrantUploadCreateFormData
+    FormData
   >({
     endpoint: BASE_URL,
     queryKey: ["subGrantUploads"],
     isAuth: true,
     method: "POST",
+    contentType: null, // Let browser set Content-Type for FormData
   });
 
-  const createSubGrantUpload = async (details: TSubGrantUploadCreateFormData) => {
+  const createSubGrantUpload = async (formData: FormData) => {
     try {
-      await callApi(details);
+      return await callApi(formData);
     } catch (error) {
       console.error("Sub grant upload create error:", error);
+      throw error;
     }
   };
 

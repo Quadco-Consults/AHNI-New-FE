@@ -3,8 +3,8 @@
 import { Loading } from "@/components/Loading";
 import dynamic from "next/dynamic";
 
-const AssignLeaveForm = dynamic(
-  () => import("@/features/hr/components/leave-management/AssignLeaveForm"),
+const AssignLeaveDashboard = dynamic(
+  () => import("@/features/hr/components/leave-management/AssignLeaveDashboard"),
   {
     ssr: false,
     loading: () => <Loading />,
@@ -12,5 +12,5 @@ const AssignLeaveForm = dynamic(
 );
 
 export default function AssignLeavePage() {
-  return <AssignLeaveForm />;
+  return <AssignLeaveDashboard />;
 }

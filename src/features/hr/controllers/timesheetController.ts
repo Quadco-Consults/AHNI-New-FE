@@ -15,7 +15,8 @@ import type {
 } from "@/features/hr/types/timesheet";
 
 // Backend API base URL (matches backend documentation)
-const BASE_URL = "/hr/time-sheet/time-sheet/";
+// Note: No leading slash because baseURL already has trailing slash
+const BASE_URL = "hr/time-sheet/time-sheet/";
 
 // API Response interface
 interface ApiResponse<TData = unknown> {
@@ -136,7 +137,8 @@ export const useCreateTimesheet = () => {
 
   const createTimesheet = async (details: CreateTimesheetRequest) => {
     try {
-      await callApi(details);
+      const response = await callApi(details);
+      return response;
     } catch (error) {
       console.error("Timesheet create error:", error);
       throw error;
@@ -148,18 +150,23 @@ export const useCreateTimesheet = () => {
 
 // Update Timesheet
 export const useUpdateTimesheet = (id: string) => {
+  // Use placeholder for hook initialization to avoid invalid endpoint
+  const safeId = id || "placeholder";
   const { callApi, isLoading, isSuccess, error, data } = useApiManager<
     ApiResponse<Timesheet>,
     Error,
     UpdateTimesheetRequest
   >({
-    endpoint: `${BASE_URL}${id}/`,
+    endpoint: `${BASE_URL}${safeId}/`,
     queryKey: ["timesheets", id],
     isAuth: true,
     method: "PATCH",
   });
 
   const updateTimesheet = async (details: UpdateTimesheetRequest) => {
+    if (!id || id === "create" || id === "") {
+      throw new Error("Cannot update a timesheet that hasn't been created yet");
+    }
     try {
       await callApi(details);
     } catch (error) {
@@ -178,13 +185,16 @@ export const useSubmitTimesheet = (id: string) => {
     Error,
     SubmitTimesheetRequest
   >({
-    endpoint: `${BASE_URL}${id}/submit/`,
+    endpoint: `${BASE_URL}${id || 'placeholder'}/submit/`,
     queryKey: ["timesheets", id],
     isAuth: true,
     method: "POST",
   });
 
   const submitTimesheet = async (approver_id?: string) => {
+    if (!id || id === "create" || id === "") {
+      throw new Error("Please save the timesheet first before submitting");
+    }
     try {
       await callApi(approver_id ? { approver_id } : {});
     } catch (error) {
@@ -278,13 +288,16 @@ export const useValidateTimesheet = (id: string) => {
     Error,
     Record<string, never>
   >({
-    endpoint: `${BASE_URL}${id}/validate/`,
+    endpoint: `${BASE_URL}${id || 'placeholder'}/validate/`,
     queryKey: ["timesheet-validate", id],
     isAuth: true,
     method: "POST",
   });
 
   const validateTimesheet = async () => {
+    if (!id || id === "create" || id === "") {
+      throw new Error("Please save the timesheet first before validating");
+    }
     try {
       await callApi({} as Record<string, never>);
       return data;

@@ -27,6 +27,13 @@ export const closeOutPlanColumns: ColumnDef<ICloseOutPlanPaginatedData>[] = [
         id: "project",
         accessorKey: "project",
         size: 250,
+        cell: ({ row }) => {
+            const project = row.original.project;
+            if (typeof project === 'object' && project?.title) {
+                return <span>{project.title}</span>;
+            }
+            return <span>{typeof project === 'string' ? project : '-'}</span>;
+        },
     },
 
     {
@@ -35,8 +42,8 @@ export const closeOutPlanColumns: ColumnDef<ICloseOutPlanPaginatedData>[] = [
         accessorKey: "project",
         size: 250,
         cell: ({ row }) => {
-            const project = row.original.project as any;
-            if (typeof project === 'object' && project?.funding_sources) {
+            const project = row.original.project;
+            if (typeof project === 'object' && project?.funding_sources && project.funding_sources.length > 0) {
                 return (
                     <div className='flex gap-2 flex-wrap'>
                         {project.funding_sources.map((source: any) => (

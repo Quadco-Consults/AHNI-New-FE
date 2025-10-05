@@ -110,47 +110,75 @@ const Goals = () => {
       </div>
 
       <div className="grid gap-4">
-        {goals.map((goal: StoredGoal) => (
-          <Card key={goal.id} className="relative">
-            <CardHeader className="pb-3">
-              <div className="flex justify-between items-start">
-                <CardTitle className="text-base font-medium pr-8">
-                  {goal.goal}
-                </CardTitle>
-                <div className="flex gap-2">
-                  <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="h-8 w-8 p-0 text-red-600 hover:text-red-800"
-                    onClick={() => handleDeleteGoal(goal.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+        {goals.map((goal: any) => {
+          const totalWeight = goal.total_weight || goal.narratives?.reduce((sum: number, n: any) => sum + parseFloat(n.weight || 0), 0);
+
+          return (
+            <Card key={goal.id} className="relative">
+              <CardHeader className="pb-3">
+                <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <CardTitle className="text-base font-medium">
+                        {goal.title}
+                      </CardTitle>
+                      <Badge variant="outline" className="whitespace-nowrap">
+                        {parseFloat(totalWeight).toFixed(0)}%
+                      </Badge>
+                    </div>
+                    {goal.description && (
+                      <p className="text-sm text-gray-600 mt-1">{goal.description}</p>
+                    )}
+                  </div>
+                  <div className="flex gap-2 items-start">
+                    <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-8 w-8 p-0 text-red-600 hover:text-red-800"
+                      onClick={() => handleDeleteGoal(goal.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-gray-600">Competency:</span>
-                  <Badge variant="secondary">{goal.competency || "Not specified"}</Badge>
-                </div>
-                {goal.weight && (
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-gray-600">Weight:</span>
-                    <Badge variant="outline">{goal.weight}%</Badge>
+              </CardHeader>
+              <CardContent className="pt-0 space-y-3">
+                {/* Narratives/Tasks */}
+                {goal.narratives && goal.narratives.length > 0 && (
+                  <div>
+                    <p className="text-sm font-medium text-gray-600 mb-2">Tasks:</p>
+                    <ul className="space-y-1">
+                      {goal.narratives.map((narrative: any, idx: number) => (
+                        <li key={idx} className="text-sm flex items-start gap-2">
+                          <span className="text-gray-400">•</span>
+                          <span className="flex-1">{narrative.description}</span>
+                          <Badge variant="secondary" className="text-xs">
+                            {parseFloat(narrative.weight).toFixed(0)}%
+                          </Badge>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 )}
-                <div className="text-xs text-gray-500">
-                  Created: {new Date(goal.created_at).toLocaleDateString()}
+
+                {/* Metadata */}
+                <div className="flex items-center gap-4 text-xs text-gray-500 border-t pt-2">
+                  <div>
+                    <span className="font-medium">Status:</span>{" "}
+                    <span className="capitalize">{goal.status?.replace('_', ' ') || "not started"}</span>
+                  </div>
+                  <div>
+                    <span className="font-medium">Created:</span>{" "}
+                    {new Date(goal.created_datetime || goal.created_at).toLocaleDateString()}
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
     </div>
   );

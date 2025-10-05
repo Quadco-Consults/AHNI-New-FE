@@ -8,7 +8,8 @@ import {
 } from "../types/work-plan";
 import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
 
-const BASE_URL = "/programs/plans/works/";
+// Note: No leading slash because baseURL already has trailing slash
+const BASE_URL = "programs/plans/works/";
 
 // ===== WORK PLAN HOOKS =====
 

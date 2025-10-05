@@ -96,9 +96,6 @@ export default function CreateGoodReceiveNote() {
 
   const onSubmit: SubmitHandler<TGoodReceiveNoteFormValues> = async (data) => {
     try {
-      console.log("📝 Form submission data:", data);
-      console.log("📝 Items from form:", data.items);
-
       // Validate that items exist and have at least one item
       if (!data.items || data.items.length === 0) {
         toast.error("Please select a purchase order to load items before proceeding.");
@@ -117,9 +114,9 @@ export default function CreateGoodReceiveNote() {
 
       // Transform the data to match backend expectations
       const grn_items = itemsWithQuantity.map((item) => ({
-        purchase_order_item: String(item.item_id), // Convert to string as backend expects UUID string
-        received_quantity: parseFloat(item.quantity_received), // Convert to number
-        remark: item.comment || "", // Backend expects 'remark' instead of 'comment'
+        purchase_order_item: String(item.item_id),
+        received_quantity: parseFloat(item.quantity_received),
+        remark: item.comment || "",
       }));
 
       const transformedData = {
@@ -131,10 +128,6 @@ export default function CreateGoodReceiveNote() {
         grn_items: grn_items,
       };
 
-      console.log("💾 Saving to localStorage - transformedData:", transformedData);
-      console.log("💾 grn_items count:", grn_items.length);
-      console.log("💾 grn_items details:", grn_items);
-
       // Store data in localStorage for uploads page
       const dataToStore = {
         formData: transformedData,
@@ -142,7 +135,6 @@ export default function CreateGoodReceiveNote() {
         editId: id
       };
 
-      console.log("💾 Full data being stored:", dataToStore);
       localStorage.setItem('grnFormData', JSON.stringify(dataToStore));
 
       // Navigate to uploads page
@@ -168,22 +160,15 @@ export default function CreateGoodReceiveNote() {
   // Populate items array when purchase order is selected
   useEffect(() => {
     if (singlePurchaseOrder?.data?.purchase_order_items) {
-      console.log("🛒 PO Data:", singlePurchaseOrder.data);
-      console.log("🛒 PO Items:", singlePurchaseOrder.data.purchase_order_items);
-
       const items = singlePurchaseOrder.data.purchase_order_items.map(
-        (item: any) => {
-          console.log("🛒 Processing PO item:", item);
-          return {
-            item_id: item.id, // This should be the UUID
-            quantity_ordered: String(item.quantity),
-            quantity_received: "",
-            comment: "",
-          };
-        }
+        (item: any) => ({
+          item_id: item.id,
+          quantity_ordered: String(item.quantity),
+          quantity_received: "",
+          comment: "",
+        })
       );
 
-      console.log("🛒 Mapped items for form:", items);
       replace(items);
     }
   }, [singlePurchaseOrder, replace]);

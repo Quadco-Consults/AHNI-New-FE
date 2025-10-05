@@ -1,0 +1,599 @@
+"use client";
+
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Card } from "components/ui/card";
+import { Badge } from "components/ui/badge";
+import { Button } from "components/ui/button";
+import GoBack from "components/GoBack";
+import { cn } from "lib/utils";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
+import {
+  CheckCircle,
+  XCircle,
+  Clock,
+  AlertCircle,
+  Calendar,
+  User,
+  FileText,
+  MessageSquare,
+  History,
+  ArrowRight,
+} from "lucide-react";
+import {
+  useGetLeaveRequest,
+  useApproveLeaveRequest,
+  useRejectLeaveRequest,
+  useCancelLeaveRequest,
+  useGetLeaveWorkflow,
+} from "@/features/hr/controllers/leaveRequestController";
+import { toast } from "sonner";
+import { format } from "date-fns";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "components/ui/dialog";
+import { Textarea } from "components/ui/textarea";
+import { Label } from "components/ui/label";
+import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
+import { useQueryClient, useQuery } from "@tanstack/react-query";
+import { normalizeLeaveRequestEmployee } from "../../../utils/normalizeLeaveData";
+
+interface LeaveDetailViewProps {
+  id: string;
+}
+
+const LeaveDetailView: React.FC<LeaveDetailViewProps> = ({ id }) => {
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const [showApproveDialog, setShowApproveDialog] = useState(false);
+  const [showRejectDialog, setShowRejectDialog] = useState(false);
+  const [approvalComments, setApprovalComments] = useState("");
+  const [rejectReason, setRejectReason] = useState("");
+  const [rejectComments, setRejectComments] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  // Fetch leave request data
+  const { data: leaveRequestData, isLoading, error, refetch } = useGetLeaveRequest(id, !!id);
+  const rawLeaveRequest = leaveRequestData?.data;
+
+  // Normalize the employee data using shared utility
+  const leaveRequest = React.useMemo(() => {
+    return normalizeLeaveRequestEmployee(rawLeaveRequest);
+  }, [rawLeaveRequest]);
+
+  // Debug logging
+  React.useEffect(() => {
+    if (rawLeaveRequest) {
+      console.log("=== LEAVE REQUEST DEBUG ===");
+      console.log("Raw data:", JSON.stringify(rawLeaveRequest, null, 2));
+      console.log("Employee field type:", typeof rawLeaveRequest.employee);
+      console.log("Employee value:", rawLeaveRequest.employee);
+      console.log("Normalized employee:", leaveRequest?.employee);
+      console.log("==========================");
+    }
+  }, [rawLeaveRequest, leaveRequest]);
+
+  // Fetch workflow - disabled for now as workflow endpoint returns 404
+  // TODO: Enable when workflow feature is fully implemented on backend
+  const { data: workflowData, error: workflowError } = useGetLeaveWorkflow(id, false); // Disabled
+  const workflow = workflowData?.data;
+
+  const handleApprove = async () => {
+    try {
+      setIsProcessing(true);
+      await AxiosWithToken.post(`hr/leave-request/${id}/approve/`, {
+        comments: approvalComments,
+      });
+
+      await queryClient.invalidateQueries({ queryKey: ["leave-request", id] });
+      await queryClient.invalidateQueries({ queryKey: ["leave-requests"] });
+
+      toast.success("Leave request approved successfully");
+      setShowApproveDialog(false);
+      setApprovalComments("");
+      refetch();
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || error.message || "Failed to approve";
+      toast.error(errorMessage);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleReject = async () => {
+    if (!rejectReason.trim()) {
+      toast.error("Please provide a reason for rejection");
+      return;
+    }
+
+    try {
+      setIsProcessing(true);
+      await AxiosWithToken.post(`hr/leave-request/${id}/reject/`, {
+        reason: rejectReason,
+        comments: rejectComments,
+      });
+
+      await queryClient.invalidateQueries({ queryKey: ["leave-request", id] });
+      await queryClient.invalidateQueries({ queryKey: ["leave-requests"] });
+
+      toast.success("Leave request rejected");
+      setShowRejectDialog(false);
+      setRejectReason("");
+      setRejectComments("");
+      refetch();
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || error.message || "Failed to reject";
+      toast.error(errorMessage);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleCancel = async () => {
+    if (!confirm("Are you sure you want to cancel this leave request?")) return;
+
+    try {
+      setIsProcessing(true);
+      await AxiosWithToken.post(`hr/leave-request/${id}/cancel/`);
+
+      await queryClient.invalidateQueries({ queryKey: ["leave-request", id] });
+      await queryClient.invalidateQueries({ queryKey: ["leave-requests"] });
+
+      toast.success("Leave request cancelled");
+      refetch();
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || error.message || "Failed to cancel";
+      toast.error(errorMessage);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-600 border-t-transparent" />
+        <span className="ml-2">Loading leave request...</span>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error || !leaveRequest) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <AlertCircle className="w-8 h-8 text-red-600 mx-auto mb-2" />
+          <p className="text-red-600">Failed to load leave request</p>
+          <p className="text-sm text-gray-600">{error instanceof Error ? error.message : "Unknown error"}</p>
+        </div>
+      </div>
+    );
+  }
+
+  const status = leaveRequest.status || "pending_approval";
+
+  const getStatusConfig = (status: string) => {
+    const configs: any = {
+      draft: { label: "Draft", color: "bg-gray-100 text-gray-800", icon: FileText },
+      pending_approval: { label: "Pending Approval", color: "bg-amber-100 text-amber-800", icon: Clock },
+      approved: { label: "Approved", color: "bg-green-100 text-green-800", icon: CheckCircle },
+      rejected: { label: "Rejected", color: "bg-red-100 text-red-800", icon: XCircle },
+      cancelled: { label: "Cancelled", color: "bg-gray-100 text-gray-800", icon: XCircle },
+      taken: { label: "Taken", color: "bg-blue-100 text-blue-800", icon: Calendar },
+    };
+    return configs[status] || configs.draft;
+  };
+
+  const statusConfig = getStatusConfig(status);
+  const StatusIcon = statusConfig.icon;
+
+  return (
+    <div className="space-y-6">
+      <GoBack />
+
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">Leave Request Details</h1>
+          <p className="text-gray-600">Request ID: {id}</p>
+        </div>
+        <Badge className={cn("px-4 py-2", statusConfig.color)}>
+          <StatusIcon className="w-4 h-4 mr-2" />
+          {statusConfig.label}
+        </Badge>
+      </div>
+
+      {/* Main Content */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left Column - Main Details */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Employee Information */}
+          <Card className="p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <User className="w-5 h-5 text-blue-600" />
+              <h3 className="text-lg font-semibold">Employee Information</h3>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-sm text-gray-600">Name</p>
+                <p className="font-medium">
+                  {leaveRequest.employee?.first_name} {leaveRequest.employee?.last_name}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Email</p>
+                <p className="font-medium">{leaveRequest.employee?.email || "N/A"}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Employee ID</p>
+                <p className="font-medium">{leaveRequest.employee?.employee_id || "N/A"}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Department</p>
+                <p className="font-medium">{leaveRequest.employee?.department || "N/A"}</p>
+              </div>
+            </div>
+          </Card>
+
+          {/* Leave Details */}
+          <Card className="p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Calendar className="w-5 h-5 text-blue-600" />
+              <h3 className="text-lg font-semibold">Leave Details</h3>
+            </div>
+            <div className="grid grid-cols-2 gap-6">
+              <div>
+                <p className="text-sm text-gray-600">Leave Type</p>
+                <p className="font-medium text-lg">{leaveRequest.leave_type?.name || "N/A"}</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Total Days</p>
+                <p className="font-medium text-lg">{leaveRequest.number_of_days || 0} days</p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">From Date</p>
+                <p className="font-medium">
+                  {leaveRequest.from_date ? format(new Date(leaveRequest.from_date), "MMMM dd, yyyy") : "N/A"}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">To Date</p>
+                <p className="font-medium">
+                  {leaveRequest.to_date ? format(new Date(leaveRequest.to_date), "MMMM dd, yyyy") : "N/A"}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Duration Type</p>
+                <p className="font-medium capitalize">
+                  {leaveRequest.duration?.replace(/_/g, " ") || "Full Day"}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-600">Emergency Leave</p>
+                <p className="font-medium">{leaveRequest.is_emergency ? "Yes" : "No"}</p>
+              </div>
+            </div>
+          </Card>
+
+          {/* Reason */}
+          <Card className="p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <MessageSquare className="w-5 h-5 text-blue-600" />
+              <h3 className="text-lg font-semibold">Reason for Leave</h3>
+            </div>
+            <p className="text-gray-700">{leaveRequest.reason || "No reason provided"}</p>
+          </Card>
+
+          {/* Rejection Reason */}
+          {leaveRequest.rejection_reason && (
+            <Card className="p-6 border-red-200 bg-red-50">
+              <div className="flex items-center gap-2 mb-4">
+                <AlertCircle className="w-5 h-5 text-red-600" />
+                <h3 className="text-lg font-semibold text-red-800">Rejection Reason</h3>
+              </div>
+              <p className="text-red-700">{leaveRequest.rejection_reason}</p>
+              {leaveRequest.comments && (
+                <div className="mt-3 pt-3 border-t border-red-200">
+                  <p className="text-sm text-gray-600">Additional Comments:</p>
+                  <p className="text-red-600">{leaveRequest.comments}</p>
+                </div>
+              )}
+            </Card>
+          )}
+
+          {/* Workflow Steps */}
+          {workflow && workflow.steps && workflow.steps.length > 0 && (
+            <Card className="p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <History className="w-5 h-5 text-blue-600" />
+                <h3 className="text-lg font-semibold">Approval Workflow</h3>
+              </div>
+              <div className="space-y-3">
+                {workflow.steps.map((step: any, index: number) => (
+                  <div key={step.id || index} className="flex items-start gap-3">
+                    <div className="mt-1">
+                      {step.status === "approved" ? (
+                        <CheckCircle className="w-5 h-5 text-green-600" />
+                      ) : step.status === "rejected" ? (
+                        <XCircle className="w-5 h-5 text-red-600" />
+                      ) : (
+                        <Clock className="w-5 h-5 text-amber-600" />
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-medium">
+                            Step {step.step_number}: {step.approver_role}
+                          </p>
+                          {step.approver_name && (
+                            <p className="text-sm text-gray-600">{step.approver_name}</p>
+                          )}
+                        </div>
+                        <Badge
+                          className={cn(
+                            step.status === "approved" && "bg-green-100 text-green-800",
+                            step.status === "rejected" && "bg-red-100 text-red-800",
+                            step.status === "pending" && "bg-yellow-100 text-yellow-800"
+                          )}
+                        >
+                          {step.status}
+                        </Badge>
+                      </div>
+                      {step.comments && (
+                        <p className="text-sm text-gray-600 mt-1 italic">"{step.comments}"</p>
+                      )}
+                      {step.approved_at && (
+                        <p className="text-xs text-gray-500 mt-1">
+                          {format(new Date(step.approved_at), "MMM dd, yyyy 'at' hh:mm a")}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
+        </div>
+
+        {/* Right Column - Timeline & Actions */}
+        <div className="space-y-6">
+          {/* Timeline */}
+          <Card className="p-6">
+            <h3 className="text-lg font-semibold mb-4">Timeline</h3>
+            <div className="space-y-4">
+              {leaveRequest.created_at && (
+                <div className="flex items-start gap-3">
+                  <div className="mt-1">
+                    <div className="w-2 h-2 rounded-full bg-blue-600"></div>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">Created</p>
+                    <p className="text-xs text-gray-600">
+                      {format(new Date(leaveRequest.created_at), "MMM dd, yyyy 'at' hh:mm a")}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {leaveRequest.submitted_at && (
+                <div className="flex items-start gap-3">
+                  <div className="mt-1">
+                    <div className="w-2 h-2 rounded-full bg-amber-600"></div>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">Submitted</p>
+                    <p className="text-xs text-gray-600">
+                      {format(new Date(leaveRequest.submitted_at), "MMM dd, yyyy 'at' hh:mm a")}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {leaveRequest.approved_at && (
+                <div className="flex items-start gap-3">
+                  <div className="mt-1">
+                    <div className="w-2 h-2 rounded-full bg-green-600"></div>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">Approved</p>
+                    <p className="text-xs text-gray-600">
+                      {format(new Date(leaveRequest.approved_at), "MMM dd, yyyy 'at' hh:mm a")}
+                    </p>
+                    {leaveRequest.approved_by && (
+                      <p className="text-xs text-gray-500">By: {leaveRequest.approved_by}</p>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {leaveRequest.rejected_at && (
+                <div className="flex items-start gap-3">
+                  <div className="mt-1">
+                    <div className="w-2 h-2 rounded-full bg-red-600"></div>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">Rejected</p>
+                    <p className="text-xs text-gray-600">
+                      {format(new Date(leaveRequest.rejected_at), "MMM dd, yyyy 'at' hh:mm a")}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </Card>
+
+          {/* Actions */}
+          {status === "pending_approval" && (
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4">Actions</h3>
+              <div className="space-y-3">
+                <Button
+                  className="w-full bg-green-600 hover:bg-green-700"
+                  onClick={() => setShowApproveDialog(true)}
+                  disabled={isProcessing}
+                >
+                  <CheckCircle className="w-4 h-4 mr-2" />
+                  Approve Request
+                </Button>
+
+                <Button
+                  variant="destructive"
+                  className="w-full"
+                  onClick={() => setShowRejectDialog(true)}
+                  disabled={isProcessing}
+                >
+                  <XCircle className="w-4 h-4 mr-2" />
+                  Reject Request
+                </Button>
+
+                <Button variant="outline" className="w-full" onClick={handleCancel} disabled={isProcessing}>
+                  Cancel Request
+                </Button>
+              </div>
+            </Card>
+          )}
+        </div>
+      </div>
+
+      {/* Approve Dialog */}
+      <Dialog open={showApproveDialog} onOpenChange={setShowApproveDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Approve Leave Request</DialogTitle>
+            <DialogDescription>
+              You are about to approve this leave request. You can add optional comments below.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="font-medium">Employee:</span>
+                  <span>
+                    {leaveRequest.employee?.first_name} {leaveRequest.employee?.last_name}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-medium">Leave Type:</span>
+                  <span>{leaveRequest.leave_type?.name}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-medium">Duration:</span>
+                  <span>{leaveRequest.number_of_days} days</span>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="approval-comments">Comments (Optional)</Label>
+              <Textarea
+                id="approval-comments"
+                placeholder="Add any comments for the employee..."
+                value={approvalComments}
+                onChange={(e) => setApprovalComments(e.target.value)}
+                rows={3}
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowApproveDialog(false)} disabled={isProcessing}>
+              Cancel
+            </Button>
+            <Button
+              className="bg-green-600 hover:bg-green-700"
+              onClick={handleApprove}
+              disabled={isProcessing}
+            >
+              {isProcessing ? "Approving..." : "Approve Leave"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Reject Dialog */}
+      <Dialog open={showRejectDialog} onOpenChange={setShowRejectDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reject Leave Request</DialogTitle>
+            <DialogDescription>
+              Please provide a reason for rejecting this leave request. This will be communicated to the employee.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="font-medium">Employee:</span>
+                  <span>
+                    {leaveRequest.employee?.first_name} {leaveRequest.employee?.last_name}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-medium">Leave Type:</span>
+                  <span>{leaveRequest.leave_type?.name}</span>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="reject-reason">Reason for Rejection *</Label>
+              <Textarea
+                id="reject-reason"
+                placeholder="e.g., Insufficient leave balance, Conflicting schedules..."
+                value={rejectReason}
+                onChange={(e) => setRejectReason(e.target.value)}
+                rows={3}
+                required
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="reject-comments">Additional Comments (Optional)</Label>
+              <Textarea
+                id="reject-comments"
+                placeholder="Any additional information..."
+                value={rejectComments}
+                onChange={(e) => setRejectComments(e.target.value)}
+                rows={2}
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowRejectDialog(false);
+                setRejectReason("");
+                setRejectComments("");
+              }}
+              disabled={isProcessing}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleReject}
+              disabled={isProcessing || !rejectReason.trim()}
+            >
+              {isProcessing ? "Rejecting..." : "Reject Request"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+};
+
+export default LeaveDetailView;

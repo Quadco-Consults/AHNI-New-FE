@@ -14,7 +14,6 @@ import { LoadingSpinner } from "components/Loading";
 import { useGetEmployeeOnboarding } from "@/features/hr/controllers/employeeOnboardingController";
 import { useGetSingleUser } from "@/features/auth/controllers/userController";
 import { EmployeeOnboarding } from "definations/hr-types/employee-onboarding";
-import Goals from "./Goals";
 
 const WorkforceDetail = () => {
   const { id } = useParams();
@@ -76,11 +75,6 @@ const WorkforceDetail = () => {
       label: "Additional Information",
       value: "additional_information",
       children: <AdditionalInfo />,
-    },
-    {
-      label: "Goals",
-      value: "goal",
-      children: <Goals />,
     },
   ];
 

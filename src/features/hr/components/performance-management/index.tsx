@@ -17,6 +17,8 @@ import IconButton from "components/IconButton";
 import { Icon } from "@iconify/react";
 import { useGetPerformanceAssesments } from "@/features/hr/controllers/hrPerformanceAssessmentController";
 import useDebounce from "utils/useDebounce";
+import { Badge } from "components/ui/badge";
+import { getEvaluationProgress, getRatingLabel } from "@/features/hr/utils/performanceCalculations";
 
 const PerformanceManagement: React.FC = () => {
   const router = useRouter();
@@ -100,10 +102,53 @@ const PerformanceManagement: React.FC = () => {
       cell: ({ row }) => <p>{row?.original?.end_date}</p>,
     },
     {
-      header: "Rating",
-      accessorKey: "rating",
+      header: "Employee",
+      accessorKey: "employee",
       size: 200,
-      cell: ({ row }) => <p>{row?.original?.rating}</p>,
+      cell: ({ row }) => {
+        const employee = row?.original?.employee;
+        if (typeof employee === 'object') {
+          return <p>{`${employee.legal_firstname} ${employee.legal_lastname}`}</p>;
+        }
+        return <p>N/A</p>;
+      },
+    },
+    {
+      header: "Final Rating",
+      accessorKey: "final_rating",
+      size: 150,
+      cell: ({ row }) => {
+        const rating = row?.original?.final_rating;
+        if (rating) {
+          return (
+            <div className="flex flex-col">
+              <p className="font-semibold">{rating}/5</p>
+              <p className="text-xs text-gray-600">{getRatingLabel(rating)}</p>
+            </div>
+          );
+        }
+        return <Badge variant="outline">Pending</Badge>;
+      },
+    },
+    {
+      header: "Progress",
+      id: "progress",
+      size: 150,
+      cell: ({ row }) => {
+        const evaluators = row?.original?.evaluators || [];
+        const progress = getEvaluationProgress(evaluators);
+        return (
+          <div className="flex items-center gap-2">
+            <div className="flex-1 bg-gray-200 rounded-full h-2">
+              <div
+                className="bg-primary h-2 rounded-full transition-all"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+            <span className="text-xs">{progress}%</span>
+          </div>
+        );
+      },
     },
     {
       header: "Cycle Name",
@@ -115,7 +160,15 @@ const PerformanceManagement: React.FC = () => {
       header: "Status",
       id: "status",
       size: 150,
-      cell: ({ row }) => <p>{row?.original?.status}</p>,
+      cell: ({ row }) => {
+        const status = row?.original?.status || 'draft';
+        const variant =
+          status === 'completed' || status === 'approved' ? 'default' :
+          status === 'in_progress' ? 'secondary' :
+          'outline';
+
+        return <Badge variant={variant} className="capitalize">{status.replace('_', ' ')}</Badge>;
+      },
     },
 
     {
@@ -134,16 +187,24 @@ const PerformanceManagement: React.FC = () => {
   ];
 
   const ActionListAction = ({ data }: any) => {
+    const assessmentId = data?.original?.id;
+
     return (
       <div className='flex gap-2'>
         <Link
-          href="/dashboard/hr/performance-management/1"
+          href={`/dashboard/hr/performance-management/${assessmentId}`}
         >
           <IconButton className='bg-[#F9F9F9] hover:text-primary'>
             <Icon icon='ph:eye-duotone' fontSize={15} />
           </IconButton>
         </Link>
-        <IconButton className='bg-[#F9F9F9] hover:text-primary'>
+        <IconButton
+          className='bg-[#F9F9F9] hover:text-red-600'
+          onClick={() => {
+            // TODO: Implement delete functionality
+            console.log('Delete assessment:', assessmentId);
+          }}
+        >
           <Icon icon='ant-design:delete-twotone' fontSize={15} />
         </IconButton>
       </div>

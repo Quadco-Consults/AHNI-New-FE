@@ -195,15 +195,27 @@ const LeaveApprovalWorkflow: React.FC<LeaveApprovalWorkflowProps> = ({
   }
   
   // Show error state
-  if (error || !workflowData) {
+  if (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error || "An error occurred");
     return (
       <Card className="p-6">
         <div className="flex items-center justify-center py-8">
           <div className="text-center">
             <AlertCircle className="w-6 h-6 text-red-600 mx-auto mb-2" />
             <p className="text-red-600">Failed to load workflow</p>
-            <p className="text-sm text-gray-600">{error}</p>
+            <p className="text-sm text-gray-600">{errorMessage}</p>
           </div>
+        </div>
+      </Card>
+    );
+  }
+
+  if (!workflowData) {
+    return (
+      <Card className="p-6">
+        <div className="flex items-center justify-center py-8">
+          <div className="animate-spin rounded-full h-6 w-6 border-2 border-blue-600 border-t-transparent" />
+          <span className="ml-2">Loading workflow...</span>
         </div>
       </Card>
     );

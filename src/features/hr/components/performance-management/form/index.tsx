@@ -3,42 +3,71 @@
 import FormButton from "@/components/FormButton";
 import FormInput from "components/atoms/FormInput";
 import FormSelect from "components/atoms/FormSelectField";
-
 import GoBack from "components/GoBack";
-
 import { Form } from "components/ui/form";
 import { SelectContent } from "components/ui/select";
-
 import { HrRoutes } from "constants/RouterConstants";
-
-import { MinusCircle } from "lucide-react";
-import { useMemo } from "react";
-
+import { MinusCircle, PlusCircle } from "lucide-react";
+import { useMemo, useState, useEffect } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { useGetAllUsers } from "@/features/auth/controllers/userController";
-import { useGetEmployeeOnboardings } from "@/features/hr/controllers/employeeOnboardingController";
 import { useCreatePerformanceAssesment } from "@/features/hr/controllers/hrPerformanceAssessmentController";
+import { useGetEmployeeGoals } from "@/features/hr/controllers/goalsController";
 import { toast } from "sonner";
+import { EvaluatorType } from "@/features/hr/types/performance-assesment";
+import { Card, CardContent, CardHeader, CardTitle } from "components/ui/card";
+import { Badge } from "components/ui/badge";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
-// import ItemsAPI from "@/features/modules/controllers/config/itemsController";
+// Validation schema
+const PerformanceAssessmentSchema = z.object({
+  employee: z.string().min(1, "Employee is required"),
+  description: z.string().min(1, "Description is required"),
+  cycle_name: z.string().min(1, "Cycle is required"),
+  start_date: z.string().optional(),
+  end_date: z.string().optional(),
+  evaluators: z.array(
+    z.object({
+      evaluator: z.string().min(1, "Evaluator is required"),
+      evaluator_type: z.enum(['self', 'supervisor', 'peer']),
+    })
+  ).min(1, "At least one evaluator is required"),
+});
 
-// import PurchaseRequestAPI from "@/features/procurementApi/purchase-requestController";
-// import { toast } from "sonner";
-// import { z } from "zod";
+type PerformanceAssessmentFormData = z.infer<typeof PerformanceAssessmentSchema>;
 
 const NewPerformance = () => {
-  const form = useForm<any>({
-    // resolver: zodResolver(),
-    defaultValues: {},
+  const router = useRouter();
+  const [selectedEmployee, setSelectedEmployee] = useState<string>("");
+
+  const form = useForm<PerformanceAssessmentFormData>({
+    resolver: zodResolver(PerformanceAssessmentSchema),
+    defaultValues: {
+      employee: "",
+      description: "",
+      cycle_name: "",
+      start_date: "",
+      end_date: "",
+      evaluators: [],
+    },
   });
 
-  const { control, handleSubmit } = form;
+  const { control, handleSubmit, watch } = form;
   const { fields, append, remove } = useFieldArray({
     control,
-    name: "evaluators", // The name of the array in the form data
+    name: "evaluators",
   });
-  const router = useRouter();
+
+  // Watch employee field for selection
+  const watchedEmployee = watch("employee") as any;
+
+  useEffect(() => {
+    if (watchedEmployee) {
+      setSelectedEmployee(watchedEmployee);
+    }
+  }, [watchedEmployee]);
 
   const cycleOptions = useMemo(
     () =>
@@ -49,89 +78,68 @@ const NewPerformance = () => {
     []
   );
 
-  const evaluationCategoryOptions = useMemo(
-    () =>
-      ["Performance Indicators", "Introductory Period Result"].map((title) => ({
-        label: title,
-        value: title,
-      })),
+  const evaluatorTypeOptions = useMemo<{ label: string; value: EvaluatorType }[]>(
+    () => [
+      { label: "Self Evaluation", value: "self" },
+      { label: "Supervisor", value: "supervisor" },
+      { label: "Peer", value: "peer" },
+    ],
     []
   );
 
-  const competencyOptions = useMemo(
-    () =>
-      [
-        "Job Knowledge",
-        "Interpersonal Skills/Teamwork",
-        "Accountability",
-        "Leadership",
-      ].map((title) => ({
-        label: title,
-        value: title,
-      })),
-    []
-  );
-
-  const { data: user } = useGetAllUsers({
+  const { data: users } = useGetAllUsers({
     page: 1,
-    size: 2000000,
+    size: 10000,
     search: "",
   });
 
-  const { data: employees, isLoading: isLoadingEmployees } = useGetEmployeeOnboardings({
-    page: 1,
-    size: 2000000,
-  });
+  // Fetch employee goals to display
+  const { data: employeeGoals, isLoading: isLoadingGoals } = useGetEmployeeGoals(
+    selectedEmployee,
+    !!selectedEmployee
+  );
 
-  const { createPerformanceAssesment } = useCreatePerformanceAssesment();
+  const { createPerformanceAssesment, isLoading: isCreating } = useCreatePerformanceAssesment();
 
   const userOptions = useMemo(
     () =>
-      user?.data.results.map(({ first_name, last_name, id }) => ({
+      users?.results?.map(({ first_name, last_name, id }) => ({
         label: `${first_name} ${last_name}`,
         value: id,
-      })),
-    [user]
+      })) || [],
+    [users]
   );
 
-  const employeeOptions = useMemo(
-    () => {
-      if (!employees?.data?.results) {
-        console.log("No employee data available:", employees);
-        return [];
-      }
-      return employees.data.results.map(
-        ({ legal_firstname, legal_lastname, id }) => ({
-          label: `${legal_firstname} ${legal_lastname}`,
-          value: id,
-        })
-      );
-    },
-    [employees]
-  );
+  const goals = employeeGoals?.data || [];
 
-  console.log({ employees, user, employeeOptions });
+  const onSubmit = async (data: PerformanceAssessmentFormData) => {
+    if (goals.length === 0) {
+      toast.error("Please set your goals before creating a performance assessment");
+      return;
+    }
 
-  const onSubmit = async (data: any) => {
-    console.log("=== CREATING PERFORMANCE ASSESSMENT ===");
-    console.log("Form data being submitted:", data);
-    console.log("Evaluators data:", JSON.stringify(data.evaluators, null, 2));
     try {
-      const response = await createPerformanceAssesment(data);
-      console.log("✅ CREATE SUCCESS - Full response:", response);
-      console.log("✅ Response structure:", {
-        status: response?.status,
-        message: response?.message,
-        data: response?.data,
-        id: response?.data?.id || response?.data?.data?.id
-      });
-      toast.success("Performance appraisal created successfully");
+      const payload = {
+        description: data.description,
+        cycle_name: data.cycle_name,
+        start_date: data.start_date,
+        end_date: data.end_date,
+        employee: data.employee,
+        status: 'draft' as const,
+        evaluators: data.evaluators.map(ev => ({
+          evaluator: ev.evaluator,
+          evaluator_type: ev.evaluator_type,
+          status: 'pending' as const,
+        })),
+        created_by: data.employee,
+      };
 
-      // Redirect to list page - cache should auto-invalidate
+      const response = await createPerformanceAssesment(payload);
+      toast.success("Performance assessment created successfully");
       router.push(HrRoutes.PERFORMANCE_MANAGEMENT);
     } catch (e) {
-      console.error("❌ Error creating assessment:", e);
-      toast.error("Something went wrong");
+      console.error("Error creating assessment:", e);
+      toast.error("Failed to create assessment");
     }
   };
 
@@ -141,7 +149,7 @@ const NewPerformance = () => {
 
       <div className='pt-10'>
         <h3 className='text-[18px] pb-10'>
-          Initiate New Performance Asessment
+          Initiate New Performance Assessment
         </h3>
 
         <Form {...form}>
@@ -149,6 +157,79 @@ const NewPerformance = () => {
             onSubmit={handleSubmit(onSubmit)}
             className='flex flex-col gap-6'
           >
+            {/* Your Goals Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle className='text-yellow-darker'>Your Goals</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {isLoadingGoals ? (
+                  <p className='text-gray-500'>Loading your goals...</p>
+                ) : goals.length === 0 ? (
+                  <div className='text-center py-4'>
+                    <p className='text-red-600 mb-2'>You haven&apos;t set any goals yet!</p>
+                    <p className='text-sm text-gray-600'>
+                      Please set your goals in your employee profile before creating a performance assessment.
+                    </p>
+                  </div>
+                ) : (
+                  <div className='space-y-3'>
+                    {goals.map((goal) => {
+                      const totalWeight = goal.total_weight || goal.narratives?.reduce((sum, n) => sum + parseFloat(n.weight?.toString() || '0'), 0);
+
+                      return (
+                        <div key={goal.id} className='p-3 border rounded-lg'>
+                          <div className='flex justify-between items-start mb-2'>
+                            <div className='flex-1'>
+                              <p className='font-medium'>{goal.title}</p>
+                              {goal.description && (
+                                <p className='text-sm text-gray-600 mt-1'>{goal.description}</p>
+                              )}
+                            </div>
+                            <Badge variant='outline'>{totalWeight ? parseFloat(totalWeight.toString()).toFixed(0) : 0}%</Badge>
+                          </div>
+
+                          {/* Narratives/Tasks */}
+                          {goal.narratives && goal.narratives.length > 0 && (
+                            <div className='mt-2 pl-2 border-l-2 border-gray-200'>
+                              <p className='text-xs font-medium text-gray-500 mb-1'>Tasks:</p>
+                              <ul className='space-y-1'>
+                                {goal.narratives.map((narrative, idx) => (
+                                  <li key={idx} className='text-xs flex items-start gap-2'>
+                                    <span className='text-gray-400'>•</span>
+                                    <span className='flex-1'>{narrative.description}</span>
+                                    <Badge variant='secondary' className='text-xs h-4'>
+                                      {parseFloat(narrative.weight?.toString() || '0').toFixed(0)}%
+                                    </Badge>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Employee Selection */}
+            <div className=''>
+              <h3 className='text-yellow-darker'>Employee Selection</h3>
+            </div>
+
+            <FormSelect
+              label='Select Employee'
+              name='employee'
+              placeholder='Select employee to evaluate'
+              required
+              options={userOptions}
+            >
+              <SelectContent></SelectContent>
+            </FormSelect>
+
+            {/* Appraisal Information */}
             <div className=''>
               <h3 className='text-yellow-darker'>Appraisal Information</h3>
             </div>
@@ -159,6 +240,7 @@ const NewPerformance = () => {
                 name='description'
                 type='text'
                 required
+                placeholder='e.g., Q1 2025 Performance Review'
               />
 
               <FormSelect
@@ -169,52 +251,48 @@ const NewPerformance = () => {
                 options={cycleOptions}
               />
             </div>
-            <div className=''>
-              <h3 className='text-yellow-darker'>Employee Information</h3>
-            </div>
 
-            <div className='grid gap-5'>
-              <FormSelect
-                label='Select Employee'
-                name='employee'
-                required
-                placeholder={isLoadingEmployees ? "Loading employees..." : "Select Employee"}
-                options={employeeOptions}
+            <div className='grid gap-5 grid-cols-2'>
+              <FormInput
+                label='Start Date'
+                name='start_date'
+                type='date'
+              />
+
+              <FormInput
+                label='End Date'
+                name='end_date'
+                type='date'
               />
             </div>
+
+            {/* Evaluators Section */}
             <div className=''>
-              <h3 className='text-yellow-darker'>Evaluators</h3>
+              <h3 className='text-yellow-darker'>Select Evaluators</h3>
+              <p className='text-sm text-gray-600 mt-1'>
+                Choose who will evaluate your performance. You can select yourself, supervisors, and peers.
+              </p>
             </div>
 
             <div className='grid gap-5'>
               {fields.map((field, index) => (
-                <div key={field.id} className='grid grid-cols-1 md:grid-cols-3 gap-4 p-4 border rounded-lg'>
+                <div key={field.id} className='grid grid-cols-1 md:grid-cols-2 gap-4 p-4 border rounded-lg'>
                   <FormSelect
-                    label={`Evaluator ${index + 1}`}
+                    label='Evaluator'
                     name={`evaluators.${index}.evaluator`}
                     required
                     options={userOptions}
-                    placeholder="Select evaluator"
+                    placeholder="Select person"
                   >
                     <SelectContent></SelectContent>
                   </FormSelect>
 
                   <FormSelect
-                    label='Evaluation Category'
-                    name={`evaluators.${index}.evaluation_category`}
+                    label='Evaluator Type'
+                    name={`evaluators.${index}.evaluator_type`}
                     required
-                    options={evaluationCategoryOptions}
-                    placeholder="Select category"
-                  >
-                    <SelectContent></SelectContent>
-                  </FormSelect>
-
-                  <FormSelect
-                    label='Competency'
-                    name={`evaluators.${index}.competency`}
-                    required
-                    options={competencyOptions}
-                    placeholder="Select competency"
+                    options={evaluatorTypeOptions}
+                    placeholder="Select type"
                   >
                     <SelectContent></SelectContent>
                   </FormSelect>
@@ -224,40 +302,40 @@ const NewPerformance = () => {
                       type='button'
                       className='text-red-500 bg-transparent'
                       onClick={() => remove(index)}
+                      disabled={fields.length === 1}
                     >
                       <MinusCircle />
                       Remove Evaluator
                     </FormButton>
                   </div>
                 </div>
-              ))}{" "}
+              ))}
+
               <FormButton
                 type='button'
-                className='text-primary bg-alternate'
-                onClick={
-                  () => append({ evaluator: "", evaluation_category: "", competency: "" })
-                }
+                className='text-primary bg-alternate flex items-center gap-2'
+                onClick={() => append({ evaluator: "", evaluator_type: "peer" })}
               >
+                <PlusCircle size={16} />
                 Add Evaluator
               </FormButton>
             </div>
+
             <div className='flex justify-end gap-2'>
               <FormButton
-                // loading={isLoading}
-                // disabled={isLoading}
                 type='button'
                 className='flex items-center justify-center gap-2 text-primary bg-alternate'
                 onClick={() => router.push(HrRoutes.PERFORMANCE_MANAGEMENT)}
+                disabled={isCreating}
               >
                 Cancel
               </FormButton>
               <FormButton
-                // loading={isLoading}
-                // disabled={isLoading}
                 type='submit'
                 className='flex items-center justify-center gap-2'
+                disabled={isCreating || goals.length === 0}
               >
-                Create
+                {isCreating ? "Creating..." : "Create Assessment"}
               </FormButton>
             </div>
           </form>

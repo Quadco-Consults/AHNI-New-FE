@@ -63,16 +63,16 @@ const TableMenu = ({
 
     const isPreawardPath = pathname.includes("/preaward-assessment");
 
-    const { deletePartnerSubmission, isLoading: isDeleteLoading } =
-        useDeleteSubGrantManualSub();
+    const { deleteSubGrantSubmission, isLoading: isDeleteLoading } =
+        useDeleteSubGrantManualSub(partnerSubId);
 
     const handleDelete = async () => {
         try {
-            await deletePartnerSubmission(partnerSubId)();
+            await deleteSubGrantSubmission();
             toast.success("Submission Deleted");
             setDialogOpen(false);
         } catch (error: any) {
-            toast.error(error.data.message ?? "Something went wrong");
+            toast.error(error?.data?.message || error?.message || "Something went wrong");
         }
     };
 

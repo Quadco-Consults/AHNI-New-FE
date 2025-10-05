@@ -17,15 +17,17 @@ import FilePreview from "components/FilePreview";
 import Pagination from "components/Pagination";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export default function CreateSubGrantUpload() {
     const dispatch = useAppDispatch();
+    const router = useRouter();
 
     const [page, setPage] = useState(1);
 
     const { id: subGrantId } = useParams();
-    const [searchParams] = useSearchParams();
-    const partnerSubId = searchParams.get("partnerSubId");
+    const searchParams = useSearchParams();
+    const partnerSubId = searchParams?.get("partnerSubId");
 
     const { data, isFetching } = useGetAllSubGrantUploads({
         page,
@@ -40,8 +42,14 @@ export default function CreateSubGrantUpload() {
             await deleteSubGrantUpload(id)();
             toast.success("Document Deleted");
         } catch (error: any) {
-            toast.error(error.data.message ?? "Something went wrong");
+            toast.error(error?.data?.message ?? error?.message ?? "Something went wrong");
         }
+    };
+
+    const handleSubmit = () => {
+        toast.success("Manual Submission Completed Successfully!");
+        // Navigate back to the sub-grant details page
+        router.push(`/dashboard/c-and-g/sub-grant/awards/${subGrantId}`);
     };
 
     return (
@@ -93,7 +101,7 @@ export default function CreateSubGrantUpload() {
                 </Card>
 
                 <div className="flex justify-end">
-                    <FormButton type="submit" size="lg">
+                    <FormButton type="button" size="lg" onClick={handleSubmit}>
                         Submit
                     </FormButton>
                 </div>
