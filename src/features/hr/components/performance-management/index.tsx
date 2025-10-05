@@ -40,6 +40,15 @@ const PerformanceManagement: React.FC = () => {
     refetch();
   }, [refetch]);
 
+  // Also refetch when window gains focus
+  React.useEffect(() => {
+    const handleFocus = () => {
+      refetch();
+    };
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, [refetch]);
+
   React.useEffect(() => {
     console.log("=== PERFORMANCE ASSESSMENT DEBUG ===");
     console.log("Full response:", performanceAssesmentData);
