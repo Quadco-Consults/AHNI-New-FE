@@ -5,7 +5,7 @@ import { Button } from "components/ui/button";
 import AddSquareIcon from "components/icons/AddSquareIcon";
 import DataTable from "components/Table/DataTable";
 import { useGetAllRiskManagementPlans, useDownloadRiskManagementPlanTemplate } from "@/features/programs/controllers/riskPlansController";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import BreadcrumbCard, { TBreadcrumbList } from "components/Breadcrumb";
 import { riskManagementPlanColumns } from "@/features/programs/components/table-columns/plan/risk-management-plan";
 import TableFilters from "components/Table/TableFilters";
@@ -28,7 +28,6 @@ const breadcrumbs: TBreadcrumbList[] = [
 export default function RiskManagementPage() {
   const [page, setPage] = useState(1);
   const [searchController, setSearchController] = useState("");
-  const [shouldDownload, setShouldDownload] = useState(false);
   const dispatch = useAppDispatch();
 
   const debouncedSearchController = useDebounce(searchController, {
@@ -43,24 +42,18 @@ export default function RiskManagementPage() {
     }
   );
 
-  // Download template hook
-  const { isLoading: isDownloading, isSuccess: downloadSuccess, isError: downloadError } =
-    useDownloadRiskManagementPlanTemplate(shouldDownload);
+  // Download template hook (disabled by default, use refetch to trigger)
+  const { refetch: downloadTemplate, isFetching: isDownloading } =
+    useDownloadRiskManagementPlanTemplate(false);
 
-  // Reset download state after completion
-  if (shouldDownload && (downloadSuccess || downloadError)) {
-    setShouldDownload(false);
-    if (downloadSuccess) {
+  const handleDownloadTemplate = async () => {
+    try {
+      toast.info("Downloading template...");
+      await downloadTemplate();
       toast.success("Template downloaded successfully");
+    } catch (error: any) {
+      toast.error(error?.message || "Failed to download template");
     }
-    if (downloadError) {
-      toast.error("Failed to download template");
-    }
-  }
-
-  const handleDownloadTemplate = () => {
-    toast.info("Downloading template...");
-    setShouldDownload(true);
   };
 
   const handleUploadClick = () => {
