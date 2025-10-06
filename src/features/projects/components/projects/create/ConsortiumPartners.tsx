@@ -25,7 +25,7 @@ export default function ConsortiumPartners() {
               <h4 className='font-semibold'>{partner.name}</h4>
             </div>
 
-            <div className='flex items-cemter gap-2'>
+            <div className='flex items-center gap-2'>
               <LocationSvg />
               {partner.state}
             </div>

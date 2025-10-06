@@ -415,7 +415,7 @@ export default function ProjectSummaryPage() {
 
                 <div className='grid gap-3 grid-cols-1 md:grid-cols-2'>
                   <FormInput
-                    type='number'
+                    type='text'
                     label='Budget (Total Estimated Amount)'
                     name='budget'
                     placeholder='Enter Budget'
