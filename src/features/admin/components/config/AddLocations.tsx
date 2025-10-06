@@ -110,7 +110,7 @@ const AddLocations = () => {
           <FormInput
             label='Phone'
             name='phone'
-            type='number'
+            type='tel'
             required
             placeholder='Enter Phone'
           />

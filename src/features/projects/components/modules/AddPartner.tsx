@@ -11,7 +11,8 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { closeDialog, dailogSelector } from "store/ui";
-import { nigerianStates } from "lib/index";
+import { nigerianStates, nigerianCitiesByState } from "lib/index";
+import { useState, useEffect } from "react";
 import {
     PartnerSchema,
     TPartnerData,
@@ -26,6 +27,8 @@ const AddPartners = () => {
     const { dialogProps } = useAppSelector(dailogSelector);
 
     const result = dialogProps?.data as unknown as TPartnerData;
+
+    const [cityOptions, setCityOptions] = useState<{ label: string; value: string }[]>([]);
 
     const stateOptions = nigerianStates?.map((state: string) => ({
         label: state,
@@ -47,24 +50,50 @@ const AddPartners = () => {
     });
 
     const dispatch = useAppDispatch();
-    const { addPartner: partners, isLoading } = useAddPartner();
-    const { updatePartner: updatePartners, isLoading: updatePartnersLoading } =
+    const [addPartner, { isLoading }] = useAddPartner();
+    const [updatePartner, { isLoading: updatePartnersLoading }] =
         useUpdatePartner();
+
+    // Watch state field to update cities
+    const selectedState = form.watch("state");
+
+    useEffect(() => {
+        if (selectedState && nigerianCitiesByState[selectedState]) {
+            const cities = nigerianCitiesByState[selectedState].map((city) => ({
+                label: city,
+                value: city,
+            }));
+            setCityOptions(cities);
+        } else {
+            setCityOptions([]);
+        }
+    }, [selectedState]);
+
+    // Set initial city options if editing
+    useEffect(() => {
+        if (result?.state && nigerianCitiesByState[result.state]) {
+            const cities = nigerianCitiesByState[result.state].map((city) => ({
+                label: city,
+                value: city,
+            }));
+            setCityOptions(cities);
+        }
+    }, [result?.state]);
 
     const onSubmit: SubmitHandler<TPartnerFormValues> = async (data) => {
         try {
             dialogProps?.type === "update"
-                ? await updatePartners({
+                ? await updatePartner({
                       //@ts-ignore
                       id: String(dialogProps?.data?.id),
                       body: data,
                   })
-                : await partners(data);
+                : await addPartner(data);
             toast.success("Partner Added Succesfully");
             dispatch(closeDialog());
             form.reset();
         } catch (error: any) {
-            toast.error(error.data.message || "Something went wrong");
+            toast.error(error?.data?.message || error?.message || "Something went wrong");
         }
     };
 
@@ -88,9 +117,16 @@ const AddPartners = () => {
                         placeholder="Select Partner Type"
                         required
                         options={[
+                            { label: "Implementing", value: "IMPLEMENTING" },
+                            { label: "Funding", value: "FUNDING" },
+                            { label: "Technical", value: "TECHNICAL" },
+                            { label: "Government", value: "GOVERNMENT" },
+                            { label: "Private Sector", value: "PRIVATE_SECTOR" },
+                            { label: "NGO", value: "NGO" },
+                            { label: "Academic", value: "ACADEMIC" },
+                            { label: "Community", value: "COMMUNITY" },
                             { label: "Consortium", value: "CONSORTIUM" },
                             { label: "Sub-Grantee", value: "SUBGRANTEE" },
-                            { label: "Others", value: "OTHER" },
                         ]}
                     />
 
@@ -98,13 +134,6 @@ const AddPartners = () => {
                         name="address"
                         label="Address"
                         placeholder="Enter Address"
-                        required
-                    />
-
-                    <FormInput
-                        label="City"
-                        name="city"
-                        placeholder="Enter City"
                         required
                     />
 
@@ -116,12 +145,21 @@ const AddPartners = () => {
                         options={stateOptions}
                     />
 
+                    <FormSelect
+                        label="City"
+                        name="city"
+                        placeholder="Select City"
+                        required
+                        options={cityOptions}
+                        disabled={!selectedState || cityOptions.length === 0}
+                    />
+
                     <FormInput
                         label="Phone"
                         name="phone"
                         placeholder="Enter Phone"
                         required
-                        type="number"
+                        type="tel"
                     />
 
                     <FormInput
