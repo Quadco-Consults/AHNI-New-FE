@@ -11,7 +11,7 @@ import {
 import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
 import { TRiskManagementPlanData, TRiskPlanManagementFormValues } from "definations/program-validator";
 
-const BASE_URL = "/programs/plans/risk-management/";
+const BASE_URL = "programs/plans/risk-management/";
 
 // ===== RISK PLANS HOOKS =====
 
