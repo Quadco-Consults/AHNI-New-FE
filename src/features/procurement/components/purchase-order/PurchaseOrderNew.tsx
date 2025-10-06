@@ -352,6 +352,14 @@ const PurchaseOrderNew = () => {
         // This will trigger the useEffect that fetches PR details and populates department
       }
 
+      // Extract payment terms and delivery from selected vendor submission
+      const paymentTerms = selectedVendor.payment_terms || selectedVendor.payment_term || "";
+      const deliveryTime = selectedVendor.delivery_time ||
+                          selectedVendor.delivery_leadtime ||
+                          selectedVendor.delivery_lead_time || "";
+      console.log("🔍 Payment Terms from vendor:", paymentTerms);
+      console.log("🔍 Delivery Time from vendor:", deliveryTime);
+
       // Get bid_items from the selected vendor (same as AnalysisResultsView line 160)
       const bidItems = selectedVendor.bid_items || [];
       console.log("🔍 Bid items from selected vendor:", bidItems);
@@ -390,12 +398,14 @@ const PurchaseOrderNew = () => {
 
         console.log("🔍 Mapped items for PO form:", mappedItems);
 
-        // Use form.reset to populate items, vendor, and purchase request
+        // Use form.reset to populate items, vendor, purchase request, payment, and delivery
         // This ensures React Hook Form properly registers the fields
         form.reset({
           ...form.getValues(),
           vendor: actualVendorId || "",
           purchase_request: purchaseRequestId || "",
+          payment_terms: paymentTerms,
+          delivery_lead_time: deliveryTime,
           items: mappedItems,
         });
 
