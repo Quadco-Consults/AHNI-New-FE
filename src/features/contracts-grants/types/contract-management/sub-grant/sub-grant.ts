@@ -122,7 +122,14 @@ export const SubGrantSubmissionSchema = z.object({
             }
             return val;
         })
-        .url("Please enter a valid web address"),
+        .refine((val) => {
+            try {
+                new URL(val);
+                return true;
+            } catch {
+                return false;
+            }
+        }, "Please enter a valid web address"),
     duns_number: z.union([
         z.string().min(1, "Please enter duns number"),
         z.number()
