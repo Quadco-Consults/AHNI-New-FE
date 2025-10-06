@@ -338,6 +338,20 @@ const PurchaseOrderNew = () => {
         setVendorValue(actualVendorId);
       }
 
+      // Set purchase request from solicitation
+      // The solicitation can be either a string ID or an expanded object
+      const solicitation = cbaData.data.solicitation;
+      const purchaseRequestId = typeof solicitation === 'object' && solicitation !== null
+        ? (solicitation as any).purchase_request
+        : null;
+      console.log("🔍 Solicitation data:", solicitation);
+      console.log("🔍 Purchase Request ID from solicitation:", purchaseRequestId);
+
+      if (purchaseRequestId) {
+        setPurchaseValue(purchaseRequestId);
+        // This will trigger the useEffect that fetches PR details and populates department
+      }
+
       // Get bid_items from the selected vendor (same as AnalysisResultsView line 160)
       const bidItems = selectedVendor.bid_items || [];
       console.log("🔍 Bid items from selected vendor:", bidItems);
@@ -376,11 +390,12 @@ const PurchaseOrderNew = () => {
 
         console.log("🔍 Mapped items for PO form:", mappedItems);
 
-        // Use form.reset to populate items and vendor
+        // Use form.reset to populate items, vendor, and purchase request
         // This ensures React Hook Form properly registers the fields
         form.reset({
           ...form.getValues(),
           vendor: actualVendorId || "",
+          purchase_request: purchaseRequestId || "",
           items: mappedItems,
         });
 
