@@ -434,7 +434,8 @@ export const CG_ROUTES = {
   /* SUB GRANT */
   SUBGRANT_ADVERT: "/dashboard/c-and-g/sub-grant",
   CREATE_SUBGRANT_ADVERT: "/dashboard/c-and-g/sub-grant/create-sub-grant",
-  SUBGRANT_ADVERT_DETAILS: "/dashboard/c-and-g/sub-grant/:id",
+  SUBGRANT_ADVERT_DETAILS: "/dashboard/c-and-g/sub-grant/awards/:id",
+  SUBGRANT_AWARD_DETAILS: "/dashboard/c-and-g/sub-grant/:id/details",
   SUBGRANT_CREATE_PRE_AWARD_ASSESSMENT:
     "/dashboard/c-and-g/sub-grant/:id/create-pre-award-assessment",
   CREATE_SUBGRANT_SUBMISSION_DETAILS:
@@ -458,7 +459,6 @@ export const CG_ROUTES = {
     "/dashboard/c-and-g/sub-grant/:subGrantId/submission/:partnerSubId/preaward-assessment",
 
   SUBGRANT_AWARD: "/dashboard/c-and-g/sub-grant/awards",
-  SUBGRANT_AWARD_DETAILS: "/dashboard/c-and-g/sub-grant/awards/:id",
   /* SUB GRANT */
 
   // close out
@@ -496,7 +496,7 @@ export const CG_ROUTES = {
 
   CONSULTANT_ACCEPTANCE: "/dashboard/c-and-g/consultant/consultance-acceptance",
   CONSULTANT_ACCEPTANCE_DETAILS:
-    "/dashboard/c-and-g/consultant/consultance-acceptance/details",
+    "/dashboard/c-and-g/consultant/consultance-acceptance/details/:id",
 
   // CONSULTANCY REPORT
   CONSULTANCY_REPORT: "/dashboard/c-and-g/consultancy-report",
@@ -512,6 +512,8 @@ export const CG_ROUTES = {
   FACILITATOR_ADVERT_DETAILS: "/dashboard/c-and-g/facilitator-management/:id",
   CREATE_FACILITATOR_ADVERT_APPLICANT:
     "/dashboard/c-and-g/facilitator-management/:id/applicant/create",
+  FACILITATOR_APPLICANT_DETAILS:
+    "/dashboard/c-and-g/facilitator-management/:adhocId/applicant/:applicantId/details",
   FACILITATOR_DATABASE: "/dashboard/c-and-g/facilitator-database",
   /* FACILITATOR MANAGEMENT */
 
@@ -617,7 +619,7 @@ export enum ProgramRoutes {
   ADHOC_DATABASE = "/dashboard/programs/adhoc-database/",
 
   ADHOC_ACCEPTANCE = "/dashboard/programs/adhoc/adhoc-acceptance",
-  ADHOC_ACCEPTANCE_DETAILS = "/dashboard/programs/adhoc/adhoc-acceptance/details",
+  ADHOC_ACCEPTANCE_DETAILS = "/dashboard/programs/adhoc/adhoc-acceptance/details/:id",
   ADHOC_CONTRACT_RECIPIENTS = "/dashboard/programs/adhoc/contract-recipients",
   ADHOC_ACCEPTED_CONTRACTS = "/dashboard/programs/adhoc/accepted-contracts",
 

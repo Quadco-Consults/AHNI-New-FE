@@ -52,6 +52,7 @@ export interface ISubGrantPaginatedData {
 export interface ISubGrantSingleData {
     id: string;
     grant: IGrantSingleData;
+    project?: any;
     partners: TPartnerData[];
     sub_grant_administrator: IUser;
     technical_staff: IUser;
@@ -73,6 +74,11 @@ export interface ISubGrantSingleData {
     created_by: string | null;
     updated_by: string | null;
     locations: TLocationData[];
+    modifications?: any[];
+    total_expenditure_amount?: string | number;
+    total_obligation_amount?: string | number;
+    current_month_obligation_amount?: string | number;
+    remaining_award_amount?: string | number;
 }
 
 export const SubGrantSubmissionSchema = z.object({
@@ -114,7 +120,7 @@ export type TSubGrantSubmissionFormData = z.infer<
 export interface ISubGrantSubmissionPaginatedData {
     id: string;
     partner: string;
-    sub_grant: string;
+    sub_grant: string | ISubGrantPaginatedData;
     sub_grant_id: string;
     created_datetime: string;
     updated_datetime: string;

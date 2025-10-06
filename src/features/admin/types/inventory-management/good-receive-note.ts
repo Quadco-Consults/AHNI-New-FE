@@ -11,7 +11,7 @@ export const GoodReceiveNoteSchema = z.object({
       z.object({
         item_id: z.union([z.number(), z.string()]), // Support both number and string
         quantity_ordered: z.string(),
-        quantity_received: z.string().min(1, "Please enter quantity received"),
+        quantity_received: z.coerce.string().min(1, "Please enter quantity received"), // Coerce number to string
         comment: z.string().min(1, "Please enter a comment"),
       })
     )

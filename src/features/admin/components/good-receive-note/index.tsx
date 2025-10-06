@@ -3,7 +3,6 @@
 import AddSquareIcon from "@/components/icons/AddSquareIcon";
 import Card from "@/components/Card";
 import {
-    goodReceiveNoteColumns,
     getPendingGRNColumns,
     getApprovedGRNColumns
 } from "@/features/admin/components/table-columns/inventory-management/good-receive-note";
@@ -20,37 +19,25 @@ export default function GoodReceiveNoteHomePage() {
     const [approvedPage, setApprovedPage] = useState(1);
     const [activeTab, setActiveTab] = useState("pending");
 
-    // Fetch pending GRNs with proper server-side filtering
-    const { data: pendingData, isFetching: isPendingLoading, refetch: refetchPending } = useGetAllGoodReceiveNoteQuery({
+    // Fetch pending GRNs - server-side filtering via controller
+    const { data: pendingData, isFetching: isPendingLoading } = useGetAllGoodReceiveNoteQuery({
         page: pendingPage,
         size: 20,
+        status: "pending", // Controller handles this as approved_datetime__isnull=true & rejected_datetime__isnull=true
         enabled: activeTab === "pending",
     });
 
-    // Fetch approved GRNs with proper server-side filtering
-    const { data: approvedData, isFetching: isApprovedLoading, refetch: refetchApproved } = useGetAllGoodReceiveNoteQuery({
+    // Fetch approved/received GRNs - server-side filtering via controller
+    const { data: approvedData, isFetching: isApprovedLoading } = useGetAllGoodReceiveNoteQuery({
         page: approvedPage,
         size: 20,
-        status: "approved",
+        status: "approved", // Controller handles this as approved_datetime__isnull=false
         enabled: activeTab === "approved",
     });
 
-    // Filter GRNs based on status
-    const pendingGRNs = (pendingData?.data.results || []).filter(grn => {
-        if (grn.status) {
-          return ['pending', 'confirmed'].includes(grn.status);
-        }
-        return !grn.approved_datetime && !grn.rejected_datetime;
-    });
-
-    const approvedGRNs = (approvedData?.data.results || []).filter(grn => {
-        if (grn.status) {
-          return ['received', 'approved', 'rejected'].includes(grn.status);
-        }
-        return grn.approved_datetime || grn.rejected_datetime;
-    });
-
-    const isLoading = isPendingLoading || isApprovedLoading;
+    // Extract results safely
+    const pendingGRNs = pendingData?.data?.results || [];
+    const approvedGRNs = approvedData?.data?.results || [];
 
     return (
         <div className="space-y-10">
@@ -66,10 +53,10 @@ export default function GoodReceiveNoteHomePage() {
             <Tabs value={activeTab} onValueChange={setActiveTab}>
                 <TabsList className="grid w-full grid-cols-2">
                     <TabsTrigger value="pending">
-                        Good Receipt Notes ({pendingGRNs.length})
+                        Good Receipt Notes ({pendingData?.data?.paginator?.count ?? 0})
                     </TabsTrigger>
                     <TabsTrigger value="approved">
-                        Approved/Accepted Goods Receipt Notes ({approvedGRNs.length})
+                        Approved/Accepted Goods Receipt Notes ({approvedData?.data?.paginator?.count ?? 0})
                     </TabsTrigger>
                 </TabsList>
 
@@ -81,7 +68,7 @@ export default function GoodReceiveNoteHomePage() {
                                 data={pendingGRNs}
                                 isLoading={isPendingLoading}
                                 pagination={{
-                                    total: pendingData?.data.paginator.count ?? 0,
+                                    total: pendingData?.data?.paginator?.count ?? 0,
                                     pageSize: 20,
                                     onChange: (page: number) => setPendingPage(page),
                                 }}
@@ -98,7 +85,7 @@ export default function GoodReceiveNoteHomePage() {
                                 data={approvedGRNs}
                                 isLoading={isApprovedLoading}
                                 pagination={{
-                                    total: approvedData?.data.paginator.count ?? 0,
+                                    total: approvedData?.data?.paginator?.count ?? 0,
                                     pageSize: 20,
                                     onChange: (page: number) => setApprovedPage(page),
                                 }}

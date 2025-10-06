@@ -14,6 +14,7 @@ import { useUpdatePerformanceAssesment, useGetPerformanceAssesment } from "@/fea
 import { toast } from "sonner";
 import { Label } from "components/ui/label";
 import { EvaluationSubmission } from "@/features/hr/types/performance-assesment";
+import { useQueryClient } from "@tanstack/react-query";
 
 // Rating scale: 1-5
 const RATING_OPTIONS = [
@@ -43,6 +44,7 @@ interface EvaluatorFormProps {
 
 const EvaluatorForm: React.FC<EvaluatorFormProps> = ({ assessmentId, evaluatorId }) => {
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   // Fetch the assessment to get goals
   const { data: assessmentData, isLoading: isLoadingAssessment } = useGetPerformanceAssesment(
@@ -53,7 +55,11 @@ const EvaluatorForm: React.FC<EvaluatorFormProps> = ({ assessmentId, evaluatorId
   const { updatePerformanceAssesment, isLoading: isSubmitting } = useUpdatePerformanceAssesment(assessmentId);
 
   const assessment = assessmentData?.data;
-  const goals = assessment?.goals || [];
+  // Backend returns employee_goals, not goals
+  const goals = assessment?.employee_goals || assessment?.goals || [];
+
+  console.log("Evaluation Form - Assessment:", assessment);
+  console.log("Evaluation Form - Goals:", goals);
 
   const {
     control,
@@ -72,18 +78,40 @@ const EvaluatorForm: React.FC<EvaluatorFormProps> = ({ assessmentId, evaluatorId
 
   const onSubmit = async (data: EvaluationFormData) => {
     try {
-      const submission: EvaluationSubmission = {
+      // Get employee ID from assessment
+      const employeeId = typeof assessment?.employee === 'object'
+        ? assessment.employee.id
+        : assessment?.employee;
+
+      // Include all required assessment fields for the update
+      const submission: any = {
+        ...assessment, // Include all existing assessment data
         assessment_id: assessmentId,
         evaluator_id: evaluatorId,
+        employee: employeeId,
+        description: assessment?.description,
+        cycle_name: assessment?.cycle_name,
+        status: assessment?.status,
+        start_date: assessment?.start_date,
+        end_date: assessment?.end_date,
         goal_ratings: data.goal_ratings,
       };
 
+      console.log("Submitting evaluation:", submission);
+
       await updatePerformanceAssesment(submission);
+
+      // Invalidate cache to refresh data
+      queryClient.invalidateQueries({ queryKey: ["performance-assessments"] });
+      queryClient.invalidateQueries({ queryKey: ["performance-assessment", assessmentId] });
+
       toast.success("Evaluation submitted successfully");
       router.push(HrRoutes.PERFORMANCE_MANAGEMENT);
-    } catch (error) {
-      toast.error("Failed to submit evaluation");
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || error?.message || "Failed to submit evaluation";
+      toast.error(errorMessage);
       console.error("Submission error:", error);
+      console.error("Error response:", error?.response?.data);
     }
   };
 

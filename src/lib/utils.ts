@@ -5,7 +5,7 @@ export function cn(...inputs: any) {
   return twMerge(clsx(inputs));
 }
 
-export function formatCurrency(amount: number | string): string {
+export function formatCurrency(amount: number | string, currency: string = "NGN"): string {
   // Convert to number if it's a string
   const numAmount = typeof amount === "string" ? parseFloat(amount) : amount;
 
@@ -14,10 +14,13 @@ export function formatCurrency(amount: number | string): string {
     return "Invalid Amount";
   }
 
+  // Determine locale based on currency
+  const locale = currency === "USD" ? "en-US" : "en-NG";
+
   // Format the number with commas and two decimal places
-  const formattedAmount = numAmount.toLocaleString("en-NG", {
+  const formattedAmount = numAmount.toLocaleString(locale, {
     style: "currency",
-    currency: "NGN",
+    currency: currency,
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });

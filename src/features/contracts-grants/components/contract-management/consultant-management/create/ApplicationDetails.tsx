@@ -11,8 +11,9 @@ import {
 } from "@/features/contracts-grants/types/contract-management/consultancy-management/consultancy-management";
 import { Button } from "components/ui/button";
 import FormTextArea from "components/atoms/FormTextArea";
-import { FormField, FormItem, Form, FormControl } from "components/ui/form";
+import { FormField, FormItem, Form, FormControl, FormMessage } from "components/ui/form";
 import MultiSelectFormField from "components/ui/multiselect";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
 import { useGetAllLocations } from "@/features/modules/controllers/config/locationController";
 import { useEffect, useMemo } from "react";
 import { useGetAllUsers } from "@/features/auth/controllers/userController";
@@ -22,7 +23,7 @@ import { CG_ROUTES, ProgramRoutes } from "constants/RouterConstants";
 import { useGetSingleConsultantManagement } from "@/features/contracts-grants/controllers/consultantManagementController";
 import { skipToken } from "@reduxjs/toolkit/query";
 import FormSelect from "components/atoms/FormSelect";
-import { useGetAllContractRequests } from "@/features/contracts-grants/controllers/contractController";
+import { useGetAllContractRequests, useGetSingleContractRequest } from "@/features/contracts-grants/controllers/contractController";
 import { useGetAllGrades } from "@/features/modules/controllers/config/gradeController";
 
 export default function ApplicationDetails() {
@@ -35,6 +36,8 @@ export default function ApplicationDetails() {
     resolver: zodResolver(ConsultancyManagementDetailSchema),
     defaultValues: {
       title: "",
+      contract_request: "",
+      description: "",
       locations: [],
       commencement_date: "",
       end_date: "",
@@ -48,7 +51,17 @@ export default function ApplicationDetails() {
 
   const {
     formState: { errors },
+    watch,
+    setValue,
   } = form;
+
+  // Watch the contract_request field
+  const selectedContractRequestId = watch("contract_request");
+
+  // Debug: Log when contract request ID changes
+  useEffect(() => {
+    console.log("📋 Selected Contract Request ID:", selectedContractRequestId);
+  }, [selectedContractRequestId]);
 
   const { data: location } = useGetAllLocations({
     page: 1,
@@ -60,6 +73,18 @@ export default function ApplicationDetails() {
       page: 1,
     });
   const { data: user } = useGetAllUsers({ page: 1, size: 2000000 });
+
+  // Fetch selected contract request details
+  const { data: selectedContractRequest, isLoading: isLoadingContractRequest } = useGetSingleContractRequest(
+    selectedContractRequestId || "",
+    !!selectedContractRequestId
+  );
+
+  // Debug: Log contract request data
+  useEffect(() => {
+    console.log("📦 Selected Contract Request Data:", selectedContractRequest);
+    console.log("⏳ Loading:", isLoadingContractRequest);
+  }, [selectedContractRequest, isLoadingContractRequest]);
 
   const contractRequestOptions = useMemo(
     () =>
@@ -129,6 +154,49 @@ export default function ApplicationDetails() {
     }
   }, [data, user]);
 
+  // Populate form when contract request is selected
+  useEffect(() => {
+    if (!selectedContractRequest) {
+      console.log("⚠️ No contract request data");
+      return;
+    }
+
+    console.log("🔄 useEffect triggered with:", selectedContractRequest);
+
+    // Extract contract data from the response
+    // Check if it's wrapped in ApiResponse format (has status, message, data)
+    let contractData: any;
+    if ('data' in selectedContractRequest && 'status' in selectedContractRequest) {
+      contractData = selectedContractRequest.data;
+      console.log("📦 Extracted from ApiResponse wrapper:", contractData);
+    } else {
+      contractData = selectedContractRequest;
+      console.log("📦 Direct contract data:", contractData);
+    }
+
+    if (contractData && contractData.id) {
+      console.log("🔍 Contract Request Selected:", contractData);
+
+      // Populate Title of Consultancy from contract request title
+      setValue("title", contractData.title || "");
+      console.log("✅ Set title:", contractData.title);
+
+      // Populate Number of Consultants from consultants_count
+      setValue("consultants_number", String(contractData.consultants_count || ""));
+      console.log("✅ Set consultants_number:", contractData.consultants_count);
+
+      // Populate Locations if location_detail exists
+      if (contractData.location_detail?.id) {
+        setValue("locations", [contractData.location_detail.id]);
+        console.log("✅ Set locations:", [contractData.location_detail.id]);
+      } else {
+        console.log("⚠️ No location_detail found in:", contractData);
+      }
+    } else {
+      console.log("⚠️ No valid contract data found");
+    }
+  }, [selectedContractRequest, setValue]);
+
   return (
     <main className='w-full flex flex-col items-center justify-center gap-y-[2.5rem] bg-white p-[1.25rem] pt-[2rem]  rounded-2xl'>
       <Form {...form}>
@@ -143,13 +211,40 @@ export default function ApplicationDetails() {
             required
           />
 
-          <FormSelect
-            label='Contract Request'
-            name='contract_request'
-            placeholder='Select Contract Request'
-            required
-            options={contractRequestOptions || []}
-          />
+          <div>
+            <Label className='font-semibold'>
+              Contract Request <span className='text-red-500'>*</span>
+            </Label>
+            <FormField
+              control={form.control}
+              name='contract_request'
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Select
+                      onValueChange={(value) => {
+                        console.log("🎯 Contract Request Selected:", value);
+                        field.onChange(value);
+                      }}
+                      value={field.value}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder='Select Contract Request' />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {contractRequestOptions?.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
 
           <FormTextArea
             label='Job Description'
@@ -217,7 +312,7 @@ export default function ApplicationDetails() {
           />
 
           {/* Show supervisor field only for facilitator management */}
-          {pathname.includes("facilitator-management") && (
+          {pathname?.includes("facilitator-management") && (
             <FormSelect
               label='Supervisor'
               name='supervisor'

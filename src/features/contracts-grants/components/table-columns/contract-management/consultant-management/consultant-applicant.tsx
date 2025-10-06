@@ -11,7 +11,7 @@ import PencilIcon from "components/icons/PencilIcon";
 import ConfirmationDialog from "components/ConfirmationDialog";
 import Link from "next/link";
 import { usePathname, useParams } from "next/navigation";
-import { useDeleteAgreement } from "@/features/contracts-grants/controllers/agreementController";
+import { useDeleteConsultancyApplicant } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
 import { CG_ROUTES, ProgramRoutes } from "constants/RouterConstants";
 import { IConsultancyStaffPaginatedData } from "@/features/contracts-grants/types/contract-management/consultancy-management/consultancy-application";
 import EyeIcon from "components/icons/EyeIcon";
@@ -75,24 +75,32 @@ const TableMenu = ({ id }: IConsultancyStaffPaginatedData) => {
 
   const pathname = usePathname();
 
-  const type = pathname?.includes("adhoc-management") ? "ADHOC" : "CONSULTANT";
+  const type = pathname?.includes("adhoc-management")
+    ? "ADHOC"
+    : pathname?.includes("facilitator-management")
+    ? "FACILITATOR"
+    : "CONSULTANT";
 
   const viewPath =
     type === "ADHOC"
       ? ProgramRoutes.ADHOC_APPLICANT_DETAILS
-      : CG_ROUTES.CONSULTANCY_APPLICATION_DETAILS;
+      : type === "FACILITATOR"
+      ? CG_ROUTES.FACILITATOR_APPLICANT_DETAILS
+      : CG_ROUTES.CONSULTANCY_APPLICANT_DETAILS;
 
   const editPath =
     type === "ADHOC"
       ? ProgramRoutes.CREATE_ADHOC_APPLICANT
+      : type === "FACILITATOR"
+      ? CG_ROUTES.CREATE_FACILITATOR_ADVERT_APPLICANT
       : CG_ROUTES.CREATE_CONSULTANCY_APPLICANT;
 
-  const { deleteAgreement, isLoading } = useDeleteAgreement();
+  const { deleteConsultancyApplicant, isLoading } = useDeleteConsultancyApplicant(id);
 
   const handleDelete = async () => {
     try {
-      await deleteAgreement(id)();
-      toast.success("Adhoc Applicant Deleted");
+      await deleteConsultancyApplicant();
+      toast.success("Applicant Deleted");
     } catch (error: any) {
       toast.error(error.data.message ?? "Something went wrong");
     }

@@ -42,7 +42,7 @@ interface ConsultancyReportFilterParams {
   enabled?: boolean;
 }
 
-const BASE_URL = "/contract-grants/consultancy/reports/"; // From original service
+const BASE_URL = "contract-grants/consultancy/reports/"; // From original service (no leading slash to avoid double slash with baseURL)
 
 // ===== CONSULTANCY REPORT HOOKS =====
 

@@ -138,6 +138,22 @@ export interface IConsultancyStaffPaginatedData {
     signature: null;
     created_by: string;
     updated_by: string | null;
+    // Adhoc-specific fields (optional)
+    gender?: string | null;
+    state_of_origin?: string | null;
+    health_facility?: string | null;
+    spoke_site_name?: string | null;
+    lga?: string | null;
+    qmap_backstop?: string | null;
+    programs_officer?: string | null;
+    stl?: string | null;
+    seo?: string | null;
+    lga2?: string | null;
+    cluster?: string | null;
+    account_name?: string | null;
+    bank_name?: string | null;
+    account_number?: string | null;
+    sort_code?: string | null;
 }
 
 export interface IConsultancyStaffSingleData {

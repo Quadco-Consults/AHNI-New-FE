@@ -14,40 +14,19 @@ import { useDeleteConsultancyReport } from "@/features/contracts-grants/controll
 import EyeIcon from "components/icons/EyeIcon";
 import { IAdhocStaffPaginatedData } from "@/features/programs/types/adhoc-staff";
 
-export const consultantDatabaseColumns: ColumnDef<IAdhocStaffPaginatedData>[] =
+export const consultantDatabaseColumns: ColumnDef<any>[] =
   [
     {
-      header: "Surname",
-      id: "sur_name",
-      accessorKey: "sur_name",
+      header: "Name",
+      id: "name",
+      accessorKey: "name",
       size: 200,
     },
 
     {
-      header: "Other Names",
-      id: "other_names",
-      accessorKey: "other_names",
-      size: 200,
-    },
-
-    {
-      header: "Gender",
-      id: "gender",
-      accessorKey: "gender",
-      size: 200,
-    },
-
-    {
-      header: "State of Origin",
-      id: "state_of_origin",
-      accessorKey: "state_of_origin",
-      size: 200,
-    },
-
-    {
-      header: "Designation",
-      id: "designation",
-      accessorKey: "designation",
+      header: "Email",
+      id: "email",
+      accessorKey: "email",
       size: 200,
     },
 
@@ -59,113 +38,89 @@ export const consultantDatabaseColumns: ColumnDef<IAdhocStaffPaginatedData>[] =
     },
 
     {
-      header: "Email Address",
-      id: "email_address",
-      accessorKey: "email_address",
+      header: "Position",
+      id: "position_under_contract",
+      accessorKey: "position_under_contract",
       size: 200,
     },
 
     {
-      header: "Qualifications",
-      id: "qualifications",
-      accessorKey: "qualifications",
+      header: "Citizenship",
+      id: "citizenship",
+      accessorKey: "citizenship",
+      size: 150,
+    },
+
+    {
+      header: "Place of Birth",
+      id: "place_of_birth",
+      accessorKey: "place_of_birth",
       size: 200,
     },
 
     {
-      header: "Health Facility/Assignment Location",
-      id: "health_facility",
-      accessorKey: "health_facility",
-      size: 200,
+      header: "Start Date",
+      id: "start_duration_date",
+      accessorKey: "start_duration_date",
+      size: 150,
+      cell: ({ row }) => {
+        const date = row.original.start_duration_date;
+        return date ? new Date(date).toLocaleDateString() : '-';
+      },
     },
 
     {
-      header: "Spoke Site Name",
-      id: "spoke_site_name",
-      accessorKey: "spoke_site_name",
-      size: 200,
+      header: "End Date",
+      id: "end_duration_date",
+      accessorKey: "end_duration_date",
+      size: 150,
+      cell: ({ row }) => {
+        const date = row.original.end_duration_date;
+        return date ? new Date(date).toLocaleDateString() : '-';
+      },
     },
 
     {
-      header: "LGA",
-      id: "lga",
-      accessorKey: "lga",
-      size: 200,
+      header: "Contract Number",
+      id: "contract_number",
+      accessorKey: "contract_number",
+      size: 150,
     },
 
     {
-      header: "Status of Adhoc staff",
-      id: "status_of_adhoc_staff",
-      accessorKey: "status_of_adhoc_staff",
-      size: 200,
+      header: "Status",
+      id: "status",
+      accessorKey: "status",
+      size: 150,
+      cell: ({ row }) => {
+        const status = row.original.status;
+        const statusColors: Record<string, string> = {
+          'CONTRACT_ISSUED': 'bg-green-100 text-green-800',
+          'APPROVED': 'bg-blue-100 text-blue-800',
+          'INTERVIEWED': 'bg-yellow-100 text-yellow-800',
+          'SHORTLISTED': 'bg-purple-100 text-purple-800',
+        };
+        return (
+          <span className={`px-2 py-1 rounded text-xs font-medium ${statusColors[status] || 'bg-gray-100 text-gray-800'}`}>
+            {status?.replace(/_/g, ' ') || '-'}
+          </span>
+        );
+      },
     },
 
     {
-      header: "QMAP BACKSTOP",
-      id: "qmap_backstop",
-      accessorKey: "qmap_backstop",
-      size: 200,
-    },
-
-    {
-      header: "Programs Officer",
-      id: "programs_officer",
-      accessorKey: "programs_officer",
-      size: 200,
-    },
-
-    {
-      header: "STL",
-      id: "stl",
-      accessorKey: "stl",
-      size: 200,
-    },
-
-    {
-      header: "SEO",
-      id: "seo",
-      accessorKey: "seo",
-      size: 200,
-    },
-
-    {
-      header: "LGA2",
-      id: "lga2",
-      accessorKey: "lga2",
-      size: 200,
-    },
-
-    {
-      header: "Cluster",
-      id: "cluster",
-      accessorKey: "cluster",
-      size: 200,
-    },
-
-    {
-      header: "Account Name",
-      id: "account_name",
-      accessorKey: "account_name",
-      size: 200,
-    },
-    {
-      header: "Bank Name",
-      id: "bank_name",
-      accessorKey: "bank_name",
-      size: 200,
-    },
-    {
-      header: "Account Number",
-      id: "account_number",
-      accessorKey: "account_number",
-      size: 200,
-    },
-
-    {
-      header: "SORT CODE",
-      id: "sort_code",
-      accessorKey: "sort_code",
-      size: 200,
+      header: "Offer Accepted",
+      id: "offer_accepted",
+      accessorKey: "offer_accepted",
+      size: 150,
+      cell: ({ row }) => {
+        const accepted = row.original.offer_accepted;
+        return (
+          <span className={`px-2 py-1 rounded text-xs font-medium ${accepted ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
+            {accepted ? 'Yes' : 'No'}
+          </span>
+        );
+      },
     },
 
     {

@@ -8,6 +8,7 @@ import GoBack from "components/GoBack";
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { useGetPerformanceAssesment } from "@/features/hr/controllers/hrPerformanceAssessmentController";
+import { useGetEmployeeGoals } from "@/features/hr/controllers/goalsController";
 import { Badge } from "components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "components/ui/card";
 
@@ -19,8 +20,15 @@ const PerformanceDetails = () => {
 
   // Get current user ID
   useEffect(() => {
-    const userId = localStorage.getItem('user_id') || "";
-    setCurrentUserId(userId);
+    try {
+      const userString = localStorage.getItem('user');
+      const user = userString ? JSON.parse(userString) : null;
+      const userId = user?.id || "";
+      setCurrentUserId(userId);
+      console.log("Current User ID for evaluation:", userId);
+    } catch (error) {
+      console.error("Error parsing user data:", error);
+    }
   }, []);
 
   // Fetch assessment details
@@ -31,8 +39,30 @@ const PerformanceDetails = () => {
 
   const assessment = assessmentData?.data?.data || assessmentData?.data;
 
+  // Get employee ID from assessment
+  const employeeId = typeof assessment?.employee === 'object'
+    ? assessment.employee.id
+    : assessment?.employee;
+
+  // Fetch employee goals separately (workaround until backend includes them)
+  const { data: employeeGoalsData } = useGetEmployeeGoals(
+    employeeId || "",
+    !!employeeId
+  );
+
+  // Merge goals into assessment - backend returns employee_goals
+  const assessmentWithGoals = {
+    ...assessment,
+    goals: assessment?.employee_goals || employeeGoalsData?.data?.results || employeeGoalsData?.data || assessment?.goals || []
+  };
+
+  // Debug logging
+  console.log("Assessment data:", assessment);
+  console.log("Employee goals from backend:", assessment?.employee_goals);
+  console.log("Merged goals:", assessmentWithGoals?.goals);
+
   // Find if current user is an evaluator
-  const currentUserEvaluator = assessment?.evaluators?.find((ev) => {
+  const currentUserEvaluator = assessmentWithGoals?.evaluators?.find((ev) => {
     const evaluatorId = typeof ev.evaluator === 'object' ? ev.evaluator.id : ev.evaluator;
     return evaluatorId === currentUserId;
   });
@@ -47,7 +77,7 @@ const PerformanceDetails = () => {
     return <div className="flex justify-center py-10">Loading assessment...</div>;
   }
 
-  if (!assessment) {
+  if (!assessmentWithGoals) {
     return <div className="text-center py-10 text-red-600">Assessment not found</div>;
   }
 
@@ -84,27 +114,27 @@ const PerformanceDetails = () => {
             <div className='grid grid-cols-3 mt-4 gap-4'>
               <div className='flex flex-col'>
                 <label className='text-md font-semibold mb-2'>Description</label>
-                <p>{assessment.description || 'N/A'}</p>
+                <p>{assessmentWithGoals.description || 'N/A'}</p>
               </div>
               <div className='flex flex-col'>
                 <label className='text-md font-semibold mb-2'>Status</label>
-                <Badge variant="outline">{assessment.status || 'draft'}</Badge>
+                <Badge variant="outline">{assessmentWithGoals.status || 'draft'}</Badge>
               </div>
               <div className='flex flex-col'>
                 <label className='text-md font-semibold mb-2'>Cycle Name</label>
-                <p>{assessment.cycle_name || 'N/A'}</p>
+                <p>{assessmentWithGoals.cycle_name || 'N/A'}</p>
               </div>
               <div className='flex flex-col'>
                 <label className='text-md font-semibold mb-2'>Start Date</label>
-                <p>{assessment.start_date || 'N/A'}</p>
+                <p>{assessmentWithGoals.start_date || 'N/A'}</p>
               </div>
               <div className='flex flex-col'>
                 <label className='text-md font-semibold mb-2'>End Date</label>
-                <p>{assessment.end_date || 'N/A'}</p>
+                <p>{assessmentWithGoals.end_date || 'N/A'}</p>
               </div>
               <div className='flex flex-col'>
                 <label className='text-md font-semibold mb-2'>Final Rating</label>
-                <p>{assessment.final_rating ? `${assessment.final_rating}/5` : 'Pending'}</p>
+                <p>{assessmentWithGoals.final_rating ? `${assessmentWithGoals.final_rating}/5` : 'Pending'}</p>
               </div>
             </div>
           </div>
@@ -120,24 +150,24 @@ const PerformanceDetails = () => {
                   Employee Name
                 </label>
                 <p>
-                  {typeof assessment.employee === 'object'
-                    ? `${assessment.employee.legal_firstname} ${assessment.employee.legal_lastname}`
+                  {typeof assessmentWithGoals.employee === 'object'
+                    ? `${assessmentWithGoals.employee.legal_firstname} ${assessmentWithGoals.employee.legal_lastname}`
                     : 'N/A'}
                 </p>
               </div>
               <div className='flex flex-col'>
                 <label className='text-md font-semibold mb-2'>Email</label>
                 <p>
-                  {typeof assessment.employee === 'object'
-                    ? assessment.employee.email
+                  {typeof assessmentWithGoals.employee === 'object'
+                    ? assessmentWithGoals.employee.email
                     : 'N/A'}
                 </p>
               </div>
               <div className='flex flex-col'>
                 <label className='text-md font-semibold mb-2'>Job Title</label>
                 <p>
-                  {typeof assessment.employee === 'object'
-                    ? assessment.employee.job_title
+                  {typeof assessmentWithGoals.employee === 'object'
+                    ? assessmentWithGoals.employee.job_title
                     : 'N/A'}
                 </p>
               </div>
@@ -148,9 +178,9 @@ const PerformanceDetails = () => {
           {/* Employee Goals */}
           <div>
             <h3 className='text-yellow-darker font-semibold mb-4'>Employee Goals</h3>
-            {assessment.goals && assessment.goals.length > 0 ? (
+            {assessmentWithGoals.goals && assessmentWithGoals.goals.length > 0 ? (
               <div className='grid gap-4'>
-                {assessment.goals.map((goal, index) => {
+                {assessmentWithGoals.goals.map((goal, index) => {
                   const totalWeight = goal.total_weight || goal.narratives?.reduce((sum, n) => sum + parseFloat(n.weight?.toString() || '0'), 0);
 
                   return (
@@ -208,8 +238,8 @@ const PerformanceDetails = () => {
           <div className='flex flex-col gap-4'>
             <h3 className='text-yellow-darker font-semibold'>Evaluators</h3>
             <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-              {assessment.evaluators && assessment.evaluators.length > 0 ? (
-                assessment.evaluators.map((evaluator, index) => {
+              {assessmentWithGoals.evaluators && assessmentWithGoals.evaluators.length > 0 ? (
+                assessmentWithGoals.evaluators.map((evaluator, index) => {
                   const evaluatorUser = typeof evaluator.evaluator === 'object'
                     ? evaluator.evaluator
                     : null;

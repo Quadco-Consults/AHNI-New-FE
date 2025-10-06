@@ -106,6 +106,24 @@ export interface IContractRequestPaginatedData {
   modifications?: { name: string }[];
 }
 
+// Approval comment/history interface
+export interface IApprovalComment {
+  id: string;
+  comment?: string;
+  old_status: string;
+  old_status_display?: string;
+  new_status: string;
+  new_status_display?: string;
+  created_by: {
+    id: string;
+    first_name: string;
+    last_name: string;
+    full_name: string;
+    email: string;
+  };
+  created_datetime: string;
+}
+
 export interface IContractRequestSingleData {
   id: string;
   title: string;
@@ -126,7 +144,7 @@ export interface IContractRequestSingleData {
   phone_number: string;
   fco?: string;
   technical_monitor?: string;
-  
+
   // Workflow assignment fields
   current_reviewer?: string;
   current_reviewer_detail?: {
@@ -149,7 +167,10 @@ export interface IContractRequestSingleData {
     last_name: string;
     email: string;
   };
-  
+
+  // Approval history/comments
+  comments?: IApprovalComment[];
+
   created_datetime: string;
   updated_datetime: string;
   created_by?: {
@@ -159,7 +180,7 @@ export interface IContractRequestSingleData {
     full_name: string;
   };
   updated_by?: null;
-  
+
   // Legacy fields for compatibility
   award_type?: string;
   project_id?: string;

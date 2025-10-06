@@ -10,6 +10,7 @@ import PencilIcon from "components/icons/PencilIcon";
 import { Edit } from "lucide-react";
 import { formatNumberCurrency } from "utils/utls";
 import { ISubGrantPaginatedData } from "@/features/contracts-grants/types/contract-management/sub-grant/sub-grant";
+import { useGetAwardsBySubGrant } from "@/features/contracts-grants/controllers/subGrantAwardController";
 
 export const subGrantAwardColumns: ColumnDef<ISubGrantPaginatedData>[] = [
     {
@@ -125,6 +126,11 @@ export const subGrantAwardColumns: ColumnDef<ISubGrantPaginatedData>[] = [
 ];
 
 const TableMenu = ({ id }: ISubGrantPaginatedData) => {
+    // For the awards page, the ID is the SubGrant ID
+    // We link directly to award details using the same ID
+    // The backend should handle showing award info for this subgrant
+    const detailsLink = `/dashboard/c-and-g/sub-grant/${id}/details`;
+
     return (
         <div className="flex items-center gap-2">
             <Popover>
@@ -137,7 +143,7 @@ const TableMenu = ({ id }: ISubGrantPaginatedData) => {
                     <div className="flex flex-col items-start justify-between gap-1">
                         <Link
                             className="w-full"
-                            href={`/dashboard/c-and-g/sub-grant/awards/${id}`}
+                            href={detailsLink}
                         >
                             <Button
                                 className="w-full flex items-center justify-start gap-2"

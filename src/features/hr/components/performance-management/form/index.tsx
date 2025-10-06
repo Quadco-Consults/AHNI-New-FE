@@ -102,15 +102,27 @@ const NewPerformance = () => {
   const { createPerformanceAssesment, isLoading: isCreating } = useCreatePerformanceAssesment();
 
   const userOptions = useMemo(
-    () =>
-      users?.results?.map(({ first_name, last_name, id }) => ({
-        label: `${first_name} ${last_name}`,
+    () => {
+      // Handle paginated response: data.results or direct results
+      const userList = users?.data?.results || users?.results || [];
+      return userList.map(({ first_name, last_name, id }: any) => ({
+        label: `${first_name || ''} ${last_name || ''}`.trim() || 'Unnamed User',
         value: id,
-      })) || [],
+      }));
+    },
     [users]
   );
 
-  const goals = employeeGoals?.data || [];
+  // Handle goals - could be paginated or direct array
+  const goals = useMemo(() => {
+    if (!employeeGoals?.data) return [];
+    // If paginated: data.results
+    if (employeeGoals.data.results) return employeeGoals.data.results;
+    // If direct array
+    if (Array.isArray(employeeGoals.data)) return employeeGoals.data;
+    // Fallback
+    return [];
+  }, [employeeGoals]);
 
   const onSubmit = async (data: PerformanceAssessmentFormData) => {
     if (goals.length === 0) {
@@ -157,64 +169,7 @@ const NewPerformance = () => {
             onSubmit={handleSubmit(onSubmit)}
             className='flex flex-col gap-6'
           >
-            {/* Your Goals Section */}
-            <Card>
-              <CardHeader>
-                <CardTitle className='text-yellow-darker'>Your Goals</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {isLoadingGoals ? (
-                  <p className='text-gray-500'>Loading your goals...</p>
-                ) : goals.length === 0 ? (
-                  <div className='text-center py-4'>
-                    <p className='text-red-600 mb-2'>You haven&apos;t set any goals yet!</p>
-                    <p className='text-sm text-gray-600'>
-                      Please set your goals in your employee profile before creating a performance assessment.
-                    </p>
-                  </div>
-                ) : (
-                  <div className='space-y-3'>
-                    {goals.map((goal) => {
-                      const totalWeight = goal.total_weight || goal.narratives?.reduce((sum, n) => sum + parseFloat(n.weight?.toString() || '0'), 0);
-
-                      return (
-                        <div key={goal.id} className='p-3 border rounded-lg'>
-                          <div className='flex justify-between items-start mb-2'>
-                            <div className='flex-1'>
-                              <p className='font-medium'>{goal.title}</p>
-                              {goal.description && (
-                                <p className='text-sm text-gray-600 mt-1'>{goal.description}</p>
-                              )}
-                            </div>
-                            <Badge variant='outline'>{totalWeight ? parseFloat(totalWeight.toString()).toFixed(0) : 0}%</Badge>
-                          </div>
-
-                          {/* Narratives/Tasks */}
-                          {goal.narratives && goal.narratives.length > 0 && (
-                            <div className='mt-2 pl-2 border-l-2 border-gray-200'>
-                              <p className='text-xs font-medium text-gray-500 mb-1'>Tasks:</p>
-                              <ul className='space-y-1'>
-                                {goal.narratives.map((narrative, idx) => (
-                                  <li key={idx} className='text-xs flex items-start gap-2'>
-                                    <span className='text-gray-400'>•</span>
-                                    <span className='flex-1'>{narrative.description}</span>
-                                    <Badge variant='secondary' className='text-xs h-4'>
-                                      {parseFloat(narrative.weight?.toString() || '0').toFixed(0)}%
-                                    </Badge>
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Employee Selection */}
+            {/* Employee Selection - FIRST */}
             <div className=''>
               <h3 className='text-yellow-darker'>Employee Selection</h3>
             </div>
@@ -228,6 +183,65 @@ const NewPerformance = () => {
             >
               <SelectContent></SelectContent>
             </FormSelect>
+
+            {/* Employee Goals Section - Shows AFTER employee is selected */}
+            {selectedEmployee && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className='text-yellow-darker'>Employee Goals</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {isLoadingGoals ? (
+                    <p className='text-gray-500'>Loading employee goals...</p>
+                  ) : goals.length === 0 ? (
+                    <div className='text-center py-4'>
+                      <p className='text-red-600 mb-2'>This employee hasn&apos;t set any goals yet!</p>
+                      <p className='text-sm text-gray-600'>
+                        The employee must set goals before a performance assessment can be created.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className='space-y-3'>
+                      {goals.map((goal) => {
+                        const totalWeight = goal.total_weight || goal.narratives?.reduce((sum, n) => sum + parseFloat(n.weight?.toString() || '0'), 0);
+
+                        return (
+                          <div key={goal.id} className='p-3 border rounded-lg'>
+                            <div className='flex justify-between items-start mb-2'>
+                              <div className='flex-1'>
+                                <p className='font-medium'>{goal.title}</p>
+                                {goal.description && (
+                                  <p className='text-sm text-gray-600 mt-1'>{goal.description}</p>
+                                )}
+                              </div>
+                              <Badge variant='outline'>{totalWeight ? parseFloat(totalWeight.toString()).toFixed(0) : 0}%</Badge>
+                            </div>
+
+                            {/* Narratives/Tasks */}
+                            {goal.narratives && goal.narratives.length > 0 && (
+                              <div className='mt-2 pl-2 border-l-2 border-gray-200'>
+                                <p className='text-xs font-medium text-gray-500 mb-1'>Tasks:</p>
+                                <ul className='space-y-1'>
+                                  {goal.narratives.map((narrative, idx) => (
+                                    <li key={idx} className='text-xs flex items-start gap-2'>
+                                      <span className='text-gray-400'>•</span>
+                                      <span className='flex-1'>{narrative.description}</span>
+                                      <Badge variant='secondary' className='text-xs h-4'>
+                                        {parseFloat(narrative.weight?.toString() || '0').toFixed(0)}%
+                                      </Badge>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
 
             {/* Appraisal Information */}
             <div className=''>
