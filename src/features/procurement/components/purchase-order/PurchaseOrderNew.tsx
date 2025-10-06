@@ -52,6 +52,7 @@ const PurchaseOrderNew = () => {
   const [open, setOpen] = useState(false);
   const [opens, setOpens] = useState(false);
   const [opensPurchase, setOpensPurchase] = useState(false);
+  const [openReviewer, setOpenReviewer] = useState(false);
   const [openAuthorizer, setOpenAuthorizer] = useState(false);
   const [openApprover, setOpenApprover] = useState(false);
   const [openVendorRep, setOpenVendorRep] = useState(false);
@@ -832,7 +833,69 @@ const PurchaseOrderNew = () => {
           {/* Approval Workflow Section */}
           <div className="mt-8 border-t pt-6">
             <h3 className="text-lg font-semibold mb-4">Approval Workflow</h3>
-            <div className="grid grid-cols-2 gap-5">
+            <div className="grid grid-cols-3 gap-5">
+              <FormField
+                control={form.control}
+                name="reviewed_by"
+                render={({ field }) => (
+                  <FormItem>
+                    <Label>Reviewer *</Label>
+                    <Popover open={openReviewer} onOpenChange={setOpenReviewer}>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            aria-expanded={openReviewer}
+                            className={cn(
+                              "w-full justify-between",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value
+                              ? String(users?.results?.find(
+                                  (user) => user.id === field.value
+                                )?.fullName || "Unknown User")
+                              : "Select Reviewer"}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-full p-0">
+                        <Command>
+                          <CommandInput placeholder="Search users..." />
+                          <CommandEmpty>No user found.</CommandEmpty>
+                          <CommandGroup>
+                            {usersIsLoading && <LoadingSpinner />}
+                            {!usersIsLoading &&
+                              users?.results?.filter(user => user && user.id && user.fullName)?.map((user) => (
+                                <CommandItem
+                                  value={String(user.fullName || "")}
+                                  key={user.id}
+                                  onSelect={() => {
+                                    field.onChange(user.id);
+                                    setOpenReviewer(false);
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      user.id === field.value
+                                        ? "opacity-100"
+                                        : "opacity-0"
+                                    )}
+                                  />
+                                  {String(user.fullName || "Unknown User")}
+                                </CommandItem>
+                              ))}
+                          </CommandGroup>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                  </FormItem>
+                )}
+              />
+
               <FormField
                 control={form.control}
                 name="authorized_by"
