@@ -14,11 +14,19 @@ import Link from "next/link";
 const tableColumns: ColumnDef<any>[] = [
   {
     header: "Description of Items",
-    cell: ({ row }) => row.original?.item_detail?.name || row.original?.description || "N/A",
+    cell: ({ row }) => {
+      return row.original?.item_detail?.name ||
+             row.original?.description ||
+             `Item ID: ${row.original?.item || row.original?.id || 'N/A'}`;
+    },
   },
   {
     header: "Unit of Measurement",
-    cell: ({ row }) => row.original?.item_detail?.uom || row.original?.uom || "N/A",
+    cell: ({ row }) => {
+      return row.original?.item_detail?.uom ||
+             row.original?.uom ||
+             "Not specified";
+    },
   },
   {
     header: "Quantity Ordered",
@@ -46,7 +54,11 @@ const tableColumns: ColumnDef<any>[] = [
   },
   {
     header: "FCO Number",
-    cell: ({ row }) => row.original?.fco_number_detail?.code || "N/A",
+    cell: ({ row }) => {
+      return row.original?.fco_number_detail?.code ||
+             row.original?.fco_number ||
+             "Not specified";
+    },
   },
 ];
 
@@ -70,6 +82,11 @@ export default function GoodReceiveNoteDetails() {
     const grnData = data?.data;
     const purchaseOrder = grnData?.purchase_order;
     const poData = purchaseOrderData?.data;
+
+    console.log("🔍 GRN Data:", grnData);
+    console.log("🔍 Purchase Order from GRN:", purchaseOrder);
+    console.log("🔍 Full PO Data:", poData);
+    console.log("🔍 PO Items:", poData?.purchase_order_items);
 
     return {
       // GRN specific fields

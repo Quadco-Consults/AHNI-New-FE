@@ -271,7 +271,7 @@ export default function NewConsultancyStaffForm({
           />
 
           <FormInput
-            type='number'
+            type='tel'
             label='Telephone Number'
             name='phone_number'
             required
@@ -594,7 +594,7 @@ export default function NewConsultancyStaffForm({
                   required
                 />
                 <FormInput
-                  type='number'
+                  type='tel'
                   label='Phone Number'
                   name={`referees.${index}.phone_number`}
                   required

@@ -42,8 +42,8 @@ interface ContractRequestFilterParams {
   enabled?: boolean;
 }
 
-const BASE_URL = "/contract-grants/contract-requests/"; // From original service
-const INTERVIEW_BASE_URL = "/contract-grants/consultancy/applicant-interviews/bulk-create/";
+const BASE_URL = "contract-grants/contract-requests/"; // From original service (no leading slash to avoid double slash with baseURL)
+const INTERVIEW_BASE_URL = "contract-grants/consultancy/applicant-interviews/bulk-create/";
 
 // ===== CONTRACT REQUEST HOOKS =====
 
@@ -271,3 +271,168 @@ export const useModifyContractStatusMutation = useUpdateContractStatus;
 // Missing named exports
 export const useModifyContractStatus = useUpdateContractStatus;
 export const useModifyContractRequest = useUpdateContractRequest;
+
+// ===== APPROVAL WORKFLOW HOOKS =====
+
+// Submit Contract Request (DRAFT → SUBMITTED)
+export const useSubmitContractRequest = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    IContractRequestSingleData,
+    Error,
+    { comment: string | null }
+  >({
+    endpoint: `${BASE_URL}${id}/submit/`,
+    queryKey: ["contractRequests", "contractRequest"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const submitContractRequest = async (comment?: string) => {
+    try {
+      // Send null if no comment, to avoid "field may not be blank" error
+      const payload = { comment: comment?.trim() || null };
+      await callApi(payload);
+    } catch (error) {
+      console.error("Contract request submit error:", error);
+      throw error;
+    }
+  };
+
+  return { submitContractRequest, data, isLoading, isSuccess, error };
+};
+
+// Review Contract Request (SUBMITTED → UNDER_REVIEW)
+export const useReviewContractRequest = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    IContractRequestSingleData,
+    Error,
+    { comment: string | null }
+  >({
+    endpoint: `${BASE_URL}${id}/review/`,
+    queryKey: ["contractRequests", "contractRequest"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const reviewContractRequest = async (comment?: string) => {
+    try {
+      // Send null if no comment, to avoid "field may not be blank" error
+      const payload = { comment: comment?.trim() || null };
+      await callApi(payload);
+    } catch (error) {
+      console.error("Contract request review error:", error);
+      throw error;
+    }
+  };
+
+  return { reviewContractRequest, data, isLoading, isSuccess, error };
+};
+
+// Complete Review of Contract Request (UNDER_REVIEW → REVIEWED)
+export const useCompleteReviewContractRequest = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    IContractRequestSingleData,
+    Error,
+    { comment: string | null }
+  >({
+    endpoint: `${BASE_URL}${id}/complete_review/`,
+    queryKey: ["contractRequests", "contractRequest"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const completeReviewContractRequest = async (comment?: string) => {
+    try {
+      // Send null if no comment, to avoid "field may not be blank" error
+      const payload = { comment: comment?.trim() || null };
+      await callApi(payload);
+    } catch (error) {
+      console.error("Contract request complete review error:", error);
+      throw error;
+    }
+  };
+
+  return { completeReviewContractRequest, data, isLoading, isSuccess, error };
+};
+
+// Authorize Contract Request (REVIEWED → AUTHORIZED)
+export const useAuthorizeContractRequest = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    IContractRequestSingleData,
+    Error,
+    { comment: string | null }
+  >({
+    endpoint: `${BASE_URL}${id}/authorize/`,
+    queryKey: ["contractRequests", "contractRequest"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const authorizeContractRequest = async (comment?: string) => {
+    try {
+      // Send null if no comment, to avoid "field may not be blank" error
+      const payload = { comment: comment?.trim() || null };
+      await callApi(payload);
+    } catch (error) {
+      console.error("Contract request authorize error:", error);
+      throw error;
+    }
+  };
+
+  return { authorizeContractRequest, data, isLoading, isSuccess, error };
+};
+
+// Approve Contract Request (AUTHORIZED → APPROVED)
+export const useApproveContractRequest = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    IContractRequestSingleData,
+    Error,
+    { comment: string | null }
+  >({
+    endpoint: `${BASE_URL}${id}/approve/`,
+    queryKey: ["contractRequests", "contractRequest"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const approveContractRequest = async (comment?: string) => {
+    try {
+      // Send null if no comment, to avoid "field may not be blank" error
+      const payload = { comment: comment?.trim() || null };
+      await callApi(payload);
+    } catch (error) {
+      console.error("Contract request approve error:", error);
+      throw error;
+    }
+  };
+
+  return { approveContractRequest, data, isLoading, isSuccess, error };
+};
+
+// Reject Contract Request (ANY → REJECTED) - Requires comment
+interface RejectContractRequestPayload {
+  comment: string;
+}
+
+export const useRejectContractRequest = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    IContractRequestSingleData,
+    Error,
+    RejectContractRequestPayload
+  >({
+    endpoint: `${BASE_URL}${id}/reject/`,
+    queryKey: ["contractRequests", "contractRequest"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const rejectContractRequest = async (comment: string) => {
+    try {
+      await callApi({ comment });
+    } catch (error) {
+      console.error("Contract request reject error:", error);
+    }
+  };
+
+  return { rejectContractRequest, data, isLoading, isSuccess, error };
+};

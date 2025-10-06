@@ -13,7 +13,7 @@ import {
   CommandItem,
 } from "components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { useGetVendors } from "@/features/procurement/controllers/vendorController";
 import {
   useGetPurchaseRequests,
@@ -38,17 +38,40 @@ import MultiSelectFormField from "components/ui/multiselect";
 import FormSelect from "components/atoms/FormSelect";
 import { useGetAllItems } from "@/features/modules/controllers/config/itemController";
 import { useGetAllFCONumbersQuery } from "@/features/modules/controllers";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useGetAllUsers } from "@/features/auth/controllers/userController";
+import CbaAPI from "@/features/procurement/controllers/cbaController";
+import { useGetSolicitationSubmission } from "@/features/procurement/controllers/vendorBidSubmissionsController";
 
 const PurchaseOrderNew = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const cbaId = searchParams?.get('cba');
+  const vendorIdFromUrl = searchParams?.get('vendor');
+
   const [open, setOpen] = useState(false);
   const [opens, setOpens] = useState(false);
   const [opensPurchase, setOpensPurchase] = useState(false);
-  const [vendorValue, setVendorValue] = useState("");
+  const [openReviewer, setOpenReviewer] = useState(false);
+  const [openAuthorizer, setOpenAuthorizer] = useState(false);
+  const [openApprover, setOpenApprover] = useState(false);
+  const [openVendorRep, setOpenVendorRep] = useState(false);
+  const [vendorValue, setVendorValue] = useState(vendorIdFromUrl || "");
   const [requestValue, setRequestValue] = useState("");
   const [purchaseValue, setPurchaseValue] = useState("");
+
+  // Track if CBA items have been populated to prevent double-appending
+  const cbaItemsPopulated = useRef(false);
+
+  // Fetch CBA data if coming from CBA flow
+  const { data: cbaData } = CbaAPI.useGetSingleCba(cbaId || "", !!cbaId);
+
+  // Fetch bid submissions to get vendor bid_items (same as AnalysisResultsView)
+  const solicitationId = cbaData?.data?.solicitation?.id;
+  const { data: submissionData } = useGetSolicitationSubmission(
+    solicitationId || "",
+    !!solicitationId
+  );
 
 
   const { data: vendors, isLoading: vendorsIsLoading } = useGetVendors({
@@ -247,10 +270,159 @@ const PurchaseOrderNew = () => {
     }
   }, [setValue, vendorValue]);
 
+  // Auto-populate fields when Purchase Request is selected
+  useEffect(() => {
+    if (requestsDetails?.data) {
+      const prData = requestsDetails.data;
+      console.log("🔍 Purchase Request Details for auto-populate:", prData);
+
+      // Set department from purchase request
+      if (prData.requesting_department) {
+        console.log("🔍 Setting department:", prData.requesting_department);
+        setRequestValue(prData.requesting_department);
+      }
+
+      // Note: payment_terms and delivery_lead_time don't exist in PurchaseRequestResultsData
+      // These fields should be manually entered by the user
+    }
+  }, [requestsDetails]);
+
   const { fields, remove, append } = useFieldArray({
     control,
     name: "items",
   });
+
+  // Auto-populate form from CBA data (same logic as AnalysisResultsView)
+  useEffect(() => {
+    console.log("🔍 CBA Auto-populate useEffect triggered");
+    console.log("🔍 Has cbaData:", !!cbaData?.data);
+    console.log("🔍 Has submissionData:", !!submissionData);
+    console.log("🔍 Has cbaId:", !!cbaId);
+    console.log("🔍 Already populated:", cbaItemsPopulated.current);
+
+    if (cbaData?.data && submissionData && cbaId && !cbaItemsPopulated.current) {
+      console.log("🔍 CBA Data for PO:", cbaData.data);
+      console.log("🔍 Submission Data for PO:", submissionData);
+
+      // Set vendor from URL parameter
+      if (vendorIdFromUrl) {
+        setVendorValue(vendorIdFromUrl);
+      }
+
+      // Get submissions array (same path as AnalysisResultsView line 153)
+      const submissions = (submissionData as any)?.data?.data?.results ||
+                         (submissionData as any)?.data?.results ||
+                         [];
+      console.log("🔍 All submissions:", submissions);
+
+      // Get selected vendor and items from CBA
+      const selectedBidId = cbaData.data.selected_bid_submission;
+      const selectedItemIds = cbaData.data.selected_items || [];
+      console.log("🔍 Selected vendor/bid ID:", selectedBidId);
+      console.log("🔍 Selected item IDs:", selectedItemIds);
+
+      // Find the selected vendor submission (same as AnalysisResultsView line 156)
+      const selectedVendor = submissions.find((sub: any) => sub.id === selectedBidId);
+      console.log("🔍 Selected vendor submission:", selectedVendor);
+
+      if (!selectedVendor) {
+        console.warn("⚠️ Selected vendor submission not found");
+        return;
+      }
+
+      // Extract the actual vendor ID from the selected submission
+      const actualVendorId = selectedVendor.vendor?.id;
+      console.log("🔍 Actual vendor ID:", actualVendorId);
+
+      if (actualVendorId) {
+        setVendorValue(actualVendorId);
+      }
+
+      // Set purchase request from solicitation
+      // The solicitation can be either a string ID or an expanded object
+      const solicitation = cbaData.data.solicitation;
+      const purchaseRequestId = typeof solicitation === 'object' && solicitation !== null
+        ? (solicitation as any).purchase_request
+        : null;
+      console.log("🔍 Solicitation data:", solicitation);
+      console.log("🔍 Purchase Request ID from solicitation:", purchaseRequestId);
+
+      if (purchaseRequestId) {
+        setPurchaseValue(purchaseRequestId);
+        // This will trigger the useEffect that fetches PR details and populates department
+      }
+
+      // Extract payment terms and delivery from selected vendor submission
+      const paymentTerms = selectedVendor.payment_terms || selectedVendor.payment_term || "";
+      const deliveryTime = selectedVendor.delivery_time ||
+                          selectedVendor.delivery_leadtime ||
+                          selectedVendor.delivery_lead_time || "";
+      console.log("🔍 Payment Terms from vendor:", paymentTerms);
+      console.log("🔍 Delivery Time from vendor:", deliveryTime);
+
+      // Get bid_items from the selected vendor (same as AnalysisResultsView line 160)
+      const bidItems = selectedVendor.bid_items || [];
+      console.log("🔍 Bid items from selected vendor:", bidItems);
+
+      if (bidItems.length === 0) {
+        console.warn("⚠️ No bid items found for selected vendor");
+        return;
+      }
+
+      // Filter to only selected items and map to PO form format
+      const selectedBidItems = bidItems.filter((bidItem: any) =>
+        selectedItemIds.includes(bidItem.id)
+      );
+      console.log("🔍 Filtered selected bid items:", selectedBidItems);
+
+      if (selectedBidItems.length > 0) {
+        const mappedItems = selectedBidItems.map((bidItem: any) => {
+          console.log("🔍 Processing bid item:", bidItem);
+
+          const quantity = parseFloat(bidItem.solicitation_item_quantity || 0);
+          const unitPrice = parseFloat(bidItem.unit_price || 0);
+          const total = parseFloat(bidItem.total_price || (quantity * unitPrice));
+
+          // Get the actual item ID from solicitation_item or fallback to id
+          const itemId = bidItem.solicitation_item || bidItem.id;
+
+          return {
+            description: itemId || "",
+            quantity: quantity,
+            unit_cost: unitPrice,
+            total: total,
+            fco_number: [],
+            uom: "", // UOM will be populated from item details if needed
+          };
+        });
+
+        console.log("🔍 Mapped items for PO form:", mappedItems);
+
+        // Use form.reset to populate items, vendor, purchase request, payment, and delivery
+        // This ensures React Hook Form properly registers the fields
+        form.reset({
+          ...form.getValues(),
+          vendor: actualVendorId || "",
+          purchase_request: purchaseRequestId || "",
+          payment_terms: paymentTerms,
+          delivery_lead_time: deliveryTime,
+          items: mappedItems,
+        });
+
+        console.log("🔍 Form reset with items");
+        console.log("🔍 Form values after reset:", form.getValues());
+
+        // Mark as populated to prevent re-running
+        cbaItemsPopulated.current = true;
+        console.log("✅ CBA items populated successfully");
+      } else {
+        console.warn("⚠️ No selected items found in bid items");
+      }
+
+      // Set CBA ID in form (if your schema supports it)
+      setValue("cba" as any, cbaId);
+    }
+  }, [cbaData, submissionData, cbaId, vendorIdFromUrl, append, setValue]);
 
   useEffect(() => {
     setValue("items", fields);
@@ -263,6 +435,15 @@ const PurchaseOrderNew = () => {
     const formData = {
       purchase_request: data?.purchase_request,
       vendor: vendorValue,
+      ...(cbaId && { cba: cbaId }), // Include CBA ID if creating from CBA
+      // Approval workflow fields
+      reviewed_by: data?.reviewed_by,
+      authorized_by: data?.authorized_by,
+      approved_by: data?.approved_by,
+      ...(data?.agreed_by && { agreed_by: data.agreed_by }), // Optional vendor representative
+      // Payment and delivery
+      ...(data?.payment_terms && { payment_terms: data.payment_terms }),
+      ...(data?.delivery_lead_time && { delivery_lead_time: data.delivery_lead_time }),
       items: data?.items.map((item) => ({
         item_id: item?.description || "",
         fco: item?.fco_number?.[0] || "",
@@ -272,6 +453,12 @@ const PurchaseOrderNew = () => {
     };
 
     console.log("📤 Sending form data:", formData);
+    console.log("📤 Approval workflow:", {
+      reviewed_by: data?.reviewed_by,
+      authorized_by: data?.authorized_by,
+      approved_by: data?.approved_by,
+      agreed_by: data?.agreed_by,
+    });
 
     try {
       const res = await createPurchcaseOrderMutation(formData);
@@ -496,7 +683,10 @@ const PurchaseOrderNew = () => {
               </tr>
             </thead>
             <tbody>
+              {console.log("🔍 Rendering table with fields.length:", fields.length)}
+              {console.log("🔍 Fields array:", fields)}
               {fields.map((field, index) => {
+                console.log(`🔍 Rendering row ${index} for field:`, field);
                 return (
                   <tr key={index} className="w-full">
                     <td className="w-fit p-2 text-center ">
@@ -514,7 +704,30 @@ const PurchaseOrderNew = () => {
                           name={`items.${index}.description`}
                           options={itemOptions}
                           value={form.watch(`items.${index}.description`)}
-                          disabled={true}
+                          disabled={false}
+                          onChange={(e) => {
+                            const selectedItemId = e.target.value;
+                            console.log("🔍 Selected item ID:", selectedItemId);
+
+                            // Find the selected item from the items list
+                            const selectedItem = item?.data?.results?.find(
+                              (itm: any) => itm.id === selectedItemId
+                            );
+
+                            console.log("🔍 Selected item details:", selectedItem);
+
+                            if (selectedItem) {
+                              // Update the UOM field with the item's unit (ItemData uses 'unit' not 'uom')
+                              setValue(`items.${index}.uom`, selectedItem.unit || "");
+                              console.log("🔍 Set UOM to:", selectedItem.unit);
+
+                              // Also update the description field
+                              setValue(`items.${index}.description`, selectedItemId);
+
+                              // Trigger validation
+                              trigger(`items.${index}.uom`);
+                            }
+                          }}
                         />
                       ) : (
                         <FormInput name={`items.${index}.name`} />
@@ -659,28 +872,104 @@ const PurchaseOrderNew = () => {
           {/* Approval Workflow Section */}
           <div className="mt-8 border-t pt-6">
             <h3 className="text-lg font-semibold mb-4">Approval Workflow</h3>
-            <div className="grid grid-cols-2 gap-5">
+            <div className="grid grid-cols-3 gap-5">
               <FormField
                 control={form.control}
-                name="authorized_by"
+                name="reviewed_by"
                 render={({ field }) => (
                   <FormItem>
-                    <Label>Director of Finance (Authorizer) *</Label>
-                    <Popover>
+                    <Label>Reviewer *</Label>
+                    <Popover open={openReviewer} onOpenChange={setOpenReviewer}>
                       <PopoverTrigger asChild>
                         <FormControl>
                           <Button
                             variant="outline"
                             role="combobox"
+                            aria-expanded={openReviewer}
                             className={cn(
                               "w-full justify-between",
                               !field.value && "text-muted-foreground"
                             )}
                           >
                             {field.value
-                              ? String(users?.results?.find(
-                                  (user) => user.id === field.value
-                                )?.fullName || "Unknown User")
+                              ? (() => {
+                                  const user = users?.results?.find(
+                                    (user) => user.id === field.value
+                                  );
+                                  return user
+                                    ? `${user.first_name || ''} ${user.last_name || ''}`.trim() || "Unknown User"
+                                    : "Unknown User";
+                                })()
+                              : "Select Reviewer"}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-full p-0">
+                        <Command>
+                          <CommandInput placeholder="Search users..." />
+                          <CommandEmpty>No user found.</CommandEmpty>
+                          <CommandGroup>
+                            {usersIsLoading && <LoadingSpinner />}
+                            {!usersIsLoading &&
+                              users?.results?.filter(user => user && user.id && (user.first_name || user.last_name))?.map((user) => {
+                                const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim();
+                                return (
+                                  <CommandItem
+                                    value={fullName}
+                                    key={user.id}
+                                    onSelect={() => {
+                                      field.onChange(user.id);
+                                      setOpenReviewer(false);
+                                    }}
+                                  >
+                                    <Check
+                                      className={cn(
+                                        "mr-2 h-4 w-4",
+                                        user.id === field.value
+                                          ? "opacity-100"
+                                          : "opacity-0"
+                                      )}
+                                    />
+                                    {fullName || "Unknown User"}
+                                  </CommandItem>
+                                );
+                              })}
+                          </CommandGroup>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="authorized_by"
+                render={({ field }) => (
+                  <FormItem>
+                    <Label>Director of Finance (Authorizer) *</Label>
+                    <Popover open={openAuthorizer} onOpenChange={setOpenAuthorizer}>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            aria-expanded={openAuthorizer}
+                            className={cn(
+                              "w-full justify-between",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value
+                              ? (() => {
+                                  const user = users?.results?.find(
+                                    (user) => user.id === field.value
+                                  );
+                                  return user
+                                    ? `${user.first_name || ''} ${user.last_name || ''}`.trim() || "Unknown User"
+                                    : "Unknown User";
+                                })()
                               : "Select Director of Finance"}
                             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                           </Button>
@@ -691,26 +980,31 @@ const PurchaseOrderNew = () => {
                           <CommandInput placeholder="Search users..." />
                           <CommandEmpty>No user found.</CommandEmpty>
                           <CommandGroup>
+                            {usersIsLoading && <LoadingSpinner />}
                             {!usersIsLoading &&
-                              users?.results?.filter(user => user && user.id && user.fullName)?.map((user) => (
-                                <CommandItem
-                                  value={String(user.fullName || "")}
-                                  key={user.id}
-                                  onSelect={() => {
-                                    field.onChange(user.id);
-                                  }}
-                                >
-                                  <Check
-                                    className={cn(
-                                      "mr-2 h-4 w-4",
-                                      user.id === field.value
-                                        ? "opacity-100"
-                                        : "opacity-0"
-                                    )}
-                                  />
-                                  {String(user.fullName || "Unknown User")}
-                                </CommandItem>
-                              ))}
+                              users?.results?.filter(user => user && user.id && (user.first_name || user.last_name))?.map((user) => {
+                                const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim();
+                                return (
+                                  <CommandItem
+                                    value={fullName}
+                                    key={user.id}
+                                    onSelect={() => {
+                                      field.onChange(user.id);
+                                      setOpenAuthorizer(false);
+                                    }}
+                                  >
+                                    <Check
+                                      className={cn(
+                                        "mr-2 h-4 w-4",
+                                        user.id === field.value
+                                          ? "opacity-100"
+                                          : "opacity-0"
+                                      )}
+                                    />
+                                    {fullName || "Unknown User"}
+                                  </CommandItem>
+                                );
+                              })}
                           </CommandGroup>
                         </Command>
                       </PopoverContent>
@@ -725,21 +1019,27 @@ const PurchaseOrderNew = () => {
                 render={({ field }) => (
                   <FormItem>
                     <Label>Director of Operations (Approver) *</Label>
-                    <Popover>
+                    <Popover open={openApprover} onOpenChange={setOpenApprover}>
                       <PopoverTrigger asChild>
                         <FormControl>
                           <Button
                             variant="outline"
                             role="combobox"
+                            aria-expanded={openApprover}
                             className={cn(
                               "w-full justify-between",
                               !field.value && "text-muted-foreground"
                             )}
                           >
                             {field.value
-                              ? String(users?.results?.find(
-                                  (user) => user.id === field.value
-                                )?.fullName || "Unknown User")
+                              ? (() => {
+                                  const user = users?.results?.find(
+                                    (user) => user.id === field.value
+                                  );
+                                  return user
+                                    ? `${user.first_name || ''} ${user.last_name || ''}`.trim() || "Unknown User"
+                                    : "Unknown User";
+                                })()
                               : "Select Director of Operations"}
                             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                           </Button>
@@ -750,26 +1050,31 @@ const PurchaseOrderNew = () => {
                           <CommandInput placeholder="Search users..." />
                           <CommandEmpty>No user found.</CommandEmpty>
                           <CommandGroup>
+                            {usersIsLoading && <LoadingSpinner />}
                             {!usersIsLoading &&
-                              users?.results?.filter(user => user && user.id && user.fullName)?.map((user) => (
-                                <CommandItem
-                                  value={String(user.fullName || "")}
-                                  key={user.id}
-                                  onSelect={() => {
-                                    field.onChange(user.id);
-                                  }}
-                                >
-                                  <Check
-                                    className={cn(
-                                      "mr-2 h-4 w-4",
-                                      user.id === field.value
-                                        ? "opacity-100"
-                                        : "opacity-0"
-                                    )}
-                                  />
-                                  {String(user.fullName || "Unknown User")}
-                                </CommandItem>
-                              ))}
+                              users?.results?.filter(user => user && user.id && (user.first_name || user.last_name))?.map((user) => {
+                                const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim();
+                                return (
+                                  <CommandItem
+                                    value={fullName}
+                                    key={user.id}
+                                    onSelect={() => {
+                                      field.onChange(user.id);
+                                      setOpenApprover(false);
+                                    }}
+                                  >
+                                    <Check
+                                      className={cn(
+                                        "mr-2 h-4 w-4",
+                                        user.id === field.value
+                                          ? "opacity-100"
+                                          : "opacity-0"
+                                      )}
+                                    />
+                                    {fullName || "Unknown User"}
+                                  </CommandItem>
+                                );
+                              })}
                           </CommandGroup>
                         </Command>
                       </PopoverContent>
@@ -786,21 +1091,27 @@ const PurchaseOrderNew = () => {
                 render={({ field }) => (
                   <FormItem>
                     <Label>Vendor Representative (Optional)</Label>
-                    <Popover>
+                    <Popover open={openVendorRep} onOpenChange={setOpenVendorRep}>
                       <PopoverTrigger asChild>
                         <FormControl>
                           <Button
                             variant="outline"
                             role="combobox"
+                            aria-expanded={openVendorRep}
                             className={cn(
                               "w-full justify-between",
                               !field.value && "text-muted-foreground"
                             )}
                           >
                             {field.value
-                              ? String(users?.results?.find(
-                                  (user) => user.id === field.value
-                                )?.fullName || "Unknown User")
+                              ? (() => {
+                                  const user = users?.results?.find(
+                                    (user) => user.id === field.value
+                                  );
+                                  return user
+                                    ? `${user.first_name || ''} ${user.last_name || ''}`.trim() || "Unknown User"
+                                    : "Unknown User";
+                                })()
                               : "Select Vendor Representative"}
                             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                           </Button>
@@ -811,26 +1122,31 @@ const PurchaseOrderNew = () => {
                           <CommandInput placeholder="Search users..." />
                           <CommandEmpty>No user found.</CommandEmpty>
                           <CommandGroup>
+                            {usersIsLoading && <LoadingSpinner />}
                             {!usersIsLoading &&
-                              users?.results?.filter(user => user && user.id && user.fullName)?.map((user) => (
-                                <CommandItem
-                                  value={String(user.fullName || "")}
-                                  key={user.id}
-                                  onSelect={() => {
-                                    field.onChange(user.id);
-                                  }}
-                                >
-                                  <Check
-                                    className={cn(
-                                      "mr-2 h-4 w-4",
-                                      user.id === field.value
-                                        ? "opacity-100"
-                                        : "opacity-0"
-                                    )}
-                                  />
-                                  {String(user.fullName || "Unknown User")}
-                                </CommandItem>
-                              ))}
+                              users?.results?.filter(user => user && user.id && (user.first_name || user.last_name))?.map((user) => {
+                                const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim();
+                                return (
+                                  <CommandItem
+                                    value={fullName}
+                                    key={user.id}
+                                    onSelect={() => {
+                                      field.onChange(user.id);
+                                      setOpenVendorRep(false);
+                                    }}
+                                  >
+                                    <Check
+                                      className={cn(
+                                        "mr-2 h-4 w-4",
+                                        user.id === field.value
+                                          ? "opacity-100"
+                                          : "opacity-0"
+                                      )}
+                                    />
+                                    {fullName || "Unknown User"}
+                                  </CommandItem>
+                                );
+                              })}
                           </CommandGroup>
                         </Command>
                       </PopoverContent>

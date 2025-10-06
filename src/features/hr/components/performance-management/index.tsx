@@ -24,12 +24,13 @@ const PerformanceManagement: React.FC = () => {
   const router = useRouter();
 
   const [isModalOpen, setModalOpen] = React.useState(false);
-  const debouncedAdvertSearch = useDebounce("advertSearchTerm", 1000);
+  const [searchTerm, setSearchTerm] = React.useState<string>("");
+  const debouncedSearchTerm = useDebounce(searchTerm, 1000);
 
-  // Fetch advertisements for dropdown
+  // Fetch performance assessments
   const { data: performanceAssesmentData, isLoading: isLoading, refetch } =
     useGetPerformanceAssesments({
-      search: debouncedAdvertSearch,
+      search: debouncedSearchTerm || "",
       page: 1,
       size: 20,
     });
@@ -37,6 +38,15 @@ const PerformanceManagement: React.FC = () => {
   // Refetch data when component mounts or becomes visible
   React.useEffect(() => {
     refetch();
+  }, [refetch]);
+
+  // Also refetch when window gains focus
+  React.useEffect(() => {
+    const handleFocus = () => {
+      refetch();
+    };
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
   }, [refetch]);
 
   React.useEffect(() => {
@@ -215,7 +225,7 @@ const PerformanceManagement: React.FC = () => {
     <div className='flex flex-col justify-center items-center gap-y-[1rem]'>
       <div className='w-full flex justify-between items-center'>
         <div className='flex items-center justify-center'>
-          <SearchBar onchange={() => ""} />
+          <SearchBar onchange={(value) => setSearchTerm(value)} />
 
           <Button variant='ghost' className=''>
             <FilterIcon2 />

@@ -199,6 +199,7 @@ const TableMenu = ({ id, status, approved_datetime, rejected_datetime, received_
   const isRejected = !!rejected_datetime || status === "rejected";
   const isReceived = !!received_datetime || status === "received";
   const isCreated = status === "created" || status === "pending" || (!status && !isApproved && !isRejected);
+  const isPending = status === "pending" || isCreated;
   const isConfirmed = status === "confirmed"; // Legacy status, not in backend workflow
 
   // Available actions based on actual backend implementation:

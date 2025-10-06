@@ -84,10 +84,7 @@ const TableMenu = ({ id }: IConsultancyReportPaginatedData) => {
                     </PopoverTrigger>
                     <PopoverContent className="w-fit">
                         <Link
-                            href={generatePath(
-                                CG_ROUTES.CONSULTANCY_REPORT_DETAILS,
-                                { id }
-                            )}
+                            href={CG_ROUTES.CONSULTANCY_REPORT_DETAILS.replace(":id", id)}
                         >
                             <Button
                                 className="w-full flex items-center justify-start gap-2"

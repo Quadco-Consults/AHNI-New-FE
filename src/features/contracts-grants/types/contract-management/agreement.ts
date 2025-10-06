@@ -8,7 +8,7 @@ export const AgreementSchema = z.object({
     type: z.string().min(1, "Please select type"),
     start_date: z.string().min(1, "Please select start date"),
     end_date: z.string().min(1, "Please select end date"),
-    contract_cost: z.string().min(1, "Please enter contract cost"),
+    contract_cost: z.coerce.string().min(1, "Please enter contract cost"),
     location: z.string().min(1, "Please select location"),
     // Conditional fields based on agreement type
     // Transform empty strings to undefined for proper validation
