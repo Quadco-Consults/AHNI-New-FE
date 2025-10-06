@@ -867,9 +867,14 @@ const PurchaseOrderNew = () => {
                             )}
                           >
                             {field.value
-                              ? String(users?.results?.find(
-                                  (user) => user.id === field.value
-                                )?.fullName || "Unknown User")
+                              ? (() => {
+                                  const user = users?.results?.find(
+                                    (user) => user.id === field.value
+                                  );
+                                  return user
+                                    ? `${user.first_name || ''} ${user.last_name || ''}`.trim() || "Unknown User"
+                                    : "Unknown User";
+                                })()
                               : "Select Reviewer"}
                             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                           </Button>
@@ -882,26 +887,29 @@ const PurchaseOrderNew = () => {
                           <CommandGroup>
                             {usersIsLoading && <LoadingSpinner />}
                             {!usersIsLoading &&
-                              users?.results?.filter(user => user && user.id && user.fullName)?.map((user) => (
-                                <CommandItem
-                                  value={String(user.fullName || "")}
-                                  key={user.id}
-                                  onSelect={() => {
-                                    field.onChange(user.id);
-                                    setOpenReviewer(false);
-                                  }}
-                                >
-                                  <Check
-                                    className={cn(
-                                      "mr-2 h-4 w-4",
-                                      user.id === field.value
-                                        ? "opacity-100"
-                                        : "opacity-0"
-                                    )}
-                                  />
-                                  {String(user.fullName || "Unknown User")}
-                                </CommandItem>
-                              ))}
+                              users?.results?.filter(user => user && user.id && (user.first_name || user.last_name))?.map((user) => {
+                                const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim();
+                                return (
+                                  <CommandItem
+                                    value={fullName}
+                                    key={user.id}
+                                    onSelect={() => {
+                                      field.onChange(user.id);
+                                      setOpenReviewer(false);
+                                    }}
+                                  >
+                                    <Check
+                                      className={cn(
+                                        "mr-2 h-4 w-4",
+                                        user.id === field.value
+                                          ? "opacity-100"
+                                          : "opacity-0"
+                                      )}
+                                    />
+                                    {fullName || "Unknown User"}
+                                  </CommandItem>
+                                );
+                              })}
                           </CommandGroup>
                         </Command>
                       </PopoverContent>
@@ -929,9 +937,14 @@ const PurchaseOrderNew = () => {
                             )}
                           >
                             {field.value
-                              ? String(users?.results?.find(
-                                  (user) => user.id === field.value
-                                )?.fullName || "Unknown User")
+                              ? (() => {
+                                  const user = users?.results?.find(
+                                    (user) => user.id === field.value
+                                  );
+                                  return user
+                                    ? `${user.first_name || ''} ${user.last_name || ''}`.trim() || "Unknown User"
+                                    : "Unknown User";
+                                })()
                               : "Select Director of Finance"}
                             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                           </Button>
@@ -944,26 +957,29 @@ const PurchaseOrderNew = () => {
                           <CommandGroup>
                             {usersIsLoading && <LoadingSpinner />}
                             {!usersIsLoading &&
-                              users?.results?.filter(user => user && user.id && user.fullName)?.map((user) => (
-                                <CommandItem
-                                  value={String(user.fullName || "")}
-                                  key={user.id}
-                                  onSelect={() => {
-                                    field.onChange(user.id);
-                                    setOpenAuthorizer(false);
-                                  }}
-                                >
-                                  <Check
-                                    className={cn(
-                                      "mr-2 h-4 w-4",
-                                      user.id === field.value
-                                        ? "opacity-100"
-                                        : "opacity-0"
-                                    )}
-                                  />
-                                  {String(user.fullName || "Unknown User")}
-                                </CommandItem>
-                              ))}
+                              users?.results?.filter(user => user && user.id && (user.first_name || user.last_name))?.map((user) => {
+                                const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim();
+                                return (
+                                  <CommandItem
+                                    value={fullName}
+                                    key={user.id}
+                                    onSelect={() => {
+                                      field.onChange(user.id);
+                                      setOpenAuthorizer(false);
+                                    }}
+                                  >
+                                    <Check
+                                      className={cn(
+                                        "mr-2 h-4 w-4",
+                                        user.id === field.value
+                                          ? "opacity-100"
+                                          : "opacity-0"
+                                      )}
+                                    />
+                                    {fullName || "Unknown User"}
+                                  </CommandItem>
+                                );
+                              })}
                           </CommandGroup>
                         </Command>
                       </PopoverContent>
@@ -991,9 +1007,14 @@ const PurchaseOrderNew = () => {
                             )}
                           >
                             {field.value
-                              ? String(users?.results?.find(
-                                  (user) => user.id === field.value
-                                )?.fullName || "Unknown User")
+                              ? (() => {
+                                  const user = users?.results?.find(
+                                    (user) => user.id === field.value
+                                  );
+                                  return user
+                                    ? `${user.first_name || ''} ${user.last_name || ''}`.trim() || "Unknown User"
+                                    : "Unknown User";
+                                })()
                               : "Select Director of Operations"}
                             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                           </Button>
@@ -1006,26 +1027,29 @@ const PurchaseOrderNew = () => {
                           <CommandGroup>
                             {usersIsLoading && <LoadingSpinner />}
                             {!usersIsLoading &&
-                              users?.results?.filter(user => user && user.id && user.fullName)?.map((user) => (
-                                <CommandItem
-                                  value={String(user.fullName || "")}
-                                  key={user.id}
-                                  onSelect={() => {
-                                    field.onChange(user.id);
-                                    setOpenApprover(false);
-                                  }}
-                                >
-                                  <Check
-                                    className={cn(
-                                      "mr-2 h-4 w-4",
-                                      user.id === field.value
-                                        ? "opacity-100"
-                                        : "opacity-0"
-                                    )}
-                                  />
-                                  {String(user.fullName || "Unknown User")}
-                                </CommandItem>
-                              ))}
+                              users?.results?.filter(user => user && user.id && (user.first_name || user.last_name))?.map((user) => {
+                                const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim();
+                                return (
+                                  <CommandItem
+                                    value={fullName}
+                                    key={user.id}
+                                    onSelect={() => {
+                                      field.onChange(user.id);
+                                      setOpenApprover(false);
+                                    }}
+                                  >
+                                    <Check
+                                      className={cn(
+                                        "mr-2 h-4 w-4",
+                                        user.id === field.value
+                                          ? "opacity-100"
+                                          : "opacity-0"
+                                      )}
+                                    />
+                                    {fullName || "Unknown User"}
+                                  </CommandItem>
+                                );
+                              })}
                           </CommandGroup>
                         </Command>
                       </PopoverContent>
@@ -1055,9 +1079,14 @@ const PurchaseOrderNew = () => {
                             )}
                           >
                             {field.value
-                              ? String(users?.results?.find(
-                                  (user) => user.id === field.value
-                                )?.fullName || "Unknown User")
+                              ? (() => {
+                                  const user = users?.results?.find(
+                                    (user) => user.id === field.value
+                                  );
+                                  return user
+                                    ? `${user.first_name || ''} ${user.last_name || ''}`.trim() || "Unknown User"
+                                    : "Unknown User";
+                                })()
                               : "Select Vendor Representative"}
                             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                           </Button>
@@ -1070,26 +1099,29 @@ const PurchaseOrderNew = () => {
                           <CommandGroup>
                             {usersIsLoading && <LoadingSpinner />}
                             {!usersIsLoading &&
-                              users?.results?.filter(user => user && user.id && user.fullName)?.map((user) => (
-                                <CommandItem
-                                  value={String(user.fullName || "")}
-                                  key={user.id}
-                                  onSelect={() => {
-                                    field.onChange(user.id);
-                                    setOpenVendorRep(false);
-                                  }}
-                                >
-                                  <Check
-                                    className={cn(
-                                      "mr-2 h-4 w-4",
-                                      user.id === field.value
-                                        ? "opacity-100"
-                                        : "opacity-0"
-                                    )}
-                                  />
-                                  {String(user.fullName || "Unknown User")}
-                                </CommandItem>
-                              ))}
+                              users?.results?.filter(user => user && user.id && (user.first_name || user.last_name))?.map((user) => {
+                                const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim();
+                                return (
+                                  <CommandItem
+                                    value={fullName}
+                                    key={user.id}
+                                    onSelect={() => {
+                                      field.onChange(user.id);
+                                      setOpenVendorRep(false);
+                                    }}
+                                  >
+                                    <Check
+                                      className={cn(
+                                        "mr-2 h-4 w-4",
+                                        user.id === field.value
+                                          ? "opacity-100"
+                                          : "opacity-0"
+                                      )}
+                                    />
+                                    {fullName || "Unknown User"}
+                                  </CommandItem>
+                                );
+                              })}
                           </CommandGroup>
                         </Command>
                       </PopoverContent>
