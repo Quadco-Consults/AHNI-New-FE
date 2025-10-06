@@ -2,8 +2,8 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "components/ui/card";
 import { Badge } from "components/ui/badge";
-import { formatCurrency } from "utils/formatCurrency";
-import { formatDate } from "utils/formatDate";
+import { formatCurrency } from "lib/utils";
+import { formatDate } from "utils/date";
 
 interface AwardDetailsTabProps {
     subGrantId: string;
