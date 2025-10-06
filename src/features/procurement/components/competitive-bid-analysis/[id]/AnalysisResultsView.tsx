@@ -89,7 +89,7 @@ const AnalysisResultsView = () => {
 
   // Workflow and approval
   const { data: workflowStatus } = SignatureWorkflowAPI.useCbaWorkflowStatus(cbaId as string);
-  const { approveWorkflowStep, isLoading: approvingStep } = SignatureWorkflowAPI.useApproveCbaWorkflowStep(cbaId as string);
+  const { approveCba, isLoading: approvingCba } = CbaAPI.useApproveCba(cbaId as string);
 
   // Get current approval step
   const getCurrentApprovalStep = () => {
@@ -128,16 +128,15 @@ const AnalysisResultsView = () => {
       const workflowStep = stepMapping[currentStep.step];
 
       if (formData.status === 'APPROVED') {
-        await approveWorkflowStep({
-          step: workflowStep,
-          remarks: formData.remarks,
-          signature: ''
+        await approveCba({
+          remarks: formData.remarks
         });
 
         await queryClient.invalidateQueries({ queryKey: ["cba", cbaId] });
+        await queryClient.invalidateQueries({ queryKey: ["cbas"] });
         await queryClient.invalidateQueries({ queryKey: ["cba-workflow-status", cbaId] });
 
-        toast.success(`${currentStep.role} approval submitted successfully.`);
+        toast.success(`CBA approved successfully.`);
       }
 
       setOpen(false);
@@ -463,7 +462,7 @@ const AnalysisResultsView = () => {
                       </SelectContent>
                     </FormSelect>
                     <FormTextArea name="remarks" label="Remarks" placeholder="Enter remarks" rows={4} />
-                    <FormButton loading={approvingStep} disabled={approvingStep} type="submit">
+                    <FormButton loading={approvingCba} disabled={approvingCba} type="submit">
                       Submit Decision
                     </FormButton>
                   </form>

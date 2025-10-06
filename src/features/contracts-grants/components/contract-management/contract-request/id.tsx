@@ -35,13 +35,20 @@ import {
   getStatusBadgeColor,
 } from "@/features/contracts-grants/utils/approvalPermissions";
 
-// Get current user (you'll need to implement this based on your auth setup)
-// For now, using a placeholder - replace with your actual auth hook
+// Get current user from localStorage
 const useCurrentUser = () => {
-  // TODO: Replace with actual auth hook
-  // Example: const { user } = useAuth();
-  // return user?.id;
-  return null; // Placeholder
+  try {
+    if (typeof window !== 'undefined') {
+      const userData = localStorage.getItem('userData');
+      if (userData) {
+        const user = JSON.parse(userData);
+        return user?.id || null;
+      }
+    }
+  } catch (error) {
+    console.error('Error getting current user:', error);
+  }
+  return null;
 };
 
 // Rejection form schema

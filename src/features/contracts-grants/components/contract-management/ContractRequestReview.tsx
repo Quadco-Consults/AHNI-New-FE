@@ -10,7 +10,16 @@ import { Label } from "components/ui/label";
 import { RadioGroup, RadioGroupItem } from "components/ui/radio-group";
 import { Checkbox } from "components/ui/checkbox";
 import { toast } from "sonner";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "components/ui/dialog";
+
+// Import all approval workflow hooks
+import {
+  useReviewContractRequest,
+  useCompleteReviewContractRequest,
+  useAuthorizeContractRequest,
+  useApproveContractRequest,
+  useRejectContractRequest,
+} from "@/features/contracts-grants/controllers/contractController";
 
 interface ContractRequestReviewProps {
   contractRequest: any;
@@ -23,9 +32,19 @@ export default function ContractRequestReview({
   currentUser,
   onWorkflowUpdate,
 }: ContractRequestReviewProps) {
+  // Dialog states
   const [isReviewDialogOpen, setIsReviewDialogOpen] = useState(false);
+  const [isAuthorizeDialogOpen, setIsAuthorizeDialogOpen] = useState(false);
+  const [isApproveDialogOpen, setIsApproveDialogOpen] = useState(false);
+  const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false);
+
+  // Form states
   const [reviewDecision, setReviewDecision] = useState("");
   const [reviewComments, setReviewComments] = useState("");
+  const [authorizeComments, setAuthorizeComments] = useState("");
+  const [approveComments, setApproveComments] = useState("");
+  const [rejectComments, setRejectComments] = useState("");
+
   const [reviewChecklist, setReviewChecklist] = useState({
     budgetReviewed: false,
     scopeClarity: false,
@@ -33,7 +52,15 @@ export default function ContractRequestReview({
     resourcesAvailable: false,
     complianceCheck: false,
   });
-  const [isLoading, setIsLoading] = useState(false);
+
+  // Initialize all approval workflow hooks
+  const { reviewContractRequest, isLoading: isStartingReview } = useReviewContractRequest(contractRequest.id);
+  const { completeReviewContractRequest, isLoading: isCompletingReview } = useCompleteReviewContractRequest(contractRequest.id);
+  const { authorizeContractRequest, isLoading: isAuthorizing } = useAuthorizeContractRequest(contractRequest.id);
+  const { approveContractRequest, isLoading: isApproving } = useApproveContractRequest(contractRequest.id);
+  const { rejectContractRequest, isLoading: isRejecting } = useRejectContractRequest(contractRequest.id);
+
+  const isLoading = isStartingReview || isCompletingReview || isAuthorizing || isApproving || isRejecting;
 
   // Review criteria checklist
   const reviewCriteria = [
@@ -44,16 +71,34 @@ export default function ContractRequestReview({
     { key: "complianceCheck", label: "Compliance and regulatory requirements met" },
   ];
 
-  const canReview = (contractRequest.status === "SUBMITTED" || contractRequest.status === "UNDER_REVIEW") &&
-    contractRequest.current_reviewer?.id === currentUser?.id;
+  // Permission checks
+  const canStartReview = contractRequest.status === "SUBMITTED" &&
+    (!contractRequest.current_reviewer || contractRequest.current_reviewer?.id === currentUser?.id);
+
+  const canCompleteReview = contractRequest.status === "UNDER_REVIEW" &&
+    (contractRequest.current_reviewer?.id === currentUser?.id || contractRequest.reviewer === currentUser?.id);
 
   const canAuthorize = contractRequest.status === "REVIEWED" &&
-    contractRequest.authorizer === currentUser?.id;
+    (contractRequest.authorizer_detail?.id === currentUser?.id || contractRequest.authorizer === currentUser?.id);
 
   const canApprove = contractRequest.status === "AUTHORIZED" &&
-    contractRequest.approver === currentUser?.id;
+    (contractRequest.approver_detail?.id === currentUser?.id || contractRequest.approver === currentUser?.id);
 
-  const handleReviewSubmit = async () => {
+  const canReject = ["SUBMITTED", "UNDER_REVIEW", "REVIEWED", "AUTHORIZED"].includes(contractRequest.status);
+
+  // Handler for starting review (SUBMITTED → UNDER_REVIEW)
+  const handleStartReview = async () => {
+    try {
+      await reviewContractRequest();
+      toast.success("Review started successfully");
+      onWorkflowUpdate();
+    } catch (error: any) {
+      toast.error(error?.message || "Failed to start review");
+    }
+  };
+
+  // Handler for completing review (UNDER_REVIEW → REVIEWED)
+  const handleCompleteReview = async () => {
     if (!reviewDecision) {
       toast.error("Please select a review decision");
       return;
@@ -71,73 +116,15 @@ export default function ContractRequestReview({
       return;
     }
 
-    setIsLoading(true);
     try {
-      const token = localStorage.getItem('token');
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL || '/api/v1';
-      
-      // Determine the endpoint based on review decision
-      let endpoint = '';
       if (reviewDecision === "approve") {
-        endpoint = `${baseUrl}/contract-grants/contract-requests/${contractRequest.id}/complete_review/`;
-      } else if (reviewDecision === "reject") {
-        endpoint = `${baseUrl}/contract-grants/contract-requests/${contractRequest.id}/reject/`;
+        await completeReviewContractRequest(reviewComments.trim());
+        toast.success("Review completed successfully");
       } else {
-        // For "request_changes" - this might need a specific endpoint or use reject with a flag
-        endpoint = `${baseUrl}/contract-grants/contract-requests/${contractRequest.id}/reject/`;
+        await rejectContractRequest(reviewComments.trim());
+        toast.success(reviewDecision === "reject" ? "Request rejected" : "Returned for changes");
       }
 
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token && { 'Authorization': `Bearer ${token}` }),
-        },
-        body: JSON.stringify({
-          comment: reviewComments.trim(),
-          checklist: reviewChecklist,
-          decision: reviewDecision,
-        }),
-      });
-
-      if (!response.ok) {
-        let errorMessage = 'Review submission failed';
-        
-        // Check if response contains JSON
-        const contentType = response.headers.get('content-type');
-        if (contentType && contentType.includes('application/json')) {
-          try {
-            const errorData = await response.json();
-            errorMessage = errorData.detail || errorData.message || 'Review submission failed';
-          } catch {
-            errorMessage = 'Failed to parse error response';
-          }
-        } else {
-          // Handle non-JSON responses (like 404 HTML pages)
-          if (response.status === 404) {
-            errorMessage = 'API endpoint not found. The backend may not be fully implemented yet.';
-          } else if (response.status === 403) {
-            errorMessage = 'You are not authorized to perform this action.';
-          } else {
-            errorMessage = `Request failed with status ${response.status}`;
-          }
-        }
-        
-        throw new Error(errorMessage);
-      }
-
-      // Parse response JSON safely
-      const contentType = response.headers.get('content-type');
-      if (contentType && contentType.includes('application/json')) {
-        try {
-          await response.json();
-        } catch {
-          console.warn('Failed to parse response JSON, but review may have succeeded');
-        }
-      }
-      
-      toast.success(`Review ${reviewDecision === "approve" ? "completed" : reviewDecision === "reject" ? "rejected" : "returned for changes"} successfully`);
-      
       setIsReviewDialogOpen(false);
       setReviewComments("");
       setReviewDecision("");
@@ -149,35 +136,58 @@ export default function ContractRequestReview({
         complianceCheck: false,
       });
       onWorkflowUpdate();
-      
     } catch (error: any) {
-      console.error("Review submission failed:", error);
-      toast.error(error.message || "Failed to submit review");
-    } finally {
-      setIsLoading(false);
+      toast.error(error?.message || "Failed to submit review");
     }
   };
 
-  const handleWorkflowAction = async (action: string, decision: string) => {
-    const actionData = {
-      contractRequestId: contractRequest.id,
-      userId: currentUser.id,
-      action,
-      decision,
-      timestamp: new Date().toISOString(),
-    };
+  // Handler for authorization (REVIEWED → AUTHORIZED)
+  const handleAuthorize = async () => {
+    try {
+      await authorizeContractRequest(authorizeComments.trim() || undefined);
+      toast.success("Request authorized successfully");
+      setIsAuthorizeDialogOpen(false);
+      setAuthorizeComments("");
+      onWorkflowUpdate();
+    } catch (error: any) {
+      toast.error(error?.message || "Failed to authorize request");
+    }
+  };
 
-    console.log("Workflow Action:", actionData);
-    
-    // Mock API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    toast.success(`Request ${action} successfully`);
-    onWorkflowUpdate();
+  // Handler for approval (AUTHORIZED → APPROVED)
+  const handleApprove = async () => {
+    try {
+      await approveContractRequest(approveComments.trim() || undefined);
+      toast.success("Request approved successfully");
+      setIsApproveDialogOpen(false);
+      setApproveComments("");
+      onWorkflowUpdate();
+    } catch (error: any) {
+      toast.error(error?.message || "Failed to approve request");
+    }
+  };
+
+  // Handler for rejection (ANY → REJECTED)
+  const handleReject = async () => {
+    if (!rejectComments.trim()) {
+      toast.error("Please provide a rejection reason");
+      return;
+    }
+
+    try {
+      await rejectContractRequest(rejectComments.trim());
+      toast.success("Request rejected");
+      setIsRejectDialogOpen(false);
+      setRejectComments("");
+      onWorkflowUpdate();
+    } catch (error: any) {
+      toast.error(error?.message || "Failed to reject request");
+    }
   };
 
   return (
     <div className="space-y-6">
-      {/* Contract Request Details */}
+      {/* Contract Request Summary */}
       <Card>
         <CardHeader>
           <div className="flex justify-between items-start">
@@ -246,74 +256,143 @@ export default function ContractRequestReview({
         </CardContent>
       </Card>
 
-      {/* Review Actions */}
-      {canReview && (
+      {/* Start Review Action (SUBMITTED → UNDER_REVIEW) */}
+      {canStartReview && (
         <Card>
           <CardHeader>
-            <CardTitle>Review Required</CardTitle>
+            <CardTitle>Start Review</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="mb-4">You are assigned to review this contract request. Please evaluate all criteria before making a decision.</p>
-            <Button onClick={() => setIsReviewDialogOpen(true)}>
-              Start Review Process
-            </Button>
+            <p className="mb-4 text-muted-foreground">
+              This contract request is ready for review. Click the button below to start the review process.
+            </p>
+            <div className="flex gap-2">
+              <Button onClick={handleStartReview} disabled={isLoading}>
+                {isStartingReview ? "Starting Review..." : "Start Review Process"}
+              </Button>
+              {canReject && (
+                <Button
+                  variant="destructive"
+                  onClick={() => setIsRejectDialogOpen(true)}
+                  disabled={isLoading}
+                >
+                  Reject Request
+                </Button>
+              )}
+            </div>
           </CardContent>
         </Card>
       )}
 
-      {/* Authorization Actions */}
+      {/* Complete Review Action (UNDER_REVIEW → REVIEWED) */}
+      {canCompleteReview && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Complete Review</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="mb-4 text-muted-foreground">
+              You are assigned to review this contract request. Please evaluate all criteria before making a decision.
+            </p>
+            <div className="flex gap-2">
+              <Button onClick={() => setIsReviewDialogOpen(true)} disabled={isLoading}>
+                Complete Review Process
+              </Button>
+              {canReject && (
+                <Button
+                  variant="destructive"
+                  onClick={() => setIsRejectDialogOpen(true)}
+                  disabled={isLoading}
+                >
+                  Reject Request
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Authorization Action (REVIEWED → AUTHORIZED) */}
       {canAuthorize && (
         <Card>
           <CardHeader>
             <CardTitle>Authorization Required</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="mb-4">This request has been reviewed and requires your authorization.</p>
+            <p className="mb-4 text-muted-foreground">
+              This request has been reviewed and requires your authorization to proceed.
+            </p>
             <div className="flex gap-2">
-              <Button onClick={() => handleWorkflowAction("authorize", "approve")}>
+              <Button onClick={() => setIsAuthorizeDialogOpen(true)} disabled={isLoading}>
                 Authorize Request
               </Button>
-              <Button 
-                variant="destructive" 
-                onClick={() => handleWorkflowAction("authorize", "reject")}
-              >
-                Reject Request
-              </Button>
+              {canReject && (
+                <Button
+                  variant="destructive"
+                  onClick={() => setIsRejectDialogOpen(true)}
+                  disabled={isLoading}
+                >
+                  Reject Request
+                </Button>
+              )}
             </div>
           </CardContent>
         </Card>
       )}
 
-      {/* Approval Actions */}
+      {/* Final Approval Action (AUTHORIZED → APPROVED) */}
       {canApprove && (
         <Card>
           <CardHeader>
             <CardTitle>Final Approval Required</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="mb-4">This request has been authorized and requires final approval.</p>
+            <p className="mb-4 text-muted-foreground">
+              This request has been authorized and requires final approval.
+            </p>
             <div className="flex gap-2">
-              <Button onClick={() => handleWorkflowAction("approve", "approve")}>
+              <Button onClick={() => setIsApproveDialogOpen(true)} disabled={isLoading}>
                 Give Final Approval
               </Button>
-              <Button 
-                variant="destructive" 
-                onClick={() => handleWorkflowAction("approve", "reject")}
-              >
-                Reject Request
-              </Button>
+              {canReject && (
+                <Button
+                  variant="destructive"
+                  onClick={() => setIsRejectDialogOpen(true)}
+                  disabled={isLoading}
+                >
+                  Reject Request
+                </Button>
+              )}
             </div>
           </CardContent>
         </Card>
       )}
 
-      {/* Review Dialog */}
+      {/* No Actions Available */}
+      {!canStartReview && !canCompleteReview && !canAuthorize && !canApprove && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Workflow Status</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground italic">
+              No workflow actions are available for you at this stage. The request is currently at the{" "}
+              <strong>{contractRequest.status_display || contractRequest.status}</strong> stage.
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Review Dialog (Complete Review) */}
       <Dialog open={isReviewDialogOpen} onOpenChange={setIsReviewDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Contract Request Review</DialogTitle>
+            <DialogTitle>Complete Contract Request Review</DialogTitle>
+            <DialogDescription>
+              Evaluate the request against all criteria and provide your decision
+            </DialogDescription>
           </DialogHeader>
-          
+
           <div className="space-y-6">
             {/* Review Checklist */}
             <div>
@@ -334,9 +413,9 @@ export default function ContractRequestReview({
                         }))
                       }
                     />
-                    <Label 
+                    <Label
                       htmlFor={criterion.key}
-                      className="text-sm font-normal leading-tight"
+                      className="text-sm font-normal leading-tight cursor-pointer"
                     >
                       {criterion.label}
                     </Label>
@@ -349,23 +428,23 @@ export default function ContractRequestReview({
 
             {/* Review Decision */}
             <div>
-              <Label className="text-base font-semibold">Review Decision</Label>
+              <Label className="text-base font-semibold">Review Decision *</Label>
               <RadioGroup value={reviewDecision} onValueChange={setReviewDecision} className="mt-2">
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="approve" id="approve" />
-                  <Label htmlFor="approve" className="text-green-700">
-                    ✓ Approve and forward to next stage
+                  <Label htmlFor="approve" className="text-green-700 cursor-pointer">
+                    ✓ Approve and forward to authorization
                   </Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="request_changes" id="request_changes" />
-                  <Label htmlFor="request_changes" className="text-yellow-700">
+                  <Label htmlFor="request_changes" className="text-yellow-700 cursor-pointer">
                     ↻ Request changes and return to submitter
                   </Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="reject" id="reject" />
-                  <Label htmlFor="reject" className="text-red-700">
+                  <Label htmlFor="reject" className="text-red-700 cursor-pointer">
                     ✗ Reject request
                   </Label>
                 </div>
@@ -399,10 +478,151 @@ export default function ContractRequestReview({
                 Cancel
               </Button>
               <Button
-                onClick={handleReviewSubmit}
+                onClick={handleCompleteReview}
                 disabled={isLoading}
               >
-                {isLoading ? "Submitting Review..." : "Submit Review"}
+                {isCompletingReview ? "Submitting Review..." : "Submit Review"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Authorize Dialog */}
+      <Dialog open={isAuthorizeDialogOpen} onOpenChange={setIsAuthorizeDialogOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Authorize Contract Request</DialogTitle>
+            <DialogDescription>
+              Confirm that you want to authorize this contract request to proceed to final approval.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="authorize-comments">
+                Comments (Optional)
+              </Label>
+              <p className="text-sm text-muted-foreground mb-2">
+                Add any comments or notes about your authorization decision.
+              </p>
+              <Textarea
+                id="authorize-comments"
+                placeholder="Add comments (optional)..."
+                value={authorizeComments}
+                onChange={(e) => setAuthorizeComments(e.target.value)}
+                rows={3}
+              />
+            </div>
+
+            <div className="flex justify-end gap-2 pt-4">
+              <Button
+                variant="outline"
+                onClick={() => setIsAuthorizeDialogOpen(false)}
+                disabled={isLoading}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleAuthorize}
+                disabled={isLoading}
+              >
+                {isAuthorizing ? "Authorizing..." : "Authorize Request"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Approve Dialog */}
+      <Dialog open={isApproveDialogOpen} onOpenChange={setIsApproveDialogOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Final Approval</DialogTitle>
+            <DialogDescription>
+              Confirm that you want to give final approval to this contract request.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="approve-comments">
+                Comments (Optional)
+              </Label>
+              <p className="text-sm text-muted-foreground mb-2">
+                Add any comments or notes about your approval decision.
+              </p>
+              <Textarea
+                id="approve-comments"
+                placeholder="Add comments (optional)..."
+                value={approveComments}
+                onChange={(e) => setApproveComments(e.target.value)}
+                rows={3}
+              />
+            </div>
+
+            <div className="flex justify-end gap-2 pt-4">
+              <Button
+                variant="outline"
+                onClick={() => setIsApproveDialogOpen(false)}
+                disabled={isLoading}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleApprove}
+                disabled={isLoading}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                {isApproving ? "Approving..." : "Give Final Approval"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Reject Dialog */}
+      <Dialog open={isRejectDialogOpen} onOpenChange={setIsRejectDialogOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Reject Contract Request</DialogTitle>
+            <DialogDescription>
+              Please provide a reason for rejecting this contract request. This comment will be visible in the approval history.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="reject-comments">
+                Rejection Reason *
+              </Label>
+              <Textarea
+                id="reject-comments"
+                placeholder="Explain why you are rejecting this request..."
+                value={rejectComments}
+                onChange={(e) => setRejectComments(e.target.value)}
+                rows={4}
+                required
+              />
+            </div>
+
+            <div className="flex justify-end gap-2 pt-4">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setIsRejectDialogOpen(false);
+                  setRejectComments("");
+                }}
+                disabled={isLoading}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleReject}
+                disabled={isLoading || !rejectComments.trim()}
+                variant="destructive"
+              >
+                {isRejecting ? "Rejecting..." : "Reject Request"}
               </Button>
             </div>
           </div>

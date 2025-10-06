@@ -107,6 +107,10 @@ export default function CreateGoodReceiveNote() {
         item.quantity_received && parseFloat(item.quantity_received) > 0
       );
 
+      console.log("🔍 Total items:", data.items.length);
+      console.log("🔍 Items with quantity:", itemsWithQuantity.length);
+      console.log("🔍 All items data:", data.items);
+
       if (itemsWithQuantity.length === 0) {
         toast.error("Please enter received quantity for at least one item.");
         return;
@@ -128,6 +132,10 @@ export default function CreateGoodReceiveNote() {
         grn_items: grn_items,
       };
 
+      console.log("📦 Transformed data to store:", transformedData);
+      console.log("📦 GRN items count:", grn_items.length);
+      console.log("📦 First GRN item:", grn_items[0]);
+
       // Store data in localStorage for uploads page
       const dataToStore = {
         formData: transformedData,
@@ -135,6 +143,7 @@ export default function CreateGoodReceiveNote() {
         editId: id
       };
 
+      console.log("💾 Storing to localStorage:", dataToStore);
       localStorage.setItem('grnFormData', JSON.stringify(dataToStore));
 
       // Navigate to uploads page

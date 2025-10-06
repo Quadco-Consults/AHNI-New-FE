@@ -33,6 +33,20 @@ export default function ConsultancyAcceptance() {
     const contractRequests = contractRequestsData?.data?.results || [];
     const allApplicantsRaw = applicantsData?.data?.results || [];
 
+    console.log("📊 All Applicants Raw Data:", allApplicantsRaw);
+    console.log("📊 Total Applicants Fetched:", allApplicantsRaw.length);
+    console.log("📊 Applicants with CONTRACT_ISSUED:", allApplicantsRaw.filter(a => a.status === 'CONTRACT_ISSUED').length);
+    console.log("📊 Applicants with APPROVED:", allApplicantsRaw.filter(a => a.status === 'APPROVED').length);
+
+    // Log first applicant structure to understand the data
+    if (allApplicantsRaw.length > 0) {
+        console.log("📋 Sample Applicant Structure:", allApplicantsRaw[0]);
+        console.log("📋 Sample Applicant Type Field:", allApplicantsRaw[0].type);
+        console.log("📋 Sample Applicant Has Consultants:", allApplicantsRaw[0].consultants);
+        console.log("📋 Sample Applicant Has Consultancy:", allApplicantsRaw[0].consultancy);
+        console.log("📋 Sample Applicant Contract Request:", allApplicantsRaw[0].contract_request);
+    }
+
     // Filter applicants by type with backward compatibility
     const allApplicants = useMemo(() => {
         return allApplicantsRaw.filter(applicant => {
@@ -41,32 +55,35 @@ export default function ConsultancyAcceptance() {
                 return false;
             }
 
-            // Check if applicant has consultants array (indicates adhoc staff)
-            const hasConsultantsArray = applicant.consultants && applicant.consultants.length > 0;
-            const hasConsultancyData = applicant.consultancy || applicant.consultant_id;
-            const isAdhocIndicator = hasConsultantsArray || hasConsultancyData;
-
-            // For adhoc route
+            // Use the type field as primary source of truth
+            // The consultants array stores the consultancy management ID, not adhoc indicator
             if (applicantType === "ADHOC") {
-                // Include if has consultants array or consultancy data (regardless of type field)
-                if (isAdhocIndicator) return true;
-                // Or if type is explicitly ADHOC
                 return applicant.type === "ADHOC";
             }
 
-            // For consultant route
-            // Exclude if has adhoc indicators
-            if (isAdhocIndicator) return false;
-            // Include if type is CONSULTANT or null/undefined
+            // For consultant route - match CONSULTANT type or no type
             return !applicant.type || applicant.type === "CONSULTANT";
         });
     }, [allApplicantsRaw, applicantType]);
 
+    console.log("🔍 Filtered Applicants (after type filtering):", allApplicants);
+    console.log("🔍 Filtered Applicants Count:", allApplicants.length);
+    console.log("🔍 Applicant Type:", applicantType);
+    console.log("🔍 Applicants by Type:", {
+        CONSULTANT: allApplicantsRaw.filter(a => a.type === "CONSULTANT").length,
+        ADHOC: allApplicantsRaw.filter(a => a.type === "ADHOC").length,
+        FACILITATOR: allApplicantsRaw.filter(a => a.type === "FACILITATOR").length,
+        NoType: allApplicantsRaw.filter(a => !a.type).length,
+    });
+
     // Group applicants by contract_request
     const groupedByContractRequest = contractRequests.map(request => {
-        const applicantsForRequest = allApplicants.filter(
-            applicant => applicant.contract_request?.id === request.id
-        );
+        const applicantsForRequest = allApplicants.filter(applicant => {
+            const contractReqId = typeof applicant.contract_request === 'object' && applicant.contract_request !== null
+                ? (applicant.contract_request as any).id
+                : applicant.contract_request;
+            return contractReqId === request.id;
+        });
 
         // Count accepted vs pending
         const acceptedCount = applicantsForRequest.filter(a => a.offer_accepted).length;
@@ -188,14 +205,18 @@ export default function ConsultancyAcceptance() {
                                 <div className="flex items-start justify-between">
                                     <div className="flex-1">
                                         <h3 className="font-bold text-lg text-gray-900 mb-1 line-clamp-2">
-                                            {request.position || request.title || 'Job Position'}
+                                            {request.title || 'Job Position'}
                                         </h3>
                                         <p className="text-sm text-gray-600">
-                                            Ref: {request.reference_number || request.id?.slice(0, 8)}
+                                            Ref: {request.id?.slice(0, 8)}
                                         </p>
                                     </div>
-                                    <div className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-semibold">
-                                        ADHOC
+                                    <div className={`px-2 py-1 rounded text-xs font-semibold ${
+                                        applicantType === "ADHOC"
+                                            ? "bg-blue-100 text-blue-800"
+                                            : "bg-purple-100 text-purple-800"
+                                    }`}>
+                                        {applicantType === "ADHOC" ? "ADHOC" : "CONSULTANT"}
                                     </div>
                                 </div>
 
@@ -226,7 +247,7 @@ export default function ConsultancyAcceptance() {
                                     {request.department && (
                                         <div className="flex items-center gap-2 text-sm text-gray-700">
                                             <Briefcase className="h-4 w-4 text-gray-400" />
-                                            <span>{request.department}</span>
+                                            <span>{typeof request.department === 'object' ? request.department.name : request.department}</span>
                                         </div>
                                     )}
                                     {request.created_datetime && (
@@ -256,7 +277,12 @@ export default function ConsultancyAcceptance() {
                                 {/* Action Button */}
                                 <Button
                                     className="w-full flex items-center justify-center gap-2 bg-[#DEA004] hover:bg-[#c48f04]"
-                                    onClick={() => router.push(`/dashboard/programs/adhoc/adhoc-acceptance/details/${request.id}`)}
+                                    onClick={() => {
+                                        const detailsPath = applicantType === "ADHOC"
+                                            ? `/dashboard/programs/adhoc/adhoc-acceptance/details/${request.id}`
+                                            : `/dashboard/c-and-g/consultant/consultance-acceptance/details/${request.id}`;
+                                        router.push(detailsPath);
+                                    }}
                                 >
                                     <Eye className="h-4 w-4" />
                                     View Applicants ({request.issuedContractsCount})

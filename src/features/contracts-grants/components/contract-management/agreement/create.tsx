@@ -81,89 +81,30 @@ export default function CreateAgreement() {
     const fetchConsultants = async () => {
         setIsLoadingEntities(true);
         try {
-            console.log('🔍 Fetching eligible consultants...');
+            console.log('🔍 Fetching consultants from dropdown endpoint...');
 
-            // Get all consultant applicants to see what statuses are available
-            const allResponse = await AxiosWithToken.get('/contract-grants/consultancy/applicants/', {
-                params: { page: 1, size: 100 }
-            });
+            // ✅ Use dropdown endpoint instead of applicants
+            const response = await AxiosWithToken.get('/contract-grants/agreements/consultants_dropdown/');
 
-            console.log('All consultant applicants:', allResponse.data);
+            console.log('📊 Consultants API Response:', response.data);
 
-            // Try different possible statuses for eligible consultants
-            // Note: Based on API errors, some statuses may not be valid. Let's try common ones first.
-            const possibleStatuses = ['APPLIED', 'SHORTLISTED', 'INTERVIEWED', 'ACCEPTED', 'PREFERRED'];
-            let eligibleConsultants: any[] = [];
+            // ✅ Response is direct array
+            const consultants = Array.isArray(response.data) ? response.data : [];
 
-            for (const status of possibleStatuses) {
-                try {
-                    const response = await AxiosWithToken.get('/contract-grants/consultancy/applicants/', {
-                        params: { page: 1, size: 100, status }
-                    });
+            console.log(`✅ Found ${consultants.length} consultants from dropdown`);
 
-                    if (response.data?.data?.results?.length > 0) {
-                        console.log(`Found ${response.data.data.results.length} consultants with status: ${status}`);
-                        eligibleConsultants = [...eligibleConsultants, ...response.data.data.results];
-                    }
-                } catch (statusError: any) {
-                    console.log(`Status ${status} not valid for consultants:`, statusError?.response?.data || statusError?.message);
-                    // If it's an invalid choice error, log the specific error details
-                    if (statusError?.response?.data?.error_code === 'invalid_choice') {
-                        console.log('❌ Backend validation error:', statusError.response.data.message);
-                    }
-                }
-            }
-
-            // Remove duplicates based on ID
-            const uniqueConsultants = eligibleConsultants.filter((item, index, self) =>
-                index === self.findIndex((t) => t.id === item.id)
-            );
-
-            console.log('Unique eligible consultants:', uniqueConsultants);
-
-            setEntityOptions(uniqueConsultants.map((item: any) => ({
-                label: item.name || `${item.first_name || ''} ${item.last_name || ''}`.trim() || item.contractor_name || item.id,
-                value: item.id
+            // Backend returns: { value, label, title, grade_level, commencement_date, end_date }
+            setEntityOptions(consultants.map((item: any) => ({
+                label: item.label,      // Already formatted
+                value: item.value,
+                title: item.title,
+                grade_level: item.grade_level,
+                commencement_date: item.commencement_date,
+                end_date: item.end_date
             })));
-
         } catch (error) {
             console.error('Failed to fetch consultants:', error);
-
-            // Try to get all applicants without status filter to see what's available
-            try {
-                console.log('🔄 Trying to fetch all consultant applicants without status filter...');
-                const allApplicantsResponse = await AxiosWithToken.get('/contract-grants/consultancy/applicants/', {
-                    params: { page: 1, size: 100 }
-                });
-
-                if (allApplicantsResponse.data?.data?.results?.length > 0) {
-                    console.log('✅ Found all applicants without status filter:', allApplicantsResponse.data.data.results.length);
-                    console.log('📋 Available statuses:', [...new Set(allApplicantsResponse.data.data.results.map((r: any) => r.status))]);
-
-                    // Use all applicants as potential consultants for now
-                    setEntityOptions(allApplicantsResponse.data.data.results.map((item: any) => ({
-                        label: `${item.name || `${item.first_name || ''} ${item.last_name || ''}`.trim() || item.contractor_name || item.id} (${item.status})`,
-                        value: item.id
-                    })));
-                } else {
-                    throw new Error('No applicants found');
-                }
-            } catch (allApplicantsError) {
-                console.error('All applicants fetch failed, trying fallback endpoint:', allApplicantsError);
-
-                // Fallback to original endpoint
-                try {
-                    const response = await AxiosWithToken.get('/contract-grants/agreements/consultants_dropdown/');
-                    const data = Array.isArray(response.data) ? response.data : [];
-                    setEntityOptions(data.map((item: any) => ({
-                        label: item.name || item.label || item.title || item.id,
-                        value: item.id || item.value
-                    })));
-                } catch (fallbackError) {
-                    console.error('Fallback fetch also failed:', fallbackError);
-                    setEntityOptions([]);
-                }
-            }
+            setEntityOptions([]);
         } finally {
             setIsLoadingEntities(false);
         }
@@ -172,12 +113,23 @@ export default function CreateAgreement() {
     const fetchFacilitators = async () => {
         setIsLoadingEntities(true);
         try {
+            console.log('🔍 Fetching facilitators from dropdown endpoint...');
+
             const response = await AxiosWithToken.get('/contract-grants/agreements/facilitators_dropdown/');
-            // Ensure the response is an array and properly formatted
-            const data = Array.isArray(response.data) ? response.data : [];
-            setEntityOptions(data.map((item: any) => ({
-                label: item.name || item.label || item.title || item.id,
-                value: item.id || item.value
+
+            console.log('📊 Facilitators API Response:', response.data);
+
+            const facilitators = Array.isArray(response.data) ? response.data : [];
+
+            console.log(`✅ Found ${facilitators.length} facilitators from dropdown`);
+
+            setEntityOptions(facilitators.map((item: any) => ({
+                label: item.label,
+                value: item.value,
+                title: item.title,
+                grade_level: item.grade_level,
+                commencement_date: item.commencement_date,
+                end_date: item.end_date
             })));
         } catch (error) {
             console.error('Failed to fetch facilitators:', error);
@@ -190,101 +142,30 @@ export default function CreateAgreement() {
     const fetchAdhocStaff = async () => {
         setIsLoadingEntities(true);
         try {
-            console.log('🔍 Fetching eligible adhoc staff...');
+            console.log('🔍 Fetching adhoc staff from dropdown endpoint...');
 
-            // Get all adhoc applicants first to see available statuses
-            const allResponse = await AxiosWithToken.get('/contract-grants/consultancy/applicants/', {
-                params: { page: 1, size: 100 }
-            });
+            // ✅ Use correct dropdown endpoint
+            const response = await AxiosWithToken.get('/contract-grants/agreements/adhoc_staff_dropdown/');
 
-            console.log('All adhoc applicants:', allResponse.data);
+            console.log('📊 Adhoc Staff API Response:', response.data);
 
-            if (allResponse.data?.data?.results) {
-                const allStatuses = [...new Set(allResponse.data.data.results.map((r: any) => r.status))];
-                console.log('Available adhoc applicant statuses:', allStatuses);
-            }
+            // ✅ Response is direct array, not paginated
+            const adhocStaff = Array.isArray(response.data) ? response.data : [];
 
-            // Try different possible statuses for eligible adhoc staff
-            // Note: Based on API errors, some statuses may not be valid. Let's try common ones first.
-            const possibleStatuses = ['APPLIED', 'SHORTLISTED', 'INTERVIEWED', 'ACCEPTED', 'PREFERRED'];
-            let eligibleAdhocStaff: any[] = [];
+            console.log(`✅ Found ${adhocStaff.length} adhoc staff from dropdown`);
 
-            for (const status of possibleStatuses) {
-                try {
-                    const response = await AxiosWithToken.get('/contract-grants/consultancy/applicants/', {
-                        params: { page: 1, size: 100, status }
-                    });
-
-                    if (response.data?.data?.results?.length > 0) {
-                        console.log(`Found ${response.data.data.results.length} adhoc staff with status: ${status}`);
-
-                        // Filter for adhoc-related applicants (you might need to adjust this based on your data structure)
-                        const adhocRelated = response.data.data.results.filter((item: any) => {
-                            // This might need adjustment based on how you distinguish adhoc from consultant applicants
-                            return true; // For now, include all
-                        });
-
-                        eligibleAdhocStaff = [...eligibleAdhocStaff, ...adhocRelated];
-                    }
-                } catch (statusError: any) {
-                    console.log(`Status ${status} not valid for adhoc staff:`, statusError?.response?.data || statusError?.message);
-                    // If it's an invalid choice error, log the specific error details
-                    if (statusError?.response?.data?.error_code === 'invalid_choice') {
-                        console.log('❌ Backend validation error:', statusError.response.data.message);
-                    }
-                }
-            }
-
-            // Remove duplicates based on ID
-            const uniqueAdhocStaff = eligibleAdhocStaff.filter((item, index, self) =>
-                index === self.findIndex((t) => t.id === item.id)
-            );
-
-            console.log('Unique eligible adhoc staff:', uniqueAdhocStaff);
-
-            setEntityOptions(uniqueAdhocStaff.map((item: any) => ({
-                label: item.name || `${item.first_name || ''} ${item.last_name || ''}`.trim() || item.contractor_name || item.id,
-                value: item.id
+            // ✅ Backend already formats data correctly with value/label
+            setEntityOptions(adhocStaff.map((item: any) => ({
+                label: item.label,      // Already formatted: "Surname, Names - Designation"
+                value: item.value,      // Already a string UUID
+                name: item.name,
+                designation: item.designation,
+                assignment_location: item.assignment_location,
+                status: item.status
             })));
-
         } catch (error) {
             console.error('Failed to fetch adhoc staff:', error);
-
-            // Try to get all applicants without status filter to see what's available
-            try {
-                console.log('🔄 Trying to fetch all adhoc applicants without status filter...');
-                const allApplicantsResponse = await AxiosWithToken.get('/contract-grants/consultancy/applicants/', {
-                    params: { page: 1, size: 100 }
-                });
-
-                if (allApplicantsResponse.data?.data?.results?.length > 0) {
-                    console.log('✅ Found all adhoc applicants without status filter:', allApplicantsResponse.data.data.results.length);
-                    console.log('📋 Available statuses:', [...new Set(allApplicantsResponse.data.data.results.map((r: any) => r.status))]);
-
-                    // Use all applicants as potential adhoc staff for now
-                    setEntityOptions(allApplicantsResponse.data.data.results.map((item: any) => ({
-                        label: `${item.name || `${item.first_name || ''} ${item.last_name || ''}`.trim() || item.contractor_name || item.id} (${item.status})`,
-                        value: item.id
-                    })));
-                } else {
-                    throw new Error('No applicants found');
-                }
-            } catch (allApplicantsError) {
-                console.error('All applicants fetch failed, trying fallback endpoint:', allApplicantsError);
-
-                // Fallback to original endpoint
-                try {
-                    const response = await AxiosWithToken.get('/contract-grants/agreements/adhoc_staff_dropdown/');
-                    const data = Array.isArray(response.data) ? response.data : [];
-                    setEntityOptions(data.map((item: any) => ({
-                        label: item.name || item.label || item.title || item.id,
-                        value: item.id || item.value
-                    })));
-                } catch (fallbackError) {
-                    console.error('Fallback fetch also failed:', fallbackError);
-                    setEntityOptions([]);
-                }
-            }
+            setEntityOptions([]);
         } finally {
             setIsLoadingEntities(false);
         }
@@ -293,192 +174,54 @@ export default function CreateAgreement() {
     const fetchVendors = async (agreementType?: string) => {
         setIsLoadingEntities(true);
         try {
-            console.log('🔍 Fetching prequalified vendors for service agreements...');
+            console.log('🔍 Fetching vendors from dropdown endpoint...');
             console.log('- Agreement Type:', agreementType);
 
-            const targetCategory = categoryMapping[agreementType as keyof typeof categoryMapping];
-            console.log('- Target Category:', targetCategory);
+            // ✅ Use the correct dropdown endpoint
+            const response = await AxiosWithToken.get('/contract-grants/agreements/vendors_dropdown/');
 
-            // Use the correct endpoint from the API request
-            const endpoint = '/procurements/vendors/';
+            console.log('📊 Vendors API Response:', response.data);
 
-            const params: any = {
-                page: 1,
-                size: 100,
-                status: 'Approved'  // Based on the API request showing status=Approved
-            };
+            // ✅ Response is direct array (not paginated)
+            const vendors = Array.isArray(response.data) ? response.data : [];
 
-            // Add category filter if we have a target category
-            if (targetCategory) {
-                params.approved_categories = targetCategory;
-            }
-
-            console.log(`🔍 Fetching from ${endpoint} with params:`, params);
-
-            const response = await AxiosWithToken.get(endpoint, { params });
-            console.log(`📊 API Response:`, response.data);
-
-            let vendors: any[] = [];
-
-            // Handle different response structures
-            if (Array.isArray(response.data)) {
-                vendors = response.data;
-            } else if (response.data?.data?.results) {
-                vendors = response.data.data.results;
-            } else if (response.data?.results) {
-                vendors = response.data.results;
-            }
-
-            console.log(`✅ Found ${vendors.length} approved vendors`);
+            console.log(`✅ Found ${vendors.length} active vendors`);
 
             if (vendors.length > 0) {
-                console.log('🔍 Sample vendor structure:', vendors[0]);
-                console.log('🔍 Available fields:', Object.keys(vendors[0]));
+                // ✅ Backend already formats data correctly
+                // Optional: Filter by agreement type on client-side if needed
+                const categoryMapping: Record<string, string[]> = {
+                    'SLA': ['IT_SERVICES', 'TECHNOLOGY'],
+                    'SECURITY': ['SECURITY_SERVICES', 'SECURITY'],
+                    'INSURANCE': ['INSURANCE'],
+                    'LEASE': ['PROPERTY_LEASE', 'REAL_ESTATE'],
+                    'HMO': ['HEALTH_SERVICES', 'HEALTHCARE'],
+                    'TICKETING': ['TRAVEL_SERVICES', 'TRAVEL']
+                };
 
-                // Process vendors for dropdown
-                const processedVendors = vendors.map((vendor: any) => {
-                    const vendorName = vendor.company_name || vendor.business_name || vendor.name || `Vendor ${vendor.id}`;
-                    const vendorCategories = vendor.approved_categories || vendor.categories || [];
-                    const categoryText = Array.isArray(vendorCategories) ? vendorCategories.join(', ') : vendorCategories;
-
-                    return {
-                        label: `${vendorName}${categoryText ? ` (${categoryText})` : ''} - Approved`,
-                        value: vendor.id,
-                        category: vendor.approved_categories || vendor.categories || 'GENERAL',
-                        status: vendor.status,
-                        approved: true
-                    };
-                });
-
-                console.log('🔍 Processed vendors for dropdown:', processedVendors);
-
-                // Filter by category if specified
-                const filteredVendors = targetCategory
-                    ? processedVendors.filter(vendor => {
-                        const categories = Array.isArray(vendor.category) ? vendor.category : [vendor.category];
-                        return categories.includes(targetCategory);
-                    })
-                    : processedVendors;
-
-                console.log(`🔍 Category-filtered vendors: ${filteredVendors.length} out of ${processedVendors.length}`);
-                console.log('🔍 Final dropdown options being set:', filteredVendors);
-
-                setEntityOptions(filteredVendors);
+                // For now, show all active vendors
+                // TODO: Backend should add category field to vendors_dropdown response
+                setEntityOptions(vendors.map((vendor: any) => ({
+                    label: vendor.label || vendor.company_name,
+                    value: vendor.value || vendor.id,
+                    company_name: vendor.company_name,
+                    email: vendor.email,
+                    phone_number: vendor.phone_number
+                })));
             } else {
-                console.log('❌ No approved vendors found');
+                console.log('❌ No active vendors found');
                 setEntityOptions([{
-                    label: `No approved ${targetCategory || ''} vendors available`,
+                    label: 'No active vendors available. Please register and approve vendors first.',
                     value: ""
                 }]);
             }
 
         } catch (error) {
             console.error('Failed to fetch vendors:', error);
-
-            // Detailed error logging
-            if (error instanceof Error) {
-                console.log('🚨 Vendor API Error Details:', {
-                    message: error.message,
-                    name: error.name,
-                    stack: error.stack
-                });
-            }
-
-            // Check if it's a specific HTTP error
             const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 
-            // If it's a 500 error, try alternative approaches
-            if (errorMessage.includes('500')) {
-                console.log('🔄 500 error detected, trying alternative vendor endpoints...');
-
-                try {
-                    // Try without the approved_categories parameter first
-                    const fallbackResponse = await AxiosWithToken.get('/procurements/vendors/', {
-                        params: { page: 1, size: 100, status: 'Approved' }
-                    });
-
-                    console.log('📊 Fallback API Response (without category filter):', fallbackResponse.data);
-
-                    let fallbackVendors: any[] = [];
-                    if (Array.isArray(fallbackResponse.data)) {
-                        fallbackVendors = fallbackResponse.data;
-                    } else if (fallbackResponse.data?.data?.results) {
-                        fallbackVendors = fallbackResponse.data.data.results;
-                    } else if (fallbackResponse.data?.results) {
-                        fallbackVendors = fallbackResponse.data.results;
-                    }
-
-                    if (fallbackVendors.length > 0) {
-                        console.log('✅ Fallback successful! Found vendors without category filter');
-
-                        // Process vendors and apply client-side category filtering
-                        const processedVendors = fallbackVendors.map((vendor: any) => {
-                            const vendorName = vendor.company_name || vendor.business_name || vendor.name || `Vendor ${vendor.id}`;
-                            const vendorCategories = vendor.approved_categories || vendor.categories || [];
-                            const categoryText = Array.isArray(vendorCategories) ? vendorCategories.join(', ') : vendorCategories;
-
-                            return {
-                                label: `${vendorName}${categoryText ? ` (${categoryText})` : ''} - Approved`,
-                                value: vendor.id,
-                                category: vendor.approved_categories || vendor.categories || 'GENERAL',
-                                status: vendor.status,
-                                approved: true
-                            };
-                        });
-
-                        setEntityOptions(processedVendors);
-                        return; // Exit early since we succeeded
-                    }
-                } catch (fallbackError) {
-                    console.log('❌ Fallback also failed:', fallbackError);
-
-                    // Try even more alternative endpoints
-                    const alternativeEndpoints = [
-                        '/vendors/',
-                        '/contract-grants/vendors/',
-                        '/procurement/vendors/', // without 's'
-                        '/contract-grants/agreements/vendors_dropdown/'
-                    ];
-
-                    for (const altEndpoint of alternativeEndpoints) {
-                        try {
-                            console.log(`🔄 Trying alternative endpoint: ${altEndpoint}`);
-                            const altResponse = await AxiosWithToken.get(altEndpoint, {
-                                params: { page: 1, size: 100 }
-                            });
-
-                            let altVendors: any[] = [];
-                            if (Array.isArray(altResponse.data)) {
-                                altVendors = altResponse.data;
-                            } else if (altResponse.data?.data?.results) {
-                                altVendors = altResponse.data.data.results;
-                            } else if (altResponse.data?.results) {
-                                altVendors = altResponse.data.results;
-                            }
-
-                            if (altVendors.length > 0) {
-                                console.log(`✅ Alternative endpoint ${altEndpoint} worked! Found ${altVendors.length} vendors`);
-
-                                const processedAltVendors = altVendors.map((vendor: any) => ({
-                                    label: `${vendor.company_name || vendor.business_name || vendor.name || `Vendor ${vendor.id}`} (Alternative Source)`,
-                                    value: vendor.id,
-                                    category: vendor.approved_categories || vendor.categories || 'GENERAL',
-                                    status: vendor.status || 'UNKNOWN'
-                                }));
-
-                                setEntityOptions(processedAltVendors);
-                                return; // Exit early on success
-                            }
-                        } catch (altError) {
-                            console.log(`❌ Alternative endpoint ${altEndpoint} failed:`, altError);
-                        }
-                    }
-                }
-            }
-
-            // Final error state
             setEntityOptions([{
-                label: `Error loading vendors: ${errorMessage.includes('500') ? 'Server error - contact IT support' : errorMessage}`,
+                label: `Error loading vendors: ${errorMessage}`,
                 value: ""
             }]);
         } finally {
@@ -718,12 +461,12 @@ export default function CreateAgreement() {
     const debugContractPayload = (payload: any) => {
         console.group("🔍 Contract Payload Debug");
 
-        // Check entity associations
+        // Check entity associations (API uses field names without _id suffix)
         const entities = {
-            consultant_id: payload.consultant_id,
-            vendor_id: payload.vendor_id,
-            facilitator_id: payload.facilitator_id,
-            adhoc_staff_id: payload.adhoc_staff_id
+            consultant: payload.consultant,
+            vendor: payload.vendor,
+            facilitator: payload.facilitator,
+            adhoc_staff: payload.adhoc_staff
         };
 
         console.log("📋 Entity Association Check:");
@@ -769,7 +512,7 @@ export default function CreateAgreement() {
             const isStaffContract = staffContractTypes.includes(data.type);
 
             // Transform data to match backend API requirements
-            const transformedData = {
+            const transformedData: any = {
                 // Include core fields (excluding entity _id fields)
                 type: data.type,
                 start_date: data.start_date,
@@ -780,13 +523,20 @@ export default function CreateAgreement() {
                 service: isStaffContract
                     ? `${data.type.charAt(0) + data.type.slice(1).toLowerCase()} Services`  // e.g., "Consultant Services"
                     : data.service || "Service Agreement",
-                // Clean up entity fields - use correct API field names (remove _id suffix)
-                // API expects: consultant, vendor, facilitator, adhoc_staff (NOT consultant_id, vendor_id, etc.)
-                consultant: data.type === 'CONSULTANT' && data.consultant_id ? data.consultant_id : null,
-                facilitator: data.type === 'FACILITATOR' && data.facilitator_id ? data.facilitator_id : null,
-                adhoc_staff: data.type === 'ADHOC_STAFF' && data.adhoc_staff_id ? data.adhoc_staff_id : null,
-                vendor: ['SLA', 'SECURITY', 'INSURANCE', 'LEASE', 'HMO', 'TICKETING'].includes(data.type) && data.vendor_id ? data.vendor_id : null,
             };
+
+            // Clean up entity fields - use correct API field names (remove _id suffix)
+            // API expects: consultant, vendor, facilitator, adhoc_staff (NOT consultant_id, vendor_id, etc.)
+            // Only include the entity field that matches the agreement type
+            if (data.type === 'CONSULTANT' && data.consultant_id) {
+                transformedData.consultant = data.consultant_id;
+            } else if (data.type === 'FACILITATOR' && data.facilitator_id) {
+                transformedData.facilitator = data.facilitator_id;
+            } else if (data.type === 'ADHOC_STAFF' && data.adhoc_staff_id) {
+                transformedData.adhoc_staff = data.adhoc_staff_id;
+            } else if (['SLA', 'SECURITY', 'INSURANCE', 'LEASE', 'HMO', 'TICKETING'].includes(data.type) && data.vendor_id) {
+                transformedData.vendor = data.vendor_id;
+            }
 
             console.log('🔍 Agreement Form Submission Data:');
             console.log('- Is Staff Contract:', isStaffContract);

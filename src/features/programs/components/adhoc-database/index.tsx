@@ -25,20 +25,11 @@ export default function AdhocDatabase() {
     }
 
     // Filter for adhoc staff who have accepted their contracts
-    // Handle backward compatibility: some old records may not have type field set correctly
     const acceptedApplicants = allResults.filter(applicant => {
         // Must have accepted the offer
         if (!applicant.offer_accepted) return false;
 
-        // Check if applicant has consultants array (indicates adhoc staff)
-        const hasConsultantsArray = applicant.consultants && applicant.consultants.length > 0;
-        const hasConsultancyData = applicant.consultancy || applicant.consultant_id;
-        const isAdhocIndicator = hasConsultantsArray || hasConsultancyData;
-
-        // If has consultants array or consultancy data (regardless of type field)
-        if (isAdhocIndicator) return true;
-
-        // Or if type is explicitly ADHOC
+        // Must be ADHOC type only
         return applicant.type === "ADHOC";
     });
 
@@ -126,8 +117,8 @@ export default function AdhocDatabase() {
             <Card>
                 <TableFilters>
                     <DataTable
-                        columns={consultantDatabaseColumns}
-                        data={results}
+                        columns={consultantDatabaseColumns as any}
+                        data={results as any}
                         isLoading={isLoading}
                         pagination={{
                             total: results.length,

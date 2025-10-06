@@ -11,6 +11,24 @@ import { CG_ROUTES } from "constants/RouterConstants";
 import { toast } from "sonner";
 import { useCreateAgreement } from "@/features/contracts-grants/controllers/agreementController";
 
+// Helper to get current user ID
+const getCurrentUserId = () => {
+    try {
+        if (typeof window !== 'undefined') {
+            // The correct key is 'user' based on the debug logs
+            const userData = localStorage.getItem('user');
+
+            if (userData) {
+                const user = JSON.parse(userData);
+                return user?.id || null;
+            }
+        }
+    } catch (error) {
+        console.error('Error getting current user:', error);
+    }
+    return null;
+};
+
 export default function AgreementSummary() {
     const router = useRouter();
     const [agreementData, setAgreementData] = useState<any>(null);
@@ -20,7 +38,16 @@ export default function AgreementSummary() {
         // Get agreement data from session storage
         const data = sessionStorage.getItem('agreementFormData');
         if (data) {
-            setAgreementData(JSON.parse(data));
+            const parsedData = JSON.parse(data);
+            console.log('📦 Session Storage Data:', parsedData);
+            console.log('🔍 Entity Fields Check:', {
+                type: parsedData.type,
+                consultant: parsedData.consultant,
+                facilitator: parsedData.facilitator,
+                adhoc_staff: parsedData.adhoc_staff,
+                vendor: parsedData.vendor,
+            });
+            setAgreementData(parsedData);
         } else {
             toast.error("No agreement data found. Please fill the form first.");
             router.push(CG_ROUTES.AGREEMENT);
@@ -32,29 +59,50 @@ export default function AgreementSummary() {
         router.back();
     };
 
-    const handleProceedToUploads = () => {
-        // Navigate to uploads page
-        router.push(CG_ROUTES.CREATE_AGREEMENT_UPLOADS);
-    };
-
     const handleCreateAgreement = async () => {
         if (!agreementData) return;
 
         try {
-            // Clean the data before sending - use correct API field names (without _id suffix)
-            const cleanedData = {
+            // Get current user ID at the time of submission
+            const currentUserId = getCurrentUserId();
+            console.log('👤 Current User ID:', currentUserId);
+
+            if (!currentUserId) {
+                toast.error('User session not found. Please log in again.');
+                return;
+            }
+
+            // Build base payload with required fields
+            const cleanedData: any = {
                 service: agreementData.service,
                 type: agreementData.type,
                 start_date: agreementData.start_date,
                 end_date: agreementData.end_date,
                 contract_cost: agreementData.contract_cost,
                 location: agreementData.location,
-                // Include the appropriate entity field based on type - API expects field names without _id suffix
-                consultant: agreementData.type === 'CONSULTANT' && agreementData.consultant_id ? agreementData.consultant_id : null,
-                facilitator: agreementData.type === 'FACILITATOR' && agreementData.facilitator_id ? agreementData.facilitator_id : null,
-                adhoc_staff: agreementData.type === 'ADHOC_STAFF' && agreementData.adhoc_staff_id ? agreementData.adhoc_staff_id : null,
-                vendor: ['SLA', 'SECURITY', 'INSURANCE', 'LEASE', 'HMO', 'TICKETING'].includes(agreementData.type) && agreementData.vendor_id ? agreementData.vendor_id : null,
+                created_by: currentUserId,
+                updated_by: currentUserId,
             };
+
+            // Only include the entity field that matches the agreement type
+            // Don't send null values for other entity fields
+            if (agreementData.type === 'CONSULTANT' && agreementData.consultant) {
+                cleanedData.consultant = agreementData.consultant;
+            } else if (agreementData.type === 'FACILITATOR' && agreementData.facilitator) {
+                cleanedData.facilitator = agreementData.facilitator;
+            } else if (agreementData.type === 'ADHOC_STAFF' && agreementData.adhoc_staff) {
+                cleanedData.adhoc_staff = agreementData.adhoc_staff;
+            } else if (['SLA', 'SECURITY', 'INSURANCE', 'LEASE', 'HMO', 'TICKETING'].includes(agreementData.type) && agreementData.vendor) {
+                cleanedData.vendor = agreementData.vendor;
+            }
+
+            console.log('📤 Sending Agreement Data to API:', cleanedData);
+            console.log('📋 Entity fields included:', {
+                consultant: cleanedData.consultant || 'not included',
+                facilitator: cleanedData.facilitator || 'not included',
+                adhoc_staff: cleanedData.adhoc_staff || 'not included',
+                vendor: cleanedData.vendor || 'not included',
+            });
 
             await createAgreement(cleanedData);
             
@@ -90,10 +138,11 @@ export default function AgreementSummary() {
 
     const getEntityValue = () => {
         const { type } = agreementData;
-        if (type === "CONSULTANT") return agreementData.consultant_id;
-        if (type === "FACILITATOR") return agreementData.facilitator_id;
-        if (type === "ADHOC_STAFF") return agreementData.adhoc_staff_id;
-        return agreementData.vendor_id;
+        // agreementData from sessionStorage has fields without _id suffix
+        if (type === "CONSULTANT") return agreementData.consultant;
+        if (type === "FACILITATOR") return agreementData.facilitator;
+        if (type === "ADHOC_STAFF") return agreementData.adhoc_staff;
+        return agreementData.vendor;
     };
 
     return (
@@ -152,26 +201,17 @@ export default function AgreementSummary() {
                             </div>
 
                             <div className="border-t pt-6">
-                                <div className="flex flex-col sm:flex-row gap-4 justify-between">
-                                    <div className="flex gap-3">
-                                        <Button 
-                                            variant="outline" 
-                                            onClick={handleEdit}
-                                            type="button"
-                                        >
-                                            Edit Details
-                                        </Button>
-                                        
-                                        <Button 
-                                            variant="outline" 
-                                            onClick={handleProceedToUploads}
-                                            type="button"
-                                        >
-                                            Add Documents
-                                        </Button>
-                                    </div>
+                                <div className="flex flex-col sm:flex-row gap-4 justify-end">
+                                    <Button
+                                        variant="outline"
+                                        onClick={handleEdit}
+                                        type="button"
+                                        size="lg"
+                                    >
+                                        Edit Details
+                                    </Button>
 
-                                    <FormButton 
+                                    <FormButton
                                         onClick={handleCreateAgreement}
                                         loading={isLoading}
                                         type="button"
