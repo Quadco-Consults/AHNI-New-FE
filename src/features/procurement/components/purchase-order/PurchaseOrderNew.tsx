@@ -52,6 +52,9 @@ const PurchaseOrderNew = () => {
   const [open, setOpen] = useState(false);
   const [opens, setOpens] = useState(false);
   const [opensPurchase, setOpensPurchase] = useState(false);
+  const [openAuthorizer, setOpenAuthorizer] = useState(false);
+  const [openApprover, setOpenApprover] = useState(false);
+  const [openVendorRep, setOpenVendorRep] = useState(false);
   const [vendorValue, setVendorValue] = useState(vendorIdFromUrl || "");
   const [requestValue, setRequestValue] = useState("");
   const [purchaseValue, setPurchaseValue] = useState("");
@@ -836,12 +839,13 @@ const PurchaseOrderNew = () => {
                 render={({ field }) => (
                   <FormItem>
                     <Label>Director of Finance (Authorizer) *</Label>
-                    <Popover>
+                    <Popover open={openAuthorizer} onOpenChange={setOpenAuthorizer}>
                       <PopoverTrigger asChild>
                         <FormControl>
                           <Button
                             variant="outline"
                             role="combobox"
+                            aria-expanded={openAuthorizer}
                             className={cn(
                               "w-full justify-between",
                               !field.value && "text-muted-foreground"
@@ -861,6 +865,7 @@ const PurchaseOrderNew = () => {
                           <CommandInput placeholder="Search users..." />
                           <CommandEmpty>No user found.</CommandEmpty>
                           <CommandGroup>
+                            {usersIsLoading && <LoadingSpinner />}
                             {!usersIsLoading &&
                               users?.results?.filter(user => user && user.id && user.fullName)?.map((user) => (
                                 <CommandItem
@@ -868,6 +873,7 @@ const PurchaseOrderNew = () => {
                                   key={user.id}
                                   onSelect={() => {
                                     field.onChange(user.id);
+                                    setOpenAuthorizer(false);
                                   }}
                                 >
                                   <Check
@@ -895,12 +901,13 @@ const PurchaseOrderNew = () => {
                 render={({ field }) => (
                   <FormItem>
                     <Label>Director of Operations (Approver) *</Label>
-                    <Popover>
+                    <Popover open={openApprover} onOpenChange={setOpenApprover}>
                       <PopoverTrigger asChild>
                         <FormControl>
                           <Button
                             variant="outline"
                             role="combobox"
+                            aria-expanded={openApprover}
                             className={cn(
                               "w-full justify-between",
                               !field.value && "text-muted-foreground"
@@ -920,6 +927,7 @@ const PurchaseOrderNew = () => {
                           <CommandInput placeholder="Search users..." />
                           <CommandEmpty>No user found.</CommandEmpty>
                           <CommandGroup>
+                            {usersIsLoading && <LoadingSpinner />}
                             {!usersIsLoading &&
                               users?.results?.filter(user => user && user.id && user.fullName)?.map((user) => (
                                 <CommandItem
@@ -927,6 +935,7 @@ const PurchaseOrderNew = () => {
                                   key={user.id}
                                   onSelect={() => {
                                     field.onChange(user.id);
+                                    setOpenApprover(false);
                                   }}
                                 >
                                   <Check
@@ -956,12 +965,13 @@ const PurchaseOrderNew = () => {
                 render={({ field }) => (
                   <FormItem>
                     <Label>Vendor Representative (Optional)</Label>
-                    <Popover>
+                    <Popover open={openVendorRep} onOpenChange={setOpenVendorRep}>
                       <PopoverTrigger asChild>
                         <FormControl>
                           <Button
                             variant="outline"
                             role="combobox"
+                            aria-expanded={openVendorRep}
                             className={cn(
                               "w-full justify-between",
                               !field.value && "text-muted-foreground"
@@ -981,6 +991,7 @@ const PurchaseOrderNew = () => {
                           <CommandInput placeholder="Search users..." />
                           <CommandEmpty>No user found.</CommandEmpty>
                           <CommandGroup>
+                            {usersIsLoading && <LoadingSpinner />}
                             {!usersIsLoading &&
                               users?.results?.filter(user => user && user.id && user.fullName)?.map((user) => (
                                 <CommandItem
@@ -988,6 +999,7 @@ const PurchaseOrderNew = () => {
                                   key={user.id}
                                   onSelect={() => {
                                     field.onChange(user.id);
+                                    setOpenVendorRep(false);
                                   }}
                                 >
                                   <Check
