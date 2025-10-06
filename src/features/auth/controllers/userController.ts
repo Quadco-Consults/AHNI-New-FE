@@ -159,6 +159,7 @@ export const useAddUserToRole = (id: string) => {
       await callApi(details);
     } catch (error) {
       console.error("Add user to role error:", error);
+      throw error;
     }
   };
 

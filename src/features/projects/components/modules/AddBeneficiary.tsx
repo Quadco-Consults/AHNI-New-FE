@@ -32,8 +32,8 @@ const AddBeneficiaries = () => {
     },
   });
 
-  const { addBeneficiary: beneficiary, isLoading } = useAddBeneficiary();
-  const { updateBeneficiary, isLoading: updateBeneficiaryLoading } =
+  const [addBeneficiary, { isLoading }] = useAddBeneficiary();
+  const [updateBeneficiary, { isLoading: updateBeneficiaryLoading }] =
     useUpdateBeneficiary();
 
   const dispatch = useAppDispatch();
@@ -45,12 +45,12 @@ const AddBeneficiaries = () => {
             id: String(dialogProps?.data?.id),
             body: data,
           })
-        : await beneficiary(data);
+        : await addBeneficiary(data);
       toast.success("Beneficiary Added Succesfully");
       dispatch(closeDialog());
       form.reset();
     } catch (error: any) {
-      toast.error(error.data.message || "Something went wrong");
+      toast.error(error?.data?.message || error?.message || "Something went wrong");
     }
   };
 
