@@ -661,7 +661,30 @@ const PurchaseOrderNew = () => {
                           name={`items.${index}.description`}
                           options={itemOptions}
                           value={form.watch(`items.${index}.description`)}
-                          disabled={true}
+                          disabled={false}
+                          onChange={(e) => {
+                            const selectedItemId = e.target.value;
+                            console.log("🔍 Selected item ID:", selectedItemId);
+
+                            // Find the selected item from the items list
+                            const selectedItem = item?.data?.results?.find(
+                              (itm: any) => itm.id === selectedItemId
+                            );
+
+                            console.log("🔍 Selected item details:", selectedItem);
+
+                            if (selectedItem) {
+                              // Update the UOM field with the item's UOM
+                              setValue(`items.${index}.uom`, selectedItem.uom || "");
+                              console.log("🔍 Set UOM to:", selectedItem.uom);
+
+                              // Also update the description field
+                              setValue(`items.${index}.description`, selectedItemId);
+
+                              // Trigger validation
+                              trigger(`items.${index}.uom`);
+                            }
+                          }}
                         />
                       ) : (
                         <FormInput name={`items.${index}.name`} />
