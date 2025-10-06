@@ -411,6 +411,14 @@ const PurchaseOrderNew = () => {
       purchase_request: data?.purchase_request,
       vendor: vendorValue,
       ...(cbaId && { cba: cbaId }), // Include CBA ID if creating from CBA
+      // Approval workflow fields
+      reviewed_by: data?.reviewed_by,
+      authorized_by: data?.authorized_by,
+      approved_by: data?.approved_by,
+      ...(data?.agreed_by && { agreed_by: data.agreed_by }), // Optional vendor representative
+      // Payment and delivery
+      ...(data?.payment_terms && { payment_terms: data.payment_terms }),
+      ...(data?.delivery_lead_time && { delivery_lead_time: data.delivery_lead_time }),
       items: data?.items.map((item) => ({
         item_id: item?.description || "",
         fco: item?.fco_number?.[0] || "",
@@ -420,6 +428,12 @@ const PurchaseOrderNew = () => {
     };
 
     console.log("📤 Sending form data:", formData);
+    console.log("📤 Approval workflow:", {
+      reviewed_by: data?.reviewed_by,
+      authorized_by: data?.authorized_by,
+      approved_by: data?.approved_by,
+      agreed_by: data?.agreed_by,
+    });
 
     try {
       const res = await createPurchcaseOrderMutation(formData);
