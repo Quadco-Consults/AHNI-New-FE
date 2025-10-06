@@ -273,6 +273,12 @@ const PurchaseOrderNew = () => {
 
   // Auto-populate form from CBA data (same logic as AnalysisResultsView)
   useEffect(() => {
+    console.log("🔍 CBA Auto-populate useEffect triggered");
+    console.log("🔍 Has cbaData:", !!cbaData?.data);
+    console.log("🔍 Has submissionData:", !!submissionData);
+    console.log("🔍 Has cbaId:", !!cbaId);
+    console.log("🔍 Already populated:", cbaItemsPopulated.current);
+
     if (cbaData?.data && submissionData && cbaId && !cbaItemsPopulated.current) {
       console.log("🔍 CBA Data for PO:", cbaData.data);
       console.log("🔍 Submission Data for PO:", submissionData);
@@ -301,6 +307,14 @@ const PurchaseOrderNew = () => {
       if (!selectedVendor) {
         console.warn("⚠️ Selected vendor submission not found");
         return;
+      }
+
+      // Extract the actual vendor ID from the selected submission
+      const actualVendorId = selectedVendor.vendor?.id;
+      console.log("🔍 Actual vendor ID:", actualVendorId);
+
+      if (actualVendorId) {
+        setVendorValue(actualVendorId);
       }
 
       // Get bid_items from the selected vendor (same as AnalysisResultsView line 160)
@@ -341,14 +355,16 @@ const PurchaseOrderNew = () => {
 
         console.log("🔍 Mapped items for PO form:", mappedItems);
 
-        // Populate the form items
-        mappedItems.forEach((item: any) => {
-          console.log("🔍 Appending item to form:", item);
-          append(item);
+        // Use form.reset to populate items and vendor
+        // This ensures React Hook Form properly registers the fields
+        form.reset({
+          ...form.getValues(),
+          vendor: actualVendorId || "",
+          items: mappedItems,
         });
 
-        console.log("🔍 Form fields after append:", fields);
-        console.log("🔍 Form fields length after append:", fields.length);
+        console.log("🔍 Form reset with items");
+        console.log("🔍 Form values after reset:", form.getValues());
 
         // Mark as populated to prevent re-running
         cbaItemsPopulated.current = true;
