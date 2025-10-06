@@ -39,15 +39,10 @@ export default function CloseOutPlan() {
 
             <Card className="space-y-10">
                 {/* Project Details */}
-                <div className="grid grid-cols-3 gap-5">
+                <div className="grid grid-cols-2 gap-5">
                     <DescriptionCard
                         label="Project"
                         description={projectTitle || 'N/A'}
-                    />
-
-                    <DescriptionCard
-                        label="Department"
-                        description={departmentName || 'N/A'}
                     />
 
                     <DescriptionCard
@@ -58,7 +53,7 @@ export default function CloseOutPlan() {
 
                 {/* Close-Out Plan Table */}
                 <div className="space-y-5">
-                    <h3 className="text-xl font-bold">Close-Out Activities</h3>
+                    <h3 className="text-xl font-bold">Pre Closeout and Close Out Activities</h3>
 
                     <div className="overflow-x-auto border border-gray-300 rounded-lg">
                         <table className="w-full border-collapse">
