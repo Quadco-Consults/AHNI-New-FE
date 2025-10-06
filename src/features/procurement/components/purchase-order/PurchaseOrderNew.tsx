@@ -674,9 +674,9 @@ const PurchaseOrderNew = () => {
                             console.log("🔍 Selected item details:", selectedItem);
 
                             if (selectedItem) {
-                              // Update the UOM field with the item's UOM
-                              setValue(`items.${index}.uom`, selectedItem.uom || "");
-                              console.log("🔍 Set UOM to:", selectedItem.uom);
+                              // Update the UOM field with the item's unit (ItemData uses 'unit' not 'uom')
+                              setValue(`items.${index}.uom`, selectedItem.unit || "");
+                              console.log("🔍 Set UOM to:", selectedItem.unit);
 
                               // Also update the description field
                               setValue(`items.${index}.description`, selectedItemId);
