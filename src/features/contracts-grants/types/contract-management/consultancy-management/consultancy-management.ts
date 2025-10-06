@@ -4,8 +4,10 @@ import { z } from "zod";
 
 export const ConsultancyManagementDetailSchema = z.object({
   title: z.string().min(1, "Please enter title"),
+  contract_request: z.string().optional(), // Contract request ID
+  description: z.string().optional(), // Job description
   locations: z.array(z.string()).nonempty(),
-  grade_level: z.string(),
+  grade_level: z.string().optional(), // Optional grade level
   commencement_date: z.string().min(1, "Please select commencement date"),
   end_date: z.string().min(1, "Please select end date"),
   consultants_number: z.string().min(1, "Please enter number of consultants"),

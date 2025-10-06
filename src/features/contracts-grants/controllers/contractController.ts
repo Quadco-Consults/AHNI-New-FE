@@ -42,8 +42,8 @@ interface ContractRequestFilterParams {
   enabled?: boolean;
 }
 
-const BASE_URL = "/contract-grants/contract-requests/"; // From original service
-const INTERVIEW_BASE_URL = "/contract-grants/consultancy/applicant-interviews/bulk-create/";
+const BASE_URL = "contract-grants/contract-requests/"; // From original service (no leading slash to avoid double slash with baseURL)
+const INTERVIEW_BASE_URL = "contract-grants/consultancy/applicant-interviews/bulk-create/";
 
 // ===== CONTRACT REQUEST HOOKS =====
 
@@ -279,7 +279,7 @@ export const useSubmitContractRequest = (id: string) => {
   const { callApi, isLoading, isSuccess, error, data } = useApiManager<
     IContractRequestSingleData,
     Error,
-    Record<string, never>
+    { comment: string | null }
   >({
     endpoint: `${BASE_URL}${id}/submit/`,
     queryKey: ["contractRequests", "contractRequest"],
@@ -287,11 +287,14 @@ export const useSubmitContractRequest = (id: string) => {
     method: "POST",
   });
 
-  const submitContractRequest = async () => {
+  const submitContractRequest = async (comment?: string) => {
     try {
-      await callApi({} as Record<string, never>);
+      // Send null if no comment, to avoid "field may not be blank" error
+      const payload = { comment: comment?.trim() || null };
+      await callApi(payload);
     } catch (error) {
       console.error("Contract request submit error:", error);
+      throw error;
     }
   };
 
@@ -303,7 +306,7 @@ export const useReviewContractRequest = (id: string) => {
   const { callApi, isLoading, isSuccess, error, data } = useApiManager<
     IContractRequestSingleData,
     Error,
-    Record<string, never>
+    { comment: string | null }
   >({
     endpoint: `${BASE_URL}${id}/review/`,
     queryKey: ["contractRequests", "contractRequest"],
@@ -311,11 +314,14 @@ export const useReviewContractRequest = (id: string) => {
     method: "POST",
   });
 
-  const reviewContractRequest = async () => {
+  const reviewContractRequest = async (comment?: string) => {
     try {
-      await callApi({} as Record<string, never>);
+      // Send null if no comment, to avoid "field may not be blank" error
+      const payload = { comment: comment?.trim() || null };
+      await callApi(payload);
     } catch (error) {
       console.error("Contract request review error:", error);
+      throw error;
     }
   };
 
@@ -327,7 +333,7 @@ export const useCompleteReviewContractRequest = (id: string) => {
   const { callApi, isLoading, isSuccess, error, data } = useApiManager<
     IContractRequestSingleData,
     Error,
-    Record<string, never>
+    { comment: string | null }
   >({
     endpoint: `${BASE_URL}${id}/complete_review/`,
     queryKey: ["contractRequests", "contractRequest"],
@@ -335,11 +341,14 @@ export const useCompleteReviewContractRequest = (id: string) => {
     method: "POST",
   });
 
-  const completeReviewContractRequest = async () => {
+  const completeReviewContractRequest = async (comment?: string) => {
     try {
-      await callApi({} as Record<string, never>);
+      // Send null if no comment, to avoid "field may not be blank" error
+      const payload = { comment: comment?.trim() || null };
+      await callApi(payload);
     } catch (error) {
       console.error("Contract request complete review error:", error);
+      throw error;
     }
   };
 
@@ -351,7 +360,7 @@ export const useAuthorizeContractRequest = (id: string) => {
   const { callApi, isLoading, isSuccess, error, data } = useApiManager<
     IContractRequestSingleData,
     Error,
-    Record<string, never>
+    { comment: string | null }
   >({
     endpoint: `${BASE_URL}${id}/authorize/`,
     queryKey: ["contractRequests", "contractRequest"],
@@ -359,11 +368,14 @@ export const useAuthorizeContractRequest = (id: string) => {
     method: "POST",
   });
 
-  const authorizeContractRequest = async () => {
+  const authorizeContractRequest = async (comment?: string) => {
     try {
-      await callApi({} as Record<string, never>);
+      // Send null if no comment, to avoid "field may not be blank" error
+      const payload = { comment: comment?.trim() || null };
+      await callApi(payload);
     } catch (error) {
       console.error("Contract request authorize error:", error);
+      throw error;
     }
   };
 
@@ -375,7 +387,7 @@ export const useApproveContractRequest = (id: string) => {
   const { callApi, isLoading, isSuccess, error, data } = useApiManager<
     IContractRequestSingleData,
     Error,
-    Record<string, never>
+    { comment: string | null }
   >({
     endpoint: `${BASE_URL}${id}/approve/`,
     queryKey: ["contractRequests", "contractRequest"],
@@ -383,11 +395,14 @@ export const useApproveContractRequest = (id: string) => {
     method: "POST",
   });
 
-  const approveContractRequest = async () => {
+  const approveContractRequest = async (comment?: string) => {
     try {
-      await callApi({} as Record<string, never>);
+      // Send null if no comment, to avoid "field may not be blank" error
+      const payload = { comment: comment?.trim() || null };
+      await callApi(payload);
     } catch (error) {
       console.error("Contract request approve error:", error);
+      throw error;
     }
   };
 

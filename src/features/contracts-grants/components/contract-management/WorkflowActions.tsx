@@ -7,6 +7,16 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "components/ui/
 import { Textarea } from "components/ui/textarea";
 import { Label } from "components/ui/label";
 
+// Import the approval workflow hooks
+import {
+  useSubmitContractRequest,
+  useReviewContractRequest,
+  useCompleteReviewContractRequest,
+  useAuthorizeContractRequest,
+  useApproveContractRequest,
+  useRejectContractRequest,
+} from "@/features/contracts-grants/controllers/contractController";
+
 interface WorkflowActionsProps {
   contractRequest: any;
   currentUser: any;
@@ -21,13 +31,22 @@ export default function WorkflowActions({
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedAction, setSelectedAction] = useState<string>("");
   const [comment, setComment] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+
+  // Initialize all approval hooks
+  const { submitContractRequest, isLoading: isSubmitting } = useSubmitContractRequest(contractRequest.id);
+  const { reviewContractRequest, isLoading: isReviewing } = useReviewContractRequest(contractRequest.id);
+  const { completeReviewContractRequest, isLoading: isCompletingReview } = useCompleteReviewContractRequest(contractRequest.id);
+  const { authorizeContractRequest, isLoading: isAuthorizing } = useAuthorizeContractRequest(contractRequest.id);
+  const { approveContractRequest, isLoading: isApproving } = useApproveContractRequest(contractRequest.id);
+  const { rejectContractRequest, isLoading: isRejecting } = useRejectContractRequest(contractRequest.id);
+
+  const isLoading = isSubmitting || isReviewing || isCompletingReview || isAuthorizing || isApproving || isRejecting;
 
   const canStartReview = contractRequest.status === "SUBMITTED" &&
     (!contractRequest.current_reviewer || contractRequest.current_reviewer === currentUser?.id);
 
   const canCompleteReview = contractRequest.status === "UNDER_REVIEW" &&
-    (contractRequest.current_reviewer === currentUser?.id || 
+    (contractRequest.current_reviewer === currentUser?.id ||
      contractRequest.reviewer === currentUser?.id);
 
   const canAuthorize = contractRequest.status === "REVIEWED" &&
@@ -39,104 +58,74 @@ export default function WorkflowActions({
   const canReject = ["SUBMITTED", "UNDER_REVIEW", "REVIEWED", "AUTHORIZED"].includes(contractRequest.status);
 
   const handleAction = async (action: string) => {
-    setSelectedAction(action);
-    setIsDialogOpen(true);
+    // Only show dialog for reject action (requires comment)
+    if (action === 'reject') {
+      setSelectedAction(action);
+      setIsDialogOpen(true);
+      return;
+    }
+
+    // Execute other actions immediately without dialog
+    await executeAction(action);
   };
 
-  const executeAction = async () => {
-    if (!comment.trim() && selectedAction === "reject") {
+  const executeAction = async (action?: string) => {
+    const actionToExecute = action || selectedAction;
+
+    // Validate comment for reject action
+    if (!comment.trim() && actionToExecute === "reject") {
       toast.error("Comment is required when rejecting a request");
       return;
     }
 
-    setIsLoading(true);
     try {
-      const token = localStorage.getItem('token'); // Adjust based on your auth implementation
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL || '/api/v1';
-      
-      let endpoint = '';
-      switch (selectedAction) {
+      switch (actionToExecute) {
         case 'submit':
-          endpoint = `${baseUrl}/contract-grants/contract-requests/${contractRequest.id}/submit/`;
+          await submitContractRequest();
+          toast.success("Request submitted successfully");
           break;
         case 'start_review':
         case 'review':
-          endpoint = `${baseUrl}/contract-grants/contract-requests/${contractRequest.id}/review/`;
+          await reviewContractRequest();
+          toast.success("Review started successfully");
           break;
         case 'complete_review':
-          endpoint = `${baseUrl}/contract-grants/contract-requests/${contractRequest.id}/complete_review/`;
+          await completeReviewContractRequest();
+          toast.success("Review completed successfully");
           break;
         case 'authorize':
-          endpoint = `${baseUrl}/contract-grants/contract-requests/${contractRequest.id}/authorize/`;
+          await authorizeContractRequest();
+          toast.success("Request authorized successfully");
           break;
         case 'approve':
-          endpoint = `${baseUrl}/contract-grants/contract-requests/${contractRequest.id}/approve/`;
+          await approveContractRequest();
+          toast.success("Request approved successfully");
           break;
         case 'reject':
-          endpoint = `${baseUrl}/contract-grants/contract-requests/${contractRequest.id}/reject/`;
+          await rejectContractRequest(comment.trim());
+          toast.success("Request rejected");
           break;
         default:
-          throw new Error(`Unknown action: ${selectedAction}`);
+          throw new Error(`Unknown action: ${actionToExecute}`);
       }
 
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token && { 'Authorization': `Bearer ${token}` }),
-        },
-        body: JSON.stringify({
-          comment: comment.trim() || undefined
-        }),
-      });
-
-      if (!response.ok) {
-        let errorMessage = 'Action failed';
-        
-        // Check if response contains JSON
-        const contentType = response.headers.get('content-type');
-        if (contentType && contentType.includes('application/json')) {
-          try {
-            const errorData = await response.json();
-            errorMessage = errorData.detail || errorData.message || 'Action failed';
-          } catch {
-            errorMessage = 'Failed to parse error response';
-          }
-        } else {
-          // Handle non-JSON responses (like 404 HTML pages)
-          if (response.status === 404) {
-            errorMessage = 'API endpoint not found. The backend may not be fully implemented yet.';
-          } else if (response.status === 403) {
-            errorMessage = 'You are not authorized to perform this action.';
-          } else {
-            errorMessage = `Request failed with status ${response.status}`;
-          }
-        }
-        
-        throw new Error(errorMessage);
-      }
-
-      // Parse response JSON safely
-      const contentType = response.headers.get('content-type');
-      if (contentType && contentType.includes('application/json')) {
-        try {
-          await response.json();
-        } catch {
-          console.warn('Failed to parse response JSON, but action may have succeeded');
-        }
-      }
-      
-      toast.success(`Request ${selectedAction.replace('_', ' ')} completed successfully`);
-      
       onStatusUpdate();
       setIsDialogOpen(false);
       setComment("");
-      
+
     } catch (error: any) {
       console.error('Workflow action failed:', error);
-      toast.error(error.message || "Something went wrong");
-    } finally {
-      setIsLoading(false);
+
+      // Handle specific error types
+      if (error?.response?.status === 404) {
+        toast.error('API endpoint not found. Please contact support.');
+      } else if (error?.response?.status === 403) {
+        toast.error('You are not authorized to perform this action.');
+      } else if (error?.response?.status === 400) {
+        toast.error('Invalid request. Please refresh and try again.');
+      } else {
+        toast.error(error?.message || "Something went wrong");
+      }
     }
   };
 
@@ -188,17 +177,19 @@ export default function WorkflowActions({
             variant={button.variant}
             className="w-full flex items-center justify-start gap-2"
             onClick={() => handleAction(button.action)}
+            disabled={isLoading}
           >
             {button.label}
           </Button>
         ))}
-        
+
         {/* Reject button - available to assigned users at their stage */}
         {canReject && (canStartReview || canCompleteReview || canAuthorize || canApprove) && (
           <Button
             variant="destructive"
             className="w-full flex items-center justify-start gap-2"
             onClick={() => handleAction("reject")}
+            disabled={isLoading}
           >
             Reject
           </Button>
@@ -208,25 +199,27 @@ export default function WorkflowActions({
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>
-              {selectedAction === "reject" ? "Reject Request" : `${selectedAction.replace("_", " ").toUpperCase()} Request`}
-            </DialogTitle>
+            <DialogTitle>Reject Contract Request</DialogTitle>
           </DialogHeader>
-          
+
           <div className="space-y-4">
+            <p className="text-sm text-gray-500">
+              Please provide a reason for rejecting this contract request. This comment will be visible in the approval history.
+            </p>
             <div>
               <Label htmlFor="comment">
-                Comment {selectedAction === "reject" ? "(Required)" : "(Optional)"}
+                Rejection Reason <span className="text-red-500">*</span>
               </Label>
               <Textarea
                 id="comment"
-                placeholder={`Provide a comment for this ${selectedAction}...`}
+                placeholder="Explain why you are rejecting this request..."
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
                 rows={4}
+                required
               />
             </div>
-            
+
             <div className="flex justify-end gap-2">
               <Button
                 variant="outline"
@@ -234,15 +227,16 @@ export default function WorkflowActions({
                   setIsDialogOpen(false);
                   setComment("");
                 }}
+                disabled={isLoading}
               >
                 Cancel
               </Button>
               <Button
-                onClick={executeAction}
-                disabled={isLoading}
-                variant={selectedAction === "reject" ? "destructive" : "default"}
+                onClick={() => executeAction()}
+                disabled={isLoading || !comment.trim()}
+                variant="destructive"
               >
-                {isLoading ? "Processing..." : "Confirm"}
+                {isLoading ? "Rejecting..." : "Reject Request"}
               </Button>
             </div>
           </div>

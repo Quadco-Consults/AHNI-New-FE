@@ -24,25 +24,47 @@ export default function ContractRequestDetails() {
         contractRequestId || ""
     );
 
-    // Fetch all applicants with CONTRACT_ISSUED status
+    // Fetch all applicants with CONTRACT_ISSUED or APPROVED status
     const { data: applicantsData, isLoading: isLoadingApplicants } = useGetAllConsultancyApplicants({
         page: 1,
         size: 1000,
-        status: "CONTRACT_ISSUED",
     });
 
     const contractRequest = contractRequestData?.data;
-    const allApplicants = applicantsData?.data?.results || [];
+    const allApplicantsRaw = applicantsData?.data?.results || [];
+
+    console.log("📊 Contract Request Details - All Applicants:", allApplicantsRaw);
+    console.log("📊 Contract Request ID:", contractRequestId);
+    console.log("📊 Applicant Type:", applicantType);
 
     // Filter applicants for this contract request and type
-    const applicants = useMemo(() =>
-        allApplicants.filter(
-            applicant =>
-                applicant.contract_request?.id === contractRequestId &&
-                applicant.type === applicantType
-        ),
-        [allApplicants, contractRequestId, applicantType]
-    );
+    const applicants = useMemo(() => {
+        return allApplicantsRaw.filter(applicant => {
+            // Must have CONTRACT_ISSUED or APPROVED status
+            if (!['CONTRACT_ISSUED', 'APPROVED'].includes(applicant.status)) {
+                return false;
+            }
+
+            // Must match this contract request
+            const contractReqId = typeof applicant.contract_request === 'object' && applicant.contract_request !== null
+                ? applicant.contract_request.id
+                : applicant.contract_request;
+
+            if (contractReqId !== contractRequestId) {
+                return false;
+            }
+
+            // Type matching logic - use type field as primary source of truth
+            if (applicantType === "ADHOC") {
+                return applicant.type === "ADHOC";
+            }
+
+            // For consultant route - match CONSULTANT type or no type
+            return !applicant.type || applicant.type === "CONSULTANT";
+        });
+    }, [allApplicantsRaw, contractRequestId, applicantType]);
+
+    console.log("🔍 Filtered Applicants for Contract Request:", applicants);
 
     const acceptedCount = applicants.filter(a => a.offer_accepted).length;
     const pendingCount = applicants.length - acceptedCount;
@@ -94,10 +116,10 @@ export default function ContractRequestDetails() {
                                 </div>
                                 <div>
                                     <h1 className="text-2xl font-bold text-gray-900">
-                                        {contractRequest.position || contractRequest.title}
+                                        {contractRequest.title}
                                     </h1>
                                     <p className="text-sm text-gray-600">
-                                        Ref: {contractRequest.reference_number || contractRequest.id?.slice(0, 8)}
+                                        Ref: {contractRequest.id?.slice(0, 8)}
                                     </p>
                                 </div>
                             </div>
@@ -147,7 +169,9 @@ export default function ContractRequestDetails() {
                             {contractRequest.department && (
                                 <div className="flex items-center gap-2 text-sm">
                                     <Briefcase className="h-4 w-4 text-gray-500" />
-                                    <span className="text-gray-700">{contractRequest.department}</span>
+                                    <span className="text-gray-700">
+                                        {typeof contractRequest.department === 'object' ? contractRequest.department.name : contractRequest.department}
+                                    </span>
                                 </div>
                             )}
                             {contractRequest.created_datetime && (

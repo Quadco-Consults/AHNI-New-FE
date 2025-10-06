@@ -40,22 +40,36 @@ export default function ServiceLevelAgreementUploads() {
             // Create the agreement first
             console.log("Creating agreement with data:", agreementData);
             
-            // Remove any fields that might cause issues
-            const cleanedData = {
+            // Build base payload
+            const cleanedData: any = {
                 service: agreementData.service,
                 type: agreementData.type,
                 start_date: agreementData.start_date,
                 end_date: agreementData.end_date,
                 contract_cost: agreementData.contract_cost,
                 location: agreementData.location,
-                // Include the appropriate entity field based on type
-                ...(agreementData.consultant_id && { consultant_id: agreementData.consultant_id }),
-                ...(agreementData.facilitator_id && { facilitator_id: agreementData.facilitator_id }),
-                ...(agreementData.adhoc_staff_id && { adhoc_staff_id: agreementData.adhoc_staff_id }),
-                ...(agreementData.vendor_id && { vendor_id: agreementData.vendor_id }),
             };
-            
+
+            // Only include the entity field that matches the agreement type
+            // sessionStorage has fields WITHOUT _id suffix (consultant, facilitator, etc.)
+            if (agreementData.type === 'CONSULTANT' && agreementData.consultant) {
+                cleanedData.consultant = agreementData.consultant;
+            } else if (agreementData.type === 'FACILITATOR' && agreementData.facilitator) {
+                cleanedData.facilitator = agreementData.facilitator;
+            } else if (agreementData.type === 'ADHOC_STAFF' && agreementData.adhoc_staff) {
+                cleanedData.adhoc_staff = agreementData.adhoc_staff;
+            } else if (['SLA', 'SECURITY', 'INSURANCE', 'LEASE', 'HMO', 'TICKETING'].includes(agreementData.type) && agreementData.vendor) {
+                cleanedData.vendor = agreementData.vendor;
+            }
+
             console.log("Cleaned data being sent:", cleanedData);
+            console.log("Entity field check:", {
+                type: agreementData.type,
+                consultant: agreementData.consultant || 'not set',
+                facilitator: agreementData.facilitator || 'not set',
+                adhoc_staff: agreementData.adhoc_staff || 'not set',
+                vendor: agreementData.vendor || 'not set',
+            });
             await createAgreement(cleanedData);
 
             // Clean up session storage

@@ -117,55 +117,38 @@ export const useGetSingleGoodReceiveNote = (
 
 // Create Good Receive Note
 export const useCreateGoodReceiveNote = () => {
-  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
-    IGoodReceiveNoteSingleData,
-    Error,
-    TGoodReceiveNoteFormValues | FormData
-  >({
-    endpoint: BASE_URL,
-    queryKey: ["goodReceiveNote"],
-    isAuth: true,
-    method: "POST",
-    contentType: null, // Let browser set content type automatically
-  });
-
-  const createGoodReceiveNote = async (details: TGoodReceiveNoteFormValues | FormData) => {
+  const createGoodReceiveNote = async (details: FormData) => {
     try {
-      const res = await callApi(details);
-      return res;
+      console.log("🔍 CREATE GRN - Sending FormData");
+
+      // Let browser set Content-Type with boundary for multipart/form-data
+      const response = await AxiosWithToken.post(BASE_URL, details);
+      return response.data;
     } catch (error) {
       console.error("Good receive note create error:", error);
       throw error; // Re-throw to maintain error handling flow
     }
   };
 
-  return { createGoodReceiveNote, data, isLoading, isSuccess, error };
+  return { createGoodReceiveNote, isLoading: false };
 };
 
 // Modify Good Receive Note (Full Update)
 export const useModifyGoodReceiveNote = (id: string) => {
-  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
-    IGoodReceiveNoteSingleData,
-    Error,
-    TGoodReceiveNoteFormValues | FormData
-  >({
-    endpoint: `${BASE_URL}${id}/`,
-    queryKey: ["goodReceiveNote", "goodReceiveNoteItem"],
-    isAuth: true,
-    method: "PUT",
-    contentType: null, // Let browser set content type for FormData
-  });
-
-  const modifyGoodReceiveNote = async (details: TGoodReceiveNoteFormValues | FormData) => {
+  const modifyGoodReceiveNote = async (details: FormData) => {
     try {
-      const res = await callApi(details);
-      return res;
+      console.log("🔍 MODIFY GRN - Sending FormData");
+
+      // Let browser set Content-Type with boundary for multipart/form-data
+      const response = await AxiosWithToken.put(`${BASE_URL}${id}/`, details);
+      return response.data;
     } catch (error) {
       console.error("Good receive note modify error:", error);
+      throw error;
     }
   };
 
-  return { modifyGoodReceiveNote, data, isLoading, isSuccess, error };
+  return { modifyGoodReceiveNote, isLoading: false };
 };
 
 // Delete Good Receive Note

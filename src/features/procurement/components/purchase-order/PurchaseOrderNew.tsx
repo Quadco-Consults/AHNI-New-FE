@@ -13,7 +13,7 @@ import {
   CommandItem,
 } from "components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { useGetVendors } from "@/features/procurement/controllers/vendorController";
 import {
   useGetPurchaseRequests,
@@ -38,17 +38,36 @@ import MultiSelectFormField from "components/ui/multiselect";
 import FormSelect from "components/atoms/FormSelect";
 import { useGetAllItems } from "@/features/modules/controllers/config/itemController";
 import { useGetAllFCONumbersQuery } from "@/features/modules/controllers";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useGetAllUsers } from "@/features/auth/controllers/userController";
+import CbaAPI from "@/features/procurement/controllers/cbaController";
+import { useGetSolicitationSubmission } from "@/features/procurement/controllers/vendorBidSubmissionsController";
 
 const PurchaseOrderNew = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const cbaId = searchParams?.get('cba');
+  const vendorIdFromUrl = searchParams?.get('vendor');
+
   const [open, setOpen] = useState(false);
   const [opens, setOpens] = useState(false);
   const [opensPurchase, setOpensPurchase] = useState(false);
-  const [vendorValue, setVendorValue] = useState("");
+  const [vendorValue, setVendorValue] = useState(vendorIdFromUrl || "");
   const [requestValue, setRequestValue] = useState("");
   const [purchaseValue, setPurchaseValue] = useState("");
+
+  // Track if CBA items have been populated to prevent double-appending
+  const cbaItemsPopulated = useRef(false);
+
+  // Fetch CBA data if coming from CBA flow
+  const { data: cbaData } = CbaAPI.useGetSingleCba(cbaId || "", !!cbaId);
+
+  // Fetch bid submissions to get vendor bid_items (same as AnalysisResultsView)
+  const solicitationId = cbaData?.data?.solicitation?.id;
+  const { data: submissionData } = useGetSolicitationSubmission(
+    solicitationId || "",
+    !!solicitationId
+  );
 
 
   const { data: vendors, isLoading: vendorsIsLoading } = useGetVendors({
@@ -252,6 +271,97 @@ const PurchaseOrderNew = () => {
     name: "items",
   });
 
+  // Auto-populate form from CBA data (same logic as AnalysisResultsView)
+  useEffect(() => {
+    if (cbaData?.data && submissionData && cbaId && !cbaItemsPopulated.current) {
+      console.log("🔍 CBA Data for PO:", cbaData.data);
+      console.log("🔍 Submission Data for PO:", submissionData);
+
+      // Set vendor from URL parameter
+      if (vendorIdFromUrl) {
+        setVendorValue(vendorIdFromUrl);
+      }
+
+      // Get submissions array (same path as AnalysisResultsView line 153)
+      const submissions = (submissionData as any)?.data?.data?.results ||
+                         (submissionData as any)?.data?.results ||
+                         [];
+      console.log("🔍 All submissions:", submissions);
+
+      // Get selected vendor and items from CBA
+      const selectedBidId = cbaData.data.selected_bid_submission;
+      const selectedItemIds = cbaData.data.selected_items || [];
+      console.log("🔍 Selected vendor/bid ID:", selectedBidId);
+      console.log("🔍 Selected item IDs:", selectedItemIds);
+
+      // Find the selected vendor submission (same as AnalysisResultsView line 156)
+      const selectedVendor = submissions.find((sub: any) => sub.id === selectedBidId);
+      console.log("🔍 Selected vendor submission:", selectedVendor);
+
+      if (!selectedVendor) {
+        console.warn("⚠️ Selected vendor submission not found");
+        return;
+      }
+
+      // Get bid_items from the selected vendor (same as AnalysisResultsView line 160)
+      const bidItems = selectedVendor.bid_items || [];
+      console.log("🔍 Bid items from selected vendor:", bidItems);
+
+      if (bidItems.length === 0) {
+        console.warn("⚠️ No bid items found for selected vendor");
+        return;
+      }
+
+      // Filter to only selected items and map to PO form format
+      const selectedBidItems = bidItems.filter((bidItem: any) =>
+        selectedItemIds.includes(bidItem.id)
+      );
+      console.log("🔍 Filtered selected bid items:", selectedBidItems);
+
+      if (selectedBidItems.length > 0) {
+        const mappedItems = selectedBidItems.map((bidItem: any) => {
+          console.log("🔍 Processing bid item:", bidItem);
+
+          const quantity = parseFloat(bidItem.solicitation_item_quantity || 0);
+          const unitPrice = parseFloat(bidItem.unit_price || 0);
+          const total = parseFloat(bidItem.total_price || (quantity * unitPrice));
+
+          // Get the actual item ID from solicitation_item or fallback to id
+          const itemId = bidItem.solicitation_item || bidItem.id;
+
+          return {
+            description: itemId || "",
+            quantity: quantity,
+            unit_cost: unitPrice,
+            total: total,
+            fco_number: [],
+            uom: "", // UOM will be populated from item details if needed
+          };
+        });
+
+        console.log("🔍 Mapped items for PO form:", mappedItems);
+
+        // Populate the form items
+        mappedItems.forEach((item: any) => {
+          console.log("🔍 Appending item to form:", item);
+          append(item);
+        });
+
+        console.log("🔍 Form fields after append:", fields);
+        console.log("🔍 Form fields length after append:", fields.length);
+
+        // Mark as populated to prevent re-running
+        cbaItemsPopulated.current = true;
+        console.log("✅ CBA items populated successfully");
+      } else {
+        console.warn("⚠️ No selected items found in bid items");
+      }
+
+      // Set CBA ID in form (if your schema supports it)
+      setValue("cba" as any, cbaId);
+    }
+  }, [cbaData, submissionData, cbaId, vendorIdFromUrl, append, setValue]);
+
   useEffect(() => {
     setValue("items", fields);
   }, []);
@@ -263,6 +373,7 @@ const PurchaseOrderNew = () => {
     const formData = {
       purchase_request: data?.purchase_request,
       vendor: vendorValue,
+      ...(cbaId && { cba: cbaId }), // Include CBA ID if creating from CBA
       items: data?.items.map((item) => ({
         item_id: item?.description || "",
         fco: item?.fco_number?.[0] || "",
@@ -496,7 +607,10 @@ const PurchaseOrderNew = () => {
               </tr>
             </thead>
             <tbody>
+              {console.log("🔍 Rendering table with fields.length:", fields.length)}
+              {console.log("🔍 Fields array:", fields)}
               {fields.map((field, index) => {
+                console.log(`🔍 Rendering row ${index} for field:`, field);
                 return (
                   <tr key={index} className="w-full">
                     <td className="w-fit p-2 text-center ">
