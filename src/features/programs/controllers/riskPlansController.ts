@@ -15,6 +15,42 @@ const BASE_URL = "/programs/plans/risk-management/";
 
 // ===== RISK PLANS HOOKS =====
 
+// Download Risk Management Plan Template
+export const useDownloadRiskManagementPlanTemplate = (enabled: boolean = true) => {
+  return useQuery({
+    queryKey: ["risk-management-plan-template"],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get(
+          `${BASE_URL}sheet/template/`,
+          {
+            responseType: "blob",
+          }
+        );
+
+        // Create download link
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", "risk-management-plan-template.xlsx");
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error(
+          "Sorry: " + (axiosError.response?.data as any)?.message
+        );
+      }
+    },
+    enabled: enabled,
+    refetchOnWindowFocus: false,
+  });
+};
+
 // Get All Risk Management Plans
 export const useGetAllRiskManagementPlans = ({
   page = 1,
@@ -136,6 +172,42 @@ export const usePatchRiskManagementPlan = (id: string) => {
   };
 
   return { patchRiskManagementPlan, data, isLoading, isSuccess, error };
+};
+
+// Upload Risk Management Plan
+export const useUploadRiskManagementPlan = () => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    null,
+    Error,
+    { project: string; financial_year: string; file: File }
+  >({
+    endpoint: `${BASE_URL}sheet/upload/`,
+    queryKey: ["risk-management-plans"],
+    isAuth: true,
+    method: "POST",
+    contentType: "multipart/form-data",
+  });
+
+  const uploadRiskManagementPlan = async (details: {
+    project: string;
+    financial_year: string;
+    file: File;
+  }) => {
+    try {
+      // Create FormData for file upload
+      const formData = new FormData();
+      formData.append("project", details.project);
+      formData.append("financial_year", details.financial_year);
+      formData.append("file", details.file);
+
+      await callApi(formData as any);
+    } catch (error) {
+      console.error("Risk management plan upload error:", error);
+      throw error;
+    }
+  };
+
+  return { uploadRiskManagementPlan, data, isLoading, isSuccess, error };
 };
 
 // Delete Risk Management Plan

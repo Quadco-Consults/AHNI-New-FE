@@ -4,7 +4,7 @@ import Card from "components/Card";
 import { Button } from "components/ui/button";
 import AddSquareIcon from "components/icons/AddSquareIcon";
 import DataTable from "components/Table/DataTable";
-import { useGetAllRiskManagementPlans } from "@/features/programs/controllers/riskPlansController";
+import { useGetAllRiskManagementPlans, useDownloadRiskManagementPlanTemplate } from "@/features/programs/controllers/riskPlansController";
 import { useState } from "react";
 import BreadcrumbCard, { TBreadcrumbList } from "components/Breadcrumb";
 import { riskManagementPlanColumns } from "@/features/programs/components/table-columns/plan/risk-management-plan";
@@ -14,6 +14,10 @@ import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import ArrowDownIcon from "components/icons/ArrowDownIcon";
 import UploadIcon from "components/icons/UploadIcon";
 import { DownloadIcon } from "lucide-react";
+import { useAppDispatch } from "hooks/useStore";
+import { openDialog } from "store/ui";
+import { DialogType, mediumDailogScreen } from "constants/dailogs";
+import { toast } from "sonner";
 
 const breadcrumbs: TBreadcrumbList[] = [
   { name: "Programs", icon: true },
@@ -24,6 +28,8 @@ const breadcrumbs: TBreadcrumbList[] = [
 export default function RiskManagementPage() {
   const [page, setPage] = useState(1);
   const [searchController, setSearchController] = useState("");
+  const [shouldDownload, setShouldDownload] = useState(false);
+  const dispatch = useAppDispatch();
 
   const debouncedSearchController = useDebounce(searchController, {
     wait: 1000,
@@ -36,6 +42,37 @@ export default function RiskManagementPage() {
       search: debouncedSearchController,
     }
   );
+
+  // Download template hook
+  const { isLoading: isDownloading, isSuccess: downloadSuccess, isError: downloadError } =
+    useDownloadRiskManagementPlanTemplate(shouldDownload);
+
+  // Reset download state after completion
+  if (shouldDownload && (downloadSuccess || downloadError)) {
+    setShouldDownload(false);
+    if (downloadSuccess) {
+      toast.success("Template downloaded successfully");
+    }
+    if (downloadError) {
+      toast.error("Failed to download template");
+    }
+  }
+
+  const handleDownloadTemplate = () => {
+    toast.info("Downloading template...");
+    setShouldDownload(true);
+  };
+
+  const handleUploadClick = () => {
+    dispatch(
+      openDialog({
+        type: DialogType.RiskManagementPlanUpload,
+        dialogProps: {
+          ...mediumDailogScreen,
+        },
+      })
+    );
+  };
 
   return (
     <div className='space-y-5'>
@@ -65,7 +102,12 @@ export default function RiskManagementPage() {
                 </Button>
               </Link>
 
-              <Button className='flex gap-2 py-6' variant='ghost' type='button'>
+              <Button
+                className='flex gap-2 py-6'
+                variant='ghost'
+                type='button'
+                onClick={handleUploadClick}
+              >
                 <UploadIcon />
                 Upload
               </Button>
@@ -73,7 +115,7 @@ export default function RiskManagementPage() {
               <Button
                 className='flex items-center gap-2 justify-start'
                 variant='ghost'
-                onClick={() => {}}
+                onClick={handleDownloadTemplate}
               >
                 <DownloadIcon className='text-green-500' />
                 Download Template
