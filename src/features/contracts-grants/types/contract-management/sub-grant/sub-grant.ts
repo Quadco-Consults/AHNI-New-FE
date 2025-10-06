@@ -95,8 +95,14 @@ export const SubGrantSubmissionSchema = z.object({
         .string()
         .min(1, "Please enter principal two designation"),
     address: z.string().min(1, "Please enter address"),
-    phone_number: z.string().min(1, "Please enter phone number"),
-    fax: z.string().min(1, "Please enter fax "),
+    phone_number: z.union([
+        z.string().min(1, "Please enter phone number"),
+        z.number()
+    ]).transform((val) => String(val)),
+    fax: z.union([
+        z.string().min(1, "Please enter fax"),
+        z.number()
+    ]).transform((val) => String(val)),
     email: z
         .string()
         .min(1, "Please enter email")
@@ -104,8 +110,23 @@ export const SubGrantSubmissionSchema = z.object({
     web_address: z
         .string()
         .min(1, "Please enter website")
+        .transform((val) => {
+            // Auto-fix common URL mistakes
+            if (val && !val.match(/^https?:\/\//i)) {
+                // If it starts with http// or https// (missing colon), fix it
+                if (val.match(/^https?\/\//i)) {
+                    return val.replace(/^(https?)\/\//i, '$1://');
+                }
+                // If no protocol at all, add https://
+                return `https://${val}`;
+            }
+            return val;
+        })
         .url("Please enter a valid web address"),
-    duns_number: z.string().min(1, "Please enter duns completed"),
+    duns_number: z.union([
+        z.string().min(1, "Please enter duns number"),
+        z.number()
+    ]).transform((val) => String(val)),
     has_conflict_of_interest: z.string().min(1, "Please select an option"),
     organisation_type: z.enum(["FOR_PROFIT", "NON_PROFIT", "GOVERNMENT", "UNIVERSITY", "OTHER"], {
         required_error: "Please select organization type",
