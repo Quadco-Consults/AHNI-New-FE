@@ -266,6 +266,23 @@ const PurchaseOrderNew = () => {
     }
   }, [setValue, vendorValue]);
 
+  // Auto-populate fields when Purchase Request is selected
+  useEffect(() => {
+    if (requestsDetails?.data) {
+      const prData = requestsDetails.data;
+      console.log("🔍 Purchase Request Details for auto-populate:", prData);
+
+      // Set department from purchase request
+      if (prData.requesting_department) {
+        console.log("🔍 Setting department:", prData.requesting_department);
+        setRequestValue(prData.requesting_department);
+      }
+
+      // Note: payment_terms and delivery_lead_time don't exist in PurchaseRequestResultsData
+      // These fields should be manually entered by the user
+    }
+  }, [requestsDetails]);
+
   const { fields, remove, append } = useFieldArray({
     control,
     name: "items",
