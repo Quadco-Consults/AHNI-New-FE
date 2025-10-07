@@ -4,13 +4,13 @@ import { Button } from "components/ui/button";
 import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
 import Link from "next/link";
 import { ProgramRoutes } from "constants/RouterConstants";
-import { IConsultancyStaffPaginatedData } from "@/features/contracts-grants/types/contract-management/consultancy-management/consultancy-application";
+import { IAdhocApplicant } from "@/features/programs/types/adhoc-management";
 import EyeIcon from "components/icons/EyeIcon";
 import { Badge } from "components/ui/badge";
 import { cn } from "lib/utils";
 import { FileText, CheckCircle, Download, Clock } from "lucide-react";
 
-export const acceptedContractsColumns: ColumnDef<IConsultancyStaffPaginatedData>[] =
+export const acceptedContractsColumns: ColumnDef<IAdhocApplicant>[] =
     [
         {
             header: "S/N",
@@ -19,14 +19,15 @@ export const acceptedContractsColumns: ColumnDef<IConsultancyStaffPaginatedData>
         },
 
         {
-            header: "Consultant Name",
-            id: "consultant_name",
+            header: "Applicant Name",
+            id: "applicant_name",
             size: 200,
             cell: ({ row }) => {
                 const data = row.original;
+                const fullName = `${data.sur_name || ''} ${data.other_names || ''}`.trim();
                 return (
                     <div className="font-medium">
-                        {data.name || 'N/A'}
+                        {fullName || 'N/A'}
                     </div>
                 );
             },
@@ -34,8 +35,8 @@ export const acceptedContractsColumns: ColumnDef<IConsultancyStaffPaginatedData>
 
         {
             header: "Email",
-            id: "email",
-            accessorKey: "email",
+            id: "email_address",
+            accessorKey: "email_address",
             size: 250,
             cell: ({ getValue }) => (
                 <div className="text-sm text-gray-600">{getValue() as string}</div>
@@ -44,15 +45,18 @@ export const acceptedContractsColumns: ColumnDef<IConsultancyStaffPaginatedData>
 
         {
             header: "Position",
-            id: "position_under_contract",
-            accessorKey: "position_under_contract",
+            id: "position",
             size: 200,
+            cell: ({ row }) => {
+                const data = row.original;
+                return data.advertisement?.position_title || 'N/A';
+            },
         },
 
         {
-            header: "Contract Number",
-            id: "contract_number",
-            accessorKey: "contract_number",
+            header: "Application Number",
+            id: "application_number",
+            accessorKey: "application_number",
             size: 150,
             cell: ({ getValue }) => (
                 <div className="font-mono text-sm">{getValue() as string || 'N/A'}</div>
@@ -60,73 +64,64 @@ export const acceptedContractsColumns: ColumnDef<IConsultancyStaffPaginatedData>
         },
 
         {
-            header: "Contract Status",
-            id: "offer_accepted",
-            accessorKey: "offer_accepted",
+            header: "Status",
+            id: "status",
+            accessorKey: "status",
             size: 120,
-            cell: ({ row }) => {
-                const offerAccepted = row.original.offer_accepted;
-                return offerAccepted ? (
+            cell: ({ getValue }) => {
+                const status = getValue() as string;
+                return (
                     <Badge
                         variant="default"
-                        className="p-1 rounded-lg flex items-center gap-1 bg-green-100 text-green-700"
+                        className={cn(
+                            "p-1 rounded-lg flex items-center gap-1",
+                            status === "HIRED" && "bg-green-100 text-green-700",
+                            status === "SELECTED" && "bg-blue-100 text-blue-700"
+                        )}
                     >
                         <CheckCircle className="h-3 w-3" />
-                        Accepted
-                    </Badge>
-                ) : (
-                    <Badge
-                        variant="default"
-                        className="p-1 rounded-lg flex items-center gap-1 bg-amber-100 text-amber-700"
-                    >
-                        <Clock className="h-3 w-3" />
-                        Pending
+                        {status}
                     </Badge>
                 );
             },
         },
 
         {
-            header: "Start Date",
-            id: "start_duration_date",
-            accessorKey: "start_duration_date",
-            size: 120,
-            cell: ({ getValue }) => {
-                const date = getValue() as string;
-                return date ? new Date(date).toLocaleDateString() : 'N/A';
-            },
-        },
-
-        {
-            header: "End Date",
-            id: "end_duration_date",
-            accessorKey: "end_duration_date",
-            size: 120,
-            cell: ({ getValue }) => {
-                const date = getValue() as string;
-                return date ? new Date(date).toLocaleDateString() : 'N/A';
-            },
-        },
-
-        {
-            header: "Proposed Salary",
-            id: "proposed_salary",
-            accessorKey: "proposed_salary",
+            header: "Contract Start Date",
+            id: "contract_start_date",
+            accessorKey: "contract_start_date",
             size: 130,
             cell: ({ getValue }) => {
-                const salary = getValue() as string;
-                return (
-                    <div className="font-medium">
-                        {salary ? `$${parseFloat(salary).toLocaleString()}` : 'N/A'}
-                    </div>
-                );
+                const date = getValue() as string;
+                return date ? new Date(date).toLocaleDateString() : 'N/A';
             },
         },
 
         {
-            header: "Acceptance Date",
-            id: "offer_acceptance_date",
-            accessorKey: "offer_acceptance_date",
+            header: "Contract End Date",
+            id: "contract_end_date",
+            accessorKey: "contract_end_date",
+            size: 130,
+            cell: ({ getValue }) => {
+                const date = getValue() as string;
+                return date ? new Date(date).toLocaleDateString() : 'N/A';
+            },
+        },
+
+        {
+            header: "Phone Number",
+            id: "phone_number",
+            accessorKey: "phone_number",
+            size: 130,
+            cell: ({ getValue }) => (
+                <div className="text-sm">{getValue() as string || 'N/A'}</div>
+            ),
+        },
+
+        {
+            header: "Hired Date",
+            id: "hired_at",
+            accessorKey: "hired_at",
             size: 130,
             cell: ({ getValue }) => {
                 const date = getValue() as string;
@@ -142,7 +137,7 @@ export const acceptedContractsColumns: ColumnDef<IConsultancyStaffPaginatedData>
         },
     ];
 
-const TableMenu = ({ id }: IConsultancyStaffPaginatedData) => {
+const TableMenu = ({ id }: IAdhocApplicant) => {
     console.log("TableMenu - Accepted Contract ID:", id);
 
     return (
