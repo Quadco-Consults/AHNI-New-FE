@@ -14,12 +14,36 @@ import {
   SelectValue,
 } from "components/ui/select";
 import DataTable from "components/Table/DataTable";
-import { Plus, Search, Filter, Eye, Edit, Trash2 } from "lucide-react";
-import { useGetAllAdhocRequisitions, useDeleteAdhocRequisition } from "@/controllers/adhocRequisitionController";
+import { Plus, Search, Filter, Eye, Edit, Trash2, Send } from "lucide-react";
+import { useGetAllAdhocRequisitions, useDeleteAdhocRequisition, useSubmitRequisition } from "@/controllers/adhocRequisitionController";
 import { IAdhocRequisitionPaginatedData, RequisitionStatus } from "@/types/adhoc-requisition";
 import { ProgramRoutes } from "@/constants/RouterConstants";
 import { format } from "date-fns";
 import { ColumnDef } from "@tanstack/react-table";
+
+// Submit Button Component
+function SubmitButton({ requisitionId }: { requisitionId: string }) {
+  const { mutate: submitRequisition, isPending } = useSubmitRequisition(requisitionId);
+
+  const handleSubmit = () => {
+    if (confirm("Submit this requisition for approval? You won't be able to edit it afterwards.")) {
+      submitRequisition();
+    }
+  };
+
+  return (
+    <Button
+      size="sm"
+      variant="default"
+      onClick={handleSubmit}
+      disabled={isPending}
+      className="bg-green-600 hover:bg-green-700"
+    >
+      <Send className="w-4 h-4 mr-1" />
+      {isPending ? "Submitting..." : "Submit"}
+    </Button>
+  );
+}
 
 export default function AdhocRequisitionListPage() {
   const router = useRouter();
@@ -123,6 +147,7 @@ export default function AdhocRequisitionListPage() {
           </Button>
           {row.original.status === "DRAFT" && (
             <>
+              <SubmitButton requisitionId={row.original.id} />
               <Button
                 size="sm"
                 variant="ghost"

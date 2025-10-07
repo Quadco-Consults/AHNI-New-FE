@@ -217,12 +217,18 @@ export default function NewConsultancyStaffForm({
         { name: files[1].name, document: coverLetter },
       ];
 
+      // Get the type from the advertisement (CONSULTANT, ADHOC, or FACILITATOR)
+      const applicantType = consultancyManagementData?.type || "CONSULTANT";
+
+      console.log("🔍 Creating applicant with type:", applicantType);
+      console.log("📋 Advertisement data:", consultancyManagementData);
+
       if (consultancyStaffData?.id) {
-        await updateConsultancyApplicant({ ...data, documents });
+        await updateConsultancyApplicant({ ...data, documents, type: applicantType });
 
         toast.success("Consultancy Staff Updated");
       } else {
-        await createConsultancyApplicant({ ...data, documents });
+        await createConsultancyApplicant({ ...data, documents, type: applicantType });
         router.back();
         toast.success("Consultancy Staff Created");
       }

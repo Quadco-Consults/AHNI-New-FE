@@ -1,0 +1,418 @@
+import { z } from "zod";
+
+// ============================================
+// ADHOC ADVERTISEMENT TYPES
+// ============================================
+
+export interface IAdhocAdvertisement {
+  id: string;
+  advertisement_number: string;
+  position_title: string;
+  number_of_positions: number;
+  project: {
+    id: string;
+    name: string;
+    code?: string;
+  };
+  location: {
+    id: string;
+    name: string;
+    state?: string;
+  };
+  health_facility?: string;
+  spoke_site_name?: string;
+  lga?: string;
+
+  // Dates
+  start_date: string;
+  end_date: string;
+  application_deadline: string;
+
+  // Financial
+  proposed_salary: string;
+  currency: string;
+  budget_line: string;
+
+  // Requirements
+  qualifications: string;
+  skills_required: string;
+  experience_years: number;
+  education_level: string;
+  job_description: string;
+  key_responsibilities: string;
+
+  // Status
+  status: "DRAFT" | "PUBLISHED" | "CLOSED" | "CANCELLED";
+  status_display: string;
+  is_active: boolean;
+
+  // Statistics
+  total_applicants?: number;
+  shortlisted_count?: number;
+  hired_count?: number;
+
+  // Metadata
+  created_by: {
+    id: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+  };
+  created_datetime: string;
+  updated_datetime: string;
+  published_at?: string;
+  closed_at?: string;
+
+  // Source
+  requisition?: {
+    id: string;
+    requisition_number: string;
+  };
+}
+
+export interface IAdhocAdvertisementCreatePayload {
+  position_title: string;
+  number_of_positions: number;
+  project: string;
+  location: string;
+  health_facility?: string;
+  spoke_site_name?: string;
+  lga?: string;
+  start_date: string;
+  end_date: string;
+  application_deadline: string;
+  proposed_salary: string;
+  currency?: string;
+  budget_line: string;
+  qualifications: string;
+  skills_required: string;
+  experience_years: number;
+  education_level: string;
+  job_description: string;
+  key_responsibilities: string;
+  requisition_id?: string;
+}
+
+// ============================================
+// ADHOC APPLICANT TYPES
+// ============================================
+
+export interface IAdhocApplicant {
+  id: string;
+  application_number: string;
+  advertisement: {
+    id: string;
+    advertisement_number: string;
+    position_title: string;
+  };
+
+  // Personal Info
+  sur_name: string;
+  other_names: string;
+  gender: "MALE" | "FEMALE" | "OTHER";
+  date_of_birth: string;
+  state_of_origin: string;
+  lga_of_origin?: string;
+  phone_number: string;
+  email_address: string;
+  alternative_phone?: string;
+  residential_address?: string;
+
+  // Professional Info
+  qualifications: string;
+  total_experience_years: number;
+  current_employer?: string;
+  current_position?: string;
+
+  // Assignment Preferences
+  preferred_location?: string;
+  preferred_health_facility?: string;
+  willing_to_relocate: boolean;
+
+  // Application Status
+  status: "SUBMITTED" | "SHORTLISTED" | "INTERVIEWED" | "SELECTED" | "REJECTED" | "HIRED";
+  status_display: string;
+
+  // Interview
+  interview_scheduled_at?: string;
+  interview_conducted_at?: string;
+  interview_score?: number;
+  interview_notes?: string;
+
+  // Selection
+  selected_at?: string;
+  selected_by?: {
+    id: string;
+    first_name: string;
+    last_name: string;
+  };
+  rejection_reason?: string;
+  rejected_at?: string;
+
+  // Hiring
+  hired_at?: string;
+  contract_start_date?: string;
+  contract_end_date?: string;
+  assigned_health_facility?: string;
+  assigned_spoke_site?: string;
+  assigned_lga?: string;
+
+  // Documents
+  documents: {
+    id: string;
+    document_type: string;
+    file_name: string;
+    file_url: string;
+    uploaded_at: string;
+  }[];
+
+  // Metadata
+  applied_at: string;
+  updated_at: string;
+}
+
+export const AdhocApplicantCreateSchema = z.object({
+  advertisement_id: z.string().min(1, "Advertisement is required"),
+  sur_name: z.string().min(1, "Surname is required"),
+  other_names: z.string().min(1, "Other names are required"),
+  gender: z.enum(["MALE", "FEMALE", "OTHER"]),
+  date_of_birth: z.string().min(1, "Date of birth is required"),
+  state_of_origin: z.string().min(1, "State of origin is required"),
+  lga_of_origin: z.string().optional(),
+  phone_number: z.string().min(10, "Valid phone number is required"),
+  email_address: z.string().email("Valid email is required"),
+  alternative_phone: z.string().optional(),
+  residential_address: z.string().optional(),
+  qualifications: z.string().min(10, "Qualifications required"),
+  total_experience_years: z.number().min(0, "Experience years required"),
+  current_employer: z.string().optional(),
+  current_position: z.string().optional(),
+  preferred_location: z.string().optional(),
+  preferred_health_facility: z.string().optional(),
+  willing_to_relocate: z.boolean().default(true),
+});
+
+export type TAdhocApplicantCreatePayload = z.infer<typeof AdhocApplicantCreateSchema>;
+
+// ============================================
+// ADHOC STAFF DATABASE TYPES
+// ============================================
+
+export interface IAdhocStaffDatabase {
+  id: string;
+  staff_number: string;
+
+  // Personal Info
+  sur_name: string;
+  other_names: string;
+  gender: "MALE" | "FEMALE" | "OTHER";
+  date_of_birth: string;
+  state_of_origin: string;
+  lga_of_origin?: string;
+  phone_number: string;
+  email_address: string;
+  alternative_phone?: string;
+  residential_address?: string;
+
+  // Professional Info
+  designation: string;
+  qualifications: string;
+  total_experience_years: number;
+
+  // Assignment Details
+  project: {
+    id: string;
+    name: string;
+    code?: string;
+  };
+  health_facility: string;
+  spoke_site_name?: string;
+  lga: string;
+  lga2?: string;
+  cluster?: string;
+
+  // Supervisors/Points of Contact
+  qmap_backstop?: string;
+  programs_officer?: string;
+  stl?: string; // State Team Lead
+  seo?: string; // State Executing Officer
+
+  // Contract Details
+  contract_start_date: string;
+  contract_end_date: string;
+  contract_type: "FIXED_TERM" | "TEMPORARY" | "PROJECT_BASED";
+  salary: string;
+  currency: string;
+  payment_frequency: "MONTHLY" | "BI_WEEKLY" | "WEEKLY";
+
+  // Bank Details
+  account_name?: string;
+  bank_name?: string;
+  account_number?: string;
+  sort_code?: string;
+
+  // Status
+  status: "ACTIVE" | "ON_LEAVE" | "SUSPENDED" | "TERMINATED" | "CONTRACT_EXPIRED";
+  status_display: string;
+  is_active: boolean;
+
+  // Contract Tracking
+  contract_expiry_alert: boolean; // True if expiring within 30 days
+  days_until_expiry?: number;
+
+  // Payment Tracking
+  last_payment_date?: string;
+  next_payment_due?: string;
+  total_paid?: string;
+
+  // Source Application
+  application?: {
+    id: string;
+    application_number: string;
+  };
+  advertisement?: {
+    id: string;
+    advertisement_number: string;
+    position_title: string;
+  };
+
+  // Metadata
+  hired_at: string;
+  created_datetime: string;
+  updated_datetime: string;
+  terminated_at?: string;
+  termination_reason?: string;
+
+  // User Account (if created)
+  user?: {
+    id: string;
+    email: string;
+    user_type: string;
+  };
+}
+
+export const AdhocStaffUpdateSchema = z.object({
+  phone_number: z.string().optional(),
+  email_address: z.string().email().optional(),
+  alternative_phone: z.string().optional(),
+  residential_address: z.string().optional(),
+  health_facility: z.string().optional(),
+  spoke_site_name: z.string().optional(),
+  lga: z.string().optional(),
+  lga2: z.string().optional(),
+  cluster: z.string().optional(),
+  qmap_backstop: z.string().optional(),
+  programs_officer: z.string().optional(),
+  stl: z.string().optional(),
+  seo: z.string().optional(),
+  account_name: z.string().optional(),
+  bank_name: z.string().optional(),
+  account_number: z.string().optional(),
+  sort_code: z.string().optional(),
+  status: z.enum(["ACTIVE", "ON_LEAVE", "SUSPENDED", "TERMINATED", "CONTRACT_EXPIRED"]).optional(),
+});
+
+export type TAdhocStaffUpdatePayload = z.infer<typeof AdhocStaffUpdateSchema>;
+
+// ============================================
+// FILTER PARAMS
+// ============================================
+
+export interface IAdhocAdvertisementFilterParams {
+  page?: number;
+  size?: number;
+  search?: string;
+  status?: "DRAFT" | "PUBLISHED" | "CLOSED" | "CANCELLED";
+  project?: string;
+  location?: string;
+  is_active?: boolean;
+  date_from?: string;
+  date_to?: string;
+  enabled?: boolean;
+}
+
+export interface IAdhocApplicantFilterParams {
+  page?: number;
+  size?: number;
+  search?: string;
+  advertisement_id?: string;
+  status?: "SUBMITTED" | "SHORTLISTED" | "INTERVIEWED" | "SELECTED" | "REJECTED" | "HIRED";
+  gender?: "MALE" | "FEMALE" | "OTHER";
+  state_of_origin?: string;
+  date_from?: string;
+  date_to?: string;
+  enabled?: boolean;
+}
+
+export interface IAdhocStaffFilterParams {
+  page?: number;
+  size?: number;
+  search?: string;
+  project?: string;
+  health_facility?: string;
+  lga?: string;
+  cluster?: string;
+  status?: "ACTIVE" | "ON_LEAVE" | "SUSPENDED" | "TERMINATED" | "CONTRACT_EXPIRED";
+  contract_expiring_soon?: boolean; // Within 30 days
+  gender?: "MALE" | "FEMALE" | "OTHER";
+  state_of_origin?: string;
+  enabled?: boolean;
+}
+
+// ============================================
+// ACTION PAYLOADS
+// ============================================
+
+export interface IShortlistApplicantPayload {
+  applicant_ids: string[];
+  notes?: string;
+}
+
+export interface IRejectApplicantPayload {
+  applicant_ids: string[];
+  rejection_reason: string;
+}
+
+export interface IScheduleInterviewPayload {
+  applicant_id: string;
+  interview_date: string;
+  interview_time: string;
+  interview_location: string;
+  panel_members?: string[];
+  notes?: string;
+}
+
+export interface IRecordInterviewPayload {
+  score: number;
+  notes: string;
+  recommendation: "HIRE" | "REJECT" | "HOLD";
+}
+
+export interface IHireApplicantPayload {
+  applicant_id: string;
+  contract_start_date: string;
+  contract_end_date: string;
+  salary: string;
+  currency: string;
+  payment_frequency: "MONTHLY" | "BI_WEEKLY" | "WEEKLY";
+  assigned_health_facility: string;
+  assigned_spoke_site?: string;
+  assigned_lga: string;
+  assigned_lga2?: string;
+  assigned_cluster?: string;
+  qmap_backstop?: string;
+  programs_officer?: string;
+  stl?: string;
+  seo?: string;
+  account_name?: string;
+  bank_name?: string;
+  account_number?: string;
+  sort_code?: string;
+}
+
+export interface ITerminateStaffPayload {
+  termination_date: string;
+  termination_reason: string;
+  final_payment_amount?: string;
+  notes?: string;
+}

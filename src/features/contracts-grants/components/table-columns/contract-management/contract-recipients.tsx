@@ -4,13 +4,13 @@ import { Button } from "components/ui/button";
 import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
 import Link from "next/link";
 import { ProgramRoutes } from "constants/RouterConstants";
-import { IConsultancyStaffPaginatedData } from "@/features/contracts-grants/types/contract-management/consultancy-management/consultancy-application";
+import { IAdhocApplicant } from "@/features/programs/types/adhoc-management";
 import EyeIcon from "components/icons/EyeIcon";
 import { Badge } from "components/ui/badge";
 import { cn } from "lib/utils";
 import { FileText } from "lucide-react";
 
-export const contractRecipientsColumns: ColumnDef<IConsultancyStaffPaginatedData>[] =
+export const contractRecipientsColumns: ColumnDef<IAdhocApplicant>[] =
     [
         {
             header: "S/N",

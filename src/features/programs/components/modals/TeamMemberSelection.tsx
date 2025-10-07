@@ -13,6 +13,8 @@ import { useGetAllUsersManager } from "@/features/auth/controllers/userControlle
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { addTeamMembers } from "store/admin/team-members";
 import { closeDialog } from "store/ui";
+import { filterAhniStaffOnly } from "@/utils/userFilters";
+import { useGetEmployeeOnboardings } from "@/features/hr/controllers/employeeOnboardingController";
 
 interface TeamMemberSelectionProps {
   initialMembers?: IUser[];
@@ -31,17 +33,56 @@ export default function TeamMemberSelection({
     useState<IUser[]>(initialMembers.length ? initialMembers : teamMembers);
   const [searchTerm, setSearchTerm] = useState("");
 
+  // Fetch from both sources: Users table AND Employee database
   const { data: user, isLoading } = useGetAllUsersManager({
     page: 1,
     size: 2000000,
   });
 
-  const filteredUsers = user?.data?.results?.filter(
-    (member: IUser) =>
+  const { data: employeeData } = useGetEmployeeOnboardings({
+    page: 1,
+    size: 2000000,
+  });
+
+  // Combine users from both sources
+  const allStaff = [
+    // Users from user table (filter to exclude vendors)
+    ...filterAhniStaffOnly((user?.results || []) as any[]),
+    // Employees from employee database (all are AHNI staff)
+    ...((employeeData?.data?.results || []) as any[]).map((emp: any) => ({
+      id: emp.id,
+      first_name: emp.legal_firstname || emp.first_name,
+      last_name: emp.legal_lastname || emp.last_name,
+      email: emp.email,
+      user_type: 'STAFF',
+      designation: emp.designation?.name || emp.position,
+      department: { name: emp.department?.name },
+      mobile_number: emp.phone_number || emp.mobile_number,
+      is_staff: true,
+      _source: 'employee_database'
+    }))
+  ];
+
+  // Remove duplicates based on email
+  const uniqueStaff = allStaff.reduce((acc: any[], current: any) => {
+    const exists = acc.find(item => item.email === current.email);
+    if (!exists) {
+      acc.push(current);
+    }
+    return acc;
+  }, []);
+
+  const ahniStaffUsers = uniqueStaff;
+
+  const filteredUsers = ahniStaffUsers.filter(
+    (member: any) =>
       `${member.first_name} ${member.last_name}`
         .toLowerCase()
         .includes(searchTerm.toLowerCase()) ||
-      member.department?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (typeof member.department === 'string'
+        ? member.department?.toLowerCase()
+        : member.department?.name?.toLowerCase() || ''
+      ).includes(searchTerm.toLowerCase()) ||
       member.designation?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -113,7 +154,9 @@ export default function TeamMemberSelection({
                   </p>
                   <p>
                     <span className='font-semibold'>Department:</span>{" "}
-                    {member.department?.name}
+                    {typeof member.department === 'string'
+                      ? member.department
+                      : member.department?.name || 'N/A'}
                   </p>
                   <p>
                     <span className='font-semibold'>Position:</span>{" "}
