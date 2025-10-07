@@ -19,14 +19,15 @@ export const contractRecipientsColumns: ColumnDef<IAdhocApplicant>[] =
         },
 
         {
-            header: "Consultant Name",
-            id: "consultant_name",
+            header: "Applicant Name",
+            id: "applicant_name",
             size: 200,
             cell: ({ row }) => {
                 const data = row.original;
+                const fullName = `${data.sur_name || ''} ${data.other_names || ''}`.trim();
                 return (
                     <div className="font-medium">
-                        {data.name || 'N/A'}
+                        {fullName || 'N/A'}
                     </div>
                 );
             },
@@ -34,8 +35,8 @@ export const contractRecipientsColumns: ColumnDef<IAdhocApplicant>[] =
 
         {
             header: "Email",
-            id: "email",
-            accessorKey: "email",
+            id: "email_address",
+            accessorKey: "email_address",
             size: 250,
             cell: ({ getValue }) => (
                 <div className="text-sm text-gray-600">{getValue() as string}</div>
@@ -44,15 +45,18 @@ export const contractRecipientsColumns: ColumnDef<IAdhocApplicant>[] =
 
         {
             header: "Position",
-            id: "position_under_contract",
-            accessorKey: "position_under_contract",
+            id: "position",
             size: 200,
+            cell: ({ row }) => {
+                const data = row.original;
+                return data.advertisement?.position_title || 'N/A';
+            },
         },
 
         {
-            header: "Contract Number",
-            id: "contract_number",
-            accessorKey: "contract_number",
+            header: "Application Number",
+            id: "application_number",
+            accessorKey: "application_number",
             size: 150,
             cell: ({ getValue }) => (
                 <div className="font-mono text-sm">{getValue() as string || 'N/A'}</div>
@@ -60,7 +64,7 @@ export const contractRecipientsColumns: ColumnDef<IAdhocApplicant>[] =
         },
 
         {
-            header: "Contract Status",
+            header: "Status",
             id: "status",
             accessorKey: "status",
             size: 120,
@@ -71,58 +75,49 @@ export const contractRecipientsColumns: ColumnDef<IAdhocApplicant>[] =
                         variant="default"
                         className={cn(
                             "p-1 rounded-lg flex items-center gap-1",
-                            status === "APPROVED" && "bg-blue-100 text-blue-700",
-                            status === "CONTRACT_ISSUED" && "bg-orange-100 text-orange-700",
-                            status === "ACCEPTED" && "bg-green-100 text-green-700",
-                            status === "REJECTED" && "bg-red-100 text-red-700"
+                            status === "SELECTED" && "bg-blue-100 text-blue-700",
+                            status === "HIRED" && "bg-green-100 text-green-700",
+                            status === "REJECTED" && "bg-red-100 text-red-700",
+                            status === "INTERVIEWED" && "bg-purple-100 text-purple-700"
                         )}
                     >
                         <FileText className="h-3 w-3" />
-                        {status === "APPROVED" && "Approved for Contract"}
-                        {status === "CONTRACT_ISSUED" && "Contract Issued"}
-                        {status === "ACCEPTED" && "Accepted"}
-                        {status === "REJECTED" && "Rejected"}
-                        {!["APPROVED", "CONTRACT_ISSUED", "ACCEPTED", "REJECTED"].includes(status) && status}
+                        {status}
                     </Badge>
                 );
             },
         },
 
         {
-            header: "Start Date",
-            id: "start_duration_date",
-            accessorKey: "start_duration_date",
-            size: 120,
-            cell: ({ getValue }) => {
-                const date = getValue() as string;
-                return date ? new Date(date).toLocaleDateString() : 'N/A';
-            },
-        },
-
-        {
-            header: "End Date",
-            id: "end_duration_date",
-            accessorKey: "end_duration_date",
-            size: 120,
-            cell: ({ getValue }) => {
-                const date = getValue() as string;
-                return date ? new Date(date).toLocaleDateString() : 'N/A';
-            },
-        },
-
-        {
-            header: "Proposed Salary",
-            id: "proposed_salary",
-            accessorKey: "proposed_salary",
+            header: "Contract Start Date",
+            id: "contract_start_date",
+            accessorKey: "contract_start_date",
             size: 130,
             cell: ({ getValue }) => {
-                const salary = getValue() as string;
-                return (
-                    <div className="font-medium">
-                        {salary ? `$${parseFloat(salary).toLocaleString()}` : 'N/A'}
-                    </div>
-                );
+                const date = getValue() as string;
+                return date ? new Date(date).toLocaleDateString() : 'N/A';
             },
+        },
+
+        {
+            header: "Contract End Date",
+            id: "contract_end_date",
+            accessorKey: "contract_end_date",
+            size: 130,
+            cell: ({ getValue }) => {
+                const date = getValue() as string;
+                return date ? new Date(date).toLocaleDateString() : 'N/A';
+            },
+        },
+
+        {
+            header: "Phone Number",
+            id: "phone_number",
+            accessorKey: "phone_number",
+            size: 130,
+            cell: ({ getValue }) => (
+                <div className="text-sm">{getValue() as string || 'N/A'}</div>
+            ),
         },
 
         {
@@ -133,7 +128,7 @@ export const contractRecipientsColumns: ColumnDef<IAdhocApplicant>[] =
         },
     ];
 
-const TableMenu = ({ id }: IConsultancyStaffPaginatedData) => {
+const TableMenu = ({ id }: IAdhocApplicant) => {
     console.log("TableMenu - Contract Recipient ID:", id);
 
     return (

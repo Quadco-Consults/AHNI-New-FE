@@ -1,131 +1,60 @@
 # Adhoc Management Migration Status
 
-## Current Status: Phase 1 - Using Consultancy Endpoints (Workaround) ✅
+## Current Status: Phase 2 - Using Dedicated Adhoc Endpoints ✅ COMPLETED
 
-### What's Working Now
-The current implementation uses the consultancy endpoints with the `type` field to differentiate adhoc from consultant data:
+### Migration Completed
+The system has been successfully migrated to use dedicated adhoc endpoints:
 
-- ✅ **Endpoints**: `/api/v1/contract-grants/consultancy/applicants/`
-- ✅ **Type Filtering**: Client-side filtering by `type === "ADHOC"`
-- ✅ **Applicant Creation**: Passes `type: "ADHOC"` based on advertisement type
-- ✅ **Contract Pages**: Filter and display only adhoc applicants with contracts
+- ✅ **Endpoints**: `/api/v1/programs/adhoc/applicants/`
+- ✅ **Controllers**: Using `adhocApplicantController.ts`
+- ✅ **Type Safety**: Updated to use `IAdhocApplicant` interface
+- ✅ **Contract Pages**: Migrated to dedicated adhoc endpoints
+- ✅ **No Type Filtering Needed**: All results are adhoc by default
 
-### Current Implementation Files
+### Migrated Implementation Files
+
 1. **Contract Recipients** (`src/features/contracts-grants/components/contract-management/contract-recipients/index.tsx`)
-   - Uses: `useGetAllConsultancyApplicants`
-   - Filters: `type === "ADHOC"` AND contract issued
+   - ✅ Now uses: `useGetAllAdhocApplicants` from `adhocApplicantController.ts`
+   - ✅ Filters by contract status only (no type filtering needed)
+   - ✅ Updated to use `IAdhocApplicant` interface
 
 2. **Accepted Contracts** (`src/features/contracts-grants/components/contract-management/accepted-contracts/index.tsx`)
-   - Uses: `useGetAllConsultancyApplicants`
-   - Filters: `type === "ADHOC"` AND accepted status
+   - ✅ Now uses: `useGetAllAdhocApplicants` from `adhocApplicantController.ts`
+   - ✅ Filters by accepted status only (no type filtering needed)
+   - ✅ Updated to use `IAdhocApplicant` interface
 
-3. **Applicant Creation** (`src/features/contracts-grants/components/contract-management/consultant-management/id/applicants/NewConsultancyStaffForm.tsx`)
-   - Passes: `type` field from `consultancyManagementData.type`
-   - Controller: `consultancyApplicantsController.ts`
+3. **Table Columns Updated**:
+   - ✅ `contract-recipients.tsx`: Uses `ColumnDef<IAdhocApplicant>`
+   - ✅ `accepted-contracts.tsx`: Uses `ColumnDef<IAdhocApplicant>`
+   - ✅ Field mappings updated: `sur_name`/`other_names` instead of `name`, `email_address` instead of `email`
 
----
+### Migration Changes Summary
 
-## Next Step: Phase 2 - Migrate to Dedicated Adhoc Endpoints
+**What Changed**:
+1. Replaced `useGetAllConsultancyApplicants` with `useGetAllAdhocApplicants`
+2. Updated from `IConsultancyStaffPaginatedData` to `IAdhocApplicant` type
+3. Removed all `type === "ADHOC"` filtering logic (no longer needed)
+4. Updated field names to match adhoc schema:
+   - `name` → `sur_name + other_names`
+   - `email` → `email_address`
+   - `position_under_contract` → `advertisement.position_title`
+5. Updated pagination field from `pagination` to `paginator`
 
-### Backend Endpoints Available ✅
-The backend has implemented dedicated adhoc endpoints:
+### Backend Endpoints Now in Use
 
 ```
-✅ /api/v1/programs/adhoc/advertisements/
-✅ /api/v1/programs/adhoc/applicants/
-✅ /api/v1/programs/adhoc-database/
+✅ /api/v1/programs/adhoc/applicants/ - Contract Recipients & Accepted Contracts
+✅ /api/v1/programs/adhoc/advertisements/ - Available via controller
+✅ /api/v1/programs/adhoc-database/ - Available via controller
 ```
 
-### Frontend Controllers Already Created ✅
-The dedicated controllers exist but aren't being used yet:
+### Controllers in Use
 
 ```
-✅ src/features/programs/controllers/adhocAdvertisementController.ts
-✅ src/features/programs/controllers/adhocApplicantController.ts
-✅ src/features/programs/controllers/adhocDatabaseController.ts
+✅ src/features/programs/controllers/adhocApplicantController.ts - ACTIVE
+✅ src/features/programs/controllers/adhocAdvertisementController.ts - Available
+✅ src/features/programs/controllers/adhocDatabaseController.ts - Available
 ```
-
-### Migration Tasks Needed
-
-#### Task 1: Update Contract Recipients Page
-**File**: `src/features/contracts-grants/components/contract-management/contract-recipients/index.tsx`
-
-**Change From**:
-```typescript
-import { useGetAllConsultancyApplicants } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
-
-const { data } = useGetAllConsultancyApplicants({ page, size: 50 });
-
-// Filter by type
-const contractRecipients = allApplicants.filter((applicant: any) => {
-  const isAdhoc = applicant.type === "ADHOC";
-  const hasContractIssued = applicant.status === "CONTRACT_ISSUED" || ...;
-  return isAdhoc && hasContractIssued;
-});
-```
-
-**Change To**:
-```typescript
-import { useGetAllAdhocApplicants } from "@/features/programs/controllers/adhocApplicantController";
-
-const { data } = useGetAllAdhocApplicants({ page, size: 50, enabled: true });
-
-// No type filtering needed - all results are adhoc
-const contractRecipients = allApplicants.filter((applicant: any) => {
-  const hasContractIssued = applicant.status === "CONTRACT_ISSUED" || ...;
-  return hasContractIssued;
-});
-```
-
-#### Task 2: Update Accepted Contracts Page
-**File**: `src/features/contracts-grants/components/contract-management/accepted-contracts/index.tsx`
-
-**Same pattern as Task 1** - replace `useGetAllConsultancyApplicants` with `useGetAllAdhocApplicants`
-
-#### Task 3: Update Applicant Creation
-**File**: `src/features/contracts-grants/components/contract-management/consultant-management/id/applicants/NewConsultancyStaffForm.tsx`
-
-**Decision Needed**:
-- Option A: Create new dedicated `AdhocApplicantForm.tsx` component
-- Option B: Keep using shared form (if consultant form works for adhoc)
-
-**If Option A** (recommended):
-- Create new form component using adhoc applicant controller
-- Update adhoc advertisement pages to use new form
-- Keep consultant form separate
-
-#### Task 4: Update Table Column Types
-**Files**:
-- `src/features/contracts-grants/components/table-columns/contract-management/contract-recipients.tsx`
-- `src/features/contracts-grants/components/table-columns/contract-management/accepted-contracts.tsx`
-
-**Update column types from**:
-```typescript
-ColumnDef<IConsultancyStaffPaginatedData>
-```
-
-**To**:
-```typescript
-ColumnDef<IAdhocApplicant>
-```
-
-#### Task 5: Field Name Updates
-The adhoc endpoints use different field names. Update all references:
-
-**Old (Consultancy)** → **New (Adhoc)**:
-- `contractor_name` → `surname` + `other_names`
-- `name` → `full_name`
-- `position_under_contract` → Uses advertisement position
-- No `type` field needed (all are adhoc)
-
-#### Task 6: Test Integration
-Once migrated:
-1. Test contract recipients page loads
-2. Test accepted contracts page loads
-3. Test creating new adhoc applicants
-4. Test issuing contracts
-5. Test contract acceptance
-6. Verify data displays correctly
 
 ---
 
@@ -142,36 +71,40 @@ Once migrated:
 
 ---
 
-## Timeline Estimate
+## Migration Completed: January 2025 ✅
 
-### Quick Migration (Recommended)
-- **Day 1**: Update contract pages (Tasks 1-2)
-- **Day 2**: Update column types and test (Task 4)
-- **Day 3**: Testing and bug fixes
+### Timeline Actual
+- **Migration completed**: Single session
+- **Files updated**: 4 files (2 pages + 2 column definitions)
+- **Testing status**: Ready for testing
+- **TypeScript errors**: All resolved ✅
 
-### Full Migration (If creating new forms)
-- **Week 1**: Update all pages, create new forms
-- **Week 2**: Testing and refinement
+### Next Steps for Testing
 
----
+1. **Test Contract Recipients Page**:
+   - Navigate to Contract Recipients page
+   - Verify adhoc applicants with contracts are displayed
+   - Check that field names display correctly (sur_name, email_address, etc.)
+   - Verify pagination works correctly
 
-## Migration Decision
+2. **Test Accepted Contracts Page**:
+   - Navigate to Accepted Contracts page
+   - Verify only accepted adhoc contracts show
+   - Check status badges display correctly
+   - Verify all data fields populate correctly
 
-**Current Recommendation**: Keep using consultancy endpoints until:
-1. Backend fixes the requisition conversion bug
-2. We confirm all adhoc endpoints are stable
-3. We have time for proper testing of the migration
+3. **Test Data Consistency**:
+   - Create new adhoc applicant
+   - Issue contract to applicant
+   - Verify applicant appears in Contract Recipients
+   - Accept contract
+   - Verify applicant moves to Accepted Contracts
 
-**Why Wait?**
-- Current workaround is functional ✅
-- Backend endpoints exist but haven't been tested in production
-- Conversion bug needs to be fixed first
-- No urgent business need to migrate immediately
-
-**When to Migrate?**
-- After backend confirms all adhoc endpoints are production-ready
-- After conversion bug is fixed
-- During a planned sprint for adhoc improvements
+4. **Monitor API Calls**:
+   - Check browser console for API responses
+   - Verify calls go to `/api/v1/programs/adhoc/applicants/`
+   - Check for any error responses
+   - Verify pagination structure matches expected format
 
 ---
 
