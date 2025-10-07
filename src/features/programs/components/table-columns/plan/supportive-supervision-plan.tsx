@@ -89,6 +89,13 @@ export const supportiveSupervisionPlanColumns: ColumnDef<TSupervisionPlanPaginat
         const currentLevel = rowData.current_approval_level || 1;
         const approvals = rowData.approvals || [];
 
+        // Determine total number of approval levels configured
+        const totalLevels = [
+          rowData.level1_approver,
+          rowData.level2_approver,
+          rowData.level3_approver,
+        ].filter(Boolean).length;
+
         // Count approved levels
         const approvedCount = approvals.filter(
           (a: any) => a.status === "APPROVED"
@@ -99,17 +106,26 @@ export const supportiveSupervisionPlanColumns: ColumnDef<TSupervisionPlanPaginat
 
         const getProgressColor = () => {
           if (isRejected) return "bg-red-500";
-          if (approvedCount === 3) return "bg-green-500";
+          if (approvedCount === totalLevels && totalLevels > 0) return "bg-green-500";
           if (approvedCount > 0) return "bg-blue-500";
           return "bg-gray-300";
         };
 
         const getStatusText = () => {
+          if (totalLevels === 0) return "No Approvers";
           if (isRejected) return "Rejected";
-          if (approvedCount === 3) return "Fully Approved";
+          if (approvedCount === totalLevels) return "Fully Approved";
           if (approvedCount > 0) return `Level ${currentLevel} Pending`;
           return "Pending Approval";
         };
+
+        if (totalLevels === 0) {
+          return (
+            <div className="space-y-2">
+              <p className="text-xs text-gray-500 italic">No approvers configured</p>
+            </div>
+          );
+        }
 
         return (
           <div className="space-y-2">
@@ -121,11 +137,11 @@ export const supportiveSupervisionPlanColumns: ColumnDef<TSupervisionPlanPaginat
                     "h-full transition-all duration-300",
                     getProgressColor()
                   )}
-                  style={{ width: `${(approvedCount / 3) * 100}%` }}
+                  style={{ width: `${(approvedCount / totalLevels) * 100}%` }}
                 />
               </div>
               <span className="text-xs font-medium text-gray-600">
-                {approvedCount}/3
+                {approvedCount}/{totalLevels}
               </span>
             </div>
             {/* Status text */}

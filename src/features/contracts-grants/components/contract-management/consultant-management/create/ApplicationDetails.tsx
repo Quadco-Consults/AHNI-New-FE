@@ -25,6 +25,7 @@ import { skipToken } from "@reduxjs/toolkit/query";
 import FormSelect from "components/atoms/FormSelect";
 import { useGetAllContractRequests, useGetSingleContractRequest } from "@/features/contracts-grants/controllers/contractController";
 import { useGetAllGrades } from "@/features/modules/controllers/config/gradeController";
+import { useGetAllAdhocRequisitions, useGetSingleAdhocRequisition } from "@/controllers/adhocRequisitionController";
 
 export default function ApplicationDetails() {
   const router = useRouter();
@@ -68,16 +69,33 @@ export default function ApplicationDetails() {
     size: 2000000,
   });
 
-  const { data: contractRequests, isFetchingContractRequests } =
-    useGetAllContractRequests({
-      page: 1,
-    });
+  // Check if we're on adhoc management page
+  const isAdhocPage = pathname.includes("adhoc-management");
+
+  // Fetch adhoc requisitions if on adhoc page, otherwise fetch contract requests
+  const { data: adhocRequisitions } = useGetAllAdhocRequisitions({
+    page: 1,
+    size: 2000000,
+    enabled: isAdhocPage,
+  });
+
+  const { data: contractRequests } = useGetAllContractRequests({
+    page: 1,
+    enabled: !isAdhocPage,
+  });
+
   const { data: user } = useGetAllUsers({ page: 1, size: 2000000 });
 
-  // Fetch selected contract request details
+  // Fetch selected adhoc requisition details if on adhoc page
+  const { data: selectedAdhocRequisition, isLoading: isLoadingAdhocRequisition } = useGetSingleAdhocRequisition(
+    selectedContractRequestId || "",
+    isAdhocPage && !!selectedContractRequestId
+  );
+
+  // Fetch selected contract request details if not on adhoc page
   const { data: selectedContractRequest, isLoading: isLoadingContractRequest } = useGetSingleContractRequest(
     selectedContractRequestId || "",
-    !!selectedContractRequestId
+    !isAdhocPage && !!selectedContractRequestId
   );
 
   // Debug: Log contract request data
@@ -86,14 +104,22 @@ export default function ApplicationDetails() {
     console.log("⏳ Loading:", isLoadingContractRequest);
   }, [selectedContractRequest, isLoadingContractRequest]);
 
-  const contractRequestOptions = useMemo(
-    () =>
-      contractRequests?.data.results.map(({ title, id }) => ({
+  // Generate options based on page type
+  const contractRequestOptions = useMemo(() => {
+    if (isAdhocPage) {
+      // Map adhoc requisitions
+      return adhocRequisitions?.data?.results?.map((req: any) => ({
+        label: req.requisition_number || req.title || req.position_title,
+        value: req.id,
+      })) || [];
+    } else {
+      // Map contract requests
+      return contractRequests?.data?.results?.map(({ title, id }) => ({
         label: title,
         value: id,
-      })),
-    [user]
-  );
+      })) || [];
+    }
+  }, [isAdhocPage, adhocRequisitions, contractRequests]);
 
   const locationOptions = location?.data.results;
 
@@ -154,48 +180,97 @@ export default function ApplicationDetails() {
     }
   }, [data, user]);
 
-  // Populate form when contract request is selected
+  // Populate form when adhoc requisition or contract request is selected
   useEffect(() => {
-    if (!selectedContractRequest) {
-      console.log("⚠️ No contract request data");
+    const selectedData = isAdhocPage ? selectedAdhocRequisition : selectedContractRequest;
+
+    if (!selectedData) {
+      console.log("⚠️ No data selected");
       return;
     }
 
-    console.log("🔄 useEffect triggered with:", selectedContractRequest);
+    console.log("🔄 useEffect triggered with:", selectedData);
 
-    // Extract contract data from the response
-    // Check if it's wrapped in ApiResponse format (has status, message, data)
-    let contractData: any;
-    if ('data' in selectedContractRequest && 'status' in selectedContractRequest) {
-      contractData = selectedContractRequest.data;
-      console.log("📦 Extracted from ApiResponse wrapper:", contractData);
+    // Extract data from the response
+    let extractedData: any;
+    if ('data' in selectedData && 'status' in selectedData) {
+      extractedData = selectedData.data;
+      console.log("📦 Extracted from ApiResponse wrapper:", extractedData);
     } else {
-      contractData = selectedContractRequest;
-      console.log("📦 Direct contract data:", contractData);
+      extractedData = selectedData;
+      console.log("📦 Direct data:", extractedData);
     }
 
-    if (contractData && contractData.id) {
-      console.log("🔍 Contract Request Selected:", contractData);
+    if (extractedData && extractedData.id) {
+      if (isAdhocPage) {
+        // Populate ALL fields from adhoc requisition
+        console.log("🔍 Adhoc Requisition Selected:", extractedData);
 
-      // Populate Title of Consultancy from contract request title
-      setValue("title", contractData.title || "");
-      console.log("✅ Set title:", contractData.title);
+        // Title of Consultancy
+        form.setValue("title", extractedData.position_title || extractedData.title || "", { shouldValidate: false });
 
-      // Populate Number of Consultants from consultants_count
-      setValue("consultants_number", String(contractData.consultants_count || ""));
-      console.log("✅ Set consultants_number:", contractData.consultants_count);
+        // Number of Consultants/Positions
+        const staffNumber = extractedData.number_of_positions ||
+                           extractedData.number_of_staff ||
+                           extractedData.staff_count ||
+                           extractedData.consultants_number;
+        const staffNumberString = (staffNumber !== undefined && staffNumber !== null) ? String(staffNumber) : "";
+        console.log("📊 Setting consultants_number to:", staffNumberString);
+        form.setValue("consultants_number", staffNumberString, { shouldValidate: false });
 
-      // Populate Locations if location_detail exists
-      if (contractData.location_detail?.id) {
-        setValue("locations", [contractData.location_detail.id]);
-        console.log("✅ Set locations:", [contractData.location_detail.id]);
+        // Job Description
+        if (extractedData.job_description) {
+          form.setValue("description", extractedData.job_description, { shouldValidate: false });
+        }
+
+        // Locations
+        if (extractedData.location?.id) {
+          form.setValue("locations", [extractedData.location.id], { shouldValidate: false });
+        } else if (extractedData.location_detail?.id) {
+          form.setValue("locations", [extractedData.location_detail.id], { shouldValidate: false });
+        }
+
+        // Commencement Date (start_date from requisition)
+        if (extractedData.start_date) {
+          form.setValue("commencement_date", extractedData.start_date, { shouldValidate: false });
+        }
+
+        // End Date
+        if (extractedData.end_date) {
+          form.setValue("end_date", extractedData.end_date, { shouldValidate: false });
+        }
+
+        // Grade Level - if mapped
+        if (extractedData.grade_level?.id) {
+          form.setValue("grade_level", extractedData.grade_level.id, { shouldValidate: false });
+        } else if (extractedData.grade_level) {
+          form.setValue("grade_level", extractedData.grade_level, { shouldValidate: false });
+        }
+
+        console.log("✅ Populated all adhoc requisition fields:", {
+          title: extractedData.position_title,
+          positions: staffNumberString,
+          description: extractedData.job_description ? "✓" : "✗",
+          location: extractedData.location?.name || "✗",
+          startDate: extractedData.start_date || "✗",
+          endDate: extractedData.end_date || "✗",
+        });
       } else {
-        console.log("⚠️ No location_detail found in:", contractData);
+        // Populate from contract request
+        console.log("🔍 Contract Request Selected:", extractedData);
+
+        setValue("title", extractedData.title || "");
+
+        // Ensure number is converted to string
+        const consultantsCount = extractedData.consultants_count;
+        setValue("consultants_number", consultantsCount ? String(consultantsCount) : "");
+
+        if (extractedData.location_detail?.id) {
+          setValue("locations", [extractedData.location_detail.id]);
+        }
       }
-    } else {
-      console.log("⚠️ No valid contract data found");
     }
-  }, [selectedContractRequest, setValue]);
+  }, [isAdhocPage, selectedAdhocRequisition, selectedContractRequest, setValue]);
 
   return (
     <main className='w-full flex flex-col items-center justify-center gap-y-[2.5rem] bg-white p-[1.25rem] pt-[2rem]  rounded-2xl'>
@@ -213,7 +288,8 @@ export default function ApplicationDetails() {
 
           <div>
             <Label className='font-semibold'>
-              Contract Request <span className='text-red-500'>*</span>
+              {isAdhocPage ? "Adhoc Requisition" : "Contract Request"}{" "}
+              <span className='text-red-500'>*</span>
             </Label>
             <FormField
               control={form.control}
@@ -223,13 +299,18 @@ export default function ApplicationDetails() {
                   <FormControl>
                     <Select
                       onValueChange={(value) => {
-                        console.log("🎯 Contract Request Selected:", value);
+                        console.log(
+                          `🎯 ${isAdhocPage ? "Adhoc Requisition" : "Contract Request"} Selected:`,
+                          value
+                        );
                         field.onChange(value);
                       }}
                       value={field.value}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder='Select Contract Request' />
+                        <SelectValue
+                          placeholder={`Select ${isAdhocPage ? "Adhoc Requisition" : "Contract Request"}`}
+                        />
                       </SelectTrigger>
                       <SelectContent>
                         {contractRequestOptions?.map((option) => (

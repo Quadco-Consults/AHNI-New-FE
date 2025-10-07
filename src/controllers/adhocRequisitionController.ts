@@ -343,6 +343,53 @@ export const useRejectRequisition = (id: string) => {
   });
 };
 
+// Submit Requisition for Approval (DRAFT → PENDING_APPROVAL)
+export const useSubmitRequisition = (id: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => {
+      console.log("🚀 Submitting requisition:", id);
+      // Try POST /submit/ endpoint first
+      try {
+        console.log("📡 Trying POST endpoint:", `${BASE_URL}${id}/submit/`);
+        const response = await AxiosWithToken.post(`${BASE_URL}${id}/submit/`);
+        console.log("✅ Submit response (POST):", response.data);
+        return response.data;
+      } catch (postError: any) {
+        // If POST /submit/ doesn't exist (404), fallback to PATCH with status change
+        if (postError.response?.status === 404 || postError.response?.status === 405) {
+          console.log("⚠️ POST /submit/ not found, using PATCH fallback");
+          console.log("📡 Trying PATCH endpoint:", `${BASE_URL}${id}/`);
+          const response = await AxiosWithToken.patch(`${BASE_URL}${id}/`, {
+            status: "PENDING_APPROVAL"
+          });
+          console.log("✅ Submit response (PATCH):", response.data);
+          return response.data;
+        }
+        throw postError;
+      }
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["adhocRequisitions"] });
+      queryClient.invalidateQueries({ queryKey: ["adhocRequisition", id] });
+      queryClient.invalidateQueries({ queryKey: ["myAdhocRequisitions"] });
+      toast.success(data.message || "Requisition submitted for approval!");
+    },
+    onError: (error: AxiosError) => {
+      console.error("❌ Submit error:", error);
+      console.error("📊 Error response:", error.response?.data);
+      console.error("🔢 Status code:", error.response?.status);
+      const errorMessage =
+        (error.response?.data as any)?.message ||
+        (error.response?.data as any)?.error ||
+        error.message ||
+        "Failed to submit requisition";
+      toast.error(errorMessage);
+    },
+  });
+};
+
 // Convert to Advertisement
 export const useConvertToAdvertisement = (id: string) => {
   const queryClient = useQueryClient();
@@ -358,9 +405,20 @@ export const useConvertToAdvertisement = (id: string) => {
       toast.success(data.message || "Requisition converted to job advertisement!");
     },
     onError: (error: AxiosError) => {
+      console.error("❌ Convert to advertisement error:", error);
+      console.error("📊 Error response:", error.response?.data);
+      const errorData = error.response?.data as any;
       const errorMessage =
-        (error.response?.data as any)?.message || "Failed to convert requisition";
-      toast.error(errorMessage);
+        errorData?.message ||
+        errorData?.error ||
+        "Failed to convert requisition";
+
+      // Check for specific backend errors
+      if (errorMessage.includes("has no attribute 'department'")) {
+        toast.error("Backend error: The backend is using the wrong field name. Please contact the backend team to fix this issue.");
+      } else {
+        toast.error(errorMessage);
+      }
     },
   });
 };

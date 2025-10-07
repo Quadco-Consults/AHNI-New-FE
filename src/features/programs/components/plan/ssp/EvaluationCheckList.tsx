@@ -38,9 +38,10 @@ export default function EvaluationCheckList() {
   const { isOpen } = useAppSelector((state) => state.ui.dailog);
 
   useEffect(() => {
-    const prevFormData = typeof window !== 'undefined' ? JSON.parse(
-      sessionStorage.getItem("compositionData") || "{}"
-    ) : {};
+    let prevFormData = {};
+    if (typeof window !== 'undefined') {
+      prevFormData = JSON.parse(sessionStorage.getItem("compositionData") || "{}");
+    }
 
     setChosenCriterias(
       prevFormData.objectives || supervisionPlan?.data.objectives
@@ -54,9 +55,12 @@ export default function EvaluationCheckList() {
     useModifySupervisionPlan(id || "");
 
   const onSubmit = async () => {
-    const prevFormData = (typeof window !== 'undefined' ? JSON.parse(
-      sessionStorage.getItem("compositionData") || "{}"
-    ) : {}) as TSSPCompositionFormValues & {
+    let prevFormData: any = {};
+    if (typeof window !== 'undefined') {
+      prevFormData = JSON.parse(sessionStorage.getItem("compositionData") || "{}");
+    }
+
+    prevFormData = prevFormData as TSSPCompositionFormValues & {
       objectives: { name: string; id: string }[];
     };
 
@@ -75,7 +79,9 @@ export default function EvaluationCheckList() {
         toast.success("Supportive Supervision Plan Created");
       }
 
-      sessionStorage.removeItem("compositionData");
+      if (typeof window !== 'undefined') {
+        sessionStorage.removeItem("compositionData");
+      }
       router.push(RouteEnum.PROGRAM_SUPPORTIVE_SUPERVISION);
     } catch (error: any) {
       toast.error(error.response?.data?.message ?? error.message ?? "Something went wrong");
@@ -84,9 +90,12 @@ export default function EvaluationCheckList() {
 
   useEffect(() => {
     if (id && supervisionPlan) {
-      const prevFormData = JSON.parse(
-        typeof window !== 'undefined' ? sessionStorage.getItem("compositionData") || "{}" : "{}"
-      ) as TSSPCompositionFormValues & {
+      let prevFormData: any = {};
+      if (typeof window !== 'undefined') {
+        prevFormData = JSON.parse(sessionStorage.getItem("compositionData") || "{}");
+      }
+
+      prevFormData = prevFormData as TSSPCompositionFormValues & {
         objectives: { name: string; id: string }[];
       };
 
@@ -94,7 +103,9 @@ export default function EvaluationCheckList() {
         ({ name, id }) => ({ name, id })
       );
 
-      sessionStorage.setItem("compositionData", JSON.stringify(prevFormData));
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem("compositionData", JSON.stringify(prevFormData));
+      }
 
       setChosenCriterias(
         supervisionPlan?.data.objectives.map((obj) => ({

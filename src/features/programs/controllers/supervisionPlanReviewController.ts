@@ -9,7 +9,7 @@ import {
 } from "../types/program/plan/supervision-plan/supervision-plan-review";
 import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
 
-const BASE_URL = "/programs/plans/supportive-supervision/";
+const BASE_URL = "programs/plans/supportive-supervision/";
 
 // ===== SUPERVISION PLAN REVIEW HOOKS =====
 

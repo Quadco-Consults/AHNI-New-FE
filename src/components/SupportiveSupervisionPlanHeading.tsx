@@ -21,11 +21,14 @@ const steps: Step[] = [
 
 const SupportiveSupervisionPlanHeading = () => {
   const [completedSteps, setCompletedSteps] = useState<boolean[]>(() => {
-    // Retrieve the completion state from local storage or initialize if not present
-    const savedSteps = sessionStorage.getItem("supportiveCompletedSteps");
-    return savedSteps
-      ? JSON.parse(savedSteps)
-      : new Array(steps.length).fill(false);
+    // Retrieve the completion state from sessionStorage or initialize if not present
+    if (typeof window !== 'undefined') {
+      const savedSteps = sessionStorage.getItem("supportiveCompletedSteps");
+      return savedSteps
+        ? JSON.parse(savedSteps)
+        : new Array(steps.length).fill(false);
+    }
+    return new Array(steps.length).fill(false);
   });
   const pathname = usePathname();
 
@@ -41,10 +44,12 @@ const SupportiveSupervisionPlanHeading = () => {
       setCompletedSteps((prev) => {
         const updatedSteps = [...prev];
         updatedSteps[currentStepIndex - 1] = true; // Mark the previous step as completed
-        sessionStorage.setItem(
-          "supportiveCompletedSteps",
-          JSON.stringify(updatedSteps)
-        );
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem(
+            "supportiveCompletedSteps",
+            JSON.stringify(updatedSteps)
+          );
+        }
         return updatedSteps;
       });
     }

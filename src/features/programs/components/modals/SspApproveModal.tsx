@@ -72,6 +72,13 @@ const SspApproveModal = () => {
         3: supervisionPlan?.data?.level3_approver,
     };
 
+    // Determine how many approval levels are configured
+    const configuredLevels = [
+        supervisionPlan?.data?.level1_approver,
+        supervisionPlan?.data?.level2_approver,
+        supervisionPlan?.data?.level3_approver,
+    ].filter(Boolean).length;
+
     const currentApprover = levelApprovers[currentLevel as 1 | 2 | 3];
 
     if (isPlanLoading) {
@@ -85,13 +92,26 @@ const SspApproveModal = () => {
         );
     }
 
+    if (configuredLevels === 0) {
+        return (
+            <div className="w-full flex justify-center py-10">
+                <div className="flex flex-col items-center gap-3">
+                    <p className="text-sm text-gray-600">No approvers have been configured for this supervision plan.</p>
+                    <p className="text-xs text-gray-500">Please edit the plan to assign approvers before approval.</p>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="w-full space-y-6">
             {/* Approval Workflow Progress */}
             <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg border">
-                <h3 className="text-sm font-semibold text-gray-700 mb-3">Approval Workflow Progress</h3>
+                <h3 className="text-sm font-semibold text-gray-700 mb-3">
+                    Approval Workflow Progress ({configuredLevels} Level{configuredLevels !== 1 ? 's' : ''})
+                </h3>
                 <div className="flex items-center justify-between gap-2">
-                    {[1, 2, 3].map((level, index) => {
+                    {Array.from({ length: configuredLevels }, (_, i) => i + 1).map((level, index) => {
                         const approval = approvals.find((a) => a.level === level);
                         const isCompleted = approval?.status === "APPROVED";
                         const isRejected = approval?.status === "REJECTED";
@@ -119,7 +139,7 @@ const SspApproveModal = () => {
                                     </div>
                                     <p className="text-xs mt-1 font-medium text-gray-600">Level {level}</p>
                                 </div>
-                                {index < 2 && (
+                                {index < configuredLevels - 1 && (
                                     <ChevronRight
                                         className={cn(
                                             "w-4 h-4 mx-1",
