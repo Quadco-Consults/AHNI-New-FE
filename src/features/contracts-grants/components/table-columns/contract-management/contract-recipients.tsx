@@ -23,8 +23,9 @@ export const contractRecipientsColumns: ColumnDef<IAdhocApplicant>[] =
             id: "applicant_name",
             size: 200,
             cell: ({ row }) => {
-                const data = row.original;
-                const fullName = `${data.sur_name || ''} ${data.other_names || ''}`.trim();
+                const data = row.original as any;
+                // Use 'name' field from consultancy table, fallback to adhoc fields
+                const fullName = data.name || `${data.sur_name || ''} ${data.other_names || ''}`.trim();
                 return (
                     <div className="font-medium">
                         {fullName || 'N/A'}
@@ -36,11 +37,13 @@ export const contractRecipientsColumns: ColumnDef<IAdhocApplicant>[] =
         {
             header: "Email",
             id: "email_address",
-            accessorKey: "email_address",
             size: 250,
-            cell: ({ getValue }) => (
-                <div className="text-sm text-gray-600">{getValue() as string}</div>
-            ),
+            cell: ({ row }) => {
+                const data = row.original as any;
+                // Use 'email' field from consultancy table, fallback to 'email_address'
+                const email = data.email || data.email_address;
+                return <div className="text-sm text-gray-600">{email || 'N/A'}</div>;
+            },
         },
 
         {
@@ -48,19 +51,22 @@ export const contractRecipientsColumns: ColumnDef<IAdhocApplicant>[] =
             id: "position",
             size: 200,
             cell: ({ row }) => {
-                const data = row.original;
-                return data.advertisement?.position_title || 'N/A';
+                const data = row.original as any;
+                // Use 'position_under_contract' from consultancy table, fallback to advertisement
+                return data.position_under_contract || data.advertisement?.position_title || 'N/A';
             },
         },
 
         {
-            header: "Application Number",
-            id: "application_number",
-            accessorKey: "application_number",
+            header: "Contract Number",
+            id: "contract_number",
             size: 150,
-            cell: ({ getValue }) => (
-                <div className="font-mono text-sm">{getValue() as string || 'N/A'}</div>
-            ),
+            cell: ({ row }) => {
+                const data = row.original as any;
+                // Use 'contract_number' from consultancy table, fallback to 'application_number'
+                const number = data.contract_number || data.application_number;
+                return <div className="font-mono text-sm">{number || 'N/A'}</div>;
+            },
         },
 
         {
@@ -91,10 +97,11 @@ export const contractRecipientsColumns: ColumnDef<IAdhocApplicant>[] =
         {
             header: "Contract Start Date",
             id: "contract_start_date",
-            accessorKey: "contract_start_date",
             size: 130,
-            cell: ({ getValue }) => {
-                const date = getValue() as string;
+            cell: ({ row }) => {
+                const data = row.original as any;
+                // Use 'start_duration_date' from consultancy table, fallback to 'contract_start_date'
+                const date = data.start_duration_date || data.contract_start_date;
                 return date ? new Date(date).toLocaleDateString() : 'N/A';
             },
         },
@@ -102,10 +109,11 @@ export const contractRecipientsColumns: ColumnDef<IAdhocApplicant>[] =
         {
             header: "Contract End Date",
             id: "contract_end_date",
-            accessorKey: "contract_end_date",
             size: 130,
-            cell: ({ getValue }) => {
-                const date = getValue() as string;
+            cell: ({ row }) => {
+                const data = row.original as any;
+                // Use 'end_duration_date' from consultancy table, fallback to 'contract_end_date'
+                const date = data.end_duration_date || data.contract_end_date;
                 return date ? new Date(date).toLocaleDateString() : 'N/A';
             },
         },

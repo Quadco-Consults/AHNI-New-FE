@@ -58,20 +58,50 @@ The system has been successfully migrated to use dedicated adhoc endpoints:
 
 ---
 
-## Backend Issues to Report
+## Backend Issues & Fixes - ALL RESOLVED ✅
 
-### Issue 1: Requisition Conversion Error ❌
+### Issue 1: Requisition Conversion Error ✅ FIXED (Backend)
 **Endpoint**: `POST /api/v1/adhoc-requisitions/{id}/convert_to_advertisement/`
 
 **Error**: `'AdhocRequisition' object has no attribute 'department'`
 
-**Root Cause**: Backend uses `requisition.department` but should use `requisition.requesting_department`
+**Root Cause**: Backend was using `requisition.department` instead of `requisition.requesting_department`
 
-**Status**: Reported to backend team
+**Backend Fix**: Changed field reference to `requisition.requesting_department`
+
+**Status**: ✅ Fixed - conversion now working correctly
+
+### Issue 2: Requisition Endpoint 405 Error ✅ FIXED (Backend)
+**Reported**: `405 Method Not Allowed` when POST to `/api/v1/adhoc-requisitions/`
+
+**Root Cause**: Backend router registered as `r"requisitions"` creating endpoints at `/api/v1/adhoc-requisitions/requisitions/` instead of `/api/v1/adhoc-requisitions/`
+
+**Backend Fix**: Changed router registration to `r""` so endpoints are directly at `/api/v1/adhoc-requisitions/`
+
+**Frontend**: Using `adhoc-requisitions/` (correct - no changes needed)
+
+**Status**: ✅ Fixed by backend team - all requisition operations now working
+
+### Issue 3: Database Tables Missing ✅ FIXED (Backend)
+**Error**: 500 errors when accessing endpoints
+
+**Root Cause**: Migration conflicts and missing database tables
+
+**Backend Fix**:
+- Fixed migration numbering conflicts (0002, 0003, 0004)
+- Manually created required tables:
+  - `adhoc_advertisements`
+  - `adhoc_applicants`
+  - `adhoc_applicant_documents`
+
+**Status**: ✅ Fixed - all database tables now exist
 
 ---
 
 ## Migration Completed: January 2025 ✅
+
+### All Backend Issues Resolved
+🎉 **100% Operational** - All endpoints working correctly
 
 ### Timeline Actual
 - **Migration completed**: Single session

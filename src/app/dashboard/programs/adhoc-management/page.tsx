@@ -1,5 +1,5 @@
-import ConsultantManagement from "@/features/contracts-grants/components/contract-management/consultant-management/index";
+import AdhocAdvertisementsList from "@/features/programs/components/adhoc-management/AdhocAdvertisementsList";
 
 export default function AdhocManagementPage() {
-  return <ConsultantManagement />;
+  return <AdhocAdvertisementsList />;
 }
