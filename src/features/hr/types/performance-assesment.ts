@@ -22,6 +22,11 @@ export interface PerformanceAssesment {
   description?: string;
   cycle_name?: string;
   employee?: string | Employee;
+  employee_name?: string;       // Employee full name from backend
+  employee_email?: string;      // Employee email from backend
+  employee_job_title?: string;  // Employee job title from backend
+  supervisor_name?: string;     // Supervisor name from backend
+  supervisor_email?: string;    // Supervisor email from backend
   status?: AssessmentStatus;
   start_date?: string | null;
   end_date?: string | null;
@@ -30,6 +35,7 @@ export interface PerformanceAssesment {
   time_stamp?: string;
   evaluators?: Evaluator[];
   goals?: Goal[];
+  employee_goals?: Goal[];      // Goals from backend
   competencies?: Competency[];
   created_by?: string;          // Employee who initiated
   created_datetime?: string;
@@ -38,11 +44,15 @@ export interface PerformanceAssesment {
 
 export interface Employee {
   id: string;
-  legal_firstname: string;
-  legal_lastname: string;
+  legal_firstname?: string;
+  legal_lastname?: string;
+  first_name?: string;
+  last_name?: string;
   email?: string;
   job_title?: string;
+  job_id?: string;
   department?: string;
+  supervisor?: string | User;
 }
 
 export interface Evaluator {
