@@ -16,11 +16,13 @@ function ActivityMemoTabs() {
       id: 1,
       state: "created",
       name: "Created Activity Memos",
+      tabComponent: <></>,
     },
     {
       id: 2,
       state: "approved",
       name: "Approved Activity Memos",
+      tabComponent: <></>,
     },
   ];
 
