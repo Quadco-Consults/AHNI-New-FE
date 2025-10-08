@@ -82,9 +82,26 @@ const Registration = () => {
   // @ts-ignore
   const categories = categoryQueryResult?.data?.data?.results;
 
+  // Load saved form data from sessionStorage on mount
+  const getSavedFormData = () => {
+    if (typeof window !== 'undefined') {
+      const saved = sessionStorage.getItem('vendorRegistrationForm');
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {
+          console.error('Error parsing saved form data:', e);
+        }
+      }
+    }
+    return null;
+  };
+
+  const savedData = getSavedFormData();
+
   const form = useForm<z.infer<typeof VendorsRegistrationSchema>>({
     resolver: zodResolver(VendorsRegistrationSchema),
-    defaultValues: {
+    defaultValues: savedData || {
       company_name: "",
       type_of_business: "",
       year_or_incorperation: "",
@@ -106,9 +123,10 @@ const Registration = () => {
     },
   });
 
+  // Load vendor data if editing existing vendor
   useEffect(() => {
     if (vendorId && vendor?.data && !isLoading) {
-      form.reset({
+      const vendorFormData = {
         company_name: vendor?.data?.company_name || "",
         type_of_business: vendor?.data?.type_of_business || "",
         year_or_incorperation: vendor?.data?.year_or_incorperation || "",
@@ -122,10 +140,8 @@ const Registration = () => {
         nature_of_business: vendor?.data?.nature_of_business || "",
         company_address: vendor?.data?.company_address || "",
         tin: vendor?.data?.tin || "",
-        // number_of_permanent_staff: vendor?.data?.number_of_permanent_staff,
         number_of_permanent_staff:
           vendor?.data?.number_of_operational_work_shift || "",
-
         company_chairman: vendor?.data?.company_chairman || "",
         bank_address: vendor?.data?.bank_address || "",
         bank_name: vendor?.data?.bank_name || "",
@@ -134,9 +150,24 @@ const Registration = () => {
             (cat: any) => cat?.cat_id || cat
           ) || [],
         state: vendor?.data?.state || "",
-      });
+      };
+      form.reset(vendorFormData);
+      // Save to sessionStorage for persistence
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('vendorRegistrationForm', JSON.stringify(vendorFormData));
+      }
     }
   }, [vendorId, vendor, isLoading, form]);
+
+  // Auto-save form data to sessionStorage on change
+  useEffect(() => {
+    const subscription = form.watch((value) => {
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('vendorRegistrationForm', JSON.stringify(value));
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [form]);
 
   const dispatch = useDispatch();
 
@@ -208,6 +239,12 @@ const Registration = () => {
 
       // Append the new segment to the path
       path += `/the-company?id=${targetVendorId}`;
+
+      // Clear saved form data after successful submission and navigation
+      if (typeof window !== 'undefined') {
+        sessionStorage.removeItem('vendorRegistrationForm');
+      }
+
       router.push(path);
     } catch (error) {
       console.error("Error in vendor registration:", error);
