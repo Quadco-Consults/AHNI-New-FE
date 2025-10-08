@@ -133,18 +133,31 @@ export const SampleMemoSchema = z.object({
   cost_input: z.array(z.string().min(1, "Field is required")),
   funding_source: z.array(z.string().min(1, "Field is required")),
   comment: z.string().min(1, "Field is required"),
-  copy: z.array(z.string().min(1, "Field is required")),
+  copy: z.array(z.string().min(1, "Field is required")), // CC = Reviewers
   created_by: z.string().min(1, "Field is required"),
-  approved_by: z.string().min(1, "Field is required"),
-  // reviewed_by: z.string().min(1, "Field is required"),
-  // authorized_by: z.string().min(1, "Field is required"),
-  through: z.array(z.string().min(1, "Field is required")),
+  approved_by: z.string().min(1, "Field is required"), // TO = Approver
+  through: z.array(z.string().min(1, "Field is required")), // Through = Authorizers
   expenses: z.array(
     z.object({
       item: z.string().optional(),
       uom: z.string().optional(),
-      quantity: z.string().optional(),
-      unit_cost: z.string().optional(),
+      quantity: z.union([z.string(), z.number()]).optional().refine(
+        (val) => {
+          if (!val) return true; // Allow empty
+          const num = typeof val === 'string' ? parseFloat(val) : val;
+          return !isNaN(num) && num >= 0 && num <= 9999999999; // Max 10 digits
+        },
+        { message: "Quantity must be between 0 and 9,999,999,999" }
+      ),
+      unit_cost: z.union([z.string(), z.number()]).optional().refine(
+        (val) => {
+          if (!val) return true; // Allow empty
+          const num = typeof val === 'string' ? parseFloat(val) : val;
+          const wholeDigits = Math.floor(Math.abs(num)).toString().length;
+          return !isNaN(num) && wholeDigits <= 10; // Max 10 digits before decimal
+        },
+        { message: "Unit cost cannot exceed 10 digits before the decimal point (max: 9,999,999,999.99)" }
+      ),
       total_cost: z.number().optional(),
     })
   ),

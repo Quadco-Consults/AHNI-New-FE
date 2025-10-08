@@ -10,7 +10,7 @@ import {
 } from "../types/solicitation";
 import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
 
-const BASE_URL = "/procurements/solicitations/";
+const BASE_URL = "procurements/solicitations/";
 
 // ===== SOLICITATION HOOKS =====
 

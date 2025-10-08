@@ -11,7 +11,7 @@ import {
 } from "../types/cba";
 import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
 
-const BASE_URL = "/procurements/cba-signature-workflow/";
+const BASE_URL = "procurements/cba-signature-workflow/";
 
 // ===== SIGNATURE WORKFLOW HOOKS =====
 

@@ -109,14 +109,16 @@ const PurchaseRequesttDetails = () => {
   console.log("Activity memo data:", activityMemoData);
   console.log("Items structure:", data?.data?.items);
   console.log("=== USER FIELDS DEBUG ===");
-  console.log("requested_by:", data?.data?.requested_by);
-  console.log("reviewed_by:", data?.data?.reviewed_by);
-  console.log("authorized_by:", data?.data?.authorized_by);
-  console.log("approved_by:", data?.data?.approved_by);
+  console.log("requested_by_detail:", data?.data?.requested_by_detail);
+  console.log("reviewed_by_detail:", data?.data?.reviewed_by_detail);
+  console.log("authorised_by_detail:", data?.data?.authorised_by_detail);
+  console.log("approved_by_detail:", data?.data?.approved_by_detail);
   console.log("All purchase request fields:", data?.data ? Object.keys(data.data) : 'No data');
   if (data?.data?.items?.[0]) {
-    console.log("First item:", data.data.items[0]);
+    console.log("First item full:", data.data.items[0]);
     console.log("First item keys:", Object.keys(data.data.items[0]));
+    console.log("item field:", data.data.items[0].item);
+    console.log("item_detail field:", data.data.items[0].item_detail);
     console.log("FCO details:", data.data.items[0].fconumber_details);
     console.log("FCO number:", data.data.items[0].fco_number);
   }
@@ -247,10 +249,13 @@ const PurchaseRequesttDetails = () => {
                   key={index}
                 >
                   <TableCell className='text-center font-medium text-gray-700 text-xs'>{index + 1}</TableCell>
-                  <TableCell className='text-left font-medium text-xs'>{safeRender(row.item) !== 'N/A' ? safeRender(row.item) : safeRender(row.item_detail?.name) !== 'N/A' ? safeRender(row.item_detail?.name) : 'N/A'}</TableCell>
+                  <TableCell className='text-left font-medium text-xs'>
+                    {/* Prioritize item_detail.name over raw item UUID */}
+                    {row.item_detail?.name || row.item_detail?.description || 'N/A'}
+                  </TableCell>
                   <TableCell className='text-center text-gray-600 text-xs'>{row.item_detail?.uom || row.uom || 'Each'}</TableCell>
                   <TableCell className='text-center text-gray-600 text-xs'>
-                    {/* Display FCO/Activity No from activity memo data */}
+                    {/* Display FCO/Activity No from activity memo data or item data */}
                     {(() => {
                       // First try: FCO details from activity memo
                       if (activityMemoData?.data?.fconumber_details && activityMemoData.data.fconumber_details.length > 0) {
@@ -277,13 +282,17 @@ const PurchaseRequesttDetails = () => {
                         return activityMemoData.data.activity_detail.code;
                       }
 
-                      // Fourth try: Simple FCO field from item
+                      // Fourth try: fco_number array (if it contains IDs, show count)
+                      if (Array.isArray(row?.fco_number) && row.fco_number.length > 0) {
+                        return `${row.fco_number.length} FCO(s)`;
+                      }
+
+                      // Fifth try: Simple FCO field from item
                       if (row?.fco) {
                         return row.fco;
                       }
 
                       // Fallbacks for other possible fields
-                      if (row?.fco_number) return row.fco_number;
                       if (row?.activity_number) return row.activity_number;
                       if (row?.fconumber) return row.fconumber;
 
@@ -333,9 +342,10 @@ const PurchaseRequesttDetails = () => {
               <div className='flex items-center gap-2'>
                 <span className='font-medium text-xs w-12 text-gray-700'>Name:</span>
                 <span className='text-xs text-gray-900 font-medium'>
-                  {data?.data?.requested_by_detail?.first_name && data?.data?.requested_by_detail?.last_name
+                  {data?.data?.requested_by_detail?.name ||
+                   (data?.data?.requested_by_detail?.first_name && data?.data?.requested_by_detail?.last_name
                     ? `${data.data.requested_by_detail.first_name} ${data.data.requested_by_detail.last_name}`
-                    : getUserName(data?.data?.requested_by)
+                    : data?.data?.requested_by_detail?.email || 'N/A')
                   }
                 </span>
               </div>
@@ -359,9 +369,10 @@ const PurchaseRequesttDetails = () => {
               <div className='flex items-center gap-2'>
                 <span className='font-medium text-xs w-12 text-gray-700'>Name:</span>
                 <span className='text-xs text-gray-900 font-medium'>
-                  {data?.data?.reviewed_by_detail?.first_name && data?.data?.reviewed_by_detail?.last_name
+                  {data?.data?.reviewed_by_detail?.name ||
+                   (data?.data?.reviewed_by_detail?.first_name && data?.data?.reviewed_by_detail?.last_name
                     ? `${data.data.reviewed_by_detail.first_name} ${data.data.reviewed_by_detail.last_name}`
-                    : getUserName(data?.data?.reviewed_by)
+                    : data?.data?.reviewed_by_detail?.email || 'N/A')
                   }
                 </span>
               </div>
@@ -385,15 +396,16 @@ const PurchaseRequesttDetails = () => {
               <div className='flex items-center gap-2'>
                 <span className='font-medium text-xs w-12 text-gray-700'>Name:</span>
                 <span className='text-xs text-gray-900 font-medium'>
-                  {data?.data?.authorized_by_detail?.first_name && data?.data?.authorized_by_detail?.last_name
-                    ? `${data.data.authorized_by_detail.first_name} ${data.data.authorized_by_detail.last_name}`
-                    : getUserName(data?.data?.authorized_by)
+                  {data?.data?.authorised_by_detail?.name ||
+                   (data?.data?.authorised_by_detail?.first_name && data?.data?.authorised_by_detail?.last_name
+                    ? `${data.data.authorised_by_detail.first_name} ${data.data.authorised_by_detail.last_name}`
+                    : data?.data?.authorised_by_detail?.email || 'N/A')
                   }
                 </span>
               </div>
               <div className='flex items-center gap-2'>
                 <span className='font-medium text-xs w-12 text-gray-700'>Date:</span>
-                <span className='text-xs text-gray-900'>{formatDate(data?.data?.authorized_date)}</span>
+                <span className='text-xs text-gray-900'>{formatDate(data?.data?.authorised_date)}</span>
               </div>
               <div className='flex items-center gap-2'>
                 <span className='font-medium text-xs w-12 text-gray-700'>Sign:</span>
@@ -411,9 +423,10 @@ const PurchaseRequesttDetails = () => {
               <div className='flex items-center gap-2'>
                 <span className='font-medium text-xs w-12 text-gray-700'>Name:</span>
                 <span className='text-xs text-gray-900 font-medium'>
-                  {data?.data?.approved_by_detail?.first_name && data?.data?.approved_by_detail?.last_name
+                  {data?.data?.approved_by_detail?.name ||
+                   (data?.data?.approved_by_detail?.first_name && data?.data?.approved_by_detail?.last_name
                     ? `${data.data.approved_by_detail.first_name} ${data.data.approved_by_detail.last_name}`
-                    : getUserName(data?.data?.approved_by)
+                    : data?.data?.approved_by_detail?.email || 'N/A')
                   }
                 </span>
               </div>

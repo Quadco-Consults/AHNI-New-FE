@@ -5,7 +5,7 @@ import { ProcurementTrackerResults } from "../types/procurementPlan";
 import { TPaginatedResponse } from "definations/index";
 import { TRequest } from "definations/index";
 
-const BASE_URL = "/procurements/procurement-tracker/";
+const BASE_URL = "procurements/procurement-tracker/";
 
 // Get All Procurement Trackers
 export const useGetAllProcurementTrackers = ({

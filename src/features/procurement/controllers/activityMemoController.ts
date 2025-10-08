@@ -41,14 +41,39 @@ export interface ActivityMemo {
   activity_budget?: number;
   budget_expended?: number;
   balance?: number;
+  status?: 'DRAFT' | 'PENDING' | 'SUBMITTED' | 'REVIEWED' | 'AUTHORISED' | 'APPROVED' | 'REJECTED';
+  ref_number?: string;
   budget_line: string[];
   cost_categories: string[];
   fconumber: string[];
   fconumber_details?: Array<{
-    id: string;
+    module_id?: string;
     module_code?: string;
+    module_name?: string;
+  }>;
+  budget_line_details?: Array<{
+    module_id?: string;
+    module_code?: string;
+    module_name?: string;
+  }>;
+  intervention_areas_details?: Array<{
+    id?: string;
     code?: string;
-    name?: string;
+    description?: string;
+  }>;
+  cost_inputs_details?: Array<{
+    module_id?: string;
+    module_code?: string;
+    module_name?: string;
+  }>;
+  funding_sources_details?: Array<{
+    module_id?: string;
+    module_name?: string;
+  }>;
+  cost_categories_details?: Array<{
+    module_id?: string;
+    module_code?: string;
+    module_name?: string;
   }>;
   activity_detail?: {
     id: string;
@@ -65,12 +90,47 @@ export interface ActivityMemo {
   created_by: string;
   through: string[];
   copy: string[];
+  created_by_details?: {
+    user_id?: string;
+    name?: string;
+  };
+  approved_by_details?: {
+    user_id?: string;
+    name?: string;
+  };
+  reviewed_by_details?: Array<{
+    user_id?: string;
+    name?: string;
+  }>;
+  authorised_by_details?: Array<{
+    user_id?: string;
+    name?: string;
+  }>;
+  through_details?: Array<{
+    user_id?: string;
+    name?: string;
+    first_name?: string;
+    last_name?: string;
+    designation?: string;
+  }>;
+  copy_details?: Array<{
+    user_id?: string;
+    name?: string;
+    first_name?: string;
+    last_name?: string;
+    designation?: string;
+  }>;
   expenses: Array<{
     item?: string;
-    quantity?: string;
-    num_of_days?: string;
-    unit_cost?: string;
-    total_cost?: number;
+    item_detail?: {
+      id?: string;
+      name?: string;
+      uom?: string;
+    };
+    quantity?: string | number;
+    num_of_days?: string | number;
+    unit_cost?: string | number;
+    total_cost?: number | string;
   }>;
 }
 
@@ -83,7 +143,7 @@ interface ActivityMemoFilterParams {
   enabled?: boolean;
 }
 
-const BASE_URL = "/procurements/purchase-request-memo/";
+const BASE_URL = "procurements/purchase-request-memo/";
 
 // ===== ACTIVITY MEMO HOOKS =====
 
@@ -120,7 +180,7 @@ export const useGetAllActivityMemos = ({
 
 // Get Single Activity Memo
 export const useGetActivityMemo = (id: string, enabled: boolean = true) => {
-  return useQuery<ApiResponse<ActivityMemo>>({
+  return useQuery<ActivityMemo>({
     queryKey: ["activity-memo", id],
     queryFn: async () => {
       try {

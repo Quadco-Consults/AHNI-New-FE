@@ -11,7 +11,7 @@ import {
 import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
 import { PurchaseOrderSchema } from "../types/procurement-validator";
 
-const BASE_URL = "/procurements/purchase-order/";
+const BASE_URL = "procurements/purchase-order/";
 
 // ===== PURCHASE ORDER HOOKS =====
 

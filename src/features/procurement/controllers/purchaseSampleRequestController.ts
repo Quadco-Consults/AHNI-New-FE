@@ -8,7 +8,7 @@ import {
 } from "../types/sample-memo";
 import { TResponse } from "definations/index";
 
-const BASE_URL = "/procurements/purchase-request-memo/";
+const BASE_URL = "procurements/purchase-request-memo/";
 
 // ===== PURCHASE SAMPLE REQUEST HOOKS =====
 

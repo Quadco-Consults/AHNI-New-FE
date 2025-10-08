@@ -7,7 +7,7 @@ import {
 } from "../types/manual-bid-cba-prequalification";
 import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
 
-const BASE_URL = "/procurements/vendor-bid-prequalification-summary/";
+const BASE_URL = "procurements/vendor-bid-prequalification-summary/";
 
 // ===== VENDOR BID PREQUALIFICATION FUNCTIONS HOOKS =====
 

@@ -39,7 +39,7 @@ interface VendorFilterParams {
   approved_categories?: string;
 }
 
-const BASE_URL = "/procurements/vendors/";
+const BASE_URL = "procurements/vendors/";
 
 // ===== VENDOR HOOKS =====
 

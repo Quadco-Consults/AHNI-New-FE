@@ -5,7 +5,7 @@ import { AxiosError } from "axios";
 import { VendorsResponse } from "../types/vendors";
 import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
 
-const BASE_URL = "/procurements/vendor-evaluation/";
+const BASE_URL = "procurements/vendor-evaluation/";
 
 // ===== VENDOR PERFORMANCE EVALUATION HOOKS =====
 

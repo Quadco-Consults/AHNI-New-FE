@@ -11,7 +11,7 @@ import {
 import { TBasePaginatedResponse } from "definations/auth/auth";
 import { TRequest, TResponse } from "definations/index";
 
-const BASE_URL = "/procurements/questionaire/";
+const BASE_URL = "procurements/questionaire/";
 
 // ===== QUESTIONNAIRE HOOKS =====
 

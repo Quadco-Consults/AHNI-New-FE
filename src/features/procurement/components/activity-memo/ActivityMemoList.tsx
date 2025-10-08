@@ -9,23 +9,12 @@ import DataTable from "components/Table/DataTable";
 import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 import IconButton from "components/IconButton";
-import { useGetAllActivityMemos } from "@/features/procurement/controllers/activityMemoController";
+import { useGetAllActivityMemos, ActivityMemo } from "@/features/procurement/controllers/activityMemoController";
 import { useState } from "react";
 import { format } from "date-fns";
-
-type ActivityMemoData = {
-  id: string;
-  subject: string;
-  activity?: string;
-  requested_date: string;
-  status?: string;
-  created_by?: string;
-  approved_by?: string;
-  expenses?: Array<{
-    total_cost?: number;
-  }>;
-  created_at?: string;
-};
+import { ActivityMemoApprovalAPI } from "@/features/procurement/controllers/activityMemoApprovalController";
+import { useGetUserProfile } from "@/features/auth/controllers/userController";
+import { toast } from "sonner";
 
 interface ActivityMemoListProps {
   status: 'pending' | 'approved';
@@ -34,17 +23,75 @@ interface ActivityMemoListProps {
 const ActivityMemoList = ({ status }: ActivityMemoListProps) => {
   const router = useRouter();
   const [page, setPage] = useState(1);
+  const [processingId, setProcessingId] = useState<string | null>(null);
 
   // Fetch activity memos from API
-  const { data, isLoading, error } = useGetAllActivityMemos({
+  const { data, isLoading, error, refetch } = useGetAllActivityMemos({
     page,
     size: 20,
-    status: status === 'approved' ? 'approved' : '',
+    status: status === 'approved' ? 'APPROVED' : '',
   });
 
-  const activityMemos = data?.data?.results || [];
+  // Get current user
+  const { data: currentUser } = useGetUserProfile();
 
-  const columns: ColumnDef<ActivityMemoData>[] = [
+  // Filter results based on tab selection
+  const filteredMemos = status === 'approved'
+    ? (data?.data?.results || []) // Show only APPROVED memos
+    : (data?.data?.results || []).filter(memo =>
+        // For 'pending' tab, show only DRAFT and SUBMITTED memos
+        memo.status === 'DRAFT' || memo.status === 'SUBMITTED'
+      );
+
+  // Helper function to check if user can approve
+  const canUserApprove = (memo: any) => {
+    if (!currentUser?.data?.id) return false;
+    const userId = currentUser.data.id;
+
+    // Can approve if user is the approver and status is REVIEWED
+    return memo.status === 'REVIEWED' && memo.approved_by === userId;
+  };
+
+  // Helper function to check if user can review
+  const canUserReview = (memo: any) => {
+    if (!currentUser?.data?.id) return false;
+    const userId = currentUser.data.id;
+
+    // Can review if user is in reviewers list and status is PENDING
+    return memo.status === 'PENDING' && memo.reviewed_by?.includes(userId);
+  };
+
+  // Handle quick approve
+  const handleQuickApprove = async (memoId: string | undefined) => {
+    if (!memoId) return;
+    setProcessingId(memoId);
+    try {
+      await ActivityMemoApprovalAPI.approve(memoId);
+      toast.success("Activity memo approved successfully!");
+      refetch();
+    } catch (error: any) {
+      toast.error(`Failed to approve: ${error.message || 'Unknown error'}`);
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
+  // Handle quick review
+  const handleQuickReview = async (memoId: string | undefined) => {
+    if (!memoId) return;
+    setProcessingId(memoId);
+    try {
+      await ActivityMemoApprovalAPI.review(memoId);
+      toast.success("Activity memo reviewed successfully!");
+      refetch();
+    } catch (error: any) {
+      toast.error(`Failed to review: ${error.message || 'Unknown error'}`);
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
+  const columns: ColumnDef<ActivityMemo>[] = [
     {
       header: "Subject",
       accessorKey: "subject",
@@ -73,9 +120,15 @@ const ActivityMemoList = ({ status }: ActivityMemoListProps) => {
         // Calculate total from expenses array
         const expenses = row.original.expenses || [];
         const total = expenses.reduce((sum, expense) => {
-          return sum + (expense.total_cost || 0);
+          // Ensure total_cost is a number
+          const cost = typeof expense.total_cost === 'string'
+            ? parseFloat(expense.total_cost)
+            : (expense.total_cost || 0);
+          return sum + (isNaN(cost) ? 0 : cost);
         }, 0);
-        return `₦${total.toLocaleString()}`;
+
+        // Format with proper thousands separators and 2 decimal places
+        return `₦${total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
       },
     },
     {
@@ -113,29 +166,64 @@ const ActivityMemoList = ({ status }: ActivityMemoListProps) => {
     {
       header: "Actions",
       id: "actions",
-      cell: ({ row }) => (
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() =>
-              router.push(`/dashboard/procurement/activity-memo/${row.original.id}`)
-            }
-            className="rounded-lg px-2 py-2 bg-[#F9F9F9] hover:text-primary dark:text-black dark:hover:text-primary"
-          >
-            <Icon icon="solar:eye-bold-duotone" fontSize={15} />
-          </button>
-          <button
-            onClick={() =>
-              router.push(`/dashboard/procurement/activity-memo/${row.original.id}/edit`)
-            }
-            className="rounded-lg px-2 py-2 bg-[#F9F9F9] hover:text-primary dark:text-black dark:hover:text-primary"
-          >
-            <Icon icon="solar:pen-bold-duotone" fontSize={15} />
-          </button>
-          <IconButton className="bg-[#F9F9F9] hover:text-primary">
-            <Icon icon="ant-design:delete-twotone" fontSize={15} />
-          </IconButton>
-        </div>
-      ),
+      cell: ({ row }) => {
+        const memo = row.original;
+        const isProcessing = processingId === memo.id;
+        const showReview = canUserReview(memo);
+        const showApprove = canUserApprove(memo);
+
+        return (
+          <div className="flex items-center gap-2">
+            {/* Review Button - only for reviewers when status is PENDING */}
+            {showReview && (
+              <button
+                onClick={() => handleQuickReview(memo.id)}
+                disabled={isProcessing}
+                className="rounded-lg px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+                title="Review this memo"
+              >
+                <Icon icon="mdi:checkbox-marked-circle-outline" fontSize={14} />
+                {isProcessing ? 'Processing...' : 'Review'}
+              </button>
+            )}
+
+            {/* Approve Button - only for approvers when status is REVIEWED */}
+            {showApprove && (
+              <button
+                onClick={() => handleQuickApprove(memo.id)}
+                disabled={isProcessing}
+                className="rounded-lg px-3 py-2 bg-green-500 hover:bg-green-600 text-white text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+                title="Approve this memo"
+              >
+                <Icon icon="mdi:check-circle" fontSize={14} />
+                {isProcessing ? 'Processing...' : 'Approve'}
+              </button>
+            )}
+
+            <button
+              onClick={() =>
+                router.push(`/dashboard/procurement/activity-memo/${memo.id}`)
+              }
+              className="rounded-lg px-2 py-2 bg-[#F9F9F9] hover:text-primary dark:text-black dark:hover:text-primary"
+              title="View details"
+            >
+              <Icon icon="solar:eye-bold-duotone" fontSize={15} />
+            </button>
+            <button
+              onClick={() =>
+                router.push(`/dashboard/procurement/activity-memo/${memo.id}/edit`)
+              }
+              className="rounded-lg px-2 py-2 bg-[#F9F9F9] hover:text-primary dark:text-black dark:hover:text-primary"
+              title="Edit"
+            >
+              <Icon icon="solar:pen-bold-duotone" fontSize={15} />
+            </button>
+            <IconButton className="bg-[#F9F9F9] hover:text-primary">
+              <Icon icon="ant-design:delete-twotone" fontSize={15} />
+            </IconButton>
+          </div>
+        );
+      },
     },
   ];
 
@@ -178,11 +266,11 @@ const ActivityMemoList = ({ status }: ActivityMemoListProps) => {
       {!error && (
         <Card>
           <DataTable
-            data={activityMemos}
+            data={filteredMemos}
             columns={columns}
             isLoading={isLoading}
             pagination={{
-              total: data?.data?.pagination?.count || 0,
+              total: data?.data?.paginator?.count || 0,
               pageSize: 20,
               onChange: setPage,
             }}
@@ -191,7 +279,7 @@ const ActivityMemoList = ({ status }: ActivityMemoListProps) => {
       )}
 
       {/* Empty State */}
-      {!isLoading && !error && activityMemos.length === 0 && (
+      {!isLoading && !error && filteredMemos.length === 0 && (
         <Card>
           <div className="p-12 text-center">
             <div className="text-gray-400 mb-4">

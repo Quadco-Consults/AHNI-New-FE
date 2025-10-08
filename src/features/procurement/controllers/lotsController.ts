@@ -11,7 +11,7 @@ import {
 } from "../types/lots";
 import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
 
-const BASE_URL = "/procurements/lots/";
+const BASE_URL = "procurements/lots/";
 
 // ===== LOTS HOOKS =====
 

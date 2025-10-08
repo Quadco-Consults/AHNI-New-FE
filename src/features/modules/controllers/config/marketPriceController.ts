@@ -10,7 +10,7 @@ import {
   TPaginatedResponse
 } from "../../types";
 
-const BASE_URL = "/procurements/market-item/";
+const BASE_URL = "procurements/market-item/";
 
 // GET Operations (Queries)
 export const useGetAllMarketPricesManager = ({ 

@@ -9,7 +9,7 @@ interface ApiResponse<TData = unknown> {
   data: TData;
 }
 
-const BASE_URL = "/procurements/purchase-request-memo";
+const BASE_URL = "procurements/purchase-request-memo";
 
 // ===== ACTIVITY MEMO APPROVAL HOOKS =====
 
@@ -189,7 +189,40 @@ export const ActivityMemoApprovalAPI = {
     }
   },
 
-  // Approve memo
+  // Authorize memo (REVIEWED → AUTHORISED)
+  authorize: async (memoId: string): Promise<ApiResponse<any>> => {
+    try {
+      console.log(`🔄 Authorizing activity memo ${memoId}...`);
+      const response = await AxiosWithToken.post(`${BASE_URL}/${memoId}/authorise/`);
+
+      console.log(`✅ Authorize response:`, response.data);
+
+      // Handle different response formats
+      if (response.data) {
+        return {
+          status: true,
+          message: "Activity memo authorized successfully",
+          data: response.data
+        };
+      }
+
+      return response.data;
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      console.error(`❌ Authorize error:`, error);
+
+      const errorMessage =
+        (axiosError.response?.data as any)?.message ||
+        (axiosError.response?.data as any)?.detail ||
+        (axiosError.response?.data as any)?.error ||
+        axiosError.message ||
+        "Unknown error occurred";
+
+      throw new Error(`Authorization failed: ${errorMessage}`);
+    }
+  },
+
+  // Approve memo (AUTHORISED → APPROVED)
   approve: async (memoId: string): Promise<ApiResponse<any>> => {
     try {
       console.log(`🔄 Approving activity memo ${memoId}...`);

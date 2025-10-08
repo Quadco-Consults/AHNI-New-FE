@@ -326,15 +326,28 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
       console.log("✅ Form validation passed, proceeding with submission...");
 
       const payload = {
-        items: data.items.map((item: any) => {
+        items: data.items.map((item: any, index: number) => {
           // Remove description field as backend doesn't support it
           const { description, ...itemWithoutDescription } = item;
+
+          // Debug FCO number for this item
+          console.log(`📦 Item ${index} FCO data:`, {
+            fco_number: item.fco_number,
+            fco_is_array: Array.isArray(item.fco_number),
+            fco_length: item.fco_number?.length,
+            fco_values: item.fco_number
+          });
+
           return {
             ...itemWithoutDescription,
             // Ensure numeric fields are properly formatted
             quantity: typeof item.quantity === 'string' ? parseInt(item.quantity) : item.quantity,
             unit_cost: typeof item.unit_cost === 'string' ? parseFloat(item.unit_cost) : item.unit_cost,
             amount: typeof item.amount === 'string' ? parseFloat(item.amount) : item.amount,
+            // Explicitly ensure fco_number is included as an array of IDs
+            fco_number: Array.isArray(item.fco_number)
+              ? item.fco_number.map((fco: any) => typeof fco === 'object' ? fco.id : fco)
+              : [],
           };
         }),
         requested_by: data.requested_by,
@@ -1005,13 +1018,16 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
                           control={control}
                           name={`items.${index}.fco_number` as any}
                           render={({ field }) => {
-                            // Fix: Correct path is fco.data.results, not fco.data.data.results
-                            const fcoOptions = (fco as any)?.data?.results || [];
+                            // Handle both possible API response structures
+                            const fcoOptions = (fco as any)?.data?.results || (fco as any)?.data?.data?.results || [];
 
                             console.log("🔍 FCO Dropdown Debug:", {
                               itemIndex: index,
+                              fcoData: fco,
                               fcoOptionsLength: fcoOptions.length,
                               fieldValue: field.value,
+                              fieldValueIsArray: Array.isArray(field.value),
+                              fieldValueLength: field.value?.length,
                               sampleOption: fcoOptions[0]
                             });
 
@@ -1023,9 +1039,14 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
                                     options={fcoOptions}
                                     defaultValue={Array.isArray(field.value) ? field.value.map((val: any) => typeof val === 'object' ? val.id : val) : []}
                                     onValueChange={(value) => {
-                                      console.log("🔍 FCO Selection Changed:", value);
+                                      console.log("🔍 FCO Selection Changed:", {
+                                        raw: value,
+                                        isArray: Array.isArray(value),
+                                        length: value?.length
+                                      });
                                       // Ensure we're only passing IDs, not objects
                                       const safeValue = Array.isArray(value) ? value.map((val: any) => typeof val === 'object' ? val.id : val) : value;
+                                      console.log("🔍 FCO Safe Value:", safeValue);
                                       field.onChange(safeValue);
                                     }}
                                     placeholder={Array.isArray(field.value) && field.value.length > 0 ? `${field.value.length} selected` : 'Select fcos'}
