@@ -84,29 +84,42 @@ const VendorRegistrationHeading = () => {
 
       <GoBack />
 
-      <div className='grid justify-between w-full grid-cols-6 px-4 py-2 gap-y-4'>
-        {steps.map((item, i) => {
-          return (
-            <div className='flex items-center' key={i}>
-              {completedSteps[i] ? <CheckIcon /> : <PendingIcon />}
-
-              {i !== steps.length - 1 && (
-                <div className='flex items-center justify-center w-full text-center '>
-                  <Separator className='w-[70%] text-center h-[2px] bg-[#756D6D] ' />
-                </div>
-              )}
-            </div>
-          );
-        })}
+      <div className='flex items-start justify-between w-full px-4 py-6'>
         {steps.map((step, index) => {
+          const isActive = currentPath === step.route;
+          const isCompleted = completedSteps[index];
+
           return (
-            <div className='flex items-center ' key={index}>
-              <div className='text-sm '>
-                <div className='space-y-1'>
-                  <div className='text-xs'>STEP {step.step}</div>
-                  <div className='text-sm font-semibold'>{step.stepName}</div>
+            <div key={index} className='flex items-center flex-1'>
+              <div className='flex flex-col items-center flex-1'>
+                {/* Icon */}
+                <div className='mb-3'>
+                  {isCompleted ? <CheckIcon /> : <PendingIcon />}
+                </div>
+
+                {/* Step info */}
+                <div className='text-center space-y-1'>
+                  <div className={cn(
+                    'text-xs font-medium',
+                    isActive ? 'text-primary' : 'text-gray-500'
+                  )}>
+                    STEP {step.step}
+                  </div>
+                  <div className={cn(
+                    'text-sm font-semibold',
+                    isActive ? 'text-primary' : 'text-gray-700'
+                  )}>
+                    {step.stepName}
+                  </div>
                 </div>
               </div>
+
+              {/* Separator line between steps */}
+              {index !== steps.length - 1 && (
+                <div className='flex items-center justify-center px-2 -mt-8'>
+                  <Separator className='w-12 h-[2px] bg-gray-300' />
+                </div>
+              )}
             </div>
           );
         })}
