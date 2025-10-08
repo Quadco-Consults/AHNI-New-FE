@@ -50,6 +50,7 @@ import { toast } from "sonner";
 const Registration = () => {
   const query = useQuery();
   const vendorId = query.get("id");
+  const eoiId = query.get("eoi_id"); // Capture EOI ID from URL if vendor is registering from an EOI
 
   // Use the hook correctly
   const {
@@ -189,6 +190,7 @@ const Registration = () => {
       const vendorData = {
         ...data,
         approved_categories: vendor?.data?.approved_categories_details, // Include approved_categories to trigger pending status
+        ...(eoiId && { eoi: eoiId }), // Include EOI ID if vendor is registering from an EOI
       };
 
       // Update current vendor data in Redux store for persistence
@@ -237,8 +239,8 @@ const Registration = () => {
       // Remove the last segment of the path
       path = path.substring(0, path.lastIndexOf("/"));
 
-      // Append the new segment to the path
-      path += `/the-company?id=${targetVendorId}`;
+      // Append the new segment to the path with both vendor ID and EOI ID (if present)
+      path += `/the-company?id=${targetVendorId}${eoiId ? `&eoi_id=${eoiId}` : ''}`;
 
       // Clear saved form data after successful submission and navigation
       if (typeof window !== 'undefined') {

@@ -27,6 +27,7 @@ const Company = () => {
   const pathname = usePathname();
   const query = useQuery();
   const vendorId = query.get("id");
+  const eoiId = query.get("eoi_id"); // Preserve EOI ID through registration flow
 
   const { data: vendor, isLoading, error } = VendorsAPI.useGetVendor(vendorId);
   const { updateVendor: updateVendorMutation } = VendorsAPI.useUpdateVendor(vendorId || "");
@@ -95,14 +96,14 @@ const Company = () => {
 
       let path = pathname;
       path = path.substring(0, path.lastIndexOf("/"));
-      path += `/reference?id=${vendorId}`;
+      path += `/reference?id=${vendorId}${eoiId ? `&eoi_id=${eoiId}` : ''}`;
       router.push(path);
     } catch (error) {
       console.error("Error updating vendor with company data:", error);
       // Continue with navigation even if update fails
       let path = pathname;
       path = path.substring(0, path.lastIndexOf("/"));
-      path += `/reference?id=${vendorId}`;
+      path += `/reference?id=${vendorId}${eoiId ? `&eoi_id=${eoiId}` : ''}`;
       router.push(path);
     }
   };

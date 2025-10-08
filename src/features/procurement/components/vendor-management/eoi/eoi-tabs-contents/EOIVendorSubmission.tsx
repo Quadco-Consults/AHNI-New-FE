@@ -21,15 +21,16 @@ import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "components/Table/DataTable";
 import { Plus } from "lucide-react";
 import { useParams } from "next/navigation";
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import VendorsAPI from "@/features/procurement/controllers/vendorsController";
 
 type Data = {
-  name: string;
-  number: number;
-  email: string;
-  products: string;
+  id: string;
+  company_name: string;
+  type_of_business: string;
+  company_registration_number: string;
   status: string;
-  prequalification: string;
+  evaluation_status: string | null;
   isSelected: boolean;
 };
 
@@ -37,11 +38,52 @@ const EOIVendorSubmission = ({ status, eoiData }: { status?: string; eoiData?: a
   const params = useParams();
   const eoiId = params.id as string;
   const [isCreatingCBA, setIsCreatingCBA] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
-  // Get vendor submissions for this specific EOI
-  // For now, we'll use an empty array until the backend provides EOI submission endpoint
-  // TODO: Replace with actual EOI submissions API call when available
-  const vendorSubmissions = eoiData?.vendor_submissions || [];
+  // Fetch vendors registered for this specific EOI
+  // The backend should support filtering by eoi parameter
+  const { data: vendorsData, isLoading: isLoadingVendors } = VendorsAPI.useGetVendors({
+    page: 1,
+    size: 100,
+    search: searchTerm,
+    enabled: true,
+  });
+
+  // Log debug information
+  console.log("🔍 EOI Vendor Submissions Debug:", {
+    eoiId,
+    eoiData,
+    vendorsData,
+    allVendors: vendorsData?.data?.results,
+  });
+
+  // Filter vendors by EOI ID
+  const vendorSubmissions = useMemo(() => {
+    if (!vendorsData?.data?.results) {
+      console.log("⚠️ No vendors found");
+      return [];
+    }
+
+    // Log a sample vendor to see the data structure
+    console.log("📋 Sample vendor structure:", vendorsData.data.results[0]);
+
+    // Filter to only show vendors registered for this EOI
+    const eoiVendors = vendorsData.data.results.filter((vendor: any) => {
+      console.log(`Checking vendor ${vendor.company_name}: eoi="${vendor.eoi}", looking for "${eoiId}"`);
+      return vendor.eoi === eoiId;
+    });
+
+    console.log(`✅ Found ${eoiVendors.length} vendors for EOI ${eoiId}:`, eoiVendors);
+
+    return eoiVendors.map((vendor: any) => ({
+      id: vendor.id,
+      company_name: vendor.company_name || "-",
+      type_of_business: vendor.type_of_business || "-",
+      company_registration_number: vendor.company_registration_number || "-",
+      status: vendor.status || "Pending",
+      evaluation_status: vendor.evaluation_status || null,
+    }));
+  }, [vendorsData, eoiId]);
 
   const handleCreateCBA = () => {
     // For EOI flow, we redirect to CBA creation and let it handle finding the solicitation
@@ -56,8 +98,10 @@ const EOIVendorSubmission = ({ status, eoiData }: { status?: string; eoiData?: a
           <div className='border w-1/3 py-2 px-2 flex items-center rounded-lg'>
             <Icon icon='iconamoon:search-light' fontSize={25} />
             <Input
-              placeholder='Search Category'
+              placeholder='Search Vendor Submissions'
               type='search'
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
               className='h-6 border-none bg-none'
             />
           </div>
@@ -69,7 +113,7 @@ const EOIVendorSubmission = ({ status, eoiData }: { status?: string; eoiData?: a
                 {isCreatingCBA ? "Creating..." : "Create CBA"}
               </Button>
             )}
-            <Link href={generatePath(RouteEnum.VENDOR_REGISTRATION)}>
+            <Link href={`${generatePath(RouteEnum.VENDOR_REGISTRATION)}?eoi_id=${eoiId}`}>
               <Button>
                 <span>
                   <Plus size={20} />
@@ -84,7 +128,7 @@ const EOIVendorSubmission = ({ status, eoiData }: { status?: string; eoiData?: a
           // @ts-ignore
           columns={columns}
           data={vendorSubmissions}
-          isLoading={false}
+          isLoading={isLoadingVendors}
         />
       </Card>
     </div>
