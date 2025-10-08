@@ -67,7 +67,7 @@ const SummaryCard = ({ data }: SummaryCardProps) => {
       accessorKey: "date_pr_received",
       size: 130,
       cell: ({ row }) => {
-        const date = row.original.date_pr_received || row.original.created_at || row.original.date_created;
+        const date = row.original.date_pr_received || row.original.request_date || row.original.created_at || row.original.date_created;
         return <div className="text-sm">{date ? new Date(date).toLocaleDateString("en-US") : "N/A"}</div>;
       },
     },
@@ -78,6 +78,7 @@ const SummaryCard = ({ data }: SummaryCardProps) => {
       cell: ({ row }) => {
         const category = row.original.item_category ||
                         row.original.category ||
+                        row.original.item_type ||
                         (row.original.is_service ? "SERVICE" : "GOODS") ||
                         "Unknown";
         return <div className="text-sm">{category}</div>;
@@ -98,6 +99,7 @@ const SummaryCard = ({ data }: SummaryCardProps) => {
       size: 160,
       cell: ({ row }) => {
         const date = row.original.procurement_process_date ||
+                    row.original.solicitation?.date_procurement_initiated ||
                     row.original.solicitation?.created_at ||
                     row.original.process_start_date;
         return <div className="text-sm">{date ? new Date(date).toLocaleDateString("en-US") : "N/A"}</div>;
@@ -108,7 +110,7 @@ const SummaryCard = ({ data }: SummaryCardProps) => {
       accessorKey: "fco",
       size: 100,
       cell: ({ row }) => {
-        return <div className="text-sm">{row.original.fco || row.original.financial_control_officer || "N/A"}</div>;
+        return <div className="text-sm">{row.original.fco || row.original.purchase_order?.fco_number || row.original.financial_control_officer || "N/A"}</div>;
       },
     },
     {
@@ -128,7 +130,7 @@ const SummaryCard = ({ data }: SummaryCardProps) => {
       accessorKey: "unit",
       size: 80,
       cell: ({ row }) => {
-        return <div className="text-sm">{row.original.unit || row.original.unit_of_measure || "N/A"}</div>;
+        return <div className="text-sm">{row.original.unit || row.original.uom || row.original.unit_of_measure || "N/A"}</div>;
       },
     },
     {
