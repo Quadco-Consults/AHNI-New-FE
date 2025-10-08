@@ -5,23 +5,31 @@ import Card from "components/Card";
 import { contractRecipientsColumns } from "@/features/contracts-grants/components/table-columns/contract-management/contract-recipients";
 import DataTable from "components/Table/DataTable";
 import TableFilters from "components/Table/TableFilters";
-import { useGetAllAdhocApplicants } from "@/features/programs/controllers/adhocApplicantController";
+import { useGetAllConsultancyApplicants } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
 
 export default function ContractRecipients() {
     const [page, setPage] = useState(1);
 
-    // Using dedicated adhoc applicants endpoint
-    const { data, isFetching, error } = useGetAllAdhocApplicants({
+    // TEMPORARY: Using consultancy applicants endpoint with type filter
+    // Backend stores adhoc contracts in consultancy table with type="ADHOC"
+    // Should use dedicated /programs/adhoc/applicants/ once backend is fixed
+    const { data, isFetching, error } = useGetAllConsultancyApplicants({
         page,
         size: 50,
     });
 
-    // Filter to show ONLY applicants who have been issued contracts
+    // Filter to show ONLY adhoc applicants who have been issued contracts
     const allApplicants = data?.data?.results || [];
     const contractRecipients = allApplicants.filter((applicant: any) => {
+        // Filter by type = ADHOC
+        if (applicant.type !== "ADHOC") {
+            return false;
+        }
+
         // Check if applicant has contract_issued status
-        // According to the workflow: APPLIED → SHORTLISTED → INTERVIEWED → CONTRACT_ISSUED → ACCEPTED/REJECTED
+        // According to the workflow: APPLIED → SHORTLISTED → INTERVIEWED → CONTRACT_ISSUED → APPROVED
         const hasContractIssued = applicant.status === "CONTRACT_ISSUED" ||
+                                  applicant.status === "APPROVED" ||
                                   applicant.status === "ACCEPTED" ||
                                   applicant.status === "REJECTED" ||
                                   applicant.contract_issued === true ||
@@ -36,15 +44,26 @@ export default function ContractRecipients() {
     console.log("- Contract Recipients (Filtered):", contractRecipients.length);
     console.log("- Is Fetching:", isFetching);
     console.log("- Error:", error);
-    console.log("- All Applicants (status):", allApplicants.map((a: any) => ({
-        name: a.surname || a.other_names || a.full_name,
-        status: a.status,
-    })));
-    console.log("- Unique Statuses:", [...new Set(allApplicants.map((a: any) => a.status))]);
+
     if (contractRecipients.length > 0) {
-        console.log("- Sample recipient:", {
-            name: (contractRecipients[0] as any).surname || (contractRecipients[0] as any).full_name,
-            status: contractRecipients[0].status,
+        console.log("✅ Sample Contract Recipient (FULL OBJECT):", contractRecipients[0]);
+        console.log("📋 Field Names Available:", Object.keys(contractRecipients[0]));
+        console.log("📋 Name Fields:", {
+            sur_name: (contractRecipients[0] as any).sur_name,
+            surname: (contractRecipients[0] as any).surname,
+            other_names: (contractRecipients[0] as any).other_names,
+            full_name: (contractRecipients[0] as any).full_name,
+            first_name: (contractRecipients[0] as any).first_name,
+            last_name: (contractRecipients[0] as any).last_name,
+        });
+        console.log("📋 Email Fields:", {
+            email_address: (contractRecipients[0] as any).email_address,
+            email: (contractRecipients[0] as any).email,
+        });
+        console.log("📋 Position Fields:", {
+            advertisement: (contractRecipients[0] as any).advertisement,
+            consultancy: (contractRecipients[0] as any).consultancy,
+            contract_request: (contractRecipients[0] as any).contract_request,
         });
     }
 

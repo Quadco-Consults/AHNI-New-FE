@@ -35,7 +35,7 @@ interface PaginatedResponse<T> {
   };
 }
 
-const BASE_URL = "/adhoc-requisitions/"; // Update this to match your backend endpoint
+const BASE_URL = "adhoc-requisitions/"; // Backend fixed: now at /api/v1/adhoc-requisitions/
 
 // ===== QUERY HOOKS =====
 
@@ -402,6 +402,7 @@ export const useConvertToAdvertisement = (id: string) => {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["adhocRequisitions"] });
       queryClient.invalidateQueries({ queryKey: ["adhocRequisition", id] });
+      queryClient.invalidateQueries({ queryKey: ["adhocAdvertisements"] }); // Invalidate advertisements cache
       toast.success(data.message || "Requisition converted to job advertisement!");
     },
     onError: (error: AxiosError) => {
