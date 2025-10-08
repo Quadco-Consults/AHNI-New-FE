@@ -1,23 +1,93 @@
 "use client";
 
+import { useState } from "react";
 import { Icon } from "@iconify/react";
 import Card from "@/components/Card";
 import IconButton from "@/components/IconButton";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "@/components/Table/DataTable";
-import { useGetVendors, useDeleteVendor } from "@/features/procurement/controllers/vendorsController";
+import { useGetVendors, useDeleteVendor, useBulkUploadVendors } from "@/features/procurement/controllers/vendorsController";
 import { VendorsResultsData } from "@/definations/procurement-types/vendors";
 import Link from "next/link";
 import { toast } from "sonner";
+import { Upload } from "lucide-react";
+import VendorBulkUploadModal from "./vendor-management/VendorBulkUploadModal";
+import { VendorTemplateData } from "@/features/procurement/utils/vendorTemplateGenerator";
 
 const SupplierDatabase = () => {
-  const { data, isLoading } = useGetVendors({
+  const [showBulkUpload, setShowBulkUpload] = useState(false);
+  const { data, isLoading, refetch } = useGetVendors({
     status: "Approved",
   });
+  const { bulkUploadVendors } = useBulkUploadVendors();
+
+  const handleBulkUpload = async (vendors: VendorTemplateData[]) => {
+    // Transform vendor data to match backend API format
+    const transformedVendors = vendors.map((vendor) => {
+      const keyStaff = [];
+      const branches = [];
+
+      // Add key staff
+      if (vendor.key_staff_name_1) {
+        keyStaff.push({
+          name: vendor.key_staff_name_1,
+          phone_number: vendor.key_staff_phone_1 || "",
+          email: vendor.key_staff_email_1 || "",
+        });
+      }
+      if (vendor.key_staff_name_2) {
+        keyStaff.push({
+          name: vendor.key_staff_name_2,
+          phone_number: vendor.key_staff_phone_2 || "",
+          email: vendor.key_staff_email_2 || "",
+        });
+      }
+      if (vendor.key_staff_name_3) {
+        keyStaff.push({
+          name: vendor.key_staff_name_3,
+          phone_number: vendor.key_staff_phone_3 || "",
+          email: vendor.key_staff_email_3 || "",
+        });
+      }
+
+      // Add branches
+      if (vendor.branch_address_1) {
+        branches.push({ address: vendor.branch_address_1 });
+      }
+      if (vendor.branch_address_2) {
+        branches.push({ address: vendor.branch_address_2 });
+      }
+      if (vendor.branch_address_3) {
+        branches.push({ address: vendor.branch_address_3 });
+      }
+
+      return {
+        company_name: vendor.company_name,
+        company_registration_number: vendor.company_registration_number,
+        tin: vendor.tin,
+        email: vendor.email,
+        company_address: vendor.company_address,
+        state: vendor.state,
+        nature_of_business: vendor.nature_of_business,
+        area_of_specialization: vendor.area_of_specialization,
+        key_staff: keyStaff,
+        branches: branches,
+        status: "Approved", // Default status for bulk uploaded vendors
+      };
+    });
+
+    try {
+      await bulkUploadVendors(transformedVendors);
+      refetch(); // Refresh the vendor list
+    } catch (error) {
+      throw error; // Re-throw to let modal handle the error
+    }
+  };
 
   return (
     <div className='space-y-10'>
@@ -32,7 +102,13 @@ const SupplierDatabase = () => {
       </div>
 
       <Card className='space-y-10'>
-        <h4 className='text-lg font-bold'>Supplier Database</h4>
+        <div className='flex items-center justify-between'>
+          <h4 className='text-lg font-bold'>Supplier Database</h4>
+          <Button onClick={() => setShowBulkUpload(true)}>
+            <Upload size={18} className='mr-2' />
+            Bulk Upload Vendors
+          </Button>
+        </div>
 
         <DataTable
           data={data?.data?.results || []}
@@ -40,6 +116,12 @@ const SupplierDatabase = () => {
           isLoading={isLoading}
         />
       </Card>
+
+      <VendorBulkUploadModal
+        open={showBulkUpload}
+        onClose={() => setShowBulkUpload(false)}
+        onUpload={handleBulkUpload}
+      />
     </div>
   );
 };
