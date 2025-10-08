@@ -20,10 +20,8 @@ const generatePath = (route: string, params?: Record<string, any>): string => {
 import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "components/Table/DataTable";
 import { Plus } from "lucide-react";
-import VendorsAPI from "@/features/procurement/controllers/vendorsController";
 import { useParams } from "next/navigation";
 import { useState } from "react";
-import { toast } from "sonner";
 
 type Data = {
   name: string;
@@ -39,12 +37,11 @@ const EOIVendorSubmission = ({ status, eoiData }: { status?: string; eoiData?: a
   const params = useParams();
   const eoiId = params.id as string;
   const [isCreatingCBA, setIsCreatingCBA] = useState(false);
-  
-  const { data: vendorData } = VendorsAPI.useGetVendors({
-    page: 1,
-    size: 20,
-    search: "",
-  });
+
+  // Get vendor submissions for this specific EOI
+  // For now, we'll use an empty array until the backend provides EOI submission endpoint
+  // TODO: Replace with actual EOI submissions API call when available
+  const vendorSubmissions = eoiData?.vendor_submissions || [];
 
   const handleCreateCBA = () => {
     // For EOI flow, we redirect to CBA creation and let it handle finding the solicitation
@@ -67,7 +64,7 @@ const EOIVendorSubmission = ({ status, eoiData }: { status?: string; eoiData?: a
 
           <div className="flex gap-3">
             {/* Show Create CBA button for OPEN_TENDER EOIs that have vendor submissions */}
-            {eoiData?.type === "OPEN_TENDER" && vendorData?.data?.results && vendorData.data.results.length > 0 && (
+            {eoiData?.type === "OPEN_TENDER" && vendorSubmissions.length > 0 && (
               <Button onClick={handleCreateCBA} disabled={isCreatingCBA} variant="outline">
                 {isCreatingCBA ? "Creating..." : "Create CBA"}
               </Button>
@@ -86,7 +83,7 @@ const EOIVendorSubmission = ({ status, eoiData }: { status?: string; eoiData?: a
         <DataTable
           // @ts-ignore
           columns={columns}
-          data={vendorData?.data?.results || []}
+          data={vendorSubmissions}
           isLoading={false}
         />
       </Card>
