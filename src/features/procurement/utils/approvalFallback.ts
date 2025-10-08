@@ -135,7 +135,10 @@ export const performApprovalWithFallback = async (
   if (newApiFunction) {
     try {
       console.log(`🚀 Attempting new API for ${action}...`);
+      console.log(`🚀 newApiFunction type:`, typeof newApiFunction);
+      console.log(`🚀 Calling newApiFunction now...`);
       const result = await newApiFunction();
+      console.log(`🚀 newApiFunction returned:`, result);
 
       if (result && result.status !== false) {
         console.log(`✅ New API ${action} successful:`, result);
@@ -145,7 +148,10 @@ export const performApprovalWithFallback = async (
         throw new Error(result?.message || "New API returned failure status");
       }
     } catch (error: any) {
-      console.warn(`⚠️ New API ${action} failed, falling back to legacy method:`, error.message);
+      console.error(`❌ New API ${action} failed with error:`, error);
+      console.error(`❌ Error message:`, error.message);
+      console.error(`❌ Error response:`, error.response?.data);
+      console.warn(`⚠️ Falling back to legacy method...`);
 
       // Fall back to the legacy method
       try {

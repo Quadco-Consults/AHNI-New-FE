@@ -411,7 +411,17 @@ const ApprovalWorkflow = ({
 
   const getPersonDetails = (step: ApprovalStep): { name: string; role: string; email?: string; id?: string } => {
     const data = purchaseRequestData?.data;
-    if (!data) return { name: 'N/A', role: 'N/A' };
+    if (!data) {
+      console.log(`❌ No purchase request data for step ${step.id}`);
+      return { name: 'N/A', role: 'N/A' };
+    }
+
+    console.log(`🔍 Getting person details for step: ${step.id}`);
+    console.log(`🔍 Purchase request data keys:`, Object.keys(data));
+    console.log(`🔍 reviewed_by_detail:`, data.reviewed_by_detail);
+    console.log(`🔍 authorised_by_detail:`, data.authorised_by_detail);
+    console.log(`🔍 authorized_by_detail:`, data.authorized_by_detail);
+    console.log(`🔍 approved_by_detail:`, data.approved_by_detail);
 
     // Always try to get detailed person information first
     let personDetail = null;
@@ -419,28 +429,45 @@ const ApprovalWorkflow = ({
     switch (step.id) {
       case 'review':
         personDetail = data.reviewed_by_detail;
+        console.log(`🔍 Review personDetail:`, personDetail);
         break;
       case 'authorization':
-        personDetail = data.authorized_by_detail;
+        // Handle both American and British spelling
+        personDetail = data.authorised_by_detail || data.authorized_by_detail;
+        console.log(`🔍 Authorization personDetail:`, personDetail);
         break;
       case 'approval':
         personDetail = data.approved_by_detail;
+        console.log(`🔍 Approval personDetail:`, personDetail);
         break;
       case 'activity_memo':
         if (activityMemoData?.data?.approved_by_detail) {
           personDetail = activityMemoData.data.approved_by_detail;
         }
+        console.log(`🔍 Activity memo personDetail:`, personDetail);
         break;
     }
 
     // If we have detailed person information, use it
-    if (personDetail && personDetail.first_name && personDetail.last_name) {
-      return {
-        name: `${personDetail.first_name} ${personDetail.last_name}`,
-        role: personDetail.designation || getDefaultRole(step.id),
-        email: personDetail.email,
-        id: personDetail.id
-      };
+    if (personDetail) {
+      // Handle API format with combined 'name' field (standalone PRs)
+      if (personDetail.name) {
+        return {
+          name: personDetail.name,
+          role: personDetail.designation || getDefaultRole(step.id),
+          email: personDetail.email,
+          id: personDetail.user_id || personDetail.id
+        };
+      }
+      // Handle format with separate first_name and last_name fields
+      if (personDetail.first_name && personDetail.last_name) {
+        return {
+          name: `${personDetail.first_name} ${personDetail.last_name}`,
+          role: personDetail.designation || getDefaultRole(step.id),
+          email: personDetail.email,
+          id: personDetail.id
+        };
+      }
     }
 
     // Fallback to assignee field if detailed info not available
@@ -459,24 +486,13 @@ const ApprovalWorkflow = ({
           name: assignee.name,
           role: getDefaultRole(step.id),
           email: assignee.email,
-          id: assignee.id
+          id: assignee.user_id || assignee.id
         };
       }
     }
 
-    // Default responsible person based on role
-    switch (step.id) {
-      case 'review':
-        return { name: 'Kaahassa Zabadi', role: 'Reviewer, AHNI', email: 'kaahassa@ahni.org' };
-      case 'authorization':
-        return { name: 'Irene Osaigbovo', role: 'Director of Operations, AHNI', email: 'irene@ahni.org' };
-      case 'approval':
-        return { name: 'Onyeka Ugwu', role: 'Approver, AHNI', email: 'onyeka@ahni.org' };
-      case 'activity_memo':
-        return { name: 'Activity Memo Approver', role: 'Reviewer', email: '' };
-      default:
-        return { name: 'Not assigned', role: 'N/A' };
-    }
+    // Fallback to "Not assigned" if no data available
+    return { name: 'Not assigned', role: 'N/A' };
   };
 
   const getDefaultRole = (stepId: string): string => {

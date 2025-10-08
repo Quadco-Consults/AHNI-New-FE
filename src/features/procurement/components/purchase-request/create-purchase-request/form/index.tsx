@@ -162,13 +162,56 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
 
   const router = useRouter();
 
-  const { control, handleSubmit, setValue, watch } = form;
+  const { control, handleSubmit, setValue, watch, formState: { errors } } = form;
+
+  // Debug form errors
+  useEffect(() => {
+    if (Object.keys(errors).length > 0) {
+      console.log("❌ Form validation errors:", errors);
+    }
+  }, [errors]);
+
+  // Auto-generate PR reference number and populate required fields
+  useEffect(() => {
+    const generatePRNumber = () => {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const timestamp = String(now.getTime()).slice(-4); // Last 4 digits of timestamp
+      return `PR-${year}${month}${day}-${timestamp}`;
+    };
+
+    // Only auto-generate if ref_number is empty
+    const currentRefNumber = watch('ref_number');
+    if (!currentRefNumber || currentRefNumber === '') {
+      const prNumber = generatePRNumber();
+      setValue('ref_number', prNumber);
+      console.log("📝 Auto-generated PR Number:", prNumber);
+    }
+
+    // Auto-populate special_instruction if empty
+    const currentSpecialInstruction = watch('special_instruction');
+    if (!currentSpecialInstruction || currentSpecialInstruction === '') {
+      setValue('special_instruction', 'Standard procurement request');
+      console.log("📝 Auto-populated special instruction");
+    }
+  }, [setValue, watch]);
 
   // Auto-populate requested_by with current user (only for standalone PR without memo)
   useEffect(() => {
     if (currentUserProfile?.data?.id && !finalMemoId) {
       console.log("🔐 Auto-populating requested_by with current user:", currentUserProfile.data.id);
       setValue('requested_by', String(currentUserProfile.data.id));
+
+      // Also auto-populate role_requested_by
+      if (currentUserProfile.data.position) {
+        const roleId = typeof currentUserProfile.data.position === 'object'
+          ? currentUserProfile.data.position.id
+          : currentUserProfile.data.position;
+        setValue('role_requested_by', roleId);
+        console.log("✅ Auto-set role_requested_by:", roleId);
+      }
     }
   }, [currentUserProfile, finalMemoId, setValue]);
 
@@ -283,13 +326,17 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
       console.log("✅ Form validation passed, proceeding with submission...");
 
       const payload = {
-        items: data.items.map((item: any) => ({
-          ...item,
-          // Ensure numeric fields are properly formatted
-          quantity: typeof item.quantity === 'string' ? parseInt(item.quantity) : item.quantity,
-          unit_cost: typeof item.unit_cost === 'string' ? parseFloat(item.unit_cost) : item.unit_cost,
-          amount: typeof item.amount === 'string' ? parseFloat(item.amount) : item.amount,
-        })),
+        items: data.items.map((item: any) => {
+          // Remove description field as backend doesn't support it
+          const { description, ...itemWithoutDescription } = item;
+          return {
+            ...itemWithoutDescription,
+            // Ensure numeric fields are properly formatted
+            quantity: typeof item.quantity === 'string' ? parseInt(item.quantity) : item.quantity,
+            unit_cost: typeof item.unit_cost === 'string' ? parseFloat(item.unit_cost) : item.unit_cost,
+            amount: typeof item.amount === 'string' ? parseFloat(item.amount) : item.amount,
+          };
+        }),
         requested_by: data.requested_by,
         reviewed_by: data.reviewed_by,
         authorised_by: data.authorised_by,
@@ -303,7 +350,8 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
         reviewed_date: null,
         authorised_date: null,
         approved_date: null,
-        request_memo: data.request_memo,
+        // Only include request_memo if it exists (for Activity Memo flow)
+        ...(data.request_memo && data.request_memo !== 'null' && { request_memo: data.request_memo }),
         requesting_department: data.requesting_department,
         location: data.deliver_to,
         role_requested_by: data.role_requested_by,
@@ -344,7 +392,6 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
         amount: exp?.total_cost,
         uom: exp?.uom || "",
         item: typeof exp?.item === 'object' ? exp?.item?.id : exp?.item,
-        description: exp?.description || "",
         fco_number: [],
       }));
     }
@@ -366,7 +413,6 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
             amount: exp?.total_cost ? Number(exp.total_cost) : 0,
             uom: exp?.uom || "",
             item: typeof exp?.item === 'object' ? (exp?.item?.id || "") : (exp?.item || ""), // Ensure we get the ID, not the object
-            description: exp?.description || "",
             fco_number: Array.isArray(latestActivityMemo?.fconumber) ? latestActivityMemo.fconumber : [], // FCO numbers from memo level
           };
           return mappedItem;
@@ -392,7 +438,6 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
             amount: exp?.total_cost ? Number(exp.total_cost) : 0,
             uom: exp?.uom || "",
             item: typeof exp?.item === 'object' ? (exp?.item?.id || "") : (exp?.item || ""), // Ensure we get the ID, not the object
-            description: exp?.description || "",
             fco_number: Array.isArray(apiMemoData.data?.fconumber) ? apiMemoData.data.fconumber : [], // FCO numbers from memo level
           };
           return mappedItem;
@@ -411,6 +456,9 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
   const extractUserId = (userField: any): string => {
     if (typeof userField === 'string') {
       return userField;
+    } else if (typeof userField === 'object' && userField?.user_id) {
+      // Handle API response format with user_id field
+      return userField.user_id;
     } else if (typeof userField === 'object' && userField?.id) {
       return userField.id;
     } else if (typeof userField === 'object' && userField?.value) {
@@ -477,10 +525,12 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
       });
 
       // Set approval fields from activity memo
-      if (memoData.created_by) {
-        const requestedById = extractUserId(memoData.created_by);
+      // Check both created_by and created_by_details
+      const createdByField = memoData.created_by_details || memoData.created_by;
+      if (createdByField) {
+        const requestedById = extractUserId(createdByField);
         console.log("👥 Setting requested_by:", {
-          original: memoData.created_by,
+          original: createdByField,
           extracted: requestedById,
           type: typeof requestedById
         });
@@ -497,13 +547,15 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
         } else {
           setValue("role_requested_by", "");
         }
-        console.log("👥 Set requested_by:", requestedById, "from:", memoData.created_by);
+        console.log("👥 Set requested_by:", requestedById, "from:", createdByField);
       }
 
-      if (memoData.reviewed_by && Array.isArray(memoData.reviewed_by) && memoData.reviewed_by.length > 0) {
-        const reviewedById = extractUserId(memoData.reviewed_by[0]);
+      // Check both reviewed_by and reviewed_by_details
+      const reviewedByField = memoData.reviewed_by_details || memoData.reviewed_by;
+      if (reviewedByField && Array.isArray(reviewedByField) && reviewedByField.length > 0) {
+        const reviewedById = extractUserId(reviewedByField[0]);
         console.log("👥 Setting reviewed_by:", {
-          original: memoData.reviewed_by[0],
+          original: reviewedByField[0],
           extracted: reviewedById,
           type: typeof reviewedById
         });
@@ -518,13 +570,15 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
         } else {
           setValue("role_reviewed_by", "");
         }
-        console.log("👥 Set reviewed_by:", reviewedById, "from:", memoData.reviewed_by[0]);
+        console.log("👥 Set reviewed_by:", reviewedById, "from:", reviewedByField[0]);
       }
 
-      if (memoData.authorised_by && Array.isArray(memoData.authorised_by) && memoData.authorised_by.length > 0) {
-        const authorizedById = extractUserId(memoData.authorised_by[0]);
+      // Check both authorised_by and authorised_by_details
+      const authorisedByField = memoData.authorised_by_details || memoData.authorised_by;
+      if (authorisedByField && Array.isArray(authorisedByField) && authorisedByField.length > 0) {
+        const authorizedById = extractUserId(authorisedByField[0]);
         console.log("👥 Setting authorised_by:", {
-          original: memoData.authorised_by[0],
+          original: authorisedByField[0],
           extracted: authorizedById,
           type: typeof authorizedById
         });
@@ -539,13 +593,15 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
         } else {
           setValue("role_authorised_by", "");
         }
-        console.log("👥 Set authorised_by:", authorizedById, "from:", memoData.authorised_by[0]);
+        console.log("👥 Set authorised_by:", authorizedById, "from:", authorisedByField[0]);
       }
 
-      if (memoData.approved_by) {
-        const approvedById = extractUserId(memoData.approved_by);
+      // Check both approved_by and approved_by_details
+      const approvedByField = memoData.approved_by_details || memoData.approved_by;
+      if (approvedByField) {
+        const approvedById = extractUserId(approvedByField);
         console.log("👥 Setting approved_by:", {
-          original: memoData.approved_by,
+          original: approvedByField,
           extracted: approvedById,
           type: typeof approvedById
         });
@@ -560,7 +616,7 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
         } else {
           setValue("role_approved_by", "");
         }
-        console.log("👥 Set approved_by:", approvedById, "from:", memoData.approved_by);
+        console.log("👥 Set approved_by:", approvedById, "from:", approvedByField);
       }
 
       // Ensure all required fields have values to prevent validation errors
@@ -678,8 +734,7 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
           quantity: item.quantity || 1,
           unit_cost: item.unit_cost || 0,
           amount: item.amount || 0,
-          uom: typeof item.uom === 'object' ? (item.uom?.name || item.uom?.id || "") : (item.uom || ""),
-          description: typeof item.description === 'object' ? (item.description?.name || item.description?.id || "") : (item.description || "")
+          uom: typeof item.uom === 'object' ? (item.uom?.name || item.uom?.id || "") : (item.uom || "")
         };
 
         // Safe item created for index ${index}
@@ -748,8 +803,10 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
                   label='Reference Number'
                   name='ref_number'
                   type='text'
-                  placeholder='Enter reference number'
+                  placeholder='Auto-generated'
                   required
+                  disabled
+                  className='bg-gray-50'
                 />
               </div>
 
@@ -872,6 +929,16 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
                                     value={String(fieldValueId || "")}
                                     onValueChange={(value) => {
                                       field.onChange(value);
+
+                                      // Auto-populate UOM when item is selected
+                                      const selected = (items as any)?.data?.results?.find((item: any) => item.id === value);
+                                      if (selected?.uom) {
+                                        const uomValue = typeof selected.uom === 'object'
+                                          ? (selected.uom?.name || selected.uom?.id || "")
+                                          : selected.uom;
+                                        setValue(`items.${index}.uom`, uomValue);
+                                        console.log(`✅ Auto-populated UOM for item ${index}:`, uomValue);
+                                      }
                                     }}
                                   >
                                     <SelectTrigger>
@@ -938,17 +1005,25 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
                           control={control}
                           name={`items.${index}.fco_number` as any}
                           render={({ field }) => {
-                            // Ensure options are properly formatted
-                            const fcoOptions = (fco as any)?.data?.data?.results || [];
+                            // Fix: Correct path is fco.data.results, not fco.data.data.results
+                            const fcoOptions = (fco as any)?.data?.results || [];
+
+                            console.log("🔍 FCO Dropdown Debug:", {
+                              itemIndex: index,
+                              fcoOptionsLength: fcoOptions.length,
+                              fieldValue: field.value,
+                              sampleOption: fcoOptions[0]
+                            });
 
                             return (
                               <FormItem className=' mt-2'>
                                 <FormControl>
                                   <MultiSelectFormField
-                                    key={`fco-${index}-${field.value?.length || 0}`} // Force re-render when value changes
+                                    key={`fco-${index}-${field.value?.length || 0}`}
                                     options={fcoOptions}
                                     defaultValue={Array.isArray(field.value) ? field.value.map((val: any) => typeof val === 'object' ? val.id : val) : []}
                                     onValueChange={(value) => {
+                                      console.log("🔍 FCO Selection Changed:", value);
                                       // Ensure we're only passing IDs, not objects
                                       const safeValue = Array.isArray(value) ? value.map((val: any) => typeof val === 'object' ? val.id : val) : value;
                                       field.onChange(safeValue);
@@ -1052,17 +1127,19 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
               <Button
                 type='button'
                 className='text-primary bg-[#FFF2F2] hover:bg-[#FFE5E5] flex gap-2 items-center justify-center px-6 py-3'
-                onClick={() =>
+                onClick={() => {
+                  console.log("🔵 Add Item button clicked");
+                  console.log("🔵 Current fields length:", fields.length);
                   append({
                     item: "",
                     fco_number: [],
                     amount: 0,
                     uom: "",
-                    description: "",
                     unit_cost: 0,
                     quantity: 1,
-                  })
-                }
+                  });
+                  console.log("🔵 After append - fields length:", fields.length);
+                }}
               >
                 <AddSquareIcon />
                 Add Item
@@ -1178,15 +1255,36 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
                   </div>
                 ) : (
                   // Editable dropdown for standalone flow
-                  <FormSelect label='' name='reviewed_by' required>
-                    <SelectContent>
-                      {(users as any)?.data?.results?.map((user: any) => (
-                        <SelectItem key={user.id} value={String(user.id)}>
-                          {`${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Unnamed User'}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </FormSelect>
+                  <FormField
+                    control={control}
+                    name='reviewed_by'
+                    render={({ field }) => (
+                      <Select
+                        value={field.value}
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                          // Auto-populate role when user is selected
+                          const selectedUser = (users as any)?.data?.results?.find((u: any) => u.id === value);
+                          if (selectedUser?.position) {
+                            const roleId = typeof selectedUser.position === 'object' ? selectedUser.position.id : selectedUser.position;
+                            setValue('role_reviewed_by', roleId);
+                            console.log("✅ Auto-set role_reviewed_by:", roleId);
+                          }
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select reviewer" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {(users as any)?.data?.results?.map((user: any) => (
+                            <SelectItem key={user.id} value={String(user.id)}>
+                              {`${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Unnamed User'}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
                 )}
               </div>
 
@@ -1219,15 +1317,36 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
                   </div>
                 ) : (
                   // Editable dropdown for standalone flow
-                  <FormSelect label='' name='authorised_by' required>
-                    <SelectContent>
-                      {(users as any)?.data?.results?.map((user: any) => (
-                        <SelectItem key={user.id} value={String(user.id)}>
-                          {`${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Unnamed User'}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </FormSelect>
+                  <FormField
+                    control={control}
+                    name='authorised_by'
+                    render={({ field }) => (
+                      <Select
+                        value={field.value}
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                          // Auto-populate role when user is selected
+                          const selectedUser = (users as any)?.data?.results?.find((u: any) => u.id === value);
+                          if (selectedUser?.position) {
+                            const roleId = typeof selectedUser.position === 'object' ? selectedUser.position.id : selectedUser.position;
+                            setValue('role_authorised_by', roleId);
+                            console.log("✅ Auto-set role_authorised_by:", roleId);
+                          }
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select authorizer" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {(users as any)?.data?.results?.map((user: any) => (
+                            <SelectItem key={user.id} value={String(user.id)}>
+                              {`${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Unnamed User'}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
                 )}
               </div>
 
@@ -1260,15 +1379,36 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
                   </div>
                 ) : (
                   // Editable dropdown for standalone flow
-                  <FormSelect label='' name='approved_by' required>
-                    <SelectContent>
-                      {(users as any)?.data?.results?.map((user: any) => (
-                        <SelectItem key={user.id} value={String(user.id)}>
-                          {`${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Unnamed User'}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </FormSelect>
+                  <FormField
+                    control={control}
+                    name='approved_by'
+                    render={({ field }) => (
+                      <Select
+                        value={field.value}
+                        onValueChange={(value) => {
+                          field.onChange(value);
+                          // Auto-populate role when user is selected
+                          const selectedUser = (users as any)?.data?.results?.find((u: any) => u.id === value);
+                          if (selectedUser?.position) {
+                            const roleId = typeof selectedUser.position === 'object' ? selectedUser.position.id : selectedUser.position;
+                            setValue('role_approved_by', roleId);
+                            console.log("✅ Auto-set role_approved_by:", roleId);
+                          }
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select approver" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {(users as any)?.data?.results?.map((user: any) => (
+                            <SelectItem key={user.id} value={String(user.id)}>
+                              {`${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Unnamed User'}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
                 )}
               </div>
 
