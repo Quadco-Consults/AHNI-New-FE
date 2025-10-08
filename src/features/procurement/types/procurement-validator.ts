@@ -43,7 +43,24 @@ export const VendorsRegistrationSchema = z.object({
   nature_of_business: z.string().min(1, "Field is required"),
   company_address: z.string().min(1, "Field is required"),
   email: z.string().email().min(1, "Field is required"),
-  website: z.string().url("Please enter a valid URL (e.g., https://example.com)").min(1, "Field is required"),
+  website: z
+    .string()
+    .min(1, "Field is required")
+    .transform((val) => {
+      // If the URL doesn't start with http:// or https://, prepend https://
+      if (val && !val.match(/^https?:\/\//i)) {
+        return `https://${val}`;
+      }
+      return val;
+    })
+    .refine((val) => {
+      try {
+        new URL(val);
+        return true;
+      } catch {
+        return false;
+      }
+    }, "Please enter a valid URL (e.g., example.com or https://example.com)"),
   mobile_number_1: z.string().min(1, "Mobile Number 1 is required"),
   mobile_number_2: z.string().optional(),
   mobile_number_3: z.string().optional(),
