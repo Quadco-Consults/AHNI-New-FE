@@ -87,19 +87,60 @@ const DeliveryStageCard = ({ data }: DeliveryStageCardProps) => {
       },
     },
     {
-      header: "Vendor Rating",
-      accessorKey: "vendor_rating",
-      size: 120,
+      header: "Vendor Performance",
+      accessorKey: "vendor_performance",
+      size: 150,
       cell: ({ row }) => {
-        const rating = row.original?.vendor_rating || row.original?.purchase_order?.vendor_rating;
-        if (!rating) return <div className="text-sm text-gray-500">N/A</div>;
+        const vendorPerf = row.original?.vendor_performance;
 
-        return (
-          <div className="flex items-center gap-1">
-            <span className="text-sm font-medium">{rating}</span>
-            <span className="text-yellow-500">★</span>
-          </div>
-        );
+        // Handle new object structure from backend
+        if (vendorPerf && typeof vendorPerf === 'object') {
+          const { status, total_score, recommendation } = vendorPerf;
+
+          if (status === 'EVALUATED') {
+            return (
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center gap-1">
+                  <span className="text-sm font-medium">{total_score}</span>
+                  <span className="text-xs text-gray-500">/ 25</span>
+                </div>
+                <Badge
+                  variant='default'
+                  className={cn(
+                    "p-1 rounded-lg text-xs",
+                    recommendation === "RETAIN" ? "bg-green-200 text-green-700" :
+                    recommendation === "ON_PROBATION" ? "bg-yellow-200 text-yellow-700" :
+                    recommendation === "BARRED" ? "bg-red-200 text-red-700" :
+                    "bg-gray-200 text-gray-700"
+                  )}
+                >
+                  {recommendation}
+                </Badge>
+              </div>
+            );
+          }
+
+          if (status === 'PENDING') {
+            return <div className="text-sm text-yellow-600">Evaluation Pending</div>;
+          }
+
+          if (status === 'NOT_EVALUATED') {
+            return <div className="text-sm text-gray-500">Not Evaluated</div>;
+          }
+        }
+
+        // Fallback for old string format or N/A
+        const rating = row.original?.vendor_rating || row.original?.purchase_order?.vendor_rating;
+        if (rating && typeof rating === 'number') {
+          return (
+            <div className="flex items-center gap-1">
+              <span className="text-sm font-medium">{rating}</span>
+              <span className="text-yellow-500">★</span>
+            </div>
+          );
+        }
+
+        return <div className="text-sm text-gray-500">N/A</div>;
       },
     },
     {
