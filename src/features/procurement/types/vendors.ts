@@ -44,6 +44,8 @@ export interface VendorsResultsData {
   number_of_permanent_staff: string;
   bank_address: string;
   bank_name: string;
+  account_name: string;
+  account_number: string;
   company_registration_number: string;
   year_or_incorperation: string;
   type_of_business: string;
@@ -65,6 +67,7 @@ export interface VendorsResultsData {
   submitted_categories: string[];
   approved_categories: string[];
   state: string;
+  area_of_specialization?: string;
 }
 
 export interface VendorsData {
