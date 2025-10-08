@@ -1,7 +1,8 @@
 "use client";
 import { useState } from "react";
-import { Bell } from "lucide-react";
+import { Bell, AlertCircle, Clock } from "lucide-react";
 import { Button } from "components/ui/button";
+import { Badge } from "components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,6 +13,7 @@ import { TNotification } from "@/features/notifications/controllers/notification
 import { useRouter } from "next/navigation";
 import { cn } from "lib/utils";
 import { useAuth } from "@/hooks/useAuth";
+import { useVendorEvaluationReminders } from "@/features/procurement/hooks/useVendorEvaluationReminders";
 
 export default function NotificationDropdown() {
   const { isLoggedIn } = useAuth();
@@ -19,8 +21,12 @@ export default function NotificationDropdown() {
   const { data: notifications, isLoading } = useGetNotifications({ page: 1, size: 5, enabled: isLoggedIn }); // Only show recent 5
   const { data: unreadCount } = useGetUnreadCount(isLoggedIn);
   const { mutate: markAsRead } = useMarkNotificationAsRead();
+  const { reminders, stats: vendorEvalStats } = useVendorEvaluationReminders();
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
+
+  // Combine regular notification count with vendor evaluation reminders
+  const totalUnread = (unreadCount?.count || 0) + vendorEvalStats.total;
 
   const handleNotificationClick = (notification: TNotification) => {
     // Mark as read if unread
@@ -43,11 +49,17 @@ export default function NotificationDropdown() {
       'AssetMaintenance': '/dashboard/admin/asset-maintenance',
       'TravelExpenseReport': '/dashboard/admin/travel-expenses-report',
       'ConsultancyReport': '/dashboard/c-and-g/consultancy-report',
-      'ContractRequest': '/dashboard/c-and-g/contract-request'
+      'ContractRequest': '/dashboard/c-and-g/contract-request',
+      'VendorEvaluation': '/dashboard/procurement/vendor-performance/form'
     };
 
     const route = routes[notification.module_type] || '/dashboard';
     router.push(route);
+    setIsOpen(false);
+  };
+
+  const handleVendorReminderClick = (reminderId: string) => {
+    router.push('/dashboard/procurement/vendor-performance/form');
     setIsOpen(false);
   };
 
@@ -67,9 +79,12 @@ export default function NotificationDropdown() {
           )}
         >
           <Bell />
-          {unreadCount && unreadCount.count > 0 && (
-            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center min-w-[20px] px-1">
-              {unreadCount.count > 99 ? '99+' : unreadCount.count}
+          {totalUnread > 0 && (
+            <span className={cn(
+              "absolute -top-2 -right-2 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center min-w-[20px] px-1",
+              vendorEvalStats.overdue > 0 ? "bg-red-500" : "bg-blue-500"
+            )}>
+              {totalUnread > 99 ? '99+' : totalUnread}
             </span>
           )}
         </Button>
@@ -78,26 +93,126 @@ export default function NotificationDropdown() {
         <div className="border-b border-gray-200 p-4">
           <div className="flex items-center justify-between">
             <h3 className="font-semibold text-lg">Notifications</h3>
-            {unreadCount && unreadCount.count > 0 && (
+            {totalUnread > 0 && (
               <span className="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">
-                {unreadCount.count} new
+                {totalUnread} new
               </span>
             )}
           </div>
+          {vendorEvalStats.total > 0 && (
+            <div className="mt-2 text-xs text-gray-600">
+              {vendorEvalStats.overdue > 0 && (
+                <span className="text-red-600 font-medium">
+                  {vendorEvalStats.overdue} overdue
+                </span>
+              )}
+              {vendorEvalStats.overdue > 0 && vendorEvalStats.dueSoon > 0 && ", "}
+              {vendorEvalStats.dueSoon > 0 && (
+                <span className="text-orange-600 font-medium">
+                  {vendorEvalStats.dueSoon} due soon
+                </span>
+              )}
+              {" "}vendor evaluation(s)
+            </div>
+          )}
         </div>
 
         <div className="max-h-80 overflow-y-auto">
+          {/* Vendor Evaluation Reminders */}
+          {reminders.length > 0 && (
+            <div className="border-b border-gray-200">
+              <div className="p-3 bg-orange-50 border-b border-orange-100">
+                <p className="text-xs font-semibold text-orange-800 uppercase">
+                  Vendor Evaluations
+                </p>
+              </div>
+              {reminders.slice(0, 3).map((reminder) => (
+                <div
+                  key={reminder.id}
+                  className={cn(
+                    "flex items-start gap-3 p-4 hover:bg-gray-50 cursor-pointer border-b border-gray-100",
+                    reminder.type === "OVERDUE" && "bg-red-50 border-l-4 border-l-red-500",
+                    reminder.type === "DUE_SOON" && "bg-orange-50 border-l-4 border-l-orange-500"
+                  )}
+                  onClick={() => handleVendorReminderClick(reminder.id)}
+                >
+                  <div className="mt-1">
+                    {reminder.type === "OVERDUE" ? (
+                      <AlertCircle className="text-red-500" size={16} />
+                    ) : (
+                      <Clock className="text-orange-500" size={16} />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="text-sm font-medium text-gray-900">
+                        {reminder.vendor_name}
+                      </p>
+                      <Badge
+                        className={cn(
+                          "text-[10px] px-1.5 py-0.5",
+                          reminder.priority === "URGENT" && "bg-red-500 text-white",
+                          reminder.priority === "HIGH" && "bg-orange-500 text-white"
+                        )}
+                      >
+                        {reminder.priority}
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-gray-600 mt-1">
+                      {reminder.message}
+                    </p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-xs text-gray-500">
+                        {reminder.days_since_last_po} days ago
+                      </span>
+                      <span className="text-xs text-gray-400">•</span>
+                      <span className="text-xs text-gray-500">
+                        {reminder.po_count} PO{reminder.po_count > 1 ? "s" : ""}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              {reminders.length > 3 && (
+                <div className="p-2 text-center">
+                  <Button
+                    variant="link"
+                    size="sm"
+                    className="text-xs"
+                    onClick={() => {
+                      router.push('/dashboard/procurement/vendor-evaluation-dashboard');
+                      setIsOpen(false);
+                    }}
+                  >
+                    View all {reminders.length} vendor reminders →
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Regular Notifications */}
           {isLoading ? (
             <div className="p-4 text-center text-gray-500">
               Loading notifications...
             </div>
           ) : !notifications?.results || notifications.results.length === 0 ? (
-            <div className="p-4 text-center text-gray-500">
-              <Bell className="mx-auto h-8 w-8 mb-2 text-gray-300" />
-              <p>No notifications yet</p>
-            </div>
+            reminders.length === 0 ? (
+              <div className="p-4 text-center text-gray-500">
+                <Bell className="mx-auto h-8 w-8 mb-2 text-gray-300" />
+                <p>No notifications yet</p>
+              </div>
+            ) : null
           ) : (
-            notifications.results.map((notification) => {
+            <>
+              {reminders.length > 0 && (
+                <div className="p-3 bg-blue-50 border-b border-blue-100">
+                  <p className="text-xs font-semibold text-blue-800 uppercase">
+                    System Notifications
+                  </p>
+                </div>
+              )}
+              {notifications.results.map((notification) => {
               const isUnread = !notification.is_read || notification.status === "Pending";
               
               return (
@@ -134,6 +249,8 @@ export default function NotificationDropdown() {
                 </div>
               );
             })
+            }
+            </>
           )}
         </div>
 

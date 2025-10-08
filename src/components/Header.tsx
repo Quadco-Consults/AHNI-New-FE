@@ -19,7 +19,6 @@ import { logOut } from "store/auth/authSlice";
 import { getPageTitleFromPath } from "utils/utls";
 import { useGetUserProfile } from "features/auth/controllers/userController";
 import NotificationDropdown from "./NotificationDropdown";
-import VendorEvaluationNotifications from "@/features/procurement/components/vendor-performance/VendorEvaluationNotifications";
 
 const Header = ({ sidebarWidth }: { sidebarWidth: boolean }) => {
   const { setTheme } = useTheme();
@@ -71,7 +70,6 @@ const Header = ({ sidebarWidth }: { sidebarWidth: boolean }) => {
           </DropdownMenuContent>
         </DropdownMenu>
         <NotificationDropdown />
-        <VendorEvaluationNotifications />
         <Popover>
           <PopoverTrigger asChild>
             <Avatar>
