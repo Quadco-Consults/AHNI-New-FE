@@ -35,9 +35,10 @@ export const VendorsRegistrationSchema = z.object({
   company_name: z.string().min(1, "Field is required"),
   company_registration_number: z.string().min(1, "Field is required"),
   year_or_incorperation: z
-    .string()
-    .min(1, "Field is required")
-    .max(4, "Max length of four characters"),
+    .union([z.string(), z.number()])
+    .transform((val) => String(val))
+    .refine((val) => val.length >= 1, "Field is required")
+    .refine((val) => val.length <= 4, "Max length of four characters"),
   type_of_business: z.string().min(1, "Field is required"),
   nature_of_business: z.string().min(1, "Field is required"),
   company_address: z.string().min(1, "Field is required"),
