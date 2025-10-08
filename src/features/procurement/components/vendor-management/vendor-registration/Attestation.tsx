@@ -108,7 +108,7 @@ const Attestation = () => {
 
     setShowSubmit(true);
     path = path.substring(0, path.lastIndexOf("/"));
-    path += "/upload";
+    path += `/upload${vendorId ? `?id=${vendorId}` : ''}`;
     router.push(path);
   };
   return (
