@@ -151,9 +151,13 @@ export const StakeholderRegisterSchema = z.object({
   phone_number: z.string().min(1, "Field is required"),
   email: z.string().min(1, "Field is required").email(),
   project_role: z.string().min(1, "Field is required"),
-  importance: z.any().optional(),
-  influence: z.any().optional(),
-  score: z.any().optional(),
+  importance: z.union([z.string(), z.number()]).pipe(
+    z.coerce.number().min(1, "Importance must be at least 1").max(5, "Importance must be at most 5")
+  ),
+  influence: z.union([z.string(), z.number()]).pipe(
+    z.coerce.number().min(1, "Influence must be at least 1").max(5, "Influence must be at most 5")
+  ),
+  score: z.union([z.string(), z.number()]).optional(),
   major_concerns: z.string().min(1, "Field is required"),
   relationship_owner: z.string().min(1, "Field is required"),
   contact_person_name: z.string().min(1, "Field is required"),

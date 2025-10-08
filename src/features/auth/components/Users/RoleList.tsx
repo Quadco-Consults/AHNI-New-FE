@@ -35,11 +35,20 @@ export default function AllRoles() {
     );
   };
 
-  const { deleteRole, isLoading: isDeleteLoading } = useDeleteRole();
+  const { deleteRole, isLoading: isDeleteLoading } = useDeleteRole(roleId);
 
   const onDeleteRole = async () => {
-    await deleteRole(roleId);
-    setRoleId("");
+    if (!roleId) {
+      toast.error("Role ID is missing");
+      return;
+    }
+    try {
+      await deleteRole();
+      toast.success("Role deleted successfully");
+      setRoleId("");
+    } catch (error: any) {
+      toast.error(error?.message || "Failed to delete role");
+    }
   };
 
   return (

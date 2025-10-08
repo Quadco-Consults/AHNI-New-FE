@@ -31,6 +31,8 @@ import { RouteEnum } from "constants/RouterConstants";
 import DateInput from "components/DateInput";
 import { useGetSingleSupervisionPlan } from "@/features/programs/controllers/supervisionPlanController";
 import { skipToken } from "@reduxjs/toolkit/query";
+import { filterAhniStaffOnly } from "@/utils/userFilters";
+import { useGetEmployeeOnboardings } from "@/features/hr/controllers/employeeOnboardingController";
 
 const Composition = () => {
   const { data: facility, isLoading: isFacilityLoading } = useGetAllFacility({
@@ -41,7 +43,43 @@ const Composition = () => {
   const searchParams = useSearchParams();
   const id = searchParams?.get("id");
 
+  // Fetch from both sources: Users table AND Employee database
   const { data: user } = useGetAllUsers({ page: 1, size: 2000000 });
+
+  const { data: employeeData } = useGetEmployeeOnboardings({
+    page: 1,
+    size: 2000000,
+  });
+
+  // Combine users from both sources
+  const allStaff = [
+    // Users from user table (filter to exclude vendors)
+    ...filterAhniStaffOnly((user?.results || []) as any[]),
+    // Employees from employee database (all are AHNI staff)
+    ...((employeeData?.data?.results || []) as any[]).map((emp: any) => ({
+      id: emp.id,
+      first_name: emp.legal_firstname || emp.first_name,
+      last_name: emp.legal_lastname || emp.last_name,
+      email: emp.email,
+      user_type: 'STAFF',
+      designation: emp.designation?.name || emp.position,
+      department: emp.department?.name,
+      phone_number: emp.phone_number || emp.mobile_number,
+      is_staff: true,
+      _source: 'employee_database'
+    }))
+  ];
+
+  // Remove duplicates based on email
+  const uniqueStaff = allStaff.reduce((acc: any[], current: any) => {
+    const exists = acc.find(item => item.email === current.email);
+    if (!exists) {
+      acc.push(current);
+    }
+    return acc;
+  }, []);
+
+  const ahniStaffUsers = uniqueStaff;
 
   const form = useForm<TSSPCompositionFormValues>({
     resolver: zodResolver(SSPCompositionSchema),
@@ -189,7 +227,7 @@ const Composition = () => {
                     <FormItem>
                       <FormControl>
                         <MultiSelectFormField
-                          options={user?.data?.results || []}
+                          options={ahniStaffUsers || []}
                           defaultValue={field.value}
                           onValueChange={field.onChange}
                           placeholder='Select team members'
@@ -208,7 +246,10 @@ const Composition = () => {
 
                 <h2 className='text-yellow-600'>Approval Workflow</h2>
                 <p className='text-sm text-gray-600'>
-                  Select approvers for each level. Approvals must be completed in order (Level 1 → Level 2 → Level 3).
+                  Select approvers for the supervision plan. Level 1 is required. Levels 2 and 3 are optional.
+                </p>
+                <p className='text-xs text-gray-500 mb-4'>
+                  If multiple levels are selected, approvals must be completed in order (Level 1 → Level 2 → Level 3).
                 </p>
 
                 <FormSelect
@@ -218,7 +259,7 @@ const Composition = () => {
                   required
                 >
                   <SelectContent>
-                    {user?.data?.results?.map((value: any) => (
+                    {ahniStaffUsers?.map((value: any) => (
                       <SelectItem key={value?.id} value={value?.id}>
                         {value?.first_name} {value?.last_name} ({value?.email})
                       </SelectItem>
@@ -228,12 +269,11 @@ const Composition = () => {
 
                 <FormSelect
                   name='level2_approver'
-                  label='Level 2 Approver'
+                  label='Level 2 Approver (Optional)'
                   placeholder='Select Level 2 Approver'
-                  required
                 >
                   <SelectContent>
-                    {user?.data?.results?.map((value: any) => (
+                    {ahniStaffUsers?.map((value: any) => (
                       <SelectItem key={value?.id} value={value?.id}>
                         {value?.first_name} {value?.last_name} ({value?.email})
                       </SelectItem>
@@ -243,12 +283,11 @@ const Composition = () => {
 
                 <FormSelect
                   name='level3_approver'
-                  label='Level 3 Approver'
+                  label='Level 3 Approver (Optional)'
                   placeholder='Select Level 3 Approver'
-                  required
                 >
                   <SelectContent>
-                    {user?.data?.results?.map((value: any) => (
+                    {ahniStaffUsers?.map((value: any) => (
                       <SelectItem key={value?.id} value={value?.id}>
                         {value?.first_name} {value?.last_name} ({value?.email})
                       </SelectItem>

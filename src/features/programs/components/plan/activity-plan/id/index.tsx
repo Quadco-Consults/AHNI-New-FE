@@ -65,7 +65,7 @@ export default function ActivityPlanDetail() {
         objectives_sub_objectives: activity.objectives_sub_objectives,
         work_plan_activity_identifier: activity.activity_number,
         activity_code: activity.activity_number,
-        budget_line: activity.budget_line,
+        budget_line: activity.budget_line?.name || activity.budget_line,
         activity_description: activity.activity || activity.activity_justification,
         month: calculateMonthFromDates(plan?.start_date, plan?.end_date),
         responsible_person: activity.lead_person,

@@ -134,6 +134,6 @@ export const useDeleteRiskCategory = () => {
 };
 
 // Missing named exports
-export const useAddRiskCategory = CreateRiskCategoryManager;
-export const useUpdateRiskCategory = UpdateRiskCategoryManager;
+export const useAddRiskCategory = useAddRiskCategoryMutation;
+export const useUpdateRiskCategory = useUpdateRiskCategoryMutation;
 export const useGetAllRiskCategoryController = useGetAllRiskCategoriesManager;

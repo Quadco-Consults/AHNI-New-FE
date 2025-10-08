@@ -11,8 +11,8 @@ export const SSPCompositionSchema = z.object({
     facility: z.string().min(1, "This field is required"),
     team_members: z.array(z.string().min(1, "This field is required")),
     level1_approver: z.string().min(1, "Level 1 approver is required"),
-    level2_approver: z.string().min(1, "Level 2 approver is required"),
-    level3_approver: z.string().min(1, "Level 3 approver is required"),
+    level2_approver: z.string().optional(),
+    level3_approver: z.string().optional(),
 });
 
 export type TSSPCompositionFormValues = z.infer<typeof SSPCompositionSchema>;

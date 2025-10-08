@@ -34,7 +34,7 @@ export const ScopeOfWorkSchema = z.object({
       .any()
       .refine((files: FileList) => files?.length > 0, "Please select a file"),
     z.string().url(),
-  ]),
+  ]).optional(),
   // fee_rate: z.string().min(1, "Please enter fee rate"),
   // payment_frequency: z.string().min(1, "Please select payment frequency"),
   // location: z.string().min(1, "Please select payment frequency"),

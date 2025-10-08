@@ -47,13 +47,15 @@ interface ConsultancyApplicantsFilterParams {
 }
 
 // Extended form data interface for creation with documents
-interface TConsultancyStaffCreateFormData extends TConsultancyStaffFormData {
+export interface TConsultancyStaffCreateFormData extends TConsultancyStaffFormData {
   documents: { name: string; document: any }[];
+  type?: "CONSULTANT" | "ADHOC" | "FACILITATOR";
 }
 
 // Extended form data interface for updates with documents
-interface TConsultancyStaffUpdateFormData extends TConsultancyStaffFormData {
+export interface TConsultancyStaffUpdateFormData extends TConsultancyStaffFormData {
   documents: { name: string; document: any }[];
+  type?: "CONSULTANT" | "ADHOC" | "FACILITATOR";
 }
 
 const BASE_URL = "/contract-grants/consultancy/applicants/"; // From original service

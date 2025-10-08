@@ -11,11 +11,16 @@ import { closeDialog, dailogSelector } from "store/ui";
 import { toast } from "sonner";
 import FormSelect from "components/atoms/FormSelect";
 import { useGetAllItemsQuery } from "@/features/modules/controllers/config/itemController";
-import {
-  MarketPriceSchema,
-  TMarketPriceData,
-  TMarketPriceFormValues,
-} from "@/features/admin/types/config/market-price";
+import { z } from "zod";
+
+const MarketPriceSchema = z.object({
+  item_id: z.string().min(1, "Item is required"),
+  price: z.string().min(1, "Price is required"),
+  effective_date: z.string().min(1, "Date is required"),
+  vendor: z.string().optional(),
+});
+
+type TMarketPriceFormValues = z.infer<typeof MarketPriceSchema>;
 import {
   useAddMarketPriceMutation,
   useUpdateMarketPriceMutation,
@@ -32,27 +37,16 @@ const AddMarketPrice = () => {
     value: id,
   }));
 
-  const categoryOptions = [
-    "Purchase Request",
-    "Purchase Order",
-    "Bid Submission",
-    "Market Survey",
-    "Other",
-  ].map((cat) => ({
-    label: cat,
-    value: cat,
-  }));
-
   const { dialogProps } = useAppSelector(dailogSelector);
 
-  const data = dialogProps?.data as unknown as TMarketPriceData;
+  const data = dialogProps?.data as any;
   const form = useForm<TMarketPriceFormValues>({
     resolver: zodResolver(MarketPriceSchema),
     defaultValues: {
-      date: data?.date ?? "",
-      item: data?.item ?? "",
-      source: data?.source ?? "",
-      unit_price: data?.unit_price ?? "",
+      effective_date: data?.effective_date ?? "",
+      item_id: data?.item_id ?? "",
+      vendor: data?.vendor ?? "",
+      price: data?.price ?? "",
     },
   });
 
@@ -90,28 +84,26 @@ const AddMarketPrice = () => {
           className='flex flex-col gap-y-7'
         >
           <FormInput
-            label='Unit Price'
-            name='unit_price'
-            placeholder='Enter Unit Price'
+            label='Price'
+            name='price'
+            placeholder='Enter Price'
             required
-            type='number'
+            type='text'
           />
 
           <FormSelect
             required
             label='Item'
-            name='item'
-            placeholder='Enter Item Name'
+            name='item_id'
+            placeholder='Select Item'
             options={itemsOptions}
           />
 
-          <FormInput label='Date' name='date' required type='date' />
-          <FormSelect
-            label='Source'
-            name='source'
-            required
-            placeholder='Select Source'
-            options={categoryOptions}
+          <FormInput label='Effective Date' name='effective_date' required type='date' />
+          <FormInput
+            label='Vendor (Optional)'
+            name='vendor'
+            placeholder='Enter Vendor'
           />
 
           <div className='flex justify-start gap-4'>

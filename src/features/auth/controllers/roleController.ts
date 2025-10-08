@@ -192,6 +192,7 @@ export const useDeleteRole = (id: string) => {
       await callApi({} as Record<string, never>);
     } catch (error) {
       console.error("Role delete error:", error);
+      throw error;
     }
   };
 

@@ -114,7 +114,7 @@ export default function UserTablePage() {
                 onClick={() => {
                   setPage(1);
                   setSearchQuery("");
-                  setTabParams("ADMIN");
+                  setTabParams("AHNI_STAFF");
                 }}
               >
                 Admin

@@ -23,6 +23,7 @@ import {
   Edit,
   Trash2,
   MessageSquare,
+  Send,
 } from "lucide-react";
 import {
   useGetSingleAdhocRequisition,
@@ -32,6 +33,7 @@ import {
   useRejectRequisition,
   useDeleteAdhocRequisition,
   useConvertToAdvertisement,
+  useSubmitRequisition,
 } from "@/controllers/adhocRequisitionController";
 import { RequisitionStatus } from "@/types/adhoc-requisition";
 import { ProgramRoutes } from "@/constants/RouterConstants";
@@ -54,6 +56,7 @@ export default function AdhocRequisitionDetailPage() {
   const { mutate: rejectRequisition, isPending: isRejecting } = useRejectRequisition(id);
   const { mutate: deleteRequisition } = useDeleteAdhocRequisition();
   const { mutate: convertToAd, isPending: isConverting } = useConvertToAdvertisement(id);
+  const { mutate: submitRequisition, isPending: isSubmitting } = useSubmitRequisition(id);
 
   const requisition = data?.data;
 
@@ -153,10 +156,17 @@ export default function AdhocRequisitionDetailPage() {
     }
   };
 
+  const handleSubmit = () => {
+    if (confirm("Submit this requisition for approval? You won't be able to edit it afterwards.")) {
+      submitRequisition();
+    }
+  };
+
   // Check if current user can perform actions (mock - replace with actual user permissions)
   const canReview = requisition.status === "PENDING_APPROVAL";
   const canEdit = requisition.status === "DRAFT";
   const canDelete = requisition.status === "DRAFT";
+  const canSubmit = requisition.status === "DRAFT";
   const canConvert = requisition.status === "APPROVED" && !requisition.converted_to_advertisement;
 
   // Determine the next approval action based on current state
@@ -197,6 +207,12 @@ export default function AdhocRequisitionDetailPage() {
           </div>
 
           <div className="flex items-center gap-2">
+            {canSubmit && (
+              <Button onClick={handleSubmit} disabled={isSubmitting} className="bg-green-600 hover:bg-green-700">
+                <Send className="w-4 h-4 mr-2" />
+                {isSubmitting ? "Submitting..." : "Submit for Approval"}
+              </Button>
+            )}
             {canEdit && (
               <Button
                 variant="outline"

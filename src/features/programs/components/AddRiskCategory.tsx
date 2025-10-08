@@ -34,8 +34,8 @@ const AddRiskCategory = () => {
   });
 
   const dispatch = useAppDispatch();
-  const { addRiskCategory: riskCategory, isLoading } = useAddRiskCategory();
-  const { updateRiskCategory, isLoading: updateRiskLoading } =
+  const [addRiskCategory, { isLoading }] = useAddRiskCategory();
+  const [updateRiskCategory, { isLoading: updateRiskLoading }] =
     useUpdateRiskCategory();
 
   const onSubmit: SubmitHandler<TRiskCategoryFormValues> = async (data) => {
@@ -46,12 +46,12 @@ const AddRiskCategory = () => {
             id: String(dialogProps?.data?.id),
             body: data,
           })
-        : await riskCategory(data);
+        : await addRiskCategory(data);
       toast.success("Risk Category Added Succesfully");
       dispatch(closeDialog());
       form.reset();
     } catch (error: any) {
-      toast.error(error.response?.data?.message ?? error.message ?? "Something went wrong");
+      toast.error(error?.response?.data?.message ?? error?.message ?? "Something went wrong");
     }
   };
 
