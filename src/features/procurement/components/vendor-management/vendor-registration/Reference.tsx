@@ -105,14 +105,14 @@ const Reference = () => {
 
       let path = pathname;
       path = path.substring(0, path.lastIndexOf("/"));
-      path += `/attestation?id=${vendorId}`;
+      path += `/upload?id=${vendorId}`;
       router.push(path);
     } catch (error) {
       console.error("Error updating vendor with reference data:", error);
       // Continue with navigation even if update fails
       let path = pathname;
       path = path.substring(0, path.lastIndexOf("/"));
-      path += `/attestation?id=${vendorId}`;
+      path += `/upload?id=${vendorId}`;
       router.push(path);
     }
   };
