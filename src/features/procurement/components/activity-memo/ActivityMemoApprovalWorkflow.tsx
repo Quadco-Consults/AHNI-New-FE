@@ -5,8 +5,9 @@ import { Button } from "components/ui/button";
 import { Badge } from "components/ui/badge";
 import { Card } from "components/ui/card";
 import { toast } from "sonner";
-import { CheckCircle, XCircle, Clock, User, Calendar, FileText, AlertTriangle, ArrowRight } from "lucide-react";
+import { CheckCircle, XCircle, Clock, FileText, ArrowRight, MessageSquare } from "lucide-react";
 import { ActivityMemoApprovalAPI } from "@/features/procurement/controllers/activityMemoApprovalController";
+import { Textarea } from "components/ui/textarea";
 
 interface ActivityMemoApprovalWorkflowProps {
   activityMemoData: any;
@@ -31,11 +32,16 @@ const ActivityMemoApprovalWorkflow = ({
 }: ActivityMemoApprovalWorkflowProps) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingStep, setProcessingStep] = useState<string | null>(null);
+  const [showCommentBox, setShowCommentBox] = useState<string | null>(null);
+  const [comment, setComment] = useState<string>('');
 
   // Define the activity memo approval workflow steps
   const getMemoApprovalSteps = (): MemoApprovalStep[] => {
     const data = activityMemoData?.data;
     if (!data) return [];
+
+    // If status is undefined, treat as DRAFT
+    const memoStatus = data.status || 'DRAFT';
 
     return [
       {
@@ -48,23 +54,30 @@ const ActivityMemoApprovalWorkflow = ({
       {
         id: 'submit',
         title: 'Submit for Review',
-        description: 'Submit the memo for review and approval',
-        status: data.status === 'DRAFT' ? 'pending' : 'approved',
+        description: 'Submit the memo to reviewer for initial review',
+        status: memoStatus === 'DRAFT' ? 'pending' : 'approved',
         order: 2
       },
       {
         id: 'review',
-        title: 'Review',
-        description: 'Initial review and validation of the activity memo',
-        status: getStepStatus('review', data),
+        title: 'Reviewer Approval',
+        description: 'Reviewer validates and approves the activity memo',
+        status: getStepStatus('review', { ...data, status: memoStatus }),
         order: 3
+      },
+      {
+        id: 'authorize',
+        title: 'Authorizer Approval',
+        description: 'Authorizer reviews and authorizes the activity memo',
+        status: getStepStatus('authorize', { ...data, status: memoStatus }),
+        order: 4
       },
       {
         id: 'approve',
         title: 'Final Approval',
-        description: 'Final approval for the activity memo',
-        status: getStepStatus('approve', data),
-        order: 4
+        description: 'Approver provides final approval for the activity memo',
+        status: getStepStatus('approve', { ...data, status: memoStatus }),
+        order: 5
       }
     ];
   };
@@ -73,14 +86,20 @@ const ActivityMemoApprovalWorkflow = ({
     switch (stepType) {
       case 'review':
         if (data.status === 'REJECTED') return 'rejected';
-        if (data.status === 'REVIEWED' || data.status === 'APPROVED') return 'approved';
-        if (data.status === 'PENDING') return 'pending';
+        if (data.status === 'REVIEWED' || data.status === 'AUTHORISED' || data.status === 'APPROVED') return 'approved';
+        if (data.status === 'PENDING' || data.status === 'SUBMITTED') return 'pending';
+        return 'pending';
+
+      case 'authorize':
+        if (data.status === 'REJECTED') return 'rejected';
+        if (data.status === 'AUTHORISED' || data.status === 'APPROVED') return 'approved';
+        if (data.status === 'REVIEWED') return 'pending';
         return 'pending';
 
       case 'approve':
         if (data.status === 'REJECTED') return 'rejected';
         if (data.status === 'APPROVED') return 'approved';
-        if (data.status === 'REVIEWED') return 'pending';
+        if (data.status === 'AUTHORISED') return 'pending';
         return 'pending';
 
       default:
@@ -128,17 +147,30 @@ const ActivityMemoApprovalWorkflow = ({
     if (!data || !currentUser?.data?.id) return false;
 
     const userId = currentUser.data.id;
+    const memoStatus = data.status || 'DRAFT';
+
+    // Get user IDs from *_details fields (backend returns data in detail objects)
+    const creatorId = data.created_by_details?.user_id || data.created_by;
+    const approverId = data.approved_by_details?.user_id || data.approved_by;
+    const reviewerIds = data.reviewed_by_details?.map((r: any) => r.user_id) || data.reviewed_by || [];
+    const authorizerIds = data.authorised_by_details?.map((a: any) => a.user_id) || data.authorised_by || [];
 
     // Check if step is available for action
     if (step.status === 'approved' || step.status === 'rejected') return false;
 
     switch (step.id) {
       case 'submit':
-        return data.status === 'DRAFT' && data.created_by === userId;
+        // Allow creator to submit if status is DRAFT
+        return (memoStatus === 'DRAFT') && (creatorId === userId);
       case 'review':
-        return data.status === 'PENDING' && data.reviewed_by?.includes(userId);
+        // Allow if status is PENDING/SUBMITTED and user is in reviewers list
+        return (memoStatus === 'PENDING' || memoStatus === 'SUBMITTED') && Array.isArray(reviewerIds) && reviewerIds.includes(userId);
+      case 'authorize':
+        // Allow if status is REVIEWED and user is in authorizers list
+        return memoStatus === 'REVIEWED' && Array.isArray(authorizerIds) && authorizerIds.includes(userId);
       case 'approve':
-        return data.status === 'REVIEWED' && data.approved_by === userId;
+        // Allow if status is AUTHORISED and user matches approver
+        return memoStatus === 'AUTHORISED' && approverId === userId;
       default:
         return false;
     }
@@ -147,6 +179,12 @@ const ActivityMemoApprovalWorkflow = ({
   const handleStepAction = async (step: MemoApprovalStep, action: 'approve' | 'reject') => {
     if (!currentUser?.data?.id) {
       toast.error("User not authenticated");
+      return;
+    }
+
+    // For rejection, check if comment is provided
+    if (action === 'reject' && !comment.trim()) {
+      toast.error('Please provide a reason for rejection');
       return;
     }
 
@@ -166,12 +204,16 @@ const ActivityMemoApprovalWorkflow = ({
             await ActivityMemoApprovalAPI.review(activityMemoId);
             actionText = 'reviewed and approved';
           } else {
-            const reason = prompt('Please provide a reason for rejection:');
-            if (!reason?.trim()) {
-              toast.error('Rejection reason is required');
-              return;
-            }
-            await ActivityMemoApprovalAPI.reject(activityMemoId, reason);
+            await ActivityMemoApprovalAPI.reject(activityMemoId, comment);
+            actionText = 'rejected';
+          }
+          break;
+        case 'authorize':
+          if (action === 'approve') {
+            await ActivityMemoApprovalAPI.authorize(activityMemoId);
+            actionText = 'authorized';
+          } else {
+            await ActivityMemoApprovalAPI.reject(activityMemoId, comment);
             actionText = 'rejected';
           }
           break;
@@ -180,12 +222,7 @@ const ActivityMemoApprovalWorkflow = ({
             await ActivityMemoApprovalAPI.approve(activityMemoId);
             actionText = 'approved';
           } else {
-            const reason = prompt('Please provide a reason for rejection:');
-            if (!reason?.trim()) {
-              toast.error('Rejection reason is required');
-              return;
-            }
-            await ActivityMemoApprovalAPI.reject(activityMemoId, reason);
+            await ActivityMemoApprovalAPI.reject(activityMemoId, comment);
             actionText = 'rejected';
           }
           break;
@@ -194,6 +231,10 @@ const ActivityMemoApprovalWorkflow = ({
       }
 
       toast.success(`Activity memo ${actionText} successfully!`);
+
+      // Reset comment and close comment box
+      setComment('');
+      setShowCommentBox(null);
 
       // Call the callback to refresh data
       onStatusUpdate();
@@ -233,46 +274,50 @@ const ActivityMemoApprovalWorkflow = ({
       </div>
       <div className="flex justify-between text-sm text-gray-600">
         <span>Progress: {completedSteps}/{totalSteps} steps</span>
-        <span>Status: {data?.status || 'Unknown'}</span>
+        <span>Status: {data?.status || 'DRAFT'}</span>
       </div>
 
       {/* Current Status Alert */}
-      {data?.status && (
+      {data && (
         <Card className={`p-4 border-l-4 ${
-          data.status === 'APPROVED' ? 'border-l-green-500 bg-green-50' :
-          data.status === 'REJECTED' ? 'border-l-red-500 bg-red-50' :
-          data.status === 'PENDING' ? 'border-l-yellow-500 bg-yellow-50' :
-          data.status === 'REVIEWED' ? 'border-l-blue-500 bg-blue-50' :
+          (data.status || 'DRAFT') === 'APPROVED' ? 'border-l-green-500 bg-green-50' :
+          (data.status || 'DRAFT') === 'REJECTED' ? 'border-l-red-500 bg-red-50' :
+          ((data.status || 'DRAFT') === 'PENDING' || (data.status || 'DRAFT') === 'SUBMITTED') ? 'border-l-yellow-500 bg-yellow-50' :
+          (data.status || 'DRAFT') === 'REVIEWED' ? 'border-l-blue-500 bg-blue-50' :
+          (data.status || 'DRAFT') === 'AUTHORISED' ? 'border-l-purple-500 bg-purple-50' :
           'border-l-gray-500 bg-gray-50'
         }`}>
           <div className="flex items-center space-x-3">
-            {data.status === 'APPROVED' && <CheckCircle className="w-5 h-5 text-green-500" />}
-            {data.status === 'REJECTED' && <XCircle className="w-5 h-5 text-red-500" />}
-            {(data.status === 'PENDING' || data.status === 'REVIEWED') && <Clock className="w-5 h-5 text-blue-500" />}
-            {data.status === 'DRAFT' && <FileText className="w-5 h-5 text-gray-500" />}
+            {(data.status || 'DRAFT') === 'APPROVED' && <CheckCircle className="w-5 h-5 text-green-500" />}
+            {(data.status || 'DRAFT') === 'REJECTED' && <XCircle className="w-5 h-5 text-red-500" />}
+            {((data.status || 'DRAFT') === 'PENDING' || (data.status || 'DRAFT') === 'SUBMITTED' || (data.status || 'DRAFT') === 'REVIEWED' || (data.status || 'DRAFT') === 'AUTHORISED') && <Clock className="w-5 h-5 text-blue-500" />}
+            {(data.status || 'DRAFT') === 'DRAFT' && <FileText className="w-5 h-5 text-gray-500" />}
 
             <div>
               <h4 className={`font-medium ${
-                data.status === 'APPROVED' ? 'text-green-800' :
-                data.status === 'REJECTED' ? 'text-red-800' :
-                data.status === 'PENDING' ? 'text-yellow-800' :
-                data.status === 'REVIEWED' ? 'text-blue-800' :
+                (data.status || 'DRAFT') === 'APPROVED' ? 'text-green-800' :
+                (data.status || 'DRAFT') === 'REJECTED' ? 'text-red-800' :
+                (data.status || 'DRAFT') === 'PENDING' ? 'text-yellow-800' :
+                (data.status || 'DRAFT') === 'REVIEWED' ? 'text-blue-800' :
+                (data.status || 'DRAFT') === 'AUTHORISED' ? 'text-purple-800' :
                 'text-gray-800'
               }`}>
-                Current Status: {data.status}
+                Current Status: {data.status || 'DRAFT'}
               </h4>
               <p className={`text-sm mt-1 ${
-                data.status === 'APPROVED' ? 'text-green-700' :
-                data.status === 'REJECTED' ? 'text-red-700' :
-                data.status === 'PENDING' ? 'text-yellow-700' :
-                data.status === 'REVIEWED' ? 'text-blue-700' :
+                (data.status || 'DRAFT') === 'APPROVED' ? 'text-green-700' :
+                (data.status || 'DRAFT') === 'REJECTED' ? 'text-red-700' :
+                ((data.status || 'DRAFT') === 'PENDING' || (data.status || 'DRAFT') === 'SUBMITTED') ? 'text-yellow-700' :
+                (data.status || 'DRAFT') === 'REVIEWED' ? 'text-blue-700' :
+                (data.status || 'DRAFT') === 'AUTHORISED' ? 'text-purple-700' :
                 'text-gray-700'
               }`}>
-                {data.status === 'DRAFT' && 'Activity memo is saved as draft and ready for submission'}
-                {data.status === 'PENDING' && 'Activity memo is pending review'}
-                {data.status === 'REVIEWED' && 'Activity memo has been reviewed and is pending final approval'}
-                {data.status === 'APPROVED' && 'Activity memo has been fully approved'}
-                {data.status === 'REJECTED' && 'Activity memo has been rejected'}
+                {(data.status || 'DRAFT') === 'DRAFT' && 'Activity memo is saved as draft and ready for submission'}
+                {((data.status || 'DRAFT') === 'PENDING' || (data.status || 'DRAFT') === 'SUBMITTED') && 'Activity memo is pending review by reviewer'}
+                {(data.status || 'DRAFT') === 'REVIEWED' && 'Activity memo has been reviewed and is pending authorization'}
+                {(data.status || 'DRAFT') === 'AUTHORISED' && 'Activity memo has been authorized and is pending final approval'}
+                {(data.status || 'DRAFT') === 'APPROVED' && 'Activity memo has been fully approved'}
+                {(data.status || 'DRAFT') === 'REJECTED' && 'Activity memo has been rejected'}
               </p>
             </div>
           </div>
@@ -304,7 +349,7 @@ const ActivityMemoApprovalWorkflow = ({
               </div>
 
               {canUserActOnStep(step) && step.status === 'pending' && (
-                <div className="flex space-x-2 ml-4">
+                <div className="flex items-center space-x-2 ml-4">
                   {step.id === 'submit' ? (
                     <Button
                       onClick={() => handleStepAction(step, 'approve')}
@@ -317,6 +362,16 @@ const ActivityMemoApprovalWorkflow = ({
                   ) : (
                     <>
                       <Button
+                        onClick={() => setShowCommentBox(showCommentBox === step.id ? null : step.id)}
+                        disabled={isProcessing}
+                        size="sm"
+                        variant="outline"
+                        className="flex items-center gap-1"
+                      >
+                        <MessageSquare className="w-4 h-4" />
+                        {showCommentBox === step.id ? 'Hide' : 'Comment'}
+                      </Button>
+                      <Button
                         onClick={() => handleStepAction(step, 'approve')}
                         disabled={isProcessing}
                         size="sm"
@@ -326,9 +381,10 @@ const ActivityMemoApprovalWorkflow = ({
                       </Button>
                       <Button
                         onClick={() => handleStepAction(step, 'reject')}
-                        disabled={isProcessing}
+                        disabled={isProcessing || !comment.trim()}
                         size="sm"
                         variant="destructive"
+                        title={!comment.trim() ? 'Please add a comment before rejecting' : ''}
                       >
                         {processingStep === step.id && isProcessing ? 'Processing...' : 'Reject'}
                       </Button>
@@ -337,6 +393,38 @@ const ActivityMemoApprovalWorkflow = ({
                 </div>
               )}
             </div>
+
+            {/* Comment Box */}
+            {canUserActOnStep(step) && showCommentBox === step.id && (
+              <div className="mt-4 pt-4 border-t border-gray-200">
+                <div className="space-y-3">
+                  <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                    <MessageSquare className="w-4 h-4" />
+                    Add Comments/Notes {step.id !== 'submit' && <span className="text-red-500">(Required for rejection)</span>}
+                  </label>
+                  <Textarea
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                    placeholder="Enter your comments, feedback, or reason for rejection..."
+                    className="min-h-[100px] resize-none"
+                    disabled={isProcessing}
+                  />
+                  <div className="flex justify-between items-center text-xs text-gray-500">
+                    <span>{comment.length} characters</span>
+                    {comment.trim() && (
+                      <Button
+                        onClick={() => setComment('')}
+                        size="sm"
+                        variant="ghost"
+                        className="h-auto py-1"
+                      >
+                        Clear
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Show connection line to next step */}
             {index < approvalSteps.length - 1 && (

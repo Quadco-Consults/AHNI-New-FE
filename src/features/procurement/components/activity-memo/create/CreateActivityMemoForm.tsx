@@ -30,10 +30,16 @@ import { useGetAllCostInputs } from "@/features/modules/controllers/finance/cost
 import { useGetAllFundingSources } from "@/features/modules/controllers/project/fundingSourceController";
 import { useGetAllInterventionAreas } from "@/features/modules/controllers/program/interventionAreaController";
 import { useGetAllItems } from "@/features/modules/controllers/config/itemController";
-import { useCreateActivityMemo } from "@/features/procurement/controllers/activityMemoController";
+import { useCreateActivityMemo, useUpdateActivityMemo, ActivityMemo } from "@/features/procurement/controllers/activityMemoController";
 import { SampleMemoSchema } from "@/features/procurement/types/procurement-validator";
 
-const CreateActivityMemoForm = () => {
+interface CreateActivityMemoFormProps {
+  editMode?: boolean;
+  existingData?: ActivityMemo;
+  memoId?: string;
+}
+
+const CreateActivityMemoForm = ({ editMode = false, existingData, memoId }: CreateActivityMemoFormProps = {}) => {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -50,6 +56,7 @@ const CreateActivityMemoForm = () => {
   const { data: items } = useGetAllItems({ page: 1, size: 2000000 });
 
   const { createActivityMemo, isLoading: isCreating } = useCreateActivityMemo();
+  const { updateActivityMemo, isLoading: isUpdating } = useUpdateActivityMemo(memoId || '');
 
   // Format options
   const usersOptions = React.useMemo(() =>
@@ -163,11 +170,39 @@ const CreateActivityMemoForm = () => {
     return null;
   };
 
-  const savedFormData = loadSavedFormData();
+  // Don't load saved form data in edit mode
+  const savedFormData = editMode ? null : loadSavedFormData();
 
   const form = useForm<z.infer<typeof SampleMemoSchema>>({
     resolver: zodResolver(SampleMemoSchema),
-    defaultValues: savedFormData || {
+    defaultValues: editMode && existingData ? {
+      activity: existingData.activity || "",
+      subject: existingData.subject || "",
+      requested_date: existingData.requested_date || "",
+      fconumber: existingData.fconumber || [],
+      intervention_areas: existingData.intervention_areas || [],
+      budget_line: existingData.budget_line || [],
+      cost_categories: existingData.cost_categories || [],
+      cost_input: existingData.cost_input || [],
+      funding_source: existingData.funding_source || [],
+      comment: existingData.comment || "",
+      // Extract user IDs from *_details if copy/through are empty
+      copy: (existingData as any).copy?.length > 0
+        ? (existingData as any).copy
+        : (existingData as any).reviewed_by_details?.map((r: any) => r.user_id) || [],
+      approved_by: (existingData as any).approved_by || (existingData as any).approved_by_details?.user_id || "",
+      created_by: (existingData as any).created_by || (existingData as any).created_by_details?.user_id || "",
+      through: (existingData as any).through?.length > 0
+        ? (existingData as any).through
+        : (existingData as any).authorised_by_details?.map((a: any) => a.user_id) || [],
+      expenses: existingData.expenses?.map((exp: any) => ({
+        item: exp.item_detail?.id || exp.item || "",
+        quantity: exp.quantity || "",
+        num_of_days: exp.num_of_days || 0,
+        unit_cost: exp.unit_cost || "",
+        total_cost: exp.total_cost || 0,
+      })) || [],
+    } : savedFormData || {
       activity: "",
       subject: "",
       requested_date: "",
@@ -178,10 +213,10 @@ const CreateActivityMemoForm = () => {
       cost_input: [],
       funding_source: [],
       comment: "",
-      copy: [],
-      approved_by: "",
+      copy: [], // CC = Reviewers
+      approved_by: "", // TO = Approver
       created_by: "",
-      through: [],
+      through: [], // Through = Authorizers
       expenses: [],
     },
   });
@@ -189,8 +224,10 @@ const CreateActivityMemoForm = () => {
   const { control, handleSubmit, watch, setValue } = form;
   const watchedValues = watch();
 
-  // Auto-save
+  // Auto-save (disabled in edit mode)
   useEffect(() => {
+    if (editMode) return; // Don't auto-save in edit mode
+
     const timeoutId = setTimeout(() => {
       // Only run on client side
       if (typeof window === 'undefined') return;
@@ -211,7 +248,7 @@ const CreateActivityMemoForm = () => {
     }, 1000);
 
     return () => clearTimeout(timeoutId);
-  }, [watchedValues]);
+  }, [watchedValues, editMode]);
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -257,29 +294,36 @@ const CreateActivityMemoForm = () => {
         subject: data.subject,
         requested_date: data.requested_date,
         comment: data.comment,
-        approved_by: data.approved_by,
+        approved_by: data.approved_by, // TO = Final Approver
         created_by: data.created_by,
+        reviewed_by: data.copy, // CC = Reviewers
+        authorised_by: data.through, // Through = Authorizers
         fconumber: data.fconumber,
         intervention_areas: data.intervention_areas,
         budget_line: data.budget_line,
         cost_categories: data.cost_categories,
         cost_input: data.cost_input,
         funding_source: data.funding_source,
-        through: data.through,
-        copy: data.copy,
+        through: data.through, // Keep original field for backend compatibility
+        copy: data.copy, // Keep original field for backend compatibility
         expenses: data.expenses,
       };
 
-      await createActivityMemo(activityMemoData);
-
-      toast.success("Activity Memo created successfully!");
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem(FORM_STORAGE_KEY);
+      if (editMode && memoId) {
+        await updateActivityMemo(activityMemoData);
+        toast.success("Activity Memo updated successfully!");
+        router.push(`/dashboard/procurement/activity-memo/${memoId}`);
+      } else {
+        await createActivityMemo(activityMemoData);
+        toast.success("Activity Memo created successfully!");
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem(FORM_STORAGE_KEY);
+        }
+        router.push("/dashboard/procurement/activity-memo");
       }
-      router.push("/dashboard/procurement/activity-memo");
     } catch (error) {
-      console.error("Error creating activity memo:", error);
-      toast.error("Failed to create activity memo");
+      console.error(`Error ${editMode ? 'updating' : 'creating'} activity memo:`, error);
+      toast.error(`Failed to ${editMode ? 'update' : 'create'} activity memo`);
     } finally {
       setIsSubmitting(false);
     }
@@ -289,16 +333,23 @@ const CreateActivityMemoForm = () => {
     <Card>
       <div className="p-6">
         <h2 className="text-2xl font-bold text-gray-800 mb-6">
-          Create Activity Memo
+          {editMode ? 'Edit Activity Memo' : 'Create Activity Memo'}
         </h2>
+        {editMode && existingData && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+            <p className="text-sm text-blue-700">
+              <strong>Editing:</strong> {existingData.subject} (Ref: {existingData.ref_number || 'N/A'})
+            </p>
+          </div>
+        )}
 
         <Form {...form}>
           <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
 
-            {/* Reviewer, Authorizer, and Approver */}
+            {/* TO, Through, and CC */}
             <div className="grid grid-cols-3 gap-5">
               <div>
-                <Label className="font-semibold">Reviewer</Label>
+                <Label className="font-semibold">Through</Label>
                 <FormField
                   control={control}
                   name="through"
@@ -309,7 +360,7 @@ const CreateActivityMemoForm = () => {
                           options={usersOptions || []}
                           defaultValue={field.value}
                           onValueChange={field.onChange}
-                          placeholder="Select Reviewer(s)"
+                          placeholder="Select Through"
                           variant="inverted"
                         />
                       </FormControl>
@@ -318,7 +369,7 @@ const CreateActivityMemoForm = () => {
                 />
               </div>
               <div>
-                <Label className="font-semibold">Authorizer</Label>
+                <Label className="font-semibold">CC</Label>
                 <FormField
                   control={control}
                   name="copy"
@@ -329,7 +380,7 @@ const CreateActivityMemoForm = () => {
                           options={usersOptions || []}
                           defaultValue={field.value}
                           onValueChange={field.onChange}
-                          placeholder="Select Authorizer(s)"
+                          placeholder="Select CC"
                           variant="inverted"
                         />
                       </FormControl>
@@ -339,10 +390,10 @@ const CreateActivityMemoForm = () => {
               </div>
               <div>
                 <FormSelect
-                  label="Approver (To)"
+                  label="TO"
                   name="approved_by"
                   required
-                  placeholder="Select Approver"
+                  placeholder="Select TO"
                   options={usersOptionsFn}
                 />
               </div>

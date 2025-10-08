@@ -11,7 +11,7 @@ import {
 } from "../types/procurementPlan";
 import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
 
-const BASE_URL = "/procurements/procurement-plans/";
+const BASE_URL = "procurements/procurement-plans/";
 
 // ===== PROCUREMENT PLAN HOOKS =====
 

@@ -11,7 +11,7 @@ import {
 } from "../types/prequalification-stages";
 import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
 
-const BASE_URL = "/procurements/config/prequalification-stages/";
+const BASE_URL = "procurements/config/prequalification-stages/";
 
 // ===== PREQUALIFICATION STAGES HOOKS =====
 

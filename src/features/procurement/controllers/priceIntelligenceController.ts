@@ -7,7 +7,7 @@ import {
 } from "../types/price-intelligence";
 import { TRequest, TResponse } from "definations/index";
 
-const BASE_URL = "/procurements/price-intelligence/";
+const BASE_URL = "procurements/price-intelligence/";
 
 // ===== PRICE INTELLIGENCE HOOKS =====
 

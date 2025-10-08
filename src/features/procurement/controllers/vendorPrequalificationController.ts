@@ -10,7 +10,7 @@ import {
 } from "../types/vendor-prequalification";
 import { TPaginatedResponse, TRequest } from "definations/index";
 
-const BASE_URL = "/procurements/vendor-prequalification/";
+const BASE_URL = "procurements/vendor-prequalification/";
 
 // ===== VENDOR PREQUALIFICATION HOOKS =====
 

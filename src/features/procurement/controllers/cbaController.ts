@@ -16,7 +16,7 @@ import {
 } from "../types/cba";
 import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
 
-const BASE_URL = "/procurements/cba/";
+const BASE_URL = "procurements/cba/";
 
 // ===== CBA HOOKS =====
 

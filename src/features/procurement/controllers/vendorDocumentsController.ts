@@ -9,7 +9,7 @@ import {
 } from "../types/vendors-document";
 import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
 
-const BASE_URL = "/procurements/vendor-documents/";
+const BASE_URL = "procurements/vendor-documents/";
 
 // ===== VENDOR DOCUMENTS HOOKS =====
 

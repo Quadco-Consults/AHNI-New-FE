@@ -9,7 +9,7 @@ import {
 } from "../types/solicitation";
 import { TResponse } from "definations/index";
 
-const BASE_URL = "/procurements/manaul-bid/"; // Note: Backend has typo "manaul" instead of "manual"
+const BASE_URL = "procurements/manaul-bid/"; // Note: Backend has typo "manaul" instead of "manual"
 
 // ===== VENDOR BID SUBMISSIONS HOOKS =====
 

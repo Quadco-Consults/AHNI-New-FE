@@ -16,13 +16,11 @@ function ActivityMemoTabs() {
       id: 1,
       state: "created",
       name: "Created Activity Memos",
-      tabComponent: <ActivityMemoList status="pending" />,
     },
     {
       id: 2,
       state: "approved",
       name: "Approved Activity Memos",
-      tabComponent: <ActivityMemoList status="approved" />,
     },
   ];
 
@@ -41,13 +39,8 @@ function ActivityMemoTabs() {
         />
       </div>
       <section className="w-full">
-        {tabDetails.map((item, index) => {
-          return (
-            tabState === item.state && (
-              <div key={index}>{item.tabComponent}</div>
-            )
-          );
-        })}
+        {tabState === "created" && <ActivityMemoList key="created" status="pending" />}
+        {tabState === "approved" && <ActivityMemoList key="approved" status="approved" />}
       </section>
     </main>
   );

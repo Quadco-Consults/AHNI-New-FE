@@ -6,7 +6,7 @@ import {
 } from "../types/solicitation-criteria";
 import { TRequest } from "definations/index";
 
-const BASE_URL = "/procurements/solicitation-evaluation-criteria/";
+const BASE_URL = "procurements/solicitation-evaluation-criteria/";
 
 // ===== SOLICITATION EVALUATION CRITERIA HOOKS =====
 

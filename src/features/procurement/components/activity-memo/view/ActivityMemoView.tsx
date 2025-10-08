@@ -4,12 +4,13 @@ import { useParams, useRouter } from "next/navigation";
 import Card from "components/Card";
 import { Button } from "components/ui/button";
 import { Icon } from "@iconify/react";
-import { Badge } from "components/ui/badge";
 import { useGetActivityMemo } from "@/features/procurement/controllers/activityMemoController";
 import { format } from "date-fns";
 import { useState, useRef } from "react";
 import logoPng from "assets/imgs/logo.png";
 import GoBack from "components/GoBack";
+import ActivityMemoApprovalWorkflow from "@/features/procurement/components/activity-memo/ActivityMemoApprovalWorkflow";
+import { useGetUserProfile } from "@/features/auth/controllers/userController";
 
 const ActivityMemoView = () => {
   const params = useParams();
@@ -17,10 +18,10 @@ const ActivityMemoView = () => {
   const memoId = params?.id as string;
   const printRef = useRef<HTMLDivElement>(null);
 
-  const { data, isLoading, error } = useGetActivityMemo(memoId);
-  const memoData = data?.data;
+  const { data: memoData, isLoading, error, refetch } = useGetActivityMemo(memoId);
+  const { data: currentUser } = useGetUserProfile();
 
-  const [currentStage, setCurrentStage] = useState(1); // 1 = Memo, 2 = Expense Breakdown
+  const [currentStage, setCurrentStage] = useState(1); // 1 = Memo, 2 = Expense Breakdown, 3 = Approval Workflow
 
   // Download as PDF function
   const handleDownloadPDF = () => {
@@ -71,7 +72,12 @@ const ActivityMemoView = () => {
   }
 
   const expensesData = memoData.expenses || [];
-  const grandTotal = expensesData.reduce((sum, expense) => sum + (expense.total_cost || 0), 0);
+  const grandTotal = expensesData.reduce((sum, expense) => {
+    const cost = typeof expense.total_cost === 'string'
+      ? parseFloat(expense.total_cost)
+      : (expense.total_cost || 0);
+    return sum + (isNaN(cost) ? 0 : cost);
+  }, 0);
 
   return (
     <div className="bg-white p-6 max-w-7xl mx-auto print:p-0 print:max-w-full">
@@ -114,6 +120,19 @@ const ActivityMemoView = () => {
                 Expense Breakdown
               </span>
             </div>
+
+            <div className="w-12 h-0.5 bg-gray-300"></div>
+
+            <div className="flex items-center gap-3">
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center text-base font-semibold ${
+                currentStage === 3 ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-500'
+              }`}>
+                3
+              </div>
+              <span className={`text-base font-medium ${currentStage === 3 ? 'text-blue-700' : 'text-gray-500'}`}>
+                Approval Workflow
+              </span>
+            </div>
           </div>
 
           <div className="flex items-center gap-4">
@@ -128,12 +147,30 @@ const ActivityMemoView = () => {
             )}
 
             {currentStage === 2 && (
+              <>
+                <Button
+                  onClick={() => setCurrentStage(1)}
+                  variant="outline"
+                  className="flex gap-2 border-blue-300 text-blue-600 hover:bg-blue-50 px-4 py-2"
+                >
+                  ← Previous: View Memo
+                </Button>
+                <Button
+                  onClick={() => setCurrentStage(3)}
+                  className="flex gap-2 bg-blue-600 hover:bg-blue-700 px-4 py-2"
+                >
+                  Next: Approval Workflow →
+                </Button>
+              </>
+            )}
+
+            {currentStage === 3 && (
               <Button
-                onClick={() => setCurrentStage(1)}
+                onClick={() => setCurrentStage(2)}
                 variant="outline"
                 className="flex gap-2 border-blue-300 text-blue-600 hover:bg-blue-50 px-4 py-2"
               >
-                ← Previous: View Memo
+                ← Previous: View Expenses
               </Button>
             )}
 
@@ -170,13 +207,13 @@ const ActivityMemoView = () => {
                   <span className="font-bold w-20 text-base">To:</span>
                   <div className="flex-1">
                     <div className="text-base">
-                      {data?.approved_by_details?.name || memoData.approved_by || 'Approver'} (MD, AHNi)
+                      {memoData?.approved_by_details?.name || memoData?.approved_by || 'Approver'} (MD, AHNi)
                       <span className="ml-20 text-sm text-gray-600">
                         {memoData.requested_date ? format(new Date(memoData.requested_date), "PP") : new Date().toLocaleDateString()}
                       </span>
                     </div>
                     {/* Display authorizers (copy) */}
-                    {data?.copy_details?.map((user: any, index: number) => (
+                    {memoData?.authorised_by_details?.map((user: any, index: number) => (
                       <div key={index} className="text-sm text-gray-600 mt-1">
                         {user.name || `${user.first_name} ${user.last_name}`} ({user.designation || 'Staff'})
                       </div>
@@ -188,8 +225,8 @@ const ActivityMemoView = () => {
                 <div className="flex">
                   <span className="font-bold w-20 text-base">Through:</span>
                   <div className="flex-1">
-                    {data?.through_details?.length > 0 ? (
-                      data.through_details.map((user: any, index: number) => (
+                    {memoData?.reviewed_by_details && memoData.reviewed_by_details.length > 0 ? (
+                      memoData.reviewed_by_details.map((user: any, index: number) => (
                         <div key={index} className="text-base">
                           {user.name || `${user.first_name} ${user.last_name}`} ({user.designation || 'Staff'}, AHNi)
                           <span className="ml-8 text-sm text-gray-600">
@@ -208,7 +245,7 @@ const ActivityMemoView = () => {
                   <span className="font-bold w-20 text-base">From:</span>
                   <div className="flex-1">
                     <div className="text-base">
-                      {data?.created_by_details?.name || memoData.created_by || 'Creator'} (STA, CCF, AHNI)
+                      {memoData?.created_by_details?.name || memoData?.created_by || 'Creator'} (STA, CCF, AHNI)
                       <span className="ml-20 text-sm text-gray-600">
                         {memoData.requested_date ? format(new Date(memoData.requested_date), "PP") : new Date().toLocaleDateString()}
                       </span>
@@ -220,14 +257,14 @@ const ActivityMemoView = () => {
               {/* Budget Information */}
               <div className="grid grid-cols-2 gap-8 mb-6 text-sm">
                 <div className="space-y-2">
-                  <div><span className="font-semibold">Budget Line #:</span> {(memoData as any).budget_line_details?.[0]?.name || memoData.budget_line?.[0] || "-"}</div>
-                  <div><span className="font-semibold">Intervention:</span> {(memoData as any).intervention_areas_details?.[0]?.code || memoData.intervention_areas?.[0] || "-"}</div>
-                  <div><span className="font-semibold">Cost Grouping #:</span> {(memoData as any).cost_categories_details?.[0]?.name || memoData.cost_categories?.[0] || "-"}</div>
+                  <div><span className="font-semibold">Budget Line #:</span> {memoData?.budget_line_details?.[0]?.module_name || memoData?.budget_line_details?.[0]?.module_code || memoData?.budget_line?.[0] || "-"}</div>
+                  <div><span className="font-semibold">Intervention:</span> {memoData?.intervention_areas_details?.[0]?.code || memoData?.intervention_areas_details?.[0]?.description || memoData?.intervention_areas?.[0] || "-"}</div>
+                  <div><span className="font-semibold">Cost Grouping #:</span> {memoData?.cost_categories_details?.[0]?.module_name || memoData?.cost_categories_details?.[0]?.module_code || memoData?.cost_categories?.[0] || "-"}</div>
                 </div>
                 <div className="space-y-2">
-                  <div><span className="font-semibold">FCO#:</span> {memoData.fconumber_details?.[0]?.name || memoData.fconumber?.[0] || "-"}</div>
-                  <div><span className="font-semibold">Cost Input #:</span> {(memoData as any).cost_input_details?.[0]?.name || memoData.cost_input?.[0] || "-"}</div>
-                  <div><span className="font-semibold">Funding Source:</span> {(memoData as any).funding_source_details?.[0]?.name || memoData.funding_source?.[0] || "-"}</div>
+                  <div><span className="font-semibold">FCO#:</span> {memoData?.fconumber_details?.[0]?.module_name || memoData?.fconumber_details?.[0]?.module_code || memoData?.fconumber?.[0] || "-"}</div>
+                  <div><span className="font-semibold">Cost Input #:</span> {memoData?.cost_inputs_details?.[0]?.module_name || memoData?.cost_inputs_details?.[0]?.module_code || memoData?.cost_input?.[0] || "-"}</div>
+                  <div><span className="font-semibold">Funding Source:</span> {memoData?.funding_sources_details?.[0]?.module_name || memoData?.funding_source?.[0] || "-"}</div>
                 </div>
               </div>
 
@@ -306,7 +343,7 @@ const ActivityMemoView = () => {
                   </tr>
                   <tr className="border-b border-black">
                     <td className="border-r border-black p-4 bg-blue-100 font-semibold">FCO #:</td>
-                    <td className="p-4">{memoData.fconumber_details?.[0]?.name || memoData.fconumber?.[0] || "N/A"}</td>
+                    <td className="p-4">{memoData.fconumber_details?.[0]?.module_name || memoData.fconumber_details?.[0]?.module_code || memoData.fconumber?.[0] || "N/A"}</td>
                   </tr>
                 </tbody>
               </table>
@@ -316,23 +353,23 @@ const ActivityMemoView = () => {
                 <tbody>
                   <tr className="border-b border-black">
                     <td className="border-r border-black p-3 bg-blue-100 font-semibold w-1/2">
-                      Intervention: {(memoData as any).intervention_areas_details?.[0]?.code || memoData.intervention_areas?.[0] || "-"}
+                      Intervention: {memoData?.intervention_areas_details?.[0]?.code || memoData?.intervention_areas_details?.[0]?.description || memoData?.intervention_areas?.[0] || "-"}
                     </td>
                     <td className="p-3 bg-blue-100 font-semibold">
-                      Budget Line #: {(memoData as any).budget_line_details?.[0]?.name || memoData.budget_line?.[0] || "-"}
+                      Budget Line #: {memoData?.budget_line_details?.[0]?.module_name || memoData?.budget_line_details?.[0]?.module_code || memoData?.budget_line?.[0] || "-"}
                     </td>
                   </tr>
                   <tr className="border-b border-black">
                     <td className="border-r border-black p-3 bg-blue-100 font-semibold">
-                      Cost Grouping #: {(memoData as any).cost_categories_details?.[0]?.name || memoData.cost_categories?.[0] || "-"}
+                      Cost Grouping #: {memoData?.cost_categories_details?.[0]?.module_name || memoData?.cost_categories_details?.[0]?.module_code || memoData?.cost_categories?.[0] || "-"}
                     </td>
                     <td className="p-3 bg-blue-100 font-semibold">
-                      Cost Input #: {(memoData as any).cost_input_details?.[0]?.name || memoData.cost_input?.[0] || "-"}
+                      Cost Input #: {memoData?.cost_inputs_details?.[0]?.module_name || memoData?.cost_inputs_details?.[0]?.module_code || memoData?.cost_input?.[0] || "-"}
                     </td>
                   </tr>
                   <tr className="border-b border-black">
                     <td className="border-r border-black p-3 bg-blue-100 font-semibold">
-                      Funding Source: {(memoData as any).funding_source_details?.[0]?.name || memoData.funding_source?.[0] || "-"}
+                      Funding Source: {memoData?.funding_sources_details?.[0]?.module_name || memoData?.funding_source?.[0] || "-"}
                     </td>
                     <td className="p-3 bg-blue-100 font-semibold"></td>
                   </tr>
@@ -413,7 +450,7 @@ const ActivityMemoView = () => {
                     <td className="border-r border-black p-6 align-top" style={{width: '33.33%'}}>
                       <div className="mb-3">
                         <span className="font-bold text-base">
-                          Prepared by: {data?.created_by_details?.name || memoData.created_by || 'Creator'}
+                          Prepared by: {memoData?.created_by_details?.name || memoData?.created_by || 'Creator'}
                         </span>
                       </div>
                       <div className="mb-3">
@@ -442,7 +479,7 @@ const ActivityMemoView = () => {
                     <td className="p-6 align-top" style={{width: '33.33%'}}>
                       <div className="mb-3">
                         <span className="font-bold text-base">
-                          Approved by: {data?.approved_by_details?.name || memoData.approved_by || 'Approver'}
+                          Approved by: {memoData?.approved_by_details?.name || memoData?.approved_by || 'Approver'}
                         </span>
                       </div>
                       <div className="mb-3">
@@ -458,6 +495,18 @@ const ActivityMemoView = () => {
               </table>
             </div>
           </>
+        )}
+
+        {/* Stage 3: Approval Workflow */}
+        {currentStage === 3 && memoData && (
+          <div className="bg-white p-6 rounded-lg">
+            <ActivityMemoApprovalWorkflow
+              activityMemoData={{ data: memoData }}
+              currentUser={currentUser}
+              activityMemoId={memoId}
+              onStatusUpdate={() => refetch()}
+            />
+          </div>
         )}
         </div> {/* End of printable content */}
       </section>

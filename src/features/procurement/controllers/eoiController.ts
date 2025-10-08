@@ -9,7 +9,7 @@ import {
 } from "../types/eoi";
 import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
 
-const BASE_URL = "/procurements/eoi/";
+const BASE_URL = "procurements/eoi/";
 
 // ===== EOI HOOKS =====
 
