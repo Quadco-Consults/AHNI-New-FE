@@ -21,7 +21,7 @@ export const useGetAllFacilitiesManager = ({
   return useQuery<TPaginatedResponse<FacilityData>>({
     queryKey: ["facilities", page, size, search],
     queryFn: async () => {
-      const response = await AxiosWithToken.get("/programs/facility/", {
+      const response = await AxiosWithToken.get("programs/facility/", {
         params: { page, size, search }
       });
       return response.data;
@@ -36,7 +36,7 @@ export const useGetSingleFacilityManager = (id: string, enabled = true) => {
   return useQuery<TResponse<FacilityData>>({
     queryKey: ["facility", id],
     queryFn: async () => {
-      const response = await AxiosWithToken.get(`/programs/facility/${id}`);
+      const response = await AxiosWithToken.get(`programs/facility/${id}`);
       return response.data;
     },
     enabled: enabled && !!id,
@@ -51,7 +51,7 @@ export const CreateFacilityManager = () => {
     Error,
     FacilityFormValues
   >({
-    endpoint: "/programs/facility/",
+    endpoint: "programs/facility/",
     queryKey: ["facilities"],
     isAuth: true,
     method: "POST",
@@ -75,7 +75,7 @@ export const UpdateFacilityManager = () => {
     Error,
     FacilityFormValues
   >({
-    endpoint: "/programs/facility/",
+    endpoint: "programs/facility/",
     queryKey: ["facilities", "facility"],
     isAuth: true,
     method: "PATCH",
@@ -83,7 +83,7 @@ export const UpdateFacilityManager = () => {
 
   const updateFacility = async (id: string, details: FacilityFormValues) => {
     try {
-      const response = await AxiosWithToken.patch(`/programs/facility/${id}/`, details);
+      const response = await AxiosWithToken.patch(`programs/facility/${id}/`, details);
       return response.data;
     } catch (error) {
       console.error("Facility update error:", error);
@@ -101,7 +101,7 @@ export const DeleteFacilityManager = () => {
     Error,
     Record<string, never>
   >({
-    endpoint: "/programs/facility/",
+    endpoint: "programs/facility/",
     queryKey: ["facilities"],
     isAuth: true,
     method: "DELETE",
@@ -109,7 +109,7 @@ export const DeleteFacilityManager = () => {
 
   const deleteFacility = async (id: string) => {
     try {
-      const response = await AxiosWithToken.delete(`/programs/facility/${id}`);
+      const response = await AxiosWithToken.delete(`programs/facility/${id}`);
       return response.data;
     } catch (error) {
       console.error("Facility delete error:", error);

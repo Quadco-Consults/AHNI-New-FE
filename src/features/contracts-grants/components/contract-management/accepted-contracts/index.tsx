@@ -5,48 +5,49 @@ import Card from "components/Card";
 import { acceptedContractsColumns } from "@/features/contracts-grants/components/table-columns/contract-management/accepted-contracts";
 import DataTable from "components/Table/DataTable";
 import TableFilters from "components/Table/TableFilters";
-import { useGetAllConsultancyApplicants } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
+import { useGetAllAdhocApplicants } from "@/features/programs/controllers/adhocApplicantController";
 
 export default function AcceptedContracts() {
     const [page, setPage] = useState(1);
 
-    const { data, isFetching, error } = useGetAllConsultancyApplicants({
+    // Using dedicated adhoc applicants endpoint
+    const { data, isFetching, error } = useGetAllAdhocApplicants({
         page,
         size: 1000, // Get all to filter on frontend
     });
 
-    console.log("AcceptedContracts List - Data:", data);
-    console.log("AcceptedContracts List - Error:", error);
-
     const allResults = data?.data?.results || [];
 
-    // Frontend filter to ensure only accepted adhoc contracts show
+    // Frontend filter to ensure only ACCEPTED contracts show
     const results = allResults.filter(applicant => {
-        // Must have accepted the offer
-        if (!applicant.offer_accepted) return false;
+        // Check if applicant has ACCEPTED status
+        const hasAcceptedStatus = applicant.status === "ACCEPTED" ||
+                                  applicant.offer_accepted === true;
 
-        // Must have CONTRACT_ISSUED or APPROVED status
-        if (!['CONTRACT_ISSUED', 'APPROVED'].includes(applicant.status)) return false;
-
-        // Check if applicant has consultants array (indicates adhoc staff)
-        const hasConsultantsArray = applicant.consultants && applicant.consultants.length > 0;
-        const hasConsultancyData = applicant.consultancy || applicant.consultant_id;
-        const isAdhocIndicator = hasConsultantsArray || hasConsultancyData;
-
-        // Include if has adhoc indicators (regardless of type field)
-        if (isAdhocIndicator) return true;
-
-        // Or if type is explicitly ADHOC
-        return applicant.type === "ADHOC";
+        return hasAcceptedStatus;
     });
-    const paginator = data?.data?.pagination;
+    const paginator = data?.data?.paginator;
 
-    // Debug: Show status values in console
-    console.log("Accepted contract statuses:", results.map(r => ({
-        id: r.id,
-        name: r.name,
-        status: r.status
+    // Debug logging
+    console.log("🔍 Adhoc Accepted Contracts Debug:");
+    console.log("- Total Applicants Fetched:", allResults.length);
+    console.log("- Accepted Contracts (Filtered):", results.length);
+    console.log("- Is Fetching:", isFetching);
+    console.log("- Error:", error);
+    console.log("- All Applicants (status):", allResults.map((a: any) => ({
+        name: a.full_name || a.surname || a.other_names,
+        status: a.status,
+        offer_accepted: a.offer_accepted,
     })));
+    console.log("- Unique Statuses:", [...new Set(allResults.map((a: any) => a.status))]);
+    if (results.length > 0) {
+        console.log("- Sample accepted applicant:", {
+            id: results[0].id,
+            name: (results[0] as any).full_name,
+            status: results[0].status,
+            offer_accepted: (results[0] as any).offer_accepted,
+        });
+    }
 
     return (
         <section className="space-y-10">

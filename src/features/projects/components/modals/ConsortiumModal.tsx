@@ -1,4 +1,3 @@
-import logoPng from "assets/imgs/logo.png";
 import { ScrollArea } from "components/ui/scroll-area";
 import { Button } from "components/ui/button";
 import { Checkbox } from "components/ui/checkbox";
@@ -62,7 +61,7 @@ export default function ConsortiumPartnerModal() {
       <ScrollArea className='h-[90%] space-y-5 pb-5'>
         <div className='flex flex-col items-center justify-between'>
           <div>
-            <img src={logoPng} alt='logo' width={150} />
+            <img src='/imgs/logo.png' alt='logo' width={150} />
           </div>
           <h4 className='mt-5 text-lg font-bold'>Select Consortium partners</h4>
           <p className='mt-5 text-muted-foreground'>
@@ -101,12 +100,12 @@ export default function ConsortiumPartnerModal() {
               </p>
             </div>
           ) : (
-            <div className='flex overflow-auto max-w-[450px]  gap-5 bg-gray-100 mt-10 p-5 rounded-lg shadow-inne'>
+            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 bg-gray-100 mt-10 p-5 rounded-lg shadow-inner'>
               {partner?.data.results.map(({ id, name, state, ...rest }) => {
                 const checked = partners.findIndex((item) => item.id === id);
 
                 return (
-                  <div className='flex p-5 bg-white border rounded-lg gap-5 items-center w-fit '>
+                  <div key={id} className='flex p-5 bg-white border rounded-lg gap-3 items-center'>
                     <Checkbox
                       checked={checked > -1 ? true : false}
                       onCheckedChange={(value: boolean) =>
@@ -119,9 +118,9 @@ export default function ConsortiumPartnerModal() {
                       }
                     />
 
-                    <div className='text-sm space-y-1'>
-                      <h4>{name}</h4>
-                      <p className='flex items-center gap-1 w-full whitespace-nowrap'>
+                    <div className='text-sm space-y-1 flex-1'>
+                      <h4 className='font-semibold'>{name}</h4>
+                      <p className='flex items-center gap-1 text-gray-600'>
                         <span>
                           <MapPin size={15} />
                         </span>

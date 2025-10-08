@@ -5,48 +5,39 @@ import Card from "components/Card";
 import { contractRecipientsColumns } from "@/features/contracts-grants/components/table-columns/contract-management/contract-recipients";
 import DataTable from "components/Table/DataTable";
 import TableFilters from "components/Table/TableFilters";
-import { useGetAllConsultancyApplicants } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
+import { useGetAllAdhocApplicants } from "@/features/programs/controllers/adhocApplicantController";
 
 export default function ContractRecipients() {
     const [page, setPage] = useState(1);
 
-    // Fetch all applicants and filter client-side for contract-related statuses
-    const { data, isFetching, error } = useGetAllConsultancyApplicants({
+    // Fetch adhoc applicants from dedicated endpoint
+    const { data, isFetching } = useGetAllAdhocApplicants({
         page,
         size: 50,
     });
 
-    // Filter to show applicants who are approved for contracts or have been issued contracts
+    // Filter to show ONLY adhoc applicants who have been issued contracts
     const allApplicants = data?.data?.results || [];
-    const contractRecipients = allApplicants.filter((applicant: any) =>
-        ["APPROVED", "CONTRACT_ISSUED", "ACCEPTED", "REJECTED"].includes(applicant.status)
-    );
-    const paginator = data?.data?.pagination;
+    const contractRecipients = allApplicants.filter((applicant: any) => {
+        // Check if applicant has contract_issued status or beyond
+        const hasContractIssued = applicant.status === "CONTRACT_ISSUED" ||
+                                  applicant.status === "APPROVED" ||
+                                  applicant.status === "ACCEPTED" ||
+                                  applicant.status === "REJECTED" ||
+                                  applicant.status === "HIRED";
 
-    console.log("🔍 Contract Recipients Debug:");
-    console.log("- Total Applicants Fetched:", allApplicants.length);
-    console.log("- Contract Recipients (Filtered):", contractRecipients.length);
-    console.log("- Is Fetching:", isFetching);
-    console.log("- Error:", error);
-    console.log("- All Applicant Statuses:", allApplicants.map((a: any) => ({ name: a.name, status: a.status })));
-    console.log("- Unique Statuses:", [...new Set(allApplicants.map((a: any) => a.status))]);
-    if (contractRecipients.length > 0) {
-        console.log("- First Applicant:", contractRecipients[0]);
-        console.log("- Sample applicant data:", {
-            name: contractRecipients[0].name || contractRecipients[0].first_name,
-            status: contractRecipients[0].status,
-            has_accepted: contractRecipients[0].has_accepted,
-            contract_accepted_at: contractRecipients[0].contract_accepted_at,
-        });
-    }
+        return hasContractIssued;
+    });
+
+    const paginator = data?.data?.paginator;
 
     return (
         <section className="space-y-10">
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-800">Contract Recipients</h1>
+                    <h1 className="text-2xl font-bold text-gray-800">Adhoc Contract Recipients</h1>
                     <p className="text-gray-600 mt-1">
-                        Candidates who have been issued contracts or have accepted contracts for adhoc positions
+                        Adhoc staff who have been issued contracts or have accepted contracts
                     </p>
                 </div>
                 <div className="flex items-center gap-2">

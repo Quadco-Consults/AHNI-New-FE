@@ -7,6 +7,7 @@ export const DialogType = {
   AddTicket: "AddTicket",
   ActivityUpload: "ActivityUpload",
   SspUpload: "SspUpload",
+  RiskManagementPlanUpload: "RiskManagementPlanUpload",
   SspApproveModal: "SspApproveModal",
   SuccessModal: "SuccessModal",
   FundSuccessModal: "FundSuccessModal",

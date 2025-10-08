@@ -12,6 +12,7 @@ import ProjectDetailsUploadModal from "@/features/projects/components/modals/Pro
 import ChangeProjectStatusModal from "@/features/projects/components/modals/ChangeProjectStatusModal";
 import WorkPlanUploadModal from "@/features/programs/components/modals/WorkPlanUploadModal";
 import ActivityUploadModal from "@/features/programs/components/modals/ActivityUploadModal";
+import RiskManagementPlanUploadModal from "@/features/programs/components/modals/RiskManagementPlanUploadModal";
 import ViewLog from "@/features/admin/components/audit-log/ViewLog";
 import CategoriesModal from "@/features/procurement/components/modals/CategoriesModal";
 import PriceModal from "@/features/procurement/components/modals/PriceModal";
@@ -109,6 +110,7 @@ const dialogs: Record<string, ReactNode> = {
   [DialogType.WorkPlanUpload]: <WorkPlanUploadModal />,
   [DialogType.AddTicket]: <AddTicketModal />,
   [DialogType.ActivityUpload]: <ActivityUploadModal />,
+  [DialogType.RiskManagementPlanUpload]: <RiskManagementPlanUploadModal />,
   [DialogType.ActivityTrackerModal]: <ActivityTrackerModal />,
   [DialogType.SspUpload]: <SspUploadModal />,
   [DialogType.SspApproveModal]: <SspApproveModal />,

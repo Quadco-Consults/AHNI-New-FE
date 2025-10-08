@@ -12,6 +12,8 @@ import React, { useEffect, useState } from "react";
 import { useGetAllRolesManager } from "@/features/auth/controllers/roleController";
 import { useGetSingleUserManager, useAddUserToRoleManager } from "@/features/auth/controllers/userController";
 import { toast } from "sonner";
+import { useAppDispatch } from "@/hooks/useStore";
+import { closeDialog } from "@/store/ui";
 
 const RoleCheckbox: React.FC<{
   role: IRole;
@@ -80,14 +82,19 @@ const SearchMembers = () => {
 
 interface AssignRoleProps {
   userId?: string;
+  id?: string;
   onClose?: () => void;
 }
 
-const AssignRole = ({ userId, onClose }: AssignRoleProps) => {
+const AssignRole = ({ userId, id, onClose }: AssignRoleProps) => {
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
+  const dispatch = useAppDispatch();
 
-  const { addUserToRole, isLoading } = useAddUserToRoleManager(userId || "");
-  const { data: user } = useGetSingleUserManager(userId || "");
+  // Use id or userId, whichever is provided
+  const actualUserId = id || userId;
+
+  const { addUserToRole, isLoading } = useAddUserToRoleManager(actualUserId || "");
+  const { data: user } = useGetSingleUserManager(actualUserId || "");
 
   useEffect(() => {
     const roles = user?.data?.roles?.map((role: IRole) => role.id);
@@ -108,13 +115,23 @@ const AssignRole = ({ userId, onClose }: AssignRoleProps) => {
   };
 
   const handleAddRole = async () => {
-    if (!userId) return;
+    if (!actualUserId) {
+      toast.error("User ID is missing");
+      return;
+    }
+
+    if (selectedRoles.length === 0) {
+      toast.error("Please select at least one role");
+      return;
+    }
 
     try {
       await addUserToRole({
         roles: selectedRoles,
       });
+
       toast.success("Role Added Successfully");
+      dispatch(closeDialog());
       if (onClose) {
         onClose();
       }
@@ -124,8 +141,8 @@ const AssignRole = ({ userId, onClose }: AssignRoleProps) => {
   };
 
   return (
-    <div className="pb-10">
-      <ScrollArea className="h-[80vh]">
+    <div className="pb-10 flex flex-col h-full">
+      <ScrollArea className="flex-1">
         <div className="flex items-center justify-center w-full py-7">
           <div className="w-full space-y-7">
             <div className="flex justify-center">
@@ -152,20 +169,19 @@ const AssignRole = ({ userId, onClose }: AssignRoleProps) => {
             />
           </CardContent>
         </Card>
-        <div className="flex items-center justify-end gap-x-3 mt-7 px-7">
-          <p className="text-primary">
-            {selectedRoles?.length} Roles Selected
-          </p>
-          <div>
-            <FormButton
-              loading={isLoading}
-              onClick={handleAddRole}
-            >
-              Save & Continue
-            </FormButton>
-          </div>
-        </div>
       </ScrollArea>
+      <div className="flex items-center justify-end gap-x-3 mt-7 px-7 border-t pt-4">
+        <p className="text-primary">
+          {selectedRoles?.length} Roles Selected
+        </p>
+        <FormButton
+          type="button"
+          loading={isLoading}
+          onClick={handleAddRole}
+        >
+          Save & Continue
+        </FormButton>
+      </div>
     </div>
   );
 };

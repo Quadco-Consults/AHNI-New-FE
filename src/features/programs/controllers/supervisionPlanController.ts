@@ -9,7 +9,7 @@ import {
 } from "../types/program/plan/supervision-plan/supervision-plan";
 import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
 
-const BASE_URL = "/programs/plans/supportive-supervision/";
+const BASE_URL = "programs/plans/supportive-supervision/";
 
 // ===== SUPERVISION PLAN HOOKS =====
 
@@ -151,33 +151,63 @@ export const useApproveSupervisionPlan = (id: string) => {
       comments?: string;
     }) => {
       try {
+        const endpoint = `${BASE_URL}${id}/approve/`;
+        console.log('🔵 Approval endpoint:', endpoint);
+        console.log('🔵 Request payload:', { action, comments });
+
         const response = await AxiosWithToken.post(
-          `${BASE_URL}${id}/approve/`,
+          endpoint,
           {
             action,
             comments,
           }
         );
+
+        console.log('✅ Approval response:', response.data);
         return response.data;
       } catch (error: any) {
+        console.error('❌ Approval error:', {
+          status: error.response?.status,
+          statusText: error.response?.statusText,
+          data: error.response?.data,
+          url: error.config?.url,
+        });
+        console.error('❌ Full error data:', JSON.stringify(error.response?.data, null, 2));
+
+        // Check if response is HTML (backend endpoint not deployed)
+        const isHtmlResponse = typeof error.response?.data === 'string' &&
+          error.response?.data.trim().startsWith('<!DOCTYPE');
+
         if (error.response?.status === 404) {
+          if (isHtmlResponse) {
+            throw new Error(
+              "The approval endpoint is not yet deployed to the server. Please contact the backend team to deploy the /approve/ endpoint to Heroku."
+            );
+          }
           throw new Error(
+            error.response?.data?.detail ||
+            error.response?.data?.message ||
             "Supervision plan not found. It may have been deleted or you don't have permission to access it."
           );
         }
         if (error.response?.status === 403) {
           throw new Error(
+            error.response?.data?.detail ||
+            error.response?.data?.message ||
             "You don't have permission to approve this supervision plan at this level."
           );
         }
         if (error.response?.status === 400) {
           throw new Error(
+            error.response?.data?.detail ||
             error.response?.data?.message ||
               "Cannot approve at this time. Check the approval workflow status."
           );
         }
         throw new Error(
-          error.response?.data?.message || "Failed to process approval"
+          error.response?.data?.detail ||
+          error.response?.data?.message ||
+          "Failed to process approval"
         );
       }
     },

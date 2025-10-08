@@ -124,20 +124,44 @@ const AssignRole = () => {
     };
 
     const handleAddRole = async () => {
+        console.log("=== BUTTON CLICKED ===");
+        console.log("User ID:", userId);
+        console.log("Selected Roles:", selectedRoles);
+
+        if (!userId) {
+            toast.error("User ID is missing");
+            console.error("No user ID provided");
+            return;
+        }
+
+        if (selectedRoles.length === 0) {
+            toast.error("Please select at least one role");
+            return;
+        }
+
         try {
+            console.log("Attempting to add roles:", {
+                userId,
+                selectedRoles,
+                endpoint: `users/${userId}/roles/`
+            });
+
             await addUserToRole({
                 roles: selectedRoles,
             });
+
+            console.log("Roles added successfully");
             toast.success("Role Added Successfully");
             dispatch(closeDialog());
         } catch (error: any) {
+            console.error("Failed to add roles:", error);
             toast.error(error?.message || "Something went wrong");
         }
     };
 
     return (
-        <div className="pb-10">
-            <ScrollArea className="h-[80vh]">
+        <div className="pb-10 flex flex-col h-full">
+            <ScrollArea className="flex-1">
                 <div className="flex items-center justify-center w-full py-7">
                     <div className="w-full space-y-7">
                         <div className="flex justify-center">
@@ -164,20 +188,19 @@ const AssignRole = () => {
                         />
                     </CardContent>
                 </Card>
-                <div className="flex items-center justify-end gap-x-3 mt-7 px-7">
-                    <p className="text-primary">
-                        {selectedRoles?.length} Roles Selected
-                    </p>
-                    <div>
-                        <FormButton
-                            loading={isLoading}
-                            onClick={() => handleAddRole()}
-                        >
-                            Save & Continue
-                        </FormButton>
-                    </div>
-                </div>
             </ScrollArea>
+            <div className="flex items-center justify-end gap-x-3 mt-7 px-7 border-t pt-4">
+                <p className="text-primary">
+                    {selectedRoles?.length} Roles Selected
+                </p>
+                <FormButton
+                    type="button"
+                    loading={isLoading}
+                    onClick={handleAddRole}
+                >
+                    Save & Continue
+                </FormButton>
+            </div>
         </div>
     );
 };

@@ -69,13 +69,14 @@ const CreateRegister = () => {
       phone_number: "",
       email: "",
       project_role: "",
-      score: 0,
+      score: "",
       major_concerns: "",
       relationship_owner: "",
       contact_person_name: "",
       contact_person_email: "",
       contact_person_phone_number: "",
-      importance: 0,
+      importance: "",
+      influence: "",
     },
   });
 
@@ -98,8 +99,10 @@ const CreateRegister = () => {
   const influence = Number(watch("influence") || 0);
 
   useEffect(() => {
-    setValue("score", String(importance * influence));
-  }, [importance, influence]);
+    if (importance && influence) {
+      setValue("score", importance * influence);
+    }
+  }, [importance, influence, setValue]);
 
   const onSubmit: SubmitHandler<TStakeholderRegisterFormValues> = async (
     data
@@ -191,30 +194,28 @@ const CreateRegister = () => {
               required
             />
 
-            {id && (
-              <>
-                <FormSelect
-                  name='importance'
-                  label='Importance'
-                  placeholder='Select Importance'
-                  options={importanceOptions}
-                />
+            <FormSelect
+              name='importance'
+              label='Importance'
+              placeholder='Select Importance'
+              options={importanceOptions}
+              required
+            />
 
-                <FormSelect
-                  name='influence'
-                  label='Influence'
-                  placeholder='Select Influence'
-                  options={importanceOptions}
-                />
+            <FormSelect
+              name='influence'
+              label='Influence'
+              placeholder='Select Influence'
+              options={importanceOptions}
+              required
+            />
 
-                <FormInput
-                  label='Score'
-                  name='score'
-                  placeholder='Enter Score'
-                  required
-                />
-              </>
-            )}
+            <FormInput
+              label='Score'
+              name='score'
+              placeholder='Score (Auto-calculated)'
+              disabled
+            />
 
             <FormInput
               name='major_concerns'

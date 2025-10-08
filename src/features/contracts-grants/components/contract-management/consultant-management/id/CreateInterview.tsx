@@ -1,6 +1,5 @@
 "use client";
 
-import { skipToken } from "@reduxjs/toolkit/query";
 import BackNavigation from "components/atoms/BackNavigation";
 import FormButton from "@/components/FormButton";
 import FormInput from "components/atoms/FormInput";
@@ -31,12 +30,13 @@ import { LoadingSpinner } from "components/Loading";
 import { Input } from "components/ui/input";
 import { Icon } from "@iconify/react";
 import { Checkbox } from "components/ui/checkbox";
-import { useGetAllSolicitations } from "@/features/procurement/controllers/solicitationController";
 import { useGetAllUsers } from "@/features/auth/controllers/userController";
 import { Badge } from "components/ui/badge";
 import { toast } from "sonner";
 import { useCreateContractInterview } from "@/features/contracts-grants/controllers/contractController";
 import { useGetAllConsultancyStaffs } from "@/features/contracts-grants/controllers/consultantManagementController";
+import { filterAhniStaffOnly } from "@/utils/userFilters";
+import { useGetEmployeeOnboardings } from "@/features/hr/controllers/employeeOnboardingController";
 
 export default function CreateInterview() {
   const router = useRouter();
@@ -45,7 +45,8 @@ export default function CreateInterview() {
   const applicantId = params?.id as string;
 
   const { data } = useGetSingleConsultantManagement(
-    applicantId || skipToken
+    applicantId || "",
+    !!applicantId
   );
 
   const { data: applicants } = useGetAllConsultancyStaffs({
@@ -54,27 +55,68 @@ export default function CreateInterview() {
     search: applicantId || "",
     enabled: !!applicantId,
   });
-  const { data: users } = useGetAllUsers({
+  // Fetch from both sources: Users table AND Employee database
+  const { data: users, isLoading: isUsersLoading, error: usersError } = useGetAllUsers({
+    page: 1,
+    size: 2000000,
+    enabled: true,
+  });
+
+  const { data: employeeData, isLoading: isEmployeesLoading } = useGetEmployeeOnboardings({
     page: 1,
     size: 2000000,
   });
 
-  // Filter only AHNI staff users
-  const ahniStaffUsers = users?.data?.results?.filter((user) =>
-    user?.organization?.toLowerCase()?.includes('ahni') ||
-    user?.company?.toLowerCase()?.includes('ahni') ||
-    user?.user_type === 'STAFF' ||
-    user?.is_staff === true
-  ) || [];
-
-  console.log({
-    applicants: applicants?.data?.results,
-    allUsers: users?.data?.results?.length,
-    ahniStaffUsers: ahniStaffUsers?.length,
-    ahniStaffSample: ahniStaffUsers?.slice(0, 3)
+  console.log('🔍 Raw data sources:', {
+    users: users?.results?.length || 0,
+    employees: employeeData?.data?.results?.length || 0,
+    usersLoading: isUsersLoading,
+    employeesLoading: isEmployeesLoading,
   });
 
-  const { createContractInterview, isLoading } = useCreateContractInterview();
+  // Combine users from both sources
+  const allStaff = [
+    // Users from user table (filter to exclude vendors)
+    ...filterAhniStaffOnly((users?.results || []) as any[]),
+    // Employees from employee database (all are AHNI staff)
+    ...((employeeData?.data?.results || []) as any[]).map((emp: any) => ({
+      id: emp.id,
+      first_name: emp.legal_firstname || emp.first_name,
+      last_name: emp.legal_lastname || emp.last_name,
+      email: emp.email,
+      user_type: 'STAFF',
+      designation: emp.designation?.name || emp.position,
+      department: emp.department?.name,
+      phone_number: emp.phone_number || emp.mobile_number,
+      is_staff: true,
+      _source: 'employee_database'
+    }))
+  ];
+
+  // Remove duplicates based on email
+  const uniqueStaff = allStaff.reduce((acc: any[], current: any) => {
+    const exists = acc.find(item => item.email === current.email);
+    if (!exists) {
+      acc.push(current);
+    }
+    return acc;
+  }, []);
+
+  const ahniStaffUsers = uniqueStaff;
+
+  console.log('👥 Combined AHNI staff:', {
+    fromUsers: filterAhniStaffOnly((users?.results || []) as any[]).length,
+    fromEmployees: employeeData?.data?.results?.length || 0,
+    combined: allStaff.length,
+    afterDedup: ahniStaffUsers.length,
+    sampleStaff: ahniStaffUsers.slice(0, 3).map((s: any) => ({
+      name: `${s.first_name} ${s.last_name}`,
+      email: s.email,
+      source: s._source || 'users_table'
+    }))
+  });
+
+  const { createContractInterview, isLoading: isCreating } = useCreateContractInterview();
 
   const form = useForm({
     defaultValues: {
@@ -88,9 +130,10 @@ export default function CreateInterview() {
   useEffect(() => {
     if (data?.data) {
       // Ensure consultancy title is always a string
-      const consultancyTitle = typeof data.data.title === 'object'
-        ? data.data.title?.name || data.data.title?.title || 'Unknown Consultancy'
-        : data.data.title || 'Unknown Consultancy';
+      const titleData: any = data.data.title;
+      const consultancyTitle = typeof titleData === 'object' && titleData !== null
+        ? titleData?.name || titleData?.title || 'Unknown Consultancy'
+        : titleData || 'Unknown Consultancy';
 
       form.setValue('consultancy', consultancyTitle);
       console.log('Setting consultancy title:', consultancyTitle);
@@ -100,9 +143,8 @@ export default function CreateInterview() {
   const { handleSubmit, watch } = form;
 
   const matchedUsers =
-    ahniStaffUsers?.filter((user) =>
-      // @ts-ignore
-      form.watch("committee_members")?.includes(user?.id)
+    ahniStaffUsers?.filter((user: any) =>
+      (form.watch("committee_members") as string[])?.includes(user?.id)
     ) || [];
 
   const onSubmit = async (interview_data: any) => {
@@ -178,7 +220,7 @@ export default function CreateInterview() {
             {watch("interview_type") === "COMMITTEE" && (
               <div className='flex items-center gap-2 flex-wrap'>
                 <div className='flex items-center gap-2 flex-wrap'>
-                  {matchedUsers?.map((user) => {
+                  {matchedUsers?.map((user: any) => {
                     // Ensure user names are strings, not objects
                     const firstName = typeof user?.first_name === 'object'
                       ? user?.first_name?.name || 'Unknown'
@@ -234,15 +276,26 @@ export default function CreateInterview() {
                       </div>
 
                       <div className='space-y-5 '>
-                        {isLoading ? (
-                          <LoadingSpinner />
+                        {isUsersLoading ? (
+                          <div className='flex flex-col items-center justify-center py-10'>
+                            <LoadingSpinner />
+                            <p className='mt-4 text-gray-600'>Loading team members...</p>
+                          </div>
+                        ) : usersError ? (
+                          <div className='flex flex-col items-center justify-center py-10'>
+                            <p className='text-red-600'>Error loading users: {String(usersError)}</p>
+                          </div>
+                        ) : ahniStaffUsers?.length === 0 ? (
+                          <div className='flex flex-col items-center justify-center py-10'>
+                            <p className='text-gray-600'>No team members available</p>
+                          </div>
                         ) : (
                           <FormField
                             control={form.control}
                             name='committee_members'
                             render={() => (
                               <FormItem className='grid grid-cols-1 gap-5 bg-gray-100 mt-10 p-5 rounded-lg shadow-inner md:grid-cols-2'>
-                                {ahniStaffUsers?.map((user) => (
+                                {ahniStaffUsers?.map((user: any) => (
                                   <FormField
                                     key={user?.id}
                                     control={form.control}

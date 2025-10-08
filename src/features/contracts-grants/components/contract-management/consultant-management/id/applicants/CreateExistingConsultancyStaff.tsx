@@ -87,7 +87,7 @@ export default function CreateExistingConsultancyStaff() {
 
             router.push(path.replace(':id', id));
         } catch (error: any) {
-            toast.error(error.data.message || "Something went wrong");
+            toast.error(error?.data?.message || error?.message || "Something went wrong");
         }
     };
 

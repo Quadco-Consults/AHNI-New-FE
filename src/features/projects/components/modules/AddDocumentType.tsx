@@ -34,24 +34,24 @@ const AddDocumentTypes = () => {
     });
 
     const dispatch = useAppDispatch();
-    const { addDocumentType: documentTypes, isLoading } = useAddDocumentType();
-    const { updateDocumentType: updateDocumentTypes, isLoading: updateDocumentLoading } =
+    const [addDocumentType, { isLoading }] = useAddDocumentType();
+    const [updateDocumentType, { isLoading: updateDocumentLoading }] =
         useUpdateDocumentType();
 
     const onSubmit: SubmitHandler<TDocumentTypeFormValues> = async (data) => {
         try {
             dialogProps?.type === "update"
-                ? await updateDocumentTypes({
+                ? await updateDocumentType({
                       //@ts-ignore
                       id: String(dialogProps?.data?.id),
                       body: data,
                   })
-                : await documentTypes(data);
+                : await addDocumentType(data);
             toast.success("Document Type Added Succesfully");
             dispatch(closeDialog());
             form.reset();
         } catch (error: any) {
-            toast.error(error.data.message || "Something went wrong");
+            toast.error(error?.data?.message || error?.message || "Something went wrong");
         }
     };
 

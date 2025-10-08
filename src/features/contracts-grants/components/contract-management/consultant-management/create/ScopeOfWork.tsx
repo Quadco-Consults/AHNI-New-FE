@@ -33,6 +33,7 @@ import { useEffect } from "react";
 import { useCreateConsultantAdvertisement } from "@/features/contracts-grants/controllers/consultantAdvertisementController";
 import { useCreateFacilitator } from "@/features/contracts-grants/controllers/facilitatorManagementController";
 import { useGetAllUsers } from "@/features/auth/controllers/userController";
+import { useGetSingleAdhocRequisition } from "@/controllers/adhocRequisitionController";
 
 export default function ScopeOfWork() {
   const pathname = usePathname();
@@ -92,9 +93,9 @@ export default function ScopeOfWork() {
         ...applicationDetails,
         ...data,
         advertisement_document:
-          typeof data.advertisement_document !== "string"
+          typeof data.advertisement_document !== "string" && data.advertisement_document?.[0]
             ? await fileToBase64(data.advertisement_document[0])
-            : null,
+            : data.advertisement_document || null,
         // Add type field for create operations
         ...(consultantId ? {} : { type: type as "CONSULTANT" | "ADHOC" | "FACILITATOR" }),
       };
@@ -151,6 +152,24 @@ export default function ScopeOfWork() {
 
   const { data } = useGetSingleConsultantManagement(consultantId || skipToken);
 
+  // Get adhoc requisition ID from sessionStorage if on adhoc page
+  const isAdhocPage = pathname.includes("adhoc-management");
+  const applicationDetails: TConsultantanagementDetailsFormData | null =
+    typeof window !== 'undefined'
+      ? JSON.parse(sessionStorage.getItem("consultantManagementFormData") || "null")
+      : null;
+
+  const adhocRequisitionId = isAdhocPage && applicationDetails?.contract_request
+    ? applicationDetails.contract_request
+    : "";
+
+  // Fetch adhoc requisition details if on adhoc page
+  const { data: adhocRequisitionData } = useGetSingleAdhocRequisition(
+    adhocRequisitionId,
+    isAdhocPage && !!adhocRequisitionId
+  );
+
+  // Populate form from existing consultant management data
   useEffect(() => {
     if (data) {
       const {
@@ -172,6 +191,26 @@ export default function ScopeOfWork() {
       });
     }
   }, [data, form]);
+
+  // Populate form from adhoc requisition when on adhoc page
+  useEffect(() => {
+    if (isAdhocPage && adhocRequisitionData) {
+      const requisition = adhocRequisitionData.data || adhocRequisitionData;
+
+      console.log("🔍 Populating Scope of Work from Adhoc Requisition:", requisition);
+
+      // Populate form fields from adhoc requisition
+      form.setValue("description", requisition.job_description || "", { shouldValidate: false });
+      form.setValue("background", requisition.business_justification || "", { shouldValidate: false });
+      form.setValue("objectives", requisition.key_responsibilities || "", { shouldValidate: false });
+
+      console.log("✅ Populated Scope of Work fields:", {
+        description: requisition.job_description ? "✓" : "✗",
+        background: requisition.business_justification ? "✓" : "✗",
+        objectives: requisition.key_responsibilities ? "✓" : "✗",
+      });
+    }
+  }, [isAdhocPage, adhocRequisitionData, form]);
 
   return (
     <ConsultantManagementLayout>
@@ -277,7 +316,7 @@ export default function ScopeOfWork() {
             <div className='border-b border-[#DBDFE9] py-[1.875rem]  space-y-[2rem]'>
               <div className='flex flex-col gap-y-[1rem]'>
                 <Label className='font-semibold'>
-                  Upload Complete Advertisement Document
+                  Upload Complete Advertisement Document <span className='text-gray-500 font-normal'>(Optional)</span>
                 </Label>
                 <div className='flex items-center w-full gap-x-[1rem]'>
                   <label
@@ -297,7 +336,7 @@ export default function ScopeOfWork() {
                   />
                   <p className='border flex items-center w-full gap-x-[1rem] rounded-lg border-[#DBDFE9] px-[1.125rem] h-[3.5rem]'>
                     {(form.watch("advertisement_document") as FileList)?.[0]
-                      ?.name || data?.data.scope_of_work.advertisement_document}
+                      ?.name || data?.data.scope_of_work.advertisement_document || "No file selected"}
                   </p>
                 </div>
               </div>

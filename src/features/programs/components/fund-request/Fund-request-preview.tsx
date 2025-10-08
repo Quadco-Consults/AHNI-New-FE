@@ -22,6 +22,7 @@ import {
 } from "@/features/modules/controllers";
 import { useGetSingleUser } from "@/features/auth/controllers";
 import { useCreateFundRequest } from "../../controllers";
+import { useGetAllCostCategories } from "@/features/modules/controllers";
 
 export default function Summary() {
   const router = useRouter();
@@ -43,6 +44,11 @@ export default function Summary() {
   );
 
   const { data: reviewer } = useGetSingleUser(programFundRequest?.reviewer);
+
+  const { data: costCategories } = useGetAllCostCategories({
+    page: 1,
+    size: 1000,
+  });
 
   const { createFundRequest, isLoading: isCreateLoading } =
     useCreateFundRequest();
@@ -123,7 +129,7 @@ export default function Summary() {
 
       <DataTable
         data={programFundRequest?.activities || []}
-        columns={columns()}
+        columns={columns(costCategories?.data?.results || [])}
         isLoading={false}
       />
 
@@ -149,7 +155,7 @@ export default function Summary() {
   );
 }
 
-const columns = (): ColumnDef<TFundRequestActivity>[] => {
+const columns = (costCategories: any[]): ColumnDef<TFundRequestActivity>[] => {
   return [
     {
       header: "S/N",
@@ -168,8 +174,16 @@ const columns = (): ColumnDef<TFundRequestActivity>[] => {
     {
       header: "Amount",
       id: "amount",
-      accessorKey: "amount",
       size: 200,
+      cell: ({ row }) => {
+        const activity = row.original;
+        // Calculate amount if not provided: unit_cost * quantity * frequency
+        const amount = activity.amount ||
+          (Number(activity.unit_cost || 0) *
+           Number(activity.quantity || 0) *
+           Number(activity.frequency || 0));
+        return amount ? amount.toLocaleString() : '-';
+      },
     },
 
     {
@@ -177,6 +191,10 @@ const columns = (): ColumnDef<TFundRequestActivity>[] => {
       id: "unit_cost",
       accessorKey: "unit_cost",
       size: 200,
+      cell: ({ getValue }) => {
+        const value = getValue() as string;
+        return value ? Number(value).toLocaleString() : '-';
+      },
     },
     {
       header: "Frequency",
@@ -188,6 +206,19 @@ const columns = (): ColumnDef<TFundRequestActivity>[] => {
       header: "Cost Category",
       accessorKey: "category",
       size: 200,
+      cell: ({ row }) => {
+        const category = row.original.category;
+        // If category is an object, return the name
+        if (typeof category === 'object' && category !== null) {
+          return (category as any).name || (category as any).category_name || '-';
+        }
+        // If it's a string (ID), look it up in costCategories
+        if (typeof category === 'string') {
+          const found = costCategories.find((cat) => cat.id === category);
+          return found?.name || found?.category_name || category;
+        }
+        return '-';
+      },
     },
 
     {

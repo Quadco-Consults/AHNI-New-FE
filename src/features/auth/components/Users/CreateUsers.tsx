@@ -429,8 +429,8 @@ const CreateUsers = () => {
       serial_id_code: `AHNI-${userId.slice(0, 8)}`,
       
       // MISSING FIELDS - Mark for completion during HR onboarding
-      legal_middlename: "⚠️ TO BE COMPLETED",
-      other_number: "⚠️ TO BE COMPLETED",
+      legal_middlename: "TBD",
+      other_number: "TBD",
       date_of_birth: "1900-01-01", // Placeholder date
       date_of_hire: new Date().toISOString().split('T')[0], // Today as default
       ssnumber: "⚠️ TO BE COMPLETED",
@@ -480,7 +480,7 @@ const CreateUsers = () => {
                     label='Mobile Number'
                     name='mobile_number'
                     required
-                    type='number'
+                    type='tel'
                   />
                 </div>
                 <div className='grid grid-cols-2 gap-x-7'>

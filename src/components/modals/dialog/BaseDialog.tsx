@@ -1,6 +1,6 @@
 "use client";
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "components/ui/dialog";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { FC, ReactNode } from "react";
 import { closeDialog, dailogSelector } from "store/ui";
@@ -23,10 +23,15 @@ export const BaseDialog: FC<PageProps> = ({ children }) => {
                 className={dialogProps?.width || dialogProps?.className || "max-w-lg"}
                 {...(dialogProps || {})}
             >
-                {dialogProps?.header && (
+                {dialogProps?.header ? (
                     <DialogHeader>
                         <DialogTitle>{dialogProps.header}</DialogTitle>
                     </DialogHeader>
+                ) : (
+                    <>
+                        <DialogTitle className="sr-only">Dialog</DialogTitle>
+                        <DialogDescription className="sr-only">Dialog content</DialogDescription>
+                    </>
                 )}
                 {children}
             </DialogContent>
