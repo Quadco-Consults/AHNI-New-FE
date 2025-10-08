@@ -16,6 +16,7 @@ import {
 import { RouteEnum } from "constants/RouterConstants";
 import { Icon } from "@iconify/react";
 import GoBack from "components/GoBack";
+import { cn } from "lib/utils";
 
 interface Step {
   step: number;
