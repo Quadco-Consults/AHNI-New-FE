@@ -320,11 +320,11 @@ const Upload = () => {
       }
     }
 
-    // Navigate to prequalification with success message
-    toast.success("Vendor registration completed successfully!");
+    // Navigate to attestation (final step)
+    toast.success("Documents uploaded successfully! Please complete the attestation.");
     let path = pathname;
     path = path.substring(0, path.lastIndexOf("/"));
-    path += "/prequalification";
+    path += `/attestation?id=${vendorId}`;
     router.push(path);
 
     } catch (error) {

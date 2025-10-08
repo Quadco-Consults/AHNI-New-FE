@@ -18,6 +18,7 @@ import { z } from "zod";
 import { VendorAttestationSchema } from "@/features/procurement/types/procurement-validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import VendorsAPI from "@/features/procurement/controllers/vendorsController";
+import { toast } from "sonner";
 
 const Attestation = () => {
   const [showSubmit, setShowSubmit] = useState(false);
@@ -102,14 +103,16 @@ const Attestation = () => {
   };
 
   const submitHandler = async () => {
-    // const finalData = {};
-
-    let path = pathname;
-
+    // Final step - complete vendor registration and navigate to vendor management
     setShowSubmit(true);
-    path = path.substring(0, path.lastIndexOf("/"));
-    path += `/upload${vendorId ? `?id=${vendorId}` : ''}`;
-    router.push(path);
+
+    // Show success message
+    toast.success("Vendor registration completed successfully! Your application is now pending approval.");
+
+    // Navigate to vendor management/prequalification page
+    setTimeout(() => {
+      router.push("/dashboard/procurement/vendor-management");
+    }, 1500);
   };
   return (
     <VendorRegistationLayout>

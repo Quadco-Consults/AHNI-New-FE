@@ -27,8 +27,8 @@ const steps: Step[] = [
   { step: 1, stepName: "Vendor Registration", route: "vendor-registration" },
   { step: 2, stepName: "Branch Offices", route: "the-company" },
   { step: 3, stepName: "Reference", route: "reference" },
-  { step: 4, stepName: "Attestation", route: "attestation" },
-  { step: 5, stepName: "Upload", route: "upload" },
+  { step: 4, stepName: "Upload", route: "upload" },
+  { step: 5, stepName: "Attestation", route: "attestation" },
 ];
 
 const VendorRegistrationHeading = () => {
