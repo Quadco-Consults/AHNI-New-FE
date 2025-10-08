@@ -19,13 +19,14 @@ import NotificationListInfinite from "../NotificationListInfinite";
 import NotificationPreferences from "../NotificationPreferences";
 import { NotificationListSkeleton, NotificationContentSkeleton } from "../NotificationSkeleton";
 import EmptyTodoIcon from "components/icons/EmptyTodoIcon";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
+import { useVendorEvaluationReminders } from "@/features/procurement/hooks/useVendorEvaluationReminders";
 
 export default function Notifications() {
-    const [filters, setFilters] = useState({ 
-        module_type: "all_modules", 
+    const [filters, setFilters] = useState({
+        module_type: "all_modules",
         status: "all_status",
         priority: "all_priority",
         category: "all_category"
@@ -33,7 +34,7 @@ export default function Notifications() {
     const [searchTerm, setSearchTerm] = useState("");
     const [activeTab, setActiveTab] = useState("notifications");
     const [useInfiniteScroll, setUseInfiniteScroll] = useState(true);
-    
+
     const notificationParams: NotificationFilters = {
         page: 1,
         size: useInfiniteScroll ? 20 : 100,
@@ -43,9 +44,10 @@ export default function Notifications() {
         priority: filters.priority === "all_priority" ? undefined : filters.priority as any,
         category: filters.category === "all_category" ? undefined : filters.category as any,
     };
-    
+
     const { data, isLoading } = useGetNotifications(useInfiniteScroll ? undefined : notificationParams);
     const { mutate: markAllAsRead, isPending: isMarkingAll } = useMarkAllAsRead();
+    const { reminders } = useVendorEvaluationReminders();
     const [activeNotification, setActiveNotification] = useState<TNotification>();
 
     const handleSetActiveNotification = (notification: TNotification) => {
@@ -56,15 +58,83 @@ export default function Notifications() {
         markAllAsRead();
     };
 
-    // Since filtering is now handled in the API call, we can use the results directly
-    const filteredNotifications = data?.results || [];
+    // Convert vendor evaluation reminders to notification format and combine with system notifications
+    const vendorReminderNotifications: TNotification[] = useMemo(() => {
+        return reminders.map(reminder => ({
+            id: `vendor-reminder-${reminder.id}`,
+            user: "",
+            module_type: "VendorEvaluation",
+            title: `Vendor Evaluation: ${reminder.vendor_name}`,
+            message: reminder.message,
+            status: "Pending" as const,
+            is_read: false,
+            created_datetime: new Date(Date.now() - reminder.days_since_last_po * 24 * 60 * 60 * 1000).toISOString(),
+            priority: reminder.priority.toLowerCase() as any,
+            category: reminder.type === "OVERDUE" ? "error" as const : "warning" as const,
+            action_url: "/dashboard/procurement/vendor-performance/form",
+            metadata: {
+                vendor_id: reminder.vendor_id,
+                vendor_name: reminder.vendor_name,
+                po_count: reminder.po_count,
+                days_since_last_po: reminder.days_since_last_po,
+                reminder_type: reminder.type
+            }
+        }));
+    }, [reminders]);
+
+    // Combine and filter all notifications
+    const allNotifications = useMemo(() => {
+        const combined = [...vendorReminderNotifications, ...(data?.results || [])];
+
+        // Apply filters to vendor reminders as well
+        return combined.filter(notification => {
+            // Search filter
+            if (searchTerm && !notification.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
+                !notification.message.toLowerCase().includes(searchTerm.toLowerCase())) {
+                return false;
+            }
+
+            // Module type filter
+            if (filters.module_type !== "all_modules" && notification.module_type !== filters.module_type) {
+                return false;
+            }
+
+            // Status filter
+            if (filters.status === "Pending" && (notification.is_read || notification.status === "Read")) {
+                return false;
+            }
+            if (filters.status === "Read" && (!notification.is_read || notification.status === "Pending")) {
+                return false;
+            }
+
+            // Priority filter
+            if (filters.priority !== "all_priority" && notification.priority !== filters.priority) {
+                return false;
+            }
+
+            // Category filter
+            if (filters.category !== "all_category" && notification.category !== filters.category) {
+                return false;
+            }
+
+            return true;
+        });
+    }, [vendorReminderNotifications, data?.results, searchTerm, filters]);
+
+    const filteredNotifications = allNotifications;
 
     const hasUnreadNotifications = filteredNotifications.some(
         notification => !notification.is_read || notification.status === "Pending"
     );
 
     // Get unique values for filter dropdowns (these should ideally come from the API)
-    const moduleTypes = [...new Set(data?.results?.map(n => n.module_type) || [])];
+    const moduleTypes = useMemo(() => {
+        const types = new Set([...(data?.results?.map(n => n.module_type) || [])]);
+        if (vendorReminderNotifications.length > 0) {
+            types.add("VendorEvaluation");
+        }
+        return Array.from(types).sort();
+    }, [data?.results, vendorReminderNotifications]);
     const priorities = ["low", "medium", "high", "urgent"];
     const categories = ["info", "success", "warning", "error", "system"];
 
