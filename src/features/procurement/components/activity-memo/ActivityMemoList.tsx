@@ -37,7 +37,7 @@ const ActivityMemoList = ({ status }: ActivityMemoListProps) => {
 
   // Filter results based on tab selection
   const filteredMemos = status === 'approved'
-    ? (data?.data?.results || []) // Show only APPROVED memos
+    ? (data?.data?.results || []).filter(memo => memo.status === 'APPROVED') // Show only APPROVED memos
     : (data?.data?.results || []).filter(memo =>
         // For 'pending' tab, show only DRAFT and SUBMITTED memos
         memo.status === 'DRAFT' || memo.status === 'SUBMITTED'
