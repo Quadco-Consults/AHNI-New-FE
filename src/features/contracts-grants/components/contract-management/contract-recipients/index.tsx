@@ -1,33 +1,95 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Card from "components/Card";
 import { contractRecipientsColumns } from "@/features/contracts-grants/components/table-columns/contract-management/contract-recipients";
 import DataTable from "components/Table/DataTable";
 import TableFilters from "components/Table/TableFilters";
 import { useGetAllConsultancyApplicants } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
+import { useGetAllAdhocApplicants } from "@/features/programs/controllers/adhocApplicantController";
 
 export default function ContractRecipients() {
     const [page, setPage] = useState(1);
 
-    // TEMPORARY: Using consultancy applicants endpoint with type filter
-    // Backend stores adhoc contracts in consultancy table with type="ADHOC"
-    // Should use dedicated /programs/adhoc/applicants/ once backend is fixed
-    const { data, isFetching, error } = useGetAllConsultancyApplicants({
+    // Fetch from BOTH endpoints to check which one has data
+    const { data: consultancyData, isFetching: isFetchingConsultancy } = useGetAllConsultancyApplicants({
         page,
         size: 50,
     });
 
+    const { data: adhocData, isFetching: isFetchingAdhoc } = useGetAllAdhocApplicants({
+        page,
+        size: 50,
+    });
+
+    // Determine which endpoint to use based on data availability
+    const { data, isFetching, sourceEndpoint } = useMemo(() => {
+        const consultancyResults = consultancyData?.data?.results || [];
+        const adhocResults = adhocData?.data?.results || [];
+
+        // Filter consultancy results for ADHOC type with contracts
+        const consultancyAdhocWithContracts = consultancyResults.filter((applicant: any) =>
+            applicant.type === "ADHOC" &&
+            (applicant.status === "CONTRACT_ISSUED" ||
+             applicant.status === "APPROVED" ||
+             applicant.status === "ACCEPTED" ||
+             applicant.status === "REJECTED")
+        );
+
+        // Filter adhoc results for contracts
+        const adhocWithContracts = adhocResults.filter((applicant: any) =>
+            applicant.status === "CONTRACT_ISSUED" ||
+            applicant.status === "APPROVED" ||
+            applicant.status === "ACCEPTED" ||
+            applicant.status === "REJECTED"
+        );
+
+        console.log("🔍 Dual Endpoint Check:");
+        console.log("- Consultancy endpoint (/contract-grants/consultancy/applicants/):", {
+            total: consultancyResults.length,
+            adhocWithContracts: consultancyAdhocWithContracts.length,
+        });
+        console.log("- Adhoc endpoint (/programs/adhoc/applicants/):", {
+            total: adhocResults.length,
+            withContracts: adhocWithContracts.length,
+        });
+
+        // Prefer dedicated adhoc endpoint if it has data
+        if (adhocWithContracts.length > 0) {
+            console.log("✅ Using dedicated adhoc endpoint (backend separated!)");
+            return {
+                data: adhocData,
+                isFetching: isFetchingAdhoc,
+                sourceEndpoint: "/programs/adhoc/applicants/",
+            };
+        } else if (consultancyAdhocWithContracts.length > 0) {
+            console.log("⚠️ Using consultancy endpoint with type filter (backend not yet separated)");
+            return {
+                data: consultancyData,
+                isFetching: isFetchingConsultancy,
+                sourceEndpoint: "/contract-grants/consultancy/applicants/ (type=ADHOC)",
+            };
+        } else {
+            console.log("ℹ️ No contract recipients found in either endpoint");
+            return {
+                data: adhocData,
+                isFetching: isFetchingAdhoc || isFetchingConsultancy,
+                sourceEndpoint: "/programs/adhoc/applicants/ (preferred)",
+            };
+        }
+    }, [consultancyData, adhocData, isFetchingConsultancy, isFetchingAdhoc]);
+
     // Filter to show ONLY adhoc applicants who have been issued contracts
     const allApplicants = data?.data?.results || [];
     const contractRecipients = allApplicants.filter((applicant: any) => {
-        // Filter by type = ADHOC
-        if (applicant.type !== "ADHOC") {
-            return false;
+        // If using consultancy endpoint, filter by type = ADHOC
+        if (sourceEndpoint.includes("consultancy")) {
+            if (applicant.type !== "ADHOC") {
+                return false;
+            }
         }
 
         // Check if applicant has contract_issued status
-        // According to the workflow: APPLIED → SHORTLISTED → INTERVIEWED → CONTRACT_ISSUED → APPROVED
         const hasContractIssued = applicant.status === "CONTRACT_ISSUED" ||
                                   applicant.status === "APPROVED" ||
                                   applicant.status === "ACCEPTED" ||
@@ -75,8 +137,21 @@ export default function ContractRecipients() {
                     <p className="text-gray-600 mt-1">
                         Adhoc staff who have been issued contracts or have accepted contracts
                     </p>
+                    <p className="text-xs text-gray-500 mt-1">
+                        Data source: <code className="bg-gray-100 px-1 py-0.5 rounded">{sourceEndpoint}</code>
+                    </p>
                 </div>
                 <div className="flex items-center gap-2">
+                    {sourceEndpoint.includes("consultancy") && (
+                        <div className="bg-yellow-50 text-yellow-700 px-3 py-1 rounded-full text-xs font-medium">
+                            Legacy Mode
+                        </div>
+                    )}
+                    {sourceEndpoint.includes("programs/adhoc") && contractRecipients.length > 0 && (
+                        <div className="bg-green-50 text-green-700 px-3 py-1 rounded-full text-xs font-medium">
+                            ✅ Separated Tables
+                        </div>
+                    )}
                     <div className="bg-green-50 text-green-700 px-3 py-1 rounded-full text-sm font-medium">
                         {contractRecipients.length} Contract{contractRecipients.length !== 1 ? 's' : ''} Issued
                     </div>
