@@ -21,7 +21,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "components/Table/DataTable";
 import { Plus } from "lucide-react";
 import { useParams } from "next/navigation";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import VendorsAPI from "@/features/procurement/controllers/vendorsController";
 
 type Data = {
@@ -42,35 +42,59 @@ const EOIVendorSubmission = ({ status, eoiData }: { status?: string; eoiData?: a
 
   // Fetch vendors registered for this specific EOI
   // The backend should support filtering by eoi parameter
-  const { data: vendorsData, isLoading: isLoadingVendors } = VendorsAPI.useGetVendors({
+  const { data: vendorsData, isLoading: isLoadingVendors, error: vendorsError } = VendorsAPI.useGetVendors({
     page: 1,
     size: 100,
     search: searchTerm,
     enabled: true,
   });
 
-  // Log debug information
-  console.log("🔍 EOI Vendor Submissions Debug:", {
-    eoiId,
-    eoiData,
-    vendorsData,
-    allVendors: vendorsData?.data?.results,
-  });
+  // Debug: Log when vendors data changes
+  useEffect(() => {
+    console.log("📦 Vendors API Response Changed:", {
+      isLoading: isLoadingVendors,
+      hasData: !!vendorsData,
+      hasError: !!vendorsError,
+      error: vendorsError,
+      rawData: vendorsData,
+    });
+
+    if (vendorsError) {
+      console.error("❌ Vendors API Error:", vendorsError);
+    }
+  }, [vendorsData, isLoadingVendors, vendorsError]);
+
+  // Check if backend has EOI support (migration applied)
+  const backendHasEOISupport = !vendorsError || !vendorsError?.message?.includes("eoi_id does not exist");
 
   // Filter vendors by EOI ID
   const vendorSubmissions = useMemo(() => {
-    if (!vendorsData?.data?.results) {
-      console.log("⚠️ No vendors found");
+    console.log("🔄 vendorSubmissions recalculating...");
+
+    // If there's an error (likely backend not ready), return empty array
+    if (vendorsError) {
+      console.warn("⚠️ Vendors API error (backend migration not applied yet):", vendorsError);
       return [];
     }
 
-    // Log a sample vendor to see the data structure
-    console.log("📋 Sample vendor structure:", vendorsData.data.results[0]);
+    if (!vendorsData?.data?.results) {
+      console.log("⚠️ No vendors data yet");
+      return [];
+    }
+
+    // Log vendor data structure
+    console.log("🔍 EOI Vendor Submissions Debug:", {
+      eoiId,
+      totalVendors: vendorsData.data.results.length,
+      firstVendor: vendorsData.data.results[0],
+      allVendorEOIs: vendorsData.data.results.map((v: any) => ({ name: v.company_name, eoi: v.eoi })),
+    });
 
     // Filter to only show vendors registered for this EOI
     const eoiVendors = vendorsData.data.results.filter((vendor: any) => {
-      console.log(`Checking vendor ${vendor.company_name}: eoi="${vendor.eoi}", looking for "${eoiId}"`);
-      return vendor.eoi === eoiId;
+      const matches = vendor.eoi === eoiId;
+      console.log(`Checking vendor "${vendor.company_name}": eoi="${vendor.eoi}", looking for "${eoiId}", matches=${matches}`);
+      return matches;
     });
 
     console.log(`✅ Found ${eoiVendors.length} vendors for EOI ${eoiId}:`, eoiVendors);

@@ -20,6 +20,16 @@ AxiosWithToken.interceptors.request.use(
       console.log('Committee Request Body:', JSON.stringify(config.data, null, 2));
     }
 
+    // Debug: Log purchase request approval payloads
+    if (config.data && config.url?.includes('purchase-request') && config.method?.toLowerCase() === 'patch') {
+      console.log('🔍 Purchase Request PATCH Body:', JSON.stringify(config.data, null, 2));
+      console.log('🔍 Purchase Request PATCH Data Type:', typeof config.data);
+      console.log('🔍 Purchase Request PATCH Data (raw):', config.data);
+      console.log('🔍 Has action field?:', 'action' in (config.data || {}));
+      console.log('🔍 Action value from interceptor:', config.data?.action);
+      console.log('🔍 Request will be sent with Content-Type:', config.headers['Content-Type']);
+    }
+
     const token = localStorage.getItem("token");
 
     if (!token && retryCount < 3) {

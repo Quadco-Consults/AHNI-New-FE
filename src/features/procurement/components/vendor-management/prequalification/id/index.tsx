@@ -66,18 +66,29 @@ const PrequalificationDetails = () => {
       <div className='flex justify-between'>
         <h4 className='text-lg font-bold'>Prequalification</h4>
 
-        {["Pending"].includes(data?.status!) && (
+        <div className="flex gap-3">
           <Link
-            href={generatePath(
-              RouteEnum.VENDOR_MANAGEMENT_START_PREQUALIFICATION,
-              {
-                id: id,
-              }
-            )}
+            href={`/dashboard/procurement/vendor-management/vendor-registration?id=${id}`}
           >
-            <Button>Start Prequalification</Button>
+            <Button variant="outline">
+              <Icon icon="solar:pen-bold-duotone" className="mr-2" fontSize={16} />
+              Edit Vendor
+            </Button>
           </Link>
-        )}
+
+          {["Pending"].includes(data?.status!) && (
+            <Link
+              href={generatePath(
+                RouteEnum.VENDOR_MANAGEMENT_START_PREQUALIFICATION,
+                {
+                  id: id,
+                }
+              )}
+            >
+              <Button>Start Prequalification</Button>
+            </Link>
+          )}
+        </div>
       </div>
 
       <Tabs defaultValue='overview'>

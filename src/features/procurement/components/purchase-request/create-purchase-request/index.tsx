@@ -16,10 +16,10 @@ function CreatePurchaseRequest() {
   const isUUID = id && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
   const isPurchaseRequestId = id && !isUUID; // If it's not a UUID, assume it's a purchase request ID
 
-  const { data: requestsDetails } = useGetPurchaseRequestById({
-    id: id as string,
-    enabled: !!id && isPurchaseRequestId
-  });
+  const { data: requestsDetails } = useGetPurchaseRequestById(
+    id as string,
+    !!id && isPurchaseRequestId
+  );
 
   console.log("🔍 ID from URL:", id);
   console.log("🔍 Is UUID (Activity Memo ID):", isUUID);

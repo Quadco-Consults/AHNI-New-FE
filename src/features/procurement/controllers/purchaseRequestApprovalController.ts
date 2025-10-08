@@ -9,7 +9,7 @@ interface ApiResponse<TData = unknown> {
   data: TData;
 }
 
-const BASE_URL = "/procurements/purchase-request";
+const BASE_URL = "procurements/purchase-request";
 
 // Add new endpoint for approval info
 export const getApprovalInfo = async (requestId: string): Promise<any> => {
@@ -145,29 +145,64 @@ export const PurchaseRequestApprovalAPI = {
         throw new Error(`Invalid action value: ${action}. Expected 'review'.`);
       }
 
-      const payload = { action };
-      console.log(`📤 Sending review payload:`, payload);
+      // Try multiple payload formats to see which one works
+      const payload = { action: "review" };
+      const payloadString = JSON.stringify({ action: "review" });
 
-      const response = await AxiosWithToken.patch(`${BASE_URL}/${requestId}/`, payload);
+      console.log(`📤 Sending review payload to ${BASE_URL}/${requestId}/:`);
+      console.log(`📤 Payload object:`, payload);
+      console.log(`📤 Payload stringified:`, payloadString);
+      console.log(`📤 Action value:`, payload.action, `(type: ${typeof payload.action})`);
+      console.log(`📤 Full URL:`, `${BASE_URL}/${requestId}/`);
 
-      console.log(`✅ Review response:`, response.data);
+      console.log(`🌐 About to send PATCH request with JSON object...`);
+      // Send as plain object (axios will stringify it)
+      const response = await AxiosWithToken.patch(`${BASE_URL}/${requestId}/`, payload, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }).catch(err => {
+        console.error(`🔥 PATCH request failed immediately:`, err);
+        console.error(`🔥 Error response:`, err.response?.data);
+        console.error(`🔥 Error status:`, err.response?.status);
+        throw err;
+      });
+      console.log(`🌐 PATCH request completed`);
+
+      console.log(`✅ Review response full:`, response);
+      console.log(`✅ Review response.data:`, response.data);
+      console.log(`✅ Review response.status:`, response.status);
+      console.log(`✅ Review response data type:`, typeof response.data);
+      console.log(`✅ Review response data keys:`, Object.keys(response.data || {}));
 
       // Handle different response formats
       if (response.data) {
-        return {
+        const result = {
           status: true,
           message: "Purchase request reviewed successfully",
           data: response.data
         };
+        console.log(`✅ Returning success result:`, result);
+        return result;
       }
 
+      console.log(`✅ Returning raw response.data:`, response.data);
       return response.data;
     } catch (error) {
       const axiosError = error as AxiosError;
       console.error(`❌ Review error:`, error);
+      console.error(`❌ Error response status:`, axiosError.response?.status);
+      console.error(`❌ Error response headers:`, axiosError.response?.headers);
+      console.error(`❌ Error response data (raw):`, axiosError.response?.data);
+      console.error(`❌ Error response data (stringified):`, JSON.stringify(axiosError.response?.data, null, 2));
+      console.error(`❌ Error config URL:`, axiosError.config?.url);
+      console.error(`❌ Error config method:`, axiosError.config?.method);
+      console.error(`❌ Error config data:`, axiosError.config?.data);
 
       const errorData = axiosError.response?.data as any;
       let errorMessage = errorData?.message || errorData?.detail || errorData?.error || axiosError.message || "Unknown error occurred";
+
+      console.error(`❌ Extracted error message:`, errorMessage);
 
       // Handle specific error cases
       if (errorMessage.includes("Invalid action") || errorMessage.includes("current status")) {

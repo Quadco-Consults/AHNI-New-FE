@@ -119,6 +119,8 @@ const Registration = () => {
       company_chairman: "",
       bank_address: "",
       bank_name: "",
+      account_name: "",
+      account_number: "",
       submitted_categories: [],
       state: "",
     },
@@ -146,6 +148,8 @@ const Registration = () => {
         company_chairman: vendor?.data?.company_chairman || "",
         bank_address: vendor?.data?.bank_address || "",
         bank_name: vendor?.data?.bank_name || "",
+        account_name: vendor?.data?.account_name || "",
+        account_number: vendor?.data?.account_number || "",
         submitted_categories:
           vendor?.data?.submitted_categories_details?.map(
             (cat: any) => cat?.cat_id || cat
@@ -367,15 +371,12 @@ const Registration = () => {
                     label="Company's Bankers Address"
                     name='bank_address'
                   />
-                  <FormInput
-                    label="Company's Bankers Account Number"
-                    name='bank_account_number'
-                  />
-                  <FormInput
-                    label='Date Submitted'
-                    name='date_submitted'
-                    type='date'
-                  />
+                </div>
+                <div className='grid grid-cols-2 gap-4 '>
+                  <FormInput label="Account Name" name='account_name' required />
+                  <FormInput label="Account Number" name='account_number' required />
+                </div>
+                <div className='grid grid-cols-2 gap-4 '>
                   <FormInput
                     label='Number of permanent staff'
                     name='number_of_permanent_staff'

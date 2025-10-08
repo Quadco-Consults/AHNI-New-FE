@@ -70,6 +70,8 @@ export const VendorsRegistrationSchema = z.object({
   company_chairman: z.string().min(1, "Field is required"),
   bank_address: z.string().min(1, "Field is required"),
   bank_name: z.string().min(1, "Field is required"),
+  account_name: z.string().min(1, "Account name is required"),
+  account_number: z.string().min(1, "Account number is required"),
   state: z.string().min(1, "Field is required"),
 });
 
@@ -167,10 +169,10 @@ export const PurchaseRequestSchema = z.object({
       uom: z.string().min(1, "Unit of Measure is required"),
       item: z.string().min(1, "Field is required"),
       description: z.string().optional(),
-      fco_number: z.array(z.string().min(1, "Field is required")),
+      fco_number: z.array(z.string()).optional().default([]),
     })
   ),
-  request_memo: z.string().min(1, "Field is required"),
+  request_memo: z.string().optional(),
   ref_number: z.string().min(1, "Field is required"),
   date_of_request: z.string().min(1, "Field is required"),
   date_required: z.string().min(1, "Field is required"),
