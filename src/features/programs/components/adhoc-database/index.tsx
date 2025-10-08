@@ -5,62 +5,47 @@ import { consultantDatabaseColumns } from "@/features/contracts-grants/component
 import DataTable from "components/Table/DataTable";
 import TableFilters from "components/Table/TableFilters";
 import { useState } from "react";
-import { useGetAllConsultancyApplicants } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
+import { useGetAllAdhocApplicants } from "@/features/programs/controllers/adhocApplicantController";
 import { Badge } from "components/ui/badge";
 
 export default function AdhocDatabase() {
     const [page, setPage] = useState(1);
 
-    // Fetch all applicants (not filtering by status to get all adhoc staff)
-    const { data, isLoading } = useGetAllConsultancyApplicants({
+    // Fetch all hired adhoc staff from dedicated adhoc endpoint
+    const { data, isLoading } = useGetAllAdhocApplicants({
         page,
         size: 1000,
+        status: "HIRED",  // Only hired staff appear in database
+        enabled: true,
     });
 
     const allResults = data?.data?.results || [];
 
     // Debug: Log first applicant to see what fields are available
     if (allResults.length > 0) {
-        console.log("Sample applicant data:", allResults[0]);
+        console.log("Sample adhoc staff data:", allResults[0]);
     }
 
-    // Filter for adhoc staff who have accepted their contracts
-    const acceptedApplicants = allResults.filter(applicant => {
-        // Must have accepted the offer
-        if (!applicant.offer_accepted) return false;
+    // No need to filter - already filtered by status=HIRED in query
+    const acceptedApplicants = allResults;
 
-        // Must be ADHOC type only
-        return applicant.type === "ADHOC";
-    });
-
-    // Transform consultancy applicant data to match adhoc database structure
+    // Map adhoc applicant data to match database table structure
     const results = acceptedApplicants.map(applicant => {
-        // Split name into surname and other names (if possible)
-        const nameParts = applicant.name?.split(' ') || [];
-        const surname = nameParts[0] || '';
-        const otherNames = nameParts.slice(1).join(' ') || '';
-
-        // Extract qualifications from education array
-        const qualifications = applicant.education
-            ?.map(edu => edu.degree || edu.major)
-            .filter(Boolean)
-            .join(', ') || '';
-
         return {
             id: applicant.id,
-            // Map applicant fields to adhoc database fields
-            sur_name: surname,
-            other_names: otherNames,
+            // Adhoc applicant fields (already in correct structure)
+            sur_name: applicant.surname,
+            other_names: applicant.other_names,
             gender: applicant.gender || null,
             state_of_origin: applicant.state_of_origin || null,
-            designation: applicant.position_under_contract,
+            designation: applicant.designation,
             phone_number: applicant.phone_number,
             email_address: applicant.email,
-            qualifications: qualifications,
+            qualifications: applicant.qualification,
             health_facility: applicant.health_facility || null,
             spoke_site_name: applicant.spoke_site_name || null,
             lga: applicant.lga || null,
-            status_of_adhoc_staff: applicant.offer_accepted ? 'Active' : 'Pending',
+            status_of_adhoc_staff: applicant.status === 'HIRED' ? 'Active' : 'Pending',
             qmap_backstop: applicant.qmap_backstop || null,
             programs_officer: applicant.programs_officer || null,
             stl: applicant.stl || null,
