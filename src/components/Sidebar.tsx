@@ -690,6 +690,11 @@ const getDeparmentalLinks = () => {
               name: "Accepted Contracts",
               path: "/dashboard/programs/adhoc/accepted-contracts",
             },
+
+            {
+              name: "Adhoc Staff Requisition",
+              path: "/dashboard/adhoc-requisition",
+            },
           ],
         },
 
