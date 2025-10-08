@@ -68,6 +68,7 @@ export interface VendorsResultsData {
   approved_categories: string[];
   state: string;
   area_of_specialization?: string;
+  eoi?: string; // EOI ID if vendor registered through an EOI advertisement
 }
 
 export interface VendorsData {

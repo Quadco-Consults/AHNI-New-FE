@@ -27,6 +27,7 @@ const Attestation = () => {
   const pathname = usePathname();
   const query = useUrlQuery();
   const vendorId = query.get("id");
+  const eoiId = query.get("eoi_id"); // Capture EOI ID to redirect back after completion
   // const dispatch = useDispatch();
 
   const currentVendor = useSelector((state: RootState) => state.vendors.currentVendor);
@@ -103,15 +104,20 @@ const Attestation = () => {
   };
 
   const submitHandler = async () => {
-    // Final step - complete vendor registration and navigate to vendor management
+    // Final step - complete vendor registration and navigate appropriately
     setShowSubmit(true);
 
     // Show success message
     toast.success("Vendor registration completed successfully! Your application is now pending approval.");
 
-    // Navigate to vendor management/prequalification page
+    // Navigate back to the EOI vendor submission tab if registering from an EOI,
+    // otherwise go to the general vendor management/prequalification page
     setTimeout(() => {
-      router.push("/dashboard/procurement/vendor-management");
+      if (eoiId) {
+        router.push(`/dashboard/procurement/vendor-management/eoi/${eoiId}`);
+      } else {
+        router.push("/dashboard/procurement/vendor-management");
+      }
     }, 1500);
   };
   return (

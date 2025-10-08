@@ -175,20 +175,25 @@ const Upload = () => {
     }));
   };
 
-  // Get vendor ID from URL query parameter
-  const getVendorIdFromUrl = () => {
-    if (typeof window === 'undefined') return "";
+  // Get vendor ID and EOI ID from URL query parameters
+  const getQueryParamsFromUrl = () => {
+    if (typeof window === 'undefined') return { vendorId: "", eoiId: "" };
     const query = new URLSearchParams(window.location.search);
-    return query.get("id") || "";
+    return {
+      vendorId: query.get("id") || "",
+      eoiId: query.get("eoi_id") || "",
+    };
   };
 
   const [vendorId, setVendorId] = useState<string>("");
+  const [eoiId, setEoiId] = useState<string>(""); // Preserve EOI ID through registration flow
 
-  // Set vendor ID on mount
+  // Set vendor ID and EOI ID on mount
   React.useEffect(() => {
-    const urlVendorId = getVendorIdFromUrl();
+    const { vendorId: urlVendorId, eoiId: urlEoiId } = getQueryParamsFromUrl();
     if (urlVendorId) {
       setVendorId(urlVendorId);
+      setEoiId(urlEoiId);
     } else {
       // Show error if no vendor ID is found
       toast.error("No vendor ID found. Please start registration from the beginning.");
@@ -324,7 +329,7 @@ const Upload = () => {
     toast.success("Documents uploaded successfully! Please complete the attestation.");
     let path = pathname;
     path = path.substring(0, path.lastIndexOf("/"));
-    path += `/attestation?id=${vendorId}`;
+    path += `/attestation?id=${vendorId}${eoiId ? `&eoi_id=${eoiId}` : ''}`;
     router.push(path);
 
     } catch (error) {
