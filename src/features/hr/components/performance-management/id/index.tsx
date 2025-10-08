@@ -58,6 +58,7 @@ const PerformanceDetails = () => {
 
   // Debug logging
   console.log("Assessment data:", assessment);
+  console.log("Employee data:", assessment?.employee);
   console.log("Employee goals from backend:", assessment?.employee_goals);
   console.log("Merged goals:", assessmentWithGoals?.goals);
 
@@ -150,25 +151,39 @@ const PerformanceDetails = () => {
                   Employee Name
                 </label>
                 <p>
-                  {typeof assessmentWithGoals.employee === 'object'
-                    ? `${assessmentWithGoals.employee.legal_firstname} ${assessmentWithGoals.employee.legal_lastname}`
-                    : 'N/A'}
+                  {assessmentWithGoals.employee_name ||
+                   (typeof assessmentWithGoals.employee === 'object'
+                    ? `${assessmentWithGoals.employee.legal_firstname || assessmentWithGoals.employee.first_name || ''} ${assessmentWithGoals.employee.legal_lastname || assessmentWithGoals.employee.last_name || ''}`.trim()
+                    : '') || 'N/A'}
                 </p>
               </div>
               <div className='flex flex-col'>
                 <label className='text-md font-semibold mb-2'>Email</label>
                 <p>
-                  {typeof assessmentWithGoals.employee === 'object'
+                  {assessmentWithGoals.employee_email ||
+                   (typeof assessmentWithGoals.employee === 'object'
                     ? assessmentWithGoals.employee.email
-                    : 'N/A'}
+                    : '') || 'N/A'}
                 </p>
               </div>
               <div className='flex flex-col'>
                 <label className='text-md font-semibold mb-2'>Job Title</label>
                 <p>
-                  {typeof assessmentWithGoals.employee === 'object'
-                    ? assessmentWithGoals.employee.job_title
-                    : 'N/A'}
+                  {assessmentWithGoals.employee_job_title ||
+                   (typeof assessmentWithGoals.employee === 'object'
+                    ? assessmentWithGoals.employee.job_title || assessmentWithGoals.employee.job_id
+                    : '') || 'N/A'}
+                </p>
+              </div>
+              <div className='flex flex-col'>
+                <label className='text-md font-semibold mb-2'>Supervisor Name</label>
+                <p>
+                  {assessmentWithGoals.supervisor_name ||
+                   (typeof assessmentWithGoals.employee === 'object' && assessmentWithGoals.employee.supervisor
+                    ? typeof assessmentWithGoals.employee.supervisor === 'object'
+                      ? `${assessmentWithGoals.employee.supervisor.first_name || ''} ${assessmentWithGoals.employee.supervisor.last_name || ''}`.trim()
+                      : ''
+                    : '') || 'N/A'}
                 </p>
               </div>
             </div>
