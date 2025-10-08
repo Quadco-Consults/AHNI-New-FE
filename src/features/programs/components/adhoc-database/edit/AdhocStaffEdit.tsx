@@ -13,7 +13,7 @@ import FormSelect from "components/atoms/FormSelect";
 import FormButton from "@/components/FormButton";
 import { toast } from "sonner";
 import { AdhocStaffSchema, TAdhocStaffFormData } from "@/features/programs/types/adhoc-staff";
-import { useGetSingleConsultancyApplicant, useUpdateConsultancyApplicant } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
+import { useGetSingleAdhocApplicant, useUpdateAdhocApplicant } from "@/features/programs/controllers/adhocApplicantController";
 import { useGetAllProjects } from "@/features/projects/controllers/projectController";
 import { useGetAllFacilities } from "@/features/modules/controllers/program/facilityController";
 import { useEffect, useMemo } from "react";
@@ -30,9 +30,9 @@ export default function AdhocStaffEdit() {
   const router = useRouter();
   const staffId = params?.id as string;
 
-  // Fetch consultancy applicant data
-  const { data: applicantResponse, isLoading: isFetchLoading, error } = useGetSingleConsultancyApplicant(staffId);
-  const { updateConsultancyApplicant, isLoading: isUpdateLoading } = useUpdateConsultancyApplicant(staffId);
+  // Fetch adhoc applicant data
+  const { data: applicantResponse, isLoading: isFetchLoading, error } = useGetSingleAdhocApplicant(staffId);
+  const { mutateAsync: updateAdhocApplicant, isPending: isUpdateLoading } = useUpdateAdhocApplicant(staffId);
 
   // Fetch all projects for dropdown
   const { data: projectsData } = useGetAllProjects({ page: 1, size: 1000 });
@@ -74,15 +74,10 @@ export default function AdhocStaffEdit() {
     }));
   }, [facilitiesData]);
 
-  // Transform applicant data to form structure
-  const nameParts = applicant?.name?.split(' ') || [];
-  const surname = nameParts[0] || '';
-  const otherNames = nameParts.slice(1).join(' ') || '';
-
-  const qualifications = applicant?.education
-    ?.map(edu => edu.degree || edu.major)
-    .filter(Boolean)
-    .join(', ') || '';
+  // Extract fields from applicant (handle both old and new field names)
+  const surname = (applicant as any)?.surname || (applicant as any)?.sur_name || '';
+  const otherNames = (applicant as any)?.other_names || '';
+  const qualifications = (applicant as any)?.qualification || (applicant as any)?.qualifications || '';
 
   const form = useForm<TAdhocStaffFormData>({
     resolver: zodResolver(AdhocStaffSchema),
@@ -116,46 +111,45 @@ export default function AdhocStaffEdit() {
   // Update form when applicant data is loaded
   useEffect(() => {
     if (applicant) {
+      const app = applicant as any;
       form.reset({
-        sur_name: surname,
-        other_names: otherNames,
-        gender: applicant.gender || "MALE",
-        state_of_origin: applicant.state_of_origin || "",
-        designation: applicant.position_under_contract || "",
-        phone_number: applicant.phone_number || "",
-        email_address: applicant.email || "",
-        qualifications: qualifications,
-        health_facility: applicant.health_facility || "",
-        spoke_site_name: applicant.spoke_site_name || "",
-        lga: applicant.lga || "",
-        status_of_adhoc_staff: applicant.offer_accepted ? "Active" : "Pending",
-        qmap_backstop: applicant.qmap_backstop || "",
-        programs_officer: applicant.programs_officer || "",
-        stl: applicant.stl || "",
-        seo: applicant.seo || "",
-        lga2: applicant.lga2 || "",
-        cluster: applicant.cluster || "",
-        account_name: applicant.account_name || "",
-        bank_name: applicant.bank_name || "",
-        account_number: applicant.account_number || "",
-        sort_code: applicant.sort_code || "",
-        project: applicant.project || "",
+        sur_name: app.surname || app.sur_name || "",
+        other_names: app.other_names || "",
+        gender: app.gender || "MALE",
+        state_of_origin: app.state_of_origin || "",
+        designation: app.designation || "",
+        phone_number: app.phone_number || "",
+        email_address: app.email || app.email_address || "",
+        qualifications: app.qualification || app.qualifications || "",
+        health_facility: app.health_facility || "",
+        spoke_site_name: app.spoke_site_name || "",
+        lga: app.lga || "",
+        status_of_adhoc_staff: app.status === 'HIRED' ? "Active" : "Pending",
+        qmap_backstop: app.qmap_backstop || "",
+        programs_officer: app.programs_officer || "",
+        stl: app.stl || "",
+        seo: app.seo || "",
+        lga2: app.lga2 || "",
+        cluster: app.cluster || "",
+        account_name: app.account_name || "",
+        bank_name: app.bank_name || "",
+        account_number: app.account_number || "",
+        sort_code: app.sort_code || "",
+        project: app.project || "",
       });
     }
   }, [applicant, form]);
 
   const onSubmit = async (data: TAdhocStaffFormData) => {
     try {
-      // Combine surname and other names back into full name
-      const fullName = `${data.sur_name} ${data.other_names}`.trim();
-
-      // Prepare update payload - merge form data with existing applicant data
+      // Prepare update payload with adhoc-specific fields
       const updatePayload = {
-        name: fullName,
+        surname: data.sur_name,
+        other_names: data.other_names,
         email: data.email_address,
         phone_number: data.phone_number,
-        position_under_contract: data.designation,
-        // Add all the new adhoc-specific fields
+        designation: data.designation,
+        qualification: data.qualifications,
         gender: data.gender,
         state_of_origin: data.state_of_origin,
         health_facility: data.health_facility,
@@ -174,15 +168,16 @@ export default function AdhocStaffEdit() {
         project: data.project,
       };
 
-      console.log("Updating adhoc staff with payload:", updatePayload);
+      await updateAdhocApplicant(updatePayload as any);
 
-      await updateConsultancyApplicant(updatePayload as any);
-
-      toast.success("Adhoc staff details updated successfully!");
-      router.push(`/dashboard/programs/adhoc-database`);
+      // Note: The success toast is shown by the mutation's onSuccess handler
+      // Wait a bit for cache invalidation to complete before redirecting
+      setTimeout(() => {
+        router.push(`/dashboard/programs/adhoc-database`);
+      }, 500);
     } catch (error) {
       console.error("Update error:", error);
-      toast.error("Failed to update adhoc staff details. Please try again.");
+      // Note: The error toast is shown by the mutation's onError handler
     }
   };
 
