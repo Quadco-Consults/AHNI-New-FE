@@ -175,7 +175,29 @@ const Upload = () => {
     }));
   };
 
-  const vendor = typeof window !== 'undefined' ? localStorage.getItem("vendorID") as string : "";
+  // Get vendor ID from URL query parameter
+  const getVendorIdFromUrl = () => {
+    if (typeof window === 'undefined') return "";
+    const query = new URLSearchParams(window.location.search);
+    return query.get("id") || "";
+  };
+
+  const [vendorId, setVendorId] = useState<string>("");
+
+  // Set vendor ID on mount
+  React.useEffect(() => {
+    const urlVendorId = getVendorIdFromUrl();
+    if (urlVendorId) {
+      setVendorId(urlVendorId);
+    } else {
+      // Show error if no vendor ID is found
+      toast.error("No vendor ID found. Please start registration from the beginning.");
+      // Redirect to registration page after 2 seconds
+      setTimeout(() => {
+        router.push("/dashboard/procurement/vendor-management/vendor-registration");
+      }, 2000);
+    }
+  }, [router]);
 
   // Functions for handling Professional Organizations dynamic fields
   const addProfessionalOrgField = () => {
@@ -220,19 +242,15 @@ const Upload = () => {
     supportingDocument: { file: any };
   }) => {
     try {
-      // Get vendor ID from URL params (vendor was created in Registration step)
-      const query = new URLSearchParams(window.location.search);
-      const urlVendorId = query.get("id") || vendor;
-
-      if (!urlVendorId) {
+      if (!vendorId) {
         toast.error("No vendor ID found. Please start registration from the beginning.");
         return;
       }
 
-      console.log("Uploading documents for vendor ID:", urlVendorId);
+      console.log("Uploading documents for vendor ID:", vendorId);
 
-      // Use the vendor ID from URL
-      const createdVendorId = String(urlVendorId);
+      // Use the vendor ID from state
+      const createdVendorId = String(vendorId);
 
       // Upload documents for the existing vendor
       // Prepare all files and add them to FormData
