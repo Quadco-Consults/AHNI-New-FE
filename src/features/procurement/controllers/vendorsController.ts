@@ -235,6 +235,32 @@ export const useDeleteVendor = (id: string) => {
   return { deleteVendor, data, isLoading, isSuccess, error };
 };
 
+// Bulk Upload Vendors
+export const useBulkUploadVendors = () => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    VendorsResponse,
+    Error,
+    any
+  >({
+    endpoint: `${BASE_URL}bulk-upload/`,
+    queryKey: ["vendors", "vendor-list"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const bulkUploadVendors = async (vendors: any[]) => {
+    try {
+      const result = await callApi({ vendors });
+      return result;
+    } catch (error) {
+      console.error("Bulk upload error:", error);
+      throw error;
+    }
+  };
+
+  return { bulkUploadVendors, data, isLoading, isSuccess, error };
+};
+
 // Legacy exports for backward compatibility
 export const useGetVendorsQuery = useGetVendors;
 export const useGetVendorListQuery = useGetVendorList;
@@ -253,6 +279,7 @@ const VendorsAPI = {
   useUpdateVendor,
   useModifyVendor,
   useDeleteVendor,
+  useBulkUploadVendors,
   // Legacy naming for component compatibility
   useGetVendorsQuery: useGetVendors,
   useGetVendorListQuery: useGetVendorList,
