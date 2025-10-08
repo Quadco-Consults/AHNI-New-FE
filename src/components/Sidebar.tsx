@@ -723,6 +723,14 @@ const getDeparmentalLinks = () => {
               name: "Vendor Evaluation",
               path: "/dashboard/procurement/vendor-performance",
             },
+            {
+              name: "Evaluation Dashboard",
+              path: "/dashboard/procurement/vendor-evaluation-dashboard",
+            },
+            {
+              name: "Performance Analytics",
+              path: "/dashboard/procurement/vendor-performance-analytics",
+            },
           ],
         },
         {
