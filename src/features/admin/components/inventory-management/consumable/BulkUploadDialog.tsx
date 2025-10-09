@@ -121,20 +121,21 @@ export default function BulkUploadDialog({ open, onOpenChange }: BulkUploadDialo
 
   const handleDownloadTemplate = () => {
     // Create CSV template with all consumable fields including category
+    // Helper text in parentheses is automatically cleaned by the backend
     const headers = [
-      "category",
-      "name",
-      "description",
-      "uom",
-      "quantity",
-      "stock_control_method",
-      "expiry_date",
-      "re_order_level",
-      "buffer_stock",
-      "max_stock",
-      "entry_date",
-      "item_cost",
-      "price"
+      "category (Required)",
+      "name (Required)",
+      "description (Required)",
+      "uom (Required - Unit of Measure)",
+      "quantity (Optional)",
+      "stock_control_method (Optional - STOCK_LEVEL/AVAILABILITY/JUST_IN_TIME)",
+      "expiry_date (Optional - YYYY-MM-DD)",
+      "re_order_level (Optional)",
+      "buffer_stock (Optional)",
+      "max_stock (Optional)",
+      "entry_date (Optional - YYYY-MM-DD)",
+      "item_cost (Optional)",
+      "price (Optional)"
     ];
 
     // Sample data rows with proper values
@@ -186,48 +187,13 @@ export default function BulkUploadDialog({ open, onOpenChange }: BulkUploadDialo
       "2000.00"
     ];
 
-    // Add instruction row
-    const instructionRow = [
-      "REQUIRED: Category name",
-      "REQUIRED: Item name",
-      "REQUIRED: Item description",
-      "REQUIRED: Unit (Piece/Box/Liter/etc)",
-      "OPTIONAL: Starting quantity",
-      "OPTIONAL: STOCK_LEVEL/AVAILABILITY/JUST_IN_TIME",
-      "OPTIONAL: YYYY-MM-DD",
-      "OPTIONAL: Min stock before reorder",
-      "OPTIONAL: Safety stock",
-      "OPTIONAL: Max capacity",
-      "OPTIONAL: YYYY-MM-DD",
-      "OPTIONAL: Cost/unit",
-      "OPTIONAL: Price/unit"
-    ];
-
-    const noteRow = [
-      "⚠️ DELETE THIS ROW AND THE NEXT ROW BEFORE UPLOADING ⚠️",
-      "⚠️ DELETE THIS ROW ⚠️",
-      "⚠️ DELETE THIS ROW ⚠️",
-      "⚠️ DELETE THIS ROW ⚠️",
-      "⚠️ DELETE THIS ROW ⚠️",
-      "⚠️ DELETE THIS ROW ⚠️",
-      "⚠️ DELETE THIS ROW ⚠️",
-      "⚠️ DELETE THIS ROW ⚠️",
-      "⚠️ DELETE THIS ROW ⚠️",
-      "⚠️ DELETE THIS ROW ⚠️",
-      "⚠️ DELETE THIS ROW ⚠️",
-      "⚠️ DELETE THIS ROW ⚠️",
-      "⚠️ DELETE THIS ROW ⚠️"
-    ];
-
     const csvContent = [
       headers.join(","),
-      noteRow.join(","),
-      instructionRow.join(","),
-      "# SAMPLE DATA BELOW - You can delete these rows and add your own",
+      "# Sample data below - modify or replace with your own data",
       sampleData1.join(","),
       sampleData2.join(","),
       sampleData3.join(","),
-      "# Add your consumable data below (delete this comment line)",
+      "# Add your consumable data below",
       Array(headers.length).fill("").join(","),
       Array(headers.length).fill("").join(","),
     ].join("\n");
@@ -434,36 +400,20 @@ export default function BulkUploadDialog({ open, onOpenChange }: BulkUploadDialo
             )}
           </div>
 
-          {/* Critical Warning */}
-          <div className="border-2 rounded-lg p-4 bg-red-50 border-red-300">
-            <div className="flex items-start gap-2">
-              <AlertCircle className="text-red-600 mt-0.5 flex-shrink-0" size={20} />
-              <div>
-                <h4 className="font-bold text-sm text-red-900 mb-2">⚠️ CRITICAL: Delete Warning Rows Before Upload!</h4>
-                <p className="text-sm text-red-800 mb-2">
-                  The template contains instruction rows marked with <strong>"⚠️ DELETE THIS ROW ⚠️"</strong>
-                </p>
-                <p className="text-sm text-red-800 font-semibold">
-                  You MUST delete rows 2 and 3 (warning and instruction rows) before uploading, or the upload will fail!
-                </p>
-              </div>
-            </div>
-          </div>
-
           {/* Instructions */}
           <div className="border rounded-lg p-4 bg-gray-50">
             <h4 className="font-semibold text-sm mb-2">Important Instructions:</h4>
             <ul className="text-xs text-gray-700 space-y-1 list-disc list-inside">
-              <li className="text-red-700 font-bold">⚠️ DELETE rows 2-3 (warning & instruction rows) before uploading</li>
-              <li className="text-red-700 font-bold">⚠️ DELETE comment lines (starting with #) before uploading</li>
-              <li><strong>Required fields:</strong> category, name, description, uom</li>
-              <li><strong>Category:</strong> Must match an existing category name exactly (case-sensitive)</li>
+              <li><strong>Column headers:</strong> Helper text in parentheses (e.g., "Name (Required)") is automatically removed by the system</li>
+              <li><strong>Comment lines:</strong> Lines starting with # are automatically ignored - you can leave them or delete them</li>
+              <li><strong>Required fields:</strong> Category, Name, Description, UOM</li>
+              <li><strong>Optional fields:</strong> Can be left empty - the system will handle them correctly</li>
+              <li><strong>Category:</strong> Must match an existing category name exactly (or use category UUID)</li>
               <li><strong>Date format:</strong> Use YYYY-MM-DD (e.g., 2025-12-31)</li>
               <li><strong>Stock control methods:</strong> STOCK_LEVEL, AVAILABILITY, or JUST_IN_TIME</li>
-              <li><strong>Numeric fields:</strong> Use numbers only (no letters or special characters)</li>
               <li><strong>UOM examples:</strong> Piece, Box, Carton, Liter, Kilogram, Ream, Pack</li>
               <li><strong>Multiple categories:</strong> You can include items from different categories in one upload</li>
-              <li>Do not modify the header row in the template</li>
+              <li><strong>Sample data:</strong> You can modify the sample rows or delete them and add your own</li>
             </ul>
           </div>
         </div>
