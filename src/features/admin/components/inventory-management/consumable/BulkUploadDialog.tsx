@@ -204,29 +204,30 @@ export default function BulkUploadDialog({ open, onOpenChange }: BulkUploadDialo
     ];
 
     const noteRow = [
-      "NOTE: Use exact category names from your system",
-      "Delete this row before uploading",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      ""
+      "⚠️ DELETE THIS ROW AND THE NEXT ROW BEFORE UPLOADING ⚠️",
+      "⚠️ DELETE THIS ROW ⚠️",
+      "⚠️ DELETE THIS ROW ⚠️",
+      "⚠️ DELETE THIS ROW ⚠️",
+      "⚠️ DELETE THIS ROW ⚠️",
+      "⚠️ DELETE THIS ROW ⚠️",
+      "⚠️ DELETE THIS ROW ⚠️",
+      "⚠️ DELETE THIS ROW ⚠️",
+      "⚠️ DELETE THIS ROW ⚠️",
+      "⚠️ DELETE THIS ROW ⚠️",
+      "⚠️ DELETE THIS ROW ⚠️",
+      "⚠️ DELETE THIS ROW ⚠️",
+      "⚠️ DELETE THIS ROW ⚠️"
     ];
 
     const csvContent = [
       headers.join(","),
       noteRow.join(","),
       instructionRow.join(","),
+      "# SAMPLE DATA BELOW - You can delete these rows and add your own",
       sampleData1.join(","),
       sampleData2.join(","),
       sampleData3.join(","),
-      // Add 2 empty rows for user to fill
+      "# Add your consumable data below (delete this comment line)",
       Array(headers.length).fill("").join(","),
       Array(headers.length).fill("").join(","),
     ].join("\n");
@@ -433,10 +434,28 @@ export default function BulkUploadDialog({ open, onOpenChange }: BulkUploadDialo
             )}
           </div>
 
+          {/* Critical Warning */}
+          <div className="border-2 rounded-lg p-4 bg-red-50 border-red-300">
+            <div className="flex items-start gap-2">
+              <AlertCircle className="text-red-600 mt-0.5 flex-shrink-0" size={20} />
+              <div>
+                <h4 className="font-bold text-sm text-red-900 mb-2">⚠️ CRITICAL: Delete Warning Rows Before Upload!</h4>
+                <p className="text-sm text-red-800 mb-2">
+                  The template contains instruction rows marked with <strong>"⚠️ DELETE THIS ROW ⚠️"</strong>
+                </p>
+                <p className="text-sm text-red-800 font-semibold">
+                  You MUST delete rows 2 and 3 (warning and instruction rows) before uploading, or the upload will fail!
+                </p>
+              </div>
+            </div>
+          </div>
+
           {/* Instructions */}
           <div className="border rounded-lg p-4 bg-gray-50">
             <h4 className="font-semibold text-sm mb-2">Important Instructions:</h4>
             <ul className="text-xs text-gray-700 space-y-1 list-disc list-inside">
+              <li className="text-red-700 font-bold">⚠️ DELETE rows 2-3 (warning & instruction rows) before uploading</li>
+              <li className="text-red-700 font-bold">⚠️ DELETE comment lines (starting with #) before uploading</li>
               <li><strong>Required fields:</strong> category, name, description, uom</li>
               <li><strong>Category:</strong> Must match an existing category name exactly (case-sensitive)</li>
               <li><strong>Date format:</strong> Use YYYY-MM-DD (e.g., 2025-12-31)</li>
@@ -445,7 +464,6 @@ export default function BulkUploadDialog({ open, onOpenChange }: BulkUploadDialo
               <li><strong>UOM examples:</strong> Piece, Box, Carton, Liter, Kilogram, Ream, Pack</li>
               <li><strong>Multiple categories:</strong> You can include items from different categories in one upload</li>
               <li>Do not modify the header row in the template</li>
-              <li>Remove the instruction and note rows before uploading</li>
             </ul>
           </div>
         </div>
