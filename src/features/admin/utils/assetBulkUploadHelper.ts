@@ -199,21 +199,36 @@ export async function preprocessAssetCSV(file: File, lookups: AssetUploadLookups
           return;
         }
 
-        // Extract headers (first non-comment line)
+        // Extract headers (first non-comment line that contains "category")
         let headerIndex = 0;
-        while (headerIndex < lines.length && lines[headerIndex].startsWith('#')) {
+        while (headerIndex < lines.length) {
+          const line = lines[headerIndex];
+          // Skip comment lines
+          if (line.startsWith('#')) {
+            headerIndex++;
+            continue;
+          }
+          // Check if this line contains the actual headers (look for "category" which is our first column)
+          if (line.toLowerCase().includes('category')) {
+            break;
+          }
+          // Skip lines that don't look like headers (e.g., title rows in Excel)
           headerIndex++;
         }
 
         if (headerIndex >= lines.length) {
-          reject(new Error("No header row found in file"));
+          reject(new Error("No header row found in file. Make sure the CSV contains a row with column names like 'category', 'name', etc."));
           return;
         }
 
         const headers = lines[headerIndex].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
 
+        console.log('📋 Found headers at line', headerIndex + 1, ':', headers.slice(0, 5).join(', '), '...');
+
         // Clean headers - remove helper text in parentheses (e.g., "name (Required)" -> "name")
         const cleanedHeaders = headers.map(h => h.replace(/\s*\(.*?\)\s*/g, '').trim());
+
+        console.log('📋 Cleaned headers:', cleanedHeaders.slice(0, 5).join(', '), '...');
 
         // Find column indices for fields that need UUID conversion
         const assetTypeIdx = cleanedHeaders.indexOf('asset_type');

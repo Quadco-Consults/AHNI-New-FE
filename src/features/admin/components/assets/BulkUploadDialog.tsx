@@ -9,6 +9,9 @@ import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { fetchAssetUploadLookups, preprocessAssetCSV, type AssetUploadLookups } from "@/features/admin/utils/assetBulkUploadHelper";
 
+// Version marker to verify code is loading
+console.log('🚀🚀🚀 BulkUploadDialog V3 LOADED - 2025-01-09-18:00 🚀🚀🚀');
+
 interface BulkUploadDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -229,94 +232,69 @@ export default function AssetBulkUploadDialog({ open, onOpenChange }: BulkUpload
       "insurance_duration (Optional - Months)"
     ];
 
-    // Sample data rows with proper values
-    // You can use names for Asset Type, Project, Donor, Location, etc. - they will be automatically converted to UUIDs
+    // Sample data rows - REPLACE WITH YOUR ACTUAL DATA
+    // IMPORTANT: Use exact names as they appear in your system
     const sampleData1 = [
-      "Fixed Assets",
-      "Toyota Hilux",
-      "4x4 Double Cab Pickup",
-      "Unit",
-      "AST-2024-001",
-      "ABC-123-XY",
-      "JTFDE626500123456",
-      "Vehicle", // Asset Type - use name from system
-      "Project A", // Project - use name from system
-      "USAID", // Donor - use name from system
-      "admin@mail.com", // Assignee - use email
-      "ABC Organization", // Implementer - use partner name
-      "Lagos Office", // Location - use location name
-      "Lagos",
-      "Fixed Asset", // Classification - use name
-      "Good", // Asset Condition - use name
-      "2024-01-15",
-      "10",
-      "45000",
-      "72000000",
-      "1",
-      "10",
-      "12"
+      "Fixed Assets",  // category - REQUIRED (must match exactly)
+      "Toyota Hilux",  // name - REQUIRED
+      "4x4 Double Cab Pickup",  // description
+      "Unit",  // uom - REQUIRED
+      "AST-2024-001",  // asset_code
+      "",  // plate_number - leave empty for non-vehicles
+      "",  // chasis_number - leave empty for non-vehicles
+      "",  // asset_type - Use exact name from Asset Types or leave empty
+      "",  // project - Use exact project name or leave empty
+      "USAID",  // donor - Use exact donor name or leave empty
+      "admin@mail.com",  // assignee - Use employee email or leave empty
+      "",  // implementer - Use exact partner name or leave empty
+      "",  // location - Use exact location name or leave empty
+      "",  // state
+      "",  // classification - Use exact classification name or leave empty
+      "",  // asset_condition - Use exact condition name or leave empty
+      "2024-01-15",  // acquisition_date (YYYY-MM-DD)
+      "10",  // estimated_life_span (years)
+      "45000",  // usd_cost
+      "",  // ngn_cost
+      "1",  // unit - REQUIRED (quantity)
+      "",  // depreciation_rate
+      ""  // insurance_duration
     ];
 
     const sampleData2 = [
       "Fixed Assets",
       "HP Laptop",
-      "HP EliteBook 840 G8 - Core i7",
+      "HP EliteBook 840 G8",
       "Unit",
       "AST-2024-002",
       "",
       "",
-      "IT Equipment", // Asset Type - use name
-      "Project B", // Project - use name
-      "USAID", // Donor - use name
-      "user@mail.com", // Assignee - use email
-      "ABC Organization", // Implementer - use partner name
-      "Abuja Office", // Location - use location name
-      "FCT",
-      "IT Asset", // Classification - use name
-      "Excellent", // Asset Condition - use name
+      "IT Equipment",  // Asset Type - use exact name from your system
+      "",  // Project - leave empty or use exact project name
+      "USAID",  // Donor
+      "",  // Assignee
+      "",  // Implementer
+      "",  // Location
+      "",
+      "",  // Classification
+      "",  // Asset Condition
       "2024-02-20",
       "5",
       "1200",
-      "1920000",
-      "1",
-      "20",
-      "0"
-    ];
-
-    const sampleData3 = [
-      "Fixed Assets",
-      "Office Desk",
-      "Wooden executive desk with drawers",
-      "Unit",
-      "AST-2024-003",
       "",
-      "",
-      "Furniture", // Asset Type - use name
-      "", // Project - leave empty if not needed
-      "", // Donor - leave empty if not needed
-      "", // Assignee - leave empty if not needed
-      "", // Implementer - leave empty if not needed
-      "Lagos Office", // Location - use location name
-      "Lagos",
-      "Furniture", // Classification - use name
-      "Good", // Asset Condition - use name
-      "2024-03-10",
-      "15",
-      "300",
-      "480000",
       "1",
-      "10",
-      "0"
+      "",
+      ""
     ];
 
     const csvContent = [
       headers.join(","),
-      "# Sample data below - modify or replace with your own data",
+      "# INSTRUCTIONS: Replace sample data with your actual asset information",
+      "# Use EXACT names as they appear in your system for: Asset Type, Project, Donor, Location, Classification, Asset Condition",
+      "# Required fields: category, name, uom, unit",
+      "# Optional fields can be left empty",
       sampleData1.join(","),
       sampleData2.join(","),
-      sampleData3.join(","),
-      "# Add your asset data below",
-      Array(headers.length).fill("").join(","),
+      "# Add more assets below - one row per asset",
       Array(headers.length).fill("").join(","),
     ].join("\n");
 
