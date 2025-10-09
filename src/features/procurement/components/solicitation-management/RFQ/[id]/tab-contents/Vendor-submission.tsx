@@ -236,7 +236,24 @@ const getColumns = (cbaData?: any): ColumnDef<SolicitationSubmissionResultsData>
     accessorKey: "rfq_date",
     size: 200,
     cell: ({ row }) => {
-      return <p>{row?.original?.solicitation?.rfq_date || "-"}</p>;
+      // Try multiple date fields: rfq_date, opening_date, created_at
+      const rfqDate =
+        row?.original?.solicitation?.rfq_date ||
+        row?.original?.solicitation?.opening_date ||
+        row?.original?.solicitation?.created_at ||
+        row?.original?.created_at;
+
+      // Format the date if it exists
+      if (rfqDate) {
+        try {
+          const date = new Date(rfqDate);
+          return <p>{date.toLocaleDateString('en-GB')}</p>;
+        } catch (error) {
+          return <p>{rfqDate}</p>;
+        }
+      }
+
+      return <p>-</p>;
     },
   },
   {

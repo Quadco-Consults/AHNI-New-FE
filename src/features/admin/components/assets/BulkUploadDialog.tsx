@@ -141,6 +141,20 @@ export default function AssetBulkUploadDialog({ open, onOpenChange }: BulkUpload
 
       // Upload the processed file
       console.log('Uploading processed file:', processedFile.name, processedFile.type, processedFile.size);
+
+      // DEBUG: Read the actual file content before uploading
+      const verifyReader = new FileReader();
+      const fileContent = await new Promise<string>((resolve, reject) => {
+        verifyReader.onload = (e) => resolve(e.target?.result as string);
+        verifyReader.onerror = reject;
+        verifyReader.readAsText(processedFile);
+      });
+      console.log('📄 ACTUAL FILE CONTENT BEING UPLOADED:');
+      console.log('First 500 chars:', fileContent.substring(0, 500));
+      console.log('Last 200 chars:', fileContent.substring(Math.max(0, fileContent.length - 200)));
+      console.log('Total length:', fileContent.length, 'characters');
+      console.log('Number of lines:', fileContent.split('\n').length);
+
       toast.info("Uploading assets...");
       const result = await bulkUploadItems(processedFile);
 
@@ -204,6 +218,26 @@ export default function AssetBulkUploadDialog({ open, onOpenChange }: BulkUpload
   };
 
   const handleDownloadTemplate = () => {
+    // Get sample names from lookup data for template (only available after lookups are fetched)
+    const sampleAssetType = (lookups?.assetTypes.size && lookups.assetTypes.size > 0)
+      ? Array.from(lookups.assetTypes.keys())[0]
+      : '';
+    const sampleDonor = (lookups?.donors.size && lookups.donors.size > 0)
+      ? Array.from(lookups.donors.keys())[0]
+      : '';
+    const sampleLocation = (lookups?.locations.size && lookups.locations.size > 0)
+      ? Array.from(lookups.locations.keys())[0]
+      : '';
+    const sampleClassification = (lookups?.classifications.size && lookups.classifications.size > 0)
+      ? Array.from(lookups.classifications.keys())[0]
+      : '';
+    const sampleCondition = (lookups?.conditions.size && lookups.conditions.size > 0)
+      ? Array.from(lookups.conditions.keys())[0]
+      : '';
+    const sampleImplementer = (lookups?.implementers.size && lookups.implementers.size > 0)
+      ? Array.from(lookups.implementers.keys())[0]
+      : '';
+
     // Create CSV template with asset fields including category
     // Helper text in parentheses is automatically cleaned by the backend
     const headers = [
@@ -232,28 +266,28 @@ export default function AssetBulkUploadDialog({ open, onOpenChange }: BulkUpload
       "insurance_duration (Optional - Months)"
     ];
 
-    // Sample data rows - REPLACE WITH YOUR ACTUAL DATA
-    // IMPORTANT: Use exact names as they appear in your system
+    // Sample data rows - Uses REAL names from your system
+    // Replace with your actual data, but these are valid examples
     const sampleData1 = [
       "Fixed Assets",  // category - REQUIRED (must match exactly)
-      "Toyota Hilux",  // name - REQUIRED
-      "4x4 Double Cab Pickup",  // description
+      "Example Laptop",  // name - REQUIRED
+      "Sample laptop for demonstration",  // description
       "Unit",  // uom - REQUIRED
       "AST-2024-001",  // asset_code
       "",  // plate_number - leave empty for non-vehicles
       "",  // chasis_number - leave empty for non-vehicles
-      "",  // asset_type - Use exact name from Asset Types or leave empty
-      "",  // project - Use exact project name or leave empty
-      "USAID",  // donor - Use exact donor name or leave empty
+      sampleAssetType,  // asset_type - Real name from your system
+      "",  // project - Use exact project name or leave empty (note: projects endpoint may be returning 0 results)
+      sampleDonor,  // donor - Real name from your system
       "admin@mail.com",  // assignee - Use employee email or leave empty
-      "",  // implementer - Use exact partner name or leave empty
-      "",  // location - Use exact location name or leave empty
+      sampleImplementer,  // implementer - Real partner name from your system
+      sampleLocation,  // location - Real location name from your system
       "",  // state
-      "",  // classification - Use exact classification name or leave empty
-      "",  // asset_condition - Use exact condition name or leave empty
+      sampleClassification,  // classification - Real classification name from your system
+      sampleCondition,  // asset_condition - Real condition name from your system
       "2024-01-15",  // acquisition_date (YYYY-MM-DD)
-      "10",  // estimated_life_span (years)
-      "45000",  // usd_cost
+      "5",  // estimated_life_span (years)
+      "1200",  // usd_cost
       "",  // ngn_cost
       "1",  // unit - REQUIRED (quantity)
       "",  // depreciation_rate
@@ -262,36 +296,64 @@ export default function AssetBulkUploadDialog({ open, onOpenChange }: BulkUpload
 
     const sampleData2 = [
       "Fixed Assets",
-      "HP Laptop",
-      "HP EliteBook 840 G8",
+      "Example Office Desk",
+      "Sample desk for demonstration",
       "Unit",
       "AST-2024-002",
       "",
       "",
-      "IT Equipment",  // Asset Type - use exact name from your system
-      "",  // Project - leave empty or use exact project name
-      "USAID",  // Donor
-      "",  // Assignee
+      sampleAssetType,  // Use real Asset Type from system
+      "",  // Project - leave empty if projects endpoint is not working
+      sampleDonor,  // Use real Donor from system
+      "",  // Assignee - leave empty or use valid email
       "",  // Implementer
       "",  // Location
       "",
-      "",  // Classification
-      "",  // Asset Condition
+      sampleClassification,  // Use real Classification from system
+      sampleCondition,  // Use real Condition from system
       "2024-02-20",
-      "5",
-      "1200",
+      "10",
+      "300",
       "",
       "1",
       "",
       ""
     ];
 
+    // Build helpful comment with available options
+    const availableOptions = [];
+    if (lookups) {
+      if (lookups.assetTypes.size > 0) {
+        const types = Array.from(lookups.assetTypes.keys()).slice(0, 5).join(', ');
+        availableOptions.push(`# Available Asset Types: ${types}${lookups.assetTypes.size > 5 ? `, ... (${lookups.assetTypes.size} total)` : ''}`);
+      }
+      if (lookups.donors.size > 0) {
+        const donors = Array.from(lookups.donors.keys()).slice(0, 5).join(', ');
+        availableOptions.push(`# Available Donors: ${donors}${lookups.donors.size > 5 ? `, ... (${lookups.donors.size} total)` : ''}`);
+      }
+      if (lookups.locations.size > 0) {
+        const locations = Array.from(lookups.locations.keys()).slice(0, 5).join(', ');
+        availableOptions.push(`# Available Locations: ${locations}${lookups.locations.size > 5 ? `, ... (${lookups.locations.size} total)` : ''}`);
+      }
+      if (lookups.classifications.size > 0) {
+        const classifications = Array.from(lookups.classifications.keys()).slice(0, 5).join(', ');
+        availableOptions.push(`# Available Classifications: ${classifications}${lookups.classifications.size > 5 ? `, ... (${lookups.classifications.size} total)` : ''}`);
+      }
+      if (lookups.conditions.size > 0) {
+        const conditions = Array.from(lookups.conditions.keys()).slice(0, 5).join(', ');
+        availableOptions.push(`# Available Conditions: ${conditions}${lookups.conditions.size > 5 ? `, ... (${lookups.conditions.size} total)` : ''}`);
+      }
+    }
+
     const csvContent = [
       headers.join(","),
       "# INSTRUCTIONS: Replace sample data with your actual asset information",
-      "# Use EXACT names as they appear in your system for: Asset Type, Project, Donor, Location, Classification, Asset Condition",
+      "# Use EXACT names as they appear below (case-sensitive for foreign key fields)",
       "# Required fields: category, name, uom, unit",
       "# Optional fields can be left empty",
+      ...availableOptions,
+      "#",
+      "# SAMPLE DATA (uses real names from your system):",
       sampleData1.join(","),
       sampleData2.join(","),
       "# Add more assets below - one row per asset",

@@ -509,6 +509,45 @@ npm install xlsx
 - Check console for "XLSX parsing error" messages
 - Try exporting as CSV instead
 
+**Q: Backend says "No columns to parse from file"**
+- Check console for "📄 ACTUAL FILE CONTENT BEING UPLOADED" to see what's being sent
+- Verify file size is not 0 bytes
+- Check if CSV has proper line breaks (\n)
+- Ensure headers and data rows are present
+- May indicate File object is corrupted or empty
+
+### Debugging Steps
+
+**To verify the processed CSV is valid**:
+
+1. Look for this log in console:
+```
+📄 ACTUAL FILE CONTENT BEING UPLOADED:
+First 500 chars: category,name,uom,...
+Last 200 chars: ...1,10,12
+Total length: 1405 characters
+Number of lines: 5
+```
+
+2. If "Total length: 0" → File is empty, problem in preprocessing
+3. If headers missing → Header detection logic failed
+4. If garbled text → Encoding issue
+
+**To test with a minimal file**:
+
+```typescript
+// Add this test in BulkUploadDialog.tsx
+const testCSV = `category,name,uom,unit
+Fixed Assets,Test Item,Unit,1`;
+const testFile = new File([testCSV], 'test.csv', { type: 'text/csv' });
+console.log('Test file size:', testFile.size);
+
+// Try uploading this instead
+await bulkUploadItems(testFile);
+```
+
+If this works but the processed file doesn't, the issue is in `preprocessAssetCSV()`.
+
 ---
 
 ## Contact
