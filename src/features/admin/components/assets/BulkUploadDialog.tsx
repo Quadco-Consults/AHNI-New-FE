@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Upload, Download, FileSpreadsheet, X, CheckCircle, AlertCircle, Info } from "lucide-react";
@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { useBulkUploadItems } from "@/features/modules/controllers/config/itemController";
 import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { fetchAssetUploadLookups, preprocessAssetCSV, type AssetUploadLookups } from "@/features/admin/utils/assetBulkUploadHelper";
 
 interface BulkUploadDialogProps {
   open: boolean;
@@ -27,9 +28,28 @@ export default function AssetBulkUploadDialog({ open, onOpenChange }: BulkUpload
   const [uploadStatus, setUploadStatus] = useState<"idle" | "uploading" | "success" | "error">("idle");
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadResult, setUploadResult] = useState<UploadResult | null>(null);
+  const [lookups, setLookups] = useState<AssetUploadLookups | null>(null);
+  const [isLoadingLookups, setIsLoadingLookups] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { bulkUploadItems, isLoading } = useBulkUploadItems();
+
+  // Fetch lookup data when dialog opens
+  useEffect(() => {
+    if (open && !lookups) {
+      setIsLoadingLookups(true);
+      fetchAssetUploadLookups()
+        .then((data) => {
+          setLookups(data);
+          setIsLoadingLookups(false);
+        })
+        .catch((error) => {
+          console.error("Error loading lookup data:", error);
+          toast.error("Failed to load reference data. Some name lookups may not work.");
+          setIsLoadingLookups(false);
+        });
+    }
+  }, [open, lookups]);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -57,6 +77,11 @@ export default function AssetBulkUploadDialog({ open, onOpenChange }: BulkUpload
       return;
     }
 
+    if (!lookups) {
+      toast.error("Reference data is still loading. Please wait a moment.");
+      return;
+    }
+
     try {
       setUploadStatus("uploading");
       setUploadProgress(0);
@@ -64,13 +89,21 @@ export default function AssetBulkUploadDialog({ open, onOpenChange }: BulkUpload
 
       // Simulate progress
       const progressInterval = setInterval(() => {
-        setUploadProgress(prev => Math.min(prev + 10, 90));
+        setUploadProgress(prev => Math.min(prev + 10, 70));
       }, 200);
 
-      // Category is now in the CSV file
-      const result = await bulkUploadItems(selectedFile);
+      // Preprocess CSV to convert names to UUIDs
+      toast.info("Converting names to system IDs...");
+      const processedFile = await preprocessAssetCSV(selectedFile, lookups);
 
+      // Update progress
       clearInterval(progressInterval);
+      setUploadProgress(80);
+
+      // Upload the processed file
+      toast.info("Uploading assets...");
+      const result = await bulkUploadItems(processedFile);
+
       setUploadProgress(100);
 
       // Extract result data from the response
@@ -132,34 +165,35 @@ export default function AssetBulkUploadDialog({ open, onOpenChange }: BulkUpload
 
   const handleDownloadTemplate = () => {
     // Create CSV template with asset fields including category
-    // Helper text in parentheses is automatically cleaned by the backend
+    // Use exact column names as expected by backend
     const headers = [
-      "category (Required)",
-      "name (Required)",
-      "description (Optional)",
-      "uom (Required)",
-      "asset_code (Optional)",
-      "plate_number (Optional - Vehicles)",
-      "chasis_number (Optional - Vehicles)",
-      "asset_type (Optional - ID or name)",
-      "project (Optional - ID or name)",
-      "donor (Optional - ID or name)",
-      "assignee (Optional - Email or ID)",
-      "implementer (Optional - ID or name)",
-      "location (Optional - ID or name)",
-      "state (Optional)",
-      "classification (Optional - ID or name)",
-      "asset_condition (Optional - ID or name)",
-      "acquisition_date (Optional - YYYY-MM-DD)",
-      "estimated_life_span (Optional - Years)",
-      "usd_cost (Optional)",
-      "ngn_cost (Optional)",
-      "unit (Required - Quantity)",
-      "depreciation_rate (Optional - %)",
-      "insurance_duration (Optional - Months)"
+      "Category",
+      "Name",
+      "Description",
+      "UOM",
+      "Asset Code",
+      "Plate Number",
+      "Chasis Number",
+      "Asset Type",
+      "Project",
+      "Donor",
+      "Assignee",
+      "Implementer",
+      "Location",
+      "State",
+      "Classification",
+      "Asset Condition",
+      "Acquisition Date",
+      "Estimated Life Span",
+      "USD Cost",
+      "NGN Cost",
+      "Unit",
+      "Depreciation Rate",
+      "Insurance Duration"
     ];
 
     // Sample data rows with proper values
+    // You can use names for Asset Type, Project, Donor, Location, etc. - they will be automatically converted to UUIDs
     const sampleData1 = [
       "Fixed Assets",
       "Toyota Hilux",
@@ -168,15 +202,15 @@ export default function AssetBulkUploadDialog({ open, onOpenChange }: BulkUpload
       "AST-2024-001",
       "ABC-123-XY",
       "JTFDE626500123456",
-      "Vehicle",
-      "Project A",
-      "USAID",
-      "admin@mail.com",
-      "ABC Organization",
-      "Lagos Office",
+      "Vehicle", // Asset Type - use name from system
+      "Project A", // Project - use name from system
+      "USAID", // Donor - use name from system
+      "admin@mail.com", // Assignee - use email
+      "ABC Organization", // Implementer - use partner name
+      "Lagos Office", // Location - use location name
       "Lagos",
-      "Fixed Asset",
-      "Good",
+      "Fixed Asset", // Classification - use name
+      "Good", // Asset Condition - use name
       "2024-01-15",
       "10",
       "45000",
@@ -194,15 +228,15 @@ export default function AssetBulkUploadDialog({ open, onOpenChange }: BulkUpload
       "AST-2024-002",
       "",
       "",
-      "IT Equipment",
-      "Project B",
-      "USAID",
-      "admin@mail.com",
-      "ABC Organization",
-      "Abuja Office",
+      "IT Equipment", // Asset Type - use name
+      "Project B", // Project - use name
+      "USAID", // Donor - use name
+      "user@mail.com", // Assignee - use email
+      "ABC Organization", // Implementer - use partner name
+      "Abuja Office", // Location - use location name
       "FCT",
-      "IT Asset",
-      "Excellent",
+      "IT Asset", // Classification - use name
+      "Excellent", // Asset Condition - use name
       "2024-02-20",
       "5",
       "1200",
@@ -220,15 +254,15 @@ export default function AssetBulkUploadDialog({ open, onOpenChange }: BulkUpload
       "AST-2024-003",
       "",
       "",
-      "Furniture",
-      "",
-      "",
-      "",
-      "",
-      "Lagos Office",
+      "Furniture", // Asset Type - use name
+      "", // Project - leave empty if not needed
+      "", // Donor - leave empty if not needed
+      "", // Assignee - leave empty if not needed
+      "", // Implementer - leave empty if not needed
+      "Lagos Office", // Location - use location name
       "Lagos",
-      "Furniture",
-      "Good",
+      "Furniture", // Classification - use name
+      "Good", // Asset Condition - use name
       "2024-03-10",
       "15",
       "300",
@@ -282,16 +316,40 @@ export default function AssetBulkUploadDialog({ open, onOpenChange }: BulkUpload
         </DialogHeader>
 
         <div className="space-y-6 py-4">
-          {/* Info Banner */}
-          <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-            <Info className="text-blue-600" size={18} />
-            <div className="flex-1">
+          {/* Loading Lookups Indicator */}
+          {isLoadingLookups && (
+            <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
               <p className="text-sm text-blue-900">
-                <span className="font-medium">Multi-Category Upload:</span> You can now upload assets from different categories in a single file.
+                Loading reference data for name resolution...
               </p>
-              <p className="text-xs text-blue-700 mt-1">
-                Each row in your CSV should include the category name for that asset.
-              </p>
+            </div>
+          )}
+
+          {/* Info Banners */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <Info className="text-blue-600" size={18} />
+              <div className="flex-1">
+                <p className="text-sm text-blue-900">
+                  <span className="font-medium">Multi-Category Upload:</span> You can now upload assets from different categories in a single file.
+                </p>
+                <p className="text-xs text-blue-700 mt-1">
+                  Each row in your CSV should include the category name for that asset.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-300 rounded-lg">
+              <CheckCircle className="text-green-600" size={18} />
+              <div className="flex-1">
+                <p className="text-sm text-green-900">
+                  <span className="font-medium">✨ Smart Name Resolution:</span> Use friendly names for Asset Type, Project, Donor, Location, etc.
+                </p>
+                <p className="text-xs text-green-700 mt-1">
+                  Names will be automatically converted to the correct system IDs. Leave fields empty if not needed.
+                </p>
+              </div>
             </div>
           </div>
 
@@ -465,14 +523,15 @@ export default function AssetBulkUploadDialog({ open, onOpenChange }: BulkUpload
           <div className="border rounded-lg p-4 bg-gray-50">
             <h4 className="font-semibold text-sm mb-2">Important Instructions:</h4>
             <ul className="text-xs text-gray-700 space-y-1 list-disc list-inside">
-              <li><strong>Column headers:</strong> Helper text in parentheses (e.g., "Name (Required)") is automatically removed by the system</li>
+              <li><strong>Column headers:</strong> Do not modify the header row - keep column names exactly as provided in the template</li>
               <li><strong>Comment lines:</strong> Lines starting with # are automatically ignored - you can leave them or delete them</li>
               <li><strong>Required fields:</strong> Category, Name, UOM, Unit</li>
               <li><strong>Optional fields:</strong> Can be left empty - the system will handle them correctly</li>
-              <li><strong>Category:</strong> Must match an existing category name exactly (or use category UUID)</li>
+              <li><strong>Category:</strong> Must match an existing category name exactly (case-sensitive)</li>
               <li><strong>Date format:</strong> Use YYYY-MM-DD (e.g., 2024-01-15)</li>
               <li><strong>Vehicle fields:</strong> Plate Number and Chasis Number (only for vehicles)</li>
-              <li><strong>Foreign keys:</strong> Use either ID or name for Asset Type, Project, Donor, Assignee, Location, etc.</li>
+              <li><strong className="text-green-600">✨ Name-based Fields:</strong> For Asset Type, Project, Donor, Location, Classification, and Asset Condition, you can use their names as they appear in the system (e.g., "Vehicle", "Project A", "USAID"). Names will be automatically converted to system IDs.</li>
+              <li><strong>Assignee field:</strong> Use email address (e.g., admin@mail.com) and it will be matched to the employee</li>
               <li><strong>Asset codes:</strong> Should be unique if provided</li>
               <li><strong>Multiple categories:</strong> You can include assets from different categories in one upload</li>
               <li><strong>Sample data:</strong> You can modify the sample rows or delete them and add your own</li>
@@ -484,15 +543,15 @@ export default function AssetBulkUploadDialog({ open, onOpenChange }: BulkUpload
           <Button
             variant="outline"
             onClick={() => onOpenChange(false)}
-            disabled={isLoading}
+            disabled={isLoading || isLoadingLookups}
           >
             Cancel
           </Button>
           <Button
             onClick={handleUpload}
-            disabled={!selectedFile || isLoading}
+            disabled={!selectedFile || isLoading || isLoadingLookups || !lookups}
           >
-            {isLoading ? "Uploading..." : "Upload"}
+            {isLoadingLookups ? "Loading reference data..." : isLoading ? "Uploading..." : "Upload"}
           </Button>
         </div>
       </DialogContent>
