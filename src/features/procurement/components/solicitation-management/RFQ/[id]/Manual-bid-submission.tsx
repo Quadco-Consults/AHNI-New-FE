@@ -205,6 +205,7 @@ const ManualBidSubmission = () => {
         }
       }
 
+      // Schema automatically transforms numeric fields to strings, so we can submit directly
       await createSolicitationSubmission(data);
 
       toast.success("Bid submitted successfully!");

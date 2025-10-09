@@ -343,9 +343,13 @@ export const SolicitationSubmissionSchema = z.object({
   vendor: z.string().min(1, "Field is required"),
   bid_items: z.array(
     z.object({
-      unit_price: z.string().min(1, "Field is required"),
+      unit_price: z.union([z.string(), z.number()])
+        .transform(val => String(val))
+        .refine(val => val !== "" && !isNaN(Number(val)), "Unit price must be a valid number"),
       solicitation_item: z.string().min(1, "Field is required"),
-      quantity: z.string().min(1, "Field is required"),
+      quantity: z.union([z.string(), z.number()])
+        .transform(val => String(val))
+        .refine(val => val !== "" && !isNaN(Number(val)), "Quantity must be a valid number"),
     })
   ),
   evaluations: z.array(
