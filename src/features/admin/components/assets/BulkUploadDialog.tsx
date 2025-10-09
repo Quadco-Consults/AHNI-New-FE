@@ -72,6 +72,8 @@ export default function AssetBulkUploadDialog({ open, onOpenChange }: BulkUpload
   };
 
   const handleUpload = async () => {
+    alert('NEW CODE LOADED! Upload button clicked with file: ' + (selectedFile?.name || 'none'));
+
     if (!selectedFile) {
       toast.error("Please select a file first");
       return;
@@ -93,14 +95,25 @@ export default function AssetBulkUploadDialog({ open, onOpenChange }: BulkUpload
       }, 200);
 
       // Preprocess CSV to convert names to UUIDs
+      console.log('Starting preprocessing for file:', selectedFile.name, selectedFile.type, selectedFile.size);
       toast.info("Converting names to system IDs...");
-      const processedFile = await preprocessAssetCSV(selectedFile, lookups);
+
+      let processedFile;
+      try {
+        processedFile = await preprocessAssetCSV(selectedFile, lookups);
+        console.log('Preprocessing completed successfully');
+      } catch (preprocessError) {
+        console.error('Preprocessing failed:', preprocessError);
+        clearInterval(progressInterval);
+        throw new Error(`Failed to preprocess file: ${preprocessError instanceof Error ? preprocessError.message : 'Unknown error'}`);
+      }
 
       // Update progress
       clearInterval(progressInterval);
       setUploadProgress(80);
 
       // Upload the processed file
+      console.log('Uploading processed file:', processedFile.name, processedFile.type, processedFile.size);
       toast.info("Uploading assets...");
       const result = await bulkUploadItems(processedFile);
 
@@ -165,31 +178,31 @@ export default function AssetBulkUploadDialog({ open, onOpenChange }: BulkUpload
 
   const handleDownloadTemplate = () => {
     // Create CSV template with asset fields including category
-    // Use exact column names as expected by backend
+    // Helper text in parentheses is automatically cleaned by the backend
     const headers = [
-      "Category",
-      "Name",
-      "Description",
-      "UOM",
-      "Asset Code",
-      "Plate Number",
-      "Chasis Number",
-      "Asset Type",
-      "Project",
-      "Donor",
-      "Assignee",
-      "Implementer",
-      "Location",
-      "State",
-      "Classification",
-      "Asset Condition",
-      "Acquisition Date",
-      "Estimated Life Span",
-      "USD Cost",
-      "NGN Cost",
-      "Unit",
-      "Depreciation Rate",
-      "Insurance Duration"
+      "category (Required)",
+      "name (Required)",
+      "description (Optional)",
+      "uom (Required)",
+      "asset_code (Optional)",
+      "plate_number (Optional - Vehicles)",
+      "chasis_number (Optional - Vehicles)",
+      "asset_type (Optional - ID or name)",
+      "project (Optional - ID or name)",
+      "donor (Optional - ID or name)",
+      "assignee (Optional - Email or ID)",
+      "implementer (Optional - ID or name)",
+      "location (Optional - ID or name)",
+      "state (Optional)",
+      "classification (Optional - ID or name)",
+      "asset_condition (Optional - ID or name)",
+      "acquisition_date (Optional - YYYY-MM-DD)",
+      "estimated_life_span (Optional - Years)",
+      "usd_cost (Optional)",
+      "ngn_cost (Optional)",
+      "unit (Required - Quantity)",
+      "depreciation_rate (Optional - %)",
+      "insurance_duration (Optional - Months)"
     ];
 
     // Sample data rows with proper values

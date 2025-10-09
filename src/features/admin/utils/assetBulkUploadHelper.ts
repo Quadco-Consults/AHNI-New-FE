@@ -125,60 +125,180 @@ function resolveToUUID(value: string | undefined | null, lookupMap: Map<string, 
  */
 export async function preprocessAssetCSV(file: File, lookups: AssetUploadLookups): Promise<File> {
   return new Promise((resolve, reject) => {
+    const isExcelFile = file.name.toLowerCase().endsWith('.xlsx') || file.name.toLowerCase().endsWith('.xls');
     const reader = new FileReader();
 
     reader.onload = async (e) => {
       try {
-        const data = e.target?.result;
-        const workbook = XLSX.read(data, { type: 'binary' });
-        const sheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[sheetName];
+        let textContent: string;
 
-        // Convert to JSON
-        const jsonData: any[] = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
+        if (isExcelFile) {
+          // For Excel files, use XLSX library to convert to CSV first
+          const data = e.target?.result;
+          if (!data) {
+            reject(new Error("Failed to read file data"));
+            return;
+          }
 
-        if (jsonData.length === 0) {
-          reject(new Error("CSV file is empty"));
+          console.log('Reading Excel file, data type:', typeof data, 'size:', data instanceof ArrayBuffer ? data.byteLength : 'unknown');
+
+          try {
+            const workbook = XLSX.read(data, {
+              type: 'array',
+              cellDates: true,
+              cellNF: false,
+              cellText: false
+            });
+
+            if (!workbook.SheetNames || workbook.SheetNames.length === 0) {
+              reject(new Error('Excel file contains no sheets'));
+              return;
+            }
+
+            const sheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[sheetName];
+
+            if (!worksheet) {
+              reject(new Error('Failed to read Excel worksheet'));
+              return;
+            }
+
+            textContent = XLSX.utils.sheet_to_csv(worksheet, {
+              blankrows: false,
+              skipHidden: true
+            });
+
+            console.log('Successfully converted Excel to CSV, length:', textContent.length);
+            console.log('First 200 chars of converted CSV:', textContent.substring(0, 200));
+          } catch (xlsxError) {
+            console.error('XLSX parsing error:', xlsxError);
+            reject(new Error(`Failed to parse Excel file: ${xlsxError instanceof Error ? xlsxError.message : 'Unknown error'}`));
+            return;
+          }
+        } else {
+          // For CSV files, read as text
+          textContent = e.target?.result as string;
+          if (!textContent) {
+            reject(new Error("Failed to read file data"));
+            return;
+          }
+          console.log('Read CSV file as text, length:', textContent.length);
+        }
+
+        // Parse CSV text
+        const lines = textContent.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+
+        if (lines.length < 2) {
+          reject(new Error("File must contain headers and at least one data row"));
           return;
         }
 
-        // Process each row and convert names to UUIDs
-        const processedData = jsonData.map((row) => {
-          // Skip comment rows (rows where first column starts with #)
-          const firstValue = Object.values(row)[0] as string;
-          if (firstValue && String(firstValue).trim().startsWith('#')) {
-            return row;
+        // Extract headers (first non-comment line)
+        let headerIndex = 0;
+        while (headerIndex < lines.length && lines[headerIndex].startsWith('#')) {
+          headerIndex++;
+        }
+
+        if (headerIndex >= lines.length) {
+          reject(new Error("No header row found in file"));
+          return;
+        }
+
+        const headers = lines[headerIndex].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+
+        // Clean headers - remove helper text in parentheses (e.g., "name (Required)" -> "name")
+        const cleanedHeaders = headers.map(h => h.replace(/\s*\(.*?\)\s*/g, '').trim());
+
+        // Find column indices for fields that need UUID conversion
+        const assetTypeIdx = cleanedHeaders.indexOf('asset_type');
+        const projectIdx = cleanedHeaders.indexOf('project');
+        const donorIdx = cleanedHeaders.indexOf('donor');
+        const assigneeIdx = cleanedHeaders.indexOf('assignee');
+        const implementerIdx = cleanedHeaders.indexOf('implementer');
+        const locationIdx = cleanedHeaders.indexOf('location');
+        const classificationIdx = cleanedHeaders.indexOf('classification');
+        const assetConditionIdx = cleanedHeaders.indexOf('asset_condition');
+
+        // Process data rows
+        const processedLines: string[] = [lines[headerIndex]]; // Keep header
+
+        for (let i = headerIndex + 1; i < lines.length; i++) {
+          const line = lines[i];
+
+          // Skip comment lines
+          if (line.startsWith('#')) {
+            continue;
           }
 
-          return {
-            ...row,
-            "Asset Type": resolveToUUID(row["Asset Type"], lookups.assetTypes),
-            "Project": resolveToUUID(row["Project"], lookups.projects),
-            "Donor": resolveToUUID(row["Donor"], lookups.donors),
-            "Assignee": resolveToUUID(row["Assignee"], lookups.employees),
-            "Implementer": resolveToUUID(row["Implementer"], lookups.implementers),
-            "Location": resolveToUUID(row["Location"], lookups.locations),
-            "Classification": resolveToUUID(row["Classification"], lookups.classifications),
-            "Asset Condition": resolveToUUID(row["Asset Condition"], lookups.conditions),
-          };
-        });
+          // Parse CSV row (handle quoted values)
+          const values = parseCSVLine(line);
 
-        // Convert back to worksheet
-        const newWorksheet = XLSX.utils.json_to_sheet(processedData);
-        const newWorkbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(newWorkbook, newWorksheet, sheetName);
+          if (values.length === 0) {
+            continue;
+          }
 
-        // Convert to CSV blob
-        const csvContent = XLSX.utils.sheet_to_csv(newWorksheet);
+          // Convert names to UUIDs
+          if (assetTypeIdx >= 0 && assetTypeIdx < values.length) {
+            values[assetTypeIdx] = resolveToUUID(values[assetTypeIdx], lookups.assetTypes);
+          }
+          if (projectIdx >= 0 && projectIdx < values.length) {
+            values[projectIdx] = resolveToUUID(values[projectIdx], lookups.projects);
+          }
+          if (donorIdx >= 0 && donorIdx < values.length) {
+            values[donorIdx] = resolveToUUID(values[donorIdx], lookups.donors);
+          }
+          if (assigneeIdx >= 0 && assigneeIdx < values.length) {
+            values[assigneeIdx] = resolveToUUID(values[assigneeIdx], lookups.employees);
+          }
+          if (implementerIdx >= 0 && implementerIdx < values.length) {
+            values[implementerIdx] = resolveToUUID(values[implementerIdx], lookups.implementers);
+          }
+          if (locationIdx >= 0 && locationIdx < values.length) {
+            values[locationIdx] = resolveToUUID(values[locationIdx], lookups.locations);
+          }
+          if (classificationIdx >= 0 && classificationIdx < values.length) {
+            values[classificationIdx] = resolveToUUID(values[classificationIdx], lookups.classifications);
+          }
+          if (assetConditionIdx >= 0 && assetConditionIdx < values.length) {
+            values[assetConditionIdx] = resolveToUUID(values[assetConditionIdx], lookups.conditions);
+          }
+
+          // Rebuild CSV line (escape values with commas)
+          const processedLine = values.map(v => {
+            const val = String(v || '').trim();
+            return val.includes(',') || val.includes('"') ? `"${val.replace(/"/g, '""')}"` : val;
+          }).join(',');
+
+          processedLines.push(processedLine);
+        }
+
+        if (processedLines.length < 2) {
+          reject(new Error("No valid data rows found in file"));
+          return;
+        }
+
+        // Create CSV content
+        const csvContent = processedLines.join('\n');
+
+        console.log('=== CSV PREPROCESSING COMPLETE ===');
+        console.log('Original file:', file.name, file.type, file.size, 'bytes');
+        console.log('Processed CSV preview:', csvContent.substring(0, 500));
+        console.log('Total data rows:', processedLines.length - 1);
+        console.log('Headers:', headers.join(', '));
+
+        // Create blob and file with .csv extension
+        const outputFileName = file.name.replace(/\.(xlsx|xls)$/i, '.csv');
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const processedFile = new File([blob], outputFileName, { type: 'text/csv' });
 
-        // Create new File object with same name
-        const processedFile = new File([blob], file.name, { type: 'text/csv' });
+        console.log('Output file:', processedFile.name, processedFile.type, processedFile.size, 'bytes');
+        console.log('=== END CSV PREPROCESSING ===');
 
         resolve(processedFile);
       } catch (error) {
         console.error("CSV preprocessing error:", error);
-        reject(new Error("Failed to process CSV file"));
+        const errorMessage = error instanceof Error ? error.message : "Failed to process file";
+        reject(new Error(errorMessage));
       }
     };
 
@@ -186,8 +306,48 @@ export async function preprocessAssetCSV(file: File, lookups: AssetUploadLookups
       reject(new Error("Failed to read file"));
     };
 
-    reader.readAsBinaryString(file);
+    // Read file based on type
+    if (isExcelFile) {
+      reader.readAsArrayBuffer(file);
+    } else {
+      reader.readAsText(file);
+    }
   });
+}
+
+/**
+ * Parse a CSV line handling quoted values
+ */
+function parseCSVLine(line: string): string[] {
+  const result: string[] = [];
+  let current = '';
+  let inQuotes = false;
+
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i];
+
+    if (char === '"') {
+      if (inQuotes && line[i + 1] === '"') {
+        // Escaped quote
+        current += '"';
+        i++;
+      } else {
+        // Toggle quotes
+        inQuotes = !inQuotes;
+      }
+    } else if (char === ',' && !inQuotes) {
+      // End of field
+      result.push(current.trim());
+      current = '';
+    } else {
+      current += char;
+    }
+  }
+
+  // Add last field
+  result.push(current.trim());
+
+  return result;
 }
 
 /**
