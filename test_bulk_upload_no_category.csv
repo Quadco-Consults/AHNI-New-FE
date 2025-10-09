@@ -1,0 +1,3 @@
+category,name,description,uom,quantity,stock_control_method,expiry_date,re_order_level,buffer_stock,max_stock,entry_date,item_cost,price
+,Paper Without Category,This has no category,Ream,100,STOCK_LEVEL,2025-12-31,10,5,200,2025-01-15,2500.00,2500.00
+Office Supplies,Paper With Category,This has a category,Ream,50,AVAILABILITY,2026-06-30,15,10,100,2025-01-20,1200.00,1500.00

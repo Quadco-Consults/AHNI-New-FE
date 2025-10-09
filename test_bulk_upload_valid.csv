@@ -1,0 +1,6 @@
+category,name,description,uom,quantity,stock_control_method,expiry_date,re_order_level,buffer_stock,max_stock,entry_date,item_cost,price
+Office Supplies,Paper A4 Ream,White A4 printing paper - 500 sheets per ream,Ream,100,STOCK_LEVEL,2025-12-31,10,5,200,2025-01-15,2500.00,2500.00
+Office Supplies,Ballpoint Pen Blue,Blue ballpoint pen for office use,Box,50,AVAILABILITY,2026-06-30,15,10,100,2025-01-20,1200.00,1500.00
+Medical Supplies,Surgical Gloves,Disposable latex surgical gloves,Box,200,STOCK_LEVEL,2025-08-30,20,15,500,2025-01-10,3500.00,4000.00
+Medical Supplies,Bandages,Sterile adhesive bandages assorted sizes,Pack,150,AVAILABILITY,2025-09-15,25,20,300,2025-01-12,1500.00,2000.00
+IT Equipment,USB Flash Drive 32GB,High-speed USB 3.0 flash drive,Piece,25,JUST_IN_TIME,2027-12-31,5,3,50,2025-01-22,1500.00,2000.00

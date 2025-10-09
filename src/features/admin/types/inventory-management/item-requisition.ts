@@ -22,12 +22,21 @@ export interface TItemRequisitionPaginatedData {
     consummables: {
         id: string;
         consummable: string;
+        item?: {
+            id: string;
+            name: string;
+        };
         created_datetime: string;
         updated_datetime: string;
-        quantity: 200;
+        quantity: number;
         item_requisition: string;
     }[];
-    created_by: " ";
+    created_by: {
+        id: string;
+        employee_id: string;
+        full_name: string;
+        email: string;
+    };
     created_datetime: string;
     updated_datetime: string;
     expiry_date: string;
@@ -35,11 +44,19 @@ export interface TItemRequisitionPaginatedData {
     status: string;
     note: null;
     treatment_datetime: string;
-    approved_by: string | null,
+    approved_by: {
+        id: string;
+        employee_id: string;
+        full_name: string;
+        email: string;
+    } | null;
     approved_datetime: string;
     rejected_datetime: string;
     updated_by: string;
-    department: string;
+    department: {
+        id: string;
+        name: string;
+    };
 }
 
 export interface TItemRequisitionSingleData {
