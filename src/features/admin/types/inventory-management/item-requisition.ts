@@ -33,7 +33,7 @@ export interface TItemRequisitionPaginatedData {
     }[];
     created_by: {
         id: string;
-        employee_id: string;
+        employee_id: string | null;
         full_name: string;
         email: string;
     };
@@ -46,7 +46,7 @@ export interface TItemRequisitionPaginatedData {
     treatment_datetime: string;
     approved_by: {
         id: string;
-        employee_id: string;
+        employee_id: string | null;
         full_name: string;
         email: string;
     } | null;
@@ -56,7 +56,10 @@ export interface TItemRequisitionPaginatedData {
     department: {
         id: string;
         name: string;
-    };
+        created_datetime: string;
+        updated_datetime: string;
+        description: string;
+    } | null;
 }
 
 export interface TItemRequisitionSingleData {
