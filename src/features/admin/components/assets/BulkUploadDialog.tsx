@@ -122,30 +122,31 @@ export default function AssetBulkUploadDialog({ open, onOpenChange }: BulkUpload
 
   const handleDownloadTemplate = () => {
     // Create CSV template with asset fields including category
+    // Helper text in parentheses is automatically cleaned by the backend
     const headers = [
-      "category",
-      "name",
-      "description",
-      "uom",
-      "asset_code",
-      "plate_number",
-      "chasis_number",
-      "asset_type",
-      "project",
-      "donor",
-      "assignee",
-      "implementer",
-      "location",
-      "state",
-      "classification",
-      "asset_condition",
-      "acquisition_date",
-      "estimated_life_span",
-      "usd_cost",
-      "ngn_cost",
-      "unit",
-      "depreciation_rate",
-      "insurance_duration"
+      "category (Required)",
+      "name (Required)",
+      "description (Optional)",
+      "uom (Required)",
+      "asset_code (Optional)",
+      "plate_number (Optional - Vehicles)",
+      "chasis_number (Optional - Vehicles)",
+      "asset_type (Optional - ID or name)",
+      "project (Optional - ID or name)",
+      "donor (Optional - ID or name)",
+      "assignee (Optional - Email or ID)",
+      "implementer (Optional - ID or name)",
+      "location (Optional - ID or name)",
+      "state (Optional)",
+      "classification (Optional - ID or name)",
+      "asset_condition (Optional - ID or name)",
+      "acquisition_date (Optional - YYYY-MM-DD)",
+      "estimated_life_span (Optional - Years)",
+      "usd_cost (Optional)",
+      "ngn_cost (Optional)",
+      "unit (Required - Quantity)",
+      "depreciation_rate (Optional - %)",
+      "insurance_duration (Optional - Months)"
     ];
 
     // Sample data rows with proper values
@@ -227,68 +228,13 @@ export default function AssetBulkUploadDialog({ open, onOpenChange }: BulkUpload
       "0"
     ];
 
-    // Add instruction row
-    const instructionRow = [
-      "REQUIRED: Category name",
-      "REQUIRED: Asset name",
-      "OPTIONAL: Asset description",
-      "REQUIRED: Unit (Unit/Each/Set)",
-      "OPTIONAL: Unique asset code",
-      "OPTIONAL: For vehicles only",
-      "OPTIONAL: For vehicles only",
-      "OPTIONAL: Asset type name or ID",
-      "OPTIONAL: Project name or ID",
-      "OPTIONAL: Donor name or ID",
-      "OPTIONAL: Assignee email or ID",
-      "OPTIONAL: Implementer name or ID",
-      "OPTIONAL: Location name or ID",
-      "OPTIONAL: State name",
-      "OPTIONAL: Classification name or ID",
-      "OPTIONAL: Condition name or ID",
-      "OPTIONAL: YYYY-MM-DD",
-      "OPTIONAL: Years (number)",
-      "OPTIONAL: USD amount (number)",
-      "OPTIONAL: NGN amount (number)",
-      "REQUIRED: Quantity (number)",
-      "OPTIONAL: Percentage (number)",
-      "OPTIONAL: Months (number)"
-    ];
-
-    const noteRow = [
-      "⚠️ DELETE THIS ROW AND THE NEXT ROW BEFORE UPLOADING ⚠️",
-      "⚠️ DELETE THIS ROW ⚠️",
-      "⚠️ DELETE THIS ROW ⚠️",
-      "⚠️ DELETE THIS ROW ⚠️",
-      "⚠️ DELETE THIS ROW ⚠️",
-      "⚠️ DELETE THIS ROW ⚠️",
-      "⚠️ DELETE THIS ROW ⚠️",
-      "⚠️ DELETE THIS ROW ⚠️",
-      "⚠️ DELETE THIS ROW ⚠️",
-      "⚠️ DELETE THIS ROW ⚠️",
-      "⚠️ DELETE THIS ROW ⚠️",
-      "⚠️ DELETE THIS ROW ⚠️",
-      "⚠️ DELETE THIS ROW ⚠️",
-      "⚠️ DELETE THIS ROW ⚠️",
-      "⚠️ DELETE THIS ROW ⚠️",
-      "⚠️ DELETE THIS ROW ⚠️",
-      "⚠️ DELETE THIS ROW ⚠️",
-      "⚠️ DELETE THIS ROW ⚠️",
-      "⚠️ DELETE THIS ROW ⚠️",
-      "⚠️ DELETE THIS ROW ⚠️",
-      "⚠️ DELETE THIS ROW ⚠️",
-      "⚠️ DELETE THIS ROW ⚠️",
-      "⚠️ DELETE THIS ROW ⚠️"
-    ];
-
     const csvContent = [
       headers.join(","),
-      noteRow.join(","),
-      instructionRow.join(","),
-      "# SAMPLE DATA BELOW - You can delete these rows and add your own",
+      "# Sample data below - modify or replace with your own data",
       sampleData1.join(","),
       sampleData2.join(","),
       sampleData3.join(","),
-      "# Add your asset data below (delete this comment line)",
+      "# Add your asset data below",
       Array(headers.length).fill("").join(","),
       Array(headers.length).fill("").join(","),
     ].join("\n");
@@ -505,38 +451,21 @@ export default function AssetBulkUploadDialog({ open, onOpenChange }: BulkUpload
             )}
           </div>
 
-          {/* Critical Warning */}
-          <div className="border-2 rounded-lg p-4 bg-red-50 border-red-300">
-            <div className="flex items-start gap-2">
-              <AlertCircle className="text-red-600 mt-0.5 flex-shrink-0" size={20} />
-              <div>
-                <h4 className="font-bold text-sm text-red-900 mb-2">⚠️ CRITICAL: Delete Warning Rows Before Upload!</h4>
-                <p className="text-sm text-red-800 mb-2">
-                  The template contains instruction rows marked with <strong>"⚠️ DELETE THIS ROW ⚠️"</strong>
-                </p>
-                <p className="text-sm text-red-800 font-semibold">
-                  You MUST delete rows 2 and 3 (warning and instruction rows) before uploading, or the upload will fail!
-                </p>
-              </div>
-            </div>
-          </div>
-
           {/* Instructions */}
           <div className="border rounded-lg p-4 bg-gray-50">
             <h4 className="font-semibold text-sm mb-2">Important Instructions:</h4>
             <ul className="text-xs text-gray-700 space-y-1 list-disc list-inside">
-              <li className="text-red-700 font-bold">⚠️ DELETE rows 2-3 (warning & instruction rows) before uploading</li>
-              <li className="text-red-700 font-bold">⚠️ DELETE comment lines (starting with #) before uploading</li>
-              <li><strong>Required fields:</strong> category, name, uom, unit</li>
-              <li><strong>Category:</strong> Must match an existing category name exactly</li>
+              <li><strong>Column headers:</strong> Helper text in parentheses (e.g., "Name (Required)") is automatically removed by the system</li>
+              <li><strong>Comment lines:</strong> Lines starting with # are automatically ignored - you can leave them or delete them</li>
+              <li><strong>Required fields:</strong> Category, Name, UOM, Unit</li>
+              <li><strong>Optional fields:</strong> Can be left empty - the system will handle them correctly</li>
+              <li><strong>Category:</strong> Must match an existing category name exactly (or use category UUID)</li>
               <li><strong>Date format:</strong> Use YYYY-MM-DD (e.g., 2024-01-15)</li>
-              <li><strong>Vehicle fields:</strong> plate_number and chasis_number (for vehicles only)</li>
-              <li><strong>Numeric fields:</strong> Use numbers only for usd_cost, ngn_cost, unit, depreciation_rate</li>
-              <li><strong>UOM examples:</strong> Unit, Each, Set</li>
-              <li><strong>Foreign keys:</strong> Use either ID or name for project, donor, assignee, etc.</li>
+              <li><strong>Vehicle fields:</strong> Plate Number and Chasis Number (only for vehicles)</li>
+              <li><strong>Foreign keys:</strong> Use either ID or name for Asset Type, Project, Donor, Assignee, Location, etc.</li>
               <li><strong>Asset codes:</strong> Should be unique if provided</li>
               <li><strong>Multiple categories:</strong> You can include assets from different categories in one upload</li>
-              <li>Do not modify the header row in the template</li>
+              <li><strong>Sample data:</strong> You can modify the sample rows or delete them and add your own</li>
             </ul>
           </div>
         </div>
