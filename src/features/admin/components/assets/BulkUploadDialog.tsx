@@ -37,14 +37,25 @@ export default function AssetBulkUploadDialog({ open, onOpenChange }: BulkUpload
   // Fetch lookup data when dialog opens
   useEffect(() => {
     if (open && !lookups) {
+      console.log('🔄 Dialog opened, fetching lookup data...');
       setIsLoadingLookups(true);
       fetchAssetUploadLookups()
         .then((data) => {
+          console.log('✅ Lookup data fetched successfully:', {
+            assetTypes: data.assetTypes.size,
+            projects: data.projects.size,
+            donors: data.donors.size,
+            implementers: data.implementers.size,
+            locations: data.locations.size,
+            classifications: data.classifications.size,
+            conditions: data.conditions.size,
+            employees: data.employees.size
+          });
           setLookups(data);
           setIsLoadingLookups(false);
         })
         .catch((error) => {
-          console.error("Error loading lookup data:", error);
+          console.error("❌ Error loading lookup data:", error);
           toast.error("Failed to load reference data. Some name lookups may not work.");
           setIsLoadingLookups(false);
         });
@@ -72,7 +83,9 @@ export default function AssetBulkUploadDialog({ open, onOpenChange }: BulkUpload
   };
 
   const handleUpload = async () => {
-    alert('NEW CODE LOADED! Upload button clicked with file: ' + (selectedFile?.name || 'none'));
+    // VERSION: 2025-01-09-17:45 - Name to UUID preprocessing active
+    alert('🚀 NEW CODE V2 LOADED! Upload button clicked with file: ' + (selectedFile?.name || 'none'));
+    console.log('🚀 NEW CODE V2 - handleUpload called at', new Date().toISOString());
 
     if (!selectedFile) {
       toast.error("Please select a file first");
@@ -95,15 +108,26 @@ export default function AssetBulkUploadDialog({ open, onOpenChange }: BulkUpload
       }, 200);
 
       // Preprocess CSV to convert names to UUIDs
-      console.log('Starting preprocessing for file:', selectedFile.name, selectedFile.type, selectedFile.size);
+      console.log('🔄 Starting preprocessing for file:', selectedFile.name, selectedFile.type, selectedFile.size);
+      console.log('📊 Lookups available:', {
+        assetTypes: lookups.assetTypes.size,
+        projects: lookups.projects.size,
+        donors: lookups.donors.size,
+        implementers: lookups.implementers.size,
+        locations: lookups.locations.size,
+        classifications: lookups.classifications.size,
+        conditions: lookups.conditions.size,
+        employees: lookups.employees.size
+      });
       toast.info("Converting names to system IDs...");
 
       let processedFile;
       try {
         processedFile = await preprocessAssetCSV(selectedFile, lookups);
-        console.log('Preprocessing completed successfully');
+        console.log('✅ Preprocessing completed successfully');
+        console.log('📄 Processed file:', processedFile.name, processedFile.type, processedFile.size);
       } catch (preprocessError) {
-        console.error('Preprocessing failed:', preprocessError);
+        console.error('❌ Preprocessing failed:', preprocessError);
         clearInterval(progressInterval);
         throw new Error(`Failed to preprocess file: ${preprocessError instanceof Error ? preprocessError.message : 'Unknown error'}`);
       }

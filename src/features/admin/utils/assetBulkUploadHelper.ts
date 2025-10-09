@@ -7,7 +7,7 @@ interface LookupData {
   name: string;
 }
 
-interface AssetUploadLookups {
+export interface AssetUploadLookups {
   assetTypes: Map<string, string>; // name -> UUID
   projects: Map<string, string>;
   donors: Map<string, string>; // funding sources
@@ -103,7 +103,7 @@ function isValidUUID(str: string): boolean {
  * Convert name to UUID using lookup map
  * Returns the original value if it's already a UUID or if conversion fails
  */
-function resolveToUUID(value: string | undefined | null, lookupMap: Map<string, string>): string {
+function resolveToUUID(value: string | undefined | null, lookupMap: Map<string, string>, fieldName?: string): string {
   if (!value || value.trim() === '') return '';
 
   const trimmedValue = value.trim();
@@ -115,6 +115,12 @@ function resolveToUUID(value: string | undefined | null, lookupMap: Map<string, 
 
   // Try to find UUID by name (case-insensitive)
   const uuid = lookupMap.get(trimmedValue) || lookupMap.get(trimmedValue.toLowerCase());
+
+  if (uuid) {
+    console.log(`✅ Resolved ${fieldName || 'field'}: "${trimmedValue}" → ${uuid}`);
+  } else {
+    console.warn(`⚠️ Could not resolve ${fieldName || 'field'}: "${trimmedValue}" (map size: ${lookupMap.size})`);
+  }
 
   // Return UUID if found, otherwise return original value (will cause validation error on backend)
   return uuid || trimmedValue;
@@ -239,28 +245,28 @@ export async function preprocessAssetCSV(file: File, lookups: AssetUploadLookups
 
           // Convert names to UUIDs
           if (assetTypeIdx >= 0 && assetTypeIdx < values.length) {
-            values[assetTypeIdx] = resolveToUUID(values[assetTypeIdx], lookups.assetTypes);
+            values[assetTypeIdx] = resolveToUUID(values[assetTypeIdx], lookups.assetTypes, 'asset_type');
           }
           if (projectIdx >= 0 && projectIdx < values.length) {
-            values[projectIdx] = resolveToUUID(values[projectIdx], lookups.projects);
+            values[projectIdx] = resolveToUUID(values[projectIdx], lookups.projects, 'project');
           }
           if (donorIdx >= 0 && donorIdx < values.length) {
-            values[donorIdx] = resolveToUUID(values[donorIdx], lookups.donors);
+            values[donorIdx] = resolveToUUID(values[donorIdx], lookups.donors, 'donor');
           }
           if (assigneeIdx >= 0 && assigneeIdx < values.length) {
-            values[assigneeIdx] = resolveToUUID(values[assigneeIdx], lookups.employees);
+            values[assigneeIdx] = resolveToUUID(values[assigneeIdx], lookups.employees, 'assignee');
           }
           if (implementerIdx >= 0 && implementerIdx < values.length) {
-            values[implementerIdx] = resolveToUUID(values[implementerIdx], lookups.implementers);
+            values[implementerIdx] = resolveToUUID(values[implementerIdx], lookups.implementers, 'implementer');
           }
           if (locationIdx >= 0 && locationIdx < values.length) {
-            values[locationIdx] = resolveToUUID(values[locationIdx], lookups.locations);
+            values[locationIdx] = resolveToUUID(values[locationIdx], lookups.locations, 'location');
           }
           if (classificationIdx >= 0 && classificationIdx < values.length) {
-            values[classificationIdx] = resolveToUUID(values[classificationIdx], lookups.classifications);
+            values[classificationIdx] = resolveToUUID(values[classificationIdx], lookups.classifications, 'classification');
           }
           if (assetConditionIdx >= 0 && assetConditionIdx < values.length) {
-            values[assetConditionIdx] = resolveToUUID(values[assetConditionIdx], lookups.conditions);
+            values[assetConditionIdx] = resolveToUUID(values[assetConditionIdx], lookups.conditions, 'asset_condition');
           }
 
           // Rebuild CSV line (escape values with commas)
