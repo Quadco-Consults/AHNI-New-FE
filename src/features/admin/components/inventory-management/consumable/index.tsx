@@ -15,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 export default function ConsumablesHomePage() {
   const [page, setPage] = useState(1);
   const [bulkUploadOpen, setBulkUploadOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
   // Fetch categories
   const { data: categories } = useGetAllCategories({
@@ -27,7 +27,7 @@ export default function ConsumablesHomePage() {
   const { data: item, isFetching } = useGetAllItemsQuery({
     page,
     size: 20,
-    category: selectedCategory || undefined,
+    category: selectedCategory === "all" ? undefined : selectedCategory,
   });
 
   return (
@@ -38,7 +38,7 @@ export default function ConsumablesHomePage() {
             <div className="flex items-center gap-3">
               <span className="text-sm font-medium text-gray-700">Category:</span>
               <Select value={selectedCategory} onValueChange={(value) => {
-                setSelectedCategory(value === "all" ? "" : value);
+                setSelectedCategory(value);
                 setPage(1); // Reset to first page when category changes
               }}>
                 <SelectTrigger className="w-[250px]">
@@ -86,20 +86,11 @@ export default function ConsumablesHomePage() {
         </TableFilters>
       </Card>
 
-      {selectedCategory && (
-        <BulkUploadDialog
-          open={bulkUploadOpen}
-          onOpenChange={setBulkUploadOpen}
-          categoryId={selectedCategory}
-        />
-      )}
-      {!selectedCategory && (
-        <BulkUploadDialog
-          open={bulkUploadOpen}
-          onOpenChange={setBulkUploadOpen}
-          categoryId=""
-        />
-      )}
+      <BulkUploadDialog
+        open={bulkUploadOpen}
+        onOpenChange={setBulkUploadOpen}
+        categoryId={selectedCategory}
+      />
     </div>
   );
 }

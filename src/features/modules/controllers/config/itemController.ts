@@ -160,13 +160,11 @@ export const useBulkUploadItems = () => {
     contentType: null, // Let browser set correct multipart/form-data boundary
   });
 
-  const bulkUploadItems = async (file: File, categoryId?: string) => {
+  const bulkUploadItems = async (file: File) => {
     try {
       const formData = new FormData();
       formData.append("file", file);
-      if (categoryId) {
-        formData.append("category", categoryId);
-      }
+      // Category is now included in the CSV file, not sent separately
       const result = await callApi(formData);
       return result;
     } catch (error) {
