@@ -104,8 +104,18 @@ export default function BulkUploadDialog({ open, onOpenChange }: BulkUploadDialo
       if (error?.response?.data) {
         const errorData = error.response.data;
         if (errorData.errors && Array.isArray(errorData.errors)) {
-          setUploadResult(errorData);
-          errorMessage = `Upload failed: ${errorData.errors.length} row(s) had errors`;
+          // Check if errors are simple strings (validation errors) or objects (row errors)
+          if (errorData.errors.length > 0 && typeof errorData.errors[0] === 'string') {
+            // Simple validation errors - show them directly
+            errorMessage = errorData.message || "Upload failed";
+            if (errorData.errors.length > 0) {
+              errorMessage += `: ${errorData.errors.join(', ')}`;
+            }
+          } else {
+            // Row-specific errors
+            setUploadResult(errorData);
+            errorMessage = `Upload failed: ${errorData.errors.length} row(s) had errors`;
+          }
         } else if (errorData.message) {
           errorMessage = errorData.message;
         } else if (errorData.error) {
