@@ -157,13 +157,18 @@ export const useBulkUploadItems = () => {
     queryKey: ["items"],
     isAuth: true,
     method: "POST",
+    contentType: null, // Let browser set correct multipart/form-data boundary
   });
 
-  const bulkUploadItems = async (file: File) => {
+  const bulkUploadItems = async (file: File, categoryId?: string) => {
     try {
       const formData = new FormData();
       formData.append("file", file);
-      await callApi(formData);
+      if (categoryId) {
+        formData.append("category", categoryId);
+      }
+      const result = await callApi(formData);
+      return result;
     } catch (error) {
       console.error("Bulk upload error:", error);
       throw error;

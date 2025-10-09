@@ -2,10 +2,11 @@
 import { useState, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Upload, Download, FileSpreadsheet, X, CheckCircle, AlertCircle } from "lucide-react";
+import { Upload, Download, FileSpreadsheet, X, CheckCircle, AlertCircle, Info } from "lucide-react";
 import { toast } from "sonner";
 import { useBulkUploadItems } from "@/features/modules/controllers/config/itemController";
-import * as XLSX from "xlsx";
+import { Progress } from "@/components/ui/progress";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface BulkUploadDialogProps {
   open: boolean;
@@ -13,9 +14,18 @@ interface BulkUploadDialogProps {
   categoryId: string;
 }
 
+interface UploadResult {
+  created: number;
+  updated: number;
+  failed: number;
+  errors?: Array<{ row: number; error: string }>;
+}
+
 export default function BulkUploadDialog({ open, onOpenChange, categoryId }: BulkUploadDialogProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [uploadStatus, setUploadStatus] = useState<"idle" | "success" | "error">("idle");
+  const [uploadStatus, setUploadStatus] = useState<"idle" | "uploading" | "success" | "error">("idle");
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadResult, setUploadResult] = useState<UploadResult | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { bulkUploadItems, isLoading } = useBulkUploadItems();
@@ -46,27 +56,75 @@ export default function BulkUploadDialog({ open, onOpenChange, categoryId }: Bul
       return;
     }
 
-    try {
-      await bulkUploadItems(selectedFile);
-      setUploadStatus("success");
-      toast.success("Consumables uploaded successfully!");
+    if (!categoryId) {
+      toast.error("Please select a category from the dropdown before uploading");
+      return;
+    }
 
-      // Close dialog after 2 seconds
-      setTimeout(() => {
-        onOpenChange(false);
-        setSelectedFile(null);
-        setUploadStatus("idle");
-        // Reload the page to show new data
-        window.location.reload();
-      }, 2000);
+    try {
+      setUploadStatus("uploading");
+      setUploadProgress(0);
+      setUploadResult(null);
+
+      // Simulate progress
+      const progressInterval = setInterval(() => {
+        setUploadProgress(prev => Math.min(prev + 10, 90));
+      }, 200);
+
+      const result = await bulkUploadItems(selectedFile, categoryId);
+
+      clearInterval(progressInterval);
+      setUploadProgress(100);
+
+      // Extract result data from the response
+      const resultData = result?.data || result;
+      setUploadResult(resultData);
+
+      if (resultData.failed > 0) {
+        setUploadStatus("error");
+        toast.error(`Upload completed with ${resultData.failed} errors. Check details below.`);
+      } else {
+        setUploadStatus("success");
+        toast.success(`Successfully uploaded! Created: ${resultData.created}, Updated: ${resultData.updated}`);
+
+        // Close dialog and reload after success
+        setTimeout(() => {
+          onOpenChange(false);
+          setSelectedFile(null);
+          setUploadStatus("idle");
+          setUploadResult(null);
+          window.location.reload();
+        }, 3000);
+      }
     } catch (error: any) {
       setUploadStatus("error");
-      toast.error(error?.message || "Failed to upload consumables");
+      setUploadProgress(0);
+
+      console.error("Bulk upload error:", error);
+
+      // Extract detailed error message
+      let errorMessage = "Failed to upload consumables";
+
+      if (error?.response?.data) {
+        const errorData = error.response.data;
+        if (errorData.errors && Array.isArray(errorData.errors)) {
+          setUploadResult(errorData);
+          errorMessage = `Upload failed: ${errorData.errors.length} row(s) had errors`;
+        } else if (errorData.message) {
+          errorMessage = errorData.message;
+        } else if (errorData.error) {
+          errorMessage = errorData.error;
+        }
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+
+      toast.error(errorMessage);
     }
   };
 
   const handleDownloadTemplate = () => {
-    // Create CSV template with consumable fields
+    // Create CSV template with all consumable fields (category is auto-populated from dropdown)
     const headers = [
       "name",
       "description",
@@ -77,26 +135,81 @@ export default function BulkUploadDialog({ open, onOpenChange, categoryId }: Bul
       "re_order_level",
       "buffer_stock",
       "max_stock",
-      "item_cost"
+      "entry_date",
+      "item_cost",
+      "price"
     ];
 
-    const sampleData = [
-      "Paper A4",
-      "White A4 printing paper",
+    // Sample data rows with proper values
+    const sampleData1 = [
+      "Paper A4 Ream",
+      "White A4 printing paper - 500 sheets per ream",
       "Ream",
       "100",
-      "FIFO",
+      "STOCK_LEVEL",
       "2025-12-31",
       "10",
       "5",
       "200",
-      "5000"
+      "2025-01-15",
+      "2500.00",
+      "2500.00"
+    ];
+
+    const sampleData2 = [
+      "Ballpoint Pen Blue",
+      "Blue ballpoint pen for office use",
+      "Box",
+      "50",
+      "AVAILABILITY",
+      "2026-06-30",
+      "15",
+      "10",
+      "100",
+      "2025-01-20",
+      "1200.00",
+      "1500.00"
+    ];
+
+    // Add instruction row
+    const instructionRow = [
+      "REQUIRED: Item name",
+      "REQUIRED: Item description",
+      "REQUIRED: Unit (Piece/Box/Liter/etc)",
+      "OPTIONAL: Starting quantity",
+      "OPTIONAL: STOCK_LEVEL/AVAILABILITY/JUST_IN_TIME",
+      "OPTIONAL: YYYY-MM-DD",
+      "OPTIONAL: Min stock before reorder",
+      "OPTIONAL: Safety stock",
+      "OPTIONAL: Max capacity",
+      "OPTIONAL: YYYY-MM-DD",
+      "OPTIONAL: Cost/unit",
+      "OPTIONAL: Price/unit"
+    ];
+
+    const noteRow = [
+      "NOTE: Category will be auto-set from dropdown selection",
+      "Delete this row before uploading",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
     ];
 
     const csvContent = [
       headers.join(","),
-      sampleData.join(","),
-      // Add empty rows for user to fill
+      noteRow.join(","),
+      instructionRow.join(","),
+      sampleData1.join(","),
+      sampleData2.join(","),
+      // Add 3 empty rows for user to fill
+      Array(headers.length).fill("").join(","),
       Array(headers.length).fill("").join(","),
       Array(headers.length).fill("").join(","),
     ].join("\n");
@@ -210,18 +323,82 @@ export default function BulkUploadDialog({ open, onOpenChange, categoryId }: Bul
               </div>
             </div>
 
-            {/* Upload Status */}
-            {uploadStatus === "success" && (
-              <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg">
-                <CheckCircle className="text-green-600" size={20} />
-                <p className="text-sm text-green-800">Upload completed successfully!</p>
+            {/* Upload Progress */}
+            {uploadStatus === "uploading" && (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-600">Uploading...</span>
+                  <span className="text-gray-900 font-medium">{uploadProgress}%</span>
+                </div>
+                <Progress value={uploadProgress} className="h-2" />
               </div>
             )}
 
-            {uploadStatus === "error" && (
+            {/* Upload Results */}
+            {uploadResult && (
+              <div className="space-y-3">
+                {/* Summary */}
+                <div className={`p-4 rounded-lg border ${
+                  uploadResult.failed === 0
+                    ? "bg-green-50 border-green-200"
+                    : "bg-yellow-50 border-yellow-200"
+                }`}>
+                  <div className="flex items-start gap-3">
+                    {uploadResult.failed === 0 ? (
+                      <CheckCircle className="text-green-600 mt-0.5" size={20} />
+                    ) : (
+                      <Info className="text-yellow-600 mt-0.5" size={20} />
+                    )}
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-sm mb-2">Upload Summary</h4>
+                      <div className="grid grid-cols-3 gap-4 text-sm">
+                        <div>
+                          <p className="text-gray-600">Created</p>
+                          <p className="text-green-700 font-semibold text-lg">{uploadResult.created}</p>
+                        </div>
+                        <div>
+                          <p className="text-gray-600">Updated</p>
+                          <p className="text-blue-700 font-semibold text-lg">{uploadResult.updated}</p>
+                        </div>
+                        <div>
+                          <p className="text-gray-600">Failed</p>
+                          <p className="text-red-700 font-semibold text-lg">{uploadResult.failed}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Error Details */}
+                {uploadResult.errors && uploadResult.errors.length > 0 && (
+                  <div className="border rounded-lg border-red-200 bg-red-50">
+                    <div className="p-3 border-b border-red-200 bg-red-100">
+                      <div className="flex items-center gap-2">
+                        <AlertCircle className="text-red-600" size={18} />
+                        <h4 className="font-semibold text-sm text-red-900">
+                          Error Details ({uploadResult.errors.length} errors)
+                        </h4>
+                      </div>
+                    </div>
+                    <ScrollArea className="h-[200px]">
+                      <div className="p-3 space-y-2">
+                        {uploadResult.errors.map((error, index) => (
+                          <div key={index} className="p-2 bg-white border border-red-200 rounded text-xs">
+                            <p className="font-semibold text-red-800">Row {error.row}:</p>
+                            <p className="text-red-700 mt-1">{error.error}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </ScrollArea>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {uploadStatus === "error" && !uploadResult && (
               <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
                 <AlertCircle className="text-red-600" size={20} />
-                <p className="text-sm text-red-800">Upload failed. Please try again.</p>
+                <p className="text-sm text-red-800">Upload failed. Please check the error messages above.</p>
               </div>
             )}
           </div>
@@ -230,11 +407,14 @@ export default function BulkUploadDialog({ open, onOpenChange, categoryId }: Bul
           <div className="border rounded-lg p-4 bg-gray-50">
             <h4 className="font-semibold text-sm mb-2">Important Instructions:</h4>
             <ul className="text-xs text-gray-700 space-y-1 list-disc list-inside">
-              <li>Ensure all required fields are filled (name, description, uom)</li>
-              <li>Use the correct date format: YYYY-MM-DD for expiry_date</li>
-              <li>Stock control method should be either FIFO, LIFO, or FEFO</li>
-              <li>Numeric fields should contain only numbers</li>
+              <li><strong>Required fields:</strong> name, description, uom</li>
+              <li><strong>Date format:</strong> Use YYYY-MM-DD (e.g., 2025-12-31)</li>
+              <li><strong>Stock control methods:</strong> STOCK_LEVEL, AVAILABILITY, or JUST_IN_TIME</li>
+              <li><strong>Numeric fields:</strong> Use numbers only (no letters or special characters)</li>
+              <li><strong>Category:</strong> Will be set from the dropdown selection above</li>
+              <li><strong>UOM examples:</strong> Piece, Box, Carton, Liter, Kilogram, Ream, Pack</li>
               <li>Do not modify the header row in the template</li>
+              <li>Remove the instruction row before uploading</li>
             </ul>
           </div>
         </div>
