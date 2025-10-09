@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Upload, Download, FileSpreadsheet, X, CheckCircle, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { useBulkUploadItems } from "@/features/modules/controllers/config/itemController";
+import * as XLSX from "xlsx";
 
 interface BulkUploadDialogProps {
   open: boolean;

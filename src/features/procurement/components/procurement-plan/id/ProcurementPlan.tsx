@@ -185,108 +185,158 @@ const ProcurementPlan = (data: ProcurementPlanResultsData) => {
 
               {/* Table Body */}
               <tbody>
-                <tr>
-                  <td className="px-4 py-2 border text-sm text-gray-500">
-                    {safeRender(data?.budget_line)}
-                  </td>
-                  <td className="px-4 py-2 border text-sm text-gray-500">
-                    {safeRender(data?.implementer)}
-                  </td>
-                  <td className="px-4 py-2 border text-sm text-gray-500">
-                    {safeRender(data?.implementation_location)}
-                  </td>
-                  <td className="px-4 py-2 border text-sm text-gray-500">
-                    {safeRender(data?.workplan_activity_reference)}
-                  </td>
-                  <td className="px-4 py-2 border text-sm text-gray-500">
-                    {safeRender(data?.description)}
-                  </td>
-                  {/* Budget Allocation */}
-                  <td className="px-4 py-2 border text-sm text-gray-500">
-                    $68,125.26
-                  </td>
-                  <td className="px-4 py-2 border text-sm text-gray-500">
-                    $68,125.26
-                  </td>
-                  <td className="px-4 py-2 border text-sm text-gray-500">
-                    $68,125.26
-                  </td>
-                  <td className="px-4 py-2 border text-sm text-gray-500">
-                    {"N/A"}
-                  </td>
-                  {/* Quantity Targets */}
-                  <td className="px-4 py-2 border text-sm text-gray-500">
-                    {"NON-PPM"}
-                  </td>
-                  <td className="px-4 py-2 border text-sm text-gray-500">2</td>
-                  {/* Other Details */}
-                  <td className="px-4 py-2 border text-sm text-gray-500">
-                    {/* {data?.pr_staff} */ "LOT"}
-                  </td>
-                  <td className="px-4 py-2 border text-sm text-gray-500">
-                    {/* {data?.pr_staff} */ "1.0"}
-                  </td>
-                  <td className="px-4 py-2 border text-sm text-gray-500">
-                    {
-                      /* {data?.mode_of_procurement} */ "Director Of Finance & Operations"
-                    }
-                  </td>
-                  <td className="px-4 py-2 border text-sm text-gray-500">
-                    {
-                      /* {data?.procurement_committee_review} */ "Local Procurement"
-                    }
-                  </td>
-                  <td className="px-4 py-2 border text-sm text-gray-500">
-                    {/* {data?.selected_supplier} */ "NO"}
-                  </td>
-                  <td className="px-4 py-2 border text-sm text-gray-500">
-                    {/* {data?.procurement_process} */ "N/A"}
-                  </td>
-                  <td className="px-4 py-2 border text-sm text-gray-500">
-                    {/* {data?.start_date} */ "N/A"}
-                  </td>
-                  <td className="px-4 py-2 border text-sm text-gray-500">
-                    {/* {data?.expected_delivery_date_1} */ "Sole Source"}
-                  </td>
-                  <td className="px-4 py-2 border text-sm text-gray-500">
-                    {/* {data?.expected_delivery_date_2} */ "N/A"}
-                  </td>
-                  <td className="px-4 py-2 border text-sm text-gray-500">
-                    {/* {data?.ware_houses} */ "N/A"}
-                  </td>
-                  <td className="px-4 py-2 border text-sm text-gray-500">
-                    {/* {data?.donor_remarks} */ "N/A"}
-                  </td>
-                  <td className="px-4 py-2 border text-sm text-gray-500">
-                    {/* {data?.implenter_remarks} */ "N/A"}
-                  </td>
-                  <td className="px-4 py-2 border text-sm text-gray-500">
-                    {/* {data?.implenter_remarks} */ "N/A"}
-                  </td>{" "}
-                  <td className="px-4 py-2 border text-sm text-gray-500">
-                    {/* {data?.implenter_remarks} */ "N/A"}
-                  </td>{" "}
-                  <td className="px-4 py-2 border text-sm text-gray-500">
-                    {/* {data?.implenter_remarks} */ "N/A"}
-                  </td>{" "}
-                  <td className="px-4 py-2 border text-sm text-gray-500">
-                    {/* {data?.implenter_remarks} */ "N/A"}
-                  </td>{" "}
-                  <td className="px-4 py-2 border text-sm text-gray-500">
-                    {/* {data?.implenter_remarks} */ "N/A"}
-                  </td>{" "}
-                  <td className="px-4 py-2 border text-sm text-gray-500">
-                    {"PHO"}
-                  </td>{" "}
-                  <td className="px-4 py-2 border text-sm text-gray-500">
-                    {
-                      /* {data?.implenter_remarks} */ "The budgeted cost covers a monthly recharge of electricity of N200,000 for FY25"
-                    }
-                  </td>{" "}
-                  <td className="px-4 py-2 border text-sm text-gray-500">
-                    {safeRender(data?.implenter_remarks)}
-                  </td>{" "}
-                </tr>
+                {/* Check if items exist, otherwise show single row with main data */}
+                {(data?.items || data?.line_items || data?.procurement_items)?.length ? (
+                  // If items array exists, map through it
+                  (data?.items || data?.line_items || data?.procurement_items)?.map((item, index) => (
+                    <tr key={item?.id || index}>
+                      <td className="px-4 py-2 border text-sm text-gray-500">
+                        {index + 1}
+                      </td>
+                      <td className="px-4 py-2 border text-sm text-gray-500">
+                        {safeRender(item?.implementer)}
+                      </td>
+                      <td className="px-4 py-2 border text-sm text-gray-500">
+                        {safeRender(item?.implementation_location)}
+                      </td>
+                      <td className="px-4 py-2 border text-sm text-gray-500">
+                        {safeRender(item?.workplan_activity_reference)}
+                      </td>
+                      <td className="px-4 py-2 border text-sm text-gray-500">
+                        {safeRender(item?.description)}
+                      </td>
+                      <td className="px-4 py-2 border text-sm text-gray-500">
+                        {safeRender(item?.budget_line)}
+                      </td>
+                      <td className="px-4 py-2 border text-sm text-gray-500">
+                        {item?.approved_budget ? `$${item.approved_budget.toLocaleString()}` : "N/A"}
+                      </td>
+                      <td className="px-4 py-2 border text-sm text-gray-500">
+                        {item?.approved_budget ? `$${item.approved_budget.toLocaleString()}` : "N/A"}
+                      </td>
+                      <td className="px-4 py-2 border text-sm text-gray-500">
+                        {item?.is_ppm ? "PPM" : "N/A"}
+                      </td>
+                      <td className="px-4 py-2 border text-sm text-gray-500">
+                        {item?.is_ppm ? "N/A" : "NON-PPM"}
+                      </td>
+                      <td className="px-4 py-2 border text-sm text-gray-500">N/A</td>
+                      <td className="px-4 py-2 border text-sm text-gray-500">N/A</td>
+                      <td className="px-4 py-2 border text-sm text-gray-500">N/A</td>
+                      <td className="px-4 py-2 border text-sm text-gray-500">
+                        {safeRender(item?.pr_staff)}
+                      </td>
+                      <td className="px-4 py-2 border text-sm text-gray-500">
+                        {safeRender(item?.mode_of_procurement)}
+                      </td>
+                      <td className="px-4 py-2 border text-sm text-gray-500">
+                        {safeRender(item?.procurement_committee_review)}
+                      </td>
+                      <td className="px-4 py-2 border text-sm text-gray-500">
+                        {safeRender(item?.procurement_process)}
+                      </td>
+                      <td className="px-4 py-2 border text-sm text-gray-500">
+                        {safeRender(item?.start_date)}
+                      </td>
+                      <td className="px-4 py-2 border text-sm text-gray-500">N/A</td>
+                      <td className="px-4 py-2 border text-sm text-gray-500">N/A</td>
+                      <td className="px-4 py-2 border text-sm text-gray-500">N/A</td>
+                      <td className="px-4 py-2 border text-sm text-gray-500">N/A</td>
+                      <td className="px-4 py-2 border text-sm text-gray-500">N/A</td>
+                      <td className="px-4 py-2 border text-sm text-gray-500">N/A</td>
+                      <td className="px-4 py-2 border text-sm text-gray-500">N/A</td>
+                      <td className="px-4 py-2 border text-sm text-gray-500">
+                        {safeRender(item?.selected_supplier)}
+                      </td>
+                      <td className="px-4 py-2 border text-sm text-gray-500">N/A</td>
+                      <td className="px-4 py-2 border text-sm text-gray-500">
+                        {safeRender(item?.expected_delivery_date_1)}
+                      </td>
+                      <td className="px-4 py-2 border text-sm text-gray-500">
+                        {safeRender(item?.ware_houses)}
+                      </td>
+                      <td className="px-4 py-2 border text-sm text-gray-500">
+                        {safeRender(item?.donor_remarks)}
+                      </td>
+                      <td className="px-4 py-2 border text-sm text-gray-500">
+                        {safeRender(item?.implenter_remarks)}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  // Fallback to show single row if no items array
+                  <tr>
+                    <td className="px-4 py-2 border text-sm text-gray-500">1</td>
+                    <td className="px-4 py-2 border text-sm text-gray-500">
+                      {safeRender(data?.implementer)}
+                    </td>
+                    <td className="px-4 py-2 border text-sm text-gray-500">
+                      {safeRender(data?.implementation_location)}
+                    </td>
+                    <td className="px-4 py-2 border text-sm text-gray-500">
+                      {safeRender(data?.workplan_activity_reference)}
+                    </td>
+                    <td className="px-4 py-2 border text-sm text-gray-500">
+                      {safeRender(data?.description)}
+                    </td>
+                    <td className="px-4 py-2 border text-sm text-gray-500">
+                      {safeRender(data?.budget_line)}
+                    </td>
+                    <td className="px-4 py-2 border text-sm text-gray-500">
+                      {data?.approved_budget ? `$${data.approved_budget.toLocaleString()}` : "N/A"}
+                    </td>
+                    <td className="px-4 py-2 border text-sm text-gray-500">
+                      {data?.approved_budget ? `$${data.approved_budget.toLocaleString()}` : "N/A"}
+                    </td>
+                    <td className="px-4 py-2 border text-sm text-gray-500">
+                      {data?.is_ppm ? "PPM" : "N/A"}
+                    </td>
+                    <td className="px-4 py-2 border text-sm text-gray-500">
+                      {data?.is_ppm ? "N/A" : "NON-PPM"}
+                    </td>
+                    <td className="px-4 py-2 border text-sm text-gray-500">N/A</td>
+                    <td className="px-4 py-2 border text-sm text-gray-500">N/A</td>
+                    <td className="px-4 py-2 border text-sm text-gray-500">N/A</td>
+                    <td className="px-4 py-2 border text-sm text-gray-500">
+                      {safeRender(data?.pr_staff)}
+                    </td>
+                    <td className="px-4 py-2 border text-sm text-gray-500">
+                      {safeRender(data?.mode_of_procurement)}
+                    </td>
+                    <td className="px-4 py-2 border text-sm text-gray-500">
+                      {safeRender(data?.procurement_committee_review)}
+                    </td>
+                    <td className="px-4 py-2 border text-sm text-gray-500">
+                      {safeRender(data?.procurement_process)}
+                    </td>
+                    <td className="px-4 py-2 border text-sm text-gray-500">
+                      {safeRender(data?.start_date)}
+                    </td>
+                    <td className="px-4 py-2 border text-sm text-gray-500">N/A</td>
+                    <td className="px-4 py-2 border text-sm text-gray-500">N/A</td>
+                    <td className="px-4 py-2 border text-sm text-gray-500">N/A</td>
+                    <td className="px-4 py-2 border text-sm text-gray-500">N/A</td>
+                    <td className="px-4 py-2 border text-sm text-gray-500">N/A</td>
+                    <td className="px-4 py-2 border text-sm text-gray-500">N/A</td>
+                    <td className="px-4 py-2 border text-sm text-gray-500">N/A</td>
+                    <td className="px-4 py-2 border text-sm text-gray-500">
+                      {safeRender(data?.selected_supplier)}
+                    </td>
+                    <td className="px-4 py-2 border text-sm text-gray-500">N/A</td>
+                    <td className="px-4 py-2 border text-sm text-gray-500">
+                      {safeRender(data?.expected_delivery_date_1)}
+                    </td>
+                    <td className="px-4 py-2 border text-sm text-gray-500">
+                      {safeRender(data?.ware_houses)}
+                    </td>
+                    <td className="px-4 py-2 border text-sm text-gray-500">
+                      {safeRender(data?.donor_remarks)}
+                    </td>
+                    <td className="px-4 py-2 border text-sm text-gray-500">
+                      {safeRender(data?.implenter_remarks)}
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>

@@ -164,7 +164,14 @@ const useApiManager = <TData = unknown, TError = Error, TVariables = unknown>({
       if (queryKey) {
         const updateQueryKeys = Array.isArray(queryKey) ? queryKey : [queryKey];
         updateQueryKeys.forEach((key) => {
-          if (key) queryClient.invalidateQueries({ queryKey: [key] });
+          if (key) {
+            // Invalidate all queries that start with this key
+            // This ensures that paginated/filtered queries are also invalidated
+            queryClient.invalidateQueries({
+              queryKey: [key],
+              exact: false // This will invalidate all queries that start with [key]
+            });
+          }
         });
       }
     },

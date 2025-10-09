@@ -20,7 +20,7 @@ export const useGetAllCategoriesManager = ({
   return useQuery<TPaginatedResponse<CategoryData>>({
     queryKey: ["categories", page, size, search],
     queryFn: async () => {
-      const response = await AxiosWithToken.get("/config/category/", {
+      const response = await AxiosWithToken.get("config/category/", {
         params: { page, size, search }
       });
       return response.data;
@@ -37,7 +37,7 @@ export const CreateCategoryManager = () => {
     Error,
     CategoryFormValues
   >({
-    endpoint: "/config/category/",
+    endpoint: "config/category/",
     queryKey: ["categories"],
     isAuth: true,
     method: "POST",
@@ -61,7 +61,7 @@ export const UpdateCategoryManager = () => {
     Error,
     CategoryFormValues
   >({
-    endpoint: "/config/category/",
+    endpoint: "config/category/",
     queryKey: ["categories"],
     isAuth: true,
     method: "PATCH",
@@ -87,7 +87,7 @@ export const DeleteCategoryManager = () => {
     Error,
     Record<string, never>
   >({
-    endpoint: "/config/category/",
+    endpoint: "config/category/",
     queryKey: ["categories"],
     isAuth: true,
     method: "DELETE",

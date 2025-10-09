@@ -169,9 +169,23 @@ export default function CreateActivityPlan() {
                 follow_up_actions: data.follow_up_action || data.follow_up_actions,
             };
 
-            // Add work plan ID if creating from work plan
+            // Format dates to YYYY-MM-DD format
+            if (submitData.start_date) {
+                const startDate = new Date(submitData.start_date);
+                submitData.start_date = startDate.toISOString().split('T')[0];
+            }
+            if (submitData.end_date) {
+                const endDate = new Date(submitData.end_date);
+                submitData.end_date = endDate.toISOString().split('T')[0];
+            }
+
+            // Add work plan ID and project if creating/editing from work plan
             if (workPlanId) {
                 submitData.work_plan = workPlanId;
+                // Ensure project is set from work plan if not in form data
+                if (!submitData.project && workPlan?.data?.project?.id) {
+                    submitData.project = workPlan.data.project.id;
+                }
             }
 
             // Remove old field names before submitting
@@ -214,14 +228,15 @@ export default function CreateActivityPlan() {
             <Form {...form}>
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <Card className="space-y-10 p-10">
-                        <FormSelect
-                            label="Project"
-                            name="project"
-                            placeholder="Select Project"
-                            required
-                            options={projectOptions}
-                            disabled={!!workPlanId}
-                        />
+                        {!workPlanId && (
+                            <FormSelect
+                                label="Project"
+                                name="project"
+                                placeholder="Select Project"
+                                required
+                                options={projectOptions}
+                            />
+                        )}
 
                         <FormInput
                             label="Activity Code"

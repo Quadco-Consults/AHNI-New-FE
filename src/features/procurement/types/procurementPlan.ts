@@ -1,3 +1,34 @@
+export type ProcurementPlanLineItem = {
+  id?: string;
+  budget_line?: string;
+  implementer?: string;
+  implementation_location?: string;
+  workplan_activity_reference?: string;
+  workplan_activity_object?: {
+    id: string;
+    name?: string;
+    description: string;
+    code?: string;
+    serial_number?: string;
+    job_category?: string;
+  };
+  description?: string;
+  approved_budget?: number;
+  pr_staff?: string;
+  mode_of_procurement?: string;
+  procurement_committee_review?: string;
+  is_ppm?: boolean;
+  procurement_process?: string;
+  donor_remarks?: string;
+  implenter_remarks?: string;
+  start_date?: string;
+  expected_delivery_date_1?: string;
+  expected_delivery_date_2?: string;
+  ware_houses?: string;
+  workplan_activity?: string;
+  selected_supplier?: string;
+};
+
 export type ProcurementPlanResultsData = {
   id?: string;
   created_at?: string;
@@ -31,6 +62,9 @@ export type ProcurementPlanResultsData = {
   ware_houses?: string;
   workplan_activity?: string;
   selected_supplier?: string;
+  items?: ProcurementPlanLineItem[];
+  line_items?: ProcurementPlanLineItem[];
+  procurement_items?: ProcurementPlanLineItem[];
 };
 
 export interface ProcurementPlanData {
