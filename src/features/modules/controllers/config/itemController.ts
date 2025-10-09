@@ -16,7 +16,7 @@ export const useGetAllItemsManager = ({
   return useQuery<ApiResponse<TPaginatedResponse<ItemData>>>({
     queryKey: ["items", page, size, search, category, category__job_category],
     queryFn: async () => {
-      const response = await AxiosWithToken.get("/config/items/", {
+      const response = await AxiosWithToken.get("config/items/", {
         params: { page, size, search, category, category__job_category },
       });
       return response.data;
@@ -34,7 +34,7 @@ export const useGetSingleItemManager = (
   return useQuery<TResponse<ItemData>>({
     queryKey: ["item", id],
     queryFn: async () => {
-      const response = await AxiosWithToken.get(`/config/items/${id}/`);
+      const response = await AxiosWithToken.get(`config/items/${id}/`);
       return response.data;
     },
     enabled: enabled && !!id,
@@ -49,7 +49,7 @@ export const CreateItemManager = () => {
     Error,
     ItemFormValues
   >({
-    endpoint: "/config/items/",
+    endpoint: "config/items/",
     queryKey: ["items"],
     isAuth: true,
     method: "POST",
@@ -98,7 +98,7 @@ export const DeleteItemManager = () => {
     Error,
     Record<string, never>
   >({
-    endpoint: "/config/items/",
+    endpoint: "config/items/",
     queryKey: ["items", "item"],
     isAuth: true,
     method: "DELETE",
@@ -106,7 +106,7 @@ export const DeleteItemManager = () => {
 
   const deleteItem = async (id: string) => {
     try {
-      const response = await AxiosWithToken.delete(`/config/items/${id}/`);
+      const response = await AxiosWithToken.delete(`config/items/${id}/`);
       return response.data;
     } catch (error) {
       console.error("Item delete error:", error);
@@ -153,7 +153,7 @@ export const useBulkUploadItems = () => {
     Error,
     FormData
   >({
-    endpoint: "/config/items/bulk-upload/",
+    endpoint: "config/items/bulk-upload/",
     queryKey: ["items"],
     isAuth: true,
     method: "POST",

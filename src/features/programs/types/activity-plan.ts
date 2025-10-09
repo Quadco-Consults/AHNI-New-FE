@@ -13,7 +13,7 @@ export const ActivityPlanSchema = z.object({
     achieved_results: z.string().optional().nullable(),
     follow_up_actions: z.string().optional().nullable(),
     comments: z.string().optional().nullable(),
-    project: z.string().min(1, "This field is required"),
+    project: z.string().optional(),
 
     // Keep old field names for backward compatibility
     is_resources_requied: z.string().optional(),
