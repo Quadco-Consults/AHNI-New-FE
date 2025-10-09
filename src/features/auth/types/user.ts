@@ -60,7 +60,7 @@ interface Role {
 
 export interface IUser {
   id: string;
-  employee_id: string;
+  employee_id?: string | null;
   first_name: string;
   last_name: string;
   full_name: string;

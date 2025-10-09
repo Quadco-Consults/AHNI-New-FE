@@ -26,8 +26,8 @@ export const itemRequisitionColumns: ColumnDef<TItemRequisitionPaginatedData>[] 
   [
     {
       header: "Employee ID Number",
-      id: "_",
-      accessorKey: "created_by.employee_id",
+      id: "employee_id",
+      accessorFn: ({ created_by }) => created_by?.employee_id ?? "N/A",
       size: 250,
     },
 
