@@ -27,7 +27,15 @@ export const itemRequisitionColumns: ColumnDef<TItemRequisitionPaginatedData>[] 
     {
       header: "Employee ID Number",
       id: "employee_id",
-      accessorFn: ({ created_by }) => created_by?.employee_id ?? "N/A",
+      accessorFn: ({ created_by }) => {
+        if (!created_by?.employee_id) return "N/A";
+        // If it's a UUID (long string with hyphens), show shortened version
+        const empId = created_by.employee_id;
+        if (empId.length > 20 && empId.includes('-')) {
+          return `EMP-${empId.substring(0, 8)}`;
+        }
+        return empId;
+      },
       size: 250,
     },
 
