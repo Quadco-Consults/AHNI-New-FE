@@ -11,7 +11,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 interface BulkUploadDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  categoryId: string;
+  categoryId?: string; // Keep for backward compatibility but no longer used
 }
 
 interface UploadResult {
@@ -21,7 +21,7 @@ interface UploadResult {
   errors?: Array<{ row: number; error: string }>;
 }
 
-export default function BulkUploadDialog({ open, onOpenChange, categoryId }: BulkUploadDialogProps) {
+export default function BulkUploadDialog({ open, onOpenChange }: BulkUploadDialogProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploadStatus, setUploadStatus] = useState<"idle" | "uploading" | "success" | "error">("idle");
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -56,11 +56,6 @@ export default function BulkUploadDialog({ open, onOpenChange, categoryId }: Bul
       return;
     }
 
-    if (!categoryId) {
-      toast.error("Please select a category from the dropdown before uploading");
-      return;
-    }
-
     try {
       setUploadStatus("uploading");
       setUploadProgress(0);
@@ -71,7 +66,8 @@ export default function BulkUploadDialog({ open, onOpenChange, categoryId }: Bul
         setUploadProgress(prev => Math.min(prev + 10, 90));
       }, 200);
 
-      const result = await bulkUploadItems(selectedFile, categoryId);
+      // Don't pass categoryId - it's now in the CSV file
+      const result = await bulkUploadItems(selectedFile);
 
       clearInterval(progressInterval);
       setUploadProgress(100);
@@ -124,8 +120,9 @@ export default function BulkUploadDialog({ open, onOpenChange, categoryId }: Bul
   };
 
   const handleDownloadTemplate = () => {
-    // Create CSV template with all consumable fields (category is auto-populated from dropdown)
+    // Create CSV template with all consumable fields including category
     const headers = [
+      "category",
       "name",
       "description",
       "uom",
@@ -142,6 +139,7 @@ export default function BulkUploadDialog({ open, onOpenChange, categoryId }: Bul
 
     // Sample data rows with proper values
     const sampleData1 = [
+      "Office Supplies",
       "Paper A4 Ream",
       "White A4 printing paper - 500 sheets per ream",
       "Ream",
@@ -157,6 +155,7 @@ export default function BulkUploadDialog({ open, onOpenChange, categoryId }: Bul
     ];
 
     const sampleData2 = [
+      "Office Supplies",
       "Ballpoint Pen Blue",
       "Blue ballpoint pen for office use",
       "Box",
@@ -171,8 +170,25 @@ export default function BulkUploadDialog({ open, onOpenChange, categoryId }: Bul
       "1500.00"
     ];
 
+    const sampleData3 = [
+      "IT Equipment",
+      "USB Flash Drive 32GB",
+      "High-speed USB 3.0 flash drive",
+      "Piece",
+      "25",
+      "JUST_IN_TIME",
+      "2027-12-31",
+      "5",
+      "3",
+      "50",
+      "2025-01-22",
+      "1500.00",
+      "2000.00"
+    ];
+
     // Add instruction row
     const instructionRow = [
+      "REQUIRED: Category name",
       "REQUIRED: Item name",
       "REQUIRED: Item description",
       "REQUIRED: Unit (Piece/Box/Liter/etc)",
@@ -188,8 +204,9 @@ export default function BulkUploadDialog({ open, onOpenChange, categoryId }: Bul
     ];
 
     const noteRow = [
-      "NOTE: Category will be auto-set from dropdown selection",
+      "NOTE: Use exact category names from your system",
       "Delete this row before uploading",
+      "",
       "",
       "",
       "",
@@ -208,8 +225,8 @@ export default function BulkUploadDialog({ open, onOpenChange, categoryId }: Bul
       instructionRow.join(","),
       sampleData1.join(","),
       sampleData2.join(","),
-      // Add 3 empty rows for user to fill
-      Array(headers.length).fill("").join(","),
+      sampleData3.join(","),
+      // Add 2 empty rows for user to fill
       Array(headers.length).fill("").join(","),
       Array(headers.length).fill("").join(","),
     ].join("\n");
@@ -247,6 +264,19 @@ export default function BulkUploadDialog({ open, onOpenChange, categoryId }: Bul
         </DialogHeader>
 
         <div className="space-y-6 py-4">
+          {/* Info Banner */}
+          <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <Info className="text-blue-600" size={18} />
+            <div className="flex-1">
+              <p className="text-sm text-blue-900">
+                <span className="font-medium">Multi-Category Upload:</span> You can now upload items from different categories in a single file.
+              </p>
+              <p className="text-xs text-blue-700 mt-1">
+                Each row in your CSV should include the category name for that item.
+              </p>
+            </div>
+          </div>
+
           {/* Download Template Section */}
           <div className="border rounded-lg p-4 bg-blue-50 border-blue-200">
             <div className="flex items-start gap-3">
@@ -407,14 +437,15 @@ export default function BulkUploadDialog({ open, onOpenChange, categoryId }: Bul
           <div className="border rounded-lg p-4 bg-gray-50">
             <h4 className="font-semibold text-sm mb-2">Important Instructions:</h4>
             <ul className="text-xs text-gray-700 space-y-1 list-disc list-inside">
-              <li><strong>Required fields:</strong> name, description, uom</li>
+              <li><strong>Required fields:</strong> category, name, description, uom</li>
+              <li><strong>Category:</strong> Must match an existing category name exactly (case-sensitive)</li>
               <li><strong>Date format:</strong> Use YYYY-MM-DD (e.g., 2025-12-31)</li>
               <li><strong>Stock control methods:</strong> STOCK_LEVEL, AVAILABILITY, or JUST_IN_TIME</li>
               <li><strong>Numeric fields:</strong> Use numbers only (no letters or special characters)</li>
-              <li><strong>Category:</strong> Will be set from the dropdown selection above</li>
               <li><strong>UOM examples:</strong> Piece, Box, Carton, Liter, Kilogram, Ream, Pack</li>
+              <li><strong>Multiple categories:</strong> You can include items from different categories in one upload</li>
               <li>Do not modify the header row in the template</li>
-              <li>Remove the instruction row before uploading</li>
+              <li>Remove the instruction and note rows before uploading</li>
             </ul>
           </div>
         </div>
