@@ -221,10 +221,10 @@ export default function CreateFuelConsumption() {
         assigned_driver: assigned_driver.id,
         location: location.id,
         vendor: vendor.id,
-        odometer: String(odometer),
+        odometer: odometer, // Keep as number - schema uses z.coerce.number()
         date,
         price_per_litre,
-        quantity: String(quantity),
+        quantity: quantity, // Keep as number - schema uses z.coerce.number()
         amount,
         fco: fco.id,
         fuel_coupon: fuelConsumption.data.fuel_coupon || "",
