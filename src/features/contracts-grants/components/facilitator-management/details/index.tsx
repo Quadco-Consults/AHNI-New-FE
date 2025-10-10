@@ -100,10 +100,22 @@ export default function FacilitatorDetails() {
             <div>
               <label className="text-sm font-medium text-gray-500">Supervisor</label>
               <p className="text-lg">
-                {typeof facilitator?.supervisor === 'object'
-                  ? `${facilitator?.supervisor?.first_name || ''} ${facilitator?.supervisor?.last_name || ''}`.trim() || 'N/A'
-                  : facilitator?.supervisor || 'N/A'
-                }
+                {(() => {
+                  if (!facilitator?.supervisor) return 'N/A';
+
+                  if (typeof facilitator.supervisor === 'object') {
+                    if (facilitator.supervisor.full_name) {
+                      return facilitator.supervisor.full_name;
+                    }
+                    const fullName = `${facilitator.supervisor.first_name || ''} ${facilitator.supervisor.last_name || ''}`.trim();
+                    if (fullName) {
+                      return fullName;
+                    }
+                    return facilitator.supervisor.email || 'N/A';
+                  }
+
+                  return facilitator.supervisor;
+                })()}
               </p>
             </div>
 

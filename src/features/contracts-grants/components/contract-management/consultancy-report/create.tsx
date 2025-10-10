@@ -20,7 +20,7 @@ import {
 import {
     useCreateConsultancyReport,
     useGetSingleConsultancyReport,
-    useModifyConsultancyReport,
+    useUpdateConsultancyReport,
 } from "@/features/contracts-grants/controllers/consultancyReportController";
 import FormButton from "@/components/FormButton";
 import FormSelect from "components/atoms/FormSelectField";
@@ -96,24 +96,25 @@ export default function CreateConsultancyReport() {
     const { createConsultancyReport, isLoading: isCreateLoading } =
         useCreateConsultancyReport();
 
-    const { modifyConsultancyReport, isLoading: isModifyLoading } =
-        useModifyConsultancyReport();
+    const { updateConsultancyReport, isLoading: isModifyLoading } =
+        useUpdateConsultancyReport(id || "");
 
     const onSubmit: SubmitHandler<TConsultancyReportFormData> = async (
         data
     ) => {
         try {
             if (id) {
-                await modifyConsultancyReport({ id, body: data })();
+                await updateConsultancyReport(data);
                 toast.success("Consultancy Report Updated");
             } else {
-                await createConsultancyReport(data)();
+                await createConsultancyReport(data);
                 toast.success("Consultancy Report Created");
             }
 
             router.push(CG_ROUTES.CONSULTANCY_REPORT);
         } catch (error: any) {
-            toast.error(error?.data?.message ?? "Something went wrong");
+            const errorMessage = error?.data?.message ?? error?.message ?? "Something went wrong";
+            toast.error(errorMessage);
         }
     };
 

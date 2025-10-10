@@ -10,10 +10,9 @@ import {
   ContractRequestSchema,
   TContractRequestFormData,
 } from "@/features/contracts-grants/types/contract-management/contract-request";
-// import { UserCircle } from "lucide-react";
 import { useMemo } from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import { useSearchParams } from "next/navigation"; 
+import { useSearchParams, useRouter } from "next/navigation";
 import { useGetAllUsers } from "@/features/auth/controllers/userController";
 import {
   useCreateContractRequest,
@@ -24,13 +23,14 @@ import { useGetAllDepartments } from "@/features/modules/controllers/config/depa
 import { useGetAllLocations } from "@/features/modules/controllers/config/locationController";
 import { useGetAllFCONumbers } from "@/features/modules/controllers/finance/fcoNumberController";
 import { toast } from "sonner";
+import { CG_ROUTES } from "constants/RouterConstants";
 
 export default function CreateContractRequest() {
   const searchParams = useSearchParams();
+  const router = useRouter();
 
   const id = searchParams.get("id");
 
-  //   const router = useRouter();
   const form = useForm<TContractRequestFormData>({
     resolver: zodResolver(ContractRequestSchema),
     defaultValues: {
@@ -141,7 +141,7 @@ export default function CreateContractRequest() {
         toast.success("Contract Created Successfully");
       }
 
-      //   router.push(CG_ROUTES.ContractRequest);
+      router.push(CG_ROUTES.CONTRACT_REQUEST);
     } catch (error: any) {
       console.error("Contract request submission error:", error);
       toast.error(error?.message || error?.data?.message || "Something went wrong");

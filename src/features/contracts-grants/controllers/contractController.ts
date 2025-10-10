@@ -289,8 +289,10 @@ export const useSubmitContractRequest = (id: string) => {
 
   const submitContractRequest = async (comment?: string) => {
     try {
-      // Send null if no comment, to avoid "field may not be blank" error
-      const payload = { comment: comment?.trim() || null };
+      // Backend requires comment field - use default if not provided
+      const payload = {
+        comment: comment?.trim() || "Submitted for review"
+      };
       await callApi(payload);
     } catch (error) {
       console.error("Contract request submit error:", error);
@@ -316,8 +318,10 @@ export const useReviewContractRequest = (id: string) => {
 
   const reviewContractRequest = async (comment?: string) => {
     try {
-      // Send null if no comment, to avoid "field may not be blank" error
-      const payload = { comment: comment?.trim() || null };
+      // Backend requires comment field - use default if not provided
+      const payload = {
+        comment: comment?.trim() || "Review started"
+      };
       await callApi(payload);
     } catch (error) {
       console.error("Contract request review error:", error);
@@ -343,8 +347,10 @@ export const useCompleteReviewContractRequest = (id: string) => {
 
   const completeReviewContractRequest = async (comment?: string) => {
     try {
-      // Send null if no comment, to avoid "field may not be blank" error
-      const payload = { comment: comment?.trim() || null };
+      // Backend requires comment field - use default if not provided
+      const payload = {
+        comment: comment?.trim() || "Review completed"
+      };
       await callApi(payload);
     } catch (error) {
       console.error("Contract request complete review error:", error);
@@ -370,8 +376,10 @@ export const useAuthorizeContractRequest = (id: string) => {
 
   const authorizeContractRequest = async (comment?: string) => {
     try {
-      // Send null if no comment, to avoid "field may not be blank" error
-      const payload = { comment: comment?.trim() || null };
+      // Backend requires comment field - use default if not provided
+      const payload = {
+        comment: comment?.trim() || "Request authorized"
+      };
       await callApi(payload);
     } catch (error) {
       console.error("Contract request authorize error:", error);
@@ -397,8 +405,10 @@ export const useApproveContractRequest = (id: string) => {
 
   const approveContractRequest = async (comment?: string) => {
     try {
-      // Send null if no comment, to avoid "field may not be blank" error
-      const payload = { comment: comment?.trim() || null };
+      // Backend requires comment field - use default if not provided
+      const payload = {
+        comment: comment?.trim() || "Request approved"
+      };
       await callApi(payload);
     } catch (error) {
       console.error("Contract request approve error:", error);

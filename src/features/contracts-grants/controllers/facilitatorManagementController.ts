@@ -87,7 +87,11 @@ export const useGetSingleFacilitator = (id: string, enabled: boolean = true) => 
     queryKey: ["facilitator", id],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get(`${BASE_URL}${id}/`);
+        const response = await AxiosWithToken.get(`${BASE_URL}${id}/`, {
+          params: {
+            expand: 'supervisor,grade_level,locations'
+          }
+        });
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
