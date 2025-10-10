@@ -48,9 +48,21 @@ export default function TeamMemberSelection({
   // The vehicle request backend expects user IDs, not employee IDs
   // If we include employees, their IDs won't be found in the user table
   // and will cause "Invalid pk - object does not exist" errors
+
+  console.log("🔍 Raw user data:", {
+    user,
+    hasData: !!user?.data,
+    hasResults: !!user?.data?.results,
+    dataKeys: user?.data ? Object.keys(user.data) : [],
+    resultsLength: user?.data?.results?.length || 0,
+  });
+
+  // Handle both response structures: user.data.results OR user.results
+  const userResults = user?.data?.results || user?.results || [];
+
   const allStaff = [
     // Users from user table (filter to exclude vendors)
-    ...filterAhniStaffOnly((user?.results || []) as any[]),
+    ...filterAhniStaffOnly(userResults as any[]),
   ];
 
   // Remove duplicates based on email
@@ -65,7 +77,7 @@ export default function TeamMemberSelection({
   const ahniStaffUsers = uniqueStaff;
 
   console.log("👥 Team Member Selection Debug:", {
-    totalUsers: user?.results?.length || 0,
+    totalUsers: userResults.length,
     filteredAhniStaff: ahniStaffUsers.length,
     employeesIgnored: employeeData?.data?.results?.length || 0,
     sampleUser: ahniStaffUsers[0]
