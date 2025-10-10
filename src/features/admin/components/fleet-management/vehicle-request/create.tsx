@@ -63,7 +63,7 @@ const NewVehicleRequest = () => {
   const dispatch = useAppDispatch();
   const router = useRouter();
 
-  const [searchParams] = useSearchParams();
+  const searchParams = useSearchParams();
   const id = searchParams?.get("id");
 
   const { data: project } = useGetAllProjectsQuery({
