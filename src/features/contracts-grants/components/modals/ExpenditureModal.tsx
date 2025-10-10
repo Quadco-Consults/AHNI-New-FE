@@ -64,9 +64,7 @@ export default function ExpenditureModal() {
   // Create options for the activity dropdown
   const activityOptions = useMemo(() => {
     if (!activitiesData?.data?.results) return [];
-    
-    console.log("Available activities:", activitiesData.data.results);
-    
+
     return activitiesData.data.results.map((activity) => ({
       value: activity.work_plan_activity,
       label: `${activity.work_plan_activity_identifier} - ${activity.activity_name}`,
@@ -86,14 +84,10 @@ export default function ExpenditureModal() {
       toast.error("Grant ID is required");
       return;
     }
-    
-    console.log("Submitting expenditure data:", data);
-    console.log("Grant ID:", grantId);
-    console.log("Available activity options:", activityOptions);
-    
+
     // Prepare submit data with correct field names
     const submitData = { ...data };
-    
+
     // If work_plan_activity is empty or not a valid UUID, remove it from the data
     const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
     if (
@@ -119,9 +113,7 @@ export default function ExpenditureModal() {
       }
       submitData.date = formattedDate;
     }
-    
-    console.log("Final submit data:", submitData);
-    
+
     try {
       if (expenditure?.id) {
         await updateExpenditure(submitData);
@@ -133,7 +125,6 @@ export default function ExpenditureModal() {
 
       dispatch(closeDialog());
     } catch (error: any) {
-      console.log(error);
       toast.error(error?.data?.message ?? error?.message ?? "Something went wrong");
     }
   };
@@ -162,7 +153,6 @@ export default function ExpenditureModal() {
         />
 
         <FormInput
-          type='number'
           label='Amount'
           name='amount'
           placeholder='Enter Amount'

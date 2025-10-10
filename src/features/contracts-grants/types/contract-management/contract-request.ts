@@ -5,13 +5,19 @@ export const ContractRequestSchema = z.object({
   title: z.string().min(1, "Please enter Request title"),
   request_type: z.string().min(1, "Please select request type"),
   department: z.string().min(1, "Please select request department"),
-  consultants_count: z.string().optional(),
+  consultants_count: z.union([
+    z.string(),
+    z.number()
+  ]).transform((val) => String(val)).optional(),
   service_type: z.string().optional(),
   location: z.string().min(1, "Please select request location").refine(val => val !== "", "Please select request location"),
   fco: z.string().min(1, "Please select FCO"),
   technical_monitor: z.string().min(1, "Please select technical monitor"),
   email: z.string().email("Please enter a valid email"),
-  phone_number: z.string().min(1, "Please enter phone number"),
+  phone_number: z.union([
+    z.string().min(1, "Please enter phone number"),
+    z.number()
+  ]).transform((val) => String(val)),
   current_reviewer: z.string().min(1, "Please select current reviewer").refine(val => val !== "", "Please select current reviewer"),
   authorizer: z.string().optional(),
   approver: z.string().optional(),

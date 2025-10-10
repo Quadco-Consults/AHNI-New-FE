@@ -36,8 +36,7 @@ export default function CreateGrant() {
       // grant_id: "",
       award_type: "",
       // award_amount: "",
-      reference_number: "",
-      project_id: "",
+      award_refrence_number: "",
     },
   });
 
@@ -86,13 +85,8 @@ export default function CreateGrant() {
   useEffect(() => {
     if (grant) {
       form.reset({
-        // @ts-ignore
-        // project: grant?.data?.project?.id || "",
         award_type: grant?.data.award_type,
-        // award_amount: grant?.data.award_amount,
-        // @ts-ignore
-        project_id: project?.data.results.project_id,
-        reference_number: grant?.data.reference_number,
+        award_refrence_number: grant?.data.award_refrence_number,
       });
     }
   }, [grant, project, form]);
@@ -136,8 +130,7 @@ export default function CreateGrant() {
 
               <FormInput
                 label='Agreement/Contract Reference Number'
-                name='reference_number'
-                type='number'
+                name='award_refrence_number'
                 placeholder='Enter Reference Number'
                 required={true}
               />

@@ -56,7 +56,7 @@ export const useGetAllObligations = ({
     queryKey: ["obligations", grantId, page, size, search],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get(`/projects/${grantId}/obligations/`, {
+        const response = await AxiosWithToken.get(`projects/${grantId}/obligations/`, {
           params: {
             page,
             size,
@@ -81,7 +81,7 @@ export const useCreateObligation = (grantId: string) => {
     Error,
     TObligationFormData
   >({
-    endpoint: `/projects/${grantId}/obligations/`,
+    endpoint: `projects/${grantId}/obligations/`,
     queryKey: ["obligations", "grants"],
     isAuth: true,
     method: "POST",
@@ -105,7 +105,7 @@ export const useUpdateObligation = (grantId: string, obligationId: string) => {
     Error,
     TObligationFormData
   >({
-    endpoint: `/projects/${grantId}/obligations/${obligationId}/`,
+    endpoint: `projects/${grantId}/obligations/${obligationId}/`,
     queryKey: ["obligations", "grants"],
     isAuth: true,
     method: "PUT",
@@ -129,7 +129,7 @@ export const useDeleteObligation = (grantId: string, obligationId: string) => {
     Error,
     Record<string, never>
   >({
-    endpoint: `/projects/${grantId}/obligations/${obligationId}/`,
+    endpoint: `projects/${grantId}/obligations/${obligationId}/`,
     queryKey: ["obligations", "grants"],
     isAuth: true,
     method: "DELETE",
