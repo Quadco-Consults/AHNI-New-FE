@@ -233,7 +233,20 @@ const NewVehicleRequest = () => {
   console.log(form.getValues());
 
   const onSubmit: SubmitHandler<TVehicleRequestFormValues> = async (data) => {
-    console.log({ data });
+    console.log("📝 Form submission data:", data);
+    console.log("👥 Team members from store:", teamMembers);
+    console.log("👥 Team member FULL objects:", JSON.stringify(teamMembers, null, 2));
+    console.log("👥 Team member IDs being sent:", data.travel_team_members);
+
+    // Check each team member ID against available users
+    const allUsers = (user as any)?.data?.results || user?.results || [];
+    console.log("👤 Total users available:", allUsers.length);
+    console.log("👤 Sample users:", allUsers.slice(0, 3).map((u: any) => ({ id: u.id, name: `${u.first_name} ${u.last_name}`, user_type: u.user_type })));
+
+    data.travel_team_members.forEach((memberId, idx) => {
+      const userExists = allUsers.find((u: any) => u.id === memberId);
+      console.log(`👤 Team member ${idx + 1} (ID: ${memberId}):`, userExists ? `✅ Found - ${userExists.first_name} ${userExists.last_name}` : '❌ NOT FOUND IN DATABASE');
+    });
 
     try {
       if (id) {
@@ -246,7 +259,9 @@ const NewVehicleRequest = () => {
 
       router.push(AdminRoutes.INDEX_VEHICLE_REQUEST);
     } catch (error: any) {
-      toast.error(error?.data?.message ?? "Something went wrong");
+      console.error("❌ Submission error:", error);
+      console.error("Error details:", error?.response?.data || error?.data);
+      toast.error(error?.data?.message ?? error?.response?.data?.message ?? "Something went wrong");
     }
   };
 
