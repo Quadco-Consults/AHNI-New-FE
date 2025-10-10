@@ -29,6 +29,7 @@ import { toast } from "sonner";
 import { useGetAllItemsQuery } from "@/features/modules/controllers";
 import { CATEGORY_IDS, PAGINATION_DEFAULTS } from "@/constants/categories";
 import { standardizeApiResponse, standardizeErrorMessage } from "@/utils/fuelRequestHelpers";
+import { filterAhniStaffOnly } from "@/utils/userFilters";
 
 export default function CreateFuelConsumption() {
   const form = useForm<TFuelRequestFormValues>({
@@ -75,13 +76,32 @@ export default function CreateFuelConsumption() {
   });
 
   const userOptions = useMemo(
-    () =>
-      standardizeApiResponse(user)?.map(
-        ({ first_name, last_name, id }: any) => ({
-          label: `${first_name || ''} ${last_name || ''}`.trim() || 'Unknown User',
-          value: id, // Use user ID (not employee_id) - backend expects User IDs
-        })
-      ) || [],
+    () => {
+      const allUsers = standardizeApiResponse(user) || [];
+
+      console.log("🚗 Fuel Request - Driver Selection Debug:", {
+        totalUsers: allUsers.length,
+        sampleUsers: allUsers.slice(0, 3).map((u: any) => ({
+          id: u.id,
+          name: `${u.first_name} ${u.last_name}`,
+          user_type: u.user_type,
+          employee_id: u.employee_id
+        }))
+      });
+
+      // Use the same filter as vehicle request to ensure only valid AHNI staff
+      const ahniStaff = filterAhniStaffOnly(allUsers);
+
+      console.log("🚗 After AHNI filter:", {
+        filteredCount: ahniStaff.length,
+        removedCount: allUsers.length - ahniStaff.length
+      });
+
+      return ahniStaff.map(({ first_name, last_name, id }: any) => ({
+        label: `${first_name || ''} ${last_name || ''}`.trim() || 'Unknown User',
+        value: id, // Use user ID (not employee_id) - backend expects User IDs
+      }));
+    },
     [user]
   );
 
@@ -137,6 +157,24 @@ export default function CreateFuelConsumption() {
     useEditFuelConsumption(id || "");
 
   const onSubmit: SubmitHandler<TFuelRequestFormValues> = async (data) => {
+    console.log("🚗 Fuel Request Submission:", {
+      assigned_driver: data.assigned_driver,
+      allData: data
+    });
+
+    // Verify the driver ID exists in the user list
+    const allUsers = standardizeApiResponse(user) || [];
+    const driverExists = allUsers.find((u: any) => u.id === data.assigned_driver);
+
+    console.log("🚗 Driver Validation:", {
+      driverIdBeingSent: data.assigned_driver,
+      driverExists: !!driverExists,
+      driverDetails: driverExists ? {
+        name: `${driverExists.first_name} ${driverExists.last_name}`,
+        user_type: driverExists.user_type
+      } : "NOT FOUND IN USER LIST"
+    });
+
     try {
       if (id) {
         await editFuelConsumption(data);
@@ -147,6 +185,8 @@ export default function CreateFuelConsumption() {
       }
       router.push(AdminRoutes.INDEX_FUEL_CONSUMPTION);
     } catch (error: any) {
+      console.error("🚗 Fuel Request Error:", error);
+      console.error("🚗 Error Details:", error?.response?.data || error?.data);
       toast.error(standardizeErrorMessage(error));
     }
   };
