@@ -37,7 +37,7 @@ export default function CreateFuelConsumption() {
     defaultValues: {
       asset: "",
       assigned_driver: "",
-      location: "",
+      location: "", // Will be auto-populated by backend from user's location
       vendor: "",
       odometer: "",
       date: "",
