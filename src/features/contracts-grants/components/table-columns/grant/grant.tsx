@@ -9,11 +9,6 @@ import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIco
 import { CG_ROUTES } from "constants/RouterConstants";
 import EyeIcon from "components/icons/EyeIcon";
 import PencilIcon from "components/icons/PencilIcon";
-import DeleteIcon from "components/icons/DeleteIcon";
-import ConfirmationDialog from "components/ConfirmationDialog";
-import { useState } from "react";
-import { toast } from "sonner";
-import { useDeleteGrant } from "@/features/contracts-grants/controllers/grantController";
 import { formatNumberCurrency } from "utils/utls";
 import { Badge } from "components/ui/badge";
 import { cn } from "lib/utils";
@@ -155,20 +150,7 @@ export const grantColumns: ColumnDef<IGrantPaginatedData>[] = [
 const TableMenu = (data) => {
   const { id } = data;
 
-  const [isDialogOpen, setDialogOpen] = useState(false);
-
   const dispatch = useAppDispatch();
-
-  const { deleteGrant, isLoading } = useDeleteGrant();
-
-  const handleDelete = async () => {
-    try {
-      await deleteGrant(id)();
-      toast.success("Grant Deleted");
-    } catch (error: any) {
-      toast.error(error.data.message ?? "Something went wrong");
-    }
-  };
 
   // Don't render anything if there's no valid id
   if (!id) {
@@ -238,29 +220,10 @@ const TableMenu = (data) => {
                   Modify Grant
                 </Button>
               )}
-
-              {id && (
-                <Button
-                  className='w-full flex items-center justify-start gap-2'
-                  variant='ghost'
-                  onClick={() => setDialogOpen(true)}
-                >
-                  <DeleteIcon />
-                  Delete
-                </Button>
-              )}
             </div>
           </PopoverContent>
         </Popover>
       </>
-
-      <ConfirmationDialog
-        open={isDialogOpen}
-        title='Are you sure you want to delete this grant?'
-        loading={isLoading}
-        onCancel={() => setDialogOpen(false)}
-        onOk={handleDelete}
-      />
     </div>
   );
 };

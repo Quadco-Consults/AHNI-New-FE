@@ -7,7 +7,7 @@ export const GrantSchema = z.object({
   grant_id: z.string().min(1, "Please select project").optional(),
   award_type: z.string().min(1, "Please select award type"),
   award_amount: z.string().min(1, "Please enter award amount").optional(),
-  reference_number: z.string().min(1, "Please enter reference number"),
+  award_refrence_number: z.string().min(1, "Please enter reference number"), // Note: backend has typo "refrence" instead of "reference"
 });
 
 export type TGrantFormData = z.infer<typeof GrantSchema>;
@@ -50,12 +50,13 @@ export interface IGrantSingleData {
   title?: string;
   award_type: string;
   project_id?: string;
-  award_reference_number?: string;
+  award_refrence_number?: string; // Note: backend has typo "refrence" instead of "reference"
   award_amount: string;
   funding_source?: string;
   pipeline?: string;
   money_months_remaining?: string;
   burn_rate?: string;
+  modifications?: any[];
 }
 
 export const ExpenditureSchema = z.object({
