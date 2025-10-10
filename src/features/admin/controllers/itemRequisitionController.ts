@@ -213,9 +213,11 @@ export const useIssueItemRequisition = (id: string) => {
 
   const issueItemRequisition = async () => {
     try {
-      await callApi({} as Record<string, never>);
+      const response = await callApi({} as Record<string, never>);
+      return response;
     } catch (error) {
       console.error("Item requisition issue error:", error);
+      throw error; // Re-throw to allow caller to handle
     }
   };
 

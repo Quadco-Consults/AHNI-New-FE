@@ -187,12 +187,19 @@ const CreateCBA = () => {
     console.log("🔍 DEBUG: Items in payload:", payload.items?.length || 0);
 
     try {
-      await createCba(payload);
-      toast.success("Successfully created.");
-      // router.push(RouteEnum.COMPETITIVE_BID_ANALYSIS);
-      router.push(
-        RouteEnum.RFQ_DETAILS.replace(":id", data?.solicitation as string)
-      );
+      const response = await createCba(payload);
+      console.log("🔍 DEBUG: CBA Create Response:", response);
+      toast.success("Successfully created CBA.");
+
+      // Route to CBA details page if we have the CBA ID, otherwise go to CBA list
+      if (response?.id) {
+        router.push(`/dashboard/procurement/competitive-bid-analysis/${response.id}`);
+      } else if (response?.data?.id) {
+        router.push(`/dashboard/procurement/competitive-bid-analysis/${response.data.id}`);
+      } else {
+        // Fallback to CBA list page
+        router.push(RouteEnum.COMPETITIVE_BID_ANALYSIS);
+      }
     } catch (error) {
       toast.error("Something went wrong");
       console.log(error);
@@ -518,11 +525,27 @@ const CreateCBA = () => {
                                           </div>
                                           <div className="flex items-start">
                                             <h6 className="w-20 text-xs font-medium text-gray-500">Position:</h6>
-                                            <h6 className="flex-1 text-xs">{user?.designation || user?.position || 'N/A'}</h6>
+                                            <h6 className="flex-1 text-xs">
+                                              {typeof user?.designation === 'string'
+                                                ? user.designation
+                                                : typeof user?.designation === 'object' && user?.designation?.name
+                                                ? user.designation.name
+                                                : typeof user?.position === 'string'
+                                                ? user.position
+                                                : typeof user?.position === 'object' && user?.position?.name
+                                                ? user.position.name
+                                                : 'N/A'}
+                                            </h6>
                                           </div>
                                           <div className="flex items-start">
                                             <h6 className="w-20 text-xs font-medium text-gray-500">Department:</h6>
-                                            <h6 className="flex-1 text-xs">{user?.department || 'N/A'}</h6>
+                                            <h6 className="flex-1 text-xs">
+                                              {typeof user?.department === 'string'
+                                                ? user.department
+                                                : typeof user?.department === 'object' && user?.department?.name
+                                                ? user.department.name
+                                                : 'N/A'}
+                                            </h6>
                                           </div>
                                           <div className="flex items-start">
                                             <h6 className="w-20 text-xs font-medium text-gray-500">Mobile:</h6>
@@ -534,7 +557,17 @@ const CreateCBA = () => {
                                           </div>
                                           <div className="flex items-start">
                                             <h6 className="w-20 text-xs font-medium text-gray-500">Location:</h6>
-                                            <h6 className="flex-1 text-xs">{user?.location || user?.state || 'N/A'}</h6>
+                                            <h6 className="flex-1 text-xs">
+                                              {typeof user?.location === 'string'
+                                                ? user.location
+                                                : typeof user?.location === 'object' && user?.location?.name
+                                                ? user.location.name
+                                                : typeof user?.state === 'string'
+                                                ? user.state
+                                                : typeof user?.state === 'object' && user?.state?.name
+                                                ? user.state.name
+                                                : 'N/A'}
+                                            </h6>
                                           </div>
                                           <div className="flex items-start">
                                             <h6 className="w-20 text-xs font-medium text-gray-500">User Type:</h6>
@@ -558,7 +591,7 @@ const CreateCBA = () => {
                                                       key={roleIndex}
                                                       className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded"
                                                     >
-                                                      {role?.name || role}
+                                                      {typeof role === 'string' ? role : role?.name || 'Role'}
                                                     </span>
                                                   ))}
                                                 </div>

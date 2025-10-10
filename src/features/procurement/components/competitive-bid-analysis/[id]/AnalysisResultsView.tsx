@@ -169,7 +169,7 @@ const AnalysisResultsView = () => {
     })) || [];
 
     return {
-      id: selectedVendor.id,
+      id: selectedVendor.vendor?.id || selectedVendor.id, // Use actual vendor ID, not bid submission ID
       name: selectedVendor.vendor?.company_name || "Unknown Vendor",
       items,
       grandTotal: parseFloat(selectedVendor.bid_details?.total_amount || items.reduce((sum: number, item: VendorItem) => sum + item.total, 0))

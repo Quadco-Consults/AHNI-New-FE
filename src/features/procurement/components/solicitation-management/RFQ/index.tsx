@@ -2,7 +2,7 @@
 
 import { Button } from "components/ui/button";
 import { Plus } from "lucide-react";
-import eoiPng from "assets/imgs/rfq.png";
+import logoPng from "assets/imgs/logo.png";
 import Card from "components/Card";
 import { Icon } from "@iconify/react";
 import Link from "next/link";
@@ -53,7 +53,7 @@ const RFQ = () => {
           <div className='grid grid-cols-2 gap-5'>
             {data?.data?.results.map((item) => (
               <Card key={item?.id} className='space-y-4'>
-                <img src={eoiPng.src} alt='rfq' className='w-full h-auto object-cover rounded-lg' />
+                <img src={logoPng.src} alt='rfq' className='w-full h-auto object-cover rounded-lg' />
                 <h2 className='text-lg font-bold'>{item?.title}</h2>
 
                 <div className='flex items-center gap-3'>

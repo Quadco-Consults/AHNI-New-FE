@@ -166,11 +166,19 @@ const TableAction = ({ id, status }: TItemRequisitionPaginatedData) => {
 
   const handleIssue = async () => {
     try {
-      issueItemRequisition();
-      toast.success("Item Requisition Issued");
+      await issueItemRequisition();
+      toast.success("Item Requisition Issued Successfully");
       setIssueDialogOpen(false);
     } catch (error: any) {
-      toast.error(error?.data?.message ?? "Something went wrong");
+      console.error("Issue error:", error);
+      // Extract error message from various possible error structures
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.data?.message ||
+        error?.message ||
+        "Something went wrong while issuing the requisition";
+      toast.error(errorMessage);
+      setIssueDialogOpen(false);
     }
   };
 
