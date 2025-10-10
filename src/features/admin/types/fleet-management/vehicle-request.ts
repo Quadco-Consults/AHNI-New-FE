@@ -27,8 +27,8 @@ export const VehicleRequestSchema = z.object({
   if (data.request_type === "VENDOR") {
     return data.vendor && data.vendor.length > 0;
   }
-  // Conditional validation: asset_vehicle is required when request_type is "ASSET"
-  if (data.request_type === "ASSET") {
+  // Conditional validation: asset_vehicle is required when request_type is "AHNI_ASSET"
+  if (data.request_type === "AHNI_ASSET") {
     return data.asset_vehicle && data.asset_vehicle.length > 0;
   }
   return true;

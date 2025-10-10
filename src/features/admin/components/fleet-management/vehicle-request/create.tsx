@@ -272,17 +272,20 @@ const NewVehicleRequest = () => {
 
   // Auto-populate location from logged-in user's profile
   useEffect(() => {
+    const currentLocation = form.getValues("location");
+
     console.log("🔍 Location Auto-fill Check:", {
       hasProfile: !!currentUserProfile?.data,
       location: currentUserProfile?.data?.location,
       locationOptions: locationOptions,
       locationOptionsLength: locationOptions?.length,
       isEditing: !!id,
-      currentFormValue: form.getValues("location")
+      currentFormValue: currentLocation,
+      alreadySet: !!currentLocation
     });
 
-    if (currentUserProfile?.data?.location && locationOptions && locationOptions.length > 0 && !id) {
-      // Only auto-populate if creating a new request (not editing)
+    // Only set if not editing, not already set, and have necessary data
+    if (!id && !currentLocation && currentUserProfile?.data?.location && locationOptions && locationOptions.length > 0) {
       // Handle both object and string location formats
       const locationValue = typeof currentUserProfile.data.location === 'object'
         ? currentUserProfile.data.location.id
@@ -297,11 +300,14 @@ const NewVehicleRequest = () => {
 
       if (matchingLocation) {
         console.log("✅ Auto-populating location with ID:", matchingLocation.value, "Label:", matchingLocation.label);
-        form.setValue("location", matchingLocation.value, {
-          shouldValidate: true,
-          shouldDirty: true,
-          shouldTouch: true
-        });
+        // Use a timeout to ensure form is fully initialized
+        setTimeout(() => {
+          form.setValue("location", matchingLocation.value, {
+            shouldValidate: false,
+            shouldDirty: false,
+            shouldTouch: false
+          });
+        }, 100);
       } else {
         console.warn("⚠️ Could not find matching location option for:", locationValue);
         console.log("Available location options:", locationOptions);
@@ -393,9 +399,6 @@ const NewVehicleRequest = () => {
                   placeholder='Select Location'
                   required
                   options={locationOptions}
-                  onValueChange={(value) => {
-                    console.log("📍 Location changed to:", value);
-                  }}
                 />
 
                 <FormSelect
@@ -421,7 +424,7 @@ const NewVehicleRequest = () => {
                   placeholder='Select Request Type'
                   required
                   options={[
-                    { label: "AHNI Asset", value: "ASSET" },
+                    { label: "AHNI Asset", value: "AHNI_ASSET" },
                     { label: "Vendor", value: "VENDOR" },
                   ]}
                 />
@@ -446,7 +449,7 @@ const NewVehicleRequest = () => {
                   />
                 )}
 
-                {requestType === "ASSET" && (
+                {requestType === "AHNI_ASSET" && (
                   <FormSelect
                     label='Asset Vehicle'
                     name='asset_vehicle'
