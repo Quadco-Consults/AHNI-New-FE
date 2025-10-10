@@ -9,11 +9,15 @@ export const FuelRequestSchema = z.object({
     assigned_driver: z.string().min(1, "Please select assigned driver"),
     location: z.string().min(1, "Please select location"),
     vendor: z.string().min(1, "Please select vendor"),
-    odometer: z.string().min(1, "Please enter odometer"),
+    // Numeric fields - accept numbers from form inputs
+    odometer: z.coerce.number().positive("Please enter a valid odometer reading"),
+    quantity: z.coerce.number().positive("Please enter a valid quantity"),
+    // Date field
     date: z.string().min(1, "Please select date"),
-    price_per_litre: z.string().min(1, "Please enter price per litre"),
-    quantity: z.string().min(1, "Please enter quantity"),
-    amount: z.string().min(1, "Please enter amount"),
+    // String fields for currency values
+    price_per_litre: z.coerce.string().min(1, "Please enter price per litre"),
+    amount: z.coerce.string().min(1, "Please enter amount"),
+    // Other fields
     fco: z.string().min(1, "Please select fco"),
     fuel_coupon: z.string().min(1, "Please enter fuel coupon"),
 });
