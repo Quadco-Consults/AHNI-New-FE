@@ -33,9 +33,10 @@ import { AdminRoutes } from "constants/RouterConstants";
 import { addTeamMembers } from "store/admin/team-members";
 import { useGetAllProjectsQuery } from "@/features/projects/controllers/projectController";
 import { useGetAllActivityPlansQuery } from "@/features/programs/controllers/activityPlanController";
-import { useGetAllAssetsQuery } from "@/features/admin/controllers/assetController";
+import { useGetAllItemsQuery } from "@/features/modules/controllers/config/itemController";
 import VendorsAPI from "@/features/procurement/controllers/vendorController";
 import { useGetAllLocationsManager } from "@/features/modules/controllers/config/locationController";
+import { CATEGORY_IDS } from "@/constants/categories";
 
 const NewVehicleRequest = () => {
   const form = useForm<TVehicleRequestFormValues>({
@@ -148,10 +149,12 @@ const NewVehicleRequest = () => {
   // Watch selected location for filtering assets
   const selectedLocation = form.watch("location");
 
-  // Fetch all assets (we'll filter by category and location on frontend)
-  const { data: asset } = useGetAllAssetsQuery({
+  // Fetch all vehicle assets using the items endpoint with vehicle category
+  const { data: asset } = useGetAllItemsQuery({
     page: 1,
-    size: 2000000,
+    size: 500,
+    search: "",
+    category: CATEGORY_IDS.VEHICLE, // b0983944-f926-4141-8e28-093960d75246
   });
 
   const assetVehicleOptions = useMemo(
@@ -159,30 +162,45 @@ const NewVehicleRequest = () => {
       try {
         const allAssets = asset?.data?.results || [];
 
-        // Filter assets by:
-        // 1. Category (vehicle) - check if category name/type indicates it's a vehicle
-        // 2. Location - match selected location
+        console.log("🚗 Vehicle Assets Debug:", {
+          totalAssets: allAssets.length,
+          selectedLocation,
+          sampleAsset: allAssets[0],
+          rawAssetData: asset,
+        });
+
+        // Filter assets by location if one is selected
+        // Category filtering is already handled by the API query
         const filteredAssets = allAssets.filter((assetItem: any) => {
-          // Check if it's a vehicle (you may need to adjust this based on your data structure)
-          const isVehicle =
-            assetItem.category?.name?.toLowerCase().includes('vehicle') ||
-            assetItem.asset_type?.toLowerCase().includes('vehicle') ||
-            assetItem.category === 'b0983944-f926-4141-8e28-093960d75246' ||
-            assetItem.plate_number; // If it has a plate number, it's likely a vehicle
-
-          if (!isVehicle) return false;
-
           // If no location is selected, show all vehicles
           if (!selectedLocation) return true;
 
           // Filter by location - check if asset's location matches selected location
-          return assetItem.location?.id === selectedLocation || assetItem.location === selectedLocation;
+          const locationMatch = assetItem.location?.id === selectedLocation || assetItem.location === selectedLocation;
+
+          console.log(`🔍 Vehicle "${assetItem.name}":`, {
+            hasLocation: !!assetItem.location,
+            locationId: assetItem.location?.id || assetItem.location,
+            selectedLocation,
+            locationMatch
+          });
+
+          return locationMatch;
         });
 
-        return filteredAssets.map(({ name, id, asset_code, plate_number }: any) => ({
-          label: `${name}${plate_number ? ` (${plate_number})` : ''}${asset_code ? ` - ${asset_code}` : ''}`,
+        console.log("✅ Filtered vehicle assets:", filteredAssets.length);
+
+        const options = filteredAssets.map(({ name, id, code, plate_number }: any) => ({
+          label: `${name}${plate_number ? ` (${plate_number})` : ''}${code ? ` - ${code}` : ''}`,
           value: id,
         }));
+
+        console.log("🚙 Vehicle dropdown options:", options.length, "vehicles");
+        options.forEach((opt, idx) => {
+          console.log(`  ${idx + 1}. ${opt.label} (ID: ${opt.value})`);
+        });
+
+        return options;
       } catch (error) {
         console.error("Error filtering asset vehicles:", error);
         return [];
@@ -254,12 +272,42 @@ const NewVehicleRequest = () => {
 
   // Auto-populate location from logged-in user's profile
   useEffect(() => {
-    if (currentUserProfile?.data?.location && !id) {
+    console.log("🔍 Location Auto-fill Check:", {
+      hasProfile: !!currentUserProfile?.data,
+      location: currentUserProfile?.data?.location,
+      locationOptions: locationOptions,
+      locationOptionsLength: locationOptions?.length,
+      isEditing: !!id,
+      currentFormValue: form.getValues("location")
+    });
+
+    if (currentUserProfile?.data?.location && locationOptions && locationOptions.length > 0 && !id) {
       // Only auto-populate if creating a new request (not editing)
-      console.log("🔍 Auto-populating location from user profile:", currentUserProfile.data.location);
-      form.setValue("location", currentUserProfile.data.location);
+      // Handle both object and string location formats
+      const locationValue = typeof currentUserProfile.data.location === 'object'
+        ? currentUserProfile.data.location.id
+        : currentUserProfile.data.location;
+
+      // Find matching location option by name or ID
+      const matchingLocation = locationOptions.find((opt: any) =>
+        opt.value === locationValue ||
+        opt.label === locationValue ||
+        opt.label === currentUserProfile.data.location
+      );
+
+      if (matchingLocation) {
+        console.log("✅ Auto-populating location with ID:", matchingLocation.value, "Label:", matchingLocation.label);
+        form.setValue("location", matchingLocation.value, {
+          shouldValidate: true,
+          shouldDirty: true,
+          shouldTouch: true
+        });
+      } else {
+        console.warn("⚠️ Could not find matching location option for:", locationValue);
+        console.log("Available location options:", locationOptions);
+      }
     }
-  }, [currentUserProfile, form, id]);
+  }, [currentUserProfile, locationOptions, form, id]);
 
   // Reset activity field when project changes
   useEffect(() => {
@@ -340,12 +388,14 @@ const NewVehicleRequest = () => {
                 className='grid grid-cols-2 gap-10'
               >
                 <FormSelect
-                  label='Location (Auto-filled from your profile)'
+                  label='Location'
                   name='location'
                   placeholder='Select Location'
                   required
                   options={locationOptions}
-                  disabled={!id && !!currentUserProfile?.data?.location}
+                  onValueChange={(value) => {
+                    console.log("📍 Location changed to:", value);
+                  }}
                 />
 
                 <FormSelect
@@ -371,8 +421,8 @@ const NewVehicleRequest = () => {
                   placeholder='Select Request Type'
                   required
                   options={[
-                    { label: "ASSET", value: "ASSET" },
-                    { label: "VENDOR", value: "VENDOR" },
+                    { label: "AHNI Asset", value: "ASSET" },
+                    { label: "Vendor", value: "VENDOR" },
                   ]}
                 />
 
