@@ -77,9 +77,9 @@ export default function CreateFuelConsumption() {
   const userOptions = useMemo(
     () =>
       standardizeApiResponse(user)?.map(
-        ({ first_name, last_name, employee_id, id }: any) => ({
+        ({ first_name, last_name, id }: any) => ({
           label: `${first_name || ''} ${last_name || ''}`.trim() || 'Unknown User',
-          value: employee_id || id, // Fallback to id if employee_id is not available
+          value: id, // Use user ID (not employee_id) - backend expects User IDs
         })
       ) || [],
     [user]
