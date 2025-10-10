@@ -14,11 +14,14 @@ export const VehicleRequestSchema = z.object({
   ),
   supervisor: z.string().min(1, "Please select a supervisior"),
   recommendations: z.string().min(1, "Please enter a recommendation"),
-  purpose_of_travel: z.string().optional(), // Temporarily optional due to backend migration issue
+  purpose_of_travel: z.string().min(1, "Please enter purpose of travel"), // Required by backend (has default "General travel")
 
-  // Form fields that were missing from schema
+  // ⚠️ WARNING: project and activity are NOT in the backend VehicleRequest model
+  // These fields are currently sent but NOT SAVED by the backend
+  // TODO: Either remove from frontend OR add to backend model
   project: z.string().min(1, "Please select a project"),
   activity: z.string().min(1, "Please select an activity"),
+
   request_type: z.string().min(1, "Please select a request type"),
   vendor: z.string().optional(), // Optional because it's only required when request_type is "VENDOR"
   asset_vehicle: z.string().optional(), // Optional because it's only required when request_type is "ASSET"
