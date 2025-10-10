@@ -117,7 +117,25 @@ export const useCreateSolicitation = () => {
     details: TSolicitationQuotationFormData
   ) => {
     try {
+      console.log("🌐 API Controller - Sending solicitation data:", details);
+      console.log("🔍 API Controller - Selected vendors field check:", {
+        selected_vendors: details.selected_vendors,
+        tender_type: details.tender_type,
+        vendorCount: details.selected_vendors?.length || 0,
+        hasVendors: !!(details.selected_vendors && details.selected_vendors.length > 0),
+        allKeys: Object.keys(details)
+      });
+
       const res = await callApi(details);
+
+      console.log("📥 API Response received:", res);
+      console.log("🔍 API Response - Selected vendors in response:", {
+        selected_vendors: (res as any)?.data?.selected_vendors,
+        selected_vendors_details: (res as any)?.data?.selected_vendors_details,
+        vendorCount: (res as any)?.data?.selected_vendors?.length || 0,
+        allKeysInResponse: res?.data ? Object.keys(res.data) : []
+      });
+
       return res;
     } catch (error) {
       console.error("Solicitation create error:", error);

@@ -274,6 +274,10 @@ export const SolicitationQuotationSchema = z.object({
   background: z.string().min(1, "Please enter background"),
   request_type: z.string().min(1, "Please select request type"),
   tender_type: z.string().min(1, "Please select tender type"),
+  job_category: z.enum(["GOODS", "SERVICES"], {
+    required_error: "Please select job category",
+  }),
+  selected_vendors: z.array(z.string()).optional(), // For SINGLE SOURCE and CLOSED SOURCE RFQs (backend expects array)
   eoi_tender: z.string().optional(),
   categories: z.array(z.string()).optional().nullable(),
   documents: z

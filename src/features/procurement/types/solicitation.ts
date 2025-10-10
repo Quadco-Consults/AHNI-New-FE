@@ -103,6 +103,15 @@ export interface ISolicitationRFQData {
   tender_type: string;
   request_type: string;
   procurement_type: null;
+  selected_vendors?: string[]; // Array of vendor UUIDs for single/closed source RFQs (backend format)
+  selected_vendors_details?: Array<{
+    id: string;
+    company_name: string;
+    company_registration_number: string;
+    type_of_business: string;
+    status: string;
+    email: string;
+  }>; // Full vendor details returned by backend
   solicitation_items?: [
     {
       id: string;

@@ -162,6 +162,41 @@ const ManualBidSubmission = () => {
     }
   }, [evaluationData, setValue]);
 
+  // Pre-populate vendor for single source/closed source RFQs
+  useEffect(() => {
+    if (singleSolicitation?.data) {
+      const tenderType = singleSolicitation.data.tender_type;
+      const selectedVendors = singleSolicitation.data.selected_vendors;
+      const selectedVendorsDetails = singleSolicitation.data.selected_vendors_details;
+
+      console.log("🔍 Checking for pre-selected vendors:", {
+        tenderType,
+        selectedVendors,
+        selectedVendorsDetails,
+        vendorCount: selectedVendors?.length || 0,
+        allDataKeys: Object.keys(singleSolicitation.data),
+        fullData: singleSolicitation.data
+      });
+
+      // For SINGLE SOURCE or CLOSED SOURCE, pre-populate the first vendor
+      if (tenderType === "SINGLE SOURCE" || tenderType === "CLOSED SOURCE") {
+        if (selectedVendors && selectedVendors.length > 0) {
+          const firstVendorId = selectedVendors[0];
+          console.log("✅ Pre-populating first vendor:", firstVendorId);
+
+          if (selectedVendorsDetails && selectedVendorsDetails.length > 0) {
+            console.log("📋 Vendor details:", selectedVendorsDetails[0]);
+          }
+
+          setValue("vendor", firstVendorId);
+        } else {
+          console.warn("⚠️ Single/Closed source RFQ but no vendors found in selected_vendors!");
+          console.log("Available fields:", Object.keys(singleSolicitation.data));
+        }
+      }
+    }
+  }, [singleSolicitation, setValue]);
+
   const itemsWatchData = watch("bid_items");
 
   const onSubmit = async (data: z.infer<typeof SolicitationSubmissionSchema>) => {
@@ -233,17 +268,33 @@ const ManualBidSubmission = () => {
 
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-10">
-          <FormSelect name="vendor" label="Vendor" required>
-            <SelectContent>
-              {vendorsIsLoading && <LoadingSpinner />}
-              {/* @ts-ignore */}
-              {vendors?.data?.results?.map((vendor: VendorsResultsData) => (
-                <SelectItem key={vendor?.id} value={String(vendor?.id)}>
-                  {vendor?.company_name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </FormSelect>
+          <div className="space-y-2">
+            <FormSelect
+              name="vendor"
+              label="Vendor"
+              required
+              disabled={
+                singleSolicitation?.data?.tender_type === "SINGLE SOURCE" ||
+                singleSolicitation?.data?.tender_type === "CLOSED SOURCE"
+              }
+            >
+              <SelectContent>
+                {vendorsIsLoading && <LoadingSpinner />}
+                {/* @ts-ignore */}
+                {vendors?.data?.results?.map((vendor: VendorsResultsData) => (
+                  <SelectItem key={vendor?.id} value={String(vendor?.id)}>
+                    {vendor?.company_name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </FormSelect>
+            {(singleSolicitation?.data?.tender_type === "SINGLE SOURCE" ||
+              singleSolicitation?.data?.tender_type === "CLOSED SOURCE") && (
+              <p className="text-sm text-gray-600">
+                Vendor is pre-selected for {singleSolicitation?.data?.tender_type} RFQs
+              </p>
+            )}
+          </div>
 
           <div className="space-y-1">
             <h4 className="text-base font-bold">Items Quotation</h4>
