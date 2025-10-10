@@ -41,7 +41,9 @@ export default function ConsumableDetails() {
                       Stock Control Method
                     </h4>
                     <p className='text-[#4D4545] text-sm'>
-                      {consumable?.data.stock_control_method || "N/A"}
+                      {typeof consumable?.data.stock_control_method === 'object' && consumable?.data.stock_control_method !== null
+                        ? consumable.data.stock_control_method.name || "N/A"
+                        : consumable?.data.stock_control_method || "N/A"}
                     </p>
                   </div>
 
@@ -124,7 +126,9 @@ export default function ConsumableDetails() {
                   <div className='space-y-2'>
                     <h4 className='text-base font-semibold '>Vendor</h4>
                     <p className='text-[#4D4545] text-sm'>
-                      {consumable?.data.most_recent_vendor || "N/A"}
+                      {typeof consumable?.data.most_recent_vendor === 'object' && consumable?.data.most_recent_vendor !== null
+                        ? consumable.data.most_recent_vendor.name || "N/A"
+                        : consumable?.data.most_recent_vendor || "N/A"}
                     </p>
                   </div>
                 </div>

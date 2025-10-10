@@ -46,6 +46,10 @@ export default function ItemRequisitionDetailPage() {
     ? `${itemRequisition.data.created_by.first_name} ${itemRequisition.data.created_by.last_name || ''}`
     : (itemRequisition?.data?.created_by?.email || 'Unknown');
 
+  const departmentName = typeof itemRequisition?.data.department === 'object' && itemRequisition?.data.department !== null
+    ? String(itemRequisition.data.department.name || 'N/A')
+    : String(itemRequisition?.data.department || 'N/A');
+
   console.log({ itemRequisition });
 
   // Debug log to see the structure of consummables
@@ -54,7 +58,12 @@ export default function ItemRequisitionDetailPage() {
   const itemsRequested = itemRequisition?.data.consummables
     ?.map((con) => {
       // Based on actual API response, items are under 'item' property
-      return con?.item?.name || con?.consummable?.name || 'Unknown Item';
+      const itemName = con?.item?.name;
+      const consumableName = typeof con?.consummable === 'object' && con?.consummable !== null
+        ? con.consummable.name
+        : (typeof con?.consummable === 'string' ? con.consummable : null);
+
+      return itemName || consumableName || 'Unknown Item';
     })
     .filter(Boolean) // Remove any null/undefined values
     .join(", ") || "No items specified";
@@ -81,9 +90,13 @@ export default function ItemRequisitionDetailPage() {
   }, [isRejectSuccess, refetch]);
 
   // Check if the item is already processed based on status (case insensitive)
-  const isAlreadyApproved = itemRequisition?.data.status?.toLowerCase() === "approved";
-  const isAlreadyRejected = itemRequisition?.data.status?.toLowerCase() === "rejected";
-  const isAlreadyIssued = itemRequisition?.data.status?.toLowerCase() === "issued";
+  const statusValue = typeof itemRequisition?.data.status === 'object' && itemRequisition?.data.status !== null
+    ? String(itemRequisition.data.status.name || '')
+    : String(itemRequisition?.data.status || '');
+
+  const isAlreadyApproved = statusValue?.toLowerCase() === "approved";
+  const isAlreadyRejected = statusValue?.toLowerCase() === "rejected";
+  const isAlreadyIssued = statusValue?.toLowerCase() === "issued";
 
   // Get approval/rejection/issued details
   const getProcessingDetails = () => {
@@ -102,8 +115,9 @@ export default function ItemRequisitionDetailPage() {
 
     if (isAlreadyIssued) {
       const issuer = itemRequisition?.data.issued_by as any;
-      const issuerName = (typeof issuer === 'object' ? issuer?.full_name || issuer?.email : issuer) || "System";
-      const issuerDepartment = typeof issuer === 'object' ? issuer?.department || "" : "";
+      const issuerName = String((typeof issuer === 'object' ? issuer?.full_name || issuer?.email : issuer) || "System");
+      const issuerDept = typeof issuer === 'object' ? issuer?.department : "";
+      const issuerDepartment = String(typeof issuerDept === 'object' && issuerDept !== null ? issuerDept?.name || "" : issuerDept || "");
 
       return {
         action: "Issued",
@@ -113,8 +127,9 @@ export default function ItemRequisitionDetailPage() {
       };
     } else if (isAlreadyApproved) {
       const approver = itemRequisition?.data.approved_by as any;
-      const approverName = (typeof approver === 'object' ? approver?.full_name || approver?.email : approver) || "System";
-      const approverDepartment = typeof approver === 'object' ? approver?.department || "" : "";
+      const approverName = String((typeof approver === 'object' ? approver?.full_name || approver?.email : approver) || "System");
+      const approverDept = typeof approver === 'object' ? approver?.department : "";
+      const approverDepartment = String(typeof approverDept === 'object' && approverDept !== null ? approverDept?.name || "" : approverDept || "");
 
       return {
         action: "Approved",
@@ -124,8 +139,9 @@ export default function ItemRequisitionDetailPage() {
       };
     } else if (isAlreadyRejected) {
       const rejector = itemRequisition?.data.rejected_by as any;
-      const rejectorName = (typeof rejector === 'object' ? rejector?.full_name || rejector?.email : rejector) || "System";
-      const rejectorDepartment = typeof rejector === 'object' ? rejector?.department || "" : "";
+      const rejectorName = String((typeof rejector === 'object' ? rejector?.full_name || rejector?.email : rejector) || "System");
+      const rejectorDept = typeof rejector === 'object' ? rejector?.department : "";
+      const rejectorDepartment = String(typeof rejectorDept === 'object' && rejectorDept !== null ? rejectorDept?.name || "" : rejectorDept || "");
 
       return {
         action: "Rejected",
@@ -173,7 +189,7 @@ export default function ItemRequisitionDetailPage() {
 
               <DescriptionCard
                 label='Department/Unit'
-                description={itemRequisition?.data.department?.name || 'N/A'}
+                description={String(departmentName || 'N/A')}
               />
 
               <DescriptionCard
@@ -202,7 +218,7 @@ export default function ItemRequisitionDetailPage() {
               />
               <DescriptionCard
                 label='Status'
-                description={itemRequisition?.data.status}
+                description={String(statusValue || 'N/A')}
               />
 
               {processingDetails ? (
