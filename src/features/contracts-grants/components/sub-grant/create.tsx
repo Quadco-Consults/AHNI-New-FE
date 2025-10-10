@@ -374,14 +374,12 @@ const CreateSubGrant: React.FC = () => {
                   label="Amount (USD)"
                   name="amount_usd"
                   required
-                  type="number"
                   placeholder="Enter amount in USD"
                 />
                 <FormInput
                   label="Amount (NGN) - Auto calculated"
                   name="amount_ngn"
                   required
-                  type="number"
                   placeholder="Auto-calculated from USD"
                   readOnly
                   className="bg-gray-50"

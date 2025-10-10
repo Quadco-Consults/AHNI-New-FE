@@ -17,7 +17,7 @@ const GrantDetailsCard = ({
   title,
   project_id,
   funding_source,
-  award_reference_number,
+  award_refrence_number,
   award_amount,
   pipeline,
   money_months_remaining,
@@ -53,7 +53,7 @@ const GrantDetailsCard = ({
       {
         id: 5,
         label: "Award Reference Number",
-        value: award_reference_number || "N/A",
+        value: award_refrence_number || "N/A",
       },
 
       {
@@ -63,7 +63,7 @@ const GrantDetailsCard = ({
       },
     ];
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [title, project_id, funding_source, award_type, award_refrence_number, award_amount]);
 
   return (
     <div className='w-full bg-white px-[2.5rem] py-[1.25rem] rounded-2xl flex flex-col gap-y-[1.25rem]'>

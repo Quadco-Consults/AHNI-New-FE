@@ -4,6 +4,7 @@ import { ISubGrantSingleData } from "@/features/contracts-grants/types/contract-
 import { useMemo } from "react";
 import { formatNumberCurrency } from "utils/utls";
 import { useGetSingleDepartment } from "@/features/modules/controllers/config/departmentController";
+import { useGetAllLocations } from "@/features/modules/controllers/config/locationController";
 
 const SubGrantAwardDetails = ({
   id,
@@ -29,10 +30,21 @@ const SubGrantAwardDetails = ({
     typeof business_unit === 'string' ? business_unit : '',
     !!business_unit && typeof business_unit === 'string'
   );
+
+  // Get all locations to map IDs to names
+  const { data: allLocationsData } = useGetAllLocations({
+    page: 1,
+    size: 2000,
+    enabled: true
+  });
+
   const CardDetails = useMemo(() => {
     // Use project data (from API) or fallback to grant (legacy)
     const projectData = project || grant;
     const fundingSource = projectData?.funding_sources?.[0]?.name || projectData?.funding_source;
+
+    // Get locations from sub-grant or fallback to project locations
+    const displayLocations = locations || projectData?.location || [];
 
     return [
       {
@@ -98,9 +110,28 @@ const SubGrantAwardDetails = ({
       {
         id: 11,
         label: "Locations",
-        value: locations && locations.length > 0
-          ? locations.map(loc => loc.name || loc.city).join(", ")
-          : "N/A",
+        value: (() => {
+          if (!displayLocations || displayLocations.length === 0) return "N/A";
+
+          // If locations are objects with name/city, use them directly
+          if (typeof displayLocations[0] === 'object' && (displayLocations[0].name || displayLocations[0].city)) {
+            return displayLocations.map(loc => loc.name || loc.city).join(", ");
+          }
+
+          // If locations are IDs, map them to names from allLocationsData
+          if (typeof displayLocations[0] === 'string' && allLocationsData?.data?.results) {
+            const locationNames = displayLocations
+              .map(locId => {
+                const loc = allLocationsData.data.results.find((l: any) => l.id === locId);
+                return loc?.name || loc?.city;
+              })
+              .filter(Boolean)
+              .join(", ");
+            return locationNames || "N/A";
+          }
+
+          return "N/A";
+        })(),
       },
 
       { id: 12, label: "Start Date", value: start_date || "N/A" },
@@ -123,6 +154,7 @@ const SubGrantAwardDetails = ({
     departmentData,
     award_type,
     locations,
+    allLocationsData,
     amount_usd,
     amount_ngn,
     start_date,

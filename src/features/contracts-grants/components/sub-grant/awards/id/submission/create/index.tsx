@@ -54,6 +54,10 @@ export default function CreateSubGrantSubDetails() {
 
     const submissionId = searchParams?.get("partnerSubId");
 
+    // Get sub_grant ID from query params if not in route params
+    const subGrantIdFromQuery = searchParams?.get("subGrantId");
+    const actualSubGrantId = (subGrantId as string) || subGrantIdFromQuery;
+
     const { data: partner } = useGetAllPartners({
         page: 1,
         size: 2000000,
@@ -78,22 +82,33 @@ export default function CreateSubGrantSubDetails() {
         data
     ) => {
         try {
-            if (subGrantId && submissionId) {
+            // Validate that we have a sub_grant ID
+            if (!actualSubGrantId) {
+                toast.error("Sub-grant ID is required. Please access this form from a sub-grant page.");
+                return;
+            }
+
+            if (actualSubGrantId && submissionId) {
                 const responseData = await updateSubGrantSubmission({
                     ...data,
-                    sub_grant: subGrantId ?? "",
+                    sub_grant: actualSubGrantId,
                 });
                 toast.success("Manual Submission Updated");
                 const newSubmissionId = submissionId || responseData?.data?.id || "";
-                router.push(`/dashboard/c-and-g/sub-grant/awards/${subGrantId}/submission/create/upload?partnerSubId=${newSubmissionId}`);
+                router.push(`/dashboard/c-and-g/sub-grant/awards/${actualSubGrantId}/submission/create/upload?partnerSubId=${newSubmissionId}`);
             } else {
                 const responseData = await createSubGrantSubmission({
                     ...data,
-                    sub_grant: subGrantId ?? "",
+                    sub_grant: actualSubGrantId,
                 });
                 toast.success("Manual Submission Created");
                 const newSubmissionId = submissionId || responseData?.data?.id || "";
-                router.push(`/dashboard/c-and-g/sub-grant/awards/${subGrantId}/submission/create/upload?partnerSubId=${newSubmissionId}`);
+                // Use the appropriate URL format based on where the ID came from
+                if (subGrantId) {
+                    router.push(`/dashboard/c-and-g/sub-grant/awards/${actualSubGrantId}/submission/create/upload?partnerSubId=${newSubmissionId}`);
+                } else {
+                    router.push(`/dashboard/c-and-g/sub-grant/awards/submission/create/upload?partnerSubId=${newSubmissionId}&subGrantId=${actualSubGrantId}`);
+                }
             }
         } catch (error: any) {
             toast.error(error?.data?.message ?? error?.message ?? "Something went wrong");

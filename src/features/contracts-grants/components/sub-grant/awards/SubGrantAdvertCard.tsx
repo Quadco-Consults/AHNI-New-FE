@@ -16,10 +16,11 @@ import { Button } from "components/ui/button";
 import { CardTitle } from "components/ui/card";
 import { format } from "date-fns";
 import { ISubGrantPaginatedData } from "@/features/contracts-grants/types/contract-management/sub-grant/sub-grant";
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import { useDeleteSubGrant } from "@/features/contracts-grants/controllers/subGrantController";
 import { toast } from "sonner";
+import { useGetAllLocations } from "@/features/modules/controllers/config/locationController";
 
 export default function SubgrantAdvertCard({
     id,
@@ -41,6 +42,13 @@ export default function SubgrantAdvertCard({
     const { deleteSubGrant, isLoading: isDeleteLoading } =
         useDeleteSubGrant(id);
 
+    // Get all locations to map IDs to names
+    const { data: allLocationsData } = useGetAllLocations({
+        page: 1,
+        size: 2000,
+        enabled: true
+    });
+
     const handleDelete = async () => {
         try {
             await deleteSubGrant();
@@ -61,6 +69,39 @@ export default function SubgrantAdvertCard({
     };
 
     const duration = calculateDuration();
+
+    // Map location IDs to location names
+    const locationNames = useMemo(() => {
+        if (!locations || locations.length === 0) return [];
+
+        // If locations are already objects with name/city, use them
+        if (typeof locations[0] === 'object' && (locations[0].name || locations[0].city)) {
+            return locations.map(loc => loc.name || loc.city);
+        }
+
+        // If locations are IDs (strings), map them to names
+        if (typeof locations[0] === 'string' && allLocationsData?.data?.results) {
+            return locations
+                .map(locId => {
+                    const loc = allLocationsData.data.results.find((l: any) => l.id === locId);
+                    return loc?.name || loc?.city;
+                })
+                .filter(Boolean);
+        }
+
+        return [];
+    }, [locations, allLocationsData]);
+
+    // Get business unit name - handle both string (ID) and object (expanded) cases
+    const businessUnitName = useMemo(() => {
+        if (!business_unit) return null;
+        // If it's an object (expanded by API), use the name
+        if (typeof business_unit === 'object' && business_unit.name) {
+            return business_unit.name;
+        }
+        // If it's a string (ID), return as is (will be just the ID, but better than nothing)
+        return typeof business_unit === 'string' ? business_unit : null;
+    }, [business_unit]);
 
     return (
         <div className="w-[49.5%]">
@@ -126,16 +167,16 @@ export default function SubgrantAdvertCard({
                                 label={`Submission: ${format(submission_end_date, "MMM dd, yyy")}`}
                             />
                         )}
-                        {business_unit && (
+                        {businessUnitName && (
                             <DetailsTag
                                 icon={<PersonClusterSvg />}
-                                label={business_unit}
+                                label={businessUnitName}
                             />
                         )}
-                        {locations && locations.length > 0 && (
+                        {locationNames && locationNames.length > 0 && (
                             <DetailsTag
                                 icon={<LocationSvg />}
-                                label={`${locations.length} Location${locations.length > 1 ? 's' : ''}: ${locations.map(loc => loc.name || loc.city).slice(0, 2).join(", ")}${locations.length > 2 ? `, +${locations.length - 2} more` : ''}`}
+                                label={locationNames.slice(0, 2).join(", ") + (locationNames.length > 2 ? `, +${locationNames.length - 2} more` : '')}
                             />
                         )}
                         {tender_type && (
