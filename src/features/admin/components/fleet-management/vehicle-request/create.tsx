@@ -6,7 +6,7 @@ import BackNavigation from "components/atoms/BackNavigation";
 import FormButton from "@/components/FormButton";
 import FormInput from "components/atoms/FormInput";
 import FormSelect from "components/atoms/FormSelectField";
-import FormCombobox from "components/atoms/FormCombobox";
+import FormCombobox from "components/FormCombobox";
 import { Card, CardContent } from "components/ui/card";
 import { Form } from "components/ui/form";
 import { Button } from "components/ui/button";
@@ -99,17 +99,35 @@ const NewVehicleRequest = () => {
 
   console.log({ activity, activityOptions, selectedProject });
 
-  const { data: user } = useGetAllUsersQuery({ page: 1, size: 2000000 });
+  // Fetch all users and filter to AHNI staff on frontend
+  const { data: user } = useGetAllUsersQuery({
+    page: 1,
+    size: 2000000,
+  });
 
   // Fetch current user profile for auto-populating location
-  const { data: currentUserProfile } = useGetUserProfile();
+  const { data: currentUserProfile, isLoading: isProfileLoading } = useGetUserProfile();
+
+  console.log("🔍 Vehicle Request - Current User Profile:", {
+    currentUserProfile,
+    isProfileLoading,
+    location: currentUserProfile?.data?.location,
+    hasLocation: !!currentUserProfile?.data?.location,
+    allProfileData: currentUserProfile?.data
+  });
 
   const userOptions = useMemo(
-    () =>
-      user?.data?.results?.map(({ first_name, last_name, id }) => ({
+    () => {
+      const allUsers = (user as any)?.data?.results || user?.results || [];
+      // Filter to only AHNI staff/admin users
+      const ahniUsers = allUsers.filter((u: any) =>
+        u.user_type === "AHNI" || u.user_type === "STAFF" || u.user_type === "ADMIN"
+      );
+      return ahniUsers.map(({ first_name, last_name, id }: any) => ({
         label: `${first_name} ${last_name}`,
         value: id,
-      })),
+      }));
+    },
     [user]
   );
 
@@ -127,20 +145,50 @@ const NewVehicleRequest = () => {
     [locations]
   );
 
-  // Fetch asset vehicles (filtered by vehicle category)
+  // Watch selected location for filtering assets
+  const selectedLocation = form.watch("location");
+
+  // Fetch all assets (we'll filter by category and location on frontend)
   const { data: asset } = useGetAllAssetsQuery({
     page: 1,
     size: 2000000,
-    category: "b0983944-f926-4141-8e28-093960d75246", // Vehicle category ID
   });
 
   const assetVehicleOptions = useMemo(
-    () =>
-      asset?.data?.results?.map(({ name, id, asset_code, plate_number }) => ({
-        label: `${name}${plate_number ? ` (${plate_number})` : ''}${asset_code ? ` - ${asset_code}` : ''}`,
-        value: id,
-      })) || [],
-    [asset]
+    () => {
+      try {
+        const allAssets = asset?.data?.results || [];
+
+        // Filter assets by:
+        // 1. Category (vehicle) - check if category name/type indicates it's a vehicle
+        // 2. Location - match selected location
+        const filteredAssets = allAssets.filter((assetItem: any) => {
+          // Check if it's a vehicle (you may need to adjust this based on your data structure)
+          const isVehicle =
+            assetItem.category?.name?.toLowerCase().includes('vehicle') ||
+            assetItem.asset_type?.toLowerCase().includes('vehicle') ||
+            assetItem.category === 'b0983944-f926-4141-8e28-093960d75246' ||
+            assetItem.plate_number; // If it has a plate number, it's likely a vehicle
+
+          if (!isVehicle) return false;
+
+          // If no location is selected, show all vehicles
+          if (!selectedLocation) return true;
+
+          // Filter by location - check if asset's location matches selected location
+          return assetItem.location?.id === selectedLocation || assetItem.location === selectedLocation;
+        });
+
+        return filteredAssets.map(({ name, id, asset_code, plate_number }: any) => ({
+          label: `${name}${plate_number ? ` (${plate_number})` : ''}${asset_code ? ` - ${asset_code}` : ''}`,
+          value: id,
+        }));
+      } catch (error) {
+        console.error("Error filtering asset vehicles:", error);
+        return [];
+      }
+    },
+    [asset, selectedLocation]
   );
 
   const { data: vendor } = VendorsAPI.useGetVendorsQuery({

@@ -23,7 +23,7 @@ export const useVendorEvaluationReminders = () => {
 
   const { data: trackerData, isLoading: trackerLoading } = useGetAllProcurementTrackers({
     page: 1,
-    size: 1000,
+    size: 100,
   });
 
   const reminders = useMemo<VendorEvaluationReminder[]>(() => {
