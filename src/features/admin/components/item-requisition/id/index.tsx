@@ -16,6 +16,7 @@ import {
   useApproveItemRequisition,
   useRejectItemRequisition
 } from "@/features/admin/controllers/itemRequisitionController";
+import StockAvailabilityCheck from "@/features/admin/components/item-requisition/StockAvailabilityCheck";
 
 export default function ItemRequisitionDetailPage() {
   const { id } = useParams();
@@ -41,9 +42,9 @@ export default function ItemRequisitionDetailPage() {
   const [hasApproved, setHasApproved] = useState(false);
   const [hasRejected, setHasRejected] = useState(false);
 
-  const requestorName = itemRequisition?.data.created_by.first_name
-    ? `${itemRequisition?.data.created_by.first_name} ${itemRequisition?.data.created_by.last_name}`
-    : itemRequisition?.data.created_by.email;
+  const requestorName = itemRequisition?.data?.created_by?.first_name
+    ? `${itemRequisition.data.created_by.first_name} ${itemRequisition.data.created_by.last_name || ''}`
+    : (itemRequisition?.data?.created_by?.email || 'Unknown');
 
   console.log({ itemRequisition });
 
@@ -172,7 +173,7 @@ export default function ItemRequisitionDetailPage() {
 
               <DescriptionCard
                 label='Department/Unit'
-                description={itemRequisition?.data.department.name}
+                description={itemRequisition?.data.department?.name || 'N/A'}
               />
 
               <DescriptionCard
@@ -197,7 +198,7 @@ export default function ItemRequisitionDetailPage() {
               />
               <DescriptionCard
                 label='Quantity Requested'
-                description={quantityRequested}
+                description={String(quantityRequested)}
               />
               <DescriptionCard
                 label='Status'
@@ -220,6 +221,11 @@ export default function ItemRequisitionDetailPage() {
               )}
             </div>
           )
+        )}
+
+        {/* Stock Availability Check - Show for APPROVED status before issuing */}
+        {isAlreadyApproved && !isAlreadyIssued && itemRequisition?.data?.consummables && Array.isArray(itemRequisition.data.consummables) && itemRequisition.data.consummables.length > 0 && (
+          <StockAvailabilityCheck items={itemRequisition.data.consummables} />
         )}
 
 {/* Only show action buttons if not already processed */}

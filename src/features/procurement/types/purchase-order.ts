@@ -39,15 +39,61 @@ export interface IPurchaseOrderPaginatedData {
     approved_date: string;
     agreed_date: string;
     funding_source: string;
+    reviewed_by: null;
     authorized_by: null;
     approved_by: null;
     agreed_by: null;
+    status_level: string;
+    reviewed_by_detail?: {
+        user_id: string;
+        name: string;
+    } | null;
+    authorized_by_detail?: {
+        user_id: string;
+        name: string;
+    } | null;
+    approved_by_detail?: {
+        user_id: string;
+        name: string;
+    } | null;
+    agreed_by_detail?: {
+        user_id: string;
+        name: string;
+    } | null;
+    vendor_detail: {
+        id: string;
+        company_name: string;
+        company_registration_number: string;
+        type_of_business: string;
+        status: string;
+        email: string;
+    } | null;
+    solicitation_detail: {
+        id: string;
+        title: string;
+        rfq_id: string;
+    } | null;
+    rfq_id?: string;
 }
 
 export interface IPurchaseOrderSingleData {
     id: string;
-    agreed_by_detail: null;
-    approved_by_detail: null;
+    reviewed_by_detail?: {
+        user_id: string;
+        name: string;
+    } | null;
+    authorized_by_detail?: {
+        user_id: string;
+        name: string;
+    } | null;
+    approved_by_detail?: {
+        user_id: string;
+        name: string;
+    } | null;
+    agreed_by_detail?: {
+        user_id: string;
+        name: string;
+    } | null;
     vendor_detail: {
         id: string;
         company_name: string;
@@ -56,7 +102,11 @@ export interface IPurchaseOrderSingleData {
         status: string;
         email: string;
     };
-    solicitation_detail: null;
+    solicitation_detail: {
+        id: string;
+        title: string;
+        rfq_id: string;
+    } | null;
     purchase_order_items: {
         id: number;
         item_detail: TItemData;
@@ -77,6 +127,7 @@ export interface IPurchaseOrderSingleData {
     comment: null;
     delivery_lead_time: null;
     payment_terms: "";
+    reviewed_datetime: null;
     authorized_datetime: null;
     approved_date: null;
     agreed_date: null;
@@ -86,5 +137,8 @@ export interface IPurchaseOrderSingleData {
     solicitation: null;
     funding_source: null;
     location: null;
+    reviewed_by: null;
     authorized_by: null;
+    approved_by: null;
+    agreed_by: null;
 }

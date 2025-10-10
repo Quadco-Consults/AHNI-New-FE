@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { FormProvider, useForm } from "react-hook-form";
 import FormTextArea from "components/atoms/FormTextArea";
 import { useModifyPurchaseOrder } from "@/features/procurement/controllers/purchaseOrderController";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface WorkflowStep {
   id: string;
@@ -17,7 +18,7 @@ interface WorkflowStep {
   description: string;
   canAction?: boolean;
   actionLabel?: string;
-  actionType?: "authorize" | "approve" | "agree" | "reject";
+  actionType?: "review" | "authorize" | "approve" | "reject";
   icon?: React.ReactNode;
   approver?: string;
 }
@@ -25,29 +26,32 @@ interface WorkflowStep {
 interface PurchaseOrderWorkflowStatusProps {
   purchaseOrderId: string;
   currentStatus: string;
+  canReview?: boolean;
   canAuthorize?: boolean;
   canApprove?: boolean;
-  canAgree?: boolean;
   canReject?: boolean;
+  reviewedBy?: string | { user_id: string; name: string };
   authorizedBy?: string | { user_id: string; name: string };
   approvedBy?: string | { user_id: string; name: string };
-  agreedBy?: string | { user_id: string; name: string };
+  onSuccess?: () => void;
 }
 
 const PurchaseOrderWorkflowStatus: React.FC<PurchaseOrderWorkflowStatusProps> = ({
   purchaseOrderId,
   currentStatus,
+  canReview = false,
   canAuthorize = false,
   canApprove = false,
-  canAgree = false,
   canReject = false,
+  reviewedBy,
   authorizedBy,
   approvedBy,
-  agreedBy,
+  onSuccess,
 }) => {
   const [activeAction, setActiveAction] = useState<string | null>(null);
+  const [actionInProgress, setActionInProgress] = useState<string | null>(null);
   const form = useForm();
-
+  const queryClient = useQueryClient();
 
   // API hook
   const { modifyPurchaseOrder, isLoading } = useModifyPurchaseOrder(purchaseOrderId);
@@ -65,9 +69,9 @@ const PurchaseOrderWorkflowStatus: React.FC<PurchaseOrderWorkflowStatusProps> = 
     const safeCurrentStatus = typeof currentStatus === 'string' ? currentStatus : 'PENDING';
     const statusOrder = [
       "PENDING",
+      "REVIEWED",
       "AUTHORIZED",
-      "APPROVED",
-      "AGREED"
+      "APPROVED"
     ];
     const currentIndex = statusOrder.indexOf(safeCurrentStatus);
     const stepIndex = statusOrder.indexOf(stepStatus.toUpperCase());
@@ -81,60 +85,105 @@ const PurchaseOrderWorkflowStatus: React.FC<PurchaseOrderWorkflowStatusProps> = 
   const workflowSteps: WorkflowStep[] = [
     {
       id: "PENDING",
-      title: "Financial Authorization",
+      title: "Review",
       status: getStepStatus("PENDING"),
+      description: "Initial review of purchase order",
+      canAction: canReview && currentStatus === "PENDING",
+      actionLabel: "Review PO",
+      actionType: "review",
+      icon: <FileText className="w-5 h-5" />,
+      approver: getApproverName(reviewedBy) || "Reviewer",
+    },
+    {
+      id: "REVIEWED",
+      title: "Authorization",
+      status: getStepStatus("REVIEWED"),
       description: "Authorization by Director of Finance",
-      canAction: canAuthorize && currentStatus === "PENDING",
+      canAction: canAuthorize && currentStatus === "REVIEWED",
       actionLabel: "Authorize PO",
       actionType: "authorize",
-      icon: <FileText className="w-5 h-5" />,
+      icon: <CheckCircle className="w-5 h-5" />,
       approver: getApproverName(authorizedBy) || "Director of Finance",
     },
     {
       id: "AUTHORIZED",
-      title: "Operational Approval",
+      title: "Approval",
       status: getStepStatus("AUTHORIZED"),
-      description: "Approval by Director of Operations",
+      description: "Final approval by Director of Operations",
       canAction: canApprove && currentStatus === "AUTHORIZED",
       actionLabel: "Approve PO",
       actionType: "approve",
       icon: <CreditCard className="w-5 h-5" />,
       approver: getApproverName(approvedBy) || "Director of Operations",
     },
-    {
-      id: "APPROVED",
-      title: "Vendor Agreement",
-      status: getStepStatus("APPROVED"),
-      description: "Agreement and acceptance by vendor",
-      canAction: canAgree && currentStatus === "APPROVED",
-      actionLabel: "Mark as Agreed",
-      actionType: "agree",
-      icon: <Handshake className="w-5 h-5" />,
-      approver: getApproverName(agreedBy) || "Vendor",
-    },
   ];
 
+  console.log("🔍 Workflow State:", {
+    currentStatus,
+    canReview,
+    canAuthorize,
+    canApprove,
+    canReject,
+    workflowSteps: workflowSteps.map(s => ({
+      id: s.id,
+      status: s.status,
+      canAction: s.canAction
+    }))
+  });
+
   const handleAction = async (actionType: string, formData?: any) => {
+    // Prevent duplicate actions
+    if (actionInProgress) {
+      toast.warning("Please wait, an action is already in progress");
+      return;
+    }
+
     try {
+      setActionInProgress(actionType);
+
       const payload = {
         action: actionType,
         comments: formData?.comments || ""
       };
 
-      await modifyPurchaseOrder(payload);
+      console.log("🔍 Workflow Action - Payload:", payload);
+      console.log("🔍 Workflow Action - PO ID:", purchaseOrderId);
+      console.log("🔍 Workflow Action - Current Status:", currentStatus);
+
+      const response = await modifyPurchaseOrder(payload);
+      console.log("🔍 Workflow Action - Response Data:", response);
+      console.log("🔍 Workflow Action - Full Response Data Object:", JSON.stringify(response, null, 2));
+
+      // Invalidate all purchase order queries to force refetch
+      await queryClient.invalidateQueries({ queryKey: ["purchase-orders"] });
+      await queryClient.invalidateQueries({ queryKey: ["purchase-order", purchaseOrderId] });
 
       const actionMessages = {
+        review: "Purchase Order reviewed successfully",
         authorize: "Purchase Order authorized successfully",
         approve: "Purchase Order approved successfully",
-        agree: "Purchase Order agreement confirmed successfully",
         reject: "Purchase Order rejected successfully"
       };
 
       toast.success(actionMessages[actionType as keyof typeof actionMessages]);
       setActiveAction(null);
       form.reset();
+
+      // Call onSuccess callback to refresh data
+      if (onSuccess) {
+        onSuccess();
+      }
     } catch (error: any) {
-      toast.error(error.message || "Something went wrong");
+      console.error("🔍 Workflow Action Error:", error);
+      // Extract error message from various possible error structures
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.data?.message ||
+        error?.message ||
+        "Something went wrong";
+      toast.error(errorMessage);
+    } finally {
+      setActionInProgress(null);
     }
   };
 
@@ -172,13 +221,13 @@ const PurchaseOrderWorkflowStatus: React.FC<PurchaseOrderWorkflowStatusProps> = 
     const status = typeof currentStatus === 'string' ? currentStatus : 'UNKNOWN';
     switch (status) {
       case "PENDING":
-        return "Awaiting financial authorization from Director of Finance";
+        return "Awaiting initial review";
+      case "REVIEWED":
+        return "Awaiting authorization from Director of Finance";
       case "AUTHORIZED":
-        return "Awaiting operational approval from Director of Operations";
+        return "Awaiting final approval from Director of Operations";
       case "APPROVED":
-        return "Awaiting vendor agreement and acceptance";
-      case "AGREED":
-        return "Purchase Order fully approved and agreed";
+        return "Purchase Order fully approved";
       case "REJECTED":
         return "Purchase Order has been rejected";
       default:
@@ -247,10 +296,10 @@ const PurchaseOrderWorkflowStatus: React.FC<PurchaseOrderWorkflowStatusProps> = 
                               onClick={() =>
                                 handleAction(step.actionType!, form.getValues())
                               }
-                              disabled={isLoading}
+                              disabled={isLoading || !!actionInProgress}
                               className='text-sm'
                             >
-                              {isLoading ? "Processing..." : "Confirm"}
+                              {isLoading || actionInProgress ? "Processing..." : "Confirm"}
                             </Button>
                             <Button
                               size='sm'
@@ -285,7 +334,7 @@ const PurchaseOrderWorkflowStatus: React.FC<PurchaseOrderWorkflowStatusProps> = 
       <div className='mt-6 pt-4 border-t'>
         {canReject &&
          currentStatus !== "REJECTED" &&
-         currentStatus !== "AGREED" && (
+         currentStatus !== "APPROVED" && (
           <div className='space-y-3'>
             {activeAction === "reject" ? (
               <div className='space-y-3'>
@@ -302,9 +351,9 @@ const PurchaseOrderWorkflowStatus: React.FC<PurchaseOrderWorkflowStatusProps> = 
                     variant='destructive'
                     size='sm'
                     onClick={() => handleAction("reject", form.getValues())}
-                    disabled={isLoading}
+                    disabled={isLoading || !!actionInProgress}
                   >
-                    {isLoading ? "Rejecting..." : "Confirm Rejection"}
+                    {isLoading || actionInProgress ? "Rejecting..." : "Confirm Rejection"}
                   </Button>
                   <Button
                     size='sm'

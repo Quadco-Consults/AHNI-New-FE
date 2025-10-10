@@ -2,7 +2,7 @@
 
 import Card from "components/Card";
 import { Button } from "components/ui/button";
-import { EyeIcon, PlusIcon, EditIcon } from "lucide-react";
+import { EyeIcon, PlusIcon, EditIcon, GitBranch } from "lucide-react";
 import { Checkbox } from "components/ui/checkbox";
 
 import { Input } from "components/ui/input";
@@ -20,12 +20,20 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "components/ui/dialog";
 import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "components/Table/DataTable";
 import BreadcrumbCard from "components/Breadcrumb";
 import { IPurchaseOrderPaginatedData } from "features/procurement/types/purchase-order";
 import { useGetAllPurchaseOrders } from "@/features/procurement/controllers/purchaseOrderController";
 import { convertDateFormat, formatDate } from "utils/date";
+import PurchaseOrderWorkflowStatus from "./components/PurchaseOrderWorkflowStatus";
 
 const PurchaseOrder = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -37,12 +45,130 @@ const PurchaseOrder = () => {
     { name: "Purchase Order", icon: false },
   ];
 
-  const { data } = useGetAllPurchaseOrders({ 
-    page: currentPage, 
-    size: 20, 
+  const { data, refetch, isLoading, error } = useGetAllPurchaseOrders({
+    page: currentPage,
+    size: 20,
     search: searchTerm,
-    status: statusFilter === "ALL" ? "" : statusFilter 
+    status: statusFilter === "ALL" ? "" : statusFilter
   });
+
+  const columns: ColumnDef<IPurchaseOrderPaginatedData>[] = [
+    {
+      id: "select",
+      size: 50,
+      header: ({ table }) => {
+        return (
+          <Checkbox
+            checked={table.getIsAllPageRowsSelected()}
+            onCheckedChange={(value) => {
+              table.toggleAllPageRowsSelected(!!value);
+            }}
+          />
+        );
+      },
+      cell: ({ row }) => {
+        return (
+          <Checkbox
+            checked={row.getIsSelected()}
+            onCheckedChange={(value) => {
+              row.toggleSelected(!!value);
+            }}
+          />
+        );
+      },
+    },
+    {
+      header: "Purchase Order No",
+      accessorKey: "purchase_order_number",
+      size: 250,
+    },
+    {
+      header: "Vendor Name",
+      accessorKey: "vendor_name",
+      size: 250,
+      cell: ({ row }) => {
+        // @ts-ignore
+        return <div>{row?.original?.vendor_detail?.company_name}</div>;
+      },
+    },
+    {
+      header: "RFQ",
+      accessorKey: "rfq",
+      size: 200,
+      cell: ({ row }) => {
+        // @ts-ignore
+        const rfqTitle = row?.original?.solicitation_detail?.title ||
+                        row?.original?.solicitation_detail?.rfq_id ||
+                        row?.original?.rfq_id ||
+                        "N/A";
+        return <div>{rfqTitle}</div>;
+      },
+    },
+    {
+      header: "Date Generated",
+      accessorKey: "created_datetime",
+      accessorFn: (data) => convertDateFormat(data.created_datetime),
+      cell: ({ getValue }) => {
+        return (
+          <div className={cn("px-3 py-2 rounded-lg")}>{getValue() as string}</div>
+        );
+      },
+    },
+    {
+      header: "Status",
+      accessorKey: "status_level",
+      size: 120,
+      cell: ({ row }) => {
+        const status = row.original.status_level;
+        const getStatusColor = (status: string) => {
+          switch (status) {
+            case 'PENDING': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+            case 'AUTHORIZED': return 'bg-blue-100 text-blue-800 border-blue-200';
+            case 'APPROVED': return 'bg-green-100 text-green-800 border-green-200';
+            case 'AGREED': return 'bg-purple-100 text-purple-800 border-purple-200';
+            case 'COMPLETED': return 'bg-gray-100 text-gray-800 border-gray-200';
+            default: return 'bg-gray-100 text-gray-800 border-gray-200';
+          }
+        };
+
+        return (
+          <span className={cn(
+            "px-2 py-1 rounded-full text-xs font-medium border",
+            getStatusColor(status)
+          )}>
+            {status || 'Unknown'}
+          </span>
+        );
+      },
+    },
+    {
+      header: "Actions",
+      id: "actions",
+      cell: ({ row }) => <ActionListAction data={row.original} onRefresh={refetch} />,
+    },
+  ];
+
+  if (isLoading) {
+    return (
+      <div className='space-y-10'>
+        <BreadcrumbCard list={breadcrumbs} />
+        <Card className='p-10 text-center'>
+          <p>Loading purchase orders...</p>
+        </Card>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className='space-y-10'>
+        <BreadcrumbCard list={breadcrumbs} />
+        <Card className='p-10 text-center text-red-600'>
+          <p>Error loading purchase orders: {error?.message || 'Unknown error'}</p>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className='space-y-10'>
@@ -59,10 +185,10 @@ const PurchaseOrder = () => {
       </div>
       <Card className='space-y-5'>
         <div className='flex gap-4 items-center'>
-          <Input 
-            type='search' 
-            placeholder='Search by PO number, vendor name...' 
-            className='w-[40%]' 
+          <Input
+            type='search'
+            placeholder='Search by PO number, vendor name...'
+            className='w-[40%]'
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -80,8 +206,8 @@ const PurchaseOrder = () => {
             </SelectContent>
           </Select>
           {(searchTerm || statusFilter !== "ALL") && (
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={() => {
                 setSearchTerm("");
                 setStatusFilter("ALL");
@@ -92,128 +218,80 @@ const PurchaseOrder = () => {
           )}
         </div>
 
-        <DataTable data={data?.data?.results || []} columns={columns} />
+        <DataTable data={data?.results || []} columns={columns} />
       </Card>
     </div>
   );
 };
 
-export default PurchaseOrder;
+// ActionListAction component moved outside to avoid closure issues
+const ActionListAction = ({ data, onRefresh }: any) => {
+  const [showWorkflow, setShowWorkflow] = useState(false);
 
-const columns: ColumnDef<IPurchaseOrderPaginatedData>[] = [
-  {
-    id: "select",
-    size: 50,
-    header: ({ table }) => {
-      return (
-        <Checkbox
-          checked={table.getIsAllPageRowsSelected()}
-          onCheckedChange={(value) => {
-            table.toggleAllPageRowsSelected(!!value);
-          }}
-        />
-      );
-    },
-    cell: ({ row }) => {
-      return (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => {
-            row.toggleSelected(!!value);
-          }}
-        />
-      );
-    },
-  },
-  {
-    header: "Purchase Order No",
-    accessorKey: "purchase_order_number",
-    size: 250,
-  },
+  const handleWorkflowSuccess = () => {
+    // Close the dialog
+    setShowWorkflow(false);
+    // Trigger data refresh
+    if (onRefresh) {
+      onRefresh();
+    }
+  };
 
-  {
-    header: "Vendor Name",
-    accessorKey: "vendor_name",
-    size: 250,
-    cell: ({ row }) => {
-      // @ts-ignore
-      return <div>{row?.original?.vendor_detail?.company_name}</div>;
-    },
-  },
-  {
-    header: "RFQ",
-    accessorKey: "rfq",
-    size: 200,
-    cell: ({ row }) => {
-      // @ts-ignore
-      return <div>{row?.original?.solicitation_detail?.title}</div>;
-    },
-  },
-  {
-    header: "Date Generated",
-    accessorKey: "created_datetime",
-    accessorFn: (data) => convertDateFormat(data.created_datetime),
-    cell: ({ getValue }) => {
-      return (
-        <div className={cn("px-3 py-2 rounded-lg")}>{getValue() as string}</div>
-      );
-    },
-  },
-  {
-    header: "Status",
-    accessorKey: "status_level",
-    size: 120,
-    cell: ({ row }) => {
-      const status = row.original.status_level;
-      const getStatusColor = (status: string) => {
-        switch (status) {
-          case 'PENDING': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-          case 'AUTHORIZED': return 'bg-blue-100 text-blue-800 border-blue-200';
-          case 'APPROVED': return 'bg-green-100 text-green-800 border-green-200';
-          case 'AGREED': return 'bg-purple-100 text-purple-800 border-purple-200';
-          case 'COMPLETED': return 'bg-gray-100 text-gray-800 border-gray-200';
-          default: return 'bg-gray-100 text-gray-800 border-gray-200';
-        }
-      };
-      
-      return (
-        <span className={cn(
-          "px-2 py-1 rounded-full text-xs font-medium border",
-          getStatusColor(status)
-        )}>
-          {status || 'Unknown'}
-        </span>
-      );
-    },
-  },
-  {
-    header: "Actions",
-    id: "actions",
-    cell: ({ row }) => <ActionListAction data={row.original} />,
-  },
-];
-const ActionListAction = ({ data }: any) => {
   return (
-    <div className='flex gap-2'>
-      <DropdownMenu>
-        <DropdownMenuTrigger>
-          <IconButton>
-            <CircleEllipsisIcon />
-          </IconButton>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          <Link href={`/dashboard/procurement/purchase-order/${data.id}`}>
-            <DropdownMenuItem key='view' className='flex gap-2'>
-              <EyeIcon /> View
+    <>
+      <div className='flex gap-2'>
+        <DropdownMenu>
+          <DropdownMenuTrigger>
+            <IconButton>
+              <CircleEllipsisIcon />
+            </IconButton>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <Link href={`/dashboard/procurement/purchase-order/${data.id}`}>
+              <DropdownMenuItem key='view' className='flex gap-2'>
+                <EyeIcon size={16} /> View
+              </DropdownMenuItem>
+            </Link>
+            <Link href={`/dashboard/procurement/purchase-order/${data.id}/edit`}>
+              <DropdownMenuItem key='edit' className='flex gap-2'>
+                <EditIcon size={16} /> Edit
+              </DropdownMenuItem>
+            </Link>
+            <DropdownMenuItem
+              key='workflow'
+              className='flex gap-2'
+              onClick={() => setShowWorkflow(true)}
+            >
+              <GitBranch size={16} /> Approval Workflow
             </DropdownMenuItem>
-          </Link>
-          <Link href={`/dashboard/procurement/purchase-order/${data.id}/edit`}>
-            <DropdownMenuItem key='edit' className='flex gap-2'>
-              <EditIcon /> Edit
-            </DropdownMenuItem>
-          </Link>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </div>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
+      <Dialog open={showWorkflow} onOpenChange={setShowWorkflow}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Purchase Order Approval Workflow</DialogTitle>
+            <DialogDescription>
+              PO Number: {data.purchase_order_number}
+            </DialogDescription>
+          </DialogHeader>
+          <PurchaseOrderWorkflowStatus
+            purchaseOrderId={data.id}
+            currentStatus={data.status_level || 'PENDING'}
+            canReview={true}    // TODO: Replace with actual permission logic
+            canAuthorize={true} // TODO: Replace with actual permission logic
+            canApprove={true}   // TODO: Replace with actual permission logic
+            canReject={true}    // TODO: Replace with actual permission logic
+            reviewedBy={data.reviewed_by_detail?.name || undefined}
+            authorizedBy={data.authorized_by_detail?.name || undefined}
+            approvedBy={data.approved_by_detail?.name || undefined}
+            onSuccess={handleWorkflowSuccess}
+          />
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
+
+export default PurchaseOrder;

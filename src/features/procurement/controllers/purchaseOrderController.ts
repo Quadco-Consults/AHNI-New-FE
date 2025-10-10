@@ -30,7 +30,7 @@ export const useGetAllPurchaseOrders = ({
         const response = await AxiosWithToken.get(BASE_URL, {
           params: { page, size, search, status },
         });
-        return response.data;
+        return response.data.data;
       } catch (error) {
         const axiosError = error as AxiosError;
         throw new Error(
@@ -132,9 +132,12 @@ export const useModifyPurchaseOrder = (id: string) => {
 
   const modifyPurchaseOrder = async (details: any) => {
     try {
-      await callApi(details);
+      const response = await callApi(details);
+      console.log("✅ Purchase order modify response:", response);
+      return response;
     } catch (error) {
-      console.error("Purchase order modify error:", error);
+      console.error("❌ Purchase order modify error:", error);
+      throw error;
     }
   };
 

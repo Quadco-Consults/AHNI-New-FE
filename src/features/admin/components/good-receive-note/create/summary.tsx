@@ -55,10 +55,10 @@ export default function CreateGoodReceiveNote() {
   const purchaseOrderOptions = useMemo(
     () =>
       // @ts-ignore
-      purchaseOrder?.data.results.map(({ purchase_order_number, id }) => ({
+      purchaseOrder?.results?.map(({ purchase_order_number, id }) => ({
         label: purchase_order_number,
         value: id,
-      })),
+      })) || [],
     [purchaseOrder]
   );
 
@@ -169,6 +169,9 @@ export default function CreateGoodReceiveNote() {
   // Populate items array when purchase order is selected
   useEffect(() => {
     if (singlePurchaseOrder?.data?.purchase_order_items) {
+      console.log("🔍 Purchase Order Items Data:", singlePurchaseOrder.data.purchase_order_items);
+      console.log("🔍 First Item Full Data:", singlePurchaseOrder.data.purchase_order_items[0]);
+
       const items = singlePurchaseOrder.data.purchase_order_items.map(
         (item: any) => ({
           item_id: item.id,
@@ -213,8 +216,19 @@ export default function CreateGoodReceiveNote() {
                 const purchaseOrderItem =
                   singlePurchaseOrder?.data?.purchase_order_items?.[index];
 
-                const itemName = purchaseOrderItem?.item_detail?.name || purchaseOrderItem?.description || 'N/A';
-                const itemUOM = purchaseOrderItem?.item_detail?.uom || 'N/A';
+                // Try multiple fallbacks for item name
+                const itemName =
+                  purchaseOrderItem?.item_detail?.name ||
+                  purchaseOrderItem?.item_detail?.description ||
+                  purchaseOrderItem?.description ||
+                  `Item ${index + 1}`;
+
+                // Try multiple fallbacks for UOM
+                const itemUOM =
+                  purchaseOrderItem?.uom ||
+                  purchaseOrderItem?.item_detail?.uom ||
+                  'Each';
+
                 const unitPrice = purchaseOrderItem?.unit_price || '0';
 
                 return (
@@ -224,6 +238,9 @@ export default function CreateGoodReceiveNote() {
                       <h4 className='font-semibold text-lg text-gray-800 mb-2'>
                         {itemName}
                       </h4>
+                      {purchaseOrderItem?.item_detail?.description && (
+                        <p className='text-sm text-gray-600 mb-2'>{purchaseOrderItem.item_detail.description}</p>
+                      )}
                       <div className='grid grid-cols-3 gap-4 text-sm'>
                         <div>
                           <span className='text-gray-600'>Unit of Measurement:</span>

@@ -4,6 +4,7 @@ import BackNavigation from "components/atoms/BackNavigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
 import ConsumableDetails from "features/admin/components/inventory-management/ConsumableDetails";
 import ConsumableStockCard from "features/admin/components/inventory-management/ConsumableStockCard";
+import ConsumableRequisitions from "@/features/admin/components/inventory-management/ConsumableRequisitions";
 import { useParams } from "next/navigation";
 import { useGetAllConsumableStockCardsQuery } from "@/features/admin/controllers/consumableController";
 
@@ -21,6 +22,7 @@ export default function ViewConsumable() {
           <div className='flex items-center'>
             <TabsTrigger value='details'>Details</TabsTrigger>
             <TabsTrigger value='stock'>Stock Card</TabsTrigger>
+            <TabsTrigger value='requisitions'>Requisitions</TabsTrigger>
           </div>
         </TabsList>
         <TabsContent className='mt-8' value='details'>
@@ -28,6 +30,9 @@ export default function ViewConsumable() {
         </TabsContent>
         <TabsContent value='stock'>
           <ConsumableStockCard stockCard={stockCard} />
+        </TabsContent>
+        <TabsContent value='requisitions'>
+          <ConsumableRequisitions consumableId={id as string} />
         </TabsContent>
       </Tabs>
     </div>

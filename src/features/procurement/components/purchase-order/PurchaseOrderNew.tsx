@@ -42,6 +42,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useGetAllUsers } from "@/features/auth/controllers/userController";
 import CbaAPI from "@/features/procurement/controllers/cbaController";
 import { useGetSolicitationSubmission } from "@/features/procurement/controllers/vendorBidSubmissionsController";
+import { useGetSingleSolicitation } from "@/features/procurement/controllers/solicitationController";
 
 const PurchaseOrderNew = () => {
   const router = useRouter();
@@ -66,12 +67,32 @@ const PurchaseOrderNew = () => {
   // Fetch CBA data if coming from CBA flow
   const { data: cbaData } = CbaAPI.useGetSingleCba(cbaId || "", !!cbaId);
 
+  // Get solicitation ID - handle both string and object formats
+  const solicitationId = typeof cbaData?.data?.solicitation === 'object'
+    ? cbaData?.data?.solicitation?.id
+    : cbaData?.data?.solicitation;
+
+  // Fetch full solicitation details to get purchase_request and department
+  const { data: fullSolicitation } = useGetSingleSolicitation(
+    solicitationId || "",
+    !!solicitationId
+  );
+
   // Fetch bid submissions to get vendor bid_items (same as AnalysisResultsView)
-  const solicitationId = cbaData?.data?.solicitation?.id;
   const { data: submissionData } = useGetSolicitationSubmission(
     solicitationId || "",
     !!solicitationId
   );
+
+  // Debug full solicitation data
+  if (fullSolicitation?.data) {
+    console.log("🔍 Full Solicitation Data:", fullSolicitation);
+    console.log("🔍 Full Solicitation Data Structure:", JSON.stringify(fullSolicitation?.data, null, 2));
+    console.log("🔍 Has purchase_request field:", !!(fullSolicitation.data as any).purchase_request);
+    console.log("🔍 Has requesting_department field:", !!(fullSolicitation.data as any).requesting_department);
+    console.log("🔍 Has solicitation_items field:", !!(fullSolicitation.data as any).solicitation_items);
+    console.log("🔍 Available fields:", Object.keys(fullSolicitation.data));
+  }
 
 
   const { data: vendors, isLoading: vendorsIsLoading } = useGetVendors({
@@ -110,7 +131,7 @@ const PurchaseOrderNew = () => {
 
   // Debug users data to see the structure
   console.log('🔍 Users data:', users);
-  console.log('🔍 First user:', users?.results?.[0]);
+  console.log('🔍 First user:', users?.data?.results?.[0] || users?.results?.[0]);
 
   const { data: item } = useGetAllItems({
     page: 1,
@@ -275,17 +296,53 @@ const PurchaseOrderNew = () => {
     if (requestsDetails?.data) {
       const prData = requestsDetails.data;
       console.log("🔍 Purchase Request Details for auto-populate:", prData);
+      console.log("🔍 PR Data keys:", Object.keys(prData));
+
+      // Log the requesting_department_detail structure
+      console.log("🔍 requesting_department_detail:", (prData as any).requesting_department_detail);
+      console.log("🔍 location_detail:", (prData as any).location_detail);
+
+      // Try multiple possible field names for department
+      const departmentId = (prData as any).requesting_department ||
+                          (prData as any).requesting_department_id ||
+                          (prData as any).requesting_department_detail?.id ||  // Try nested ID
+                          (prData as any).department ||
+                          (prData as any).department_id ||
+                          (prData as any).requesting_unit;
+
+      console.log("🔍 Extracted department ID:", departmentId);
+
+      // Try to extract location for delivery
+      const locationName = (prData as any).location_detail?.name ||
+                          (prData as any).location_detail?.location_name ||
+                          (prData as any).location ||
+                          "";
+
+      console.log("🔍 Extracted location:", locationName);
 
       // Set department from purchase request
-      if (prData.requesting_department) {
-        console.log("🔍 Setting department:", prData.requesting_department);
-        setRequestValue(prData.requesting_department);
+      if (departmentId) {
+        console.log("🔍 Setting department from PR:", departmentId);
+        setRequestValue(departmentId);
+      } else {
+        console.warn("⚠️ No department field found in Purchase Request");
+        console.warn("⚠️ Available fields:", Object.keys(prData));
+        console.warn("⚠️ requesting_department value:", (prData as any).requesting_department);
+        console.warn("⚠️ requesting_department_detail value:", (prData as any).requesting_department_detail);
       }
 
-      // Note: payment_terms and delivery_lead_time don't exist in PurchaseRequestResultsData
-      // These fields should be manually entered by the user
+      // Set delivery location from purchase request
+      if (locationName) {
+        console.log("🔍 Setting delivery location from PR:", locationName);
+        setValue("delivery_lead_time", locationName);
+      } else {
+        console.warn("⚠️ No location found in Purchase Request");
+      }
+
+      // Note: payment_terms doesn't exist in PurchaseRequestResultsData
+      // This field should be manually entered by the user (or come from CBA vendor submission)
     }
-  }, [requestsDetails]);
+  }, [requestsDetails, setValue]);
 
   const { fields, remove, append } = useFieldArray({
     control,
@@ -297,10 +354,12 @@ const PurchaseOrderNew = () => {
     console.log("🔍 CBA Auto-populate useEffect triggered");
     console.log("🔍 Has cbaData:", !!cbaData?.data);
     console.log("🔍 Has submissionData:", !!submissionData);
+    console.log("🔍 Has fullSolicitation:", !!fullSolicitation?.data);
     console.log("🔍 Has cbaId:", !!cbaId);
     console.log("🔍 Already populated:", cbaItemsPopulated.current);
 
-    if (cbaData?.data && submissionData && cbaId && !cbaItemsPopulated.current) {
+    // Wait for ALL required data before processing
+    if (cbaData?.data && submissionData && fullSolicitation?.data && cbaId && !cbaItemsPopulated.current) {
       console.log("🔍 CBA Data for PO:", cbaData.data);
       console.log("🔍 Submission Data for PO:", submissionData);
 
@@ -338,19 +397,32 @@ const PurchaseOrderNew = () => {
         setVendorValue(actualVendorId);
       }
 
-      // Set purchase request from solicitation
-      // The solicitation can be either a string ID or an expanded object
-      const solicitation = cbaData.data.solicitation;
+      // Set purchase request from fullSolicitation (fetched separately)
+      // Use the full solicitation data instead of the minimal one from CBA
+      const solicitation = fullSolicitation?.data || cbaData.data.solicitation;
+
+      // Try multiple paths to get purchase request ID
       const purchaseRequestId = typeof solicitation === 'object' && solicitation !== null
-        ? (solicitation as any).purchase_request
+        ? ((solicitation as any).purchase_request ||
+           (solicitation as any).purchase_request_id ||
+           (solicitation as any).pr ||
+           (solicitation as any).pr_id)
         : null;
-      console.log("🔍 Solicitation data:", solicitation);
+
+      console.log("🔍 Full Solicitation data:", solicitation);
       console.log("🔍 Purchase Request ID from solicitation:", purchaseRequestId);
 
       if (purchaseRequestId) {
+        console.log("🔍 Setting purchase request value:", purchaseRequestId);
         setPurchaseValue(purchaseRequestId);
-        // This will trigger the useEffect that fetches PR details and populates department
+        setValue("purchase_request", purchaseRequestId);
+        // This will trigger the useEffect that fetches PR details and auto-populates department
+      } else {
+        console.warn("⚠️ No purchase request ID found in solicitation");
       }
+
+      // Note: Department will be populated automatically by the requestsDetails useEffect
+      // once the Purchase Request data is fetched
 
       // Extract payment terms and delivery from selected vendor submission
       const paymentTerms = selectedVendor.payment_terms || selectedVendor.payment_term || "";
@@ -376,23 +448,56 @@ const PurchaseOrderNew = () => {
       console.log("🔍 Filtered selected bid items:", selectedBidItems);
 
       if (selectedBidItems.length > 0) {
+        // Get solicitation items to extract item details - use fullSolicitation data
+        const solicitationItems = fullSolicitation?.data?.solicitation_items ||
+                                 (typeof solicitation === 'object' ? (solicitation as any)?.solicitation_items : []) ||
+                                 [];
+        console.log("🔍 Solicitation items for reference:", solicitationItems);
+
         const mappedItems = selectedBidItems.map((bidItem: any) => {
           console.log("🔍 Processing bid item:", bidItem);
 
-          const quantity = parseFloat(bidItem.solicitation_item_quantity || 0);
+          const quantity = parseFloat(bidItem.solicitation_item_quantity || bidItem.quantity || 0);
           const unitPrice = parseFloat(bidItem.unit_price || 0);
           const total = parseFloat(bidItem.total_price || (quantity * unitPrice));
 
-          // Get the actual item ID from solicitation_item or fallback to id
-          const itemId = bidItem.solicitation_item || bidItem.id;
+          // Get the solicitation item ID
+          const solicitationItemId = bidItem.solicitation_item;
+          console.log("🔍 Looking for solicitation item ID:", solicitationItemId);
+
+          // Find matching solicitation item to get full item details
+          const matchingSolicitationItem = solicitationItems.find((si: any) => si.id === solicitationItemId);
+          console.log("🔍 Matching solicitation item:", matchingSolicitationItem);
+
+          // Extract item details from solicitation item
+          const itemName = matchingSolicitationItem?.item_detail?.name ||
+                          matchingSolicitationItem?.item?.name ||
+                          matchingSolicitationItem?.description ||
+                          bidItem.item_name ||
+                          "Item";
+
+          const itemUom = matchingSolicitationItem?.item_detail?.uom ||
+                         matchingSolicitationItem?.item?.uom ||
+                         matchingSolicitationItem?.uom ||
+                         bidItem.uom ||
+                         "";
+
+          // Get the actual item ID from the item structure
+          const actualItemId = matchingSolicitationItem?.item ||
+                              matchingSolicitationItem?.item_detail?.id ||
+                              solicitationItemId;
+
+          console.log("🔍 Extracted - Name:", itemName, "UOM:", itemUom, "Item ID:", actualItemId);
 
           return {
-            description: itemId || "",
+            description: actualItemId || "",
+            name: itemName,
             quantity: quantity,
             unit_cost: unitPrice,
-            total: total,
+            total: total.toString(),
             fco_number: [],
-            uom: "", // UOM will be populated from item details if needed
+            uom: itemUom,
+            item_id: actualItemId,
           };
         });
 
@@ -422,20 +527,32 @@ const PurchaseOrderNew = () => {
       // Set CBA ID in form (if your schema supports it)
       setValue("cba" as any, cbaId);
     }
-  }, [cbaData, submissionData, cbaId, vendorIdFromUrl, append, setValue]);
+  }, [cbaData, submissionData, fullSolicitation, cbaId, vendorIdFromUrl, append, setValue, form]);
 
   useEffect(() => {
     setValue("items", fields);
   }, []);
 
   const onSubmit = async (data: z.infer<typeof PurchaseOrderListSchema>) => {
+    console.log("📝 Form submission started");
     console.log("📝 Form submission data:", data);
+    console.log("📝 Form errors:", form.formState.errors);
+
+    // Check required fields
+    console.log("📝 Validation check:");
+    console.log("  - purchase_request:", data?.purchase_request ? "✅" : "❌ MISSING");
+    console.log("  - vendor:", vendorValue ? "✅" : "❌ MISSING");
+    console.log("  - reviewed_by:", data?.reviewed_by ? "✅" : "❌ MISSING");
+    console.log("  - authorized_by:", data?.authorized_by ? "✅" : "❌ MISSING");
+    console.log("  - approved_by:", data?.approved_by ? "✅" : "❌ MISSING");
+    console.log("  - items:", data?.items?.length > 0 ? "✅" : "❌ MISSING");
 
     // Transform data to match PurchaseOrderSchema format
     const formData = {
       purchase_request: data?.purchase_request,
       vendor: vendorValue,
       ...(cbaId && { cba: cbaId }), // Include CBA ID if creating from CBA
+      ...(solicitationId && { solicitation: solicitationId }), // Include Solicitation ID for RFQ link
       // Approval workflow fields
       reviewed_by: data?.reviewed_by,
       authorized_by: data?.authorized_by,
@@ -444,12 +561,19 @@ const PurchaseOrderNew = () => {
       // Payment and delivery
       ...(data?.payment_terms && { payment_terms: data.payment_terms }),
       ...(data?.delivery_lead_time && { delivery_lead_time: data.delivery_lead_time }),
-      items: data?.items.map((item) => ({
-        item_id: item?.description || "",
-        fco: item?.fco_number?.[0] || "",
-        unit_cost: item?.unit_cost || 0,
-        quantity: item?.quantity || 0,
-      })),
+      purchase_order_items: data?.items.map((item) => {
+        const unitPrice = parseFloat(String(item?.unit_cost || 0));
+        const quantity = parseFloat(String(item?.quantity || 0));
+        const totalPrice = unitPrice * quantity;
+
+        return {
+          item_id: item?.description || "",
+          fco: item?.fco_number?.[0] || "",
+          unit_price: unitPrice,
+          quantity: quantity,
+          total_price: totalPrice,
+        };
+      }),
     };
 
     console.log("📤 Sending form data:", formData);
@@ -486,6 +610,27 @@ const PurchaseOrderNew = () => {
 
       <p className="text-[24px] font-semibold">Purchase Order Form</p>
 
+      {cbaId && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="flex items-start gap-3">
+            <div className="flex-shrink-0 mt-0.5">
+              <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="flex-1">
+              <h3 className="text-sm font-semibold text-blue-900 mb-1">
+                Creating PO from CBA
+              </h3>
+              <p className="text-sm text-blue-800">
+                The Vendor, Purchase Request, and Department fields have been automatically populated from the Competitive Bid Analysis.
+                Payment Terms and Delivery Lead Time have been pre-filled from the vendor's bid submission.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           <div className="grid grid-cols-2 pt-5 gap-5">
@@ -494,13 +639,17 @@ const PurchaseOrderNew = () => {
                 Vendor <span className="text-red-500">*</span>
               </Label>
               <div>
-                <Popover open={open} onOpenChange={setOpen}>
+                <Popover open={open} onOpenChange={setOpen} modal={!cbaId}>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
                       role="combobox"
                       aria-expanded={open}
-                      className="w-full justify-between"
+                      className={cn(
+                        "w-full justify-between",
+                        cbaId && "bg-gray-100 cursor-not-allowed"
+                      )}
+                      disabled={!!cbaId}
                     >
                       {vendorValue
                         ? vendors?.data?.results?.find(
@@ -510,35 +659,37 @@ const PurchaseOrderNew = () => {
                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-full p-0">
-                    <Command>
-                      <CommandInput placeholder="Search vendor..." />
-                      <CommandEmpty>No Vendor found.</CommandEmpty>
-                      <CommandGroup>
-                        {vendorsIsLoading && <LoadingSpinner />}
-                        {vendors?.data?.results?.map((vendor) => (
-                          <CommandItem
-                            key={vendor?.id}
-                            value={vendor?.id}
-                            onSelect={(currentValue) => {
-                              setVendorValue(currentValue);
-                              setOpen(false);
-                            }}
-                          >
-                            <Check
-                              className={cn(
-                                "mr-2 h-4 w-4",
-                                vendorValue === vendor?.id
-                                  ? "opacity-100"
-                                  : "opacity-0"
-                              )}
-                            />
-                            {vendor?.company_name}
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    </Command>
-                  </PopoverContent>
+                  {!cbaId && (
+                    <PopoverContent className="w-full p-0">
+                      <Command>
+                        <CommandInput placeholder="Search vendor..." />
+                        <CommandEmpty>No Vendor found.</CommandEmpty>
+                        <CommandGroup>
+                          {vendorsIsLoading && <LoadingSpinner />}
+                          {vendors?.data?.results?.map((vendor) => (
+                            <CommandItem
+                              key={vendor?.id}
+                              value={vendor?.id}
+                              onSelect={(currentValue) => {
+                                setVendorValue(currentValue);
+                                setOpen(false);
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  vendorValue === vendor?.id
+                                    ? "opacity-100"
+                                    : "opacity-0"
+                                )}
+                              />
+                              {vendor?.company_name}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </Command>
+                    </PopoverContent>
+                  )}
                 </Popover>
               </div>
             </div>
@@ -548,53 +699,59 @@ const PurchaseOrderNew = () => {
                 <span className="text-red-500">*</span>
               </Label>
               <div>
-                <Popover open={opensPurchase} onOpenChange={setOpensPurchase}>
+                <Popover open={opensPurchase} onOpenChange={setOpensPurchase} modal={!cbaId}>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
                       role="combobox"
                       aria-expanded={opensPurchase}
-                      className="w-full justify-between"
+                      className={cn(
+                        "w-full justify-between",
+                        cbaId && "bg-gray-100 cursor-not-allowed"
+                      )}
+                      disabled={!!cbaId}
                     >
                       {purchaseValue
                         ? requests?.data?.results?.find(
                             (vendor) => vendor?.id === purchaseValue
                           )?.ref_number
-                        : "Select vendor..."}
+                        : "Select purchase request..."}
                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-full p-0">
-                    <Command>
-                      <CommandInput placeholder="Search vendor..." />
-                      <CommandEmpty>No Vendor found.</CommandEmpty>
-                      <CommandGroup>
-                        {requestsIsLoading && <LoadingSpinner />}
-                        {requests?.data?.results?.map((request) => {
-                          return (
-                            <CommandItem
-                              key={request?.id}
-                              value={request?.id}
-                              onSelect={(currentValue) => {
-                                setPurchaseValue(currentValue);
-                                setOpensPurchase(false);
-                              }}
-                            >
-                              <Check
-                                className={cn(
-                                  "mr-2 h-4 w-4",
-                                  purchaseValue === request?.id
-                                    ? "opacity-100"
-                                    : "opacity-0"
-                                )}
-                              />
-                              {request?.ref_number}
-                            </CommandItem>
-                          );
-                        })}
-                      </CommandGroup>
-                    </Command>
-                  </PopoverContent>
+                  {!cbaId && (
+                    <PopoverContent className="w-full p-0">
+                      <Command>
+                        <CommandInput placeholder="Search purchase request..." />
+                        <CommandEmpty>No Purchase Request found.</CommandEmpty>
+                        <CommandGroup>
+                          {requestsIsLoading && <LoadingSpinner />}
+                          {requests?.data?.results?.map((request) => {
+                            return (
+                              <CommandItem
+                                key={request?.id}
+                                value={request?.id}
+                                onSelect={(currentValue) => {
+                                  setPurchaseValue(currentValue);
+                                  setOpensPurchase(false);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    purchaseValue === request?.id
+                                      ? "opacity-100"
+                                      : "opacity-0"
+                                  )}
+                                />
+                                {request?.ref_number}
+                              </CommandItem>
+                            );
+                          })}
+                        </CommandGroup>
+                      </Command>
+                    </PopoverContent>
+                  )}
                 </Popover>
               </div>
             </div>
@@ -604,60 +761,66 @@ const PurchaseOrderNew = () => {
                 <span className="text-red-500">*</span>
               </Label>
               <div>
-                <Popover open={opens} onOpenChange={setOpens}>
+                <Popover open={opens} onOpenChange={setOpens} modal={!cbaId}>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
                       role="combobox"
                       aria-expanded={opens}
-                      className="w-full justify-between"
+                      className={cn(
+                        "w-full justify-between",
+                        cbaId && "bg-gray-100 cursor-not-allowed"
+                      )}
+                      disabled={!!cbaId}
                     >
                       {requestValue
                         ? departments?.data?.results?.find(
                             (vendor) => vendor?.id === requestValue
                           )?.name
-                        : "Select vendor..."}
+                        : "Select department..."}
                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-full p-0">
-                    <Command>
-                      <CommandInput placeholder="Search vendor..." />
-                      <CommandEmpty>No Vendor found.</CommandEmpty>
-                      <CommandGroup>
-                        {departmentsIsLoading && <LoadingSpinner />}
-                        {departments?.data?.results?.map((request) => {
-                          return (
-                            <CommandItem
-                              key={request?.id}
-                              value={request?.id}
-                              onSelect={(currentValue) => {
-                                setRequestValue(currentValue);
-                                setOpens(false);
-                              }}
-                            >
-                              <Check
-                                className={cn(
-                                  "mr-2 h-4 w-4",
-                                  requestValue === request?.id
-                                    ? "opacity-100"
-                                    : "opacity-0"
-                                )}
-                              />
-                              {request?.name}
-                            </CommandItem>
-                          );
-                        })}
-                      </CommandGroup>
-                    </Command>
-                  </PopoverContent>
+                  {!cbaId && (
+                    <PopoverContent className="w-full p-0">
+                      <Command>
+                        <CommandInput placeholder="Search department..." />
+                        <CommandEmpty>No Department found.</CommandEmpty>
+                        <CommandGroup>
+                          {departmentsIsLoading && <LoadingSpinner />}
+                          {departments?.data?.results?.map((request) => {
+                            return (
+                              <CommandItem
+                                key={request?.id}
+                                value={request?.id}
+                                onSelect={(currentValue) => {
+                                  setRequestValue(currentValue);
+                                  setOpens(false);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    requestValue === request?.id
+                                      ? "opacity-100"
+                                      : "opacity-0"
+                                  )}
+                                />
+                                {request?.name}
+                              </CommandItem>
+                            );
+                          })}
+                        </CommandGroup>
+                      </Command>
+                    </PopoverContent>
+                  )}
                 </Popover>
               </div>
             </div>
           </div>
           <div className="grid grid-cols-2 pt-5 gap-5">
             <FormInput name="payment_terms" label="Payment Terms" />
-            <FormInput name="delivery_lead_time" label="Delivery" />
+            <FormInput name="delivery_lead_time" label="Delivery Location" />
           </div>
 
           <div className="mt-10">
@@ -695,11 +858,14 @@ const PurchaseOrderNew = () => {
                       </span>
                     </td>
                     <td className="w-fit p-2 text-center">
-                      {/* <FormInput
-                        placeholder='Enter Description'
-                        name={`items.[${index}].description`}
-                      /> */}
-                      {!data || data?.length < index + 1 ? (
+                      {/* Show item name if from CBA or PR with existing items, otherwise show dropdown */}
+                      {(cbaId && field.name) || (!cbaId && data && data?.length > index) ? (
+                        <FormInput
+                          name={`items.${index}.name`}
+                          disabled={!!cbaId}
+                          className={cbaId ? "bg-gray-100" : ""}
+                        />
+                      ) : (
                         <FormSelect
                           name={`items.${index}.description`}
                           options={itemOptions}
@@ -729,8 +895,6 @@ const PurchaseOrderNew = () => {
                             }
                           }}
                         />
-                      ) : (
-                        <FormInput name={`items.${index}.name`} />
                       )}
                     </td>
                     <td className="w-fit p-2 text-center">
@@ -893,7 +1057,7 @@ const PurchaseOrderNew = () => {
                           >
                             {field.value
                               ? (() => {
-                                  const user = users?.results?.find(
+                                  const user = (users?.data?.results || users?.results)?.find(
                                     (user) => user.id === field.value
                                   );
                                   return user
@@ -912,7 +1076,7 @@ const PurchaseOrderNew = () => {
                           <CommandGroup>
                             {usersIsLoading && <LoadingSpinner />}
                             {!usersIsLoading &&
-                              users?.results?.filter(user => user && user.id && (user.first_name || user.last_name))?.map((user) => {
+                              (users?.data?.results || (users?.data?.results || users?.results))?.filter(user => user && user.id && (user.first_name || user.last_name))?.map((user) => {
                                 const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim();
                                 return (
                                   <CommandItem
@@ -963,7 +1127,7 @@ const PurchaseOrderNew = () => {
                           >
                             {field.value
                               ? (() => {
-                                  const user = users?.results?.find(
+                                  const user = (users?.data?.results || users?.results)?.find(
                                     (user) => user.id === field.value
                                   );
                                   return user
@@ -982,7 +1146,7 @@ const PurchaseOrderNew = () => {
                           <CommandGroup>
                             {usersIsLoading && <LoadingSpinner />}
                             {!usersIsLoading &&
-                              users?.results?.filter(user => user && user.id && (user.first_name || user.last_name))?.map((user) => {
+                              (users?.data?.results || users?.results)?.filter(user => user && user.id && (user.first_name || user.last_name))?.map((user) => {
                                 const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim();
                                 return (
                                   <CommandItem
@@ -1033,7 +1197,7 @@ const PurchaseOrderNew = () => {
                           >
                             {field.value
                               ? (() => {
-                                  const user = users?.results?.find(
+                                  const user = (users?.data?.results || users?.results)?.find(
                                     (user) => user.id === field.value
                                   );
                                   return user
@@ -1052,7 +1216,7 @@ const PurchaseOrderNew = () => {
                           <CommandGroup>
                             {usersIsLoading && <LoadingSpinner />}
                             {!usersIsLoading &&
-                              users?.results?.filter(user => user && user.id && (user.first_name || user.last_name))?.map((user) => {
+                              (users?.data?.results || users?.results)?.filter(user => user && user.id && (user.first_name || user.last_name))?.map((user) => {
                                 const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim();
                                 return (
                                   <CommandItem
@@ -1105,7 +1269,7 @@ const PurchaseOrderNew = () => {
                           >
                             {field.value
                               ? (() => {
-                                  const user = users?.results?.find(
+                                  const user = (users?.data?.results || users?.results)?.find(
                                     (user) => user.id === field.value
                                   );
                                   return user
@@ -1124,7 +1288,7 @@ const PurchaseOrderNew = () => {
                           <CommandGroup>
                             {usersIsLoading && <LoadingSpinner />}
                             {!usersIsLoading &&
-                              users?.results?.filter(user => user && user.id && (user.first_name || user.last_name))?.map((user) => {
+                              (users?.data?.results || users?.results)?.filter(user => user && user.id && (user.first_name || user.last_name))?.map((user) => {
                                 const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim();
                                 return (
                                   <CommandItem
@@ -1157,7 +1321,51 @@ const PurchaseOrderNew = () => {
             </div>
           </div>
 
-          <div className="flex items-center justify-end mt-6">
+          <div className="flex items-center justify-end mt-6 gap-4">
+            {/* Debug Button - Remove after testing */}
+            <Button
+              type="button"
+              variant="outline"
+              onClick={async () => {
+                const values = form.getValues();
+                console.log("🔍 DEBUG: Current form values:", values);
+                console.log("🔍 DEBUG: Form errors:", form.formState.errors);
+                console.log("🔍 DEBUG: Item errors:", form.formState.errors.items);
+                console.log("🔍 DEBUG: First item data:", values.items?.[0]);
+                console.log("🔍 DEBUG: All items data:", values.items);
+                console.log("🔍 DEBUG: Approval workflow fields:");
+                console.log("  - reviewed_by:", values.reviewed_by || "❌ MISSING");
+                console.log("  - authorized_by:", values.authorized_by || "❌ MISSING");
+                console.log("  - approved_by:", values.approved_by || "❌ MISSING");
+                console.log("  - agreed_by:", values.agreed_by || "Not set (optional)");
+                console.log("🔍 DEBUG: Is form valid:", form.formState.isValid);
+                console.log("🔍 DEBUG: vendorValue:", vendorValue);
+                console.log("🔍 DEBUG: purchaseValue:", purchaseValue);
+                console.log("🔍 DEBUG: requestValue (department):", requestValue);
+
+                // Try validating the form
+                console.log("🔍 DEBUG: Triggering validation...");
+                const isValid = await form.trigger();
+                console.log("🔍 DEBUG: After trigger - Is valid:", isValid);
+                console.log("🔍 DEBUG: After trigger - Errors:", form.formState.errors);
+              }}
+            >
+              Debug Form
+            </Button>
+
+            {/* Force Submit Button - Remove after testing */}
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={async () => {
+                console.log("🔥 FORCE SUBMIT: Bypassing form validation");
+                const values = form.getValues();
+                await onSubmit(values as any);
+              }}
+            >
+              Force Submit
+            </Button>
+
             {/* <Link href={generatePath(RouteEnum.PURCHASE_ORDER)}> */}
             <FormButton
               loading={creatingOrder}
