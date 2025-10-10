@@ -44,23 +44,13 @@ export default function TeamMemberSelection({
     size: 2000000,
   });
 
-  // Combine users from both sources
+  // IMPORTANT FIX: Only use users from user table, NOT employee database
+  // The vehicle request backend expects user IDs, not employee IDs
+  // If we include employees, their IDs won't be found in the user table
+  // and will cause "Invalid pk - object does not exist" errors
   const allStaff = [
     // Users from user table (filter to exclude vendors)
     ...filterAhniStaffOnly((user?.results || []) as any[]),
-    // Employees from employee database (all are AHNI staff)
-    ...((employeeData?.data?.results || []) as any[]).map((emp: any) => ({
-      id: emp.id,
-      first_name: emp.legal_firstname || emp.first_name,
-      last_name: emp.legal_lastname || emp.last_name,
-      email: emp.email,
-      user_type: 'STAFF',
-      designation: emp.designation?.name || emp.position,
-      department: { name: emp.department?.name },
-      mobile_number: emp.phone_number || emp.mobile_number,
-      is_staff: true,
-      _source: 'employee_database'
-    }))
   ];
 
   // Remove duplicates based on email
@@ -73,6 +63,13 @@ export default function TeamMemberSelection({
   }, []);
 
   const ahniStaffUsers = uniqueStaff;
+
+  console.log("👥 Team Member Selection Debug:", {
+    totalUsers: user?.results?.length || 0,
+    filteredAhniStaff: ahniStaffUsers.length,
+    employeesIgnored: employeeData?.data?.results?.length || 0,
+    sampleUser: ahniStaffUsers[0]
+  });
 
   const filteredUsers = ahniStaffUsers.filter(
     (member: any) =>
