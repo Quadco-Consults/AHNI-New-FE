@@ -16,6 +16,7 @@ import { DialogType, largeDailogScreen } from "constants/dailogs";
 // import { userSelector } from "store/assets";
 import { toast } from "sonner";
 import { useGetAllUsersQuery, useGetUserProfile } from "@/features/auth/controllers/userController";
+import { filterAhniStaffOnly } from "@/utils/userFilters";
 // import { useGetAllLocationsQuery } from "@/features/modules/controllers/config/locationController";
 import {
   TVehicleRequestFormValues,
@@ -131,10 +132,19 @@ const NewVehicleRequest = () => {
   const userOptions = useMemo(
     () => {
       const allUsers = (user as any)?.data?.results || user?.results || [];
-      // Filter to only AHNI staff/admin users
-      const ahniUsers = allUsers.filter((u: any) =>
-        u.user_type === "AHNI" || u.user_type === "STAFF" || u.user_type === "ADMIN"
-      );
+      console.log("👤 Supervisor Filter Debug:", {
+        totalUsers: allUsers.length,
+        sampleUserTypes: allUsers.slice(0, 5).map((u: any) => ({ name: `${u.first_name} ${u.last_name}`, user_type: u.user_type }))
+      });
+
+      // Use the same filter as TeamMemberSelection for consistency
+      const ahniUsers = filterAhniStaffOnly(allUsers);
+
+      console.log("👤 After filtering:", {
+        filteredCount: ahniUsers.length,
+        sampleFiltered: ahniUsers.slice(0, 3).map((u: any) => ({ name: `${u.first_name} ${u.last_name}`, user_type: u.user_type }))
+      });
+
       return ahniUsers.map(({ first_name, last_name, id }: any) => ({
         label: `${first_name} ${last_name}`,
         value: id,
