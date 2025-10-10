@@ -101,9 +101,20 @@ const NewVehicleRequest = () => {
   console.log({ activity, activityOptions, selectedProject });
 
   // Fetch all users and filter to AHNI staff on frontend
-  const { data: user } = useGetAllUsersQuery({
+  const { data: user, isLoading: isUsersLoading, error: usersError } = useGetAllUsersQuery({
     page: 1,
     size: 2000000,
+  });
+
+  console.log("👤 Users Query Debug:", {
+    user,
+    isLoading: isUsersLoading,
+    error: usersError,
+    hasData: !!user,
+    hasResults: !!user?.results,
+    hasDataResults: !!(user as any)?.data?.results,
+    resultsLength: user?.results?.length || 0,
+    dataResultsLength: (user as any)?.data?.results?.length || 0,
   });
 
   // Fetch current user profile for auto-populating location
