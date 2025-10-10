@@ -95,6 +95,7 @@ export const useGetAllConsultancyApplicants = ({
             ...(consultant_id && { consultant_id }),
             status,
             ...(offer_accepted !== undefined && { offer_accepted }),
+            expand: 'advertisement',
           },
         });
         return response.data;

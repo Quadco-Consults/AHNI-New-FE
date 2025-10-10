@@ -131,7 +131,7 @@ export const consultantDatabaseColumns: ColumnDef<any>[] =
     },
   ];
 
-const TableMenu = ({ id }: IAdhocStaffPaginatedData) => {
+const TableMenu = (consultant: any) => {
   const [isDialogOpen, setDialogOpen] = useState(false);
 
   const { deleteConsultancyReport, isLoading } =
@@ -139,12 +139,19 @@ const TableMenu = ({ id }: IAdhocStaffPaginatedData) => {
 
   const handleDelete = async () => {
     try {
-      await deleteConsultancyReport(id)();
-      toast.success("Adhoc Staff Deleted");
+      await deleteConsultancyReport(consultant.id)();
+      toast.success("Consultant Deleted");
     } catch (error: any) {
       toast.error(error.data.message ?? "Something went wrong");
     }
   };
+
+  // Get consultancy_id from the consultant data
+  // The field is 'consultants' and it's an array with the consultancy ID
+  const consultancyId = Array.isArray(consultant.consultants) && consultant.consultants.length > 0
+    ? consultant.consultants[0]
+    : null;
+  const applicantId = consultant.id;
 
   return (
     <div className='flex items-center gap-2'>
@@ -156,41 +163,34 @@ const TableMenu = ({ id }: IAdhocStaffPaginatedData) => {
             </Button>
           </PopoverTrigger>
           <PopoverContent className='w-fit'>
-            <Link
-              href={`/dashboard/programs/adhoc-database/${id}/view`}
-            >
-              <Button
-                className='w-full flex items-center justify-start gap-2'
-                variant='ghost'
-              >
-                <EyeIcon />
-                View
-              </Button>
-            </Link>
-            <Link
-              href={`/dashboard/programs/adhoc-database/${id}/edit`}
-            >
-              <Button
-                className='w-full flex items-center justify-start gap-2'
-                variant='ghost'
-              >
-                <PencilIcon />
-                Edit
-              </Button>
-            </Link>
-            <Link
-              href={`/dashboard/programs/adhoc-database/${id}/payments`}
-            >
-              <Button
-                className='w-full flex items-center justify-start gap-2'
-                variant='ghost'
-              >
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                Payments
-              </Button>
-            </Link>
+            {consultancyId && (
+              <>
+                <Link
+                  href={CG_ROUTES.CONSULTANCY_APPLICANT_DETAILS
+                    .replace(':id', consultancyId)
+                    .replace(':applicantId', applicantId)}
+                >
+                  <Button
+                    className='w-full flex items-center justify-start gap-2'
+                    variant='ghost'
+                  >
+                    <EyeIcon />
+                    View
+                  </Button>
+                </Link>
+                <Link
+                  href={CG_ROUTES.CREATE_CONSULTANCY_APPLICANT.replace(':id', consultancyId) + `?edit=${applicantId}`}
+                >
+                  <Button
+                    className='w-full flex items-center justify-start gap-2'
+                    variant='ghost'
+                  >
+                    <PencilIcon />
+                    Edit
+                  </Button>
+                </Link>
+              </>
+            )}
             <Button
               className='w-full flex items-center justify-start gap-2'
               variant='ghost'

@@ -14,7 +14,7 @@ import { useGetAllFacilitators } from "@/features/contracts-grants/controllers/f
 export default function FacilitatorManagement() {
     const [page, setPage] = useState(1);
 
-    const { data, isFetching } = useGetAllFacilitators({
+    const { data, isFetching, error } = useGetAllFacilitators({
         page,
         size: 10,
     });
@@ -29,6 +29,20 @@ export default function FacilitatorManagement() {
                     </Button>
                 </Link>
             </div>
+
+            {error && (
+                <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <p className="text-red-800 font-medium">Error loading facilitators:</p>
+                    <p className="text-red-600 text-sm mt-1">{error?.message || "Unknown error"}</p>
+                </div>
+            )}
+
+            {!isFetching && data?.data?.results?.length === 0 && (
+                <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <p className="text-yellow-800 font-medium">No facilitators found</p>
+                    <p className="text-yellow-700 text-sm mt-1">The facilitator you added might not have been saved. Check the browser console for details.</p>
+                </div>
+            )}
 
             <Card>
                 <TableFilters>
