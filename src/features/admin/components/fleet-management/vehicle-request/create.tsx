@@ -6,6 +6,7 @@ import BackNavigation from "components/atoms/BackNavigation";
 import FormButton from "@/components/FormButton";
 import FormInput from "components/atoms/FormInput";
 import FormSelect from "components/atoms/FormSelectField";
+import FormCombobox from "components/atoms/FormCombobox";
 import { Card, CardContent } from "components/ui/card";
 import { Form } from "components/ui/form";
 import { Button } from "components/ui/button";
@@ -14,7 +15,7 @@ import { openDialog } from "store/ui";
 import { DialogType, largeDailogScreen } from "constants/dailogs";
 // import { userSelector } from "store/assets";
 import { toast } from "sonner";
-import { useGetAllUsersQuery } from "@/features/auth/controllers/userController";
+import { useGetAllUsersQuery, useGetUserProfile } from "@/features/auth/controllers/userController";
 // import { useGetAllLocationsQuery } from "@/features/modules/controllers/config/locationController";
 import {
   TVehicleRequestFormValues,
@@ -78,9 +79,13 @@ const NewVehicleRequest = () => {
     [project]
   );
 
+  // Watch the selected project to filter activities
+  const selectedProject = form.watch("project");
+
   const { data: activity } = useGetAllActivityPlansQuery({
     page: 1,
     size: 2000000,
+    project: selectedProject, // Filter activities by selected project
   });
 
   const activityOptions = useMemo(
@@ -92,9 +97,12 @@ const NewVehicleRequest = () => {
     [activity]
   );
 
-  console.log({ activity, activityOptions });
+  console.log({ activity, activityOptions, selectedProject });
 
   const { data: user } = useGetAllUsersQuery({ page: 1, size: 2000000 });
+
+  // Fetch current user profile for auto-populating location
+  const { data: currentUserProfile } = useGetUserProfile();
 
   const userOptions = useMemo(
     () =>
@@ -196,6 +204,23 @@ const NewVehicleRequest = () => {
     );
   }, [teamMembers, form]);
 
+  // Auto-populate location from logged-in user's profile
+  useEffect(() => {
+    if (currentUserProfile?.data?.location && !id) {
+      // Only auto-populate if creating a new request (not editing)
+      console.log("🔍 Auto-populating location from user profile:", currentUserProfile.data.location);
+      form.setValue("location", currentUserProfile.data.location);
+    }
+  }, [currentUserProfile, form, id]);
+
+  // Reset activity field when project changes
+  useEffect(() => {
+    if (selectedProject && !id) {
+      // Only reset if creating a new request (not editing)
+      form.setValue("activity", "");
+    }
+  }, [selectedProject, form, id]);
+
   const { data: vehicleRequest } = useGetSingleVehicleRequestQuery(
     id || "",
     !!id
@@ -267,11 +292,12 @@ const NewVehicleRequest = () => {
                 className='grid grid-cols-2 gap-10'
               >
                 <FormSelect
-                  label='Location'
+                  label='Location (Auto-filled from your profile)'
                   name='location'
                   placeholder='Select Location'
                   required
                   options={locationOptions}
+                  disabled={!id && !!currentUserProfile?.data?.location}
                 />
 
                 <FormSelect
@@ -285,9 +311,10 @@ const NewVehicleRequest = () => {
                 <FormSelect
                   label='Activity'
                   name='activity'
-                  placeholder='Select Activity'
+                  placeholder={selectedProject ? 'Select Activity' : 'Select a project first'}
                   required
                   options={activityOptions}
+                  disabled={!selectedProject}
                 />
 
                 <FormSelect
@@ -412,12 +439,14 @@ const NewVehicleRequest = () => {
                   Click to select team members
                 </Button>
 
-                <FormSelect
+                <FormCombobox
                   label='Supervisor'
                   name='supervisor'
                   placeholder='Select Supervisor'
+                  searchPlaceholder='Search supervisor...'
                   required
                   options={userOptions}
+                  emptyText='No supervisor found.'
                 />
                 <FormTextArea
                   label='Recommendations'
