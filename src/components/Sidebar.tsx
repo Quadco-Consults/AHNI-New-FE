@@ -829,7 +829,7 @@ const getDeparmentalLinks = () => {
           path: "/dashboard/admin/solicitation-management",
           sublinks: [
             {
-              name: "RFQ",
+              name: "Request For Quotation",
               path: "/dashboard/admin/solicitation-management/rfq",
             },
           ],

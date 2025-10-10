@@ -27,7 +27,7 @@ import { LoadingSpinner } from "components/Loading";
 const RFQItemSchema = z.object({
   item: z.string().uuid().optional(),
   description: z.string().min(1, "Item description is required"),
-  quantity: z.string().min(1, "Quantity is required"),
+  quantity: z.union([z.string().min(1, "Quantity is required"), z.number().positive("Quantity must be positive")]),
   unit: z.string().min(1, "Unit is required"),
   specifications: z.string().optional(),
   lot: z.string().optional(), // Optional lot field
@@ -88,7 +88,14 @@ const Items = () => {
       try {
         const parsed = JSON.parse(storedData);
         setQuotationData(parsed);
-        console.log("📋 Loaded quotation data:", parsed);
+        console.log("📋 Loaded quotation data from sessionStorage:", parsed);
+        console.log("🔍 Selected vendors field from sessionStorage:", {
+          selected_vendors: parsed.selected_vendors,
+          tender_type: parsed.tender_type,
+          vendorCount: parsed.selected_vendors?.length || 0,
+          hasVendors: !!(parsed.selected_vendors && parsed.selected_vendors.length > 0),
+          allKeys: Object.keys(parsed)
+        });
       } catch (error) {
         console.error("Error parsing quotation data:", error);
       }
@@ -145,7 +152,7 @@ const Items = () => {
 
           const transformedItem: any = {
             item: item.item, // UUID of the item
-            quantity: parseInt(item.quantity),
+            quantity: typeof item.quantity === 'string' ? parseInt(item.quantity) : item.quantity,
             description: item.description, // Keep description for reference
             specification: item.specifications || "", // Keep specifications
           };
@@ -172,6 +179,25 @@ const Items = () => {
       };
 
       console.log("🚀 Creating RFQ with complete data:", finalData);
+      console.log("🔍 Selected vendors field tracking:", {
+        selectedVendorsInQuotationData: quotationData?.selected_vendors,
+        selectedVendorsInFinalData: finalData.selected_vendors,
+        tenderTypeInQuotationData: quotationData?.tender_type,
+        tenderTypeInFinalData: finalData.tender_type,
+        isSingleOrClosedSource: ["SINGLE SOURCE", "CLOSED SOURCE"].includes(finalData.tender_type),
+        vendorCount: finalData.selected_vendors?.length || 0,
+        allKeysInFinalData: Object.keys(finalData)
+      });
+
+      // Verify selected_vendors field is present for SINGLE SOURCE and CLOSED SOURCE
+      if (["SINGLE SOURCE", "CLOSED SOURCE"].includes(finalData.tender_type)) {
+        console.log("⚠️ SINGLE/CLOSED SOURCE RFQ - Vendors must be present!");
+        if (!finalData.selected_vendors || finalData.selected_vendors.length === 0) {
+          console.error("❌ ERROR: selected_vendors field is missing or empty for SINGLE/CLOSED SOURCE RFQ!");
+        } else {
+          console.log(`✅ Selected vendors field is present with ${finalData.selected_vendors.length} vendor(s):`, finalData.selected_vendors);
+        }
+      }
 
       // Create RFQ using the API (cast to any to handle extended schema)
       const result = await createSolicitation(finalData as any);

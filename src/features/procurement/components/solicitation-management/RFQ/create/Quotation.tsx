@@ -111,6 +111,8 @@ const Quotation = () => {
       background: "",
       request_type: "",
       tender_type: "",
+      job_category: "SERVICES",
+      selected_vendors: [], // Changed from vendor to selected_vendors (array)
       purchase_request: "",
       eoi_tender: "",
       categories: [],
@@ -237,6 +239,12 @@ const Quotation = () => {
     sessionStorage.setItem("rfqQuotationFormData", JSON.stringify(dataWithEoi));
 
     console.log("📝 RFQ Quotation Data Saved:", dataWithEoi);
+    console.log("🔍 Selected vendors field specifically:", {
+      selected_vendors: data.selected_vendors,
+      tender_type: data.tender_type,
+      vendorCount: data.selected_vendors?.length || 0,
+      allFields: Object.keys(data)
+    });
 
     // Navigate to items page - replace quotation with items in the path
     let path = pathname?.replace("/quotation", "/items") || "";
@@ -417,19 +425,45 @@ const Quotation = () => {
 
             <div className="grid grid-cols-2 gap-6">
               {["CLOSED SOURCE", "SINGLE SOURCE"].includes(tender_type) && (
-                <FormSelect name="vendor" label="Vendor" required>
-                  <SelectContent>
-                    {vendorsIsLoading && <LoadingSpinner />}
-                    {/* @ts-ignore */}
-                    {vendors?.data?.results?.map(
-                      (vendor: VendorsResultsData) => (
-                        <SelectItem key={vendor?.id} value={String(vendor?.id)}>
-                          {vendor?.company_name}
-                        </SelectItem>
-                      )
+                <div className="space-y-2">
+                  <FormField
+                    control={form.control}
+                    name="selected_vendors"
+                    render={({ field }) => (
+                      <FormItem>
+                        <label className="text-sm font-medium">
+                          Select Vendors <span className="text-red-500">*</span>
+                        </label>
+                        <FormControl>
+                          <select
+                            multiple
+                            className="flex h-32 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                            value={field.value || []}
+                            onChange={(e) => {
+                              const selected = Array.from(
+                                e.target.selectedOptions,
+                                (option) => option.value
+                              );
+                              field.onChange(selected);
+                            }}
+                          >
+                            {vendorsIsLoading && <option disabled>Loading vendors...</option>}
+                            {/* @ts-ignore */}
+                            {vendors?.data?.results?.map((vendor: VendorsResultsData) => (
+                              <option key={vendor?.id} value={String(vendor?.id)}>
+                                {vendor?.company_name}
+                              </option>
+                            ))}
+                          </select>
+                        </FormControl>
+                        <p className="text-xs text-muted-foreground">
+                          Hold Ctrl/Cmd to select multiple vendors. Selected: {field.value?.length || 0}
+                        </p>
+                        <FormMessage />
+                      </FormItem>
                     )}
-                  </SelectContent>
-                </FormSelect>
+                  />
+                </div>
               )}
 
               <FormSelect
@@ -458,6 +492,19 @@ const Quotation = () => {
                       {label}
                     </SelectItem>
                   ))}
+                </SelectContent>
+              </FormSelect>
+            </div>
+
+            <div className="grid grid-cols-2 gap-6">
+              <FormSelect
+                name="job_category"
+                label="Job Category"
+                required
+              >
+                <SelectContent>
+                  <SelectItem value="GOODS">Goods</SelectItem>
+                  <SelectItem value="SERVICES">Services</SelectItem>
                 </SelectContent>
               </FormSelect>
             </div>
