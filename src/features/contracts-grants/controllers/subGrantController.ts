@@ -64,6 +64,7 @@ export const useGetAllSubGrants = ({
             size,
             ...(search && { search }),
             ...(status && { status }),
+            expand: 'locations,business_unit',
           },
         });
         return response.data;
@@ -83,10 +84,11 @@ export const useGetSingleSubGrant = (id: string, enabled: boolean = true) => {
     queryKey: ["subGrant", id],
     queryFn: async () => {
       try {
-        // Try with expand parameter to get related grant data
+        // Try with expand parameter to get related grant/project data
+        // Note: Backend doesn't expand locations, they come as IDs in the base response
         const response = await AxiosWithToken.get(`${BASE_URL}${id}`, {
           params: {
-            expand: 'grant,sub_grant_administrator,technical_staff'
+            expand: 'grant,project,sub_grant_administrator,technical_staff'
           }
         });
         return response.data;

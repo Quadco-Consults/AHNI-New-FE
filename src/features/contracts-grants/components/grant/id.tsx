@@ -15,7 +15,7 @@ import { LoadingSpinner } from "components/Loading";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
 import { skipToken } from "@reduxjs/toolkit/query";
 import ObligationHistory from "./_components/ObligationHistory";
-// import { useGetSingleGrant } from "@/features/contracts-grants/controllers/grant/grant";
+import { useGetSingleGrant } from "@/features/contracts-grants/controllers/grantController";
 import { useGetSingleProject } from "@/features/projects/controllers/projectController";
 
 const GrantDetails: React.FC = () => {
@@ -25,9 +25,17 @@ const GrantDetails: React.FC = () => {
   const grantId =
     typeof id === "string" ? id : Array.isArray(id) ? id[0] : undefined;
 
-  const { data, isLoading } = useGetSingleProject(id ?? skipToken);
+  const { data: projectData, isLoading } = useGetSingleProject(id ?? skipToken);
+  const { data: grantData } = useGetSingleGrant(grantId ?? skipToken);
 
-  //   const { data } = useGetSingleGrant(id ?? skipToken);
+  // Merge project and grant data, prioritizing grant data for grant-specific fields
+  const data = grantData ? {
+    ...projectData,
+    data: {
+      ...projectData?.data,
+      ...grantData?.data,
+    }
+  } : projectData;
 
   const dispatch = useAppDispatch();
 

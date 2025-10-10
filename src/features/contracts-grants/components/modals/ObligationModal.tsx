@@ -2,10 +2,9 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "@/components/FormButton";
-import FormInput from "components/atoms/FormInput";
-// import FormSelect from "components/atoms/FormSelect";
-import FormTextArea from "components/atoms/FormTextArea";
-import { Form } from "components/ui/form";
+import FormInput from "@/components/FormInput";
+import FormTextArea from "@/components/FormTextArea";
+import { Form } from "@/components/ui/form";
 import {
   IObligationPaginatedData,
   ObligationSchema,
@@ -20,11 +19,13 @@ import {
 import { toast } from "sonner";
 import { closeDialog } from "store/ui";
 
-export default function AObligationModal() {
+export default function ObligationModal() {
   const { dialogProps } = useAppSelector((state) => state.ui.dailog);
 
   const obligation =
     dialogProps?.obligation as unknown as IObligationPaginatedData;
+
+  const grantId = dialogProps?.grantId as string;
 
   const form = useForm<TObligationFormData>({
     resolver: zodResolver(ObligationSchema),
@@ -35,9 +36,6 @@ export default function AObligationModal() {
   });
 
   const dispatch = useAppDispatch();
-
-  const grantId = dialogProps?.grantId as string;
-  
 
   const { createObligation, isLoading: isCreateLoading } =
     useCreateObligation(grantId || "");
@@ -50,13 +48,13 @@ export default function AObligationModal() {
       toast.error("Grant ID is required");
       return;
     }
-    
+
     try {
       if (obligation?.id) {
         await updateObligation(data);
+        toast.success("Obligation Updated");
       } else {
         await createObligation(data);
-
         toast.success("Obligation Created");
       }
 
@@ -69,16 +67,7 @@ export default function AObligationModal() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-5'>
-        {/* <FormSelect
-          label='Project'
-          name='amount'
-          placeholder='Select Project'
-          required
-          options={[]}
-        /> */}
-
         <FormInput
-          type='number'
           label='Amount'
           name='amount'
           placeholder='Enter Amount'

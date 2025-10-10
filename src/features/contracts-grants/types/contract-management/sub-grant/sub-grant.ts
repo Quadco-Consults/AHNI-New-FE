@@ -33,7 +33,7 @@ export interface ISubGrantPaginatedData {
     updated_datetime: string;
     title: string;
     award_type: string;
-    business_unit: string;
+    business_unit: string | { id: string; name: string; [key: string]: any };
     amount_usd: string;
     amount_ngn: string;
     start_date: string;
@@ -46,7 +46,7 @@ export interface ISubGrantPaginatedData {
     created_by: string | null;
     updated_by: string | null;
     grant: string;
-    locations: TLocationData[];
+    locations: TLocationData[] | string[];
 }
 
 export interface ISubGrantSingleData {
