@@ -176,6 +176,7 @@ const NewVehicleRequest = () => {
     size: 500,
     search: "",
     category: CATEGORY_IDS.VEHICLE, // b0983944-f926-4141-8e28-093960d75246
+    expand: "category,assignee,asset_type,project,donor,asset_condition,location,classification,implementer",
   });
 
   const assetVehicleOptions = useMemo(

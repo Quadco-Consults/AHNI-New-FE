@@ -40,6 +40,13 @@ const AddItems = () => {
   const { dialogProps } = useAppSelector(dailogSelector);
   const data = dialogProps?.data as unknown as TItemData;
 
+  // Helper to find parent category ID from a category
+  const findParentCategoryId = (categoryId: string | undefined) => {
+    if (!categoryId || !categories?.data?.results) return "";
+    const category = categories.data.results.find((cat: any) => cat.id === categoryId);
+    return category?.parent?.id || category?.parent || "";
+  };
+
   const form = useForm<TItemFormValues>({
     resolver: zodResolver(ItemSchema),
     defaultValues: {
@@ -47,7 +54,7 @@ const AddItems = () => {
       description: data?.description ?? "",
       uom: data?.uom ?? "",
       item_type: (data?.category as any)?.job_category ?? "",
-      parent_category: "",
+      parent_category: data ? findParentCategoryId(data?.category?.id) : "",
       category: data?.category?.id ?? "",
     },
   });
@@ -100,8 +107,13 @@ const AddItems = () => {
     return hasChildren(selectedParentCategory, allCategories);
   }, [selectedParentCategory, allCategories]);
 
-  // Reset dependent fields when parent selections change
+  // Reset dependent fields when parent selections change (only for new items, not when editing)
   useEffect(() => {
+    // Skip reset if we're editing an item and this is the initial render
+    if (dialogProps?.type === "update" && data?.category?.id) {
+      return; // Don't reset fields when editing
+    }
+
     if (selectedItemType) {
       form.setValue("parent_category", "");
       form.setValue("category", "");
@@ -109,6 +121,11 @@ const AddItems = () => {
   }, [selectedItemType]);
 
   useEffect(() => {
+    // Skip reset if we're editing an item and this is the initial render
+    if (dialogProps?.type === "update" && data?.category?.id) {
+      return; // Don't reset fields when editing
+    }
+
     if (selectedParentCategory) {
       form.setValue("category", "");
     }
@@ -121,14 +138,22 @@ const AddItems = () => {
   const dispatch = useAppDispatch();
   const onSubmit: SubmitHandler<TItemFormValues> = async (formData) => {
     try {
+      console.log("🔵 Form data submitted:", formData);
+      console.log("🔵 Selected parent category:", selectedParentCategory);
+      console.log("🔵 Parent has children:", parentHasChildren);
+
       // If parent has no children, use parent as category
       // Otherwise, subcategory selection is required
       const finalCategory = !parentHasChildren && selectedParentCategory
         ? selectedParentCategory
         : formData.category;
 
-      if (!finalCategory) {
-        toast.error("Please select a category");
+      console.log("🔵 Final category ID:", finalCategory);
+
+      // Validate category is a valid UUID (not undefined, empty, or invalid)
+      if (!finalCategory || finalCategory.trim() === "" || finalCategory === "undefined") {
+        console.error("❌ Invalid category:", finalCategory);
+        toast.error("Please select a valid category");
         return;
       }
 
@@ -140,10 +165,18 @@ const AddItems = () => {
         category: finalCategory,
       };
 
+      console.log("✅ Sending API data:", JSON.stringify(apiData, null, 2));
+
       if (dialogProps?.type === "update") {
+        if (!dialogProps?.data?.id) {
+          console.error("❌ No item ID for update");
+          toast.error("Cannot update: Item ID is missing");
+          return;
+        }
+
         await updateItems({
           //@ts-ignore
-          id: String(dialogProps?.data?.id),
+          id: String(dialogProps.data.id),
           body: apiData,
         });
         toast.success("Item Updated Successfully");
@@ -155,7 +188,15 @@ const AddItems = () => {
       dispatch(closeDialog());
       form.reset();
     } catch (error: any) {
-      toast.error(error.response?.data?.message ?? error.message ?? "Something went wrong");
+      console.error("❌ Item submission error:", error);
+      console.error("Error details:", {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
+
+      const errorMessage = error.response?.data?.message ?? error.message ?? "Something went wrong";
+      toast.error(errorMessage);
     }
   };
   return (

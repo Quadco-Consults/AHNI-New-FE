@@ -58,26 +58,26 @@ export interface ItemData {
   id: string;
   name: string;
   description?: string;
-  category?: string;
-  unit?: string;
+  category?: string | CategoryData;
+  unit?: string | number;
   created_at: string;
   updated_at: string;
-  // Asset-specific fields
-  assignee?: string;
+  // Asset-specific fields - support both string IDs and nested objects
+  assignee?: string | { id: string; full_name?: string; first_name?: string; last_name?: string };
   asset_code?: string;
-  asset_type?: string;
-  project?: string;
-  donor?: string;
+  asset_type?: string | { id: string; name?: string; model?: string };
+  project?: string | { id: string; title?: string; name?: string };
+  donor?: string | { id: string; name?: string };
   depreciation_rate?: string | number;
   acquisition_date?: string;
   state?: string;
-  asset_condition?: string;
-  location?: string;
+  asset_condition?: string | { id: string; name?: string };
+  location?: string | LocationData;
   estimated_life_span?: string;
-  classification?: string;
+  classification?: string | AssetClassificationData;
   usd_cost?: string;
   ngn_cost?: string;
-  implementer?: string;
+  implementer?: string | { id: string; full_name?: string; first_name?: string; last_name?: string };
   insurance_duration?: string;
   uom?: string;
   // Vehicle-specific fields

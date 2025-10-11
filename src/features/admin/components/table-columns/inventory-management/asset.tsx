@@ -7,14 +7,13 @@ import ConfirmationDialog from "components/ConfirmationDialog";
 import { Button } from "components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { AdminRoutes } from "constants/RouterConstants";
-import { TAssetPaginatedData } from "definations/admin/inventory-management/asset";
 import { useState } from "react";
 import Link from "next/link";
-import { useDeleteAsset } from "@/features/admin/controllers/assetController";
 import { toast } from "sonner";
 import { DeleteItemManager } from "@/features/modules/controllers";
+import { ItemData } from "@/features/modules/types/config";
 
-export const assetColumn: ColumnDef<TAssetPaginatedData>[] = [
+export const assetColumn: ColumnDef<ItemData>[] = [
   {
     header: "Asset Name",
     id: "name",
@@ -24,21 +23,28 @@ export const assetColumn: ColumnDef<TAssetPaginatedData>[] = [
   {
     header: "Asset Type",
     id: "asset_type",
-    accessorKey: "asset_type",
-    accessorFn: ({ asset_type }) => `${asset_type?.name}`,
+    accessorFn: ({ asset_type }) => {
+      if (!asset_type) return "N/A";
+      if (typeof asset_type === "string") return asset_type;
+      return asset_type.name || "N/A";
+    },
   },
 
   {
     header: "Classification",
     id: "classification",
-    accessorKey: "classification.name",
+    accessorFn: ({ classification }) => {
+      if (!classification) return "N/A";
+      if (typeof classification === "string") return classification;
+      return classification.name || "N/A";
+    },
     size: 200,
   },
 
   {
     header: "Asset Code",
     id: "asset_code",
-    accessorKey: "asset_code",
+    accessorFn: ({ asset_code }) => asset_code || "N/A",
   },
 
   //   {
@@ -50,13 +56,12 @@ export const assetColumn: ColumnDef<TAssetPaginatedData>[] = [
   {
     header: "Serial Number",
     id: "serial_number",
-    accessorKey: "category.serial_number",
+    accessorFn: ({ serial_number }) => serial_number || "N/A",
   },
 
   {
     header: "Plate Number",
     id: "plate_number",
-    accessorKey: "plate_number",
     accessorFn: ({ plate_number }) => `${plate_number || "Not Applicable"}`,
   },
 
@@ -69,31 +74,51 @@ export const assetColumn: ColumnDef<TAssetPaginatedData>[] = [
   {
     header: "Project",
     id: "project",
-    accessorKey: "project.title",
+    accessorFn: ({ project }) => {
+      if (!project) return "N/A";
+      if (typeof project === "string") return project;
+      return project.title || project.name || "N/A";
+    },
   },
 
   {
     header: "Donor",
     id: "donor",
-    accessorKey: "donor.name",
+    accessorFn: ({ donor }) => {
+      if (!donor) return "N/A";
+      if (typeof donor === "string") return donor;
+      return donor.name || "N/A";
+    },
   },
 
   {
     header: "Assignee",
     id: "assignee",
-    accessorKey: "assignee.full_name",
+    accessorFn: ({ assignee }) => {
+      if (!assignee) return "N/A";
+      if (typeof assignee === "string") return assignee;
+      return assignee.full_name || `${assignee.first_name || ""} ${assignee.last_name || ""}`.trim() || "N/A";
+    },
   },
 
   {
     header: "Asset Condition",
     id: "asset_condition",
-    accessorKey: "asset_condition.name",
+    accessorFn: ({ asset_condition }) => {
+      if (!asset_condition) return "N/A";
+      if (typeof asset_condition === "string") return asset_condition;
+      return asset_condition.name || "N/A";
+    },
   },
 
   {
     header: "Location",
     id: "location",
-    accessorKey: "location.name",
+    accessorFn: ({ location }) => {
+      if (!location) return "N/A";
+      if (typeof location === "string") return location;
+      return location.name || "N/A";
+    },
   },
 
   {
@@ -103,7 +128,7 @@ export const assetColumn: ColumnDef<TAssetPaginatedData>[] = [
   },
 ];
 
-const TableAction = ({ id }: TAssetPaginatedData) => {
+const TableAction = ({ id }: ItemData) => {
   const [isDialogOpen, setDialogOpen] = useState(false);
 
   const { deleteItem, isLoading } = DeleteItemManager();

@@ -31,10 +31,11 @@ const AddCategories = () => {
 
   const data = dialogProps?.data as unknown as TCategoryData;
 
-  // Fetch all categories for parent selection (with large size to get all)
+  // Fetch all categories for parent selection
+  // Reduced from 1000 to 100 - most orgs won't have > 100 parent categories
   const { data: allCategories, isLoading: categoriesLoading } = useGetAllCategories({
     page: 1,
-    size: 1000,
+    size: 100,
     search: "",
   });
   const form = useForm<TCategoryFormValues>({

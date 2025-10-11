@@ -7,6 +7,7 @@ const AxiosWithToken = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+  timeout: 60000, // 60 seconds timeout
 });
 
 let retryCount = 0;
@@ -85,6 +86,16 @@ AxiosWithToken.interceptors.response.use(
         baseURL: error.config?.baseURL
       }
     });
+
+    // Handle timeout errors with user-friendly message
+    if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
+      error.message = 'Request timeout - The server is taking too long to respond. Please try again.';
+    }
+
+    // Handle network errors
+    if (error.code === 'ERR_NETWORK') {
+      error.message = 'Network error - Unable to connect to the server. Please check your connection and try again.';
+    }
 
     if (error.response && error.response.status === 401) {
       console.warn('Unauthorized access - redirecting to login');

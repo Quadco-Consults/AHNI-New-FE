@@ -26,13 +26,15 @@ import { toast } from "sonner";
 import AssetRequestLayout from "./Layout";
 import { useGetAllLocationsQuery } from "@/features/modules/controllers/config/locationController";
 import { useGetAllItemsQuery } from "@/features/modules/controllers";
+import { CATEGORY_IDS } from "@/constants/categories";
 
 export default function CreateAssetRequestDetails() {
   const { data: asset } = useGetAllItemsQuery({
     page: 1,
     size: 20000000,
     search: "",
-    category: "17ca9ee7-603a-43a9-91e8-979652a8231c",
+    category: CATEGORY_IDS.VEHICLE, // Filter to show only vehicles
+    expand: "category,assignee,asset_type,project,donor,asset_condition,location,classification,implementer",
   });
 
   const { data: user } = useGetAllUsersQuery({
@@ -41,12 +43,19 @@ export default function CreateAssetRequestDetails() {
   });
 
   const assetOptions = useMemo(
-    () =>
-      // @ts-ignore
-      asset?.data.results.map(({ name, id }) => ({
+    () => {
+      console.log('🚗 Asset Request - Vehicle Data:', {
+        hasAsset: !!asset,
+        assetData: asset?.data,
+        results: asset?.data?.results,
+        resultCount: asset?.data?.results?.length
+      });
+
+      return asset?.data?.results?.map(({ name, id }) => ({
         label: name,
         value: id,
-      })),
+      })) || [];
+    },
     [asset]
   );
 

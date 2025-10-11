@@ -12,12 +12,20 @@ export const useGetAllItemsManager = ({
   enabled = true,
   category,
   category__job_category,
-}: FilterParams & { enabled?: boolean } = {}) => {
+  expand,
+}: FilterParams & { enabled?: boolean; expand?: string } = {}) => {
   return useQuery<ApiResponse<TPaginatedResponse<ItemData>>>({
-    queryKey: ["items", page, size, search, category, category__job_category],
+    queryKey: ["items", page, size, search, category, category__job_category, expand],
     queryFn: async () => {
       const response = await AxiosWithToken.get("config/items/", {
-        params: { page, size, search, category, category__job_category },
+        params: {
+          page,
+          size,
+          search,
+          category,
+          category__job_category,
+          ...(expand && { expand }),
+        },
       });
       return response.data;
     },
@@ -128,12 +136,19 @@ export const useAddItemMutation = () => {
 };
 
 export const useUpdateItemMutation = () => {
-  const { updateItem, data, isLoading, isSuccess, error } = UpdateItemManager();
-  return [
-    (params: { id: string; body: ItemFormValues }) =>
-      updateItem(params.id, params.body),
-    { data, isLoading, isSuccess, error },
-  ] as const;
+  // Use AxiosWithToken directly instead of UpdateItemManager
+  // because UpdateItemManager requires ID upfront
+  const updateItem = async (params: { id: string; body: ItemFormValues }) => {
+    try {
+      const response = await AxiosWithToken.patch(`config/items/${params.id}/`, params.body);
+      return response.data;
+    } catch (error) {
+      console.error("Item update error:", error);
+      throw error;
+    }
+  };
+
+  return [updateItem, { data: undefined, isLoading: false, isSuccess: false, error: undefined }] as const;
 };
 
 export const useDeleteItemMutation = () => {

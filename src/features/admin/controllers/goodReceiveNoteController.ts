@@ -64,12 +64,23 @@ export const useGetAllGoodReceiveNote = ({
 
         // Handle status filtering
         if (status === "pending") {
-          // For pending: no approved_datetime and no rejected_datetime
+          // For pending: no approved_datetime, no received_datetime, and no rejected_datetime
+          // This shows only newly created GRNs that haven't been processed yet
           params.approved_datetime__isnull = true;
+          params.received_datetime__isnull = true;
           params.rejected_datetime__isnull = true;
         } else if (status === "approved" || status === "accepted") {
-          // For approved/accepted: has approved_datetime
-          params.approved_datetime__isnull = false;
+          // For approved/accepted: We want items that have either approved_datetime OR received_datetime
+          // Strategy: Fetch all non-pending, non-rejected items
+          // This means: exclude items where ALL status fields are null, and exclude rejected
+          params.rejected_datetime__isnull = true;
+
+          // Don't add approved_datetime__isnull filter here
+          // Instead, we'll rely on excluding pending (done above) and client-side filtering
+          // This ensures we get both approved and received items
+
+          // Alternative: If backend supports it, we could use a status field directly
+          // But for now, we fetch broadly and filter on client side in the component
         } else if (status === "rejected") {
           // For rejected: has rejected_datetime
           params.rejected_datetime__isnull = false;
