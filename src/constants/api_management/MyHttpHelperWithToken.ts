@@ -13,9 +13,14 @@ let retryCount = 0;
 
 AxiosWithToken.interceptors.request.use(
   async (config) => {
-    // Debug: Log the full request URL
-    const url = `${config.baseURL || ''}${config.url || ''}`;
-    console.log('API Request:', config.method?.toUpperCase(), url);
+    // Debug: Log the full request URL (only in development)
+    if (process.env.NODE_ENV === 'development') {
+      const url = `${config.baseURL || ''}${config.url || ''}`;
+      // Skip logging for frequent notification polls to reduce console noise
+      if (!url.includes('/notifications')) {
+        console.log('API Request:', config.method?.toUpperCase(), url);
+      }
+    }
     if (config.data && config.url?.includes('create-committee')) {
       console.log('Committee Request Body:', JSON.stringify(config.data, null, 2));
     }

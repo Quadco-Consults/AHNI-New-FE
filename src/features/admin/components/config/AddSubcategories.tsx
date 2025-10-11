@@ -40,7 +40,7 @@ const AddSubcategories = () => {
     defaultValues: {
       name: data?.name ?? "",
       description: data?.description ?? "",
-      parent: typeof data?.parent === 'string' ? data?.parent : data?.parent?.id ?? undefined,
+      parent: typeof data?.parent === 'string' ? data?.parent : data?.parent?.id ?? "",
     },
   });
 
@@ -131,11 +131,11 @@ const AddSubcategories = () => {
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className='flex flex-col gap-y-7'
+          className='flex flex-col gap-y-4 sm:gap-y-7'
         >
-          <div className="bg-blue-50 border border-blue-200 rounded-md p-3 text-sm text-blue-800">
+          <div className="bg-blue-50 border border-blue-200 rounded-md p-2 sm:p-3 text-xs sm:text-sm text-blue-800">
             <p className="font-medium">📋 Creating a Subcategory</p>
-            <p className="text-xs mt-1">
+            <p className="text-[10px] sm:text-xs mt-1">
               Subcategories are assigned to parent categories. For example: "Fixed Assets" under "Assets" or "Medical Equipment" under "Consumables".
             </p>
           </div>
@@ -170,19 +170,19 @@ const AddSubcategories = () => {
             />
 
             {selectedParent && selectedParentData && (
-              <div className="text-sm bg-green-50 border border-green-200 rounded-md p-3">
+              <div className="text-xs sm:text-sm bg-green-50 border border-green-200 rounded-md p-2 sm:p-3">
                 <p className="font-medium text-green-800">✓ This subcategory will be under:</p>
-                <p className="text-green-700 mt-1 font-semibold">{selectedParentData.name}</p>
-                <p className="text-green-600 text-xs mt-1">
+                <p className="text-green-700 mt-1 font-semibold break-words">{selectedParentData.name}</p>
+                <p className="text-green-600 text-[10px] sm:text-xs mt-1">
                   Job Category: <span className="font-semibold">{selectedParentData.job_category}</span> (inherited from parent)
                 </p>
               </div>
             )}
 
             {parentCategoryOptions.length === 0 && !categoriesLoading && (
-              <div className="text-sm bg-yellow-50 border border-yellow-200 rounded-md p-3">
+              <div className="text-xs sm:text-sm bg-yellow-50 border border-yellow-200 rounded-md p-2 sm:p-3">
                 <p className="font-medium text-yellow-800">⚠️ No Parent Categories Available</p>
-                <p className="text-yellow-700 text-xs mt-1">
+                <p className="text-yellow-700 text-[10px] sm:text-xs mt-1">
                   You need to create a parent category first in the "Categories" tab.
                 </p>
               </div>

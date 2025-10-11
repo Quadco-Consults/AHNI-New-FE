@@ -70,8 +70,8 @@ const FormSelect = forwardRef<HTMLButtonElement, SelectProps>(({
                   externalOnValueChange(newValue);
                 }
               }}
-              value={value}
-              defaultValue={value}
+              value={value || ""}
+              defaultValue={value || ""}
               disabled={disabled}
               {...rest}
               {...props}
