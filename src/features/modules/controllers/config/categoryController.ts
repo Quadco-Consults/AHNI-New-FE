@@ -11,11 +11,11 @@ import {
 } from "../../types";
 
 // GET Operations (Queries)
-export const useGetAllCategoriesManager = ({ 
-  page = 1, 
-  size = 20, 
+export const useGetAllCategoriesManager = ({
+  page = 1,
+  size = 20,
   search = "",
-  enabled = true 
+  enabled = true
 }: FilterParams & { enabled?: boolean } = {}) => {
   return useQuery<TPaginatedResponse<CategoryData>>({
     queryKey: ["categories", page, size, search],
@@ -27,6 +27,10 @@ export const useGetAllCategoriesManager = ({
     },
     enabled,
     refetchOnWindowFocus: false,
+    staleTime: 5 * 60 * 1000, // 5 minutes - data remains fresh for 5 minutes
+    gcTime: 30 * 60 * 1000, // 30 minutes - garbage collection time (formerly cacheTime)
+    retry: 2, // Retry failed requests twice before giving up
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
   });
 };
 
@@ -48,6 +52,7 @@ export const CreateCategoryManager = () => {
       await callApi(details);
     } catch (error) {
       console.error("Category creation error:", error);
+      throw error; // Re-throw to allow caller to handle the error
     }
   };
 

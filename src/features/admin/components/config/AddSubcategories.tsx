@@ -29,9 +29,15 @@ const AddSubcategories = () => {
   const data = dialogProps?.data as unknown as TCategoryData;
 
   // Fetch all categories for parent selection
-  const { data: allCategories, isLoading: categoriesLoading } = useGetAllCategories({
+  // Reduced from 1000 to 100 - most orgs won't have > 100 parent categories
+  const {
+    data: allCategories,
+    isLoading: categoriesLoading,
+    isError: categoriesError,
+    error: categoriesFetchError
+  } = useGetAllCategories({
     page: 1,
-    size: 1000,
+    size: 100,
     search: "",
   });
 
@@ -83,16 +89,23 @@ const AddSubcategories = () => {
   }, [selectedParent, allCategories]);
 
   const onSubmit: SubmitHandler<TCategoryFormValues> = async (formData) => {
+    console.log("🔵 Subcategory form submitted with data:", formData);
+
     try {
-      // Validate that a parent is selected
-      if (!formData.parent) {
+      // Validate that a parent is selected (check for empty string or falsy)
+      if (!formData.parent || formData.parent.trim() === "") {
+        console.log("❌ Validation failed: No parent selected");
         toast.error("Please select a parent category for this subcategory");
         return;
       }
 
       // Get parent category to inherit job_category
       if (!selectedParentData) {
-        toast.error("Parent category not found");
+        console.log("❌ Validation failed: Parent data not found", {
+          selectedParent,
+          allCategories: allCategories?.data?.results?.length
+        });
+        toast.error("Parent category not found. Please select a valid parent category.");
         return;
       }
 
@@ -105,7 +118,7 @@ const AddSubcategories = () => {
         parent: formData.parent,
       };
 
-      console.log("Subcategory Payload to Backend:", JSON.stringify(subcategoryPayload, null, 2));
+      console.log("✅ Sending subcategory payload to backend:", JSON.stringify(subcategoryPayload, null, 2));
 
       if (dialogProps?.type === "update") {
         await updateCategory({
@@ -113,16 +126,26 @@ const AddSubcategories = () => {
           id: String(dialogProps?.data?.id),
           body: subcategoryPayload,
         });
+        console.log("✅ Subcategory updated successfully");
         toast.success("Subcategory Updated Successfully");
       } else {
         await category(subcategoryPayload);
+        console.log("✅ Subcategory created successfully");
         toast.success("Subcategory Created Successfully");
       }
 
       dispatch(closeDialog());
       form.reset();
     } catch (error: any) {
-      toast.error(error.response?.data?.message ?? error.message ?? "Something went wrong");
+      console.error("❌ Subcategory submission error:", error);
+      console.error("Error details:", {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
+
+      const errorMessage = error.response?.data?.message ?? error.message ?? "Something went wrong";
+      toast.error(errorMessage);
     }
   };
 
@@ -179,7 +202,16 @@ const AddSubcategories = () => {
               </div>
             )}
 
-            {parentCategoryOptions.length === 0 && !categoriesLoading && (
+            {categoriesError && (
+              <div className="text-xs sm:text-sm bg-red-50 border border-red-200 rounded-md p-2 sm:p-3">
+                <p className="font-medium text-red-800">❌ Error Loading Categories</p>
+                <p className="text-red-700 text-[10px] sm:text-xs mt-1">
+                  {categoriesFetchError?.message || "Unable to load categories. Please check your connection and try again."}
+                </p>
+              </div>
+            )}
+
+            {!categoriesError && parentCategoryOptions.length === 0 && !categoriesLoading && (
               <div className="text-xs sm:text-sm bg-yellow-50 border border-yellow-200 rounded-md p-2 sm:p-3">
                 <p className="font-medium text-yellow-800">⚠️ No Parent Categories Available</p>
                 <p className="text-yellow-700 text-[10px] sm:text-xs mt-1">
@@ -190,7 +222,11 @@ const AddSubcategories = () => {
           </div>
 
           <div className='flex justify-start gap-4'>
-            <FormButton loading={isLoading || updateCategoryLoading}>
+            <FormButton
+              type="submit"
+              loading={isLoading || updateCategoryLoading}
+              onClick={() => console.log("🔵 Button clicked!")}
+            >
               {dialogProps?.type === "update" ? "Update Subcategory" : "Create Subcategory"}
             </FormButton>
           </div>

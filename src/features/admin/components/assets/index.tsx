@@ -20,8 +20,19 @@ export default function AssetHomePage() {
     page,
     size: 20,
     search,
-    // Use the correct Vehicles category ID
-    category: "b0983944-f926-4141-8e28-093960d75246",
+    // Remove hardcoded category filter to show all assets
+    // category: "b0983944-f926-4141-8e28-093960d75246",
+    // Expand all related fields to get full nested objects
+    expand: "category,assignee,asset_type,project,donor,asset_condition,location,classification,implementer",
+  });
+
+  // Debug logging
+  console.log('🔍 Assets Page Debug:', {
+    page,
+    search,
+    totalCount: asset?.data?.pagination?.count,
+    resultsCount: asset?.data?.results?.length,
+    firstItem: asset?.data?.results?.[0]?.name,
   });
 
   return (
@@ -63,8 +74,8 @@ export default function AssetHomePage() {
             columns={assetColumn}
             isLoading={isLoading}
             pagination={{
-              total: asset?.data.pagination.count ?? 0,
-              pageSize: asset?.data.pagination.page_size ?? 0,
+              total: asset?.data?.pagination?.count ?? 0,
+              pageSize: asset?.data?.pagination?.page_size ?? 0,
               onChange: (page: number) => setPage(page),
             }}
           />

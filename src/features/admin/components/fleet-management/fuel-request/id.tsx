@@ -129,6 +129,7 @@ export default function ViewVehicleFuelConsumption() {
         <VehicleFuelHistory
           vehicleId={vehicleData?.id || ""}
           vehicleName={vehicleData?.name || "Unknown"}
+          vehicleData={vehicleData}
           showTitle={false}
         />
       </section>

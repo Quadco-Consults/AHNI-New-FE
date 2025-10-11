@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { Badge } from "components/ui/badge";
@@ -15,6 +16,7 @@ import { Eye, TrendingDown, TrendingUp, Fuel } from "lucide-react";
 interface VehicleFuelHistoryProps {
   vehicleId: string;
   vehicleName?: string;
+  vehicleData?: any; // Vehicle asset data containing odometer_reading
   showTitle?: boolean;
   maxHeight?: string;
 }
@@ -22,6 +24,7 @@ interface VehicleFuelHistoryProps {
 export default function VehicleFuelHistory({
   vehicleId,
   vehicleName,
+  vehicleData,
   showTitle = true,
   maxHeight = "600px",
 }: VehicleFuelHistoryProps) {
@@ -150,9 +153,66 @@ export default function VehicleFuelHistory({
     },
   ];
 
+  // Calculate distance_covered for each record by comparing odometer readings
+  const recordsWithDistance = React.useMemo(() => {
+    const records = finalHistory?.data?.results || [];
+    if (records.length === 0) return [];
+
+    // Get vehicle's starting odometer reading from vehicle details
+    const startingOdometer = vehicleData?.odometer_reading
+      ? Number(vehicleData.odometer_reading)
+      : 0;
+
+    // Sort by created_datetime to ensure correct chronological order
+    // (date field alone isn't enough if multiple records have same date)
+    const sortedRecords = [...records].sort((a, b) =>
+      new Date(a.created_datetime).getTime() - new Date(b.created_datetime).getTime()
+    );
+
+    // Calculate distance for each record
+    return sortedRecords.map((record, index) => {
+      const currentOdometer = record.odometer || 0;
+
+      if (index === 0) {
+        // First record: compare with vehicle's starting odometer reading
+        const distance = startingOdometer > 0
+          ? currentOdometer - startingOdometer
+          : 0;
+        return {
+          ...record,
+          distance_covered: distance > 0 ? distance : 0
+        };
+      }
+
+      // Subsequent records: compare with previous fuel request's odometer
+      const previousOdometer = sortedRecords[index - 1].odometer || 0;
+      const distance = currentOdometer - previousOdometer;
+
+      return {
+        ...record,
+        distance_covered: distance > 0 ? distance : 0
+      };
+    });
+  }, [finalHistory, vehicleData]);
+
+  console.log('🔍 Vehicle Fuel History Debug:', {
+    vehicleId,
+    vehicleName,
+    startingOdometer: vehicleData?.odometer_reading,
+    hasHistory: !!finalHistory,
+    recordCount: recordsWithDistance?.length,
+    sampleRecord: recordsWithDistance?.[0],
+    recordsWithDistance: recordsWithDistance?.map(r => ({
+      date: r.date,
+      odometer: r.odometer,
+      distance_covered: r.distance_covered,
+      fuel_coupon: r.fuel_coupon,
+    })),
+  });
+
   // Calculate fuel efficiency and cost metrics
   const calculateMetrics = () => {
-    const records = finalHistory?.data?.results || [];
+    const records = recordsWithDistance || [];
     if (records.length === 0) return null;
 
     const totalQuantity = records.reduce(
@@ -294,13 +354,12 @@ export default function VehicleFuelHistory({
           <div style={{ maxHeight }} className='overflow-auto'>
             <DataTable
               columns={historyColumns}
-              data={finalHistory?.data?.results || []}
+              data={recordsWithDistance || []}
               isLoading={!!finalLoading}
             />
           </div>
 
-          {(!finalHistory?.data?.results ||
-            finalHistory?.data?.results.length === 0) && (
+          {(!recordsWithDistance || recordsWithDistance.length === 0) && (
             <div className='text-center py-8'>
               <Fuel className='mx-auto text-gray-400 mb-4' size={48} />
               <p className='text-gray-500'>

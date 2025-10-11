@@ -5,7 +5,7 @@ export const CategorySchema = z.object({
   code: z.string().optional(), // Optional - backend auto-generates for subcategories
   description: z.string().optional(),
   serial_number: z.any().optional(), // Optional - backend auto-generates for subcategories
-  job_category: z.enum(["GOODS", "SERVICE", "WORK", "OTHERS"]),
+  job_category: z.enum(["GOODS", "SERVICE", "WORK", "OTHERS"]).optional(), // Optional for subcategories (inherited from parent)
   parent: z.string().optional(), // Parent category ID for hierarchical structure
 });
 

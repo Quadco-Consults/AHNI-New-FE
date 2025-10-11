@@ -58,6 +58,7 @@ export default function CreateFuelConsumption() {
     page: 1,
     size: PAGINATION_DEFAULTS.DROPDOWN_SIZE,
     category: CATEGORY_IDS.VEHICLE,
+    expand: "category,assignee,asset_type,project,donor,asset_condition,location,classification,implementer",
   });
 
   const assetOptions = useMemo(
