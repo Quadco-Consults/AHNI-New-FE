@@ -130,80 +130,197 @@ export default function BulkUploadDialog({ open, onOpenChange }: BulkUploadDialo
   };
 
   const handleDownloadTemplate = () => {
-    // Create CSV template with all consumable fields including category
-    // Helper text in parentheses is automatically cleaned by the backend
+    // ================================================================================================
+    // COMPREHENSIVE CONSUMABLES BULK UPLOAD TEMPLATE
+    // ================================================================================================
+    // This template supports ALL consumable types:
+    // - Medical Consumables (medicines, supplies, PPE, etc.)
+    // - Office Consumables (paper, pens, toner, etc.)
+    // - IT Consumables (cables, flash drives, accessories, etc.)
+    // - Cleaning Supplies (detergents, tissues, sanitizers, etc.)
+    // - Laboratory Consumables (test kits, reagents, gloves, etc.)
+    // ================================================================================================
+
     const headers = [
+      // ========== REQUIRED FIELDS (ALL consumable types) ==========
       "category (Required)",
       "name (Required)",
       "description (Required)",
-      "uom (Required - Unit of Measure)",
-      "quantity (Optional)",
+      "uom (Required - Unit: Box/Piece/Bottle/Pack/Ream/Carton/Roll/etc)",
+
+      // ========== INVENTORY MANAGEMENT FIELDS (COMMON to all types) ==========
+      "quantity (Optional - Initial stock quantity)",
       "stock_control_method (Optional - STOCK_LEVEL/AVAILABILITY/JUST_IN_TIME)",
-      "expiry_date (Optional - YYYY-MM-DD)",
-      "re_order_level (Optional)",
-      "buffer_stock (Optional)",
-      "max_stock (Optional)",
-      "entry_date (Optional - YYYY-MM-DD)",
-      "item_cost (Optional)",
-      "price (Optional)"
+      "re_order_level (Optional - Minimum stock before reorder)",
+      "buffer_stock (Optional - Safety stock quantity)",
+      "max_stock (Optional - Maximum stock capacity)",
+
+      // ========== FINANCIAL FIELDS ==========
+      "item_cost (Optional - Cost per unit)",
+      "price (Optional - Selling price per unit)",
+
+      // ========== DATE FIELDS ==========
+      "entry_date (Optional - Date entered into inventory - YYYY-MM-DD)",
+      "expiry_date (Optional - Product expiry date - YYYY-MM-DD)",
+
+      // ========== TRACKING FIELDS ==========
+      "grn_tracking_number (Optional - Goods Receipt Note/Batch number)"
     ];
 
-    // Sample data rows with proper values
+    // ================================================================================================
+    // EXAMPLE 1: Medical Consumable (Paracetamol Tablets)
+    // ================================================================================================
+    // Medical supplies often have expiry dates, batch tracking, and strict stock control
+    // ================================================================================================
     const sampleData1 = [
-      "Office Supplies",
-      "Paper A4 Ream",
-      "White A4 printing paper - 500 sheets per ream",
-      "Ream",
-      "100",
-      "STOCK_LEVEL",
-      "2025-12-31",
-      "10",
-      "5",
-      "200",
-      "2025-01-15",
-      "2500.00",
-      "2500.00"
+      "Medical Consumables",                    // category (Required)
+      "Paracetamol 500mg Tablets",             // name (Required)
+      "Pain relief and fever reduction tablets - 500mg strength, box of 100 tablets", // description (Required)
+      "Box",                                    // uom (Required)
+      "200",                                    // quantity (Initial stock)
+      "STOCK_LEVEL",                           // stock_control_method (Strict tracking for medical)
+      "20",                                     // re_order_level (Reorder when below 20 boxes)
+      "10",                                     // buffer_stock (Safety stock of 10 boxes)
+      "500",                                    // max_stock (Maximum 500 boxes)
+      "1500.00",                               // item_cost (Cost per box)
+      "2000.00",                               // price (Selling price per box)
+      "2025-01-15",                            // entry_date (When received)
+      "2026-12-31",                            // expiry_date (Medical products expire)
+      "GRN-2025-MED-001"                       // grn_tracking_number (Batch tracking)
     ];
 
+    // ================================================================================================
+    // EXAMPLE 2: Office Consumable (Printing Paper)
+    // ================================================================================================
+    // Office supplies typically have longer shelf life, bulk quantities, standard reorder levels
+    // ================================================================================================
     const sampleData2 = [
-      "Office Supplies",
-      "Ballpoint Pen Blue",
-      "Blue ballpoint pen for office use",
-      "Box",
-      "50",
-      "AVAILABILITY",
-      "2026-06-30",
-      "15",
-      "10",
-      "100",
-      "2025-01-20",
-      "1200.00",
-      "1500.00"
+      "Office Supplies",                        // category (Required)
+      "Paper A4 Ream - 80gsm",                 // name (Required)
+      "White A4 printing paper - 80gsm weight, 500 sheets per ream", // description (Required)
+      "Ream",                                   // uom (Required)
+      "150",                                    // quantity (150 reams in stock)
+      "STOCK_LEVEL",                           // stock_control_method (Track stock levels)
+      "15",                                     // re_order_level (Reorder at 15 reams)
+      "5",                                      // buffer_stock (Keep 5 reams as buffer)
+      "300",                                    // max_stock (Max storage capacity)
+      "2500.00",                               // item_cost (Cost per ream)
+      "3000.00",                               // price (Selling price)
+      "2025-01-10",                            // entry_date
+      "",                                       // expiry_date (Paper doesn't expire - leave EMPTY)
+      "GRN-2025-OFF-012"                       // grn_tracking_number
     ];
 
+    // ================================================================================================
+    // EXAMPLE 3: IT Consumable (USB Flash Drives)
+    // ================================================================================================
+    // IT consumables may use Just-In-Time ordering, have warranty periods, lower buffer stock
+    // ================================================================================================
     const sampleData3 = [
-      "IT Equipment",
-      "USB Flash Drive 32GB",
-      "High-speed USB 3.0 flash drive",
-      "Piece",
-      "25",
-      "JUST_IN_TIME",
-      "2027-12-31",
-      "5",
-      "3",
-      "50",
-      "2025-01-22",
-      "1500.00",
-      "2000.00"
+      "IT Consumables",                         // category (Required)
+      "SanDisk USB 3.0 Flash Drive 32GB",      // name (Required)
+      "High-speed USB 3.0 flash drive - 32GB storage capacity",  // description (Required)
+      "Piece",                                  // uom (Required)
+      "30",                                     // quantity (30 units in stock)
+      "JUST_IN_TIME",                          // stock_control_method (Order as needed)
+      "5",                                      // re_order_level (Low minimum)
+      "2",                                      // buffer_stock (Minimal buffer)
+      "50",                                     // max_stock (Don't overstock IT items)
+      "3500.00",                               // item_cost
+      "5000.00",                               // price
+      "2025-01-12",                            // entry_date
+      "2027-01-12",                            // expiry_date (Warranty period)
+      "GRN-2025-IT-045"                        // grn_tracking_number
+    ];
+
+    // ================================================================================================
+    // EXAMPLE 4: Cleaning Supplies (Hand Sanitizer)
+    // ================================================================================================
+    // Cleaning supplies may have expiry dates, bulk quantities, availability-based tracking
+    // ================================================================================================
+    const sampleData4 = [
+      "Cleaning Supplies",                      // category (Required)
+      "Hand Sanitizer 500ml",                  // name (Required)
+      "Alcohol-based hand sanitizer - 70% alcohol content, 500ml bottle", // description (Required)
+      "Bottle",                                 // uom (Required)
+      "100",                                    // quantity
+      "AVAILABILITY",                          // stock_control_method (Just track if available)
+      "10",                                     // re_order_level
+      "5",                                      // buffer_stock
+      "200",                                    // max_stock
+      "800.00",                                // item_cost
+      "1200.00",                               // price
+      "2025-01-08",                            // entry_date
+      "2026-06-30",                            // expiry_date (Sanitizers expire)
+      "GRN-2025-CLN-023"                       // grn_tracking_number
+    ];
+
+    // ================================================================================================
+    // EXAMPLE 5: Laboratory Consumable (COVID-19 Test Kits)
+    // ================================================================================================
+    // Lab consumables often have strict expiry dates, batch tracking, and careful stock control
+    // ================================================================================================
+    const sampleData5 = [
+      "Laboratory Consumables",                 // category (Required)
+      "COVID-19 Rapid Antigen Test Kit",      // name (Required)
+      "Rapid antigen test for COVID-19 detection - pack of 25 tests", // description (Required)
+      "Pack",                                   // uom (Required)
+      "50",                                     // quantity (50 packs)
+      "STOCK_LEVEL",                           // stock_control_method (Critical - track carefully)
+      "10",                                     // re_order_level (Reorder early)
+      "5",                                      // buffer_stock (Always have buffer)
+      "100",                                    // max_stock
+      "12000.00",                              // item_cost (Higher cost for medical tests)
+      "15000.00",                              // price
+      "2025-01-20",                            // entry_date
+      "2025-10-31",                            // expiry_date (Short expiry for test kits)
+      "GRN-2025-LAB-007"                       // grn_tracking_number (Critical for batch recall)
     ];
 
     const csvContent = [
       headers.join(","),
-      "# Sample data below - modify or replace with your own data",
+      "# ================================================================================================",
+      "# COMPREHENSIVE CONSUMABLES BULK UPLOAD TEMPLATE",
+      "# ================================================================================================",
+      "#",
+      "# INSTRUCTIONS:",
+      "# 1. This single template works for ALL consumable types (Medical, Office, IT, Cleaning, Lab, etc.)",
+      "# 2. Required fields: category, name, description, uom - MUST be filled for every consumable",
+      "# 3. Optional fields: Leave EMPTY if not applicable (no need to delete columns)",
+      "# 4. Multiple consumable types can be uploaded in ONE file",
+      "# 5. Category must match an existing category name exactly (e.g., 'Medical Consumables')",
+      "# 6. Date format: YYYY-MM-DD (e.g., 2025-12-31)",
+      "# 7. Lines starting with # are automatically ignored (comments)",
+      "#",
+      "# AVAILABLE OPTIONS:",
+      "# - UOM: Box, Piece, Bottle, Pack, Ream, Carton, Roll, Liter, Kilogram, etc.",
+      "# - Stock Control Methods: STOCK_LEVEL (track quantities), AVAILABILITY (just yes/no), JUST_IN_TIME (order when needed)",
+      "#",
+      "# ================================================================================================",
+      "# EXAMPLE ROWS - Showing different consumable types",
+      "# ================================================================================================",
+      "#",
+      "# Example 1: Medical Consumable (Paracetamol) - Has expiry date, batch tracking, strict stock control",
       sampleData1.join(","),
+      "#",
+      "# Example 2: Office Consumable (Paper) - No expiry date (left empty), bulk quantities",
       sampleData2.join(","),
+      "#",
+      "# Example 3: IT Consumable (USB Drive) - Just-in-time ordering, warranty period",
       sampleData3.join(","),
-      "# Add your consumable data below",
+      "#",
+      "# Example 4: Cleaning Supplies (Sanitizer) - Availability tracking, expiry date",
+      sampleData4.join(","),
+      "#",
+      "# Example 5: Laboratory Consumable (Test Kits) - Critical tracking, short expiry",
+      sampleData5.join(","),
+      "#",
+      "# ================================================================================================",
+      "# ADD YOUR CONSUMABLE DATA BELOW",
+      "# ================================================================================================",
+      "# You can modify the examples above or delete them and add your own rows below.",
+      "# Remember: You can upload multiple consumable types in ONE file!",
+      "#",
       Array(headers.length).fill("").join(","),
       Array(headers.length).fill("").join(","),
     ].join("\n");
@@ -236,7 +353,7 @@ export default function BulkUploadDialog({ open, onOpenChange }: BulkUploadDialo
         <DialogHeader>
           <DialogTitle>Bulk Upload Consumables</DialogTitle>
           <DialogDescription>
-            Upload multiple consumables at once using an Excel or CSV file. Download the template to get started.
+            Upload multiple consumables at once using our comprehensive CSV template. Supports ALL consumable types (Medical, Office, IT, Cleaning, Lab) in ONE file. Download the template to get started.
           </DialogDescription>
         </DialogHeader>
 
@@ -259,9 +376,9 @@ export default function BulkUploadDialog({ open, onOpenChange }: BulkUploadDialo
             <div className="flex items-start gap-3">
               <FileSpreadsheet className="text-blue-600 mt-1" size={20} />
               <div className="flex-1">
-                <h4 className="font-semibold text-sm text-blue-900 mb-1">Step 1: Download Template</h4>
+                <h4 className="font-semibold text-sm text-blue-900 mb-1">Step 1: Download Comprehensive Template</h4>
                 <p className="text-sm text-blue-700 mb-3">
-                  Download the CSV template, fill in your consumable data, and upload it back here.
+                  Download the universal CSV template with 5 example consumable types. Fill in your data for any consumable type and upload it back here.
                 </p>
                 <Button
                   onClick={handleDownloadTemplate}
@@ -414,16 +531,22 @@ export default function BulkUploadDialog({ open, onOpenChange }: BulkUploadDialo
           <div className="border rounded-lg p-4 bg-gray-50">
             <h4 className="font-semibold text-sm mb-2">Important Instructions:</h4>
             <ul className="text-xs text-gray-700 space-y-1 list-disc list-inside">
+              <li><strong className="text-blue-600">🎯 Universal Template:</strong> This single template works for ALL consumable types (Medical, Office, IT, Cleaning, Lab, etc.)</li>
+              <li><strong>Required fields:</strong> Category, Name, Description, UOM - must be filled for every consumable</li>
+              <li><strong>Optional fields:</strong> Leave EMPTY if not applicable to your consumable type (no need to delete columns)</li>
+              <li><strong className="text-purple-600">💊 Medical consumables:</strong> Use expiry_date for shelf life, grn_tracking_number for batch tracking, STOCK_LEVEL for strict inventory control</li>
+              <li><strong className="text-purple-600">📄 Office consumables:</strong> Bulk quantities common, expiry_date often not needed (leave empty), standard reorder levels</li>
+              <li><strong className="text-purple-600">💻 IT consumables:</strong> JUST_IN_TIME ordering often used, warranty periods tracked via expiry_date, lower buffer stock</li>
+              <li><strong className="text-purple-600">🧪 Lab consumables:</strong> Critical batch tracking, strict expiry dates, STOCK_LEVEL for careful monitoring</li>
+              <li><strong className="text-green-600">✨ 5 Example Types:</strong> Template includes Medical, Office, IT, Cleaning, and Lab consumables - showing different tracking approaches</li>
               <li><strong>Column headers:</strong> Helper text in parentheses (e.g., "Name (Required)") is automatically removed by the system</li>
-              <li><strong>Comment lines:</strong> Lines starting with # are automatically ignored - you can leave them or delete them</li>
-              <li><strong>Required fields:</strong> Category, Name, Description, UOM</li>
-              <li><strong>Optional fields:</strong> Can be left empty - the system will handle them correctly</li>
-              <li><strong>Category:</strong> Must match an existing category name exactly (or use category UUID)</li>
+              <li><strong>Comment lines:</strong> Lines starting with # are automatically ignored - educational comments included in template</li>
+              <li><strong>Category:</strong> Must match an existing category name exactly (e.g., 'Medical Consumables', 'Office Supplies')</li>
               <li><strong>Date format:</strong> Use YYYY-MM-DD (e.g., 2025-12-31)</li>
-              <li><strong>Stock control methods:</strong> STOCK_LEVEL, AVAILABILITY, or JUST_IN_TIME</li>
-              <li><strong>UOM examples:</strong> Piece, Box, Carton, Liter, Kilogram, Ream, Pack</li>
-              <li><strong>Multiple categories:</strong> You can include items from different categories in one upload</li>
-              <li><strong>Sample data:</strong> You can modify the sample rows or delete them and add your own</li>
+              <li><strong>Stock control methods:</strong> STOCK_LEVEL (track exact quantities), AVAILABILITY (just yes/no), JUST_IN_TIME (order when needed)</li>
+              <li><strong>UOM examples:</strong> Box, Piece, Bottle, Pack, Ream, Carton, Roll, Liter, Kilogram</li>
+              <li><strong>Mixed upload:</strong> Upload multiple consumable types in ONE file (medical + office + IT all together!)</li>
+              <li><strong>Sample data:</strong> Template includes 5 examples showing different consumable types - modify or delete and add your own</li>
             </ul>
           </div>
         </div>

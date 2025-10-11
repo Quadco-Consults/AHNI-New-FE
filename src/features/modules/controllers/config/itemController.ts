@@ -162,13 +162,15 @@ export const useBulkUploadItems = () => {
 
   const bulkUploadItems = async (file: File) => {
     try {
+      console.log('🚀 Bulk upload starting for file:', file.name, file.size, 'bytes');
       const formData = new FormData();
       formData.append("file", file);
       // Category is now included in the CSV file, not sent separately
       const result = await callApi(formData);
+      console.log('✅ Bulk upload API response:', JSON.stringify(result, null, 2));
       return result;
     } catch (error) {
-      console.error("Bulk upload error:", error);
+      console.error("❌ Bulk upload error:", error);
       throw error;
     }
   };

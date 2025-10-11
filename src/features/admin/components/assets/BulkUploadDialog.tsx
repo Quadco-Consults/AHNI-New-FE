@@ -162,6 +162,8 @@ export default function AssetBulkUploadDialog({ open, onOpenChange }: BulkUpload
 
       // Extract result data from the response
       const resultData = result?.data || result;
+      console.log('📊 Upload Result:', JSON.stringify(resultData, null, 2));
+      console.log('📊 Full API Response:', JSON.stringify(result, null, 2));
       setUploadResult(resultData);
 
       if (resultData.failed > 0) {
@@ -169,10 +171,13 @@ export default function AssetBulkUploadDialog({ open, onOpenChange }: BulkUpload
         toast.error(`Upload completed with ${resultData.failed} errors. Check details below.`);
       } else {
         setUploadStatus("success");
-        toast.success(`Successfully uploaded! Created: ${resultData.created}, Updated: ${resultData.updated}`);
+        const successMessage = `Successfully uploaded! Created: ${resultData.created || 0}, Updated: ${resultData.updated || 0}`;
+        console.log('✅ Success:', successMessage);
+        toast.success(successMessage);
 
         // Close dialog and reload after success
         setTimeout(() => {
+          console.log('🔄 Reloading page to show new data...');
           onOpenChange(false);
           setSelectedFile(null);
           setUploadStatus("idle");
@@ -217,6 +222,50 @@ export default function AssetBulkUploadDialog({ open, onOpenChange }: BulkUpload
     }
   };
 
+  const handleDownloadBackendTemplate = async () => {
+    try {
+      toast.info("Downloading pre-filled template from backend...");
+
+      const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "https://ahni-erp-029252c2fbb9.herokuapp.com/api/v1/";
+      const token = localStorage.getItem('token');
+
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      const response = await fetch(`${baseURL}config/items/download-template/`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'text/csv',
+        },
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Backend template download failed:', response.status, errorText);
+        throw new Error(`Backend returned ${response.status}: ${errorText}`);
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'asset_upload_template_populated.csv');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+      toast.success("Pre-filled template downloaded! Includes your actual system data (categories, employees, etc.)");
+    } catch (error) {
+      console.error('Error downloading backend template:', error);
+      toast.error("Failed to download pre-filled template. Downloading basic template instead...");
+      // Fall back to client-side template
+      handleDownloadTemplate();
+    }
+  };
+
   const handleDownloadTemplate = () => {
     // Get sample names from lookup data for template (only available after lookups are fetched)
     const sampleAssetType = (lookups?.assetTypes.size && lookups.assetTypes.size > 0)
@@ -238,16 +287,19 @@ export default function AssetBulkUploadDialog({ open, onOpenChange }: BulkUpload
       ? Array.from(lookups.implementers.keys())[0]
       : '';
 
-    // Create CSV template with asset fields including category
+    // Create comprehensive CSV template with ALL asset fields
+    // Includes fields for ALL asset types - leave empty if not applicable
     // Helper text in parentheses is automatically cleaned by the backend
     const headers = [
+      // Required fields (ALL asset types)
       "category (Required)",
       "name (Required)",
-      "description (Optional)",
       "uom (Required)",
+      "unit (Required - Quantity)",
+
+      // Standard asset fields (COMMON to all types)
+      "description (Optional)",
       "asset_code (Optional)",
-      "plate_number (Optional - Vehicles)",
-      "chasis_number (Optional - Vehicles)",
       "asset_type (Optional - ID or name)",
       "project (Optional - ID or name)",
       "donor (Optional - ID or name)",
@@ -261,63 +313,166 @@ export default function AssetBulkUploadDialog({ open, onOpenChange }: BulkUpload
       "estimated_life_span (Optional - Years)",
       "usd_cost (Optional)",
       "ngn_cost (Optional)",
-      "unit (Required - Quantity)",
       "depreciation_rate (Optional - %)",
-      "insurance_duration (Optional - Months)"
+      "insurance_duration (Optional - Months)",
+
+      // VEHICLE-SPECIFIC FIELDS (Leave empty for non-vehicles)
+      // Basic Vehicle Information
+      "plate_number (Optional - Vehicles Only)",
+      "chasis_number (Optional - Vehicles Only - VIN)",
+      "engine_number (Optional - Vehicles Only)",
+      "make (Optional - Vehicles Only)",
+      "model (Optional - Vehicles Only)",
+      "odometer_reading (Optional - Vehicles Only - km)",
+
+      // Additional Vehicle Details
+      "manufacture_year (Optional - Vehicles Only)",
+      "vehicle_color (Optional - Vehicles Only)",
+      "fuel_type (Optional - Vehicles Only - PETROL/DIESEL/ELECTRIC/HYBRID/CNG/LPG)",
+      "seating_capacity (Optional - Vehicles Only)",
+      "vehicle_type (Optional - Vehicles Only - SEDAN/SUV/TRUCK/VAN/PICKUP/BUS/MOTORCYCLE/OTHER)",
+
+      // Vehicle Registration & Insurance
+      "registration_number (Optional - Vehicles Only)",
+      "registration_expiry_date (Optional - Vehicles Only - YYYY-MM-DD)",
+      "insurance_policy_number (Optional - Vehicles Only)",
+      "insurance_provider (Optional - Vehicles Only)",
+      "insurance_expiry_date (Optional - Vehicles Only - YYYY-MM-DD)",
+
+      // Vehicle Maintenance Schedule
+      "last_service_date (Optional - Vehicles Only - YYYY-MM-DD)",
+      "next_service_date (Optional - Vehicles Only - YYYY-MM-DD)",
+      "service_interval_km (Optional - Vehicles Only)",
+
+      // IT/LAB EQUIPMENT FIELDS (Leave empty for non-IT assets)
+      "serial_number (Optional - IT/Lab Equipment Only)"
     ];
 
-    // Sample data rows - Uses REAL names from your system
-    // Replace with your actual data, but these are valid examples
+    // Sample data rows - Shows examples for DIFFERENT asset types
+    // EXAMPLE 1: IT Equipment (Laptop)
     const sampleData1 = [
+      // Required fields
       "Fixed Assets",  // category - REQUIRED (must match exactly)
-      "Example Laptop",  // name - REQUIRED
-      "Sample laptop for demonstration",  // description
+      "Dell Latitude 7420",  // name - REQUIRED
       "Unit",  // uom - REQUIRED
+      "1",  // unit - REQUIRED (quantity)
+
+      // Standard fields
+      "14-inch business laptop",  // description
       "AST-2024-001",  // asset_code
-      "",  // plate_number - leave empty for non-vehicles
-      "",  // chasis_number - leave empty for non-vehicles
       sampleAssetType,  // asset_type - Real name from your system
-      "",  // project - Use exact project name or leave empty (note: projects endpoint may be returning 0 results)
+      "",  // project
       sampleDonor,  // donor - Real name from your system
-      "admin@mail.com",  // assignee - Use employee email or leave empty
+      "admin@mail.com",  // assignee - Use employee email
       sampleImplementer,  // implementer - Real partner name from your system
       sampleLocation,  // location - Real location name from your system
-      "",  // state
-      sampleClassification,  // classification - Real classification name from your system
-      sampleCondition,  // asset_condition - Real condition name from your system
+      "Abuja",  // state
+      sampleClassification,  // classification
+      sampleCondition,  // asset_condition
       "2024-01-15",  // acquisition_date (YYYY-MM-DD)
       "5",  // estimated_life_span (years)
       "1200",  // usd_cost
-      "",  // ngn_cost
-      "1",  // unit - REQUIRED (quantity)
-      "",  // depreciation_rate
-      ""  // insurance_duration
+      "1800000",  // ngn_cost
+      "20",  // depreciation_rate
+      "",  // insurance_duration
+
+      // Vehicle fields - LEAVE EMPTY for non-vehicles
+      "", "", "", "", "", "",  // Basic info (plate, VIN, engine, make, model, odometer)
+      "", "", "", "", "",  // Additional details (year, color, fuel, capacity, type)
+      "", "", "", "", "",  // Registration & Insurance
+      "", "", "",  // Maintenance
+
+      // IT/Lab Equipment fields
+      "SN123456789"  // serial_number - FILL IN for IT equipment
     ];
 
+    // EXAMPLE 2: Vehicle
     const sampleData2 = [
-      "Fixed Assets",
-      "Example Office Desk",
-      "Sample desk for demonstration",
-      "Unit",
-      "AST-2024-002",
-      "",
-      "",
-      sampleAssetType,  // Use real Asset Type from system
-      "",  // Project - leave empty if projects endpoint is not working
-      sampleDonor,  // Use real Donor from system
-      "",  // Assignee - leave empty or use valid email
-      "",  // Implementer
-      "",  // Location
-      "",
-      sampleClassification,  // Use real Classification from system
-      sampleCondition,  // Use real Condition from system
-      "2024-02-20",
-      "10",
-      "300",
-      "",
-      "1",
-      "",
-      ""
+      // Required fields
+      "Vehicles",  // category - REQUIRED for vehicles
+      "Toyota Hilux",  // name - REQUIRED
+      "Unit",  // uom - REQUIRED
+      "1",  // unit - REQUIRED
+
+      // Standard fields
+      "4x4 pickup truck for field work",  // description
+      "VEH-2024-001",  // asset_code
+      sampleAssetType,  // asset_type
+      "",  // project
+      sampleDonor,  // donor
+      "admin@mail.com",  // assignee
+      sampleImplementer,  // implementer
+      sampleLocation,  // location
+      "Lagos",  // state
+      sampleClassification,  // classification
+      sampleCondition,  // asset_condition
+      "2024-03-10",  // acquisition_date
+      "10",  // estimated_life_span
+      "45000",  // usd_cost
+      "67500000",  // ngn_cost
+      "15",  // depreciation_rate
+      "12",  // insurance_duration
+
+      // Vehicle fields - FILL IN for vehicles
+      "LAG-234-AB",  // plate_number
+      "MRHTS85J504123456",  // chasis_number (VIN)
+      "1GR-FE-12345",  // engine_number
+      "Toyota",  // make
+      "Hilux",  // model
+      "5000",  // odometer_reading (km)
+      "2024",  // manufacture_year
+      "White",  // vehicle_color
+      "DIESEL",  // fuel_type
+      "5",  // seating_capacity
+      "PICKUP",  // vehicle_type
+      "REG-2024-4567",  // registration_number
+      "2026-03-10",  // registration_expiry_date
+      "POL-2024-8901",  // insurance_policy_number
+      "AXA Mansard Insurance",  // insurance_provider
+      "2025-03-10",  // insurance_expiry_date
+      "2024-10-15",  // last_service_date
+      "2025-01-15",  // next_service_date
+      "5000",  // service_interval_km
+
+      // IT/Lab Equipment - LEAVE EMPTY for vehicles
+      ""  // serial_number
+    ];
+
+    // EXAMPLE 3: Furniture/Equipment (No vehicle or IT fields)
+    const sampleData3 = [
+      // Required fields
+      "Fixed Assets",  // category
+      "Office Desk",  // name
+      "Unit",  // uom
+      "1",  // unit
+
+      // Standard fields
+      "Wooden executive desk",  // description
+      "AST-2024-003",  // asset_code
+      sampleAssetType,  // asset_type
+      "",  // project
+      sampleDonor,  // donor
+      "",  // assignee - leave empty
+      "",  // implementer
+      sampleLocation,  // location
+      "",  // state
+      sampleClassification,  // classification
+      sampleCondition,  // asset_condition
+      "2024-02-20",  // acquisition_date
+      "10",  // estimated_life_span
+      "300",  // usd_cost
+      "450000",  // ngn_cost
+      "10",  // depreciation_rate
+      "",  // insurance_duration
+
+      // Vehicle fields - LEAVE EMPTY for furniture
+      "", "", "", "", "", "",  // Basic info
+      "", "", "", "", "",  // Additional details
+      "", "", "", "", "",  // Registration & Insurance
+      "", "", "",  // Maintenance
+
+      // IT/Lab Equipment - LEAVE EMPTY for furniture
+      ""  // serial_number
     ];
 
     // Build helpful comment with available options
@@ -347,16 +502,40 @@ export default function AssetBulkUploadDialog({ open, onOpenChange }: BulkUpload
 
     const csvContent = [
       headers.join(","),
-      "# INSTRUCTIONS: Replace sample data with your actual asset information",
-      "# Use EXACT names as they appear below (case-sensitive for foreign key fields)",
-      "# Required fields: category, name, uom, unit",
-      "# Optional fields can be left empty",
+      "# ================================================================================================",
+      "# COMPREHENSIVE ASSET UPLOAD TEMPLATE - Supports ALL Asset Types",
+      "# ================================================================================================",
+      "#",
+      "# INSTRUCTIONS:",
+      "# 1. This single template works for ALL asset types (Vehicles, IT Equipment, Furniture, etc.)",
+      "# 2. Required fields: category, name, uom, unit - MUST be filled for every asset",
+      "# 3. Optional fields: Leave EMPTY if not applicable to your asset type",
+      "# 4. Vehicle fields: Only fill for vehicles - leave empty for other asset types",
+      "# 5. IT/Lab fields: Only fill for IT/Lab equipment - leave empty for other asset types",
+      "# 6. Use EXACT names for: Asset Type, Project, Donor, Location, Classification, Condition",
+      "# 7. Date format: YYYY-MM-DD (e.g., 2024-01-15)",
+      "# 8. Multiple asset types can be uploaded in ONE file",
+      "#",
       ...availableOptions,
       "#",
-      "# SAMPLE DATA (uses real names from your system):",
+      "# ================================================================================================",
+      "# SAMPLE DATA - Shows 3 different asset types:",
+      "# ================================================================================================",
+      "#",
+      "# Example 1: IT Equipment (Laptop) - Has serial_number, no vehicle fields",
       sampleData1.join(","),
+      "#",
+      "# Example 2: Vehicle (Toyota Hilux) - Has all vehicle fields filled, no serial_number",
       sampleData2.join(","),
-      "# Add more assets below - one row per asset",
+      "#",
+      "# Example 3: Furniture (Office Desk) - Standard fields only, no vehicle/IT fields",
+      sampleData3.join(","),
+      "#",
+      "# ================================================================================================",
+      "# ADD YOUR ASSETS BELOW - Delete examples above and add your own data",
+      "# ================================================================================================",
+      Array(headers.length).fill("").join(","),
+      Array(headers.length).fill("").join(","),
       Array(headers.length).fill("").join(","),
     ].join("\n");
 
@@ -437,17 +616,30 @@ export default function AssetBulkUploadDialog({ open, onOpenChange }: BulkUpload
               <div className="flex-1">
                 <h4 className="font-semibold text-sm text-blue-900 mb-1">Step 1: Download Template</h4>
                 <p className="text-sm text-blue-700 mb-3">
-                  Download the CSV template, fill in your asset data, and upload it back here.
+                  Download the CSV template pre-filled with your actual system data (recommended), or use the basic template.
                 </p>
-                <Button
-                  onClick={handleDownloadTemplate}
-                  variant="outline"
-                  size="sm"
-                  className="border-blue-600 text-blue-600 hover:bg-blue-100"
-                >
-                  <Download size={16} className="mr-2" />
-                  Download Template
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={handleDownloadBackendTemplate}
+                    variant="default"
+                    size="sm"
+                    className="bg-blue-600 text-white hover:bg-blue-700"
+                  >
+                    <Download size={16} className="mr-2" />
+                    Download Pre-filled Template
+                  </Button>
+                  <Button
+                    onClick={handleDownloadTemplate}
+                    variant="outline"
+                    size="sm"
+                    className="border-blue-600 text-blue-600 hover:bg-blue-100"
+                  >
+                    Basic Template
+                  </Button>
+                </div>
+                <p className="text-xs text-blue-600 mt-2">
+                  💡 The pre-filled template includes your actual categories, locations, employees, etc. - making it easier to fill out!
+                </p>
               </div>
             </div>
           </div>
@@ -600,18 +792,21 @@ export default function AssetBulkUploadDialog({ open, onOpenChange }: BulkUpload
           <div className="border rounded-lg p-4 bg-gray-50">
             <h4 className="font-semibold text-sm mb-2">Important Instructions:</h4>
             <ul className="text-xs text-gray-700 space-y-1 list-disc list-inside">
-              <li><strong>Column headers:</strong> Do not modify the header row - keep column names exactly as provided in the template</li>
-              <li><strong>Comment lines:</strong> Lines starting with # are automatically ignored - you can leave them or delete them</li>
-              <li><strong>Required fields:</strong> Category, Name, UOM, Unit</li>
-              <li><strong>Optional fields:</strong> Can be left empty - the system will handle them correctly</li>
+              <li><strong className="text-blue-600">🎯 Universal Template:</strong> This single template works for ALL asset types (Vehicles, IT Equipment, Furniture, etc.)</li>
+              <li><strong className="text-green-600">💾 Pre-filled Template (Recommended):</strong> The backend template includes your actual system data (categories, employees, locations, etc.) in comment rows for easy reference</li>
+              <li><strong>Required fields:</strong> Category, Name, UOM, Unit - must be filled for every asset</li>
+              <li><strong>Optional fields:</strong> Leave EMPTY if not applicable to your asset type</li>
+              <li><strong>Column headers:</strong> Do not modify the header row - keep column names exactly as provided</li>
+              <li><strong>Comment lines:</strong> Lines starting with # are automatically ignored - you can leave or delete them</li>
               <li><strong>Category:</strong> Must match an existing category name exactly (case-sensitive)</li>
               <li><strong>Date format:</strong> Use YYYY-MM-DD (e.g., 2024-01-15)</li>
-              <li><strong>Vehicle fields:</strong> Plate Number and Chasis Number (only for vehicles)</li>
-              <li><strong className="text-green-600">✨ Name-based Fields:</strong> For Asset Type, Project, Donor, Location, Classification, and Asset Condition, you can use their names as they appear in the system (e.g., "Vehicle", "Project A", "USAID"). Names will be automatically converted to system IDs.</li>
-              <li><strong>Assignee field:</strong> Use email address (e.g., admin@mail.com) and it will be matched to the employee</li>
+              <li><strong className="text-purple-600">🚗 Vehicle fields:</strong> 18 vehicle-specific fields available (plate, VIN, odometer, insurance, maintenance, etc.) - ONLY fill these for vehicles</li>
+              <li><strong className="text-purple-600">💻 IT/Lab fields:</strong> Serial Number field available - ONLY fill for IT/Lab equipment</li>
+              <li><strong className="text-green-600">✨ Name-based Fields:</strong> Use friendly names for Asset Type, Project, Donor, Location, Classification, Asset Condition - automatically converted to system IDs</li>
+              <li><strong>Assignee field:</strong> Use email address (e.g., admin@mail.com) - will be matched to employee</li>
               <li><strong>Asset codes:</strong> Should be unique if provided</li>
-              <li><strong>Multiple categories:</strong> You can include assets from different categories in one upload</li>
-              <li><strong>Sample data:</strong> You can modify the sample rows or delete them and add your own</li>
+              <li><strong>Mixed upload:</strong> Upload multiple asset types in ONE file (vehicles + laptops + furniture all together!)</li>
+              <li><strong>Sample data:</strong> Templates include 2-3 examples showing different asset types - modify or delete and add your own</li>
             </ul>
           </div>
         </div>
