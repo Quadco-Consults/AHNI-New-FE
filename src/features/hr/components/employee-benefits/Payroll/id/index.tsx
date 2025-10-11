@@ -43,7 +43,7 @@ const PayRollDetails = () => {
           <Summary {...payrollData} />
         </TabsContent>
         <TabsContent value='detailed-breakdown'>
-          <BreakDown {...payrollData} />
+          <BreakDown {...payrollData} payrollId={id as string} />
         </TabsContent>
       </Tabs>
     </div>
