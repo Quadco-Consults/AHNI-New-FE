@@ -155,6 +155,7 @@ export const useCreateFuelConsumption = () => {
       await callApi(details);
     } catch (error) {
       console.error("Fuel consumption create error:", error);
+      throw error;
     }
   };
 
