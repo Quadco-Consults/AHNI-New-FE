@@ -52,8 +52,32 @@ export default function CreateAsset() {
       project: "",
       assignee: "",
       asset_code: "",
+      // Vehicle - Basic Info
       plate_number: "",
       chasis_number: "",
+      engine_number: "",
+      odometer_reading: "",
+      make: "",
+      model: "",
+      // Vehicle - Additional Details
+      manufacture_year: "",
+      vehicle_color: "",
+      fuel_type: "",
+      seating_capacity: "",
+      vehicle_type: "",
+      // Vehicle - Registration & Insurance
+      registration_number: "",
+      registration_expiry_date: "",
+      insurance_policy_number: "",
+      insurance_provider: "",
+      insurance_expiry_date: "",
+      // Vehicle - Maintenance
+      last_service_date: "",
+      next_service_date: "",
+      service_interval_km: "",
+      // IT/Lab Equipment
+      serial_number: "",
+      // Standard fields
       description: "",
       donor: "",
       depreciation_rate: "",
@@ -274,14 +298,38 @@ export default function CreateAsset() {
         classification: asset?.data?.classification?.id,
         usd_cost: asset?.data?.usd_cost,
         ngn_cost: asset?.data?.ngn_cost,
-        unit: String(asset?.data?.unit),
+        unit: asset?.data?.unit,
         implementer: asset?.data?.implementer?.id,
         insurance_duration: asset?.data?.insurance_duration,
+        // Vehicle - Basic Info
         chasis_number: asset?.data?.chasis_number,
+        engine_number: asset?.data?.engine_number,
+        odometer_reading: asset?.data?.odometer_reading,
         plate_number: asset?.data?.plate_number,
+        make: asset?.data?.make,
+        model: asset?.data?.model,
+        // Vehicle - Additional Details
+        manufacture_year: asset?.data?.manufacture_year,
+        vehicle_color: asset?.data?.vehicle_color,
+        fuel_type: asset?.data?.fuel_type,
+        seating_capacity: asset?.data?.seating_capacity,
+        vehicle_type: asset?.data?.vehicle_type,
+        // Vehicle - Registration & Insurance
+        registration_number: asset?.data?.registration_number,
+        registration_expiry_date: asset?.data?.registration_expiry_date,
+        insurance_policy_number: asset?.data?.insurance_policy_number,
+        insurance_provider: asset?.data?.insurance_provider,
+        insurance_expiry_date: asset?.data?.insurance_expiry_date,
+        // Vehicle - Maintenance
+        last_service_date: asset?.data?.last_service_date,
+        next_service_date: asset?.data?.next_service_date,
+        service_interval_km: asset?.data?.service_interval_km,
+        // IT/Lab Equipment
+        serial_number: asset?.data?.serial_number,
+        // Other fields
         description: asset?.data?.description,
         uom: asset?.data?.uom,
-        category: asset?.data?.category,
+        category: asset?.data?.category?.id || asset?.data?.category,
       });
     }
   }, [asset, user]);
@@ -319,6 +367,26 @@ export default function CreateAsset() {
       toast.error(error?.data?.message ?? "Something went wrong");
     }
   };
+
+  // Watch the selected category to determine which fields to show
+  const selectedCategoryId = form.watch("category");
+
+  // Get the category name to determine asset type
+  const selectedCategoryName = useMemo(() => {
+    if (!selectedCategoryId || !categories?.data?.results) return "";
+
+    const category = categories.data.results.find(
+      (cat) => cat.id === selectedCategoryId
+    );
+
+    return category?.name?.toLowerCase() || "";
+  }, [selectedCategoryId, categories]);
+
+  // Determine which conditional fields to show based on category
+  const isVehicle = selectedCategoryName.includes("vehicle");
+  const isITEquipment = selectedCategoryName.includes("it") || selectedCategoryName.includes("equipment");
+  const isLabEquipment = selectedCategoryName.includes("lab") || selectedCategoryName.includes("laboratory");
+  const isFurniture = selectedCategoryName.includes("furniture");
 
   const selectedAssetTypeId = form.watch("asset_type");
   const selectedAssetTypeName = assetType?.data.results.find(
@@ -375,28 +443,225 @@ export default function CreateAsset() {
                 required
               />
 
-              {selectedAssetTypeName?.toLowerCase() === "vehicle" && (
+              {/* Conditional fields based on asset category */}
+
+              {/* Vehicle-specific fields */}
+              {isVehicle && (
                 <>
+                  {/* Section: Basic Vehicle Information */}
+                  <div className='col-span-3'>
+                    <h3 className='font-semibold text-gray-700 border-b pb-2'>Basic Vehicle Information</h3>
+                  </div>
+
                   <FormInput
                     label='Plate Number'
                     name='plate_number'
                     placeholder='Enter Plate Number'
-                    required
                   />
 
                   <FormInput
-                    label='Chasis Number'
+                    label='VIN Number'
                     name='chasis_number'
-                    placeholder='Enter Plate Number'
-                    required
+                    placeholder='Enter VIN Number'
+                  />
+
+                  <FormInput
+                    label='Engine Number'
+                    name='engine_number'
+                    placeholder='Enter Engine Number'
+                  />
+
+                  <FormInput
+                    label='Make'
+                    name='make'
+                    placeholder='Enter Make (e.g., Toyota, Honda)'
+                  />
+
+                  <FormInput
+                    label='Model'
+                    name='model'
+                    placeholder='Enter Model (e.g., Hilux, Accord)'
+                  />
+
+                  <FormInput
+                    label='Current Odometer Reading'
+                    name='odometer_reading'
+                    placeholder='Enter Current Odometer Reading (km)'
+                    type='number'
+                  />
+
+                  {/* Section: Additional Vehicle Details */}
+                  <div className='col-span-3'>
+                    <h3 className='font-semibold text-gray-700 border-b pb-2 mt-4'>Additional Vehicle Details</h3>
+                  </div>
+
+                  <FormInput
+                    label='Manufacture Year'
+                    name='manufacture_year'
+                    placeholder='Enter Manufacture Year (e.g., 2020)'
+                    type='number'
+                  />
+
+                  <FormInput
+                    label='Vehicle Color'
+                    name='vehicle_color'
+                    placeholder='Enter Vehicle Color'
+                  />
+
+                  <FormSelect
+                    label='Fuel Type'
+                    name='fuel_type'
+                    placeholder='Select Fuel Type'
+                    options={[
+                      { label: "Petrol", value: "PETROL" },
+                      { label: "Diesel", value: "DIESEL" },
+                      { label: "Electric", value: "ELECTRIC" },
+                      { label: "Hybrid", value: "HYBRID" },
+                      { label: "CNG", value: "CNG" },
+                      { label: "LPG", value: "LPG" },
+                    ]}
+                  />
+
+                  <FormInput
+                    label='Seating Capacity'
+                    name='seating_capacity'
+                    placeholder='Enter Number of Seats'
+                    type='number'
+                  />
+
+                  <FormSelect
+                    label='Vehicle Type'
+                    name='vehicle_type'
+                    placeholder='Select Vehicle Type'
+                    options={[
+                      { label: "Sedan", value: "SEDAN" },
+                      { label: "SUV", value: "SUV" },
+                      { label: "Truck", value: "TRUCK" },
+                      { label: "Van", value: "VAN" },
+                      { label: "Pickup", value: "PICKUP" },
+                      { label: "Bus", value: "BUS" },
+                      { label: "Motorcycle", value: "MOTORCYCLE" },
+                      { label: "Other", value: "OTHER" },
+                    ]}
+                  />
+
+                  {/* Section: Registration & Insurance */}
+                  <div className='col-span-3'>
+                    <h3 className='font-semibold text-gray-700 border-b pb-2 mt-4'>Registration & Insurance</h3>
+                  </div>
+
+                  <FormInput
+                    label='Registration Number'
+                    name='registration_number'
+                    placeholder='Enter Registration Number'
+                  />
+
+                  <FormInput
+                    label='Registration Expiry Date'
+                    name='registration_expiry_date'
+                    placeholder='Select Registration Expiry'
+                    type='date'
+                  />
+
+                  <FormInput
+                    label='Insurance Policy Number'
+                    name='insurance_policy_number'
+                    placeholder='Enter Insurance Policy Number'
+                  />
+
+                  <FormInput
+                    label='Insurance Provider'
+                    name='insurance_provider'
+                    placeholder='Enter Insurance Provider Name'
+                  />
+
+                  <FormInput
+                    label='Insurance Expiry Date'
+                    name='insurance_expiry_date'
+                    placeholder='Select Insurance Expiry'
+                    type='date'
+                  />
+
+                  {/* Section: Maintenance Schedule */}
+                  <div className='col-span-3'>
+                    <h3 className='font-semibold text-gray-700 border-b pb-2 mt-4'>Maintenance Schedule</h3>
+                  </div>
+
+                  <FormInput
+                    label='Last Service Date'
+                    name='last_service_date'
+                    placeholder='Select Last Service Date'
+                    type='date'
+                  />
+
+                  <FormInput
+                    label='Next Service Date'
+                    name='next_service_date'
+                    placeholder='Select Next Service Date'
+                    type='date'
+                  />
+
+                  <FormInput
+                    label='Service Interval (km)'
+                    name='service_interval_km'
+                    placeholder='Enter Service Interval (e.g., 5000)'
+                    type='number'
                   />
                 </>
               )}
 
+              {/* IT Equipment fields */}
+              {isITEquipment && !isVehicle && (
+                <>
+                  <FormInput
+                    label='Serial Number'
+                    name='serial_number'
+                    placeholder='Enter Serial Number'
+                  />
+
+                  <FormInput
+                    label='Make'
+                    name='make'
+                    placeholder='Enter Make (e.g., Dell, HP)'
+                  />
+
+                  <FormInput
+                    label='Model'
+                    name='model'
+                    placeholder='Enter Model'
+                  />
+                </>
+              )}
+
+              {/* Lab Equipment fields */}
+              {isLabEquipment && (
+                <>
+                  <FormInput
+                    label='Make'
+                    name='make'
+                    placeholder='Enter Make'
+                  />
+
+                  <FormInput
+                    label='Model'
+                    name='model'
+                    placeholder='Enter Model'
+                  />
+
+                  <FormInput
+                    label='Serial Number'
+                    name='serial_number'
+                    placeholder='Enter Serial Number'
+                  />
+                </>
+              )}
+
+              {/* Furniture has no special fields */}
+
               <FormSelect
-                label='Donor'
+                label='Funding Source'
                 name='donor'
-                placeholder='Select Donor'
+                placeholder='Select Funding Source'
                 required
                 options={fundingSourceOptions}
               />
