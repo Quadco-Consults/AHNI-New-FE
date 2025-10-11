@@ -23,6 +23,7 @@ import GoBack from "components/GoBack";
 import DataTable from "components/Table/DataTable";
 import { ColumnDef } from "@tanstack/react-table";
 import { useGetAllLeaveBalances } from "../../controllers/leaveBalanceController";
+import { useGetWorkforces } from "../../controllers/workforceController";
 
 const EmployeeEntitlements = () => {
   const router = useRouter();
@@ -37,23 +38,61 @@ const EmployeeEntitlements = () => {
     search: searchTerm,
   });
 
-  const entitlements = Array.isArray(balancesData?.data)
-    ? balancesData.data
-    : Array.isArray(balancesData?.data?.results)
-    ? balancesData.data.results
-    : [];
+  // Fetch all employees to map employee IDs to names
+  const { data: employeesData, isLoading: loadingEmployees } = useGetWorkforces({ page: 1, size: 1000 });
+
+  const employees = React.useMemo(() => {
+    const rawData = Array.isArray(employeesData?.data)
+      ? employeesData.data
+      : Array.isArray(employeesData?.data?.results)
+      ? employeesData.data.results
+      : [];
+
+    // Create a map of employee ID to employee data for quick lookup
+    const employeeMap: Record<string, any> = {};
+    rawData.forEach((emp: any) => {
+      const fullName = emp.full_name || `${emp.legal_firstname || ''} ${emp.legal_lastname || ''}`.trim();
+      employeeMap[emp.id] = {
+        id: emp.id,
+        fullName: fullName || 'N/A',
+        employeeNumber: emp.serial_id_code || emp.employee_number || 'N/A',
+        email: emp.email || emp.user?.email || 'N/A',
+        department: typeof emp.department === 'object' ? emp.department?.name : emp.department || 'N/A',
+      };
+    });
+    return employeeMap;
+  }, [employeesData]);
+
+  const entitlements = React.useMemo(() => {
+    const rawBalances = Array.isArray(balancesData?.data)
+      ? balancesData.data
+      : Array.isArray(balancesData?.data?.results)
+      ? balancesData.data.results
+      : [];
+
+    // Enrich entitlements with employee data
+    return rawBalances.map((balance: any) => ({
+      ...balance,
+      employeeData: employees[balance.employee] || null,
+    }));
+  }, [balancesData, employees]);
 
   const columns: ColumnDef<any>[] = [
     {
       header: "Employee",
-      cell: ({ row }) => (
-        <div>
-          <div className="font-medium">
-            {row.original.employee?.first_name} {row.original.employee?.last_name}
+      cell: ({ row }) => {
+        const employeeData = row.original.employeeData;
+        return (
+          <div>
+            <div className="font-medium">
+              {employeeData?.fullName || 'N/A'}
+            </div>
+            <div className="text-sm text-gray-500">
+              {employeeData?.employeeNumber || 'N/A'} • {employeeData?.email || 'N/A'}
+            </div>
           </div>
-          <div className="text-sm text-gray-500">{row.original.employee?.email || 'N/A'}</div>
-        </div>
-      ),
+        );
+      },
     },
     {
       header: "Leave Type",

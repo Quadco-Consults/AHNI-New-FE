@@ -14,7 +14,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDes
 import GoBack from "components/GoBack";
 import FormButton from "@/components/FormButton";
 import { toast } from "sonner";
-import { useGetEmployeeOnboardings } from "../../controllers/employeeOnboardingController";
+import { useQueryClient } from "@tanstack/react-query";
+import { useGetWorkforces } from "../../controllers/workforceController";
 import { useGetLeaveTypes } from "../../controllers/leaveRequestController";
 import { useAssignLeaveBalance } from "../../controllers/leaveBalanceController";
 
@@ -30,15 +31,29 @@ type AssignEntitlementFormData = z.infer<typeof assignEntitlementSchema>;
 
 const AssignEntitlementForm = () => {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const currentYear = new Date().getFullYear();
 
-  // Fetch employees
-  const { data: employeesData, isLoading: loadingEmployees } = useGetEmployeeOnboardings({ size: 100 });
-  const employees = Array.isArray(employeesData?.data)
-    ? employeesData.data
-    : Array.isArray(employeesData?.data?.results)
-    ? employeesData.data.results
-    : [];
+  // Fetch employees from workforce
+  const { data: employeesData, isLoading: loadingEmployees } = useGetWorkforces({ page: 1, size: 100 });
+  const employees = React.useMemo(() => {
+    const rawData = Array.isArray(employeesData?.data)
+      ? employeesData.data
+      : Array.isArray(employeesData?.data?.results)
+      ? employeesData.data.results
+      : [];
+
+    return rawData.map((emp: any) => {
+      const fullName = emp.full_name || `${emp.legal_firstname || ''} ${emp.legal_lastname || ''}`.trim();
+      return {
+        id: emp.id,
+        fullName: fullName || 'N/A',
+        employeeNumber: emp.serial_id_code || emp.employee_number || 'N/A',
+        email: emp.email || emp.user?.email || 'N/A',
+        department: typeof emp.department === 'object' ? emp.department?.name : emp.department || 'N/A',
+      };
+    });
+  }, [employeesData]);
 
   // Fetch leave types
   const { data: leaveTypesData, isLoading: loadingTypes } = useGetLeaveTypes();
@@ -69,10 +84,17 @@ const AssignEntitlementForm = () => {
         year: parseInt(data.year),
         entitled: parseFloat(data.entitled),
       });
+
+      // Invalidate queries to refresh data
+      await queryClient.invalidateQueries({ queryKey: ["all-leave-balances"] });
+      await queryClient.invalidateQueries({ queryKey: ["employee-leave-balance"] });
+
       toast.success("Leave entitlement assigned successfully!");
       router.push("/dashboard/hr/leave-management/entitlements");
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to assign entitlement");
+    } catch (error: any) {
+      console.error("Assignment error:", error);
+      const errorMessage = error?.response?.data?.message || error?.message || "Failed to assign entitlement";
+      toast.error(errorMessage);
     }
   };
 
@@ -117,15 +139,18 @@ const AssignEntitlementForm = () => {
                         <SelectValue placeholder="Select employee" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent>
-                      {employees.map((emp: any) => (
-                        <SelectItem key={emp.id} value={emp.id}>
-                          <div className="flex flex-col">
-                            <span>{emp.first_name} {emp.last_name}</span>
-                            <span className="text-sm text-gray-500">{emp.email}</span>
-                          </div>
-                        </SelectItem>
-                      ))}
+                    <SelectContent className="max-h-[300px]">
+                      {employees.length === 0 ? (
+                        <div className="p-4 text-center text-sm text-gray-500">
+                          No employees found
+                        </div>
+                      ) : (
+                        employees.map((emp: any) => (
+                          <SelectItem key={emp.id} value={emp.id}>
+                            {emp.employeeNumber} - {emp.fullName} ({emp.department})
+                          </SelectItem>
+                        ))
+                      )}
                     </SelectContent>
                   </Select>
                   <FormDescription>
