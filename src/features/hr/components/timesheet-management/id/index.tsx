@@ -13,9 +13,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "c
 import { Calendar } from "components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { useGetAllProjects } from "@/features/projects/controllers/projectController";
-import { useGetAllWorkPlan, useGetSingleWorkPlan } from "@/features/programs/controllers/workPlanController";
+import { useGetAllActivityPlans } from "@/features/programs/controllers/activityPlanController";
 import {
   useGetTimesheetById,
+  useGetTimesheets,
   useCreateTimesheet,
   useUpdateTimesheet,
   useSubmitTimesheet,
@@ -38,6 +39,30 @@ const TimesheetManagementFull = () => {
 
   console.log("TimesheetManagementFull - params:", params, "timesheetId:", timesheetId);
   console.log("Timesheet page - timesheetId:", timesheetId, "isCreateMode:", isCreateMode);
+
+  // Calculate current week's start date (Monday)
+  const currentWeekStart = new Date();
+  currentWeekStart.setDate(currentWeekStart.getDate() - currentWeekStart.getDay() + 1);
+  const currentWeekStartStr = format(currentWeekStart, "yyyy-MM-dd");
+
+  // Check for existing timesheet in create mode
+  const { data: existingTimesheetsData } = useGetTimesheets({
+    start_date: currentWeekStartStr,
+    page: 1,
+    page_size: 1,
+    enabled: isCreateMode,
+  });
+
+  // Redirect to existing timesheet if found
+  useEffect(() => {
+    if (isCreateMode && existingTimesheetsData?.data?.results?.length > 0) {
+      const existingTimesheet = existingTimesheetsData.data.results[0];
+      toast.info("A timesheet already exists for this week. Redirecting...");
+      setTimeout(() => {
+        window.location.href = `/dashboard/hr/timesheet-management/${existingTimesheet.id}`;
+      }, 1000);
+    }
+  }, [isCreateMode, existingTimesheetsData]);
 
   // Fetch timesheet data from backend (only if not in create mode)
   const { data: timesheetData, isLoading: isLoadingTimesheet, refetch } = useGetTimesheetById(
@@ -99,7 +124,7 @@ const TimesheetManagementFull = () => {
   const addEntry = useCallback(() => {
     const newEntry: TimesheetEntry = {
       project: "",
-      custom_activity: "New Activity", // Default to custom activity with placeholder text
+      custom_activity: "", // Default to custom activity type but empty value
       date: format(new Date(), "yyyy-MM-dd"),
       hours_worked: 0,
       description: "",
@@ -220,7 +245,18 @@ const TimesheetManagementFull = () => {
     } catch (error: any) {
       console.error("Save timesheet error:", error);
       const errorMessage = error?.response?.data?.message || error?.message || "Failed to save timesheet";
-      toast.error(errorMessage);
+
+      // Check if it's a duplicate timesheet error
+      if (errorMessage.includes("duplicate key value") || errorMessage.includes("employee_start_unique")) {
+        toast.error("A timesheet already exists for this week. Redirecting to existing timesheet...");
+
+        // Try to find and redirect to existing timesheet
+        setTimeout(() => {
+          window.location.href = `/dashboard/hr/timesheet-management`;
+        }, 2000);
+      } else {
+        toast.error(errorMessage);
+      }
     }
   };
 
@@ -322,15 +358,22 @@ const TimesheetManagementFull = () => {
 
   // Activity Type Toggle Component (Hybrid: ActivityPlan OR Custom)
   const ActivityTypeSelect = ({ value, onChange, rowIndex, entry }: any) => {
-    const activityType = entry?.activity_plan ? "planned" : entry?.custom_activity ? "custom" : "";
+    // Determine activity type based on which field has a value or is defined
+    // Priority: if activity_plan exists (even if empty string) -> planned
+    //           if custom_activity exists (even if empty string) -> custom
+    //           default to custom for new entries
+    const activityType =
+      entry?.activity_plan !== undefined ? "planned" :
+      entry?.custom_activity !== undefined ? "custom" :
+      "custom"; // default to custom for new entries
 
     const handleTypeChange = (type: string) => {
       if (type === "planned") {
-        // Switch to planned: clear custom_activity
+        // Switch to planned: clear custom_activity and initialize activity_plan
         onChange(rowIndex, "custom_activity", undefined);
         onChange(rowIndex, "activity_plan", "");
       } else {
-        // Switch to custom: clear activity_plan and set custom_activity
+        // Switch to custom: clear activity_plan and initialize custom_activity
         onChange(rowIndex, "activity_plan", undefined);
         onChange(rowIndex, "custom_activity", "");
       }
@@ -339,9 +382,9 @@ const TimesheetManagementFull = () => {
     return (
       <Select value={activityType} onValueChange={handleTypeChange}>
         <SelectTrigger className="w-[150px]">
-          <SelectValue placeholder="Activity type" />
+          <SelectValue placeholder="Select type" />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="z-50">
           <SelectItem value="planned">From Workplan</SelectItem>
           <SelectItem value="custom">Custom Activity</SelectItem>
         </SelectContent>
@@ -352,27 +395,23 @@ const TimesheetManagementFull = () => {
   // Activity Selection Component (shows ActivityPlan dropdown OR custom input)
   const ActivityInput = ({ value, onChange, rowIndex, entry }: any) => {
     const selectedProjectId = entry?.project; // This is now the project UUID
-    const activityType = entry?.activity_plan ? "planned" : entry?.custom_activity ? "custom" : "";
+    // Match the same logic as ActivityTypeSelect
+    const activityType =
+      entry?.activity_plan !== undefined ? "planned" :
+      entry?.custom_activity !== undefined ? "custom" :
+      "custom";
 
-    // Get project details to find the title
-    const { data: projectsData } = useGetAllProjects({ page: 1, size: 1000 });
-    const allProjects = (projectsData as any)?.data?.results || [];
-    const selectedProject = allProjects.find((p: any) => p.id === selectedProjectId);
-    const selectedProjectTitle = selectedProject?.project_name || selectedProject?.title || selectedProject?.project_id;
-
-    // For planned activities: fetch workplan by project title
-    const { data: workplansData, isLoading: isLoadingActivities, error: workplanError } = useGetAllWorkPlan({
-      project_title: selectedProjectTitle || "",
+    // For planned activities: fetch activities directly by project ID
+    const { data: activitiesData, isLoading: isLoadingActivities } = useGetAllActivityPlans({
+      project: selectedProjectId || "",
       page: 1,
-      size: 10,
-      enabled: !!selectedProjectTitle
+      size: 100,
+      enabled: !!selectedProjectId && activityType === "planned"
     });
 
-    // Extract the first workplan and its activities
+    // Extract activities from response
     // Response structure: {data: {results: [], pagination: {}}}
-    // Type cast needed because controller type annotation doesn't match runtime response
-    const workplan = (workplansData as any)?.data?.results?.[0];
-    const activities = workplan?.activities || [];
+    const activities = activitiesData?.data?.results || [];
 
     if (activityType === "custom") {
       // Custom text input
@@ -397,7 +436,7 @@ const TimesheetManagementFull = () => {
         <SelectTrigger className="w-full min-w-[200px]">
           <SelectValue placeholder={selectedProjectId ? "Select activity" : "Select project first"} />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="z-50">
           {!selectedProjectId ? (
             <SelectItem value="no-project" disabled>
               Please select a project first
@@ -406,18 +445,14 @@ const TimesheetManagementFull = () => {
             <SelectItem value="loading-activities" disabled>
               Loading activities...
             </SelectItem>
-          ) : workplanError ? (
-            <SelectItem value="no-workplan" disabled>
-              No workplan found for this project
-            </SelectItem>
           ) : activities.length === 0 ? (
             <SelectItem value="no-activities" disabled>
-              No activities found in workplan
+              No activities found for this project
             </SelectItem>
           ) : (
             activities.map((activity: any) => (
               <SelectItem key={activity.id} value={activity.id}>
-                {activity.activity_number}: {activity.activity}
+                {activity.activity_code}: {activity.activity_name}
               </SelectItem>
             ))
           )}
@@ -559,7 +594,7 @@ const TimesheetManagementFull = () => {
         </div>
       ),
     },
-  ], [entries, timesheetStatus, blockedDates, updateEntry, copyEntry, removeEntry, getDateInfo, isDateBlocked]);
+  ], [timesheetStatus, canEdit, updateEntry, copyEntry, removeEntry]);
 
   if (isLoadingTimesheet && timesheetId !== "create") {
     return <div className="p-8 text-center">Loading timesheet...</div>;

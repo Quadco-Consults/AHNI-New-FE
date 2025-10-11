@@ -113,8 +113,8 @@ const Compensation: React.FC = () => {
     },
     {
       header: "Project",
-      accessorKey: "project",
-      cell: ({ row }) => <p>{row?.original?.project || "N/A"}</p>,
+      accessorKey: "projectName",
+      cell: ({ row }) => <p>{row?.original?.projectName || "N/A"}</p>,
       size: 150
     },
     {

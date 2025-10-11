@@ -13,74 +13,141 @@ import SearchBar from "components/atoms/SearchBar";
 import { Checkbox } from "components/ui/checkbox";
 import IconButton from "components/IconButton";
 import { Icon } from "@iconify/react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from "components/ui/dropdown-menu";
+import { toast } from "sonner";
 
-const BreakDown: React.FC = () => {
+interface BreakDownProps {
+  employees?: any[];
+}
+
+interface BreakDownPropsWithPayroll extends BreakDownProps {
+  payrollId?: string;
+}
+
+const BreakDown: React.FC<BreakDownPropsWithPayroll> = ({ employees = [], payrollId }) => {
   const router = useRouter();
 
   const [isModalOpen, setModalOpen] = React.useState(false);
+  const [selectedEmployee, setSelectedEmployee] = React.useState<any>(null);
+
+  // Handle view employee breakdown
+  const handleViewBreakdown = (employee: any) => {
+    if (payrollId) {
+      // Navigate to employee breakdown page using the correct route structure
+      router.push(`/dashboard/hr/employee-benefit/pay-roll/${payrollId}/employee/${employee.employee_id}`);
+    } else {
+      toast.error("Payroll ID not found");
+    }
+  };
+
+  // Handle generate payslip
+  const handleGeneratePayslip = (employee: any) => {
+    if (payrollId) {
+      // Navigate to employee breakdown page and trigger print
+      const url = `/dashboard/hr/employee-benefit/pay-roll/${payrollId}/employee/${employee.employee_id}`;
+      router.push(url);
+      // Print will be triggered on the breakdown page
+      toast.success(`Opening payslip for ${employee.employee_name}`);
+    } else {
+      toast.error("Payroll ID not found");
+    }
+  };
 
   const columns: ColumnDef<any>[] = [
     {
       header: "S/N",
       accessorKey: "serial_number",
       size: 50,
-      cell: ({ row }) => <p>{row?.original?.project?.title}</p>,
+      cell: ({ row }) => <p>{row.index + 1}</p>,
     },
     {
       header: "Employee Number",
       accessorKey: "employee_number",
       size: 200,
-      cell: ({ row }) => <p>{row?.original?.project?.title}</p>,
+      cell: ({ row }) => <p>{row?.original?.employee_number || 'N/A'}</p>,
     },
     {
       header: "Full name",
-      accessorKey: "full_name",
+      accessorKey: "employee_name",
       size: 300,
-      cell: ({ row }) => <p>{row?.original?.location?.name}</p>,
+      cell: ({ row }) => <p>{row?.original?.employee_name || 'N/A'}</p>,
     },
     {
-      header: "Position ",
+      header: "Position",
       accessorKey: "position",
       size: 200,
-      cell: ({ row }) => <p>{row?.original?.location?.name}</p>,
+      cell: ({ row }) => <p>{row?.original?.position || 'N/A'}</p>,
     },
     {
-      header: "Pay Group",
-      accessorKey: "pay_group",
+      header: "Basic Salary",
+      accessorKey: "basic_salary",
       size: 200,
-      cell: ({ row }) => <p>{row?.original?.project?.title}</p>,
+      cell: ({ row }) => <p>₦{row?.original?.basic_salary?.toLocaleString() || 0}</p>,
     },
 
     {
-      header: "Earnings",
-      accessorKey: "earnings",
-      size: 200,
-      cell: ({ row }) => <p>{row?.original?.project?.title}</p>,
-    },
-    {
-      header: "Deductions",
-      accessorKey: "deductions",
-      size: 200,
-      cell: ({ row }) => <p>{row?.original?.project?.title}</p>,
-    },
-
-    {
-      header: "Total Allowance",
+      header: "Total Allowances",
       accessorKey: "total_allowance",
       size: 200,
-      cell: ({ row }) => <p>{row?.original?.project?.title}</p>,
+      cell: ({ row }) => {
+        const allowances = row?.original?.allowances || {};
+        const total = (allowances.housing || 0) + (allowances.transport || 0) + (allowances.meal || 0) + (allowances.miscellaneous || 0);
+        return <p>₦{total.toLocaleString()}</p>;
+      },
     },
     {
       header: "Total Deductions",
       accessorKey: "total_deductions",
       size: 200,
-      cell: ({ row }) => <p>{row?.original?.project?.title}</p>,
+      cell: ({ row }) => <p>₦{row?.original?.total_deductions?.toLocaleString() || 0}</p>,
     },
+
     {
       header: "Gross Pay",
-      accessorKey: "gross_pay",
+      accessorKey: "gross_salary",
       size: 200,
-      cell: ({ row }) => <p>{row?.original?.project?.title}</p>,
+      cell: ({ row }) => <p>₦{row?.original?.gross_salary?.toLocaleString() || 0}</p>,
+    },
+    {
+      header: "Net Pay",
+      accessorKey: "net_salary",
+      size: 200,
+      cell: ({ row }) => <p className="font-semibold">₦{row?.original?.net_salary?.toLocaleString() || 0}</p>,
+    },
+    {
+      header: "Actions",
+      id: "actions",
+      size: 120,
+      cell: ({ row }) => (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+              <Icon icon="ph:dots-three-vertical-bold" className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem
+              onClick={() => handleViewBreakdown(row.original)}
+              className="cursor-pointer"
+            >
+              <Icon icon="ph:eye-duotone" className="mr-2 h-4 w-4" />
+              View Breakdown
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => handleGeneratePayslip(row.original)}
+              className="cursor-pointer"
+            >
+              <Icon icon="ph:file-text-duotone" className="mr-2 h-4 w-4" />
+              Generate Payslip
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ),
     },
   ];
 
@@ -89,13 +156,9 @@ const BreakDown: React.FC = () => {
       <div className='w-full mt-6'>
         <DataTable
           columns={columns}
-          //   onRowClick={(row) => {
-          //     router.push("/c-and-g/grant-details/" + row?.original?.id);
-          //   }}
-          data={[]}
-          // isLoading={true}
+          data={employees}
           pagination={{
-            total: 10,
+            total: employees.length,
             pageSize: 10,
             onChange: (page: number) => {},
           }}

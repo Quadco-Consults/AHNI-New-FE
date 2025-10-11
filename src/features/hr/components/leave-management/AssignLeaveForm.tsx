@@ -30,7 +30,7 @@ import GoBack from "components/GoBack";
 import BackendStatusBanner from "./BackendStatusBanner";
 
 import { useGetLeaveTypes } from "../../controllers/leaveRequestController";
-import { useGetEmployeeOnboardings } from "../../controllers/employeeOnboardingController";
+import { useGetWorkforces } from "../../controllers/workforceController";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
@@ -70,7 +70,7 @@ const AssignLeaveForm = ({ onSuccess }: AssignLeaveFormProps = {}) => {
 
   // Fetch data
   const { data: leaveTypesData, isLoading: loadingTypes, error: typesError } = useGetLeaveTypes();
-  const { data: employeesData, isLoading: loadingEmployees } = useGetEmployeeOnboardings({ size: 100 });
+  const { data: employeesData, isLoading: loadingEmployees } = useGetWorkforces({ page: 1, size: 100 });
 
   // Extract and clean leave types - convert everything to primitives
   const leaveTypes = React.useMemo(() => {
@@ -94,14 +94,22 @@ const AssignLeaveForm = ({ onSuccess }: AssignLeaveFormProps = {}) => {
       ? employeesData.data.results
       : [];
 
-    return rawData.map((emp: any) => ({
-      id: String(emp.id || ''),
-      firstName: String(emp.first_name || ''),
-      lastName: String(emp.last_name || ''),
-      employeeId: String(emp.employee_id || emp.id || ''),
-      department: String(emp.department || 'N/A'),
-      email: String(emp.email || '')
-    }));
+    return rawData.map((emp: any) => {
+      const fullName = emp.full_name || `${emp.legal_firstname || ''} ${emp.legal_lastname || ''}`.trim();
+      const nameParts = fullName.split(' ');
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.slice(1).join(' ') || '';
+
+      return {
+        id: String(emp.id || ''),
+        firstName: String(firstName),
+        lastName: String(lastName),
+        fullName: String(fullName || 'N/A'),
+        employeeId: String(emp.serial_id_code || emp.employee_number || emp.id || ''),
+        department: String(typeof emp.department === 'object' ? emp.department?.name : emp.department || 'N/A'),
+        email: String(emp.email || emp.user?.email || '')
+      };
+    });
   }, [employeesData]);
 
   // Filter employees based on search
@@ -112,6 +120,7 @@ const AssignLeaveForm = ({ onSuccess }: AssignLeaveFormProps = {}) => {
     return employees.filter(emp =>
       emp.firstName.toLowerCase().includes(query) ||
       emp.lastName.toLowerCase().includes(query) ||
+      emp.fullName.toLowerCase().includes(query) ||
       emp.employeeId.toLowerCase().includes(query) ||
       emp.department.toLowerCase().includes(query) ||
       emp.email.toLowerCase().includes(query)
