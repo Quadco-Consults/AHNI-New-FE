@@ -13,31 +13,47 @@ import AssetBulkUploadDialog from "./BulkUploadDialog";
 
 export default function AssetHomePage() {
   const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
   const [bulkUploadOpen, setBulkUploadOpen] = useState(false);
 
   const { data: asset, isLoading } = useGetAllItemsQuery({
     page,
     size: 20,
-    search: "",
-    category: "17ca9ee7-603a-43a9-91e8-979652a8231c",
+    search,
+    // Use the correct Vehicles category ID
+    category: "b0983944-f926-4141-8e28-093960d75246",
   });
 
   return (
     <div className='space-y-5'>
-      <div className='flex justify-end gap-3'>
-        <Button
-          variant="outline"
-          onClick={() => setBulkUploadOpen(true)}
-        >
-          <Upload size={20} />
-          Bulk Upload
-        </Button>
-        <Link href='/dashboard/admin/assets/create'>
-          <Button>
-            <Plus size={20} />
-            Create Asset
+      <div className='flex justify-between items-center gap-3'>
+        <div className="flex-1 max-w-sm">
+          <input
+            type="text"
+            placeholder="Search assets (Honda, Range Rover, etc.)..."
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1); // Reset to page 1 when searching
+            }}
+            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <div className='flex gap-3'>
+          <Button
+            variant="outline"
+            onClick={() => setBulkUploadOpen(true)}
+          >
+            <Upload size={20} />
+            Bulk Upload
           </Button>
-        </Link>
+          <Link href='/dashboard/admin/assets/create'>
+            <Button>
+              <Plus size={20} />
+              Create Asset
+            </Button>
+          </Link>
+        </div>
       </div>
 
       <Card className='space-y-4'>

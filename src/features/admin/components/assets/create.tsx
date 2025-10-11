@@ -32,8 +32,18 @@ import {
   useGetSingleItem,
   useUpdateItem,
 } from "@/features/modules/controllers/config/itemController";
+import {
+  ITEM_TYPES,
+  buildCategoryOptions,
+  getCategoriesByTypeAndParent,
+} from "@/utils/categoryHelpers";
+import { useState } from "react";
 
 export default function CreateAsset() {
+  // State for cascading category selection
+  const [selectedItemType, setSelectedItemType] = useState<string>("");
+  const [selectedParentCategory, setSelectedParentCategory] = useState<string>("");
+
   const form = useForm<TAssetFormValues>({
     resolver: zodResolver(AssetSchema),
     defaultValues: {
@@ -191,6 +201,53 @@ export default function CreateAsset() {
     [fundingSource]
   );
 
+  // Fetch all categories for hierarchical selection
+  const { data: categories } = useGetAllCategories({
+    page: 1,
+    size: 1000, // Get all categories
+    search: "",
+  });
+
+  // Item type options (GOODS, SERVICE, WORK)
+  const itemTypeOptions = useMemo(
+    () => [
+      { label: "Goods", value: ITEM_TYPES.GOODS },
+      { label: "Service", value: ITEM_TYPES.SERVICE },
+      { label: "Work", value: ITEM_TYPES.WORK },
+      { label: "Others", value: ITEM_TYPES.OTHERS },
+    ],
+    []
+  );
+
+  // Parent category options (filtered by item type)
+  const parentCategoryOptions = useMemo(() => {
+    if (!categories?.data?.results || !selectedItemType) {
+      return [];
+    }
+
+    const topLevelCategories = getCategoriesByTypeAndParent(
+      categories.data.results,
+      selectedItemType as any
+    );
+
+    return buildCategoryOptions(topLevelCategories);
+  }, [categories, selectedItemType]);
+
+  // Final category options (filtered by parent category)
+  const finalCategoryOptions = useMemo(() => {
+    if (!categories?.data?.results || !selectedItemType) {
+      return [];
+    }
+
+    const childCategories = getCategoriesByTypeAndParent(
+      categories.data.results,
+      selectedItemType as any,
+      selectedParentCategory || undefined
+    );
+
+    return buildCategoryOptions(childCategories);
+  }, [categories, selectedItemType, selectedParentCategory]);
+
   const query = useQuery();
   const assetId = query.get("id");
 
@@ -230,17 +287,6 @@ export default function CreateAsset() {
   }, [asset, user]);
 
   const router = useRouter();
-
-  const { data: categories } = useGetAllCategories({
-    page: 1,
-    size: 2000000,
-    search: "",
-  });
-
-  const categoryOptions = categories?.data?.results?.map((cat) => ({
-    label: cat.name,
-    value: cat.id,
-  }));
 
   const { createItem, isLoading: isCreateLoading } = useAddItem();
   const { updateItem: editItem, isLoading: isEditLoading } = useUpdateItem(
@@ -458,13 +504,66 @@ export default function CreateAsset() {
                 placeholder='Enter UOM'
               />
 
-              <FormSelect
-                label='Category'
-                name='category'
-                required
-                placeholder='Select Category'
-                options={categoryOptions}
-              />
+              {/* Cascading Category Selection */}
+              <div className='col-span-2'>
+                <h3 className='font-semibold mb-4 text-gray-700'>Category Selection</h3>
+                <div className='grid grid-cols-3 gap-x-5 gap-y-6'>
+                  {/* Step 1: Item Type */}
+                  <FormSelect
+                    label='Item Type'
+                    name='item_type'
+                    required
+                    placeholder='Select Item Type'
+                    options={itemTypeOptions}
+                    onValueChange={(value) => {
+                      setSelectedItemType(value);
+                      setSelectedParentCategory("");
+                      form.setValue("category", "");
+                    }}
+                  />
+
+                  {/* Step 2: Parent Category (Assets, Consumables, etc.) */}
+                  <FormSelect
+                    label='Parent Category'
+                    name='parent_category'
+                    required={!!selectedItemType}
+                    placeholder={
+                      !selectedItemType
+                        ? "Select Item Type first"
+                        : parentCategoryOptions.length === 0
+                        ? "No parent categories available"
+                        : "Select Parent Category"
+                    }
+                    options={parentCategoryOptions}
+                    disabled={!selectedItemType}
+                    onValueChange={(value) => {
+                      setSelectedParentCategory(value);
+                      form.setValue("category", "");
+                    }}
+                  />
+
+                  {/* Step 3: Final Category (Vehicles, IT Equipment, etc.) */}
+                  <FormSelect
+                    label='Category'
+                    name='category'
+                    required
+                    placeholder={
+                      !selectedItemType
+                        ? "Select Item Type first"
+                        : !selectedParentCategory
+                        ? "Select Parent Category first"
+                        : finalCategoryOptions.length === 0
+                        ? "No categories available"
+                        : "Select Category"
+                    }
+                    options={finalCategoryOptions}
+                    disabled={!selectedItemType || !selectedParentCategory}
+                  />
+                </div>
+                <p className='text-xs text-gray-500 mt-2'>
+                  Example: Goods → Assets → Vehicles
+                </p>
+              </div>
             </div>
 
             <FormTextArea
