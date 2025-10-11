@@ -139,25 +139,37 @@ const PayrollCreate: React.FC = () => {
 
         if (!employee) return null;
 
-        const basicSalary = getCompensationValue(compensation?.basic) || employee.basic_salary || 0;
+        // Get basic salary from compensation spread and divide by 12 for monthly payroll
+        const annualBasicSalary = getCompensationValue(compensation?.basic) || employee.basic_salary || 0;
+        const monthlyBasicSalary = annualBasicSalary / 12;
+
         const housing = getCompensationValue(compensation?.housing);
         const transport = getCompensationValue(compensation?.transport);
         const meal = getCompensationValue(compensation?.meal);
         const miscellaneous = getCompensationValue(compensation?.miscellaneous);
 
-        const grossSalary = basicSalary + housing + transport + meal + miscellaneous;
-        const pension = grossSalary * 0.08;
-        const tax = grossSalary * 0.07;
-        const nhis = 500;
+        const grossSalary = monthlyBasicSalary + housing + transport + meal + miscellaneous;
+
+        // Get deduction rates from compensation spread
+        // Tax and Pension are stored as percentages (e.g., 7 for 7%, 8 for 8%)
+        const taxRate = getCompensationValue(compensation?.tax) || 0;
+        const pensionRate = getCompensationValue(compensation?.pension) || 0;
+        const nhisAmount = getCompensationValue(compensation?.nhis) || 0;
+
+        // Calculate actual deduction amounts
+        const tax = (grossSalary * taxRate) / 100;
+        const pension = (grossSalary * pensionRate) / 100;
+        const nhis = nhisAmount;
+
         const totalDeductions = pension + tax + nhis;
         const netSalary = grossSalary - totalDeductions;
 
         return {
           employee_id: employee.id,
-          employee_name: employee.name,
-          employee_number: employee.employee_id,
+          employee_name: (employee as any).full_name || employee.name || 'N/A',
+          employee_number: (employee as any).serial_id_code || employee.employee_id || 'N/A',
           position: typeof employee.position === 'object' ? employee.position?.name : employee.position || 'N/A',
-          basic_salary: basicSalary,
+          basic_salary: monthlyBasicSalary,
           allowances: { housing, transport, meal, miscellaneous },
           deductions: { tax, pension, nhis, loan: 0 },
           gross_salary: grossSalary,
@@ -306,14 +318,14 @@ const PayrollCreate: React.FC = () => {
                       onCheckedChange={() => handleEmployeeToggle(employee.id)}
                     />
                     <div className="flex-1">
-                      <p className="font-medium">{employee.name || 'N/A'}</p>
+                      <p className="font-medium">{(employee as any).full_name || employee.name || 'N/A'}</p>
                       <p className="text-sm text-gray-500">
-                        {employee.employee_id || 'N/A'} • {typeof employee.position === 'object' ? employee.position?.name : employee.position || 'N/A'}
+                        {(employee as any).serial_id_code || employee.employee_id || 'N/A'} • {typeof employee.position === 'object' ? employee.position?.name : employee.position || 'N/A'}
                       </p>
                     </div>
                     <div className="text-right">
                       <p className="text-sm font-medium">
-                        ₦{typeof employee.basic_salary === 'number' ? employee.basic_salary.toLocaleString() : 'N/A'}
+                        {typeof employee.basic_salary === 'number' ? `₦${employee.basic_salary.toLocaleString()}` : 'N/A'}
                       </p>
                     </div>
                   </div>

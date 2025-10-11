@@ -13,6 +13,7 @@ import { Button } from "components/ui/button";
 import { useGetWorkforces } from "@/features/hr/controllers/workforceController";
 import { useCreateCompensationSpread } from "@/features/hr/controllers/hrCompensationSpreadController";
 import { useGetPayGroupCompensationByPayGroup } from "@/features/hr/controllers/payGroupCompensationController";
+import { useGetAllProjects } from "@/features/projects/controllers/projectController";
 
 type PropsType = {
   isOpen: boolean;
@@ -43,6 +44,10 @@ const AddCompensationSpreadModal = (props: PropsType) => {
     page: 1,
     size: 100,
   });
+  const { data: projectsData, isLoading: isLoadingProjects } = useGetAllProjects({
+    page: 1,
+    size: 1000,
+  });
   const { createCompensationSpread, isLoading } = useCreateCompensationSpread();
 
   // Debug logging
@@ -68,6 +73,9 @@ const AddCompensationSpreadModal = (props: PropsType) => {
       total_allowance: "",
       thirteenth_month: "",
       gross_total: "",
+      tax: "",
+      pension: "",
+      nhis: "",
     },
   });
 
@@ -76,11 +84,11 @@ const AddCompensationSpreadModal = (props: PropsType) => {
   // When employee is selected, populate all their details
   useEffect(() => {
     if (selectedEmployee) {
-      // Auto-populate employee information
-      const employeeNumber = selectedEmployee?.employee_number || "";
-      const fullName = `${selectedEmployee?.user?.first_name || ""} ${selectedEmployee?.user?.last_name || ""}`.trim();
+      // Auto-populate employee information - match actual API field names
+      const employeeNumber = selectedEmployee?.serial_id_code || selectedEmployee?.employee_number || "";
+      const fullName = selectedEmployee?.full_name || `${selectedEmployee?.legal_firstname || ""} ${selectedEmployee?.legal_lastname || ""}`.trim();
       const position = selectedEmployee?.position?.name || "N/A";
-      const grade = selectedEmployee?.grade || "N/A";
+      const grade = selectedEmployee?.grade?.name || selectedEmployee?.grade || "N/A";
       const location = selectedEmployee?.location?.name || "N/A";
       const hireDate = selectedEmployee?.date_of_hire || "N/A";
 
@@ -135,13 +143,25 @@ const AddCompensationSpreadModal = (props: PropsType) => {
     setValue("gross_total", grossTotal.toString());
   }, [basic, housing, transport, meal, miscellaneous, thirteenthMonth, setValue]);
 
-  const employeeOptions = workforcesData?.results?.map((employee: any) => ({
-    label: `${employee?.employee_number} - ${employee?.user?.first_name} ${employee?.user?.last_name} (${employee?.position?.name || 'No Position'})`,
+  // Extract employees from the correct API response structure
+  const employees = workforcesData?.data?.results || [];
+
+  const employeeOptions = employees.map((employee: any) => ({
+    label: `${employee?.serial_id_code || employee?.employee_number || 'N/A'} - ${employee?.full_name || `${employee?.legal_firstname || ''} ${employee?.legal_lastname || ''}`} (${employee?.position?.name || 'No Position'})`,
     value: employee?.id,
   }));
 
+  // Extract projects from the correct API response structure
+  const projects = (projectsData as any)?.data?.results || [];
+  const projectOptions = projects
+    .filter((project: any) => project?.id && project.id.trim() !== '')
+    .map((project: any) => ({
+      label: `${project?.project_id || 'N/A'} - ${project?.title || project?.project_name || 'N/A'}`,
+      value: project?.id,
+    }));
+
   const handleEmployeeChange = (employeeId: string) => {
-    const employee = workforcesData?.results?.find((emp: any) => emp.id === employeeId);
+    const employee = employees.find((emp: any) => emp.id === employeeId);
     setSelectedEmployee(employee);
     setValue("employee", employeeId);
   };
@@ -158,6 +178,9 @@ const AddCompensationSpreadModal = (props: PropsType) => {
       total_allowance: parseFloat(data.total_allowance) || 0,
       thirteenth_month: parseFloat(data.thirteenth_month) || 0,
       gross_total: parseFloat(data.gross_total) || 0,
+      tax: parseFloat(data.tax) || 0,
+      pension: parseFloat(data.pension) || 0,
+      nhis: parseFloat(data.nhis) || 0,
     };
 
     try {
@@ -203,11 +226,11 @@ const AddCompensationSpreadModal = (props: PropsType) => {
                   </p>
                 )}
               </div>
-              <FormInput
+              <FormSelect
                 label="Project"
                 name="project"
-                type="text"
-                placeholder="Enter project name"
+                placeholder={isLoadingProjects ? "Loading projects..." : "Select Project"}
+                options={projectOptions || []}
               />
             </div>
 
@@ -218,12 +241,12 @@ const AddCompensationSpreadModal = (props: PropsType) => {
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
                   <div>
                     <span className="text-gray-600">Employee #:</span>
-                    <span className="ml-2 font-medium">{selectedEmployee?.employee_number || "N/A"}</span>
+                    <span className="ml-2 font-medium">{selectedEmployee?.serial_id_code || selectedEmployee?.employee_number || "N/A"}</span>
                   </div>
                   <div>
                     <span className="text-gray-600">Name:</span>
                     <span className="ml-2 font-medium">
-                      {selectedEmployee?.user?.first_name} {selectedEmployee?.user?.last_name}
+                      {selectedEmployee?.full_name || `${selectedEmployee?.legal_firstname || ''} ${selectedEmployee?.legal_lastname || ''}`}
                     </span>
                   </div>
                   <div>
@@ -232,7 +255,7 @@ const AddCompensationSpreadModal = (props: PropsType) => {
                   </div>
                   <div>
                     <span className="text-gray-600">Grade:</span>
-                    <span className="ml-2 font-medium">{selectedEmployee?.grade || "N/A"}</span>
+                    <span className="ml-2 font-medium">{selectedEmployee?.grade?.name || selectedEmployee?.grade || "N/A"}</span>
                   </div>
                   <div>
                     <span className="text-gray-600">Location:</span>
@@ -288,6 +311,38 @@ const AddCompensationSpreadModal = (props: PropsType) => {
                   name="thirteenth_month"
                   type="number"
                   placeholder="0.00"
+                />
+              </div>
+            </div>
+
+            <div className="border-t pt-4">
+              <h3 className="text-md font-semibold mb-4">Deductions</h3>
+              <div className="grid grid-cols-3 gap-6">
+                <FormInput
+                  label="Tax (%)"
+                  name="tax"
+                  type="number"
+                  placeholder="e.g., 7 for 7%"
+                  min="0"
+                  max="100"
+                  step="0.01"
+                />
+                <FormInput
+                  label="Pension (%)"
+                  name="pension"
+                  type="number"
+                  placeholder="e.g., 8 for 8%"
+                  min="0"
+                  max="100"
+                  step="0.01"
+                />
+                <FormInput
+                  label="NHIS (₦)"
+                  name="nhis"
+                  type="number"
+                  placeholder="Fixed amount"
+                  min="0"
+                  step="0.01"
                 />
               </div>
             </div>

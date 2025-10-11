@@ -154,6 +154,97 @@ const LeaveDetailView: React.FC<LeaveDetailViewProps> = ({ id }) => {
     }
   };
 
+  const handleSubmit = async () => {
+    try {
+      setIsProcessing(true);
+
+      // Log leave request details for debugging
+      console.log("=== LEAVE SUBMISSION DEBUG ===");
+      console.log("Leave Request ID:", id);
+      console.log("Leave Type:", leaveRequest?.leave_type);
+      console.log("Status:", leaveRequest?.status);
+
+      // Check if workflows exist for this leave type
+      try {
+        const workflowsResponse = await AxiosWithToken.get("hr/approval-workflows/");
+        const workflows = workflowsResponse.data?.data?.results || workflowsResponse.data?.data || [];
+        const matchingWorkflow = workflows.find((w: any) => w.leave_type?.id === leaveRequest?.leave_type?.id);
+
+        console.log("All workflows:", workflows);
+        console.log("Matching workflow for this leave type:", matchingWorkflow);
+
+        if (!matchingWorkflow) {
+          toast.error(
+            `No workflow found for leave type "${leaveRequest?.leave_type?.name}". Please create a workflow first.`,
+            { duration: 5000 }
+          );
+          setIsProcessing(false);
+          return;
+        }
+      } catch (workflowCheckError) {
+        console.error("Error checking workflows:", workflowCheckError);
+      }
+      console.log("==============================");
+
+      await AxiosWithToken.post(`hr/leave-request/${id}/submit/`);
+
+      await queryClient.invalidateQueries({ queryKey: ["leave-request", id] });
+      await queryClient.invalidateQueries({ queryKey: ["leave-requests"] });
+
+      toast.success("Leave request submitted successfully");
+      refetch();
+    } catch (error: any) {
+      console.error("Error submitting leave request:", error);
+      console.error("Leave request data:", leaveRequest);
+
+      const errorMessage = error.response?.data?.message || error.message || "Failed to submit";
+
+      // Check if it's the NoneType workflow/approver error
+      if (errorMessage.includes("NoneType") || errorMessage.includes("'id'")) {
+        toast.error(
+          "Cannot submit leave request. The backend approval workflow system has an error. " +
+          "Please check:\n" +
+          "1. Workflow exists for leave type: " + (leaveRequest?.leave_type?.name || "Unknown") + "\n" +
+          "2. Workflow has at least one approver configured\n" +
+          "3. Approvers are valid users in the system",
+          { duration: 8000 }
+        );
+      } else {
+        toast.error(errorMessage);
+      }
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleSubmitAndApprove = async () => {
+    try {
+      setIsProcessing(true);
+
+      // First submit
+      await AxiosWithToken.post(`hr/leave-request/${id}/submit/`);
+      toast.success("Leave request submitted");
+
+      // Then approve
+      await AxiosWithToken.post(`hr/leave-request/${id}/approve/`, {
+        comments: approvalComments,
+      });
+
+      await queryClient.invalidateQueries({ queryKey: ["leave-request", id] });
+      await queryClient.invalidateQueries({ queryKey: ["leave-requests"] });
+
+      toast.success("Leave request submitted and approved successfully");
+      setShowApproveDialog(false);
+      setApprovalComments("");
+      refetch();
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || error.message || "Failed to submit and approve";
+      toast.error(errorMessage);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   // Loading state
   if (isLoading) {
     return (
@@ -430,7 +521,28 @@ const LeaveDetailView: React.FC<LeaveDetailViewProps> = ({ id }) => {
             </div>
           </Card>
 
-          {/* Actions */}
+          {/* Actions for Draft Status */}
+          {status === "draft" && (
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4">Actions</h3>
+              <div className="space-y-3">
+                <Button
+                  className="w-full bg-blue-600 hover:bg-blue-700"
+                  onClick={handleSubmit}
+                  disabled={isProcessing}
+                >
+                  <ArrowRight className="w-4 h-4 mr-2" />
+                  Submit for Approval
+                </Button>
+
+                <Button variant="outline" className="w-full" onClick={handleCancel} disabled={isProcessing}>
+                  Cancel Request
+                </Button>
+              </div>
+            </Card>
+          )}
+
+          {/* Actions for Pending Approval Status */}
           {status === "pending_approval" && (
             <Card className="p-6">
               <h3 className="text-lg font-semibold mb-4">Actions</h3>
@@ -467,9 +579,14 @@ const LeaveDetailView: React.FC<LeaveDetailViewProps> = ({ id }) => {
       <Dialog open={showApproveDialog} onOpenChange={setShowApproveDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Approve Leave Request</DialogTitle>
+            <DialogTitle>
+              {status === "draft" ? "Submit & Approve Leave Request" : "Approve Leave Request"}
+            </DialogTitle>
             <DialogDescription>
-              You are about to approve this leave request. You can add optional comments below.
+              {status === "draft"
+                ? "This will submit and immediately approve the leave request."
+                : "You are about to approve this leave request. You can add optional comments below."
+              }
             </DialogDescription>
           </DialogHeader>
 
@@ -511,10 +628,13 @@ const LeaveDetailView: React.FC<LeaveDetailViewProps> = ({ id }) => {
             </Button>
             <Button
               className="bg-green-600 hover:bg-green-700"
-              onClick={handleApprove}
+              onClick={status === "draft" ? handleSubmitAndApprove : handleApprove}
               disabled={isProcessing}
             >
-              {isProcessing ? "Approving..." : "Approve Leave"}
+              {isProcessing
+                ? (status === "draft" ? "Submitting & Approving..." : "Approving...")
+                : (status === "draft" ? "Submit & Approve" : "Approve Leave")
+              }
             </Button>
           </DialogFooter>
         </DialogContent>
