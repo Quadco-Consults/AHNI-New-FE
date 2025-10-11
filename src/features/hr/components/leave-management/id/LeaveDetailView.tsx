@@ -157,6 +157,35 @@ const LeaveDetailView: React.FC<LeaveDetailViewProps> = ({ id }) => {
   const handleSubmit = async () => {
     try {
       setIsProcessing(true);
+
+      // Log leave request details for debugging
+      console.log("=== LEAVE SUBMISSION DEBUG ===");
+      console.log("Leave Request ID:", id);
+      console.log("Leave Type:", leaveRequest?.leave_type);
+      console.log("Status:", leaveRequest?.status);
+
+      // Check if workflows exist for this leave type
+      try {
+        const workflowsResponse = await AxiosWithToken.get("hr/approval-workflows/");
+        const workflows = workflowsResponse.data?.data?.results || workflowsResponse.data?.data || [];
+        const matchingWorkflow = workflows.find((w: any) => w.leave_type?.id === leaveRequest?.leave_type?.id);
+
+        console.log("All workflows:", workflows);
+        console.log("Matching workflow for this leave type:", matchingWorkflow);
+
+        if (!matchingWorkflow) {
+          toast.error(
+            `No workflow found for leave type "${leaveRequest?.leave_type?.name}". Please create a workflow first.`,
+            { duration: 5000 }
+          );
+          setIsProcessing(false);
+          return;
+        }
+      } catch (workflowCheckError) {
+        console.error("Error checking workflows:", workflowCheckError);
+      }
+      console.log("==============================");
+
       await AxiosWithToken.post(`hr/leave-request/${id}/submit/`);
 
       await queryClient.invalidateQueries({ queryKey: ["leave-request", id] });
@@ -165,8 +194,24 @@ const LeaveDetailView: React.FC<LeaveDetailViewProps> = ({ id }) => {
       toast.success("Leave request submitted successfully");
       refetch();
     } catch (error: any) {
+      console.error("Error submitting leave request:", error);
+      console.error("Leave request data:", leaveRequest);
+
       const errorMessage = error.response?.data?.message || error.message || "Failed to submit";
-      toast.error(errorMessage);
+
+      // Check if it's the NoneType workflow/approver error
+      if (errorMessage.includes("NoneType") || errorMessage.includes("'id'")) {
+        toast.error(
+          "Cannot submit leave request. The backend approval workflow system has an error. " +
+          "Please check:\n" +
+          "1. Workflow exists for leave type: " + (leaveRequest?.leave_type?.name || "Unknown") + "\n" +
+          "2. Workflow has at least one approver configured\n" +
+          "3. Approvers are valid users in the system",
+          { duration: 8000 }
+        );
+      } else {
+        toast.error(errorMessage);
+      }
     } finally {
       setIsProcessing(false);
     }

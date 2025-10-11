@@ -17,10 +17,11 @@ import { toast } from "sonner";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { useQueryClient } from "@tanstack/react-query";
 import { useGetLeaveTypes } from "../../controllers/leaveRequestController";
-import { useGetEmployeeOnboardings } from "../../controllers/employeeOnboardingController";
+import { useGetWorkforces } from "../../controllers/workforceController";
 
 const approverSchema = z.object({
   approverId: z.string().min(1, "Please select an approver"),
+  userId: z.string().optional(),  // Store user ID for backend
   level: z.number(),
 });
 
@@ -40,7 +41,7 @@ const WorkflowForm = () => {
 
   // Fetch leave types and employees
   const { data: leaveTypesData, isLoading: loadingTypes } = useGetLeaveTypes();
-  const { data: employeesData, isLoading: loadingEmployees } = useGetEmployeeOnboardings({ size: 100 });
+  const { data: employeesData, isLoading: loadingEmployees } = useGetWorkforces({ page: 1, size: 1000 });
 
   const leaveTypes = React.useMemo(() => {
     const rawData = Array.isArray(leaveTypesData?.data)
@@ -62,12 +63,41 @@ const WorkflowForm = () => {
       ? employeesData.data.results
       : [];
 
-    return rawData.map((emp: any) => ({
-      id: String(emp.id || ''),
-      firstName: String(emp.first_name || ''),
-      lastName: String(emp.last_name || ''),
-      email: String(emp.email || '')
-    }));
+    const mappedEmployees = rawData.map((emp: any) => {
+      const fullName = emp.full_name || `${emp.legal_firstname || ''} ${emp.legal_lastname || ''}`.trim();
+      const nameParts = fullName.split(' ');
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.slice(1).join(' ') || '';
+
+      // Extract user ID - handle different response structures
+      let userId = '';
+      if (typeof emp.user === 'object' && emp.user?.id) {
+        userId = emp.user.id;
+      } else if (typeof emp.user === 'string') {
+        userId = emp.user;
+      }
+
+      return {
+        id: String(emp.id || ''),
+        userId: String(userId),  // Extract user ID for workflow approver
+        firstName: String(firstName),
+        lastName: String(lastName),
+        fullName: String(fullName || 'N/A'),
+        employeeNumber: String(emp.serial_id_code || emp.employee_number || 'N/A'),
+        email: String(emp.email || emp.user?.email || 'N/A'),
+        department: String(typeof emp.department === 'object' ? emp.department?.name : emp.department || 'N/A'),
+      };
+    });
+
+    // Debug log first 2 employees to see structure
+    if (mappedEmployees.length > 0) {
+      console.log('=== EMPLOYEE DATA SAMPLE ===');
+      console.log('First employee:', mappedEmployees[0]);
+      console.log('Raw first employee:', rawData[0]);
+      console.log('===========================');
+    }
+
+    return mappedEmployees;
   }, [employeesData]);
 
   const form = useForm<FormData>({
@@ -89,19 +119,32 @@ const WorkflowForm = () => {
     setIsSubmitting(true);
 
     try {
+      // Validate that all approvers have user IDs
+      const invalidApprovers = data.approvers.filter(a => !a.userId && !a.approverId);
+      if (invalidApprovers.length > 0) {
+        toast.error("Some approvers don't have valid user IDs. Please select employees that have user accounts.");
+        return;
+      }
+
       const requestData = {
         name: data.name,
         leave_type: data.leaveTypeId,
         description: data.description || '',
         approvers: data.approvers.map((approver, index) => ({
-          approver: approver.approverId,
-          level: index + 1, // Use array index as level
+          approver: approver.userId || approver.approverId,  // Send user ID (backend validates against User table)
+          level: index + 1,
         })),
       };
 
-      console.log('Creating workflow:', requestData);
+      console.log('=== WORKFLOW CREATION DEBUG ===');
+      console.log('Form data:', data);
+      console.log('Approvers data:', data.approvers);
+      console.log('Request payload:', JSON.stringify(requestData, null, 2));
+      console.log('==============================');
 
-      await AxiosWithToken.post("hr/approval-workflows/", requestData);
+      const response = await AxiosWithToken.post("hr/approval-workflows/", requestData);
+
+      console.log('Workflow created successfully:', response.data);
 
       await queryClient.invalidateQueries({ queryKey: ["approval-workflows"] });
 
@@ -299,18 +342,34 @@ const WorkflowForm = () => {
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Approver *</FormLabel>
-                              <Select value={field.value} onValueChange={field.onChange}>
+                              <Select
+                                value={field.value}
+                                onValueChange={(value) => {
+                                  field.onChange(value);
+                                  // Also set the userId when employee is selected
+                                  const selectedEmployee = employees.find(emp => emp.id === value);
+                                  if (selectedEmployee?.userId) {
+                                    form.setValue(`approvers.${index}.userId`, selectedEmployee.userId);
+                                  }
+                                }}
+                              >
                                 <FormControl>
                                   <SelectTrigger>
                                     <SelectValue placeholder="Select an approver" />
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent className="max-h-[200px] overflow-y-auto">
-                                  {employees.map((employee) => (
-                                    <SelectItem key={employee.id} value={employee.id}>
-                                      {employee.firstName} {employee.lastName} ({employee.email})
-                                    </SelectItem>
-                                  ))}
+                                  {employees.length === 0 ? (
+                                    <div className="p-4 text-center text-sm text-gray-500">
+                                      No employees found
+                                    </div>
+                                  ) : (
+                                    employees.map((employee) => (
+                                      <SelectItem key={employee.id} value={employee.id}>
+                                        {employee.employeeNumber} - {employee.fullName} ({employee.department})
+                                      </SelectItem>
+                                    ))
+                                  )}
                                 </SelectContent>
                               </Select>
                               <FormMessage />
