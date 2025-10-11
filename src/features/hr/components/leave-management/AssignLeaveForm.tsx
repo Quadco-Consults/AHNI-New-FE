@@ -31,6 +31,7 @@ import BackendStatusBanner from "./BackendStatusBanner";
 
 import { useGetLeaveTypes } from "../../controllers/leaveRequestController";
 import { useGetWorkforces } from "../../controllers/workforceController";
+import { useGetEmployeeLeaveBalance } from "../../controllers/leaveBalanceController";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
@@ -144,7 +145,42 @@ const AssignLeaveForm = ({ onSuccess }: AssignLeaveFormProps = {}) => {
   });
 
   const selectedEmployeeId = form.watch('employeeId');
+  const selectedLeaveTypeId = form.watch('leaveTypeId');
   const selectedEmployee = employees.find(e => e.id === selectedEmployeeId);
+
+  // Fetch leave balance for selected employee
+  const { data: leaveBalanceData, isLoading: loadingBalance } = useGetEmployeeLeaveBalance(
+    selectedEmployeeId,
+    !!selectedEmployeeId
+  );
+
+  // Extract leave balances
+  const leaveBalances = React.useMemo(() => {
+    const rawData = Array.isArray(leaveBalanceData?.data)
+      ? leaveBalanceData.data
+      : Array.isArray(leaveBalanceData?.data?.results)
+      ? leaveBalanceData.data.results
+      : [];
+    return rawData;
+  }, [leaveBalanceData]);
+
+  // Get balance for selected leave type
+  const selectedLeaveBalance = React.useMemo(() => {
+    if (!selectedLeaveTypeId) return null;
+    return leaveBalances.find((balance: any) => balance.leave_type?.id === selectedLeaveTypeId);
+  }, [leaveBalances, selectedLeaveTypeId]);
+
+  // Calculate number of days requested
+  const fromDate = form.watch('fromDate');
+  const toDate = form.watch('toDate');
+  const requestedDays = React.useMemo(() => {
+    if (!fromDate || !toDate) return 0;
+    const start = new Date(fromDate);
+    const end = new Date(toDate);
+    const diffTime = Math.abs(end.getTime() - start.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+    return diffDays;
+  }, [fromDate, toDate]);
 
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
@@ -173,9 +209,34 @@ const AssignLeaveForm = ({ onSuccess }: AssignLeaveFormProps = {}) => {
         try {
           await AxiosWithToken.post(`hr/leave-request/${leaveRequestId}/submit/`);
           console.log("Leave request submitted successfully");
-        } catch (submitError) {
+
+          // If skip approval is checked, automatically approve the leave
+          if (data.skipApproval) {
+            try {
+              await AxiosWithToken.post(`hr/leave-request/${leaveRequestId}/approve/`);
+              console.log("Leave request approved successfully");
+            } catch (approveError) {
+              console.error("Error approving leave request:", approveError);
+              toast.warning("Leave submitted but approval failed. Please approve manually.");
+            }
+          }
+        } catch (submitError: any) {
           console.error("Error submitting leave request:", submitError);
-          // Continue even if submission fails - the leave is created
+          const submitErrorMsg = submitError?.response?.data?.message || submitError?.message;
+
+          // Show specific error message
+          if (submitErrorMsg?.includes("NoneType") || submitErrorMsg?.includes("approver") || submitErrorMsg?.includes("workflow")) {
+            toast.warning(
+              "Leave request created but could not be submitted automatically. " +
+              "Please ensure approval workflow or approver is configured, then submit manually from the details page.",
+              { duration: 6000 }
+            );
+          } else {
+            toast.warning(`Leave created but submission failed: ${submitErrorMsg || "Unknown error"}`);
+          }
+
+          // Don't continue to approval if submission failed
+          throw submitError;
         }
       }
 
@@ -183,8 +244,6 @@ const AssignLeaveForm = ({ onSuccess }: AssignLeaveFormProps = {}) => {
       await queryClient.invalidateQueries({ queryKey: ["leave-requests"] });
       await queryClient.invalidateQueries({ queryKey: ["leave-dashboard"] });
       await queryClient.invalidateQueries({ queryKey: ["leave-balances"] });
-
-      toast.success(`Leave assigned and submitted successfully for ${selectedEmployee?.firstName} ${selectedEmployee?.lastName}!`);
 
       // Small delay to ensure queries are refetched
       await new Promise(resolve => setTimeout(resolve, 500));
@@ -198,6 +257,21 @@ const AssignLeaveForm = ({ onSuccess }: AssignLeaveFormProps = {}) => {
 
     } catch (error: any) {
       console.error('Error assigning leave:', error);
+
+      // If error is from submit (not create), still navigate as leave was created
+      if (error?.response?.config?.url?.includes('/submit/')) {
+        // Leave was created but submission failed
+        await queryClient.invalidateQueries({ queryKey: ["leave-requests"] });
+
+        setTimeout(() => {
+          if (onSuccess) {
+            onSuccess();
+          } else {
+            router.push('/dashboard/hr/leave-management');
+          }
+        }, 2000);
+        return;
+      }
 
       // Handle validation errors from backend
       const responseData = error.response?.data;
@@ -388,6 +462,100 @@ const AssignLeaveForm = ({ onSuccess }: AssignLeaveFormProps = {}) => {
                   </FormItem>
                 )}
               />
+
+              {/* Leave Balance Display */}
+              {selectedEmployeeId && selectedLeaveTypeId && (
+                <div className="mt-4">
+                  {loadingBalance ? (
+                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 flex items-center justify-center">
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-blue-600 border-t-transparent mr-2" />
+                      <span className="text-sm text-gray-600">Loading leave balance...</span>
+                    </div>
+                  ) : selectedLeaveBalance ? (
+                    <div className={`border rounded-lg p-4 ${
+                      selectedLeaveBalance.available < requestedDays
+                        ? 'bg-red-50 border-red-200'
+                        : selectedLeaveBalance.available < requestedDays + 5
+                        ? 'bg-amber-50 border-amber-200'
+                        : 'bg-green-50 border-green-200'
+                    }`}>
+                      <div className="flex items-center gap-2 mb-3">
+                        <CalendarDays className={`w-4 h-4 ${
+                          selectedLeaveBalance.available < requestedDays
+                            ? 'text-red-600'
+                            : selectedLeaveBalance.available < requestedDays + 5
+                            ? 'text-amber-600'
+                            : 'text-green-600'
+                        }`} />
+                        <span className={`font-medium ${
+                          selectedLeaveBalance.available < requestedDays
+                            ? 'text-red-900'
+                            : selectedLeaveBalance.available < requestedDays + 5
+                            ? 'text-amber-900'
+                            : 'text-green-900'
+                        }`}>Leave Balance</span>
+                      </div>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                        <div>
+                          <div className="text-gray-600">Entitled</div>
+                          <div className="font-semibold">{selectedLeaveBalance.entitled} days</div>
+                        </div>
+                        <div>
+                          <div className="text-gray-600">Used</div>
+                          <div className="font-semibold">{selectedLeaveBalance.used} days</div>
+                        </div>
+                        <div>
+                          <div className="text-gray-600">Pending</div>
+                          <div className="font-semibold">{selectedLeaveBalance.pending} days</div>
+                        </div>
+                        <div>
+                          <div className="text-gray-600">Available</div>
+                          <div className="font-semibold text-lg">{selectedLeaveBalance.available} days</div>
+                        </div>
+                      </div>
+                      {requestedDays > 0 && (
+                        <div className="mt-3 pt-3 border-t border-gray-200">
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-gray-600">Days Requested:</span>
+                            <span className="font-semibold">{requestedDays} days</span>
+                          </div>
+                          <div className="flex justify-between items-center mt-1">
+                            <span className="text-sm text-gray-600">Balance After:</span>
+                            <span className={`font-semibold ${
+                              selectedLeaveBalance.available - requestedDays < 0 ? 'text-red-600' : 'text-green-600'
+                            }`}>
+                              {selectedLeaveBalance.available - requestedDays} days
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                      {selectedLeaveBalance.available < requestedDays && requestedDays > 0 && (
+                        <div className="mt-3 pt-3 border-t border-red-200">
+                          <AlertCircle className="w-4 h-4 inline text-red-600 mr-2" />
+                          <span className="text-sm text-red-700 font-medium">
+                            Insufficient leave balance! Employee needs {requestedDays - selectedLeaveBalance.available} more days.
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                      <div className="flex items-center gap-2">
+                        <AlertCircle className="w-4 h-4 text-red-600" />
+                        <span className="text-sm text-red-700 font-medium">
+                          No leave balance found for this leave type. Please assign leave entitlement first.
+                        </span>
+                      </div>
+                      <a
+                        href="/dashboard/hr/leave-management/entitlements/assign"
+                        className="text-sm text-blue-600 hover:underline mt-2 inline-block"
+                      >
+                        → Assign Leave Entitlement
+                      </a>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </Card>
 

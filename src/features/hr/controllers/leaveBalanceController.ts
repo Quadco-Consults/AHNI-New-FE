@@ -68,10 +68,16 @@ export const useGetEmployeeLeaveBalance = (employeeId: string, enabled: boolean 
     queryKey: ["employee-leave-balance", employeeId],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get(`${BASE_URL}?employee_id=${employeeId}`);
+        // Try both employee_id and employee as query params (backend may use either)
+        const response = await AxiosWithToken.get(`${BASE_URL}`, {
+          params: {
+            employee: employeeId,
+          }
+        });
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
+        console.error("Error fetching employee leave balance:", error);
         throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
       }
     },
@@ -87,7 +93,7 @@ export const useAssignLeaveBalance = () => {
     Error,
     {
       employee: string;
-      leave_type: string;
+      leave_type_id: string;
       year: number;
       entitled: number;
     }
@@ -105,7 +111,14 @@ export const useAssignLeaveBalance = () => {
     entitled: number;
   }) => {
     try {
-      await callApi(details);
+      // Try with leave_type (not leave_type_id) to avoid serializer dotted-source error
+      const response = await AxiosWithToken.post(BASE_URL, {
+        employee: details.employee,
+        leave_type: details.leave_type,
+        year: details.year,
+        entitled: details.entitled,
+      });
+      return response.data;
     } catch (error) {
       console.error("Leave balance assign error:", error);
       throw error;
