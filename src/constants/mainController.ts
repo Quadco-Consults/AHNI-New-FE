@@ -62,11 +62,11 @@ const useApiManager = <TData = unknown, TError = Error, TVariables = unknown>({
       // For FormData uploads, we need to explicitly remove the Content-Type header
       // so axios can set the proper multipart/form-data boundary
       const config = contentType === null
-        ? { 
+        ? {
             headers: { "Content-Type": undefined },
             transformRequest: [(data: any) => data] // Prevent axios from transforming FormData
           }
-        : contentType 
+        : contentType
         ? { headers: { "Content-Type": contentType } }
         : {};
 
@@ -127,15 +127,19 @@ const useApiManager = <TData = unknown, TError = Error, TVariables = unknown>({
 
       if (axiosError.response) {
         // Server responded with error status
-        console.log("Server error response detected");
-        errorMessage = axiosError.response.data?.message ||
-                      axiosError.response.data?.error ||
-                      `HTTP ${axiosError.response.status}: ${axiosError.response.statusText}`;
+        const status = axiosError.response.status;
+
+        if (status === 503) {
+          errorMessage = "Server is temporarily unavailable. It may be restarting. Please try again in a moment.";
+        } else {
+          errorMessage = axiosError.response.data?.message ||
+                        axiosError.response.data?.error ||
+                        `HTTP ${status}: ${axiosError.response.statusText}`;
+        }
       } else if (axiosError.request) {
         // Network error - request was made but no response received
-        console.log("Network error detected, code:", axiosError.code);
         if (axiosError.code === 'NETWORK_ERROR' || axiosError.code === 'ERR_NETWORK') {
-          errorMessage = "Unable to connect to the server. Please check your internet connection and try again.";
+          errorMessage = "Unable to connect to the server. The server may be restarting. Please try again in a moment.";
         } else if (axiosError.code === 'ECONNABORTED' || axiosError.message?.includes('timeout')) {
           errorMessage = "Request timed out. Please check your connection and try again.";
         } else if (axiosError.code === 'ERR_NAME_NOT_RESOLVED') {
@@ -145,11 +149,9 @@ const useApiManager = <TData = unknown, TError = Error, TVariables = unknown>({
         }
       } else {
         // Something else happened
-        console.log("Unknown error type detected");
         errorMessage = axiosError.message || "An unexpected error occurred";
       }
 
-      console.log("Final error message:", errorMessage);
       throw new Error(errorMessage) as TError;
     }
   };
