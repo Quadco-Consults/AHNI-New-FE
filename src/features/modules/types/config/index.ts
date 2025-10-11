@@ -62,6 +62,33 @@ export interface ItemData {
   unit?: string;
   created_at: string;
   updated_at: string;
+  // Asset-specific fields
+  assignee?: string;
+  asset_code?: string;
+  asset_type?: string;
+  project?: string;
+  donor?: string;
+  depreciation_rate?: string | number;
+  acquisition_date?: string;
+  state?: string;
+  asset_condition?: string;
+  location?: string;
+  estimated_life_span?: string;
+  classification?: string;
+  usd_cost?: string;
+  ngn_cost?: string;
+  implementer?: string;
+  insurance_duration?: string;
+  uom?: string;
+  // Vehicle-specific fields
+  plate_number?: string;
+  chasis_number?: string; // VIN
+  engine_number?: string;
+  odometer_reading?: string | number;
+  make?: string;
+  model?: string;
+  // IT/Lab equipment fields
+  serial_number?: string;
 }
 
 export interface ItemFormValues {
@@ -69,6 +96,55 @@ export interface ItemFormValues {
   description?: string;
   category?: string;
   unit?: string;
+
+  // Asset-specific fields
+  assignee?: string;
+  asset_code?: string;
+  asset_type?: string;
+  project?: string;
+  donor?: string;
+  depreciation_rate?: string | number;
+  acquisition_date?: string;
+  state?: string;
+  asset_condition?: string;
+  location?: string;
+  estimated_life_span?: string;
+  classification?: string;
+  usd_cost?: string;
+  ngn_cost?: string;
+  implementer?: string;
+  insurance_duration?: string;
+  uom?: string;
+
+  // Vehicle-specific fields - Basic Info
+  plate_number?: string;
+  chasis_number?: string; // VIN
+  engine_number?: string;
+  odometer_reading?: string | number;
+  make?: string;
+  model?: string;
+
+  // Vehicle-specific fields - Additional Details
+  manufacture_year?: string | number;
+  vehicle_color?: string;
+  fuel_type?: string;
+  seating_capacity?: string | number;
+  vehicle_type?: string;
+
+  // Vehicle-specific fields - Registration & Insurance
+  registration_number?: string;
+  registration_expiry_date?: string;
+  insurance_policy_number?: string;
+  insurance_provider?: string;
+  insurance_expiry_date?: string;
+
+  // Vehicle-specific fields - Maintenance
+  last_service_date?: string;
+  next_service_date?: string;
+  service_interval_km?: string | number;
+
+  // IT/Lab equipment fields
+  serial_number?: string;
 }
 
 // Location types

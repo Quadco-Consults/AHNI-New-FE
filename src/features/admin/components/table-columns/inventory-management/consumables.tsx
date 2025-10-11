@@ -61,9 +61,23 @@ export const consumableColums: ColumnDef<TConsumablePaginatedData>[] = [
     },
   },
   {
-    header: "Category",
+    header: "Consumable Type",
     accessorKey: "category.name",
     size: 200,
+    cell: ({ row }) => {
+      const category = row.original.category;
+
+      // Display the category name (subcategory like "Medical Consumables", "IT Consumables", etc.)
+      if (category && typeof category === 'object' && category.name) {
+        return (
+          <span className="text-sm">
+            {category.name}
+          </span>
+        );
+      }
+
+      return "N/A";
+    },
   },
   {
     header: "",

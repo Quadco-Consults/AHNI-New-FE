@@ -98,6 +98,41 @@ export default function CreateConsumablePage() {
     return buildCategoryOptions(childCategories);
   }, [category, selectedItemType, selectedParentCategory]);
 
+  // For edit mode: Get subcategories (consumable types) under "Consumables" parent
+  const consumableTypeOptions = useMemo(() => {
+    if (!category?.data?.results) {
+      return [];
+    }
+
+    // Find the "Consumables" parent category
+    const consumablesParent = category.data.results.find(
+      (cat) =>
+        cat.job_category === 'GOODS' &&
+        !cat.parent &&
+        (cat.name.toLowerCase().includes('consumable') || cat.code === 'CON')
+    );
+
+    if (!consumablesParent) {
+      // If no parent found, return all GOODS subcategories
+      const goodsSubcategories = category.data.results.filter(
+        (cat) => cat.job_category === 'GOODS' && cat.parent
+      );
+      return buildCategoryOptions(goodsSubcategories);
+    }
+
+    // Get all subcategories under Consumables
+    const subcategories = category.data.results.filter((cat) => {
+      if (typeof cat.parent === 'string') {
+        return cat.parent === consumablesParent.id;
+      } else if (cat.parent && typeof cat.parent === 'object') {
+        return cat.parent.id === consumablesParent.id;
+      }
+      return false;
+    });
+
+    return buildCategoryOptions(subcategories);
+  }, [category]);
+
   const Schema = consumableId ? EditItemSchema : ItemSchema;
 
   const defaultValues = useMemo(() => {
@@ -313,6 +348,19 @@ export default function CreateConsumablePage() {
             )}
             {consumableId && (
               <div className='grid grid-cols-1 gap-6 md:grid-cols-3'>
+                {/* Consumable Type Dropdown */}
+                <FormSelect
+                  name='category'
+                  label='Consumable Type'
+                  placeholder={
+                    consumableTypeOptions.length === 0
+                      ? "No consumable types available"
+                      : "Select Consumable Type"
+                  }
+                  options={consumableTypeOptions}
+                  required
+                />
+
                 <FormInput
                   name='quantity'
                   label='Quantity'

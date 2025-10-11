@@ -16,7 +16,7 @@ import {
   useGetAssetHistoryQuery,
   AssetHistoryData,
 } from "@/features/admin/controllers/assetHistoryController";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 
 export default function AssetDetails() {
   const params = useSearchParams();
@@ -28,6 +28,40 @@ export default function AssetDetails() {
     !!assetId
   );
 
+  // Determine if this is a vehicle based on category or asset type
+  const isVehicle = useMemo(() => {
+    if (!asset?.data) return false;
+
+    // Check category name
+    const categoryName =
+      typeof asset.data.category === 'object' && asset.data.category?.name
+        ? asset.data.category.name.toLowerCase()
+        : asset.data.category_detail?.name?.toLowerCase() || "";
+
+    // Check asset type name as fallback
+    const assetTypeName = asset.data.asset_type?.name?.toLowerCase() || "";
+
+    // Check if it's categorized as a vehicle
+    const hasVehicleCategory = categoryName.includes("vehicle") || assetTypeName.includes("vehicle");
+
+    // Additional safety check: Only show vehicle fields if it actually HAS vehicle data
+    // This prevents incorrectly categorized assets from showing vehicle fields
+    const hasVehicleData = !!(
+      asset.data.plate_number ||
+      asset.data.chasis_number ||
+      asset.data.engine_number ||
+      asset.data.make ||
+      asset.data.odometer_reading
+    );
+
+    // Only consider it a vehicle if BOTH conditions are true:
+    // 1. It's in a vehicle category
+    // 2. It has at least one vehicle-specific field populated
+    const isVehicleAsset = hasVehicleCategory && hasVehicleData;
+
+    return isVehicleAsset;
+  }, [asset]);
+
   const { data: assetHistory, isLoading: isHistoryLoading } =
     useGetAssetHistoryQuery({
       asset_id: assetId || "",
@@ -35,6 +69,16 @@ export default function AssetDetails() {
       size: 10,
       enabled: !!assetId,
     });
+
+  // Client-side filter to ensure only history for this asset is shown
+  // This is a temporary workaround until backend properly filters by asset_id
+  const filteredAssetHistory = useMemo(() => {
+    if (!assetHistory?.data?.results || !assetId) return [];
+
+    return assetHistory.data.results.filter(
+      (history) => history.asset?.id === assetId
+    );
+  }, [assetHistory, assetId]);
 
   return (
     <>
@@ -100,10 +144,13 @@ export default function AssetDetails() {
                   label='State'
                   description={asset?.data?.state || "N/A"}
                 />
-                <DescriptionCard
-                  label='Model'
-                  description={asset?.data?.model || "N/A"}
-                />
+
+                {!isVehicle && (
+                  <DescriptionCard
+                    label='Model'
+                    description={asset?.data?.model || "N/A"}
+                  />
+                )}
 
                 <DescriptionCard
                   label='Assigned To'
@@ -159,16 +206,173 @@ export default function AssetDetails() {
                   description={asset?.data?.implementer?.name || "N/A"}
                 />
 
-                {asset?.data?.asset_type?.name?.toLowerCase() === "vehicle" && (
+                {isVehicle && (
                   <>
+                    {/* Section Header: Basic Vehicle Information */}
+                    <div className='col-span-4 mt-6'>
+                      <h3 className='font-bold text-lg text-gray-800 border-b-2 border-gray-300 pb-2'>
+                        Basic Vehicle Information
+                      </h3>
+                    </div>
+
                     <DescriptionCard
                       label='Plate Number'
                       description={asset?.data?.plate_number || "N/A"}
                     />
 
                     <DescriptionCard
-                      label='Chasis Number'
+                      label='VIN Number'
                       description={asset?.data?.chasis_number || "N/A"}
+                    />
+
+                    <DescriptionCard
+                      label='Engine Number'
+                      description={asset?.data?.engine_number || "N/A"}
+                    />
+
+                    <DescriptionCard
+                      label='Make'
+                      description={asset?.data?.make || "N/A"}
+                    />
+
+                    <DescriptionCard
+                      label='Model'
+                      description={asset?.data?.model || "N/A"}
+                    />
+
+                    <DescriptionCard
+                      label='Current Odometer Reading'
+                      description={
+                        asset?.data?.odometer_reading
+                          ? `${Number(asset.data.odometer_reading).toLocaleString()} km`
+                          : "N/A"
+                      }
+                    />
+
+                    {/* Section Header: Additional Vehicle Details */}
+                    <div className='col-span-4 mt-6'>
+                      <h3 className='font-bold text-lg text-gray-800 border-b-2 border-gray-300 pb-2'>
+                        Additional Vehicle Details
+                      </h3>
+                    </div>
+
+                    <DescriptionCard
+                      label='Manufacture Year'
+                      description={asset?.data?.manufacture_year || "N/A"}
+                    />
+
+                    <DescriptionCard
+                      label='Vehicle Color'
+                      description={asset?.data?.vehicle_color || "N/A"}
+                    />
+
+                    <DescriptionCard
+                      label='Fuel Type'
+                      description={asset?.data?.fuel_type || "N/A"}
+                    />
+
+                    <DescriptionCard
+                      label='Seating Capacity'
+                      description={
+                        asset?.data?.seating_capacity
+                          ? `${asset.data.seating_capacity} seats`
+                          : "N/A"
+                      }
+                    />
+
+                    <DescriptionCard
+                      label='Vehicle Type'
+                      description={asset?.data?.vehicle_type || "N/A"}
+                    />
+
+                    {/* Section Header: Registration & Insurance */}
+                    <div className='col-span-4 mt-6'>
+                      <h3 className='font-bold text-lg text-gray-800 border-b-2 border-gray-300 pb-2'>
+                        Registration & Insurance
+                      </h3>
+                    </div>
+
+                    <DescriptionCard
+                      label='Registration Number'
+                      description={asset?.data?.registration_number || "N/A"}
+                    />
+
+                    <DescriptionCard
+                      label='Registration Expiry Date'
+                      description={
+                        asset?.data?.registration_expiry_date
+                          ? new Date(asset.data.registration_expiry_date).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric'
+                            })
+                          : "N/A"
+                      }
+                    />
+
+                    <DescriptionCard
+                      label='Insurance Policy Number'
+                      description={asset?.data?.insurance_policy_number || "N/A"}
+                    />
+
+                    <DescriptionCard
+                      label='Insurance Provider'
+                      description={asset?.data?.insurance_provider || "N/A"}
+                    />
+
+                    <DescriptionCard
+                      label='Insurance Expiry Date'
+                      description={
+                        asset?.data?.insurance_expiry_date
+                          ? new Date(asset.data.insurance_expiry_date).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric'
+                            })
+                          : "N/A"
+                      }
+                    />
+
+                    {/* Section Header: Maintenance Schedule */}
+                    <div className='col-span-4 mt-6'>
+                      <h3 className='font-bold text-lg text-gray-800 border-b-2 border-gray-300 pb-2'>
+                        Maintenance Schedule
+                      </h3>
+                    </div>
+
+                    <DescriptionCard
+                      label='Last Service Date'
+                      description={
+                        asset?.data?.last_service_date
+                          ? new Date(asset.data.last_service_date).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric'
+                            })
+                          : "N/A"
+                      }
+                    />
+
+                    <DescriptionCard
+                      label='Next Service Date'
+                      description={
+                        asset?.data?.next_service_date
+                          ? new Date(asset.data.next_service_date).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric'
+                            })
+                          : "N/A"
+                      }
+                    />
+
+                    <DescriptionCard
+                      label='Service Interval'
+                      description={
+                        asset?.data?.service_interval_km
+                          ? `Every ${Number(asset.data.service_interval_km).toLocaleString()} km`
+                          : "N/A"
+                      }
                     />
                   </>
                 )}
@@ -186,19 +390,30 @@ export default function AssetDetails() {
                 Asset History Movement
               </CardHeader>
 
-              <div className='px-5'>
-                <TableFilters>
-                  <DataTable
-                    data={assetHistory?.data.results || []}
-                    columns={columns}
-                    isLoading={isHistoryLoading}
-                    pagination={{
-                      total: assetHistory?.data.pagination.count ?? 0,
-                      pageSize: assetHistory?.data.pagination.page_size ?? 10,
-                      onChange: (page: number) => setHistoryPage(page),
-                    }}
-                  />
-                </TableFilters>
+              <div className='px-5 pb-6'>
+                {isHistoryLoading ? (
+                  <div className='flex justify-center items-center py-8'>
+                    <LoadingSpinner />
+                  </div>
+                ) : filteredAssetHistory.length === 0 ? (
+                  <div className='text-center py-8 text-gray-500'>
+                    <p className='text-sm'>No asset history movements found for this asset.</p>
+                    <p className='text-xs mt-2'>Asset movements will appear here once they are recorded.</p>
+                  </div>
+                ) : (
+                  <TableFilters>
+                    <DataTable
+                      data={filteredAssetHistory}
+                      columns={columns}
+                      isLoading={false}
+                      pagination={{
+                        total: filteredAssetHistory.length,
+                        pageSize: assetHistory?.data.pagination.page_size ?? 10,
+                        onChange: (page: number) => setHistoryPage(page),
+                      }}
+                    />
+                  </TableFilters>
+                )}
               </div>
             </>
           )
@@ -208,23 +423,34 @@ export default function AssetDetails() {
   );
 }
 
-const columns: ColumnDef<AssetHistoryData>[] = [
+const columns: ColumnDef<any>[] = [
   {
     header: "Date",
-    accessorKey: "date_created",
+    accessorKey: "created_datetime",
     cell: ({ row }) => {
-      const dateValue = row.original.date_created;
+      const dateValue = row.original.created_datetime;
       if (!dateValue) return "N/A";
-      
+
       const date = new Date(dateValue);
       if (isNaN(date.getTime())) return "Invalid Date";
-      
-      return date.toLocaleDateString("en-US");
+
+      return date.toLocaleDateString("en-US", {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
     },
   },
   {
+    header: "Asset Name",
+    accessorKey: "asset.name",
+    cell: ({ row }) => row.original.asset?.name || "N/A",
+  },
+  {
     header: "Action Type",
-    accessorKey: "action_type",
+    accessorKey: "type",
     cell: ({ row }) => {
       const actionType = row.original.type;
       const badgeColor =
@@ -246,23 +472,18 @@ const columns: ColumnDef<AssetHistoryData>[] = [
     },
   },
   {
-    header: "Description",
-    accessorKey: "asset.description",
-    // cell: ({ row }) => row.original.from_location?.name || "N/A",
-  },
-  {
     header: "Status",
     accessorKey: "status",
     cell: ({ row }) => {
       const status = row.original.status;
       const badgeColor = {
         APPROVED: "bg-green-100 text-green-800",
-        IN_TRANSIT: "bg-yellow-100 text-yellow-800", 
+        IN_TRANSIT: "bg-yellow-100 text-yellow-800",
         DELIVERED: "bg-blue-100 text-blue-800",
         PENDING: "bg-gray-100 text-gray-800",
         CANCELLED: "bg-red-100 text-red-800",
       }[status] || "bg-gray-100 text-gray-800";
-      
+
       return (
         <span
           className={`px-2 py-1 rounded-full text-xs font-medium ${badgeColor}`}
@@ -274,14 +495,23 @@ const columns: ColumnDef<AssetHistoryData>[] = [
   },
   {
     header: "From Location",
+    accessorKey: "from_location.name",
     cell: ({ row }) => row.original.from_location?.name || "N/A",
   },
   {
     header: "To Location",
+    accessorKey: "to_location.name",
     cell: ({ row }) => row.original.to_location?.name || "N/A",
   },
   {
-    header: "Remark",
-    accessorKey: "remark",
+    header: "Assignee",
+    accessorKey: "assignee",
+    cell: ({ row }) => {
+      const assignee = row.original.assignee;
+      if (assignee?.first_name && assignee?.last_name) {
+        return `${assignee.first_name} ${assignee.last_name}`;
+      }
+      return "N/A";
+    },
   },
 ];
