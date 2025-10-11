@@ -21,11 +21,17 @@ export const BaseDialog: FC<PageProps> = ({ children }) => {
         <Dialog open={isOpen} onOpenChange={handleClose}>
             <DialogContent
                 className={dialogProps?.width || dialogProps?.className || "max-w-lg"}
+                aria-describedby={dialogProps?.description ? "dialog-description" : undefined}
                 {...(dialogProps || {})}
             >
                 {dialogProps?.header ? (
                     <DialogHeader>
                         <DialogTitle>{dialogProps.header}</DialogTitle>
+                        {dialogProps?.description && (
+                            <DialogDescription id="dialog-description">
+                                {dialogProps.description}
+                            </DialogDescription>
+                        )}
                     </DialogHeader>
                 ) : (
                     <>

@@ -95,8 +95,8 @@ export const useGetNotifications = (params?: NotificationFilters) => {
       }
     },
     enabled: enabled,
-    refetchInterval: 30000, // Refetch every 30 seconds for real-time updates
-    refetchOnWindowFocus: true,
+    refetchInterval: 60000, // Refetch every 60 seconds (reduced from 30s to minimize API calls)
+    refetchOnWindowFocus: false, // Disable refetch on focus to reduce duplicate calls
     refetchIntervalInBackground: false,
     retry: (failureCount, error) => {
       // Don't retry if unauthenticated
@@ -152,8 +152,8 @@ export const useInfiniteNotifications = (params?: Omit<NotificationFilters, 'pag
       return undefined;
     },
     enabled: enabled,
-    refetchInterval: 30000,
-    refetchOnWindowFocus: true,
+    refetchInterval: 60000, // Reduced from 30s
+    refetchOnWindowFocus: false, // Disable to reduce duplicate calls
     refetchIntervalInBackground: false,
     retry: (failureCount, error) => {
       if (error.message === "Unauthenticated") return false;
@@ -347,8 +347,8 @@ export const useGetUnreadCount = (enabled: boolean = true) => {
       }
     },
     enabled: enabled,
-    refetchInterval: 30000, // Refetch every 30 seconds
-    refetchOnWindowFocus: true,
+    refetchInterval: 60000, // Refetch every 60 seconds (reduced to minimize API calls)
+    refetchOnWindowFocus: false, // Disable to reduce duplicate calls
     retry: (failureCount, error) => {
       // Don't retry if unauthenticated
       if (error.message === "Unauthenticated") return false;
