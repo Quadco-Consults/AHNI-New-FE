@@ -2,6 +2,7 @@ import { TabsContent } from "@radix-ui/react-tabs";
 import { Tabs, TabsList, TabsTrigger } from "components/ui/tabs";
 import { Card } from "components/ui/card";
 import AllCategory from "./AllCategory";
+import AllSubcategories from "./AllSubcategories";
 import AllDepartments from "./AllDepartments";
 import AllFinancialYear from "./AllFinancialYear";
 
@@ -17,6 +18,7 @@ const Config = () => {
         <Tabs defaultValue='categories'>
           <TabsList>
             <TabsTrigger value='categories'>Categories</TabsTrigger>
+            <TabsTrigger value='subcategories'>Subcategories</TabsTrigger>
             <TabsTrigger value='department'>Department</TabsTrigger>
             <TabsTrigger value='financialYear'>Financial Year</TabsTrigger>
             {/* <TabsTrigger value="items">Items</TabsTrigger> */}
@@ -28,6 +30,11 @@ const Config = () => {
           <TabsContent value='categories'>
             <Card className='mt-10 pb-8 px-6'>
               <AllCategory />
+            </Card>
+          </TabsContent>
+          <TabsContent value='subcategories'>
+            <Card className='mt-10 pb-8 px-6'>
+              <AllSubcategories />
             </Card>
           </TabsContent>
           <TabsContent value='department'>

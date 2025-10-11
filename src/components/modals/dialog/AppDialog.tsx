@@ -50,6 +50,7 @@ import AddFacility from "@/features/programs/components/AddFacility";
 import AddAssetConditions from "@/features/admin/components/AddAssetConditions";
 import AddAssetTypes from "@/features/admin/components/AddAssetTypes";
 import AddCategories from "@/features/admin/components/config/AddCategories";
+import AddSubcategories from "@/features/admin/components/config/AddSubcategories";
 import AddDepartments from "@/features/admin/components/config/AddDepartments";
 import AddFinancialYear from "@/features/admin/components/config/AddFinancialYear";
 import AddItems from "@/features/admin/components/config/AddItems";
@@ -152,6 +153,7 @@ const dialogs: Record<string, ReactNode> = {
   [DialogType.AddAssetConditions]: <AddAssetConditions />,
   [DialogType.AddAssetTypes]: <AddAssetTypes />,
   [DialogType.AddCategories]: <AddCategories />,
+  [DialogType.AddSubcategories]: <AddSubcategories />,
   [DialogType.AddDepartments]: <AddDepartments />,
   [DialogType.AddFinancialYear]: <AddFinancialYear />,
   [DialogType.AddItems]: <AddItems />,

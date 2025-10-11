@@ -2,9 +2,9 @@ import { z } from "zod";
 
 export const CategorySchema = z.object({
   name: z.string().min(1, "Field Required"),
-  code: z.string().min(1, "Field Required"),
+  code: z.string().optional(), // Optional - backend auto-generates for subcategories
   description: z.string().optional(),
-  serial_number: z.any().optional(),
+  serial_number: z.any().optional(), // Optional - backend auto-generates for subcategories
   job_category: z.enum(["GOODS", "SERVICE", "WORK", "OTHERS"]),
   parent: z.string().optional(), // Parent category ID for hierarchical structure
 });

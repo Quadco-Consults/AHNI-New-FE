@@ -12,7 +12,9 @@
       "Bash(git branch:*)",
       "Bash(git fetch:*)",
       "Bash(git pull:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(git merge:*)",
+      "Bash(npx eslint:*)"
     ],
     "deny": [],
     "ask": []

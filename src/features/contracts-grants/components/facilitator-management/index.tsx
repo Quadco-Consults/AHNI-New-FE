@@ -1,63 +1,71 @@
 "use client";
 
-import Card from "components/Card";
-import { facilitatorManagementColumns } from "@/features/contracts-grants/components/table-columns/facilitator-management/facilitator-management";
-import DataTable from "components/Table/DataTable";
-import TableFilters from "components/Table/TableFilters";
+import { useState } from "react";
 import { Button } from "components/ui/button";
 import { CG_ROUTES } from "constants/RouterConstants";
-import { PlusIcon } from "lucide-react";
-import { useState } from "react";
+import { Plus } from "lucide-react";
 import Link from "next/link";
-import { useGetAllFacilitators } from "@/features/contracts-grants/controllers/facilitatorManagementController";
+import ConsultancyCard from "../contract-management/consultant-management/ConsultantCard";
+import { useGetAllConsultantManagements } from "src/features/contracts-grants/controllers/consultantManagementController";
+import { LoadingSpinner } from "components/Loading";
+import Pagination from "components/Pagination";
 
 export default function FacilitatorManagement() {
-    const [page, setPage] = useState(1);
+  const [page, setPage] = useState(1);
 
-    const { data, isFetching, error } = useGetAllFacilitators({
-        page,
-        size: 10,
-    });
+  // Use the same API as consultancy but filter by FACILITATOR type
+  const { data, isFetching, error } = useGetAllConsultantManagements({
+    page,
+    size: 10,
+    type: "FACILITATOR",
+    enabled: true,
+  });
 
-    return (
-        <section className="space-y-10">
-            <div className="flex justify-end">
-                <Link href="/dashboard/c-and-g/facilitator-management/create/application-details">
-                    <Button size="lg">
-                        <PlusIcon />
-                        New Facilitator
-                    </Button>
-                </Link>
-            </div>
+  console.log('Facilitator Management Data:', {
+    data,
+    isFetching,
+    error,
+    results: data?.data?.results,
+    resultsLength: data?.data?.results?.length,
+    paginator: data?.data?.paginator,
+  });
 
-            {error && (
-                <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-                    <p className="text-red-800 font-medium">Error loading facilitators:</p>
-                    <p className="text-red-600 text-sm mt-1">{error?.message || "Unknown error"}</p>
-                </div>
-            )}
+  return (
+    <section className='space-y-5'>
+      <div className='flex justify-end'>
+        <Link href={CG_ROUTES.CREATE_FACILITATOR_ADVERT_DETAILS}>
+          <Button>
+            <Plus size={29} /> New Facilitator Advert
+          </Button>
+        </Link>
+      </div>
 
-            {!isFetching && data?.data?.results?.length === 0 && (
-                <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                    <p className="text-yellow-800 font-medium">No facilitators found</p>
-                    <p className="text-yellow-700 text-sm mt-1">The facilitator you added might not have been saved. Check the browser console for details.</p>
-                </div>
-            )}
+      {isFetching ? (
+        <LoadingSpinner />
+      ) : error ? (
+        <div className="text-center py-8 text-red-500">
+          <p>Error loading data: {error.message}</p>
+        </div>
+      ) : data?.data?.results?.length > 0 ? (
+        <div className='w-full flex flex-wrap justify-between items-start gap-y-[1rem]'>
+          {data.data.results.map((facilitator) => (
+            <ConsultancyCard key={facilitator.id} {...facilitator} />
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-8 text-gray-500">
+          <p>No facilitator adverts found.</p>
+          <p className="text-sm mt-2">Try creating a new facilitator advert to get started.</p>
+        </div>
+      )}
 
-            <Card>
-                <TableFilters>
-                    <DataTable
-                        columns={facilitatorManagementColumns}
-                        data={data?.data.results || []}
-                        isLoading={isFetching}
-                        pagination={{
-                            total: data?.data.pagination.count ?? 0,
-                            pageSize: data?.data.pagination.page_size ?? 0,
-                            onChange: (page: number) => setPage(page),
-                        }}
-                    />
-                </TableFilters>
-            </Card>
-        </section>
-    );
+      {data?.data?.paginator && (
+        <Pagination
+          total={data.data.paginator.count}
+          itemsPerPage={data.data.paginator.page_size}
+          onChange={(page) => setPage(page)}
+        />
+      )}
+    </section>
+  );
 }
