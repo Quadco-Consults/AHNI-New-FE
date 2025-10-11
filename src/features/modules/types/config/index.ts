@@ -5,11 +5,20 @@ export interface CategoryData {
   description?: string;
   created_at: string;
   updated_at: string;
+  job_category?: string;
+  code?: string;
+  serial_number?: any;
+  parent?: string | CategoryData | null; // Parent category ID or nested object
+  children?: CategoryData[]; // Child categories for hierarchical display
 }
 
 export interface CategoryFormValues {
   name: string;
   description?: string;
+  job_category?: string;
+  code?: string;
+  serial_number?: any;
+  parent?: string; // Parent category ID
 }
 
 // Department types  

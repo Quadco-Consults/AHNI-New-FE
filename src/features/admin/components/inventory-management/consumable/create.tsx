@@ -27,6 +27,12 @@ import {
 // import { useGetAllItemsQuery } from "@/features/modules/controllers/config/itemController";
 import { toast } from "sonner";
 import { formatDate } from "utils/date";
+import {
+  ITEM_TYPES,
+  buildCategoryOptions,
+  getCategoriesByTypeAndParent,
+} from "@/utils/categoryHelpers";
+import { useState } from "react";
 
 const stockControlMethodOptions = [
   { label: "Stock Level", value: "STOCK_LEVEL" },
@@ -38,24 +44,59 @@ export default function CreateConsumablePage() {
   const query = useQuery();
   const consumableId = query.get("id");
 
+  // State for cascading category selection
+  const [selectedItemType, setSelectedItemType] = useState<string>("");
+  const [selectedParentCategory, setSelectedParentCategory] = useState<string>("");
+
   const { data: item } = useGetSingleItem(consumableId || "", {
     enabled: !!consumableId,
   });
 
   const { data: category } = useGetAllCategories({
     page: 1,
-    size: 2000000,
+    size: 1000, // Get all categories
     search: "",
   });
 
-  const categoryOptions = useMemo(
-    () =>
-      category?.data.results.map(({ id, name }) => ({
-        label: name,
-        value: id,
-      })),
-    [category]
+  // Item type options (GOODS, SERVICE, WORK)
+  const itemTypeOptions = useMemo(
+    () => [
+      { label: "Goods", value: ITEM_TYPES.GOODS },
+      { label: "Service", value: ITEM_TYPES.SERVICE },
+      { label: "Work", value: ITEM_TYPES.WORK },
+      { label: "Others", value: ITEM_TYPES.OTHERS },
+    ],
+    []
   );
+
+  // Parent category options (filtered by item type)
+  const parentCategoryOptions = useMemo(() => {
+    if (!category?.data?.results || !selectedItemType) {
+      return [];
+    }
+
+    const topLevelCategories = getCategoriesByTypeAndParent(
+      category.data.results,
+      selectedItemType as any
+    );
+
+    return buildCategoryOptions(topLevelCategories);
+  }, [category, selectedItemType]);
+
+  // Final category options (filtered by parent category)
+  const finalCategoryOptions = useMemo(() => {
+    if (!category?.data?.results || !selectedItemType) {
+      return [];
+    }
+
+    const childCategories = getCategoriesByTypeAndParent(
+      category.data.results,
+      selectedItemType as any,
+      selectedParentCategory || undefined
+    );
+
+    return buildCategoryOptions(childCategories);
+  }, [category, selectedItemType, selectedParentCategory]);
 
   const Schema = consumableId ? EditItemSchema : ItemSchema;
 
@@ -210,13 +251,65 @@ export default function CreateConsumablePage() {
             />
 
             {!consumableId && (
-              <FormSelect
-                name='category'
-                label='Category'
-                placeholder='Select Category'
-                options={categoryOptions}
-                required
-              />
+              <div className='space-y-4'>
+                <h3 className='font-semibold text-gray-700'>Category Selection</h3>
+                <div className='grid grid-cols-3 gap-x-5 gap-y-6'>
+                  {/* Step 1: Item Type */}
+                  <FormSelect
+                    label='Item Type'
+                    name='item_type'
+                    required
+                    placeholder='Select Item Type'
+                    options={itemTypeOptions}
+                    onValueChange={(value) => {
+                      setSelectedItemType(value);
+                      setSelectedParentCategory("");
+                      form.setValue("category", "");
+                    }}
+                  />
+
+                  {/* Step 2: Parent Category (Assets, Consumables, etc.) */}
+                  <FormSelect
+                    label='Parent Category'
+                    name='parent_category'
+                    required={!!selectedItemType}
+                    placeholder={
+                      !selectedItemType
+                        ? "Select Item Type first"
+                        : parentCategoryOptions.length === 0
+                        ? "No parent categories available"
+                        : "Select Parent Category"
+                    }
+                    options={parentCategoryOptions}
+                    disabled={!selectedItemType}
+                    onValueChange={(value) => {
+                      setSelectedParentCategory(value);
+                      form.setValue("category", "");
+                    }}
+                  />
+
+                  {/* Step 3: Final Category */}
+                  <FormSelect
+                    name='category'
+                    label='Category'
+                    required
+                    placeholder={
+                      !selectedItemType
+                        ? "Select Item Type first"
+                        : !selectedParentCategory
+                        ? "Select Parent Category first"
+                        : finalCategoryOptions.length === 0
+                        ? "No categories available"
+                        : "Select Category"
+                    }
+                    options={finalCategoryOptions}
+                    disabled={!selectedItemType || !selectedParentCategory}
+                  />
+                </div>
+                <p className='text-xs text-gray-500'>
+                  Example: Goods → Consumables → Medical Consumables
+                </p>
+              </div>
             )}
             {consumableId && (
               <div className='grid grid-cols-1 gap-6 md:grid-cols-3'>

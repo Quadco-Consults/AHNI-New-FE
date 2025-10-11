@@ -41,7 +41,7 @@ export default function FuelConsumptionDetail() {
   const viewType = searchParams?.get('type');
   const isVehicleView = viewType === 'vehicle';
 
-  const { data: fuelConsumption, isLoading } = useGetSingleFuelConsumption(
+  const { data: fuelConsumption, isLoading, refetch } = useGetSingleFuelConsumption(
     id as string,
     true
   );
@@ -59,7 +59,8 @@ export default function FuelConsumptionDetail() {
       toast.success("Fuel consumption approved successfully");
       setApprovalDialog(false);
       setComments("");
-      router.refresh();
+      // Refetch the data to update the UI
+      await refetch();
     } catch (error: any) {
       toast.error(error?.data?.message ?? "Something went wrong");
     }
@@ -71,7 +72,8 @@ export default function FuelConsumptionDetail() {
       toast.success("Fuel consumption rejected successfully");
       setRejectionDialog(false);
       setComments("");
-      router.refresh();
+      // Refetch the data to update the UI
+      await refetch();
     } catch (error: any) {
       toast.error(error?.data?.message ?? "Something went wrong");
     }

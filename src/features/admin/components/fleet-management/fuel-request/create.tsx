@@ -82,11 +82,32 @@ export default function CreateFuelConsumption() {
       // Use the same filter as vehicle request to ensure only valid AHNI staff
       const ahniStaff = filterAhniStaffOnly(allUsers);
 
-      return ahniStaff.map((user: any) => {
-        const { first_name, last_name, id, employee_id, employee } = user;
+      // Filter to only users with employee_id (the flat field from API)
+      const usersWithEmployees = ahniStaff.filter((user: any) => {
+        const { employee_id, employee } = user;
+        // User must have either employee_id field OR employee object with id
+        return employee_id || (employee && employee.id);
+      });
+
+      console.log('Filtered users with employees:', usersWithEmployees.length);
+
+      return usersWithEmployees.map((user: any) => {
+        const { first_name, last_name, employee_id, employee_serial_id, employee, id } = user;
+        const fullName = `${first_name || ''} ${last_name || ''}`.trim() || 'Unknown User';
+
+        // Show employee number if available for easier identification
+        const employeeNumber = employee_serial_id || employee_id || employee?.employee_number || employee?.employee_id;
+        const label = employeeNumber
+          ? `${fullName} (${employeeNumber})`
+          : fullName;
+
+        // Backend expects: Try employee.id first (if nested), then user.id as fallback
+        // The backend serializer will handle the conversion
+        const value = employee?.id || id;
+
         return {
-          label: `${first_name || ''} ${last_name || ''}`.trim() || 'Unknown User',
-          value: employee_id || employee?.id || id, // Try employee_id first, fallback to user ID
+          label,
+          value, // Send employee.id if available, otherwise user.id (backend will convert)
         };
       });
     },
