@@ -13,12 +13,12 @@ import { useState, useMemo } from "react";
 import Pagination from "components/Pagination";
 import { TCategoryData } from "@/features/admin/types/config/category";
 
-export default function AllCategory() {
+export default function AllSubcategories() {
   const [page, setPage] = useState(1);
 
   const { data: category, isFetching } = useGetAllCategoriesQuery({
     page,
-    size: 20,
+    size: 100, // Get more to show all subcategories
   });
 
   const dispatch = useAppDispatch();
@@ -26,16 +26,25 @@ export default function AllCategory() {
   const [deleteCategory, { isLoading: isDeleteLoading }] =
     useDeleteCategoryMutation();
 
-  // Filter only parent categories (categories without a parent)
-  const parentCategories = useMemo(() => {
+  // Filter only subcategories (categories with a parent)
+  const subcategories = useMemo(() => {
     if (!category?.data?.results) return [];
-    return category.data.results.filter((cat) => !cat.parent);
+    return category.data.results.filter((cat) => cat.parent);
   }, [category]);
+
+  // Helper to get parent category name
+  const getParentName = (parentId: string | TCategoryData | null | undefined): string => {
+    if (!parentId || !category?.data?.results) return "N/A";
+
+    const id = typeof parentId === 'string' ? parentId : parentId.id;
+    const parent = category.data.results.find((cat) => cat.id === id);
+    return parent?.name || "Unknown";
+  };
 
   const onSubmit = async (id: string) => {
     try {
       await deleteCategory(id);
-      toast.success("Deleted Successfully");
+      toast.success("Subcategory Deleted Successfully");
     } catch (error: any) {
       toast.error(
         error.response?.data?.message ?? error.message ?? "Something went wrong"
@@ -46,27 +55,33 @@ export default function AllCategory() {
   const onUpdate = (item: any) => {
     dispatch(
       openDialog({
-        type: DialogType.AddCategories,
+        type: DialogType.AddSubcategories,
         dialogProps: {
-          header: "Update Category",
+          header: "Update Subcategory",
           data: item,
           type: "update",
         },
       })
     );
   };
+
   return (
     <div>
       <div className='flex items-center justify-between py-6 mb-6'>
-        <h1 className='text-[#D92D20] font-semibold text-sm'>Categories</h1>
+        <div>
+          <h1 className='text-[#D92D20] font-semibold text-sm'>Subcategories</h1>
+          <p className='text-xs text-gray-500 mt-1'>
+            Manage subcategories that are assigned to parent categories
+          </p>
+        </div>
 
         <Button
           onClick={() =>
             dispatch(
               openDialog({
-                type: DialogType.AddCategories,
+                type: DialogType.AddSubcategories,
                 dialogProps: {
-                  header: "Add Category",
+                  header: "Add Subcategory",
                 },
               })
             )
@@ -75,41 +90,47 @@ export default function AllCategory() {
           className='gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-[#FFFFFF] text-[#DEA004] border-[1px] border-[#C7CBD5]'
           size='sm'
         >
-          Click to add New
+          Click to add New Subcategory
         </Button>
       </div>
+
       <div>
         <div className='flex justify-between text-[#756D6D] font-semibold text-sm border-b border-gray-300 pb-4'>
-          <h1 className='flex-[1.5]'>Category Name</h1>
-          <h1 className='flex-1'>Description</h1>
-          <h1 className='flex-[0.7]'>Code</h1>
-          <h1 className='flex-[0.7]'>Serial #</h1>
-          <h1 className='flex-[0.8]'>Job Category</h1>
+          <h1 className='flex-[1.5]'>Subcategory Name</h1>
+          <h1 className='flex-[1.5]'>Parent Category</h1>
+          <h1 className='flex-[1.5]'>Description</h1>
+          <h1 className='flex-1'>Job Category</h1>
           <h1 className='flex-[0.5]'></h1>
         </div>
 
         {isFetching || isDeleteLoading ? (
           <LoadingSpinner />
-        ) : parentCategories.length === 0 ? (
+        ) : subcategories.length === 0 ? (
           <div className="text-center py-12 text-gray-500">
-            <p className="text-sm">No categories found.</p>
-            <p className="text-xs mt-2">Click "Click to add New" to create a category.</p>
+            <p className="text-sm">No subcategories found.</p>
+            <p className="text-xs mt-2">Click "Add New Subcategory" to create one.</p>
           </div>
         ) : (
           <div>
-            {parentCategories.map((item) => {
+            {subcategories.map((item) => {
+              const parentName = getParentName(item.parent);
+
               return (
                 <div
                   key={item.id}
                   className='flex justify-between mt-6 gap-5 text-[#756D6D] font-normal text-xs items-center'
                 >
                   <div className='flex-[1.5]'>
-                    <p className='font-semibold text-gray-800'>{item.name}</p>
+                    <p className='font-medium text-blue-700'>{item.name}</p>
                   </div>
-                  <p className='flex-1'>{item.description ?? "N/A"}</p>
-                  <p className='flex-[0.7]'>{item.code}</p>
-                  <p className='flex-[0.7]'>{item.serial_number}</p>
-                  <p className='flex-[0.8]'>
+                  <div className='flex-[1.5]'>
+                    <p className='font-medium text-gray-700'>{parentName}</p>
+                    <span className="text-[10px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full mt-1 inline-block">
+                      Parent
+                    </span>
+                  </div>
+                  <p className='flex-[1.5]'>{item.description ?? "N/A"}</p>
+                  <p className='flex-1'>
                     <span className={`text-[10px] px-2 py-1 rounded ${
                       item.job_category === 'GOODS' ? 'bg-green-100 text-green-700' :
                       item.job_category === 'SERVICE' ? 'bg-purple-100 text-purple-700' :
@@ -133,11 +154,11 @@ export default function AllCategory() {
           </div>
         )}
 
-        <Pagination
-          total={category?.data.pagination.count ?? 0}
-          itemsPerPage={category?.data.pagination.page_size ?? 0}
-          onChange={(page: number) => setPage(page)}
-        />
+        {subcategories.length > 0 && (
+          <div className="mt-6 text-sm text-gray-600 bg-blue-50 border border-blue-200 p-3 rounded-md">
+            <strong>Total Subcategories:</strong> {subcategories.length}
+          </div>
+        )}
       </div>
     </div>
   );

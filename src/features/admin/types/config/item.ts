@@ -2,10 +2,14 @@ import { z } from "zod";
 import { TCategoryData } from "./category";
 
 export const ItemSchema = z.object({
-  name: z.string(),
-  description: z.string(),
-  uom: z.string(),
-  category: z.string(),
+  name: z.string().min(1, "Item name is required"),
+  description: z.string().min(1, "Description is required"),
+  uom: z.string().min(1, "Unit of measurement is required"),
+  // UI-only fields for hierarchical category selection
+  item_type: z.string().optional(), // GOODS, SERVICE, WORK, OTHERS
+  parent_category: z.string().optional(), // Assets, Consumables, etc.
+  // Final category field (can be parent or subcategory)
+  category: z.string().optional(),
 });
 
 export const EditItemSchema = ItemSchema.extend({

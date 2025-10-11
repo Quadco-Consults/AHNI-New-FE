@@ -41,6 +41,7 @@ export const DialogType = {
   AddAssetConditions: "AddAssetConditions",
   AddAssetTypes: "AddAssetTypes",
   AddCategories: "AddCategories",
+  AddSubcategories: "AddSubcategories",
   AddDepartments: "AddDepartments",
   AddFinancialYear: "AddFinancialYear",
   AddItems: "AddItems",

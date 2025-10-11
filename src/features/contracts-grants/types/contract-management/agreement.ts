@@ -1,11 +1,15 @@
 import { z } from "zod";
 
 export const AgreementSchema = z.object({
-    // Note: Backend requires 'service' field for all agreements
-    // Frontend will auto-generate meaningful service names for staff contracts
-    service: z.string().optional(), // Frontend-only field, auto-populated
+    // Step 1: Type of Service Job (Goods, Service, Works, Other)
+    service_job_type: z.string().optional(), // Frontend-only field for filtering categories
+    // Step 2: Service Category (filtered by service job type)
+    service: z.string().optional(), // Frontend-only field, auto-populated for staff contracts
+    // Step 3: Service Type (Job Categories)
     service_type: z.string().optional(), // Frontend-only field for UI filtering
-    type: z.string().min(1, "Please select type"),
+    // Step 4: Agreement Type (Consultant, Facilitator, etc.)
+    type: z.string().min(1, "Please select agreement type"),
+    // Other fields
     start_date: z.string().min(1, "Please select start date"),
     end_date: z.string().min(1, "Please select end date"),
     contract_cost: z.coerce.string().min(1, "Please enter contract cost"),
