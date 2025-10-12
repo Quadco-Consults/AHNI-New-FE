@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
-import BackNavigation from "@/components/atoms/BackNavigation";
+import BackNavigation from "components/BackNavigation";
 import Card from "@/components/Card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";

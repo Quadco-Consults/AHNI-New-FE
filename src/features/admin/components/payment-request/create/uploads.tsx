@@ -112,28 +112,53 @@ export default function FileUploads() {
       // Add payment items - try sending as JSON array first
       if (payment_items && payment_items.length > 0) {
         // Convert to the exact format expected by API
-        const cleanedPaymentItems = payment_items.map((item) => ({
-          payment_to: item.payment_to,
-          account_number: item.account_number,
-          bank_name: item.bank_name,
-          amount_in_figures: item.amount_in_figures,
-          amount_in_words: item.amount_in_words,
-          ...(item.tax_identification_number && {
-            tax_identification_number: item.tax_identification_number,
-          }),
-          ...(item.phone_number && { phone_number: item.phone_number }),
-          ...(item.email && { email: item.email }),
-          ...(item.address && { address: item.address }),
-          ...(item.consultant && { consultant: item.consultant }),
-          ...(item.facilitator && { facilitator: item.facilitator }),
-          ...(item.adhoc_staff && { adhoc_staff: item.adhoc_staff }),
-        }));
+        const cleanedPaymentItems = payment_items.map((item) => {
+          const baseItem: any = {
+            payment_to: item.payment_to,
+            account_number: item.account_number,
+            bank_name: item.bank_name,
+            amount_in_figures: item.amount_in_figures,
+            amount_in_words: item.amount_in_words,
+          };
+
+          // Add optional fields only if they have values
+          if (item.tax_identification_number) {
+            baseItem.tax_identification_number = item.tax_identification_number;
+          }
+          if (item.phone_number) {
+            baseItem.phone_number = item.phone_number;
+          }
+          if (item.email) {
+            baseItem.email = item.email;
+          }
+          if (item.address) {
+            baseItem.address = item.address;
+          }
+
+          // Only add reference fields based on payment_type
+          if (payment_type === "CONSULTANT" && item.consultant) {
+            baseItem.consultant = item.consultant;
+          }
+          if (payment_type === "FACILITATOR" && item.facilitator) {
+            baseItem.facilitator = item.facilitator;
+          }
+          if (payment_type === "ADHOC_STAFF" && item.adhoc_staff) {
+            // For adhoc staff from applicants, use staff_legacy_id field
+            // since the backend might expect adhoc staff database IDs in adhoc_staff field
+            baseItem.staff_legacy_id = item.adhoc_staff;
+            console.log("Setting staff_legacy_id for adhoc applicant:", item.adhoc_staff);
+          }
+
+          return baseItem;
+        });
+
+        console.log("Cleaned payment items before FormData:", cleanedPaymentItems);
 
         // Try as FormData array format
         cleanedPaymentItems.forEach((item, index) => {
           Object.entries(item).forEach(([key, value]) => {
-            if (value) {
-              formData.append(`payment_items[${index}][${key}]`, value);
+            if (value !== null && value !== undefined && value !== "") {
+              formData.append(`payment_items[${index}][${key}]`, String(value));
             }
           });
         });
