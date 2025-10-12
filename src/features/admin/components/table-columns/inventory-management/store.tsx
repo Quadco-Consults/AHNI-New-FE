@@ -69,31 +69,36 @@ export const getStoreColumns = ({
     },
   },
   {
-    accessorKey: "location_name",
+    accessorKey: "locationName",
     header: "Location",
-    cell: ({ row }) => (
-      <span className="text-gray-700">
-        {row.original.location_name || "N/A"}
-      </span>
-    ),
+    cell: ({ row }) => {
+      const store = row.original as any;
+      const locationName = store.locationName || store.location_data?.name || store.location?.name || "N/A";
+      return <span className="text-gray-700">{locationName}</span>;
+    },
   },
   {
-    accessorKey: "parent_store_name",
+    accessorKey: "parentStoreName",
     header: "Parent Store",
-    cell: ({ row }) => (
-      <span className="text-gray-600 text-sm">
-        {row.original.parent_store_name || "-"}
-      </span>
-    ),
+    cell: ({ row }) => {
+      const store = row.original as any;
+      const parentName = store.parentStoreName || store.parent_store_data?.name || store.parent_store?.name || "-";
+      return <span className="text-gray-600 text-sm">{parentName}</span>;
+    },
   },
   {
-    accessorKey: "store_keeper_name",
+    accessorKey: "storeKeeperName",
     header: "Store Keeper",
-    cell: ({ row }) => (
-      <span className="text-gray-700">
-        {row.original.store_keeper_name || "N/A"}
-      </span>
-    ),
+    cell: ({ row }) => {
+      const store = row.original as any;
+      const keeperName = store.storeKeeperName ||
+        (store.store_keeper_data?.first_name && store.store_keeper_data?.last_name
+          ? `${store.store_keeper_data.first_name} ${store.store_keeper_data.last_name}`
+          : (store.store_keeper?.first_name && store.store_keeper?.last_name
+            ? `${store.store_keeper.first_name} ${store.store_keeper.last_name}`
+            : "N/A"));
+      return <span className="text-gray-700">{keeperName}</span>;
+    },
   },
   {
     accessorKey: "is_active",

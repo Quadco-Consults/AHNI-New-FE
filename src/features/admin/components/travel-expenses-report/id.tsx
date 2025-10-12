@@ -22,6 +22,9 @@ import { toast } from "sonner";
 import { Separator } from "components/ui/separator";
 import { useState, useEffect } from "react";
 import DocumentCard from "@/features/projects/components/projects/create/DocumentCard";
+import { FileTextIcon } from "lucide-react";
+import { Button } from "components/ui/button";
+import Link from "next/link";
 
 interface ApprovalFormData {
   comments: string;
@@ -173,8 +176,17 @@ export default function TravelExpenseDetailsPage() {
       <BackNavigation />
 
       <Card>
-        <CardHeader className='font-bold'>
-          Travel Expense Report Details
+        <CardHeader className='font-bold flex flex-row items-center justify-between'>
+          <span>Travel Expense Report Details</span>
+          <Link href={`/dashboard/admin/travel-expenses-report/${id}/ter-document`}>
+            <Button
+              variant="default"
+              className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700"
+            >
+              <FileTextIcon className="w-4 h-4" />
+              Generate TER Document
+            </Button>
+          </Link>
         </CardHeader>
 
         {isLoading ? (

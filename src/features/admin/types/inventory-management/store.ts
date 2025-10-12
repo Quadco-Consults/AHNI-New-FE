@@ -24,12 +24,15 @@ export interface TStorePaginatedData {
   name: string;
   code: string;
   location: string; // Location ID
-  location_name?: string; // For display
+  locationName?: string; // For display (camelCase from backend)
+  location_data?: TLocationData; // Expanded location object
   store_type: "CENTRAL" | "LOCATION";
   parent_store: string | null;
-  parent_store_name?: string; // For display
+  parentStoreName?: string; // For display (camelCase from backend)
+  parent_store_data?: { id: string; name: string; code: string } | null; // Expanded parent store
   store_keeper: string; // User ID
-  store_keeper_name?: string; // For display
+  storeKeeperName?: string; // For display (camelCase from backend)
+  store_keeper_data?: IUser; // Expanded store keeper object
   description?: string;
   is_active: boolean;
   created_datetime: string;

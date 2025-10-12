@@ -29,7 +29,11 @@ export const useGetAllStores = ({
     queryKey: ["stores", page, size, search, location, store_type, is_active],
     queryFn: async () => {
       try {
-        const params: any = { page, size };
+        const params: any = {
+          page,
+          size,
+          expand: "location,parent_store,store_keeper" // Request expanded data
+        };
 
         if (search) params.search = search;
         if (location) params.location = location;
