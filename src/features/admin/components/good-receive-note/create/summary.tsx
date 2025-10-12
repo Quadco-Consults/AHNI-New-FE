@@ -23,6 +23,7 @@ import {
   useGetSinglePurchaseOrder,
 } from "@/features/procurement/controllers/purchaseOrderController";
 import { useGetAllUsers } from "@/features/auth/controllers/userController";
+import { useGetAllStores } from "@/features/admin/controllers/storeController";
 import { toast } from "sonner";
 import GoodReceiveNoteLayout from "./Layout";
 import { useRouter } from "next/navigation";
@@ -35,6 +36,7 @@ export default function CreateGoodReceiveNote() {
     resolver: zodResolver(GoodReceiveNoteSchema),
     defaultValues: {
       purchase_order: "",
+      destination_store: "", // Phase 3: Store selection
       invoice_number: "",
       waybill_number: "",
       remark: "",
@@ -88,6 +90,22 @@ export default function CreateGoodReceiveNote() {
     }));
   }, [usersData]);
 
+  // Phase 3: Fetch active stores for destination selection
+  const { data: storesData } = useGetAllStores({
+    page: 1,
+    size: 1000,
+    is_active: true, // Only show active stores
+  });
+
+  const storeOptions = useMemo(() => {
+    if (!storesData?.data?.results) return [];
+
+    return storesData.data.results.map((store: any) => ({
+      label: `${store.name} (${store.code}) - ${store.store_type === 'CENTRAL' ? 'Central Store' : 'Location Store'}`,
+      value: store.id,
+    }));
+  }, [storesData]);
+
 
   const { fields, replace } = useFieldArray({
     control: form.control,
@@ -125,6 +143,7 @@ export default function CreateGoodReceiveNote() {
 
       const transformedData = {
         purchase_order: data.purchase_order,
+        destination_store: data.destination_store, // Phase 3: Include destination store
         invoice_number: data.invoice_number,
         waybill_number: data.waybill_number,
         remark: data.remark,
@@ -159,6 +178,7 @@ export default function CreateGoodReceiveNote() {
     if (goodNote) {
       form.reset({
         purchase_order: goodNote.data.purchase_order.id,
+        destination_store: goodNote.data.destination_store || "", // Phase 3: Include destination store
         invoice_number: goodNote.data.invoice_number,
         waybill_number: goodNote.data.waybill_number,
         remark: goodNote.data.remark,
@@ -198,6 +218,21 @@ export default function CreateGoodReceiveNote() {
                 required
                 options={purchaseOrderOptions}
               />
+
+              {/* Phase 3: Destination Store Selection */}
+              <div className='bg-blue-50 border border-blue-200 rounded-lg p-4'>
+                <h4 className='font-semibold text-blue-900 mb-2'>📦 Destination Store</h4>
+                <p className='text-sm text-blue-700 mb-3'>
+                  Select the store where these goods will be received and stocked.
+                </p>
+                <FormSelect
+                  label='Destination Store'
+                  name='destination_store'
+                  placeholder='Select Destination Store'
+                  required
+                  options={storeOptions}
+                />
+              </div>
 
               {singlePurchaseOrder && (
                 <div className='bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6'>
