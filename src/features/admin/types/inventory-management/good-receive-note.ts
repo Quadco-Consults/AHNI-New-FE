@@ -1,7 +1,9 @@
 import { z } from "zod";
+import { TStoreSingleData } from "./store";
 
 export const GoodReceiveNoteSchema = z.object({
   purchase_order: z.string().min(1, "Please select a purchase order"),
+  destination_store: z.string().min(1, "Please select destination store"), // Phase 3: Store integration
   invoice_number: z.string().min(1, "Please enter an invoice number"),
   waybill_number: z.string().min(1, "Please enter a waybill number"),
   remark: z.string().min(1, "Please enter a remark"),
@@ -24,6 +26,9 @@ export interface IGoodReceiveNotePaginatedData {
   id: string;
   purchase_order: string;
   vendor: string;
+  destination_store?: string; // Phase 3: Store ID
+  destination_store_name?: string; // Phase 3: Store name for display
+  destination_store_code?: string; // Phase 3: Store code for display
   created_datetime: string;
   updated_datetime: string;
   invoice_number: string;
@@ -51,7 +56,10 @@ export interface IGoodReceiveNoteSingleData {
     ship_to_address: string;
     payment_terms: string;
     authorized_datetime: string;
+    purchase_request?: string; // PR ID to fetch PR details
   };
+  destination_store?: string; // Phase 3: Store ID
+  destination_store_detail?: TStoreSingleData; // Phase 3: Full store object (when expanded)
   created_datetime: string;
   updated_datetime: string;
   invoice_number: string;
@@ -62,7 +70,28 @@ export interface IGoodReceiveNoteSingleData {
   rejected_datetime?: string | null;
   received_datetime?: string | null;
   created_by: string;
+  created_by_detail?: {
+    user_id: string;
+    name: string;
+    email?: string;
+  } | null;
   updated_by: string | null;
   approved_by?: string | null;
+  approved_by_detail?: {
+    user_id: string;
+    name: string;
+    email?: string;
+  } | null;
   rejected_by?: string | null;
+  rejected_by_detail?: {
+    user_id: string;
+    name: string;
+    email?: string;
+  } | null;
+  received_by?: string | null;
+  received_by_detail?: {
+    user_id: string;
+    name: string;
+    email?: string;
+  } | null;
 }

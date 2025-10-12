@@ -62,6 +62,9 @@ export const useGetAllGoodReceiveNote = ({
 
         if (search) params.search = search;
 
+        // Phase 3: Add destination_store to expand parameter for list view
+        params.expand = 'destination_store';
+
         // Handle status filtering
         if (status === "pending") {
           // For pending: no approved_datetime, no received_datetime, and no rejected_datetime
@@ -112,7 +115,12 @@ export const useGetSingleGoodReceiveNote = (
     queryKey: ["goodReceiveNote", id],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get(`${BASE_URL}${id}/`);
+        const response = await AxiosWithToken.get(`${BASE_URL}${id}/`, {
+          params: {
+            // Phase 3: Added destination_store to expand parameter
+            expand: 'created_by,approved_by,rejected_by,received_by,purchase_order,destination_store,destination_store.location,destination_store.store_keeper',
+          }
+        });
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;

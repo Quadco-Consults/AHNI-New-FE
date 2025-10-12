@@ -98,6 +98,18 @@ export const AdminRoutes = {
   GRN_DETAIL: "/dashboard/admin/good-receive-note/:id",
   /* GOOD RECEIVE NOTES END */
 
+  /* STORES START */
+  STORES: "/dashboard/admin/inventory-management/stores",
+  STORES_CREATE: "/dashboard/admin/inventory-management/stores/create",
+  STORES_DETAIL: "/dashboard/admin/inventory-management/stores/:id",
+  /* STORES END */
+
+  /* STORE TRANSFERS START */
+  STORE_TRANSFERS: "/dashboard/admin/inventory-management/store-transfers",
+  STORE_TRANSFERS_CREATE: "/dashboard/admin/inventory-management/store-transfers/create",
+  STORE_TRANSFERS_DETAIL: "/dashboard/admin/inventory-management/store-transfers/:id",
+  /* STORE TRANSFERS END */
+
   ITEM_REQUISITION: "/dashboard/admin/inventory-management/item-requisition",
   ITEM_REQUISITION_DETAIL:
     "/dashboard/admin/inventory-management/item-requisition/:id",
