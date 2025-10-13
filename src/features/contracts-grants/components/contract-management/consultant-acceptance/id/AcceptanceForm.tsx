@@ -15,6 +15,7 @@ import { useUpdateConsultancyApplicant, useGetSingleConsultancyApplicant } from 
 import { FileText, Download, CheckCircle, XCircle, AlertCircle, Eye } from "lucide-react";
 import { Button } from "components/ui/button";
 import Card from "components/Card";
+import { createUserAccountFromApplicant } from "@/utils/createUserFromApplicant";
 
 interface AcceptanceFormData {
     country: string;
@@ -168,12 +169,42 @@ export default function AcceptanceForm() {
 
             console.log("Applicant status updated - Contract accepted");
 
-            toast.success("Contract accepted successfully! You will now appear in the AHNi Adhoc Staff Database.");
+            // Automatically create user account for the applicant
+            try {
+                console.log("🔐 Creating user account for accepted applicant...");
+
+                // Determine user type from applicant data
+                const userType = applicant?.type || "ADHOC_STAFF";
+
+                const userResult = await createUserAccountFromApplicant(
+                    {
+                        ...applicant,
+                        acceptance_country: data.country,
+                        acceptance_city: data.city,
+                    },
+                    userType as "CONSULTANT" | "FACILITATOR" | "ADHOC_STAFF"
+                );
+
+                if (userResult.success) {
+                    console.log("✅ User account created successfully:", userResult.userId);
+                    toast.success("Contract accepted successfully! Your user account has been created.");
+                } else if (userResult.userExists) {
+                    console.log("ℹ️  User account already exists");
+                    toast.success("Contract accepted successfully! Your existing user account is already active.");
+                } else {
+                    console.warn("⚠️  User account creation returned unsuccessful:", userResult);
+                    toast.success("Contract accepted successfully! Please contact admin to activate your user account.");
+                }
+            } catch (userError: any) {
+                console.error("❌ Failed to create user account:", userError);
+                // Don't fail the whole process if user creation fails
+                toast.warning("Contract accepted! However, user account creation failed. Admin will create your account manually.");
+            }
 
             // Navigate to the adhoc database page
             setTimeout(() => {
                 router.push("/dashboard/programs/adhoc-database");
-            }, 2000);
+            }, 2500);
 
         } catch (error) {
             console.error("Contract acceptance error:", error);
