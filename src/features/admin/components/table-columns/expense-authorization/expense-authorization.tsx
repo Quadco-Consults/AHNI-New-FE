@@ -24,7 +24,10 @@ export const expenseAuthorizationColumns: ColumnDef<IExpenseAuthorizationPaginat
       id: "projects",
       accessorFn: ({ destinations }) => {
         if (!destinations || destinations.length === 0) return "N/A";
-        return destinations.map((dest) => dest.project_title).join(", ");
+        return destinations.map((dest) => {
+          // Handle both project_title (paginated) and project.title (single) formats
+          return (dest as any).project_title || (dest as any).project?.title || "N/A";
+        }).join(", ");
       },
       size: 300,
       cell: ({ row }) => {
@@ -33,16 +36,20 @@ export const expenseAuthorizationColumns: ColumnDef<IExpenseAuthorizationPaginat
         if (!destinations || destinations.length === 0) return "N/A";
 
         if (destinations.length === 1) {
-          return destinations[0].project_title || "N/A";
+          const project = (destinations[0] as any).project_title || (destinations[0] as any).project?.title || "N/A";
+          return project;
         }
 
         return (
           <div className='space-y-1'>
-            {destinations.map((dest, index) => (
-              <div key={dest.id || index} className='text-sm'>
-                {`${index + 1}) ${dest.project_title}` || "N/A"}
-              </div>
-            ))}
+            {destinations.map((dest: any, index: number) => {
+              const project = dest.project_title || dest.project?.title || "N/A";
+              return (
+                <div key={dest.id || index} className='text-sm'>
+                  {`${index + 1}) ${project}`}
+                </div>
+              );
+            })}
           </div>
         );
       },
@@ -104,7 +111,10 @@ export const expenseAuthorizationColumns: ColumnDef<IExpenseAuthorizationPaginat
     {
       header: "Department",
       id: "department",
-      accessorKey: "department",
+      accessorFn: ({ department }) => {
+        if (typeof department === 'string') return department;
+        return (department as any)?.name || "N/A";
+      },
       size: 250,
     },
 

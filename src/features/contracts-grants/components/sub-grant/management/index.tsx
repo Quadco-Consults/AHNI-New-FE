@@ -123,7 +123,7 @@ const SubGrantManagement = () => {
                 </TabsContent>
 
                 <TabsContent value="obligation">
-                    <SubGrantObligationHistory subGrantId={subGrantId} />
+                    <SubGrantObligationHistory subGrantId={subGrantId} awardAmountUsd={subgrant?.amount_usd} />
                 </TabsContent>
 
                 <TabsContent value="expenditure">

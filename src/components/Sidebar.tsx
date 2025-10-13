@@ -818,6 +818,16 @@ const getDeparmentalLinks = () => {
             },
 
             {
+              name: "Stores",
+              path: "/dashboard/admin/inventory-management/stores",
+            },
+
+            {
+              name: "Store Transfers",
+              path: "/dashboard/admin/inventory-management/store-transfers",
+            },
+
+            {
               name: "Admin Tracker",
               path: "/dashboard/admin/admin-tracker",
             },

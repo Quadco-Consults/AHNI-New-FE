@@ -16,6 +16,10 @@ import {
   useCreateObligation,
   useModifyObligation,
 } from "@/features/contracts-grants/controllers/obligationController";
+import {
+  useCreateSubGrantObligation,
+  useUpdateSubGrantObligation,
+} from "@/features/contracts-grants/controllers/subGrantObligationController";
 import { toast } from "sonner";
 import { closeDialog } from "store/ui";
 
@@ -26,6 +30,7 @@ export default function ObligationModal() {
     dialogProps?.obligation as unknown as IObligationPaginatedData;
 
   const grantId = dialogProps?.grantId as string;
+  const subGrantId = dialogProps?.subGrantId as string;
 
   const form = useForm<TObligationFormData>({
     resolver: zodResolver(ObligationSchema),
@@ -37,24 +42,46 @@ export default function ObligationModal() {
 
   const dispatch = useAppDispatch();
 
+  // For regular grants
   const { createObligation, isLoading: isCreateLoading } =
     useCreateObligation(grantId || "");
 
   const { updateObligation, isLoading: isModifyLoading } =
     useModifyObligation(grantId || "", obligation?.id || "");
 
+  // For sub-grants
+  const { createObligation: createSubGrantObligation, isLoading: isCreateSubGrantLoading } =
+    useCreateSubGrantObligation(subGrantId || "");
+
+  const { updateObligation: updateSubGrantObligation, isLoading: isUpdateSubGrantLoading } =
+    useUpdateSubGrantObligation(subGrantId || "", obligation?.id || "");
+
   const onSubmit: SubmitHandler<TObligationFormData> = async (data) => {
-    if (!grantId) {
-      toast.error("Grant ID is required");
+    // Check if we're dealing with a subgrant or regular grant
+    const isSubGrant = !!subGrantId;
+    const isGrant = !!grantId;
+
+    if (!isSubGrant && !isGrant) {
+      toast.error("Grant ID or SubGrant ID is required");
       return;
     }
 
     try {
       if (obligation?.id) {
-        await updateObligation(data);
+        // Update existing obligation
+        if (isSubGrant) {
+          await updateSubGrantObligation(data);
+        } else {
+          await updateObligation(data);
+        }
         toast.success("Obligation Updated");
       } else {
-        await createObligation(data);
+        // Create new obligation
+        if (isSubGrant) {
+          await createSubGrantObligation(data);
+        } else {
+          await createObligation(data);
+        }
         toast.success("Obligation Created");
       }
 
@@ -82,7 +109,10 @@ export default function ObligationModal() {
         />
 
         <div className='flex justify-end'>
-          <FormButton size='lg' loading={isCreateLoading || isModifyLoading}>
+          <FormButton
+            size='lg'
+            loading={isCreateLoading || isModifyLoading || isCreateSubGrantLoading || isUpdateSubGrantLoading}
+          >
             Submit
           </FormButton>
         </div>

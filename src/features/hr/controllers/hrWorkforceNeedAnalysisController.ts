@@ -38,18 +38,32 @@ export const useGetWorkforceNeedAnalysis = ({
     queryKey: ["workforce-need-analysis", search, location, position, page, size],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get(BASE_URL, {
-          params: {
-            page,
-            size,
-            ...(search && { search }),
-            ...(location && { location }),
-            ...(position && { position }),
-          },
-        });
+        const params = {
+          page,
+          size,
+          ...(search && { search }),
+          ...(location && { location }),
+          ...(position && { position }),
+        };
+
+        console.log('=== API REQUEST DEBUG ===');
+        console.log('URL:', BASE_URL);
+        console.log('Params:', params);
+        console.log('========================');
+
+        const response = await AxiosWithToken.get(BASE_URL, { params });
+
+        console.log('=== API RESPONSE DEBUG ===');
+        console.log('Response:', response.data);
+        console.log('=========================');
+
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
+        console.error('=== API ERROR ===');
+        console.error('Error:', axiosError);
+        console.error('Response:', axiosError.response?.data);
+        console.error('=================');
         throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
       }
     },

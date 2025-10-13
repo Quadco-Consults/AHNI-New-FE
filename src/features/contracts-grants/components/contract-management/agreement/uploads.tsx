@@ -5,11 +5,12 @@ import FormButton from "@/components/FormButton";
 import { useAppDispatch } from "hooks/useStore";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
-import { useCreateAgreement } from "@/features/contracts-grants/controllers/agreementController";
+import { useCreateAgreement, useUploadContractDocument } from "@/features/contracts-grants/controllers/agreementController";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { CG_ROUTES } from "constants/RouterConstants";
+import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 
 export default function ServiceLevelAgreementUploads() {
     const dispatch = useAppDispatch();
@@ -17,7 +18,7 @@ export default function ServiceLevelAgreementUploads() {
     const [isLoading, setIsLoading] = useState(false);
     const [tempDocuments, setTempDocuments] = useState([]);
 
-    const { createAgreement } = useCreateAgreement();
+    const { createAgreement, data: createData, isSuccess: createSuccess } = useCreateAgreement();
 
     // Load temp documents from session storage
     useEffect(() => {
@@ -27,11 +28,11 @@ export default function ServiceLevelAgreementUploads() {
 
     const onSubmit = async () => {
         setIsLoading(true);
-        
+
         try {
             // Get agreement form data from session storage
             const agreementData = JSON.parse(sessionStorage.getItem('agreementFormData') || '{}');
-            
+
             if (!agreementData.service || !agreementData.type) {
                 toast.error("Agreement data not found. Please go back and fill the form.");
                 return;
@@ -39,7 +40,7 @@ export default function ServiceLevelAgreementUploads() {
 
             // Create the agreement first
             console.log("Creating agreement with data:", agreementData);
-            
+
             // Build base payload
             const cleanedData: any = {
                 service: agreementData.service,
@@ -72,13 +73,62 @@ export default function ServiceLevelAgreementUploads() {
             });
             await createAgreement(cleanedData);
 
+            // Wait a bit for the create mutation to complete
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+            // Get the created agreement ID from the response
+            const createdAgreementId = createData?.data?.id;
+
+            if (!createdAgreementId) {
+                console.error("Agreement ID not found in response:", createData);
+                toast.error("Agreement created but ID not found. Please refresh and upload documents manually.");
+                // Still redirect to let user see the agreement was created
+                sessionStorage.removeItem('agreementFormData');
+                sessionStorage.removeItem('tempAgreementDocuments');
+                router.push(CG_ROUTES.AGREEMENT);
+                return;
+            }
+
+            console.log("Agreement created with ID:", createdAgreementId);
+
+            // Upload documents if any
+            if (tempDocuments.length > 0) {
+                toast.info(`Uploading ${tempDocuments.length} document(s)...`);
+
+                for (const doc of tempDocuments) {
+                    try {
+                        const formData = new FormData();
+                        formData.append('file', doc.file);
+                        formData.append('title', doc.title || doc.file.name);
+                        formData.append('document_type', doc.document_type || 'CONTRACT');
+                        if (doc.description) {
+                            formData.append('description', doc.description);
+                        }
+
+                        // Upload document
+                        await AxiosWithToken.post(
+                            `/contract-grants/agreements/${createdAgreementId}/documents/`,
+                            formData
+                        );
+
+                        console.log(`Document "${doc.title}" uploaded successfully`);
+                    } catch (docError) {
+                        console.error(`Failed to upload document "${doc.title}":`, docError);
+                        toast.error(`Failed to upload document: ${doc.title}`);
+                    }
+                }
+
+                toast.success(`Agreement created with ${tempDocuments.length} document(s)!`);
+            } else {
+                toast.success("Agreement created successfully!");
+            }
+
             // Clean up session storage
             sessionStorage.removeItem('agreementFormData');
             sessionStorage.removeItem('tempAgreementDocuments');
-            
-            toast.success("Agreement created successfully!");
+
             router.push(CG_ROUTES.AGREEMENT);
-            
+
         } catch (error: any) {
             console.error("Agreement creation error:", error);
             toast.error(error?.message || "Failed to create agreement. Please try again.");
