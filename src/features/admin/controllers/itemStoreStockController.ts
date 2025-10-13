@@ -64,7 +64,7 @@ export const useGetItemStocksByItem = (
           params: {
             item: itemId,
             size: 1000, // Get all stores for this item
-            expand: "store,store.location",
+            expand: "item_detail,item_detail.category,store_detail,store_detail.location",
           },
         });
         return response.data;
@@ -89,16 +89,20 @@ export const useGetStoreInventory = (
     queryKey: ["store-inventory", storeId],
     queryFn: async () => {
       try {
+        // Try without expand first to see if endpoint works
         const response = await AxiosWithToken.get(BASE_URL, {
           params: {
             store: storeId,
             size: 1000, // Get all items in this store
-            expand: "item,item.category",
+            // expand: "item_detail,item_detail.category,store_detail,store_detail.location",
           },
         });
+        console.log("Store Inventory Response:", response.data);
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
+        console.error("Store Inventory Error:", error);
+        console.error("Error Response:", (axiosError.response?.data as any));
         throw new Error(
           "Sorry: " + (axiosError.response?.data as any)?.message
         );

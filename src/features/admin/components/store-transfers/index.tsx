@@ -41,9 +41,9 @@ export default function StoreTransfersList() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
-  const [sourceStoreFilter, setSourceStoreFilter] = useState("");
-  const [destinationStoreFilter, setDestinationStoreFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [sourceStoreFilter, setSourceStoreFilter] = useState("all");
+  const [destinationStoreFilter, setDestinationStoreFilter] = useState("all");
 
   // Dialog states
   const [deleteDialog, setDeleteDialog] = useState<{
@@ -84,9 +84,9 @@ export default function StoreTransfersList() {
     page,
     size: pageSize,
     search: searchTerm,
-    status: statusFilter,
-    source_store: sourceStoreFilter,
-    destination_store: destinationStoreFilter,
+    status: statusFilter === "all" ? "" : statusFilter,
+    source_store: sourceStoreFilter === "all" ? "" : sourceStoreFilter,
+    destination_store: destinationStoreFilter === "all" ? "" : destinationStoreFilter,
   });
 
   // Fetch stores for filters
@@ -258,7 +258,7 @@ export default function StoreTransfersList() {
                   <SelectValue placeholder="All Statuses" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Statuses</SelectItem>
+                  <SelectItem value="all">All Statuses</SelectItem>
                   <SelectItem value="pending">Pending</SelectItem>
                   <SelectItem value="approved">Approved</SelectItem>
                   <SelectItem value="in_transit">In Transit</SelectItem>
@@ -279,7 +279,7 @@ export default function StoreTransfersList() {
                   <SelectValue placeholder="All Stores" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Stores</SelectItem>
+                  <SelectItem value="all">All Stores</SelectItem>
                   {storeOptions.map((store) => (
                     <SelectItem key={store.value} value={store.value}>
                       {store.label}
@@ -299,7 +299,7 @@ export default function StoreTransfersList() {
                   <SelectValue placeholder="All Stores" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Stores</SelectItem>
+                  <SelectItem value="all">All Stores</SelectItem>
                   {storeOptions.map((store) => (
                     <SelectItem key={store.value} value={store.value}>
                       {store.label}

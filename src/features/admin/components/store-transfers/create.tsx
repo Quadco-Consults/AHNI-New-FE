@@ -6,12 +6,12 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import Card from "@/components/Card";
 import { Form } from "@/components/ui/form";
-import FormInput from "@/components/atoms/FormInput";
-import FormSelect from "@/components/atoms/FormSelect";
-import FormTextArea from "@/components/atoms/FormTextArea";
+import FormInput from "@/components/FormInput";
+import FormSelect from "@/components/FormSelect";
+import FormTextArea from "@/components/FormTextArea";
 import FormButton from "@/components/FormButton";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { AdminRoutes } from "@/constants/RouterConstants";
 import {
@@ -162,13 +162,23 @@ export default function CreateStoreTransfer() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">
-          {isEdit ? "Edit Store Transfer" : "Create Store Transfer"}
-        </h1>
-        <p className="text-gray-600 mt-1">
-          Transfer inventory items between stores
-        </p>
+      <div className="flex items-start gap-4">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => router.push(AdminRoutes.STORE_TRANSFERS)}
+          className="mt-1"
+        >
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
+        <div className="flex-1">
+          <h1 className="text-2xl font-bold text-gray-900">
+            {isEdit ? "Edit Store Transfer" : "Create Store Transfer"}
+          </h1>
+          <p className="text-gray-600 mt-1">
+            Transfer inventory items between stores
+          </p>
+        </div>
       </div>
 
       <Card>

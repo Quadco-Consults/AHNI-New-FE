@@ -25,7 +25,7 @@ import { useGetAllLocations } from "@/features/modules/controllers/config/locati
 import { useGetAllJobCategories } from "@/features/modules/controllers/config/jobCategoryController";
 import { useGetAllCategories } from "@/features/modules/controllers/config/categoryController";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
-import { CheckCircle2, Building2, Users, FileText, Calendar, DollarSign, MapPin } from "lucide-react";
+import { CheckCircle2, Building2, Users, FileText, Calendar, DollarSign, MapPin, Upload, X } from "lucide-react";
 import { Badge } from "components/ui/badge";
 
 const agreementTypeOptions = [
@@ -93,6 +93,12 @@ export default function CreateAgreementRefactored() {
     const [selectedAgreementType, setSelectedAgreementType] = useState("");
     const [entityOptions, setEntityOptions] = useState<Array<{label: string, value: string, [key: string]: any}>>([]);
     const [isLoadingEntities, setIsLoadingEntities] = useState(false);
+    const [createdAgreementId, setCreatedAgreementId] = useState<string | null>(null);
+    const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+    const [documentType, setDocumentType] = useState<'CONTRACT' | 'ADDENDUM' | 'AMENDMENT'>('CONTRACT');
+    const [documentDescription, setDocumentDescription] = useState("");
+    const [isUploading, setIsUploading] = useState(false);
+    const [uploadedDocuments, setUploadedDocuments] = useState<any[]>([]);
 
     const form = useForm<TAgreementFormData>({
         resolver: zodResolver(AgreementSchema),
@@ -117,15 +123,28 @@ export default function CreateAgreementRefactored() {
     const { data: location } = useGetAllLocations({ page: 1, size: 2000000 });
     const { data: jobCategories } = useGetAllJobCategories({ enabled: true });
     const { data: categories } = useGetAllCategories({ page: 1, size: 1000, enabled: true });
-    const { createAgreement, isLoading: isCreateLoading, isSuccess, error: apiError } = useCreateAgreement();
+    const { createAgreement, isLoading: isCreateLoading, isSuccess, error: apiError, data: createData } = useCreateAgreement();
 
-    // Handle API success
+    // Handle API success - move to upload step instead of redirecting
     useEffect(() => {
-        if (isSuccess) {
-            toast.success("Agreement created successfully!");
-            router.push(CG_ROUTES.AGREEMENT);
+        console.log('🎯 Create Agreement Effect Triggered');
+        console.log('  - isSuccess:', isSuccess);
+        console.log('  - createData:', createData);
+        console.log('  - createData?.id:', createData?.id);
+        console.log('  - currentStep:', currentStep);
+
+        if (isSuccess && createData?.id) {
+            console.log('✅ Conditions met! Moving to Step 4 with ID:', createData.id);
+            toast.success("Agreement created successfully! Now add documents.");
+            setCreatedAgreementId(createData.id);
+            setCurrentStep(4); // Move to document upload step
+            console.log('✅ setCurrentStep(4) called');
+        } else {
+            console.log('❌ Conditions not met for Step 4 transition');
+            if (!isSuccess) console.log('  - isSuccess is false or undefined');
+            if (!createData?.id) console.log('  - Agreement ID not found in response');
         }
-    }, [isSuccess, router]);
+    }, [isSuccess, createData]);
 
     // Handle API errors
     useEffect(() => {
@@ -163,23 +182,42 @@ export default function CreateAgreementRefactored() {
         return options;
     }, [jobCategories]);
 
-    // Service Options (all categories)
+    // Service Options (all categories and subcategories)
     const serviceOptions = useMemo(() => {
-        if (!categories) return [];
+        if (!categories) {
+            console.log('⚠️ Categories hook returned no data');
+            return [];
+        }
 
-        // TPaginatedResponse has results array directly
-        const categoryData = categories.results || [];
+        console.log('📦 Full categories response:', categories);
 
-        console.log('📦 Raw Categories Data:', categoryData.slice(0, 3)); // Show first 3 categories
+        // Try different possible response structures
+        let categoryData: any[] = [];
 
+        if (categories.results) {
+            categoryData = categories.results;
+        } else if (categories.data?.results) {
+            categoryData = categories.data.results;
+        } else if (Array.isArray(categories.data)) {
+            categoryData = categories.data;
+        } else if (Array.isArray(categories)) {
+            categoryData = categories;
+        }
+
+        console.log('📦 Extracted Categories Data:', categoryData.slice(0, 3)); // Show first 3 categories
+
+        // Include ALL categories (both parent categories and subcategories)
+        // Subcategories are the ones with a parent field
         const mappedOptions = categoryData.map((category) => ({
             label: category.name,
             value: category.id,
             job_category: category.job_category, // Job category ID for filtering
             parent: category.parent, // Parent category for hierarchy
+            isSubcategory: !!category.parent, // Flag to identify subcategories
         }));
 
         console.log('📊 Mapped Service Options (first 5):', mappedOptions.slice(0, 5));
+        console.log(`📊 Total: ${mappedOptions.length} (${mappedOptions.filter(o => o.isSubcategory).length} subcategories, ${mappedOptions.filter(o => !o.isSubcategory).length} parent categories)`);
 
         return mappedOptions;
     }, [categories]);
@@ -647,7 +685,86 @@ export default function CreateAgreementRefactored() {
     const isStaffContract = ['CONSULTANT', 'FACILITATOR', 'ADHOC_STAFF'].includes(selectedAgreementType);
     const entityInfo = getEntityField();
 
-    const steps = ["Agreement Type", "Details", "Review"];
+    // Document upload handlers
+    const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files) {
+            setSelectedFiles(Array.from(e.target.files));
+        }
+    };
+
+    const handleRemoveFile = (index: number) => {
+        setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+    };
+
+    const handleUploadDocuments = async () => {
+        if (!createdAgreementId) {
+            toast.error("Agreement ID not found");
+            return;
+        }
+
+        if (selectedFiles.length === 0) {
+            toast.error("Please select at least one document");
+            return;
+        }
+
+        setIsUploading(true);
+        let successCount = 0;
+        let failCount = 0;
+
+        for (const file of selectedFiles) {
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('title', file.name);
+                formData.append('document_type', documentType);
+                if (documentDescription) {
+                    formData.append('description', documentDescription);
+                }
+
+                const response = await AxiosWithToken.post(
+                    `/contract-grants/agreements/${createdAgreementId}/documents/`,
+                    formData
+                );
+
+                console.log(`Document "${file.name}" uploaded successfully:`, response.data);
+
+                // Add to uploaded documents list
+                if (response.data?.data) {
+                    setUploadedDocuments(prev => [...prev, response.data.data]);
+                }
+
+                successCount++;
+            } catch (error) {
+                console.error(`Failed to upload document "${file.name}":`, error);
+                failCount++;
+            }
+        }
+
+        setIsUploading(false);
+        setSelectedFiles([]);
+        setDocumentDescription("");
+
+        if (successCount > 0) {
+            toast.success(`${successCount} document(s) uploaded successfully!`);
+        }
+        if (failCount > 0) {
+            toast.error(`Failed to upload ${failCount} document(s)`);
+        }
+    };
+
+    const handleFinish = () => {
+        if (uploadedDocuments.length === 0) {
+            // Ask for confirmation if no documents uploaded
+            if (confirm("No documents uploaded. Are you sure you want to finish without documents?")) {
+                router.push(CG_ROUTES.AGREEMENT);
+            }
+        } else {
+            toast.success(`Agreement created with ${uploadedDocuments.length} document(s)!`);
+            router.push(CG_ROUTES.AGREEMENT);
+        }
+    };
+
+    const steps = ["Agreement Type", "Details", "Review", "Upload Documents"];
 
     return (
         <ServiceLevelAgreementLayout>
@@ -880,25 +997,32 @@ export default function CreateAgreementRefactored() {
                                                     <div>
                                                         <div className="flex items-center gap-2 mb-3">
                                                             <Building2 className="w-5 h-5 text-indigo-600" />
-                                                            <h3 className="text-base font-semibold">Service Category</h3>
+                                                            <h3 className="text-base font-semibold">Service Category {serviceOptions.length === 0 && '(Optional - No categories configured)'}</h3>
                                                         </div>
                                                         <FormSelect
                                                             label="Service Category"
                                                             name="service"
                                                             placeholder={
-                                                                !selectedServiceType
+                                                                serviceOptions.length === 0
+                                                                    ? "No categories configured in system"
+                                                                    : !selectedServiceType
                                                                     ? "Select Service Type first"
                                                                     : filteredServiceOptions.length === 0
                                                                     ? `No categories for ${selectedServiceType}`
                                                                     : "Select Service Category"
                                                             }
                                                             options={filteredServiceOptions || []}
-                                                            required
-                                                            disabled={!selectedServiceType}
+                                                            required={serviceOptions.length > 0}
+                                                            disabled={!selectedServiceType || serviceOptions.length === 0}
                                                         />
                                                         {selectedServiceType && filteredServiceOptions.length > 0 && (
                                                             <p className="text-xs text-gray-600 mt-1">
                                                                 Showing {filteredServiceOptions.length} categories for {selectedServiceType}
+                                                            </p>
+                                                        )}
+                                                        {serviceOptions.length === 0 && (
+                                                            <p className="text-xs text-orange-600 mt-1">
+                                                                ⚠️ No service categories configured. Please add categories in the admin panel or proceed without selecting a category.
                                                             </p>
                                                         )}
                                                     </div>
@@ -995,7 +1119,8 @@ export default function CreateAgreementRefactored() {
                                                         toast.error(`Please select a ${entityInfo.label}`);
                                                         return;
                                                     }
-                                                    if (!isStaffContract && !values.service) {
+                                                    // Allow SLA without service category if no categories exist
+                                                    if (!isStaffContract && !values.service && serviceOptions.length > 0) {
                                                         toast.error('Please select a service category');
                                                         return;
                                                     }
@@ -1108,6 +1233,155 @@ export default function CreateAgreementRefactored() {
                                             >
                                                 {isCreateLoading ? 'Creating Agreement...' : 'Create Agreement'}
                                             </FormButton>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Step 4: Upload Documents */}
+                                {currentStep === 4 && (
+                                    <div className="space-y-6">
+                                        {/* Success Message */}
+                                        <div className="bg-green-50 border border-green-200 rounded-lg p-6">
+                                            <div className="flex items-center gap-3">
+                                                <CheckCircle2 className="w-8 h-8 text-green-600" />
+                                                <div>
+                                                    <h3 className="text-lg font-semibold text-green-900">Agreement Created Successfully!</h3>
+                                                    <p className="text-sm text-green-700 mt-1">
+                                                        Agreement ID: <span className="font-mono">{createdAgreementId}</span>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-center gap-2 mb-4">
+                                            <Upload className="w-5 h-5 text-indigo-600" />
+                                            <h3 className="text-lg font-semibold">Upload Contract Documents</h3>
+                                        </div>
+
+                                        <p className="text-sm text-gray-600 mb-4">
+                                            Upload contract documents, addendums, or amendments. You can also skip this step and add documents later.
+                                        </p>
+
+                                        {/* Document Type Selector */}
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-medium text-gray-700">Document Type</label>
+                                            <select
+                                                value={documentType}
+                                                onChange={(e) => setDocumentType(e.target.value as any)}
+                                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
+                                            >
+                                                <option value="CONTRACT">Contract</option>
+                                                <option value="ADDENDUM">Addendum</option>
+                                                <option value="AMENDMENT">Amendment</option>
+                                            </select>
+                                        </div>
+
+                                        {/* Description */}
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-medium text-gray-700">Description (Optional)</label>
+                                            <textarea
+                                                value={documentDescription}
+                                                onChange={(e) => setDocumentDescription(e.target.value)}
+                                                placeholder="Enter document description..."
+                                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-transparent"
+                                                rows={3}
+                                            />
+                                        </div>
+
+                                        {/* File Input */}
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-medium text-gray-700">Select Files</label>
+                                            <input
+                                                type="file"
+                                                multiple
+                                                onChange={handleFileSelect}
+                                                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-600 focus:border-transparent file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                                            />
+                                        </div>
+
+                                        {/* Selected Files List */}
+                                        {selectedFiles.length > 0 && (
+                                            <div className="space-y-2">
+                                                <label className="text-sm font-medium text-gray-700">Selected Files ({selectedFiles.length})</label>
+                                                <div className="space-y-2">
+                                                    {selectedFiles.map((file, index) => (
+                                                        <div key={index} className="flex items-center justify-between p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                                                            <div className="flex items-center gap-2">
+                                                                <FileText className="w-4 h-4 text-gray-600" />
+                                                                <span className="text-sm font-medium">{file.name}</span>
+                                                                <span className="text-xs text-gray-500">({(file.size / 1024).toFixed(2)} KB)</span>
+                                                            </div>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => handleRemoveFile(index)}
+                                                                className="p-1 hover:bg-red-50 rounded"
+                                                            >
+                                                                <X className="w-4 h-4 text-red-600" />
+                                                            </button>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                                <Button
+                                                    type="button"
+                                                    onClick={handleUploadDocuments}
+                                                    disabled={isUploading}
+                                                    className="w-full bg-indigo-600 hover:bg-indigo-700"
+                                                >
+                                                    {isUploading ? 'Uploading...' : `Upload ${selectedFiles.length} Document(s)`}
+                                                </Button>
+                                            </div>
+                                        )}
+
+                                        {/* Uploaded Documents List */}
+                                        {uploadedDocuments.length > 0 && (
+                                            <div className="space-y-2">
+                                                <label className="text-sm font-medium text-green-700">Successfully Uploaded ({uploadedDocuments.length})</label>
+                                                <div className="space-y-2">
+                                                    {uploadedDocuments.map((doc, index) => (
+                                                        <div key={index} className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg">
+                                                            <CheckCircle2 className="w-4 h-4 text-green-600" />
+                                                            <span className="text-sm font-medium text-green-900">{doc.title || doc.document_name || 'Document'}</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* Navigation Buttons */}
+                                        <div className="flex justify-between pt-6 border-t">
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                onClick={() => {
+                                                    if (confirm("Are you sure you want to go back? This will discard the created agreement.")) {
+                                                        setCurrentStep(3);
+                                                        setCreatedAgreementId(null);
+                                                    }
+                                                }}
+                                                disabled={isUploading}
+                                            >
+                                                Back
+                                            </Button>
+                                            <div className="flex gap-2">
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    onClick={() => {
+                                                        router.push(CG_ROUTES.AGREEMENT);
+                                                    }}
+                                                    disabled={isUploading}
+                                                >
+                                                    Skip & Finish
+                                                </Button>
+                                                <Button
+                                                    type="button"
+                                                    onClick={handleFinish}
+                                                    disabled={isUploading}
+                                                    className="bg-green-600 hover:bg-green-700"
+                                                >
+                                                    Finish & View Agreements
+                                                </Button>
+                                            </div>
                                         </div>
                                     </div>
                                 )}

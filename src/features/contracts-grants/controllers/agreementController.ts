@@ -129,14 +129,18 @@ export const useUpdateAgreement = (id: string) => {
     endpoint: `${BASE_URL}${id}/`,
     queryKey: ["agreements", "agreement"],
     isAuth: true,
-    method: "PUT",
+    method: "PATCH", // Changed from PUT to PATCH for partial updates
   });
 
   const updateAgreement = async (details: TAgreementFormData) => {
     try {
+      console.log('📝 Updating Agreement:', id);
+      console.log('📤 Update Payload:', details);
       await callApi(details);
+      console.log('✅ Update successful');
     } catch (error) {
-      console.error("Agreement update error:", error);
+      console.error("❌ Agreement update error:", error);
+      throw error; // Re-throw to handle in the calling component
     }
   };
 
@@ -178,23 +182,27 @@ export const useDeleteAgreementMutation = useDeleteAgreement;
 export const useModifyAgreement = useUpdateAgreement;
 
 // Upload Contract Document
+// Note: Using existing backend endpoint - may need to match actual backend URL pattern
 export const useUploadContractDocument = (agreementId: string) => {
   const { callApi, isLoading, isSuccess, error, data } = useApiManager<
     any,
     Error,
     FormData
   >(({
-    endpoint: `${BASE_URL}${agreementId}/upload-document/`,
-    queryKey: ["agreements", "agreement"],
+    endpoint: `${BASE_URL}${agreementId}/documents/`,  // Changed from /upload-document/ to /documents/
+    queryKey: ["agreements", "agreement", "agreement-documents"],
     isAuth: true,
     method: "POST",
   }));
 
   const uploadDocument = async (formData: FormData) => {
     try {
+      console.log('📤 Uploading document to:', `${BASE_URL}${agreementId}/documents/`);
       await callApi(formData);
+      console.log('✅ Upload response data:', data);
     } catch (error) {
-      console.error("Document upload error:", error);
+      console.error("❌ Document upload error:", error);
+      throw error; // Re-throw to trigger error handling
     }
   };
 
@@ -257,9 +265,18 @@ export const useGetAgreementDocuments = (agreementId: string, enabled: boolean =
     queryFn: async () => {
       try {
         const response = await AxiosWithToken.get(`${BASE_URL}${agreementId}/documents/`);
+        console.log('🔍 GET Documents API Response:', response.data);
+        console.log('🔍 Response structure:', {
+          hasStatus: 'status' in response.data,
+          hasMessage: 'message' in response.data,
+          hasData: 'data' in response.data,
+          dataType: Array.isArray(response.data?.data) ? 'array' : typeof response.data?.data,
+          dataLength: Array.isArray(response.data?.data) ? response.data.data.length : 'N/A'
+        });
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
+        console.error('❌ GET Documents Error:', axiosError.response?.data);
         throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
       }
     },
