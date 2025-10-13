@@ -23,6 +23,12 @@ import { useGetAllDepartmentsQuery } from "@/features/modules/controllers/config
 import { useGetAllLocationsQuery } from "@/features/modules/controllers/config/locationController";
 import { toast } from "sonner";
 import { useGetAllItemsQuery } from "@/features/modules/controllers";
+import {
+  getReviewerOptions,
+  getAuthorizerOptions,
+  getApproverOptions
+} from "@/utils/approvalFilters";
+import { filterAhniStaffOnly } from "@/utils/userFilters";
 
 const descOptions = [
   {
@@ -57,13 +63,35 @@ export default function CreateAssetMaintenance() {
 
   const { data: user } = useGetAllUsersQuery({ page: 1, size: 2000000 });
 
+  // Filter for AHNI staff only (exclude vendors, consultants, external users)
+  const ahniStaff = useMemo(
+    () => filterAhniStaffOnly(user?.data.results || []),
+    [user?.data.results]
+  );
+
   const userOptions = useMemo(
     () =>
-      user?.data.results.map(({ first_name, last_name, id }) => ({
+      ahniStaff.map(({ first_name, last_name, id }) => ({
         label: `${first_name} ${last_name}`,
         value: id,
       })),
-    [user]
+    [ahniStaff]
+  );
+
+  // Filtered options for approval workflow - only users with appropriate permissions
+  const reviewerOptions = useMemo(
+    () => getReviewerOptions(ahniStaff),
+    [ahniStaff]
+  );
+
+  const authorizerOptions = useMemo(
+    () => getAuthorizerOptions(ahniStaff),
+    [ahniStaff]
+  );
+
+  const approverOptions = useMemo(
+    () => getApproverOptions(ahniStaff),
+    [ahniStaff]
   );
 
   const { data: department } = useGetAllDepartmentsQuery({
@@ -217,7 +245,7 @@ export default function CreateAssetMaintenance() {
                 name='reviewer'
                 placeholder='Select Reviewer'
                 required
-                options={userOptions}
+                options={reviewerOptions}
               />
 
               <FormSelect
@@ -225,7 +253,7 @@ export default function CreateAssetMaintenance() {
                 name='authorizer'
                 placeholder='Select Authorizer'
                 required
-                options={userOptions}
+                options={authorizerOptions}
               />
 
               <FormSelect
@@ -233,7 +261,7 @@ export default function CreateAssetMaintenance() {
                 name='approver'
                 placeholder='Select Approver'
                 required
-                options={userOptions}
+                options={approverOptions}
               />
 
               <div className='flex justify-end'>
