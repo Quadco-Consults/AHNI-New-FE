@@ -8,6 +8,7 @@ import { formatNumberCurrency } from "utils/utls";
 
 interface SubGrantObligationHistoryProps {
   subGrantId: string;
+  awardAmountUsd?: string | number;
   total_obligation_amount?: string | number;
   current_month_obligation_amount?: string | number;
   remaining_award_amount?: string | number;
@@ -15,43 +16,11 @@ interface SubGrantObligationHistoryProps {
 
 const SubGrantObligationHistory: React.FC<SubGrantObligationHistoryProps> = ({
   subGrantId,
+  awardAmountUsd,
   total_obligation_amount,
   current_month_obligation_amount,
   remaining_award_amount,
 }) => {
-  const StatsCard = useMemo(() => {
-    return [
-      {
-        id: 1,
-        name: "Total Obligated Amount",
-        stat: total_obligation_amount
-          ? formatNumberCurrency(total_obligation_amount, "USD")
-          : 0,
-        icon: <TotalIncomeSvg />,
-      },
-      {
-        id: 3,
-        name: "Balance ",
-        stat: remaining_award_amount
-          ? formatNumberCurrency(remaining_award_amount, "USD")
-          : 0,
-        icon: <TotalExpenditureSvg />,
-      },
-      {
-        id: 2,
-        name: "Obligated Amount",
-        stat: current_month_obligation_amount
-          ? formatNumberCurrency(current_month_obligation_amount)
-          : 0,
-        icon: <TotalExpenditureSvg />,
-      },
-    ];
-  }, [
-    total_obligation_amount,
-    current_month_obligation_amount,
-    remaining_award_amount,
-  ]);
-
   const [page, setPage] = useState(1);
 
   const { data, isFetching } = useGetAllSubGrantObligations({
@@ -60,6 +29,77 @@ const SubGrantObligationHistory: React.FC<SubGrantObligationHistoryProps> = ({
     size: 10,
     enabled: !!subGrantId,
   });
+
+  // Calculate stats from the fetched data
+  const calculatedStats = useMemo(() => {
+    const obligations = data?.data?.results || [];
+
+    // Calculate total obligated amount (sum of all obligations)
+    const totalObligated = obligations.reduce((sum: number, obligation: any) => {
+      return sum + Number(obligation.amount || 0);
+    }, 0);
+
+    // Get current month obligations
+    const currentMonth = new Date().getMonth();
+    const currentYear = new Date().getFullYear();
+    const currentMonthTotal = obligations
+      .filter((obligation: any) => {
+        const obligationDate = new Date(obligation.created_datetime);
+        return (
+          obligationDate.getMonth() === currentMonth &&
+          obligationDate.getFullYear() === currentYear
+        );
+      })
+      .reduce((sum: number, obligation: any) => {
+        return sum + Number(obligation.amount || 0);
+      }, 0);
+
+    return {
+      totalObligated,
+      currentMonthTotal,
+    };
+  }, [data?.data?.results]);
+
+  const StatsCard = useMemo(() => {
+    return [
+      {
+        id: 1,
+        name: "Total Obligated Amount",
+        stat: total_obligation_amount
+          ? formatNumberCurrency(total_obligation_amount, "USD")
+          : calculatedStats.totalObligated > 0
+          ? formatNumberCurrency(calculatedStats.totalObligated, "USD")
+          : "$0.00",
+        icon: <TotalIncomeSvg />,
+      },
+      {
+        id: 3,
+        name: "Balance ",
+        stat: remaining_award_amount
+          ? formatNumberCurrency(remaining_award_amount, "USD")
+          : awardAmountUsd
+          ? formatNumberCurrency(Math.max(0, Number(awardAmountUsd) - calculatedStats.totalObligated), "USD")
+          : "$0.00",
+        icon: <TotalExpenditureSvg />,
+      },
+      {
+        id: 2,
+        name: "Obligated Amount (Current Month)",
+        stat: current_month_obligation_amount
+          ? formatNumberCurrency(current_month_obligation_amount, "USD")
+          : calculatedStats.currentMonthTotal > 0
+          ? formatNumberCurrency(calculatedStats.currentMonthTotal, "USD")
+          : "$0.00",
+        icon: <TotalExpenditureSvg />,
+      },
+    ];
+  }, [
+    total_obligation_amount,
+    current_month_obligation_amount,
+    remaining_award_amount,
+    awardAmountUsd,
+    calculatedStats,
+  ]);
 
   return (
     <section className='w-full flex flex-col px-5 space-y-[1.25rem]'>

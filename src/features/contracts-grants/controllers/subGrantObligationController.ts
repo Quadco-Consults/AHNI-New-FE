@@ -52,7 +52,7 @@ interface SubGrantObligationFilterParams {
   enabled?: boolean;
 }
 
-const BASE_URL = "/contract-grants/sub-grants/";
+const BASE_URL = "contract-grants/sub-grants/";
 
 // ===== SUB-GRANT OBLIGATION HOOKS =====
 

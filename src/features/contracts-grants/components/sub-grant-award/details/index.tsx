@@ -13,6 +13,7 @@ import { useState } from "react";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import { useAppDispatch } from "hooks/useStore";
+import { useGetSingleSubGrant } from "@/features/contracts-grants/controllers/subGrantController";
 
 const SubGrantAwardDetails = () => {
     const [tabValue, setTabValue] = useState("details");
@@ -20,6 +21,10 @@ const SubGrantAwardDetails = () => {
     const params = useParams();
     const subGrantId = params?.id as string;
     const dispatch = useAppDispatch();
+
+    // Fetch subgrant data to get amount_usd for balance calculation
+    const { data } = useGetSingleSubGrant(subGrantId, !!subGrantId);
+    const subGrant = data?.data;
 
     return (
         <section className="space-y-5">
@@ -40,7 +45,7 @@ const SubGrantAwardDetails = () => {
                                             tabValue === "expenditure"
                                                 ? DialogType.ExpenditureModal
                                                 : tabValue === "obligation"
-                                                ? DialogType.ADD_SUBGRANT_OBLIGATION_MODAL
+                                                ? DialogType.ADD_OBLIGATION_MODAL
                                                 : DialogType.MODIFY_GRANT,
                                         dialogProps: {
                                             header:
@@ -88,7 +93,10 @@ const SubGrantAwardDetails = () => {
                 </TabsContent>
 
                 <TabsContent value="obligation">
-                    <SubGrantObligationHistory subGrantId={subGrantId} />
+                    <SubGrantObligationHistory
+                        subGrantId={subGrantId}
+                        awardAmountUsd={subGrant?.amount_usd}
+                    />
                 </TabsContent>
 
                 <TabsContent value="expenditure">
