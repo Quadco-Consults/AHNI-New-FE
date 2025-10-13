@@ -6,18 +6,17 @@ import { CG_ROUTES } from "constants/RouterConstants";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 import ConsultancyCard from "../contract-management/consultant-management/ConsultantCard";
-import { useGetAllConsultantManagements } from "src/features/contracts-grants/controllers/consultantManagementController";
+import { useGetAllFacilitators } from "src/features/contracts-grants/controllers/facilitatorManagementController";
 import { LoadingSpinner } from "components/Loading";
 import Pagination from "components/Pagination";
 
 export default function FacilitatorManagement() {
   const [page, setPage] = useState(1);
 
-  // Use the same API as consultancy but filter by FACILITATOR type
-  const { data, isFetching, error } = useGetAllConsultantManagements({
+  // Use the dedicated facilitator API
+  const { data, isFetching, error } = useGetAllFacilitators({
     page,
     size: 10,
-    type: "FACILITATOR",
     enabled: true,
   });
 
