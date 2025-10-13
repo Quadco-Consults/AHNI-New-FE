@@ -84,7 +84,7 @@ export const useCreateGrievance = () => {
     queryKey: ["grievances"],
     isAuth: true,
     method: "POST",
-    contentType: null, // This allows FormData uploads with proper multipart/form-data headers
+    contentType: "application/json", // Use JSON content type for regular objects
   });
 
   const createGrievance = async (details: Partial<GrievianceManagement> | FormData) => {

@@ -8,7 +8,6 @@ import FormSelect from "components/atoms/FormSelectField";
 import GoBack from "components/GoBack";
 
 import { Form } from "components/ui/form";
-import { SelectContent, SelectItem } from "components/ui/select";
 import { Separator } from "components/ui/separator";
 import FormTextArea from "components/atoms/FormTextArea";
 import { HrRoutes } from "constants/RouterConstants";
@@ -35,13 +34,19 @@ import { toast } from "sonner";
 const GrievanceManagementForm = () => {
   const form = useForm<TGrievianceManagementFormData>({
     resolver: zodResolver(GrievianceManagementSchema),
-    defaultValues: {},
+    defaultValues: {
+      type: "",
+      title: "",
+      description: "",
+      document_name: "",
+      date: "",
+    },
   });
 
-  const options = ["Complaint", "Whistleblowing"].map((option) => ({
-    label: option,
-    value: option,
-  }));
+  const options = [
+    { label: "Complaint", value: "COMPLAINT" },
+    { label: "Whistleblowing", value: "WHISTLEBLOWING" },
+  ];
 
   const router = useRouter();
 
@@ -62,14 +67,14 @@ const GrievanceManagementForm = () => {
       console.log("Form data received:", data);
 
       // Validate required fields
-      if (!data.title) {
-        toast.error("Please select a title (Complaint or Whistleblowing)");
+      if (!data.type) {
+        toast.error("Please select a type (Complaint or Whistleblowing)");
         return;
       }
 
       // Create complaint without document first
       const complaintData: any = {
-        type: data.title,
+        type: data.type,
         title: data.title,
         description: data.description,
         whistle_blower: "Anonymous",
@@ -116,15 +121,17 @@ const GrievanceManagementForm = () => {
           >
             <div className='grid grid-cols-2 gap-5'>
               <div className='col-span-2'>
-                <FormSelect label='Title' name='title' required>
-                  <SelectContent>
-                    {options?.map((title) => (
-                      <SelectItem key={title.label} value={title.value}>
-                        {title.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </FormSelect>
+                <FormSelect
+                  label='Type'
+                  name='type'
+                  placeholder='Select type'
+                  required
+                  options={options}
+                />
+              </div>
+
+              <div className='col-span-2'>
+                <FormInput label='Title' name='title' placeholder='Enter title' required />
               </div>
 
               <div className='col-span-2'>
