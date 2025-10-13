@@ -44,17 +44,105 @@ export const AgreementSchema = z.object({
 
 export type TAgreementFormData = z.infer<typeof AgreementSchema>;
 
+// Type for expanded entity fields (when backend expands relationships)
+type ExpandedLocation = {
+    id: string;
+    name: string;
+    address?: string;
+    city?: string;
+    state?: string;
+};
+
+type ExpandedConsultant = {
+    id: string;
+    user?: {
+        id: string;
+        full_name?: string;
+        first_name?: string;
+        last_name?: string;
+        email?: string;
+        phone_number?: string;
+    };
+    full_name?: string;
+    email?: string;
+    phone_number?: string;
+};
+
+type ExpandedFacilitator = {
+    id: string;
+    user?: {
+        id: string;
+        full_name?: string;
+        first_name?: string;
+        last_name?: string;
+        email?: string;
+        phone_number?: string;
+    };
+    full_name?: string;
+    email?: string;
+    phone_number?: string;
+};
+
+type ExpandedAdhocStaff = {
+    id: string;
+    user?: {
+        id: string;
+        full_name?: string;
+        first_name?: string;
+        last_name?: string;
+        email?: string;
+        phone_number?: string;
+    };
+    full_name?: string;
+    email?: string;
+    phone_number?: string;
+};
+
+type ExpandedVendor = {
+    id: string;
+    company_name?: string;
+    name?: string;
+    contact_person?: string;
+    contact_email?: string;
+    contact_phone?: string;
+    email?: string;
+    phone_number?: string;
+};
+
+type ExpandedService = {
+    id: string;
+    name: string;
+};
+
 export interface IAgreementPaginatedData {
     id: string;
     created_datetime: string;
     updated_datetime: string;
     provider: string;
-    service: string;
+    service: string | ExpandedService; // Can be ID or expanded object
     type: string;
     start_date: string;
     end_date: string;
+    contract_cost: string | number;
     created_by: string | null;
     updated_by: string | null;
+    // Location - Can be ID string or expanded object
+    location?: string | ExpandedLocation;
+    // Entity relationships - Can be ID strings or expanded objects
+    consultant?: string | ExpandedConsultant | null;
+    facilitator?: string | ExpandedFacilitator | null;
+    adhoc_staff?: string | ExpandedAdhocStaff | null;
+    vendor?: string | ExpandedVendor | null;
+    // Status field
+    status?: string;
+
+    // Alternative naming if backend uses _details suffix
+    location_details?: ExpandedLocation;
+    consultant_details?: ExpandedConsultant;
+    facilitator_details?: ExpandedFacilitator;
+    adhoc_staff_details?: ExpandedAdhocStaff;
+    vendor_details?: ExpandedVendor;
+    service_details?: ExpandedService;
 }
 
 export interface IAgreementSingleData {

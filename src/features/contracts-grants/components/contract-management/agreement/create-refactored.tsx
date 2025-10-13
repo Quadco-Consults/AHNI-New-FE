@@ -32,12 +32,7 @@ const agreementTypeOptions = [
     { label: "Consultant", value: "CONSULTANT", category: "Staff Contracts" },
     { label: "Facilitator", value: "FACILITATOR", category: "Staff Contracts" },
     { label: "Adhoc Staff", value: "ADHOC_STAFF", category: "Staff Contracts" },
-    { label: "IT Services (SLA)", value: "SLA", category: "Service Agreements" },
-    { label: "Security Services", value: "SECURITY", category: "Service Agreements" },
-    { label: "Insurance", value: "INSURANCE", category: "Service Agreements" },
-    { label: "Property Lease", value: "LEASE", category: "Service Agreements" },
-    { label: "Health Services (HMO)", value: "HMO", category: "Service Agreements" },
-    { label: "Travel & Ticketing", value: "TICKETING", category: "Service Agreements" },
+    { label: "Service Level Agreement (SLA)", value: "SLA", category: "Service Agreements" },
 ];
 
 // Group options by category for better UX
@@ -142,7 +137,7 @@ export default function CreateAgreementRefactored() {
 
     // Watch form values
     const agreementType = form.watch('type');
-    const selectedService = form.watch('service');
+    const selectedServiceType = form.watch('service_type');
 
     // Dropdown options
     const locationOptions = useMemo(
@@ -154,63 +149,132 @@ export default function CreateAgreementRefactored() {
         [location]
     );
 
-    const serviceOptions = useMemo(() => {
-        if (!categories?.data) return [];
-        let categoryData = [];
-
-        if (Array.isArray(categories.data)) {
-            categoryData = categories.data;
-        } else if (categories.data?.results) {
-            categoryData = categories.data.results;
-        }
-
-        return categoryData.map((category: any) => ({
-            label: category.name,
-            value: category.id,
-        }));
-    }, [categories]);
-
+    // Service Type Options - Define FIRST (used by filteredServiceOptions)
     const serviceTypeOptions = useMemo(() => {
         if (!jobCategories?.data) return [];
 
-        return jobCategories.data.map(category => ({
+        const options = jobCategories.data.map(category => ({
             label: category.label,
             value: category.value,
         }));
+
+        console.log('🏷️  Available Service Types (Job Categories):', options);
+
+        return options;
     }, [jobCategories]);
+
+    // Service Options (all categories)
+    const serviceOptions = useMemo(() => {
+        if (!categories) return [];
+
+        // TPaginatedResponse has results array directly
+        const categoryData = categories.results || [];
+
+        console.log('📦 Raw Categories Data:', categoryData.slice(0, 3)); // Show first 3 categories
+
+        const mappedOptions = categoryData.map((category) => ({
+            label: category.name,
+            value: category.id,
+            job_category: category.job_category, // Job category ID for filtering
+            parent: category.parent, // Parent category for hierarchy
+        }));
+
+        console.log('📊 Mapped Service Options (first 5):', mappedOptions.slice(0, 5));
+
+        return mappedOptions;
+    }, [categories]);
+
+    // Filter service categories based on selected service type (job category)
+    const filteredServiceOptions = useMemo(() => {
+        if (!selectedServiceType) {
+            console.log('⚠️  No service type selected yet');
+            return []; // Show nothing if no service type selected
+        }
+
+        console.log('═══════════════════════════════════════════════════════════');
+        console.log('🔍 FILTERING SERVICE CATEGORIES');
+        console.log('═══════════════════════════════════════════════════════════');
+        console.log('Selected Service Type ID:', selectedServiceType);
+        console.log('Total Categories to filter:', serviceOptions.length);
+        console.log('');
+
+        // Show the selected service type label
+        const selectedJobCategory = serviceTypeOptions.find((jc: any) => jc.value === selectedServiceType);
+        if (selectedJobCategory) {
+            console.log('📌 Selected Service Type:', selectedJobCategory.label, `(ID: ${selectedServiceType})`);
+        }
+        console.log('');
+
+        // Debug: Show first 5 categories with their job_category values
+        console.log('📋 Sample Categories (first 5):');
+        serviceOptions.slice(0, 5).forEach((opt: any, index: number) => {
+            console.log(`  ${index + 1}. ${opt.label}`);
+            console.log(`     - Category ID: ${opt.value}`);
+            console.log(`     - Job Category ID: ${opt.job_category || 'NOT SET'}`);
+            console.log(`     - Matches: ${opt.job_category === selectedServiceType ? '✅ YES' : '❌ NO'}`);
+        });
+        console.log('');
+
+        // Filter categories that match the selected job category
+        const filtered = serviceOptions.filter((option: any) => {
+            // Match by job_category field
+            const matches = option.job_category === selectedServiceType;
+            return matches;
+        });
+
+        console.log('📊 FILTERING RESULTS:');
+        console.log(`  Total Matches: ${filtered.length} categories`);
+        if (filtered.length > 0) {
+            console.log('  Matched Categories:');
+            filtered.forEach((cat: any, index: number) => {
+                console.log(`    ${index + 1}. ${cat.label} (job_category: ${cat.job_category})`);
+            });
+        } else {
+            console.log('  ⚠️  No categories found with job_category =', selectedServiceType);
+            console.log('');
+            console.log('  💡 Debugging Tips:');
+            console.log('     1. Check if categories have job_category field set in the database');
+            console.log('     2. Verify job_category IDs match exactly (case-sensitive)');
+            console.log('     3. Check if categories are properly linked to job categories');
+        }
+        console.log('═══════════════════════════════════════════════════════════');
+        console.log('');
+
+        return filtered;
+    }, [serviceOptions, selectedServiceType, serviceTypeOptions]);
 
     // Fetch entities based on agreement type
     const fetchEntities = async (type: string) => {
         setIsLoadingEntities(true);
         try {
             let endpoint = '';
+            let fallbackEndpoint = '';
             let params: any = {};
 
             switch(type) {
                 case 'CONSULTANT':
-                    // Use the correct endpoint for consultants
-                    endpoint = '/contract-grants/consultancy/applicants/';
+                    // Use the agreement dropdown endpoint for consultants
+                    endpoint = '/contract-grants/agreements/consultants_dropdown/';
+                    fallbackEndpoint = '/contract-grants/consultancy/applicants/';
                     params = { page: 1, size: 1000, status: 'HIRED' };
                     break;
                 case 'FACILITATOR':
-                    // Use the correct endpoint for facilitators
-                    endpoint = '/contract-grants/facilitator/applicants/';
+                    // Use the agreement dropdown endpoint for facilitators
+                    endpoint = '/contract-grants/agreements/facilitators_dropdown/';
+                    fallbackEndpoint = '/contract-grants/facilitators/applicants/';
                     params = { page: 1, size: 1000, status: 'HIRED' };
                     break;
                 case 'ADHOC_STAFF':
-                    // Use the correct endpoint for adhoc staff
-                    endpoint = '/programs/adhoc/applicants/';
+                    // Use the agreement dropdown endpoint for adhoc staff
+                    endpoint = '/contract-grants/agreements/adhoc_staff_dropdown/';
+                    fallbackEndpoint = '/programs/adhoc/applicants/';
                     params = { page: 1, size: 1000, status: 'HIRED' };
                     break;
                 case 'SLA':
-                case 'SECURITY':
-                case 'INSURANCE':
-                case 'LEASE':
-                case 'HMO':
-                case 'TICKETING':
-                    // Use the correct endpoint for vendors
+                    // Use the vendors endpoint directly (covers all service types)
                     endpoint = '/procurements/vendors/';
-                    params = { page: 1, size: 1000, status: 'Approved' };
+                    fallbackEndpoint = '';
+                    params = { page: 1, size: 1000, status: 'Approved', approved_categories: '' };
                     break;
                 default:
                     setEntityOptions([]);
@@ -222,70 +286,132 @@ export default function CreateAgreementRefactored() {
 
             console.log('📦 Raw API Response:', response);
             console.log('📦 Response Data:', response.data);
+            console.log('📦 Response Data Type:', typeof response.data);
+            console.log('📦 Is Array?:', Array.isArray(response.data));
 
-            // Handle different response structures
+            // Agreement dropdown endpoints can return different structures
             let entities: any[] = [];
 
-            // All entity types return paginated data
-            if (response.data?.data?.results) {
+            // Try different response structures
+            if (Array.isArray(response.data)) {
+                console.log('✅ Response is direct array');
+                entities = response.data;
+            } else if (response.data?.data?.results) {
+                console.log('✅ Response has data.results structure');
                 entities = response.data.data.results;
             } else if (response.data?.results) {
+                console.log('✅ Response has results structure');
                 entities = response.data.results;
-            } else if (Array.isArray(response.data)) {
-                entities = response.data;
+            } else if (response.data?.data && Array.isArray(response.data.data)) {
+                console.log('✅ Response has data array structure');
+                entities = response.data.data;
+            } else {
+                console.log('⚠️ Unknown response structure, trying to parse:', Object.keys(response.data || {}));
             }
 
             console.log(`✅ Loaded ${entities.length} entities for ${type}:`, entities);
 
-            // Debug: Show first entity structure for adhoc staff
-            if (type === 'ADHOC_STAFF' && entities.length > 0) {
-                console.log('🔍 First Adhoc Staff Entity Structure:', {
+            // If dropdown endpoint returned empty data, try fallback endpoint
+            if (entities.length === 0 && fallbackEndpoint) {
+                console.log(`⚠️ Dropdown endpoint returned no data, trying fallback: ${fallbackEndpoint}`);
+                try {
+                    const fallbackResponse = await AxiosWithToken.get(fallbackEndpoint, { params });
+                    console.log('📦 Fallback Response Data:', fallbackResponse.data);
+
+                    // Parse fallback response
+                    if (Array.isArray(fallbackResponse.data)) {
+                        entities = fallbackResponse.data;
+                    } else if (fallbackResponse.data?.data?.results) {
+                        entities = fallbackResponse.data.data.results;
+                    } else if (fallbackResponse.data?.results) {
+                        entities = fallbackResponse.data.results;
+                    } else if (fallbackResponse.data?.data && Array.isArray(fallbackResponse.data.data)) {
+                        entities = fallbackResponse.data.data;
+                    }
+
+                    console.log(`✅ Fallback loaded ${entities.length} entities:`, entities.slice(0, 2));
+                } catch (fallbackError) {
+                    console.error('❌ Fallback endpoint also failed:', fallbackError);
+                }
+            }
+
+            // Debug: Show first entity structure
+            if (entities.length > 0) {
+                console.log('🔍 First Entity Structure:', {
                     fullEntity: entities[0],
-                    id: entities[0].id,
-                    applicant_id: entities[0].applicant_id,
-                    user_id: entities[0].user_id,
+                    hasValue: 'value' in entities[0],
+                    hasLabel: 'label' in entities[0],
+                    hasId: 'id' in entities[0],
+                    hasName: 'name' in entities[0],
+                    hasFullName: 'full_name' in entities[0],
+                    hasFirstName: 'first_name' in entities[0],
+                    hasUserId: 'user_id' in entities[0],
+                    hasUser: 'user' in entities[0],
                     allKeys: Object.keys(entities[0]),
                 });
+
+                // Log the actual ID value and its type
+                const idValue = entities[0].value || entities[0].id || entities[0].user_id || entities[0].user?.id;
+                console.log('🔑 ID Value:', idValue, 'Type:', typeof idValue);
+            } else {
+                console.log('⚠️ No entities found in response');
+                console.log('📋 Full response data:', JSON.stringify(response.data, null, 2));
             }
 
             // Format entities for dropdown
-            const formattedEntities = entities.map(entity => {
-                // For staff types (consultants, facilitators, adhoc staff)
-                const isStaffType = ['CONSULTANT', 'FACILITATOR', 'ADHOC_STAFF'].includes(type);
+            // The agreement dropdown endpoints should return data with value/label
+            // But we need to handle different formats
+            const formattedEntities = entities.map((entity, index) => {
+                // For adhoc staff from /programs/adhoc/applicants/, the entity has a 'user' object
+                // We need to extract the user's ID, not the applicant ID
+                let actualId = entity.value || entity.id;
+                let displayLabel = entity.label || entity.name || entity.full_name || entity.company_name;
 
-                if (isStaffType) {
-                    const fullName = entity.full_name ||
-                                   `${entity.first_name || ''} ${entity.last_name || ''}`.trim() ||
-                                   entity.name ||
-                                   'Unknown';
-
-                    // Get designation/position/title
-                    const designation = entity.designation ||
-                                      entity.position ||
-                                      entity.title ||
-                                      entity.grade_level ||
-                                      '';
-
-                    const label = designation ? `${fullName} - ${designation}` : fullName;
-
-                    return {
-                        ...entity,
-                        label: label,
-                        value: entity.id,
-                    };
+                // Special handling for adhoc staff from fallback endpoint
+                if (type === 'ADHOC_STAFF' && entity.user) {
+                    actualId = entity.user.id || entity.id;
+                    displayLabel = entity.user.full_name || entity.user.name ||
+                                  `${entity.user.first_name || ''} ${entity.user.last_name || ''}`.trim();
+                }
+                // Special handling for consultants from fallback endpoint
+                else if (type === 'CONSULTANT' && entity.user) {
+                    actualId = entity.user.id || entity.id;
+                    displayLabel = entity.user.full_name || entity.user.name ||
+                                  `${entity.user.first_name || ''} ${entity.user.last_name || ''}`.trim();
+                }
+                // Special handling for facilitators from fallback endpoint
+                else if (type === 'FACILITATOR' && entity.user) {
+                    actualId = entity.user.id || entity.id;
+                    displayLabel = entity.user.full_name || entity.user.name ||
+                                  `${entity.user.first_name || ''} ${entity.user.last_name || ''}`.trim();
+                }
+                // Vendors - SLA covers all vendor service types
+                else if (type === 'SLA') {
+                    actualId = entity.value || entity.id;
+                    displayLabel = entity.label || entity.company_name || entity.name;
+                }
+                // Generic fallback for name construction
+                else if (!displayLabel && entity.first_name && entity.last_name) {
+                    displayLabel = `${entity.first_name} ${entity.last_name}`;
                 }
 
-                // For vendor types
-                const companyName = entity.company_name || entity.name || 'Unknown Vendor';
-                const vendorType = entity.type_of_business || entity.nature_of_business || '';
-                const label = vendorType ? `${companyName} - ${vendorType}` : companyName;
+                const label = displayLabel || 'Unknown';
+
+                console.log(`🔧 Entity ${index + 1} formatted:`, {
+                    originalId: entity.id,
+                    userId: entity.user?.id,
+                    extractedValue: actualId,
+                    extractedLabel: label,
+                });
 
                 return {
                     ...entity,
-                    label: label,
-                    value: entity.id,
+                    label,
+                    value: actualId,
                 };
             });
+
+            console.log('🎯 Formatted Entities:', formattedEntities.slice(0, 3)); // Show first 3
 
             setEntityOptions(formattedEntities);
         } catch (error: any) {
@@ -317,7 +443,7 @@ export default function CreateAgreementRefactored() {
             }
 
             // For vendor endpoint errors, provide more helpful message
-            if (['SLA', 'SECURITY', 'INSURANCE', 'LEASE', 'HMO', 'TICKETING'].includes(type)) {
+            if (type === 'SLA') {
                 errorMsg = 'Vendor loading endpoint not available. Please contact system administrator.';
             }
 
@@ -348,6 +474,12 @@ export default function CreateAgreementRefactored() {
             fetchEntities(agreementType);
         }
     }, [agreementType]);
+
+    // Handle service type change - clear service category when service type changes
+    useEffect(() => {
+        // Clear the service category when service type changes
+        form.setValue('service', undefined);
+    }, [selectedServiceType]);
 
     // Helper to get current user ID
     const getCurrentUserId = () => {
@@ -392,20 +524,27 @@ export default function CreateAgreementRefactored() {
         };
 
         // Add entity field based on type (API expects field without _id suffix)
-        // Ensure we're sending only the ID string, not the full object
+        // ONLY include the relevant entity field - don't send empty/undefined fields
         if (data.type === 'CONSULTANT' && data.consultant_id) {
+            console.log('🔍 Raw consultant_id before conversion:', data.consultant_id, 'Type:', typeof data.consultant_id);
             transformedData.consultant = String(data.consultant_id);
-            console.log('🔍 Consultant ID type:', typeof data.consultant_id, 'Value:', data.consultant_id);
+            console.log('🔍 Converted consultant:', transformedData.consultant, 'Type:', typeof transformedData.consultant);
         } else if (data.type === 'FACILITATOR' && data.facilitator_id) {
+            console.log('🔍 Raw facilitator_id before conversion:', data.facilitator_id, 'Type:', typeof data.facilitator_id);
             transformedData.facilitator = String(data.facilitator_id);
-            console.log('🔍 Facilitator ID type:', typeof data.facilitator_id, 'Value:', data.facilitator_id);
+            console.log('🔍 Converted facilitator:', transformedData.facilitator, 'Type:', typeof transformedData.facilitator);
         } else if (data.type === 'ADHOC_STAFF' && data.adhoc_staff_id) {
+            console.log('🔍 Raw adhoc_staff_id before conversion:', data.adhoc_staff_id, 'Type:', typeof data.adhoc_staff_id);
             transformedData.adhoc_staff = String(data.adhoc_staff_id);
-            console.log('🔍 Adhoc Staff ID type:', typeof data.adhoc_staff_id, 'Value:', data.adhoc_staff_id);
-        } else if (['SLA', 'SECURITY', 'INSURANCE', 'LEASE', 'HMO', 'TICKETING'].includes(data.type) && data.vendor_id) {
+            console.log('🔍 Converted adhoc_staff:', transformedData.adhoc_staff, 'Type:', typeof transformedData.adhoc_staff);
+        } else if (data.type === 'SLA' && data.vendor_id) {
+            console.log('🔍 Raw vendor_id before conversion:', data.vendor_id, 'Type:', typeof data.vendor_id);
             transformedData.vendor = String(data.vendor_id);
-            console.log('🔍 Vendor ID type:', typeof data.vendor_id, 'Value:', data.vendor_id);
+            console.log('🔍 Converted vendor:', transformedData.vendor, 'Type:', typeof transformedData.vendor);
         }
+
+        // NOTE: We deliberately DON'T send the other entity fields
+        // This keeps the payload clean - backend now handles empty strings gracefully anyway
 
         // Validation
         const hasEntity = transformedData.consultant || transformedData.facilitator ||
@@ -416,13 +555,75 @@ export default function CreateAgreementRefactored() {
             return;
         }
 
-        console.log('📤 Submitting Agreement to API:', transformedData);
-        console.log('📤 Data types:', {
-            consultant: transformedData.consultant ? typeof transformedData.consultant : 'not set',
-            facilitator: transformedData.facilitator ? typeof transformedData.facilitator : 'not set',
-            adhoc_staff: transformedData.adhoc_staff ? typeof transformedData.adhoc_staff : 'not set',
-            vendor: transformedData.vendor ? typeof transformedData.vendor : 'not set',
-        });
+        // ========================================
+        // 🎯 COMPREHENSIVE PAYLOAD DEBUG SECTION
+        // ========================================
+        console.log('═══════════════════════════════════════════════════════════');
+        console.log('📤 SUBMITTING AGREEMENT TO API');
+        console.log('═══════════════════════════════════════════════════════════');
+        console.log('');
+
+        // Determine agreement category
+        const agreementCategory = data.type === 'CONSULTANT' ? '👔 CONSULTANT AGREEMENT' :
+                                 data.type === 'FACILITATOR' ? '🎓 FACILITATOR AGREEMENT' :
+                                 data.type === 'ADHOC_STAFF' ? '👷 ADHOC STAFF AGREEMENT' :
+                                 '🏢 VENDOR/SERVICE AGREEMENT';
+
+        console.log('📋 Agreement Category:', agreementCategory);
+        console.log('📋 Agreement Type:', data.type);
+        console.log('');
+        console.log('📦 COMPLETE JSON PAYLOAD (Copy this for backend):');
+        console.log('─────────────────────────────────────────────────────────');
+        console.log(JSON.stringify(transformedData, null, 2));
+        console.log('─────────────────────────────────────────────────────────');
+        console.log('');
+        console.log('🔍 FIELD-BY-FIELD BREAKDOWN:');
+        console.log('');
+        console.log('  📌 Core Fields:');
+        console.log('    • type:', transformedData.type);
+        console.log('    • service:', transformedData.service);
+        console.log('    • start_date:', transformedData.start_date);
+        console.log('    • end_date:', transformedData.end_date);
+        console.log('    • contract_cost:', transformedData.contract_cost, `(${typeof transformedData.contract_cost})`);
+        console.log('    • location:', transformedData.location);
+        console.log('');
+        console.log('  👤 User Fields:');
+        console.log('    • created_by:', transformedData.created_by, `(${typeof transformedData.created_by})`);
+        console.log('    • updated_by:', transformedData.updated_by, `(${typeof transformedData.updated_by})`);
+        console.log('');
+        console.log('  👥 Entity Assignment (Only ONE should be set):');
+        console.log('    • consultant:', transformedData.consultant || '❌ not set', transformedData.consultant ? `(${typeof transformedData.consultant})` : '');
+        console.log('    • facilitator:', transformedData.facilitator || '❌ not set', transformedData.facilitator ? `(${typeof transformedData.facilitator})` : '');
+        console.log('    • adhoc_staff:', transformedData.adhoc_staff || '❌ not set', transformedData.adhoc_staff ? `(${typeof transformedData.adhoc_staff})` : '');
+        console.log('    • vendor:', transformedData.vendor || '❌ not set', transformedData.vendor ? `(${typeof transformedData.vendor})` : '');
+        console.log('');
+        console.log('  ✅ Selected Entity:');
+        if (transformedData.consultant) {
+            console.log('    → CONSULTANT ID:', transformedData.consultant);
+            console.log('    → Selected from dropdown:', entityOptions.find(e => e.value === data.consultant_id)?.label || 'N/A');
+        } else if (transformedData.facilitator) {
+            console.log('    → FACILITATOR ID:', transformedData.facilitator);
+            console.log('    → Selected from dropdown:', entityOptions.find(e => e.value === data.facilitator_id)?.label || 'N/A');
+        } else if (transformedData.adhoc_staff) {
+            console.log('    → ADHOC STAFF ID:', transformedData.adhoc_staff);
+            console.log('    → Selected from dropdown:', entityOptions.find(e => e.value === data.adhoc_staff_id)?.label || 'N/A');
+        } else if (transformedData.vendor) {
+            console.log('    → VENDOR ID:', transformedData.vendor);
+            console.log('    → Selected from dropdown:', entityOptions.find(e => e.value === data.vendor_id)?.label || 'N/A');
+        }
+        console.log('');
+        console.log('  📝 Original Form Field Values (before transformation):');
+        console.log('    • consultant_id:', data.consultant_id || 'undefined');
+        console.log('    • facilitator_id:', data.facilitator_id || 'undefined');
+        console.log('    • adhoc_staff_id:', data.adhoc_staff_id || 'undefined');
+        console.log('    • vendor_id:', data.vendor_id || 'undefined');
+        console.log('');
+        console.log('  🌐 API Details:');
+        console.log('    • Endpoint: POST /contract-grants/agreements/');
+        console.log('    • Method: POST');
+        console.log('    • Content-Type: application/json');
+        console.log('');
+        console.log('═══════════════════════════════════════════════════════════');
 
         // Call the API (success/error handled by useEffect hooks)
         await createAgreement(transformedData);
@@ -617,8 +818,8 @@ export default function CreateAgreementRefactored() {
                                                                         'To create facilitator agreements, you need to have hired facilitators in the system. Go to Facilitator Applications and hire candidates first.'}
                                                                     {selectedAgreementType === 'ADHOC_STAFF' &&
                                                                         'To create adhoc staff agreements, you need to have hired adhoc staff in the system. Go to Adhoc Applications and hire candidates first.'}
-                                                                    {['SLA', 'SECURITY', 'INSURANCE', 'LEASE', 'HMO', 'TICKETING'].includes(selectedAgreementType) &&
-                                                                        'To create vendor agreements, you need to have approved vendors in the system. Go to Vendor Management and approve vendors first.'}
+                                                                    {selectedAgreementType === 'SLA' &&
+                                                                        'To create vendor service agreements, you need to have approved vendors in the system. Go to Vendor Management and approve vendors first.'}
                                                                 </p>
                                                                 <div className="flex gap-2">
                                                                     <Button
@@ -660,20 +861,7 @@ export default function CreateAgreementRefactored() {
                                             {/* Service fields for Service Agreements only */}
                                             {!isStaffContract && (
                                                 <>
-                                                    <div>
-                                                        <div className="flex items-center gap-2 mb-3">
-                                                            <Building2 className="w-5 h-5 text-indigo-600" />
-                                                            <h3 className="text-base font-semibold">Service Category</h3>
-                                                        </div>
-                                                        <FormSelect
-                                                            label="Service Category"
-                                                            name="service"
-                                                            placeholder="Select Service Category"
-                                                            options={serviceOptions || []}
-                                                            required
-                                                        />
-                                                    </div>
-
+                                                    {/* Service Type FIRST */}
                                                     <div>
                                                         <div className="flex items-center gap-2 mb-3">
                                                             <Building2 className="w-5 h-5 text-indigo-600" />
@@ -686,6 +874,33 @@ export default function CreateAgreementRefactored() {
                                                             options={serviceTypeOptions || []}
                                                             required
                                                         />
+                                                    </div>
+
+                                                    {/* Service Category SECOND - Filtered based on Service Type */}
+                                                    <div>
+                                                        <div className="flex items-center gap-2 mb-3">
+                                                            <Building2 className="w-5 h-5 text-indigo-600" />
+                                                            <h3 className="text-base font-semibold">Service Category</h3>
+                                                        </div>
+                                                        <FormSelect
+                                                            label="Service Category"
+                                                            name="service"
+                                                            placeholder={
+                                                                !selectedServiceType
+                                                                    ? "Select Service Type first"
+                                                                    : filteredServiceOptions.length === 0
+                                                                    ? `No categories for ${selectedServiceType}`
+                                                                    : "Select Service Category"
+                                                            }
+                                                            options={filteredServiceOptions || []}
+                                                            required
+                                                            disabled={!selectedServiceType}
+                                                        />
+                                                        {selectedServiceType && filteredServiceOptions.length > 0 && (
+                                                            <p className="text-xs text-gray-600 mt-1">
+                                                                Showing {filteredServiceOptions.length} categories for {selectedServiceType}
+                                                            </p>
+                                                        )}
                                                     </div>
                                                 </>
                                             )}
