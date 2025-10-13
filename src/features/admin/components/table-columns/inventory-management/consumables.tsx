@@ -16,6 +16,8 @@ import { formatDate } from "date-fns";
 import { useState } from "react";
 import { DeleteItemManager } from "@/features/modules/controllers";
 import { TConsumablePaginatedData } from "@/features/admin/types/inventory-management/consumable";
+import { Store } from "lucide-react";
+import ViewStoreStockDialog from "@/features/admin/components/inventory-management/consumable/ViewStoreStockDialog";
 
 export const consumableColums: ColumnDef<TConsumablePaginatedData>[] = [
   {
@@ -87,8 +89,9 @@ export const consumableColums: ColumnDef<TConsumablePaginatedData>[] = [
 ];
 
 // eslint-disable-next-line react-refresh/only-export-components
-const TableAction = ({ id }: TConsumablePaginatedData) => {
+const TableAction = ({ id, name }: TConsumablePaginatedData) => {
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [storeStockDialogOpen, setStoreStockDialogOpen] = useState(false);
 
   const { deleteItem, isLoading } = DeleteItemManager();
 
@@ -137,6 +140,14 @@ const TableAction = ({ id }: TConsumablePaginatedData) => {
                   Edit
                 </Button>
               </Link>
+              <Button
+                className='w-full flex items-center justify-start gap-2'
+                variant='ghost'
+                onClick={() => setStoreStockDialogOpen(true)}
+              >
+                <Store className='h-4 w-4' />
+                View Store Stock
+              </Button>
 
               <Button
                 className='w-full flex items-center justify-start gap-2'
@@ -157,6 +168,13 @@ const TableAction = ({ id }: TConsumablePaginatedData) => {
         loading={isLoading}
         onCancel={() => setDialogOpen(false)}
         onOk={handleDeleteConsumable}
+      />
+
+      <ViewStoreStockDialog
+        open={storeStockDialogOpen}
+        onOpenChange={setStoreStockDialogOpen}
+        itemId={id}
+        itemName={name}
       />
     </div>
   );

@@ -27,10 +27,11 @@ import { useGetAllUsersQuery } from "@/features/auth/controllers/userController"
 import { Button } from "components/ui/button";
 import { AdminRoutes } from "constants/RouterConstants";
 import { useGetSinglePaymentRequestQuery } from "@/features/admin/controllers/paymentRequestController";
-import { useGetAllConsultantManagements } from "@/features/contracts-grants/controllers/consultantManagementController";
-import { useGetAllFacilitators } from "@/features/contracts-grants/controllers/facilitatorManagementController";
+import { useGetAllConsultancyApplicants } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
+import { useGetAllFacilitatorApplicants } from "@/features/contracts-grants/controllers/facilitatorApplicantsController";
 import { useGetVendor } from "@/features/procurement/controllers/vendorsController";
 import { numberToWords } from "@/utils/numberToWords";
+import { useGetAllAdhocApplicants } from "@/features/programs/controllers/adhocApplicantController";
 
 export default function CreatePaymentRequest() {
   const form = useForm<TPaymentRequestFormData>({
@@ -79,10 +80,10 @@ export default function CreatePaymentRequest() {
 
   const purchaseOrderOptions = useMemo(
     () =>
-      purchaseOrder?.data?.results?.map((orderItem: any) => ({
+      purchaseOrder?.results?.map((orderItem: any) => ({
         label: orderItem.purchase_order_number,
         value: orderItem.id,
-      })),
+      })) || [],
     [purchaseOrder]
   );
 
@@ -103,75 +104,92 @@ export default function CreatePaymentRequest() {
 
   const paymentType = form.watch("payment_type") || "";
 
-  // Get consultants, facilitators and staff data
-  const { data: consultants } = useGetAllConsultantManagements({
+  // Get hired consultants and facilitators from applicants (not job ads)
+  const { data: consultants } = useGetAllConsultancyApplicants({
     page: 1,
     size: 1000,
     search: "",
+    offer_accepted: true, // Only get applicants who accepted offers
     enabled: paymentType === "CONSULTANT",
   });
 
-  const { data: facilitators } = useGetAllFacilitators({
+  const { data: facilitators } = useGetAllFacilitatorApplicants({
     page: 1,
     size: 1000,
     search: "",
+    status: "SELECTED", // Only get selected/hired facilitators
     enabled: paymentType === "FACILITATOR",
+  });
+
+  // Get hired adhoc staff from adhoc applicants with HIRED status
+  const { data: adhocStaffData } = useGetAllAdhocApplicants({
+    page: 1,
+    size: 1000,
+    search: "",
+    status: "HIRED", // Only get hired adhoc staff
+    enabled: paymentType === "ADHOC_STAFF",
   });
 
   const consultantOptions = useMemo(
     () =>
-      consultants?.data?.results?.map((item: any) => ({
-        label: item.title || item.name || `Consultant ${item.id}`,
-        value: item.id,
-        data: item, // Store full data for auto-population
-      })) || [],
+      consultants?.data?.results?.map((item: any) => {
+        // For existing consultants, show their name and position
+        const name = item.consultant_name || `${item.first_name || ''} ${item.last_name || ''}`.trim() || item.name;
+        const position = item.position || item.title || '';
+        const label = position ? `${name} - ${position}` : name || `Consultant ${item.id}`;
+
+        return {
+          label,
+          value: item.id,
+          data: item, // Store full data for auto-population
+        };
+      }) || [],
     [consultants]
   );
 
   const facilitatorOptions = useMemo(
     () =>
-      facilitators?.data?.results?.map((item: any) => ({
-        label: item.title || item.name || `Facilitator ${item.id}`,
-        value: item.id,
-        data: item, // Store full data for auto-population
-      })) || [],
+      facilitators?.data?.results?.map((item: any) => {
+        // For facilitators, show their name and position
+        const name = item.facilitator_name || `${item.first_name || ''} ${item.last_name || ''}`.trim() || item.name;
+        const position = item.position || item.title || '';
+        const label = position ? `${name} - ${position}` : name || `Facilitator ${item.id}`;
+
+        return {
+          label,
+          value: item.id,
+          data: item, // Store full data for auto-population
+        };
+      }) || [],
     [facilitators]
   );
 
   const adhocOptions = useMemo(
     () => {
-      // Debug logging (can be removed in production)
-      if (paymentType === "ADHOC_STAFF") {
-        console.log("Looking for adhoc staff, total users:", user?.data?.results?.length || 0);
+      // Use adhoc applicants data structure
+      const adhocStaff = adhocStaffData?.data?.results;
+
+      if (!adhocStaff) {
+        return [];
       }
 
-      const filtered = user?.data?.results
-        ?.filter((userItem: any) => {
-          // For now, show ALL users in adhoc staff dropdown to test functionality
-          // This can be refined later when proper adhoc staff categorization is implemented
-          return true; // Show all users
-
-          // Original filtering logic (commented out for testing):
-          // const userTypeCheck = userItem.user_type?.toLowerCase().includes("adhoc");
-          // const employeeTypeCheck = userItem.employee_type?.toLowerCase().includes("adhoc");
-          // const designationCheck = userItem.designation?.toLowerCase().includes("adhoc");
-          // const roleCheck = userItem.role?.toLowerCase().includes("adhoc");
-          // const staffTypeCheck = userItem.staff_type?.toLowerCase().includes("adhoc");
-          // return userTypeCheck || employeeTypeCheck || designationCheck || roleCheck || staffTypeCheck;
-        })
-        ?.map((userItem: any) => ({
-          label: `${userItem.first_name} ${userItem.last_name}${userItem.employee_id ? ` (${userItem.employee_id})` : ''}`,
-          value: userItem.id,
-          data: userItem, // Store full data for auto-population
-        })) || [];
-
       if (paymentType === "ADHOC_STAFF") {
-        console.log("Found adhoc staff options:", filtered.length);
+        console.log("Adhoc staff from applicants:", adhocStaff.length);
       }
 
-      return filtered;
+      const options = adhocStaff.map((staff: any) => ({
+        label: `${staff.full_name || `${staff.surname || ''} ${staff.other_names || ''}`.trim()}${staff.application_number ? ` (${staff.application_number})` : ''}${staff.designation ? ` - ${staff.designation}` : ''}`,
+        value: staff.id,
+        data: staff, // Store full data for auto-population
+      }));
+
+      if (paymentType === "ADHOC_STAFF") {
+        console.log("Adhoc staff options created:", options.length);
+      }
+
+      return options;
     },
-    [user, paymentType]
+    [adhocStaffData, paymentType]
   );
 
   // Get selected purchase order details
@@ -344,6 +362,59 @@ export default function CreatePaymentRequest() {
     }
   };
 
+  // Watch for changes in staff selections and amount changes to auto-populate
+  useEffect(() => {
+    const subscription = form.watch((value, { name, type }) => {
+      if (type === 'change' && name) {
+        // Check if a consultant was selected
+        if (name.includes('consultant') && !name.includes('facilitator')) {
+          const match = name.match(/payment_items\.(\d+)\.consultant/);
+          if (match) {
+            const index = parseInt(match[1]);
+            const consultantId = value.payment_items?.[index]?.consultant;
+            if (consultantId) {
+              handleStaffSelection("CONSULTANT", consultantId, index);
+            }
+          }
+        }
+        // Check if a facilitator was selected
+        if (name.includes('facilitator')) {
+          const match = name.match(/payment_items\.(\d+)\.facilitator/);
+          if (match) {
+            const index = parseInt(match[1]);
+            const facilitatorId = value.payment_items?.[index]?.facilitator;
+            if (facilitatorId) {
+              handleStaffSelection("FACILITATOR", facilitatorId, index);
+            }
+          }
+        }
+        // Check if an adhoc staff was selected
+        if (name.includes('adhoc_staff')) {
+          const match = name.match(/payment_items\.(\d+)\.adhoc_staff/);
+          if (match) {
+            const index = parseInt(match[1]);
+            const adhocStaffId = value.payment_items?.[index]?.adhoc_staff;
+            if (adhocStaffId) {
+              handleStaffSelection("ADHOC_STAFF", adhocStaffId, index);
+            }
+          }
+        }
+        // Check if amount in figures was changed
+        if (name.includes('amount_in_figures')) {
+          const match = name.match(/payment_items\.(\d+)\.amount_in_figures/);
+          if (match) {
+            const index = parseInt(match[1]);
+            const amount = value.payment_items?.[index]?.amount_in_figures;
+            if (amount) {
+              handleAmountChange(String(amount), index);
+            }
+          }
+        }
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [form, consultantOptions, facilitatorOptions, adhocOptions]);
+
   // Helper function to auto-populate payment item based on staff selection
   const handleStaffSelection = (staffType: string, staffId: string, index: number) => {
     let staffData: any = null;
@@ -366,27 +437,59 @@ export default function CreatePaymentRequest() {
     if (staffData) {
       // Auto-populate based on staff type
       if (staffType === "CONSULTANT" || staffType === "FACILITATOR") {
-        // For consultants/facilitators, use title as payment_to
-        form.setValue(`payment_items.${index}.payment_to`, staffData.title || `${staffType} Payment`);
+        // For existing consultants/facilitators, use their actual name
+        const fullName = staffData.consultant_name ||
+                        staffData.facilitator_name ||
+                        `${staffData.first_name || ''} ${staffData.last_name || ''}`.trim() ||
+                        staffData.name ||
+                        staffData.title;
 
-        // If supervisor info is available, use for contact details
-        if (staffData.supervisor?.email) {
+        // Use account_name if available, otherwise use full name
+        const paymentTo = staffData.account_name || fullName;
+        form.setValue(`payment_items.${index}.payment_to`, paymentTo);
+
+        // Auto-populate banking details if available from existing consultant/facilitator record
+        if (staffData.bank_name) {
+          form.setValue(`payment_items.${index}.bank_name`, staffData.bank_name);
+        }
+        if (staffData.account_number) {
+          form.setValue(`payment_items.${index}.account_number`, staffData.account_number);
+        }
+
+        // Auto-populate contact details - check multiple possible field names
+        if (staffData.email) {
+          form.setValue(`payment_items.${index}.email`, staffData.email);
+        } else if (staffData.supervisor?.email) {
           form.setValue(`payment_items.${index}.email`, staffData.supervisor.email);
         }
-        if (staffData.supervisor?.phone_number) {
+
+        if (staffData.phone_number || staffData.phone) {
+          form.setValue(`payment_items.${index}.phone_number`, staffData.phone_number || staffData.phone);
+        } else if (staffData.supervisor?.phone_number) {
           form.setValue(`payment_items.${index}.phone_number`, staffData.supervisor.phone_number);
         }
 
-        // Auto-populate location info if available
-        if (staffData.locations && staffData.locations.length > 0) {
+        // Auto-populate address - check for various address field formats
+        if (staffData.address) {
+          form.setValue(`payment_items.${index}.address`, staffData.address);
+        } else if (staffData.locations && staffData.locations.length > 0) {
           const location = staffData.locations[0];
-          form.setValue(`payment_items.${index}.address`, `${location.name}, ${location.state}`);
+          form.setValue(`payment_items.${index}.address`, `${location.name}, ${location.state || ''}`);
         }
 
       } else if (staffType === "ADHOC_STAFF") {
-        // For adhoc staff, use full name as payment_to
-        const fullName = `${staffData.first_name} ${staffData.last_name}`;
-        form.setValue(`payment_items.${index}.payment_to`, fullName);
+        // For adhoc staff from adhoc applicants, use account_name or full_name
+        const fullName = staffData.full_name || `${staffData.surname || ''} ${staffData.other_names || ''}`.trim();
+        const paymentTo = staffData.account_name || fullName;
+        form.setValue(`payment_items.${index}.payment_to`, paymentTo);
+
+        // Auto-populate banking details from adhoc applicants
+        if (staffData.bank_name) {
+          form.setValue(`payment_items.${index}.bank_name`, staffData.bank_name);
+        }
+        if (staffData.account_number) {
+          form.setValue(`payment_items.${index}.account_number`, staffData.account_number);
+        }
 
         // Auto-populate contact details
         if (staffData.email) {
@@ -396,23 +499,19 @@ export default function CreatePaymentRequest() {
           form.setValue(`payment_items.${index}.phone_number`, staffData.phone_number);
         }
 
-        // Auto-populate bank details if available from adhoc staff record
-        // Note: These fields might not be in the user record, but we'll check anyway
-        if (staffData.bank_name) {
-          form.setValue(`payment_items.${index}.bank_name`, staffData.bank_name);
-        }
-        if (staffData.account_number) {
-          form.setValue(`payment_items.${index}.account_number`, staffData.account_number);
-        }
-
-        // Use account name if available, otherwise keep the full name
-        if (staffData.account_name) {
-          form.setValue(`payment_items.${index}.payment_to`, staffData.account_name);
-        }
-
-        // If user has address information, use it
+        // Auto-populate address - adhoc applicants have comprehensive address fields
+        const addressParts = [];
         if (staffData.address) {
-          form.setValue(`payment_items.${index}.address`, staffData.address);
+          addressParts.push(staffData.address);
+        }
+        if (staffData.lga) {
+          addressParts.push(staffData.lga);
+        }
+        if (staffData.state_of_origin) {
+          addressParts.push(staffData.state_of_origin);
+        }
+        if (addressParts.length > 0) {
+          form.setValue(`payment_items.${index}.address`, addressParts.join(", "));
         }
       }
     }
@@ -489,7 +588,12 @@ export default function CreatePaymentRequest() {
                   <h3 className='text-lg font-semibold'>Payment Items</h3>
                   {(paymentType === "CONSULTANT" || paymentType === "FACILITATOR" || paymentType === "ADHOC_STAFF" || paymentType === "PURCHASE_ORDER") && (
                     <div className='text-sm text-blue-600 bg-blue-50 px-3 py-1 rounded-md'>
-                      💡 Select {paymentType === "PURCHASE_ORDER" ? "purchase order" : paymentType.toLowerCase().replace("_", " ")} to auto-fill details
+                      💡 Select {
+                        paymentType === "PURCHASE_ORDER" ? "purchase order" :
+                        paymentType === "CONSULTANT" ? "hired consultant" :
+                        paymentType === "FACILITATOR" ? "hired facilitator" :
+                        "hired adhoc staff"
+                      } to auto-fill banking & contact details
                     </div>
                   )}
                 </div>
@@ -525,8 +629,6 @@ export default function CreatePaymentRequest() {
                           name={`payment_items.${index}.amount_in_figures`}
                           placeholder='Enter Amount in Figures'
                           required
-                          type='number'
-                          onChange={(e) => handleAmountChange(e.target.value, index)}
                         />
 
                         <div>
@@ -596,7 +698,6 @@ export default function CreatePaymentRequest() {
                             name={`payment_items.${index}.consultant`}
                             placeholder='Select Consultant'
                             options={consultantOptions}
-                            onChange={(e) => handleStaffSelection("CONSULTANT", e.target.value, index)}
                           />
                         )}
 
@@ -606,7 +707,6 @@ export default function CreatePaymentRequest() {
                             name={`payment_items.${index}.facilitator`}
                             placeholder='Select Facilitator'
                             options={facilitatorOptions}
-                            onChange={(e) => handleStaffSelection("FACILITATOR", e.target.value, index)}
                           />
                         )}
 
@@ -617,15 +717,14 @@ export default function CreatePaymentRequest() {
                               name={`payment_items.${index}.adhoc_staff`}
                               placeholder='Select Adhoc Staff'
                               options={adhocOptions}
-                              onChange={(e) => handleStaffSelection("ADHOC_STAFF", e.target.value, index)}
                             />
                             {adhocOptions.length === 0 ? (
                               <p className='text-xs text-amber-600 mt-1'>
-                                ⚠️ No users found. Check if user data is loading properly.
+                                ⚠️ No hired adhoc staff found. Staff must be hired from adhoc applications.
                               </p>
                             ) : (
                               <p className='text-xs text-blue-600 mt-1'>
-                                💡 Showing all users for testing. Select a user to auto-fill details.
+                                💡 Showing hired adhoc staff. Select to auto-fill banking & contact details.
                               </p>
                             )}
                           </div>

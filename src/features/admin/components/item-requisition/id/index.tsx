@@ -192,6 +192,14 @@ export default function ItemRequisitionDetailPage() {
                 description={String(departmentName || 'N/A')}
               />
 
+              {/* Phase 5: Store Information */}
+              {itemRequisition?.data.store_detail && (
+                <DescriptionCard
+                  label='Store'
+                  description={`${itemRequisition.data.store_detail.name} (${itemRequisition.data.store_detail.code}) - ${itemRequisition.data.store_detail.store_type === "CENTRAL" ? "Central Store" : "Location Store"}`}
+                />
+              )}
+
               <DescriptionCard
                 label='Date Requested'
                 description={format(
