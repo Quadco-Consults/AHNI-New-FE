@@ -64,6 +64,8 @@ export const useGetAllItemRequisitions = ({
             size,
             ...(search && { search }),
             ...(status && { status }),
+            // Phase 5: Add store to expand parameter
+            expand: 'store',
           },
         });
         return response.data;
@@ -88,7 +90,12 @@ export const useGetSingleItemRequisition = (
     queryKey: ["itemRequisition", id],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get(`${BASE_URL}${id}`);
+        const response = await AxiosWithToken.get(`${BASE_URL}${id}`, {
+          params: {
+            // Phase 5: Add store with nested expansions
+            expand: 'store,store.location,store.store_keeper',
+          },
+        });
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;

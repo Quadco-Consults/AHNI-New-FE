@@ -9,10 +9,12 @@ import SubGrantModificationHistory from "./_components/SubGrantModificationHisto
 import AwardDetailsTab from "./_components/AwardDetailsTab";
 import { useParams } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import { useAppDispatch } from "hooks/useStore";
+import { useGetSingleSubGrant } from "@/features/contracts-grants/controllers/subGrantController";
+import { useGetAllSubGrantObligations } from "@/features/contracts-grants/controllers/subGrantObligationController";
 
 const SubGrantAwardDetails = () => {
     const [tabValue, setTabValue] = useState("details");
@@ -20,6 +22,26 @@ const SubGrantAwardDetails = () => {
     const params = useParams();
     const subGrantId = params?.id as string;
     const dispatch = useAppDispatch();
+
+    // Fetch subgrant data to get amount_usd for balance calculation
+    const { data } = useGetSingleSubGrant(subGrantId, !!subGrantId);
+    const subGrant = data?.data;
+
+    // Fetch obligations to calculate total obligation amount
+    const { data: obligationsData } = useGetAllSubGrantObligations({
+        subGrantId: subGrantId || "",
+        page: 1,
+        size: 1000, // Get all obligations for calculation
+        enabled: !!subGrantId,
+    });
+
+    // Calculate total obligation amount
+    const totalObligationAmount = useMemo(() => {
+        const obligations = obligationsData?.data?.results || [];
+        return obligations.reduce((sum: number, obligation: any) => {
+            return sum + Number(obligation.amount || 0);
+        }, 0);
+    }, [obligationsData?.data?.results]);
 
     return (
         <section className="space-y-5">
@@ -40,7 +62,7 @@ const SubGrantAwardDetails = () => {
                                             tabValue === "expenditure"
                                                 ? DialogType.ExpenditureModal
                                                 : tabValue === "obligation"
-                                                ? DialogType.ADD_SUBGRANT_OBLIGATION_MODAL
+                                                ? DialogType.ADD_OBLIGATION_MODAL
                                                 : DialogType.MODIFY_GRANT,
                                         dialogProps: {
                                             header:
@@ -88,11 +110,18 @@ const SubGrantAwardDetails = () => {
                 </TabsContent>
 
                 <TabsContent value="obligation">
-                    <SubGrantObligationHistory subGrantId={subGrantId} />
+                    <SubGrantObligationHistory
+                        subGrantId={subGrantId}
+                        awardAmountUsd={subGrant?.amount_usd}
+                    />
                 </TabsContent>
 
                 <TabsContent value="expenditure">
-                    <SubGrantExpenditureHistory subGrantId={subGrantId} />
+                    <SubGrantExpenditureHistory
+                        subGrantId={subGrantId}
+                        total_obligation_amount={totalObligationAmount}
+                        projectName={subGrant?.project?.title}
+                    />
                 </TabsContent>
 
                 <TabsContent value="modifications">

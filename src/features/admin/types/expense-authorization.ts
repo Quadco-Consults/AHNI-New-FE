@@ -89,8 +89,8 @@ export type TExpenseAuthorizationFormData = z.infer<
 
 export interface IExpenseAuthorizationPaginatedData {
     id: string;
-    department: string;
-    fco: string;
+    department: string | TDepartmentData;
+    fco: string | TFCONumberData;
     project: string;
     project_details: {
         id: string;
@@ -122,6 +122,9 @@ export interface IExpenseAuthorizationPaginatedData {
     is_hotel_transport_required: boolean;
     is_hotel_transit_required: boolean;
     destination: string;
+    destinations?: any[];
+    status: string;
+    security_clearance_status: string;
     created_by: IUser;
     updated_by: string | null;
 }
