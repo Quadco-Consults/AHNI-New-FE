@@ -130,14 +130,26 @@ export default function CreateContractRequest() {
       return;
     }
 
+    // Transform data for backend
+    const payload = {
+      ...data,
+      // Convert consultants_count to integer if it exists, otherwise send null or undefined
+      consultants_count: data.consultants_count ? parseInt(data.consultants_count, 10) : undefined,
+    };
+
+    // Remove consultants_count if it's not required (for SERVICE type)
+    if (data.request_type === 'SERVICE') {
+      delete payload.consultants_count;
+    }
+
     try {
       if (id) {
-        console.log("Updating contract with data:", data);
-        await modifyContractRequest(data);
+        console.log("Updating contract with payload:", payload);
+        await modifyContractRequest(payload);
         toast.success("Contract Updated Successfully");
       } else {
-        console.log("Creating contract with data:", data);
-        await createContractRequest(data);
+        console.log("Creating contract with payload:", payload);
+        await createContractRequest(payload);
         toast.success("Contract Created Successfully");
       }
 
