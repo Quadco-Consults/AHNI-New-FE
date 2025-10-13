@@ -10,10 +10,10 @@ type upload = {
   updated_datetime: string;
 };
 export const GrievianceManagementSchema = z.object({
-    
+    type: z.string().min(1, "Please select type"),
     title: z.string().min(1, "Please enter title"),
-    description: z.string().min(1, "Please enter description"), 
-    document_name: z.string().optional(), 
+    description: z.string().min(1, "Please enter description"),
+    document_name: z.string().optional(),
     date: z.string().optional(),
     document: isBrowser ? z.instanceof(FileList).optional() : z.any().optional(),
 });
