@@ -109,7 +109,7 @@ export const agreementColumns: ColumnDef<IAgreementPaginatedData>[] = [
 const TableMenu = ({ id }: IAgreementPaginatedData) => {
     const [isDialogOpen, setDialogOpen] = useState(false);
 
-    const { pathname } = useLocation();
+    const pathname = usePathname();
 
     console.log({ pathname });
 
