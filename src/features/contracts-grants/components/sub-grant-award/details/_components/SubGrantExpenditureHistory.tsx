@@ -7,18 +7,61 @@ import { expenditureColumns } from "@/features/contracts-grants/components/table
 import { ISubGrantSingleData } from "@/features/contracts-grants/types/contract-management/sub-grant/sub-grant";
 import { useGetAllSubGrantExpenditures } from "@/features/contracts-grants/controllers/subGrantExpenditureController";
 import { formatNumberCurrency } from "utils/utls";
+import { ColumnDef } from "@tanstack/react-table";
+import { IExpenditurePaginatedData } from "@/features/contracts-grants/types/grants";
 
 interface SubGrantExpenditureHistoryProps {
     subGrantId: string;
     total_expenditure_amount?: string | number;
     total_obligation_amount?: string | number;
+    projectName?: string;
 }
 
 const SubGrantExpenditureHistory: React.FC<SubGrantExpenditureHistoryProps> = ({
     subGrantId,
     total_expenditure_amount,
     total_obligation_amount,
+    projectName,
 }) => {
+    const [page, setPage] = useState(1);
+
+    // Fetch expenditures for table display with pagination
+    const { data, isFetching, error } = useGetAllSubGrantExpenditures({
+        subGrantId: subGrantId || "",
+        page,
+        size: 10,
+        enabled: !!subGrantId,
+    });
+
+    // Fetch all expenditures for accurate total calculation
+    const { data: allExpendituresData } = useGetAllSubGrantExpenditures({
+        subGrantId: subGrantId || "",
+        page: 1,
+        size: 1000,
+        enabled: !!subGrantId,
+    });
+
+    // Calculate total expenditure from all fetched data
+    const calculatedTotalExpenditure = useMemo(() => {
+        const expenditures = allExpendituresData?.data?.results || [];
+        return expenditures.reduce((sum: number, expenditure: any) => {
+            return sum + Number(expenditure.amount || 0);
+        }, 0);
+    }, [allExpendituresData?.data?.results]);
+
+    // Create custom columns with project name override
+    const customColumns = useMemo<ColumnDef<IExpenditurePaginatedData>[]>(() => {
+        return expenditureColumns.map(column => {
+            if (column.id === 'project' && projectName) {
+                return {
+                    ...column,
+                    accessorFn: () => projectName,
+                };
+            }
+            return column;
+        });
+    }, [projectName]);
+
     const StatsCard = useMemo(() => {
         // Calculate balance: Total Obligation - Total Expenditure
         let obligation = 0;
@@ -26,8 +69,11 @@ const SubGrantExpenditureHistory: React.FC<SubGrantExpenditureHistoryProps> = ({
         let balance = 0;
 
         try {
-            obligation = parseFloat(total_obligation_amount?.toString() || "0") || 0;
-            expenditure = parseFloat(total_expenditure_amount?.toString() || "0") || 0;
+            obligation = Number(total_obligation_amount || 0);
+            // Use prop if provided, otherwise use calculated value
+            expenditure = total_expenditure_amount
+                ? Number(total_expenditure_amount)
+                : calculatedTotalExpenditure;
             balance = obligation - expenditure;
         } catch (error) {
             console.warn("Error calculating balance:", error);
@@ -38,36 +84,23 @@ const SubGrantExpenditureHistory: React.FC<SubGrantExpenditureHistoryProps> = ({
             {
                 id: 1,
                 name: "Total Obligation",
-                stat: total_obligation_amount
-                    ? formatNumberCurrency(total_obligation_amount, "USD")
-                    : formatNumberCurrency("0", "USD"),
+                stat: formatNumberCurrency(obligation.toString(), "USD"),
                 icon: <TotalIncomeSvg />,
             },
             {
                 id: 2,
                 name: "Balance",
-                stat: formatNumberCurrency(balance.toString(), "USD"),
+                stat: formatNumberCurrency(Math.max(0, balance).toString(), "USD"),
                 icon: <TotalIncomeSvg />,
             },
             {
                 id: 3,
                 name: "Total Expenditure",
-                stat: total_expenditure_amount
-                    ? formatNumberCurrency(total_expenditure_amount, "USD")
-                    : formatNumberCurrency("0", "USD"),
+                stat: formatNumberCurrency(expenditure.toString(), "USD"),
                 icon: <TotalExpenditureSvg />,
             },
         ];
-    }, [total_expenditure_amount, total_obligation_amount]);
-
-    const [page, setPage] = useState(1);
-
-    const { data, isFetching, error } = useGetAllSubGrantExpenditures({
-        subGrantId: subGrantId || "",
-        page,
-        size: 10,
-        enabled: !!subGrantId,
-    });
+    }, [total_expenditure_amount, total_obligation_amount, calculatedTotalExpenditure]);
 
     return (
         <section className="w-full flex flex-col px-5 space-y-[1.25rem]">
@@ -107,7 +140,7 @@ const SubGrantExpenditureHistory: React.FC<SubGrantExpenditureHistoryProps> = ({
                     </div>
                 )}
                 <DataTable
-                    columns={expenditureColumns}
+                    columns={customColumns}
                     data={data?.data?.results || []}
                     isLoading={isFetching}
                     pagination={{

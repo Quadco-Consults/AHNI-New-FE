@@ -28,10 +28,8 @@ interface Approver {
 interface Workflow {
   id: string;
   name: string;
-  leave_type: {
-    id: string;
-    name: string;
-  };
+  leave_type: string;
+  leaveTypeName?: string;
   description?: string;
   approvers: Approver[];
   created_at: string;
@@ -92,7 +90,7 @@ const WorkflowsList = () => {
       header: "Leave Type",
       cell: ({ row }) => (
         <Badge variant="outline">
-          {row.original.leave_type?.name || 'N/A'}
+          {row.original.leaveTypeName || 'N/A'}
         </Badge>
       ),
     },
@@ -159,7 +157,7 @@ const WorkflowsList = () => {
     return (
       workflow.name?.toLowerCase().includes(search) ||
       workflow.description?.toLowerCase().includes(search) ||
-      workflow.leave_type?.name?.toLowerCase().includes(search)
+      workflow.leaveTypeName?.toLowerCase().includes(search)
     );
   });
 

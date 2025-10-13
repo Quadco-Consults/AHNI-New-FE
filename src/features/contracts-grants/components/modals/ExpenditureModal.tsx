@@ -18,10 +18,16 @@ import {
   useCreateExpenditure,
   useModifyExpenditure,
 } from "@/features/contracts-grants/controllers/expenditureController";
+import {
+  useCreateSubGrantExpenditure,
+  useUpdateSubGrantExpenditure,
+} from "@/features/contracts-grants/controllers/subGrantExpenditureController";
 import { toast } from "sonner";
 import { closeDialog } from "store/ui";
 import { useGetAllActivityPlans } from "@/features/programs/controllers/activityPlanController";
 import { useGetSingleProject } from "@/features/projects/controllers/projectController";
+import { useGetSingleSubGrant } from "@/features/contracts-grants/controllers/subGrantController";
+import { useGetAllSubGrantObligations } from "@/features/contracts-grants/controllers/subGrantObligationController";
 import { useMemo } from "react";
 import { formatNumberCurrency } from "utils/utls";
 
@@ -44,15 +50,33 @@ export default function ExpenditureModal() {
   const dispatch = useAppDispatch();
 
   const grantId = dialogProps?.grantId as string;
+  const subGrantId = dialogProps?.subGrantId as string;
 
+  // For regular grants
   const { createExpenditure, isLoading: isCreateLoading } =
     useCreateExpenditure(grantId || "");
 
   const { updateExpenditure, isLoading: isModifyLoading } =
     useModifyExpenditure(grantId || "", expenditure?.id || "");
 
-  // Get project data to calculate balance
-  const { data: projectData } = useGetSingleProject(grantId || "");
+  // For sub-grants
+  const { createExpenditure: createSubGrantExpenditure, isLoading: isCreateSubGrantLoading } =
+    useCreateSubGrantExpenditure(subGrantId || "");
+
+  const { updateExpenditure: updateSubGrantExpenditure, isLoading: isUpdateSubGrantLoading } =
+    useUpdateSubGrantExpenditure(subGrantId || "", expenditure?.id || "");
+
+  // Get project/grant data to calculate balance
+  const { data: projectData } = useGetSingleProject(grantId || "", { enabled: !!grantId });
+  const { data: subGrantData } = useGetSingleSubGrant(subGrantId || "", !!subGrantId);
+
+  // Fetch obligations for subgrants
+  const { data: subGrantObligationsData } = useGetAllSubGrantObligations({
+    subGrantId: subGrantId || "",
+    page: 1,
+    size: 1000,
+    enabled: !!subGrantId,
+  });
 
   // Fetch work plan activities for the project/grant
   const { data: activitiesData } = useGetAllActivityPlans({
@@ -73,15 +97,31 @@ export default function ExpenditureModal() {
 
   // Calculate current balance
   const currentBalance = useMemo(() => {
-    if (!projectData?.data) return 0;
-    const obligation = parseFloat(projectData.data.total_obligation_amount || "0");
-    const expenditure = parseFloat(projectData.data.total_expenditure_amount || "0");
-    return obligation - expenditure;
-  }, [projectData]);
+    if (subGrantId) {
+      // For subgrants, calculate from obligations and expenditures
+      const obligations = subGrantObligationsData?.data?.results || [];
+      const totalObligation = obligations.reduce((sum: number, obl: any) => {
+        return sum + Number(obl.amount || 0);
+      }, 0);
+
+      const totalExpenditure = Number(subGrantData?.data?.total_expenditure_amount || 0);
+      return totalObligation - totalExpenditure;
+    } else if (projectData?.data) {
+      // For regular grants
+      const obligation = Number(projectData.data.total_obligation_amount || 0);
+      const expenditure = Number(projectData.data.total_expenditure_amount || 0);
+      return obligation - expenditure;
+    }
+    return 0;
+  }, [projectData, subGrantData, subGrantObligationsData, subGrantId]);
 
   const onSubmit: SubmitHandler<TExpenditureFormData> = async (data) => {
-    if (!grantId) {
-      toast.error("Grant ID is required");
+    // Check if we're dealing with a subgrant or regular grant
+    const isSubGrant = !!subGrantId;
+    const isGrant = !!grantId;
+
+    if (!isSubGrant && !isGrant) {
+      toast.error("Grant ID or SubGrant ID is required");
       return;
     }
 
@@ -116,10 +156,20 @@ export default function ExpenditureModal() {
 
     try {
       if (expenditure?.id) {
-        await updateExpenditure(submitData);
+        // Update existing expenditure
+        if (isSubGrant) {
+          await updateSubGrantExpenditure(submitData);
+        } else {
+          await updateExpenditure(submitData);
+        }
         toast.success("Expenditure Updated");
       } else {
-        await createExpenditure(submitData);
+        // Create new expenditure
+        if (isSubGrant) {
+          await createSubGrantExpenditure(submitData);
+        } else {
+          await createExpenditure(submitData);
+        }
         toast.success("Expenditure Created");
       }
 
@@ -167,7 +217,10 @@ export default function ExpenditureModal() {
         />
 
         <div className='flex justify-end'>
-          <FormButton size='lg' loading={isCreateLoading || isModifyLoading}>
+          <FormButton
+            size='lg'
+            loading={isCreateLoading || isModifyLoading || isCreateSubGrantLoading || isUpdateSubGrantLoading}
+          >
             Submit
           </FormButton>
         </div>
