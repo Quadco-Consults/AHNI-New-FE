@@ -34,6 +34,12 @@ import { useGetAllUsersQuery } from "@/features/auth/controllers/userController"
 import { toast } from "sonner";
 import { useGetAllItemsQuery } from "@/features/modules/controllers/config/itemController";
 import { useGetAllStores } from "@/features/admin/controllers/storeController";
+import {
+  getReviewerOptions,
+  getAuthorizerOptions,
+  getApproverOptions
+} from "@/utils/approvalFilters";
+import { filterAhniStaffOnly } from "@/utils/userFilters";
 
 export default function CreateItemRequisition() {
   const { data: items } = useGetAllItemsQuery({
@@ -59,13 +65,35 @@ export default function CreateItemRequisition() {
     is_active: true,
   });
 
+  // Filter for AHNI staff only (exclude vendors, consultants, external users)
+  const ahniStaff = useMemo(
+    () => filterAhniStaffOnly(user?.data.results || []),
+    [user?.data.results]
+  );
+
   const userOptions = useMemo(
     () =>
-      user?.data.results.map(({ first_name, last_name, id }) => ({
+      ahniStaff.map(({ first_name, last_name, id }) => ({
         label: `${first_name} ${last_name}`,
         value: id,
       })),
-    [user]
+    [ahniStaff]
+  );
+
+  // Filtered options for approval workflow - only users with appropriate permissions
+  const reviewerOptions = useMemo(
+    () => getReviewerOptions(ahniStaff),
+    [ahniStaff]
+  );
+
+  const authorizerOptions = useMemo(
+    () => getAuthorizerOptions(ahniStaff),
+    [ahniStaff]
+  );
+
+  const approverOptions = useMemo(
+    () => getApproverOptions(ahniStaff),
+    [ahniStaff]
   );
 
   const { createItemRequisition, isLoading: isCreateLoading } =
@@ -241,7 +269,7 @@ export default function CreateItemRequisition() {
                 name='reviewer'
                 required
                 placeholder='Select Reviewer'
-                options={userOptions}
+                options={reviewerOptions}
               />
 
               <FormSelect
@@ -249,7 +277,7 @@ export default function CreateItemRequisition() {
                 name='authorizer'
                 required
                 placeholder='Select Authorizer'
-                options={userOptions}
+                options={authorizerOptions}
               />
 
               <FormSelect
@@ -257,7 +285,7 @@ export default function CreateItemRequisition() {
                 name='approver'
                 required
                 placeholder='Select Approver'
-                options={userOptions}
+                options={approverOptions}
               />
             </div>
             <div className='flex justify-end'>

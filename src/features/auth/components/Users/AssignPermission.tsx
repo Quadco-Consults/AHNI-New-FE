@@ -5,11 +5,12 @@ import { Button } from "components/ui/button";
 import { Card, CardContent } from "components/ui/card";
 import { Checkbox } from "components/ui/checkbox";
 import { ScrollArea } from "components/ui/scroll-area";
+import { Input } from "components/ui/input";
 import { IPermission } from "definations/auth/permission";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { cn } from "lib/utils";
 import { capitalize } from "lodash";
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect, useState, useMemo } from "react";
 import {
     useGetAllPermissions,
     useGetSingleRole,
@@ -17,6 +18,7 @@ import {
 } from "@/features/auth/controllers/roleController";
 import { toast } from "sonner";
 import { closeDialog, dailogSelector } from "store/ui";
+import { ShieldCheck, Info, Search } from "lucide-react";
 
 interface Permission {
     id: number;
@@ -34,17 +36,21 @@ type TPermissionSelector = {
 const PermissionCheckbox: FC<{
     permission: IPermission;
     checked: boolean;
-
+    highlighted?: boolean;
     // eslint-disable-next-line no-unused-vars
     onChange: (checked: boolean) => void;
-}> = ({ permission, checked, onChange }) => {
+}> = ({ permission, checked, onChange, highlighted = false }) => {
     return (
         <div
             className={cn(
-                "flex items-center space-x-2 rounded-md border px-2 py-3 cursor-pointer",
-                checked
-                    ? "border-red-500 bg-red-50"
-                    : "border-gray-200 bg-white"
+                "flex items-center space-x-2 rounded-md border px-2 py-3 cursor-pointer transition-colors",
+                highlighted
+                    ? checked
+                        ? "border-blue-500 bg-blue-50"
+                        : "border-blue-200 bg-blue-25 hover:bg-blue-50"
+                    : checked
+                        ? "border-red-500 bg-red-50"
+                        : "border-gray-200 bg-white hover:bg-gray-50"
             )}
             onClick={() => onChange(!checked)}
         >
@@ -52,7 +58,9 @@ const PermissionCheckbox: FC<{
                 checked={checked}
                 className={cn(
                     "h-4 w-4 rounded-sm border-2",
-                    checked ? "border-red-500 bg-red-500" : "border-gray-300"
+                    highlighted
+                        ? checked ? "border-blue-500 bg-blue-500" : "border-blue-300"
+                        : checked ? "border-red-500 bg-red-500" : "border-gray-300"
                 )}
             />
             <span className="text-xs font-medium">{permission.name}</span>
@@ -60,10 +68,53 @@ const PermissionCheckbox: FC<{
     );
 };
 
-const PermissionSelector: FC<TPermissionSelector> = ({
+// Special section for approval permissions
+const ApprovalPermissionsSection: FC<{
+    approvalPermissions: IPermission[];
+    selectedPermissions: number[];
+    onSelectPermission: (permissionId: number) => void;
+}> = ({ approvalPermissions, selectedPermissions, onSelectPermission }) => {
+    if (approvalPermissions.length === 0) return null;
+
+    return (
+        <div className="bg-gradient-to-r from-blue-50 to-blue-100 border-2 border-blue-300 rounded-lg p-5 mb-6 shadow-sm">
+            <div className="flex items-center gap-2 mb-3">
+                <ShieldCheck className="w-6 h-6 text-blue-600" />
+                <h3 className="font-bold text-xl text-blue-900">
+                    Approval Permissions
+                </h3>
+            </div>
+            <div className="flex items-start gap-2 mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                <Info className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                <p className="text-sm text-blue-800">
+                    These permissions control who can review, authorize, and approve requests across the entire system.
+                    Users with these permissions will appear in approval workflow dropdowns.
+                </p>
+            </div>
+            <div className="grid grid-cols-3 gap-3">
+                {approvalPermissions.map((permission) => (
+                    <PermissionCheckbox
+                        key={permission.id}
+                        permission={permission}
+                        checked={selectedPermissions.includes(permission.id)}
+                        onChange={() => onSelectPermission(permission.id)}
+                        highlighted={true}
+                    />
+                ))}
+            </div>
+        </div>
+    );
+};
+
+const PermissionSelector: FC<TPermissionSelector & {
+    searchQuery: string;
+    onSearchChange: (value: string) => void;
+}> = ({
     selectedPermissions,
     onSelectPermission,
     onCheckAllPermissions,
+    searchQuery,
+    onSearchChange,
 }) => {
     const { data: permission, isLoading } = useGetAllPermissions({
         page: 1,
@@ -100,6 +151,51 @@ const PermissionSelector: FC<TPermissionSelector> = ({
         }
     };
 
+    // Filter permissions based on search query
+    const filteredPermissions = useMemo(() => {
+        if (!permission?.data) return { approvalPermissions: [], otherPermissions: [] };
+
+        const query = searchQuery.toLowerCase().trim();
+
+        // Find approval permissions module
+        const approvalModule = permission.data.find((p) => p.module === 'approvals');
+        let approvalPerms = approvalModule?.permissions || [];
+
+        // Filter approval permissions if search query exists
+        if (query) {
+            approvalPerms = approvalPerms.filter((perm) =>
+                perm.name.toLowerCase().includes(query) ||
+                perm.codename.toLowerCase().includes(query)
+            );
+        }
+
+        // Filter other modules
+        let otherModules = permission.data.filter((p) => p.module !== 'approvals') || [];
+
+        if (query) {
+            // Filter each module's permissions based on search
+            otherModules = otherModules
+                .map((module) => ({
+                    ...module,
+                    permissions: module.permissions.filter((perm) =>
+                        perm.name.toLowerCase().includes(query) ||
+                        perm.codename.toLowerCase().includes(query) ||
+                        module.module.toLowerCase().includes(query)
+                    ),
+                }))
+                // Only keep modules that have matching permissions or matching module name
+                .filter((module) =>
+                    module.permissions.length > 0 ||
+                    module.module.toLowerCase().includes(query)
+                );
+        }
+
+        return {
+            approvalPermissions: approvalPerms,
+            otherPermissions: otherModules,
+        };
+    }, [permission?.data, searchQuery]);
+
     if (isLoading) return <LoadingSpinner />;
 
     if (permission?.data?.length === 0)
@@ -110,10 +206,31 @@ const PermissionSelector: FC<TPermissionSelector> = ({
             </div>
         );
 
+    const { approvalPermissions, otherPermissions } = filteredPermissions;
+
     return (
         <>
-            {permission?.data?.map((permission) => (
-                <div>
+            {/* No results message */}
+            {searchQuery && approvalPermissions.length === 0 && otherPermissions.length === 0 && (
+                <div className="flex flex-col items-center gap-2.5 py-8">
+                    <Search className="w-12 h-12 text-gray-300" />
+                    <h3 className="font-bold text-md text-gray-600">No permissions found</h3>
+                    <p className="text-sm text-gray-500">Try adjusting your search query</p>
+                </div>
+            )}
+
+            {/* Approval Permissions Section - Always shown first if available */}
+            {approvalPermissions.length > 0 && (
+                <ApprovalPermissionsSection
+                    approvalPermissions={approvalPermissions}
+                    selectedPermissions={selectedPermissions}
+                    onSelectPermission={onSelectPermission}
+                />
+            )}
+
+            {/* Regular Permission Modules */}
+            {otherPermissions.map((permission) => (
+                <div key={permission.module}>
                     <div className="flex items-center justify-between">
                         <h3 className="font-bold text-lg">
                             {capitalize(permission.module)}
@@ -154,6 +271,7 @@ const AssignPermission = () => {
     const [selectedPermissions, setSelectedPermissions] = useState<number[]>(
         []
     );
+    const [searchQuery, setSearchQuery] = useState("");
 
     const { dialogProps } = useAppSelector(dailogSelector);
 
@@ -223,7 +341,31 @@ const AssignPermission = () => {
             </div>
             <Card className="w-full mx-auto min-h-56">
                 <CardContent className="w-full p-4">
-                    <ScrollArea className="h-[50vh]">
+                    {/* Search Input - Fixed at top */}
+                    <div className="mb-4 pb-3 border-b">
+                        <div className="relative">
+                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                            <Input
+                                type="text"
+                                placeholder="Search permissions by name or module..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="pl-10 pr-20 py-2 w-full"
+                            />
+                            {searchQuery && (
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="absolute right-1 top-1/2 transform -translate-y-1/2 h-7 px-2 text-xs"
+                                    onClick={() => setSearchQuery("")}
+                                >
+                                    Clear
+                                </Button>
+                            )}
+                        </div>
+                    </div>
+
+                    <ScrollArea className="h-[45vh]">
                         <PermissionSelector
                             selectedPermissions={selectedPermissions}
                             onSelectPermission={handleSelectPermission}
@@ -231,6 +373,8 @@ const AssignPermission = () => {
                             onCheckAllPermissions={(permissions: number[]) =>
                                 setSelectedPermissions(permissions)
                             }
+                            searchQuery={searchQuery}
+                            onSearchChange={setSearchQuery}
                         />
                     </ScrollArea>
                 </CardContent>
