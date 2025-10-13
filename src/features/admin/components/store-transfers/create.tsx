@@ -51,6 +51,9 @@ export default function CreateStoreTransfer() {
     name: "items",
   });
 
+  // Consumables category UUID - filters to show only consumable items
+  const CONSUMABLES_CATEGORY_ID = "fadb6228-23de-4b04-9eac-b75940cf622f";
+
   // Fetch data
   const { data: existingTransfer } = useGetSingleStoreTransfer(id || "", isEdit);
   const { data: storesData } = useGetAllStores({
@@ -61,6 +64,7 @@ export default function CreateStoreTransfer() {
   const { data: itemsData } = useGetAllItems({
     page: 1,
     size: 10000,
+    category: CONSUMABLES_CATEGORY_ID, // Filter for consumables only
   });
 
   // Mutations
@@ -129,11 +133,20 @@ export default function CreateStoreTransfer() {
         return;
       }
 
+      // Transform data for backend - rename items to transfer_items
+      const payload = {
+        ...data,
+        transfer_items: data.items,
+      };
+
+      // Remove the items field since backend expects transfer_items
+      delete (payload as any).items;
+
       if (isEdit) {
-        await updateStoreTransfer(data);
+        await updateStoreTransfer(payload);
         toast.success("Store transfer updated successfully");
       } else {
-        await createStoreTransfer(data);
+        await createStoreTransfer(payload);
         toast.success("Store transfer created successfully");
       }
 
