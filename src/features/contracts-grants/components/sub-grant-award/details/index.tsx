@@ -73,7 +73,11 @@ const SubGrantAwardDetails = () => {
                                                     : "Add Modification",
                                             width: "max-w-lg",
                                             subGrantId: subGrantId,
-                                            data: { id: subGrantId },
+                                            data: {
+                                                id: subGrantId,
+                                                title: subGrant?.project?.title || "N/A",
+                                                subGrantName: subGrant?.title || "N/A",
+                                            },
                                         },
                                     })
                                 );
