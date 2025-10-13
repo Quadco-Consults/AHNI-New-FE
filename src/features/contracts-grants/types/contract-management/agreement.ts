@@ -44,17 +44,169 @@ export const AgreementSchema = z.object({
 
 export type TAgreementFormData = z.infer<typeof AgreementSchema>;
 
+// Type for expanded entity fields (when backend expands relationships)
+type ExpandedLocation = {
+    id: string;
+    name: string;
+    address?: string;
+    city?: string;
+    state?: string;
+};
+
+type ExpandedConsultant = {
+    id: string;
+    user?: {
+        id: string;
+        full_name?: string;
+        first_name?: string;
+        last_name?: string;
+        email?: string;
+        phone_number?: string;
+    };
+    full_name?: string;
+    email?: string;
+    phone_number?: string;
+};
+
+type ExpandedFacilitator = {
+    id: string;
+    user?: {
+        id: string;
+        full_name?: string;
+        first_name?: string;
+        last_name?: string;
+        email?: string;
+        phone_number?: string;
+    };
+    full_name?: string;
+    email?: string;
+    phone_number?: string;
+};
+
+type ExpandedAdhocStaff = {
+    id: string;
+    user?: {
+        id: string;
+        full_name?: string;
+        first_name?: string;
+        last_name?: string;
+        email?: string;
+        phone_number?: string;
+    };
+    full_name?: string;
+    email?: string;
+    phone_number?: string;
+};
+
+type ExpandedVendor = {
+    id: string;
+    company_name?: string;
+    name?: string;
+    contact_person?: string;
+    contact_email?: string;
+    contact_phone?: string;
+    email?: string;
+    phone_number?: string;
+};
+
+type ExpandedService = {
+    id: string;
+    name: string;
+};
+
 export interface IAgreementPaginatedData {
     id: string;
-    created_datetime: string;
-    updated_datetime: string;
-    provider: string;
-    service: string;
-    type: string;
+    created_datetime?: string;
+    updated_datetime?: string;
+    provider?: string;
+    service: string; // Service category UUID
     start_date: string;
     end_date: string;
-    created_by: string | null;
-    updated_by: string | null;
+    contract_cost?: string | number;
+    created_by?: string | null;
+    updated_by?: string | null;
+
+    // Backend returns flattened fields with specific names
+    service_type_display: string; // "Sla", "Consultant", "Adhoc Staff", "Facilitator"
+    status: string; // "DRAFT", "ACTIVE", etc.
+    status_display: string; // "Draft", "Active", etc.
+
+    // Location (flattened)
+    location_name: string;
+
+    // Vendor fields (flattened)
+    vendor_name: string | null;
+    vendor_contact_person: string | null;
+    vendor_contact_email: string | null;
+    vendor_contact_phone: string | null;
+
+    // Consultant fields (flattened) - backend should add these
+    consultant_name?: string | null;
+    consultant_email?: string | null;
+    consultant_phone?: string | null;
+
+    // Facilitator fields (flattened) - backend should add these
+    facilitator_name?: string | null;
+    facilitator_email?: string | null;
+    facilitator_phone?: string | null;
+
+    // Adhoc Staff fields (flattened) - backend should add these
+    adhoc_staff_name?: string | null;
+    adhoc_staff_email?: string | null;
+    adhoc_staff_phone?: string | null;
+
+    // Date helpers
+    start_month?: string;
+    start_year?: number;
+    end_month?: string;
+    end_year?: number;
+    days_until_expiry?: number;
+    is_active?: boolean;
+    is_expired?: boolean;
+    remarks?: string | null;
+
+    // Legacy fields for backward compatibility
+    type?: string;
+    location?: string | ExpandedLocation;
+    consultant?: string | ExpandedConsultant | null;
+    facilitator?: string | ExpandedFacilitator | null;
+    adhoc_staff?: string | ExpandedAdhocStaff | null;
+    vendor?: string | ExpandedVendor | null;
+    location_details?: ExpandedLocation;
+    consultant_details?: ExpandedConsultant;
+    facilitator_details?: ExpandedFacilitator;
+    adhoc_staff_details?: ExpandedAdhocStaff;
+    vendor_details?: ExpandedVendor;
+    service_details?: ExpandedService;
+}
+
+// Contract Document interface
+export interface IContractDocument {
+    id: string;
+    document_url: string;
+    document_name: string;
+    document_type: 'CONTRACT' | 'EXTENSION' | 'ADDENDUM' | 'AMENDMENT';
+    version: number;
+    contract_number: string;
+    uploaded_at: string;
+    uploaded_by?: string;
+    file_size?: number;
+    remarks?: string;
+}
+
+// Contract Modification interface
+export interface IContractModification {
+    id: string;
+    modification_type: 'EXTENSION' | 'ADDENDUM' | 'AMENDMENT';
+    description: string;
+    new_end_date?: string;
+    additional_cost?: number;
+    document?: IContractDocument;
+    created_at: string;
+    created_by?: string;
+    approved_at?: string;
+    approved_by?: string;
+    status: 'PENDING' | 'APPROVED' | 'REJECTED';
 }
 
 export interface IAgreementSingleData {
@@ -68,4 +220,38 @@ export interface IAgreementSingleData {
     end_date: string;
     created_by: string | null;
     updated_by: string | null;
+
+    // Contract workflow fields
+    status: 'DRAFT' | 'SUBMITTED' | 'PENDING_APPROVAL' | 'APPROVED' | 'ACTIVE' | 'EXPIRED' | 'TERMINATED';
+    status_display?: string;
+    contract_number?: string;
+    current_version?: number;
+
+    // Additional fields from paginated data
+    service_type_display?: string;
+    location_name?: string;
+    vendor_name?: string | null;
+    vendor_contact_person?: string | null;
+    vendor_contact_email?: string | null;
+    vendor_contact_phone?: string | null;
+    consultant_name?: string | null;
+    consultant_email?: string | null;
+    consultant_phone?: string | null;
+    facilitator_name?: string | null;
+    facilitator_email?: string | null;
+    facilitator_phone?: string | null;
+    adhoc_staff_name?: string | null;
+    adhoc_staff_email?: string | null;
+    adhoc_staff_phone?: string | null;
+    contract_cost?: string | number;
+
+    // Documents and modifications
+    documents?: IContractDocument[];
+    modifications?: IContractModification[];
+
+    // Approval fields
+    approval_status?: string;
+    approval_stage?: string;
+    submitted_at?: string;
+    submitted_by?: string;
 }

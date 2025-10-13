@@ -14,7 +14,7 @@ import { Button } from "components/ui/button";
 import { AdminRoutes } from "constants/RouterConstants";
 import BackNavigation from "components/atoms/BackNavigation";
 import { Separator } from "components/ui/separator";
-import { useEffect, useMemo, useCallback } from "react";
+import { useEffect, useMemo, useCallback, useState } from "react";
 import { toast } from "sonner";
 import AddSquareIconFaded from "components/icons/AddSquareIconFaded";
 import DeleteIcon from "components/icons/DeleteIcon";
@@ -29,11 +29,13 @@ import {
 } from "@/features/admin/controllers/travelExpenseController";
 import { useGetAllUsers } from "@/features/auth/controllers/userController";
 import { useGetAllExpenseAuthorizations } from "@/features/admin/controllers/expenseAuthorizationController";
+import { getCurrentUser } from "@/utils/auth";
 
 export default function SimpleTravelExpenseReportPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const id = searchParams?.get("id");
+  const [currentUserData, setCurrentUserData] = useState<any>(null);
 
   const form = useForm<TTravelExpenseFormData>({
     resolver: zodResolver(TravelExpenseSchema),
@@ -57,10 +59,48 @@ export default function SimpleTravelExpenseReportPage() {
 
   // API Hooks
   const { data: users } = useGetAllUsers({ page: 1, size: 1000 });
-  const { data: expenseAuth } = useGetAllExpenseAuthorizations({ page: 1, size: 1000 });
+  const { data: expenseAuth, isLoading: isExpenseAuthLoading, error: expenseAuthError } = useGetAllExpenseAuthorizations({
+    page: 1,
+    size: 100, // Reduced from 1000 to avoid potential issues
+    status: "APPROVED" // Only show approved expense authorizations
+  });
   const { data: travelExpense, isLoading: isTravelExpenseLoading, error: travelExpenseError } = useGetSingleTravelExpense(id || "", !!id);
   const { createTravelExpense, isLoading: isCreateLoading } = useCreateTravelExpense();
   const { modifyTravelExpense, isLoading: isModifyLoading } = useModifyTravelExpense(id || "");
+
+  // Debug expense auth loading
+  useEffect(() => {
+    console.log('🔍 EXPENSE AUTH STATUS:', {
+      isLoading: isExpenseAuthLoading,
+      hasData: !!expenseAuth,
+      error: expenseAuthError,
+      data: expenseAuth
+    });
+  }, [expenseAuth, isExpenseAuthLoading, expenseAuthError]);
+
+  // Get logged-in user on component mount and when users data loads
+  useEffect(() => {
+    const user = getCurrentUser();
+    if (user && !id) { // Only for create mode, not edit mode
+      setCurrentUserData(user);
+
+      // Wait for users data to be loaded before setting the value
+      if (users) {
+        console.log('🔍 AUTO-POPULATING USER:', user);
+        form.setValue('user', user.id);
+
+        // Also auto-populate staff_id
+        const userResults = (users as any)?.data?.results || users?.results;
+        const foundUser = userResults?.find((u: any) => u.id === user.id);
+        if (foundUser) {
+          const employeeId = (foundUser as any)?.employee_id || (foundUser as any)?.staff_id || foundUser?.id?.slice(0, 8);
+          if (employeeId) {
+            form.setValue('staff_id', employeeId);
+          }
+        }
+      }
+    }
+  }, [id, users, form]);
 
   // Debug API calls
   useEffect(() => {
@@ -90,7 +130,7 @@ export default function SimpleTravelExpenseReportPage() {
     // API actually returns data.results structure
     const authResults = (expenseAuth as any)?.data?.results || expenseAuth?.results;
     return authResults?.map((auth: any) => ({
-      label: auth.authorization_number || auth.id || `Auth ${auth.id?.slice(0, 8)}`,
+      label: auth.ta_number || `EA-${auth.id?.slice(0, 8)}`,
       value: auth.id,
     })) || [];
   }, [expenseAuth]);
@@ -105,12 +145,22 @@ export default function SimpleTravelExpenseReportPage() {
     const activity = form.watch(`activities.${index}`);
     if (!activity) return;
 
-    const airportTaxi = parseFloat(activity.airport_taxi_fee) || 0;
-    const registration = parseFloat(activity.registration_fee) || 0;
-    const interCityTaxi = parseFloat(activity.inter_city_taxi_fee) || 0;
+    const airportTaxi = parseFloat(activity.airport_taxi_fee || "0") || 0;
+    const registration = parseFloat(activity.registration_fee || "0") || 0;
+    const interCityTaxi = parseFloat(activity.inter_city_taxi_fee || "0") || 0;
     const others = parseFloat(activity.others || "0") || 0;
 
     const total = airportTaxi + registration + interCityTaxi + others;
+
+    console.log('💰 CALCULATING TOTAL:', {
+      index,
+      airportTaxi,
+      registration,
+      interCityTaxi,
+      others,
+      total
+    });
+
     form.setValue(`activities.${index}.total_amount`, total.toFixed(2));
   }, [form]);
 
@@ -120,6 +170,7 @@ export default function SimpleTravelExpenseReportPage() {
 
   // Watch all form values for debugging
   const allFormValues = form.watch();
+  const selectedExpenseAuthId = form.watch('expense_authorization');
 
   // Debug: Log form values whenever they change
   useEffect(() => {
@@ -142,12 +193,14 @@ export default function SimpleTravelExpenseReportPage() {
   }, [allFormValues]);
 
   useEffect(() => {
-    watchedActivities.forEach((_, index) => {
-      const activity = watchedActivities[index];
-      if (activity) {
-        calculateTotalAmount(index);
-      }
-    });
+    if (watchedActivities) {
+      watchedActivities.forEach((_, index) => {
+        const activity = watchedActivities[index];
+        if (activity) {
+          calculateTotalAmount(index);
+        }
+      });
+    }
   }, [watchedActivities, calculateTotalAmount]);
 
   // Auto-populate Staff ID when user is selected
@@ -166,6 +219,24 @@ export default function SimpleTravelExpenseReportPage() {
       }
     }
   }, [selectedUserId, users, form]);
+
+  // Auto-populate Travel Purpose from selected Expense Authorization
+  useEffect(() => {
+    if (selectedExpenseAuthId && expenseAuth) {
+      const authResults = (expenseAuth as any)?.data?.results || expenseAuth?.results;
+      const selectedAuth = authResults?.find((auth: any) => auth.id === selectedExpenseAuthId);
+      console.log('🔍 SELECTED EXPENSE AUTH DATA:', selectedAuth);
+
+      // Get travel purpose from destinations if available
+      if (selectedAuth?.destinations && selectedAuth.destinations.length > 0) {
+        const firstDestination = selectedAuth.destinations[0];
+        const purpose = firstDestination.purpose || selectedAuth.justification || "";
+        if (purpose) {
+          form.setValue('travel_purpose', purpose);
+        }
+      }
+    }
+  }, [selectedExpenseAuthId, expenseAuth, form]);
 
   // Helper function to convert ISO datetime to date format
   const convertToDateFormat = (isoString: string) => {
@@ -189,14 +260,14 @@ export default function SimpleTravelExpenseReportPage() {
 
       const formData = {
         expense_authorization: "", // Not needed for edit
-        user: data.user.id,
-        staff_id: data.staff_id,
-        travel_purpose: data.travel_purpose,
+        user: data.user?.id || "",
+        staff_id: data.staff_id || "",
+        travel_purpose: data.travel_purpose || "",
         document: null, // Use null for consistency
-        reviewer: data.approvals?.find(a => a.approval_level === "REVIEW")?.user.id || "",
-        authorizer: data.approvals?.find(a => a.approval_level === "AUTHORIZE")?.user.id || "",
-        approver: data.approvals?.find(a => a.approval_level === "APPROVE")?.user.id || "",
-        activities: data.activities.map(activity => ({
+        reviewer: data.approvals?.find(a => a.approval_level === "REVIEW")?.user?.id || "",
+        authorizer: data.approvals?.find(a => a.approval_level === "AUTHORIZE")?.user?.id || "",
+        approver: data.approvals?.find(a => a.approval_level === "APPROVE")?.user?.id || "",
+        activities: (data.activities || []).map(activity => ({
           date: activity.date,
           activity: activity.activity,
           departure_datetime: convertToDateFormat(activity.departure_datetime),
@@ -275,12 +346,12 @@ export default function SimpleTravelExpenseReportPage() {
       const formData = new FormData();
 
       // Add main fields (excluding activities and document)
-      formData.append('user', data.user);
-      formData.append('staff_id', data.staff_id);
-      formData.append('travel_purpose', data.travel_purpose);
-      formData.append('reviewer', data.reviewer);
-      formData.append('authorizer', data.authorizer);
-      formData.append('approver', data.approver);
+      formData.append('user', data.user || "");
+      formData.append('staff_id', data.staff_id || "");
+      formData.append('travel_purpose', data.travel_purpose || "");
+      formData.append('reviewer', data.reviewer || "");
+      formData.append('authorizer', data.authorizer || "");
+      formData.append('approver', data.approver || "");
 
       // Add expense_authorization only for create
       if (!id && data.expense_authorization) {
@@ -317,7 +388,7 @@ export default function SimpleTravelExpenseReportPage() {
 
       // Debug FormData contents
       console.log('📋 FORMDATA CONTENTS:');
-      const formDataObject = {};
+      const formDataObject: Record<string, any> = {};
       for (let [key, value] of formData.entries()) {
         console.log(`${key}:`, value);
         formDataObject[key] = value;
@@ -335,7 +406,7 @@ export default function SimpleTravelExpenseReportPage() {
       const activitiesValue = formData.get('activities');
       console.log('Activities value:', activitiesValue);
       console.log('Activities type:', typeof activitiesValue);
-      console.log('Activities length:', activitiesValue ? activitiesValue.length : 0);
+      console.log('Activities length:', activitiesValue && typeof activitiesValue === 'string' ? activitiesValue.length : 0);
 
       if (activitiesValue) {
         try {
@@ -379,10 +450,41 @@ export default function SimpleTravelExpenseReportPage() {
         message: error?.message,
         data: error?.data,
         response: error?.response,
+        responseData: error?.response?.data,
         status: error?.status || error?.response?.status,
         statusText: error?.statusText || error?.response?.statusText,
       });
-      toast.error(error?.data?.message || error?.message || "Something went wrong");
+
+      // Extract detailed error message from backend
+      let errorMessage = "Something went wrong";
+      if (error?.response?.data) {
+        const responseData = error.response.data;
+        console.error('🔍 BACKEND ERROR RESPONSE:', responseData);
+
+        // Backend might return errors in different formats
+        if (typeof responseData === 'string') {
+          errorMessage = responseData;
+        } else if (responseData.message) {
+          errorMessage = responseData.message;
+        } else if (responseData.error) {
+          errorMessage = responseData.error;
+        } else if (responseData.detail) {
+          errorMessage = responseData.detail;
+        } else {
+          // Try to extract first error from validation errors
+          const firstKey = Object.keys(responseData)[0];
+          if (firstKey && responseData[firstKey]) {
+            errorMessage = `${firstKey}: ${JSON.stringify(responseData[firstKey])}`;
+          }
+        }
+      } else if (error?.data?.message) {
+        errorMessage = error.data.message;
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+
+      console.error('📢 SHOWING ERROR TO USER:', errorMessage);
+      toast.error(errorMessage);
     }
   };
 
@@ -411,10 +513,11 @@ export default function SimpleTravelExpenseReportPage() {
                 )}
 
                 <FormSelect
-                  label="User"
+                  label="User (Logged-in User)"
                   name="user"
                   placeholder="Select User"
                   required
+                  disabled={!id} // Disabled in create mode (auto-populated)
                   options={userOptions}
                 />
 
@@ -430,7 +533,7 @@ export default function SimpleTravelExpenseReportPage() {
                 <FormInput
                   label="Purpose of Travel"
                   name="travel_purpose"
-                  placeholder="Enter Purpose"
+                  placeholder="Auto-populated from Expense Authorization"
                   required
                 />
 

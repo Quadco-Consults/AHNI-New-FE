@@ -4,7 +4,10 @@ import BackNavigation from "components/atoms/BackNavigation";
 import { Tabs, TabsList, TabsContent, TabsTrigger } from "components/ui/tabs";
 import { Card, CardContent, CardHeader } from "components/ui/card";
 import { Separator } from "components/ui/separator";
-import { useParams } from "next/navigation";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import {
   useGetSinglePaymentRequestQuery,
   useReviewPaymentRequest,
@@ -13,13 +16,29 @@ import {
   useRejectPaymentRequest,
 } from "@/features/admin/controllers/paymentRequestController";
 import { LoadingSpinner } from "components/Loading";
-import DescriptionCard from "components/DescriptionCard";
 import DocumentCard from "@/features/projects/components/projects/create/DocumentCard";
 import { useState } from "react";
 import { toast } from "sonner";
 import { FormProvider, useForm } from "react-hook-form";
 import FormTextArea from "components/atoms/FormTextArea";
 import FormButton from "@/components/FormButton";
+import {
+  CalendarIcon,
+  UserIcon,
+  CreditCardIcon,
+  FileTextIcon,
+  CheckCircleIcon,
+  XCircleIcon,
+  ClockIcon,
+  BanknoteIcon,
+  BuildingIcon,
+  MailIcon,
+  PhoneIcon,
+  MapPinIcon,
+  FileDownIcon
+} from "lucide-react";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 export default function PaymentRequestDetails() {
   const { id } = useParams() as { id: string };
@@ -49,6 +68,27 @@ export default function PaymentRequestDetails() {
     if (!data?.data) return false;
     const status = data.data.status;
     return status === "APPROVED" || status === "REJECTED";
+  };
+
+  // Get status badge color
+  const getStatusBadge = (status: string) => {
+    const statusConfig: Record<string, { color: string; icon: any }> = {
+      PENDING: { color: "bg-yellow-100 text-yellow-800 border-yellow-200", icon: ClockIcon },
+      REVIEWED: { color: "bg-blue-100 text-blue-800 border-blue-200", icon: CheckCircleIcon },
+      AUTHORIZED: { color: "bg-purple-100 text-purple-800 border-purple-200", icon: CheckCircleIcon },
+      APPROVED: { color: "bg-green-100 text-green-800 border-green-200", icon: CheckCircleIcon },
+      REJECTED: { color: "bg-red-100 text-red-800 border-red-200", icon: XCircleIcon },
+    };
+
+    const config = statusConfig[status] || { color: "bg-gray-100 text-gray-800 border-gray-200", icon: ClockIcon };
+    const Icon = config.icon;
+
+    return (
+      <Badge variant="outline" className={cn("font-medium", config.color)}>
+        <Icon className="w-3 h-3 mr-1" />
+        {status}
+      </Badge>
+    );
   };
 
   // Determine what action button to show based on current status
@@ -116,255 +156,415 @@ export default function PaymentRequestDetails() {
     }
   };
 
+  // Format currency
+  const formatCurrency = (amount: string | number) => {
+    const num = typeof amount === 'string' ? parseFloat(amount) : amount;
+    return new Intl.NumberFormat('en-NG', {
+      style: 'currency',
+      currency: 'NGN',
+    }).format(num);
+  };
+
   return (
-    <div>
+    <div className="space-y-6">
       <Tabs defaultValue='details'>
         <TabsList>
           <BackNavigation />
           <TabsTrigger value='details'>Details</TabsTrigger>
           <TabsTrigger value='uploads'>File Uploads</TabsTrigger>
         </TabsList>
-        <TabsContent value='details'>
-          <Card>
-            <CardHeader className='font-bold'>
-              Payment Request Details
-              <Separator className='mt-4' />
-            </CardHeader>
-            <CardContent>
-              {isLoading ? (
+
+        <TabsContent value='details' className="space-y-6">
+          {isLoading ? (
+            <Card>
+              <CardContent className="py-20">
                 <LoadingSpinner />
-              ) : (
-                data && (
-                  <>
-                    <div className='grid grid-cols-3 gap-5'>
-                      <DescriptionCard
-                        label='Payment Date'
-                        description={data.data.payment_date}
-                      />
+              </CardContent>
+            </Card>
+          ) : (
+            data && (
+              <>
+                {/* Header Card with Summary */}
+                <Card className="border-l-4 border-l-blue-500">
+                  <CardHeader>
+                    <div className="flex items-start justify-between">
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-3">
+                          <h1 className="text-2xl font-bold text-gray-900">
+                            Payment Request
+                          </h1>
+                          {getStatusBadge(data.data.status)}
+                        </div>
+                        <p className="text-sm text-gray-600">
+                          Request ID: <span className="font-mono font-medium">{data.data.id}</span>
+                        </p>
+                      </div>
+                      <div className="text-right space-y-3">
+                        <div>
+                          <p className="text-3xl font-bold text-gray-900">
+                            {formatCurrency(data.data.total_amount)}
+                          </p>
+                          <p className="text-sm text-gray-600 mt-1">Total Amount</p>
+                        </div>
+                        {/* Generate Payment Advice Button - Only show when APPROVED */}
+                        {data.data.status === "APPROVED" && (
+                          <Link href={`/dashboard/admin/payment-request/${id}/payment-advice`}>
+                            <Button className="bg-green-600 hover:bg-green-700 w-full">
+                              <FileDownIcon className="w-4 h-4 mr-2" />
+                              Generate Payment Advice
+                            </Button>
+                          </Link>
+                        )}
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <Separator />
+                  <CardContent className="pt-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                      <div className="flex items-start gap-3">
+                        <div className="p-2 bg-blue-100 rounded-lg">
+                          <CalendarIcon className="w-5 h-5 text-blue-600" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-600">Payment Date</p>
+                          <p className="font-medium text-gray-900">
+                            {format(new Date(data.data.payment_date), "dd MMM yyyy")}
+                          </p>
+                        </div>
+                      </div>
 
-                      {data.data.payment_type === "PURCHASE_ORDER" && (
-                        <DescriptionCard
-                          label='Purchase Order Number'
-                          description={
-                            data.data.purchase_order?.purchase_order_number ||
-                            "N/A"
-                          }
-                        />
-                      )}
+                      <div className="flex items-start gap-3">
+                        <div className="p-2 bg-purple-100 rounded-lg">
+                          <FileTextIcon className="w-5 h-5 text-purple-600" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-600">Payment Type</p>
+                          <p className="font-medium text-gray-900">
+                            {data.data.payment_type_display}
+                          </p>
+                        </div>
+                      </div>
 
-                      <DescriptionCard
-                        label='Payment Type'
-                        description={data.data.payment_type_display}
-                      />
+                      <div className="flex items-start gap-3">
+                        <div className="p-2 bg-green-100 rounded-lg">
+                          <UserIcon className="w-5 h-5 text-green-600" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-600">Requested By</p>
+                          <p className="font-medium text-gray-900">
+                            {data.data.requested_by?.full_name || "N/A"}
+                          </p>
+                        </div>
+                      </div>
 
-                      <DescriptionCard
-                        label='Total Amount'
-                        description={data.data.total_amount}
-                      />
-
-                      <DescriptionCard
-                        label='Status'
-                        description={data.data.status}
-                      />
-
-                      <DescriptionCard
-                        label='Is Bulk Payment'
-                        description={data.data.is_bulk_payment ? "Yes" : "No"}
-                      />
-
-                      <DescriptionCard
-                        label='Payment Items Count'
-                        description={data.data.payment_items_count?.toString()}
-                      />
-
-                      <DescriptionCard
-                        label='Requested By'
-                        description={data.data.requested_by?.full_name || "N/A"}
-                      />
-
-                      <DescriptionCard
-                        label='Payment Reason'
-                        description={data.data.payment_reason}
-                      />
+                      <div className="flex items-start gap-3">
+                        <div className="p-2 bg-orange-100 rounded-lg">
+                          <CreditCardIcon className="w-5 h-5 text-orange-600" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-600">Payment Items</p>
+                          <p className="font-medium text-gray-900">
+                            {data.data.payment_items_count} {data.data.is_bulk_payment ? "(Bulk)" : "Item(s)"}
+                          </p>
+                        </div>
+                      </div>
                     </div>
 
-                    {/* Payment Items Section */}
-                    <div className='mt-8'>
-                      <h3 className='text-lg font-semibold mb-4'>
-                        Payment Items
-                      </h3>
-                      {data.data.payment_items?.map(
-                        (item: any, index: number) => (
-                          <Card key={item.id} className='mb-4'>
-                            <CardHeader className='font-medium'>
-                              Payment Item {index + 1}
-                            </CardHeader>
-                            <CardContent>
-                              <div className='grid grid-cols-3 gap-5'>
-                                <DescriptionCard
-                                  label='Payment To'
-                                  description={item.payment_to}
-                                />
-                                <DescriptionCard
-                                  label='Amount In Figures'
-                                  description={item.amount_in_figures}
-                                />
-                                <DescriptionCard
-                                  label='Amount In Words'
-                                  description={item.amount_in_words}
-                                />
-                                <DescriptionCard
-                                  label='Account Number'
-                                  description={item.account_number}
-                                />
-                                <DescriptionCard
-                                  label='Bank Name'
-                                  description={item.bank_name}
-                                />
-                                <DescriptionCard
-                                  label='Tax ID Number'
-                                  description={
-                                    item.tax_identification_number || "N/A"
-                                  }
-                                />
-                                <DescriptionCard
-                                  label='Phone Number'
-                                  description={item.phone_number || "N/A"}
-                                />
-                                <DescriptionCard
-                                  label='Email'
-                                  description={item.email || "N/A"}
-                                />
-                                <DescriptionCard
-                                  label='Address'
-                                  description={item.address || "N/A"}
-                                />
-                              </div>
-                            </CardContent>
-                          </Card>
-                        )
-                      )}
-                    </div>
-
-                    {/* Approval Section - Only show if action is available */}
-                    {getApprovalAction() && (
-                      <div className='mt-8 p-4 border rounded-lg bg-gray-50'>
-                        <h3 className='text-lg font-semibold mb-4'>
-                          Approval Action
-                        </h3>
-                        <FormProvider {...form}>
-                          <div className='space-y-3'>
-                            <FormTextArea
-                              label='Comment'
-                              name='comment'
-                              placeholder={`Enter comment for action`}
-                              required
-                              disabled={isInFinalState()}
-                            />
-
-                            <div className='flex gap-3'>
-                              <FormButton
-                                size='lg'
-                                className={
-                                  isInFinalState()
-                                    ? 'bg-gray-400 hover:bg-gray-400 cursor-not-allowed'
-                                    : 'bg-green-500 hover:bg-green-600'
-                                }
-                                loading={getApprovalAction()?.loading || false}
-                                type='button'
-                                disabled={isInFinalState()}
-                                onClick={form.handleSubmit(handleApproval)}
-                              >
-                                {getApprovalAction()?.label}
-                              </FormButton>
-
-                              <FormButton
-                                size='lg'
-                                className={
-                                  isInFinalState()
-                                    ? 'bg-gray-400 hover:bg-gray-400 cursor-not-allowed'
-                                    : 'bg-red-500 hover:bg-red-600'
-                                }
-                                loading={isRejecting}
-                                type='button'
-                                disabled={isInFinalState()}
-                                onClick={form.handleSubmit(handleRejection)}
-                              >
-                                Reject
-                              </FormButton>
-                            </div>
-
-                            {isInFinalState() && (
-                              <p className='text-sm text-gray-600 mt-2'>
-                                This payment request has been {data?.data.status?.toLowerCase()}. No further actions are allowed.
-                              </p>
-                            )}
-                          </div>
-                        </FormProvider>
+                    {data.data.payment_type === "PURCHASE_ORDER" && data.data.purchase_order && (
+                      <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                        <p className="text-sm font-medium text-gray-700 mb-1">Purchase Order</p>
+                        <p className="text-lg font-semibold text-gray-900">
+                          {data.data.purchase_order.purchase_order_number}
+                        </p>
                       </div>
                     )}
 
-                    {/* Show current approval history */}
-                    {data.data.approvals?.length > 0 && (
-                      <div className='mt-8'>
-                        <h3 className='text-lg font-semibold mb-4'>
-                          Approval History
-                        </h3>
-                        {data.data.approvals.map((approval: any) => (
-                          <Card key={approval.id} className='mb-3'>
-                            <CardContent className='pt-4'>
-                              <div className='grid grid-cols-3 gap-4'>
-                                <DescriptionCard
-                                  label='Level'
-                                  description={approval.approval_level}
-                                />
-                                <DescriptionCard
-                                  label='Approved By'
-                                  description={
-                                    approval.user?.full_name || "N/A"
-                                  }
-                                />
-                                <DescriptionCard
-                                  label='Date'
-                                  description={new Date(
-                                    approval.created_datetime
-                                  ).toLocaleDateString()}
-                                />
+                    {data.data.payment_reason && (
+                      <div className="mt-6">
+                        <p className="text-sm font-medium text-gray-700 mb-2">Payment Reason</p>
+                        <p className="text-gray-900 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                          {data.data.payment_reason}
+                        </p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* Payment Items Section */}
+                <Card>
+                  <CardHeader>
+                    <h3 className="text-xl font-semibold text-gray-900">
+                      Payment Items Details
+                    </h3>
+                  </CardHeader>
+                  <Separator />
+                  <CardContent className="pt-6 space-y-6">
+                    {data.data.payment_items?.map((item: any, index: number) => (
+                      <Card key={item.id} className="border-l-4 border-l-gray-300">
+                        <CardHeader className="bg-gray-50">
+                          <div className="flex items-center justify-between">
+                            <h4 className="font-semibold text-gray-900">
+                              Payment Item {index + 1}
+                            </h4>
+                            <Badge variant="outline" className="bg-white">
+                              {formatCurrency(item.amount_in_figures)}
+                            </Badge>
+                          </div>
+                        </CardHeader>
+                        <CardContent className="pt-6">
+                          {/* Recipient Info */}
+                          <div className="mb-6">
+                            <h5 className="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wide">
+                              Recipient Information
+                            </h5>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div className="flex items-start gap-3">
+                                <UserIcon className="w-5 h-5 text-gray-400 mt-0.5" />
+                                <div>
+                                  <p className="text-xs text-gray-600">Payment To</p>
+                                  <p className="font-medium text-gray-900">{item.payment_to}</p>
+                                </div>
+                              </div>
+                              {item.email && (
+                                <div className="flex items-start gap-3">
+                                  <MailIcon className="w-5 h-5 text-gray-400 mt-0.5" />
+                                  <div>
+                                    <p className="text-xs text-gray-600">Email</p>
+                                    <p className="font-medium text-gray-900">{item.email}</p>
+                                  </div>
+                                </div>
+                              )}
+                              {item.phone_number && (
+                                <div className="flex items-start gap-3">
+                                  <PhoneIcon className="w-5 h-5 text-gray-400 mt-0.5" />
+                                  <div>
+                                    <p className="text-xs text-gray-600">Phone</p>
+                                    <p className="font-medium text-gray-900">{item.phone_number}</p>
+                                  </div>
+                                </div>
+                              )}
+                              {item.address && (
+                                <div className="flex items-start gap-3">
+                                  <MapPinIcon className="w-5 h-5 text-gray-400 mt-0.5" />
+                                  <div>
+                                    <p className="text-xs text-gray-600">Address</p>
+                                    <p className="font-medium text-gray-900">{item.address}</p>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Banking Info */}
+                          <div className="mb-6">
+                            <h5 className="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wide">
+                              Banking Information
+                            </h5>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                              <div className="flex items-start gap-3">
+                                <BuildingIcon className="w-5 h-5 text-gray-400 mt-0.5" />
+                                <div>
+                                  <p className="text-xs text-gray-600">Bank Name</p>
+                                  <p className="font-medium text-gray-900">{item.bank_name}</p>
+                                </div>
+                              </div>
+                              <div className="flex items-start gap-3">
+                                <CreditCardIcon className="w-5 h-5 text-gray-400 mt-0.5" />
+                                <div>
+                                  <p className="text-xs text-gray-600">Account Number</p>
+                                  <p className="font-medium text-gray-900 font-mono">{item.account_number}</p>
+                                </div>
+                              </div>
+                              {item.tax_identification_number && (
+                                <div className="flex items-start gap-3">
+                                  <FileTextIcon className="w-5 h-5 text-gray-400 mt-0.5" />
+                                  <div>
+                                    <p className="text-xs text-gray-600">Tax ID</p>
+                                    <p className="font-medium text-gray-900">{item.tax_identification_number}</p>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Amount Info */}
+                          <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                            <div className="flex items-start gap-3 mb-3">
+                              <BanknoteIcon className="w-5 h-5 text-gray-400 mt-0.5" />
+                              <div className="flex-1">
+                                <p className="text-xs text-gray-600">Amount in Figures</p>
+                                <p className="text-xl font-bold text-gray-900">
+                                  {formatCurrency(item.amount_in_figures)}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="pt-3 border-t border-gray-200">
+                              <p className="text-xs text-gray-600 mb-1">Amount in Words</p>
+                              <p className="font-medium text-gray-900 italic">{item.amount_in_words}</p>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </CardContent>
+                </Card>
+
+                {/* Approval History */}
+                {data.data.approvals?.length > 0 && (
+                  <Card>
+                    <CardHeader>
+                      <h3 className="text-xl font-semibold text-gray-900">
+                        Approval History
+                      </h3>
+                      <p className="text-sm text-gray-600 mt-1">
+                        Track the approval workflow for this payment request
+                      </p>
+                    </CardHeader>
+                    <Separator />
+                    <CardContent className="pt-6 space-y-4">
+                      {data.data.approvals.map((approval: any, index: number) => (
+                        <div key={approval.id} className="flex gap-4">
+                          {/* Timeline indicator */}
+                          <div className="flex flex-col items-center">
+                            <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                              <CheckCircleIcon className="w-5 h-5 text-blue-600" />
+                            </div>
+                            {index < data.data.approvals.length - 1 && (
+                              <div className="w-0.5 h-full bg-gray-200 my-2" />
+                            )}
+                          </div>
+
+                          {/* Content */}
+                          <Card className="flex-1 border-l-4 border-l-blue-500">
+                            <CardContent className="pt-4">
+                              <div className="flex items-start justify-between mb-3">
+                                <div>
+                                  <Badge variant="outline" className="mb-2">
+                                    {approval.approval_level}
+                                  </Badge>
+                                  <p className="font-semibold text-gray-900">
+                                    {approval.user?.full_name || "N/A"}
+                                  </p>
+                                  <p className="text-sm text-gray-600">
+                                    {approval.user?.email || ""}
+                                  </p>
+                                </div>
+                                <div className="text-right">
+                                  <p className="text-sm text-gray-600">
+                                    {format(new Date(approval.created_datetime), "dd MMM yyyy")}
+                                  </p>
+                                  <p className="text-xs text-gray-500">
+                                    {format(new Date(approval.created_datetime), "HH:mm")}
+                                  </p>
+                                </div>
                               </div>
                               {approval.comments && (
-                                <div className='mt-3'>
-                                  <DescriptionCard
-                                    label='Comments'
-                                    description={approval.comments}
-                                  />
+                                <div className="mt-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                  <p className="text-sm text-gray-700 italic">
+                                    "{approval.comments}"
+                                  </p>
                                 </div>
                               )}
                             </CardContent>
                           </Card>
-                        ))}
-                      </div>
-                    )}
-                  </>
-                )
-              )}
-            </CardContent>
-          </Card>
+                        </div>
+                      ))}
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Approval Action Section */}
+                {getApprovalAction() && (
+                  <Card className="border-l-4 border-l-amber-500">
+                    <CardHeader className="bg-amber-50">
+                      <h3 className="text-xl font-semibold text-gray-900">
+                        Approval Action Required
+                      </h3>
+                      <p className="text-sm text-gray-600 mt-1">
+                        This payment request requires your {getApprovalAction()?.label.toLowerCase()}
+                      </p>
+                    </CardHeader>
+                    <Separator />
+                    <CardContent className="pt-6">
+                      <FormProvider {...form}>
+                        <div className='space-y-4'>
+                          <FormTextArea
+                            label='Comment'
+                            name='comment'
+                            placeholder={`Enter your comment for ${getApprovalAction()?.label.toLowerCase()}`}
+                            required
+                            disabled={isInFinalState()}
+                            rows={4}
+                          />
+
+                          <div className='flex gap-3'>
+                            <FormButton
+                              size='lg'
+                              className={
+                                isInFinalState()
+                                  ? 'bg-gray-400 hover:bg-gray-400 cursor-not-allowed'
+                                  : 'bg-green-600 hover:bg-green-700'
+                              }
+                              loading={getApprovalAction()?.loading || false}
+                              type='button'
+                              disabled={isInFinalState()}
+                              onClick={form.handleSubmit(handleApproval)}
+                            >
+                              <CheckCircleIcon className="w-4 h-4 mr-2" />
+                              {getApprovalAction()?.label}
+                            </FormButton>
+
+                            <FormButton
+                              size='lg'
+                              className={
+                                isInFinalState()
+                                  ? 'bg-gray-400 hover:bg-gray-400 cursor-not-allowed'
+                                  : 'bg-red-600 hover:bg-red-700'
+                              }
+                              loading={isRejecting}
+                              type='button'
+                              disabled={isInFinalState()}
+                              onClick={form.handleSubmit(handleRejection)}
+                            >
+                              <XCircleIcon className="w-4 h-4 mr-2" />
+                              Reject
+                            </FormButton>
+                          </div>
+
+                          {isInFinalState() && (
+                            <div className="p-4 bg-gray-100 rounded-lg">
+                              <p className='text-sm text-gray-700'>
+                                This payment request has been <span className="font-semibold">{data?.data.status?.toLowerCase()}</span>. No further actions are allowed.
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      </FormProvider>
+                    </CardContent>
+                  </Card>
+                )}
+              </>
+            )
+          )}
         </TabsContent>
+
         <TabsContent value='uploads'>
           <Card>
-            <CardHeader className='font-bold'>
-              File Uploads
-              <Separator className='mt-4' />
+            <CardHeader>
+              <h3 className="text-xl font-semibold text-gray-900">
+                Attached Documents
+              </h3>
             </CardHeader>
-            <CardContent>
+            <Separator />
+            <CardContent className="pt-6">
               {isLoading ? (
                 <LoadingSpinner />
               ) : (
                 data && (
-                  <div className='grid grid-cols-3'>
+                  <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
                     <DocumentCard
                       id={data?.data.id}
-                      title='Payment Request Upload'
+                      title='Payment Request Document'
                       file={data?.data.document}
                       onLoadSuccess={onDocumentLoadSuccess}
                       pageNumber={pageNumber}

@@ -1,5 +1,6 @@
 import { TCategoryData } from "definations/modules/config/category";
 import { TItemData } from "definations/modules/config/item";
+import { TItemStoreStockData } from "./item-store-stock";
 import { z } from "zod";
 
 export const ConsumableSchema = z.object({
@@ -55,17 +56,26 @@ export interface TConsumableSingleData {
   category: TCategoryData;
   created_datetime: string;
   updated_datetime: string;
-  quantity: number;
-  stock_control_method: string;
-  expiry_date: string;
-  previous_quantity: number;
-  re_order_level: number;
-  buffer_stock: number;
-  max_stock: number;
-  entry_date: string;
-  available_quantity: number;
-  item_cost: string;
-  grn_tracking_number: string;
+
+  // Legacy fields (for backward compatibility - will be deprecated in Phase 2)
+  quantity?: number; // Global quantity (sum of all stores)
+  stock_control_method?: string;
+  expiry_date?: string;
+  previous_quantity?: number;
+  re_order_level?: number;
+  buffer_stock?: number;
+  max_stock?: number;
+  entry_date?: string;
+  available_quantity?: number; // Global available (sum of all stores)
+  item_cost?: string;
+  grn_tracking_number?: string;
+
+  // Phase 2: Store-based inventory tracking
+  store_stocks?: TItemStoreStockData[]; // Per-store stock levels
+  total_quantity?: number; // Sum of all store quantities
+  total_available?: number; // Sum of all store available quantities
+  stores_count?: number; // Number of stores with this item
+
   created_by: string;
-  updated_by: null;
+  updated_by: null | string;
 }

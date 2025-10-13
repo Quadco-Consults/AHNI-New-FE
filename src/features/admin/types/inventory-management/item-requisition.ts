@@ -2,6 +2,7 @@ import { z } from "zod";
 import { TConsumableSingleData } from "./consumable";
 import { TDepartmentData } from "definations/modules/config/department";
 import { IUser } from "features/auth/types/user";
+import { TStoreSingleData } from "./store";
 
 export const ItemRequisitionSchema = z.object({
     consummables: z.array(
@@ -11,6 +12,7 @@ export const ItemRequisitionSchema = z.object({
         })
     ),
     department: z.string().min(1, "Please select a department"),
+    store: z.string().min(1, "Please select a store"), // Phase 5: Store selection
 });
 
 
@@ -60,6 +62,10 @@ export interface TItemRequisitionPaginatedData {
         updated_datetime: string;
         description: string;
     } | null;
+    // Phase 5: Store integration
+    store?: string; // Store ID
+    store_name?: string; // Store name for display
+    store_code?: string; // Store code for display
 }
 
 export interface TItemRequisitionSingleData {
@@ -87,4 +93,7 @@ export interface TItemRequisitionSingleData {
     rejected_datetime: string;
     updated_by: string;
     department: TDepartmentData;
+    // Phase 5: Store integration
+    store?: string; // Store ID
+    store_detail?: TStoreSingleData; // Full store object (when expanded)
 }

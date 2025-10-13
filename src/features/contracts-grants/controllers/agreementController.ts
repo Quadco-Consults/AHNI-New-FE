@@ -129,14 +129,18 @@ export const useUpdateAgreement = (id: string) => {
     endpoint: `${BASE_URL}${id}/`,
     queryKey: ["agreements", "agreement"],
     isAuth: true,
-    method: "PUT",
+    method: "PATCH", // Changed from PUT to PATCH for partial updates
   });
 
   const updateAgreement = async (details: TAgreementFormData) => {
     try {
+      console.log('📝 Updating Agreement:', id);
+      console.log('📤 Update Payload:', details);
       await callApi(details);
+      console.log('✅ Update successful');
     } catch (error) {
-      console.error("Agreement update error:", error);
+      console.error("❌ Agreement update error:", error);
+      throw error; // Re-throw to handle in the calling component
     }
   };
 
@@ -176,3 +180,179 @@ export const useDeleteAgreementMutation = useDeleteAgreement;
 
 // Missing named export
 export const useModifyAgreement = useUpdateAgreement;
+
+// Upload Contract Document
+// Note: Using existing backend endpoint - may need to match actual backend URL pattern
+export const useUploadContractDocument = (agreementId: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    any,
+    Error,
+    FormData
+  >(({
+    endpoint: `${BASE_URL}${agreementId}/documents/`,  // Changed from /upload-document/ to /documents/
+    queryKey: ["agreements", "agreement", "agreement-documents"],
+    isAuth: true,
+    method: "POST",
+  }));
+
+  const uploadDocument = async (formData: FormData) => {
+    try {
+      console.log('📤 Uploading document to:', `${BASE_URL}${agreementId}/documents/`);
+      await callApi(formData);
+      console.log('✅ Upload response data:', data);
+    } catch (error) {
+      console.error("❌ Document upload error:", error);
+      throw error; // Re-throw to trigger error handling
+    }
+  };
+
+  return { uploadDocument, data, isLoading, isSuccess, error };
+};
+
+// Submit Agreement for Approval
+export const useSubmitAgreement = (agreementId: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    any,
+    Error,
+    Record<string, never>
+  >(({
+    endpoint: `${BASE_URL}${agreementId}/submit/`,
+    queryKey: ["agreements", "agreement"],
+    isAuth: true,
+    method: "POST",
+  }));
+
+  const submitAgreement = async () => {
+    try {
+      await callApi({} as Record<string, never>);
+    } catch (error) {
+      console.error("Agreement submit error:", error);
+    }
+  };
+
+  return { submitAgreement, data, isLoading, isSuccess, error };
+};
+
+// Create Contract Modification (Extension)
+// Note: Backend uses /extend/ endpoint for extensions and direct amendment creation for other types
+export const useCreateContractModification = (agreementId: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    any,
+    Error,
+    any
+  >(({
+    endpoint: `${BASE_URL}${agreementId}/extend/`, // Using existing extend endpoint
+    queryKey: ["agreements", "agreement"],
+    isAuth: true,
+    method: "POST",
+  }));
+
+  const createModification = async (modificationData: any) => {
+    try {
+      await callApi(modificationData);
+    } catch (error) {
+      console.error("Contract modification error:", error);
+    }
+  };
+
+  return { createModification, data, isLoading, isSuccess, error };
+};
+
+// Get Agreement Documents
+export const useGetAgreementDocuments = (agreementId: string, enabled: boolean = true) => {
+  return useQuery<ApiResponse<any[]>>({
+    queryKey: ["agreement-documents", agreementId],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get(`${BASE_URL}${agreementId}/documents/`);
+        console.log('🔍 GET Documents API Response:', response.data);
+        console.log('🔍 Response structure:', {
+          hasStatus: 'status' in response.data,
+          hasMessage: 'message' in response.data,
+          hasData: 'data' in response.data,
+          dataType: Array.isArray(response.data?.data) ? 'array' : typeof response.data?.data,
+          dataLength: Array.isArray(response.data?.data) ? response.data.data.length : 'N/A'
+        });
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        console.error('❌ GET Documents Error:', axiosError.response?.data);
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    enabled: enabled && !!agreementId,
+    refetchOnWindowFocus: false,
+  });
+};
+
+// Delete Contract Document
+export const useDeleteContractDocument = (agreementId: string, documentId: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    any,
+    Error,
+    Record<string, never>
+  >(({
+    endpoint: `${BASE_URL}${agreementId}/documents/${documentId}/`,
+    queryKey: ["agreements", "agreement", "agreement-documents"],
+    isAuth: true,
+    method: "DELETE",
+  }));
+
+  const deleteDocument = async () => {
+    try {
+      await callApi({} as Record<string, never>);
+    } catch (error) {
+      console.error("Document delete error:", error);
+    }
+  };
+
+  return { deleteDocument, data, isLoading, isSuccess, error };
+};
+
+// Approve Agreement
+export const useApproveAgreement = (agreementId: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    any,
+    Error,
+    Record<string, never>
+  >(({
+    endpoint: `${BASE_URL}${agreementId}/approve_agreement/`,
+    queryKey: ["agreements", "agreement"],
+    isAuth: true,
+    method: "POST",
+  }));
+
+  const approveAgreement = async () => {
+    try {
+      await callApi({} as Record<string, never>);
+    } catch (error) {
+      console.error("Agreement approval error:", error);
+    }
+  };
+
+  return { approveAgreement, data, isLoading, isSuccess, error };
+};
+
+// Reject Agreement
+export const useRejectAgreement = (agreementId: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    any,
+    Error,
+    { reason: string }
+  >(({
+    endpoint: `${BASE_URL}${agreementId}/reject/`,
+    queryKey: ["agreements", "agreement"],
+    isAuth: true,
+    method: "POST",
+  }));
+
+  const rejectAgreement = async (reason: string) => {
+    try {
+      await callApi({ reason });
+    } catch (error) {
+      console.error("Agreement rejection error:", error);
+    }
+  };
+
+  return { rejectAgreement, data, isLoading, isSuccess, error };
+};

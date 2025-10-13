@@ -83,6 +83,26 @@ export const itemRequisitionColumns: ColumnDef<TItemRequisitionPaginatedData>[] 
       accessorKey: "department.name",
     },
     {
+      header: "Store",
+      id: "store",
+      cell: ({ row }) => {
+        const storeName = row.original.store_name;
+        const storeCode = row.original.store_code;
+
+        if (!storeName) return <span className="text-gray-400">Not specified</span>;
+
+        return (
+          <div className="flex flex-col">
+            <span className="font-medium text-gray-900">{storeName}</span>
+            {storeCode && (
+              <span className="text-xs text-gray-500">{storeCode}</span>
+            )}
+          </div>
+        );
+      },
+      size: 200,
+    },
+    {
       header: "Status",
       accessorKey: "status",
       cell: ({ getValue }) => {
