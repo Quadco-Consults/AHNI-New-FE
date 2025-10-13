@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "components/FormButton";
 import FormInput from "components/FormInput";
+import FormSelect from "components/FormSelect";
 import FormTextArea from "components/FormTextArea";
 import { CardContent } from "components/ui/card";
 import { Form } from "components/ui/form";
@@ -10,6 +11,7 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { closeDialog, dailogSelector } from "store/ui";
 import { toast } from "sonner";
+import { useEffect } from "react";
 
 import {
   IModificationSingleData,
@@ -17,6 +19,10 @@ import {
   TModificationFormData,
 } from "features/contracts-grants/types/modification";
 import { useCreateModification } from "@/features/contracts-grants/controllers/grantController";
+import { useCreateSubGrantModification } from "@/features/contracts-grants/controllers/subGrantModificationController";
+import DateInput from "@/components/DateInput";
+import { useGetAllUsers } from "@/features/auth/controllers/userController";
+import { useMemo } from "react";
 
 const AddModification = () => {
   const { dialogProps } = useAppSelector(dailogSelector);
@@ -28,32 +34,127 @@ const AddModification = () => {
     resolver: zodResolver(ModificationSchema),
     defaultValues: {
       project: result?.title ?? "",
-      title: "",
-      amount: "",
-      description: "",
-      date: "",
+      subgrant: (dialogProps?.data as any)?.subGrantName ?? "",
+      modification_number: "",
+      modification_type: "",
+      reason: "",
+      amount_usd: "",
+      amount_ngn: "",
+      effective_date: "",
+      approval_date: "",
+      notes: "",
+      approved_by: "",
     },
   });
   const vn = form.getValues();
   console.log({ vn });
 
   const dispatch = useAppDispatch();
-  const { createModification, isLoading } = useCreateModification(String(dialogProps?.data?.id));
+
+  // Detect if this is a subgrant or regular grant
+  const subGrantId = dialogProps?.subGrantId as string;
+  const grantId = dialogProps?.grantId as string;
+  const isSubGrant = !!subGrantId;
+
+  // Use appropriate controller based on type
+  const { createModification: createGrantModification, isLoading: isGrantLoading } =
+    useCreateModification(grantId || "");
+  const { createModification: createSubGrantModification, isLoading: isSubGrantLoading } =
+    useCreateSubGrantModification(subGrantId || "");
+
+  // Fetch all users for the approved_by dropdown
+  const { data: usersData } = useGetAllUsers({
+    page: 1,
+    size: 1000, // Get all users
+    enabled: true,
+  });
+
+  // Create options for the approved_by dropdown
+  const userOptions = useMemo(() => {
+    if (!usersData?.data?.results) return [];
+
+    return usersData.data.results.map((user) => ({
+      value: user.id,
+      label: `${user.first_name} ${user.last_name} (${user.email})`,
+    }));
+  }, [usersData]);
+
+  // USD to NGN conversion rate (you can make this dynamic by fetching from an API)
+  const USD_TO_NGN_RATE = 1550; // Update this rate as needed
+
+  // Watch amount_usd and auto-convert to NGN
+  const amountUsd = form.watch("amount_usd");
+
+  useEffect(() => {
+    if (amountUsd && !isNaN(Number(amountUsd))) {
+      const usdValue = Number(amountUsd);
+      const ngnValue = (usdValue * USD_TO_NGN_RATE).toFixed(2);
+      form.setValue("amount_ngn", ngnValue);
+    }
+  }, [amountUsd, form]);
 
   const onSubmit: SubmitHandler<TModificationFormData> = async (data) => {
     console.log({ crakcen: data });
 
-    try {
-      // Send the modification data as expected by the API
-      await createModification({
-        title: data.title,
-        amount: data.amount,
-        description: data.description,
-        date: data.date,
-        project: String(dialogProps?.data?.id),
-      } as any);
+    if (!isSubGrant && !grantId) {
+      toast.error("Grant ID or SubGrant ID is required");
+      return;
+    }
 
-      toast.success("Grant Modified Successfully");
+    // Remove display-only fields (project and subgrant) from payload
+    const { project, subgrant, ...submitData } = data;
+
+    // Format dates to YYYY-MM-DD format
+    const formatDate = (dateValue: string) => {
+      if (!dateValue) return dateValue;
+
+      // If it's already a string in YYYY-MM-DD format, return it
+      if (typeof dateValue === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateValue)) {
+        return dateValue;
+      }
+
+      // If it's a Date object or other format, convert to YYYY-MM-DD
+      const date = new Date(dateValue);
+      if (!isNaN(date.getTime())) {
+        return date.toISOString().split('T')[0];
+      }
+
+      return dateValue;
+    };
+
+    const formattedEffectiveDate = formatDate(submitData.effective_date);
+    const formattedApprovalDate = formatDate(submitData.approval_date);
+
+    try {
+      if (isSubGrant) {
+        // For subgrants
+        await createSubGrantModification({
+          modification_number: submitData.modification_number,
+          modification_type: submitData.modification_type,
+          reason: submitData.reason,
+          amount_usd: submitData.amount_usd,
+          amount_ngn: submitData.amount_ngn,
+          effective_date: formattedEffectiveDate,
+          approval_date: formattedApprovalDate,
+          notes: submitData.notes,
+          approved_by: submitData.approved_by,
+        } as any);
+      } else {
+        // For regular grants
+        await createGrantModification({
+          modification_number: submitData.modification_number,
+          modification_type: submitData.modification_type,
+          reason: submitData.reason,
+          amount_usd: submitData.amount_usd,
+          amount_ngn: submitData.amount_ngn,
+          effective_date: formattedEffectiveDate,
+          approval_date: formattedApprovalDate,
+          notes: submitData.notes,
+          approved_by: submitData.approved_by,
+        } as any);
+      }
+
+      toast.success(isSubGrant ? "Sub-Grant Modified Successfully" : "Grant Modified Successfully");
       dispatch(closeDialog());
       form.reset();
     } catch (error: any) {
@@ -77,38 +178,89 @@ const AddModification = () => {
             disabled={true}
           />
 
-          <FormInput
-            name='title'
-            label='Modification Title'
-            required
-            placeholder='Enter modification title'
-          />
+          {isSubGrant && (
+            <FormInput
+              label='Sub Grant'
+              name='subgrant'
+              placeholder='Enter Sub Grant'
+              disabled={true}
+            />
+          )}
 
           <FormInput
-            name='amount'
-            label='Modification Amount'
+            name='modification_number'
+            label='Modification Number'
             required
-            placeholder='Enter modification amount'
+            placeholder='Enter modification number'
             type='number'
           />
 
-          <FormTextArea
-            label='Modification Description'
-            name='description'
+          <FormSelect
+            name='modification_type'
+            label='Modification Type'
             required
-            placeholder='Enter modification description'
+            placeholder='Select modification type'
+            options={[
+              { value: 'FUNDING_INCREASE', label: 'Funding Increase' },
+              { value: 'FUNDING_DECREASE', label: 'Funding Decrease' },
+              { value: 'TIME_EXTENSION', label: 'Time Extension' },
+              { value: 'SCOPE_CHANGE', label: 'Scope Change' },
+              { value: 'OTHER', label: 'Other' },
+            ]}
+          />
+
+          <FormTextArea
+            label='Reason'
+            name='reason'
+            required
+            placeholder='Enter reason for modification'
           />
 
           <FormInput
-            label='Modification Date'
-            name='date'
+            name='amount_usd'
+            label='Amount (USD)'
             required
-            placeholder='Select modification date'
-            type='date'
+            placeholder='Enter amount in USD'
+            type='number'
+          />
+
+          <FormInput
+            name='amount_ngn'
+            label='Amount (NGN)'
+            required
+            placeholder='Enter amount in NGN'
+            type='number'
+          />
+
+          <DateInput
+            label='Effective Date'
+            name='effective_date'
+            required
+          />
+
+          <DateInput
+            label='Approval Date'
+            name='approval_date'
+            required
+          />
+
+          <FormTextArea
+            label='Notes'
+            name='notes'
+            required
+            placeholder='Enter additional notes'
+          />
+
+          <FormSelect
+            name='approved_by'
+            label='Approved By'
+            required
+            placeholder='Select approver'
+            options={userOptions}
           />
 
           <div className='flex justify-start gap-4'>
-            <FormButton loading={isLoading} disabled={isLoading}>
+            <FormButton loading={isGrantLoading || isSubGrantLoading} disabled={isGrantLoading || isSubGrantLoading}>
               Save
             </FormButton>
           </div>

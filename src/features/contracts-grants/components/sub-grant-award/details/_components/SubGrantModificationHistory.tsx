@@ -14,27 +14,47 @@ import { toast } from "sonner";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import { useAppDispatch } from "hooks/useStore";
-import { useGetAllSubGrantModifications } from "@/features/contracts-grants/controllers/subGrantModificationController";
+import { useGetAllSubGrantModifications, useDeleteSubGrantModification } from "@/features/contracts-grants/controllers/subGrantModificationController";
 import { ISubGrantSingleData } from "@/features/contracts-grants/types/contract-management/sub-grant/sub-grant";
+import { useParams } from "next/navigation";
 
 interface ModificationData {
   id: string;
-  title: string;
-  amount: string;
-  description: string;
-  date: string;
   created_datetime: string;
+  updated_datetime: string;
+  modification_number: string;
+  modification_type: string;
+  reason: string;
+  amount_usd: string;
+  amount_ngn: string;
+  effective_date: string;
+  approval_date: string;
+  notes: string;
+  created_by: string;
+  updated_by: string;
+  sub_grant: string;
+  approved_by: string;
 }
 
 const modificationColumns: ColumnDef<ModificationData>[] = [
   {
-    header: "Title",
-    accessorKey: "title",
-    size: 200,
+    header: "Modification No",
+    accessorKey: "modification_number",
+    size: 150,
   },
   {
-    header: "Amount",
-    accessorKey: "amount",
+    header: "Type",
+    accessorKey: "modification_type",
+    cell: ({ getValue }) => {
+      const value = getValue() as string;
+      // Format the type to be more readable
+      return value?.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) || "N/A";
+    },
+    size: 180,
+  },
+  {
+    header: "Amount (USD)",
+    accessorKey: "amount_usd",
     cell: ({ getValue }) => {
       const value = getValue() as string;
       return formatNumberCurrency(value || "0", "USD");
@@ -42,16 +62,34 @@ const modificationColumns: ColumnDef<ModificationData>[] = [
     size: 150,
   },
   {
-    header: "Description",
-    accessorKey: "description",
-    size: 300,
-  },
-  {
-    header: "Date",
-    accessorKey: "date",
+    header: "Amount (NGN)",
+    accessorKey: "amount_ngn",
     cell: ({ getValue }) => {
       const value = getValue() as string;
-      return new Date(value).toLocaleDateString("en-US");
+      return formatNumberCurrency(value || "0", "NGN");
+    },
+    size: 150,
+  },
+  {
+    header: "Reason",
+    accessorKey: "reason",
+    size: 250,
+  },
+  {
+    header: "Effective Date",
+    accessorKey: "effective_date",
+    cell: ({ getValue }) => {
+      const value = getValue() as string;
+      return value ? new Date(value).toLocaleDateString("en-US") : "N/A";
+    },
+    size: 120,
+  },
+  {
+    header: "Approval Date",
+    accessorKey: "approval_date",
+    cell: ({ getValue }) => {
+      const value = getValue() as string;
+      return value ? new Date(value).toLocaleDateString("en-US") : "N/A";
     },
     size: 120,
   },
@@ -74,9 +112,18 @@ const modificationColumns: ColumnDef<ModificationData>[] = [
 
 // TableMenu Component for Modification Actions
 const ModificationTableMenu = (data: ModificationData) => {
-  const { id } = data;
+  const { id, sub_grant } = data;
   const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const dispatch = useAppDispatch();
+
+  // Get subGrantId from the data
+  const subGrantId = sub_grant;
+
+  // Use the delete hook
+  const { deleteModification, isLoading } = useDeleteSubGrantModification(
+    subGrantId || "",
+    id || ""
+  );
 
   const handleEdit = () => {
     dispatch(
@@ -92,7 +139,7 @@ const ModificationTableMenu = (data: ModificationData) => {
 
   const handleDelete = async () => {
     try {
-      // TODO: Implement actual delete API call
+      await deleteModification();
       toast.success("Modification deleted successfully");
       setDeleteDialogOpen(false);
     } catch (error: any) {
@@ -139,7 +186,7 @@ const ModificationTableMenu = (data: ModificationData) => {
       <ConfirmationDialog
         open={isDeleteDialogOpen}
         title='Are you sure you want to delete this modification?'
-        loading={false}
+        loading={isLoading}
         onCancel={() => setDeleteDialogOpen(false)}
         onOk={handleDelete}
       />
@@ -186,8 +233,8 @@ const SubGrantModificationHistory: React.FC<SubGrantModificationHistoryProps> = 
           data={data?.data?.results || []}
           isLoading={isFetching}
           pagination={{
-            total: data?.data?.paginator?.count ?? 0,
-            pageSize: data?.data?.paginator?.page_size ?? 10,
+            total: data?.data?.pagination?.count ?? 0,
+            pageSize: data?.data?.pagination?.page_size ?? 10,
             onChange: (page: number) => setPage(page),
           }}
         />
