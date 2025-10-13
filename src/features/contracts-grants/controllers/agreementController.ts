@@ -64,6 +64,8 @@ export const useGetAllAgreements = ({
             size,
             ...(search && { search }),
             ...(type && { type }),
+            // Request expanded related objects
+            expand: 'vendor,consultant,facilitator,adhoc_staff,location,service',
           },
         });
         return response.data;
