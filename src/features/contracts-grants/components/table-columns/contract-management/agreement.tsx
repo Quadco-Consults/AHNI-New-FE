@@ -238,8 +238,8 @@ export const agreementColumns: ColumnDef<IAgreementPaginatedData>[] = [
 const TableMenu = ({ id, status }: IAgreementPaginatedData) => {
     const [isDialogOpen, setDialogOpen] = useState(false);
 
-    const { deleteAgreement, isLoading } = useDeleteAgreement(id);
 
+  
     // Only allow editing DRAFT agreements
     const canEdit = status === 'DRAFT' || !status;
 

@@ -58,17 +58,18 @@ export default function CreateAgreement() {
     const form = useForm<TAgreementFormData>({
         resolver: zodResolver(AgreementSchema),
         defaultValues: {
-            service: undefined, // Changed to undefined for better handling
-            service_type: undefined, // Changed to undefined for better handling
-            type: "",
+            service_type: undefined, // Job Category - First selection
+            service: undefined, // Service Category - Second selection (parent category)
+            subcategory: undefined, // Subcategory - Third selection (child category, optional)
+            type: "", // Agreement Type - Fourth selection
             start_date: "",
             end_date: "",
             contract_cost: "",
             location: "",
-            consultant_id: undefined, // Changed to undefined for better handling
-            facilitator_id: undefined, // Changed to undefined for better handling
-            adhoc_staff_id: undefined, // Changed to undefined for better handling
-            vendor_id: undefined, // Changed to undefined for better handling
+            consultant_id: undefined,
+            facilitator_id: undefined,
+            adhoc_staff_id: undefined,
+            vendor_id: undefined,
         },
     });
 
@@ -174,54 +175,59 @@ export default function CreateAgreement() {
     const fetchVendors = async (agreementType?: string) => {
         setIsLoadingEntities(true);
         try {
-            console.log('🔍 Fetching vendors from dropdown endpoint...');
+            console.log('🔍 Fetching vendors from procurement vendors endpoint...');
             console.log('- Agreement Type:', agreementType);
 
-            // ✅ Use the correct dropdown endpoint
-            const response = await AxiosWithToken.get('/contract-grants/agreements/vendors_dropdown/');
+            // Fetch vendors from procurement endpoint with approved status
+            const response = await AxiosWithToken.get('/procurements/vendors/', {
+                params: {
+                    page: 1,
+                    size: 1000,
+                    status: 'Approved' // Only fetch approved vendors (note: capital A, rest lowercase)
+                }
+            });
 
             console.log('📊 Vendors API Response:', response.data);
 
-            // ✅ Response is direct array (not paginated)
-            const vendors = Array.isArray(response.data) ? response.data : [];
+            // Handle paginated response
+            const vendors = response.data?.data?.results || response.data?.results || [];
 
-            console.log(`✅ Found ${vendors.length} active vendors`);
+            console.log(`✅ Found ${vendors.length} approved vendors`);
 
             if (vendors.length > 0) {
-                // ✅ Backend already formats data correctly
-                // Optional: Filter by agreement type on client-side if needed
-                const categoryMapping: Record<string, string[]> = {
-                    'SLA': ['IT_SERVICES', 'TECHNOLOGY'],
-                    'SECURITY': ['SECURITY_SERVICES', 'SECURITY'],
-                    'INSURANCE': ['INSURANCE'],
-                    'LEASE': ['PROPERTY_LEASE', 'REAL_ESTATE'],
-                    'HMO': ['HEALTH_SERVICES', 'HEALTHCARE'],
-                    'TICKETING': ['TRAVEL_SERVICES', 'TRAVEL']
-                };
+                // Show ALL approved vendors (no category filtering)
+                // Most vendors do multiple things, so let user select from all options
+                console.log(`📊 Showing all ${vendors.length} approved vendors`);
 
-                // For now, show all active vendors
-                // TODO: Backend should add category field to vendors_dropdown response
                 setEntityOptions(vendors.map((vendor: any) => ({
-                    label: vendor.label || vendor.company_name,
-                    value: vendor.value || vendor.id,
+                    label: `${vendor.company_name}${vendor.area_of_specialization ? ` - ${vendor.area_of_specialization}` : ''}`,
+                    value: vendor.id,
                     company_name: vendor.company_name,
                     email: vendor.email,
-                    phone_number: vendor.phone_number
+                    phone_number: vendor.phone_number,
+                    approved_categories: vendor.approved_categories || []
                 })));
             } else {
-                console.log('❌ No active vendors found');
+                console.log('❌ No approved vendors found in system');
                 setEntityOptions([{
-                    label: 'No active vendors available. Please register and approve vendors first.',
+                    label: 'No approved vendors available. Please register and approve vendors first.',
                     value: ""
                 }]);
             }
 
-        } catch (error) {
-            console.error('Failed to fetch vendors:', error);
-            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        } catch (error: any) {
+            console.error('❌ Failed to fetch vendors:', error);
+            console.error('Error details:', {
+                message: error?.message,
+                response: error?.response?.data,
+                status: error?.response?.status
+            });
+
+            const errorMessage = error?.response?.data?.message || error?.message || 'Unknown error';
+            const statusCode = error?.response?.status;
 
             setEntityOptions([{
-                label: `Error loading vendors: ${errorMessage}`,
+                label: `Error loading vendors (${statusCode || 'Network Error'}): ${errorMessage}`,
                 value: ""
             }]);
         } finally {
@@ -229,9 +235,11 @@ export default function CreateAgreement() {
         }
     };
 
-    // Watch for agreement type changes and entity selections
-    const agreementType = form.watch('type');
-    const selectedService = form.watch('service');
+    // Watch for cascade changes
+    const selectedJobCategory = form.watch('service_type'); // Job Category - First
+    const selectedService = form.watch('service'); // Service Category - Second (parent category)
+    const selectedSubcategory = form.watch('subcategory'); // Subcategory - Third (child category)
+    const agreementType = form.watch('type'); // Agreement Type - Fourth
     const consultantId = form.watch('consultant_id');
     const facilitatorId = form.watch('facilitator_id');
     const adhocStaffId = form.watch('adhoc_staff_id');
@@ -340,115 +348,204 @@ export default function CreateAgreement() {
             return [];
         }
 
-        console.log('📊 Processed category data:', categoryData);
+        console.log('📊 Processed category data (total):', categoryData.length);
 
-        return categoryData.map((category: any) => ({
+        // CASCADE FILTER: Filter categories by job_category field AND parent = null (only parent categories)
+        if (!selectedJobCategory) {
+            // Show only parent categories (no parent)
+            const parentCategories = categoryData.filter((category: any) => !category.parent);
+            console.log('📊 Showing all parent categories:', parentCategories.length);
+            return parentCategories.map((category: any) => ({
+                label: category.name,
+                value: category.id,
+                job_category: category.job_category,
+            }));
+        }
+
+        // Filter by job_category field matching selected job category AND parent = null
+        const filteredCategories = categoryData.filter((category: any) => {
+            const hasNoParent = !category.parent;
+            const matchesJobCategory = category.job_category === selectedJobCategory;
+
+            console.log(`- Category "${category.name}": job_category=${category.job_category}, parent=${category.parent}, match=${matchesJobCategory && hasNoParent}`);
+
+            return hasNoParent && matchesJobCategory;
+        });
+
+        console.log(`📊 Filtered ${filteredCategories.length} parent categories for job category ID: ${selectedJobCategory}`);
+
+        return filteredCategories.map((category: any) => ({
             label: category.name,
             value: category.id,
+            job_category: category.job_category,
         }));
-    }, [categories]);
+    }, [categories, selectedJobCategory]);
 
     const serviceTypeOptions = useMemo(() => {
         if (!jobCategories?.data) return [];
 
-        console.log('🔍 Job Categories API Response:', jobCategories);
+        console.log('🔍 Job Categories API Response (First Dropdown):', jobCategories);
 
-        // If no service is selected, show all job categories
-        if (!selectedService) {
-            return jobCategories.data.map(category => ({
-                label: category.label,
-                value: category.value,
-            }));
-        }
-
-        // Find the selected service category to understand what job categories to show
-        const selectedServiceCategory = serviceOptions.find(service => service.value === selectedService);
-        console.log('🔍 Selected Service Category:', selectedServiceCategory);
-
-        // If we have a selected service, filter job categories based on relevance
-        // This could be enhanced with a mapping system, but for now we'll use keyword matching
-        const serviceLabel = selectedServiceCategory?.label?.toLowerCase() || '';
-
-        const filteredJobCategories = jobCategories.data.filter(category => {
-            const categoryLabel = category.label.toLowerCase();
-
-            // Create keyword-based matching logic
-            if (serviceLabel.includes('it') || serviceLabel.includes('technology') || serviceLabel.includes('software')) {
-                return categoryLabel.includes('it') || categoryLabel.includes('tech') || categoryLabel.includes('software') || categoryLabel.includes('development');
-            }
-
-            if (serviceLabel.includes('health') || serviceLabel.includes('medical')) {
-                return categoryLabel.includes('health') || categoryLabel.includes('medical') || categoryLabel.includes('nurse') || categoryLabel.includes('doctor');
-            }
-
-            if (serviceLabel.includes('education') || serviceLabel.includes('training')) {
-                return categoryLabel.includes('education') || categoryLabel.includes('training') || categoryLabel.includes('teacher') || categoryLabel.includes('instructor');
-            }
-
-            if (serviceLabel.includes('finance') || serviceLabel.includes('accounting')) {
-                return categoryLabel.includes('finance') || categoryLabel.includes('accounting') || categoryLabel.includes('audit');
-            }
-
-            if (serviceLabel.includes('construction') || serviceLabel.includes('engineering')) {
-                return categoryLabel.includes('construction') || categoryLabel.includes('engineering') || categoryLabel.includes('architect');
-            }
-
-            if (serviceLabel.includes('security')) {
-                return categoryLabel.includes('security') || categoryLabel.includes('guard') || categoryLabel.includes('protection');
-            }
-
-            if (serviceLabel.includes('transport') || serviceLabel.includes('logistics')) {
-                return categoryLabel.includes('transport') || categoryLabel.includes('logistics') || categoryLabel.includes('driver') || categoryLabel.includes('delivery');
-            }
-
-            // If no specific matching found, include all categories (fallback)
-            return true;
-        });
-
-        console.log(`🔍 Service Type Filtering: Found ${filteredJobCategories.length} relevant job categories for service "${serviceLabel}"`);
-
-        return filteredJobCategories.map(category => ({
+        // Show all job categories - this is the FIRST selection in cascade
+        return jobCategories.data.map(category => ({
             label: category.label,
             value: category.value,
         }));
-    }, [jobCategories, selectedService, serviceOptions]);
+    }, [jobCategories]);
 
-    // Auto-populate service type when service is selected
-    useEffect(() => {
-        if (selectedService && serviceTypeOptions.length > 0) {
-            console.log('🔍 Service changed, checking for auto-population...');
-            console.log('- Selected Service:', selectedService);
-            console.log('- Available Service Types:', serviceTypeOptions.length);
+    // Subcategory options - filter by parent category
+    const subcategoryOptions = useMemo(() => {
+        if (!categories?.data || !selectedService) return [];
 
-            const currentServiceType = form.getValues('service_type');
+        console.log('🔍 Filtering subcategories for parent category:', selectedService);
 
-            // If there's only one matching job category, auto-select it
-            if (serviceTypeOptions.length === 1 && !currentServiceType) {
-                const autoSelectedType = serviceTypeOptions[0].value;
-                console.log('🔄 Auto-selecting service type:', autoSelectedType);
-                form.setValue('service_type', autoSelectedType);
-                toast.success(`Auto-selected "${serviceTypeOptions[0].label}" as the service type`);
+        // Handle different possible response structures
+        let categoryData = [];
+
+        if (Array.isArray(categories.data)) {
+            categoryData = categories.data;
+        } else if (categories.data?.results && Array.isArray(categories.data.results)) {
+            categoryData = categories.data.results;
+        } else if (categories.data?.data && Array.isArray(categories.data.data)) {
+            categoryData = categories.data.data;
+        }
+
+        // Filter categories where parent = selectedService
+        const subcategories = categoryData.filter((category: any) => {
+            // Check if parent matches (handle both string ID and object)
+            const parentId = typeof category.parent === 'string'
+                ? category.parent
+                : category.parent?.id;
+
+            const matches = parentId === selectedService;
+
+            if (matches) {
+                console.log(`  - Found subcategory: ${category.name} (parent: ${parentId})`);
             }
-            // If the current selection is not in the filtered list, clear it
-            else if (currentServiceType && !serviceTypeOptions.find(opt => opt.value === currentServiceType)) {
-                console.log('🔄 Clearing invalid service type selection');
-                form.setValue('service_type', undefined);
-                toast.info('Service type cleared - please select from the filtered options');
+
+            return matches;
+        });
+
+        console.log(`📊 Found ${subcategories.length} subcategories for parent category`);
+
+        return subcategories.map((category: any) => ({
+            label: category.name,
+            value: category.id,
+            parent: category.parent,
+        }));
+    }, [categories, selectedService]);
+
+    // CASCADE EFFECT 1: When job category changes, reset downstream selections
+    useEffect(() => {
+        if (selectedJobCategory) {
+            console.log('🔄 Job Category changed to:', selectedJobCategory);
+            const currentService = form.getValues('service');
+
+            // If current service is not in the new filtered list, clear it
+            if (currentService && !serviceOptions.find(opt => opt.value === currentService)) {
+                console.log('🔄 Clearing service category and downstream fields');
+                form.setValue('service', undefined);
+                form.setValue('subcategory', undefined);
+                form.setValue('type', '');
+                toast.info('Service category cleared - please reselect based on job category');
             }
         }
-    }, [selectedService, serviceTypeOptions, form]);
+    }, [selectedJobCategory, serviceOptions, form]);
 
-    // Debug: Log all form values in real-time (after serviceTypeOptions is defined)
+    // CASCADE EFFECT 2: When service category changes, reset subcategory and agreement type
+    useEffect(() => {
+        if (selectedService) {
+            console.log('🔄 Service Category changed to:', selectedService);
+            const currentSubcategory = form.getValues('subcategory');
+
+            // If current subcategory is not in the new filtered list, clear it
+            if (currentSubcategory && !subcategoryOptions.find(opt => opt.value === currentSubcategory)) {
+                console.log('🔄 Clearing subcategory and agreement type');
+                form.setValue('subcategory', undefined);
+                form.setValue('type', '');
+
+                if (subcategoryOptions.length > 0) {
+                    toast.info('Please select a subcategory');
+                }
+            }
+        }
+    }, [selectedService, subcategoryOptions, form]);
+
+    // CASCADE EFFECT 3: Filter agreement types based on service/subcategory
+    const filteredAgreementTypeOptions = useMemo(() => {
+        // Use subcategory if available, otherwise use service category
+        const categoryToUse = selectedSubcategory || selectedService;
+
+        if (!categoryToUse) {
+            // If nothing selected, show all agreement types
+            return agreementTypeOptions;
+        }
+
+        // Find the selected category
+        let categoryName = '';
+        if (selectedSubcategory) {
+            const subcatData = subcategoryOptions.find(opt => opt.value === selectedSubcategory);
+            categoryName = subcatData?.label?.toLowerCase() || '';
+            console.log('🔍 Filtering agreement types for subcategory:', categoryName);
+        } else {
+            const serviceData = serviceOptions.find(opt => opt.value === selectedService);
+            categoryName = serviceData?.label?.toLowerCase() || '';
+            console.log('🔍 Filtering agreement types for service category:', categoryName);
+        }
+
+        // Filter agreement types based on category name
+        const filtered = agreementTypeOptions.filter(agreementType => {
+            const category = agreementType.category;
+
+            // Map categories to agreement type categories
+            if (categoryName.includes('staff') || categoryName.includes('personnel') || categoryName.includes('human resource')) {
+                return category === 'Staff Contracts';
+            }
+
+            if (categoryName.includes('it') || categoryName.includes('tech') || categoryName.includes('software')) {
+                return agreementType.value === 'SLA';
+            }
+
+            if (categoryName.includes('security')) {
+                return agreementType.value === 'SECURITY';
+            }
+
+            if (categoryName.includes('insurance')) {
+                return agreementType.value === 'INSURANCE';
+            }
+
+            if (categoryName.includes('lease') || categoryName.includes('property') || categoryName.includes('rent')) {
+                return agreementType.value === 'LEASE';
+            }
+
+            if (categoryName.includes('health') || categoryName.includes('medical') || categoryName.includes('hmo')) {
+                return agreementType.value === 'HMO';
+            }
+
+            if (categoryName.includes('travel') || categoryName.includes('ticket')) {
+                return agreementType.value === 'TICKETING';
+            }
+
+            // Default: show service agreements for non-staff services
+            return category === 'Service Agreements';
+        });
+
+        console.log(`📊 Filtered ${filtered.length} agreement types for category "${categoryName}"`);
+        return filtered;
+    }, [selectedService, selectedSubcategory, serviceOptions, subcategoryOptions]);
+
+    // Debug: Log all form values in real-time
     console.log('🔍 Real-time Form Values:');
+    console.log('- Job Category (service_type):', selectedJobCategory);
+    console.log('- Service Category (service):', selectedService);
+    console.log('- Subcategory:', selectedSubcategory);
     console.log('- Agreement Type:', agreementType);
-    console.log('- Selected Service:', selectedService);
-    console.log('- Service Type Options Count:', serviceTypeOptions.length);
-    console.log('- Current Service Type:', form.watch('service_type'));
     console.log('- Consultant ID:', consultantId);
     console.log('- Facilitator ID:', facilitatorId);
     console.log('- Adhoc Staff ID:', adhocStaffId);
     console.log('- Vendor ID:', vendorId);
-    console.log('- Selected Agreement Type State:', selectedAgreementType);
+    console.log('- Service Options Count:', serviceOptions.length);
+    console.log('- Subcategory Options Count:', subcategoryOptions.length);
     console.log('- Entity Options Count:', entityOptions.length);
 
     const { createAgreement, isLoading: isCreateLoading } =
@@ -666,88 +763,115 @@ export default function CreateAgreement() {
                                 className="space-y-8"
                             >
                                 <div className="grid grid-cols-2 gap-8">
-                                    {/* Service fields only for Service Agreements, not Staff Contracts */}
-                                    {!['CONSULTANT', 'FACILITATOR', 'ADHOC_STAFF'].includes(selectedAgreementType) && (
-                                        <>
-                                            <div className="space-y-2">
-                                                <FormSelect
-                                                    label="Service (Category)"
-                                                    name="service"
-                                                    placeholder={
-                                                        isLoadingCategories
-                                                            ? "Loading categories..."
-                                                            : "Select Service Category"
-                                                    }
-                                                    options={serviceOptions || []}
-                                                    required
-                                                    disabled={isLoadingCategories}
-                                                />
+                                    {/* CASCADE STEP 1: Job Category (First Selection) */}
+                                    <div className="space-y-2">
+                                        <FormSelect
+                                            label="1️⃣ Job Category"
+                                            name="service_type"
+                                            placeholder={
+                                                isLoadingJobCategories
+                                                    ? "Loading job categories..."
+                                                    : "Select Job Category"
+                                            }
+                                            options={serviceTypeOptions || []}
+                                            required
+                                            disabled={isLoadingJobCategories}
+                                        />
 
-                                                {/* Categories info */}
-                                                <div className="text-xs text-gray-600">
-                                                    {isLoadingCategories ? (
-                                                        <span className="text-blue-600">🔄 Loading service categories from API...</span>
-                                                    ) : serviceOptions.length > 0 ? (
-                                                        <span className="text-green-600">✅ {serviceOptions.length} service categories loaded</span>
-                                                    ) : (
-                                                        <span className="text-yellow-600">⚠️ No service categories available</span>
-                                                    )}
-                                                </div>
+                                        {/* Job categories info */}
+                                        <div className="text-xs text-gray-600">
+                                            {isLoadingJobCategories ? (
+                                                <span className="text-blue-600">🔄 Loading...</span>
+                                            ) : serviceTypeOptions.length > 0 ? (
+                                                <span className="text-green-600">✅ {serviceTypeOptions.length} available</span>
+                                            ) : (
+                                                <span className="text-yellow-600">⚠️ None available</span>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* CASCADE STEP 2: Service Category (Second - Parent Category) */}
+                                    <div className="space-y-2">
+                                        <FormSelect
+                                            label="2️⃣ Service Category"
+                                            name="service"
+                                            placeholder={
+                                                isLoadingCategories
+                                                    ? "Loading..."
+                                                    : selectedJobCategory
+                                                        ? serviceOptions.length > 0
+                                                            ? `Select from ${serviceOptions.length} categories`
+                                                            : "No categories for this job category"
+                                                        : "Select Job Category first"
+                                            }
+                                            options={serviceOptions || []}
+                                            required
+                                            disabled={isLoadingCategories || !selectedJobCategory}
+                                        />
+
+                                        <div className="text-xs text-gray-600">
+                                            {isLoadingCategories ? (
+                                                <span className="text-blue-600">🔄 Loading...</span>
+                                            ) : selectedJobCategory ? (
+                                                serviceOptions.length > 0 ? (
+                                                    <span className="text-green-600">✅ {serviceOptions.length} filtered by job category</span>
+                                                ) : (
+                                                    <span className="text-yellow-600">⚠️ No matches found</span>
+                                                )
+                                            ) : (
+                                                <span className="text-gray-500">📋 Waiting for job category</span>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* CASCADE STEP 3: Subcategory (Third - Optional) */}
+                                    {selectedService && subcategoryOptions.length > 0 && (
+                                        <div className="space-y-2">
+                                            <FormSelect
+                                                label="3️⃣ Subcategory (Optional)"
+                                                name="subcategory"
+                                                placeholder={`Select from ${subcategoryOptions.length} subcategories`}
+                                                options={subcategoryOptions || []}
+                                                disabled={isLoadingCategories}
+                                            />
+
+                                            <div className="text-xs text-gray-600">
+                                                <span className="text-green-600">✅ {subcategoryOptions.length} subcategories available</span>
                                             </div>
-
-                                            <div className="space-y-2">
-                                                <FormSelect
-                                                    label="Service Type (Job Categories)"
-                                                    name="service_type"
-                                                    placeholder={
-                                                        isLoadingJobCategories
-                                                            ? "Loading job categories..."
-                                                            : selectedService
-                                                                ? serviceTypeOptions.length > 0
-                                                                    ? `Select from ${serviceTypeOptions.length} filtered job categories`
-                                                                    : "No matching job categories found"
-                                                                : "Select Service first to filter job categories"
-                                                    }
-                                                    options={serviceTypeOptions || []}
-                                                    required
-                                                    disabled={isLoadingJobCategories}
-                                                />
-
-                                                {/* Job categories info */}
-                                                <div className="text-xs text-gray-600">
-                                                    {isLoadingJobCategories ? (
-                                                        <span className="text-blue-600">🔄 Loading job categories from API...</span>
-                                                    ) : selectedService ? (
-                                                        serviceTypeOptions.length > 0 ? (
-                                                            <div className="space-y-1">
-                                                                <span className="text-green-600">
-                                                                    ✅ {serviceTypeOptions.length} job categories filtered for selected service
-                                                                </span>
-                                                                {serviceTypeOptions.length === 1 && (
-                                                                    <div className="text-blue-600">
-                                                                        🎯 Auto-selected: {serviceTypeOptions[0].label}
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                        ) : (
-                                                            <span className="text-yellow-600">⚠️ No matching job categories for this service</span>
-                                                        )
-                                                    ) : serviceTypeOptions.length > 0 ? (
-                                                        <span className="text-gray-500">📋 {serviceTypeOptions.length} job categories available (select service to filter)</span>
-                                                    ) : (
-                                                        <span className="text-yellow-600">⚠️ No job categories available</span>
-                                                    )}
-                                                </div>
-
-                                                {/* Service type recommendations - now dynamic based on available categories */}
-                                                {selectedAgreementType && serviceTypeOptions.length > 0 && (
-                                                    <div className="text-xs text-gray-600">
-                                                        <strong>Tip:</strong> Select a job category that matches your {agreementTypeOptions.find(opt => opt.value === selectedAgreementType)?.label.toLowerCase()} service type.
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </>
+                                        </div>
                                     )}
+
+                                    {/* CASCADE STEP 4: Agreement Type (Fourth) */}
+                                    <div className="space-y-2">
+                                        <FormSelect
+                                            label={subcategoryOptions.length > 0 ? "4️⃣ Agreement Type" : "3️⃣ Agreement Type"}
+                                            name="type"
+                                            placeholder={
+                                                selectedService
+                                                    ? filteredAgreementTypeOptions.length > 0
+                                                        ? `Select from ${filteredAgreementTypeOptions.length} types`
+                                                        : "No matching agreement types"
+                                                    : "Select Service Category first"
+                                            }
+                                            options={filteredAgreementTypeOptions || []}
+                                            required
+                                            disabled={!selectedService}
+                                        />
+
+                                        <div className="text-xs text-gray-600">
+                                            {selectedService ? (
+                                                filteredAgreementTypeOptions.length > 0 ? (
+                                                    <span className="text-green-600">
+                                                        ✅ {filteredAgreementTypeOptions.length} filtered by {selectedSubcategory ? 'subcategory' : 'category'}
+                                                    </span>
+                                                ) : (
+                                                    <span className="text-yellow-600">⚠️ No matches</span>
+                                                )
+                                            ) : (
+                                                <span className="text-gray-500">📋 Waiting for category selection</span>
+                                            )}
+                                        </div>
+                                    </div>
 
                                     {/* Information banner for staff contracts */}
                                     {['CONSULTANT', 'FACILITATOR', 'ADHOC_STAFF'].includes(selectedAgreementType) && (
@@ -760,26 +884,17 @@ export default function CreateAgreement() {
                                                         </svg>
                                                     </div>
                                                     <div>
-                                                        <h4 className="font-medium text-blue-800 mb-2">ℹ️ Staff Contract Agreement</h4>
+                                                        <h4 className="font-medium text-blue-800 mb-2">✅ Cascading Selection Complete</h4>
                                                         <p className="text-blue-700 text-sm">
-                                                            For {selectedAgreementType === 'CONSULTANT' ? 'consultant' :
+                                                            You've selected a {selectedAgreementType === 'CONSULTANT' ? 'consultant' :
                                                                 selectedAgreementType === 'FACILITATOR' ? 'facilitator' :
-                                                                'adhoc staff'} contracts, service categories and job types are not required.
-                                                            These fields are only needed for service agreements (SLA, Security, Insurance, etc.).
+                                                                'adhoc staff'} contract based on your job category and service category selections.
                                                         </p>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     )}
-
-                                    <FormSelect
-                                        label="Agreement Type"
-                                        name="type"
-                                        placeholder="Select Agreement Type"
-                                        options={agreementTypeOptions || []}
-                                        required
-                                    />
 
                                     {/* Conditional Entity Dropdown */}
                                     {selectedAgreementType && (
@@ -813,65 +928,16 @@ export default function CreateAgreement() {
                                                 disabled={isLoadingEntities}
                                             />
 
-                                            {/* Debug: Show raw options data */}
-                                            {!isLoadingEntities && (
-                                                <div className="text-xs text-purple-600 mt-1">
-                                                    🔧 Debug: {entityOptions.length} options loaded
-                                                    {entityOptions.length > 0 && (
-                                                        <div>First option: {JSON.stringify(entityOptions[0])}</div>
-                                                    )}
-                                                </div>
-                                            )}
-
-                                            {/* Status indicator */}
-                                            <div className="text-sm text-gray-600">
+                                            {/* Status indicator - simple count like other fields */}
+                                            <div className="text-xs text-gray-600">
                                                 {isLoadingEntities ? (
-                                                    <span className="text-blue-600">🔄 Loading eligible candidates...</span>
+                                                    <span className="text-blue-600">🔄 Loading...</span>
                                                 ) : entityOptions.length > 0 ? (
-                                                    <div className="space-y-1">
-                                                        <span className="text-green-600">✅ Found {entityOptions.length} eligible candidate(s)</span>
-                                                        {/* Show currently selected entity */}
-                                                        <div className="text-xs text-gray-500">
-                                                            Currently selected: {
-                                                                selectedAgreementType === 'CONSULTANT' ? (consultantId || 'None') :
-                                                                selectedAgreementType === 'FACILITATOR' ? (facilitatorId || 'None') :
-                                                                selectedAgreementType === 'ADHOC_STAFF' ? (adhocStaffId || 'None') :
-                                                                (vendorId || 'None')
-                                                            }
-                                                        </div>
-                                                    </div>
+                                                    <span className="text-green-600">✅ {entityOptions.length} available</span>
                                                 ) : (
-                                                    <div className="space-y-1">
-                                                        <span className="text-red-600">❌ No eligible candidates found</span>
-                                                        <div className="text-xs text-red-500">
-                                                            {selectedAgreementType === 'CONSULTANT' && 'No consultants available for contracts. Check consultant applicant statuses.'}
-                                                            {selectedAgreementType === 'FACILITATOR' && 'No facilitators available for contracts. Check facilitator applicant statuses.'}
-                                                            {selectedAgreementType === 'ADHOC_STAFF' && 'No adhoc staff available for contracts. Check adhoc applicant statuses.'}
-                                                            {selectedAgreementType === 'SLA' && 'No approved IT Services vendors available. Register and approve vendors under IT Services category.'}
-                                                            {selectedAgreementType === 'SECURITY' && 'No approved Security Services vendors available. Register and approve vendors under Security Services category.'}
-                                                            {selectedAgreementType === 'INSURANCE' && 'No approved Insurance vendors available. Register and approve vendors under Insurance category.'}
-                                                            {selectedAgreementType === 'LEASE' && 'No approved Property Lease vendors available. Register and approve vendors under Property Lease category.'}
-                                                            {selectedAgreementType === 'HMO' && 'No approved Health Services vendors available. Register and approve vendors under Health Services category.'}
-                                                            {selectedAgreementType === 'TICKETING' && 'No approved Travel Services vendors available. Register and approve vendors under Travel Services category.'}
-                                                        </div>
-                                                    </div>
+                                                    <span className="text-yellow-600">⚠️ None available</span>
                                                 )}
                                             </div>
-
-                                            {/* Debug info */}
-                                            {!isLoadingEntities && (
-                                                <div className="text-xs text-gray-500">
-                                                    {selectedAgreementType === 'CONSULTANT' && 'Showing consultants who are eligible for contracts'}
-                                                    {selectedAgreementType === 'FACILITATOR' && 'Showing facilitators available for agreements'}
-                                                    {selectedAgreementType === 'ADHOC_STAFF' && 'Showing adhoc staff who have been interviewed/selected'}
-                                                    {selectedAgreementType === 'SLA' && 'Showing approved IT Services vendors only'}
-                                                    {selectedAgreementType === 'SECURITY' && 'Showing approved Security Services vendors only'}
-                                                    {selectedAgreementType === 'INSURANCE' && 'Showing approved Insurance vendors only'}
-                                                    {selectedAgreementType === 'LEASE' && 'Showing approved Property Lease vendors only'}
-                                                    {selectedAgreementType === 'HMO' && 'Showing approved Health Services vendors only'}
-                                                    {selectedAgreementType === 'TICKETING' && 'Showing approved Travel Services vendors only'}
-                                                </div>
-                                            )}
                                         </div>
                                     )}
 
