@@ -2,17 +2,19 @@
 import { useState } from "react";
 import Card from "@/components/Card";
 import { Button } from "@/components/ui/button";
-import { Plus, Upload } from "lucide-react";
+import { Plus, Upload, Store } from "lucide-react";
 import Link from "next/link";
 import DataTable from "@/components/Table/DataTable";
 import { consumableColums } from "@/features/admin/components/table-columns/inventory-management/consumables";
 import TableFilters from "@/components/Table/TableFilters";
 import { useGetAllItemsQuery } from "@/features/modules/controllers/config/itemController";
 import BulkUploadDialog from "./BulkUploadDialog";
+import BulkAssignToStoreDialog from "./BulkAssignToStoreDialog";
 
 export default function ConsumablesHomePage() {
   const [page, setPage] = useState(1);
   const [bulkUploadOpen, setBulkUploadOpen] = useState(false);
+  const [bulkAssignOpen, setBulkAssignOpen] = useState(false);
 
   // Consumables category UUID - filters to show only consumable items
   const CONSUMABLES_CATEGORY_ID = "fadb6228-23de-4b04-9eac-b75940cf622f";
@@ -29,6 +31,13 @@ export default function ConsumablesHomePage() {
       <Card className="space-y-10">
         <div className="space-y-5">
           <div className="flex justify-end gap-3">
+            <Button
+              variant="outline"
+              onClick={() => setBulkAssignOpen(true)}
+            >
+              <Store size={20} />
+              Assign to Store
+            </Button>
             <Button
               variant="outline"
               onClick={() => setBulkUploadOpen(true)}
@@ -63,6 +72,11 @@ export default function ConsumablesHomePage() {
         open={bulkUploadOpen}
         onOpenChange={setBulkUploadOpen}
         categoryId={undefined}
+      />
+
+      <BulkAssignToStoreDialog
+        open={bulkAssignOpen}
+        onOpenChange={setBulkAssignOpen}
       />
     </div>
   );

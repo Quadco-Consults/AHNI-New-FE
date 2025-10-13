@@ -20,14 +20,25 @@ export const preAwardAssessmentColumns: ColumnDef<ISubGrantSubmissionPaginatedDa
     [
         {
             header: "Sub Grant Title",
-            id: "title",
-            accessorKey: "title",
+            id: "sub_grant",
+            accessorKey: "sub_grant",
             size: 200,
+            cell: ({ getValue }) => {
+                const subGrant = getValue();
+                // Handle both string and object types
+                if (typeof subGrant === 'string') {
+                    return subGrant;
+                }
+                if (typeof subGrant === 'object' && subGrant !== null) {
+                    return (subGrant as any).title || 'N/A';
+                }
+                return 'N/A';
+            },
         },
         {
-            header: "Pre-Award Assessment Type",
-            id: "type",
-            accessorKey: "type",
+            header: "Organisation",
+            id: "organisation_name",
+            accessorKey: "organisation_name",
             size: 200,
         },
         {
@@ -35,12 +46,60 @@ export const preAwardAssessmentColumns: ColumnDef<ISubGrantSubmissionPaginatedDa
             id: "status",
             accessorKey: "status",
             size: 200,
+            cell: ({ getValue }) => {
+                const status = getValue() as string || 'PENDING';
+                return (
+                    <span className={`px-2 py-1 rounded text-xs font-medium ${
+                        status === 'AWARDED' ? 'bg-green-100 text-green-800' :
+                        status === 'SHORTLISTED' ? 'bg-blue-100 text-blue-800' :
+                        status === 'REJECTED' ? 'bg-red-100 text-red-800' :
+                        'bg-gray-100 text-gray-800'
+                    }`}>
+                        {status}
+                    </span>
+                );
+            },
         },
         {
-            header: "Pre-Award Assessment Date",
-            id: "date",
-            accessorKey: "date",
-            size: 200,
+            header: "Assessment Status",
+            id: "has_assessment",
+            accessorKey: "has_assessment",
+            size: 150,
+            cell: ({ row }) => {
+                const hasAssessment = row.original.has_assessment;
+                const assessmentScore = row.original.assessment_score;
+                const status = row.original.status;
+
+                // Check if awarded OR has assessment
+                const isAssessed = hasAssessment || status === "AWARDED";
+
+                if (isAssessed) {
+                    return (
+                        <div className="flex flex-col">
+                            <span className="text-green-600 font-medium">Assessed</span>
+                            {assessmentScore !== undefined && (
+                                <span className="text-xs text-gray-500">Score: {assessmentScore}</span>
+                            )}
+                        </div>
+                    );
+                }
+                return <span className="text-gray-500">Not Assessed</span>;
+            },
+        },
+        {
+            header: "Submission Date",
+            id: "created_datetime",
+            accessorKey: "created_datetime",
+            size: 150,
+            cell: ({ getValue }) => {
+                const date = getValue() as string;
+                if (!date) return 'N/A';
+                return new Date(date).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                });
+            },
         },
 
         {

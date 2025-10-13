@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import ServiceLevelAgreementLayout from "./Layout";
 import { Card, CardContent } from "components/ui/card";
 import { Button } from "components/ui/button";
@@ -9,7 +9,7 @@ import FormButton from "@/components/FormButton";
 import BackNavigation from "components/atoms/BackNavigation";
 import { CG_ROUTES } from "constants/RouterConstants";
 import { toast } from "sonner";
-import { useCreateAgreement } from "@/features/contracts-grants/controllers/agreementController";
+import { useCreateAgreement, useGetSingleAgreement, useUpdateAgreement } from "@/features/contracts-grants/controllers/agreementController";
 
 // Helper to get current user ID
 const getCurrentUserId = () => {
@@ -31,36 +31,82 @@ const getCurrentUserId = () => {
 
 export default function AgreementSummary() {
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const agreementId = searchParams?.get('id');
+
     const [agreementData, setAgreementData] = useState<any>(null);
-    const { createAgreement, isLoading } = useCreateAgreement();
+    const [originalAgreementData, setOriginalAgreementData] = useState<any>(null);
+    const [agreementStatus, setAgreementStatus] = useState<string>('');
+    const [isEditMode, setIsEditMode] = useState(false);
+
+    const { createAgreement, isLoading: isCreating } = useCreateAgreement();
+    const { data: existingAgreement, isLoading: isFetchingAgreement } = useGetSingleAgreement(
+        agreementId || '',
+        !!agreementId
+    );
+    const { updateAgreement, isLoading: isUpdating } = useUpdateAgreement(agreementId || '');
 
     useEffect(() => {
-        // Get agreement data from session storage
-        const data = sessionStorage.getItem('agreementFormData');
-        if (data) {
-            const parsedData = JSON.parse(data);
-            console.log('📦 Session Storage Data:', parsedData);
-            console.log('🔍 Entity Fields Check:', {
-                type: parsedData.type,
-                consultant: parsedData.consultant,
-                facilitator: parsedData.facilitator,
-                adhoc_staff: parsedData.adhoc_staff,
-                vendor: parsedData.vendor,
-            });
-            setAgreementData(parsedData);
-        } else {
-            toast.error("No agreement data found. Please fill the form first.");
-            router.push(CG_ROUTES.AGREEMENT);
+        // Check if we're in edit mode (id parameter present)
+        if (agreementId && existingAgreement?.data) {
+            console.log('📝 Edit Mode - Loading existing agreement:', existingAgreement.data);
+            setIsEditMode(true);
+
+            // Transform API data to form data structure
+            const agreement = existingAgreement.data;
+            const formData = {
+                service: agreement.service,
+                type: agreement.type,
+                start_date: agreement.start_date,
+                end_date: agreement.end_date,
+                contract_cost: agreement.contract_cost,
+                location: agreement.location,
+                consultant: agreement.consultant,
+                facilitator: agreement.facilitator,
+                adhoc_staff: agreement.adhoc_staff,
+                vendor: agreement.vendor,
+            };
+
+            console.log('📦 Transformed Agreement Data:', formData);
+            console.log('📊 Agreement Status:', agreement.status);
+            setAgreementData(formData);
+            setOriginalAgreementData(formData); // Store original for comparison
+            setAgreementStatus(agreement.status || 'DRAFT');
+        } else if (!agreementId) {
+            // Create mode - get data from session storage
+            const data = sessionStorage.getItem('agreementFormData');
+            if (data) {
+                const parsedData = JSON.parse(data);
+                console.log('📦 Session Storage Data:', parsedData);
+                console.log('🔍 Entity Fields Check:', {
+                    type: parsedData.type,
+                    consultant: parsedData.consultant,
+                    facilitator: parsedData.facilitator,
+                    adhoc_staff: parsedData.adhoc_staff,
+                    vendor: parsedData.vendor,
+                });
+                setAgreementData(parsedData);
+                setIsEditMode(false);
+            } else {
+                toast.error("No agreement data found. Please fill the form first.");
+                router.push(CG_ROUTES.AGREEMENT);
+            }
         }
-    }, [router]);
+    }, [router, agreementId, existingAgreement]);
 
     const handleEdit = () => {
         // Go back to create form to edit
         router.back();
     };
 
-    const handleCreateAgreement = async () => {
+    const handleSaveAgreement = async () => {
         if (!agreementData) return;
+
+        // Check if trying to edit a non-draft agreement
+        if (isEditMode && agreementStatus !== 'DRAFT') {
+            toast.error('Only DRAFT agreements can be edited. For ACTIVE agreements, use "Add Modification" instead.');
+            return;
+        }
 
         try {
             // Get current user ID at the time of submission
@@ -77,12 +123,26 @@ export default function AgreementSummary() {
                 service: agreementData.service,
                 type: agreementData.type,
                 start_date: agreementData.start_date,
-                end_date: agreementData.end_date,
                 contract_cost: agreementData.contract_cost,
                 location: agreementData.location,
-                created_by: currentUserId,
                 updated_by: currentUserId,
             };
+
+            // Only add created_by for new agreements
+            if (!isEditMode) {
+                cleanedData.created_by = currentUserId;
+                // For new agreements, include end_date
+                cleanedData.end_date = agreementData.end_date;
+            } else {
+                // For edits, always include end_date as-is
+                // The backend PATCH endpoint should allow updating basic fields
+                // Extensions/modifications should use the separate /extend/ endpoint
+                cleanedData.end_date = agreementData.end_date;
+
+                // Don't include new_end_date or reason for basic edits
+                // Those are only for the /extend/ endpoint via the modification flow
+                console.log('✏️ Basic edit - updating agreement fields');
+            }
 
             // Only include the entity field that matches the agreement type
             // Don't send null values for other entity fields
@@ -96,7 +156,7 @@ export default function AgreementSummary() {
                 cleanedData.vendor = agreementData.vendor;
             }
 
-            console.log('📤 Sending Agreement Data to API:', cleanedData);
+            console.log(`📤 ${isEditMode ? 'Updating' : 'Creating'} Agreement:`, cleanedData);
             console.log('📋 Entity fields included:', {
                 consultant: cleanedData.consultant || 'not included',
                 facilitator: cleanedData.facilitator || 'not included',
@@ -104,21 +164,25 @@ export default function AgreementSummary() {
                 vendor: cleanedData.vendor || 'not included',
             });
 
-            await createAgreement(cleanedData);
-            
-            // Clean up session storage
-            sessionStorage.removeItem('agreementFormData');
-            
-            toast.success("Agreement created successfully!");
+            if (isEditMode) {
+                await updateAgreement(cleanedData);
+                toast.success("Agreement updated successfully!");
+            } else {
+                await createAgreement(cleanedData);
+                // Clean up session storage only for new agreements
+                sessionStorage.removeItem('agreementFormData');
+                toast.success("Agreement created successfully!");
+            }
+
             router.push(CG_ROUTES.AGREEMENT);
-            
+
         } catch (error: any) {
-            console.error("Agreement creation error:", error);
-            toast.error(error?.message || "Failed to create agreement. Please try again.");
+            console.error(`Agreement ${isEditMode ? 'update' : 'creation'} error:`, error);
+            toast.error(error?.message || `Failed to ${isEditMode ? 'update' : 'create'} agreement. Please try again.`);
         }
     };
 
-    if (!agreementData) {
+    if (isFetchingAgreement || !agreementData) {
         return (
             <ServiceLevelAgreementLayout>
                 <div className="flex items-center justify-center h-64">
@@ -127,6 +191,8 @@ export default function AgreementSummary() {
             </ServiceLevelAgreementLayout>
         );
     }
+
+    const isLoading = isCreating || isUpdating;
 
     const getEntityLabel = () => {
         const { type } = agreementData;
@@ -148,14 +214,19 @@ export default function AgreementSummary() {
     return (
         <ServiceLevelAgreementLayout>
             <div className="space-y-6">
-                <BackNavigation extraText="Agreement Summary" />
+                <BackNavigation extraText={isEditMode ? "Edit Agreement" : "Agreement Summary"} />
                 <Card>
                     <CardContent className="p-6">
                         <div className="space-y-6">
                             <div className="border-b pb-4">
-                                <h2 className="text-xl font-semibold">Agreement Summary</h2>
+                                <h2 className="text-xl font-semibold">
+                                    {isEditMode ? 'Edit Agreement' : 'Agreement Summary'}
+                                </h2>
                                 <p className="text-sm text-gray-600 mt-1">
-                                    Please review the agreement details below before proceeding.
+                                    {isEditMode
+                                        ? 'Review and update the agreement details below.'
+                                        : 'Please review the agreement details below before proceeding.'
+                                    }
                                 </p>
                             </div>
 
@@ -212,12 +283,12 @@ export default function AgreementSummary() {
                                     </Button>
 
                                     <FormButton
-                                        onClick={handleCreateAgreement}
+                                        onClick={handleSaveAgreement}
                                         loading={isLoading}
                                         type="button"
                                         size="lg"
                                     >
-                                        Create Agreement
+                                        {isEditMode ? 'Update Agreement' : 'Create Agreement'}
                                     </FormButton>
                                 </div>
                             </div>

@@ -7,6 +7,7 @@ import { formatNumberCurrency } from "utils/utls";
 
 interface SubGrantObligationHistoryProps {
   subGrantId: string;
+  awardAmountUsd?: string | number;
 }
 
 /**
@@ -18,6 +19,7 @@ interface SubGrantObligationHistoryProps {
  */
 const SubGrantObligationHistory: React.FC<SubGrantObligationHistoryProps> = ({
   subGrantId,
+  awardAmountUsd,
 }) => {
   const [page, setPage] = useState(1);
 
@@ -32,8 +34,11 @@ const SubGrantObligationHistory: React.FC<SubGrantObligationHistoryProps> = ({
   // Calculate stats from the fetched data
   const stats = useMemo(() => {
     const obligations = data?.data?.results || [];
+
     const total = obligations.reduce(
-      (sum: number, item: any) => sum + (parseFloat(item.amount) || 0),
+      (sum: number, item: any) => {
+        return sum + (Number(item.amount) || 0);
+      },
       0
     );
 
@@ -48,14 +53,18 @@ const SubGrantObligationHistory: React.FC<SubGrantObligationHistoryProps> = ({
           itemDate.getFullYear() === currentYear
         );
       })
-      .reduce((sum: number, item: any) => sum + (parseFloat(item.amount) || 0), 0);
+      .reduce((sum: number, item: any) => sum + (Number(item.amount) || 0), 0);
+
+    // Calculate balance (award amount - total obligations)
+    const awardAmount = Number(awardAmountUsd || 0);
+    const balance = awardAmount - total;
 
     return {
       total,
       currentMonth: currentMonthTotal,
-      balance: 0, // TODO: Calculate from award amount - total obligations
+      balance: Math.max(0, balance), // Ensure balance is not negative
     };
-  }, [data]);
+  }, [data, awardAmountUsd]);
 
   const StatsCard = useMemo(() => {
     return [
@@ -86,7 +95,7 @@ const SubGrantObligationHistory: React.FC<SubGrantObligationHistoryProps> = ({
   return (
     <section className="w-full flex flex-col px-5 space-y-[1.25rem]">
       <div className="grid grid-cols-3 gap-5">
-        {StatsCard.map((item, index) => {
+        {StatsCard.map((item) => {
           return (
             <div
               className={`px-[1.875rem] py-[1.25rem] rounded-[.625rem] justify-between items-center flex ${item.bgColor}`}

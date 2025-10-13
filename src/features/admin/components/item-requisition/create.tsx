@@ -33,6 +33,7 @@ import { useGetAllDepartmentsQuery } from "@/features/modules/controllers/config
 import { useGetAllUsersQuery } from "@/features/auth/controllers/userController";
 import { toast } from "sonner";
 import { useGetAllItemsQuery } from "@/features/modules/controllers/config/itemController";
+import { useGetAllStores } from "@/features/admin/controllers/storeController";
 
 export default function CreateItemRequisition() {
   const { data: items } = useGetAllItemsQuery({
@@ -49,6 +50,13 @@ export default function CreateItemRequisition() {
   const { data: department } = useGetAllDepartmentsQuery({
     page: 1,
     size: 2000000,
+  });
+
+  // Phase 5: Fetch stores for selection
+  const { data: storesData } = useGetAllStores({
+    page: 1,
+    size: 1000,
+    is_active: true,
   });
 
   const userOptions = useMemo(
@@ -81,6 +89,15 @@ export default function CreateItemRequisition() {
     [department]
   );
 
+  // Phase 5: Store options
+  const storeOptions = useMemo(() => {
+    if (!storesData?.data?.results) return [];
+    return storesData.data.results.map((store: any) => ({
+      label: `${store.name} (${store.code}) - ${store.store_type === "CENTRAL" ? "Central" : "Location"}`,
+      value: store.id,
+    }));
+  }, [storesData]);
+
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
 
@@ -98,6 +115,7 @@ export default function CreateItemRequisition() {
     resolver: zodResolver(ItemRequisitionSchema),
     defaultValues: {
       department: "",
+      store: "", // Phase 5: Store selection
       consummables: [{ consummable: "", quantity: "0" }],
     },
   });
@@ -139,6 +157,7 @@ export default function CreateItemRequisition() {
 
       form.reset({
         department: itemRequisition?.data.department.id,
+        store: itemRequisition?.data.store || "", // Phase 5: Include store
         consummables: itemRequisition?.data.consummables.map(
           ({ quantity, consummable }) => ({
             consummable: consummable?.id,
@@ -205,6 +224,15 @@ export default function CreateItemRequisition() {
                 name='department'
                 placeholder='Select Department'
                 options={departmentOptions}
+                required
+              />
+
+              {/* Phase 5: Store Selection */}
+              <FormSelect
+                label='Store'
+                name='store'
+                placeholder='Select Store'
+                options={storeOptions}
                 required
               />
 

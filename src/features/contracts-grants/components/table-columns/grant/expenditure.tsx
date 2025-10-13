@@ -32,7 +32,18 @@ export const expenditureColumns: ColumnDef<IExpenditurePaginatedData>[] = [
     {
         header: "Project",
         id: "project",
-        accessorFn: ({ project_details }) => project_details?.title || "N/A",
+        accessorFn: (row) => {
+            // For regular grants, get from project_details or grant
+            if (row.project_details?.title) {
+                return row.project_details.title;
+            }
+            if (row.grant?.project?.title) {
+                return row.grant.project.title;
+            }
+            // For subgrants, project should be passed via custom columns
+            // since the API doesn't return expanded sub_grant data
+            return "N/A";
+        },
         size: 200,
     },
 

@@ -22,6 +22,8 @@ import {
   CalendarDays,
   XCircle,
   AlertCircle,
+  Trash2,
+  Eye,
 } from "lucide-react";
 import DataTable from "components/Table/DataTable";
 import { ColumnDef } from "@tanstack/react-table";
@@ -31,15 +33,20 @@ import AssignLeaveForm from "./AssignLeaveForm";
 import { useGetLeaveRequests } from "../../controllers/leaveRequestController";
 import { useGetEmployeeOnboardings } from "../../controllers/employeeOnboardingController";
 import { normalizeLeaveRequestEmployee } from "../../utils/normalizeLeaveData";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 
 type LeaveStatus = "draft" | "pending_approval" | "approved" | "rejected" | "cancelled" | "taken";
 
 const AssignLeaveDashboard = () => {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState("overview");
   const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("");
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   // Fetch data
   const { data: leaveRequestsData, isLoading: loadingRequests } = useGetLeaveRequests({
@@ -80,6 +87,29 @@ const AssignLeaveDashboard = () => {
       const createdMonth = new Date(req.created_at).getMonth();
       return createdMonth === thisMonth;
     }).length,
+  };
+
+  // Delete leave request handler
+  const handleDeleteLeaveRequest = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this leave request? This action cannot be undone.")) {
+      return;
+    }
+
+    try {
+      setDeletingId(id);
+      await AxiosWithToken.delete(`hr/leave-request/${id}/`);
+
+      // Invalidate queries to refresh the list
+      await queryClient.invalidateQueries({ queryKey: ["leave-requests"] });
+
+      toast.success("Leave request deleted successfully");
+    } catch (error: any) {
+      console.error("Error deleting leave request:", error);
+      const errorMessage = error.response?.data?.message || error.message || "Failed to delete leave request";
+      toast.error(errorMessage);
+    } finally {
+      setDeletingId(null);
+    }
   };
 
   // Status Badge Component
@@ -154,15 +184,40 @@ const AssignLeaveDashboard = () => {
     },
     {
       header: "Actions",
-      cell: ({ row }) => (
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => router.push(`/dashboard/hr/leave-management/${row.original.id}/details`)}
-        >
-          View
-        </Button>
-      ),
+      cell: ({ row }) => {
+        const isDeleting = deletingId === row.original.id;
+
+        return (
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => router.push(`/dashboard/hr/leave-management/${row.original.id}/details`)}
+            >
+              <Eye className="w-4 h-4 mr-1" />
+              View
+            </Button>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => handleDeleteLeaveRequest(row.original.id)}
+              disabled={isDeleting}
+            >
+              {isDeleting ? (
+                <>
+                  <div className="animate-spin rounded-full h-3 w-3 border-2 border-white border-t-transparent mr-1" />
+                  Deleting...
+                </>
+              ) : (
+                <>
+                  <Trash2 className="w-4 h-4 mr-1" />
+                  Delete
+                </>
+              )}
+            </Button>
+          </div>
+        );
+      },
     },
   ];
 

@@ -42,6 +42,7 @@ import { Label } from "components/ui/label";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { normalizeLeaveRequestEmployee } from "../../../utils/normalizeLeaveData";
+import { getCurrentUser } from "@/utils/auth";
 
 interface LeaveDetailViewProps {
   id: string;
@@ -83,22 +84,78 @@ const LeaveDetailView: React.FC<LeaveDetailViewProps> = ({ id }) => {
   const { data: workflowData, error: workflowError } = useGetLeaveWorkflow(id, false); // Disabled
   const workflow = workflowData?.data;
 
+  // Get current user for permission checks
+  const currentUser = React.useMemo(() => getCurrentUser(), []);
+
+  // Get the leave request status
+  const status = leaveRequest?.status || "pending_approval";
+
+  // Check if current user can approve this request
+  const canApprove = React.useMemo(() => {
+    if (status !== 'pending_approval') return false;
+    if (!currentUser) return false;
+
+    // User can approve if they are:
+    // 1. Admin or HR role
+    if (currentUser.is_admin || currentUser.is_superuser || currentUser.role === 'HR' || currentUser.role === 'Admin') {
+      return true;
+    }
+
+    // 2. Designated approver for this request
+    if (leaveRequest?.approver?.id === currentUser.id) {
+      return true;
+    }
+
+    // 3. Current approver in workflow (multi-level approval)
+    if (leaveRequest?.current_approver?.id === currentUser.id) {
+      return true;
+    }
+
+    // 4. Employee's manager
+    if (leaveRequest?.employee?.manager?.id === currentUser.id) {
+      return true;
+    }
+
+    return false;
+  }, [status, currentUser, leaveRequest]);
+
   const handleApprove = async () => {
     try {
       setIsProcessing(true);
-      await AxiosWithToken.post(`hr/leave-request/${id}/approve/`, {
-        comments: approvalComments,
+      const response = await AxiosWithToken.post(`hr/leave-request/${id}/approve/`, {
+        comments: approvalComments || undefined,
       });
 
       await queryClient.invalidateQueries({ queryKey: ["leave-request", id] });
       await queryClient.invalidateQueries({ queryKey: ["leave-requests"] });
 
-      toast.success("Leave request approved successfully");
+      // Check if this is a multi-level approval workflow
+      if (response.data?.status) {
+        toast.success(response.data.message || "Leave request approved successfully");
+
+        // Show info if more approvals are needed (multi-level workflow)
+        if (response.data.completed === false && response.data.next_approver) {
+          const nextApproverName = response.data.next_approver.full_name ||
+            `${response.data.next_approver.first_name} ${response.data.next_approver.last_name}`;
+          toast.info(
+            `Approved at your level. Awaiting approval from ${nextApproverName}`,
+            { duration: 5000 }
+          );
+        } else if (response.data.completed === true) {
+          toast.success("Leave request fully approved!", { duration: 5000 });
+        }
+      } else {
+        toast.success("Leave request approved successfully");
+      }
+
       setShowApproveDialog(false);
       setApprovalComments("");
       refetch();
     } catch (error: any) {
-      const errorMessage = error.response?.data?.message || error.message || "Failed to approve";
+      const errorMessage = error.response?.data?.error ||
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to approve";
       toast.error(errorMessage);
     } finally {
       setIsProcessing(false);
@@ -113,21 +170,28 @@ const LeaveDetailView: React.FC<LeaveDetailViewProps> = ({ id }) => {
 
     try {
       setIsProcessing(true);
-      await AxiosWithToken.post(`hr/leave-request/${id}/reject/`, {
-        reason: rejectReason,
-        comments: rejectComments,
+      const response = await AxiosWithToken.post(`hr/leave-request/${id}/reject/`, {
+        reason: rejectReason.trim(),
       });
 
       await queryClient.invalidateQueries({ queryKey: ["leave-request", id] });
       await queryClient.invalidateQueries({ queryKey: ["leave-requests"] });
 
-      toast.success("Leave request rejected");
+      if (response.data?.status) {
+        toast.success(response.data.message || "Leave request rejected");
+      } else {
+        toast.success("Leave request rejected");
+      }
+
       setShowRejectDialog(false);
       setRejectReason("");
       setRejectComments("");
       refetch();
     } catch (error: any) {
-      const errorMessage = error.response?.data?.message || error.message || "Failed to reject";
+      const errorMessage = error.response?.data?.error ||
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to reject";
       toast.error(errorMessage);
     } finally {
       setIsProcessing(false);
@@ -168,9 +232,23 @@ const LeaveDetailView: React.FC<LeaveDetailViewProps> = ({ id }) => {
       try {
         const workflowsResponse = await AxiosWithToken.get("hr/approval-workflows/");
         const workflows = workflowsResponse.data?.data?.results || workflowsResponse.data?.data || [];
-        const matchingWorkflow = workflows.find((w: any) => w.leave_type?.id === leaveRequest?.leave_type?.id);
+
+        // The workflow API returns leave_type as a string ID, not an object
+        // The leave request has leave_type as an object with id
+        const leaveTypeId = typeof leaveRequest?.leave_type === 'object'
+          ? leaveRequest?.leave_type?.id
+          : leaveRequest?.leave_type;
+
+        const matchingWorkflow = workflows.find((w: any) => {
+          // Handle both string and object formats for workflow leave_type
+          const workflowLeaveTypeId = typeof w.leave_type === 'object'
+            ? w.leave_type?.id
+            : w.leave_type;
+          return workflowLeaveTypeId === leaveTypeId;
+        });
 
         console.log("All workflows:", workflows);
+        console.log("Leave type ID to match:", leaveTypeId);
         console.log("Matching workflow for this leave type:", matchingWorkflow);
 
         if (!matchingWorkflow) {
@@ -181,6 +259,18 @@ const LeaveDetailView: React.FC<LeaveDetailViewProps> = ({ id }) => {
           setIsProcessing(false);
           return;
         }
+
+        // Validation: Check if approvers exist
+        if (!matchingWorkflow.approvers || matchingWorkflow.approvers.length === 0) {
+          toast.error(
+            `The workflow for "${leaveRequest?.leave_type?.name}" has no approvers configured. Please add approvers to the workflow.`,
+            { duration: 5000 }
+          );
+          setIsProcessing(false);
+          return;
+        }
+
+        console.log("Workflow validation passed. Approvers:", matchingWorkflow.approvers);
       } catch (workflowCheckError) {
         console.error("Error checking workflows:", workflowCheckError);
       }
@@ -196,22 +286,10 @@ const LeaveDetailView: React.FC<LeaveDetailViewProps> = ({ id }) => {
     } catch (error: any) {
       console.error("Error submitting leave request:", error);
       console.error("Leave request data:", leaveRequest);
+      console.error("Full error response:", error.response);
 
       const errorMessage = error.response?.data?.message || error.message || "Failed to submit";
-
-      // Check if it's the NoneType workflow/approver error
-      if (errorMessage.includes("NoneType") || errorMessage.includes("'id'")) {
-        toast.error(
-          "Cannot submit leave request. The backend approval workflow system has an error. " +
-          "Please check:\n" +
-          "1. Workflow exists for leave type: " + (leaveRequest?.leave_type?.name || "Unknown") + "\n" +
-          "2. Workflow has at least one approver configured\n" +
-          "3. Approvers are valid users in the system",
-          { duration: 8000 }
-        );
-      } else {
-        toast.error(errorMessage);
-      }
+      toast.error(errorMessage);
     } finally {
       setIsProcessing(false);
     }
@@ -267,8 +345,6 @@ const LeaveDetailView: React.FC<LeaveDetailViewProps> = ({ id }) => {
       </div>
     );
   }
-
-  const status = leaveRequest.status || "pending_approval";
 
   const getStatusConfig = (status: string) => {
     const configs: any = {
@@ -547,24 +623,45 @@ const LeaveDetailView: React.FC<LeaveDetailViewProps> = ({ id }) => {
             <Card className="p-6">
               <h3 className="text-lg font-semibold mb-4">Actions</h3>
               <div className="space-y-3">
-                <Button
-                  className="w-full bg-green-600 hover:bg-green-700"
-                  onClick={() => setShowApproveDialog(true)}
-                  disabled={isProcessing}
-                >
-                  <CheckCircle className="w-4 h-4 mr-2" />
-                  Approve Request
-                </Button>
+                {canApprove ? (
+                  <>
+                    <Button
+                      className="w-full bg-green-600 hover:bg-green-700"
+                      onClick={() => setShowApproveDialog(true)}
+                      disabled={isProcessing}
+                    >
+                      <CheckCircle className="w-4 h-4 mr-2" />
+                      Approve Request
+                    </Button>
 
-                <Button
-                  variant="destructive"
-                  className="w-full"
-                  onClick={() => setShowRejectDialog(true)}
-                  disabled={isProcessing}
-                >
-                  <XCircle className="w-4 h-4 mr-2" />
-                  Reject Request
-                </Button>
+                    <Button
+                      variant="destructive"
+                      className="w-full"
+                      onClick={() => setShowRejectDialog(true)}
+                      disabled={isProcessing}
+                    >
+                      <XCircle className="w-4 h-4 mr-2" />
+                      Reject Request
+                    </Button>
+                  </>
+                ) : (
+                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                    <div className="flex items-start gap-2">
+                      <Clock className="w-5 h-5 text-amber-600 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-medium text-amber-900">Pending Approval</p>
+                        <p className="text-xs text-amber-700 mt-1">
+                          You don't have permission to approve this leave request.
+                          {leaveRequest?.current_approver && (
+                            <span className="block mt-1">
+                              Current approver: {leaveRequest.current_approver.first_name} {leaveRequest.current_approver.last_name}
+                            </span>
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 <Button variant="outline" className="w-full" onClick={handleCancel} disabled={isProcessing}>
                   Cancel Request

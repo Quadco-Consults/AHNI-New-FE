@@ -62,8 +62,11 @@ const WFNA: React.FC = () => {
     },
   });
 
-  const { handleSubmit, reset, getValues } = form;
-  const { location: selectedLocation, position: selectedPosition } = getValues();
+  const { handleSubmit, reset, watch } = form;
+
+  // Watch form values for reactive filtering
+  const selectedLocation = watch("location");
+  const selectedPosition = watch("position");
 
   // Use the same controllers as the form component for consistency
   const { data: locations, isLoading: locationIsLoading } =
@@ -79,12 +82,17 @@ const WFNA: React.FC = () => {
 
   // Debug logging
   React.useEffect(() => {
-    console.log('Workforce data:', data);
+    console.log('=== WORKFORCE NEED ANALYSIS DEBUG ===');
+    console.log('Selected Location:', selectedLocation);
+    console.log('Selected Position:', selectedPosition);
+    console.log('Full API Response:', data);
+    console.log('Results:', data?.data?.results);
+    console.log('Results Count:', data?.data?.results?.length);
+    console.log('Pagination:', data?.data?.pagination);
     console.log('Loading:', loadingWorkforce);
     console.log('Error:', error);
-    console.log('Locations data structure:', locations);
-    console.log('Positions data structure:', positions);
-  }, [data, loadingWorkforce, error, locations, positions]);
+    console.log('====================================');
+  }, [data, loadingWorkforce, error, selectedLocation, selectedPosition]);
 
   const onSubmit: SubmitHandler<TFormValues> = (values) => {
     // Filter values are automatically applied through getValues() in the query
@@ -251,6 +259,7 @@ const WFNA: React.FC = () => {
     );
   };
 
+
   return (
     <div className='flex flex-col justify-center items-center gap-y-[1rem]'>
       {/** ============================================= FILTER ============================================= */}
@@ -289,7 +298,7 @@ const WFNA: React.FC = () => {
                           (locations?.data?.results || []).map(
                             (location: LocationResultsData) => (
                               <SelectItem key={location.id} value={String(location.id)}>
-                                {String(location.state || location.name || 'Unknown Location')}
+                                {String(location.name || 'Unknown Location')}
                               </SelectItem>
                             )
                           )
@@ -353,27 +362,50 @@ const WFNA: React.FC = () => {
         </Accordion>
       </Card>
 
-      {/* <div className='w-full flex justify-end items-center'>
-        <div className='flex items-center'>
-          <FormButton
-            onClick={() => {
-              router.push(HrRoutes.WORKFORCE_NEED_ANALYSIS_CREATE);
-            }}
-          >
-            <AddSquareIcon />
-            <p>Create Workforce Need Analysis</p>
-          </FormButton>
-        </div>
-      </div> */}
+      {/* Filter Status Info */}
+      {(selectedLocation || selectedPosition) && (
+        <Card className='w-full px-6 py-4'>
+          <div className='flex items-center justify-between'>
+            <div className='flex items-center gap-2'>
+              <Icon icon="mdi:filter" className="w-5 h-5 text-blue-600" />
+              <p className='text-sm font-medium'>
+                Showing results for:
+                {selectedPosition && (
+                  <span className='ml-2 px-2 py-1 bg-blue-100 text-blue-800 rounded'>
+                    Position: {positions?.data?.results?.find((p: PositionsResultsData) => String(p.id) === selectedPosition)?.name || 'Loading...'}
+                  </span>
+                )}
+                {selectedLocation && (
+                  <span className='ml-2 px-2 py-1 bg-green-100 text-green-800 rounded'>
+                    Location: {locations?.data?.results?.find((l: LocationResultsData) => String(l.id) === selectedLocation)?.name || 'Loading...'}
+                  </span>
+                )}
+                <span className='ml-3 text-gray-600'>
+                  ({data?.data?.pagination?.count || 0} {(data?.data?.pagination?.count || 0) === 1 ? 'result' : 'results'})
+                </span>
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => reset()}
+              className='flex items-center gap-2'
+            >
+              <Icon icon="mdi:close-circle" className="w-4 h-4" />
+              Clear Filters
+            </Button>
+          </div>
+        </Card>
+      )}
 
       <div className='w-full'>
         <DataTable
           columns={columns}
-          data={data?.data ?? []}
+          data={data?.data?.results ?? []}
           isLoading={loadingWorkforce}
           pagination={{
-            total: 10,
-            pageSize: 10,
+            total: data?.data?.pagination?.count || 0,
+            pageSize: data?.data?.pagination?.page_size || 20,
             onChange: (page: number) => {},
           }}
         />
