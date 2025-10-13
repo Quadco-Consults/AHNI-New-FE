@@ -6,6 +6,7 @@ import { useState } from "react";
 import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
 import DeleteIcon from "components/icons/DeleteIcon";
 import PencilIcon from "components/icons/PencilIcon";
+import EyeIcon from "components/icons/EyeIcon";
 import ConfirmationDialog from "components/ConfirmationDialog";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -15,174 +16,64 @@ import { CG_ROUTES } from "constants/RouterConstants";
 
 // Helper function to extract entity name based on agreement type
 const getEntityName = (agreement: IAgreementPaginatedData): string => {
-    // Check if backend provided expanded details (separate _details field)
-    if (agreement.vendor_details) {
-        return agreement.vendor_details.company_name || agreement.vendor_details.name || 'N/A';
+    // Backend returns flattened fields - use them directly
+    if (agreement.vendor_name) {
+        return agreement.vendor_name;
     }
-    if (agreement.consultant_details) {
-        return agreement.consultant_details.user?.full_name ||
-               agreement.consultant_details.full_name ||
-               `${agreement.consultant_details.user?.first_name || ''} ${agreement.consultant_details.user?.last_name || ''}`.trim() ||
-               'N/A';
+    if (agreement.consultant_name) {
+        return agreement.consultant_name;
     }
-    if (agreement.facilitator_details) {
-        return agreement.facilitator_details.user?.full_name ||
-               agreement.facilitator_details.full_name ||
-               `${agreement.facilitator_details.user?.first_name || ''} ${agreement.facilitator_details.user?.last_name || ''}`.trim() ||
-               'N/A';
+    if (agreement.facilitator_name) {
+        return agreement.facilitator_name;
     }
-    if (agreement.adhoc_staff_details) {
-        return agreement.adhoc_staff_details.user?.full_name ||
-               agreement.adhoc_staff_details.full_name ||
-               `${agreement.adhoc_staff_details.user?.first_name || ''} ${agreement.adhoc_staff_details.user?.last_name || ''}`.trim() ||
-               'N/A';
+    if (agreement.adhoc_staff_name) {
+        return agreement.adhoc_staff_name;
     }
 
-    // Check if fields themselves are objects (Django in-place expansion)
-    if (agreement.vendor && typeof agreement.vendor === 'object') {
-        return agreement.vendor.company_name || agreement.vendor.name || 'N/A';
-    }
-    if (agreement.consultant && typeof agreement.consultant === 'object') {
-        return agreement.consultant.user?.full_name ||
-               agreement.consultant.full_name ||
-               `${agreement.consultant.user?.first_name || ''} ${agreement.consultant.user?.last_name || ''}`.trim() ||
-               'N/A';
-    }
-    if (agreement.facilitator && typeof agreement.facilitator === 'object') {
-        return agreement.facilitator.user?.full_name ||
-               agreement.facilitator.full_name ||
-               `${agreement.facilitator.user?.first_name || ''} ${agreement.facilitator.user?.last_name || ''}`.trim() ||
-               'N/A';
-    }
-    if (agreement.adhoc_staff && typeof agreement.adhoc_staff === 'object') {
-        return agreement.adhoc_staff.user?.full_name ||
-               agreement.adhoc_staff.full_name ||
-               `${agreement.adhoc_staff.user?.first_name || ''} ${agreement.adhoc_staff.user?.last_name || ''}`.trim() ||
-               'N/A';
+    // Backend hasn't added these fields yet - show a message
+    const serviceType = agreement.service_type_display;
+    if (serviceType === 'Consultant' || serviceType === 'Adhoc Staff' || serviceType === 'Facilitator') {
+        return `⚠️ ${serviceType} (Name field pending)`;
     }
 
-    // Backend only returned IDs - show the type
-    if (agreement.vendor) {
-        return `Vendor (${agreement.type})`;
-    }
-    if (agreement.consultant) {
-        return `Consultant`;
-    }
-    if (agreement.facilitator) {
-        return `Facilitator`;
-    }
-    if (agreement.adhoc_staff) {
-        return `Adhoc Staff`;
-    }
-    return 'N/A';
+    // Fallback to service type display if no entity name
+    return agreement.service_type_display || '-';
 };
 
 // Helper function to extract contact person
 const getContactPerson = (agreement: IAgreementPaginatedData): string => {
-    // Check _details field
-    if (agreement.vendor_details) {
-        return agreement.vendor_details.contact_person || 'N/A';
+    // Backend returns flattened fields
+    if (agreement.vendor_contact_person) {
+        return agreement.vendor_contact_person;
     }
-    // Check if main field is expanded
-    if (agreement.vendor && typeof agreement.vendor === 'object') {
-        return agreement.vendor.contact_person || 'N/A';
-    }
-    // For staff contracts, same as entity name
-    if (agreement.consultant_details || agreement.facilitator_details || agreement.adhoc_staff_details ||
-        (agreement.consultant && typeof agreement.consultant === 'object') ||
-        (agreement.facilitator && typeof agreement.facilitator === 'object') ||
-        (agreement.adhoc_staff && typeof agreement.adhoc_staff === 'object')) {
-        return getEntityName(agreement);
-    }
-    return '-';
+    // For staff contracts, return the entity name
+    return getEntityName(agreement);
 };
 
 // Helper function to extract contact email
 const getContactEmail = (agreement: IAgreementPaginatedData): string => {
-    // Vendor - check _details
-    if (agreement.vendor_details) {
-        return agreement.vendor_details.contact_email || agreement.vendor_details.email || 'N/A';
-    }
-    // Vendor - check main field
-    if (agreement.vendor && typeof agreement.vendor === 'object') {
-        return agreement.vendor.contact_email || agreement.vendor.email || 'N/A';
-    }
-    // Consultant - check _details
-    if (agreement.consultant_details) {
-        return agreement.consultant_details.user?.email || agreement.consultant_details.email || 'N/A';
-    }
-    // Consultant - check main field
-    if (agreement.consultant && typeof agreement.consultant === 'object') {
-        return agreement.consultant.user?.email || agreement.consultant.email || 'N/A';
-    }
-    // Facilitator - check _details
-    if (agreement.facilitator_details) {
-        return agreement.facilitator_details.user?.email || agreement.facilitator_details.email || 'N/A';
-    }
-    // Facilitator - check main field
-    if (agreement.facilitator && typeof agreement.facilitator === 'object') {
-        return agreement.facilitator.user?.email || agreement.facilitator.email || 'N/A';
-    }
-    // Adhoc staff - check _details
-    if (agreement.adhoc_staff_details) {
-        return agreement.adhoc_staff_details.user?.email || agreement.adhoc_staff_details.email || 'N/A';
-    }
-    // Adhoc staff - check main field
-    if (agreement.adhoc_staff && typeof agreement.adhoc_staff === 'object') {
-        return agreement.adhoc_staff.user?.email || agreement.adhoc_staff.email || 'N/A';
-    }
-    return '-';
+    // Backend returns flattened fields
+    return agreement.vendor_contact_email ||
+           agreement.consultant_email ||
+           agreement.facilitator_email ||
+           agreement.adhoc_staff_email ||
+           '-';
 };
 
 // Helper function to extract contact phone
 const getContactPhone = (agreement: IAgreementPaginatedData): string => {
-    // Vendor - check _details
-    if (agreement.vendor_details) {
-        return agreement.vendor_details.contact_phone || agreement.vendor_details.phone_number || 'N/A';
-    }
-    // Vendor - check main field
-    if (agreement.vendor && typeof agreement.vendor === 'object') {
-        return agreement.vendor.contact_phone || agreement.vendor.phone_number || 'N/A';
-    }
-    // Consultant - check _details
-    if (agreement.consultant_details) {
-        return agreement.consultant_details.user?.phone_number || agreement.consultant_details.phone_number || 'N/A';
-    }
-    // Consultant - check main field
-    if (agreement.consultant && typeof agreement.consultant === 'object') {
-        return agreement.consultant.user?.phone_number || agreement.consultant.phone_number || 'N/A';
-    }
-    // Facilitator - check _details
-    if (agreement.facilitator_details) {
-        return agreement.facilitator_details.user?.phone_number || agreement.facilitator_details.phone_number || 'N/A';
-    }
-    // Facilitator - check main field
-    if (agreement.facilitator && typeof agreement.facilitator === 'object') {
-        return agreement.facilitator.user?.phone_number || agreement.facilitator.phone_number || 'N/A';
-    }
-    // Adhoc staff - check _details
-    if (agreement.adhoc_staff_details) {
-        return agreement.adhoc_staff_details.user?.phone_number || agreement.adhoc_staff_details.phone_number || 'N/A';
-    }
-    // Adhoc staff - check main field
-    if (agreement.adhoc_staff && typeof agreement.adhoc_staff === 'object') {
-        return agreement.adhoc_staff.user?.phone_number || agreement.adhoc_staff.phone_number || 'N/A';
-    }
-    return '-';
+    // Backend returns flattened fields
+    return agreement.vendor_contact_phone ||
+           agreement.consultant_phone ||
+           agreement.facilitator_phone ||
+           agreement.adhoc_staff_phone ||
+           '-';
 };
 
 // Helper function to get location name
 const getLocationName = (agreement: IAgreementPaginatedData): string => {
-    // Check _details field
-    if (agreement.location_details) {
-        return agreement.location_details.name;
-    }
-    // Check if main field is expanded object
-    if (agreement.location && typeof agreement.location === 'object') {
-        return agreement.location.name;
-    }
-    // Backend only returned ID
-    return agreement.location || '-';
+    // Backend returns flattened location_name field
+    return agreement.location_name || '-';
 };
 
 // Helper function to format date
@@ -197,42 +88,26 @@ const formatDate = (dateString: string | undefined): string => {
 };
 
 // Helper function to get month from date
-const getMonth = (dateString: string): string => {
-    if (!dateString) return 'N/A';
-    try {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', { month: 'long' });
-    } catch {
-        return 'N/A';
-    }
+const getMonth = (agreement: IAgreementPaginatedData): string => {
+    // Backend provides start_month field
+    return agreement.start_month || 'N/A';
 };
 
 // Helper function to get year from date
-const getYear = (dateString: string): string => {
-    if (!dateString) return 'N/A';
-    try {
-        const date = new Date(dateString);
-        return date.getFullYear().toString();
-    } catch {
-        return 'N/A';
-    }
+const getYear = (agreement: IAgreementPaginatedData): string => {
+    // Backend provides start_year field
+    return agreement.start_year?.toString() || 'N/A';
 };
 
 export const agreementColumns: ColumnDef<IAgreementPaginatedData>[] = [
     {
         header: "Agreement Type",
-        id: "type",
-        accessorKey: "type",
+        id: "service_type_display",
+        accessorKey: "service_type_display",
         size: 150,
         cell: ({ row }) => {
-            const type = row.original.type;
-            const typeMap: Record<string, string> = {
-                'CONSULTANT': 'Consultant',
-                'FACILITATOR': 'Facilitator',
-                'ADHOC_STAFF': 'Adhoc Staff',
-                'SLA': 'Service Agreement'
-            };
-            return typeMap[type] || type;
+            // Backend returns service_type_display like "Sla", "Consultant", "Adhoc Staff"
+            return row.original.service_type_display || '-';
         },
     },
 
@@ -296,7 +171,7 @@ export const agreementColumns: ColumnDef<IAgreementPaginatedData>[] = [
         size: 150,
         cell: ({ row }) => {
             const cost = row.original.contract_cost;
-            if (!cost) return 'N/A';
+            if (!cost || cost === '0' || cost === 0) return '-';
             return `₦${Number(cost).toLocaleString()}`;
         },
     },
@@ -319,16 +194,16 @@ export const agreementColumns: ColumnDef<IAgreementPaginatedData>[] = [
 
     {
         header: "Month",
-        id: "month",
+        id: "start_month",
         size: 120,
-        cell: ({ row }) => getMonth(row.original.start_date),
+        cell: ({ row }) => getMonth(row.original),
     },
 
     {
         header: "Year",
-        id: "year",
+        id: "start_year",
         size: 100,
-        cell: ({ row }) => getYear(row.original.start_date),
+        cell: ({ row }) => getYear(row.original),
     },
 
     {
@@ -337,15 +212,17 @@ export const agreementColumns: ColumnDef<IAgreementPaginatedData>[] = [
         accessorKey: "status",
         size: 120,
         cell: ({ row }) => {
-            const status = row.original.status || 'ACTIVE';
+            const status = row.original.status || 'DRAFT';
+            const statusDisplay = row.original.status_display || status;
             return (
                 <span className={`px-2 py-1 rounded text-xs font-medium ${
                     status === 'ACTIVE' ? 'bg-green-100 text-green-800' :
                     status === 'EXPIRED' ? 'bg-red-100 text-red-800' :
                     status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
+                    status === 'DRAFT' ? 'bg-blue-100 text-blue-800' :
                     'bg-gray-100 text-gray-800'
                 }`}>
-                    {status}
+                    {statusDisplay}
                 </span>
             );
         },
@@ -389,6 +266,17 @@ const TableMenu = ({ id }: IAgreementPaginatedData) => {
                         </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-fit">
+                        <Link
+                            href={CG_ROUTES.VIEW_AGREEMENT.replace(':id', id)}
+                        >
+                            <Button
+                                className="w-full flex items-center justify-start gap-2"
+                                variant="ghost"
+                            >
+                                <EyeIcon />
+                                View
+                            </Button>
+                        </Link>
                         <Link
                             href={{
                                 pathname: CG_ROUTES.CREATE_AGREEMENT_DETAILS,

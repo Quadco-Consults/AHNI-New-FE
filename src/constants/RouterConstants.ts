@@ -483,6 +483,7 @@ export const CG_ROUTES = {
   CREATE_AGREEMENT: "/dashboard/c-and-g/agreements/create",
   CREATE_AGREEMENT_DETAILS: "/dashboard/c-and-g/agreements/create/summary",
   CREATE_AGREEMENT_UPLOADS: "/dashboard/c-and-g/agreements/create/uploads",
+  VIEW_AGREEMENT: "/dashboard/c-and-g/agreements/:id/view",
   // -------------
 
   // CONSULTANCY
