@@ -169,17 +169,24 @@ export const useUpdateFacilitatorApplicant = (id: string) => {
   return { updateFacilitatorApplicant, data, isLoading, isSuccess, error };
 };
 
-// Update Facilitator Applicant Status (for select/reject actions)
+// Update Facilitator Applicant Status (for approve/reject actions)
 export const useUpdateFacilitatorApplicantStatus = () => {
   const updateFacilitatorApplicantStatus = async (
     applicantId: string,
-    status: "SELECTED" | "REJECTED"
+    status: "APPROVED" | "REJECTED"
   ) => {
     try {
+      console.log(`🔍 Updating facilitator applicant ${applicantId} status to:`, status);
       const response = await AxiosWithToken.patch(`${BASE_URL}${applicantId}/`, { status });
+      console.log('✅ Status update response:', response.data);
       return response.data;
-    } catch (error) {
-      console.error("Facilitator applicant status update error:", error);
+    } catch (error: any) {
+      console.error("❌ Facilitator applicant status update error:", error);
+      console.error("Error details:", {
+        message: error?.message,
+        response: error?.response?.data,
+        status: error?.response?.status
+      });
       throw error;
     }
   };

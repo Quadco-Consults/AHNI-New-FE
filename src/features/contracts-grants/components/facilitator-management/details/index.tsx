@@ -28,9 +28,18 @@ export default function FacilitatorDetails() {
     <section className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">{facilitator?.title}</h1>
-          <p className="text-gray-600">Facilitator Management Details</p>
+        <div className="flex items-center gap-4">
+          <Button
+            variant="outline"
+            size="lg"
+            onClick={() => router.back()}
+          >
+            ← Go Back
+          </Button>
+          <div>
+            <h1 className="text-2xl font-bold">{facilitator?.title}</h1>
+            <p className="text-gray-600">Facilitator Management Details</p>
+          </div>
         </div>
         <div className="flex items-center gap-3">
           <Link href={`/dashboard/c-and-g/facilitator-management/${id}/applicant/create`}>

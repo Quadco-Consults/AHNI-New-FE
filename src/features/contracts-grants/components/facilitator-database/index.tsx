@@ -1,34 +1,32 @@
 "use client";
 
 import Card from "components/Card";
-import { consultantDatabaseColumns } from "@/features/contracts-grants/components/table-columns/contract-management/consultant-database";
+import { facilitatorDatabaseColumns } from "@/features/contracts-grants/components/table-columns/facilitator-database/facilitator-database";
 import DataTable from "components/Table/DataTable";
 import TableFilters from "components/Table/TableFilters";
 import { useState } from "react";
-import { useGetAllConsultancyApplicants } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
+import { useGetAllFacilitatorApplicants } from "@/features/contracts-grants/controllers/facilitatorApplicantsController";
 import { Badge } from "components/ui/badge";
 
 export default function FacilitatorDatabase() {
     const [page, setPage] = useState(1);
 
-    // Fetch all applicants
-    const { data, isLoading } = useGetAllConsultancyApplicants({
+    // Fetch all facilitator applicants with APPROVED status
+    const { data, isLoading } = useGetAllFacilitatorApplicants({
         page,
         size: 1000,
+        status: "APPROVED", // Only fetch approved facilitators
     });
 
     const allResults = data?.data?.results || [];
 
-    // Filter for facilitators who have accepted their contracts
-    const acceptedFacilitators = allResults.filter(applicant => {
-        // Must have accepted the offer
-        if (!applicant.offer_accepted) return false;
-
-        // Must be FACILITATOR type only
-        return applicant.type === "FACILITATOR";
+    console.log('🔍 Facilitator Database Debug:', {
+        isLoading,
+        totalResults: allResults.length,
+        results: allResults
     });
 
-    const results = acceptedFacilitators;
+    const results = allResults;
 
     return (
         <section className="space-y-6">
@@ -52,7 +50,7 @@ export default function FacilitatorDatabase() {
             <Card>
                 <TableFilters>
                     <DataTable
-                        columns={consultantDatabaseColumns as any}
+                        columns={facilitatorDatabaseColumns}
                         data={results}
                         isLoading={isLoading}
                         pagination={{
