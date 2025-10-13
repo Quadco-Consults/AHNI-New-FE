@@ -9,7 +9,6 @@ import PencilIcon from "components/icons/PencilIcon";
 import EyeIcon from "components/icons/EyeIcon";
 import ConfirmationDialog from "components/ConfirmationDialog";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { IAgreementPaginatedData } from "definations/c&g/contract-management/agreement";
 import { useDeleteAgreement } from "@/features/contracts-grants/controllers/agreementController";
 import { CG_ROUTES } from "constants/RouterConstants";
@@ -236,14 +235,13 @@ export const agreementColumns: ColumnDef<IAgreementPaginatedData>[] = [
     },
 ];
 
-const TableMenu = ({ id }: IAgreementPaginatedData) => {
+const TableMenu = ({ id, status }: IAgreementPaginatedData) => {
     const [isDialogOpen, setDialogOpen] = useState(false);
 
-    const pathname = usePathname();
-
-    console.log({ pathname });
-
     const { deleteAgreement, isLoading } = useDeleteAgreement(id);
+
+    // Only allow editing DRAFT agreements
+    const canEdit = status === 'DRAFT' || !status;
 
     const handleDelete = async () => {
         try {
@@ -253,8 +251,6 @@ const TableMenu = ({ id }: IAgreementPaginatedData) => {
             toast.error(error.data?.message ?? "Something went wrong");
         }
     };
-
-    if (pathname === "/admin/agreements/") return null;
 
     return (
         <div className="flex items-center gap-2">
@@ -277,20 +273,19 @@ const TableMenu = ({ id }: IAgreementPaginatedData) => {
                                 View
                             </Button>
                         </Link>
-                        <Link
-                            href={{
-                                pathname: CG_ROUTES.CREATE_AGREEMENT_DETAILS,
-                                search: `?id=${id}`,
-                            }}
-                        >
-                            <Button
-                                className="w-full flex items-center justify-start gap-2"
-                                variant="ghost"
+                        {canEdit && (
+                            <Link
+                                href={`${CG_ROUTES.CREATE_AGREEMENT_DETAILS}?id=${id}`}
                             >
-                                <PencilIcon />
-                                Edit
-                            </Button>
-                        </Link>
+                                <Button
+                                    className="w-full flex items-center justify-start gap-2"
+                                    variant="ghost"
+                                >
+                                    <PencilIcon />
+                                    Edit
+                                </Button>
+                            </Link>
+                        )}
                         <Button
                             className="w-full flex items-center justify-start gap-2"
                             variant="ghost"

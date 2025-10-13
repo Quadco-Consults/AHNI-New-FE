@@ -88,7 +88,7 @@ export interface ItemStoreStockPaginatedResponse<T> {
   status: boolean;
   message: string;
   data: {
-    paginator: {
+    pagination: {
       count: number;
       page: number;
       page_size: number;
