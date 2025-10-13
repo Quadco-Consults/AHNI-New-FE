@@ -59,8 +59,9 @@ export default function CreateAgreement() {
         resolver: zodResolver(AgreementSchema),
         defaultValues: {
             service_type: undefined, // Job Category - First selection
-            service: undefined, // Service Category - Second selection (cascades from job category)
-            type: "", // Agreement Type - Third selection (cascades from service category)
+            service: undefined, // Service Category - Second selection (parent category)
+            subcategory: undefined, // Subcategory - Third selection (child category, optional)
+            type: "", // Agreement Type - Fourth selection
             start_date: "",
             end_date: "",
             contract_cost: "",
@@ -174,54 +175,59 @@ export default function CreateAgreement() {
     const fetchVendors = async (agreementType?: string) => {
         setIsLoadingEntities(true);
         try {
-            console.log('🔍 Fetching vendors from dropdown endpoint...');
+            console.log('🔍 Fetching vendors from procurement vendors endpoint...');
             console.log('- Agreement Type:', agreementType);
 
-            // ✅ Use the correct dropdown endpoint
-            const response = await AxiosWithToken.get('/contract-grants/agreements/vendors_dropdown/');
+            // Fetch vendors from procurement endpoint with approved status
+            const response = await AxiosWithToken.get('/procurements/vendors/', {
+                params: {
+                    page: 1,
+                    size: 1000,
+                    status: 'Approved' // Only fetch approved vendors (note: capital A, rest lowercase)
+                }
+            });
 
             console.log('📊 Vendors API Response:', response.data);
 
-            // ✅ Response is direct array (not paginated)
-            const vendors = Array.isArray(response.data) ? response.data : [];
+            // Handle paginated response
+            const vendors = response.data?.data?.results || response.data?.results || [];
 
-            console.log(`✅ Found ${vendors.length} active vendors`);
+            console.log(`✅ Found ${vendors.length} approved vendors`);
 
             if (vendors.length > 0) {
-                // ✅ Backend already formats data correctly
-                // Optional: Filter by agreement type on client-side if needed
-                const categoryMapping: Record<string, string[]> = {
-                    'SLA': ['IT_SERVICES', 'TECHNOLOGY'],
-                    'SECURITY': ['SECURITY_SERVICES', 'SECURITY'],
-                    'INSURANCE': ['INSURANCE'],
-                    'LEASE': ['PROPERTY_LEASE', 'REAL_ESTATE'],
-                    'HMO': ['HEALTH_SERVICES', 'HEALTHCARE'],
-                    'TICKETING': ['TRAVEL_SERVICES', 'TRAVEL']
-                };
+                // Show ALL approved vendors (no category filtering)
+                // Most vendors do multiple things, so let user select from all options
+                console.log(`📊 Showing all ${vendors.length} approved vendors`);
 
-                // For now, show all active vendors
-                // TODO: Backend should add category field to vendors_dropdown response
                 setEntityOptions(vendors.map((vendor: any) => ({
-                    label: vendor.label || vendor.company_name,
-                    value: vendor.value || vendor.id,
+                    label: `${vendor.company_name}${vendor.area_of_specialization ? ` - ${vendor.area_of_specialization}` : ''}`,
+                    value: vendor.id,
                     company_name: vendor.company_name,
                     email: vendor.email,
-                    phone_number: vendor.phone_number
+                    phone_number: vendor.phone_number,
+                    approved_categories: vendor.approved_categories || []
                 })));
             } else {
-                console.log('❌ No active vendors found');
+                console.log('❌ No approved vendors found in system');
                 setEntityOptions([{
-                    label: 'No active vendors available. Please register and approve vendors first.',
+                    label: 'No approved vendors available. Please register and approve vendors first.',
                     value: ""
                 }]);
             }
 
-        } catch (error) {
-            console.error('Failed to fetch vendors:', error);
-            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        } catch (error: any) {
+            console.error('❌ Failed to fetch vendors:', error);
+            console.error('Error details:', {
+                message: error?.message,
+                response: error?.response?.data,
+                status: error?.response?.status
+            });
+
+            const errorMessage = error?.response?.data?.message || error?.message || 'Unknown error';
+            const statusCode = error?.response?.status;
 
             setEntityOptions([{
-                label: `Error loading vendors: ${errorMessage}`,
+                label: `Error loading vendors (${statusCode || 'Network Error'}): ${errorMessage}`,
                 value: ""
             }]);
         } finally {
@@ -528,17 +534,18 @@ export default function CreateAgreement() {
         return filtered;
     }, [selectedService, selectedSubcategory, serviceOptions, subcategoryOptions]);
 
-    // Debug: Log all form values in real-time (after serviceTypeOptions is defined)
+    // Debug: Log all form values in real-time
     console.log('🔍 Real-time Form Values:');
+    console.log('- Job Category (service_type):', selectedJobCategory);
+    console.log('- Service Category (service):', selectedService);
+    console.log('- Subcategory:', selectedSubcategory);
     console.log('- Agreement Type:', agreementType);
-    console.log('- Selected Service:', selectedService);
-    console.log('- Service Type Options Count:', serviceTypeOptions.length);
-    console.log('- Current Service Type:', form.watch('service_type'));
     console.log('- Consultant ID:', consultantId);
     console.log('- Facilitator ID:', facilitatorId);
     console.log('- Adhoc Staff ID:', adhocStaffId);
     console.log('- Vendor ID:', vendorId);
-    console.log('- Selected Agreement Type State:', selectedAgreementType);
+    console.log('- Service Options Count:', serviceOptions.length);
+    console.log('- Subcategory Options Count:', subcategoryOptions.length);
     console.log('- Entity Options Count:', entityOptions.length);
 
     const { createAgreement, isLoading: isCreateLoading } =
@@ -921,65 +928,16 @@ export default function CreateAgreement() {
                                                 disabled={isLoadingEntities}
                                             />
 
-                                            {/* Debug: Show raw options data */}
-                                            {!isLoadingEntities && (
-                                                <div className="text-xs text-purple-600 mt-1">
-                                                    🔧 Debug: {entityOptions.length} options loaded
-                                                    {entityOptions.length > 0 && (
-                                                        <div>First option: {JSON.stringify(entityOptions[0])}</div>
-                                                    )}
-                                                </div>
-                                            )}
-
-                                            {/* Status indicator */}
-                                            <div className="text-sm text-gray-600">
+                                            {/* Status indicator - simple count like other fields */}
+                                            <div className="text-xs text-gray-600">
                                                 {isLoadingEntities ? (
-                                                    <span className="text-blue-600">🔄 Loading eligible candidates...</span>
+                                                    <span className="text-blue-600">🔄 Loading...</span>
                                                 ) : entityOptions.length > 0 ? (
-                                                    <div className="space-y-1">
-                                                        <span className="text-green-600">✅ Found {entityOptions.length} eligible candidate(s)</span>
-                                                        {/* Show currently selected entity */}
-                                                        <div className="text-xs text-gray-500">
-                                                            Currently selected: {
-                                                                selectedAgreementType === 'CONSULTANT' ? (consultantId || 'None') :
-                                                                selectedAgreementType === 'FACILITATOR' ? (facilitatorId || 'None') :
-                                                                selectedAgreementType === 'ADHOC_STAFF' ? (adhocStaffId || 'None') :
-                                                                (vendorId || 'None')
-                                                            }
-                                                        </div>
-                                                    </div>
+                                                    <span className="text-green-600">✅ {entityOptions.length} available</span>
                                                 ) : (
-                                                    <div className="space-y-1">
-                                                        <span className="text-red-600">❌ No eligible candidates found</span>
-                                                        <div className="text-xs text-red-500">
-                                                            {selectedAgreementType === 'CONSULTANT' && 'No consultants available for contracts. Check consultant applicant statuses.'}
-                                                            {selectedAgreementType === 'FACILITATOR' && 'No facilitators available for contracts. Check facilitator applicant statuses.'}
-                                                            {selectedAgreementType === 'ADHOC_STAFF' && 'No adhoc staff available for contracts. Check adhoc applicant statuses.'}
-                                                            {selectedAgreementType === 'SLA' && 'No approved IT Services vendors available. Register and approve vendors under IT Services category.'}
-                                                            {selectedAgreementType === 'SECURITY' && 'No approved Security Services vendors available. Register and approve vendors under Security Services category.'}
-                                                            {selectedAgreementType === 'INSURANCE' && 'No approved Insurance vendors available. Register and approve vendors under Insurance category.'}
-                                                            {selectedAgreementType === 'LEASE' && 'No approved Property Lease vendors available. Register and approve vendors under Property Lease category.'}
-                                                            {selectedAgreementType === 'HMO' && 'No approved Health Services vendors available. Register and approve vendors under Health Services category.'}
-                                                            {selectedAgreementType === 'TICKETING' && 'No approved Travel Services vendors available. Register and approve vendors under Travel Services category.'}
-                                                        </div>
-                                                    </div>
+                                                    <span className="text-yellow-600">⚠️ None available</span>
                                                 )}
                                             </div>
-
-                                            {/* Debug info */}
-                                            {!isLoadingEntities && (
-                                                <div className="text-xs text-gray-500">
-                                                    {selectedAgreementType === 'CONSULTANT' && 'Showing consultants who are eligible for contracts'}
-                                                    {selectedAgreementType === 'FACILITATOR' && 'Showing facilitators available for agreements'}
-                                                    {selectedAgreementType === 'ADHOC_STAFF' && 'Showing adhoc staff who have been interviewed/selected'}
-                                                    {selectedAgreementType === 'SLA' && 'Showing approved IT Services vendors only'}
-                                                    {selectedAgreementType === 'SECURITY' && 'Showing approved Security Services vendors only'}
-                                                    {selectedAgreementType === 'INSURANCE' && 'Showing approved Insurance vendors only'}
-                                                    {selectedAgreementType === 'LEASE' && 'Showing approved Property Lease vendors only'}
-                                                    {selectedAgreementType === 'HMO' && 'Showing approved Health Services vendors only'}
-                                                    {selectedAgreementType === 'TICKETING' && 'Showing approved Travel Services vendors only'}
-                                                </div>
-                                            )}
                                         </div>
                                     )}
 

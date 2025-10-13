@@ -1,12 +1,12 @@
 import { z } from "zod";
 
 export const AgreementSchema = z.object({
-    // Step 1: Type of Service Job (Goods, Service, Works, Other)
-    service_job_type: z.string().optional(), // Frontend-only field for filtering categories
-    // Step 2: Service Category (filtered by service job type)
+    // Step 1: Job Category (First dropdown)
+    service_type: z.string().optional(), // Job category for filtering
+    // Step 2: Service Category (Parent category - filtered by job category)
     service: z.string().optional(), // Frontend-only field, auto-populated for staff contracts
-    // Step 3: Service Type (Job Categories)
-    service_type: z.string().optional(), // Frontend-only field for UI filtering
+    // Step 3: Subcategory (Child category - filtered by parent category, optional)
+    subcategory: z.string().optional(), // Optional subcategory
     // Step 4: Agreement Type (Consultant, Facilitator, etc.)
     type: z.string().min(1, "Please select agreement type"),
     // Other fields
@@ -20,26 +20,60 @@ export const AgreementSchema = z.object({
     facilitator_id: z.string().optional().transform(val => val && val.trim() !== "" ? val : undefined),
     adhoc_staff_id: z.string().optional().transform(val => val && val.trim() !== "" ? val : undefined),
     vendor_id: z.string().optional().transform(val => val && val.trim() !== "" ? val : undefined),
-}).refine((data) => {
+}).superRefine((data, ctx) => {
     const { type } = data;
-
-    // For service agreements, service field is required in UI
     const serviceAgreementTypes = ["SLA", "SECURITY", "INSURANCE", "LEASE", "HMO", "TICKETING"];
+
+    console.log('🔍 Validation Debug:', {
+        type,
+        service: data.service,
+        consultant_id: data.consultant_id,
+        facilitator_id: data.facilitator_id,
+        adhoc_staff_id: data.adhoc_staff_id,
+        vendor_id: data.vendor_id,
+    });
+
+    // For service agreements, service field is required
     if (serviceAgreementTypes.includes(type) && (!data.service || data.service.length === 0)) {
-        return false;
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Service category is required for service agreements",
+            path: ["service"]
+        });
     }
 
-    // Ensure at least one entity is selected based on type
-    // After transformation, empty strings become undefined, so just check for truthiness
-    if (type === "CONSULTANT" && !data.consultant_id) return false;
-    if (type === "FACILITATOR" && !data.facilitator_id) return false;
-    if (type === "ADHOC_STAFF" && !data.adhoc_staff_id) return false;
-    if (serviceAgreementTypes.includes(type) && !data.vendor_id) return false;
+    // Ensure appropriate entity is selected based on type
+    if (type === "CONSULTANT" && !data.consultant_id) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Please select a consultant",
+            path: ["consultant_id"]
+        });
+    }
 
-    return true;
-}, {
-    message: "Please complete all required fields for this agreement type",
-    path: ["service"]
+    if (type === "FACILITATOR" && !data.facilitator_id) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Please select a facilitator",
+            path: ["facilitator_id"]
+        });
+    }
+
+    if (type === "ADHOC_STAFF" && !data.adhoc_staff_id) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Please select an adhoc staff member",
+            path: ["adhoc_staff_id"]
+        });
+    }
+
+    if (serviceAgreementTypes.includes(type) && !data.vendor_id) {
+        ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Please select a vendor",
+            path: ["vendor_id"]
+        });
+    }
 });
 
 export type TAgreementFormData = z.infer<typeof AgreementSchema>;
