@@ -123,20 +123,24 @@ export default function CreateStoreTransfer() {
         return;
       }
 
-      // Validate that at least one item has quantity
+      // Validate that at least one consumable has quantity
       const itemsWithQuantity = data.items.filter(
         (item) => item.quantity && item.quantity > 0
       );
 
       if (itemsWithQuantity.length === 0) {
-        toast.error("Please add at least one item with quantity");
+        toast.error("Please add at least one consumable with quantity");
         return;
       }
 
-      // Transform data for backend - rename items to transfer_items
+      // Transform data for backend - rename items to transfer_items and fields
       const payload = {
         ...data,
-        transfer_items: data.items,
+        transfer_items: data.items.map(item => ({
+          item: item.item,
+          quantity_requested: item.quantity,
+          remark: item.remark || "",
+        })),
       };
 
       // Remove the items field since backend expects transfer_items
@@ -168,7 +172,7 @@ export default function CreateStoreTransfer() {
     if (fields.length > 1) {
       remove(index);
     } else {
-      toast.error("At least one item is required");
+      toast.error("At least one consumable is required");
     }
   };
 
@@ -249,7 +253,7 @@ export default function CreateStoreTransfer() {
             {/* Items Section */}
             <div className="bg-white border border-gray-200 rounded-lg p-4">
               <div className="flex justify-between items-center mb-4">
-                <h3 className="font-semibold text-gray-900">📦 Items to Transfer</h3>
+                <h3 className="font-semibold text-gray-900">📦 Consumables to Transfer</h3>
                 <Button
                   type="button"
                   variant="outline"
@@ -258,14 +262,22 @@ export default function CreateStoreTransfer() {
                   className="flex items-center gap-2"
                 >
                   <Plus size={16} />
-                  Add Item
+                  Add Consumable
                 </Button>
               </div>
 
               {!selectedSourceStore && (
                 <div className="bg-yellow-50 border border-yellow-200 rounded p-3 mb-4">
                   <p className="text-sm text-yellow-800">
-                    ⚠️ Please select a source store first to see available items
+                    ⚠️ Please select a source store first to see available consumables
+                  </p>
+                </div>
+              )}
+
+              {selectedSourceStore && itemOptions.length === 0 && (
+                <div className="bg-blue-50 border border-blue-200 rounded p-3 mb-4">
+                  <p className="text-sm text-blue-800">
+                    ℹ️ No consumables found. Add consumables to the system first.
                   </p>
                 </div>
               )}
@@ -278,7 +290,7 @@ export default function CreateStoreTransfer() {
                   >
                     <div className="flex justify-between items-start mb-3">
                       <h4 className="font-medium text-gray-800">
-                        Item #{index + 1}
+                        Consumable #{index + 1}
                       </h4>
                       {fields.length > 1 && (
                         <Button
@@ -295,9 +307,9 @@ export default function CreateStoreTransfer() {
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <FormSelect
-                        label="Item"
+                        label="Consumable"
                         name={`items.${index}.item`}
-                        placeholder="Select item"
+                        placeholder="Select consumable"
                         required
                         options={itemOptions}
                         disabled={!selectedSourceStore}
@@ -381,7 +393,7 @@ function ItemStockInfo({
     return (
       <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded">
         <p className="text-xs text-red-700">
-          ⚠️ This item is not available in the source store
+          ⚠️ This consumable is not available in the source store
         </p>
       </div>
     );
