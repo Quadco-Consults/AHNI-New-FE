@@ -94,7 +94,8 @@ export default function FacilitatorApplicants({ facilitatorId }: FacilitatorAppl
             className={cn(
               "p-1 rounded-lg",
               statusText === "APPLIED" && "bg-blue-200 text-blue-500",
-              statusText === "SELECTED" && "bg-green-200 text-green-500",
+              statusText === "APPROVED" && "bg-green-200 text-green-500",
+              statusText === "SELECTED" && "bg-green-200 text-green-500", // Keep for backward compatibility
               statusText === "REJECTED" && "bg-red-200 text-red-500"
             )}
           >
