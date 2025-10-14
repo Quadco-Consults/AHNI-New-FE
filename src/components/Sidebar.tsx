@@ -967,8 +967,9 @@ const getDeparmentalLinks = () => {
       name: "HR",
       icon: <HRIcon />,
       link: [
+        { name: "Overview", path: "/dashboard/hr" },
         {
-          name: "Overview",
+          name: "Employee Management",
           sublinks: [
             {
               name: "Workforce Need Analysis",
