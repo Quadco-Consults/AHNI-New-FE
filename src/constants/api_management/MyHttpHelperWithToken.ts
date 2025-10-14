@@ -16,6 +16,11 @@ let retryCount = 0;
 
 AxiosWithToken.interceptors.request.use(
   async (config) => {
+    // Remove leading slash from config.url to prevent double slashes
+    if (config.url && config.url.startsWith('/')) {
+      config.url = config.url.substring(1);
+    }
+
     // Debug: Log the full request URL (only in development)
     if (process.env.NODE_ENV === 'development') {
       const url = `${config.baseURL || ''}${config.url || ''}`;
