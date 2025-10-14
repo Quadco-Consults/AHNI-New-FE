@@ -5,30 +5,27 @@ import { consultantDatabaseColumns } from "@/features/contracts-grants/component
 import DataTable from "components/Table/DataTable";
 import TableFilters from "components/Table/TableFilters";
 import { useState } from "react";
-import { useGetAllConsultancyApplicants } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
+import { useGetAllFacilitatorApplicants } from "@/features/contracts-grants/controllers/facilitatorApplicantsController";
 import { Badge } from "components/ui/badge";
 
 export default function FacilitatorDatabase() {
     const [page, setPage] = useState(1);
 
-    // Fetch all applicants
-    const { data, isLoading } = useGetAllConsultancyApplicants({
+    // Fetch all facilitator applicants with APPROVED status
+    const { data, isLoading } = useGetAllFacilitatorApplicants({
         page,
         size: 1000,
+        status: "APPROVED", // Only get approved facilitators
+        enabled: true,
     });
 
-    const allResults = data?.data?.results || [];
-
-    // Filter for facilitators who have accepted their contracts
-    const acceptedFacilitators = allResults.filter(applicant => {
-        // Must have accepted the offer
-        if (!applicant.offer_accepted) return false;
-
-        // Must be FACILITATOR type only
-        return applicant.type === "FACILITATOR";
+    console.log("🔍 Facilitator Database Data:", {
+        total: data?.data?.results?.length || 0,
+        isLoading,
+        data: data?.data?.results
     });
 
-    const results = acceptedFacilitators;
+    const results = data?.data?.results || [];
 
     return (
         <section className="space-y-6">

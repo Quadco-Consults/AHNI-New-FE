@@ -1,5 +1,5 @@
-import CreateConsultancyStaff from "@/features/contracts-grants/components/contract-management/consultant-management/id/applicants/CreateConsultancyStaff";
+import CreateAdhocApplicant from "@/features/programs/components/adhoc-management/CreateAdhocApplicant";
 
 export default function CreateAdhocApplicantPage() {
-  return <CreateConsultancyStaff />;
+  return <CreateAdhocApplicant />;
 }
