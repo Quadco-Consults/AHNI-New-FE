@@ -34,7 +34,7 @@ interface PaginatedResponse<T> {
   };
 }
 
-const BASE_URL = "programs/adhoc-database/";
+const BASE_URL = "programs/adhoc/database/";
 
 // ===== QUERY HOOKS =====
 

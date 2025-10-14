@@ -5,18 +5,24 @@ import { adhocDatabaseColumns } from "@/features/programs/components/table-colum
 import DataTable from "components/Table/DataTable";
 import TableFilters from "components/Table/TableFilters";
 import { useState } from "react";
-import { useGetAllAdhocApplicants } from "@/features/programs/controllers/adhocApplicantController";
+import { useGetAllAdhocStaff } from "@/features/programs/controllers/adhocDatabaseController";
 import { Badge } from "components/ui/badge";
 
 export default function AdhocDatabase() {
     const [page, setPage] = useState(1);
 
-    // Fetch all hired adhoc staff from dedicated adhoc endpoint
-    const { data, isLoading } = useGetAllAdhocApplicants({
+    // Fetch all adhoc staff from the staff database endpoint
+    const { data, isLoading } = useGetAllAdhocStaff({
         page,
         size: 1000,
-        status: "HIRED",  // Only hired staff appear in database
+        status: "ACTIVE",  // Active staff in database
         enabled: true,
+    });
+
+    console.log("🔍 Adhoc Database Data:", {
+        total: data?.data?.paginator?.count || 0,
+        isLoading,
+        results: data?.data?.results
     });
 
     const allResults = data?.data?.results || [];
@@ -65,7 +71,7 @@ export default function AdhocDatabase() {
                         isLoading={isLoading}
                         pagination={{
                             total: data?.data?.paginator?.count || 0,
-                            pageSize: data?.data?.paginator?.page_size || 100,
+                            pageSize: data?.data?.paginator?.page_size || 1000,
                             onChange: setPage,
                         }}
                     />

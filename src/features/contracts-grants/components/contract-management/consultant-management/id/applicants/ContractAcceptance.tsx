@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, usePathname } from "next/navigation";
 import { Button } from "components/ui/button";
 import { LoadingSpinner } from "components/Loading";
 import Card from "components/Card";
@@ -9,25 +9,54 @@ import { useState } from "react";
 import BackNavigation from "components/BackNavigation";
 import { useGetSingleConsultancyApplicant } from "src/features/contracts-grants/controllers/consultancyApplicantsController";
 import { useModifyContractStatus } from "src/features/contracts-grants/controllers/contractController";
+import { useGetSingleAdhocApplicant, useUpdateAdhocApplicantStatus } from "@/features/programs/controllers/adhocApplicantController";
 import { CheckCircle, XCircle, FileText } from "lucide-react";
 
 export default function ContractAcceptance() {
   const params = useParams();
   const applicantId = params?.applicantId as string;
   const router = useRouter();
+  const pathname = usePathname();
 
-  const { data: consultancyStaff, isLoading } =
-    useGetSingleConsultancyApplicant(applicantId);
+  // Detect if this is adhoc management based on URL
+  const isAdhoc = !!(pathname && pathname.includes("adhoc-management"));
+
+  console.log("🔍 ContractAcceptance Mode:", {
+    pathname,
+    isAdhoc,
+    applicantId,
+  });
+
+  // Fetch data based on mode
+  const consultancyQuery = useGetSingleConsultancyApplicant(applicantId, !isAdhoc);
+  const adhocQuery = useGetSingleAdhocApplicant(applicantId, isAdhoc);
+
+  const { data: consultancyStaff, isLoading: isConsultancyLoading } = consultancyQuery;
+  const { data: adhocStaff, isLoading: isAdhocLoading } = adhocQuery;
+
+  const isLoading = isAdhoc ? isAdhocLoading : isConsultancyLoading;
+  const staffData = isAdhoc ? adhocStaff?.data : consultancyStaff?.data;
 
   const [isModifyLoading, setIsModifyLoading] = useState(false);
+
+  // Contract status hooks
   const { updateContractStatus } = useModifyContractStatus(applicantId);
+  const { mutateAsync: updateAdhocStatus } = useUpdateAdhocApplicantStatus(applicantId);
 
   const handleAcceptContract = async () => {
     setIsModifyLoading(true);
     try {
-      await updateContractStatus({
-        status: "APPROVED",
-      });
+      if (isAdhoc) {
+        // For adhoc: update applicant status
+        await updateAdhocStatus({
+          status: "APPROVED",
+        });
+      } else {
+        // For consultancy: use contract status
+        await updateContractStatus({
+          status: "APPROVED",
+        });
+      }
       toast.success("Contract Accepted Successfully");
       router.back();
     } catch (error: any) {
@@ -45,9 +74,17 @@ export default function ContractAcceptance() {
   const handleRejectContract = async () => {
     setIsModifyLoading(true);
     try {
-      await updateContractStatus({
-        status: "REJECTED",
-      });
+      if (isAdhoc) {
+        // For adhoc: update applicant status
+        await updateAdhocStatus({
+          status: "REJECTED",
+        });
+      } else {
+        // For consultancy: use contract status
+        await updateContractStatus({
+          status: "REJECTED",
+        });
+      }
       toast.success("Contract Rejected");
       router.back();
     } catch (error: any) {
@@ -66,8 +103,18 @@ export default function ContractAcceptance() {
     return <LoadingSpinner />;
   }
 
-  const applicantData = consultancyStaff?.data;
-  const currentStatus = applicantData?.status;
+  const currentStatus = staffData?.status;
+
+  // Determine applicant name based on mode
+  const applicantName = isAdhoc
+    ? `${staffData?.other_names || ""} ${staffData?.sur_name || ""}`.trim()
+    : `${staffData?.first_name || ""} ${staffData?.last_name || ""}`.trim();
+
+  const applicantEmail = isAdhoc ? staffData?.email_address : staffData?.email;
+  const applicantPhone = staffData?.phone_number;
+  const applicantPosition = isAdhoc
+    ? staffData?.advertisement?.position_title || "Adhoc Staff"
+    : staffData?.position || "Consultant";
 
   // Only show contract acceptance if status is PENDING (contract issued but not yet accepted/rejected)
   if (currentStatus !== "PENDING") {
@@ -108,10 +155,10 @@ export default function ContractAcceptance() {
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <h3 className="font-semibold text-blue-800 mb-2">Contract Details</h3>
           <div className="space-y-2 text-sm">
-            <div><strong>Consultant Name:</strong> {applicantData?.first_name} {applicantData?.last_name}</div>
-            <div><strong>Email:</strong> {applicantData?.email}</div>
-            <div><strong>Phone:</strong> {applicantData?.phone_number}</div>
-            <div><strong>Position:</strong> {applicantData?.position || "Consultant"}</div>
+            <div><strong>{isAdhoc ? "Applicant" : "Consultant"} Name:</strong> {applicantName || "N/A"}</div>
+            <div><strong>Email:</strong> {applicantEmail || "N/A"}</div>
+            <div><strong>Phone:</strong> {applicantPhone || "N/A"}</div>
+            <div><strong>Position:</strong> {applicantPosition}</div>
             <div><strong>Status:</strong>
               <span className="ml-1 px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs">
                 Contract Issued
@@ -124,7 +171,7 @@ export default function ContractAcceptance() {
           <h4 className="font-semibold text-amber-800 mb-2">⚠️ Important Notice</h4>
           <p className="text-amber-700 text-sm">
             By accepting this contract, you agree to the terms and conditions outlined
-            in the consultancy agreement. Please ensure you have reviewed all terms
+            in the {isAdhoc ? "adhoc employment" : "consultancy"} agreement. Please ensure you have reviewed all terms
             before proceeding.
           </p>
         </div>
