@@ -12,9 +12,14 @@ const Axios = axios.create({
   timeout: 60000,
 });
 
-// Add request interceptor for logging
+// Add request interceptor for logging and URL normalization
 Axios.interceptors.request.use(
   (config) => {
+    // Remove leading slash from config.url to prevent double slashes
+    if (config.url && config.url.startsWith('/')) {
+      config.url = config.url.substring(1);
+    }
+
     const url = `${config.baseURL || ''}${config.url || ''}`;
     console.log('API Request:', config.method?.toUpperCase(), url);
     return config;
