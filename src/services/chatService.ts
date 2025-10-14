@@ -51,15 +51,16 @@ class ChatService {
 
   constructor() {
     // Use your Heroku backend URL
-    this.baseURL = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:8000/api';
+    // Chat endpoints are at /api/v1/chat/sessions/chat/ so we keep the /v1
+    this.baseURL = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:8000/api/v1';
     this.timeout = 30000;
     this.isDevelopment = process.env.NODE_ENV === 'development' || process.env.NEXT_PUBLIC_USE_MOCK_CHAT === 'true';
-    
-    // Remove trailing slash and /v1 for chat endpoints
-    if (this.baseURL.endsWith('/v1') || this.baseURL.endsWith('/v1/')) {
-      this.baseURL = this.baseURL.replace(/\/v1\/?$/, '');
+
+    // Normalize trailing slash
+    if (!this.baseURL.endsWith('/')) {
+      this.baseURL = `${this.baseURL}/`;
     }
-    
+
     console.log('Chat API Base URL:', this.baseURL);
     console.log('Using mock chat service:', this.isDevelopment);
   }
@@ -116,7 +117,7 @@ class ChatService {
     // Use mock service in development or when backend is not available
     if (this.isDevelopment) {
       try {
-        const result = await this.makeRequest<SendMessageResponse>('POST', '/chat/sessions/chat/', {
+        const result = await this.makeRequest<SendMessageResponse>('POST', 'chat/sessions/chat/', {
           message: request.message,
           session_id: request.conversation_id || null,
           context: {}
@@ -130,7 +131,7 @@ class ChatService {
 
     // Try the Django backend endpoint first
     try {
-      return this.makeRequest<SendMessageResponse>('POST', '/chat/sessions/chat/', {
+      return this.makeRequest<SendMessageResponse>('POST', 'chat/sessions/chat/', {
         message: request.message,
         session_id: request.conversation_id || null,
         context: {}
@@ -138,19 +139,19 @@ class ChatService {
     } catch (error) {
       console.log('Django endpoint failed, trying fallback...');
       // Fallback to original endpoint structure
-      return this.makeRequest<SendMessageResponse>('POST', '/chat/message/', request);
+      return this.makeRequest<SendMessageResponse>('POST', 'chat/message/', request);
     }
   }
 
   async createConversation(): Promise<CreateConversationResponse> {
     if (this.isDevelopment) {
       try {
-        const response = await this.makeRequest<any>('POST', '/chat/sessions/chat/', {
+        const response = await this.makeRequest<any>('POST', 'chat/sessions/chat/', {
           message: 'Hello',
           session_id: null,
           context: {}
         });
-        return { 
+        return {
           conversation_id: response.session_id || response.conversation_id,
           created_at: new Date().toISOString()
         };
@@ -162,24 +163,24 @@ class ChatService {
 
     // For Django backend, we can start with a simple message to create session
     try {
-      const response = await this.makeRequest<any>('POST', '/chat/sessions/chat/', {
+      const response = await this.makeRequest<any>('POST', 'chat/sessions/chat/', {
         message: 'Hello',
         session_id: null,
         context: {}
       });
-      return { 
+      return {
         conversation_id: response.session_id || response.conversation_id,
         created_at: new Date().toISOString()
       };
     } catch (error) {
-      return this.makeRequest<CreateConversationResponse>('POST', '/chat/conversations/', {});
+      return this.makeRequest<CreateConversationResponse>('POST', 'chat/conversations/', {});
     }
   }
 
   async getConversations(): Promise<ChatConversation[]> {
     if (this.isDevelopment) {
       try {
-        return this.makeRequest<ChatConversation[]>('GET', '/chat/sessions/');
+        return this.makeRequest<ChatConversation[]>('GET', 'chat/sessions/');
       } catch (error) {
         console.warn('Backend not available, using mock service');
         return mockChatService.getConversations();
@@ -187,17 +188,17 @@ class ChatService {
     }
 
     try {
-      return this.makeRequest<ChatConversation[]>('GET', '/chat/sessions/');
+      return this.makeRequest<ChatConversation[]>('GET', 'chat/sessions/');
     } catch (error) {
       console.log('Django sessions endpoint failed, trying fallback...');
-      return this.makeRequest<ChatConversation[]>('GET', '/chat/conversations/');
+      return this.makeRequest<ChatConversation[]>('GET', 'chat/conversations/');
     }
   }
 
   async getConversation(conversationId: string): Promise<ChatConversation> {
     if (this.isDevelopment) {
       try {
-        return this.makeRequest<ChatConversation>('GET', `/chat/sessions/${conversationId}/`);
+        return this.makeRequest<ChatConversation>('GET', `chat/sessions/${conversationId}/`);
       } catch (error) {
         console.warn('Backend not available, using mock service');
         return mockChatService.getConversation(conversationId);
@@ -205,16 +206,16 @@ class ChatService {
     }
 
     try {
-      return this.makeRequest<ChatConversation>('GET', `/chat/sessions/${conversationId}/`);
+      return this.makeRequest<ChatConversation>('GET', `chat/sessions/${conversationId}/`);
     } catch (error) {
-      return this.makeRequest<ChatConversation>('GET', `/chat/conversations/${conversationId}/`);
+      return this.makeRequest<ChatConversation>('GET', `chat/conversations/${conversationId}/`);
     }
   }
 
   async deleteConversation(conversationId: string): Promise<void> {
     if (this.isDevelopment) {
       try {
-        return this.makeRequest<void>('DELETE', `/chat/sessions/${conversationId}/`);
+        return this.makeRequest<void>('DELETE', `chat/sessions/${conversationId}/`);
       } catch (error) {
         console.warn('Backend not available, using mock service');
         return mockChatService.deleteConversation(conversationId);
@@ -222,9 +223,9 @@ class ChatService {
     }
 
     try {
-      return this.makeRequest<void>('DELETE', `/chat/sessions/${conversationId}/`);
+      return this.makeRequest<void>('DELETE', `chat/sessions/${conversationId}/`);
     } catch (error) {
-      return this.makeRequest<void>('DELETE', `/chat/conversations/${conversationId}/`);
+      return this.makeRequest<void>('DELETE', `chat/conversations/${conversationId}/`);
     }
   }
 }
