@@ -1,134 +1,116 @@
 import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "components/Table/DataTable";
 import { useMemo } from "react";
+import { TFundRequestResponseData } from "@/features/programs/types/fund-request";
 
 type BudgetData = {
-  objective: string;
-  subObjective: string;
-  accNumber: string;
-  activities: string;
-  justification: string;
-  oct: number;
-  nov: number;
-  dec: number;
-  jan: number;
-  feb: number;
-  mar: number;
+  category: string;
+  description: string;
+  quantity: number;
+  unitCost: string;
+  frequency: number;
+  amount: string;
+  comment: string;
 };
 
-const data: BudgetData[] = [
-  {
-    objective:
-      "To Increase resiliency, responsiveness, and accountability of the health system",
-    subObjective: "Increased equity to access to HIV services",
-    accNumber: "PHO/IR/1.1.1",
-    activities:
-      "Develop context specific implementation plans to guide state teams to implement innovative, high impact decentralized HIV service delivery (e.g Super-Hub Cluster Model) in FCV and hard-to-reach areas",
-    justification: "",
-    oct: 4,
-    nov: 1,
-    dec: 6,
-    jan: 2,
-    feb: 2,
-    mar: 8,
-  },
-  {
-    objective:
-      "To Increase resiliency, responsiveness, and accountability of the health system",
-    subObjective: "Increased equity to access to HIV services",
-    accNumber: "PHO/IR/1.1.1",
-    activities:
-      "Develop context specific implementation plans to guide state teams to implement innovative, high impact decentralized HIV service delivery (e.g Super-Hub Cluster Model) in FCV and hard-to-reach areas",
-    justification: "",
-    oct: 4,
-    nov: 1,
-    dec: 6,
-    jan: 2,
-    feb: 2,
-    mar: 8,
-  },
-  {
-    objective:
-      "To Increase resiliency, responsiveness, and accountability of the health system",
-    subObjective: "Increased equity to access to HIV services",
-    accNumber: "PHO/IR/1.1.1",
-    activities:
-      "Develop context specific implementation plans to guide state teams to implement innovative, high impact decentralized HIV service delivery (e.g Super-Hub Cluster Model) in FCV and hard-to-reach areas",
-    justification: "",
-    oct: 4,
-    nov: 1,
-    dec: 6,
-    jan: 2,
-    feb: 2,
-    mar: 8,
-  },
-];
+interface BudgetTabProps {
+  fundRequest?: TFundRequestResponseData;
+}
 
-const BudgetTab = () => {
+const BudgetTab = ({ fundRequest }: BudgetTabProps) => {
+  const data = useMemo<BudgetData[]>(() => {
+    if (!fundRequest?.activities || fundRequest.activities.length === 0) return [];
+
+    return fundRequest.activities.map((activity) => ({
+      category: activity.category?.name || "N/A",
+      description: activity.activity_description || "N/A",
+      quantity: activity.quantity || 0,
+      unitCost: activity.unit_cost || "0",
+      frequency: activity.frequency || 0,
+      amount: activity.amount || "0",
+      comment: activity.comment || "N/A",
+    }));
+  }, [fundRequest]);
+
   const columns = useMemo<ColumnDef<BudgetData>[]>(
     () => [
       {
-        header: "Objective",
-        accessorKey: "objective",
-        size: 300,
-      },
-      {
-        header: "Sub-Objective",
-        accessorKey: "subObjective",
-        size: 300,
-      },
-      {
-        header: "ACT. No.",
-        accessorKey: "accNumber",
+        header: "Budget Category",
+        accessorKey: "category",
         size: 200,
       },
       {
-        header: "Activities",
-        accessorKey: "activities",
+        header: "Activity Description",
+        accessorKey: "description",
         size: 400,
       },
       {
-        header: "Activities Justification",
-        accessorKey: "justification",
-        size: 200,
+        header: "Quantity",
+        accessorKey: "quantity",
+        size: 100,
+        cell: ({ row }) => row.original.quantity.toLocaleString(),
       },
       {
-        header: "Oct",
-        accessorKey: "oct",
-        size: 50,
+        header: `Unit Cost (${fundRequest?.currency || 'USD'})`,
+        accessorKey: "unitCost",
+        size: 150,
+        cell: ({ row }) => Number(row.original.unitCost).toLocaleString(),
       },
       {
-        header: "Nov",
-        accessorKey: "nov",
-        size: 50,
+        header: "Frequency",
+        accessorKey: "frequency",
+        size: 100,
       },
       {
-        header: "Dec",
-        accessorKey: "dec",
-        size: 50,
+        header: `Amount (${fundRequest?.currency || 'USD'})`,
+        accessorKey: "amount",
+        size: 150,
+        cell: ({ row }) => Number(row.original.amount).toLocaleString(),
       },
       {
-        header: "Jan",
-        accessorKey: "jan",
-        size: 50,
-      },
-      {
-        header: "Feb",
-        accessorKey: "feb",
-        size: 50,
-      },
-      {
-        header: "Mar",
-        accessorKey: "mar",
-        size: 50,
+        header: "Comment",
+        accessorKey: "comment",
+        size: 300,
       },
     ],
-    []
+    [fundRequest?.currency]
   );
+
+  if (!fundRequest) {
+    return (
+      <div className="text-center text-gray-500 py-8">
+        No fund request data available
+      </div>
+    );
+  }
+
+  if (data.length === 0) {
+    return (
+      <div className="text-center text-gray-500 py-8">
+        No budget activities found for this fund request
+      </div>
+    );
+  }
+
+  const totalAmount = data.reduce((sum, item) => sum + Number(item.amount), 0);
 
   return (
     <div>
       <DataTable data={data} columns={columns} />
+      <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+        <div className="flex justify-between items-center font-bold text-lg">
+          <span>Total Budget Amount:</span>
+          <span className="text-[#DEA004]">
+            {totalAmount.toLocaleString()} {fundRequest?.currency || 'USD'}
+          </span>
+        </div>
+        <div className="flex justify-between items-center mt-2 text-sm text-gray-600">
+          <span>Available Balance:</span>
+          <span>
+            {Number(fundRequest?.available_balance || 0).toLocaleString()} {fundRequest?.currency || 'USD'}
+          </span>
+        </div>
+      </div>
     </div>
   );
 };

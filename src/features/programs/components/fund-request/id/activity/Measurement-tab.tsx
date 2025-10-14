@@ -1,6 +1,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "components/Table/DataTable";
 import { useMemo } from "react";
+import { TFundRequestResponseData } from "@/features/programs/types/fund-request";
 
 type MeasurementData = {
   objective: string;
@@ -12,46 +13,32 @@ type MeasurementData = {
   indicator: string;
 };
 
-const data: MeasurementData[] = [
-  {
-    objective:
-      "To Increase resiliency, responsiveness, and accountability of the health system",
-    subObjective: "Increased equity to access to HIV services",
-    accNumber: "PHO/IR/1.1.1",
-    activities:
-      "Develop context specific implementation plans to guide state teams to implement innovative, high impact decentralized HIV service delivery (e.g Super-Hub Cluster Model) in FCV and hard-to-reach areas",
-    justification:
-      "To fit to the different and  changing security context in BAY states",
-    result: "ART coverage",
-    indicator: "NDR",
-  },
-  {
-    objective:
-      "To Increase resiliency, responsiveness, and accountability of the health system",
-    subObjective: "Increased equity to access to HIV services",
-    accNumber: "PHO/IR/1.1.1",
-    activities:
-      "Develop context specific implementation plans to guide state teams to implement innovative, high impact decentralized HIV service delivery (e.g Super-Hub Cluster Model) in FCV and hard-to-reach areas",
-    justification:
-      "To fit to the different and  changing security context in BAY states",
-    result: "ART coverage",
-    indicator: "NDR",
-  },
-  {
-    objective:
-      "To Increase resiliency, responsiveness, and accountability of the health system",
-    subObjective: "Increased equity to access to HIV services",
-    accNumber: "PHO/IR/1.1.1",
-    activities:
-      "Develop context specific implementation plans to guide state teams to implement innovative, high impact decentralized HIV service delivery (e.g Super-Hub Cluster Model) in FCV and hard-to-reach areas",
-    justification:
-      "To fit to the different and  changing security context in BAY states",
-    result: "ART coverage",
-    indicator: "NDR",
-  },
-];
+interface MeasurementTabProps {
+  fundRequest?: TFundRequestResponseData;
+}
 
-const MeasurementTab = () => {
+const MeasurementTab = ({ fundRequest }: MeasurementTabProps) => {
+  const data = useMemo<MeasurementData[]>(() => {
+    if (!fundRequest?.project?.objectives) return [];
+
+    const measurements: MeasurementData[] = [];
+    fundRequest.project.objectives.forEach((obj, index) => {
+      obj.sub_objectives.forEach((subObj) => {
+        measurements.push({
+          objective: obj.objective,
+          subObjective: subObj,
+          accNumber: `${fundRequest.project.project_id || 'N/A'}/${index + 1}`,
+          activities: "Work plan activities to be added",
+          justification: fundRequest.project.narrative || "N/A",
+          result: fundRequest.project.expected_results || "To be defined",
+          indicator: "Key Performance Indicator (KPI) to be defined",
+        });
+      });
+    });
+
+    return measurements;
+  }, [fundRequest]);
+
   const columns = useMemo<ColumnDef<MeasurementData>[]>(
     () => [
       {
@@ -92,6 +79,22 @@ const MeasurementTab = () => {
     ],
     []
   );
+
+  if (!fundRequest) {
+    return (
+      <div className="text-center text-gray-500 py-8">
+        No fund request data available
+      </div>
+    );
+  }
+
+  if (data.length === 0) {
+    return (
+      <div className="text-center text-gray-500 py-8">
+        No measurements found for this project
+      </div>
+    );
+  }
 
   return <DataTable data={data} columns={columns} />;
 };

@@ -9,64 +9,119 @@ export interface IAdhocAdvertisement {
   advertisement_number: string;
   position_title: string;
   number_of_positions: number;
-  project: {
+  grade_level?: string;
+
+  // Project and Department
+  project?: {
     id: string;
-    name: string;
-    code?: string;
+    title?: string;
+    project_id?: string;
+    goal?: string;
+    start_date?: string;
+    end_date?: string;
+    status?: string;
+    location?: any[];
+    [key: string]: any;
   };
-  location: {
+  department?: {
     id: string;
     name: string;
+    description?: string;
+  };
+
+  // Location details
+  location?: string | {
+    id: string;
+    name: string;
+    city?: string;
     state?: string;
+    address?: string;
+    phone?: string;
+    email?: string;
   };
-  health_facility?: string;
-  spoke_site_name?: string;
-  lga?: string;
+  location_name?: string;
+  assignment_location?: string | null;
+  health_facility?: string | null;
+  spoke_site_name?: string | null;
+  lga?: string | null;
+  cluster?: string | null;
 
   // Dates
   start_date: string;
   end_date: string;
-  application_deadline: string;
+  duration_months?: number | null;
+  application_deadline?: string | null;
+  publication_date?: string;
+  closing_date?: string | null;
 
   // Financial
   proposed_salary: string;
   currency: string;
-  budget_line: string;
+  budget_line?: string;
 
-  // Requirements
-  qualifications: string;
-  skills_required: string;
-  experience_years: number;
-  education_level: string;
+  // Requirements and Description
   job_description: string;
   key_responsibilities: string;
+  qualifications_required?: string;
+  qualifications?: string; // Backward compatibility
+  skills_required?: string;
+  additional_requirements?: string | null;
+  experience_years?: number;
+  education_level?: string;
 
   // Status
   status: "DRAFT" | "PUBLISHED" | "CLOSED" | "CANCELLED";
   status_display: string;
-  is_active: boolean;
 
   // Statistics
   total_applicants?: number;
+  shortlisted_applicants?: number;
   shortlisted_count?: number;
+  selected_applicants?: number;
+  selected_count?: number;
   hired_count?: number;
 
+  // Supervisors and Contact
+  supervisor?: string | {
+    id: string;
+    first_name: string;
+    last_name: string;
+    email?: string;
+  };
+  supervisor_name?: string;
+  qmap_backstop?: string | null;
+  programs_officer?: string | null;
+  stl?: string | null;
+  seo?: string | null;
+
   // Metadata
-  created_by: {
+  created_by?: string | {
     id: string;
     first_name: string;
     last_name: string;
     email: string;
   };
+  created_by_name?: string;
+  updated_by?: string | null;
   created_datetime: string;
-  updated_datetime: string;
+  updated_datetime?: string;
   published_at?: string;
   closed_at?: string;
 
-  // Source
-  requisition?: {
+  // Additional fields
+  additional_notes?: string | null;
+  is_active?: boolean;
+
+  // Source Requisition
+  requisition?: string | {
     id: string;
     requisition_number: string;
+    position_title?: string;
+  };
+  requisition_details?: {
+    id: string;
+    requisition_number: string;
+    position_title: string;
   };
 }
 
