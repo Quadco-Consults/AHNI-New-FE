@@ -23,7 +23,7 @@ import {
   useCreateAdhocApplicant,
 } from "@/features/programs/controllers/adhocApplicantController";
 import { toast } from "sonner";
-import { nigeriaStates } from "constants/nigeria-states";
+import { nigeriaStates } from "@/constants/nigeria-states";
 
 // Gender options
 const genderOptions = [
