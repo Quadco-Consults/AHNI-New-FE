@@ -18,7 +18,7 @@ export const useLogin = () => {
     Error,
     TLoginFormValues
   >({
-    endpoint: "/auth/login/",
+    endpoint: "auth/login/",
     isAuth: false,
     method: "POST",
     showSuccessToast: false, // Handle login success in component
@@ -52,7 +52,7 @@ export const useForgotPassword = () => {
     Error,
     { email: string }
   >({
-    endpoint: "/auth/password/reset/",
+    endpoint: "auth/password/reset/",
     isAuth: false,
     method: "POST",
   });
@@ -80,7 +80,7 @@ export const useChangePassword = () => {
       confirm_password: string;
     }
   >({
-    endpoint: "/auth/password/reset/confirm/",
+    endpoint: "auth/password/reset/confirm/",
     isAuth: false,
     method: "POST",
   });
@@ -112,7 +112,7 @@ export const useAuthChangePassword = () => {
       confirm_password: string;
     }
   >({
-    endpoint: "/auth/password/change/",
+    endpoint: "auth/password/change/",
     isAuth: true,
     method: "POST",
   });
