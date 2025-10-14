@@ -42,7 +42,7 @@ export const useDownloadActivities = () => {
     Error,
     any
   >({
-    endpoint: "/activities/download/",
+    endpoint: "activities/download/",
     queryKey: [],
     isAuth: true,
     method: "GET" as any, // Note: This is a special case for download

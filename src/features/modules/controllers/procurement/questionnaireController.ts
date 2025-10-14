@@ -37,7 +37,7 @@ export const CreateQuestionnaireManager = () => {
     Error,
     QuestionnaireFormValues
   >({
-    endpoint: "/procurements/questionaire/",
+    endpoint: "procurements/questionaire/",
     queryKey: ["questionnaires"],
     isAuth: true,
     method: "POST",
@@ -61,7 +61,7 @@ export const UpdateQuestionnaireManager = () => {
     Error,
     QuestionnaireFormValues
   >({
-    endpoint: "/procurements/questionaire/",
+    endpoint: "procurements/questionaire/",
     queryKey: ["questionnaires"],
     isAuth: true,
     method: "PATCH",
@@ -87,7 +87,7 @@ export const DeleteQuestionnaireManager = () => {
     Error,
     Record<string, never>
   >({
-    endpoint: "/procurements/questionaire/",
+    endpoint: "procurements/questionaire/",
     queryKey: ["questionnaires"],
     isAuth: true,
     method: "DELETE",

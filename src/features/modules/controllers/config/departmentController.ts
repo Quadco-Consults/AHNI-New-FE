@@ -51,7 +51,7 @@ export const CreateDepartmentManager = () => {
     Error,
     DepartmentFormValues
   >({
-    endpoint: "/config/departments/",
+    endpoint: "config/departments/",
     queryKey: ["departments"],
     isAuth: true,
     method: "POST",
@@ -75,7 +75,7 @@ export const UpdateDepartmentManager = () => {
     Error,
     DepartmentFormValues
   >({
-    endpoint: "/config/departments/",
+    endpoint: "config/departments/",
     queryKey: ["departments"],
     isAuth: true,
     method: "PATCH",
@@ -101,7 +101,7 @@ export const DeleteDepartmentManager = () => {
     Error,
     Record<string, never>
   >({
-    endpoint: "/config/departments/",
+    endpoint: "config/departments/",
     queryKey: ["departments"],
     isAuth: true,
     method: "DELETE",

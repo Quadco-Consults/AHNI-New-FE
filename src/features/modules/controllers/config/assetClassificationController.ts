@@ -37,7 +37,7 @@ export const CreateAssetClassificationManager = () => {
     Error,
     AssetClassificationFormValues
   >({
-    endpoint: "/admins/inventory/asset-classifications/",
+    endpoint: "admins/inventory/asset-classifications/",
     queryKey: ["asset-classifications"],
     isAuth: true,
     method: "POST",
@@ -61,7 +61,7 @@ export const UpdateAssetClassificationManager = () => {
     Error,
     AssetClassificationFormValues
   >({
-    endpoint: "/admins/inventory/asset-classifications/",
+    endpoint: "admins/inventory/asset-classifications/",
     queryKey: ["asset-classifications"],
     isAuth: true,
     method: "PUT",
@@ -87,7 +87,7 @@ export const DeleteAssetClassificationManager = () => {
     Error,
     Record<string, never>
   >({
-    endpoint: "/admins/inventory/asset-classifications/",
+    endpoint: "admins/inventory/asset-classifications/",
     queryKey: ["asset-classifications"],
     isAuth: true,
     method: "DELETE",

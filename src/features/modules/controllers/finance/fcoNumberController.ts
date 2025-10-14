@@ -49,7 +49,7 @@ export const CreateFCONumberManager = () => {
     Error,
     FCONumberFormValues
   >({
-    endpoint: "/finance/fco-numbers/",
+    endpoint: "finance/fco-numbers/",
     queryKey: ["fco-numbers"],
     isAuth: true,
     method: "POST",

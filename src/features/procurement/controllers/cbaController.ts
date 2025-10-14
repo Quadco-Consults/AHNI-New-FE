@@ -219,7 +219,7 @@ export const useCbaAnalysisSubmission = () => {
     Error,
     CbaAnalysisSubmissionPayload
   >({
-    endpoint: "/procurements/cba-analysis-submission/",
+    endpoint: "procurements/cba-analysis-submission/",
     queryKey: ["cbas"],
     isAuth: true,
     method: "POST",

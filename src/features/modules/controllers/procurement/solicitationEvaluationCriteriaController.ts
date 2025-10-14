@@ -37,7 +37,7 @@ export const CreateSolicitationEvaluationCriteriaManager = () => {
     Error,
     SolicitationEvaluationCriteriaFormValues
   >({
-    endpoint: "/procurements/evaluation-criteria/",
+    endpoint: "procurements/evaluation-criteria/",
     queryKey: ["solicitationEvaluationCriteria"],
     isAuth: true,
     method: "POST",
@@ -61,7 +61,7 @@ export const UpdateSolicitationEvaluationCriteriaManager = () => {
     Error,
     SolicitationEvaluationCriteriaFormValues
   >({
-    endpoint: "/procurements/evaluation-criteria/",
+    endpoint: "procurements/evaluation-criteria/",
     queryKey: ["solicitationEvaluationCriteria"],
     isAuth: true,
     method: "PATCH",
@@ -87,7 +87,7 @@ export const DeleteSolicitationEvaluationCriteriaManager = () => {
     Error,
     Record<string, never>
   >({
-    endpoint: "/procurements/evaluation-criteria/",
+    endpoint: "procurements/evaluation-criteria/",
     queryKey: ["solicitationEvaluationCriteria"],
     isAuth: true,
     method: "DELETE",

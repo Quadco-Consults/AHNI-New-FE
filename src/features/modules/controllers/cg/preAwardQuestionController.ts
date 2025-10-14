@@ -37,7 +37,7 @@ export const CreatePreAwardQuestionManager = () => {
     Error,
     PreAwardQuestionFormValues
   >({
-    endpoint: "/contracts-grants/pre-award-questions/",
+    endpoint: "contracts-grants/pre-award-questions/",
     queryKey: ["preAwardQuestions"],
     isAuth: true,
     method: "POST",
@@ -61,7 +61,7 @@ export const UpdatePreAwardQuestionManager = () => {
     Error,
     PreAwardQuestionFormValues
   >({
-    endpoint: "/contracts-grants/pre-award-questions/",
+    endpoint: "contracts-grants/pre-award-questions/",
     queryKey: ["preAwardQuestions"],
     isAuth: true,
     method: "PUT",
@@ -87,7 +87,7 @@ export const DeletePreAwardQuestionManager = () => {
     Error,
     Record<string, never>
   >({
-    endpoint: "/contracts-grants/pre-award-questions/",
+    endpoint: "contracts-grants/pre-award-questions/",
     queryKey: ["preAwardQuestions"],
     isAuth: true,
     method: "DELETE",

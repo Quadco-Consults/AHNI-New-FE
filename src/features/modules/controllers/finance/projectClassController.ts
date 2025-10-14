@@ -35,7 +35,7 @@ export const CreateProjectClassManager = () => {
     Error,
     ProjectClassFormValues
   >({
-    endpoint: "/finance/project-classes/",
+    endpoint: "finance/project-classes/",
     queryKey: ["project-classes"],
     isAuth: true,
     method: "POST",

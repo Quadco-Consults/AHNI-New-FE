@@ -37,7 +37,7 @@ export const CreateRiskCategoryManager = () => {
     Error,
     RiskCategoryFormValues
   >({
-    endpoint: "/programs/risk-category/",
+    endpoint: "programs/risk-category/",
     queryKey: ["riskCategories"],
     isAuth: true,
     method: "POST",
@@ -61,7 +61,7 @@ export const UpdateRiskCategoryManager = () => {
     Error,
     RiskCategoryFormValues
   >({
-    endpoint: "/programs/risk-category/",
+    endpoint: "programs/risk-category/",
     queryKey: ["riskCategories"],
     isAuth: true,
     method: "PATCH",
@@ -87,7 +87,7 @@ export const DeleteRiskCategoryManager = () => {
     Error,
     Record<string, never>
   >({
-    endpoint: "/programs/risk-category/",
+    endpoint: "programs/risk-category/",
     queryKey: ["riskCategories"],
     isAuth: true,
     method: "DELETE",

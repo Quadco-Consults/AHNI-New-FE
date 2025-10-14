@@ -51,7 +51,7 @@ export const CreateBudgetLineManager = () => {
     Error,
     BudgetLineFormValues
   >({
-    endpoint: "/finance/budget-lines/",
+    endpoint: "finance/budget-lines/",
     queryKey: ["budget-lines"],
     isAuth: true,
     method: "POST",
@@ -75,7 +75,7 @@ export const UpdateBudgetLineManager = () => {
     Error,
     BudgetLineFormValues
   >({
-    endpoint: "/finance/budget-lines/",
+    endpoint: "finance/budget-lines/",
     queryKey: ["budget-lines", "budget-line"],
     isAuth: true,
     method: "PUT",
@@ -101,7 +101,7 @@ export const DeleteBudgetLineManager = () => {
     Error,
     Record<string, never>
   >({
-    endpoint: "/finance/budget-lines/",
+    endpoint: "finance/budget-lines/",
     queryKey: ["budget-lines"],
     isAuth: true,
     method: "DELETE",

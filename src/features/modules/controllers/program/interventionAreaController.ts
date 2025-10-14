@@ -51,7 +51,7 @@ export const CreateInterventionAreaManager = () => {
     Error,
     InterventionAreaFormValues
   >({
-    endpoint: "/procurements/intervention-areas/",
+    endpoint: "procurements/intervention-areas/",
     queryKey: ["interventionAreas"],
     isAuth: true,
     method: "POST",
@@ -75,7 +75,7 @@ export const UpdateInterventionAreaManager = () => {
     Error,
     InterventionAreaFormValues
   >({
-    endpoint: "/procurements/intervention-areas/",
+    endpoint: "procurements/intervention-areas/",
     queryKey: ["interventionAreas", "interventionArea"],
     isAuth: true,
     method: "PATCH",
@@ -101,7 +101,7 @@ export const DeleteInterventionAreaManager = () => {
     Error,
     Record<string, never>
   >({
-    endpoint: "/procurements/intervention-areas/",
+    endpoint: "procurements/intervention-areas/",
     queryKey: ["interventionAreas"],
     isAuth: true,
     method: "DELETE",

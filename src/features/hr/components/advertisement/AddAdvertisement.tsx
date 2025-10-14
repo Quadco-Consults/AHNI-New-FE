@@ -44,7 +44,7 @@ const AddEditAdvertisement = () => {
     Error,
     FormData
   >({
-    endpoint: "/hr/jobs/advertisements/",
+    endpoint: "hr/jobs/advertisements/",
     queryKey: ["job-advertisements"],
     isAuth: true,
     method: "POST",

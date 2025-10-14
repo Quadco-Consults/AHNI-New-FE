@@ -39,7 +39,7 @@ export const CreatePartnerManager = () => {
     Error,
     PartnerFormValues
   >({
-    endpoint: "/projects/partners/",
+    endpoint: "projects/partners/",
     queryKey: ["partners"],
     isAuth: true,
     method: "POST",
@@ -63,7 +63,7 @@ export const UpdatePartnerManager = () => {
     Error,
     PartnerFormValues
   >({
-    endpoint: "/projects/partners/",
+    endpoint: "projects/partners/",
     queryKey: ["partners"],
     isAuth: true,
     method: "PUT",
@@ -89,7 +89,7 @@ export const DeletePartnerManager = () => {
     Error,
     Record<string, never>
   >({
-    endpoint: "/projects/partners/",
+    endpoint: "projects/partners/",
     queryKey: ["partners"],
     isAuth: true,
     method: "DELETE",

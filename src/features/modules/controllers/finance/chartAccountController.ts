@@ -37,7 +37,7 @@ export const CreateChartAccountManager = () => {
     Error,
     ChartAccountFormValues
   >({
-    endpoint: "/finance/charts-of-accounts/",
+    endpoint: "finance/charts-of-accounts/",
     queryKey: ["chart-accounts"],
     isAuth: true,
     method: "POST",
@@ -61,7 +61,7 @@ export const UpdateChartAccountManager = () => {
     Error,
     ChartAccountFormValues
   >({
-    endpoint: "/finance/charts-of-accounts/",
+    endpoint: "finance/charts-of-accounts/",
     queryKey: ["chart-accounts"],
     isAuth: true,
     method: "PUT",
@@ -87,7 +87,7 @@ export const DeleteChartAccountManager = () => {
     Error,
     Record<string, never>
   >({
-    endpoint: "/finance/charts-of-accounts/",
+    endpoint: "finance/charts-of-accounts/",
     queryKey: ["chart-accounts"],
     isAuth: true,
     method: "DELETE",

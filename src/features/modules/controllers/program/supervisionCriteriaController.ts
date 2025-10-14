@@ -38,7 +38,7 @@ export const CreateSupervisionCriteriaManager = () => {
     Error,
     SupervisionCriteriaFormValues
   >({
-    endpoint: "/programs/supervision-evaluation-criteria/",
+    endpoint: "programs/supervision-evaluation-criteria/",
     queryKey: ["supervisionCriteria"],
     isAuth: true,
     method: "POST",
@@ -62,7 +62,7 @@ export const UpdateSupervisionCriteriaManager = () => {
     Error,
     SupervisionCriteriaFormValues
   >({
-    endpoint: "/programs/supervision-evaluation-criteria/",
+    endpoint: "programs/supervision-evaluation-criteria/",
     queryKey: ["supervisionCriteria"],
     isAuth: true,
     method: "PUT",
@@ -88,7 +88,7 @@ export const DeleteSupervisionCriteriaManager = () => {
     Error,
     Record<string, never>
   >({
-    endpoint: "/programs/supervision-evaluation-criteria/",
+    endpoint: "programs/supervision-evaluation-criteria/",
     queryKey: ["supervisionCriteria"],
     isAuth: true,
     method: "DELETE",

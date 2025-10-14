@@ -37,7 +37,7 @@ export const CreateGradeManager = () => {
     Error,
     GradeFormValues
   >({
-    endpoint: "/config/grade/",
+    endpoint: "config/grade/",
     queryKey: ["grades"],
     isAuth: true,
     method: "POST",
@@ -61,7 +61,7 @@ export const UpdateGradeManager = () => {
     Error,
     GradeFormValues
   >({
-    endpoint: "/config/grade/",
+    endpoint: "config/grade/",
     queryKey: ["grades"],
     isAuth: true,
     method: "PUT",
@@ -87,7 +87,7 @@ export const DeleteGradeManager = () => {
     Error,
     Record<string, never>
   >({
-    endpoint: "/config/grade/",
+    endpoint: "config/grade/",
     queryKey: ["grades"],
     isAuth: true,
     method: "DELETE",

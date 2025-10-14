@@ -37,7 +37,7 @@ export const CreatePrequalificationCriteriaManager = () => {
     Error,
     PrequalificationCriteriaFormValues
   >({
-    endpoint: "/procurements/prequalification_criteria/",
+    endpoint: "procurements/prequalification_criteria/",
     queryKey: ["prequalificationCriteria"],
     isAuth: true,
     method: "POST",
@@ -61,7 +61,7 @@ export const UpdatePrequalificationCriteriaManager = () => {
     Error,
     PrequalificationCriteriaFormValues
   >({
-    endpoint: "/procurements/prequalification_criteria/",
+    endpoint: "procurements/prequalification_criteria/",
     queryKey: ["prequalificationCriteria"],
     isAuth: true,
     method: "PATCH",
@@ -87,7 +87,7 @@ export const DeletePrequalificationCriteriaManager = () => {
     Error,
     Record<string, never>
   >({
-    endpoint: "/procurements/prequalification_criteria/",
+    endpoint: "procurements/prequalification_criteria/",
     queryKey: ["prequalificationCriteria"],
     isAuth: true,
     method: "DELETE",

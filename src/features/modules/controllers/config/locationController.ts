@@ -53,7 +53,7 @@ export const CreateLocationManager = () => {
     Error,
     LocationFormValues
   >({
-    endpoint: "/config/locations/",
+    endpoint: "config/locations/",
     queryKey: ["locations"],
     isAuth: true,
     method: "POST",
@@ -77,7 +77,7 @@ export const UpdateLocationManager = () => {
     Error,
     LocationFormValues
   >({
-    endpoint: "/config/locations/",
+    endpoint: "config/locations/",
     queryKey: ["locations", "location"],
     isAuth: true,
     method: "PATCH",
@@ -103,7 +103,7 @@ export const DeleteLocationManager = () => {
     Error,
     Record<string, never>
   >({
-    endpoint: "/config/locations/",
+    endpoint: "config/locations/",
     queryKey: ["locations"],
     isAuth: true,
     method: "DELETE",

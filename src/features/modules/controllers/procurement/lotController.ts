@@ -37,7 +37,7 @@ export const CreateLotManager = () => {
     Error,
     LotFormValues
   >({
-    endpoint: "/procurements/lots/",
+    endpoint: "procurements/lots/",
     queryKey: ["lots"],
     isAuth: true,
     method: "POST",
@@ -61,7 +61,7 @@ export const UpdateLotManager = () => {
     Error,
     LotFormValues
   >({
-    endpoint: "/procurements/lots/",
+    endpoint: "procurements/lots/",
     queryKey: ["lots"],
     isAuth: true,
     method: "PATCH",
@@ -87,7 +87,7 @@ export const DeleteLotManager = () => {
     Error,
     Record<string, never>
   >({
-    endpoint: "/procurements/lots/",
+    endpoint: "procurements/lots/",
     queryKey: ["lots"],
     isAuth: true,
     method: "DELETE",

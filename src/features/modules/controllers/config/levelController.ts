@@ -37,7 +37,7 @@ export const CreateLevelManager = () => {
     Error,
     LevelFormValues
   >({
-    endpoint: "/config/level/",
+    endpoint: "config/level/",
     queryKey: ["levels"],
     isAuth: true,
     method: "POST",
@@ -61,7 +61,7 @@ export const UpdateLevelManager = () => {
     Error,
     LevelFormValues
   >({
-    endpoint: "/config/level/",
+    endpoint: "config/level/",
     queryKey: ["levels"],
     isAuth: true,
     method: "PUT",
@@ -87,7 +87,7 @@ export const DeleteLevelManager = () => {
     Error,
     Record<string, never>
   >({
-    endpoint: "/config/level/",
+    endpoint: "config/level/",
     queryKey: ["levels"],
     isAuth: true,
     method: "DELETE",

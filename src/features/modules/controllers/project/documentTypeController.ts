@@ -37,7 +37,7 @@ export const CreateDocumentTypeManager = () => {
     Error,
     DocumentTypeFormValues
   >({
-    endpoint: "/projects/document-types/",
+    endpoint: "projects/document-types/",
     queryKey: ["documentTypes"],
     isAuth: true,
     method: "POST",
@@ -61,7 +61,7 @@ export const UpdateDocumentTypeManager = () => {
     Error,
     DocumentTypeFormValues
   >({
-    endpoint: "/projects/document-types/",
+    endpoint: "projects/document-types/",
     queryKey: ["documentTypes"],
     isAuth: true,
     method: "PUT",
@@ -87,7 +87,7 @@ export const DeleteDocumentTypeManager = () => {
     Error,
     Record<string, never>
   >({
-    endpoint: "/projects/document-types/",
+    endpoint: "projects/document-types/",
     queryKey: ["documentTypes"],
     isAuth: true,
     method: "DELETE",

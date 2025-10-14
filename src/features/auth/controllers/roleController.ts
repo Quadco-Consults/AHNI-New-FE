@@ -109,7 +109,7 @@ export const useCreateRole = () => {
     Error,
     { name: string }
   >({
-    endpoint: "/roles/",
+    endpoint: "roles/",
     queryKey: ["roles"],
     isAuth: true,
     method: "POST",
