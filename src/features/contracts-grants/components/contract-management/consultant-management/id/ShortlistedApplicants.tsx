@@ -7,23 +7,31 @@ import { shortlistedApplicantColumn } from "@/features/contracts-grants/componen
 import DataTable from "components/Table/DataTable";
 import TableFilters from "components/Table/TableFilters";
 import { useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import { useGetAllConsultancyStaffs } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
+import { useGetShortlistedApplicants } from "@/features/programs/controllers/adhocApplicantController";
 
 export default function ShortlistedAppplicants() {
-  const { id } = useParams();
+  const params = useParams();
+  const id = params?.id as string;
+  const pathname = usePathname();
 
   const [currentPage, setCurrentPage] = useState(1);
+
+  // Detect if we're in adhoc mode
+  const isAdhoc = !!(pathname && pathname.includes("adhoc-management"));
 
   console.log("🔍 Query Parameters:", {
     page: currentPage,
     size: 10,
     consultants: id,
     status: "SHORTLISTED",
+    isAdhoc,
   });
 
-  const { data, isFetching } = useGetAllConsultancyStaffs(
-    id
+  // Call appropriate API based on type
+  const consultancyQuery = useGetAllConsultancyStaffs(
+    !isAdhoc && id
       ? {
           page: currentPage,
           size: 10,
@@ -33,12 +41,24 @@ export default function ShortlistedAppplicants() {
       : skipToken
   );
 
+  const adhocQuery = useGetShortlistedApplicants({
+    page: currentPage,
+    size: 10,
+    advertisement_id: id,
+    enabled: isAdhoc && !!id,
+  });
+
+  // Use the appropriate query result
+  const { data, isFetching } = isAdhoc ? adhocQuery : consultancyQuery;
+
   // Map API response to expected format for shortlisted applicants
   const mappedShortlistedApplicants = data?.data?.results
-    ?.filter(applicant => {
+    ?.filter((applicant: any) => {
+      if (isAdhoc) {
+        // For adhoc, API already filters by advertisement_id
+        return true;
+      }
       // Filter out applicants that don't belong to this consultant management
-      // Check if ID is in the consultants array (ManyToMany relationship)
-      // If consultants field is undefined, trust the backend filtering (backward compatibility)
       const belongsToThisConsultant =
         applicant.consultants === undefined || // Backend filtered already, trust it
         applicant.consultants?.includes(id) ||
@@ -57,13 +77,14 @@ export default function ShortlistedAppplicants() {
 
       return belongsToThisConsultant;
     })
-    ?.map(applicant => ({
+    ?.map((applicant: any) => ({
       ...applicant,
-      // Map name fields
-      first_name: applicant.first_name || applicant.name || 'Unknown',
-      last_name: applicant.last_name || applicant.contractor_name || '',
-      name: applicant.name || `${applicant.first_name || ''} ${applicant.last_name || ''}`.trim() || 'Unknown',
-      // Ensure consultant_id is present
+      // Map name fields - handle both consultancy and adhoc structures
+      first_name: applicant.first_name || applicant.other_names || applicant.name || 'Unknown',
+      last_name: applicant.last_name || applicant.sur_name || applicant.contractor_name || '',
+      name: applicant.name || `${applicant.first_name || applicant.other_names || ''} ${applicant.last_name || applicant.sur_name || ''}`.trim() || 'Unknown',
+      email: applicant.email || applicant.email_address,
+      // Ensure consultant_id is present for consultancy
       consultant_id: applicant.consultant_id || id,
       consultancy: applicant.consultancy || id,
       // Handle potentially problematic fields
@@ -149,8 +170,8 @@ export default function ShortlistedAppplicants() {
               data={mappedShortlistedApplicants}
               isLoading={isFetching}
               pagination={{
-                total: data?.data?.pagination?.count ?? mappedShortlistedApplicants.length,
-                pageSize: data?.data?.pagination?.page_size ?? 10,
+                total: ((data?.data as any)?.pagination?.count || (data?.data as any)?.paginator?.count) ?? mappedShortlistedApplicants.length,
+                pageSize: ((data?.data as any)?.pagination?.page_size || (data?.data as any)?.paginator?.page_size) ?? 10,
                 onChange: (page: number) => setCurrentPage(page),
               }}
             />

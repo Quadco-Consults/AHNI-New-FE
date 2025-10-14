@@ -28,6 +28,12 @@ import {
   useGetSingleFacilityMaintenanceQuery,
   useModifyFacilityMaintenanceMutation,
 } from "@/features/admin/controllers";
+import {
+  getReviewerOptions,
+  getAuthorizerOptions,
+  getApproverOptions
+} from "@/utils/approvalFilters";
+import { filterAhniStaffOnly } from "@/utils/userFilters";
 
 const descOptions = [
   {
@@ -80,13 +86,35 @@ export default function CreateFacilityManagementTicket() {
     search: "",
   });
 
+  // Filter for AHNI staff only (exclude vendors, consultants, external users)
+  const ahniStaff = useMemo(
+    () => filterAhniStaffOnly(user?.data?.results || []),
+    [user?.data?.results]
+  );
+
   const userOptions = useMemo(
     () =>
-      user?.data?.results?.map((userItem: any) => ({
+      ahniStaff.map((userItem: any) => ({
         label: `${userItem.first_name} ${userItem.last_name}`,
         value: userItem.id,
       })),
-    [user]
+    [ahniStaff]
+  );
+
+  // Filtered options for approval workflow - only users with appropriate permissions
+  const reviewerOptions = useMemo(
+    () => getReviewerOptions(ahniStaff),
+    [ahniStaff]
+  );
+
+  const authorizerOptions = useMemo(
+    () => getAuthorizerOptions(ahniStaff),
+    [ahniStaff]
+  );
+
+  const approverOptions = useMemo(
+    () => getApproverOptions(ahniStaff),
+    [ahniStaff]
   );
 
   const { data: facility } = useGetAllFacilityQuery({
@@ -255,7 +283,7 @@ export default function CreateFacilityManagementTicket() {
                 name='reviewer'
                 placeholder='Select Reviewer'
                 required
-                options={userOptions}
+                options={reviewerOptions}
               />
 
               <FormSelect
@@ -263,7 +291,7 @@ export default function CreateFacilityManagementTicket() {
                 name='authorizer'
                 placeholder='Select Authorizer'
                 required
-                options={userOptions}
+                options={authorizerOptions}
               />
 
               <FormSelect
@@ -271,7 +299,7 @@ export default function CreateFacilityManagementTicket() {
                 name='approver'
                 placeholder='Select Approver'
                 required
-                options={userOptions}
+                options={approverOptions}
               />
 
               <div className='flex justify-end'>

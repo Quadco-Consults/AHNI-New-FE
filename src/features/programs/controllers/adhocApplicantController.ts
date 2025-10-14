@@ -489,3 +489,30 @@ export const useDeleteApplicantDocument = (applicantId: string) => {
     },
   });
 };
+
+/**
+ * Update Adhoc Applicant Status (for contract acceptance/rejection)
+ * @description Updates the status of an adhoc applicant
+ */
+export const useUpdateAdhocApplicantStatus = (applicantId: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (payload: { status: string }) => {
+      const response = await AxiosWithToken.patch(`${BASE_URL}${applicantId}/`, payload);
+      return response.data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["adhocApplicants"] });
+      queryClient.invalidateQueries({ queryKey: ["adhocApplicant", applicantId] });
+      queryClient.invalidateQueries({ queryKey: ["adhocApplicantsByAd"] });
+      queryClient.invalidateQueries({ queryKey: ["adhocStaffDatabase"] });
+      toast.success(data.message || "Status updated successfully!");
+    },
+    onError: (error: AxiosError) => {
+      const errorMessage =
+        (error.response?.data as any)?.message || "Failed to update status";
+      toast.error(errorMessage);
+    },
+  });
+};

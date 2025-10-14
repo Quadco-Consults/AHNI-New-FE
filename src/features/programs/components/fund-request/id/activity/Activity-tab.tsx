@@ -1,6 +1,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "components/Table/DataTable";
 import { useMemo } from "react";
+import { TFundRequestResponseData } from "@/features/programs/types/fund-request";
 
 type ActivityData = {
   objective: string;
@@ -9,34 +10,29 @@ type ActivityData = {
   activities: string;
 };
 
-const data: ActivityData[] = [
-  {
-    objective:
-      "To Increase resiliency, responsiveness, and accountability of the health system",
-    subObjective: "Increased equity to access to HIV services",
-    accNumber: "PHO/IR/1.1.1",
-    activities:
-      "Develop context specific implementation plans to guide state teams to implement innovative, high impact decentralized HIV service delivery (e.g Super-Hub Cluster Model) in FCV and hard-to-reach areas",
-  },
-  {
-    objective:
-      "To Increase resiliency, responsiveness, and accountability of the health system",
-    subObjective: "Increased equity to access to HIV services",
-    accNumber: "PHO/IR/1.1.1",
-    activities:
-      "Develop context specific implementation plans to guide state teams to implement innovative, high impact decentralized HIV service delivery (e.g Super-Hub Cluster Model) in FCV and hard-to-reach areas",
-  },
-  {
-    objective:
-      "To Increase resiliency, responsiveness, and accountability of the health system",
-    subObjective: "Increased equity to access to HIV services",
-    accNumber: "PHO/IR/1.1.1",
-    activities:
-      "Develop context specific implementation plans to guide state teams to implement innovative, high impact decentralized HIV service delivery (e.g Super-Hub Cluster Model) in FCV and hard-to-reach areas",
-  },
-];
+interface ActivityTabProps {
+  fundRequest?: TFundRequestResponseData;
+}
 
-const ActivityTab = () => {
+const ActivityTab = ({ fundRequest }: ActivityTabProps) => {
+  const data = useMemo<ActivityData[]>(() => {
+    if (!fundRequest?.project?.objectives) return [];
+
+    const activities: ActivityData[] = [];
+    fundRequest.project.objectives.forEach((obj, index) => {
+      obj.sub_objectives.forEach((subObj) => {
+        activities.push({
+          objective: obj.objective,
+          subObjective: subObj,
+          accNumber: `${fundRequest.project.project_id || 'N/A'}/${index + 1}`,
+          activities: "Work plan activities to be added",
+        });
+      });
+    });
+
+    return activities;
+  }, [fundRequest]);
+
   const columns = useMemo<ColumnDef<ActivityData>[]>(
     () => [
       {
@@ -62,6 +58,22 @@ const ActivityTab = () => {
     ],
     []
   );
+
+  if (!fundRequest) {
+    return (
+      <div className="text-center text-gray-500 py-8">
+        No fund request data available
+      </div>
+    );
+  }
+
+  if (data.length === 0) {
+    return (
+      <div className="text-center text-gray-500 py-8">
+        No objectives or activities found for this project
+      </div>
+    );
+  }
 
   return (
     <div>

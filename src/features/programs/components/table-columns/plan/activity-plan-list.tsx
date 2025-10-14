@@ -4,7 +4,6 @@ import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIco
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import Link from "next/link";
 import DeleteIcon from "components/icons/DeleteIcon";
-import { RouteEnum } from "constants/RouterConstants";
 import ConfirmationDialog from "components/ConfirmationDialog";
 import { toast } from "sonner";
 import { useDeleteActivityTracker } from "@/features/programs/controllers/activityTrackerController";
@@ -12,7 +11,11 @@ import { Button } from "components/ui/button";
 import { useState } from "react";
 import { EyeIcon } from "lucide-react";
 
-export const workPlanTrackercolumns: ColumnDef<TWorkPlanTrackerData>[] = [
+/**
+ * Column definition for Activity Plan LIST page
+ * Shows work plans with link to view their activity details
+ */
+export const activityPlanListColumns: ColumnDef<TWorkPlanTrackerData>[] = [
   {
     header: "Project Name",
     accessorKey: "project",
@@ -61,14 +64,14 @@ const TableAction = ({ id }: TWorkPlanTrackerData) => {
             <div className='flex flex-col items-start justify-between gap-1'>
               <Link
                 className='w-full'
-                href={`/dashboard/programs/plan/activity-tracker/${id}`}
+                href={`/dashboard/programs/plan/activity/${id}`}
               >
                 <Button
                   className='w-full flex items-center justify-start gap-2'
                   variant='ghost'
                 >
                   <EyeIcon />
-                  View Details
+                  View Activity Plans
                 </Button>
               </Link>
               <Button

@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import DataTable from "components/Table/DataTable";
 import { LoadingSpinner } from "components/Loading";
 import { useGetAllConsultancyApplicants, useUpdateConsultancyApplicant } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
+import { useGetApplicantsByAdvertisement } from "@/features/programs/controllers/adhocApplicantController";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "components/ui/button";
@@ -30,18 +31,40 @@ export default function InterviewedApplicants() {
   const [page, setPage] = useState(1);
   const [acceptingApplicant, setAcceptingApplicant] = useState<string | null>(null);
   const params = useParams();
+  const pathname = usePathname();
   const consultancyId = params?.id as string;
 
-  const { data, isFetching, error } = useGetAllConsultancyApplicants({
+  // Detect if we're in adhoc mode
+  const isAdhoc = !!(pathname && pathname.includes("adhoc-management"));
+
+  // Call appropriate API based on type
+  const consultancyQuery = useGetAllConsultancyApplicants({
     page,
     size: 20,
     consultants: consultancyId,
-    enabled: !!consultancyId,
+    enabled: !isAdhoc && !!consultancyId,
   });
+
+  const adhocQuery = useGetApplicantsByAdvertisement(
+    consultancyId,
+    {
+      page,
+      size: 20,
+      status: "INTERVIEWED",
+      enabled: isAdhoc && !!consultancyId,
+    }
+  );
+
+  // Use the appropriate query result
+  const { data, isFetching, error } = isAdhoc ? adhocQuery : consultancyQuery;
 
   // Map API response to expected format for interviewed applicants
   const mappedApplicants = data?.data?.results
-    ?.filter(applicant => {
+    ?.filter((applicant: any) => {
+      if (isAdhoc) {
+        // For adhoc, API already filters by advertisement_id
+        return true;
+      }
       // Filter out applicants that don't belong to this consultant management
       // If consultants field is undefined, trust the backend filtering (backward compatibility)
       const belongsToThisConsultant =
@@ -52,11 +75,12 @@ export default function InterviewedApplicants() {
 
       return belongsToThisConsultant;
     })
-    ?.map(applicant => ({
+    ?.map((applicant: any) => ({
     ...applicant,
-    // Map name fields
-    first_name: applicant.first_name || applicant.name || 'Unknown',
-    last_name: applicant.last_name || applicant.contractor_name || '',
+    // Map name fields - handle both consultancy and adhoc structures
+    first_name: applicant.first_name || applicant.other_names || applicant.name || 'Unknown',
+    last_name: applicant.last_name || applicant.sur_name || applicant.contractor_name || '',
+    email: applicant.email || applicant.email_address,
     // Ensure consultant_id is present
     consultant_id: applicant.consultant_id || consultancyId,
     consultancy: applicant.consultancy || consultancyId,
