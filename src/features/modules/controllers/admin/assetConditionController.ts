@@ -37,7 +37,7 @@ export const CreateAssetConditionManager = () => {
     Error,
     AssetConditionFormValues
   >({
-    endpoint: "/admins/inventory/asset-conditions/",
+    endpoint: "admins/inventory/asset-conditions/",
     queryKey: ["assetConditions"],
     isAuth: true,
     method: "POST",
@@ -61,7 +61,7 @@ export const UpdateAssetConditionManager = () => {
     Error,
     AssetConditionFormValues
   >({
-    endpoint: "/admins/inventory/asset-conditions/",
+    endpoint: "admins/inventory/asset-conditions/",
     queryKey: ["assetConditions"],
     isAuth: true,
     method: "PATCH",
@@ -87,7 +87,7 @@ export const DeleteAssetConditionManager = () => {
     Error,
     Record<string, never>
   >({
-    endpoint: "/admins/inventory/asset-conditions/",
+    endpoint: "admins/inventory/asset-conditions/",
     queryKey: ["assetConditions"],
     isAuth: true,
     method: "DELETE",

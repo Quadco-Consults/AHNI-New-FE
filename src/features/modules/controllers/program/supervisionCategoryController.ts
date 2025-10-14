@@ -37,7 +37,7 @@ export const CreateSupervisionCategoryManager = () => {
     Error,
     SupervisionCategoryFormValues
   >({
-    endpoint: "/programs/supervision-evaluation-category/",
+    endpoint: "programs/supervision-evaluation-category/",
     queryKey: ["supervisionCategories"],
     isAuth: true,
     method: "POST",
@@ -61,7 +61,7 @@ export const UpdateSupervisionCategoryManager = () => {
     Error,
     SupervisionCategoryFormValues
   >({
-    endpoint: "/programs/supervision-evaluation-category/",
+    endpoint: "programs/supervision-evaluation-category/",
     queryKey: ["supervisionCategories"],
     isAuth: true,
     method: "PATCH",
@@ -87,7 +87,7 @@ export const DeleteSupervisionCategoryManager = () => {
     Error,
     Record<string, never>
   >({
-    endpoint: "/programs/supervision-evaluation-category/",
+    endpoint: "programs/supervision-evaluation-category/",
     queryKey: ["supervisionCategories"],
     isAuth: true,
     method: "DELETE",

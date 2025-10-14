@@ -61,7 +61,7 @@ export const useCreateActivityTracker = () => {
     Error,
     TWorkPlanTrackerFormValues
   >({
-    endpoint: "/programs/plans/activity-trackers/",
+    endpoint: "programs/plans/activity-trackers/",
     queryKey: ["activity-trackers"],
     isAuth: true,
     method: "POST",

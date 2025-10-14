@@ -37,7 +37,7 @@ export const CreateCostGroupingManager = () => {
     Error,
     CostGroupingFormValues
   >({
-    endpoint: "/finance/cost-groupings/",
+    endpoint: "finance/cost-groupings/",
     queryKey: ["cost-groupings"],
     isAuth: true,
     method: "POST",

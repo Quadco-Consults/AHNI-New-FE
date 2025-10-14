@@ -49,7 +49,7 @@ export const CreateCostInputManager = () => {
     Error,
     CostInputFormValues
   >({
-    endpoint: "/finance/cost-inputs/",
+    endpoint: "finance/cost-inputs/",
     queryKey: ["cost-inputs"],
     isAuth: true,
     method: "POST",

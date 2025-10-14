@@ -51,7 +51,7 @@ export const CreateCostCategoryManager = () => {
     Error,
     CostCategoryFormValues
   >({
-    endpoint: "/finance/cost-categories/",
+    endpoint: "finance/cost-categories/",
     queryKey: ["cost-categories"],
     isAuth: true,
     method: "POST",
@@ -75,7 +75,7 @@ export const UpdateCostCategoryManager = () => {
     Error,
     CostCategoryFormValues
   >({
-    endpoint: "/finance/cost-categories/",
+    endpoint: "finance/cost-categories/",
     queryKey: ["cost-categories", "cost-category"],
     isAuth: true,
     method: "PUT",
@@ -101,7 +101,7 @@ export const DeleteCostCategoryManager = () => {
     Error,
     Record<string, never>
   >({
-    endpoint: "/finance/cost-categories/",
+    endpoint: "finance/cost-categories/",
     queryKey: ["cost-categories"],
     isAuth: true,
     method: "DELETE",

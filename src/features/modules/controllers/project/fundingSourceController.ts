@@ -51,7 +51,7 @@ export const CreateFundingSourceManager = () => {
     Error,
     FundingSourceFormValues
   >({
-    endpoint: "/projects/funding-sources/",
+    endpoint: "projects/funding-sources/",
     queryKey: ["fundingSources"],
     isAuth: true,
     method: "POST",
@@ -75,7 +75,7 @@ export const UpdateFundingSourceManager = () => {
     Error,
     FundingSourceFormValues
   >({
-    endpoint: "/projects/funding-sources/",
+    endpoint: "projects/funding-sources/",
     queryKey: ["fundingSources"],
     isAuth: true,
     method: "PUT",
@@ -101,7 +101,7 @@ export const DeleteFundingSourceManager = () => {
     Error,
     Record<string, never>
   >({
-    endpoint: "/projects/funding-sources/",
+    endpoint: "projects/funding-sources/",
     queryKey: ["fundingSources"],
     isAuth: true,
     method: "DELETE",

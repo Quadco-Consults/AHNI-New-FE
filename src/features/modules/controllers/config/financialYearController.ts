@@ -51,7 +51,7 @@ export const CreateFinancialYearManager = () => {
     Error,
     FinancialYearFormValues
   >({
-    endpoint: "/config/financial-year/",
+    endpoint: "config/financial-year/",
     queryKey: ["financial-years"],
     isAuth: true,
     method: "POST",
@@ -75,7 +75,7 @@ export const UpdateFinancialYearManager = () => {
     Error,
     FinancialYearFormValues
   >({
-    endpoint: "/config/financial-year/",
+    endpoint: "config/financial-year/",
     queryKey: ["financial-years", "financial-year"],
     isAuth: true,
     method: "PATCH",
@@ -101,7 +101,7 @@ export const DeleteFinancialYearManager = () => {
     Error,
     Record<string, never>
   >({
-    endpoint: "/config/financial-year/",
+    endpoint: "config/financial-year/",
     queryKey: ["financial-years"],
     isAuth: true,
     method: "DELETE",

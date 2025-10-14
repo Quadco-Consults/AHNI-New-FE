@@ -37,7 +37,7 @@ export const CreatePositionManager = () => {
     Error,
     PositionFormValues
   >({
-    endpoint: "/config/positions/",
+    endpoint: "config/positions/",
     queryKey: ["positions"],
     isAuth: true,
     method: "POST",
@@ -61,7 +61,7 @@ export const UpdatePositionManager = () => {
     Error,
     PositionFormValues
   >({
-    endpoint: "/config/positions/",
+    endpoint: "config/positions/",
     queryKey: ["positions"],
     isAuth: true,
     method: "PUT",
@@ -87,7 +87,7 @@ export const DeletePositionManager = () => {
     Error,
     Record<string, never>
   >({
-    endpoint: "/config/positions/",
+    endpoint: "config/positions/",
     queryKey: ["positions"],
     isAuth: true,
     method: "DELETE",

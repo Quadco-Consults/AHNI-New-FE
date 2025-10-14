@@ -37,7 +37,7 @@ export const CreateBeneficiaryManager = () => {
     Error,
     BeneficiaryFormValues
   >({
-    endpoint: "/projects/beneficiaries/",
+    endpoint: "projects/beneficiaries/",
     queryKey: ["beneficiaries"],
     isAuth: true,
     method: "POST",
@@ -61,7 +61,7 @@ export const UpdateBeneficiaryManager = () => {
     Error,
     BeneficiaryFormValues
   >({
-    endpoint: "/projects/beneficiaries/",
+    endpoint: "projects/beneficiaries/",
     queryKey: ["beneficiaries"],
     isAuth: true,
     method: "PUT",
@@ -87,7 +87,7 @@ export const DeleteBeneficiaryManager = () => {
     Error,
     Record<string, never>
   >({
-    endpoint: "/projects/beneficiaries/",
+    endpoint: "projects/beneficiaries/",
     queryKey: ["beneficiaries"],
     isAuth: true,
     method: "DELETE",

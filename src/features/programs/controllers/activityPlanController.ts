@@ -137,7 +137,7 @@ export const useCreateActivityPlan = () => {
     Error,
     TActivityPlanFormValues
   >({
-    endpoint: "/programs/plans/activity/",
+    endpoint: "programs/plans/activity/",
     queryKey: ["activity-plans"],
     isAuth: true,
     method: "POST",
@@ -161,7 +161,7 @@ export const useUploadActivityPlan = () => {
     Error,
     { project: string; file: File }
   >({
-    endpoint: "/programs/plans/activity/sheet/upload/",
+    endpoint: "programs/plans/activity/sheet/upload/",
     queryKey: ["activity-plans"],
     isAuth: true,
     method: "POST",
@@ -267,7 +267,7 @@ export const useDownloadActivities = () => {
     Error,
     any
   >({
-    endpoint: "/activities/download/",
+    endpoint: "activities/download/",
     queryKey: [],
     isAuth: true,
     method: "GET" as any, // Note: This is a special case for download

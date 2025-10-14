@@ -37,7 +37,7 @@ export const CreatePrequalificationCategoryManager = () => {
     Error,
     PrequalificationCategoryFormValues
   >({
-    endpoint: "/procurements/prequalification_category/",
+    endpoint: "procurements/prequalification_category/",
     queryKey: ["prequalificationCategories"],
     isAuth: true,
     method: "POST",
@@ -61,7 +61,7 @@ export const UpdatePrequalificationCategoryManager = () => {
     Error,
     PrequalificationCategoryFormValues
   >({
-    endpoint: "/procurements/prequalification_category/",
+    endpoint: "procurements/prequalification_category/",
     queryKey: ["prequalificationCategories"],
     isAuth: true,
     method: "PATCH",
@@ -87,7 +87,7 @@ export const DeletePrequalificationCategoryManager = () => {
     Error,
     Record<string, never>
   >({
-    endpoint: "/procurements/prequalification_category/",
+    endpoint: "procurements/prequalification_category/",
     queryKey: ["prequalificationCategories"],
     isAuth: true,
     method: "DELETE",

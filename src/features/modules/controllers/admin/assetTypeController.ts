@@ -37,7 +37,7 @@ export const CreateAssetTypeManager = () => {
     Error,
     AssetTypeFormValues
   >({
-    endpoint: "/admins/inventory/asset-types/",
+    endpoint: "admins/inventory/asset-types/",
     queryKey: ["assetTypes"],
     isAuth: true,
     method: "POST",
@@ -61,7 +61,7 @@ export const UpdateAssetTypeManager = () => {
     Error,
     AssetTypeFormValues
   >({
-    endpoint: "/admins/inventory/asset-types/",
+    endpoint: "admins/inventory/asset-types/",
     queryKey: ["assetTypes"],
     isAuth: true,
     method: "PATCH",
@@ -87,7 +87,7 @@ export const DeleteAssetTypeManager = () => {
     Error,
     Record<string, never>
   >({
-    endpoint: "/admins/inventory/asset-types/",
+    endpoint: "admins/inventory/asset-types/",
     queryKey: ["assetTypes"],
     isAuth: true,
     method: "DELETE",
