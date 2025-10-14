@@ -15,13 +15,22 @@ const Axios = axios.create({
 // Add request interceptor for logging and URL normalization
 Axios.interceptors.request.use(
   (config) => {
+    // Debug logging
+    console.log('🔍 Request Interceptor Debug:', {
+      originalUrl: config.url,
+      baseURL: config.baseURL,
+      startsWithSlash: config.url?.startsWith('/'),
+    });
+
     // Remove leading slash from config.url to prevent double slashes
     if (config.url && config.url.startsWith('/')) {
+      console.log('⚠️ Stripping leading slash from:', config.url);
       config.url = config.url.substring(1);
+      console.log('✅ Result after stripping:', config.url);
     }
 
     const url = `${config.baseURL || ''}${config.url || ''}`;
-    console.log('API Request:', config.method?.toUpperCase(), url);
+    console.log('🌐 Final API Request:', config.method?.toUpperCase(), url);
     return config;
   },
   (error) => {
