@@ -10,6 +10,8 @@ import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 import { ChatMessage } from '@/services/chatService';
 import { useRouter } from 'next/navigation';
+import { TemplateCard } from './TemplateCard';
+import { ProcessFlowCard } from './ProcessFlowCard';
 
 interface EnhancedMessageBubbleProps {
   message: ChatMessage;
@@ -175,6 +177,62 @@ export const EnhancedMessageBubble = ({ message, className }: EnhancedMessageBub
     );
   };
 
+  const renderTemplateResponse = () => {
+    const { structuredData } = message;
+    if (!structuredData?.template) return null;
+
+    return (
+      <div className="mt-3">
+        <TemplateCard
+          template={structuredData.template}
+          onView={(template) => {
+            console.log('View template:', template);
+            // TODO: Open template viewer modal
+          }}
+          onDownload={(template) => {
+            console.log('Download template:', template);
+            // TODO: Implement download functionality
+          }}
+        />
+      </div>
+    );
+  };
+
+  const renderTemplateListResponse = () => {
+    const { structuredData } = message;
+    if (!structuredData?.templates || structuredData.templates.length === 0) return null;
+
+    return (
+      <div className="mt-3 space-y-2">
+        {structuredData.templates.map((template, index) => (
+          <TemplateCard
+            key={index}
+            template={template}
+            onView={(template) => {
+              console.log('View template:', template);
+              // TODO: Open template viewer modal
+            }}
+            onDownload={(template) => {
+              console.log('Download template:', template);
+              // TODO: Implement download functionality
+            }}
+          />
+        ))}
+      </div>
+    );
+  };
+
+  const renderProcessFlowResponse = () => {
+    const { structuredData } = message;
+    if (!structuredData?.process) return null;
+
+    return (
+      <div className="mt-3">
+        <ProcessFlowCard process={structuredData.process} />
+      </div>
+    );
+  };
+
   const formatMessageContent = (content: string) => {
     return content.split('\n').map((line, index) => {
       if (line.startsWith('**') && line.endsWith('**')) {
@@ -252,6 +310,9 @@ export const EnhancedMessageBubble = ({ message, className }: EnhancedMessageBub
         {message.sender === 'bot' && message.responseType === 'navigation' && renderNavigationResponse()}
         {message.sender === 'bot' && message.responseType === 'task_guide' && renderTaskGuideResponse()}
         {message.sender === 'bot' && message.responseType === 'structured' && renderStructuredResponse()}
+        {message.sender === 'bot' && message.responseType === 'template' && renderTemplateResponse()}
+        {message.sender === 'bot' && message.responseType === 'template_list' && renderTemplateListResponse()}
+        {message.sender === 'bot' && message.responseType === 'process_flow' && renderProcessFlowResponse()}
       </div>
 
       {message.sender === 'user' && (

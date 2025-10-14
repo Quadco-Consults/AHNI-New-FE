@@ -8,9 +8,12 @@ export interface ChatMessage {
   sender: 'user' | 'bot' | 'admin';
   timestamp: string;
   conversationId?: string;
-  responseType?: 'text' | 'structured' | 'navigation' | 'task_guide';
+  responseType?: 'text' | 'structured' | 'navigation' | 'task_guide' | 'template' | 'process_flow' | 'template_list';
   structuredData?: {
     type: string;
+    template?: Template;
+    templates?: Template[];
+    process?: ProcessFlow;
     [key: string]: any;
   };
   role?: 'user' | 'bot' | 'admin';
@@ -60,6 +63,55 @@ export interface SendMessageResponse {
 export interface CreateConversationResponse {
   conversation_id: string;
   created_at: string;
+}
+
+export interface Template {
+  key: string;
+  name: string;
+  category: string;
+  description: string;
+  file_type: string;
+  template_content?: string;
+  variables?: string[];
+}
+
+export interface TemplateListResponse {
+  total_templates: number;
+  categories: string[];
+  templates: Template[];
+}
+
+export interface TemplateSearchResponse {
+  query: string;
+  category: string | null;
+  total_results: number;
+  results: Template[];
+}
+
+export interface ProcessStep {
+  step: number;
+  name: string;
+  description: string;
+  actor: string;
+  outputs: string[];
+  duration: string;
+  template?: string;
+}
+
+export interface ProcessFlow {
+  key: string;
+  name: string;
+  category: string;
+  description: string;
+  steps: ProcessStep[];
+  total_duration: string;
+  required_documents: string[];
+  step_count?: number;
+}
+
+export interface ProcessListResponse {
+  total_processes: number;
+  processes: ProcessFlow[];
 }
 
 class ChatService {
@@ -245,6 +297,31 @@ class ChatService {
     } catch (error) {
       return this.makeRequest<void>('DELETE', `chat/conversations/${conversationId}/`);
     }
+  }
+
+  // Template methods
+  async getTemplates(category?: string): Promise<TemplateListResponse> {
+    const params = category ? `?category=${category}` : '';
+    return this.makeRequest<TemplateListResponse>('GET', `chat/sessions/templates/${params}`);
+  }
+
+  async getTemplate(templateKey: string): Promise<Template> {
+    return this.makeRequest<Template>('GET', `chat/sessions/templates/${templateKey}/`);
+  }
+
+  async searchTemplates(query: string, category?: string): Promise<TemplateSearchResponse> {
+    const params = new URLSearchParams({ q: query });
+    if (category) params.append('category', category);
+    return this.makeRequest<TemplateSearchResponse>('GET', `chat/sessions/templates/search/?${params}`);
+  }
+
+  // Process flow methods
+  async getProcesses(): Promise<ProcessListResponse> {
+    return this.makeRequest<ProcessListResponse>('GET', 'chat/sessions/processes/');
+  }
+
+  async getProcess(processKey: string): Promise<ProcessFlow> {
+    return this.makeRequest<ProcessFlow>('GET', `chat/sessions/processes/${processKey}/`);
   }
 }
 
