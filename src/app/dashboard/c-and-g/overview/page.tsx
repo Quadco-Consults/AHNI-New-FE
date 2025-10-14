@@ -16,17 +16,17 @@ import {
   Building2
 } from "lucide-react";
 import Link from "next/link";
-import { useGetGrants } from "@/features/contracts-grants/controllers/grantController";
-import { useGetSubGrants } from "@/features/contracts-grants/controllers/subGrantController";
-import { useGetContractRequests } from "@/features/contracts-grants/controllers/contractController";
-import { useGetConsultantAdverts } from "@/features/contracts-grants/controllers/consultantAdvertisementController";
+import { useGetAllGrants } from "@/features/contracts-grants/controllers/grantController";
+import { useGetAllSubGrants } from "@/features/contracts-grants/controllers/subGrantController";
+import { useGetAllContractRequests } from "@/features/contracts-grants/controllers/contractController";
+import { useGetAllConsultantAdvertisements } from "@/features/contracts-grants/controllers/consultantAdvertisementController";
 
 export default function CandGOverviewPage() {
   // Fetch data
-  const { data: grantsData } = useGetGrants({});
-  const { data: subGrantsData } = useGetSubGrants({});
-  const { data: contractsData } = useGetContractRequests({});
-  const { data: consultantsData } = useGetConsultantAdverts({});
+  const { data: grantsData } = useGetAllGrants({});
+  const { data: subGrantsData } = useGetAllSubGrants({});
+  const { data: contractsData } = useGetAllContractRequests({});
+  const { data: consultantsData } = useGetAllConsultantAdvertisements({});
 
   // Calculate metrics
   const grants = grantsData?.data?.results || [];
