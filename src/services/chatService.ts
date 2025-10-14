@@ -5,12 +5,19 @@ import { mockChatService } from './mockChatService';
 export interface ChatMessage {
   id: string;
   content: string;
-  sender: 'user' | 'bot';
+  sender: 'user' | 'bot' | 'admin';
   timestamp: string;
   conversationId?: string;
   responseType?: 'text' | 'structured' | 'navigation' | 'task_guide';
   structuredData?: {
     type: string;
+    [key: string]: any;
+  };
+  role?: 'user' | 'bot' | 'admin';
+  adminName?: string;
+  metadata?: {
+    admin_name?: string;
+    admin_id?: string;
     [key: string]: any;
   };
 }
@@ -20,6 +27,14 @@ export interface ChatConversation {
   messages: ChatMessage[];
   created_at: string;
   updated_at: string;
+  status?: 'bot' | 'transferred' | 'admin_responding' | 'resolved' | 'closed';
+  assigned_admin?: {
+    id: string;
+    name: string;
+    email: string;
+  };
+  transferred_at?: string;
+  transfer_reason?: string;
 }
 
 export interface SendMessageRequest {
@@ -37,6 +52,9 @@ export interface SendMessageResponse {
     type: string;
     [key: string]: any;
   };
+  transferred?: boolean;
+  transfer_status?: 'bot' | 'transferred' | 'admin_responding' | 'resolved' | 'closed';
+  session_id?: string;
 }
 
 export interface CreateConversationResponse {
