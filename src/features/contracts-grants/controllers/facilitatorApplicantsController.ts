@@ -173,14 +173,41 @@ export const useUpdateFacilitatorApplicant = (id: string) => {
 export const useUpdateFacilitatorApplicantStatus = () => {
   const updateFacilitatorApplicantStatus = async (
     applicantId: string,
-    status: "SELECTED" | "REJECTED"
+    action: "SELECTED" | "REJECTED"
   ) => {
     try {
-      const response = await AxiosWithToken.patch(`${BASE_URL}${applicantId}/`, { status });
+      // Map frontend status to backend status
+      // Backend uses "APPROVED" instead of "SELECTED"
+      const backendStatus = action === "SELECTED" ? "APPROVED" : "REJECTED";
+
+      console.log("🔍 Updating facilitator applicant status:", {
+        applicantId,
+        frontendAction: action,
+        backendStatus: backendStatus,
+        endpoint: `${BASE_URL}${applicantId}/`,
+        payload: { status: backendStatus }
+      });
+
+      const response = await AxiosWithToken.patch(`${BASE_URL}${applicantId}/`, {
+        status: backendStatus
+      });
+
+      console.log("✅ Status update successful:", response.data);
       return response.data;
-    } catch (error) {
-      console.error("Facilitator applicant status update error:", error);
-      throw error;
+    } catch (error: any) {
+      console.error("❌ Facilitator applicant status update error:", error);
+      console.error("Error response:", error.response?.data);
+      console.error("Error status:", error.response?.status);
+      console.error("Error message:", error.message);
+
+      // Re-throw with more context
+      const errorMessage = error.response?.data?.message
+        || error.response?.data?.error
+        || error.response?.data?.detail
+        || error.message
+        || "Failed to update status";
+
+      throw new Error(errorMessage);
     }
   };
 
