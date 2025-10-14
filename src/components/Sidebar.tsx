@@ -3,8 +3,24 @@ import { useState } from "react";
 import logoSvg from "@/assets/svgs/logo-bg.svg";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FaDotCircle } from "react-icons/fa";
-import { ChevronDown, Package, ScanEye, HeartHandshake } from "lucide-react";
+import {
+  ChevronDown,
+  Package,
+  ScanEye,
+  HeartHandshake,
+  ShoppingCart,
+  FileText,
+  Car,
+  Fuel,
+  Wrench,
+  CreditCard,
+  Tool,
+  DollarSign,
+  Plane,
+  FileBarChart,
+  ScrollText,
+  Users
+} from "lucide-react";
 // Direct Next.js paths - no RouterConstants needed
 import { Icon } from "@iconify/react";
 import { cn } from "lib/utils";
@@ -27,54 +43,94 @@ type SidebarProps = {
 };
 
 const globalHubMenu = [
+  // Procurement & Purchasing
   {
     label: "Purchase Requests",
     path: "/dashboard/procurement/purchase-request",
+    icon: <ShoppingCart className="w-4 h-4" />,
+    category: "procurement"
   },
-  { label: "Support", path: "/dashboard/support", icon: <HeartHandshake /> },
   {
     label: "Item Requisition",
     path: "/dashboard/admin/inventory-management/item-requisition",
+    icon: <FileText className="w-4 h-4" />,
+    category: "inventory"
   },
+
+  // Fleet & Transport
   {
     label: "Vehicle Request",
     path: "/dashboard/admin/fleet-management/vehicle-request",
+    icon: <Car className="w-4 h-4" />,
+    category: "fleet"
   },
   {
     label: "Fuel Request",
     path: "/dashboard/admin/fleet-management/fuel-request",
+    icon: <Fuel className="w-4 h-4" />,
+    category: "fleet"
+  },
+
+  // Maintenance
+  {
+    label: "Facility Maintenance",
+    path: "/dashboard/admin/facility-management/facility-maintenance",
+    icon: <Wrench className="w-4 h-4" />,
+    category: "maintenance"
   },
   {
-    label: "Facility Maintenance Ticket",
-    path: "/dashboard/admin/facility-management/facility-maintenance",
+    label: "Asset Maintenance",
+    path: "/dashboard/admin/asset-maintenance",
+    icon: <Tool className="w-4 h-4" />,
+    category: "maintenance"
   },
+
+  // Financial
   {
     label: "Payment Request",
     path: "/dashboard/admin/payment-request",
-  },
-  {
-    label: "Asset Maintenance Request",
-    path: "/dashboard/admin/asset-maintenance",
+    icon: <CreditCard className="w-4 h-4" />,
+    category: "financial"
   },
   {
     label: "Expense Authorization",
     path: "/dashboard/admin/expense-authorization",
+    icon: <DollarSign className="w-4 h-4" />,
+    category: "financial"
   },
   {
     label: "Travel Expense Report",
     path: "/dashboard/admin/travel-expenses-report",
+    icon: <Plane className="w-4 h-4" />,
+    category: "financial"
+  },
+
+  // Contracts & HR
+  {
+    label: "Contract Request",
+    path: "/dashboard/c-and-g/contract-request",
+    icon: <ScrollText className="w-4 h-4" />,
+    category: "contracts"
   },
   {
     label: "Consultancy Report",
     path: "/dashboard/c-and-g/consultancy-report",
-  },
-  {
-    label: "Contract Request",
-    path: "/dashboard/c-and-g/contract-request",
+    icon: <FileBarChart className="w-4 h-4" />,
+    category: "contracts"
   },
   {
     label: "Adhoc Staff Requisition",
     path: "/dashboard/adhoc-requisition",
+    icon: <Users className="w-4 h-4" />,
+    category: "hr"
+  },
+
+  // Support
+  {
+    label: "Support",
+    path: "/dashboard/support",
+    icon: <HeartHandshake className="w-4 h-4" />,
+    category: "support"
   },
 ];
 
@@ -514,30 +570,40 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
               GLOBAL HUB
             </h4>
 
-            {globalHubMenu?.map(({ label, path, icon }, id) => {
-              return (
-                <Link
-                  key={id}
-                  href={path || "#"}
-                  className={cn(
-                    "hover:text-primary flex w-full items-center justify-between gap-3 px-2 py-2 text-sm font-bold hover:cursor-pointer",
-                    path && pathname && pathname.startsWith(path) && "text-primary "
-                  )}
-                >
-                  <div className="flex w-[85%] items-center gap-2">
-                    <span className="">{icon ? icon : <FaDotCircle />}</span>
+            <div className="space-y-1">
+              {globalHubMenu?.map(({ label, path, icon }, id) => {
+                const isActive = path && pathname && pathname.startsWith(path);
+                return (
+                  <Link
+                    key={id}
+                    href={path || "#"}
+                    className={cn(
+                      "group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
+                      isActive
+                        ? "bg-primary/10 text-primary"
+                        : "text-gray-700 hover:bg-primary/5 hover:text-primary dark:text-gray-300 dark:hover:bg-primary/10"
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        "flex-shrink-0 transition-transform duration-200",
+                        isActive && "scale-110"
+                      )}
+                    >
+                      {icon}
+                    </span>
                     <h4
                       className={cn(
-                        " w-[100%] truncate font-medium uppercase",
+                        "truncate transition-all duration-200",
                         sidebarWidth === false ? "block" : "hidden"
                       )}
                     >
                       {label}
                     </h4>
-                  </div>
-                </Link>
-              );
-            })}
+                  </Link>
+                );
+              })}
+            </div>
           </div>
         </div>
       </section>
