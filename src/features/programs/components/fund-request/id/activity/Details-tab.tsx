@@ -1,6 +1,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "components/Table/DataTable";
 import { useMemo } from "react";
+import { TFundRequestResponseData } from "@/features/programs/types/fund-request";
 
 type DetailData = {
   objective: string;
@@ -12,46 +13,34 @@ type DetailData = {
   leadPerson: string;
 };
 
-const data: DetailData[] = [
-  {
-    objective:
-      "To Increase resiliency, responsiveness, and accountability of the health system",
-    subObjective: "Increased equity to access to HIV services",
-    accNumber: "PHO/IR/1.1.1",
-    activities:
-      "Develop context specific implementation plans to guide state teams to implement innovative, high impact decentralized HIV service delivery (e.g Super-Hub Cluster Model) in FCV and hard-to-reach areas",
-    justification:
-      "To fit to the different and  changing security context in BAY states",
-    leadDept: "PCT",
-    leadPerson: "STO PCT",
-  },
-  {
-    objective:
-      "To Increase resiliency, responsiveness, and accountability of the health system",
-    subObjective: "Increased equity to access to HIV services",
-    accNumber: "PHO/IR/1.1.1",
-    activities:
-      "Develop context specific implementation plans to guide state teams to implement innovative, high impact decentralized HIV service delivery (e.g Super-Hub Cluster Model) in FCV and hard-to-reach areas",
-    justification:
-      "To fit to the different and  changing security context in BAY states",
-    leadDept: "PCT",
-    leadPerson: "STO PCT",
-  },
-  {
-    objective:
-      "To Increase resiliency, responsiveness, and accountability of the health system",
-    subObjective: "Increased equity to access to HIV services",
-    accNumber: "PHO/IR/1.1.1",
-    activities:
-      "Develop context specific implementation plans to guide state teams to implement innovative, high impact decentralized HIV service delivery (e.g Super-Hub Cluster Model) in FCV and hard-to-reach areas",
-    justification:
-      "To fit to the different and  changing security context in BAY states",
-    leadDept: "PCT",
-    leadPerson: "STO PCT",
-  },
-];
+interface DetailTabProps {
+  fundRequest?: TFundRequestResponseData;
+}
 
-const DetailTab = () => {
+const DetailTab = ({ fundRequest }: DetailTabProps) => {
+  const data = useMemo<DetailData[]>(() => {
+    if (!fundRequest?.project?.objectives) return [];
+
+    const details: DetailData[] = [];
+    fundRequest.project.objectives.forEach((obj, index) => {
+      obj.sub_objectives.forEach((subObj) => {
+        details.push({
+          objective: obj.objective,
+          subObjective: subObj,
+          accNumber: `${fundRequest.project.project_id || 'N/A'}/${index + 1}`,
+          activities: "Work plan activities to be added",
+          justification: fundRequest.project.narrative || "N/A",
+          leadDept: "To be assigned",
+          leadPerson: fundRequest.project.project_managers?.[0]
+            ? `${fundRequest.project.project_managers[0].first_name} ${fundRequest.project.project_managers[0].last_name}`
+            : "N/A",
+        });
+      });
+    });
+
+    return details;
+  }, [fundRequest]);
+
   const columns = useMemo<ColumnDef<DetailData>[]>(
     () => [
       {
@@ -92,6 +81,22 @@ const DetailTab = () => {
     ],
     []
   );
+
+  if (!fundRequest) {
+    return (
+      <div className="text-center text-gray-500 py-8">
+        No fund request data available
+      </div>
+    );
+  }
+
+  if (data.length === 0) {
+    return (
+      <div className="text-center text-gray-500 py-8">
+        No details found for this project
+      </div>
+    );
+  }
 
   return <DataTable data={data} columns={columns} />;
 };

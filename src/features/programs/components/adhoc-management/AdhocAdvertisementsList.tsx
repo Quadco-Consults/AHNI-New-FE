@@ -8,7 +8,8 @@ import Link from "next/link";
 import { LoadingSpinner } from "components/Loading";
 import Pagination from "components/Pagination";
 import { useGetAllAdhocAdvertisements } from "@/features/programs/controllers/adhocAdvertisementController";
-import ConsultancyCard from "@/features/contracts-grants/components/contract-management/consultant-management/ConsultantCard";
+import AdhocAdvertisementCard from "./AdhocAdvertisementCard";
+import { IAdhocAdvertisement } from "@/features/programs/types/adhoc-management";
 
 export default function AdhocAdvertisementsList() {
   const [page, setPage] = useState(1);
@@ -20,21 +21,14 @@ export default function AdhocAdvertisementsList() {
     enabled: true,
   });
 
-  console.log('🔍 Adhoc Advertisements Page:', {
-    isFetching,
-    error: error?.message,
-    dataStructure: data ? {
-      hasPagination: !!data?.data?.pagination,
-      hasPaginator: !!data?.data?.paginator,
-      hasResults: !!data?.data?.results,
+  // Debug logging (can be removed in production)
+  if (process.env.NODE_ENV === 'development') {
+    console.log('🔍 Adhoc Advertisements Page:', {
+      isFetching,
+      error: error?.message,
       resultsCount: data?.data?.results?.length,
-      paginationCount: data?.data?.pagination?.count || data?.data?.paginator?.count,
-    } : null,
-    rawData: data,
-  });
-
-  if (data?.data?.results) {
-    console.log('📋 Advertisements Found:', data.data.results);
+      totalCount: data?.data?.pagination?.count,
+    });
   }
 
   return (
@@ -64,8 +58,8 @@ export default function AdhocAdvertisementsList() {
         </div>
       ) : data?.data?.results?.length > 0 ? (
         <div className='w-full flex flex-wrap justify-between items-start gap-y-[1rem]'>
-          {data.data.results.map((advertisement: any) => (
-            <ConsultancyCard key={advertisement.id} {...advertisement} />
+          {data.data.results.map((advertisement: IAdhocAdvertisement) => (
+            <AdhocAdvertisementCard key={advertisement.id} {...advertisement} />
           ))}
         </div>
       ) : (
@@ -77,10 +71,10 @@ export default function AdhocAdvertisementsList() {
         </div>
       )}
 
-      {(data?.data?.paginator || data?.data?.pagination) && (
+      {data?.data?.pagination && (
         <Pagination
-          total={data.data.paginator?.count || data.data.pagination?.count || 0}
-          itemsPerPage={data.data.paginator?.page_size || data.data.pagination?.page_size || 10}
+          total={data.data.pagination.count}
+          itemsPerPage={data.data.pagination.page_size}
           onChange={(page) => setPage(page)}
         />
       )}
