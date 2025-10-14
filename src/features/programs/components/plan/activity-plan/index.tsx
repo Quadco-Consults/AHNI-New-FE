@@ -4,7 +4,7 @@ import { Button } from "components/ui/button";
 import { useState } from "react";
 import DataTable from "components/Table/DataTable";
 import BreadcrumbCard, { TBreadcrumbList } from "components/Breadcrumb";
-import { workPlanTrackercolumns } from "@/features/programs/components/table-columns/plan/work-plan-tracker";
+import { activityPlanListColumns } from "@/features/programs/components/table-columns/plan/activity-plan-list";
 import { useDebounce } from "ahooks";
 import TableFilters from "components/Table/TableFilters";
 import { useGetAllWorkPlan } from "@/features/programs/controllers/workPlanController";
@@ -148,7 +148,7 @@ export default function ActivityPlan() {
       <Card>
         <TableFilters onSearchChange={(e) => setSearchQuery(e.target.value)}>
           <DataTable
-            columns={workPlanTrackercolumns}
+            columns={activityPlanListColumns}
             data={workPlan?.data?.results || []}
             isLoading={isFetching}
             pagination={{

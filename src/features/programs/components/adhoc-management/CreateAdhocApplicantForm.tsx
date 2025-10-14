@@ -268,7 +268,7 @@ export default function CreateAdhocApplicantForm({
               <p className="text-sm text-gray-600">
                 Location: {typeof advertisementData.location === 'object'
                   ? advertisementData.location.name
-                  : advertisementData.location}
+                  : advertisementData.location_name || advertisementData.location}
               </p>
             )}
           </section>

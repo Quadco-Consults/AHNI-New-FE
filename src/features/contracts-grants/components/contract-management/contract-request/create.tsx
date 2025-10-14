@@ -24,6 +24,12 @@ import { useGetAllLocations } from "@/features/modules/controllers/config/locati
 import { useGetAllFCONumbers } from "@/features/modules/controllers/finance/fcoNumberController";
 import { toast } from "sonner";
 import { CG_ROUTES } from "constants/RouterConstants";
+import { filterAhniStaffOnly } from "@/utils/userFilters";
+import {
+  getReviewerOptions,
+  getAuthorizerOptions,
+  getApproverOptions
+} from "@/utils/approvalFilters";
 
 export default function CreateContractRequest() {
   const searchParams = useSearchParams();
@@ -97,9 +103,16 @@ export default function CreateContractRequest() {
     size: 2000000,
   });
 
+  // Filter for AHNI staff only (exclude vendors, consultants, external users)
+  const ahniStaff = useMemo(
+    () => filterAhniStaffOnly(user?.data.results || []),
+    [user?.data.results]
+  );
+
+  // User options for general fields (technical monitor)
   const userOptions = useMemo(
     () =>
-      user?.data.results.map((userData) => ({
+      ahniStaff.map((userData) => ({
         label: userData.full_name ||
                [userData.first_name, userData.last_name]
                  .filter(name => name && name.trim())
@@ -107,9 +120,24 @@ export default function CreateContractRequest() {
                userData.email || "User",
         value: userData.id,
       })),
-    [user?.data.results]
+    [ahniStaff]
   );
-  console.log("User Options:", userOptions);
+
+  // Filtered options for approval workflow - only users with appropriate permissions
+  const reviewerOptions = useMemo(
+    () => getReviewerOptions(ahniStaff),
+    [ahniStaff]
+  );
+
+  const authorizerOptions = useMemo(
+    () => getAuthorizerOptions(ahniStaff),
+    [ahniStaff]
+  );
+
+  const approverOptions = useMemo(
+    () => getApproverOptions(ahniStaff),
+    [ahniStaff]
+  );
   const { createContractRequest, isLoading: isCreateLoading } =
     useCreateContractRequest();
 
@@ -281,21 +309,21 @@ export default function CreateContractRequest() {
               name='current_reviewer'
               placeholder='Select reviewer'
               required
-              options={userOptions}
+              options={reviewerOptions}
             />
 
             <FormSelect
               label='Authorizer'
               name='authorizer'
               placeholder='Select authorizer (optional)'
-              options={userOptions}
+              options={authorizerOptions}
             />
 
             <FormSelect
               label='Approver'
               name='approver'
               placeholder='Select approver (optional)'
-              options={userOptions}
+              options={approverOptions}
             />
             <div className=''>
               <FormButton

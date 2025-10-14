@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import DataTable from "components/Table/DataTable";
 import { LoadingSpinner } from "components/Loading";
 import { useGetAllConsultancyApplicants } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
+import { useGetApplicantsByAdvertisement } from "@/features/programs/controllers/adhocApplicantController";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "components/ui/button";
@@ -30,18 +31,40 @@ export default function AcceptedApplicants() {
   const [page, setPage] = useState(1);
   const [issuingContract, setIssuingContract] = useState<string | null>(null);
   const params = useParams();
+  const pathname = usePathname();
   const consultancyId = params?.id as string;
 
-  const { data, isFetching, error } = useGetAllConsultancyApplicants({
+  // Detect if we're in adhoc mode
+  const isAdhoc = pathname && pathname.includes("adhoc-management");
+
+  // Call appropriate API based on type
+  const consultancyQuery = useGetAllConsultancyApplicants({
     page,
     size: 20,
     consultants: consultancyId,
-    enabled: !!consultancyId,
+    enabled: !isAdhoc && !!consultancyId,
   });
+
+  const adhocQuery = useGetApplicantsByAdvertisement(
+    consultancyId,
+    {
+      page,
+      size: 20,
+      status: "SELECTED",
+      enabled: isAdhoc && !!consultancyId,
+    }
+  );
+
+  // Use the appropriate query result
+  const { data, isFetching, error } = isAdhoc ? adhocQuery : consultancyQuery;
 
   // Map API response to expected format for accepted applicants
   const mappedApplicants = data?.data?.results
     ?.filter(applicant => {
+      if (isAdhoc) {
+        // For adhoc, API already filters by advertisement_id
+        return true;
+      }
       // Filter out applicants that don't belong to this consultant management
       const belongsToThisConsultant =
         applicant.consultants === undefined || // Backend filtered already, trust it
@@ -53,10 +76,12 @@ export default function AcceptedApplicants() {
     })
     ?.map(applicant => ({
     ...applicant,
-    // Map name fields
-    first_name: applicant.first_name || applicant.name || 'Unknown',
-    last_name: applicant.last_name || applicant.contractor_name || '',
-    // Ensure consultant_id is present
+    // Map name fields - handle both consultancy and adhoc structures
+    first_name: applicant.first_name || applicant.other_names || applicant.name || 'Unknown',
+    last_name: applicant.last_name || applicant.sur_name || applicant.contractor_name || '',
+    email: applicant.email || applicant.email_address,
+    phone_number: applicant.phone_number,
+    // Ensure consultant_id is present for consultancy
     consultant_id: applicant.consultant_id || consultancyId,
     consultancy: applicant.consultancy || consultancyId,
     // Handle potentially problematic fields
@@ -74,9 +99,11 @@ export default function AcceptedApplicants() {
       : applicant.contract_request || 'N/A',
   })) || [];
 
-  // Filter for accepted applicants only
+  // Filter for accepted applicants only (ACCEPTED for consultancy, SELECTED/HIRED for adhoc)
   const acceptedApplicants = mappedApplicants.filter(
-    (applicant) => applicant.status === "ACCEPTED"
+    (applicant) => isAdhoc
+      ? (applicant.status === "SELECTED" || applicant.status === "HIRED")
+      : applicant.status === "ACCEPTED"
   );
 
   console.log("🔍 AcceptedApplicants Debug:");

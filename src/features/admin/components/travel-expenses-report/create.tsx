@@ -30,6 +30,12 @@ import {
 import { useGetAllUsers } from "@/features/auth/controllers/userController";
 import { useGetAllExpenseAuthorizations } from "@/features/admin/controllers/expenseAuthorizationController";
 import { getCurrentUser } from "@/utils/auth";
+import {
+  getReviewerOptions,
+  getAuthorizerOptions,
+  getApproverOptions
+} from "@/utils/approvalFilters";
+import { filterAhniStaffOnly } from "@/utils/userFilters";
 
 export default function SimpleTravelExpenseReportPage() {
   const router = useRouter();
@@ -119,10 +125,31 @@ export default function SimpleTravelExpenseReportPage() {
     console.log('🔍 USERS DATA STRUCTURE:', users);
     // API actually returns data.results structure
     const userResults = (users as any)?.data?.results || users?.results;
-    return userResults?.map((user: any) => ({
+    // Filter for AHNI staff only (exclude vendors, consultants, external users)
+    const ahniStaff = filterAhniStaffOnly(userResults || []);
+    return ahniStaff.map((user: any) => ({
       label: `${user.first_name} ${user.last_name}`,
       value: user.id,
-    })) || [];
+    }));
+  }, [users]);
+
+  // Filtered options for approval workflow - only users with appropriate permissions
+  const reviewerOptions = useMemo(() => {
+    const userResults = (users as any)?.data?.results || users?.results;
+    const ahniStaff = filterAhniStaffOnly(userResults || []);
+    return getReviewerOptions(ahniStaff);
+  }, [users]);
+
+  const authorizerOptions = useMemo(() => {
+    const userResults = (users as any)?.data?.results || users?.results;
+    const ahniStaff = filterAhniStaffOnly(userResults || []);
+    return getAuthorizerOptions(ahniStaff);
+  }, [users]);
+
+  const approverOptions = useMemo(() => {
+    const userResults = (users as any)?.data?.results || users?.results;
+    const ahniStaff = filterAhniStaffOnly(userResults || []);
+    return getApproverOptions(ahniStaff);
   }, [users]);
 
   const expenseAuthorizationOptions = useMemo(() => {
@@ -542,7 +569,7 @@ export default function SimpleTravelExpenseReportPage() {
                   name="reviewer"
                   placeholder="Select Reviewer"
                   required
-                  options={userOptions}
+                  options={reviewerOptions}
                 />
 
                 <FormSelect
@@ -550,7 +577,7 @@ export default function SimpleTravelExpenseReportPage() {
                   name="authorizer"
                   placeholder="Select Authorizer"
                   required
-                  options={userOptions}
+                  options={authorizerOptions}
                 />
 
                 <FormSelect
@@ -558,7 +585,7 @@ export default function SimpleTravelExpenseReportPage() {
                   name="approver"
                   placeholder="Select Approver"
                   required
-                  options={userOptions}
+                  options={approverOptions}
                 />
 
                 <FileUpload
