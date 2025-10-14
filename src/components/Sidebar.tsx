@@ -11,7 +11,6 @@ import {
   ShoppingCart,
   FileText,
   Car,
-  Fuel,
   Wrench,
   CreditCard,
   Tool,
@@ -19,7 +18,8 @@ import {
   Plane,
   FileBarChart,
   ScrollText,
-  Users
+  Users,
+  Droplet
 } from "lucide-react";
 // Direct Next.js paths - no RouterConstants needed
 import { Icon } from "@iconify/react";
@@ -67,7 +67,7 @@ const globalHubMenu = [
   {
     label: "Fuel Request",
     path: "/dashboard/admin/fleet-management/fuel-request",
-    icon: <Fuel className="w-4 h-4" />,
+    icon: <Droplet className="w-4 h-4" />,
     category: "fleet"
   },
 
