@@ -1,12 +1,14 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { X, Send, Bot } from 'lucide-react';
+import { X, Send, Bot, AlertCircle, Clock, Shield, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
 import { useChatService } from '@/hooks/useChatService';
 import { ChatErrorBoundary } from './ErrorBoundary';
 import { EnhancedMessageBubble } from './EnhancedMessageBubble';
@@ -18,15 +20,16 @@ interface ChatWindowProps {
 
 export const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
   const [message, setMessage] = useState('');
+  const [transferStatus, setTransferStatus] = useState<'bot' | 'transferred' | 'admin_responding' | 'resolved' | 'closed' | null>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
-  const { 
-    messages, 
-    isLoading, 
-    isTyping, 
-    error, 
-    sendMessage, 
+  const {
+    messages,
+    isLoading,
+    isTyping,
+    error,
+    sendMessage,
     clearError,
-    isAuthenticated 
+    isAuthenticated
   } = useChatService();
 
   // Display error messages to user
@@ -47,12 +50,65 @@ export const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
 
     const userMessage = message.trim();
     setMessage('');
-    
+
     try {
-      await sendMessage(userMessage);
+      const response = await sendMessage(userMessage);
+      // Check if the message triggered a transfer
+      if (response && (response as any).transferred) {
+        setTransferStatus((response as any).transfer_status || 'transferred');
+      }
     } catch (error) {
       console.error('Failed to send message:', error);
     }
+  };
+
+  // Render transfer status banner
+  const renderTransferBanner = () => {
+    if (!transferStatus || transferStatus === 'bot') return null;
+
+    const bannerConfig = {
+      transferred: {
+        icon: Clock,
+        title: 'Transferred to Admin Team',
+        description: 'Your chat has been transferred. An admin will respond shortly.',
+        color: 'bg-amber-50 border-amber-200 text-amber-900',
+        iconColor: 'text-amber-600'
+      },
+      admin_responding: {
+        icon: Shield,
+        title: 'Admin is Responding',
+        description: 'An AHNI administrator is now helping you.',
+        color: 'bg-blue-50 border-blue-200 text-blue-900',
+        iconColor: 'text-blue-600'
+      },
+      resolved: {
+        icon: CheckCircle2,
+        title: 'Issue Resolved',
+        description: 'Your issue has been marked as resolved by the admin.',
+        color: 'bg-green-50 border-green-200 text-green-900',
+        iconColor: 'text-green-600'
+      },
+      closed: {
+        icon: CheckCircle2,
+        title: 'Session Closed',
+        description: 'This chat session has been closed.',
+        color: 'bg-gray-50 border-gray-200 text-gray-900',
+        iconColor: 'text-gray-600'
+      }
+    };
+
+    const config = bannerConfig[transferStatus];
+    if (!config) return null;
+
+    const Icon = config.icon;
+
+    return (
+      <Alert className={`mx-4 mt-2 ${config.color}`}>
+        <Icon className={`h-4 w-4 ${config.iconColor}`} />
+        <AlertTitle className="text-sm font-semibold">{config.title}</AlertTitle>
+        <AlertDescription className="text-xs">{config.description}</AlertDescription>
+      </Alert>
+    );
   };
 
   useEffect(() => {
@@ -85,17 +141,27 @@ export const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b">
           <div className="flex items-center space-x-2">
-            <Avatar className="w-8 h-8">
-              <AvatarFallback className="bg-primary text-primary-foreground">
-                <Bot size={16} />
+            <Avatar className={`w-8 h-8 ${transferStatus && transferStatus !== 'bot' ? 'border-2 border-primary' : ''}`}>
+              <AvatarFallback className={transferStatus && transferStatus !== 'bot' ? 'bg-primary text-primary-foreground' : 'bg-muted'}>
+                {transferStatus === 'admin_responding' || transferStatus === 'transferred' ? <Shield size={16} /> : <Bot size={16} />}
               </AvatarFallback>
             </Avatar>
             <div>
-              <h3 className="font-semibold text-sm">AHNI Assistant</h3>
+              <h3 className="font-semibold text-sm">
+                {transferStatus === 'admin_responding' ? 'AHNI Admin' : 'AHNI Assistant'}
+              </h3>
               <p className="text-xs text-muted-foreground">
-                {isTyping ? 'Typing...' : 'Online'}
+                {isTyping ? 'Typing...' : transferStatus === 'transferred' ? 'Waiting for admin...' : 'Online'}
               </p>
             </div>
+            {transferStatus && transferStatus !== 'bot' && (
+              <Badge variant="outline" className="text-xs ml-2">
+                {transferStatus === 'transferred' && 'Transferred'}
+                {transferStatus === 'admin_responding' && 'Admin'}
+                {transferStatus === 'resolved' && 'Resolved'}
+                {transferStatus === 'closed' && 'Closed'}
+              </Badge>
+            )}
           </div>
           <Button
             variant="ghost"
@@ -106,6 +172,9 @@ export const ChatWindow = ({ isOpen, onClose }: ChatWindowProps) => {
             <X size={16} />
           </Button>
         </div>
+
+        {/* Transfer Status Banner */}
+        {renderTransferBanner()}
 
         {/* Error Display */}
         {error && (

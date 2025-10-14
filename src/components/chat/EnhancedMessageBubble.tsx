@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Bot, User, Navigation, MapPin, CheckCircle, Clock, ArrowRight, ExternalLink } from 'lucide-react';
+import { Bot, User, Navigation, MapPin, CheckCircle, Clock, ArrowRight, ExternalLink, UserCog, Shield } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -199,6 +199,10 @@ export const EnhancedMessageBubble = ({ message, className }: EnhancedMessageBub
     });
   };
 
+  // Determine if this is an admin message
+  const isAdmin = message.sender === 'admin' || message.role === 'admin';
+  const adminName = message.adminName || message.metadata?.admin_name || 'AHNI Admin';
+
   return (
     <div
       className={cn(
@@ -207,24 +211,37 @@ export const EnhancedMessageBubble = ({ message, className }: EnhancedMessageBub
         className
       )}
     >
-      {message.sender === 'bot' && (
-        <Avatar className="w-6 h-6">
-          <AvatarFallback className="bg-muted">
-            <Bot size={12} />
+      {(message.sender === 'bot' || isAdmin) && (
+        <Avatar className={cn("w-6 h-6", isAdmin && "border-2 border-primary")}>
+          <AvatarFallback className={cn(isAdmin ? "bg-primary text-primary-foreground" : "bg-muted")}>
+            {isAdmin ? <Shield size={12} /> : <Bot size={12} />}
           </AvatarFallback>
         </Avatar>
       )}
-      
+
       <div className={cn(
         "max-w-[80%] rounded-lg p-3 text-sm",
         message.sender === 'user'
           ? 'bg-primary text-primary-foreground'
+          : isAdmin
+          ? 'bg-primary/10 text-foreground border-2 border-primary/30'
           : 'bg-muted text-muted-foreground'
       )}>
+        {/* Admin Header */}
+        {isAdmin && (
+          <div className="flex items-center gap-2 mb-2 pb-2 border-b border-primary/20">
+            <Shield size={14} className="text-primary" />
+            <span className="font-semibold text-primary text-xs">
+              {adminName}
+            </span>
+            <Badge variant="outline" className="text-xs ml-auto">Admin</Badge>
+          </div>
+        )}
+
         <div className="whitespace-pre-wrap">
           {formatMessageContent(message.content)}
         </div>
-        
+
         {message.timestamp && (
           <p className="text-xs opacity-70 mt-2">
             {new Date(message.timestamp).toLocaleTimeString()}
