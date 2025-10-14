@@ -13,7 +13,7 @@ import {
   Car,
   Wrench,
   CreditCard,
-  Tool,
+  Hammer,
   DollarSign,
   Plane,
   FileBarChart,
@@ -81,7 +81,7 @@ const globalHubMenu = [
   {
     label: "Asset Maintenance",
     path: "/dashboard/admin/asset-maintenance",
-    icon: <Tool className="w-4 h-4" />,
+    icon: <Hammer className="w-4 h-4" />,
     category: "maintenance"
   },
 
