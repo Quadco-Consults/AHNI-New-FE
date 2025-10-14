@@ -18,19 +18,19 @@ import {
   UserX
 } from "lucide-react";
 import Link from "next/link";
-import { useGetAllWorkforce } from "@/features/hr/controllers/workforceController";
-import { useGetAllJobAdvertisements } from "@/features/hr/controllers/jobAdvertisementController";
-import { useGetAllLeaveRequests } from "@/features/hr/controllers/leaveRequestController";
-import { useGetAllTimesheets } from "@/features/hr/controllers/timesheetController";
-import { useGetAllPerformanceAssessments } from "@/features/hr/controllers/hrPerformanceAssessmentController";
+import { useGetWorkforces } from "@/features/hr/controllers/workforceController";
+import { useGetJobAdvertisements } from "@/features/hr/controllers/jobAdvertisementController";
+import { useGetLeaveRequests } from "@/features/hr/controllers/leaveRequestController";
+import { useGetTimesheets } from "@/features/hr/controllers/timesheetController";
+import { useGetPerformanceAssesments } from "@/features/hr/controllers/hrPerformanceAssessmentController";
 
 export default function HROverviewPage() {
   // Fetch data
-  const { data: workforceData } = useGetAllWorkforce({});
-  const { data: jobAdvertisementsData } = useGetAllJobAdvertisements({});
-  const { data: leaveRequestsData } = useGetAllLeaveRequests({});
-  const { data: timesheetsData } = useGetAllTimesheets({});
-  const { data: performanceData } = useGetAllPerformanceAssessments({});
+  const { data: workforceData } = useGetWorkforces({});
+  const { data: jobAdvertisementsData } = useGetJobAdvertisements({});
+  const { data: leaveRequestsData } = useGetLeaveRequests({});
+  const { data: timesheetsData } = useGetTimesheets({});
+  const { data: performanceData } = useGetPerformanceAssesments({});
 
   // Calculate metrics
   const workforce = workforceData?.data?.results || [];
