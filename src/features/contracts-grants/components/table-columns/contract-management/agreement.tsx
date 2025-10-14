@@ -143,16 +143,32 @@ export const agreementColumns: ColumnDef<IAgreementPaginatedData>[] = [
         id: "service",
         size: 180,
         cell: ({ row }) => {
+            const serviceTypeDisplay = row.original.service_type_display;
+
+            // For staff-based agreements (Adhoc Staff, Consultant, Facilitator), show the agreement type
+            if (serviceTypeDisplay === 'Adhoc Staff' || serviceTypeDisplay === 'Consultant' || serviceTypeDisplay === 'Facilitator') {
+                return serviceTypeDisplay;
+            }
+
+            // For vendor-based agreements (SLA, Security, Insurance, etc.), show the service name
+            // Check if backend provided service_name field (flattened)
+            if (row.original.service_name) {
+                return row.original.service_name;
+            }
             // Check if backend provided expanded service details (_details suffix)
             if (row.original.service_details) {
                 return row.original.service_details.name;
             }
             // Check if service field itself is an object (in-place expansion)
             if (row.original.service && typeof row.original.service === 'object') {
-                return row.original.service.name;
+                return row.original.service.name || row.original.service.service_name;
             }
-            // Backend only returned service ID
-            return row.original.service || '-';
+            // Fallback: Display a message that backend needs to add the field for vendor services
+            if (row.original.service && typeof row.original.service === 'string') {
+                return `⚠️ Service ID: ${row.original.service.substring(0, 8)}... (Name field pending)`;
+            }
+            // If no service, return the service type display as fallback
+            return serviceTypeDisplay || '-';
         },
     },
 

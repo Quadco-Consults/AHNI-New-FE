@@ -9,25 +9,35 @@ import PencilIcon from "components/icons/PencilIcon";
 import ConfirmationDialog from "components/ConfirmationDialog";
 import Link from "next/link";
 import EyeIcon from "components/icons/EyeIcon";
+import { IAdhocStaffDatabase } from "@/features/programs/types/adhoc-management";
 
-export const adhocDatabaseColumns: ColumnDef<any>[] = [
+export const adhocDatabaseColumns: ColumnDef<IAdhocStaffDatabase>[] = [
+  {
+    header: "Staff Number",
+    id: "staff_number",
+    accessorKey: "staff_number",
+    size: 150,
+    cell: ({ row }) => row.original.staff_number || '-',
+  },
+
   {
     header: "Full Name",
     id: "full_name",
     accessorKey: "full_name",
     size: 200,
     cell: ({ row }) => {
-      const surname = row.original.surname || '';
+      const surname = row.original.sur_name || '';
       const otherNames = row.original.other_names || '';
-      return `${surname} ${otherNames}`.trim() || '-';
+      return `${otherNames} ${surname}`.trim() || '-';
     },
   },
 
   {
     header: "Email",
-    id: "email",
-    accessorKey: "email",
+    id: "email_address",
+    accessorKey: "email_address",
     size: 200,
+    cell: ({ row }) => row.original.email_address || '-',
   },
 
   {
@@ -35,6 +45,7 @@ export const adhocDatabaseColumns: ColumnDef<any>[] = [
     id: "phone_number",
     accessorKey: "phone_number",
     size: 150,
+    cell: ({ row }) => row.original.phone_number || '-',
   },
 
   {
@@ -42,13 +53,34 @@ export const adhocDatabaseColumns: ColumnDef<any>[] = [
     id: "designation",
     accessorKey: "designation",
     size: 200,
+    cell: ({ row }) => row.original.designation || '-',
+  },
+
+  {
+    header: "Project",
+    id: "project",
+    accessorKey: "project",
+    size: 200,
+    cell: ({ row }) => {
+      const project = row.original.project;
+      return typeof project === 'object' ? project?.name : project || '-';
+    },
+  },
+
+  {
+    header: "Health Facility",
+    id: "health_facility",
+    accessorKey: "health_facility",
+    size: 200,
+    cell: ({ row }) => row.original.health_facility || '-',
   },
 
   {
     header: "Gender",
-    id: "gender_display",
-    accessorKey: "gender_display",
+    id: "gender",
+    accessorKey: "gender",
     size: 100,
+    cell: ({ row }) => row.original.gender || '-',
   },
 
   {
@@ -56,6 +88,7 @@ export const adhocDatabaseColumns: ColumnDef<any>[] = [
     id: "state_of_origin",
     accessorKey: "state_of_origin",
     size: 150,
+    cell: ({ row }) => row.original.state_of_origin || '-',
   },
 
   {
@@ -81,28 +114,35 @@ export const adhocDatabaseColumns: ColumnDef<any>[] = [
   },
 
   {
-    header: "Contract Number",
-    id: "contract_number",
-    accessorKey: "contract_number",
+    header: "Salary",
+    id: "salary",
+    accessorKey: "salary",
     size: 150,
-    cell: ({ row }) => row.original.contract_number || '-',
+    cell: ({ row }) => {
+      const salary = row.original.salary;
+      const currency = row.original.currency || 'NGN';
+      return salary ? `${currency} ${parseFloat(salary).toLocaleString()}` : '-';
+    },
   },
 
   {
     header: "Status",
-    id: "status_display",
-    accessorKey: "status_display",
+    id: "status",
+    accessorKey: "status",
     size: 120,
     cell: ({ row }) => {
-      const status = row.original.status_display;
+      const status = row.original.status;
+      const statusDisplay = row.original.status_display || status;
       const statusColors: Record<string, string> = {
-        'Hired': 'bg-green-100 text-green-800',
-        'Active': 'bg-blue-100 text-blue-800',
-        'Pending': 'bg-yellow-100 text-yellow-800',
+        'ACTIVE': 'bg-green-100 text-green-800',
+        'ON_LEAVE': 'bg-yellow-100 text-yellow-800',
+        'SUSPENDED': 'bg-orange-100 text-orange-800',
+        'TERMINATED': 'bg-red-100 text-red-800',
+        'CONTRACT_EXPIRED': 'bg-gray-100 text-gray-800',
       };
       return (
         <span className={`px-2 py-1 rounded text-xs font-medium ${statusColors[status] || 'bg-gray-100 text-gray-800'}`}>
-          {status || '-'}
+          {statusDisplay || '-'}
         </span>
       );
     },
@@ -116,7 +156,7 @@ export const adhocDatabaseColumns: ColumnDef<any>[] = [
   },
 ];
 
-const TableMenu = (applicant: any) => {
+const TableMenu = (staff: IAdhocStaffDatabase) => {
   const [isDialogOpen, setDialogOpen] = useState(false);
 
   const handleDelete = async () => {
@@ -124,7 +164,7 @@ const TableMenu = (applicant: any) => {
     setDialogOpen(false);
   };
 
-  const applicantId = applicant.id;
+  const staffId = staff.id;
 
   return (
     <div className='flex items-center gap-2'>
@@ -135,16 +175,16 @@ const TableMenu = (applicant: any) => {
           </Button>
         </PopoverTrigger>
         <PopoverContent className='w-fit'>
-          <Link href={`/dashboard/programs/adhoc-database/${applicantId}/view`}>
+          <Link href={`/dashboard/programs/adhoc-database/${staffId}/view`}>
             <Button
               className='w-full flex items-center justify-start gap-2'
               variant='ghost'
             >
               <EyeIcon />
-              View
+              View Details
             </Button>
           </Link>
-          <Link href={`/dashboard/programs/adhoc-database/${applicantId}/edit`}>
+          <Link href={`/dashboard/programs/adhoc-database/${staffId}/edit`}>
             <Button
               className='w-full flex items-center justify-start gap-2'
               variant='ghost'
