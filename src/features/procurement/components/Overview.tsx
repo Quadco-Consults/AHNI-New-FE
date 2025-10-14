@@ -1,301 +1,338 @@
 "use client";
 
-import logoPng from "@/assets/svgs/logo-bg.svg";
-import iconSvg from "assets/svgs/svg.svg";
-import iconSvg1 from "assets/svgs/I [ki-duotone](5).svg";
-import iconSvg2 from "assets/svgs/I [ki-duotone](6).svg";
-import { Progress } from "components/ui/progress";
-import Card from "components/Card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "components/ui/select";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { Checkbox } from "components/ui/checkbox";
-import { Switch } from "components/ui/switch";
-import { Label } from "components/ui/label";
-import { Button } from "components/ui/button";
+  ShoppingCart,
+  FileText,
+  Users,
+  TrendingUp,
+  Package,
+  ClipboardList,
+  AlertCircle,
+  CheckCircle,
+  Clock,
+  BarChart3,
+  DollarSign,
+  Truck,
+  FileCheck
+} from "lucide-react";
+import Link from "next/link";
+import { useGetAllPurchaseRequests } from "../controllers/purchaseRequestController";
+import { useGetAllPurchaseOrders } from "../controllers/purchaseOrderController";
+import { useGetAllVendors } from "../controllers/vendorsController";
+import { useGetAllProcurementPlans } from "../controllers/procurementPlanController";
+import { useGetAllProcurementTracker } from "../controllers/procurementTrackerController";
 
 const Overview = () => {
-  return (
-    <div>
-      <h4 className="text-lg font-bold">Overview</h4>
-      <h6>
-        Procurement -{" "}
-        <span className="text-black font-medium dark:text-grey-dark">
-          Overview
-        </span>
-      </h6>
+  // Fetch data
+  const { data: purchaseRequestsData } = useGetAllPurchaseRequests({});
+  const { data: purchaseOrdersData } = useGetAllPurchaseOrders({});
+  const { data: vendorsData } = useGetAllVendors({});
+  const { data: procurementPlansData } = useGetAllProcurementPlans({});
+  const { data: procurementTrackerData } = useGetAllProcurementTracker({});
 
-      <div className="space-y-10 mt-10">
-        <Card className="flex items-center gap-5">
-          <div>
-            <img src={logoPng} alt="logo" width={200} />
-          </div>
-          <div>
-            <h4 className="text-base font-bold">Procurement Overview</h4>
-            <div className="flex items-center gap-2">
-              {[
-                {
-                  name: "Total Budget",
-                  amount: "5M",
-                  sign: "$",
-                  icon: iconSvg1,
-                },
-                {
-                  name: "Ongoing Projects",
-                  amount: "15",
-                  sign: "",
-                  icon: iconSvg2,
-                },
-                {
-                  name: "Completed Processes",
-                  amount: "90",
-                  sign: "%",
-                  icon: iconSvg,
-                },
-              ].map(({ name, amount, sign, icon }) => (
-                <div
-                  key={name}
-                  className="py-5 px-8 border-2 border-dashed rounded-2xl"
-                >
-                  <div className="flex items-center">
-                    <div>
-                      <img src={icon} alt={name} />
-                    </div>
-                    <h4 className="text-lg font-bold">
-                      {amount}
-                      <span>{sign}</span>
-                    </h4>
+  // Calculate metrics
+  const purchaseRequests = purchaseRequestsData?.data?.results || [];
+  const purchaseOrders = purchaseOrdersData?.data?.results || [];
+  const vendors = vendorsData?.data?.results || [];
+  const procurementPlans = procurementPlansData?.data?.results || [];
+  const trackerItems = procurementTrackerData?.data?.results || [];
+
+  const totalPurchaseRequests = purchaseRequests.length;
+  const totalPurchaseOrders = purchaseOrders.length;
+  const totalVendors = vendors.length;
+  const totalProcurementPlans = procurementPlans.length;
+
+  // Calculate status counts
+  const pendingRequests = purchaseRequests.filter((r: any) =>
+    r.status?.toLowerCase() === 'pending' || r.status?.toLowerCase() === 'submitted'
+  ).length;
+
+  const approvedRequests = purchaseRequests.filter((r: any) =>
+    r.status?.toLowerCase() === 'approved'
+  ).length;
+
+  const activePurchaseOrders = purchaseOrders.filter((po: any) =>
+    po.status?.toLowerCase() === 'active' || po.status?.toLowerCase() === 'approved'
+  ).length;
+
+  // Quick stats cards
+  const statsCards = [
+    {
+      title: "Purchase Requests",
+      value: totalPurchaseRequests,
+      icon: ShoppingCart,
+      description: `${approvedRequests} approved, ${pendingRequests} pending`,
+      color: "text-blue-600",
+      bgColor: "bg-blue-50",
+      link: "/dashboard/procurement/purchase-request"
+    },
+    {
+      title: "Purchase Orders",
+      value: totalPurchaseOrders,
+      icon: FileCheck,
+      description: `${activePurchaseOrders} active orders`,
+      color: "text-green-600",
+      bgColor: "bg-green-50",
+      link: "/dashboard/procurement/purchase-order"
+    },
+    {
+      title: "Registered Vendors",
+      value: totalVendors,
+      icon: Users,
+      description: "Active supplier database",
+      color: "text-purple-600",
+      bgColor: "bg-purple-50",
+      link: "/dashboard/procurement/supplier-database"
+    },
+    {
+      title: "Procurement Plans",
+      value: totalProcurementPlans,
+      icon: ClipboardList,
+      description: "Active procurement plans",
+      color: "text-orange-600",
+      bgColor: "bg-orange-50",
+      link: "/dashboard/procurement/procurement-plan"
+    }
+  ];
+
+  // Quick actions
+  const quickActions = [
+    {
+      title: "Purchase Management",
+      items: [
+        { name: "Create Purchase Request", link: "/dashboard/procurement/purchase-request", icon: ShoppingCart },
+        { name: "Manage Purchase Orders", link: "/dashboard/procurement/purchase-order", icon: FileCheck },
+        { name: "Activity Memo", link: "/dashboard/procurement/activity-memo", icon: FileText },
+        { name: "Procurement Tracker", link: "/dashboard/procurement/procurement-tracker", icon: TrendingUp }
+      ]
+    },
+    {
+      title: "Vendor Management",
+      items: [
+        { name: "Supplier Database", link: "/dashboard/procurement/supplier-database", icon: Users },
+        { name: "Vendor Prequalification", link: "/dashboard/procurement/vendor-management/prequalification", icon: ClipboardList },
+        { name: "EOI Management", link: "/dashboard/procurement/vendor-management/eoi", icon: FileText },
+        { name: "Vendor Performance", link: "/dashboard/procurement/vendor-performance", icon: BarChart3 }
+      ]
+    },
+    {
+      title: "Planning & Analysis",
+      items: [
+        { name: "Procurement Plan", link: "/dashboard/procurement/procurement-plan", icon: ClipboardList },
+        { name: "Price Intelligence", link: "/dashboard/procurement/price-intelligence", icon: DollarSign },
+        { name: "Competitive Bid Analysis", link: "/dashboard/procurement/competitive-bid-analysis", icon: BarChart3 },
+        { name: "Procurement Reports", link: "/dashboard/procurement/procurement-report", icon: FileText }
+      ]
+    }
+  ];
+
+  return (
+    <div className="w-full space-y-6 p-6">
+      {/* Header */}
+      <div className="space-y-2">
+        <h1 className="text-3xl font-bold tracking-tight">Procurement Overview</h1>
+        <p className="text-muted-foreground">
+          Monitor and manage purchase requests, vendors, and procurement activities
+        </p>
+      </div>
+
+      {/* Key Metrics */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {statsCards.map((stat, index) => {
+          const Icon = stat.icon;
+          return (
+            <Link href={stat.link} key={index}>
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
+                  <div className={`${stat.bgColor} p-2 rounded-lg`}>
+                    <Icon className={`h-4 w-4 ${stat.color}`} />
                   </div>
-                  <h4>{name}</h4>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div>
-            <div className="flex items-center gap-10 justify-between">
-              <h4>Processes Completion</h4>
-              <h4 className="font-bold">33%</h4>
-            </div>
-            <Progress value={33} />
-          </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{stat.value}</div>
+                  <p className="text-xs text-muted-foreground mt-1">{stat.description}</p>
+                </CardContent>
+              </Card>
+            </Link>
+          );
+        })}
+      </div>
+
+      {/* Status Overview */}
+      <div className="grid gap-4 md:grid-cols-3">
+        <Card className="border-2 border-green-200 bg-green-50/50">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Approved Requests</CardTitle>
+            <CheckCircle className="h-5 w-5 text-green-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-green-600">{approvedRequests}</div>
+            <p className="text-xs text-muted-foreground mt-1">Ready for processing</p>
+          </CardContent>
         </Card>
 
-        <div className="grid gap-5 grid-cols-1 md:grid-cols-2">
-          <Card className="p-3 space-y-10 md:p-10">
-            <div>
-              <h4 className="font-bold text-lg">Procurement Trends</h4>
-              <h4 className="text-xs">Monthly procurement insights</h4>
-            </div>
+        <Card className="border-2 border-amber-200 bg-amber-50/50">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Pending Approval</CardTitle>
+            <Clock className="h-5 w-5 text-amber-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-amber-600">{pendingRequests}</div>
+            <p className="text-xs text-muted-foreground mt-1">Awaiting review</p>
+          </CardContent>
+        </Card>
 
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart width={500} data={data}>
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  vertical={false}
-                  opacity={0.4}
-                />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} />
-                <YAxis axisLine={false} tickLine={false} />
-                <Tooltip />
-                <Bar
-                  dataKey="pv"
-                  fill="hsl(var(--primary))"
-                  barSize={10}
-                  radius={[8, 8, 0, 0]}
-                  // activeBar={<Rectangle fill="pink" stroke="blue" />}
-                />
-                <Bar
-                  dataKey="uv"
-                  fill="#B5B5C3"
-                  barSize={10}
-                  className=" rounded-t-full"
-                  radius={[8, 8, 0, 0]}
-                  // activeBar={<Rectangle fill="gold" stroke="purple" />}
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          </Card>
-
-          <Card className="p-3 space-y-10 md:p-10">
-            <div className="flex justify-between">
-              <div>
-                <h4 className="font-bold text-lg">Health Activities</h4>
-                <h4 className="text-xs">Recent Events and Updates</h4>
-              </div>
-              <div>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button size="icon" variant="ghost">
-                      <svg
-                        width="21"
-                        height="21"
-                        viewBox="0 0 21 21"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M17.5471 6.71168C17.5598 6.74862 17.5688 6.78556 17.5742 6.82251C17.5815 6.85945 17.5851 6.90343 17.5851 6.95445C17.5851 7.12686 17.5183 7.27816 17.3846 7.40834C17.251 7.53853 17.0958 7.60362 16.9188 7.60362H3.91069C3.68319 7.60362 3.49 7.52621 3.33111 7.3714C3.17222 7.21658 3.09277 7.03362 3.09277 6.82251C3.09277 6.76093 3.09909 6.70904 3.11173 6.66681C3.12437 6.62283 3.13701 6.57621 3.14965 6.52695C3.40423 5.94464 3.76625 5.44325 4.23569 5.02279C4.70513 4.60232 5.245 4.29357 5.85527 4.09654L5.87423 4.07806V2.85362C5.87423 2.85362 5.87423 2.8501 5.87423 2.84306C5.87423 2.83779 5.87423 2.83515 5.87423 2.83515C5.87423 2.68561 5.9275 2.55806 6.03402 2.45251C6.14236 2.34871 6.27326 2.29681 6.42673 2.29681C6.59104 2.29681 6.72736 2.35223 6.83569 2.46306C6.94402 2.5739 6.99819 2.70408 6.99819 2.85362V3.8907C7.04875 3.8907 7.09298 3.8907 7.1309 3.8907C7.16882 3.8907 7.20673 3.8907 7.24465 3.8907H9.90965V2.85362C9.90965 2.70408 9.96382 2.5739 10.0721 2.46306C10.1805 2.35223 10.3105 2.29681 10.4621 2.29681C10.6283 2.29681 10.7646 2.35223 10.8711 2.46306C10.9794 2.5739 11.0336 2.70408 11.0336 2.85362V3.8907H13.3953C13.4332 3.8907 13.4747 3.8907 13.5199 3.8907C13.5632 3.8907 13.6038 3.8907 13.6417 3.8907V2.85362C13.6417 2.85362 13.6417 2.8501 13.6417 2.84306C13.6417 2.83779 13.6417 2.83515 13.6417 2.83515C13.6417 2.68561 13.6959 2.55806 13.8042 2.45251C13.9126 2.34871 14.0426 2.29681 14.1942 2.29681C14.3477 2.29681 14.4813 2.35223 14.5951 2.46306C14.7088 2.5739 14.7657 2.70408 14.7657 2.85362V4.07806C15.4139 4.29973 15.979 4.63927 16.4611 5.09668C16.9432 5.55584 17.2989 6.08802 17.5282 6.6932L17.5471 6.71168ZM7.6834 11.0157C7.50465 11.0157 7.34847 11.0808 7.21486 11.211C7.08305 11.3412 7.01715 11.4986 7.01715 11.6833C7.01715 11.8698 7.08305 12.0282 7.21486 12.1583C7.34847 12.2885 7.51097 12.3536 7.70236 12.3536C7.89194 12.3536 8.05354 12.2885 8.18715 12.1583C8.32076 12.0282 8.38757 11.8698 8.38757 11.6833C8.38757 11.4986 8.32076 11.3412 8.18715 11.211C8.05354 11.0808 7.88562 11.0157 7.6834 11.0157ZM10.2915 11.0157C10.1128 11.0157 9.9575 11.0808 9.82569 11.211C9.69208 11.3412 9.62527 11.4986 9.62527 11.6833C9.62527 11.8698 9.69208 12.0282 9.82569 12.1583C9.9575 12.2885 10.1191 12.3536 10.3105 12.3536C10.5001 12.3536 10.6617 12.2885 10.7953 12.1583C10.9289 12.0282 10.9957 11.8698 10.9957 11.6833C10.9957 11.4986 10.9289 11.3412 10.7953 11.211C10.6617 11.0808 10.4937 11.0157 10.2915 11.0157ZM12.9376 11.0157C12.748 11.0157 12.5828 11.0808 12.4419 11.211C12.3029 11.3412 12.2334 11.4986 12.2334 11.6833C12.2334 11.8698 12.3029 12.0282 12.4419 12.1583C12.5828 12.2885 12.748 12.3536 12.9376 12.3536C13.129 12.3536 13.2915 12.2885 13.4251 12.1583C13.5569 12.0282 13.6228 11.8698 13.6228 11.6833C13.6228 11.4986 13.5569 11.3412 13.4251 11.211C13.2915 11.0808 13.129 11.0157 12.9376 11.0157ZM7.6834 13.5411C7.49201 13.5411 7.32951 13.6089 7.1959 13.7443C7.06409 13.8798 6.99819 14.0346 6.99819 14.2088C6.99819 14.3935 7.06409 14.5545 7.1959 14.6917C7.32951 14.8271 7.49201 14.8949 7.6834 14.8949C7.88562 14.8949 8.05354 14.8271 8.18715 14.6917C8.32076 14.5545 8.38757 14.3935 8.38757 14.2088C8.38757 14.0223 8.32076 13.8639 8.18715 13.7338C8.05354 13.6053 7.88562 13.5411 7.6834 13.5411ZM10.2915 13.5411C10.1001 13.5411 9.93854 13.6089 9.80673 13.7443C9.67312 13.8798 9.60632 14.0346 9.60632 14.2088C9.60632 14.3935 9.67312 14.5545 9.80673 14.6917C9.93854 14.8271 10.1001 14.8949 10.2915 14.8949C10.4811 14.8949 10.6463 14.8271 10.7871 14.6917C10.9262 14.5545 10.9957 14.3935 10.9957 14.2088C10.9957 14.0223 10.9262 13.8639 10.7871 13.7338C10.6463 13.6053 10.4811 13.5411 10.2915 13.5411ZM12.9186 13.5411C12.729 13.5534 12.5674 13.6238 12.4338 13.7522C12.3002 13.8824 12.2334 14.0346 12.2334 14.2088C12.2334 14.3935 12.3029 14.5545 12.4419 14.6917C12.5828 14.8271 12.748 14.8949 12.9376 14.8949C13.129 14.8949 13.2915 14.8271 13.4251 14.6917C13.5569 14.5545 13.6228 14.3935 13.6228 14.2088C13.6228 14.0223 13.5533 13.8639 13.4142 13.7338C13.2752 13.6053 13.11 13.5411 12.9186 13.5411Z"
-                          fill="#FD4A36"
-                        />
-                        <g opacity="0.3">
-                          <path
-                            d="M2.86523 9.34791V13.8367C2.86523 14.4313 2.9853 14.9881 3.22544 15.5071C3.45475 16.0384 3.76892 16.4958 4.16794 16.8793C4.56878 17.2628 5.03551 17.5663 5.56815 17.7897C6.10079 18.0237 6.67225 18.1407 7.28253 18.1407H13.4142C14.0245 18.1407 14.5959 18.0237 15.1286 17.7897C15.6612 17.5663 16.1279 17.2628 16.5288 16.8793C16.9278 16.4958 17.242 16.0384 17.4713 15.5071C17.7114 14.9881 17.8315 14.4313 17.8315 13.8367V9.34791C17.8315 9.16143 17.7647 9.00662 17.6311 8.88347C17.4993 8.75856 17.344 8.69611 17.1652 8.69611H3.53148C3.35273 8.69611 3.19746 8.75856 3.06565 8.88347C2.93204 9.00662 2.86523 9.16143 2.86523 9.34791Z"
-                            fill="#FD4A36"
-                          />
-                        </g>
-                      </svg>
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-64">
-                    <h4 className="font-medium p-5 text-base">
-                      Filter Options
-                    </h4>
-                    <hr />
-
-                    <div className="p-5 space-y-5">
-                      <div className="space-y-1">
-                        <h4 className="font-medium">Status:</h4>
-                        <Select>
-                          <SelectTrigger className="w-[200px]">
-                            <SelectValue placeholder="Select Status" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectGroup>
-                              {/* <SelectLabel>Fruits</SelectLabel> */}
-                              <SelectItem value="apple">Approved</SelectItem>
-                              <SelectItem value="banana">Pending</SelectItem>
-                              <SelectItem value="blueberry">
-                                In Progress
-                              </SelectItem>
-                              <SelectItem value="grapes">Rejected</SelectItem>
-                            </SelectGroup>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-1">
-                        <h4 className="font-medium">Member Type:</h4>
-                        <div className="flex items-center gap-3">
-                          <div className="flex items-center gap-1">
-                            <Checkbox />{" "}
-                            <h6 className="text-grey-light">Author</h6>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <Checkbox checked />{" "}
-                            <h6 className="text-grey-light">Customer</h6>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="space-y-1">
-                        <h4 className="font-medium">Notifications:</h4>
-                        <div className="flex items-center space-x-2">
-                          <Switch id="notifications-mode" checked />
-                          <Label htmlFor="notifications-mode">Enabled</Label>
-                        </div>
-                      </div>
-
-                      <div className="flex justify-end gap-4">
-                        <Button variant="ghost">Reset</Button>
-                        <Button>Apply</Button>
-                      </div>
-                    </div>
-                  </PopoverContent>
-                </Popover>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              {[
-                {
-                  name: "Team briefing on new health guidelines.",
-                  time: "08:42",
-                },
-                {
-                  name: "Medical supply inventory check.",
-                  time: "08:00",
-                },
-                {
-                  name: "Health seminar for community:Details",
-                  time: "10:42",
-                },
-                {
-                  name: "Meeting with health partners for collaboration.",
-                  time: "09:00",
-                },
-                {
-                  name: "Medical supply inventory check.",
-                  time: "08:00",
-                },
-                {
-                  name: "Health seminar for community:Details",
-                  time: "10:42",
-                },
-              ].map(({ name, time }, index) => (
-                <div key={index} className="flex items-center">
-                  <h4 className="font-bold w-10">{time}</h4>{" "}
-                  <span className="w-10 text-center">-</span>
-                  <h4>{name}</h4>
-                </div>
-              ))}
-            </div>
-          </Card>
-        </div>
+        <Card className="border-2 border-blue-200 bg-blue-50/50">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Active POs</CardTitle>
+            <Truck className="h-5 w-5 text-blue-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-blue-600">{activePurchaseOrders}</div>
+            <p className="text-xs text-muted-foreground mt-1">Purchase orders in progress</p>
+          </CardContent>
+        </Card>
       </div>
+
+      {/* Quick Actions */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {quickActions.map((section, sectionIndex) => (
+          <Card key={sectionIndex}>
+            <CardHeader>
+              <CardTitle className="text-lg">{section.title}</CardTitle>
+              <CardDescription>Quick access to common tasks</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                {section.items.map((item, itemIndex) => {
+                  const Icon = item.icon;
+                  return (
+                    <Link
+                      key={itemIndex}
+                      href={item.link}
+                      className="flex items-center gap-3 p-3 rounded-lg hover:bg-accent transition-colors group"
+                    >
+                      <div className="bg-primary/10 p-2 rounded-md group-hover:bg-primary/20 transition-colors">
+                        <Icon className="h-4 w-4 text-primary" />
+                      </div>
+                      <span className="text-sm font-medium group-hover:text-primary transition-colors">
+                        {item.name}
+                      </span>
+                    </Link>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Recent Activity / Alerts */}
+      <div className="grid gap-6 md:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <AlertCircle className="h-5 w-5 text-amber-500" />
+              Action Required
+            </CardTitle>
+            <CardDescription>Items that need your attention</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {pendingRequests > 0 && (
+                <Link
+                  href="/dashboard/procurement/purchase-request"
+                  className="flex items-center justify-between p-3 rounded-lg border hover:bg-accent transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <ShoppingCart className="h-4 w-4 text-amber-600" />
+                    <div>
+                      <p className="text-sm font-medium">{pendingRequests} Pending Purchase Requests</p>
+                      <p className="text-xs text-muted-foreground">Review and approve</p>
+                    </div>
+                  </div>
+                </Link>
+              )}
+              {pendingRequests === 0 && (
+                <div className="p-4 text-center text-sm text-muted-foreground">
+                  No pending actions at this time
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <BarChart3 className="h-5 w-5 text-blue-500" />
+              Quick Stats
+            </CardTitle>
+            <CardDescription>At a glance overview</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Total Purchase Requests</span>
+                <span className="text-sm font-semibold">{totalPurchaseRequests}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Active Purchase Orders</span>
+                <span className="text-sm font-semibold">{activePurchaseOrders}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Registered Vendors</span>
+                <span className="text-sm font-semibold">{totalVendors}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Procurement Plans</span>
+                <span className="text-sm font-semibold">{totalProcurementPlans}</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Solicitation Management */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Solicitation Management</CardTitle>
+          <CardDescription>Manage RFQs, RFPs, and vendor solicitations</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 md:grid-cols-2">
+            <Link
+              href="/dashboard/procurement/solicitation-management/rfq"
+              className="flex items-center gap-4 p-4 rounded-lg border hover:bg-accent transition-colors group"
+            >
+              <div className="bg-primary/10 p-3 rounded-lg group-hover:bg-primary/20 transition-colors">
+                <FileText className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <h4 className="font-semibold group-hover:text-primary transition-colors">Request for Quotation (RFQ)</h4>
+                <p className="text-xs text-muted-foreground">Manage price quotes from vendors</p>
+              </div>
+            </Link>
+
+            <Link
+              href="/dashboard/procurement/solicitation-management/rfp"
+              className="flex items-center gap-4 p-4 rounded-lg border hover:bg-accent transition-colors group"
+            >
+              <div className="bg-primary/10 p-3 rounded-lg group-hover:bg-primary/20 transition-colors">
+                <ClipboardList className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <h4 className="font-semibold group-hover:text-primary transition-colors">Request for Proposal (RFP)</h4>
+                <p className="text-xs text-muted-foreground">Manage detailed vendor proposals</p>
+              </div>
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
 
 export default Overview;
-
-const data = [
-  {
-    name: "Feb",
-    uv: 4000,
-    pv: 2400,
-    amt: 2400,
-  },
-  {
-    name: "Mar",
-    uv: 3000,
-    pv: 1398,
-    amt: 2210,
-  },
-  {
-    name: "Apr",
-    uv: 2000,
-    pv: 9800,
-    amt: 2290,
-  },
-  {
-    name: "May",
-    uv: 2780,
-    pv: 3908,
-    amt: 2000,
-  },
-  {
-    name: "Jun",
-    uv: 1890,
-    pv: 4800,
-    amt: 2181,
-  },
-  {
-    name: "Jul",
-    uv: 2390,
-    pv: 3800,
-    amt: 2500,
-  },
-];
