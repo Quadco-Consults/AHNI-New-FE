@@ -17,19 +17,19 @@ import {
   FileCheck
 } from "lucide-react";
 import Link from "next/link";
-import { useGetAllPurchaseRequests } from "../controllers/purchaseRequestController";
+import { useGetPurchaseRequests } from "../controllers/purchaseRequestController";
 import { useGetAllPurchaseOrders } from "../controllers/purchaseOrderController";
-import { useGetAllVendors } from "../controllers/vendorsController";
+import { useGetVendors } from "../controllers/vendorsController";
 import { useGetAllProcurementPlans } from "../controllers/procurementPlanController";
-import { useGetAllProcurementTracker } from "../controllers/procurementTrackerController";
+import { useGetAllProcurementTrackers } from "../controllers/procurementTrackerController";
 
 const Overview = () => {
   // Fetch data
-  const { data: purchaseRequestsData } = useGetAllPurchaseRequests({});
+  const { data: purchaseRequestsData } = useGetPurchaseRequests({});
   const { data: purchaseOrdersData } = useGetAllPurchaseOrders({});
-  const { data: vendorsData } = useGetAllVendors({});
+  const { data: vendorsData } = useGetVendors({});
   const { data: procurementPlansData } = useGetAllProcurementPlans({});
-  const { data: procurementTrackerData } = useGetAllProcurementTracker({});
+  const { data: procurementTrackerData } = useGetAllProcurementTrackers({});
 
   // Calculate metrics
   const purchaseRequests = purchaseRequestsData?.data?.results || [];
