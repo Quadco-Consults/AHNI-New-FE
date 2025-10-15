@@ -2,8 +2,9 @@ import { z } from "zod";
 
 // Zod schema for form validation
 export const ActivityHeadingSchema = z.object({
-  name: z.string().min(1, "Heading name is required").max(200, "Name must be less than 200 characters"),
+  name: z.string().min(1, "Heading name is required").max(255, "Name must be less than 255 characters"),
   description: z.string().optional(),
+  is_active: z.boolean().optional().default(true),
 });
 
 export type TActivityHeadingFormData = z.infer<typeof ActivityHeadingSchema>;
@@ -13,6 +14,7 @@ export interface IActivityHeading {
   id: string;
   name: string;
   description?: string;
+  is_active: boolean;
   created_datetime: string;
   updated_datetime: string;
   created_by?: string;
