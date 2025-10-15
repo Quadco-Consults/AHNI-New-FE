@@ -8,7 +8,6 @@ import { Checkbox } from "components/ui/checkbox";
 import { Input } from "components/ui/input";
 import Link from "next/link";
 import { RouteEnum } from "constants/RouterConstants";
-import IconButton from "components/IconButton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
 import { useState } from "react";
 
@@ -241,10 +240,10 @@ const ActionListAction = ({ data, onRefresh }: any) => {
     <>
       <div className='flex gap-2'>
         <DropdownMenu>
-          <DropdownMenuTrigger>
-            <IconButton>
+          <DropdownMenuTrigger asChild>
+            <button className="rounded-lg px-2 py-2 bg-[#F9F9F9] dark:text-black hover:text-primary dark:hover:text-primary">
               <CircleEllipsisIcon />
-            </IconButton>
+            </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             <Link href={`/dashboard/procurement/purchase-order/${data.id}`}>

@@ -158,6 +158,16 @@ export default function GRNFileUploads() {
       formData.append('waybill_number', grnData.formData.waybill_number.trim());
       formData.append('remark', grnData.formData.remark.trim());
 
+      // ⭐ CRITICAL: Append destination_store field
+      if (grnData.formData.destination_store) {
+        formData.append('destination_store', grnData.formData.destination_store);
+        console.log('✅ Destination store added:', grnData.formData.destination_store);
+      } else {
+        console.error('❌ WARNING: No destination_store in form data!');
+        toast.error("Destination store is required. Please go back and select a store.");
+        return;
+      }
+
       // Append optional received_by field
       if (grnData.formData.received_by) {
         formData.append('received_by', grnData.formData.received_by);
