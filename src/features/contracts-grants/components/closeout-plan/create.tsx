@@ -32,6 +32,7 @@ import { useGetAllDepartments } from "@/features/modules/controllers/config/depa
 import { useGetAllLocations } from "@/features/modules/controllers/config/locationController";
 import { useGetAllProjectsQuery } from "@/features/projects/controllers/projectController";
 import { useGetAllUsers } from "@/features/auth/controllers/userController";
+import { useGetAllActivityHeadings } from "@/features/contracts-grants/controllers/activityHeadingController";
 import { toast } from "sonner";
 
 export default function CreateCloseOutPlan() {
@@ -131,6 +132,21 @@ export default function CreateCloseOutPlan() {
         value: user.id,
       })) || [],
     [users?.data.results]
+  );
+
+  // Fetch activity headings from API
+  const { data: activityHeadings } = useGetAllActivityHeadings({
+    page: 1,
+    size: 1000, // Get all headings
+  });
+
+  const activityHeadingOptions = useMemo(
+    () =>
+      activityHeadings?.data?.results?.map((heading) => ({
+        label: heading.name,
+        value: heading.name,
+      })) || [],
+    [activityHeadings?.data?.results]
   );
 
   const { createCloseoutPlan: createCloseOutPlan, isLoading: isCreateLoading } =
@@ -244,6 +260,7 @@ export default function CreateCloseOutPlan() {
                   register={form.register}
                   canDelete={taskFields.length > 1}
                   userOptions={userOptions}
+                  activityHeadingOptions={activityHeadingOptions}
                 />
               ))}
 
@@ -297,6 +314,7 @@ function TaskItem({
   register,
   canDelete,
   userOptions,
+  activityHeadingOptions,
 }: {
   taskIndex: number;
   removeTask: (index: number) => void;
@@ -304,6 +322,7 @@ function TaskItem({
   register: any;
   canDelete: boolean;
   userOptions: { label: string; value: string }[];
+  activityHeadingOptions: { label: string; value: string }[];
 }) {
   const {
     fields: activityFields,
@@ -314,17 +333,6 @@ function TaskItem({
     name: `tasks.${taskIndex}.activities`,
   });
 
-  // Section heading options
-  const sectionHeadingOptions = [
-    { label: "FILES, DATA AND RECORDS", value: "FILES, DATA AND RECORDS" },
-    { label: "PROGRAM/TECHNICAL", value: "PROGRAM/TECHNICAL" },
-    { label: "Final Project Report", value: "Final Project Report:" },
-    { label: "HUMAN RESOURCES", value: "HUMAN RESOURCES" },
-    { label: "ADMIN/INVENTORY", value: "ADMIN/INVENTORY" },
-    { label: "FINANCE/ACCOUNTING", value: "FINANCE/ACCOUNTING" },
-    { label: "IT", value: "IT" },
-  ];
-
   return (
     <Card className='space-y-5'>
       <div className='flex justify-between items-start gap-4'>
@@ -333,10 +341,11 @@ function TaskItem({
             label='Section Heading (Optional)'
             name={`tasks.${taskIndex}.key_task`}
             placeholder='Select section heading'
-            options={sectionHeadingOptions}
+            options={activityHeadingOptions}
           />
           <p className='text-xs text-gray-500 mt-1'>
-            Select a section heading to group activities, or leave blank if not needed
+            Select a section heading to group activities, or leave blank if not needed.
+            Manage headings in <a href="/dashboard/c-and-g/close-out-plan/activity-headings" className="text-primary hover:underline" target="_blank">Activity Headings</a>.
           </p>
         </div>
         {canDelete && (

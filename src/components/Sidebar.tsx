@@ -1107,6 +1107,10 @@ const getDeparmentalLinks = () => {
               name: "Closeout Plan",
               path: "/dashboard/c-and-g/close-out-plan",
             },
+            {
+              name: "Activity Headings",
+              path: "/dashboard/c-and-g/close-out-plan/activity-headings",
+            },
           ],
         },
         {
