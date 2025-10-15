@@ -124,20 +124,62 @@ export default function CreateContractRequest() {
   );
 
   // Filtered options for approval workflow - only users with appropriate permissions
-  const reviewerOptions = useMemo(
-    () => getReviewerOptions(ahniStaff),
-    [ahniStaff]
-  );
+  const reviewerOptions = useMemo(() => {
+    const filtered = getReviewerOptions(ahniStaff);
 
-  const authorizerOptions = useMemo(
-    () => getAuthorizerOptions(ahniStaff),
-    [ahniStaff]
-  );
+    // TEMPORARY FIX: If no users with permissions found, show all AHNI staff
+    if (filtered.length === 0) {
+      console.warn('⚠️ No users with review permission found. Showing all AHNI staff as fallback.');
+      return ahniStaff.map((userData) => ({
+        label: userData.full_name ||
+               [userData.first_name, userData.last_name]
+                 .filter(name => name && name.trim())
+                 .join(" ") ||
+               userData.email || "User",
+        value: userData.id,
+      }));
+    }
 
-  const approverOptions = useMemo(
-    () => getApproverOptions(ahniStaff),
-    [ahniStaff]
-  );
+    return filtered;
+  }, [ahniStaff]);
+
+  const authorizerOptions = useMemo(() => {
+    const filtered = getAuthorizerOptions(ahniStaff);
+
+    // TEMPORARY FIX: If no users with permissions found, show all AHNI staff
+    if (filtered.length === 0) {
+      console.warn('⚠️ No users with authorize permission found. Showing all AHNI staff as fallback.');
+      return ahniStaff.map((userData) => ({
+        label: userData.full_name ||
+               [userData.first_name, userData.last_name]
+                 .filter(name => name && name.trim())
+                 .join(" ") ||
+               userData.email || "User",
+        value: userData.id,
+      }));
+    }
+
+    return filtered;
+  }, [ahniStaff]);
+
+  const approverOptions = useMemo(() => {
+    const filtered = getApproverOptions(ahniStaff);
+
+    // TEMPORARY FIX: If no users with permissions found, show all AHNI staff
+    if (filtered.length === 0) {
+      console.warn('⚠️ No users with approve permission found. Showing all AHNI staff as fallback.');
+      return ahniStaff.map((userData) => ({
+        label: userData.full_name ||
+               [userData.first_name, userData.last_name]
+                 .filter(name => name && name.trim())
+                 .join(" ") ||
+               userData.email || "User",
+        value: userData.id,
+      }));
+    }
+
+    return filtered;
+  }, [ahniStaff]);
   const { createContractRequest, isLoading: isCreateLoading } =
     useCreateContractRequest();
 
