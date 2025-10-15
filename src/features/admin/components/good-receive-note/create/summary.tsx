@@ -17,6 +17,7 @@ import { SubmitHandler, useForm, useFieldArray } from "react-hook-form";
 import { useSearchParams } from "next/navigation";
 import {
   useGetSingleGoodReceiveNote,
+  useGetAllGoodReceiveNote,
 } from "@/features/admin/controllers/goodReceiveNoteController";
 import {
   useGetAllPurchaseOrders,
@@ -52,17 +53,47 @@ export default function CreateGoodReceiveNote() {
   const { data: purchaseOrder } = useGetAllPurchaseOrders({
     page: 1,
     size: 2000000,
+    status: "APPROVED", // Only show approved POs (ready for GRN creation)
   });
 
-  const purchaseOrderOptions = useMemo(
-    () =>
-      // @ts-ignore
-      purchaseOrder?.results?.map(({ purchase_order_number, id }) => ({
-        label: purchase_order_number,
-        value: id,
-      })) || [],
-    [purchaseOrder]
-  );
+  // Fetch all GRNs to identify which POs are already used
+  const { data: allGRNs } = useGetAllGoodReceiveNote({
+    page: 1,
+    size: 10000, // Fetch all GRNs
+  });
+
+  const purchaseOrderOptions = useMemo(() => {
+    if (!purchaseOrder?.results) return [];
+
+    // Get list of PO IDs that already have GRNs
+    const usedPOIds = new Set(
+      allGRNs?.data?.results?.map((grn) =>
+        typeof grn.purchase_order === 'string'
+          ? grn.purchase_order
+          : grn.purchase_order
+      ) || []
+    );
+
+    console.log('🔍 Total POs:', purchaseOrder.results.length);
+    console.log('🔍 Used PO IDs:', Array.from(usedPOIds));
+
+    // Filter out POs that already have GRNs
+    const availablePOs = purchaseOrder.results.filter((po) => {
+      const isUsed = usedPOIds.has(po.id);
+      if (isUsed) {
+        console.log(`⚠️ PO ${po.purchase_order_number} (${po.id}) already has a GRN - excluding`);
+      }
+      return !isUsed;
+    });
+
+    console.log('✅ Available POs for GRN:', availablePOs.length);
+
+    // @ts-ignore
+    return availablePOs.map(({ purchase_order_number, id, vendor_detail }) => ({
+      label: `${purchase_order_number} - ${vendor_detail?.company_name || 'Unknown Vendor'}`,
+      value: id,
+    }));
+  }, [purchaseOrder, allGRNs]);
 
   const purchaseOrderId = form.watch("purchase_order");
 
@@ -77,10 +108,14 @@ export default function CreateGoodReceiveNote() {
   });
 
   const acceptorOptions = useMemo(() => {
-    if (!usersData?.data?.results) return [];
+    // @ts-ignore - usersData structure varies
+    if (!usersData?.data?.results && !usersData?.results) return [];
+
+    // @ts-ignore - usersData structure varies
+    const usersList = usersData?.data?.results || usersData?.results || [];
 
     // Filter for users who can accept GRNs (AHNI_STAFF, ADMIN, STORE_KEEPER)
-    const eligibleUsers = usersData.data.results.filter((user: any) =>
+    const eligibleUsers = usersList.filter((user: any) =>
       ['AHNI_STAFF', 'ADMIN', 'STORE_KEEPER'].includes(user.user_type)
     );
 
@@ -211,12 +246,27 @@ export default function CreateGoodReceiveNote() {
         <Card>
           <Form {...form}>
             <form className='space-y-6' onSubmit={form.handleSubmit(onSubmit)}>
+              {purchaseOrderOptions.length === 0 && (
+                <div className='bg-yellow-50 border-2 border-yellow-400 rounded-lg p-4 mb-4'>
+                  <h4 className='font-semibold text-yellow-900 mb-2'>⚠️ No Available Purchase Orders</h4>
+                  <p className='text-sm text-yellow-800'>
+                    All approved purchase orders already have Good Receive Notes created.
+                    {' '}To create a new GRN, you need to:
+                  </p>
+                  <ul className='list-disc list-inside text-sm text-yellow-800 mt-2 space-y-1'>
+                    <li>Create and approve new Purchase Orders, or</li>
+                    <li>Wait for pending Purchase Orders to be approved</li>
+                  </ul>
+                </div>
+              )}
+
               <FormSelect
                 label='Purchase Order'
                 name='purchase_order'
-                placeholder='Select Purchase Order'
+                placeholder={purchaseOrderOptions.length === 0 ? 'No available purchase orders' : 'Select Purchase Order'}
                 required
                 options={purchaseOrderOptions}
+                disabled={purchaseOrderOptions.length === 0}
               />
 
               {/* Phase 3: Destination Store Selection */}

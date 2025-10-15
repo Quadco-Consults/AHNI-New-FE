@@ -1,16 +1,9 @@
-import { useState, useEffect } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import AxiosWithToken from '@/constants/api_management/MyHttpHelperWithToken';
 import { ApprovalInfo, ApprovalAction, ApprovalResponse } from '../types/approval';
 import { toast } from 'sonner';
 
 const BASE_URL = '/procurements/purchase-request';
-
-// Get auth token - this should match your existing auth system
-const getAuthToken = () => {
-  // Implement based on your existing auth system
-  return localStorage.getItem('authToken') || '';
-};
 
 export const usePurchaseRequestApproval = (requestId: number | string) => {
   const queryClient = useQueryClient();
@@ -99,7 +92,7 @@ export const usePurchaseRequestApproval = (requestId: number | string) => {
         console.log(`🚀 Performing ${action} action for request ${requestId}...`);
 
         // Validate action
-        if (!action || action === 'None' || action === null || action === undefined) {
+        if (!action || action === null || action === undefined) {
           throw new Error(`Invalid action value: "${action}". Expected 'review', 'authorise', or 'approve'.`);
         }
 
@@ -140,6 +133,34 @@ export const usePurchaseRequestApproval = (requestId: number | string) => {
         throw new Error(errorMessage);
       }
     },
+    onMutate: async (action) => {
+      // Cancel outgoing refetches to prevent race conditions
+      await queryClient.cancelQueries({ queryKey: ['purchase-request-approval', requestId] });
+
+      // Snapshot the previous value for rollback
+      const previousApprovalInfo = queryClient.getQueryData(['purchase-request-approval', requestId]);
+
+      // Optimistically update the status to prevent double submissions
+      if (previousApprovalInfo) {
+        const newStatus = action === 'review' ? 'Reviewed'
+                        : action === 'authorise' ? 'Authorised'
+                        : action === 'approve' ? 'Approved'
+                        : (previousApprovalInfo as ApprovalInfo).current_status;
+
+        const nextAction = newStatus === 'Reviewed' ? 'authorise'
+                         : newStatus === 'Authorised' ? 'approve'
+                         : newStatus === 'Approved' ? null
+                         : (previousApprovalInfo as ApprovalInfo).next_action_required;
+
+        queryClient.setQueryData(['purchase-request-approval', requestId], {
+          ...(previousApprovalInfo as ApprovalInfo),
+          current_status: newStatus,
+          next_action_required: nextAction
+        });
+      }
+
+      return { previousApprovalInfo };
+    },
     onSuccess: (data, action) => {
       toast.success(data.detail || `Purchase request ${action}d successfully!`);
 
@@ -148,7 +169,12 @@ export const usePurchaseRequestApproval = (requestId: number | string) => {
       queryClient.invalidateQueries({ queryKey: ['purchase-request', requestId] });
       queryClient.invalidateQueries({ queryKey: ['purchase-requests'] });
     },
-    onError: (error: any) => {
+    onError: (error: any, _action, context: any) => {
+      // Rollback optimistic update on error
+      if (context?.previousApprovalInfo) {
+        queryClient.setQueryData(['purchase-request-approval', requestId], context.previousApprovalInfo);
+      }
+
       console.error('Approval mutation error:', error);
       toast.error(error.message || 'Approval action failed');
     }
