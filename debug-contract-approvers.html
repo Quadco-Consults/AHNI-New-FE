@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contract Approvers Diagnostic</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1600px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2563eb;
+            border-bottom: 3px solid #2563eb;
+            padding-bottom: 10px;
+        }
+        .section {
+            margin: 25px 0;
+            padding: 20px;
+            background: #f8fafc;
+            border-left: 4px solid #2563eb;
+            border-radius: 4px;
+        }
+        .user-card {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .user-card.has-permissions {
+            border-color: #10b981;
+            background: #f0fdf4;
+        }
+        .user-card.no-permissions {
+            border-color: #ef4444;
+            background: #fef2f2;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin: 2px;
+        }
+        .badge-review { background: #dbeafe; color: #1e40af; }
+        .badge-authorize { background: #e0e7ff; color: #3730a3; }
+        .badge-approve { background: #d1fae5; color: #065f46; }
+        .badge-none { background: #fee2e2; color: #991b1b; }
+        button {
+            background: #2563eb;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover { background: #1d4ed8; }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 6px;
+            font-size: 14px;
+            margin: 10px 0;
+        }
+        .info-box {
+            background: #eff6ff;
+            border: 2px solid #3b82f6;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+        }
+        .success-box {
+            background: #d1fae5;
+            border: 2px solid #10b981;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+        }
+        .warning-box {
+            background: #fef3c7;
+            border: 2px solid #f59e0b;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+        }
+        .error-box {
+            background: #fee2e2;
+            border: 2px solid #ef4444;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+        }
+        pre {
+            background: #1f2937;
+            color: #f3f4f6;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-size: 13px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 15px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #2563eb;
+        }
+        .stat-label {
+            font-size: 14px;
+            color: #6b7280;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Contract Request Approvers Diagnostic</h1>
+
+        <div class="info-box">
+            <strong>📋 Purpose:</strong> This tool analyzes why reviewer, authorizer, and approver dropdowns are empty in the contract request form.
+        </div>
+
+        <div class="section">
+            <label for="token"><strong>🔑 Access Token:</strong></label>
+            <input type="text" id="token" placeholder="Paste your access token here" />
+            <button onclick="analyzeUsers()">🔍 Analyze Users & Permissions</button>
+        </div>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://ahni-erp-029252c2fbb9.herokuapp.com/api/v1';
+
+        async function analyzeUsers() {
+            const token = document.getElementById('token').value.trim();
+            if (!token) {
+                alert('Please enter your access token');
+                return;
+            }
+
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<div class="section"><p>🔄 Loading users and analyzing permissions...</p></div>';
+
+            try {
+                // Fetch all users
+                const response = await fetch(`${API_BASE}/admins/user-management/users/?page=1&size=1000`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Failed to fetch users');
+                }
+
+                // Extract users
+                const users = data.data?.results || [];
+
+                // Filter AHNI staff (exclude vendors, consultants, etc.)
+                const ahniStaff = users.filter(user =>
+                    user.user_type && ['AHNI_STAFF', 'ADMIN', 'SUPER_ADMIN'].includes(user.user_type)
+                );
+
+                // Analyze permissions
+                const reviewers = [];
+                const authorizers = [];
+                const approvers = [];
+                const noPermissions = [];
+
+                ahniStaff.forEach(user => {
+                    const perms = analyzeUserPermissions(user);
+
+                    if (perms.canReview) reviewers.push(user);
+                    if (perms.canAuthorize) authorizers.push(user);
+                    if (perms.canApprove) approvers.push(user);
+                    if (!perms.canReview && !perms.canAuthorize && !perms.canApprove) {
+                        noPermissions.push(user);
+                    }
+                });
+
+                displayResults(users.length, ahniStaff.length, reviewers, authorizers, approvers, noPermissions, ahniStaff);
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <div class="error-box">
+                        <h2>❌ Error</h2>
+                        <p><strong>Message:</strong> ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        function analyzeUserPermissions(user) {
+            const result = {
+                canReview: false,
+                canAuthorize: false,
+                canApprove: false,
+                permissionsStructure: null
+            };
+
+            // Check if user has roles
+            if (!user.roles || user.roles.length === 0) {
+                return result;
+            }
+
+            // Check permissions structure
+            if (user.permissions && user.permissions.length > 0) {
+                result.permissionsStructure = 'grouped_by_module';
+
+                // Look for approvals module
+                const approvalModule = user.permissions.find(p => p.module === 'approvals');
+
+                if (approvalModule && approvalModule.permissions) {
+                    approvalModule.permissions.forEach(perm => {
+                        if (perm.codename === 'can_review') result.canReview = true;
+                        if (perm.codename === 'can_authorize') result.canAuthorize = true;
+                        if (perm.codename === 'can_approve') result.canApprove = true;
+                    });
+                }
+            } else {
+                result.permissionsStructure = 'none_or_different_format';
+            }
+
+            return result;
+        }
+
+        function displayResults(totalUsers, ahniStaffCount, reviewers, authorizers, approvers, noPermissions, allStaff) {
+            const resultsDiv = document.getElementById('results');
+
+            // Stats
+            let html = '<div class="section success-box"><h2>📊 Analysis Summary</h2></div>';
+            html += '<div class="stats">';
+            html += `
+                <div class="stat-card">
+                    <div class="stat-number">${totalUsers}</div>
+                    <div class="stat-label">Total Users</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${ahniStaffCount}</div>
+                    <div class="stat-label">AHNI Staff</div>
+                </div>
+                <div class="stat-card" style="border-color: #3b82f6;">
+                    <div class="stat-number">${reviewers.length}</div>
+                    <div class="stat-label">Can Review</div>
+                </div>
+                <div class="stat-card" style="border-color: #8b5cf6;">
+                    <div class="stat-number">${authorizers.length}</div>
+                    <div class="stat-label">Can Authorize</div>
+                </div>
+                <div class="stat-card" style="border-color: #10b981;">
+                    <div class="stat-number">${approvers.length}</div>
+                    <div class="stat-label">Can Approve</div>
+                </div>
+                <div class="stat-card" style="border-color: #ef4444;">
+                    <div class="stat-number">${noPermissions.length}</div>
+                    <div class="stat-label">No Permissions</div>
+                </div>
+            </div>`;
+
+            // Diagnosis
+            if (reviewers.length === 0 && authorizers.length === 0 && approvers.length === 0) {
+                html += `
+                    <div class="error-box">
+                        <h3>❌ PROBLEM IDENTIFIED</h3>
+                        <p><strong>None of the ${ahniStaffCount} AHNI staff have approval permissions!</strong></p>
+                        <h4>Possible Causes:</h4>
+                        <ol>
+                            <li><strong>Permissions not assigned:</strong> No users have been granted can_review, can_authorize, or can_approve permissions</li>
+                            <li><strong>Wrong permissions structure:</strong> Backend returns permissions in a different format than expected</li>
+                            <li><strong>Missing approvals module:</strong> The 'approvals' permission module doesn't exist in the system</li>
+                        </ol>
+                        <h4>Solution:</h4>
+                        <ul>
+                            <li>Go to: <strong>Admin → User Management → Roles & Permissions</strong></li>
+                            <li>Create or edit roles to include:
+                                <ul>
+                                    <li><code>approvals.can_review</code></li>
+                                    <li><code>approvals.can_authorize</code></li>
+                                    <li><code>approvals.can_approve</code></li>
+                                </ul>
+                            </li>
+                            <li>Assign these roles to appropriate users</li>
+                        </ul>
+                    </div>
+                `;
+            } else {
+                html += '<div class="success-box"><h3>✅ Some users have approval permissions</h3></div>';
+            }
+
+            // Show users with permissions
+            if (reviewers.length > 0) {
+                html += '<div class="section" style="background: #dbeafe; border-color: #3b82f6;">';
+                html += `<h3>👥 Users with Review Permission (${reviewers.length})</h3>`;
+                reviewers.slice(0, 10).forEach(user => {
+                    html += createUserCard(user);
+                });
+                if (reviewers.length > 10) {
+                    html += `<p><em>... and ${reviewers.length - 10} more reviewers</em></p>`;
+                }
+                html += '</div>';
+            }
+
+            if (authorizers.length > 0) {
+                html += '<div class="section" style="background: #e0e7ff; border-color: #8b5cf6;">';
+                html += `<h3>👥 Users with Authorize Permission (${authorizers.length})</h3>`;
+                authorizers.slice(0, 10).forEach(user => {
+                    html += createUserCard(user);
+                });
+                if (authorizers.length > 10) {
+                    html += `<p><em>... and ${authorizers.length - 10} more authorizers</em></p>`;
+                }
+                html += '</div>';
+            }
+
+            if (approvers.length > 0) {
+                html += '<div class="section" style="background: #d1fae5; border-color: #10b981;">';
+                html += `<h3>👥 Users with Approve Permission (${approvers.length})</h3>`;
+                approvers.slice(0, 10).forEach(user => {
+                    html += createUserCard(user);
+                });
+                if (approvers.length > 10) {
+                    html += `<p><em>... and ${approvers.length - 10} more approvers</em></p>`;
+                }
+                html += '</div>';
+            }
+
+            // Show sample user permission structure
+            if (allStaff.length > 0) {
+                html += '<div class="section">';
+                html += '<h3>🔍 Sample User Permission Structure</h3>';
+                html += '<p>Showing permissions structure for the first user to help debug:</p>';
+                const sampleUser = allStaff[0];
+                html += '<pre>' + JSON.stringify({
+                    user_id: sampleUser.id,
+                    name: `${sampleUser.first_name} ${sampleUser.last_name}`,
+                    user_type: sampleUser.user_type,
+                    roles: sampleUser.roles,
+                    permissions: sampleUser.permissions,
+                    has_permissions_field: !!sampleUser.permissions,
+                    permissions_count: sampleUser.permissions?.length || 0
+                }, null, 2) + '</pre>';
+                html += '</div>';
+            }
+
+            // Show users without permissions
+            if (noPermissions.length > 0) {
+                html += '<div class="section" style="background: #fef2f2; border-color: #ef4444;">';
+                html += `<h3>⚠️ AHNI Staff Without Approval Permissions (${noPermissions.length})</h3>`;
+                html += '<p>These users are AHNI staff but don\'t have any approval permissions:</p>';
+                noPermissions.slice(0, 5).forEach(user => {
+                    html += createUserCard(user);
+                });
+                if (noPermissions.length > 5) {
+                    html += `<p><em>... and ${noPermissions.length - 5} more users without permissions</em></p>`;
+                }
+                html += '</div>';
+            }
+
+            resultsDiv.innerHTML = html;
+        }
+
+        function createUserCard(user) {
+            const perms = analyzeUserPermissions(user);
+            const fullName = user.full_name ||
+                `${user.first_name || ''} ${user.last_name || ''}`.trim() ||
+                'Unknown User';
+
+            let permBadges = '';
+            if (perms.canReview) permBadges += '<span class="badge badge-review">Can Review</span>';
+            if (perms.canAuthorize) permBadges += '<span class="badge badge-authorize">Can Authorize</span>';
+            if (perms.canApprove) permBadges += '<span class="badge badge-approve">Can Approve</span>';
+            if (!permBadges) permBadges = '<span class="badge badge-none">No Permissions</span>';
+
+            return `
+                <div class="user-card ${permBadges.includes('badge-none') ? 'no-permissions' : 'has-permissions'}">
+                    <strong>${fullName}</strong> (${user.email || 'No email'})<br>
+                    <small>Type: ${user.user_type || 'N/A'} | Roles: ${user.roles?.length || 0}</small><br>
+                    ${permBadges}
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
