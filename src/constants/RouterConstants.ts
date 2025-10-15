@@ -477,6 +477,7 @@ export const CG_ROUTES = {
   CLOSE_OUT: "/dashboard/c-and-g/close-out-plan",
   CLOSE_OUT_DETAILS: "/dashboard/c-and-g/close-out-plan/details/:id",
   NEW_CLOSE_OUT_PLAN: "/dashboard/c-and-g/close-out-plan/new-close-out-plan",
+  ACTIVITY_HEADINGS: "/dashboard/c-and-g/close-out-plan/activity-headings",
 
   // CONTRACT MANAGEMENT
   AGREEMENT: "/dashboard/c-and-g/agreements",

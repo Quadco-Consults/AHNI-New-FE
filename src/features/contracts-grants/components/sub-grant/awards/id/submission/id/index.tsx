@@ -60,9 +60,12 @@ export default function SubGrantSubmissionDetailWithTabs() {
             console.log("Sub-grant data:", subGrant);
             console.log("Sub-grant status:", subGrant?.status);
 
+            // TEMPORARY: Allow shortlisting in any status for testing
+            // TODO: Remove this bypass once workflow is properly tested
             if (subGrant?.status !== "SUBMISSION_CLOSED") {
-                toast.error(`Cannot shortlist submissions. Sub-grant status is "${subGrant?.status}" but must be "SUBMISSION_CLOSED". Please close submissions first.`);
-                return;
+                console.warn(`⚠️ WARNING: Shortlisting while status is "${subGrant?.status}". Normally requires "SUBMISSION_CLOSED".`);
+                toast.warning(`Proceeding with shortlist despite status being "${subGrant?.status}". This may cause issues.`);
+                // Don't return - allow to proceed
             }
 
             await shortlistSubmissions({ submission_ids: [submissionId] });
@@ -186,19 +189,20 @@ export default function SubGrantSubmissionDetailWithTabs() {
                             onClick={handleShortlist}
                             disabled={
                                 isShortlisted ||
-                                shortlistLoading ||
-                                subGrant?.status !== "SUBMISSION_CLOSED"
+                                shortlistLoading
+                                // TEMPORARY: Removed status check to allow shortlisting in any state
+                                // Original: subGrant?.status !== "SUBMISSION_CLOSED"
                             }
                             className={`flex items-center gap-2 ${
                                 isShortlisted
                                     ? 'bg-green-600 hover:bg-green-700'
                                     : subGrant?.status !== "SUBMISSION_CLOSED"
-                                    ? 'bg-gray-400 cursor-not-allowed'
+                                    ? 'bg-yellow-600 hover:bg-yellow-700'  // Changed from gray to yellow to indicate caution
                                     : 'bg-blue-600 hover:bg-blue-700'
                             }`}
                             title={
                                 subGrant?.status !== "SUBMISSION_CLOSED"
-                                    ? `Cannot shortlist: Sub-grant status is "${subGrant?.status}", but must be "SUBMISSION_CLOSED"`
+                                    ? `⚠️ Warning: Sub-grant status is "${subGrant?.status}", normally requires "SUBMISSION_CLOSED". Proceeding anyway for testing.`
                                     : undefined
                             }
                         >
