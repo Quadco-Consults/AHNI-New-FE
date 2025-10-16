@@ -19,28 +19,30 @@ export const useDownloadWorkPlanTemplate = (enabled: boolean = true) => {
     queryKey: ["work-plan-template"],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get(
-          `${BASE_URL}sheet/template/`,
-          {
-            responseType: "blob",
-          }
-        );
+        // Fetch the local template file from the public directory
+        const response = await fetch("/AHNi_Workplan_Template.xlsx");
+
+        if (!response.ok) {
+          throw new Error("Failed to download template");
+        }
+
+        const blob = await response.blob();
 
         // Create download link
-        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const url = window.URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.href = url;
-        link.setAttribute("download", "work-plan-template.xlsx");
+        link.setAttribute("download", "AHNi_Workplan_Template.xlsx");
         document.body.appendChild(link);
         link.click();
         link.remove();
         window.URL.revokeObjectURL(url);
 
-        return response.data;
+        return blob;
       } catch (error) {
         const axiosError = error as AxiosError;
         throw new Error(
-          "Sorry: " + (axiosError.response?.data as any)?.message
+          "Sorry: Failed to download template - " + (axiosError.message || "Unknown error")
         );
       }
     },

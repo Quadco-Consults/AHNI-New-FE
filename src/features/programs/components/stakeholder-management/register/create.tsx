@@ -42,7 +42,7 @@ const breadcrumbs: TBreadcrumbList[] = [
 const CreateRegister = () => {
   const router = useRouter();
 
-  const { createStakeholderRegister, isLoading } =
+  const { createStakeholderRegister, isLoading, isSuccess: isCreateSuccess } =
     useCreateStakeholderRegister();
 
   const searchParams = useSearchParams();
@@ -50,7 +50,7 @@ const CreateRegister = () => {
 
   const { data: prevStakeholder } = useGetSingleStakeholderRegister(id ?? "");
 
-  const { editStakeholderRegister, isLoading: isUpdateLoading } =
+  const { editStakeholderRegister, isLoading: isUpdateLoading, isSuccess: isUpdateSuccess } =
     useEditStakeholderRegister(id || "");
 
   const stateOptions = nigerianStates?.map((state) => ({
@@ -81,6 +81,7 @@ const CreateRegister = () => {
   });
 
   const { handleSubmit, watch, setValue, reset } = form;
+
   useEffect(() => {
     if (prevStakeholder) {
       const prevData = prevStakeholder?.data;
@@ -90,6 +91,16 @@ const CreateRegister = () => {
       });
     }
   }, [prevStakeholder]);
+
+  // Handle successful submission
+  useEffect(() => {
+    if (isCreateSuccess || isUpdateSuccess) {
+      toast.success(id ? "Stakeholder Register Updated Successfully" : "Stakeholder Register Created Successfully");
+      router.push(
+        "/dashboard/programs/stakeholder-management/stakeholder-register"
+      );
+    }
+  }, [isCreateSuccess, isUpdateSuccess, id, router]);
 
   const goBack = () => {
     router.back();
@@ -107,21 +118,12 @@ const CreateRegister = () => {
   const onSubmit: SubmitHandler<TStakeholderRegisterFormValues> = async (
     data
   ) => {
-    try {
-      if (id) {
-        await editStakeholderRegister(data);
-        // toast.success("Stakeholder Register Created");
-      } else {
-        await createStakeholderRegister(data);
-        // toast.success("Stakeholder Register Updated");
-      }
-
-      router.push(
-        "/dashboard/programs/stakeholder-management/stakeholder-register"
-      );
-    } catch (error: any) {
-      toast.error(error?.data?.message ?? "Something went wrong");
+    if (id) {
+      await editStakeholderRegister(data);
+    } else {
+      await createStakeholderRegister(data);
     }
+    // Success and error handling is done via useEffect and mutation's onError
   };
 
   return (
