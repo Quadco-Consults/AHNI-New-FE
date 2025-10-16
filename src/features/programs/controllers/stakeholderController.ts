@@ -75,6 +75,7 @@ export const useCreateStakeholderRegister = () => {
       await callApi(details);
     } catch (error) {
       console.error("Stakeholder register create error:", error);
+      throw error; // Re-throw to allow form to handle the error
     }
   };
 
@@ -99,6 +100,7 @@ export const useEditStakeholderRegister = (id: string) => {
       await callApi(details);
     } catch (error) {
       console.error("Stakeholder register edit error:", error);
+      throw error; // Re-throw to allow form to handle the error
     }
   };
 
