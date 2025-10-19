@@ -39,7 +39,7 @@ import FormSelect from "components/atoms/FormSelect";
 import { useGetAllItems } from "@/features/modules/controllers/config/itemController";
 import { useGetAllFCONumbersQuery } from "@/features/modules/controllers";
 import { useRouter, useSearchParams } from "next/navigation";
-// NOTE: useGetAllUsers removed - approval workflow fields removed from PO creation form
+import { useGetAllUsers } from "@/features/auth/controllers/userController";
 import CbaAPI from "@/features/procurement/controllers/cbaController";
 import { useGetSolicitationSubmission } from "@/features/procurement/controllers/vendorBidSubmissionsController";
 import { useGetSingleSolicitation } from "@/features/procurement/controllers/solicitationController";
@@ -55,6 +55,10 @@ const PurchaseOrderNew = () => {
   const [opens, setOpens] = useState(false);
   const [opensPurchase, setOpensPurchase] = useState(false);
   const [openDelivery, setOpenDelivery] = useState(false);
+  const [openReviewer, setOpenReviewer] = useState(false);
+  const [openAuthorizer, setOpenAuthorizer] = useState(false);
+  const [openApprover, setOpenApprover] = useState(false);
+  const [openVendorRep, setOpenVendorRep] = useState(false);
   const [vendorValue, setVendorValue] = useState(vendorIdFromUrl || "");
   const [requestValue, setRequestValue] = useState("");
   const [purchaseValue, setPurchaseValue] = useState("");
@@ -122,8 +126,11 @@ const PurchaseOrderNew = () => {
   console.log("🔍 FCO Results:", fco?.data?.results);
   console.log("🔍 FCO Data Keys:", Object.keys(fco?.data || {}));
 
-  // NOTE: Users query removed - no longer needed since approval workflow fields
-  // are not part of PO creation form
+  // Fetch users for approval workflow (only needed for standalone PO creation)
+  const { data: users, isLoading: usersIsLoading } = useGetAllUsers({
+    page: 1,
+    size: 2000000,
+  });
 
   const { data: item } = useGetAllItems({
     page: 1,
@@ -157,8 +164,11 @@ const PurchaseOrderNew = () => {
       payment_terms: "",
       delivery_lead_time: "",
       items: [],
-      // NOTE: Approval workflow fields removed - POs start with status PENDING
-      // and approvals are done through the workflow actions
+      // Approval workflow fields - only for standalone PO creation
+      // When creating from CBA, these are inherited/pre-filled
+      reviewed_by: "",
+      authorized_by: "",
+      approved_by: "",
     },
   });
 
@@ -585,8 +595,10 @@ const PurchaseOrderNew = () => {
       vendor: data?.vendor || vendorValue, // Prefer form data, fallback to state
       ...(cbaId && { cba: cbaId }), // Include CBA ID if creating from CBA
       ...(solicitationId && { solicitation: String(solicitationId) }), // Include Solicitation ID for RFQ link
-      // NOTE: Approval workflow fields (reviewed_by, authorized_by, approved_by, agreed_by)
-      // are NOT included during creation. They should only be set through the approval workflow.
+      // Approval workflow fields - include if provided (for standalone PO creation)
+      ...(data?.reviewed_by && { reviewed_by: data.reviewed_by }),
+      ...(data?.authorized_by && { authorized_by: data.authorized_by }),
+      ...(data?.approved_by && { approved_by: data.approved_by }),
       // Payment and delivery
       ...(data?.payment_terms && { payment_terms: data.payment_terms }),
       ...(data?.delivery_lead_time && { delivery_lead_time: data.delivery_lead_time }),
@@ -1171,13 +1183,9 @@ const PurchaseOrderNew = () => {
             </Button>
           </div>
 
-          {/* NOTE: Approval Workflow Section REMOVED
-              Approval fields should NOT be part of PO creation.
-              POs are created with status PENDING and approval fields NULL.
-              Approvals are done through the workflow actions in the "Approval Workflow" dialog.
-          */}
-
-          {/*  <div className="mt-8 border-t pt-6">
+          {/* Approval Workflow Section - Only shown for standalone PO creation */}
+          {!cbaId && (
+          <div className="mt-8 border-t pt-6">
             <h3 className="text-lg font-semibold mb-4">Approval Workflow</h3>
             <div className="grid grid-cols-3 gap-5">
               <FormField
@@ -1478,7 +1486,8 @@ const PurchaseOrderNew = () => {
                 )}
               />
             </div>
-          </div> */}
+          </div>
+          )}
 
           <div className="flex items-center justify-end mt-6 gap-4">
             {/* Debug Button - Remove after testing */}
