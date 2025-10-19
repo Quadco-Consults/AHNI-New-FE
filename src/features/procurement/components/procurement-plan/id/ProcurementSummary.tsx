@@ -42,49 +42,51 @@ const ProcurementSummary = (data: ProcurementPlanResultsData) => {
     return String(value);
   };
 
-  // Safely extract data, ensuring we handle objects properly
-  // These are the actual values from the uploaded procurement plan
-  const projectName = safeRender(data?.project) !== "N/A" ? safeRender(data?.project) : "Accelerating Control of the HIV Epidemic in Nigeria(CLUSTER 1)";
-  const financialYear = safeRender(data?.financial_year) !== "N/A" ? safeRender(data?.financial_year) : "FY25(Oct-24 to Sep-25)";
-  const approvedBudget = typeof data?.approved_budget === 'number' ? data.approved_budget : 0;
-  const implementer = typeof data?.implementer === 'string' ? data.implementer : "Unknown";
-  const implementationLocation = typeof data?.implementation_location === 'string' ? data.implementation_location : "Multiple Locations";
-  const description = typeof data?.description === 'string' ? data.description : "Procurement Activities";
+  // Extract line items
+  const items = data?.items || data?.line_items || [];
 
-  // Calculate USD equivalent (assuming conversion rate, this should come from API)
-  const conversionRate = 1100; // NGN to USD (this should be dynamic)
-  const approvedBudgetUSD = approvedBudget / conversionRate;
+  // Safely extract data from parent plan
+  const projectName = typeof data?.project === 'object' && data?.project?.title
+    ? data.project.title
+    : safeRender(data?.project);
+
+  const financialYear = typeof data?.financial_year === 'object' && data?.financial_year?.year
+    ? data.financial_year.year
+    : safeRender(data?.financial_year);
+
+  // Calculate totals from line items
+  const totalBudgetNGN = items.reduce((sum: number, item: any) => {
+    const amount = parseFloat(item?.approved_budget_amount_ngn || 0);
+    return sum + (isNaN(amount) ? 0 : amount);
+  }, 0);
+
+  const totalBudgetUSD = items.reduce((sum: number, item: any) => {
+    const amount = parseFloat(item?.approved_budget_amount_usd || 0);
+    return sum + (isNaN(amount) ? 0 : amount);
+  }, 0);
+
+  // Get implementer from first line item or parent
+  const implementer = items[0]?.implementer || safeRender(data?.implementer) || "Unknown";
+  const implementationLocation = items[0]?.implementation_location || "Multiple Locations";
+  const description = items[0]?.description || "Procurement Activities";
 
   // Define the implementation locations as office columns
   const implementationLocations = [
     "ACE1 PROJECT HEAD OFFICE",
-    "ACE1 ADAMAWA STATE TATE OFFICE",
+    "ACE1 ADAMAWA STATE OFFICE",
+    "ACE1 BORNO STATE OFFICE",
     "ACE1 YOBE STATE OFFICE",
-    "AGE1-TARABABA STATE OFFICE",
-    "AGE1 AHNI HEAD OFFICE SHARED COST"
+    "ACE1 TARABA STATE OFFICE",
   ];
-
-  // Determine which location this plan belongs to, or use equal distribution
-  const currentLocation = data?.implementation_location?.toUpperCase();
-  const locationIndex = implementationLocations.findIndex(loc =>
-    currentLocation?.includes(loc.split(' ')[1]) || currentLocation?.includes(loc.split(' ')[0])
-  );
 
   // Create summary data based on the implementation location
   const createLocationData = (amount: number, currency: string = "₦") => {
     const locationData: { [key: string]: string } = {};
 
-    implementationLocations.forEach((location, index) => {
-      if (locationIndex >= 0 && index === locationIndex) {
-        // If we can match the location, put full amount there
-        locationData[location] = formatCurrency(amount, currency);
-      } else if (locationIndex < 0) {
-        // If we can't match, distribute equally
-        locationData[location] = formatCurrency(amount / implementationLocations.length, currency);
-      } else {
-        // Other locations get 0
-        locationData[location] = formatCurrency(0, currency);
-      }
+    // Distribute equally across all locations for now
+    // TODO: Update this based on actual location data from line items
+    implementationLocations.forEach((location) => {
+      locationData[location] = formatCurrency(amount / implementationLocations.length, currency);
     });
 
     return locationData;
@@ -93,11 +95,11 @@ const ProcurementSummary = (data: ProcurementPlanResultsData) => {
   const summaryData: Array<{ category: string; [key: string]: string }> = [
     {
       category: "OVERALL TOTAL (NGN)",
-      ...createLocationData(approvedBudget)
+      ...createLocationData(totalBudgetNGN)
     },
     {
       category: "OVERALL TOTAL (USD)",
-      ...createLocationData(approvedBudgetUSD, "$")
+      ...createLocationData(totalBudgetUSD, "$")
     }
   ];
 
@@ -120,8 +122,10 @@ const ProcurementSummary = (data: ProcurementPlanResultsData) => {
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div><strong>Implementer:</strong> {implementer}</div>
           <div><strong>Location:</strong> {implementationLocation}</div>
-          <div><strong>Budget Line:</strong> {safeRender(data?.budget_line)}</div>
-          <div><strong>Approved Budget:</strong> {formatCurrency(approvedBudget)}</div>
+          <div><strong>Budget Line:</strong> {items[0]?.budget_line || "N/A"}</div>
+          <div><strong>Total Budget (NGN):</strong> {formatCurrency(totalBudgetNGN)}</div>
+          <div><strong>Total Budget (USD):</strong> {formatCurrency(totalBudgetUSD, "$")}</div>
+          <div><strong>Total Line Items:</strong> {items.length}</div>
         </div>
         <div className="text-sm">
           <strong>Description:</strong> {description}
@@ -178,35 +182,39 @@ const ProcurementSummary = (data: ProcurementPlanResultsData) => {
             <tbody>
               <tr>
                 <td className="border border-black p-2 font-medium bg-gray-50">Workplan Activity Reference</td>
-                <td className="border border-black p-2">{safeRender(data?.workplan_activity_reference)}</td>
+                <td className="border border-black p-2">{items[0]?.workplan_activity_reference || "N/A"}</td>
               </tr>
               <tr>
                 <td className="border border-black p-2 font-medium bg-gray-50">PR Staff</td>
-                <td className="border border-black p-2">{safeRender(data?.pr_staff)}</td>
+                <td className="border border-black p-2">{items[0]?.responsible_pr_staff || "N/A"}</td>
               </tr>
               <tr>
                 <td className="border border-black p-2 font-medium bg-gray-50">Mode of Procurement</td>
-                <td className="border border-black p-2">{safeRender(data?.mode_of_procurement)}</td>
+                <td className="border border-black p-2">{items[0]?.mode_of_procurement || "N/A"}</td>
+              </tr>
+              <tr>
+                <td className="border border-black p-2 font-medium bg-gray-50">Procurement Method</td>
+                <td className="border border-black p-2">{items[0]?.procurement_method || "N/A"}</td>
               </tr>
               <tr>
                 <td className="border border-black p-2 font-medium bg-gray-50">Procurement Process</td>
-                <td className="border border-black p-2">{safeRender(data?.procurement_process)}</td>
+                <td className="border border-black p-2">{items[0]?.procurement_process || "N/A"}</td>
               </tr>
               <tr>
                 <td className="border border-black p-2 font-medium bg-gray-50">Start Date</td>
-                <td className="border border-black p-2">{safeRender(data?.start_date)}</td>
+                <td className="border border-black p-2">{items[0]?.procurement_start_date || "N/A"}</td>
               </tr>
               <tr>
                 <td className="border border-black p-2 font-medium bg-gray-50">Expected Delivery Date</td>
-                <td className="border border-black p-2">{safeRender(data?.expected_delivery_date_1)}</td>
+                <td className="border border-black p-2">{items[0]?.expected_delivery_date || "N/A"}</td>
               </tr>
               <tr>
                 <td className="border border-black p-2 font-medium bg-gray-50">Selected Supplier</td>
-                <td className="border border-black p-2">{safeRender(data?.selected_supplier)}</td>
+                <td className="border border-black p-2">{items[0]?.selected_supplier || "N/A"}</td>
               </tr>
               <tr>
                 <td className="border border-black p-2 font-medium bg-gray-50">PPM Status</td>
-                <td className="border border-black p-2">{safeRender(data?.is_ppm)}</td>
+                <td className="border border-black p-2">{items[0]?.ppm || "N/A"}</td>
               </tr>
             </tbody>
           </table>

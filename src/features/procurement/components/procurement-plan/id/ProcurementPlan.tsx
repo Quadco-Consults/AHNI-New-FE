@@ -4,7 +4,7 @@ import { Button } from "components/ui/button";
 import { Edit2, Save, X } from "lucide-react";
 import { Input } from "components/ui/input";
 import { toast } from "sonner";
-import { useUpdateProcurementPlanLineItem } from "../../../controllers/procurementPlanController";
+import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { useQueryClient } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 
@@ -14,9 +14,6 @@ const ProcurementPlan = (data: ProcurementPlanResultsData) => {
   const [editingRowId, setEditingRowId] = useState<string | null>(null);
   const [editedData, setEditedData] = useState<any>({});
   const [isSaving, setIsSaving] = useState(false);
-
-  // Hook for updating line item - only create when we have an editing row
-  const { updateLineItem } = useUpdateProcurementPlanLineItem(editingRowId || "");
 
   const handleEdit = (item: any) => {
     setEditingRowId(item.id);
@@ -36,10 +33,15 @@ const ProcurementPlan = (data: ProcurementPlanResultsData) => {
     try {
       setIsSaving(true);
 
-      // Call API to update the line item
-      await updateLineItem(editedData);
+      // Update the line item using PATCH endpoint
+      // This sends only the changed fields to the backend
+      const response = await AxiosWithToken.patch(
+        `procurements/procurement-plans-new/line-items/${editingRowId}/`,
+        editedData
+      );
 
       // Invalidate queries to refresh the data
+      // This will fetch the updated plan with recalculated totals
       queryClient.invalidateQueries({
         queryKey: ["procurement-plan", planId],
         refetchType: "all"
@@ -50,7 +52,24 @@ const ProcurementPlan = (data: ProcurementPlanResultsData) => {
       setEditedData({});
     } catch (error: any) {
       console.error("Failed to update line item:", error);
-      toast.error(error?.message || "Failed to update line item");
+
+      // Handle different error types
+      if (error?.response?.status === 404) {
+        toast.error("Line item not found. It may have been deleted.");
+      } else if (error?.response?.status === 400) {
+        // Validation errors
+        const errorData = error?.response?.data;
+        if (errorData && typeof errorData === 'object') {
+          const errorMessages = Object.entries(errorData)
+            .map(([field, messages]) => `${field}: ${Array.isArray(messages) ? messages.join(', ') : messages}`)
+            .join('\n');
+          toast.error(`Validation error:\n${errorMessages}`);
+        } else {
+          toast.error("Invalid data. Please check your inputs.");
+        }
+      } else {
+        toast.error(error?.response?.data?.message || error?.message || "Failed to update line item");
+      }
     } finally {
       setIsSaving(false);
     }
@@ -236,11 +255,11 @@ const ProcurementPlan = (data: ProcurementPlanResultsData) => {
                     DELIVERY TO PHO, Borno Office, Adamawa Office, Yobe Office,
                     Taraba Office, Clusters and Health Facilities
                   </th>
-                  <th className="px-4 py-2 border text-sm font-semibold">
-                    PROUCREMENT PERFORMANCE/MONITORING REMARKS
+                  <th className="px-4 py-2 border text-sm font-semibold text-center">
+                    PROCUREMENT PERFORMANCE/MONITORING REMARKS
                   </th>
-                  <th className="px-4 py-2 border text-sm font-semibold">
-                    PROCUREMENT PERFORMANCE SOCRE
+                  <th className="px-4 py-2 border text-sm font-semibold text-center">
+                    PROCUREMENT PERFORMANCE SCORE
                   </th>
                 </tr>
 
