@@ -8,8 +8,14 @@ export const SubGrantSchema = z.object({
     project: z.string().min(1, "Please select project"),
     title: z.string().min(1, "Please enter title"),
     award_type: z.string().min(1, "Please select award type"),
-    amount_usd: z.string().min(1, "Please enter amount in USD"),
-    amount_ngn: z.string().min(1, "Please enter amount in NGN"),
+    amount_usd: z.union([
+        z.string().min(1, "Please enter amount in USD"),
+        z.number().positive("Amount must be positive")
+    ]).transform((val) => String(val)),
+    amount_ngn: z.union([
+        z.string().min(1, "Please enter amount in NGN"),
+        z.number().positive("Amount must be positive")
+    ]).transform((val) => String(val)),
     start_date: z.string().min(1, "Please select sub-grant start date"),
     end_date: z.string().min(1, "Please select sub-grant end date"),
     submission_start_date: z.string().min(1, "Please select submission start date"),

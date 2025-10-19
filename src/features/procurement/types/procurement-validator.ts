@@ -249,10 +249,11 @@ export const PurchaseOrderListSchema = z.object({
   vendor: z.string().min(1, "Field is required"),
   payment_terms: z.string().optional(),
   delivery_lead_time: z.string().optional(),
-  // Approval workflow fields
-  reviewed_by: z.string().min(1, "Reviewer is required"),
-  authorized_by: z.string().min(1, "Director of Finance authorization is required"),
-  approved_by: z.string().min(1, "Director of Operations approval is required"),
+  delivery_location: z.string().optional(),
+  // Approval workflow fields - optional because they may be inherited from CBA
+  reviewed_by: z.string().optional(),
+  authorized_by: z.string().optional(),
+  approved_by: z.string().optional(),
   agreed_by: z.string().optional(),
 });
 

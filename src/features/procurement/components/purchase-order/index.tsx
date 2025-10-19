@@ -13,6 +13,7 @@ import { useState, useEffect } from "react";
 
 import { cn } from "lib/utils";
 import { CircleEllipsisIcon } from "lucide-react";
+import { Icon } from "@iconify/react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,7 +31,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "components/Table/DataTable";
 import BreadcrumbCard from "components/Breadcrumb";
 import { IPurchaseOrderPaginatedData } from "features/procurement/types/purchase-order";
-import { useGetAllPurchaseOrders } from "@/features/procurement/controllers/purchaseOrderController";
+import { useGetAllPurchaseOrders, useGetSinglePurchaseOrder } from "@/features/procurement/controllers/purchaseOrderController";
 import { convertDateFormat, formatDate } from "utils/date";
 import PurchaseOrderWorkflowStatus from "./components/PurchaseOrderWorkflowStatus";
 
@@ -227,25 +228,74 @@ const PurchaseOrder = () => {
 const ActionListAction = ({ data, onRefresh, isRefreshing }: any) => {
   const [showWorkflow, setShowWorkflow] = useState(false);
   const [isLoadingLatestStatus, setIsLoadingLatestStatus] = useState(false);
+  const [latestPOData, setLatestPOData] = useState(data);
+
+  // Fetch single PO to get absolute latest status
+  const { data: freshPOData, refetch: refetchPO, error: fetchError } = useGetSinglePurchaseOrder(
+    data.id,
+    showWorkflow // Only fetch when dialog is open
+  );
+
+  // Log any fetch errors
+  useEffect(() => {
+    if (fetchError) {
+      console.error("❌ Error fetching fresh PO data:", fetchError);
+    }
+  }, [fetchError]);
+
+  // Update local state with fresh data
+  useEffect(() => {
+    if (freshPOData?.data) {
+      console.log("🔄 Fresh PO data received:", freshPOData.data);
+      console.log("🔄 Fresh PO status_level:", freshPOData.data.status_level);
+      console.log("🔄 Setting latestPOData with fresh data");
+      setLatestPOData(freshPOData.data);
+      setIsLoadingLatestStatus(false);
+    } else if (freshPOData && !freshPOData.data) {
+      console.log("⚠️ Fresh PO data fetched but no data property found, using original data");
+      setLatestPOData(data);
+      setIsLoadingLatestStatus(false);
+    }
+  }, [freshPOData, data]);
+
+  // Debug: Log when latestPOData changes
+  useEffect(() => {
+    console.log("🔍 latestPOData updated:", {
+      id: latestPOData?.id,
+      status_level: latestPOData?.status_level,
+      purchase_order_number: latestPOData?.purchase_order_number
+    });
+  }, [latestPOData]);
 
   // Force refetch when opening workflow dialog to get latest status
   useEffect(() => {
-    if (showWorkflow && onRefresh) {
+    if (showWorkflow) {
       console.log("🔄 Workflow dialog opened - refreshing data to get latest status");
       setIsLoadingLatestStatus(true);
-      onRefresh();
-      // Reset loading after a short delay (refetch is async)
-      setTimeout(() => setIsLoadingLatestStatus(false), 1000);
+      // Refetch both list and single PO data
+      if (onRefresh) {
+        onRefresh();
+      }
+      refetchPO();
     }
-  }, [showWorkflow, onRefresh]);
+  }, [showWorkflow, onRefresh, refetchPO]);
 
   const handleWorkflowSuccess = () => {
-    // Close the dialog
-    setShowWorkflow(false);
+    // Don't close the dialog - just refresh data so user can see updated status
+    setIsLoadingLatestStatus(true);
     // Trigger data refresh
     if (onRefresh) {
       onRefresh();
     }
+    refetchPO();
+  };
+
+  const handleManualRefresh = () => {
+    setIsLoadingLatestStatus(true);
+    if (onRefresh) {
+      onRefresh();
+    }
+    refetchPO();
   };
 
   return (
@@ -282,14 +332,53 @@ const ActionListAction = ({ data, onRefresh, isRefreshing }: any) => {
       <Dialog open={showWorkflow} onOpenChange={setShowWorkflow}>
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Purchase Order Approval Workflow</DialogTitle>
-            <DialogDescription>
-              PO Number: {data.purchase_order_number}
-              {isLoadingLatestStatus && (
-                <span className="ml-2 text-blue-600 text-xs">
-                  (Refreshing status...)
-                </span>
-              )}
+            <DialogTitle className="flex items-center justify-between">
+              <span>Purchase Order Approval Workflow</span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleManualRefresh}
+                disabled={isLoadingLatestStatus}
+                className="ml-4"
+              >
+                {isLoadingLatestStatus ? (
+                  <>
+                    <Icon icon="solar:restart-bold" className="animate-spin mr-2" fontSize={14} />
+                    Refreshing...
+                  </>
+                ) : (
+                  <>
+                    <Icon icon="solar:restart-bold" className="mr-2" fontSize={14} />
+                    Refresh Status
+                  </>
+                )}
+              </Button>
+            </DialogTitle>
+            <DialogDescription asChild>
+              <div className="space-y-2">
+                <div>PO Number: {data.purchase_order_number}</div>
+                {isLoadingLatestStatus && (
+                  <div className="text-blue-600 text-sm font-semibold">
+                    🔄 Loading latest status from backend...
+                  </div>
+                )}
+                {!isLoadingLatestStatus && latestPOData && (
+                  <div className="bg-blue-50 border border-blue-200 rounded p-2">
+                    <div className="text-sm">
+                      <span className="font-semibold">Current Backend Status:</span>{' '}
+                      <span className="text-blue-700 font-bold text-base">
+                        {latestPOData.status_level || 'PENDING'}
+                      </span>
+                    </div>
+                    <div className="text-xs text-gray-600 mt-1">
+                      {latestPOData.status_level === 'PENDING' && '✓ Ready for Review'}
+                      {latestPOData.status_level === 'REVIEWED' && '✓ Ready for Authorization'}
+                      {latestPOData.status_level === 'AUTHORIZED' && '✓ Ready for Approval'}
+                      {latestPOData.status_level === 'APPROVED' && '✓ Fully Approved'}
+                    </div>
+                  </div>
+                )}
+              </div>
             </DialogDescription>
           </DialogHeader>
           {isLoadingLatestStatus ? (
@@ -300,18 +389,36 @@ const ActionListAction = ({ data, onRefresh, isRefreshing }: any) => {
               </div>
             </div>
           ) : (
-            <PurchaseOrderWorkflowStatus
-              purchaseOrderId={data.id}
-              currentStatus={data.status_level || 'PENDING'}
-              canReview={data.status_level === 'PENDING'}
-              canAuthorize={data.status_level === 'REVIEWED'}
-              canApprove={data.status_level === 'AUTHORIZED'}
-              canReject={data.status_level !== 'APPROVED' && data.status_level !== 'REJECTED'}
-              reviewedBy={data.reviewed_by_detail?.name || undefined}
-              authorizedBy={data.authorized_by_detail?.name || undefined}
-              approvedBy={data.approved_by_detail?.name || undefined}
-              onSuccess={handleWorkflowSuccess}
-            />
+            (() => {
+              const currentStatusLevel = latestPOData?.status_level || 'PENDING';
+              const permissions = {
+                canReview: currentStatusLevel === 'PENDING',
+                canAuthorize: currentStatusLevel === 'REVIEWED',
+                canApprove: currentStatusLevel === 'AUTHORIZED',
+                canReject: currentStatusLevel !== 'APPROVED' && currentStatusLevel !== 'REJECTED'
+              };
+
+              console.log("🔍 Rendering PurchaseOrderWorkflowStatus with:", {
+                purchaseOrderId: latestPOData?.id,
+                currentStatus: currentStatusLevel,
+                ...permissions
+              });
+
+              return (
+                <PurchaseOrderWorkflowStatus
+                  purchaseOrderId={latestPOData.id}
+                  currentStatus={currentStatusLevel}
+                  canReview={permissions.canReview}
+                  canAuthorize={permissions.canAuthorize}
+                  canApprove={permissions.canApprove}
+                  canReject={permissions.canReject}
+                  reviewedBy={latestPOData.reviewed_by_detail?.name || undefined}
+                  authorizedBy={latestPOData.authorized_by_detail?.name || undefined}
+                  approvedBy={latestPOData.approved_by_detail?.name || undefined}
+                  onSuccess={handleWorkflowSuccess}
+                />
+              );
+            })()
           )}
         </DialogContent>
       </Dialog>
