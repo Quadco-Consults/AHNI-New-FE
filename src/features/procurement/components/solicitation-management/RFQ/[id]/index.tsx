@@ -16,6 +16,7 @@ import SummaryOfTechnicalPrequalification from "features/procurement/components/
 import { useGetSolicitationSubmission } from "@/features/procurement/controllers/vendorBidSubmissionsController";
 import CbaAPI from "@/features/procurement/controllers/cbaController";
 import { toast } from "sonner";
+import { downloadRFQPDF } from "@/lib/utils/pdf-generator";
 
 const RFQDetails = () => {
   const { id } = useParams();
@@ -76,6 +77,24 @@ const RFQDetails = () => {
     }
   };
 
+  const handleExportPDF = async () => {
+    if (!data?.data) {
+      toast.error("No RFQ data available for export");
+      return;
+    }
+
+    try {
+      toast.loading("Generating PDF...");
+      await downloadRFQPDF(data.data);
+      toast.dismiss();
+      toast.success("PDF generated successfully!");
+    } catch (error) {
+      toast.dismiss();
+      toast.error("Failed to generate PDF");
+      console.error("PDF generation error:", error);
+    }
+  };
+
   console.log({
     data: data?.data?.tender_type,
     isFromEOI,
@@ -91,16 +110,28 @@ const RFQDetails = () => {
       <div className="flex justify-between items-center">
         <h4 className="text-lg font-bold">{data?.data?.title}</h4>
 
-        {/* Show evaluation button only for EOI-sourced RFQs with submissions */}
-        {isFromEOI && hasSubmissions && (
+        <div className="flex gap-3">
+          {/* Export PDF Button */}
           <Button
-            onClick={handleCreateEvaluation}
-            className="bg-primary text-white hover:bg-primary/90"
+            onClick={handleExportPDF}
+            variant="outline"
+            className="border-primary text-primary hover:bg-primary/10"
           >
-            <Icon icon="heroicons:clipboard-document-check" className="mr-2" />
-            {existingCba ? "View Evaluation" : "Create Vendor Evaluation"}
+            <Icon icon="mdi:file-pdf-box" className="mr-2" fontSize={18} />
+            Export PDF
           </Button>
-        )}
+
+          {/* Show evaluation button only for EOI-sourced RFQs with submissions */}
+          {isFromEOI && hasSubmissions && (
+            <Button
+              onClick={handleCreateEvaluation}
+              className="bg-primary text-white hover:bg-primary/90"
+            >
+              <Icon icon="heroicons:clipboard-document-check" className="mr-2" />
+              {existingCba ? "View Evaluation" : "Create Vendor Evaluation"}
+            </Button>
+          )}
+        </div>
       </div>
 
       <Tabs defaultValue="rfq-details">

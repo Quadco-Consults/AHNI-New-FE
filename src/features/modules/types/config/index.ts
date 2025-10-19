@@ -242,22 +242,23 @@ export interface LevelFormValues {
 // Market Price types
 export interface MarketPriceData {
   id: string;
-  item_id: string;
-  item_name?: string;
-  price: number;
-  currency?: string;
-  effective_date: string;
-  vendor?: string;
+  item: string;
+  item_detail?: {
+    id: string;
+    name: string;
+  };
+  unit_price: number;
+  date: string;
+  source?: string;
   created_at: string;
   updated_at: string;
 }
 
 export interface MarketPriceFormValues {
-  item_id: string;
-  price: number;
-  currency?: string;
-  effective_date: string;
-  vendor?: string;
+  item: string;
+  unit_price: number;
+  date: string;
+  source?: string;
 }
 
 // Job Category types

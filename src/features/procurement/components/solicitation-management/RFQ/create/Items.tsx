@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, useFieldArray, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -22,6 +22,7 @@ import { useCreateSolicitation } from "@/features/procurement/controllers/solici
 import { useGetAllItems } from "@/features/modules/controllers";
 import { useGetAllLots } from "@/features/procurement/controllers/lotsController";
 import { LoadingSpinner } from "components/Loading";
+import { LotsResultsData } from "@/features/procurement/types/lots";
 
 // Schema for RFQ Items
 const RFQItemSchema = z.object({
@@ -38,6 +39,28 @@ const RFQItemsFormSchema = z.object({
 });
 
 type RFQItemsFormData = z.infer<typeof RFQItemsFormSchema>;
+
+/**
+ * Flatten hierarchical lots structure for dropdown display
+ * Converts parent lots with sub-lots into a flat array with indentation
+ */
+const flattenLots = (lots: LotsResultsData[]): Array<LotsResultsData & { isSubLot?: boolean }> => {
+  const flattened: Array<LotsResultsData & { isSubLot?: boolean }> = [];
+
+  lots.forEach((lot) => {
+    // Add parent lot
+    flattened.push({ ...lot, isSubLot: false });
+
+    // Add sub-lots with indentation marker
+    if (lot.sub_lots && lot.sub_lots.length > 0) {
+      lot.sub_lots.forEach((subLot) => {
+        flattened.push({ ...subLot, isSubLot: true });
+      });
+    }
+  });
+
+  return flattened;
+};
 
 const Items = () => {
   const router = useRouter();
@@ -80,6 +103,21 @@ const Items = () => {
 
   // Get the first available lot as default
   const defaultLot = (lotsData as any)?.results?.[0]?.id;
+
+  // Get lots array from response (handle different possible structures)
+  const lotsArray = (lotsData as any)?.results || (lotsData as any)?.data?.results || [];
+
+  // Flatten hierarchical lots for dropdown display
+  const flattenedLots = useMemo(() => flattenLots(lotsArray), [lotsArray]);
+
+  // Debug lot data structure
+  console.log("🔍 Lots Data Structure:", {
+    lotsData,
+    lotsArray,
+    flattenedLots,
+    totalLots: lotsArray.length,
+    totalFlattenedLots: flattenedLots.length,
+  });
 
   // Load quotation data from sessionStorage
   useEffect(() => {
@@ -349,11 +387,23 @@ const Items = () => {
                       <SelectContent>
                         {isLotsLoading && <LoadingSpinner />}
                         <SelectItem value="no-lot">No Lot Required</SelectItem>
-                        {lotsData?.results?.map((lot: any) => (
-                          <SelectItem key={lot.id} value={lot.id}>
-                            {lot.name} - Packet #{lot.packet_number}
+                        {/* Display flattened hierarchical lots with indentation */}
+                        {flattenedLots.map((lot) => (
+                          <SelectItem
+                            key={lot.id}
+                            value={lot.id}
+                            className={lot.isSubLot ? "pl-8" : ""}
+                          >
+                            {lot.isSubLot && "└─ "}
+                            {lot.name}
+                            {lot.packet_number && !lot.isSubLot ? ` (Packet #${lot.packet_number})` : ''}
                           </SelectItem>
                         ))}
+                        {!isLotsLoading && flattenedLots.length === 0 && (
+                          <div className="p-2 text-sm text-gray-500 text-center">
+                            No lots available. You can create lots in the Lots management section.
+                          </div>
+                        )}
                       </SelectContent>
                     </FormSelect>
                   </div>

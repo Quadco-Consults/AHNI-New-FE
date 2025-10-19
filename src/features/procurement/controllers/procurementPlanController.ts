@@ -203,6 +203,36 @@ export const useDeleteProcurementPlan = (id: string) => {
   return { deleteProcurementPlan, data, isLoading, isSuccess, error };
 };
 
+// Get All Procurement Plans for a Project
+export const useGetProcurementPlansByProject = (
+  projectId: string,
+  financialYear?: string,
+  enabled: boolean = true
+) => {
+  return useQuery({
+    queryKey: ["procurement-plans", "by-project", projectId, financialYear],
+    queryFn: async () => {
+      try {
+        const params: any = { project_id: projectId };
+        if (financialYear) params.financial_year = financialYear;
+
+        const response = await AxiosWithToken.get(`${BASE_URL}by-project/`, { params });
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        console.error("Procurement plans by project fetch error:", axiosError);
+        throw new Error(
+          (axiosError.response?.data as any)?.message ||
+          axiosError.message ||
+          "Failed to fetch procurement plans for project"
+        );
+      }
+    },
+    enabled: enabled && !!projectId,
+    refetchOnWindowFocus: false,
+  });
+};
+
 // Download Single Procurement Plan
 export const useDownloadSingleProcurementPlan = (id: string, enabled: boolean = true) => {
   return useQuery({
@@ -266,6 +296,7 @@ const ProcurementPlanAPI = {
   useDownloadSingleProcurementPlan,
   useGetAllProcurementPlans,
   useGetSingleProcurementPlan,
+  useGetProcurementPlansByProject,
   useCreateProcurementPlan,
   useUpdateProcurementPlan,
   useModifyProcurementPlan,

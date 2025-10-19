@@ -17,6 +17,8 @@ export type SolicitationItems = {
   };
   solicitation: string;
   lot: number;
+  sub_lot?: string; // Sub-lot identifier (e.g., "LOT2-A", "LOT2-B")
+  custom_fields?: Record<string, any>; // Flexible custom fields for lot-specific data
 };
 export type SolicitationCriteria = {
   name: string;
@@ -117,11 +119,13 @@ export interface ISolicitationRFQData {
       id: string;
       item: TAssetSingleData;
       lot: string;
+      sub_lot?: string; // Sub-lot identifier (e.g., "LOT2-A")
       quantity: number;
       frequency?: number;
       number_of_days?: number;
       description?: string;
       specification?: string;
+      custom_fields?: Record<string, any>; // Flexible custom fields for lot-specific columns
       item_detail: {
         name: string;
         uom: string;
@@ -129,6 +133,7 @@ export interface ISolicitationRFQData {
       };
       lot_detail: {
         name: string;
+        special_instructions?: string; // Lot-specific instructions
       };
     }
   ];
@@ -141,4 +146,10 @@ export interface ISolicitationRFQData {
       description: string;
     }
   ];
+  lots_data?: Record<string, {
+    lot_name: string;
+    lot_number: number;
+    special_instructions?: string;
+    sub_lots?: string[]; // Array of sub-lot identifiers
+  }>; // Metadata about lots
 }

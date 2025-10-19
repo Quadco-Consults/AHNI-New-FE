@@ -46,7 +46,7 @@ import {
   SolicitationQuotationSchema,
   TSolicitationQuotationFormData,
 } from "@/features/procurement/types/procurement-validator";
-import FormTextArea from "components/atoms/FormTextArea";
+import RichTextEditor from "@/components/atoms/RichTextEditor";
 import { useGetAllEois } from "@/features/procurement/controllers/eoiController";
 import { VendorsResultsData } from "@/features/procurement/types/vendors";
 import { useGetVendors } from "@/features/procurement/controllers/vendorsController";
@@ -374,7 +374,22 @@ const Quotation = () => {
               <FormInput name="rfq_id" label="RFQ ID" required />
             </div>
 
-            <FormTextArea name="background" label="Background" required />
+            <FormField
+              control={form.control}
+              name="background"
+              render={({ field }) => (
+                <FormItem>
+                  <RichTextEditor
+                    content={field.value || ""}
+                    onChange={field.onChange}
+                    label="Background"
+                    required
+                    placeholder="Enter RFQ background, eligibility requirements, evaluation criteria, submission instructions, and other details..."
+                  />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <div className="grid grid-cols-2 gap-6">
               <FormSelect
