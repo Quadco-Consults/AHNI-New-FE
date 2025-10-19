@@ -200,7 +200,8 @@ export const useUploadRiskManagementPlan = () => {
       formData.append("financial_year", details.financial_year);
       formData.append("file", details.file);
 
-      await callApi(formData as any);
+      const response = await callApi(formData as any);
+      return response; // Return the response so caller can check it
     } catch (error) {
       console.error("Risk management plan upload error:", error);
       throw error;

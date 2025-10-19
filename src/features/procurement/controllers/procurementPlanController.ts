@@ -11,7 +11,7 @@ import {
 } from "../types/procurementPlan";
 import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
 
-const BASE_URL = "procurements/procurement-plans/";
+const BASE_URL = "procurements/procurement-plans-new/";
 
 // ===== PROCUREMENT PLAN HOOKS =====
 
@@ -148,33 +148,45 @@ export const useGetProcurementPlansByProject = (
   });
 };
 
-// Create Procurement Plan (Upload endpoint)
-export const useCreateProcurementPlan = () => {
+// Upload Procurement Plan (Bulk upload from Excel)
+export const useUploadProcurementPlan = () => {
   const { callApi, isLoading, isSuccess, error, data } = useApiManager<
-    ProcurementPlanResponse,
+    null,
     Error,
-    z.infer<typeof ProcurementPlanListSchema>
+    { project: string; financial_year: string; file: File }
   >({
     endpoint: `${BASE_URL}upload/`,
     queryKey: ["procurement-plans"],
     isAuth: true,
     method: "POST",
-    contentType: null,
+    contentType: "multipart/form-data",
   });
 
-  const createProcurementPlan = async (
-    details: z.infer<typeof ProcurementPlanListSchema>
-  ) => {
+  const uploadProcurementPlan = async (details: {
+    project: string;
+    financial_year: string;
+    file: File;
+  }) => {
     try {
-      await callApi(details);
+      // Create FormData for file upload
+      const formData = new FormData();
+      formData.append("project", details.project);
+      formData.append("financial_year", details.financial_year);
+      formData.append("file", details.file);
+
+      const response = await callApi(formData as any);
+      return response; // Return the response so caller can check it
     } catch (error) {
-      console.error("Procurement plan create error:", error);
-      throw error; // Re-throw the error so it can be caught by the component
+      console.error("Procurement plan upload error:", error);
+      throw error;
     }
   };
 
-  return { createProcurementPlan, data, isLoading, isSuccess, error };
+  return { uploadProcurementPlan, data, isLoading, isSuccess, error };
 };
+
+// Legacy export for backward compatibility
+export const useCreateProcurementPlan = useUploadProcurementPlan;
 
 // Update Procurement Plan (Full Update)
 export const useUpdateProcurementPlan = (id: string) => {
@@ -298,6 +310,31 @@ export const useGetProcurementPlanLineItems = (
   });
 };
 
+// Update Procurement Plan Line Item
+export const useUpdateProcurementPlanLineItem = (lineItemId: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    any,
+    Error,
+    any
+  >({
+    endpoint: `${BASE_URL}line-items/${lineItemId}/`,
+    queryKey: ["procurement-plan-line-items", "procurement-plan"],
+    isAuth: true,
+    method: "PATCH",
+  });
+
+  const updateLineItem = async (details: any) => {
+    try {
+      await callApi(details);
+    } catch (error) {
+      console.error("Procurement plan line item update error:", error);
+      throw error;
+    }
+  };
+
+  return { updateLineItem, data, isLoading, isSuccess, error };
+};
+
 // Download Single Procurement Plan
 export const useDownloadSingleProcurementPlan = (id: string, enabled: boolean = true) => {
   return useQuery({
@@ -363,6 +400,7 @@ const ProcurementPlanAPI = {
   useGetSingleProcurementPlan,
   useGetProcurementPlansByProject,
   useGetProcurementPlanLineItems,
+  useUpdateProcurementPlanLineItem,
   useCreateProcurementPlan,
   useUpdateProcurementPlan,
   useModifyProcurementPlan,

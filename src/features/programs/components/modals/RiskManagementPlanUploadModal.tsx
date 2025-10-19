@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { useUploadRiskManagementPlan } from "@/features/programs/controllers/riskPlansController";
 import { useGetAllFinancialYearsQuery } from "@/features/modules/controllers/config/financialYearController";
 import { useGetAllProjectsQuery } from "@/features/projects/controllers/projectController";
+import { useQueryClient } from "@tanstack/react-query";
 
 const FormSchema = z.object({
   project: z.string().min(1, "This field is required"),
@@ -25,6 +26,7 @@ export type TFormValues = z.infer<typeof FormSchema>;
 
 const RiskManagementPlanUploadModal = () => {
   const dispatch = useAppDispatch();
+  const queryClient = useQueryClient();
 
   const { data: project } = useGetAllProjectsQuery({
     page: 1,
@@ -79,8 +81,48 @@ const RiskManagementPlanUploadModal = () => {
     }
 
     try {
-      await uploadRiskManagementPlan({ project, financial_year, file });
-      toast.success("Risk Management Plan uploaded successfully");
+      const response = await uploadRiskManagementPlan({ project, financial_year, file });
+
+      // Check if the upload actually succeeded by examining the response
+      const responseData = (response as any)?.data?.data || (response as any)?.data;
+
+      const createdCount = responseData?.created_count || 0;
+      const errorCount = responseData?.error_count || 0;
+      const errors = responseData?.errors || [];
+
+      // If there are errors, show them to the user
+      if (errorCount > 0 || createdCount === 0) {
+        toast.error(`Upload failed: ${errorCount} errors, ${createdCount} records created`, {
+          duration: 5000
+        });
+
+        if (errors.length > 0) {
+          // Show first few errors
+          const firstError = errors[0];
+          toast.error(`Row ${firstError.row}: ${firstError.error}`, {
+            duration: 10000
+          });
+
+          // If all errors are the same, show a consolidated message
+          const uniqueErrors = [...new Set(errors.map((e: any) => e.error))];
+          if (uniqueErrors.length === 1) {
+            toast.warning(`Backend Error: ${uniqueErrors[0]}`, {
+              duration: 15000,
+              description: "This is a backend issue that needs to be fixed. Please contact the development team."
+            });
+          }
+        }
+
+        return; // Don't close dialog or show success
+      }
+
+      // Invalidate all risk-management-plans queries to refresh the list
+      queryClient.invalidateQueries({
+        queryKey: ["risk-management-plans"],
+        refetchType: "all"
+      });
+
+      toast.success(`Risk Management Plan uploaded successfully! ${createdCount} records created.`);
       dispatch(closeDialog());
     } catch (error: any) {
       toast.error(error?.message || "Failed to upload Risk Management Plan");

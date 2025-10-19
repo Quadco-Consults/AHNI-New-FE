@@ -13,13 +13,14 @@ import { z } from "zod";
 // import * as XLSX from "xlsx";
 import { Input } from "components/ui/input";
 import Modal from "react-modal";
-import { useCreateProcurementPlan, useGetAllProcurementPlans, useUpdateProcurementPlan } from "@/features/procurement/controllers/procurementPlanController";
+import { useUploadProcurementPlan, useGetAllProcurementPlans, useUpdateProcurementPlan } from "@/features/procurement/controllers/procurementPlanController";
 import { toast } from "sonner";
 import { useGetAllFinancialYearsManager } from "@/features/modules/controllers/config/financialYearController";
 import { closeDialog } from "store/ui";
 import { useDispatch } from "react-redux";
 import { useGetAllProjects } from "@/features/projects/controllers/projectController";
 import { useMemo } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
 type PropsType = {
   isOpen: boolean;
@@ -46,12 +47,13 @@ const FormSchema = z.object({
 
 const ProcurementPlanUploadModal = (props: PropsType) => {
   const dispatch = useDispatch();
+  const queryClient = useQueryClient();
 
   const [file, setFile] = useState<File | Blob | null>(null);
   const [existingPlan, setExistingPlan] = useState<any>(null);
   const [isUpdateMode, setIsUpdateMode] = useState(false);
 
-  const { createProcurementPlan, isLoading: creatingPlan } = useCreateProcurementPlan();
+  const { uploadProcurementPlan, isLoading: creatingPlan } = useUploadProcurementPlan();
 
   // Hook for updating (only create when we have an existing plan)
   const { updateProcurementPlan, isLoading: updatingPlan } = useUpdateProcurementPlan(existingPlan?.id || "");
@@ -161,23 +163,53 @@ const ProcurementPlanUploadModal = (props: PropsType) => {
       return;
     }
 
-    const formData = new FormData();
-    formData.append("file", file as Blob);
-    formData.append("financial_year", data?.financial_year as string);
-    formData.append("project", data?.project as string);
-
     try {
-      if (isUpdateMode && existingPlan) {
-        // Update existing procurement plan
-        toast.info(`Updating existing procurement plan for this project and financial year...`);
-        await updateProcurementPlan(formData as any);
-        toast.success("Procurement plan updated successfully!");
-      } else {
-        // Create new procurement plan
-        await createProcurementPlan(formData as any);
-        toast.success("Procurement plan created successfully!");
+      const response = await uploadProcurementPlan({
+        project: data.project as string,
+        financial_year: data.financial_year as string,
+        file: file as File,
+      });
+
+      // Check if the upload actually succeeded by examining the response
+      const responseData = (response as any)?.data?.data || (response as any)?.data;
+
+      const createdCount = responseData?.created_count || 0;
+      const errorCount = responseData?.error_count || 0;
+      const errors = responseData?.errors || [];
+
+      // If there are errors, show them to the user
+      if (errorCount > 0 || createdCount === 0) {
+        toast.error(`Upload failed: ${errorCount} errors, ${createdCount} records created`, {
+          duration: 5000
+        });
+
+        if (errors.length > 0) {
+          // Show first few errors
+          const firstError = errors[0];
+          toast.error(`Row ${firstError.row}: ${firstError.error}`, {
+            duration: 10000
+          });
+
+          // If all errors are the same, show a consolidated message
+          const uniqueErrors = [...new Set(errors.map((e: any) => e.error))];
+          if (uniqueErrors.length === 1) {
+            toast.warning(`Backend Error: ${uniqueErrors[0]}`, {
+              duration: 15000,
+              description: "This is a backend issue that needs to be fixed. Please contact the development team."
+            });
+          }
+        }
+
+        return; // Don't close dialog or show success
       }
 
+      // Invalidate all procurement-plans queries to refresh the list
+      queryClient.invalidateQueries({
+        queryKey: ["procurement-plans"],
+        refetchType: "all"
+      });
+
+      toast.success(`Procurement Plan uploaded successfully! ${createdCount} line items created.`);
       props.onCancel();
       dispatch(closeDialog());
     } catch (error: any) {
@@ -224,6 +256,35 @@ const ProcurementPlanUploadModal = (props: PropsType) => {
         const validationErrors = errorData.errors;
         const summary = errorData.summary;
 
+        // Check if all errors are duplicate key violations
+        const allDuplicateErrors = validationErrors.every((err: any) => {
+          const errorMsg = err.error?.[0] || err.error || "";
+          return errorMsg.includes("duplicate key value violates unique constraint");
+        });
+
+        if (allDuplicateErrors) {
+          // All errors are duplicates - show specific duplicate error message
+          toast.error("❌ Duplicate Procurement Plans Detected", {
+            duration: 10000,
+          });
+
+          toast.warning(
+            `All ${summary.total_rows_processed} rows already exist in the database for this project (${summary.project}) and financial year (${summary.financial_year}).`,
+            {
+              duration: 12000,
+            }
+          );
+
+          toast.info(
+            "💡 To update existing records, please delete the old procurement plans first, or contact the administrator to enable bulk updates.",
+            {
+              duration: 15000,
+            }
+          );
+
+          return;
+        }
+
         // Show summary first
         if (summary) {
           toast.error(`Upload failed: ${summary.errors_found} errors found in ${summary.total_rows_processed} rows`, {
@@ -236,8 +297,14 @@ const ProcurementPlanUploadModal = (props: PropsType) => {
           if (index < 3) { // Limit to first 3 errors to avoid spam
             const fieldError = err.error?.[0] || err.error || "Unknown error";
 
-            // Extract meaningful error messages
-            if (fieldError.includes("procurement_process") && fieldError.includes("not-null constraint")) {
+            // Check for duplicate key errors
+            if (fieldError.includes("duplicate key value violates unique constraint")) {
+              toast.error(`Row ${err.row}: Duplicate record - this budget line and description already exists`, {
+                duration: 6000,
+              });
+            }
+            // Extract meaningful error messages for other errors
+            else if (fieldError.includes("procurement_process") && fieldError.includes("not-null constraint")) {
               toast.error(`Row ${err.row}: Missing required field "procurement_process"`, {
                 duration: 6000,
               });
