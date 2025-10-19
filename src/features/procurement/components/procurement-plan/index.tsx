@@ -18,11 +18,21 @@ import Link from "next/link";
 import { RouteEnum } from "constants/RouterConstants";
 import IconButton from "components/IconButton";
 import { Icon } from "@iconify/react";
-import { useLazyDownloadProcurementPlanTemplateQuery, useGetAllProcurementPlans } from "../../controllers/procurementPlanController";
+import { useLazyDownloadProcurementPlanTemplateQuery, useGetAllProcurementPlans, useDeleteProcurementPlan } from "../../controllers/procurementPlanController";
 import { toast } from "sonner";
-import { DownloadIcon } from "lucide-react";
+import { DownloadIcon, Trash2 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
 import { useGetAllFinancialYears } from "../../../modules/controllers/config/financialYearController";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "components/ui/alert-dialog";
 
 export default function ProcurementPlan() {
   const [isModalOpen, setModalOpen] = useState(false);
@@ -227,6 +237,36 @@ export default function ProcurementPlan() {
           isLoading={isLoading}
         />
 
+        {/* Pagination Controls */}
+        {procurementData?.data?.pagination && procurementData.data.pagination.total > 0 && (
+          <div className="flex items-center justify-between mt-4 pt-4 border-t">
+            <div className="text-sm text-gray-600">
+              Page {page} of {procurementData.data.pagination.pages || 1}
+              <span className="ml-2 text-gray-500">
+                ({procurementData.data.pagination.total} total items)
+              </span>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage(page - 1)}
+                disabled={page === 1 || isLoading}
+              >
+                Previous
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage(page + 1)}
+                disabled={page >= (procurementData.data.pagination.pages || 1) || isLoading}
+              >
+                Next
+              </Button>
+            </div>
+          </div>
+        )}
+
         <ProcurementPlanUploadModal
           isOpen={isModalOpen}
           onCancel={() => setModalOpen(false)}
@@ -260,12 +300,23 @@ const columns: ColumnDef<any>[] = [
   {
     header: "Project",
     accessorKey: "project",
+    size: 200,
     cell: ({ row }) => {
-      // Try to get project name from project object or fallback to ID
+      // Try to get project title/name from project object or fallback to ID
       const project = row.original?.project;
-      if (typeof project === 'object' && project !== null) {
-        return project.name || project.title || project.id || "Unknown Project";
+      const projectDetail = row.original?.project_detail;
+
+      // First check if there's a project_detail object (common pattern in API responses)
+      if (typeof projectDetail === 'object' && projectDetail !== null) {
+        return projectDetail.title || projectDetail.name || projectDetail.project_name || "Unknown Project";
       }
+
+      // Then check the project field itself
+      if (typeof project === 'object' && project !== null) {
+        return project.title || project.name || project.project_name || project.id || "Unknown Project";
+      }
+
+      // Fallback to string value
       return String(project || "N/A");
     },
   },
@@ -311,15 +362,66 @@ const columns: ColumnDef<any>[] = [
 
 // eslint-disable-next-line no-unused-vars
 const ActionListAction = ({ data }: any) => {
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const { deleteProcurementPlan, isLoading: isDeleting } = useDeleteProcurementPlan(data?.id);
+
+  const handleDelete = async () => {
+    try {
+      await deleteProcurementPlan();
+      toast.success("Procurement plan deleted successfully!");
+      setShowDeleteDialog(false);
+      // Refresh the page or refetch data
+      window.location.reload();
+    } catch (error: any) {
+      toast.error(error?.message || "Failed to delete procurement plan");
+    }
+  };
+
   return (
-    <div className='flex gap-2 items-center justify-center'>
-      <Link
-        href={`/dashboard/procurement/procurement-plan/${data?.id || 1}`}
-      >
-        <IconButton className='bg-[#F9F9F9] hover:text-primary border'>
-          <Icon icon='ph:eye-duotone' fontSize={15} />
-        </IconButton>
-      </Link>
-    </div>
+    <>
+      <div className='flex gap-2 items-center justify-center'>
+        <Link
+          href={`/dashboard/procurement/procurement-plan/${data?.id || 1}`}
+        >
+          <IconButton className='bg-[#F9F9F9] hover:text-primary border'>
+            <Icon icon='ph:eye-duotone' fontSize={15} />
+          </IconButton>
+        </Link>
+
+        <button
+          className='bg-red-50 hover:bg-red-100 hover:text-red-600 border border-red-200 rounded-lg p-2 disabled:opacity-50 disabled:cursor-not-allowed'
+          onClick={() => setShowDeleteDialog(true)}
+          disabled={isDeleting}
+        >
+          <Trash2 size={15} className="text-red-500" />
+        </button>
+      </div>
+
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Procurement Plan</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this procurement plan? This action cannot be undone.
+              {data?.description && (
+                <div className="mt-2 p-2 bg-gray-100 rounded">
+                  <strong>Plan:</strong> {data.description}
+                </div>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {isDeleting ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 };
