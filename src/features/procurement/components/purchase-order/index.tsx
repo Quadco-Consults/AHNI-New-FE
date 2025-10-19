@@ -9,7 +9,7 @@ import { Input } from "components/ui/input";
 import Link from "next/link";
 import { RouteEnum } from "constants/RouterConstants";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import { cn } from "lib/utils";
 import { CircleEllipsisIcon } from "lucide-react";
@@ -224,8 +224,20 @@ const PurchaseOrder = () => {
 };
 
 // ActionListAction component moved outside to avoid closure issues
-const ActionListAction = ({ data, onRefresh }: any) => {
+const ActionListAction = ({ data, onRefresh, isRefreshing }: any) => {
   const [showWorkflow, setShowWorkflow] = useState(false);
+  const [isLoadingLatestStatus, setIsLoadingLatestStatus] = useState(false);
+
+  // Force refetch when opening workflow dialog to get latest status
+  useEffect(() => {
+    if (showWorkflow && onRefresh) {
+      console.log("🔄 Workflow dialog opened - refreshing data to get latest status");
+      setIsLoadingLatestStatus(true);
+      onRefresh();
+      // Reset loading after a short delay (refetch is async)
+      setTimeout(() => setIsLoadingLatestStatus(false), 1000);
+    }
+  }, [showWorkflow, onRefresh]);
 
   const handleWorkflowSuccess = () => {
     // Close the dialog
@@ -273,20 +285,34 @@ const ActionListAction = ({ data, onRefresh }: any) => {
             <DialogTitle>Purchase Order Approval Workflow</DialogTitle>
             <DialogDescription>
               PO Number: {data.purchase_order_number}
+              {isLoadingLatestStatus && (
+                <span className="ml-2 text-blue-600 text-xs">
+                  (Refreshing status...)
+                </span>
+              )}
             </DialogDescription>
           </DialogHeader>
-          <PurchaseOrderWorkflowStatus
-            purchaseOrderId={data.id}
-            currentStatus={data.status_level || 'PENDING'}
-            canReview={true}    // TODO: Replace with actual permission logic
-            canAuthorize={true} // TODO: Replace with actual permission logic
-            canApprove={true}   // TODO: Replace with actual permission logic
-            canReject={true}    // TODO: Replace with actual permission logic
-            reviewedBy={data.reviewed_by_detail?.name || undefined}
-            authorizedBy={data.authorized_by_detail?.name || undefined}
-            approvedBy={data.approved_by_detail?.name || undefined}
-            onSuccess={handleWorkflowSuccess}
-          />
+          {isLoadingLatestStatus ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+                <p className="text-sm text-gray-600">Loading latest workflow status...</p>
+              </div>
+            </div>
+          ) : (
+            <PurchaseOrderWorkflowStatus
+              purchaseOrderId={data.id}
+              currentStatus={data.status_level || 'PENDING'}
+              canReview={data.status_level === 'PENDING'}
+              canAuthorize={data.status_level === 'REVIEWED'}
+              canApprove={data.status_level === 'AUTHORIZED'}
+              canReject={data.status_level !== 'APPROVED' && data.status_level !== 'REJECTED'}
+              reviewedBy={data.reviewed_by_detail?.name || undefined}
+              authorizedBy={data.authorized_by_detail?.name || undefined}
+              approvedBy={data.approved_by_detail?.name || undefined}
+              onSuccess={handleWorkflowSuccess}
+            />
+          )}
         </DialogContent>
       </Dialog>
     </>

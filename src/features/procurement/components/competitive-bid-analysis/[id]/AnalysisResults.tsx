@@ -9,8 +9,8 @@ import Card from "components/Card";
 import { Icon } from "@iconify/react";
 import CbaAPI from "@/features/procurement/controllers/cbaController";
 import { toast } from "sonner";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
+import { jsPDF } from "jspdf";
+import { autoTable } from "jspdf-autotable";
 
 interface AnalysisResultsProps {
   cbaId?: string;

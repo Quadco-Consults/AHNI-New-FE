@@ -10,7 +10,7 @@ import { useGetSinglePurchaseOrder } from "@/features/procurement/controllers";
 import Image from "next/image";
 import { toast } from "sonner";
 import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
+import { jsPDF } from "jspdf";
 import { toWords } from "number-to-words";
 import { Icon } from "@iconify/react";
 

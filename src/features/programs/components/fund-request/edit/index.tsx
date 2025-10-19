@@ -37,7 +37,7 @@ import {
   useGetLocationList,
 } from "@/features/modules/controllers/config/locationController";
 import { useGetAllUsers } from "@/features/auth/controllers/userController";
-import { useMemo, useEffect } from "react";
+import { useMemo, useEffect, useState } from "react";
 import { useGetSingleFundRequest, useUpdateFundRequest } from "@/features/programs/controllers/fundRequestController";
 import { toast } from "sonner";
 
@@ -80,9 +80,11 @@ const getMonthOptions = () => {
 const EditFundRequest = () => {
   const { id } = useParams();
   const fundRequestId = id as string;
+  const [isFormInitialized, setIsFormInitialized] = useState(false);
 
   const form = useForm<TFundRequestWithActivitiesFormValues>({
     resolver: zodResolver(FundRequestWithActivitiesSchema),
+    mode: "onChange",
     defaultValues: {
       project: "",
       month: "",
@@ -92,10 +94,14 @@ const EditFundRequest = () => {
       financial_year: "",
       type: "",
       location: "",
-      reviewer: "",
+      location_reviewer: "",
+      location_authorizer: "",
+      state_reviewer: "",
+      state_authorizer: "",
+      hq_reviewer: "",
+      hq_authorizer: "",
+      hq_approver: "",
       uuid_code: "",
-      authorizer: "",
-      approver: "",
       activities: [],
     },
   });
@@ -166,7 +172,14 @@ const EditFundRequest = () => {
     [user]
   );
 
-  const { handleSubmit, watch, setValue, reset, control } = form;
+  const { handleSubmit, watch, setValue, reset, control, formState: { errors } } = form;
+
+  // Log validation errors
+  useEffect(() => {
+    if (Object.keys(errors).length > 0) {
+      console.log("Form validation errors:", errors);
+    }
+  }, [errors]);
 
   // Activities management
   const { fields, append, remove } = useFieldArray({
@@ -191,19 +204,24 @@ const EditFundRequest = () => {
   const selectedLocationId = watch("location");
   const selectedProjectId = watch("project");
 
-  // Auto-fill unique_code when location or project changes
+  // Auto-fill unique_code when location or project changes (but only if not in edit mode with existing data)
   useEffect(() => {
-    if (selectedLocationId && selectedProjectId && location?.data.results && project?.data.results) {
+    // Skip auto-fill if we're editing and have already loaded the data
+    if (isFormInitialized) {
+      return;
+    }
+
+    if (selectedLocationId && selectedProjectId && location?.data?.results && project?.data?.results) {
       const selectedLocation = location.data.results.find(
-        (loc) => loc.id === selectedLocationId
+        (loc: any) => loc.id === selectedLocationId
       );
       const selectedProject = project.data.results.find(
-        (proj) => proj.id === selectedProjectId
+        (proj: any) => proj.id === selectedProjectId
       );
-      
+
       if (selectedLocation?.unique_code && selectedProject?.project_id) {
         // Project ID from database (e.g., "advgfre")
-        // Location code (e.g., "-02") 
+        // Location code (e.g., "-02")
         // Final format: Project ID + Location Code = "advgfre-02"
         const compositeUniqueCode = `${selectedProject.project_id}${selectedLocation.unique_code}`;
         setValue("uuid_code", compositeUniqueCode);
@@ -212,13 +230,22 @@ const EditFundRequest = () => {
         setValue("uuid_code", selectedLocation.unique_code);
       }
     }
-  }, [selectedLocationId, selectedProjectId, location, project, setValue]);
+  }, [selectedLocationId, selectedProjectId, location, project, setValue, isFormInitialized]);
 
   // Populate form with existing data
   useEffect(() => {
-    if (fundRequestData?.data) {
+    if (
+      !isFormInitialized &&
+      fundRequestData?.data &&
+      projectOptions &&
+      financialYearOptions &&
+      locationOptions &&
+      userOptions &&
+      costCategoryOptions
+    ) {
       const data = fundRequestData.data;
-      reset({
+
+      const formData = {
         project: data.project?.id || "",
         month: data.month || "",
         year: data.year || "",
@@ -227,21 +254,31 @@ const EditFundRequest = () => {
         financial_year: data.financial_year?.id || "",
         type: data.type || "",
         location: data.location?.id || "",
-        reviewer: data.reviewer || "",
+        location_reviewer: data.location_reviewer || "",
+        location_authorizer: data.location_authorizer || "",
+        state_reviewer: data.state_reviewer || "",
+        state_authorizer: data.state_authorizer || "",
+        hq_reviewer: data.hq_reviewer || "",
+        hq_authorizer: data.hq_authorizer || "",
+        hq_approver: data.hq_approver || "",
         uuid_code: data.uuid_code || "",
-        authorizer: data.created_by || "",
-        approver: data.updated_by || "",
         activities: data.activities?.map(activity => ({
           activity_description: activity.activity_description || "",
           quantity: activity.quantity?.toString() || "",
           unit_cost: activity.unit_cost || "",
           frequency: activity.frequency?.toString() || "",
           comment: activity.comment || "",
-          category: activity.category?.id || "",
+          // Handle both string UUID and object with id property
+          category: typeof activity.category === 'string'
+            ? activity.category
+            : activity.category?.id || "",
         })) || [],
-      });
+      };
+
+      reset(formData);
+      setIsFormInitialized(true); // Mark that we've loaded the data
     }
-  }, [fundRequestData, reset]);
+  }, [fundRequestData, projectOptions, financialYearOptions, locationOptions, userOptions, costCategoryOptions, reset, isFormInitialized]);
 
   // Handle success
   useEffect(() => {
@@ -260,7 +297,13 @@ const EditFundRequest = () => {
   }, [error]);
 
   const onSubmit: SubmitHandler<TFundRequestWithActivitiesFormValues> = async (data) => {
-    await updateFundRequest(data);
+    console.log("Form submitted with data:", data);
+    try {
+      await updateFundRequest(data);
+      console.log("Update successful");
+    } catch (err) {
+      console.error("Update failed:", err);
+    }
   };
 
   if (isFundRequestLoading) {
@@ -276,7 +319,7 @@ const EditFundRequest = () => {
   return (
     <FundRequstLayout>
       <Form {...form}>
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form key={isFormInitialized ? 'initialized' : 'initializing'} onSubmit={handleSubmit(onSubmit)}>
           <Card className='space-y-10 py-5'>
             <FormSelect
               name='project'
@@ -351,29 +394,76 @@ const EditFundRequest = () => {
                 placeholder='Auto-filled from project + location (e.g., advgfre-02)'
                 disabled
               />
+            </div>
 
+            <Separator />
+
+            <h3 className='font-semibold text-lg'>Location Level Approvals</h3>
+            <div className='grid grid-cols-1 gap-5 md:grid-cols-2'>
               <FormSelect
-                label='Reviewer'
-                name='reviewer'
+                label='Location Reviewer'
+                name='location_reviewer'
                 required
                 options={userOptions}
-                placeholder='Select Reviewer'
+                placeholder='Select Location Reviewer'
               />
 
               <FormSelect
-                label='Authorizer'
-                name='authorizer'
+                label='Location Authorizer'
+                name='location_authorizer'
                 required
                 options={userOptions}
-                placeholder='Select Authorizer'
+                placeholder='Select Location Authorizer'
+              />
+            </div>
+
+            <Separator />
+
+            <h3 className='font-semibold text-lg'>State Level Approvals</h3>
+            <div className='grid grid-cols-1 gap-5 md:grid-cols-2'>
+              <FormSelect
+                label='State Reviewer'
+                name='state_reviewer'
+                required
+                options={userOptions}
+                placeholder='Select State Reviewer'
               />
 
               <FormSelect
-                label='Approver'
-                name='approver'
+                label='State Authorizer'
+                name='state_authorizer'
                 required
                 options={userOptions}
-                placeholder='Select Approver'
+                placeholder='Select State Authorizer'
+              />
+            </div>
+
+            <Separator />
+
+            <h3 className='font-semibold text-lg'>HQ Level Approvals</h3>
+            <div className='grid grid-cols-1 gap-5 md:grid-cols-2'>
+              <FormSelect
+                label='HQ Reviewer'
+                name='hq_reviewer'
+                required
+                options={userOptions}
+                placeholder='Select HQ Reviewer'
+              />
+
+              <FormSelect
+                label='HQ Authorizer'
+                name='hq_authorizer'
+                required
+                options={userOptions}
+                placeholder='Select HQ Authorizer'
+              />
+
+              <FormSelect
+                label='HQ Approver'
+                name='hq_approver'
+                required
+                options={userOptions}
+                placeholder='Select HQ Approver'
               />
             </div>
 

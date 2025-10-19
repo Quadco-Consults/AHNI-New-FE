@@ -222,7 +222,34 @@ export const useCreateAdhocApplicant = () => {
 
   return useMutation({
     mutationFn: async (data: TAdhocApplicantCreatePayload) => {
-      const response = await AxiosWithToken.post(BASE_URL, data);
+      // Transform frontend field names to match API expectations
+      const apiPayload = {
+        advertisement: data.advertisement_id,
+        surname: data.sur_name,
+        other_names: data.other_names,
+        email: data.email_address,
+        phone_number: data.phone_number,
+        gender: data.gender,
+        date_of_birth: data.date_of_birth,
+        state_of_origin: data.state_of_origin,
+        lga_of_origin: data.lga_of_origin || "",
+        address: data.residential_address || "",
+        designation: "", // Not in current form, using empty string
+        qualification: data.qualifications,
+        years_of_experience: data.total_experience_years,
+        assignment_location: data.preferred_location || "",
+        health_facility: data.preferred_health_facility || "",
+        spoke_site_name: "", // Not in current form
+        lga: "", // Not in current form
+        lga2: "", // Not in current form
+        cluster: "", // Not in current form
+        cover_letter: "", // Not in current form
+        additional_info: data.current_employer && data.current_position
+          ? `Current Employer: ${data.current_employer}, Current Position: ${data.current_position}, Willing to Relocate: ${data.willing_to_relocate ? 'Yes' : 'No'}`
+          : `Willing to Relocate: ${data.willing_to_relocate ? 'Yes' : 'No'}`,
+      };
+
+      const response = await AxiosWithToken.post(BASE_URL, apiPayload);
       return response.data;
     },
     onSuccess: (data) => {

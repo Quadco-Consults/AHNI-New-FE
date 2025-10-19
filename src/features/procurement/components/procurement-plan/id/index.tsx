@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
 import { useParams } from "next/navigation";
 import ProcurementPlan from "./ProcurementPlan";
 import ProcurementSummary from "./ProcurementSummary";
+import ExcelDataTable from "./ExcelDataTable";
 import BreadcrumbCard from "components/Breadcrumb";
 import GoBack from "components/GoBack";
 import Card from "components/Card";
@@ -19,12 +20,64 @@ const ProcurementDetails = () => {
   const { id } = useParams();
   const [isDownloading, setIsDownloading] = useState(false);
 
+  // STEP 1: Fetch single procurement plan to extract project ID and financial year
   const { data, isLoading } = ProcurementPlanAPI.useGetSingleProcurementPlan(
     id as string
   );
 
   // Safety check: ensure data is properly structured
   const rawData = (data?.data as any) || {};
+
+  // Extract project ID and financial year ID from the single plan
+  const projectId = rawData?.project?.id || rawData?.project;
+  const financialYearId = rawData?.financial_year?.id || rawData?.financial_year;
+
+  console.log("=== SINGLE PLAN DATA ===");
+  console.log("Project ID:", projectId);
+  console.log("Financial Year ID:", financialYearId);
+  console.log("=======================");
+
+  // STEP 2: Fetch ALL plans for this project + financial year combination
+  const {
+    data: allPlansData,
+    isLoading: allPlansLoading
+  } = ProcurementPlanAPI.useGetProcurementPlansByProject(
+    projectId,
+    financialYearId,
+    !!projectId && !!financialYearId // Only fetch when we have both IDs
+  );
+
+  // STEP 3: Merge the data - use single plan for header, all plans for items
+  let mergedData = { ...rawData };
+
+  if (allPlansData) {
+    console.log("=== ALL PLANS BY PROJECT/YEAR ===");
+    console.log("All Plans Data:", allPlansData);
+
+    // Handle different response structures
+    let allPlansArray = [];
+
+    if (Array.isArray(allPlansData)) {
+      allPlansArray = allPlansData;
+    } else if (allPlansData?.data?.results) {
+      allPlansArray = allPlansData.data.results;
+    } else if (allPlansData?.results) {
+      allPlansArray = allPlansData.results;
+    } else if (allPlansData?.data && Array.isArray(allPlansData.data)) {
+      allPlansArray = allPlansData.data;
+    }
+
+    console.log("✅ Plans Array:", allPlansArray);
+    console.log("✅ Total Plans Found:", allPlansArray.length);
+
+    // Assign all plans as items
+    mergedData.items = allPlansArray;
+    mergedData.totalCount = allPlansData?.count || allPlansArray.length;
+  }
+
+  console.log("=== FINAL MERGED DATA ===");
+  console.log("Items count:", mergedData?.items?.length || 0);
+  console.log("========================");
 
   // Recursively convert objects to safe values for React rendering
   const safeRender = (value: any): any => {
@@ -71,7 +124,13 @@ const ProcurementDetails = () => {
   };
 
   // Process all data fields to ensure they're safe for React rendering
-  const safeData = deepCleanObject(rawData);
+  // BUT preserve the items array for Excel data display
+  const safeData = deepCleanObject(mergedData);
+
+  // Restore the items array (it gets corrupted by deepCleanObject)
+  if (mergedData.items && Array.isArray(mergedData.items)) {
+    safeData.items = mergedData.items;
+  }
 
   // Hook for downloading (disabled by default, triggered manually)
   const { refetch: downloadPlan } = ProcurementPlanAPI.useDownloadSingleProcurementPlan(
@@ -103,9 +162,10 @@ const ProcurementDetails = () => {
 
       <GoBack />
 
-      <Tabs defaultValue="procurement_plan">
+      <Tabs defaultValue="excel_data">
         <div className="relative pb-2 flex justify-between items-center">
           <TabsList>
+            <TabsTrigger value="excel_data">Excel Data View</TabsTrigger>
             <TabsTrigger value="procurement_plan">Procurement Plan</TabsTrigger>
             <TabsTrigger value="procurement_summary">
               Procurement Summary
@@ -122,7 +182,12 @@ const ProcurementDetails = () => {
             {isDownloading ? "Downloading..." : "Download Plan"}
           </Button>
         </div>
-        {isLoading && <LoadingSpinner />}
+        {(isLoading || allPlansLoading) && <LoadingSpinner />}
+        <TabsContent value="excel_data">
+          <Card>
+            <ExcelDataTable data={safeData as ProcurementPlanResultsData} />
+          </Card>
+        </TabsContent>
         <TabsContent value="procurement_plan">
           <Card>
             <ProcurementPlan {...(safeData as ProcurementPlanResultsData)} />

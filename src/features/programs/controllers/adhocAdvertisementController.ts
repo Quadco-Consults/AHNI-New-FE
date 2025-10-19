@@ -218,17 +218,80 @@ export const useUpdateAdhocAdvertisement = (id: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (data: Partial<IAdhocAdvertisementCreatePayload>) => {
+    mutationFn: async (data: Partial<IAdhocAdvertisementCreatePayload> & { status?: "DRAFT" | "PUBLISHED" | "CLOSED" | "CANCELLED" }) => {
       const response = await AxiosWithToken.patch(`${BASE_URL}${id}/`, data);
       return response.data;
     },
-    onSuccess: (data) => {
+    onMutate: async (newData) => {
+      // Cancel any outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ["adhocAdvertisements"] });
+      await queryClient.cancelQueries({ queryKey: ["adhocAdvertisement", id] });
+
+      // Snapshot the previous value
+      const previousAdvertisements = queryClient.getQueryData(["adhocAdvertisements"]);
+      const previousAdvertisement = queryClient.getQueryData(["adhocAdvertisement", id]);
+
+      // Optimistically update all adhocAdvertisements queries
+      queryClient.setQueriesData(
+        { queryKey: ["adhocAdvertisements"] },
+        (old: any) => {
+          if (!old?.data?.results) return old;
+          return {
+            ...old,
+            data: {
+              ...old.data,
+              results: old.data.results.map((ad: IAdhocAdvertisement) =>
+                ad.id === id
+                  ? {
+                      ...ad,
+                      ...newData,
+                      status_display: newData.status === "PUBLISHED" ? "Published" :
+                                     newData.status === "DRAFT" ? "Draft" :
+                                     newData.status === "CLOSED" ? "Closed" :
+                                     newData.status === "CANCELLED" ? "Cancelled" :
+                                     ad.status_display
+                    }
+                  : ad
+              ),
+            },
+          };
+        }
+      );
+
+      // Optimistically update single advertisement query
+      queryClient.setQueryData(["adhocAdvertisement", id], (old: any) => {
+        if (!old?.data) return old;
+        return {
+          ...old,
+          data: {
+            ...old.data,
+            ...newData,
+            status_display: newData.status === "PUBLISHED" ? "Published" :
+                           newData.status === "DRAFT" ? "Draft" :
+                           newData.status === "CLOSED" ? "Closed" :
+                           newData.status === "CANCELLED" ? "Cancelled" :
+                           old.data.status_display
+          },
+        };
+      });
+
+      return { previousAdvertisements, previousAdvertisement };
+    },
+    onSuccess: async (data) => {
+      // Invalidate to refetch and ensure data is in sync with server
       queryClient.invalidateQueries({ queryKey: ["adhocAdvertisements"] });
       queryClient.invalidateQueries({ queryKey: ["adhocAdvertisement", id] });
       queryClient.invalidateQueries({ queryKey: ["activeAdhocAdvertisements"] });
       toast.success(data.message || "Advertisement updated successfully!");
     },
-    onError: (error: AxiosError) => {
+    onError: (error: AxiosError, newData, context: any) => {
+      // Rollback on error
+      if (context?.previousAdvertisements) {
+        queryClient.setQueriesData({ queryKey: ["adhocAdvertisements"] }, context.previousAdvertisements);
+      }
+      if (context?.previousAdvertisement) {
+        queryClient.setQueryData(["adhocAdvertisement", id], context.previousAdvertisement);
+      }
       const errorMessage =
         (error.response?.data as any)?.message || "Failed to update advertisement";
       toast.error(errorMessage);

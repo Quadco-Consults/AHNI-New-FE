@@ -91,7 +91,15 @@ export const useGetSingleProcurementPlan = (
     queryKey: ["procurement-plan", id],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get(`${BASE_URL}${id}/`);
+        // Try fetching with size parameter to get all items
+        const response = await AxiosWithToken.get(`${BASE_URL}${id}/`, {
+          params: {
+            size: 10000, // Request a large number to get all items
+          }
+        });
+
+        console.log("Raw API Response for procurement plan:", response.data);
+
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
@@ -99,6 +107,43 @@ export const useGetSingleProcurementPlan = (
       }
     },
     enabled: enabled && !!id,
+    refetchOnWindowFocus: false,
+  });
+};
+
+// Get All Procurement Plans by Project and Financial Year
+export const useGetProcurementPlansByProject = (
+  projectId: string,
+  financialYear: string,
+  enabled: boolean = true
+) => {
+  return useQuery({
+    queryKey: ["procurement-plans-by-project", projectId, financialYear],
+    queryFn: async () => {
+      try {
+        console.log(`Fetching all procurement plans for project: ${projectId}, year: ${financialYear}`);
+
+        const response = await AxiosWithToken.get(`${BASE_URL}by-project/`, {
+          params: {
+            project_id: projectId,
+            financial_year: financialYear,
+            size: 10000, // Get all items
+          }
+        });
+
+        console.log("✅ All plans by project fetched:", response.data);
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        console.error("❌ Failed to fetch plans by project:", axiosError);
+        throw new Error(
+          (axiosError.response?.data as any)?.message ||
+          axiosError.message ||
+          "Failed to fetch procurement plans by project"
+        );
+      }
+    },
+    enabled: enabled && !!projectId && !!financialYear,
     refetchOnWindowFocus: false,
   });
 };
@@ -203,6 +248,56 @@ export const useDeleteProcurementPlan = (id: string) => {
   return { deleteProcurementPlan, data, isLoading, isSuccess, error };
 };
 
+// Get Procurement Plan Line Items
+export const useGetProcurementPlanLineItems = (
+  id: string,
+  enabled: boolean = true
+) => {
+  return useQuery({
+    queryKey: ["procurement-plan-line-items", id],
+    queryFn: async () => {
+      try {
+        // Try multiple possible endpoint patterns
+        let response;
+        const possibleEndpoints = [
+          `${BASE_URL}${id}/items/`,
+          `${BASE_URL}${id}/line-items/`,
+          `${BASE_URL}items/?procurement_plan=${id}`,
+          `${BASE_URL}line-items/?procurement_plan=${id}`,
+        ];
+
+        let lastError;
+        for (const endpoint of possibleEndpoints) {
+          try {
+            console.log(`Trying to fetch line items from: ${endpoint}`);
+            response = await AxiosWithToken.get(endpoint, {
+              params: { size: 10000 }
+            });
+            console.log(`✅ Success! Line items found at: ${endpoint}`, response.data);
+            return response.data;
+          } catch (err) {
+            console.log(`❌ Endpoint ${endpoint} failed:`, err);
+            lastError = err;
+            continue;
+          }
+        }
+
+        // If all endpoints fail, throw the last error
+        throw lastError;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        console.error("❌ All line items endpoints failed. Backend may need to implement this endpoint.");
+        throw new Error(
+          "Line items endpoint not available. The backend needs to implement an endpoint to return procurement plan line items."
+        );
+      }
+    },
+    enabled: enabled && !!id,
+    refetchOnWindowFocus: false,
+    retry: false, // Don't retry since we're trying multiple endpoints
+  });
+};
+
 // Download Single Procurement Plan
 export const useDownloadSingleProcurementPlan = (id: string, enabled: boolean = true) => {
   return useQuery({
@@ -266,6 +361,8 @@ const ProcurementPlanAPI = {
   useDownloadSingleProcurementPlan,
   useGetAllProcurementPlans,
   useGetSingleProcurementPlan,
+  useGetProcurementPlansByProject,
+  useGetProcurementPlanLineItems,
   useCreateProcurementPlan,
   useUpdateProcurementPlan,
   useModifyProcurementPlan,

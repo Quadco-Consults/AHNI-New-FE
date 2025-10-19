@@ -175,13 +175,29 @@ const PurchaseOrderWorkflowStatus: React.FC<PurchaseOrderWorkflowStatusProps> = 
       }
     } catch (error: any) {
       console.error("🔍 Workflow Action Error:", error);
+      console.error("🔍 Error response data:", error?.response?.data);
+      console.error("🔍 Error data:", error?.data);
+
       // Extract error message from various possible error structures
       const errorMessage =
+        error?.response?.data?.detail ||  // Django Rest Framework format
         error?.response?.data?.message ||
+        error?.data?.detail ||
         error?.data?.message ||
         error?.message ||
         "Something went wrong";
+
+      console.error("🔍 Final error message to display:", errorMessage);
       toast.error(errorMessage);
+
+      // Force refetch to get latest status after error
+      await queryClient.invalidateQueries({ queryKey: ["purchase-orders"] });
+      await queryClient.invalidateQueries({ queryKey: ["purchase-order", purchaseOrderId] });
+
+      // Call onSuccess to refresh parent component data
+      if (onSuccess) {
+        onSuccess();
+      }
     } finally {
       setActionInProgress(null);
     }
