@@ -244,7 +244,7 @@ export const PurchaseOrderListSchema = z.object({
       name: z.string().optional(),
       fco_number: z.array(z.string()).optional(),
     })
-  ),
+  ).min(1, "At least one item is required"),
   purchase_request: z.string().min(1, "Field is required"),
   vendor: z.string().min(1, "Field is required"),
   payment_terms: z.string().optional(),

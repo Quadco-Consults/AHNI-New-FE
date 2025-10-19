@@ -86,7 +86,7 @@ export const useGetAllFundRequests = ({
         );
       }
     },
-    enabled: enabled && (!!project || !!status),
+    enabled: enabled,
     refetchOnWindowFocus: false,
   });
 };

@@ -25,7 +25,7 @@ import { z } from "zod";
 import { PurchaseOrderListSchema } from "@/features/procurement/types/procurement-validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormInput from "components/atoms/FormInput";
-import { Form, FormControl, FormField, FormItem } from "components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "components/ui/form";
 import FormButton from "@/components/FormButton";
 import LongArrowRight from "components/icons/LongArrowRight";
 import BreadcrumbCard from "components/Breadcrumb";
@@ -161,11 +161,22 @@ const PurchaseOrderNew = () => {
       purchase_request: "",
       payment_terms: "",
       delivery_lead_time: "",
-      items: []
+      items: [],
+      // Approval workflow fields
+      reviewed_by: "",
+      authorized_by: "",
+      approved_by: "",
+      agreed_by: "",
     },
   });
 
   const { setValue, control, handleSubmit, watch, trigger } = form;
+
+  // Initialize useFieldArray early so replace is available in all useEffects
+  const { fields, remove, append, replace } = useFieldArray({
+    control,
+    name: "items",
+  });
 
   const data = useMemo(() => {
     const items = requestsDetails?.data?.items || requestsDetails?.items;
@@ -264,26 +275,28 @@ const PurchaseOrderNew = () => {
 
   useEffect(() => {
     if (data && data.length > 0) {
-      console.log("🔄 Setting form items:", data);
+      console.log("🔄 Setting form items from Purchase Request:", data);
       console.log("🔄 First item UOM:", data[0]?.uom);
       console.log("🔄 First item structure:", data[0]);
 
-      // Use form.reset to properly update all form fields
-      form.reset({
-        ...form.getValues(),
-        items: data,
-        purchase_request: purchaseValue || ""
-      });
+      // Only populate items if not already populated from CBA
+      if (!cbaItemsPopulated.current) {
+        // Use replace to properly sync with useFieldArray
+        replace(data);
 
-      // Force update all UOM and total fields after reset
-      setTimeout(() => {
-        data.forEach((_, index) => {
-          trigger(`items.${index}.uom`);
-          trigger(`items.${index}.total`);
-        });
-      }, 100);
+        // Update purchase_request in form
+        setValue("purchase_request", purchaseValue || "");
+
+        // Force update all UOM and total fields after replace
+        setTimeout(() => {
+          data.forEach((_, index) => {
+            trigger(`items.${index}.uom`);
+            trigger(`items.${index}.total`);
+          });
+        }, 100);
+      }
     }
-  }, [data, form, purchaseValue, trigger]);
+  }, [data, purchaseValue, trigger, replace, setValue]);
 
   useEffect(() => {
     if (vendorValue) {
@@ -343,11 +356,6 @@ const PurchaseOrderNew = () => {
       // This field should be manually entered by the user (or come from CBA vendor submission)
     }
   }, [requestsDetails, setValue]);
-
-  const { fields, remove, append } = useFieldArray({
-    control,
-    name: "items",
-  });
 
   // Auto-populate form from CBA data (same logic as AnalysisResultsView)
   useEffect(() => {
@@ -503,19 +511,23 @@ const PurchaseOrderNew = () => {
 
         console.log("🔍 Mapped items for PO form:", mappedItems);
 
-        // Use form.reset to populate items, vendor, purchase request, payment, and delivery
-        // This ensures React Hook Form properly registers the fields
+        // Use form.reset for non-array fields, then use replace for items
+        // This ensures React Hook Form and useFieldArray are properly synchronized
         form.reset({
           ...form.getValues(),
           vendor: actualVendorId || "",
           purchase_request: purchaseRequestId || "",
           payment_terms: paymentTerms,
           delivery_lead_time: deliveryTime,
-          items: mappedItems,
+          items: [], // Clear items in form first
         });
+
+        // Use replace to properly sync with useFieldArray
+        replace(mappedItems);
 
         console.log("🔍 Form reset with items");
         console.log("🔍 Form values after reset:", form.getValues());
+        console.log("🔍 Field array after replace:", fields);
 
         // Mark as populated to prevent re-running
         cbaItemsPopulated.current = true;
@@ -527,11 +539,34 @@ const PurchaseOrderNew = () => {
       // Set CBA ID in form (if your schema supports it)
       setValue("cba" as any, cbaId);
     }
-  }, [cbaData, submissionData, fullSolicitation, cbaId, vendorIdFromUrl, append, setValue, form]);
+  }, [cbaData, submissionData, fullSolicitation, cbaId, vendorIdFromUrl, replace, setValue, form]);
 
+  // Removed problematic useEffect that was setting items to empty fields on mount
+  // Items are now properly managed through form.reset() in the CBA and PR useEffects
+
+  // Debug: Log initial state and items/fields changes
   useEffect(() => {
-    setValue("items", fields);
-  }, []);
+    console.log("🔍 Component mounted/fields changed:");
+    console.log("  - Fields array:", fields);
+    console.log("  - Fields count:", fields.length);
+    console.log("  - Form items:", form.getValues("items"));
+    console.log("  - Form items count:", form.getValues("items")?.length || 0);
+  }, [fields, form]);
+
+  // Debug: Log items whenever form data changes
+  useEffect(() => {
+    const subscription = form.watch((value, { name }) => {
+      if (name === "items" || name?.startsWith("items.")) {
+        console.log("🔍 Form items changed via watch:");
+        console.log("  - Items in form data:", value.items);
+        console.log("  - Items count:", value.items?.length || 0);
+        console.log("  - Fields count:", fields.length);
+        console.log("  - First item (form):", value.items?.[0]);
+        console.log("  - First field:", fields[0]);
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [form, fields]);
 
   const onSubmit = async (data: z.infer<typeof PurchaseOrderListSchema>) => {
     console.log("📝 Form submission started");
@@ -541,16 +576,24 @@ const PurchaseOrderNew = () => {
     // Check required fields
     console.log("📝 Validation check:");
     console.log("  - purchase_request:", data?.purchase_request ? "✅" : "❌ MISSING");
-    console.log("  - vendor:", vendorValue ? "✅" : "❌ MISSING");
+    console.log("  - vendor (from data):", data?.vendor ? "✅" : "❌ MISSING");
+    console.log("  - vendor (from state):", vendorValue ? "✅" : "❌ MISSING");
     console.log("  - reviewed_by:", data?.reviewed_by ? "✅" : "❌ MISSING");
     console.log("  - authorized_by:", data?.authorized_by ? "✅" : "❌ MISSING");
     console.log("  - approved_by:", data?.approved_by ? "✅" : "❌ MISSING");
-    console.log("  - items:", data?.items?.length > 0 ? "✅" : "❌ MISSING");
+    console.log("  - items:", data?.items?.length > 0 ? `✅ (${data.items.length} items)` : "❌ MISSING OR EMPTY");
+    console.log("  - items detail:", data?.items);
+
+    // Validate items exist
+    if (!data?.items || data.items.length === 0) {
+      console.error("❌ Cannot submit: No items in the purchase order");
+      return;
+    }
 
     // Transform data to match PurchaseOrderSchema format
     const formData = {
       purchase_request: data?.purchase_request,
-      vendor: vendorValue,
+      vendor: data?.vendor || vendorValue, // Prefer form data, fallback to state
       ...(cbaId && { cba: cbaId }), // Include CBA ID if creating from CBA
       ...(solicitationId && { solicitation: solicitationId }), // Include Solicitation ID for RFQ link
       // Approval workflow fields
@@ -632,14 +675,55 @@ const PurchaseOrderNew = () => {
       )}
 
       <Form {...form}>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+        <form onSubmit={handleSubmit(onSubmit, (errors) => {
+          console.error("❌ Form validation failed:", errors);
+          console.error("❌ Form values:", form.getValues());
+          // Show validation errors to user
+          Object.keys(errors).forEach(key => {
+            const error = errors[key as keyof typeof errors];
+            if (error && 'message' in error) {
+              console.error(`  - ${key}: ${error.message}`);
+            }
+          });
+        })} className="space-y-5">
+          {/* Display validation errors at the top */}
+          {Object.keys(form.formState.errors).length > 0 && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+              <h3 className="text-sm font-semibold text-red-900 mb-2">
+                Please fix the following errors:
+              </h3>
+              <ul className="list-disc list-inside text-sm text-red-800 space-y-1">
+                {Object.entries(form.formState.errors).map(([key, error]) => {
+                  const errorMessage = error?.message?.toString() || 'Invalid value';
+                  const fieldName = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+
+                  return (
+                    <li key={key}>
+                      <strong>{fieldName}:</strong>{' '}
+                      {errorMessage}
+                      {key === 'items' && (
+                        <span className="block ml-5 mt-1 text-xs">
+                          Hint: Click "Add More" button below the table to add at least one item, or select a Purchase Request to auto-populate items.
+                        </span>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
+
           <div className="grid grid-cols-2 pt-5 gap-5">
-            <div>
-              <Label className="font-semibold">
-                Vendor <span className="text-red-500">*</span>
-              </Label>
-              <div>
-                <Popover open={open} onOpenChange={setOpen} modal={!cbaId}>
+            <FormField
+              control={form.control}
+              name="vendor"
+              render={({ field }) => (
+                <FormItem>
+                  <Label className="font-semibold">
+                    Vendor <span className="text-red-500">*</span>
+                  </Label>
+                  <FormControl>
+                    <Popover open={open} onOpenChange={setOpen} modal={!cbaId}>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
@@ -672,6 +756,7 @@ const PurchaseOrderNew = () => {
                               value={vendor?.id}
                               onSelect={(currentValue) => {
                                 setVendorValue(currentValue);
+                                field.onChange(currentValue); // Use field.onChange for proper form integration
                                 setOpen(false);
                               }}
                             >
@@ -691,15 +776,23 @@ const PurchaseOrderNew = () => {
                     </PopoverContent>
                   )}
                 </Popover>
-              </div>
-            </div>
-            <div>
-              <Label className="font-semibold">
-                Purchase Request
-                <span className="text-red-500">*</span>
-              </Label>
-              <div>
-                <Popover open={opensPurchase} onOpenChange={setOpensPurchase} modal={!cbaId}>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="purchase_request"
+              render={({ field }) => (
+                <FormItem>
+                  <Label className="font-semibold">
+                    Purchase Request
+                    <span className="text-red-500">*</span>
+                  </Label>
+                  <FormControl>
+                    <Popover open={opensPurchase} onOpenChange={setOpensPurchase} modal={!cbaId}>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
@@ -733,6 +826,7 @@ const PurchaseOrderNew = () => {
                                 value={request?.id}
                                 onSelect={(currentValue) => {
                                   setPurchaseValue(currentValue);
+                                  field.onChange(currentValue); // Use field.onChange for proper form integration
                                   setOpensPurchase(false);
                                 }}
                               >
@@ -753,8 +847,12 @@ const PurchaseOrderNew = () => {
                     </PopoverContent>
                   )}
                 </Popover>
-              </div>
-            </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <div>
               <Label className="font-semibold">
                 Requesting Unit/Dept
@@ -1103,6 +1201,7 @@ const PurchaseOrderNew = () => {
                         </Command>
                       </PopoverContent>
                     </Popover>
+                  <FormMessage />
                   </FormItem>
                 )}
               />
@@ -1173,6 +1272,7 @@ const PurchaseOrderNew = () => {
                         </Command>
                       </PopoverContent>
                     </Popover>
+                  <FormMessage />
                   </FormItem>
                 )}
               />
@@ -1243,6 +1343,7 @@ const PurchaseOrderNew = () => {
                         </Command>
                       </PopoverContent>
                     </Popover>
+                  <FormMessage />
                   </FormItem>
                 )}
               />
@@ -1315,6 +1416,7 @@ const PurchaseOrderNew = () => {
                         </Command>
                       </PopoverContent>
                     </Popover>
+                  <FormMessage />
                   </FormItem>
                 )}
               />

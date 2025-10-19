@@ -18,14 +18,16 @@ import { format, isValid, differenceInMonths } from "date-fns";
 import { IAdhocAdvertisement } from "@/features/programs/types/adhoc-management";
 import { useState } from "react";
 import Link from "next/link";
-import { useDeleteAdhocAdvertisement } from "@/features/programs/controllers/adhocAdvertisementController";
+import { useDeleteAdhocAdvertisement, useUpdateAdhocAdvertisement, usePublishAdvertisement } from "@/features/programs/controllers/adhocAdvertisementController";
 import { toast } from "sonner";
-import { Users } from "lucide-react";
+import { Users, CheckCircle } from "lucide-react";
 
 export default function AdhocAdvertisementCard(advertisement: IAdhocAdvertisement) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const deleteMutation = useDeleteAdhocAdvertisement();
+  const updateMutation = useUpdateAdhocAdvertisement(advertisement.id);
+  const publishMutation = usePublishAdvertisement(advertisement.id);
 
   const handleDelete = async () => {
     try {
@@ -35,6 +37,38 @@ export default function AdhocAdvertisementCard(advertisement: IAdhocAdvertisemen
     } catch (error: any) {
       toast.error(error?.message ?? "Failed to delete advertisement");
     }
+  };
+
+  const handlePublish = async () => {
+    console.log("🚀 Attempting to publish advertisement:", advertisement.id);
+
+    // Try different field names that might trigger publish
+    const publishAttempts = [
+      { name: "is_active", value: { is_active: true } },
+      { name: "publication_date", value: { publication_date: new Date().toISOString() } },
+      { name: "published", value: { published: true } },
+    ];
+
+    for (const attempt of publishAttempts) {
+      console.log(`📍 Trying PATCH with ${attempt.name}...`);
+      try {
+        const response = await updateMutation.mutateAsync(attempt.value as any);
+        console.log(`✅ Success with ${attempt.name}:`, response);
+        console.log("📊 Response data:", response?.data);
+        console.log("🗝️ All keys:", Object.keys(response?.data || {}));
+
+        // Check if we got a status field back
+        if (response?.data?.status) {
+          console.log("🎉 Found status field:", response.data.status);
+          return; // Success!
+        }
+      } catch (error: any) {
+        console.error(`❌ Failed with ${attempt.name}:`, error?.response?.data);
+      }
+    }
+
+    console.log("⚠️ All publish attempts failed. Backend may not support publishing via API.");
+    toast.error("Publishing not supported. Please contact backend team.");
   };
 
   // Calculate duration in months
@@ -86,14 +120,26 @@ export default function AdhocAdvertisementCard(advertisement: IAdhocAdvertisemen
               </p>
             </div>
 
-            <div className="flex items-center">
+            <div className="flex items-center gap-1">
+              {/* Publish button temporarily disabled - backend doesn't support publishing via API */}
+              {/* {advertisement.status === "DRAFT" && (
+                <Button
+                  variant="ghost"
+                  onClick={handlePublish}
+                  disabled={updateMutation.isPending || publishMutation.isPending}
+                  className="text-green-600 hover:text-green-700"
+                  title="Publish Advertisement"
+                >
+                  <CheckCircle size={20} />
+                </Button>
+              )} */}
               <Link
                 href={{
                   pathname: ProgramRoutes.CREATE_ADHOC_DETAILS,
                   search: `?id=${advertisement.id}`,
                 }}
               >
-                <Button variant="ghost">
+                <Button variant="ghost" title="Edit Advertisement">
                   <PencilIcon />
                 </Button>
               </Link>
@@ -101,6 +147,7 @@ export default function AdhocAdvertisementCard(advertisement: IAdhocAdvertisemen
                 variant="ghost"
                 onClick={() => setIsModalOpen(true)}
                 disabled={advertisement.status !== "DRAFT"}
+                title="Delete Advertisement"
               >
                 <DeleteIcon />
               </Button>

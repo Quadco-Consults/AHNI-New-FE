@@ -25,11 +25,20 @@ const ProcurementPlan = (data: ProcurementPlanResultsData) => {
     }
     return String(value);
   };
+  const totalItems = data?.items?.length || data?.line_items?.length || data?.procurement_items?.length || 0;
+
   return (
     <div className="w-[95%] mx-auto space-y-6">
-      <h3 className="text-primary text-xl font-semibold py-5">
-        Procurement Plan Details
-      </h3>
+      <div className="flex justify-between items-center py-5">
+        <h3 className="text-primary text-xl font-semibold">
+          Procurement Plan Details
+        </h3>
+        {totalItems > 0 && (
+          <div className="text-sm font-medium text-gray-600 bg-blue-50 px-4 py-2 rounded-lg">
+            Total Items: <span className="text-primary font-bold">{totalItems}</span>
+          </div>
+        )}
+      </div>
 
       <div className="flex items-start gap-8 overflow-x-auto pb-6">
         <div className="flex flex-row gap-6 min-w-[400px] flex-shrink-0">
@@ -264,7 +273,19 @@ const ProcurementPlan = (data: ProcurementPlanResultsData) => {
                     </tr>
                   ))
                 ) : (
-                  // Fallback to show single row if no items array
+                  // Fallback: Show message if no items found
+                  <tr>
+                    <td colSpan={31} className="px-4 py-6 border text-center">
+                      <div className="text-gray-500">
+                        <p className="text-lg font-semibold mb-2">No line items found</p>
+                        <p className="text-sm">This procurement plan doesn't have any associated line items yet.</p>
+                        <p className="text-sm mt-1">Please upload an Excel file with procurement data to see items here.</p>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+                {/* Keep the original single row fallback below for reference, but commented out */}
+                {/*
                   <tr>
                     <td className="px-4 py-2 border text-sm text-gray-500">1</td>
                     <td className="px-4 py-2 border text-sm text-gray-500">
@@ -336,7 +357,7 @@ const ProcurementPlan = (data: ProcurementPlanResultsData) => {
                       {safeRender(data?.implenter_remarks)}
                     </td>
                   </tr>
-                )}
+                */}
               </tbody>
             </table>
           </div>

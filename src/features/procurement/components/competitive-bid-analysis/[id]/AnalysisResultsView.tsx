@@ -13,8 +13,8 @@ import { useGetSolicitationSubmission } from "@/features/procurement/controllers
 import SignatureWorkflowAPI from "@/features/procurement/controllers/signatureWorkflowController";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
+import { jsPDF } from "jspdf";
+import { autoTable } from "jspdf-autotable";
 import {
   Dialog,
   DialogContent,

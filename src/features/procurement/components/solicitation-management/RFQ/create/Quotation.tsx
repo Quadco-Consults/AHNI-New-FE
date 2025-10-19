@@ -137,32 +137,33 @@ const Quotation = () => {
       });
 
       // Set basic tender configuration
-      form.setValue("tender_type", "NATIONAL OPEN TENDER");
+      // Use shouldValidate: true to trigger validation immediately
+      form.setValue("tender_type", "NATIONAL OPEN TENDER", { shouldValidate: true, shouldDirty: true });
 
       // Set request type based on EOI solicitation type
       if (solicitationType === "R_F_Q") {
-        form.setValue("request_type", "REQUEST FOR QUOTATION");
+        form.setValue("request_type", "REQUEST FOR QUOTATION", { shouldValidate: true, shouldDirty: true });
       } else if (solicitationType === "R_F_P") {
-        form.setValue("request_type", "REQUEST FOR PROPOSAL");
+        form.setValue("request_type", "REQUEST FOR PROPOSAL", { shouldValidate: true, shouldDirty: true });
       } else {
-        form.setValue("request_type", "REQUEST FOR QUOTATION"); // default
+        form.setValue("request_type", "REQUEST FOR QUOTATION", { shouldValidate: true, shouldDirty: true }); // default
       }
 
       // Inherit EOI details
       if (eoiName) {
-        form.setValue("title", decodeURIComponent(eoiName));
+        form.setValue("title", decodeURIComponent(eoiName), { shouldValidate: true });
         console.log("✅ EOI Title inherited:", decodeURIComponent(eoiName));
       }
 
       if (eoiDescription) {
-        form.setValue("background", decodeURIComponent(eoiDescription));
+        form.setValue("background", decodeURIComponent(eoiDescription), { shouldValidate: true });
         console.log("✅ EOI Background inherited:", decodeURIComponent(eoiDescription));
       }
 
       if (eoiNumber) {
         // Generate RFQ ID based on EOI number
         const rfqId = `RFQ-${eoiNumber}-${new Date().getFullYear()}`;
-        form.setValue("rfq_id", rfqId);
+        form.setValue("rfq_id", rfqId, { shouldValidate: true });
         console.log("✅ RFQ ID generated from EOI:", rfqId);
       }
 
@@ -178,8 +179,16 @@ const Quotation = () => {
         form.setValue("eoi_tender", eoiId);
         console.log("✅ EOI field set for form submission:", eoiId);
       }
+
+      // Log the current form values after setting
+      console.log("✅ Form values after EOI inheritance:", {
+        tender_type: form.getValues("tender_type"),
+        request_type: form.getValues("request_type"),
+        title: form.getValues("title"),
+        rfq_id: form.getValues("rfq_id")
+      });
     }
-  }, [eoiType, eoiName, eoiDescription, eoiNumber, solicitationType, eoiCategories, form]);
+  }, [eoiType, eoiName, eoiDescription, eoiNumber, solicitationType, eoiCategories, eoiId, form]);
 
   // After eoiOptions - for cases where EOI ID is available (not needed when URL params provide all details)
   useEffect(() => {
@@ -377,25 +386,43 @@ const Quotation = () => {
             <FormTextArea name="background" label="Background" required />
 
             <div className="grid grid-cols-2 gap-6">
-              <FormSelect
-                name="tender_type"
-                label="Tender Type"
-                disabled={eoiType === "OPEN_TENDER"}
-              >
-                <SelectContent>
-                  {[
-                    "SINGLE SOURCE",
-                    "CLOSED SOURCE",
-                    "OPENED SOURCE",
-                    "LIMITED SOLICITATION",
-                    "NATIONAL OPEN TENDER",
-                  ].map((value: string, index: number) => (
-                    <SelectItem key={index} value={value}>
-                      {value}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </FormSelect>
+              {eoiType === "OPEN_TENDER" ? (
+                // Show readonly input for tender type when coming from EOI
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">
+                    Tender Type <span className="text-red-500">*</span>
+                  </label>
+                  <div className="p-3 bg-gray-50 border border-gray-300 rounded-md">
+                    <p className="text-sm font-medium text-gray-900">
+                      NATIONAL OPEN TENDER
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      Inherited from EOI
+                    </p>
+                  </div>
+                  {/* Hidden input to ensure value is submitted */}
+                  <input type="hidden" {...form.register("tender_type")} value="NATIONAL OPEN TENDER" />
+                </div>
+              ) : (
+                <FormSelect
+                  name="tender_type"
+                  label="Tender Type"
+                >
+                  <SelectContent>
+                    {[
+                      "SINGLE SOURCE",
+                      "CLOSED SOURCE",
+                      "OPENED SOURCE",
+                      "LIMITED SOLICITATION",
+                      "NATIONAL OPEN TENDER",
+                    ].map((value: string, index: number) => (
+                      <SelectItem key={index} value={value}>
+                        {value}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </FormSelect>
+              )}
 
               {/* Only show EOI selection if NOT coming from an EOI */}
               {eoiType !== "OPEN_TENDER" && (
@@ -466,23 +493,45 @@ const Quotation = () => {
                 </div>
               )}
 
-              <FormSelect
-                name="request_type"
-                label="Request type"
-                disabled={eoiType === "OPEN_TENDER"}
-              >
-                <SelectContent>
-                  {[
-                    "REQUEST FOR QUOTATION",
-                    "REQUEST FOR PROPOSAL",
-                    "INVITATION TO TENDER",
-                  ].map((value: string, index: number) => (
-                    <SelectItem key={index} value={value}>
-                      {value}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </FormSelect>
+              {eoiType === "OPEN_TENDER" ? (
+                // Show readonly input for request type when coming from EOI
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">
+                    Request Type <span className="text-red-500">*</span>
+                  </label>
+                  <div className="p-3 bg-gray-50 border border-gray-300 rounded-md">
+                    <p className="text-sm font-medium text-gray-900">
+                      {solicitationType === "R_F_P" ? "REQUEST FOR PROPOSAL" : "REQUEST FOR QUOTATION"}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      Inherited from EOI
+                    </p>
+                  </div>
+                  {/* Hidden input to ensure value is submitted */}
+                  <input
+                    type="hidden"
+                    {...form.register("request_type")}
+                    value={solicitationType === "R_F_P" ? "REQUEST FOR PROPOSAL" : "REQUEST FOR QUOTATION"}
+                  />
+                </div>
+              ) : (
+                <FormSelect
+                  name="request_type"
+                  label="Request type"
+                >
+                  <SelectContent>
+                    {[
+                      "REQUEST FOR QUOTATION",
+                      "REQUEST FOR PROPOSAL",
+                      "INVITATION TO TENDER",
+                    ].map((value: string, index: number) => (
+                      <SelectItem key={index} value={value}>
+                        {value}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </FormSelect>
+              )}
 
               <FormSelect name="purchase_request" label="Purchase Request">
                 <SelectContent>
