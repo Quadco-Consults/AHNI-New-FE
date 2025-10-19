@@ -2,6 +2,9 @@ export type LotsResultsData = {
   id: string;
   name: string;
   packet_number: number;
+  parent?: string | null; // UUID of parent lot (null for top-level lots)
+  parent_name?: string | null; // Name of parent lot
+  sub_lots?: LotsResultsData[]; // Nested sub-lots
 };
 
 export interface LotsData {

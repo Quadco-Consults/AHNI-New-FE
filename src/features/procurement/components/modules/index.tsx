@@ -6,6 +6,7 @@ import { TabsContent } from "@radix-ui/react-tabs";
 import { Tabs, TabsList, TabsTrigger } from "components/ui/tabs";
 import { Card } from "components/ui/card";
 import Lots from "../AllLots";
+import SubLots from "../AllSubLots";
 import Solicitation from "../AllSolicitationEvaluationCriteria";
 import PrequalificationCategory from "../AllPrequalificationCategory";
 import PrequalificationCriteria from "../AllPrequalificationCriteria";
@@ -20,6 +21,7 @@ const Procurement = () => {
         <Tabs defaultValue='lots'>
           <TabsList>
             <TabsTrigger value='lots'>Lots</TabsTrigger>
+            <TabsTrigger value='sub-lots'>Sub-Lots</TabsTrigger>
             <TabsTrigger value='market-price'>Market Price</TabsTrigger>
             <TabsTrigger value='items'>Items</TabsTrigger>
             <TabsTrigger value='solicitation'>
@@ -36,6 +38,11 @@ const Procurement = () => {
           <TabsContent value='lots'>
             <Card className='mt-10 pb-8 px-6'>
               <Lots />
+            </Card>
+          </TabsContent>
+          <TabsContent value='sub-lots'>
+            <Card className='mt-10 pb-8 px-6'>
+              <SubLots />
             </Card>
           </TabsContent>
           <TabsContent value='market-price'>

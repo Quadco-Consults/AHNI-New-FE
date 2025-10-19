@@ -18,14 +18,15 @@ import { format, isValid, differenceInMonths } from "date-fns";
 import { IAdhocAdvertisement } from "@/features/programs/types/adhoc-management";
 import { useState } from "react";
 import Link from "next/link";
-import { useDeleteAdhocAdvertisement } from "@/features/programs/controllers/adhocAdvertisementController";
+import { useDeleteAdhocAdvertisement, usePublishAdvertisement } from "@/features/programs/controllers/adhocAdvertisementController";
 import { toast } from "sonner";
-import { Users } from "lucide-react";
+import { Users, CheckCircle } from "lucide-react";
 
 export default function AdhocAdvertisementCard(advertisement: IAdhocAdvertisement) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const deleteMutation = useDeleteAdhocAdvertisement();
+  const publishMutation = usePublishAdvertisement(advertisement.id);
 
   const handleDelete = async () => {
     try {
@@ -34,6 +35,14 @@ export default function AdhocAdvertisementCard(advertisement: IAdhocAdvertisemen
       setIsModalOpen(false);
     } catch (error: any) {
       toast.error(error?.message ?? "Failed to delete advertisement");
+    }
+  };
+
+  const handlePublish = async () => {
+    try {
+      await publishMutation.mutateAsync();
+    } catch (error: any) {
+      // Error is handled by the mutation's onError handler
     }
   };
 
@@ -86,7 +95,17 @@ export default function AdhocAdvertisementCard(advertisement: IAdhocAdvertisemen
               </p>
             </div>
 
-            <div className="flex items-center">
+            <div className="flex items-center gap-1">
+              {advertisement.status === "DRAFT" && (
+                <Button
+                  variant="ghost"
+                  onClick={handlePublish}
+                  disabled={publishMutation.isPending}
+                  title="Publish Advertisement"
+                >
+                  <CheckCircle size={20} />
+                </Button>
+              )}
               <Link
                 href={{
                   pathname: ProgramRoutes.CREATE_ADHOC_DETAILS,

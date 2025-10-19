@@ -19,12 +19,25 @@ const ProcurementDetails = () => {
   const { id } = useParams();
   const [isDownloading, setIsDownloading] = useState(false);
 
+  // First, get the single plan to extract project and financial year
   const { data, isLoading } = ProcurementPlanAPI.useGetSingleProcurementPlan(
     id as string
   );
 
   // Safety check: ensure data is properly structured
   const rawData = (data?.data as any) || {};
+
+  // Extract project and financial year from the single plan
+  const projectId = rawData?.project?.id;
+  const financialYear = rawData?.financial_year?.year;
+
+  // Then, fetch ALL plans for the same project and financial year
+  const { data: allPlansData, isLoading: isLoadingAllPlans } =
+    ProcurementPlanAPI.useGetProcurementPlansByProject(
+      projectId,
+      financialYear,
+      !!projectId // Only fetch when we have a project ID
+    );
 
   // Recursively convert objects to safe values for React rendering
   const safeRender = (value: any): any => {
@@ -72,6 +85,13 @@ const ProcurementDetails = () => {
 
   // Process all data fields to ensure they're safe for React rendering
   const safeData = deepCleanObject(rawData);
+
+  // Add all plans as "items" array to safeData
+  const safeDataWithItems = {
+    ...safeData,
+    items: allPlansData?.results || [], // Add all Excel rows as items
+    totalCount: allPlansData?.count || 0,
+  };
 
   // Hook for downloading (disabled by default, triggered manually)
   const { refetch: downloadPlan } = ProcurementPlanAPI.useDownloadSingleProcurementPlan(
@@ -122,17 +142,21 @@ const ProcurementDetails = () => {
             {isDownloading ? "Downloading..." : "Download Plan"}
           </Button>
         </div>
-        {isLoading && <LoadingSpinner />}
-        <TabsContent value="procurement_plan">
-          <Card>
-            <ProcurementPlan {...(safeData as ProcurementPlanResultsData)} />
-          </Card>
-        </TabsContent>
-        <TabsContent value="procurement_summary">
-          <Card>
-            <ProcurementSummary {...(safeData as ProcurementPlanResultsData)} />
-          </Card>
-        </TabsContent>
+        {(isLoading || isLoadingAllPlans) && <LoadingSpinner />}
+        {!isLoading && !isLoadingAllPlans && (
+          <>
+            <TabsContent value="procurement_plan">
+              <Card>
+                <ProcurementPlan {...(safeDataWithItems as ProcurementPlanResultsData)} />
+              </Card>
+            </TabsContent>
+            <TabsContent value="procurement_summary">
+              <Card>
+                <ProcurementSummary {...(safeDataWithItems as ProcurementPlanResultsData)} />
+              </Card>
+            </TabsContent>
+          </>
+        )}
       </Tabs>
     </div>
   );

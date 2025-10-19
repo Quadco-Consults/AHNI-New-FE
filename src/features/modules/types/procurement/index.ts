@@ -2,28 +2,18 @@
 export interface LotData {
   id: string;
   name: string;
-  description?: string;
-  code?: string;
-  procurement_plan?: string;
-  estimated_cost?: number;
-  currency?: string;
-  procurement_method?: string;
-  category?: string;
-  status?: string;
-  created_at: string;
-  updated_at: string;
+  packet_number: number;
+  parent?: string | null;
+  parent_name?: string | null;
+  sub_lots?: LotData[];
+  created_datetime: string;
+  updated_datetime: string;
 }
 
 export interface LotFormValues {
   name: string;
-  description?: string;
-  code?: string;
-  procurement_plan?: string;
-  estimated_cost?: number;
-  currency?: string;
-  procurement_method?: string;
-  category?: string;
-  status?: string;
+  packet_number: number;
+  parent?: string | null;
 }
 
 // Prequalification Category types

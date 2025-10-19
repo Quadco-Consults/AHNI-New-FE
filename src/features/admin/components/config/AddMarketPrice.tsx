@@ -14,10 +14,12 @@ import { useGetAllItemsQuery } from "@/features/modules/controllers/config/itemC
 import { z } from "zod";
 
 const MarketPriceSchema = z.object({
-  item_id: z.string().min(1, "Item is required"),
-  price: z.string().min(1, "Price is required"),
-  effective_date: z.string().min(1, "Date is required"),
-  vendor: z.string().optional(),
+  item: z.string().min(1, "Item is required"),
+  unit_price: z.union([
+    z.string().min(1, "Unit price is required").transform((val) => parseFloat(val)),
+    z.number().positive("Unit price must be positive")
+  ]),
+  date: z.string().min(1, "Date is required"),
 });
 
 type TMarketPriceFormValues = z.infer<typeof MarketPriceSchema>;
@@ -43,31 +45,37 @@ const AddMarketPrice = () => {
   const form = useForm<TMarketPriceFormValues>({
     resolver: zodResolver(MarketPriceSchema),
     defaultValues: {
-      effective_date: data?.effective_date ?? "",
-      item_id: data?.item_id ?? "",
-      vendor: data?.vendor ?? "",
-      price: data?.price ?? "",
+      date: data?.date ?? "",
+      item: data?.item ?? "",
+      unit_price: data?.unit_price ?? "",
     },
   });
 
-  const [items, { isLoading }] = useAddMarketPriceMutation();
-  const [updateItems, { isLoading: updateItemsLoading }] =
+  const [createMarketPrice, { isLoading }] = useAddMarketPriceMutation();
+  const [updateMarketPrice, { isLoading: updateItemsLoading }] =
     useUpdateMarketPriceMutation();
 
   const dispatch = useAppDispatch();
-  const onSubmit: SubmitHandler<TMarketPriceFormValues> = async (data) => {
+  const onSubmit: SubmitHandler<TMarketPriceFormValues> = async (formData) => {
     try {
+      // Send both price and unit_price to handle backend inconsistency
+      const submitData = {
+        item: formData.item,
+        price: formData.unit_price, // Backend might expect 'price'
+        unit_price: formData.unit_price, // But returns 'unit_price'
+        date: formData.date,
+      };
+
       if (dialogProps?.type === "update") {
-        await updateItems({
-          //@ts-ignore
+        await updateMarketPrice({
           id: String(dialogProps?.data?.id),
-          body: data,
+          body: submitData,
         });
       } else {
-        await items(data);
+        await createMarketPrice(submitData);
       }
 
-      toast.success("Price Added Succesfully");
+      toast.success("Price Added Successfully");
       dispatch(closeDialog());
       form.reset();
     } catch (error: any) {
@@ -83,28 +91,24 @@ const AddMarketPrice = () => {
           onSubmit={form.handleSubmit(onSubmit)}
           className='flex flex-col gap-y-7'
         >
-          <FormInput
-            label='Price'
-            name='price'
-            placeholder='Enter Price'
-            required
-            type='text'
-          />
-
           <FormSelect
             required
             label='Item'
-            name='item_id'
+            name='item'
             placeholder='Select Item'
             options={itemsOptions}
           />
 
-          <FormInput label='Effective Date' name='effective_date' required type='date' />
           <FormInput
-            label='Vendor (Optional)'
-            name='vendor'
-            placeholder='Enter Vendor'
+            label='Unit Price'
+            name='unit_price'
+            placeholder='Enter Unit Price'
+            required
+            type='number'
+            step='0.01'
           />
+
+          <FormInput label='Date' name='date' required type='date' />
 
           <div className='flex justify-start gap-4'>
             <FormButton loading={isLoading || updateItemsLoading}>
