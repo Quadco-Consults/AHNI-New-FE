@@ -39,10 +39,11 @@ import FormSelect from "components/atoms/FormSelect";
 import { useGetAllItems } from "@/features/modules/controllers/config/itemController";
 import { useGetAllFCONumbersQuery } from "@/features/modules/controllers";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useGetAllUsers } from "@/features/auth/controllers/userController";
+// NOTE: useGetAllUsers removed - approval workflow fields removed from PO creation form
 import CbaAPI from "@/features/procurement/controllers/cbaController";
 import { useGetSolicitationSubmission } from "@/features/procurement/controllers/vendorBidSubmissionsController";
 import { useGetSingleSolicitation } from "@/features/procurement/controllers/solicitationController";
+import { useGetAllLocationsManager } from "@/features/modules/controllers/config/locationController";
 
 const PurchaseOrderNew = () => {
   const router = useRouter();
@@ -53,13 +54,11 @@ const PurchaseOrderNew = () => {
   const [open, setOpen] = useState(false);
   const [opens, setOpens] = useState(false);
   const [opensPurchase, setOpensPurchase] = useState(false);
-  const [openReviewer, setOpenReviewer] = useState(false);
-  const [openAuthorizer, setOpenAuthorizer] = useState(false);
-  const [openApprover, setOpenApprover] = useState(false);
-  const [openVendorRep, setOpenVendorRep] = useState(false);
+  const [openDelivery, setOpenDelivery] = useState(false);
   const [vendorValue, setVendorValue] = useState(vendorIdFromUrl || "");
   const [requestValue, setRequestValue] = useState("");
   const [purchaseValue, setPurchaseValue] = useState("");
+  const [deliveryValue, setDeliveryValue] = useState("");
 
   // Track if CBA items have been populated to prevent double-appending
   const cbaItemsPopulated = useRef(false);
@@ -69,7 +68,7 @@ const PurchaseOrderNew = () => {
 
   // Get solicitation ID - handle both string and object formats
   const solicitationId = typeof cbaData?.data?.solicitation === 'object'
-    ? cbaData?.data?.solicitation?.id
+    ? (cbaData?.data?.solicitation as any)?.id
     : cbaData?.data?.solicitation;
 
   // Fetch full solicitation details to get purchase_request and department
@@ -123,15 +122,8 @@ const PurchaseOrderNew = () => {
   console.log("🔍 FCO Results:", fco?.data?.results);
   console.log("🔍 FCO Data Keys:", Object.keys(fco?.data || {}));
 
-  // Get users for approver selection
-  const { data: users, isLoading: usersIsLoading } = useGetAllUsers({
-    page: 1,
-    size: 2000000,
-  });
-
-  // Debug users data to see the structure
-  console.log('🔍 Users data:', users);
-  console.log('🔍 First user:', users?.data?.results?.[0] || users?.results?.[0]);
+  // NOTE: Users query removed - no longer needed since approval workflow fields
+  // are not part of PO creation form
 
   const { data: item } = useGetAllItems({
     page: 1,
@@ -149,6 +141,9 @@ const PurchaseOrderNew = () => {
   const { data: departments, isLoading: departmentsIsLoading } =
     useGetAllDepartments({ page: 1, size: 2000000, search: "" });
 
+  const { data: locations, isLoading: locationsIsLoading } =
+    useGetAllLocationsManager({ page: 1, size: 2000000, search: "" });
+
   const {
     createPurchaseOrder: createPurchcaseOrderMutation,
     isLoading: creatingOrder,
@@ -162,11 +157,8 @@ const PurchaseOrderNew = () => {
       payment_terms: "",
       delivery_lead_time: "",
       items: [],
-      // Approval workflow fields
-      reviewed_by: "",
-      authorized_by: "",
-      approved_by: "",
-      agreed_by: "",
+      // NOTE: Approval workflow fields removed - POs start with status PENDING
+      // and approvals are done through the workflow actions
     },
   });
 
@@ -179,7 +171,7 @@ const PurchaseOrderNew = () => {
   });
 
   const data = useMemo(() => {
-    const items = requestsDetails?.data?.items || requestsDetails?.items;
+    const items = (requestsDetails?.data as any)?.items || (requestsDetails as any)?.items;
     console.log("🔍 Full Purchase Request Response:", requestsDetails);
     console.log("🔍 Purchase Request Data:", requestsDetails?.data);
     console.log("🔍 Items from purchase request:", items);
@@ -289,7 +281,7 @@ const PurchaseOrderNew = () => {
 
         // Force update all UOM and total fields after replace
         setTimeout(() => {
-          data.forEach((_, index) => {
+          data.forEach((_: any, index: number) => {
             trigger(`items.${index}.uom`);
             trigger(`items.${index}.total`);
           });
@@ -578,9 +570,6 @@ const PurchaseOrderNew = () => {
     console.log("  - purchase_request:", data?.purchase_request ? "✅" : "❌ MISSING");
     console.log("  - vendor (from data):", data?.vendor ? "✅" : "❌ MISSING");
     console.log("  - vendor (from state):", vendorValue ? "✅" : "❌ MISSING");
-    console.log("  - reviewed_by:", data?.reviewed_by ? "✅" : "❌ MISSING");
-    console.log("  - authorized_by:", data?.authorized_by ? "✅" : "❌ MISSING");
-    console.log("  - approved_by:", data?.approved_by ? "✅" : "❌ MISSING");
     console.log("  - items:", data?.items?.length > 0 ? `✅ (${data.items.length} items)` : "❌ MISSING OR EMPTY");
     console.log("  - items detail:", data?.items);
 
@@ -595,15 +584,13 @@ const PurchaseOrderNew = () => {
       purchase_request: data?.purchase_request,
       vendor: data?.vendor || vendorValue, // Prefer form data, fallback to state
       ...(cbaId && { cba: cbaId }), // Include CBA ID if creating from CBA
-      ...(solicitationId && { solicitation: solicitationId }), // Include Solicitation ID for RFQ link
-      // Approval workflow fields
-      reviewed_by: data?.reviewed_by,
-      authorized_by: data?.authorized_by,
-      approved_by: data?.approved_by,
-      ...(data?.agreed_by && { agreed_by: data.agreed_by }), // Optional vendor representative
+      ...(solicitationId && { solicitation: String(solicitationId) }), // Include Solicitation ID for RFQ link
+      // NOTE: Approval workflow fields (reviewed_by, authorized_by, approved_by, agreed_by)
+      // are NOT included during creation. They should only be set through the approval workflow.
       // Payment and delivery
       ...(data?.payment_terms && { payment_terms: data.payment_terms }),
       ...(data?.delivery_lead_time && { delivery_lead_time: data.delivery_lead_time }),
+      ...(data?.delivery_location && { location: data.delivery_location }), // Include delivery location
       purchase_order_items: data?.items.map((item) => {
         const unitPrice = parseFloat(String(item?.unit_cost || 0));
         const quantity = parseFloat(String(item?.quantity || 0));
@@ -620,12 +607,7 @@ const PurchaseOrderNew = () => {
     };
 
     console.log("📤 Sending form data:", formData);
-    console.log("📤 Approval workflow:", {
-      reviewed_by: data?.reviewed_by,
-      authorized_by: data?.authorized_by,
-      approved_by: data?.approved_by,
-      agreed_by: data?.agreed_by,
-    });
+    console.log("📤 NOTE: Approval workflow fields NOT included - PO will be created with status PENDING");
 
     try {
       const res = await createPurchcaseOrderMutation(formData);
@@ -918,7 +900,63 @@ const PurchaseOrderNew = () => {
           </div>
           <div className="grid grid-cols-2 pt-5 gap-5">
             <FormInput name="payment_terms" label="Payment Terms" />
-            <FormInput name="delivery_lead_time" label="Delivery Location" />
+            <div>
+              <Label className="font-semibold">
+                Delivery Address
+              </Label>
+              <div>
+                <Popover open={openDelivery} onOpenChange={setOpenDelivery}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={openDelivery}
+                      className="w-full justify-between"
+                    >
+                      {deliveryValue
+                        ? locations?.data?.results?.find(
+                            (location: any) => location?.id === deliveryValue
+                          )?.name
+                        : "Select delivery location..."}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-full p-0">
+                    <Command>
+                      <CommandInput placeholder="Search location..." />
+                      <CommandEmpty>No location found.</CommandEmpty>
+                      <CommandGroup>
+                        {locationsIsLoading && <LoadingSpinner />}
+                        {locations?.data?.results?.map((location: any) => (
+                          <CommandItem
+                            key={location?.id}
+                            value={location?.id}
+                            onSelect={(currentValue) => {
+                              setDeliveryValue(currentValue);
+                              setValue("delivery_location", currentValue);
+                              setOpenDelivery(false);
+                            }}
+                          >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                deliveryValue === location?.id
+                                  ? "opacity-100"
+                                  : "opacity-0"
+                              )}
+                            />
+                            {location?.name}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+              </div>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 pt-5 gap-5">
+            <FormInput name="delivery_lead_time" label="Delivery Lead Time" />
           </div>
 
           <div className="mt-10">
@@ -944,9 +982,11 @@ const PurchaseOrderNew = () => {
               </tr>
             </thead>
             <tbody>
-              {console.log("🔍 Rendering table with fields.length:", fields.length)}
-              {console.log("🔍 Fields array:", fields)}
               {fields.map((field, index) => {
+                if (index === 0) {
+                  console.log("🔍 Rendering table with fields.length:", fields.length);
+                  console.log("🔍 Fields array:", fields);
+                }
                 console.log(`🔍 Rendering row ${index} for field:`, field);
                 return (
                   <tr key={index} className="w-full">
@@ -982,11 +1022,11 @@ const PurchaseOrderNew = () => {
 
                             if (selectedItem) {
                               // Update the UOM field with the item's unit (ItemData uses 'unit' not 'uom')
-                              setValue(`items.${index}.uom`, selectedItem.unit || "");
+                              setValue(`items.${index}.uom` as any, selectedItem.unit || "");
                               console.log("🔍 Set UOM to:", selectedItem.unit);
 
                               // Also update the description field
-                              setValue(`items.${index}.description`, selectedItemId);
+                              setValue(`items.${index}.description` as any, selectedItemId);
 
                               // Trigger validation
                               trigger(`items.${index}.uom`);
@@ -1005,7 +1045,7 @@ const PurchaseOrderNew = () => {
                           const quantity = parseFloat(e.target.value) || 0;
                           const unitCost = parseFloat(String(watch(`items.${index}.unit_cost`) || "0")) || 0;
                           const total = quantity * unitCost;
-                          setValue(`items.${index}.total`, total.toString());
+                          setValue(`items.${index}.total` as any, total.toString());
                           // Force re-render of form
                           trigger(`items.${index}.total`);
                         }}
@@ -1030,23 +1070,23 @@ const PurchaseOrderNew = () => {
                               <MultiSelectFormField
                                 options={(() => {
                                   // Based on your FCO API structure: { data: { data: { results: [...] } } }
-                                  let fcoData = [];
+                                  let fcoData: any[] = [];
 
-                                  if (fco?.data?.data?.results) {
+                                  if ((fco?.data as any)?.data?.results) {
                                     // Your FCO API structure: { data: { data: { results: [...] } } }
-                                    fcoData = fco.data.data.results;
+                                    fcoData = (fco.data as any).data.results;
                                     console.log("🔍 Found FCO data in fco.data.data.results:", fcoData);
                                   } else if (fco?.data?.results) {
                                     // Standard paginated response: { data: { results: [...] } }
                                     fcoData = fco.data.results;
                                     console.log("🔍 Found FCO data in fco.data.results:", fcoData);
-                                  } else if (Array.isArray(fco?.data?.data)) {
+                                  } else if (Array.isArray((fco?.data as any)?.data)) {
                                     // Direct array in nested data: { data: { data: [...] } }
-                                    fcoData = fco.data.data;
+                                    fcoData = (fco.data as any).data;
                                     console.log("🔍 Found FCO data in fco.data.data:", fcoData);
                                   } else if (Array.isArray(fco?.data)) {
                                     // Direct array: { data: [...] }
-                                    fcoData = fco.data;
+                                    fcoData = fco.data as any;
                                     console.log("🔍 Found FCO data in fco.data:", fcoData);
                                   } else {
                                     console.log("🔍 No FCO data found in any expected location");
@@ -1081,7 +1121,7 @@ const PurchaseOrderNew = () => {
                           const unitCost = parseFloat(e.target.value) || 0;
                           const quantity = parseFloat(String(watch(`items.${index}.quantity`) || "0")) || 0;
                           const total = unitCost * quantity;
-                          setValue(`items.${index}.total`, total.toString());
+                          setValue(`items.${index}.total` as any, total.toString());
                           // Force re-render of form
                           trigger(`items.${index}.total`);
                         }}
@@ -1131,8 +1171,13 @@ const PurchaseOrderNew = () => {
             </Button>
           </div>
 
-          {/* Approval Workflow Section */}
-          <div className="mt-8 border-t pt-6">
+          {/* NOTE: Approval Workflow Section REMOVED
+              Approval fields should NOT be part of PO creation.
+              POs are created with status PENDING and approval fields NULL.
+              Approvals are done through the workflow actions in the "Approval Workflow" dialog.
+          */}
+
+          {/*  <div className="mt-8 border-t pt-6">
             <h3 className="text-lg font-semibold mb-4">Approval Workflow</h3>
             <div className="grid grid-cols-3 gap-5">
               <FormField
@@ -1155,8 +1200,8 @@ const PurchaseOrderNew = () => {
                           >
                             {field.value
                               ? (() => {
-                                  const user = (users?.data?.results || users?.results)?.find(
-                                    (user) => user.id === field.value
+                                  const user = ((users as any)?.data?.results || (users as any)?.results)?.find(
+                                    (user: any) => user.id === field.value
                                   );
                                   return user
                                     ? `${user.first_name || ''} ${user.last_name || ''}`.trim() || "Unknown User"
@@ -1173,8 +1218,11 @@ const PurchaseOrderNew = () => {
                           <CommandEmpty>No user found.</CommandEmpty>
                           <CommandGroup>
                             {usersIsLoading && <LoadingSpinner />}
+                            {!usersIsLoading && !((users as any)?.data?.results || (users as any)?.results) && (
+                              <div className="p-2 text-sm text-gray-500">No users available</div>
+                            )}
                             {!usersIsLoading &&
-                              (users?.data?.results || (users?.data?.results || users?.results))?.filter(user => user && user.id && (user.first_name || user.last_name))?.map((user) => {
+                              ((users as any)?.data?.results || (users as any)?.results)?.filter((user: any) => user && user.id && (user.first_name || user.last_name))?.map((user: any) => {
                                 const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim();
                                 return (
                                   <CommandItem
@@ -1226,8 +1274,8 @@ const PurchaseOrderNew = () => {
                           >
                             {field.value
                               ? (() => {
-                                  const user = (users?.data?.results || users?.results)?.find(
-                                    (user) => user.id === field.value
+                                  const user = ((users as any)?.data?.results || (users as any)?.results)?.find(
+                                    (user: any) => user.id === field.value
                                   );
                                   return user
                                     ? `${user.first_name || ''} ${user.last_name || ''}`.trim() || "Unknown User"
@@ -1244,8 +1292,11 @@ const PurchaseOrderNew = () => {
                           <CommandEmpty>No user found.</CommandEmpty>
                           <CommandGroup>
                             {usersIsLoading && <LoadingSpinner />}
+                            {!usersIsLoading && !((users as any)?.data?.results || (users as any)?.results) && (
+                              <div className="p-2 text-sm text-gray-500">No users available</div>
+                            )}
                             {!usersIsLoading &&
-                              (users?.data?.results || users?.results)?.filter(user => user && user.id && (user.first_name || user.last_name))?.map((user) => {
+                              ((users as any)?.data?.results || (users as any)?.results)?.filter((user: any) => user && user.id && (user.first_name || user.last_name))?.map((user: any) => {
                                 const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim();
                                 return (
                                   <CommandItem
@@ -1297,8 +1348,8 @@ const PurchaseOrderNew = () => {
                           >
                             {field.value
                               ? (() => {
-                                  const user = (users?.data?.results || users?.results)?.find(
-                                    (user) => user.id === field.value
+                                  const user = ((users as any)?.data?.results || (users as any)?.results)?.find(
+                                    (user: any) => user.id === field.value
                                   );
                                   return user
                                     ? `${user.first_name || ''} ${user.last_name || ''}`.trim() || "Unknown User"
@@ -1315,8 +1366,11 @@ const PurchaseOrderNew = () => {
                           <CommandEmpty>No user found.</CommandEmpty>
                           <CommandGroup>
                             {usersIsLoading && <LoadingSpinner />}
+                            {!usersIsLoading && !((users as any)?.data?.results || (users as any)?.results) && (
+                              <div className="p-2 text-sm text-gray-500">No users available</div>
+                            )}
                             {!usersIsLoading &&
-                              (users?.data?.results || users?.results)?.filter(user => user && user.id && (user.first_name || user.last_name))?.map((user) => {
+                              ((users as any)?.data?.results || (users as any)?.results)?.filter((user: any) => user && user.id && (user.first_name || user.last_name))?.map((user: any) => {
                                 const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim();
                                 return (
                                   <CommandItem
@@ -1370,8 +1424,8 @@ const PurchaseOrderNew = () => {
                           >
                             {field.value
                               ? (() => {
-                                  const user = (users?.data?.results || users?.results)?.find(
-                                    (user) => user.id === field.value
+                                  const user = ((users as any)?.data?.results || (users as any)?.results)?.find(
+                                    (user: any) => user.id === field.value
                                   );
                                   return user
                                     ? `${user.first_name || ''} ${user.last_name || ''}`.trim() || "Unknown User"
@@ -1388,8 +1442,11 @@ const PurchaseOrderNew = () => {
                           <CommandEmpty>No user found.</CommandEmpty>
                           <CommandGroup>
                             {usersIsLoading && <LoadingSpinner />}
+                            {!usersIsLoading && !((users as any)?.data?.results || (users as any)?.results) && (
+                              <div className="p-2 text-sm text-gray-500">No users available</div>
+                            )}
                             {!usersIsLoading &&
-                              (users?.data?.results || users?.results)?.filter(user => user && user.id && (user.first_name || user.last_name))?.map((user) => {
+                              ((users as any)?.data?.results || (users as any)?.results)?.filter((user: any) => user && user.id && (user.first_name || user.last_name))?.map((user: any) => {
                                 const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim();
                                 return (
                                   <CommandItem
@@ -1421,7 +1478,7 @@ const PurchaseOrderNew = () => {
                 )}
               />
             </div>
-          </div>
+          </div> */}
 
           <div className="flex items-center justify-end mt-6 gap-4">
             {/* Debug Button - Remove after testing */}
