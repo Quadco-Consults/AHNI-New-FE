@@ -122,19 +122,21 @@ export const useUpdateUser = (id: string) => {
   const { callApi, isLoading, isSuccess, error, data } = useApiManager<
     IUser,
     Error,
-    TUpdateUserFormValues
+    TUpdateUserFormValues | FormData
   >({
     endpoint: `users/${id}/`,
-    queryKey: ["users", "user"],
+    queryKey: ["users", "user", "user-profile"],
     isAuth: true,
     method: "PATCH",
+    contentType: null, // Allow FormData for file uploads
   });
 
-  const updateUser = async (details: TUpdateUserFormValues) => {
+  const updateUser = async (details: TUpdateUserFormValues | FormData) => {
     try {
       await callApi(details);
     } catch (error) {
       console.error("User update error:", error);
+      throw error;
     }
   };
 

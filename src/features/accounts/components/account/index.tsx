@@ -40,15 +40,17 @@ import { useAppDispatch } from "hooks/useStore";
 import { logOut } from "store/auth/authSlice";
 import { AuthRoutes } from "constants/RouterConstants";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 
 export type TFormValues = z.infer<typeof ProfileSchema>;
 export type TFormValuesSecond = z.infer<typeof SecuritySchema>;
 export default function Account() {
   // const dispatch = useAppDispatch();
 
-  const { data: profile } = useGetUserProfile();
+  const { data: profile, refetch: refetchProfile } = useGetUserProfile();
   const dispatch = useAppDispatch();
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const { updateUser, isLoading: isUpdateLoading } = useUpdateUser(profile?.data?.id || "");
   const { data: role } = useGetAllRoles({
@@ -108,8 +110,12 @@ export default function Account() {
         gender: profile.data.gender || "",
         profile_picture: profile.data.profile_picture || "",
         mobile_number: profile.data.mobile_number || "",
-        department: profile.data.department || "",
-        position: profile.data.position || "",
+        department: typeof profile.data.department === 'object' && profile.data.department !== null
+          ? profile.data.department.name || profile.data.department.title || ""
+          : profile.data.department || "",
+        position: typeof profile.data.position === 'object' && profile.data.position !== null
+          ? profile.data.position.name || profile.data.position.title || ""
+          : profile.data.position || "",
         location: profile.data.location || "",
         user_type: profile.data.user_type || "",
       });
@@ -131,6 +137,11 @@ export default function Account() {
     // Dispatch update profile action or API call
 
     try {
+      if (!profile?.data?.id) {
+        toast.error("User ID is missing. Please refresh the page.");
+        return;
+      }
+
       const formData = new FormData();
 
       formData.append("first_name", data.first_name);
@@ -139,10 +150,8 @@ export default function Account() {
       // formData.append("username", data.username);
       formData.append("gender", data.gender);
       formData.append("mobile_number", data.mobile_number);
-      if (data.department) formData.append("department", data.department);
-      if (data.position) formData.append("position", data.position);
-      if (data.location) formData.append("location", data.location);
-      if (data.user_type) formData.append("user_type", data.user_type);
+      // Don't send disabled fields (department, position, location, user_type) as they are read-only
+      // and the backend expects UUIDs but returns display names
       data.role.forEach((role) => formData.append("roles", role));
 
       if (file) {
@@ -151,9 +160,17 @@ export default function Account() {
 
       await updateUser(formData);
 
+      // Manually invalidate and refetch the user profile to update the header avatar
+      await queryClient.invalidateQueries({ queryKey: ["user-profile"] });
+      await refetchProfile();
+
+      // Clear the file state so the preview updates with the new URL from the server
+      setFile(undefined);
+
       toast.success("User Updated");
     } catch (error: any) {
-      toast.error(error.data.message ?? "Something went wrong");
+      console.error("Profile update error:", error);
+      toast.error(error?.message || error?.data?.message || "Something went wrong");
     }
   };
 

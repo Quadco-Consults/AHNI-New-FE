@@ -59,9 +59,11 @@ export const useForgotPassword = () => {
 
   const forgotPassword = async (details: { email: string }) => {
     try {
-      await callApi(details);
+      const response = await callApi(details);
+      return response;
     } catch (error) {
       console.error("Forgot password error:", error);
+      throw error;
     }
   };
 
