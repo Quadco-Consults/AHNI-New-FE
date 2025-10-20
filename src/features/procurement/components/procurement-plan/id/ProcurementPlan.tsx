@@ -496,6 +496,34 @@ const ProcurementPlan = (data: ProcurementPlanResultsData) => {
                     </td>
                   </tr>
                 */}
+
+                {/* Totals Row */}
+                {items.length > 0 && (
+                  <tr className="bg-blue-100 font-bold border-t-4 border-blue-500">
+                    <td className="px-4 py-3 border text-sm text-center">-</td>
+                    <td className="px-4 py-3 border text-sm text-center" colSpan={6}>TOTAL</td>
+                    <td className="px-4 py-3 border text-sm text-right">
+                      ₦{items.reduce((sum: number, item: any) => {
+                        const amount = parseFloat(item?.approved_budget_amount_ngn || 0);
+                        return sum + (isNaN(amount) ? 0 : amount);
+                      }, 0).toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </td>
+                    <td className="px-4 py-3 border text-sm text-right">
+                      ${items.reduce((sum: number, item: any) => {
+                        const amount = parseFloat(item?.approved_budget_amount_usd || 0);
+                        return sum + (isNaN(amount) ? 0 : amount);
+                      }, 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </td>
+                    <td className="px-4 py-3 border text-sm text-center" colSpan={4}>-</td>
+                    <td className="px-4 py-3 border text-sm text-right">
+                      {items.reduce((sum: number, item: any) => {
+                        const amount = parseFloat(item?.total_quantity || 0);
+                        return sum + (isNaN(amount) ? 0 : amount);
+                      }, 0).toLocaleString()}
+                    </td>
+                    <td className="px-4 py-3 border text-sm text-center" colSpan={17}>-</td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>

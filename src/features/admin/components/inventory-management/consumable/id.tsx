@@ -5,11 +5,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
 import ConsumableDetails from "features/admin/components/inventory-management/ConsumableDetails";
 import ConsumableStockCard from "features/admin/components/inventory-management/ConsumableStockCard";
 import ConsumableRequisitions from "@/features/admin/components/inventory-management/ConsumableRequisitions";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { useGetAllConsumableStockCardsQuery } from "@/features/admin/controllers/consumableController";
 
 export default function ViewConsumable() {
   const { id } = useParams();
+  const searchParams = useSearchParams();
+  const tab = searchParams?.get('tab') || 'details';
+
   const { data: stockCard } = useGetAllConsumableStockCardsQuery(
     id || "", !!id
   );
@@ -17,7 +20,7 @@ export default function ViewConsumable() {
   return (
     <div>
       <BackNavigation />
-      <Tabs defaultValue='details'>
+      <Tabs defaultValue={tab} value={tab}>
         <TabsList className='flex justify-between mx-4 '>
           <div className='flex items-center'>
             <TabsTrigger value='details'>Details</TabsTrigger>

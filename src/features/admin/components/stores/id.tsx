@@ -8,7 +8,7 @@ import Card from "@/components/Card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Pencil, MapPin, User, Building2, Calendar, CheckCircle, XCircle, Package, TrendingDown, AlertTriangle, AlertCircle, Plus } from "lucide-react";
+import { Pencil, MapPin, User, Building2, Calendar, CheckCircle, XCircle, Package, TrendingDown, AlertTriangle, AlertCircle, Plus, Eye, FileText, TrendingUp } from "lucide-react";
 import { useGetSingleStore } from "@/features/admin/controllers/storeController";
 import { useGetStoreInventory } from "@/features/admin/controllers/itemStoreStockController";
 import { AdminRoutes } from "@/constants/RouterConstants";
@@ -16,6 +16,15 @@ import { cn } from "@/lib/utils";
 import { TItemStoreStockData, getStockAlertLevel } from "@/features/admin/types/inventory-management/item-store-stock";
 import DataTable from "@/components/Table/DataTable";
 import { ColumnDef } from "@tanstack/react-table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { MoreHorizontal } from "lucide-react";
 
 interface StoreDetailPageProps {
   storeId: string;
@@ -126,6 +135,48 @@ export default function StoreDetailPage({ storeId }: StoreDetailPageProps) {
             <Icon className="w-3 h-3 mr-1" />
             {config?.label || alertLevel}
           </Badge>
+        );
+      },
+    },
+    {
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => {
+        const itemId = row.original.item || row.original.item_detail?.id;
+
+        if (!itemId) return null;
+
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => router.push(`/dashboard/admin/inventory-management/consumable/${itemId}`)}
+              >
+                <Eye className="mr-2 h-4 w-4" />
+                View Details
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => router.push(`/dashboard/admin/inventory-management/consumable/${itemId}?tab=stock`)}
+              >
+                <FileText className="mr-2 h-4 w-4" />
+                Stock Card
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => router.push(`/dashboard/admin/inventory-management/consumable/${itemId}?tab=requisitions`)}
+              >
+                <TrendingUp className="mr-2 h-4 w-4" />
+                Stock Movement
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         );
       },
     },
@@ -491,7 +542,7 @@ export default function StoreDetailPage({ storeId }: StoreDetailPageProps) {
                       Retry Connection
                     </Button>
                     <Button
-                      onClick={() => router.push(AdminRoutes.GOOD_RECEIVE_NOTE)}
+                      onClick={() => router.push(AdminRoutes.GRN)}
                       className="bg-indigo-600 hover:bg-indigo-700"
                     >
                       View Good Receive Notes
@@ -522,7 +573,7 @@ export default function StoreDetailPage({ storeId }: StoreDetailPageProps) {
                   This store doesn't have any consumables assigned yet.
                 </p>
                 <Button
-                  onClick={() => router.push(`${AdminRoutes.GOOD_RECEIVE_NOTE}/create?store=${storeId}`)}
+                  onClick={() => router.push(`${AdminRoutes.GRN}/create?store=${storeId}`)}
                   className="bg-indigo-600 hover:bg-indigo-700"
                 >
                   <Plus className="w-4 h-4 mr-2" />
