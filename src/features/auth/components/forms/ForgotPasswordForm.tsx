@@ -31,11 +31,21 @@ const ForgotPasswordForm = () => {
     const router = useRouter();
 
     const onSubmit = async (values: z.infer<typeof emailSchema>) => {
-        const response = await forgotPassword(values);
-        
-        if (response?.token) {
-            localStorage.setItem("authToken", JSON.stringify(response.token));
+        try {
+            const response = await forgotPassword(values);
+
+            // Check both response.token and response.data.token for flexibility
+            const token = response?.token || response?.data?.token;
+
+            if (token) {
+                localStorage.setItem("authToken", JSON.stringify(token));
+            }
+
+            // Redirect to OTP verification page
             router.push(`/auth/verify-otp?email=${watch("email")}`);
+        } catch (error) {
+            console.error("Forgot password submission error:", error);
+            // Error toast is already shown by the API manager
         }
     };
 
