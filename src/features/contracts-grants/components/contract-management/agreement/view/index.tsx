@@ -7,6 +7,7 @@ import {
     useSubmitAgreement,
     useCreateContractModification,
     useGetAgreementDocuments,
+    useUploadContractDocument,
 } from "@/features/contracts-grants/controllers/agreementController";
 import { Button } from "components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "components/ui/card";
@@ -34,14 +35,44 @@ export default function AgreementView() {
     const [additionalCost, setAdditionalCost] = useState("");
     const [modificationFile, setModificationFile] = useState<File | null>(null);
     const [isSubmitDialogOpen, setIsSubmitDialogOpen] = useState(false);
+    const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
+    const [uploadFile, setUploadFile] = useState<File | null>(null);
+    const [uploadDocumentType, setUploadDocumentType] = useState<'CONTRACT' | 'EXTENSION' | 'ADDENDUM' | 'AMENDMENT'>('CONTRACT');
+    const [uploadRemarks, setUploadRemarks] = useState("");
 
     const { data, isLoading, isError, error, refetch } = useGetSingleAgreement(agreementId);
-    const { data: documentsData, refetch: refetchDocuments } = useGetAgreementDocuments(agreementId);
+    const { data: documentsData, isLoading: documentsLoading, isError: documentsError, error: documentsErrorMessage, refetch: refetchDocuments } = useGetAgreementDocuments(agreementId);
     const { submitAgreement, isLoading: isSubmitting, isSuccess: submitSuccess } = useSubmitAgreement(agreementId);
     const { createModification, isLoading: isCreatingModification, isSuccess: modificationSuccess } = useCreateContractModification(agreementId);
+    const { uploadDocument, isLoading: isUploadingDocument, isSuccess: uploadSuccess } = useUploadContractDocument(agreementId);
 
     const agreement = data?.data;
     const documents = documentsData?.data || [];
+
+    // Debug logging
+    useEffect(() => {
+        console.log('📋 Agreement View Debug:', {
+            agreementId,
+            agreementLoaded: !!agreement,
+            agreementStatus: agreement?.status,
+            agreementType: agreement?.type,
+            agreementData: agreement,
+            documentsLoading,
+            documentsError,
+            documentsErrorMessage: documentsErrorMessage?.message,
+            documentsData,
+            documentsCount: documents?.length || 0,
+            documents,
+            // Check entity fields
+            entityFields: {
+                vendor_name: agreement?.vendor_name,
+                consultant_name: agreement?.consultant_name,
+                facilitator_name: agreement?.facilitator_name,
+                adhoc_staff_name: agreement?.adhoc_staff_name,
+                contract_cost: agreement?.contract_cost,
+            }
+        });
+    }, [agreementId, agreement, documentsLoading, documentsError, documentsErrorMessage, documentsData, documents]);
 
     useEffect(() => {
         if (submitSuccess) {
@@ -61,6 +92,15 @@ export default function AgreementView() {
         }
     }, [modificationSuccess]);
 
+    useEffect(() => {
+        if (uploadSuccess) {
+            toast.success("Document uploaded successfully");
+            setIsUploadDialogOpen(false);
+            resetUploadForm();
+            refetchDocuments();
+        }
+    }, [uploadSuccess]);
+
     const resetModificationForm = () => {
         setModificationType('EXTENSION');
         setModificationDescription("");
@@ -70,12 +110,39 @@ export default function AgreementView() {
         setModificationFile(null);
     };
 
+    const resetUploadForm = () => {
+        setUploadFile(null);
+        setUploadDocumentType('CONTRACT');
+        setUploadRemarks("");
+    };
+
     const handleSubmitForApproval = async () => {
         if (!documents || documents.length === 0) {
             toast.error("Please upload at least one contract document before submitting");
             return;
         }
         await submitAgreement();
+    };
+
+    const handleUploadDocument = async () => {
+        if (!uploadFile) {
+            toast.error("Please select a file to upload");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('document', uploadFile);
+        formData.append('document_type', uploadDocumentType);
+
+        if (uploadRemarks) {
+            formData.append('remarks', uploadRemarks);
+        }
+
+        try {
+            await uploadDocument(formData);
+        } catch (error: any) {
+            toast.error(error?.message || "Failed to upload document");
+        }
     };
 
     const handleCreateModification = async () => {
@@ -308,9 +375,14 @@ export default function AgreementView() {
                                             Entity Name
                                         </div>
                                         <p className="text-base font-medium text-gray-900">
-                                            {agreement.vendor_name ||
+                                            {agreement.entity_name ||
+                                             agreement.vendor_name ||
+                                             agreement.vendor_contact_person ||
+                                             agreement.consultant_contact_name ||
                                              agreement.consultant_name ||
+                                             agreement.facilitator_contact_name ||
                                              agreement.facilitator_name ||
+                                             agreement.adhoc_staff_contact_name ||
                                              agreement.adhoc_staff_name ||
                                              '-'}
                                         </p>
@@ -322,9 +394,13 @@ export default function AgreementView() {
                                             Contact Person
                                         </div>
                                         <p className="text-base font-medium text-gray-900">
-                                            {agreement.vendor_contact_person ||
+                                            {agreement.contact_person ||
+                                             agreement.vendor_contact_person ||
+                                             agreement.consultant_contact_name ||
                                              agreement.consultant_name ||
+                                             agreement.facilitator_contact_name ||
                                              agreement.facilitator_name ||
+                                             agreement.adhoc_staff_contact_name ||
                                              agreement.adhoc_staff_name ||
                                              '-'}
                                         </p>
@@ -336,9 +412,13 @@ export default function AgreementView() {
                                             Email Address
                                         </div>
                                         <p className="text-base text-gray-900">
-                                            {agreement.vendor_contact_email ||
+                                            {agreement.contact_person_email ||
+                                             agreement.vendor_contact_email ||
+                                             agreement.consultant_contact_email ||
                                              agreement.consultant_email ||
+                                             agreement.facilitator_contact_email ||
                                              agreement.facilitator_email ||
+                                             agreement.adhoc_staff_contact_email ||
                                              agreement.adhoc_staff_email ||
                                              '-'}
                                         </p>
@@ -350,9 +430,13 @@ export default function AgreementView() {
                                             Phone Number
                                         </div>
                                         <p className="text-base text-gray-900">
-                                            {agreement.vendor_contact_phone ||
+                                            {agreement.contact_person_phone ||
+                                             agreement.vendor_contact_phone ||
+                                             agreement.consultant_contact_phone ||
                                              agreement.consultant_phone ||
+                                             agreement.facilitator_contact_phone ||
                                              agreement.facilitator_phone ||
+                                             agreement.adhoc_staff_contact_phone ||
                                              agreement.adhoc_staff_phone ||
                                              '-'}
                                         </p>
@@ -396,11 +480,13 @@ export default function AgreementView() {
                                             <DollarSign className="h-4 w-4" />
                                             Contract Cost
                                         </div>
-                                        <p className="text-base font-bold text-indigo-600">
-                                            {agreement.contract_cost ?
-                                             `₦${Number(agreement.contract_cost).toLocaleString()}` :
-                                             '-'}
-                                        </p>
+                                        {agreement.contract_cost ? (
+                                            <p className="text-base font-bold text-indigo-600">
+                                                ₦{Number(agreement.contract_cost).toLocaleString()}
+                                            </p>
+                                        ) : (
+                                            <p className="text-sm text-gray-500 italic">Not specified</p>
+                                        )}
                                     </div>
 
                                     <div className="space-y-1">
@@ -444,22 +530,54 @@ export default function AgreementView() {
                                                 <p className="text-xs text-gray-600 mt-0.5">{documents.length} {documents.length === 1 ? 'document' : 'documents'} uploaded</p>
                                             </div>
                                         </div>
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            onClick={() => {
-                                                console.log('🔄 Manual refresh triggered');
-                                                refetchDocuments();
-                                                refetch();
-                                            }}
-                                            className="h-8 w-8 p-0 hover:bg-indigo-100"
-                                        >
-                                            <RefreshCw className="h-4 w-4 text-indigo-600" />
-                                        </Button>
+                                        <div className="flex items-center gap-2">
+                                            {canEdit && (
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() => setIsUploadDialogOpen(true)}
+                                                    className="h-8 text-xs hover:bg-indigo-100 hover:text-indigo-700 hover:border-indigo-300"
+                                                >
+                                                    <Plus className="h-3.5 w-3.5 mr-1.5" />
+                                                    Upload
+                                                </Button>
+                                            )}
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                onClick={() => {
+                                                    console.log('🔄 Manual refresh triggered');
+                                                    refetchDocuments();
+                                                    refetch();
+                                                }}
+                                                className="h-8 w-8 p-0 hover:bg-indigo-100"
+                                            >
+                                                <RefreshCw className="h-4 w-4 text-indigo-600" />
+                                            </Button>
+                                        </div>
                                     </div>
                                 </CardHeader>
                                 <CardContent className="p-0">
-                                    {documents && documents.length > 0 ? (
+                                    {documentsLoading ? (
+                                        <div className="p-8">
+                                            <div className="flex items-center justify-center py-8">
+                                                <RefreshCw className="h-8 w-8 text-indigo-600 animate-spin" />
+                                                <span className="ml-3 text-sm text-gray-600">Loading documents...</span>
+                                            </div>
+                                        </div>
+                                    ) : documentsError ? (
+                                        <div className="p-8">
+                                            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                                                <div className="flex items-start gap-2">
+                                                    <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+                                                    <div>
+                                                        <p className="text-sm font-medium text-red-900">Error Loading Documents</p>
+                                                        <p className="text-xs text-red-700 mt-1">{documentsErrorMessage?.message || "Failed to load documents"}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ) : documents && documents.length > 0 ? (
                                         <div className="divide-y divide-gray-100 max-h-[calc(100vh-16rem)] overflow-y-auto">
                                             {documents.map((doc: IContractDocument) => (
                                                 <div key={doc.id} className="group p-4 hover:bg-indigo-50/50 transition-all">
@@ -549,15 +667,20 @@ export default function AgreementView() {
                                                 </p>
                                             </div>
                                             {canEdit && documents.length === 0 && (
-                                                <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
-                                                    <div className="flex items-start gap-2">
-                                                        <AlertCircle className="h-4 w-4 text-blue-600 flex-shrink-0 mt-0.5" />
-                                                        <div className="flex-1">
-                                                            <p className="text-xs font-medium text-blue-900">
-                                                                Documents can be uploaded during agreement creation
-                                                            </p>
-                                                            <p className="text-xs text-blue-700 mt-1">
-                                                                Use the create wizard (Step 4) to upload contract documents
+                                                <div className="mt-4">
+                                                    <Button
+                                                        onClick={() => setIsUploadDialogOpen(true)}
+                                                        className="w-full bg-indigo-600 hover:bg-indigo-700"
+                                                        size="sm"
+                                                    >
+                                                        <Plus className="h-4 w-4 mr-2" />
+                                                        Upload First Document
+                                                    </Button>
+                                                    <div className="mt-3 bg-blue-50 border border-blue-200 rounded-lg p-3">
+                                                        <div className="flex items-start gap-2">
+                                                            <AlertCircle className="h-4 w-4 text-blue-600 flex-shrink-0 mt-0.5" />
+                                                            <p className="text-xs text-blue-700">
+                                                                You need to upload at least one contract document before submitting for approval
                                                             </p>
                                                         </div>
                                                     </div>
@@ -650,7 +773,7 @@ export default function AgreementView() {
                                             </span>
                                         </td>
                                         <td className="px-4 py-4 text-sm text-gray-500">
-                                            {agreement.created_at ? formatDate(agreement.created_at) : '-'}
+                                            {agreement.created_datetime ? formatDate(agreement.created_datetime) : '-'}
                                         </td>
                                     </tr>
 
@@ -879,6 +1002,75 @@ export default function AgreementView() {
                         </Button>
                         <Button onClick={handleSubmitForApproval} disabled={isSubmitting} className="bg-indigo-600 hover:bg-indigo-700">
                             {isSubmitting ? "Submitting..." : "Submit for Approval"}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Upload Document Dialog */}
+            <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
+                <DialogContent className="max-w-lg">
+                    <DialogHeader>
+                        <DialogTitle>Upload Contract Document</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                        <div>
+                            <Label>Document Type *</Label>
+                            <Select value={uploadDocumentType} onValueChange={(value: any) => setUploadDocumentType(value)}>
+                                <SelectTrigger>
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="CONTRACT">Original Contract</SelectItem>
+                                    <SelectItem value="EXTENSION">Extension Document</SelectItem>
+                                    <SelectItem value="ADDENDUM">Addendum</SelectItem>
+                                    <SelectItem value="AMENDMENT">Amendment</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            <p className="text-xs text-gray-500 mt-1">
+                                Select the type of document you are uploading
+                            </p>
+                        </div>
+
+                        <div>
+                            <Label>Select File *</Label>
+                            <Input
+                                type="file"
+                                onChange={(e) => setUploadFile(e.target.files?.[0] || null)}
+                                accept=".pdf,.doc,.docx"
+                                className="mt-1"
+                            />
+                            <p className="text-xs text-gray-500 mt-1">
+                                Accepted formats: PDF, DOC, DOCX
+                            </p>
+                            {uploadFile && (
+                                <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded text-sm text-green-800">
+                                    Selected: {uploadFile.name}
+                                </div>
+                            )}
+                        </div>
+
+                        <div>
+                            <Label>Remarks (Optional)</Label>
+                            <Textarea
+                                value={uploadRemarks}
+                                onChange={(e) => setUploadRemarks(e.target.value)}
+                                placeholder="Add any notes or remarks about this document..."
+                                rows={3}
+                                className="mt-1"
+                            />
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setIsUploadDialogOpen(false)}>
+                            Cancel
+                        </Button>
+                        <Button
+                            onClick={handleUploadDocument}
+                            disabled={isUploadingDocument || !uploadFile}
+                            className="bg-indigo-600 hover:bg-indigo-700"
+                        >
+                            {isUploadingDocument ? "Uploading..." : "Upload Document"}
                         </Button>
                     </DialogFooter>
                 </DialogContent>

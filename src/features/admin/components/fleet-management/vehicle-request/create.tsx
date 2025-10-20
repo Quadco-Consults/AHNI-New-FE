@@ -31,7 +31,7 @@ import {
 } from "@/features/admin/controllers/vehicleRequestController";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AdminRoutes } from "constants/RouterConstants";
-import { addTeamMembers } from "store/admin/team-members";
+import { addTeamMembers, clearTeamMembers } from "store/admin/team-members";
 import { useGetAllProjectsQuery } from "@/features/projects/controllers/projectController";
 import { useGetAllActivityPlansQuery } from "@/features/programs/controllers/activityPlanController";
 import { useGetAllItemsQuery } from "@/features/modules/controllers/config/itemController";
@@ -300,6 +300,13 @@ const NewVehicleRequest = () => {
 
   const { teamMembers } = useAppSelector((state) => state.teamMember);
 
+  // Clear team members when creating a new request (not editing)
+  useEffect(() => {
+    if (!id) {
+      dispatch(clearTeamMembers());
+    }
+  }, [id, dispatch]); // Clear when id changes (from edit to create)
+
   useEffect(() => {
     form.setValue(
       "travel_team_members",
@@ -541,30 +548,50 @@ const NewVehicleRequest = () => {
 
                   <div className='grid grid-cols-4 gap-5 '>
                     {teamMembers.map(
-                      ({
-                        id,
-                        first_name,
-                        last_name,
-                        designation,
-                        mobile_number,
-                      }) => (
-                        <div className='p-3 bg-yellow-100' key={id}>
-                          <p>
-                            <span className='font-semibold'>Name:&nbsp;</span>
-                            {`${first_name} ${last_name}`}
-                          </p>
-                          <p>
-                            <span className='font-semibold'>
-                              Position:&nbsp;
-                            </span>
-                            {designation}
-                          </p>
-                          <p>
-                            <span className='font-semibold'>Tel:&nbsp;</span>
-                            {mobile_number}
-                          </p>
-                        </div>
-                      )
+                      (member) => {
+                        const {
+                          id,
+                          first_name,
+                          last_name,
+                          designation,
+                          position,
+                          mobile_number,
+                        } = member;
+
+                        // Helper to extract position from object or string
+                        const getPosition = () => {
+                          if (designation) {
+                            return typeof designation === 'object'
+                              ? designation?.name || designation?.title || ''
+                              : designation;
+                          }
+                          if (position) {
+                            return typeof position === 'object'
+                              ? position?.name || position?.title || ''
+                              : position;
+                          }
+                          return 'N/A';
+                        };
+
+                        return (
+                          <div className='p-3 bg-yellow-100' key={id}>
+                            <p>
+                              <span className='font-semibold'>Name:&nbsp;</span>
+                              {`${first_name} ${last_name}`}
+                            </p>
+                            <p>
+                              <span className='font-semibold'>
+                                Position:&nbsp;
+                              </span>
+                              {getPosition()}
+                            </p>
+                            <p>
+                              <span className='font-semibold'>Tel:&nbsp;</span>
+                              {mobile_number || 'N/A'}
+                            </p>
+                          </div>
+                        );
+                      }
                     )}
                   </div>
                 </div>

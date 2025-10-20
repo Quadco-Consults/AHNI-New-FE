@@ -167,6 +167,10 @@ export default function VehicleRequestDetails() {
     }
   }, [isRejectSuccess, router]);
 
+  // Check if request is already processed (approved or rejected)
+  const isRequestProcessed = data?.data?.status?.toLowerCase() === 'approved' ||
+                             data?.data?.status?.toLowerCase() === 'rejected';
+
   return (
     <div className='space-y-4'>
       <BackNavigation extraText='View Vehicle Request' />
@@ -408,14 +412,32 @@ export default function VehicleRequestDetails() {
 
                   {/* Action Buttons Section */}
                   <div className="space-y-4 pt-4 border-t">
-                    <h4 className="text-lg font-semibold text-gray-800">Request Actions</h4>
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="text-lg font-semibold text-gray-800">Request Actions</h4>
+                      <div className="px-3 py-1 rounded-full text-sm font-medium" style={{
+                        backgroundColor: data?.data?.status?.toLowerCase() === 'approved' ? '#dcfce7' :
+                                       data?.data?.status?.toLowerCase() === 'rejected' ? '#fee2e2' : '#fef3c7',
+                        color: data?.data?.status?.toLowerCase() === 'approved' ? '#166534' :
+                               data?.data?.status?.toLowerCase() === 'rejected' ? '#991b1b' : '#92400e'
+                      }}>
+                        Status: {data?.data?.status || 'Pending'}
+                      </div>
+                    </div>
+
+                    {isRequestProcessed && (
+                      <div className="mb-4 p-3 bg-gray-50 border border-gray-300 rounded">
+                        <p className="text-sm text-gray-700 font-medium">
+                          ℹ️ This request has already been {data?.data?.status?.toLowerCase()}. No further action can be taken.
+                        </p>
+                      </div>
+                    )}
 
                     <div className="flex gap-4">
                       <FormButton
                         size='lg'
                         className='bg-green-500 hover:bg-green-600'
                         loading={isApproving}
-                        disabled={isApproving || isRejecting}
+                        disabled={isApproving || isRejecting || isRequestProcessed}
                       >
                         {isApproving ? "Approving..." : "Approve Request"}
                       </FormButton>
@@ -424,7 +446,7 @@ export default function VehicleRequestDetails() {
                         type="button"
                         size='lg'
                         className='bg-red-500 hover:bg-red-600 text-white'
-                        disabled={isApproving || isRejecting}
+                        disabled={isApproving || isRejecting || isRequestProcessed}
                         onClick={onReject}
                       >
                         {isRejecting ? "Rejecting..." : "Reject Request"}

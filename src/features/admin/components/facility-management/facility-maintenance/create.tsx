@@ -102,20 +102,33 @@ export default function CreateFacilityManagementTicket() {
   );
 
   // Filtered options for approval workflow - only users with appropriate permissions
-  const reviewerOptions = useMemo(
-    () => getReviewerOptions(ahniStaff),
-    [ahniStaff]
-  );
+  // Fallback to all AHNI staff if no specific approvers are configured
+  const reviewerOptions = useMemo(() => {
+    const options = getReviewerOptions(ahniStaff);
+    // If no reviewers found with permissions, use all AHNI staff as fallback
+    if (options.length === 0) {
+      return userOptions;
+    }
+    return options;
+  }, [ahniStaff, userOptions]);
 
-  const authorizerOptions = useMemo(
-    () => getAuthorizerOptions(ahniStaff),
-    [ahniStaff]
-  );
+  const authorizerOptions = useMemo(() => {
+    const options = getAuthorizerOptions(ahniStaff);
+    // If no authorizers found with permissions, use all AHNI staff as fallback
+    if (options.length === 0) {
+      return userOptions;
+    }
+    return options;
+  }, [ahniStaff, userOptions]);
 
-  const approverOptions = useMemo(
-    () => getApproverOptions(ahniStaff),
-    [ahniStaff]
-  );
+  const approverOptions = useMemo(() => {
+    const options = getApproverOptions(ahniStaff);
+    // If no approvers found with permissions, use all AHNI staff as fallback
+    if (options.length === 0) {
+      return userOptions;
+    }
+    return options;
+  }, [ahniStaff, userOptions]);
 
   const { data: facility } = useGetAllFacilityQuery({
     page: 1,
@@ -174,6 +187,27 @@ export default function CreateFacilityManagementTicket() {
     id || "",
     !!id
   );
+
+  // Auto-calculate total cost estimate when rate or cost estimate changes
+  useEffect(() => {
+    const subscription = form.watch((value, { name }) => {
+      if (name === 'rate' || name === 'cost_estimate') {
+        const rate = parseFloat(value.rate || '0');
+        const costEstimate = parseFloat(value.cost_estimate || '0');
+        const totalCostEstimate = rate * costEstimate;
+
+        // Only update if both values are valid numbers and result is not NaN
+        if (!isNaN(rate) && !isNaN(costEstimate) && !isNaN(totalCostEstimate)) {
+          form.setValue('total_cost_estimate', totalCostEstimate.toString(), {
+            shouldValidate: false,
+            shouldDirty: false,
+          });
+        }
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [form]);
 
   useEffect(() => {
     if (facilityMaintenance) {
@@ -256,8 +290,10 @@ export default function CreateFacilityManagementTicket() {
                 <FormInput
                   label='Total Cost Estimate'
                   name='total_cost_estimate'
-                  placeholder='Enter Total Cost Estimate'
+                  placeholder='Auto-calculated (Rate × Cost Estimate)'
                   required
+                  disabled
+                  className="bg-gray-100"
                 />
               </div>
 

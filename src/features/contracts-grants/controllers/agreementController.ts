@@ -58,17 +58,21 @@ export const useGetAllAgreements = ({
     queryKey: ["agreements", page, size, search, type],
     queryFn: async () => {
       try {
+        // Add expand parameter to get related entity details
         const response = await AxiosWithToken.get(BASE_URL, {
           params: {
             page,
             size,
             ...(search && { search }),
             ...(type && { type }),
+            expand: 'consultant,facilitator,adhoc_staff,vendor,location,service'
           },
         });
+        console.log('📋 GET All Agreements Response:', response.data);
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
+        console.error('❌ GET All Agreements Error:', axiosError.response?.data);
         throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
       }
     },
@@ -83,10 +87,17 @@ export const useGetSingleAgreement = (id: string, enabled: boolean = true) => {
     queryKey: ["agreement", id],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get(`${BASE_URL}${id}/`);
+        // Add expand parameter to get related entity details
+        const response = await AxiosWithToken.get(`${BASE_URL}${id}/`, {
+          params: {
+            expand: 'consultant,facilitator,adhoc_staff,vendor,location,service'
+          }
+        });
+        console.log('📥 GET Single Agreement Response:', response.data);
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
+        console.error('❌ GET Single Agreement Error:', axiosError.response?.data);
         throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
       }
     },

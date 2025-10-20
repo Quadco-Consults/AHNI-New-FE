@@ -13,6 +13,9 @@ export const ItemRequisitionSchema = z.object({
     ),
     department: z.string().min(1, "Please select a department"),
     store: z.string().min(1, "Please select a store"), // Phase 5: Store selection
+    reviewer: z.string().min(1, "Please select a reviewer"),
+    authorizer: z.string().min(1, "Please select an authorizer"),
+    approver: z.string().min(1, "Please select an approver"),
 });
 
 

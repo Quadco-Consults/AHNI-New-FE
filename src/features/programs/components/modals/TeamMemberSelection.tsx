@@ -96,9 +96,29 @@ export default function TeamMemberSelection({
   );
 
   const handleCheckboxChange = (member: IUser, isChecked: boolean | string) => {
-    setSelectedMembers((prev) =>
-      isChecked ? [...prev, member] : prev.filter((m) => m.id !== member.id)
-    );
+    setSelectedMembers((prev) => {
+      if (isChecked) {
+        // Normalize the member data to ensure designation is a string
+        const normalizedMember = {
+          ...member,
+          designation: (() => {
+            if (member.designation) {
+              return typeof member.designation === 'object'
+                ? (member.designation as any)?.name || (member.designation as any)?.title || ''
+                : member.designation;
+            }
+            if (member.position) {
+              return typeof member.position === 'object'
+                ? (member.position as any)?.name || (member.position as any)?.title || ''
+                : member.position;
+            }
+            return '';
+          })(),
+        };
+        return [...prev, normalizedMember];
+      }
+      return prev.filter((m) => m.id !== member.id);
+    });
   };
 
   const handleSubmit = () => {
@@ -169,7 +189,19 @@ export default function TeamMemberSelection({
                   </p>
                   <p>
                     <span className='font-semibold'>Position:</span>{" "}
-                    {member.designation}
+                    {(() => {
+                      if (member.designation) {
+                        return typeof member.designation === 'object'
+                          ? member.designation?.name || member.designation?.title || ''
+                          : member.designation;
+                      }
+                      if (member.position) {
+                        return typeof member.position === 'object'
+                          ? member.position?.name || member.position?.title || ''
+                          : member.position;
+                      }
+                      return 'N/A';
+                    })()}
                   </p>
                   <p>
                     <span className='font-semibold'>Tel:</span>{" "}

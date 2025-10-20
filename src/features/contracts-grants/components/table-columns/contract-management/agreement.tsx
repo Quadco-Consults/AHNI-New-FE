@@ -9,24 +9,29 @@ import PencilIcon from "components/icons/PencilIcon";
 import EyeIcon from "components/icons/EyeIcon";
 import ConfirmationDialog from "components/ConfirmationDialog";
 import Link from "next/link";
-import { IAgreementPaginatedData } from "definations/c&g/contract-management/agreement";
+import { IAgreementPaginatedData } from "@/features/contracts-grants/types/contract-management/agreement";
 import { useDeleteAgreement } from "@/features/contracts-grants/controllers/agreementController";
 import { CG_ROUTES } from "constants/RouterConstants";
 
 // Helper function to extract entity name based on agreement type
 const getEntityName = (agreement: IAgreementPaginatedData): string => {
-    // Backend returns flattened fields - use them directly
+    // First check if backend provides entity_name (preferred field)
+    if (agreement.entity_name) {
+        return agreement.entity_name;
+    }
+
+    // Backend returns flattened fields with _contact_name suffix
     if (agreement.vendor_name) {
         return agreement.vendor_name;
     }
-    if (agreement.consultant_name) {
-        return agreement.consultant_name;
+    if (agreement.consultant_contact_name || agreement.consultant_name) {
+        return agreement.consultant_contact_name || agreement.consultant_name;
     }
-    if (agreement.facilitator_name) {
-        return agreement.facilitator_name;
+    if (agreement.facilitator_contact_name || agreement.facilitator_name) {
+        return agreement.facilitator_contact_name || agreement.facilitator_name;
     }
-    if (agreement.adhoc_staff_name) {
-        return agreement.adhoc_staff_name;
+    if (agreement.adhoc_staff_contact_name || agreement.adhoc_staff_name) {
+        return agreement.adhoc_staff_contact_name || agreement.adhoc_staff_name;
     }
 
     // Backend hasn't added these fields yet - show a message
@@ -51,20 +56,26 @@ const getContactPerson = (agreement: IAgreementPaginatedData): string => {
 
 // Helper function to extract contact email
 const getContactEmail = (agreement: IAgreementPaginatedData): string => {
-    // Backend returns flattened fields
+    // Backend returns flattened fields with _contact_email suffix
     return agreement.vendor_contact_email ||
+           agreement.consultant_contact_email ||
            agreement.consultant_email ||
+           agreement.facilitator_contact_email ||
            agreement.facilitator_email ||
+           agreement.adhoc_staff_contact_email ||
            agreement.adhoc_staff_email ||
            '-';
 };
 
 // Helper function to extract contact phone
 const getContactPhone = (agreement: IAgreementPaginatedData): string => {
-    // Backend returns flattened fields
+    // Backend returns flattened fields with _contact_phone suffix
     return agreement.vendor_contact_phone ||
+           agreement.consultant_contact_phone ||
            agreement.consultant_phone ||
+           agreement.facilitator_contact_phone ||
            agreement.facilitator_phone ||
+           agreement.adhoc_staff_contact_phone ||
            agreement.adhoc_staff_phone ||
            '-';
 };

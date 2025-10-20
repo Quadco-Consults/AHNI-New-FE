@@ -96,11 +96,6 @@ export default function Account() {
 
   useEffect(() => {
     if (profile?.data) {
-      console.log("📸 Profile data updated:", {
-        profile_picture: profile.data.profile_picture,
-        file_selected: file?.name,
-      });
-
       const roles = profile?.data?.roles || [];
       const roleValues = roles.map((role: any) => role.id || role);
 
@@ -142,10 +137,6 @@ export default function Account() {
     // Dispatch update profile action or API call
 
     try {
-      console.log("🔄 Starting profile update...");
-      console.log("User ID:", profile?.data?.id);
-      console.log("File selected:", file?.name);
-
       if (!profile?.data?.id) {
         toast.error("User ID is missing. Please refresh the page.");
         return;
@@ -156,7 +147,6 @@ export default function Account() {
       formData.append("first_name", data.first_name);
       formData.append("last_name", data.last_name);
       formData.append("email", data.email);
-      // formData.append("username", data.username);
       formData.append("gender", data.gender);
       formData.append("mobile_number", data.mobile_number);
       // Don't send disabled fields (department, position, location, user_type) as they are read-only
@@ -165,13 +155,10 @@ export default function Account() {
 
       if (file) {
         formData.append("profile_picture", file);
-        console.log("✅ Profile picture added to FormData");
       }
 
-      console.log("📤 Calling updateUser API...");
       await updateUser(formData);
 
-      console.log("✅ Update successful! Refreshing data...");
       // Manually invalidate and refetch the user profile to update the header avatar
       await queryClient.invalidateQueries({ queryKey: ["user-profile"] });
       await refetchProfile();
@@ -179,10 +166,9 @@ export default function Account() {
       // Clear the file state so the preview updates with the new URL from the server
       setFile(undefined);
 
-      console.log("✅ Profile updated successfully!");
       toast.success("User Updated");
     } catch (error: any) {
-      console.error("❌ Profile update error:", error);
+      console.error("Profile update error:", error);
       toast.error(error?.message || error?.data?.message || "Something went wrong");
     }
   };
@@ -242,15 +228,11 @@ export default function Account() {
             <div
               className='w-[200px] h-[200px] flex-shrink-0 rounded-full bg-[#FF0000]'
               style={{
-                backgroundImage: (() => {
-                  const imageUrl = file
-                    ? `url(${URL.createObjectURL(file)})`
-                    : profile?.data?.profile_picture
-                    ? `url(${profile?.data?.profile_picture})`
-                    : "none";
-                  console.log("🖼️ Avatar display URL:", imageUrl);
-                  return imageUrl;
-                })(),
+                backgroundImage: file
+                  ? `url(${URL.createObjectURL(file)})`
+                  : profile?.data?.profile_picture
+                  ? `url(${profile?.data?.profile_picture})`
+                  : "none",
                 backgroundSize: "cover",
                 backgroundPosition: "center",
               }}

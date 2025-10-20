@@ -164,6 +164,8 @@ export interface IAgreementPaginatedData {
     service_type_display: string; // "Sla", "Consultant", "Adhoc Staff", "Facilitator"
     status: string; // "DRAFT", "ACTIVE", etc.
     status_display: string; // "Draft", "Active", etc.
+    entity_name?: string; // Combined entity name field from backend
+    entity_type?: string; // Entity type (adhoc_staff, consultant, etc.)
 
     // Location (flattened)
     location_name: string;
@@ -174,20 +176,32 @@ export interface IAgreementPaginatedData {
     vendor_contact_email: string | null;
     vendor_contact_phone: string | null;
 
-    // Consultant fields (flattened) - backend should add these
+    // Consultant fields (flattened) - backend uses _contact_name suffix
+    consultant_contact_name?: string | null;
+    consultant_contact_email?: string | null;
+    consultant_contact_phone?: string | null;
     consultant_name?: string | null;
     consultant_email?: string | null;
     consultant_phone?: string | null;
 
-    // Facilitator fields (flattened) - backend should add these
+    // Facilitator fields (flattened) - backend uses _contact_name suffix
+    facilitator_contact_name?: string | null;
+    facilitator_contact_email?: string | null;
+    facilitator_contact_phone?: string | null;
     facilitator_name?: string | null;
     facilitator_email?: string | null;
     facilitator_phone?: string | null;
 
-    // Adhoc Staff fields (flattened) - backend should add these
+    // Adhoc Staff fields (flattened) - backend uses _contact_name suffix
+    adhoc_staff_contact_name?: string | null;
+    adhoc_staff_contact_email?: string | null;
+    adhoc_staff_contact_phone?: string | null;
     adhoc_staff_name?: string | null;
     adhoc_staff_email?: string | null;
     adhoc_staff_phone?: string | null;
+
+    // Service name field
+    service_name?: string | null;
 
     // Date helpers
     start_month?: string;
@@ -247,7 +261,7 @@ export interface IAgreementSingleData {
     id: string;
     created_datetime: string;
     updated_datetime: string;
-    provider: string;
+    provider: string | null;
     service: string;
     type: string;
     start_date: string;
@@ -258,34 +272,89 @@ export interface IAgreementSingleData {
     // Contract workflow fields
     status: 'DRAFT' | 'SUBMITTED' | 'PENDING_APPROVAL' | 'APPROVED' | 'ACTIVE' | 'EXPIRED' | 'TERMINATED';
     status_display?: string;
-    contract_number?: string;
+    contract_number?: string | null;
     current_version?: number;
 
-    // Additional fields from paginated data
+    // Additional fields from backend
     service_type_display?: string;
+    location?: string;
     location_name?: string;
+    entity_name?: string;
+    entity_type?: string;
+
+    // Date helpers
+    start_month?: string;
+    start_year?: number;
+    end_month?: string;
+    end_year?: number;
+    duration_days?: number;
+    days_until_expiry?: number;
+    is_active?: boolean;
+    is_expired?: boolean;
+
+    // Renewal fields
+    auto_renew?: boolean;
+    renewal_period_days?: number | null;
+    notification_days_before_expiry?: number;
+    original_end_date?: string | null;
+
+    // Contact fields (backend uses different naming)
+    contact_person?: string | null;
+    contact_person_email?: string | null;
+    contact_person_phone?: string | null;
+
+    // Vendor fields
+    vendor?: number | null;
     vendor_name?: string | null;
     vendor_contact_person?: string | null;
     vendor_contact_email?: string | null;
     vendor_contact_phone?: string | null;
+
+    // Consultant fields
+    consultant?: number | null;
+    consultant_contact_name?: string | null;
+    consultant_contact_email?: string | null;
+    consultant_contact_phone?: string | null;
     consultant_name?: string | null;
     consultant_email?: string | null;
     consultant_phone?: string | null;
+
+    // Facilitator fields
+    facilitator?: number | null;
+    facilitator_contact_name?: string | null;
+    facilitator_contact_email?: string | null;
+    facilitator_contact_phone?: string | null;
     facilitator_name?: string | null;
     facilitator_email?: string | null;
     facilitator_phone?: string | null;
+
+    // Adhoc Staff fields
+    adhoc_staff?: number | null;
+    adhoc_staff_contact_name?: string | null;
+    adhoc_staff_contact_email?: string | null;
+    adhoc_staff_contact_phone?: string | null;
     adhoc_staff_name?: string | null;
     adhoc_staff_email?: string | null;
     adhoc_staff_phone?: string | null;
-    contract_cost?: string | number;
+
+    // Cost field (may not be present in all agreements)
+    contract_cost?: string | number | null;
 
     // Documents and modifications
+    agreement_documents?: IContractDocument[];
     documents?: IContractDocument[];
     modifications?: IContractModification[];
 
     // Approval fields
     approval_status?: string;
     approval_stage?: string;
-    submitted_at?: string;
-    submitted_by?: string;
+    submitted_at?: string | null;
+    submitted_by?: string | null;
+    submitted_by_name?: string | null;
+    approved_at?: string | null;
+    approved_by?: string | null;
+    approved_by_name?: string | null;
+
+    // Additional fields
+    remarks?: string | null;
 }
