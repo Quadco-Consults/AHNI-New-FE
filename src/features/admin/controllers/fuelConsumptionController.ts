@@ -334,6 +334,8 @@ export const useGetVendorFuelPurchases = (
   const queryParams = new URLSearchParams();
   queryParams.append("page", page.toString());
   queryParams.append("size", size.toString());
+  // Add expand parameter to fetch related entities
+  queryParams.append("expand", "asset,assigned_driver,vendor,location");
 
   Object.entries(otherFilters).forEach(([key, value]) => {
     if (value) queryParams.append(key, value);

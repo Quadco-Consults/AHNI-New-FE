@@ -30,7 +30,7 @@ import {
   useGetSingleItemRequisitionQuery,
 } from "@/features/admin/controllers/itemRequisitionController";
 import { useGetAllDepartmentsQuery } from "@/features/modules/controllers/config/departmentController";
-import { useGetAllUsersQuery } from "@/features/auth/controllers/userController";
+import { useGetAllUsersQuery, useGetUserProfile } from "@/features/auth/controllers/userController";
 import { toast } from "sonner";
 import { useGetAllItemsQuery } from "@/features/modules/controllers/config/itemController";
 import { useGetAllStores } from "@/features/admin/controllers/storeController";
@@ -42,6 +42,9 @@ import {
 import { filterAhniStaffOnly } from "@/utils/userFilters";
 
 export default function CreateItemRequisition() {
+  // Get current user's profile to detect their location
+  const { data: currentUserProfile } = useGetUserProfile();
+
   const { data: items } = useGetAllItemsQuery({
     page: 1,
     size: 2000000,
@@ -81,20 +84,42 @@ export default function CreateItemRequisition() {
   );
 
   // Filtered options for approval workflow - only users with appropriate permissions
-  const reviewerOptions = useMemo(
-    () => getReviewerOptions(ahniStaff),
-    [ahniStaff]
-  );
+  // Fallback to all AHNI staff if no specific approvers are configured
+  const reviewerOptions = useMemo(() => {
+    const options = getReviewerOptions(ahniStaff);
+    console.log("Reviewer options from permissions:", options);
 
-  const authorizerOptions = useMemo(
-    () => getAuthorizerOptions(ahniStaff),
-    [ahniStaff]
-  );
+    // If no reviewers found with permissions, use all AHNI staff as fallback
+    if (options.length === 0) {
+      console.log("No reviewers with permissions found, using all AHNI staff as fallback");
+      return userOptions;
+    }
+    return options;
+  }, [ahniStaff, userOptions]);
 
-  const approverOptions = useMemo(
-    () => getApproverOptions(ahniStaff),
-    [ahniStaff]
-  );
+  const authorizerOptions = useMemo(() => {
+    const options = getAuthorizerOptions(ahniStaff);
+    console.log("Authorizer options from permissions:", options);
+
+    // If no authorizers found with permissions, use all AHNI staff as fallback
+    if (options.length === 0) {
+      console.log("No authorizers with permissions found, using all AHNI staff as fallback");
+      return userOptions;
+    }
+    return options;
+  }, [ahniStaff, userOptions]);
+
+  const approverOptions = useMemo(() => {
+    const options = getApproverOptions(ahniStaff);
+    console.log("Approver options from permissions:", options);
+
+    // If no approvers found with permissions, use all AHNI staff as fallback
+    if (options.length === 0) {
+      console.log("No approvers with permissions found, using all AHNI staff as fallback");
+      return userOptions;
+    }
+    return options;
+  }, [ahniStaff, userOptions]);
 
   const { createItemRequisition, isLoading: isCreateLoading } =
     useCreateItemRequisitionMutation();
@@ -117,14 +142,33 @@ export default function CreateItemRequisition() {
     [department]
   );
 
-  // Phase 5: Store options
+  // Phase 5: Store options - filtered by user's location
   const storeOptions = useMemo(() => {
     if (!storesData?.data?.results) return [];
-    return storesData.data.results.map((store: any) => ({
+
+    const userLocation = currentUserProfile?.data?.location;
+
+    // Filter stores based on user's location
+    const filteredStores = storesData.data.results.filter((store: any) => {
+      // Always include CENTRAL stores (available to everyone)
+      if (store.store_type === "CENTRAL") {
+        return true;
+      }
+
+      // For LOCATION stores, only show if it matches user's location
+      if (store.store_type === "LOCATION" && userLocation) {
+        // Check if store location matches user location (compare both ID and string)
+        return store.location?.id === userLocation || store.location === userLocation;
+      }
+
+      return false;
+    });
+
+    return filteredStores.map((store: any) => ({
       label: `${store.name} (${store.code}) - ${store.store_type === "CENTRAL" ? "Central" : "Location"}`,
-      value: store.id,
+      value: String(store.id), // Ensure value is always a string
     }));
-  }, [storesData]);
+  }, [storesData, currentUserProfile]);
 
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
@@ -144,6 +188,9 @@ export default function CreateItemRequisition() {
     defaultValues: {
       department: "",
       store: "", // Phase 5: Store selection
+      reviewer: "",
+      authorizer: "",
+      approver: "",
       consummables: [{ consummable: "", quantity: "0" }],
     },
   });
@@ -179,6 +226,25 @@ export default function CreateItemRequisition() {
     }
   };
 
+  // Auto-select store if only one is available for the user's location
+  useEffect(() => {
+    if (!id && storeOptions.length === 1) {
+      const currentValue = form.getValues("store");
+
+      if (!currentValue) {
+        // Use setTimeout to ensure the form is fully rendered
+        setTimeout(() => {
+          form.setValue("store", storeOptions[0].value, {
+            shouldValidate: true,
+            shouldDirty: true,
+            shouldTouch: true
+          });
+          toast.info(`Auto-selected: ${storeOptions[0].label}`);
+        }, 100);
+      }
+    }
+  }, [storeOptions, form, id]);
+
   useEffect(() => {
     if (itemRequisition) {
       console.log({ itemRequisition });
@@ -186,6 +252,9 @@ export default function CreateItemRequisition() {
       form.reset({
         department: itemRequisition?.data.department.id,
         store: itemRequisition?.data.store || "", // Phase 5: Include store
+        reviewer: itemRequisition?.data.reviewer || "",
+        authorizer: itemRequisition?.data.authorizer || "",
+        approver: itemRequisition?.data.approver || "",
         consummables: itemRequisition?.data.consummables.map(
           ({ quantity, consummable }) => ({
             consummable: consummable?.id,
@@ -255,14 +324,21 @@ export default function CreateItemRequisition() {
                 required
               />
 
-              {/* Phase 5: Store Selection */}
-              <FormSelect
-                label='Store'
-                name='store'
-                placeholder='Select Store'
-                options={storeOptions}
-                required
-              />
+              {/* Phase 5: Store Selection - Auto-filtered by user location */}
+              <div className="space-y-1">
+                <FormSelect
+                  label='Store'
+                  name='store'
+                  placeholder={storeOptions.length === 0 ? 'No stores available at your location' : 'Select Store'}
+                  options={storeOptions}
+                  required
+                />
+                {currentUserProfile?.data?.location && (
+                  <p className="text-xs text-gray-500">
+                    Showing stores for your location ({storeOptions.length} available)
+                  </p>
+                )}
+              </div>
 
               <FormSelect
                 label='Reviewer'

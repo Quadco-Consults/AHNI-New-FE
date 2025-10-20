@@ -63,7 +63,11 @@ export const useGetAllConsumableStockCards = (id: string, enabled: boolean = tru
     queryKey: ["consumable-stock-cards", id],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get(`/config/items/${id}/stock-cards/`);
+        const response = await AxiosWithToken.get(`/config/items/${id}/stock-cards/`, {
+          params: {
+            expand: 'item_detail,created_by,updated_by,store,purchase_order'
+          }
+        });
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;

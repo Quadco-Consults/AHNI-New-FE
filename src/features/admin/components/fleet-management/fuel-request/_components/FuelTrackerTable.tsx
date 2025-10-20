@@ -47,11 +47,16 @@ export default function FuelTrackerTable({
     {
       header: "Vehicle No.",
       accessorKey: "asset",
-      cell: ({ getValue }) => {
+      cell: ({ getValue, row }) => {
         const asset = getValue() as any;
+        // Try multiple possible field names for plate number
+        const plateNumber = asset?.plate_number || asset?.plateNumber || asset?.registration_number;
+        const assetName = asset?.name || asset?.asset_name;
+        const assetCode = asset?.code || asset?.asset_code;
+
         return (
           <div className="text-center font-medium">
-            {asset?.plate_number || asset?.name || "NA"}
+            {plateNumber || assetName || assetCode || "N/A"}
           </div>
         );
       },
@@ -60,11 +65,22 @@ export default function FuelTrackerTable({
     {
       header: "Name of Driver",
       accessorKey: "assigned_driver",
-      cell: ({ getValue }) => {
+      cell: ({ getValue, row }) => {
         const driver = getValue() as any;
+
+        // Check if driver exists and has valid name fields
+        if (!driver) return <div className="text-center">N/A</div>;
+
+        const firstName = driver.first_name || driver.firstName || "";
+        const lastName = driver.last_name || driver.lastName || "";
+        const fullName = driver.full_name || driver.fullName || "";
+
+        // Use fullName if available, otherwise combine first and last names
+        const displayName = fullName || `${firstName} ${lastName}`.trim();
+
         return (
           <div className="text-center">
-            {driver ? `${driver.first_name} ${driver.last_name}` : "NA"}
+            {displayName || "N/A"}
           </div>
         );
       },
@@ -144,29 +160,52 @@ export default function FuelTrackerTable({
   const totalAmount = data.reduce((sum, record) => sum + (parseFloat(record.amount) || 0), 0);
 
   return (
-    <Card className="w-full">
-      {/* Header Section */}
+    <Card className="w-full shadow-lg">
+      {/* Header Section with AHNI Branding */}
       <CardHeader className="pb-2">
-        <div className="border-2 border-gray-400 p-4 bg-gray-50">
-          <h1 className="text-lg font-bold text-center mb-2">
-            {projectTitle} in {location}
-          </h1>
-          <div className="bg-white border border-gray-300 p-2">
-            <h2 className="font-semibold">
-              Vendor: {vendorName}
+        <div className="border-2 border-red-600 rounded-lg overflow-hidden">
+          {/* AHNI Header with Logo */}
+          <div className="bg-gradient-to-r from-red-600 to-red-700 text-white p-6">
+            <div className="flex items-center justify-center gap-4">
+              <img
+                src="/imgs/logo.png"
+                alt="AHNI Logo"
+                className="h-20 w-auto bg-white rounded-lg p-2 shadow-lg"
+              />
+              <div className="text-center">
+                <h1 className="text-3xl font-bold tracking-wide">ACHIEVING HEALTH NIGERIA INITIATIVE</h1>
+                <p className="text-red-100 text-base mt-2 font-medium">(AHNi)</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Project Title Section */}
+          <div className="bg-white border-t-2 border-red-200 p-4">
+            <h2 className="text-xl font-bold text-center text-gray-800 mb-2">
+              Fuel Consumption Tracker for Project Vehicles
             </h2>
+            <p className="text-center text-gray-600 font-medium">
+              Location: {location}
+            </p>
+          </div>
+
+          {/* Vendor Section */}
+          <div className="bg-red-50 border-t-2 border-red-200 p-4">
+            <div className="flex items-center justify-center gap-2">
+              <span className="text-gray-700 font-semibold">Vendor:</span>
+              <span className="text-red-600 font-bold text-lg">{vendorName}</span>
+            </div>
           </div>
         </div>
       </CardHeader>
 
       <CardContent className="p-0">
         {/* Main Table */}
-        <div className="border-2 border-gray-400">
+        <div className="border-2 border-gray-400 fuel-tracker-table">
           <DataTable
             columns={fuelTrackerColumns}
             data={data}
             isLoading={isLoading}
-            className="fuel-tracker-table"
           />
         </div>
 
