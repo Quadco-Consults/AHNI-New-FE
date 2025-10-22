@@ -1,5 +1,5 @@
-import ContractRecipients from "@/features/contracts-grants/components/contract-management/contract-recipients/index";
+import AdhocContractRecipients from "@/features/programs/components/adhoc-management/AdhocContractRecipients";
 
 export default function ContractRecipientsPage() {
-  return <ContractRecipients />;
+  return <AdhocContractRecipients />;
 }

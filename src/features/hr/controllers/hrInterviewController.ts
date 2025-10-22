@@ -2,7 +2,7 @@ import useApiManager from "@/constants/mainController";
 import { useQuery } from "@tanstack/react-query";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { AxiosError } from "axios";
-import { Interview } from "../types/interview";
+import { Interview, InterviewScore, InterviewSchedule } from "../types/interview";
 
 // Interface for creating interview schedule
 interface CreateInterviewData {
@@ -141,6 +141,149 @@ export const useUpdateInterview = (id: string) => {
   };
 
   return { updateInterview, data, isLoading, isSuccess, error };
+};
+
+// ===== MULTI-SCORER INTERVIEW HOOKS =====
+
+// Submit Individual Interview Score
+export const useSubmitInterviewScore = (interviewId: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    ApiResponse<InterviewScore>,
+    Error,
+    Partial<InterviewScore>
+  >({
+    endpoint: `${BASE_URL}${interviewId}/scores/`,
+    queryKey: ["interviews", "interview-scores"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const submitScore = async (scoreData: Partial<InterviewScore>) => {
+    try {
+      console.log("Submitting interview score for interview:", interviewId);
+      console.log("Score data:", scoreData);
+      const result = await callApi(scoreData);
+      console.log("Score submission response:", result);
+      return result;
+    } catch (error) {
+      console.error("Interview score submission error:", error);
+      throw error;
+    }
+  };
+
+  return { submitScore, data, isLoading, isSuccess, error };
+};
+
+// Get All Scores for an Interview
+export const useGetInterviewScores = (interviewId: string, enabled: boolean = true) => {
+  return useQuery<ApiResponse<InterviewScore[]>>({
+    queryKey: ["interview-scores", interviewId],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get(`${BASE_URL}${interviewId}/scores/`);
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    enabled: enabled && !!interviewId,
+    refetchOnWindowFocus: false,
+  });
+};
+
+// Get My Pending Interviews (as interviewer)
+export const useGetMyPendingInterviews = (enabled: boolean = true) => {
+  return useQuery<ApiResponse<InterviewSchedule[]>>({
+    queryKey: ["my-pending-interviews"],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get(`${BASE_URL}my-pending/`);
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    enabled: enabled,
+    refetchOnWindowFocus: true,
+    refetchInterval: 300000, // Refetch every 5 minutes
+  });
+};
+
+// Get My Score for a Specific Interview
+export const useGetMyInterviewScore = (interviewId: string, enabled: boolean = true) => {
+  return useQuery<ApiResponse<InterviewScore>>({
+    queryKey: ["my-interview-score", interviewId],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get(`${BASE_URL}${interviewId}/my-score/`);
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        // Return null if score doesn't exist yet (404)
+        if (axiosError.response?.status === 404) {
+          return { status: 'success', message: 'No score yet', data: null } as any;
+        }
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    enabled: enabled && !!interviewId,
+    refetchOnWindowFocus: false,
+  });
+};
+
+// Update My Interview Score
+export const useUpdateInterviewScore = (interviewId: string, scoreId: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    ApiResponse<InterviewScore>,
+    Error,
+    Partial<InterviewScore>
+  >({
+    endpoint: `${BASE_URL}${interviewId}/scores/${scoreId}/`,
+    queryKey: ["interviews", "interview-scores"],
+    isAuth: true,
+    method: "PATCH",
+  });
+
+  const updateScore = async (scoreData: Partial<InterviewScore>) => {
+    try {
+      console.log("Updating interview score:", scoreId);
+      console.log("Update data:", scoreData);
+      const result = await callApi(scoreData);
+      console.log("Score update response:", result);
+      return result;
+    } catch (error) {
+      console.error("Interview score update error:", error);
+      throw error;
+    }
+  };
+
+  return { updateScore, data, isLoading, isSuccess, error };
+};
+
+// Get Interview Statistics/Summary
+export const useGetInterviewSummary = (interviewId: string, enabled: boolean = true) => {
+  return useQuery<ApiResponse<{
+    total_interviewers: number;
+    completed_evaluations: number;
+    pending_evaluations: number;
+    average_scores: Interview['average_scores'];
+    completion_percentage: number;
+  }>>({
+    queryKey: ["interview-summary", interviewId],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get(`${BASE_URL}${interviewId}/summary/`);
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    enabled: enabled && !!interviewId,
+    refetchOnWindowFocus: false,
+  });
 };
 
 // Legacy exports for backward compatibility

@@ -34,7 +34,8 @@ export default function ConsultancyStaffList() {
     {
       page: currentPage,
       size: 10,
-      status: "SUBMITTED",
+      // Note: Backend doesn't support status filter yet, so we fetch all and filter client-side
+      // status: "SUBMITTED",
       enabled: isAdhoc && !!id, // Only enable if IS adhoc
     }
   );
@@ -42,12 +43,28 @@ export default function ConsultancyStaffList() {
   // Use the appropriate query result
   const { data, isFetching, error } = isAdhoc ? adhocQuery : consultancyQuery;
 
+  // Debug: Log raw applicant data to see statuses (only in development)
+  if (isAdhoc && data?.data?.results && process.env.NODE_ENV === 'development') {
+    console.log('📊 Raw Applicant Statuses:', data.data.results.map((a: any) => ({
+      id: a.id,
+      name: `${a.sur_name} ${a.other_names}`,
+      status: a.status,
+      status_display: a.status_display
+    })));
+  }
+
   // Map API response to expected format
   const mappedApplicants = data?.data?.results
     ?.filter((applicant: any) => {
       if (isAdhoc) {
-        // For adhoc, the API already filters by advertisement_id
-        return true;
+        // For adhoc, filter by:
+        // 1. Advertisement ID (backend filter doesn't work properly)
+        const belongsToThisAdvertisement = applicant.advertisement === id;
+
+        // 2. Status: show APPLIED or SUBMITTED (backend uses APPLIED instead of SUBMITTED)
+        const hasCorrectStatus = applicant.status === "APPLIED" || applicant.status === "SUBMITTED";
+
+        return belongsToThisAdvertisement && hasCorrectStatus;
       }
       // For consultancy, filter out applicants that don't belong to this consultant management
       const belongsToThisConsultant =

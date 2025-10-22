@@ -20,14 +20,47 @@ import { useState } from "react";
 import Link from "next/link";
 import { useDeleteAdhocAdvertisement, useUpdateAdhocAdvertisement, usePublishAdvertisement } from "@/features/programs/controllers/adhocAdvertisementController";
 import { toast } from "sonner";
-import { Users, CheckCircle } from "lucide-react";
+import { Users, CheckCircle, AlertTriangle, Calendar } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "components/ui/dialog";
+import { Input } from "components/ui/input";
+import { Label } from "components/ui/label";
 
 export default function AdhocAdvertisementCard(advertisement: IAdhocAdvertisement) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showDeadlineDialog, setShowDeadlineDialog] = useState(false);
+  const [applicationDeadline, setApplicationDeadline] = useState(
+    advertisement.application_deadline || ""
+  );
 
   const deleteMutation = useDeleteAdhocAdvertisement();
   const updateMutation = useUpdateAdhocAdvertisement(advertisement.id);
   const publishMutation = usePublishAdvertisement(advertisement.id);
+
+  // DEBUG: Log advertisement data to console
+  if (process.env.NODE_ENV === 'development') {
+    const hasJobDesc = !!advertisement.job_description && advertisement.job_description.trim() !== '';
+    const hasKeyResp = !!advertisement.key_responsibilities && advertisement.key_responsibilities.trim() !== '';
+    const hasQuals = (!!advertisement.qualifications && advertisement.qualifications.trim() !== '') ||
+                     (!!advertisement.qualifications_required && advertisement.qualifications_required.trim() !== '');
+    const hasDeadline = !!advertisement.application_deadline;
+
+    console.log(`📋 ${advertisement.advertisement_number}:`, {
+      readyToPublish: hasJobDesc && hasKeyResp && hasQuals && hasDeadline,
+      checks: {
+        '✓ Job Description': hasJobDesc,
+        '✓ Key Responsibilities': hasKeyResp,
+        '✓ Qualifications': hasQuals,
+        '✓ Application Deadline': hasDeadline,
+      },
+      values: {
+        job_description: advertisement.job_description ? `"${advertisement.job_description.substring(0, 40)}..."` : '❌ MISSING',
+        key_responsibilities: advertisement.key_responsibilities ? `"${advertisement.key_responsibilities.substring(0, 40)}..."` : '❌ MISSING',
+        qualifications: advertisement.qualifications ? `"${advertisement.qualifications.substring(0, 40)}..."` : '(empty)',
+        qualifications_required: advertisement.qualifications_required ? `"${advertisement.qualifications_required.substring(0, 40)}..."` : '❌ MISSING',
+        application_deadline: advertisement.application_deadline || '❌ MISSING',
+      }
+    });
+  }
 
   const handleDelete = async () => {
     try {
@@ -39,42 +72,91 @@ export default function AdhocAdvertisementCard(advertisement: IAdhocAdvertisemen
     }
   };
 
-  const handlePublish = async () => {
-    console.log("🚀 Attempting to publish advertisement:", advertisement.id);
-
-    // Try different field names that might trigger publish
-    const publishAttempts = [
-      { name: "is_active", value: { is_active: true } },
-      { name: "publication_date", value: { publication_date: new Date().toISOString() } },
-      { name: "published", value: { published: true } },
-    ];
-
-    for (const attempt of publishAttempts) {
-      console.log(`📍 Trying PATCH with ${attempt.name}...`);
-      try {
-        const response = await updateMutation.mutateAsync(attempt.value as any);
-        console.log(`✅ Success with ${attempt.name}:`, response);
-        console.log("📊 Response data:", response?.data);
-        console.log("🗝️ All keys:", Object.keys(response?.data || {}));
-
-        // Check if we got a status field back
-        if (response?.data?.status) {
-          console.log("🎉 Found status field:", response.data.status);
-          return; // Success!
-        }
-      } catch (error: any) {
-        console.error(`❌ Failed with ${attempt.name}:`, error?.response?.data);
-      }
+  const handleSaveDeadline = async () => {
+    if (!applicationDeadline) {
+      toast.error("Please select an application deadline");
+      return;
     }
 
-    console.log("⚠️ All publish attempts failed. Backend may not support publishing via API.");
-    toast.error("Publishing not supported. Please contact backend team.");
+    try {
+      // First, save the deadline
+      await updateMutation.mutateAsync({
+        application_deadline: applicationDeadline,
+      });
+
+      setShowDeadlineDialog(false);
+      toast.success("Application deadline added!");
+
+      // Then automatically publish
+      setTimeout(async () => {
+        try {
+          await publishMutation.mutateAsync();
+          toast.success("Advertisement published successfully!");
+        } catch (error: any) {
+          const errorMessage = error?.response?.data?.message || error?.message || "Failed to publish advertisement";
+          toast.error(errorMessage);
+        }
+      }, 500);
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || error?.message || "Failed to update advertisement";
+      toast.error(errorMessage);
+    }
+  };
+
+  const handlePublish = async () => {
+    // Validate required fields before publishing
+    const missingFields: string[] = [];
+
+    if (!advertisement.application_deadline) {
+      missingFields.push("Application Deadline");
+    }
+    if (!advertisement.job_description || advertisement.job_description.trim() === "") {
+      missingFields.push("Job Description");
+    }
+    if (!advertisement.key_responsibilities || advertisement.key_responsibilities.trim() === "") {
+      missingFields.push("Key Responsibilities");
+    }
+    if (!advertisement.qualifications && !advertisement.qualifications_required) {
+      missingFields.push("Qualifications");
+    }
+
+    if (missingFields.length > 0) {
+      // If only application deadline is missing, offer quick add
+      if (missingFields.length === 1 && missingFields[0] === "Application Deadline") {
+        setShowDeadlineDialog(true);
+        return;
+      }
+
+      toast.error(
+        `Cannot publish: Please edit the advertisement and add: ${missingFields.join(", ")}`,
+        { duration: 6000 }
+      );
+      return;
+    }
+
+    try {
+      await publishMutation.mutateAsync();
+      toast.success("Advertisement published successfully!");
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || error?.message || "Failed to publish advertisement";
+      toast.error(errorMessage, { duration: 5000 });
+    }
   };
 
   // Calculate duration in months
   const duration = advertisement.start_date && advertisement.end_date
     ? differenceInMonths(new Date(advertisement.end_date), new Date(advertisement.start_date))
     : 0;
+
+  // Check if advertisement is ready to publish
+  const isReadyToPublish = () => {
+    return !!(
+      advertisement.application_deadline &&
+      advertisement.job_description &&
+      advertisement.key_responsibilities &&
+      (advertisement.qualifications || advertisement.qualifications_required)
+    );
+  };
 
   // Status color mapping
   const getStatusColor = (status: string) => {
@@ -121,18 +203,29 @@ export default function AdhocAdvertisementCard(advertisement: IAdhocAdvertisemen
             </div>
 
             <div className="flex items-center gap-1">
-              {/* Publish button temporarily disabled - backend doesn't support publishing via API */}
-              {/* {advertisement.status === "DRAFT" && (
-                <Button
-                  variant="ghost"
-                  onClick={handlePublish}
-                  disabled={updateMutation.isPending || publishMutation.isPending}
-                  className="text-green-600 hover:text-green-700"
-                  title="Publish Advertisement"
-                >
-                  <CheckCircle size={20} />
-                </Button>
-              )} */}
+              {advertisement.status === "DRAFT" && (
+                <>
+                  {!isReadyToPublish() && (
+                    <div className="flex items-center gap-1 text-orange-600 text-xs mr-2" title="Complete all required fields to publish">
+                      <AlertTriangle size={16} />
+                      <span className="hidden md:inline">Incomplete</span>
+                    </div>
+                  )}
+                  <Button
+                    variant="ghost"
+                    onClick={handlePublish}
+                    disabled={updateMutation.isPending || publishMutation.isPending}
+                    className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                    title={
+                      isReadyToPublish()
+                        ? "Publish Advertisement"
+                        : "Complete all required fields before publishing"
+                    }
+                  >
+                    <CheckCircle size={20} />
+                  </Button>
+                </>
+              )}
               <Link
                 href={{
                   pathname: ProgramRoutes.CREATE_ADHOC_DETAILS,
@@ -236,6 +329,52 @@ export default function AdhocAdvertisementCard(advertisement: IAdhocAdvertisemen
         onOk={handleDelete}
         loading={deleteMutation.isPending}
       />
+
+      {/* Quick Add Application Deadline Dialog */}
+      <Dialog open={showDeadlineDialog} onOpenChange={setShowDeadlineDialog}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Add Application Deadline</DialogTitle>
+            <DialogDescription>
+              Set the deadline for applicants to submit their applications for this position.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="deadline" className="flex items-center gap-2">
+                <Calendar className="w-4 h-4" />
+                Application Deadline *
+              </Label>
+              <Input
+                id="deadline"
+                type="date"
+                value={applicationDeadline}
+                onChange={(e) => setApplicationDeadline(e.target.value)}
+                min={new Date().toISOString().split('T')[0]}
+                required
+              />
+              <p className="text-xs text-muted-foreground">
+                Applicants will be able to apply until this date
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowDeadlineDialog(false)}
+              disabled={updateMutation.isPending}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSaveDeadline}
+              disabled={updateMutation.isPending || !applicationDeadline}
+            >
+              {updateMutation.isPending ? "Saving..." : "Save & Publish"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

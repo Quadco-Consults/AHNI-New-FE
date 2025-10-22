@@ -67,17 +67,22 @@ export default function CreateInterview() {
     size: 2000000,
   });
 
+  // Extract users results from nested structure
+  const usersResults = (users?.data?.results || users?.results || []) as any[];
+
   console.log('🔍 Raw data sources:', {
-    users: users?.results?.length || 0,
+    users: usersResults.length,
     employees: employeeData?.data?.results?.length || 0,
     usersLoading: isUsersLoading,
     employeesLoading: isEmployeesLoading,
+    usersError: usersError ? String(usersError) : null,
+    usersDataStructure: users ? Object.keys(users) : [],
   });
 
   // Combine users from both sources
   const allStaff = [
     // Users from user table (filter to exclude vendors)
-    ...filterAhniStaffOnly((users?.results || []) as any[]),
+    ...filterAhniStaffOnly(usersResults),
     // Employees from employee database (all are AHNI staff)
     ...((employeeData?.data?.results || []) as any[]).map((emp: any) => ({
       id: emp.id,
@@ -93,9 +98,16 @@ export default function CreateInterview() {
     }))
   ];
 
-  // Remove duplicates based on email
+  // Remove duplicates based on email (but keep entries with null emails)
   const uniqueStaff = allStaff.reduce((acc: any[], current: any) => {
-    const exists = acc.find(item => item.email === current.email);
+    // If email is null, always add (can't deduplicate without email)
+    if (!current.email) {
+      acc.push(current);
+      return acc;
+    }
+
+    // Otherwise, check for duplicates by email
+    const exists = acc.find(item => item.email && item.email === current.email);
     if (!exists) {
       acc.push(current);
     }
@@ -105,7 +117,7 @@ export default function CreateInterview() {
   const ahniStaffUsers = uniqueStaff;
 
   console.log('👥 Combined AHNI staff:', {
-    fromUsers: filterAhniStaffOnly((users?.results || []) as any[]).length,
+    fromUsers: filterAhniStaffOnly(usersResults).length,
     fromEmployees: employeeData?.data?.results?.length || 0,
     combined: allStaff.length,
     afterDedup: ahniStaffUsers.length,

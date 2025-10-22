@@ -1,5 +1,5 @@
-import ConsultancyAcceptance from "@/features/contracts-grants/components/contract-management/consultant-acceptance/index";
+import AdhocContractAcceptance from "@/features/programs/components/adhoc-management/AdhocContractAcceptance";
 
 export default function AdhocAcceptancePage() {
-  return <ConsultancyAcceptance />;
+  return <AdhocContractAcceptance />;
 }

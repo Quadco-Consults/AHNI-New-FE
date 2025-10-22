@@ -15,6 +15,9 @@ export default function MaintenanceTicket() {
 
   const { data, isLoading } = useGetSingleAssetMaintenanceQuery(id || "", !!id);
 
+  // The API returns created_by as an object, not just an ID
+  // So we don't need to fetch the user separately
+
   // Format currency
   const formatCurrency = (amount: string | number) => {
     if (!amount) return "₦0.00";
@@ -51,6 +54,9 @@ export default function MaintenanceTicket() {
   }
 
   const maintenance = data.data;
+
+  // Get creator info from the created_by object (API returns it as an object)
+  const creator = (maintenance.created_by as any);
 
   return (
     <div className='bg-white p-6 max-w-7xl mx-auto print:p-0 print:max-w-full'>
@@ -112,9 +118,9 @@ export default function MaintenanceTicket() {
               <td className='border-r border-black p-4 bg-blue-100 font-semibold print:p-3'>Staff Name:</td>
               <td className='p-4 print:p-3'>
                 {maintenance.staff_name ||
-                 (maintenance as any).created_by_details?.full_name ||
-                 ((maintenance as any).created_by_details?.first_name && (maintenance as any).created_by_details?.last_name
-                   ? `${(maintenance as any).created_by_details.first_name} ${(maintenance as any).created_by_details.last_name}`
+                 creator?.full_name ||
+                 (creator?.first_name && creator?.last_name
+                   ? `${creator.first_name} ${creator.last_name}`
                    : "N/A")}
               </td>
             </tr>
@@ -122,7 +128,8 @@ export default function MaintenanceTicket() {
               <td className='border-r border-black p-4 bg-blue-100 font-semibold print:p-3'>Department:</td>
               <td className='p-4 print:p-3'>
                 {maintenance.department?.name ||
-                 (maintenance as any).created_by_details?.department?.name ||
+                 creator?.department?.name ||
+                 creator?.department ||
                  "N/A"}
               </td>
             </tr>
@@ -130,7 +137,8 @@ export default function MaintenanceTicket() {
               <td className='border-r border-black p-4 bg-blue-100 font-semibold print:p-3'>Location:</td>
               <td className='p-4 print:p-3'>
                 {maintenance.location?.name ||
-                 (maintenance as any).created_by_details?.location?.name ||
+                 creator?.location?.name ||
+                 creator?.location ||
                  "N/A"}
               </td>
             </tr>

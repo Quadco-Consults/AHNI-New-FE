@@ -13,7 +13,7 @@ import {
   AssetMaintenanceSchema,
   TAssetMaintenanceFormData,
 } from "features/admin/types/asset-maintenance";
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { useCreateAssetMaintenanceMutation } from "@/features/admin/controllers/assetMaintenanceController";
@@ -42,10 +42,15 @@ const descOptions = [
 ];
 
 export default function CreateAssetMaintenance() {
+  // Get current date in YYYY-MM-DD format
+  const currentDate = new Date().toISOString().split('T')[0];
+
   const form = useForm<TAssetMaintenanceFormData>({
     resolver: zodResolver(AssetMaintenanceSchema),
+    mode: "onSubmit", // Only validate on submit, not on change
+    reValidateMode: "onChange", // Re-validate on change after first submit
     defaultValues: {
-      maintenance_datetime: "",
+      maintenance_datetime: currentDate,
       asset: "",
       maintenance_type: "",
       rate: "",
@@ -65,8 +70,8 @@ export default function CreateAssetMaintenance() {
 
   // Filter for AHNI staff only (exclude vendors, consultants, external users)
   const ahniStaff = useMemo(
-    () => filterAhniStaffOnly(user?.data.results || []),
-    [user?.data.results]
+    () => filterAhniStaffOnly(user?.data?.results || []),
+    [user?.data?.results]
   );
 
   const userOptions = useMemo(
@@ -140,6 +145,26 @@ export default function CreateAssetMaintenance() {
   const { createAssetMaintenance, isLoading: isCreateLoading } =
     useCreateAssetMaintenanceMutation();
 
+  // Watch rate and cost_estimate fields to auto-calculate total_cost_estimate
+  const rate = form.watch("rate");
+  const costEstimate = form.watch("cost_estimate");
+
+  useEffect(() => {
+    // Convert to numbers, default to 0 if empty or invalid
+    const rateNum = parseFloat(rate) || 0;
+    const costEstimateNum = parseFloat(costEstimate) || 0;
+
+    // Calculate total: rate * cost_estimate
+    const total = rateNum * costEstimateNum;
+
+    // Only update if there's a valid calculation (both fields have values)
+    if (rate && costEstimate) {
+      form.setValue("total_cost_estimate", total.toString(), {
+        shouldValidate: true,
+      });
+    }
+  }, [rate, costEstimate, form]);
+
   const onSubmit: SubmitHandler<TAssetMaintenanceFormData> = async (data) => {
     try {
       await createAssetMaintenance(data);
@@ -167,6 +192,7 @@ export default function CreateAssetMaintenance() {
                   name='maintenance_datetime'
                   type='date'
                   required
+                  disabled
                 />
 
                 <FormSelect
@@ -211,8 +237,9 @@ export default function CreateAssetMaintenance() {
                 <FormInput
                   label='Total Cost Estimate'
                   name='total_cost_estimate'
-                  placeholder='Enter Total Cost Estimate'
+                  placeholder='Auto-calculated'
                   required
+                  disabled
                 />
               </div>
 

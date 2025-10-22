@@ -525,7 +525,12 @@ export const useUpdateAdhocApplicantStatus = (applicantId: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (payload: { status: string }) => {
+    mutationFn: async (payload: {
+      status: string;
+      contract_start_date?: string;
+      contract_end_date?: string;
+      type?: string;
+    }) => {
       const response = await AxiosWithToken.patch(`${BASE_URL}${applicantId}/`, payload);
       return response.data;
     },
@@ -534,11 +539,91 @@ export const useUpdateAdhocApplicantStatus = (applicantId: string) => {
       queryClient.invalidateQueries({ queryKey: ["adhocApplicant", applicantId] });
       queryClient.invalidateQueries({ queryKey: ["adhocApplicantsByAd"] });
       queryClient.invalidateQueries({ queryKey: ["adhocStaffDatabase"] });
+      queryClient.invalidateQueries({ queryKey: ["my-pending-adhoc-interviews"] });
+      queryClient.invalidateQueries({ queryKey: ["adhoc-interview-scores"] });
       toast.success(data.message || "Status updated successfully!");
     },
     onError: (error: AxiosError) => {
       const errorMessage =
         (error.response?.data as any)?.message || "Failed to update status";
+      toast.error(errorMessage);
+    },
+  });
+};
+
+/**
+ * Select Applicant (INTERVIEWED → SELECTED)
+ * @description Marks an interviewed applicant as selected
+ */
+export const useSelectApplicant = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (payload: { applicant_id: string; selection_notes?: string }) => {
+      const response = await AxiosWithToken.post(`${BASE_URL}select/`, payload);
+      return response.data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["adhocApplicants"] });
+      queryClient.invalidateQueries({ queryKey: ["adhocApplicant"] });
+      queryClient.invalidateQueries({ queryKey: ["adhocApplicantsByAd"] });
+      queryClient.invalidateQueries({ queryKey: ["adhocStaffDatabase"] });
+      toast.success(data.message || "Applicant selected successfully!");
+    },
+    onError: (error: AxiosError) => {
+      const errorMessage = (error.response?.data as any)?.message || "Failed to select applicant";
+      toast.error(errorMessage);
+    },
+  });
+};
+
+/**
+ * Issue Contract (HIRED → CONTRACT_ISSUED)
+ * @description Issues a contract to a hired applicant
+ */
+export const useIssueContract = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (payload: { applicant_id: string }) => {
+      const response = await AxiosWithToken.post(`${BASE_URL}issue-contract/`, payload);
+      return response.data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["adhocApplicants"] });
+      queryClient.invalidateQueries({ queryKey: ["adhocApplicant"] });
+      queryClient.invalidateQueries({ queryKey: ["adhocApplicantsByAd"] });
+      queryClient.invalidateQueries({ queryKey: ["adhocStaffDatabase"] });
+      toast.success(data.message || "Contract issued successfully!");
+    },
+    onError: (error: AxiosError) => {
+      const errorMessage = (error.response?.data as any)?.message || "Failed to issue contract";
+      toast.error(errorMessage);
+    },
+  });
+};
+
+/**
+ * Accept Contract (CONTRACT_ISSUED → APPROVED)
+ * @description Marks a contract as accepted by the applicant
+ */
+export const useAcceptContract = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (payload: { applicant_id: string }) => {
+      const response = await AxiosWithToken.post(`${BASE_URL}accept-contract/`, payload);
+      return response.data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["adhocApplicants"] });
+      queryClient.invalidateQueries({ queryKey: ["adhocApplicant"] });
+      queryClient.invalidateQueries({ queryKey: ["adhocApplicantsByAd"] });
+      queryClient.invalidateQueries({ queryKey: ["adhocStaffDatabase"] });
+      toast.success(data.message || "Contract accepted successfully!");
+    },
+    onError: (error: AxiosError) => {
+      const errorMessage = (error.response?.data as any)?.message || "Failed to accept contract";
       toast.error(errorMessage);
     },
   });

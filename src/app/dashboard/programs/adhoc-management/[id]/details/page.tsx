@@ -1,5 +1,5 @@
-import ConsultancyDetails from "@/features/contracts-grants/components/contract-management/consultant-management/id/ConsultancyDetails";
+import AdhocAdvertisementDetails from "@/features/programs/components/adhoc-management/AdhocAdvertisementDetails";
 
 export default function AdhocDetailsPage() {
-  return <ConsultancyDetails />;
+  return <AdhocAdvertisementDetails />;
 }

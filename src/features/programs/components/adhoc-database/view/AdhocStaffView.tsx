@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
 import { Badge } from "components/ui/badge";
 import PencilIcon from "components/icons/PencilIcon";
 import DescriptionCard from "components/DescriptionCard";
-import { useGetSingleConsultancyApplicant } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
+import { useGetSingleAdhocApplicant } from "@/features/programs/controllers/adhocApplicantController";
 import { format } from "date-fns";
 
 export default function AdhocStaffView() {
@@ -17,50 +17,48 @@ export default function AdhocStaffView() {
   const router = useRouter();
   const staffId = params?.id as string;
 
-  // Fetch consultancy applicant data
-  const { data: applicantResponse, isLoading, error } = useGetSingleConsultancyApplicant(staffId);
+  // Fetch adhoc applicant data
+  const { data: applicantResponse, isLoading, error } = useGetSingleAdhocApplicant(staffId, !!staffId);
 
   const applicant = applicantResponse?.data;
 
-  // Transform applicant data to staff view structure
-  const nameParts = applicant?.name?.split(' ') || [];
-  const surname = nameParts[0] || '';
-  const otherNames = nameParts.slice(1).join(' ') || '';
-
-  const qualifications = applicant?.education
-    ?.map(edu => edu.degree || edu.major)
-    .filter(Boolean)
-    .join(', ') || '';
-
+  // Transform adhoc applicant data to staff view structure
   const staffData = applicant ? {
-    sur_name: surname,
-    other_names: otherNames,
+    sur_name: applicant.sur_name,
+    other_names: applicant.other_names,
     gender: applicant.gender,
     state_of_origin: applicant.state_of_origin,
+    lga_of_origin: applicant.lga_of_origin,
     phone_number: applicant.phone_number,
-    email_address: applicant.email,
-    designation: applicant.position_under_contract,
-    qualifications: qualifications,
-    health_facility: applicant.health_facility,
-    spoke_site_name: applicant.spoke_site_name,
-    lga: applicant.lga,
-    status_of_adhoc_staff: applicant.offer_accepted ? 'Active' : 'Pending',
-    qmap_backstop: applicant.qmap_backstop,
-    programs_officer: applicant.programs_officer,
-    stl: applicant.stl,
-    seo: applicant.seo,
-    lga2: applicant.lga2,
-    cluster: applicant.cluster,
-    account_name: applicant.account_name,
-    bank_name: applicant.bank_name,
-    account_number: applicant.account_number,
-    sort_code: applicant.sort_code,
+    email_address: applicant.email_address,
+    alternative_phone: applicant.alternative_phone,
+    residential_address: applicant.residential_address,
+    designation: applicant.advertisement?.position_title || applicant.position_under_contract,
+    qualifications: applicant.qualifications,
+    current_employer: applicant.current_employer,
+    current_position: applicant.current_position,
+    total_experience_years: applicant.total_experience_years,
+    health_facility: applicant.assigned_health_facility || applicant.preferred_health_facility,
+    spoke_site_name: applicant.assigned_spoke_site,
+    lga: applicant.assigned_lga,
+    status_of_adhoc_staff: applicant.offer_accepted ? 'Active' : applicant.status_display,
     // Contract related data
     contract_start_date: applicant.contract_start_date,
     contract_end_date: applicant.contract_end_date,
-    contract_value: applicant.contract_value,
-    project: applicant.project,
     offer_acceptance_date: applicant.offer_acceptance_date,
+    // These fields don't exist in adhoc applicant type - set as undefined
+    qmap_backstop: undefined,
+    programs_officer: undefined,
+    stl: undefined,
+    seo: undefined,
+    lga2: undefined,
+    cluster: undefined,
+    account_name: undefined,
+    bank_name: undefined,
+    account_number: undefined,
+    sort_code: undefined,
+    contract_value: undefined,
+    project: applicant.advertisement?.position_title,
   } : null;
 
   if (isLoading) {
@@ -161,8 +159,16 @@ export default function AdhocStaffView() {
                   description={staffData?.state_of_origin || "Not provided"}
                 />
                 <DescriptionCard
+                  label="LGA of Origin"
+                  description={staffData?.lga_of_origin || "Not provided"}
+                />
+                <DescriptionCard
                   label="Phone Number"
                   description={staffData?.phone_number || "Not provided"}
+                />
+                <DescriptionCard
+                  label="Alternative Phone"
+                  description={staffData?.alternative_phone || "Not provided"}
                 />
                 <DescriptionCard
                   label="Email Address"
@@ -178,7 +184,7 @@ export default function AdhocStaffView() {
               <h2 className="text-xl font-semibold text-gray-800 mb-4">Professional Information</h2>
               <div className="grid grid-cols-2 gap-6">
                 <DescriptionCard
-                  label="Designation"
+                  label="Position/Designation"
                   description={staffData?.designation || "Not provided"}
                 />
                 <DescriptionCard
@@ -186,82 +192,50 @@ export default function AdhocStaffView() {
                   description={staffData?.qualifications || "Not provided"}
                 />
                 <DescriptionCard
-                  label="Health Facility/Assignment Location"
-                  description={staffData?.health_facility || "Not provided"}
+                  label="Total Experience (Years)"
+                  description={staffData?.total_experience_years?.toString() || "Not provided"}
                 />
                 <DescriptionCard
-                  label="Spoke Site Name"
-                  description={staffData?.spoke_site_name || "Not provided"}
+                  label="Current Employer"
+                  description={staffData?.current_employer || "Not provided"}
                 />
                 <DescriptionCard
-                  label="LGA"
-                  description={staffData?.lga || "Not provided"}
+                  label="Current Position"
+                  description={staffData?.current_position || "Not provided"}
                 />
                 <DescriptionCard
-                  label="Status of Adhoc staff"
+                  label="Status"
                   description={staffData?.status_of_adhoc_staff || "Not provided"}
                 />
               </div>
             </div>
           </Card>
 
-          {/* Team & Assignment Details */}
+          {/* Assignment Information */}
           <Card>
             <div className="p-6">
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">Team & Assignment Details</h2>
+              <h2 className="text-xl font-semibold text-gray-800 mb-4">Assignment Information</h2>
               <div className="grid grid-cols-2 gap-6">
                 <DescriptionCard
-                  label="QMAP BACKSTOP"
-                  description={staffData?.qmap_backstop || "Not assigned"}
+                  label="Assigned Health Facility"
+                  description={staffData?.health_facility || "Not assigned"}
                 />
                 <DescriptionCard
-                  label="Programs Officer"
-                  description={staffData?.programs_officer || "Not assigned"}
+                  label="Assigned Spoke Site"
+                  description={staffData?.spoke_site_name || "Not assigned"}
                 />
                 <DescriptionCard
-                  label="STL"
-                  description={staffData?.stl || "Not assigned"}
+                  label="Assigned LGA"
+                  description={staffData?.lga || "Not assigned"}
                 />
                 <DescriptionCard
-                  label="SEO"
-                  description={staffData?.seo || "Not assigned"}
-                />
-                <DescriptionCard
-                  label="LGA2"
-                  description={staffData?.lga2 || "Not provided"}
-                />
-                <DescriptionCard
-                  label="Cluster"
-                  description={staffData?.cluster || "Not assigned"}
+                  label="Residential Address"
+                  description={staffData?.residential_address || "Not provided"}
                 />
               </div>
             </div>
           </Card>
 
-          {/* Financial Information */}
-          <Card>
-            <div className="p-6">
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">Financial Information</h2>
-              <div className="grid grid-cols-2 gap-6">
-                <DescriptionCard
-                  label="Account Name"
-                  description={staffData?.account_name || "Not provided"}
-                />
-                <DescriptionCard
-                  label="Bank Name"
-                  description={staffData?.bank_name || "Not provided"}
-                />
-                <DescriptionCard
-                  label="Account Number"
-                  description={staffData?.account_number || "Not provided"}
-                />
-                <DescriptionCard
-                  label="Sort Code"
-                  description={staffData?.sort_code || "Not provided"}
-                />
-              </div>
-            </div>
-          </Card>
         </TabsContent>
 
         {/* Contract Information Tab */}
@@ -287,14 +261,6 @@ export default function AdhocStaffView() {
                   }
                 />
                 <DescriptionCard
-                  label="Contract Value"
-                  description={
-                    staffData?.contract_value
-                      ? `₦${Number(staffData.contract_value).toLocaleString()}`
-                      : "Not specified"
-                  }
-                />
-                <DescriptionCard
                   label="Acceptance Date"
                   description={
                     staffData?.offer_acceptance_date
@@ -303,12 +269,16 @@ export default function AdhocStaffView() {
                   }
                 />
                 <DescriptionCard
-                  label="Project"
-                  description={staffData?.project || "Not assigned"}
+                  label="Position"
+                  description={staffData?.project || staffData?.designation || "Not assigned"}
                 />
                 <DescriptionCard
                   label="Contract Status"
-                  description={applicant?.status || "Unknown"}
+                  description={applicant?.status_display || applicant?.status || "Unknown"}
+                />
+                <DescriptionCard
+                  label="Application Number"
+                  description={applicant?.application_number || "N/A"}
                 />
               </div>
 
@@ -364,27 +334,11 @@ export default function AdhocStaffView() {
               <h2 className="text-xl font-semibold text-gray-800 mb-4">Payment History</h2>
 
               {/* Payment Summary */}
-              <div className="grid grid-cols-3 gap-4 mb-6">
-                <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-                  <p className="text-sm text-green-600 mb-1">Total Paid</p>
-                  <p className="text-2xl font-bold text-green-900">₦0.00</p>
-                </div>
-                <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                  <p className="text-sm text-blue-600 mb-1">Contract Value</p>
-                  <p className="text-2xl font-bold text-blue-900">
-                    {staffData?.contract_value
-                      ? `₦${Number(staffData.contract_value).toLocaleString()}`
-                      : "N/A"}
-                  </p>
-                </div>
-                <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
-                  <p className="text-sm text-amber-600 mb-1">Pending</p>
-                  <p className="text-2xl font-bold text-amber-900">
-                    {staffData?.contract_value
-                      ? `₦${Number(staffData.contract_value).toLocaleString()}`
-                      : "N/A"}
-                  </p>
-                </div>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                <p className="text-sm text-blue-700 mb-2">Payment Information</p>
+                <p className="text-gray-700">
+                  Payment history and contract value information will be available once the payment module is integrated.
+                </p>
               </div>
 
               {/* Payment Records Table */}
@@ -423,31 +377,23 @@ export default function AdhocStaffView() {
         <TabsContent value="projects" className="space-y-6">
           <Card>
             <div className="p-6">
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">Current Project Assignment</h2>
+              <h2 className="text-xl font-semibold text-gray-800 mb-4">Current Assignment</h2>
               <div className="grid grid-cols-2 gap-6">
                 <DescriptionCard
-                  label="Project Name"
-                  description={staffData?.project || "No project assigned"}
+                  label="Position"
+                  description={staffData?.designation || "No position assigned"}
                 />
                 <DescriptionCard
                   label="Assignment Location"
                   description={staffData?.health_facility || "Not specified"}
                 />
                 <DescriptionCard
+                  label="Spoke Site"
+                  description={staffData?.spoke_site_name || "Not assigned"}
+                />
+                <DescriptionCard
                   label="LGA"
                   description={staffData?.lga || "Not specified"}
-                />
-                <DescriptionCard
-                  label="Cluster"
-                  description={staffData?.cluster || "Not assigned"}
-                />
-                <DescriptionCard
-                  label="Supervisor (QMAP BACKSTOP)"
-                  description={staffData?.qmap_backstop || "Not assigned"}
-                />
-                <DescriptionCard
-                  label="Programs Officer"
-                  description={staffData?.programs_officer || "Not assigned"}
                 />
               </div>
             </div>

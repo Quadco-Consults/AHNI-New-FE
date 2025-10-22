@@ -1,7 +1,5 @@
-"use client";
-
-import ContractRequestDetails from "@/features/contracts-grants/components/contract-management/consultant-acceptance/contract-request-details";
+import AdhocAdvertisementContractsView from "@/features/programs/components/adhoc-management/AdhocAdvertisementContractsView";
 
 export default function AdhocAcceptanceDetailsPage() {
-  return <ContractRequestDetails />;
+  return <AdhocAdvertisementContractsView />;
 }

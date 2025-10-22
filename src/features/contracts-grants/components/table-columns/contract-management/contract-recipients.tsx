@@ -3,7 +3,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { Button } from "components/ui/button";
 import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
 import Link from "next/link";
-import { ProgramRoutes } from "constants/RouterConstants";
 import { IAdhocApplicant } from "@/features/programs/types/adhoc-management";
 import EyeIcon from "components/icons/EyeIcon";
 import { Badge } from "components/ui/badge";
@@ -148,7 +147,7 @@ const TableMenu = ({ id }: IAdhocApplicant) => {
                     </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-fit">
-                    <Link href={`${ProgramRoutes.ADHOC_ACCEPTANCE_DETAILS}/${id}`}>
+                    <Link href={`/dashboard/programs/adhoc/adhoc-acceptance/applicant/${id}`}>
                         <Button
                             className="w-full flex items-center justify-start gap-2"
                             variant="ghost"
