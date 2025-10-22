@@ -113,13 +113,26 @@ export default function ConsultancyDetailsPage() {
   const interviewPath =
     type === "ADHOC" ? ProgramRoutes.CREATE_ADHOC_INTERVIEW : CG_ROUTES.CREATE_CONSULTANCY_INTERVIEW;
 
+  // Debug logging for details page
+  if (process.env.NODE_ENV === 'development') {
+    console.log('📄 ConsultancyDetails Debug:', {
+      type,
+      id,
+      pathname,
+      tabValue,
+      isLoading,
+      hasData: !!data,
+      dataKeys: data ? Object.keys(data) : [],
+    });
+  }
+
   if (isLoading) {
     return <LoadingSpinner />;
   }
 
   return (
     <Tabs
-      defaultValue='details'
+      defaultValue='job-details'
       value={tabValue}
       onValueChange={(value) => setTabValue(value)}
     >

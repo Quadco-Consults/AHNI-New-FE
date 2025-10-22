@@ -7,6 +7,15 @@ import { Card } from "components/ui/card";
 import { Badge } from "components/ui/badge";
 import { Textarea } from "components/ui/textarea";
 import { Label } from "components/ui/label";
+import { Input } from "components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
 import {
   ArrowLeft,
@@ -48,6 +57,8 @@ export default function AdhocRequisitionDetailPage() {
   const [showApprovalForm, setShowApprovalForm] = useState(false);
   const [comments, setComments] = useState("");
   const [rejectionReason, setRejectionReason] = useState("");
+  const [showConvertDialog, setShowConvertDialog] = useState(false);
+  const [applicationDeadline, setApplicationDeadline] = useState("");
 
   const { data, isLoading } = useGetSingleAdhocRequisition(id);
   const { mutate: reviewRequisition, isPending: isReviewing } = useReviewRequisition(id);
@@ -142,18 +153,42 @@ export default function AdhocRequisitionDetailPage() {
     }
   };
 
+  const handleShowConvertDialog = () => {
+    // Set default deadline to 30 days from now
+    const defaultDeadline = new Date();
+    defaultDeadline.setDate(defaultDeadline.getDate() + 30);
+    setApplicationDeadline(defaultDeadline.toISOString().split('T')[0]);
+    setShowConvertDialog(true);
+  };
+
   const handleConvertToAd = () => {
-    if (confirm("Convert this requisition to a job advertisement?")) {
-      convertToAd(undefined, {
-        onSuccess: (response) => {
-          // Redirect to the created adhoc management advertisement
-          const advertisementId = response?.data?.advertisement_id;
-          if (advertisementId) {
-            router.push(ProgramRoutes.ADHOC_DETAILS.replace(':id', advertisementId));
-          }
-        }
-      });
+    if (!applicationDeadline) {
+      alert("Please select an application deadline");
+      return;
     }
+
+    // Note: Backend now properly copies job_description, key_responsibilities, and qualifications
+    // Application deadline still needs to be added manually after conversion
+    // TODO: Update backend to accept application_deadline during conversion
+
+    convertToAd(undefined, {
+      onSuccess: (response) => {
+        setShowConvertDialog(false);
+        const advertisementId = response?.data?.advertisement_id;
+        if (advertisementId) {
+          // Redirect to the advertisements list
+          router.push(ProgramRoutes.ADHOC_MANAGEMENT);
+
+          // Show reminder about deadline
+          setTimeout(() => {
+            alert(`Advertisement created successfully!\n\nREMINDER: Edit the advertisement and add the Application Deadline (${applicationDeadline}) before publishing.`);
+          }, 500);
+        }
+      },
+      onError: () => {
+        setShowConvertDialog(false);
+      }
+    });
   };
 
   const handleSubmit = () => {
@@ -229,7 +264,7 @@ export default function AdhocRequisitionDetailPage() {
               </Button>
             )}
             {canConvert && (
-              <Button onClick={handleConvertToAd} disabled={isConverting}>
+              <Button onClick={handleShowConvertDialog} disabled={isConverting}>
                 <CheckCircle className="w-4 h-4 mr-2" />
                 {isConverting ? "Converting..." : "Convert to Advertisement"}
               </Button>
@@ -664,6 +699,62 @@ export default function AdhocRequisitionDetailPage() {
             </Card>
           </TabsContent>
         </Tabs>
+
+        {/* Convert to Advertisement Dialog */}
+        <Dialog open={showConvertDialog} onOpenChange={setShowConvertDialog}>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle>Convert to Job Advertisement</DialogTitle>
+              <DialogDescription>
+                This will convert the requisition into a publishable job advertisement.
+                Please provide the application deadline.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="deadline">Application Deadline *</Label>
+                <Input
+                  id="deadline"
+                  type="date"
+                  value={applicationDeadline}
+                  onChange={(e) => setApplicationDeadline(e.target.value)}
+                  min={new Date().toISOString().split('T')[0]}
+                  required
+                />
+                <p className="text-sm text-gray-500">
+                  Applicants will be able to apply until this date
+                </p>
+              </div>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex items-start gap-2">
+                  <AlertCircle className="w-5 h-5 text-blue-600 mt-0.5" />
+                  <div className="text-sm text-blue-800">
+                    <p className="font-semibold">Note:</p>
+                    <p className="mt-1">
+                      The job description, responsibilities, and qualifications will be automatically copied from the requisition.
+                      You will need to edit the advertisement to add the application deadline before publishing.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setShowConvertDialog(false)}
+                disabled={isConverting}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleConvertToAd}
+                disabled={isConverting || !applicationDeadline}
+              >
+                {isConverting ? "Converting..." : "Convert to Advertisement"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

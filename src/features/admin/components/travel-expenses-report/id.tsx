@@ -227,33 +227,50 @@ export default function TravelExpenseDetailsPage() {
               <div className='space-y-4'>
                 <h3 className='font-bold text-xl text-center'>Supporting Documents</h3>
 
-                {/* Debug Information */}
-                <div className='bg-gray-100 p-4 rounded border'>
-                  <h4 className='font-semibold mb-2'>Debug Info:</h4>
-                  <p>Document exists: {(data?.data.document || data?.data.document_url) ? 'YES' : 'NO'}</p>
-                  <p>Document URL: {data?.data.document || data?.data.document_url || 'null'}</p>
-                  <p>Document type: {typeof (data?.data.document || data?.data.document_url)}</p>
-                </div>
+                {(() => {
+                  // Extract document URL handling both string and object formats
+                  let documentUrl = null;
 
-                {(data?.data.document || data?.data.document_url) ? (
-                  <div className='border-2 border-black shadow-sm p-4'>
-                    <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
-                      <DocumentCard
-                        id={data.data.id}
-                        title='Travel Expense Report Document'
-                        file={data.data.document || data.data.document_url || ''}
-                        onLoadSuccess={() => {}}
-                        pageNumber={1}
-                        uploadedDateTime={data.data.created_datetime}
-                        showDeleteIcon={false}
-                      />
+                  if (data?.data.document) {
+                    if (typeof data.data.document === 'string') {
+                      documentUrl = data.data.document;
+                    } else if (typeof data.data.document === 'object') {
+                      // Handle object format - check common properties
+                      documentUrl = (data.data.document as any)?.url ||
+                                   (data.data.document as any)?.file_path ||
+                                   (data.data.document as any)?.document_url ||
+                                   null;
+                    }
+                  } else if (data?.data.document_url) {
+                    if (typeof data.data.document_url === 'string') {
+                      documentUrl = data.data.document_url;
+                    } else if (typeof data.data.document_url === 'object') {
+                      documentUrl = (data.data.document_url as any)?.url ||
+                                   (data.data.document_url as any)?.file_path ||
+                                   null;
+                    }
+                  }
+
+                  return documentUrl ? (
+                    <div className='border-2 border-black shadow-sm p-4'>
+                      <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
+                        <DocumentCard
+                          id={data.data.id}
+                          title='Travel Expense Report Document'
+                          file={documentUrl}
+                          onLoadSuccess={() => {}}
+                          pageNumber={1}
+                          uploadedDateTime={data.data.created_datetime}
+                          showDeleteIcon={false}
+                        />
+                      </div>
                     </div>
-                  </div>
-                ) : (
-                  <div className='border-2 border-red-300 bg-red-50 shadow-sm p-4 text-center'>
-                    <p className='text-red-600'>No document found for this travel expense report.</p>
-                  </div>
-                )}
+                  ) : (
+                    <div className='border-2 border-yellow-300 bg-yellow-50 shadow-sm p-4 text-center'>
+                      <p className='text-yellow-700'>No supporting document has been uploaded for this travel expense report.</p>
+                    </div>
+                  );
+                })()}
               </div>
 
               {/* Travel Expense Report Table View */}

@@ -5,27 +5,45 @@ import { adhocDatabaseColumns } from "@/features/programs/components/table-colum
 import DataTable from "components/Table/DataTable";
 import TableFilters from "components/Table/TableFilters";
 import { useState } from "react";
-import { useGetAllAdhocStaff } from "@/features/programs/controllers/adhocDatabaseController";
+import { useGetAllAdhocApplicants } from "@/features/programs/controllers/adhocApplicantController";
 import { Badge } from "components/ui/badge";
 
 export default function AdhocDatabase() {
     const [page, setPage] = useState(1);
 
-    // Fetch all adhoc staff from the staff database endpoint
-    const { data, isLoading } = useGetAllAdhocStaff({
-        page,
+    // Fetch all adhoc applicants and filter for accepted contracts
+    // Using applicants endpoint since staff database endpoint doesn't exist yet
+    const { data, isLoading } = useGetAllAdhocApplicants({
+        page: 1,
         size: 1000,
-        status: "ACTIVE",  // Active staff in database
-        enabled: true,
     });
+
+    const allApplicants = data?.data?.results || [];
+
+    // Filter for staff who have accepted their contracts
+    const allResults = allApplicants.filter((applicant: any) =>
+        applicant.status === "APPROVED" && applicant.offer_accepted === true
+    );
 
     console.log("🔍 Adhoc Database Data:", {
-        total: data?.data?.paginator?.count || 0,
+        total: allResults.length,
         isLoading,
-        results: data?.data?.results
+        allApplicants: allApplicants.length,
+        acceptedStaff: allResults.length,
+        statuses: allApplicants.map((a: any) => a.status),
     });
 
-    const allResults = data?.data?.results || [];
+    // Debug: Log first applicant to see available fields
+    if (allResults.length > 0) {
+        console.log("📋 Sample Applicant Data:", {
+            fullData: allResults[0],
+            email: allResults[0]?.email_address,
+            position: allResults[0]?.advertisement,
+            qualifications: allResults[0]?.qualifications,
+            healthFacility: allResults[0]?.assigned_health_facility,
+            preferredFacility: allResults[0]?.preferred_health_facility,
+        });
+    }
 
     return (
         <section className="space-y-6">
@@ -70,8 +88,8 @@ export default function AdhocDatabase() {
                         data={allResults}
                         isLoading={isLoading}
                         pagination={{
-                            total: data?.data?.paginator?.count || 0,
-                            pageSize: data?.data?.paginator?.page_size || 1000,
+                            total: allResults.length,
+                            pageSize: 1000,
                             onChange: setPage,
                         }}
                     />

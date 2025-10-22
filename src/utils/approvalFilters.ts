@@ -12,10 +12,12 @@ import { getApprovalPermissions } from "@/features/auth/types/permission";
  */
 export function filterUsersWithReviewPermission(users: IUser[]): IUser[] {
   return users.filter(user => {
-    if (!user.roles || user.roles.length === 0) return false;
+    // Check approval_permissions object from API
+    if ((user as any).approval_permissions?.can_review === true) {
+      return true;
+    }
 
-    // Check if user's permissions include can_review
-    // The user.permissions array is grouped by module
+    // Fallback: Check if user's permissions include can_review (old structure)
     if (user.permissions && user.permissions.length > 0) {
       const approvalModule = user.permissions.find(p => p.module === 'approvals');
       if (approvalModule && approvalModule.permissions) {
@@ -38,8 +40,12 @@ export function filterUsersWithReviewPermission(users: IUser[]): IUser[] {
  */
 export function filterUsersWithAuthorizePermission(users: IUser[]): IUser[] {
   return users.filter(user => {
-    if (!user.roles || user.roles.length === 0) return false;
+    // Check approval_permissions object from API
+    if ((user as any).approval_permissions?.can_authorize === true) {
+      return true;
+    }
 
+    // Fallback: Check if user's permissions include can_authorize (old structure)
     if (user.permissions && user.permissions.length > 0) {
       const approvalModule = user.permissions.find(p => p.module === 'approvals');
       if (approvalModule && approvalModule.permissions) {
@@ -62,8 +68,12 @@ export function filterUsersWithAuthorizePermission(users: IUser[]): IUser[] {
  */
 export function filterUsersWithApprovePermission(users: IUser[]): IUser[] {
   return users.filter(user => {
-    if (!user.roles || user.roles.length === 0) return false;
+    // Check approval_permissions object from API
+    if ((user as any).approval_permissions?.can_approve === true) {
+      return true;
+    }
 
+    // Fallback: Check if user's permissions include can_approve (old structure)
     if (user.permissions && user.permissions.length > 0) {
       const approvalModule = user.permissions.find(p => p.module === 'approvals');
       if (approvalModule && approvalModule.permissions) {
@@ -158,8 +168,15 @@ export function getUserDisplayLabel(user: IUser): string {
  */
 export function filterUsersWithAnyApprovalPermission(users: IUser[]): IUser[] {
   return users.filter(user => {
-    if (!user.roles || user.roles.length === 0) return false;
+    // Check approval_permissions object from API
+    const approvalPerms = (user as any).approval_permissions;
+    if (approvalPerms?.can_review === true ||
+        approvalPerms?.can_authorize === true ||
+        approvalPerms?.can_approve === true) {
+      return true;
+    }
 
+    // Fallback: Check if user's permissions include any approval permission (old structure)
     if (user.permissions && user.permissions.length > 0) {
       const approvalModule = user.permissions.find(p => p.module === 'approvals');
       if (approvalModule && approvalModule.permissions) {

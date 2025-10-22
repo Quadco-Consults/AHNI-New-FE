@@ -30,6 +30,7 @@ import {
 import { useGetAllUsers } from "@/features/auth/controllers/userController";
 import { useGetAllExpenseAuthorizations } from "@/features/admin/controllers/expenseAuthorizationController";
 import { getCurrentUser } from "@/utils/auth";
+import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import {
   getReviewerOptions,
   getAuthorizerOptions,
@@ -41,10 +42,10 @@ export default function SimpleTravelExpenseReportPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const id = searchParams?.get("id");
-  const [currentUserData, setCurrentUserData] = useState<any>(null);
 
   const form = useForm<TTravelExpenseFormData>({
     resolver: zodResolver(TravelExpenseSchema),
+    mode: "onChange", // Validate on change to get real-time validation state
     defaultValues: {
       expense_authorization: "",
       user: "",
@@ -72,7 +73,7 @@ export default function SimpleTravelExpenseReportPage() {
   });
   const { data: travelExpense, isLoading: isTravelExpenseLoading, error: travelExpenseError } = useGetSingleTravelExpense(id || "", !!id);
   const { createTravelExpense, isLoading: isCreateLoading } = useCreateTravelExpense();
-  const { modifyTravelExpense, isLoading: isModifyLoading } = useModifyTravelExpense(id || "");
+  const { isLoading: isModifyLoading } = useModifyTravelExpense(id || ""); // modifyTravelExpense not used, we call API directly
 
   // Debug expense auth loading
   useEffect(() => {
@@ -136,19 +137,19 @@ export default function SimpleTravelExpenseReportPage() {
   // Filtered options for approval workflow - only users with appropriate permissions
   const reviewerOptions = useMemo(() => {
     const userResults = (users as any)?.data?.results || users?.results;
-    const ahniStaff = filterAhniStaffOnly(userResults || []);
+    const ahniStaff = filterAhniStaffOnly(userResults || []) as any;
     return getReviewerOptions(ahniStaff);
   }, [users]);
 
   const authorizerOptions = useMemo(() => {
     const userResults = (users as any)?.data?.results || users?.results;
-    const ahniStaff = filterAhniStaffOnly(userResults || []);
+    const ahniStaff = filterAhniStaffOnly(userResults || []) as any;
     return getAuthorizerOptions(ahniStaff);
   }, [users]);
 
   const approverOptions = useMemo(() => {
     const userResults = (users as any)?.data?.results || users?.results;
-    const ahniStaff = filterAhniStaffOnly(userResults || []);
+    const ahniStaff = filterAhniStaffOnly(userResults || []) as any;
     return getApproverOptions(ahniStaff);
   }, [users]);
 
@@ -295,6 +296,7 @@ export default function SimpleTravelExpenseReportPage() {
         authorizer: data.approvals?.find(a => a.approval_level === "AUTHORIZE")?.user?.id || "",
         approver: data.approvals?.find(a => a.approval_level === "APPROVE")?.user?.id || "",
         activities: (data.activities || []).map(activity => ({
+          id: activity.id, // Preserve the activity ID for updates
           date: activity.date,
           activity: activity.activity,
           departure_datetime: convertToDateFormat(activity.departure_datetime),
@@ -328,167 +330,148 @@ export default function SimpleTravelExpenseReportPage() {
   }, [travelExpense, form, id]);
 
   const onSubmit = async (data: TTravelExpenseFormData) => {
+    console.log('🚨 SUBMIT BUTTON CLICKED - FUNCTION TRIGGERED');
+    console.log('🔍 Raw Form Data:', data);
     try {
-      console.log('📝 TER FORM DATA CAPTURED:', data);
-      console.log('🔍 DETAILED FORM BREAKDOWN:');
-      console.log('  📋 Basic Info:', {
-        expense_authorization: data.expense_authorization,
-        user: data.user,
-        staff_id: data.staff_id,
-        travel_purpose: data.travel_purpose,
-        reviewer: data.reviewer,
-        authorizer: data.authorizer,
-        approver: data.approver,
-      });
-      console.log('  📄 Document:', data.document);
-      console.log('  🏃 Activities Count:', data.activities?.length || 0);
-      console.log('  🏃 Activities Details:', data.activities?.map((activity, index) => ({
-        [`Day ${index + 1}`]: {
+      console.log('📝 TER FORM SUBMISSION STARTED');
+      console.log('🔍 Form Data:', data);
+
+      // Validate activities
+      if (!data.activities || data.activities.length === 0) {
+        toast.error("Please add at least one activity");
+        return;
+      }
+
+      const cleanActivities = data.activities.filter(activity =>
+        activity.activity?.trim() && activity.date?.trim()
+      );
+
+      if (cleanActivities.length === 0) {
+        toast.error("Please add at least one complete activity with date and description");
+        return;
+      }
+
+      // Prepare activities in backend format
+      const activitiesForBackend = cleanActivities.map(activity => {
+        const activityData: any = {
           date: activity.date,
           activity: activity.activity,
-          departure_datetime: activity.departure_datetime,
+          departure_datetime: `${activity.departure_datetime}T00:00:00Z`,
           departure_point: activity.departure_point,
-          arrival_datetime: activity.arrival_datetime,
+          arrival_datetime: `${activity.arrival_datetime}T00:00:00Z`,
           assignment_location: activity.assignment_location,
-          visa_free: activity.visa_free,
+          visa_free: activity.visa_free === "true",
           airport_taxi_fee: activity.airport_taxi_fee,
           registration_fee: activity.registration_fee,
           inter_city_taxi_fee: activity.inter_city_taxi_fee,
           total_amount: activity.total_amount,
-          others: activity.others,
+          others: activity.others || "",
+        };
+
+        // Include ID if present (for updates)
+        if ((activity as any).id) {
+          activityData.id = (activity as any).id;
         }
-      })));
 
-      // Clean and validate activities
-      const cleanActivities = data.activities.filter(activity =>
-        activity.activity.trim() && activity.date.trim()
-      );
-
-      if (cleanActivities.length === 0) {
-        toast.error("Please add at least one complete activity");
-        return;
-      }
-
-      // Create FormData as expected by backend
-      const formData = new FormData();
-
-      // Add main fields (excluding activities and document)
-      formData.append('user', data.user || "");
-      formData.append('staff_id', data.staff_id || "");
-      formData.append('travel_purpose', data.travel_purpose || "");
-      formData.append('reviewer', data.reviewer || "");
-      formData.append('authorizer', data.authorizer || "");
-      formData.append('approver', data.approver || "");
-
-      // Add expense_authorization only for create
-      if (!id && data.expense_authorization) {
-        formData.append('expense_authorization', data.expense_authorization);
-      }
-
-      // Convert activities to proper format for backend
-      const activitiesForBackend = cleanActivities.map(activity => ({
-        date: activity.date, // Format: "2025-09-25"
-        activity: activity.activity,
-        departure_datetime: `${activity.departure_datetime}T00:00:00Z`, // ISO format
-        departure_point: activity.departure_point,
-        arrival_datetime: `${activity.arrival_datetime}T00:00:00Z`, // ISO format
-        assignment_location: activity.assignment_location,
-        visa_free: activity.visa_free === "true", // boolean, not string
-        airport_taxi_fee: activity.airport_taxi_fee,
-        registration_fee: activity.registration_fee,
-        inter_city_taxi_fee: activity.inter_city_taxi_fee,
-        total_amount: activity.total_amount,
-        others: activity.others || "",
-      }));
-
-      // FOR SINGLE TRAVELER MODE: Send only activities field (no travelers field)
-      // Backend validation: Either activities (single traveler) OR travelers (multiple traveler) must be provided
-      formData.append('activities', JSON.stringify(activitiesForBackend));
-
-      // Do NOT send travelers field for single traveler mode
-      // Do NOT send traveler_type field - let backend infer from fields provided
-
-      console.log('🚀 SUBMITTING SINGLE TRAVELER TER');
-      console.log('📋 Activities JSON:', JSON.stringify(activitiesForBackend, null, 2));
-      console.log('❌ Travelers field: NOT SENT (backend validation: either activities OR travelers)');
-      console.log('❌ Traveler_type field: NOT SENT (let backend infer from presence of activities)');
-
-      // Debug FormData contents
-      console.log('📋 FORMDATA CONTENTS:');
-      const formDataObject: Record<string, any> = {};
-      for (let [key, value] of formData.entries()) {
-        console.log(`${key}:`, value);
-        formDataObject[key] = value;
-      }
-
-      console.log('📋 FORMDATA AS OBJECT:', formDataObject);
-
-      // Verify the activities field specifically
-      console.log('🔍 BACKEND VALIDATION CHECK:');
-      console.log('✅ Has activities field:', formData.has('activities'));
-      console.log('❌ Has travelers field:', formData.has('travelers'));
-      console.log('❌ Has traveler_type field:', formData.has('traveler_type'));
-
-      console.log('🔍 ACTIVITIES CONTENT:');
-      const activitiesValue = formData.get('activities');
-      console.log('Activities value:', activitiesValue);
-      console.log('Activities type:', typeof activitiesValue);
-      console.log('Activities length:', activitiesValue && typeof activitiesValue === 'string' ? activitiesValue.length : 0);
-
-      if (activitiesValue) {
-        try {
-          const parsedActivities = JSON.parse(activitiesValue as string);
-          console.log('Activities JSON valid:', true);
-          console.log('Activities count:', parsedActivities.length);
-          console.log('First activity:', parsedActivities[0]);
-        } catch (e) {
-          console.error('❌ Activities JSON invalid:', e);
-        }
-      }
-
-      // Check for any potential issues
-      console.log('🚨 POTENTIAL ISSUES CHECK:');
-      console.log('Empty activities?', !activitiesValue || activitiesValue === '[]');
-      console.log('Activities is string?', typeof activitiesValue === 'string');
-      console.log('FormData has multiple entries?', Array.from(formData.keys()).length);
-
-      // Submit the main TER data
-      if (id) {
-        console.log('🔄 UPDATING TER with ID:', id);
-        console.log('🌐 Update endpoint will be:', `/admins/reports/travel-expenses/${id}/`);
-        await modifyTravelExpense(formData as any);
-      } else {
-        console.log('➕ CREATING NEW TER');
-        await createTravelExpense(formData as any);
-      }
-
-      // Handle document upload separately if provided
-      if (data.document && data.document instanceof File) {
-        console.log('📎 Uploading document separately...');
-        // TODO: Implement separate document upload endpoint when TER ID is available
-        // This would require the backend to provide the TER ID after creation
-      }
-
-      toast.success(id ? "Travel Expense Report updated successfully" : "Travel Expense Report created successfully");
-      router.push(AdminRoutes.TRAVEL_EXPENSE_REPORT);
-    } catch (error: any) {
-      console.error('❌ TER ERROR:', error);
-      console.error('❌ Error details:', {
-        message: error?.message,
-        data: error?.data,
-        response: error?.response,
-        responseData: error?.response?.data,
-        status: error?.status || error?.response?.status,
-        statusText: error?.statusText || error?.response?.statusText,
+        return activityData;
       });
 
-      // Extract detailed error message from backend
+      if (id) {
+        // UPDATE MODE - Use JSON payload, not FormData
+        console.log('🔄 UPDATE MODE - ID:', id);
+
+        const updatePayload = {
+          user: data.user,
+          staff_id: data.staff_id,
+          travel_purpose: data.travel_purpose,
+          reviewer: data.reviewer,
+          authorizer: data.authorizer,
+          approver: data.approver,
+          activities: activitiesForBackend,
+        };
+
+        console.log('📦 Update Payload:', JSON.stringify(updatePayload, null, 2));
+
+        // Send as JSON, not FormData
+        const response = await AxiosWithToken.patch(
+          `/admins/reports/travel-expenses/${id}/`,
+          updatePayload
+        );
+
+        console.log('✅ UPDATE SUCCESS:', response.data);
+
+        // Upload document separately if provided
+        // Handle both File and FileList
+        let fileToUpload = null;
+        if (data.document) {
+          if (data.document instanceof File) {
+            fileToUpload = data.document;
+          } else if (data.document instanceof FileList && data.document.length > 0) {
+            fileToUpload = data.document[0];
+          }
+        }
+
+        if (fileToUpload) {
+          console.log('📎 Uploading document separately...', fileToUpload);
+          const docFormData = new FormData();
+          docFormData.append('document', fileToUpload);
+
+          await AxiosWithToken.post(
+            `/admins/reports/travel-expenses/${id}/upload-document/`,
+            docFormData
+          );
+          console.log('✅ DOCUMENT UPLOADED');
+        }
+
+        toast.success("Travel Expense Report updated successfully");
+        router.push(AdminRoutes.TRAVEL_EXPENSE_REPORT);
+      } else {
+        // CREATE MODE - Use FormData
+        console.log('➕ CREATE MODE');
+
+        const formData = new FormData();
+        if (data.expense_authorization) {
+          formData.append('expense_authorization', data.expense_authorization);
+        }
+        if (data.user) {
+          formData.append('user', data.user);
+        }
+        if (data.staff_id) {
+          formData.append('staff_id', data.staff_id);
+        }
+        formData.append('travel_purpose', data.travel_purpose);
+        formData.append('reviewer', data.reviewer);
+        formData.append('authorizer', data.authorizer);
+        formData.append('approver', data.approver);
+        formData.append('activities', JSON.stringify(activitiesForBackend));
+
+        // Handle document - could be File or FileList
+        if (data.document) {
+          if (data.document instanceof File) {
+            formData.append('document', data.document);
+          } else if (data.document instanceof FileList && data.document.length > 0) {
+            formData.append('document', data.document[0]);
+          }
+        }
+
+        console.log('📦 Create FormData prepared');
+
+        await createTravelExpense(formData as any);
+        console.log('✅ CREATE SUCCESS');
+
+        toast.success("Travel Expense Report created successfully");
+        router.push(AdminRoutes.TRAVEL_EXPENSE_REPORT);
+      }
+    } catch (error: any) {
+      console.error('❌ SUBMISSION ERROR:', error);
+      console.error('❌ Error Response Data:', error?.response?.data);
+      console.error('❌ Error Response Status:', error?.response?.status);
+      console.error('❌ Error Response Headers:', error?.response?.headers);
+      console.error('❌ Full Error Object:', JSON.stringify(error, null, 2));
+
       let errorMessage = "Something went wrong";
       if (error?.response?.data) {
         const responseData = error.response.data;
-        console.error('🔍 BACKEND ERROR RESPONSE:', responseData);
-
-        // Backend might return errors in different formats
         if (typeof responseData === 'string') {
           errorMessage = responseData;
         } else if (responseData.message) {
@@ -498,29 +481,42 @@ export default function SimpleTravelExpenseReportPage() {
         } else if (responseData.detail) {
           errorMessage = responseData.detail;
         } else {
-          // Try to extract first error from validation errors
           const firstKey = Object.keys(responseData)[0];
           if (firstKey && responseData[firstKey]) {
             errorMessage = `${firstKey}: ${JSON.stringify(responseData[firstKey])}`;
           }
         }
-      } else if (error?.data?.message) {
-        errorMessage = error.data.message;
       } else if (error?.message) {
         errorMessage = error.message;
       }
 
-      console.error('📢 SHOWING ERROR TO USER:', errorMessage);
       toast.error(errorMessage);
     }
   };
+
+  // Log form errors whenever they change
+  useEffect(() => {
+    const errors = form.formState.errors;
+    if (Object.keys(errors).length > 0) {
+      console.error('❌ FORM HAS VALIDATION ERRORS:', errors);
+    }
+  }, [form.formState.errors]);
+
+  // Custom submit handler with error logging
+  const handleFormSubmit = form.handleSubmit(
+    onSubmit,
+    (errors) => {
+      console.error('❌ FORM VALIDATION FAILED ON SUBMIT:', errors);
+      toast.error('Please fix the validation errors before submitting');
+    }
+  );
 
   return (
     <div>
       <BackNavigation />
 
       <FormProvider {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={handleFormSubmit} className="space-y-6">
           <Card>
             <CardHeader className="font-bold">
               {id ? "Edit Travel Expense Report" : "Create Travel Expense Report"}
@@ -748,6 +744,15 @@ export default function SimpleTravelExpenseReportPage() {
                   type="submit"
                   loading={isCreateLoading || isModifyLoading}
                   className="bg-primary"
+                  onClick={async () => {
+                    console.log('🖱️ SUBMIT BUTTON CLICKED (onClick event)');
+                    console.log('📋 Current form state:', form.getValues());
+
+                    // Trigger validation to get accurate state
+                    const isValid = await form.trigger();
+                    console.log('❓ Form is valid after trigger?:', isValid);
+                    console.log('🔍 Form errors after trigger:', form.formState.errors);
+                  }}
                 >
                   {id ? "Update Report" : "Create Report"}
                 </FormButton>

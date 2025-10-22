@@ -139,12 +139,13 @@ export const useModifyTravelExpense = (id: string) => {
     queryKey: ["travelExpenses", "travelExpense"],
     isAuth: true,
     method: "PATCH", // Changed from PUT to PATCH
-    contentType: "multipart/form-data", // Explicitly set contentType for FormData
+    contentType: null, // Let axios handle FormData properly
   });
 
   const modifyTravelExpense = async (body: TTravelExpenseFormData | FormData) => {
     try {
-      await callApi(body);
+      const result = await callApi(body);
+      return result;
     } catch (error) {
       console.error("Travel expense modify error:", error);
       throw error; // Re-throw to allow form to handle the error

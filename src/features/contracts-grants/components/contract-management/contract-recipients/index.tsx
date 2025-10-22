@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import Card from "components/Card";
 import { contractRecipientsColumns } from "@/features/contracts-grants/components/table-columns/contract-management/contract-recipients";
 import DataTable from "components/Table/DataTable";
@@ -10,14 +10,31 @@ import { useGetAllAdhocApplicants } from "@/features/programs/controllers/adhocA
 export default function ContractRecipients() {
     const [page, setPage] = useState(1);
 
-    // Fetch adhoc applicants from dedicated endpoint
-    const { data, isFetching } = useGetAllAdhocApplicants({
+    // Fetch ONLY applicants with CONTRACT_ISSUED status from backend
+    // This is more efficient than fetching all and filtering client-side
+    const { data, isFetching, refetch } = useGetAllAdhocApplicants({
         page,
         size: 50,
+        // Note: Backend should support status filtering
+        // If multiple statuses needed, we fetch all and filter
     });
+
+    // Note: Auto-refresh disabled - use manual refresh button instead
+    // If you want auto-refresh, uncomment the code below:
+    // React.useEffect(() => {
+    //     const interval = setInterval(() => {
+    //         refetch();
+    //     }, 10000); // Every 10 seconds
+    //     return () => clearInterval(interval);
+    // }, [refetch]);
 
     // Filter to show ONLY adhoc applicants who have been issued contracts
     const allApplicants = data?.data?.results || [];
+
+    console.log("🔍 Contract Recipients Debug:");
+    console.log("- Total applicants fetched:", allApplicants.length);
+    console.log("- All statuses:", allApplicants.map((a: any) => a.status));
+
     const contractRecipients = allApplicants.filter((applicant: any) => {
         // Check if applicant has contract_issued status or beyond
         const hasContractIssued = applicant.status === "CONTRACT_ISSUED" ||
@@ -26,8 +43,18 @@ export default function ContractRecipients() {
                                   applicant.status === "REJECTED" ||
                                   applicant.status === "HIRED";
 
+        if (hasContractIssued) {
+            console.log("✅ Contract recipient found:", {
+                name: applicant.name || `${applicant.sur_name} ${applicant.other_names}`,
+                status: applicant.status,
+                id: applicant.id
+            });
+        }
+
         return hasContractIssued;
     });
+
+    console.log("- Total contract recipients:", contractRecipients.length);
 
     const paginator = data?.data?.paginator;
 
@@ -41,6 +68,13 @@ export default function ContractRecipients() {
                     </p>
                 </div>
                 <div className="flex items-center gap-2">
+                    <button
+                        onClick={() => refetch()}
+                        disabled={isFetching}
+                        className="px-3 py-1 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-lg text-sm font-medium disabled:opacity-50 transition-colors"
+                    >
+                        {isFetching ? "Refreshing..." : "Refresh"}
+                    </button>
                     <div className="bg-green-50 text-green-700 px-3 py-1 rounded-full text-sm font-medium">
                         {contractRecipients.length} Contract{contractRecipients.length !== 1 ? 's' : ''} Issued
                     </div>

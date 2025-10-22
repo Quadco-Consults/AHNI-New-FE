@@ -156,6 +156,66 @@ export interface IConsultancyStaffPaginatedData {
     sort_code?: string | null;
 }
 
+// Individual interviewer's score for a consultancy applicant
+export interface ConsultancyInterviewScore {
+    id: string;
+    interview_id: string;
+    interviewer_id: string;
+    interviewer_name?: string;
+    interviewer_email?: string;
+
+    // Rating scores (1-4 scale for consultancy)
+    relevant_experience: number;
+    project_management: number;
+    recent_experience: number;
+    comparable_projects: number;
+    communication_skills: number;
+    technical_skill: number;
+    relevant_qualification: number;
+    academic_credentials: number;
+    timeline_management: number;
+    toolset_framework: number;
+
+    // Overall evaluation
+    total_score?: number; // Sum of all ratings (max 50)
+    percentage_score?: number; // (total_score / 50) * 100
+
+    // Metadata
+    submitted_at?: string;
+    status: 'PENDING' | 'SUBMITTED';
+}
+
+// Interview schedule for consultancy interviews
+export interface ConsultancyInterviewSchedule {
+    id: string;
+    application: string;
+    application_details?: {
+        id: string;
+        applicant_name: string;
+        position: string;
+        email: string;
+    };
+    interview_type: 'COMMITTEE' | 'NON_COMMITTEE';
+    interviewers: string[]; // Array of user IDs
+    interviewer_details?: Array<{
+        id: string;
+        full_name: string;
+        email: string;
+    }>;
+    interview_date: string;
+    location?: string;
+    status: 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+
+    // Multi-scorer tracking
+    total_interviewers: number;
+    completed_evaluations: number;
+    pending_evaluations: number;
+    evaluation_completion_percentage?: number;
+
+    created_at?: string;
+    created_by?: string;
+}
+
 export interface IConsultancyStaffSingleData {
     id: string;
     referees: {
@@ -215,6 +275,7 @@ export interface IConsultancyStaffSingleData {
         employer_telephone: string;
         services_performed: string;
     }[];
+    // Legacy single-interviewer fields (for backward compatibility)
     interview_scores?: {
         relevant_experience?: number;
         project_management?: number;
@@ -229,6 +290,27 @@ export interface IConsultancyStaffSingleData {
         total_score?: number;
         interview_date?: string;
     };
+    // Multi-scorer fields
+    interview_type?: 'COMMITTEE' | 'NON_COMMITTEE';
+    scores?: ConsultancyInterviewScore[]; // All individual scores
+    average_scores?: {
+        relevant_experience: number;
+        project_management: number;
+        recent_experience: number;
+        comparable_projects: number;
+        communication_skills: number;
+        technical_skill: number;
+        relevant_qualification: number;
+        academic_credentials: number;
+        timeline_management: number;
+        toolset_framework: number;
+        total: number;
+        percentage: number;
+    };
+    total_interviewers?: number;
+    completed_evaluations?: number;
+    schedule_id?: string;
+    schedule?: ConsultancyInterviewSchedule;
     created_by: string;
     updated_by: null;
 }

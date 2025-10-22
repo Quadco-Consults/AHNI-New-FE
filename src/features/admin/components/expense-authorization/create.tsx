@@ -30,7 +30,7 @@ import {
   useModifyExpenseAuthorizationMutation,
 } from "@/features/admin/controllers/expenseAuthorizationController";
 import { toast } from "sonner";
-import { useGetAllUsersQuery } from "@/features/auth/controllers/userController";
+import { useGetAllUsersQuery, useGetCurrentUser } from "@/features/auth/controllers/userController";
 import FadedButton from "components/atoms/FadedButton";
 
 import AddSquareIcon from "components/icons/AddSquareIcon";
@@ -48,11 +48,25 @@ const radioOptions = [
 ];
 
 export default function CreateExpenseAuthorization() {
+  // Get current logged-in user
+  const { data: currentUserResponse } = useGetCurrentUser();
+  const currentUser = currentUserResponse?.data;
+
+  // Generate TA Number (format: TA-YYYYMMDD-XXXXXX)
+  const generateTANumber = () => {
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const random = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
+    return `TA-${year}${month}${day}-${random}`;
+  };
+
   const form = useForm<TExpenseAuthorizationFormData>({
     resolver: zodResolver(ExpenseAuthorizationSchema),
     defaultValues: {
       traveler_type: "SINGLE" as const,
-      ta_number: "",
+      ta_number: generateTANumber(),
       department: "",
       fco: "",
       is_managing_director_notified: false,
@@ -249,12 +263,32 @@ export default function CreateExpenseAuthorization() {
     !!id
   );
 
+  // Auto-populate department and address from current user when NOT in edit mode
+  useEffect(() => {
+    if (currentUser && !id) {
+      // Extract department ID
+      const departmentId = typeof currentUser.department === 'object'
+        ? (currentUser.department as any)?.id
+        : currentUser.department;
+
+      // Set department if available
+      if (departmentId) {
+        form.setValue("department", departmentId);
+      }
+
+      // Set address if available
+      if (currentUser.address) {
+        form.setValue("address", currentUser.address);
+      }
+    }
+  }, [currentUser, id, form]);
+
   useEffect(() => {
     if (expenseAuthorization) {
       const { data } = expenseAuthorization;
 
       // Map destinations from API response
-      const mappedDestinations = data.destinations && data.destinations.length > 0 
+      const mappedDestinations = data.destinations && data.destinations.length > 0
         ? data.destinations.map(dest => ({
             project: dest.project?.id || "",
             city: dest.city || "",
@@ -355,8 +389,9 @@ export default function CreateExpenseAuthorization() {
               <FormInput
                 label='TA Number'
                 name='ta_number'
-                placeholder='Enter TA Number'
+                placeholder='Auto-generated'
                 required
+                disabled
               />
 
               <FormSelect

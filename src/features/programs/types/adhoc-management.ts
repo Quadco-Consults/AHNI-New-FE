@@ -152,6 +152,66 @@ export interface IAdhocAdvertisementCreatePayload {
 // ADHOC APPLICANT TYPES
 // ============================================
 
+// Individual interviewer's score for an AdHoc applicant
+export interface AdhocInterviewScore {
+  id: string;
+  interview_id: string;
+  interviewer_id: string;
+  interviewer_name?: string;
+  interviewer_email?: string;
+
+  // Rating scores (10 criteria, 1-5 scale - same as consultancy)
+  relevant_experience: number;
+  project_management: number;
+  recent_experience: number;
+  comparable_projects: number;
+  communication_skills: number;
+  technical_skill: number;
+  relevant_qualification: number;
+  academic_credentials: number;
+  timeline_management: number;
+  toolset_framework: number;
+
+  // Overall evaluation
+  total_score?: number; // Sum of all ratings (max 50)
+  percentage_score?: number; // (total_score / 50) * 100
+
+  // Metadata
+  submitted_at?: string;
+  status: 'PENDING' | 'SUBMITTED';
+}
+
+// Interview schedule for AdHoc interviews
+export interface AdhocInterviewSchedule {
+  id: string;
+  application: string;
+  application_details?: {
+    id: string;
+    applicant_name: string;
+    position: string;
+    email: string;
+  };
+  interview_type: 'COMMITTEE' | 'NON_COMMITTEE';
+  interviewers: string[]; // Array of user IDs
+  interviewer_details?: Array<{
+    id: string;
+    full_name: string;
+    email: string;
+  }>;
+  interview_date: string;
+  location?: string;
+  status: 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+
+  // Multi-scorer tracking
+  total_interviewers: number;
+  completed_evaluations: number;
+  pending_evaluations: number;
+  evaluation_completion_percentage?: number;
+
+  created_at?: string;
+  created_by?: string;
+}
+
 export interface IAdhocApplicant {
   id: string;
   application_number: string;
@@ -164,6 +224,11 @@ export interface IAdhocApplicant {
   // Personal Info
   sur_name: string;
   other_names: string;
+  name?: string; // Full name for display (computed field)
+  email?: string; // Alias for email_address (for compatibility)
+  position_under_contract?: string; // Position from advertisement
+  type?: "ADHOC" | "CONSULTANT" | "FACILITATOR"; // For filtering compatibility
+  contract_request?: any; // For consultancy compatibility
   gender: "MALE" | "FEMALE" | "OTHER";
   date_of_birth: string;
   state_of_origin: string;
@@ -185,14 +250,36 @@ export interface IAdhocApplicant {
   willing_to_relocate: boolean;
 
   // Application Status
-  status: "SUBMITTED" | "SHORTLISTED" | "INTERVIEWED" | "SELECTED" | "REJECTED" | "HIRED";
+  status: "SUBMITTED" | "SHORTLISTED" | "INTERVIEWED" | "SELECTED" | "REJECTED" | "HIRED" | "CONTRACT_ISSUED" | "APPROVED";
   status_display: string;
 
-  // Interview
+  // Legacy Interview (single-interviewer, backward compatibility)
   interview_scheduled_at?: string;
   interview_conducted_at?: string;
   interview_score?: number;
   interview_notes?: string;
+
+  // Multi-scorer Interview Fields
+  interview_type?: 'COMMITTEE' | 'NON_COMMITTEE';
+  scores?: AdhocInterviewScore[]; // All individual scores
+  average_scores?: {
+    relevant_experience: number;
+    project_management: number;
+    recent_experience: number;
+    comparable_projects: number;
+    communication_skills: number;
+    technical_skill: number;
+    relevant_qualification: number;
+    academic_credentials: number;
+    timeline_management: number;
+    toolset_framework: number;
+    total: number;
+    percentage: number;
+  };
+  total_interviewers?: number;
+  completed_evaluations?: number;
+  schedule_id?: string;
+  schedule?: AdhocInterviewSchedule;
 
   // Selection
   selected_at?: string;
@@ -211,6 +298,11 @@ export interface IAdhocApplicant {
   assigned_health_facility?: string;
   assigned_spoke_site?: string;
   assigned_lga?: string;
+
+  // Contract Acceptance (for contract workflow integration)
+  offer_accepted?: boolean;
+  offer_acceptance_date?: string;
+  contract_issued_at?: string;
 
   // Documents
   documents: {
@@ -391,7 +483,7 @@ export interface IAdhocApplicantFilterParams {
   size?: number;
   search?: string;
   advertisement_id?: string;
-  status?: "SUBMITTED" | "SHORTLISTED" | "INTERVIEWED" | "SELECTED" | "REJECTED" | "HIRED";
+  status?: "SUBMITTED" | "SHORTLISTED" | "INTERVIEWED" | "SELECTED" | "REJECTED" | "HIRED" | "CONTRACT_ISSUED" | "APPROVED";
   gender?: "MALE" | "FEMALE" | "OTHER";
   state_of_origin?: string;
   date_from?: string;

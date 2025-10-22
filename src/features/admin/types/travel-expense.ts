@@ -1,27 +1,28 @@
 import { z } from "zod";
 
 const ActivitySchema = z.object({
+    id: z.string().optional(), // Activity ID (present when editing)
     date: z.string().min(1, "Please select date"),
     activity: z.string().min(1, "Please enter activity"),
     departure_datetime: z
         .string()
         .min(1, "Please select departure date"),
-    departure_point: z.string().min(1, "Please enter departure point"),
+    departure_point: z.string().optional().or(z.literal("")),
     arrival_datetime: z.string().min(1, "Please select arrival date"),
     assignment_location: z
         .string()
-        .min(1, "Please enter assignment location"),
-    visa_free: z.string().min(1, "Please select visa free option"),
+        .optional().or(z.literal("")),
+    visa_free: z.string().optional().or(z.literal("")),
     airport_taxi_fee: z
         .string()
-        .min(1, "Please enter airport taxi fee"),
+        .optional().or(z.literal("")),
     registration_fee: z
         .string()
-        .min(1, "Please enter registration fee"),
+        .optional().or(z.literal("")),
     inter_city_taxi_fee: z
         .string()
-        .min(1, "Please enter inter city taxi fee"),
-    total_amount: z.string().min(1, "Please enter total amount"),
+        .optional().or(z.literal("")),
+    total_amount: z.string().optional().or(z.literal("")),
     others: z.string().optional().or(z.literal("")), // Make others optional
 });
 
@@ -32,7 +33,7 @@ const TravelerSchema = z.object({
 });
 
 export const TravelExpenseSchema = z.object({
-    expense_authorization: z.string().min(1, "Please select expense authorization"),
+    expense_authorization: z.string().optional().or(z.literal("")), // Optional in edit mode
     user: z.string().min(1, "Please select user").optional(),
     staff_id: z.string().min(1, "Please enter staff id").optional(),
     travel_purpose: z.string().min(1, "Please enter travel purpose"),
@@ -59,21 +60,6 @@ export const TravelExpenseSchema = z.object({
     {
         message: "Either activities (single traveler) or travelers (multiple travelers) must be provided",
         path: ["activities"], // This will show the error on the activities field
-    }
-).refine(
-    (data) => {
-        // If using single traveler format, user and staff_id are required
-        const hasActivities = data.activities && data.activities.length > 0;
-        const hasTravelers = data.travelers && data.travelers.length > 0;
-
-        if (hasActivities && !hasTravelers) {
-            return data.user && data.staff_id;
-        }
-        return true;
-    },
-    {
-        message: "User and staff ID are required for single traveler format",
-        path: ["user"],
     }
 );
 

@@ -9,35 +9,37 @@ import PencilIcon from "components/icons/PencilIcon";
 import ConfirmationDialog from "components/ConfirmationDialog";
 import Link from "next/link";
 import EyeIcon from "components/icons/EyeIcon";
-import { IAdhocStaffDatabase } from "@/features/programs/types/adhoc-management";
+import { IAdhocApplicant } from "@/features/programs/types/adhoc-management";
 
-export const adhocDatabaseColumns: ColumnDef<IAdhocStaffDatabase>[] = [
+export const adhocDatabaseColumns: ColumnDef<IAdhocApplicant>[] = [
   {
-    header: "Staff Number",
-    id: "staff_number",
-    accessorKey: "staff_number",
+    header: "Application Number",
+    id: "application_number",
+    accessorKey: "application_number",
     size: 150,
-    cell: ({ row }) => row.original.staff_number || '-',
+    cell: ({ row }) => row.original.application_number || '-',
   },
 
   {
     header: "Full Name",
     id: "full_name",
-    accessorKey: "full_name",
     size: 200,
     cell: ({ row }) => {
-      const surname = row.original.sur_name || '';
+      // Try full_name first, then fall back to constructing from parts
+      if ((row.original as any).full_name) {
+        return (row.original as any).full_name;
+      }
+      const surname = (row.original as any).surname || row.original.sur_name || '';
       const otherNames = row.original.other_names || '';
-      return `${otherNames} ${surname}`.trim() || '-';
+      return `${surname} ${otherNames}`.trim() || '-';
     },
   },
 
   {
     header: "Email",
     id: "email_address",
-    accessorKey: "email_address",
     size: 200,
-    cell: ({ row }) => row.original.email_address || '-',
+    cell: ({ row }) => (row.original as any).email || row.original.email_address || '-',
   },
 
   {
@@ -49,30 +51,41 @@ export const adhocDatabaseColumns: ColumnDef<IAdhocStaffDatabase>[] = [
   },
 
   {
-    header: "Designation",
+    header: "Position",
     id: "designation",
-    accessorKey: "designation",
     size: 200,
-    cell: ({ row }) => row.original.designation || '-',
+    cell: ({ row }) => {
+      // Try different field names that might contain position info
+      const data = row.original as any;
+      return data.advertisement_title ||
+             data.designation ||
+             (typeof data.advertisement === 'object' && data.advertisement?.position_title) ||
+             row.original.position_under_contract ||
+             '-';
+    },
   },
 
   {
-    header: "Project",
-    id: "project",
-    accessorKey: "project",
+    header: "Qualifications",
+    id: "qualifications",
     size: 200,
     cell: ({ row }) => {
-      const project = row.original.project;
-      return typeof project === 'object' ? project?.name : project || '-';
+      const data = row.original as any;
+      return data.qualification || row.original.qualifications || '-';
     },
   },
 
   {
     header: "Health Facility",
     id: "health_facility",
-    accessorKey: "health_facility",
     size: 200,
-    cell: ({ row }) => row.original.health_facility || '-',
+    cell: ({ row }) => {
+      const data = row.original as any;
+      return data.health_facility ||
+             row.original.assigned_health_facility ||
+             row.original.preferred_health_facility ||
+             '-';
+    },
   },
 
   {
@@ -114,14 +127,13 @@ export const adhocDatabaseColumns: ColumnDef<IAdhocStaffDatabase>[] = [
   },
 
   {
-    header: "Salary",
-    id: "salary",
-    accessorKey: "salary",
+    header: "Acceptance Date",
+    id: "offer_acceptance_date",
+    accessorKey: "offer_acceptance_date",
     size: 150,
     cell: ({ row }) => {
-      const salary = row.original.salary;
-      const currency = row.original.currency || 'NGN';
-      return salary ? `${currency} ${parseFloat(salary).toLocaleString()}` : '-';
+      const date = row.original.offer_acceptance_date;
+      return date ? new Date(date).toLocaleDateString() : '-';
     },
   },
 
@@ -133,16 +145,18 @@ export const adhocDatabaseColumns: ColumnDef<IAdhocStaffDatabase>[] = [
     cell: ({ row }) => {
       const status = row.original.status;
       const statusDisplay = row.original.status_display || status;
+      const isAccepted = row.original.offer_accepted;
+
       const statusColors: Record<string, string> = {
-        'ACTIVE': 'bg-green-100 text-green-800',
-        'ON_LEAVE': 'bg-yellow-100 text-yellow-800',
-        'SUSPENDED': 'bg-orange-100 text-orange-800',
-        'TERMINATED': 'bg-red-100 text-red-800',
-        'CONTRACT_EXPIRED': 'bg-gray-100 text-gray-800',
+        'APPROVED': 'bg-green-100 text-green-800',
+        'CONTRACT_ISSUED': 'bg-blue-100 text-blue-800',
+        'HIRED': 'bg-green-100 text-green-800',
+        'SELECTED': 'bg-purple-100 text-purple-800',
       };
+
       return (
         <span className={`px-2 py-1 rounded text-xs font-medium ${statusColors[status] || 'bg-gray-100 text-gray-800'}`}>
-          {statusDisplay || '-'}
+          {isAccepted ? 'Active' : statusDisplay || status}
         </span>
       );
     },
@@ -156,7 +170,7 @@ export const adhocDatabaseColumns: ColumnDef<IAdhocStaffDatabase>[] = [
   },
 ];
 
-const TableMenu = (staff: IAdhocStaffDatabase) => {
+const TableMenu = (applicant: IAdhocApplicant) => {
   const [isDialogOpen, setDialogOpen] = useState(false);
 
   const handleDelete = async () => {
@@ -164,7 +178,7 @@ const TableMenu = (staff: IAdhocStaffDatabase) => {
     setDialogOpen(false);
   };
 
-  const staffId = staff.id;
+  const staffId = applicant.id;
 
   return (
     <div className='flex items-center gap-2'>

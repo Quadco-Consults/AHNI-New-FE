@@ -1,5 +1,5 @@
-import ConsultancyStaffDetails from "@/features/contracts-grants/components/contract-management/consultant-management/id/applicants/ConsultancyStaffDetails";
+import AdhocApplicantDetails from "@/features/programs/components/adhoc-management/AdhocApplicantDetails";
 
 export default function AdhocApplicantDetailsPage() {
-  return <ConsultancyStaffDetails />;
+  return <AdhocApplicantDetails />;
 }

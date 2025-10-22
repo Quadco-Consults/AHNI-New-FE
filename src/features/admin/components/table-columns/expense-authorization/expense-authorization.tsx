@@ -205,7 +205,7 @@ const TableMenu = ({ id }: IExpenseAuthorizationPaginatedData) => {
               variant='ghost'
             >
               <EyeIcon />
-              View Item
+              View
             </Button>
           </Link>
 
@@ -221,7 +221,7 @@ const TableMenu = ({ id }: IExpenseAuthorizationPaginatedData) => {
               variant='ghost'
             >
               <PencilIcon />
-              Edit Item
+              Edit
             </Button>
           </Link>
           <Button
@@ -230,7 +230,7 @@ const TableMenu = ({ id }: IExpenseAuthorizationPaginatedData) => {
             onClick={() => setDialogOpen(true)}
           >
             <DeleteIcon />
-            Delete Item
+            Delete
           </Button>
         </div>
       </PopoverContent>

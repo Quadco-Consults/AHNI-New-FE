@@ -242,10 +242,10 @@ export default function AssetMaintenanceDetailsPage() {
                       <p className="text-sm text-gray-600">Staff Name</p>
                       <p className="font-medium text-gray-900">
                         {assetMaintenance.data.staff_name ||
-                         (assetMaintenance.data as any).created_by_details?.full_name ||
-                         (assetMaintenance.data as any).created_by_details?.first_name && (assetMaintenance.data as any).created_by_details?.last_name
-                           ? `${(assetMaintenance.data as any).created_by_details.first_name} ${(assetMaintenance.data as any).created_by_details.last_name}`
-                           : "N/A"}
+                         (assetMaintenance.data.created_by as any)?.full_name ||
+                         ((assetMaintenance.data.created_by as any)?.first_name && (assetMaintenance.data.created_by as any)?.last_name
+                           ? `${(assetMaintenance.data.created_by as any).first_name} ${(assetMaintenance.data.created_by as any).last_name}`
+                           : "N/A")}
                       </p>
                     </div>
                   </div>
@@ -258,7 +258,8 @@ export default function AssetMaintenanceDetailsPage() {
                       <p className="text-sm text-gray-600">Department</p>
                       <p className="font-medium text-gray-900">
                         {assetMaintenance.data.department?.name ||
-                         (assetMaintenance.data as any).created_by_details?.department?.name ||
+                         (assetMaintenance.data.created_by as any)?.department?.name ||
+                         (assetMaintenance.data.created_by as any)?.department ||
                          "N/A"}
                       </p>
                     </div>
@@ -272,7 +273,8 @@ export default function AssetMaintenanceDetailsPage() {
                       <p className="text-sm text-gray-600">Location</p>
                       <p className="font-medium text-gray-900">
                         {assetMaintenance.data.location?.name ||
-                         (assetMaintenance.data as any).created_by_details?.location?.name ||
+                         (assetMaintenance.data.created_by as any)?.location?.name ||
+                         (assetMaintenance.data.created_by as any)?.location ||
                          "N/A"}
                       </p>
                     </div>

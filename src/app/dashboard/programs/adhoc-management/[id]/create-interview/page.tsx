@@ -1,5 +1,5 @@
-import CreateInterview from "@/features/contracts-grants/components/contract-management/consultant-management/id/CreateInterview";
+import CreateAdhocInterview from "@/features/programs/components/adhoc-management/CreateAdhocInterview";
 
 export default function CreateAdhocInterviewPage() {
-  return <CreateInterview />;
+  return <CreateAdhocInterview />;
 }

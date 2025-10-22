@@ -30,22 +30,14 @@ export function filterAhniStaffOnly(users: IUser[]): IUser[] {
   return users.filter((user) => {
     const userType = user?.user_type?.toUpperCase()?.trim() || '';
 
-    // Exclude vendors and external users (explicit exclusion only)
-    const isExcluded =
-      userType === 'VENDOR' ||
-      userType === 'CONSULTANT' ||
-      userType === 'EXTERNAL' ||
-      userType === 'SUPPLIER' ||
-      userType === 'CONTRACTOR';
+    // Only include AHNI staff and admins (explicit inclusion)
+    const isAhniStaff =
+      userType === 'AHNI_STAFF' ||
+      userType === 'ADMIN' ||
+      userType === 'SUPERADMIN' ||
+      userType === 'STAFF';
 
-    // If explicitly excluded, don't include
-    if (isExcluded) {
-      return false;
-    }
-
-    // Include everyone else (STAFF, ADMIN, SUPERADMIN, or users without type)
-    // This is more lenient - we only exclude known vendor types
-    return true;
+    return isAhniStaff;
   });
 }
 

@@ -6,6 +6,8 @@ import Card from "components/Card";
 import { Button } from "components/ui/button";
 import { useGetAllContractRequests } from "@/features/contracts-grants/controllers/contractController";
 import { useGetAllConsultancyApplicants } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
+import { useGetAllAdhocApplicants } from "@/features/programs/controllers/adhocApplicantController";
+import { useGetAllAdhocAdvertisements } from "@/features/programs/controllers/adhocAdvertisementController";
 import { useRouter } from "next/navigation";
 import { FileText, Users, Calendar, Briefcase, Eye, CheckCircle, Clock } from "lucide-react";
 
@@ -18,19 +20,44 @@ export default function ConsultancyAcceptance() {
     const applicantType = pathname?.includes("adhoc") ? "ADHOC" : "CONSULTANT";
     const staffLabel = applicantType === "ADHOC" ? "adhoc staff" : "consultants";
 
-    // Fetch all contract requests (job adverts)
-    const { data: contractRequestsData, isFetching: isLoadingRequests } = useGetAllContractRequests({
+    // Fetch all contract requests/advertisements based on type
+    const { data: contractRequestsData, isFetching: isLoadingContractRequests } = useGetAllContractRequests({
         page,
-        size: 100, // Get all to group properly
+        size: 100,
+        enabled: applicantType === "CONSULTANT",
     });
 
-    // Fetch all applicants (CONTRACT_ISSUED or APPROVED status)
-    const { data: applicantsData, isFetching: isLoadingApplicants } = useGetAllConsultancyApplicants({
+    const { data: adhocAdvertisementsData, isFetching: isLoadingAdhocAdvertisements } = useGetAllAdhocAdvertisements({
+        page,
+        size: 100,
+        enabled: applicantType === "ADHOC",
+    });
+
+    const isLoadingRequests = applicantType === "ADHOC" ? isLoadingAdhocAdvertisements : isLoadingContractRequests;
+
+    // Fetch applicants based on type - use different endpoints for AdHoc vs Consultancy
+    const { data: consultancyApplicantsData, isFetching: isLoadingConsultancyApplicants } = useGetAllConsultancyApplicants({
         page: 1,
         size: 1000,
+        enabled: applicantType === "CONSULTANT",
     });
 
-    const contractRequests = contractRequestsData?.data?.results || [];
+    const { data: adhocApplicantsData, isFetching: isLoadingAdhocApplicants } = useGetAllAdhocApplicants({
+        page: 1,
+        size: 1000,
+        enabled: applicantType === "ADHOC",
+    });
+
+    // Use correct data source based on applicant type
+    const applicantsData = applicantType === "ADHOC" ? adhocApplicantsData : consultancyApplicantsData;
+    const isLoadingApplicants = applicantType === "ADHOC" ? isLoadingAdhocApplicants : isLoadingConsultancyApplicants;
+
+    // Use correct data source for advertisements/requests
+    const rawAdvertisements = applicantType === "ADHOC"
+        ? adhocAdvertisementsData?.data?.results || []
+        : contractRequestsData?.data?.results || [];
+
+    const contractRequests = rawAdvertisements;
     const allApplicantsRaw = applicantsData?.data?.results || [];
 
     console.log("📊 All Applicants Raw Data:", allApplicantsRaw);
@@ -76,13 +103,22 @@ export default function ConsultancyAcceptance() {
         NoType: allApplicantsRaw.filter(a => !a.type).length,
     });
 
-    // Group applicants by contract_request
+    // Group applicants by contract_request (for consultancy) or advertisement (for adhoc)
     const groupedByContractRequest = contractRequests.map(request => {
         const applicantsForRequest = allApplicants.filter(applicant => {
-            const contractReqId = typeof applicant.contract_request === 'object' && applicant.contract_request !== null
-                ? (applicant.contract_request as any).id
-                : applicant.contract_request;
-            return contractReqId === request.id;
+            if (applicantType === "ADHOC") {
+                // For AdHoc, match by advertisement field
+                const advertisementId = typeof applicant.advertisement === 'object' && applicant.advertisement !== null
+                    ? (applicant.advertisement as any).id
+                    : applicant.advertisement;
+                return advertisementId === request.id;
+            } else {
+                // For Consultancy, match by contract_request field
+                const contractReqId = typeof applicant.contract_request === 'object' && applicant.contract_request !== null
+                    ? (applicant.contract_request as any).id
+                    : applicant.contract_request;
+                return contractReqId === request.id;
+            }
         });
 
         // Count accepted vs pending
@@ -98,10 +134,14 @@ export default function ConsultancyAcceptance() {
         };
     }).filter(request => request.issuedContractsCount > 0); // Only show requests with issued contracts
 
-    // Handle applicants without a contract_request (legacy data)
-    const uncategorizedApplicants = allApplicants.filter(
-        applicant => !applicant.contract_request || applicant.contract_request === null
-    );
+    // Handle applicants without a contract_request/advertisement (legacy data)
+    const uncategorizedApplicants = allApplicants.filter(applicant => {
+        if (applicantType === "ADHOC") {
+            return !applicant.advertisement || applicant.advertisement === null;
+        } else {
+            return !applicant.contract_request || applicant.contract_request === null;
+        }
+    });
 
     const uncategorizedAccepted = uncategorizedApplicants.filter(a => a.offer_accepted).length;
     const uncategorizedPending = uncategorizedApplicants.length - uncategorizedAccepted;
@@ -205,10 +245,16 @@ export default function ConsultancyAcceptance() {
                                 <div className="flex items-start justify-between">
                                     <div className="flex-1">
                                         <h3 className="font-bold text-lg text-gray-900 mb-1 line-clamp-2">
-                                            {request.title || 'Job Position'}
+                                            {applicantType === "ADHOC"
+                                                ? ((request as any).position_title || 'Job Position')
+                                                : ((request as any).title || 'Job Position')
+                                            }
                                         </h3>
                                         <p className="text-sm text-gray-600">
-                                            Ref: {request.id?.slice(0, 8)}
+                                            Ref: {applicantType === "ADHOC"
+                                                ? ((request as any).advertisement_number || request.id?.slice(0, 8))
+                                                : request.id?.slice(0, 8)
+                                            }
                                         </p>
                                     </div>
                                     <div className={`px-2 py-1 rounded text-xs font-semibold ${
@@ -250,10 +296,12 @@ export default function ConsultancyAcceptance() {
                                             <span>{typeof request.department === 'object' ? request.department.name : request.department}</span>
                                         </div>
                                     )}
-                                    {request.created_datetime && (
+                                    {((request as any).created_datetime || (request as any).publication_date) && (
                                         <div className="flex items-center gap-2 text-sm text-gray-700">
                                             <Calendar className="h-4 w-4 text-gray-400" />
-                                            <span>Posted: {new Date(request.created_datetime).toLocaleDateString()}</span>
+                                            <span>Posted: {new Date(
+                                                (request as any).publication_date || (request as any).created_datetime
+                                            ).toLocaleDateString()}</span>
                                         </div>
                                     )}
                                 </div>
