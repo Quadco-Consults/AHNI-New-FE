@@ -19,7 +19,7 @@ import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { CheckCircle, FileDown } from "lucide-react";
 import { Icon } from "@iconify/react";
-import { generatePerformanceAssessmentPDF } from "@/features/hr/utils/performanceAssessmentPDF";
+import { generatePerformanceAssessmentPDF, generateIndividualEvaluatorPDF } from "@/features/hr/utils/performanceAssessmentPDF";
 
 const PerformanceDetails = () => {
   const params = useParams();
@@ -312,7 +312,7 @@ const PerformanceDetails = () => {
     }
   };
 
-  const handleGeneratePDF = () => {
+  const handleGeneratePDF = async () => {
     try {
       console.log("📄 PDF Generation Debug:");
       console.log("Assessment:", assessmentWithGoals);
@@ -346,7 +346,7 @@ const PerformanceDetails = () => {
       console.log("Formatted evaluator ratings:", evaluatorRatings);
 
       // Generate PDF
-      const filename = generatePerformanceAssessmentPDF({
+      const filename = await generatePerformanceAssessmentPDF({
         assessment: assessmentWithGoals,
         evaluatorRatings,
       });
@@ -358,7 +358,46 @@ const PerformanceDetails = () => {
       }
     } catch (error: any) {
       console.error("PDF generation error:", error);
-      toast.error("Failed to generate PDF. Please try again.");
+      const errorMessage = error?.message || 'Unknown error occurred';
+      toast.error(`Failed to generate PDF: ${errorMessage}`);
+
+      // Additional debugging info
+      console.error("PDF Error Context:", {
+        assessmentData: assessmentWithGoals,
+        evaluatorsCount: assessmentWithGoals?.evaluators?.length,
+        goalsCount: assessmentWithGoals?.goals?.length,
+        hasEvaluatorRatings: (assessmentWithGoals?.evaluators || []).filter((ev: any) => ev.status === 'completed').length > 0
+      });
+    }
+  };
+
+  const handleGenerateIndividualPDF = async (evaluator: any) => {
+    try {
+      console.log("📄 Starting individual PDF generation...");
+      console.log("  - Evaluator:", evaluator.evaluator_name);
+      console.log("  - Evaluator ID:", evaluator.id);
+      console.log("  - Assessment ID:", assessmentWithGoals?.id);
+      console.log("  - Goals available:", assessmentWithGoals?.goals?.length || 0);
+      console.log("  - Evaluator data:", evaluator);
+
+      const filename = await generateIndividualEvaluatorPDF({
+        assessment: assessmentWithGoals,
+        evaluator: evaluator,
+        goals: assessmentWithGoals.goals || []
+      });
+
+      console.log("✅ Individual PDF generated successfully:", filename);
+      toast.success(`Individual PDF generated: ${filename}`);
+    } catch (error: any) {
+      console.error("❌ Individual PDF generation error:", error);
+      console.error("Error details:", {
+        message: error?.message,
+        stack: error?.stack,
+        evaluator: evaluator?.evaluator_name,
+        assessmentId: assessmentWithGoals?.id
+      });
+      const errorMessage = error?.message || 'Unknown error occurred';
+      toast.error(`Failed to generate individual PDF: ${errorMessage}`);
     }
   };
 
@@ -763,21 +802,28 @@ const PerformanceDetails = () => {
 
                             {/* View Evaluation Button for completed evaluations */}
                             {evaluator.status === 'completed' && (
-                              <div className='pt-2'>
+                              <div className='pt-2 flex gap-1'>
                                 <Button
                                   size="sm"
                                   variant="outline"
                                   onClick={() => {
                                     // Create a detailed view of the evaluation
                                     const evaluationDetails = formatEvaluationDetails(evaluator, assessmentWithGoals);
-
-                                    // For now, show in a large alert - in production this would be a modal
                                     alert(evaluationDetails);
                                   }}
-                                  className="w-full text-xs"
+                                  className="flex-1 text-xs"
                                 >
                                   <Icon icon="ph:eye-duotone" fontSize={14} className='mr-1' />
-                                  View Evaluation
+                                  View Details
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="default"
+                                  onClick={() => handleGenerateIndividualPDF(evaluator)}
+                                  className="flex-1 text-xs bg-blue-600 hover:bg-blue-700"
+                                >
+                                  <Icon icon="ph:file-pdf-duotone" fontSize={14} className='mr-1' />
+                                  PDF Report
                                 </Button>
                               </div>
                             )}
