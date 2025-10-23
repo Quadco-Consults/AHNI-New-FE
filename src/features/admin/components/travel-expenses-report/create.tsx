@@ -43,6 +43,8 @@ export default function SimpleTravelExpenseReportPage() {
   const searchParams = useSearchParams();
   const id = searchParams?.get("id");
 
+  // Note: Removed unused currentUserData state - user data is handled directly in useEffect
+
   const form = useForm<TTravelExpenseFormData>({
     resolver: zodResolver(TravelExpenseSchema),
     mode: "onChange", // Validate on change to get real-time validation state
@@ -89,7 +91,7 @@ export default function SimpleTravelExpenseReportPage() {
   useEffect(() => {
     const user = getCurrentUser();
     if (user && !id) { // Only for create mode, not edit mode
-      setCurrentUserData(user);
+      // Auto-populate form with current user data
 
       // Wait for users data to be loaded before setting the value
       if (users) {
