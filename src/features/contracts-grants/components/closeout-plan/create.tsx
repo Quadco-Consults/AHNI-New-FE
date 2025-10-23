@@ -31,7 +31,7 @@ import {
 import { useGetAllDepartments } from "@/features/modules/controllers/config/departmentController";
 import { useGetAllLocations } from "@/features/modules/controllers/config/locationController";
 import { useGetAllProjectsQuery } from "@/features/projects/controllers/projectController";
-import { useGetAllUsers } from "@/features/auth/controllers/userController";
+import { useGetAllPositions } from "@/features/modules/controllers/config/positionController";
 import { useGetAllActivityHeadings } from "@/features/contracts-grants/controllers/activityHeadingController";
 import { toast } from "sonner";
 
@@ -118,20 +118,41 @@ export default function CreateCloseOutPlan() {
     [location?.data.results]
   );
 
-  const { data: users } = useGetAllUsers({
+  const { data: positions } = useGetAllPositions({
     page: 1,
     size: 2000000,
     search: "",
     enabled: true,
   });
 
-  const userOptions = useMemo(
-    () =>
-      users?.data.results.map((user) => ({
-        label: `${user.first_name} ${user.last_name}`,
-        value: user.id,
-      })) || [],
-    [users?.data.results]
+  // Debug: Log positions data
+  useEffect(() => {
+    console.log('Positions API Response:', positions);
+    console.log('Positions data structure:', (positions as any)?.data);
+    console.log('Positions results:', (positions as any)?.data?.results);
+    console.log('Positions results (alt):', (positions as any)?.results);
+  }, [positions]);
+
+  const positionOptions = useMemo(
+    () => {
+      // Try multiple possible data structures
+      const results = (positions as any)?.data?.results ||
+                     (positions as any)?.results ||
+                     (positions as any)?.data ||
+                     [];
+
+      console.log('Position options being created from:', results);
+
+      const options = results.map((position: any) => ({
+        label: position.title || position.name,
+        value: position.title || position.name,
+      }));
+
+      console.log('Position options:', options);
+
+      return options;
+    },
+    [positions]
   );
 
   // Fetch activity headings from API
@@ -166,6 +187,7 @@ export default function CreateCloseOutPlan() {
         key_task: data.tasks[0]?.key_task || null, // Use first task's key_task
         tasks: data.tasks.flatMap(task =>
           task.activities.map(activity => ({
+            description: activity.description, // Include the description field
             designation: activity.designation,
             remarks: activity.remarks,
             status: activity.status,
@@ -259,7 +281,7 @@ export default function CreateCloseOutPlan() {
                   control={form.control}
                   register={form.register}
                   canDelete={taskFields.length > 1}
-                  userOptions={userOptions}
+                  positionOptions={positionOptions}
                   activityHeadingOptions={activityHeadingOptions}
                 />
               ))}
@@ -313,7 +335,7 @@ function TaskItem({
   control,
   register,
   canDelete,
-  userOptions,
+  positionOptions,
   activityHeadingOptions,
 }: {
   taskIndex: number;
@@ -321,7 +343,7 @@ function TaskItem({
   control: any;
   register: any;
   canDelete: boolean;
-  userOptions: { label: string; value: string }[];
+  positionOptions: { label: string; value: string }[];
   activityHeadingOptions: { label: string; value: string }[];
 }) {
   const {
@@ -394,8 +416,8 @@ function TaskItem({
               <FormSelect
                 label='Designation / Responsible'
                 name={`tasks.${taskIndex}.activities.${activityIndex}.designation`}
-                placeholder='Select Employee - Optional for headers'
-                options={userOptions}
+                placeholder='Select Position/Designation - Optional for headers'
+                options={positionOptions}
               />
 
               <FormSelect
