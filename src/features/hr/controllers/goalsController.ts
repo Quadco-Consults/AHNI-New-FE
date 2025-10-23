@@ -114,7 +114,7 @@ export const useGetEmployeeGoals = (employeeId: string, enabled: boolean = true)
     queryFn: async () => {
       try {
         const response = await AxiosWithToken.get(`${BASE_URL}?employee=${employeeId}`);
-        console.log("Raw API Response:", response.data);
+        // Debug: console.log("Raw API Response:", response.data);
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;

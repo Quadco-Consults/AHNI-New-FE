@@ -7,16 +7,19 @@ import FormButton from "@/components/FormButton";
 import { FileIcon } from "lucide-react";
 import GoBack from "components/GoBack";
 import { useState, useEffect } from "react";
+import React from "react";
 import { useParams } from "next/navigation";
 import { useGetPerformanceAssesment, useSubmitPerformanceAssesment } from "@/features/hr/controllers/hrPerformanceAssessmentController";
 import { useGetEmployeeGoals } from "@/features/hr/controllers/goalsController";
 import { Badge } from "components/ui/badge";
+import { Button } from "components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "components/ui/card";
 import { areAllEvaluationsComplete } from "@/features/hr/utils/performanceCalculations";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, FileDown } from "lucide-react";
 import { Icon } from "@iconify/react";
+import { generatePerformanceAssessmentPDF } from "@/features/hr/utils/performanceAssessmentPDF";
 
 const PerformanceDetails = () => {
   const params = useParams();
@@ -32,7 +35,7 @@ const PerformanceDetails = () => {
       const user = userString ? JSON.parse(userString) : null;
       const userId = user?.id || "";
       setCurrentUserId(userId);
-      console.log("Current User ID for evaluation:", userId);
+      // Debug: console.log("Current User ID for evaluation:", userId);
     } catch (error) {
       console.error("Error parsing user data:", error);
     }
@@ -44,12 +47,73 @@ const PerformanceDetails = () => {
     !!assessmentId
   );
 
+  // Debug the actual API response structure
+  useEffect(() => {
+    if (assessmentData) {
+      console.log("🔍 ASSESSMENT API RESPONSE:");
+      console.log("  - Raw assessmentData:", assessmentData);
+      console.log("  - assessmentData.data:", assessmentData.data);
+      console.log("  - Final rating from API:", (assessmentData.data as any)?.final_rating);
+      console.log("  - Evaluators from API:", (assessmentData.data as any)?.evaluators);
+
+      // Log individual evaluator data
+      if ((assessmentData.data as any)?.evaluators) {
+        (assessmentData.data as any).evaluators.forEach((ev: any, index: number) => {
+          console.log(`  - Evaluator ${index}:`, {
+            id: ev.id,
+            status: ev.status,
+            final_rating: ev.final_rating,
+            goal_ratings: ev.goal_ratings,
+            competency_ratings: ev.competency_ratings
+          });
+        });
+      }
+    }
+  }, [assessmentData]);
+
   const assessment = assessmentData?.data?.data || assessmentData?.data;
 
-  // Get employee ID from assessment
-  const employeeId = typeof assessment?.employee === 'object'
-    ? assessment.employee.id
-    : assessment?.employee;
+  // Calculate final rating from completed evaluations if not provided by API
+  const calculateFinalRating = (evaluators: any[]) => {
+    console.log("🧮 Calculating final rating from evaluators:", evaluators);
+
+    const completedEvaluators = evaluators.filter(ev => {
+      const hasCompleted = ev.status === 'completed';
+      const hasFinalRating = ev.final_rating !== null && ev.final_rating !== undefined && ev.final_rating > 0;
+
+      console.log(`  - Evaluator ${ev.id}:`, {
+        status: ev.status,
+        final_rating: ev.final_rating,
+        hasCompleted,
+        hasFinalRating
+      });
+
+      return hasCompleted && hasFinalRating;
+    });
+
+    console.log("  - Completed evaluators with ratings:", completedEvaluators.length);
+
+    if (completedEvaluators.length === 0) {
+      console.log("  - No completed evaluators found, returning null");
+      return null;
+    }
+
+    const totalRating = completedEvaluators.reduce((sum, ev) => {
+      const rating = parseFloat(ev.final_rating.toString());
+      console.log(`  - Adding rating: ${rating}`);
+      return sum + rating;
+    }, 0);
+
+    const averageRating = totalRating / completedEvaluators.length;
+    console.log(`  - Final calculated rating: ${averageRating} (${totalRating} / ${completedEvaluators.length})`);
+
+    return averageRating;
+  };
+
+  // Get employee ID from assessment (with type casting)
+  const employeeId = typeof (assessment as any)?.employee === 'object'
+    ? (assessment as any).employee.id
+    : (assessment as any)?.employee;
 
   // Fetch employee goals separately (workaround until backend includes them)
   const { data: employeeGoalsData } = useGetEmployeeGoals(
@@ -57,32 +121,43 @@ const PerformanceDetails = () => {
     !!employeeId
   );
 
-  // Merge goals into assessment - backend returns employee_goals
-  const assessmentWithGoals: any = {
-    ...assessment,
-    goals: assessment?.employee_goals || employeeGoalsData?.data?.results || employeeGoalsData?.data || assessment?.goals || []
-  };
+  // Calculate final rating if not provided by API
+  const calculatedFinalRating = React.useMemo(() => {
+    const evaluators = (assessment as any)?.evaluators;
+    if (!evaluators || evaluators.length === 0) return null;
 
-  // Debug logging
-  console.log("Assessment data:", assessment);
-  console.log("Employee data:", assessment?.employee);
-  console.log("Employee goals from backend:", assessment?.employee_goals);
-  console.log("Merged goals:", assessmentWithGoals?.goals);
+    return calculateFinalRating(evaluators);
+  }, [(assessment as any)?.evaluators]);
+
+  // Merge goals into assessment - backend returns employee_goals
+  const assessmentWithGoals: any = React.useMemo(() => ({
+    ...(assessment as any),
+    goals: (assessment as any)?.employee_goals || employeeGoalsData?.data?.results || employeeGoalsData?.data || (assessment as any)?.goals || [],
+    final_rating: (assessment as any)?.final_rating || calculatedFinalRating
+  }), [assessment, employeeGoalsData, calculatedFinalRating]);
+
+  // Debug: Log the full assessment data
+  // console.log("📊 Full Assessment Data:", assessmentWithGoals);
+  // console.log("📊 Employee Data:", assessmentWithGoals?.employee);
+  // console.log("📊 Evaluators Data:", assessmentWithGoals?.evaluators);
+
+  // Debug logging removed to prevent excessive console spam
+  // Uncomment for debugging:
+  // console.log("Assessment data:", assessment);
+  // console.log("Employee data:", assessment?.employee);
+  // console.log("Employee goals from backend:", assessment?.employee_goals);
+  // console.log("Merged goals:", assessmentWithGoals?.goals);
 
   // Submit assessment hook
   const { submitPerformanceAssesment, isLoading: isSubmitting } = useSubmitPerformanceAssesment(assessmentId);
 
   // Find if current user is an evaluator
-  const currentUserEvaluator = assessmentWithGoals?.evaluators?.find((ev) => {
+  const currentUserEvaluator = assessmentWithGoals?.evaluators?.find((ev: any) => {
     const evaluatorId = typeof ev.evaluator === 'object' ? ev.evaluator.id : ev.evaluator;
-    console.log("Checking evaluator:", evaluatorId, "vs current user:", currentUserId);
     return evaluatorId === currentUserId;
   });
 
   const canEvaluate = !!currentUserEvaluator && currentUserEvaluator.status !== 'completed';
-
-  console.log("Current User Evaluator:", currentUserEvaluator);
-  console.log("Can Evaluate:", canEvaluate);
 
   // Check if current user is the creator
   const isCreator = assessmentWithGoals?.created_by === currentUserId;
@@ -90,17 +165,18 @@ const PerformanceDetails = () => {
   // Check if all evaluations are complete
   const allEvaluationsComplete = areAllEvaluationsComplete(assessmentWithGoals?.evaluators || []);
 
-  // Debug logging for submission logic
-  console.log("=== SUBMISSION LOGIC DEBUG ===");
-  console.log("Current User ID:", currentUserId);
-  console.log("Current User ID Type:", typeof currentUserId);
-  console.log("Assessment Created By:", assessmentWithGoals?.created_by);
-  console.log("Assessment Created By Type:", typeof assessmentWithGoals?.created_by);
-  console.log("Is Creator:", isCreator);
-  console.log("Evaluators:", assessmentWithGoals?.evaluators);
-  console.log("All Evaluations Complete:", allEvaluationsComplete);
-  console.log("Assessment Status:", assessmentWithGoals?.status);
-  console.log("Assessment full object:", assessmentWithGoals);
+  // Debug logging for submission logic removed to prevent console spam
+  // Uncomment for debugging:
+  // console.log("=== SUBMISSION LOGIC DEBUG ===");
+  // console.log("Current User ID:", currentUserId);
+  // console.log("Current User ID Type:", typeof currentUserId);
+  // console.log("Assessment Created By:", assessmentWithGoals?.created_by);
+  // console.log("Assessment Created By Type:", typeof assessmentWithGoals?.created_by);
+  // console.log("Is Creator:", isCreator);
+  // console.log("Evaluators:", assessmentWithGoals?.evaluators);
+  // console.log("All Evaluations Complete:", allEvaluationsComplete);
+  // console.log("Assessment Status:", assessmentWithGoals?.status);
+  // console.log("Assessment full object:", assessmentWithGoals);
 
   // Can submit for evaluation if: creator AND status is draft
   // Need to handle both string and object comparisons for created_by
@@ -124,11 +200,72 @@ const PerformanceDetails = () => {
                                 (assessmentWithGoals?.status === 'in_progress' ||
                                  assessmentWithGoals?.status === 'pending_evaluators');
 
-  console.log("Created By ID:", createdById);
-  console.log("Is Creator Match:", isCreatorMatch);
-  console.log("Can Manage Assessment:", canManageAssessment);
-  console.log("Can Submit For Evaluation:", canSubmitForEvaluation);
-  console.log("Can Complete Assessment:", canCompleteAssessment);
+  // Debug: console.log("Created By ID:", createdById);
+  // Debug: console.log("Is Creator Match:", isCreatorMatch);
+  // Debug: console.log("Can Manage Assessment:", canManageAssessment);
+  // Debug: console.log("Can Submit For Evaluation:", canSubmitForEvaluation);
+  // Debug: console.log("Can Complete Assessment:", canCompleteAssessment);
+
+  // Format evaluation details for viewing
+  const formatEvaluationDetails = (evaluator: any, assessment: any) => {
+    const evaluatorName = evaluator.evaluator_name ||
+      (typeof evaluator.evaluator === 'object'
+        ? `${evaluator.evaluator.first_name} ${evaluator.evaluator.last_name}`
+        : 'Unknown Evaluator');
+
+    let details = `=== EVALUATION DETAILS ===\n\n`;
+    details += `Evaluator: ${evaluatorName}\n`;
+    details += `Type: ${evaluator.evaluator_type === 'self' ? 'Self Evaluation' : 'Manager Evaluation'}\n`;
+    details += `Status: ${evaluator.status.toUpperCase()}\n`;
+    details += `Final Rating: ${evaluator.final_rating ? parseFloat(evaluator.final_rating.toString()).toFixed(2) + '/5' : 'N/A'}\n\n`;
+
+    // Goal ratings
+    if (evaluator.goal_ratings && evaluator.goal_ratings.length > 0) {
+      details += `=== GOAL RATINGS ===\n\n`;
+      evaluator.goal_ratings.forEach((goalRating: any, index: number) => {
+        const goal = assessment.goals?.find((g: any) => g.id === goalRating.goal_id);
+        const goalTitle = goal?.title || `Goal ${index + 1}`;
+
+        details += `${index + 1}. ${goalTitle}\n`;
+
+        if (goalRating.narratives && goalRating.narratives.length > 0) {
+          goalRating.narratives.forEach((narrative: any, narIndex: number) => {
+            details += `   ${String.fromCharCode(97 + narIndex)}. ${narrative.description}\n`;
+            details += `      Rating: ${narrative.rating || 'N/A'}/5\n`;
+            if (narrative.comment) {
+              details += `      Comment: ${narrative.comment}\n`;
+            }
+          });
+        }
+
+        if (goalRating.manager_comment) {
+          details += `   Manager Comment: ${goalRating.manager_comment}\n`;
+        }
+        details += `\n`;
+      });
+    }
+
+    // Competency ratings
+    if (evaluator.competency_ratings && evaluator.competency_ratings.length > 0) {
+      details += `=== COMPETENCY RATINGS ===\n\n`;
+      evaluator.competency_ratings.forEach((compRating: any, index: number) => {
+        details += `${index + 1}. Competency ID: ${compRating.competency_id}\n`;
+        details += `   Rating: ${compRating.rating || 'N/A'}/5\n`;
+        if (compRating.comments) {
+          details += `   Comments: ${compRating.comments}\n`;
+        }
+        details += `\n`;
+      });
+    }
+
+    // Overall comments
+    if (evaluator.overall_comments) {
+      details += `=== OVERALL COMMENTS ===\n\n`;
+      details += `${evaluator.overall_comments}\n\n`;
+    }
+
+    return details;
+  };
 
   const handleStartEvaluation = () => {
     setIsEvaluating(true);
@@ -175,6 +312,56 @@ const PerformanceDetails = () => {
     }
   };
 
+  const handleGeneratePDF = () => {
+    try {
+      console.log("📄 PDF Generation Debug:");
+      console.log("Assessment:", assessmentWithGoals);
+      console.log("Evaluators:", assessmentWithGoals?.evaluators);
+      console.log("Employee Goals:", assessmentWithGoals?.employee_goals);
+
+      // Check if there are any completed evaluations
+      const completedEvaluators = (assessmentWithGoals?.evaluators || []).filter(
+        (ev: any) => ev.status === 'completed'
+      );
+
+      if (completedEvaluators.length === 0) {
+        toast.warning("No completed evaluations found. The PDF will only contain basic assessment information and goal structure. Complete some evaluations to see detailed scores in the PDF.");
+      }
+
+      // Collect evaluator ratings data
+      const evaluatorRatings = (assessmentWithGoals?.evaluators || []).map((evaluator: any) => {
+        console.log("Processing evaluator:", evaluator);
+        console.log("  - goal_ratings:", evaluator.goal_ratings);
+        console.log("  - competency_ratings:", evaluator.competency_ratings);
+        console.log("  - final_rating:", evaluator.final_rating);
+
+        return {
+          evaluator_id: evaluator.id,
+          goal_ratings: evaluator.goal_ratings || [],
+          competency_ratings: evaluator.competency_ratings || [],
+          overall_rating: evaluator.final_rating || 0,
+        };
+      });
+
+      console.log("Formatted evaluator ratings:", evaluatorRatings);
+
+      // Generate PDF
+      const filename = generatePerformanceAssessmentPDF({
+        assessment: assessmentWithGoals,
+        evaluatorRatings,
+      });
+
+      if (completedEvaluators.length > 0) {
+        toast.success(`PDF generated successfully: ${filename}`);
+      } else {
+        toast.success(`PDF generated: ${filename} (Note: Contains basic info only - no evaluation scores available yet)`);
+      }
+    } catch (error: any) {
+      console.error("PDF generation error:", error);
+      toast.error("Failed to generate PDF. Please try again.");
+    }
+  };
+
   if (isLoading) {
     return <div className="flex justify-center py-10">Loading assessment...</div>;
   }
@@ -184,18 +371,34 @@ const PerformanceDetails = () => {
   }
 
   return (
-    <div>
-      <div className='flex justify-between w-full'>
-        <div className='flex gap-2 items-center'>
+    <div className="max-w-7xl mx-auto">
+      {/* Header Section */}
+      <div className='flex justify-between items-start w-full mb-6'>
+        <div className='flex gap-3 items-center'>
           <GoBack />
-          <h2 className='text-xl font-bold'>
-            Performance Assessment
-          </h2>
+          <div>
+            <h1 className='text-2xl font-bold text-gray-900'>
+              Performance Assessment
+            </h1>
+            <p className='text-sm text-gray-600 mt-1'>
+              Review and manage employee performance evaluation
+            </p>
+          </div>
         </div>
         <div className='flex gap-2'>
+          {/* Generate PDF button - available when assessment has data */}
+          {!isEvaluating && assessmentWithGoals && (
+            <FormButton
+              onClick={handleGeneratePDF}
+              className="bg-purple-600 hover:bg-purple-700 shadow-sm"
+            >
+              <FileDown className="w-4 h-4" />
+              <p>Generate PDF</p>
+            </FormButton>
+          )}
           {canEvaluate && !isEvaluating && (
-            <FormButton onClick={handleStartEvaluation}>
-              <FileIcon />
+            <FormButton onClick={handleStartEvaluation} className="shadow-sm">
+              <FileIcon className="w-4 h-4" />
               <p>Start Evaluation</p>
             </FormButton>
           )}
@@ -203,7 +406,7 @@ const PerformanceDetails = () => {
             <FormButton
               onClick={handleSubmitForEvaluation}
               disabled={isSubmitting}
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-blue-600 hover:bg-blue-700 shadow-sm"
             >
               <Icon icon="ph:paper-plane-tilt-duotone" fontSize={20} />
               <p>{isSubmitting ? "Submitting..." : "Submit for Evaluation"}</p>
@@ -213,9 +416,9 @@ const PerformanceDetails = () => {
             <FormButton
               onClick={handleCompleteAssessment}
               disabled={isSubmitting}
-              className="bg-green-600 hover:bg-green-700"
+              className="bg-green-600 hover:bg-green-700 shadow-sm"
             >
-              <CheckCircle />
+              <CheckCircle className="w-4 h-4" />
               <p>{isSubmitting ? "Completing..." : "Complete Assessment"}</p>
             </FormButton>
           )}
@@ -263,116 +466,174 @@ const PerformanceDetails = () => {
             </>
           )}
 
-          <div className='mt-10'>
-            <h3 className='text-yellow-darker font-semibold'>
-              Appraisal Information
-            </h3>
-            <div className='grid grid-cols-3 mt-4 gap-4'>
-              <div className='flex flex-col'>
-                <label className='text-md font-semibold mb-2'>Description</label>
-                <p>{assessmentWithGoals.description || 'N/A'}</p>
+          {/* Appraisal Information Card */}
+          <Card className="shadow-sm border-gray-200">
+            <CardHeader className="bg-gray-50/50">
+              <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                <Icon icon="ph:clipboard-text-duotone" fontSize={24} className="text-blue-600" />
+                Appraisal Information
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+                <div className='flex flex-col space-y-1'>
+                  <label className='text-xs font-medium text-gray-500 uppercase tracking-wide'>Description</label>
+                  <p className='text-sm text-gray-900'>{assessmentWithGoals.description || 'N/A'}</p>
+                </div>
+                <div className='flex flex-col space-y-1'>
+                  <label className='text-xs font-medium text-gray-500 uppercase tracking-wide'>Status</label>
+                  <div>
+                    <Badge
+                      variant="outline"
+                      className={`
+                        ${assessmentWithGoals.status === 'completed' ? 'bg-green-50 text-green-700 border-green-200' : ''}
+                        ${assessmentWithGoals.status === 'in_progress' ? 'bg-blue-50 text-blue-700 border-blue-200' : ''}
+                        ${assessmentWithGoals.status === 'draft' ? 'bg-gray-50 text-gray-700 border-gray-200' : ''}
+                      `}
+                    >
+                      {assessmentWithGoals.status?.replace('_', ' ').toUpperCase() || 'DRAFT'}
+                    </Badge>
+                  </div>
+                </div>
+                <div className='flex flex-col space-y-1'>
+                  <label className='text-xs font-medium text-gray-500 uppercase tracking-wide'>Cycle Name</label>
+                  <p className='text-sm text-gray-900'>{assessmentWithGoals.cycle_name || 'N/A'}</p>
+                </div>
+                <div className='flex flex-col space-y-1'>
+                  <label className='text-xs font-medium text-gray-500 uppercase tracking-wide'>Start Date</label>
+                  <p className='text-sm text-gray-900 flex items-center gap-1'>
+                    <Icon icon="ph:calendar-duotone" fontSize={16} className="text-gray-400" />
+                    {assessmentWithGoals.start_date || 'N/A'}
+                  </p>
+                </div>
+                <div className='flex flex-col space-y-1'>
+                  <label className='text-xs font-medium text-gray-500 uppercase tracking-wide'>End Date</label>
+                  <p className='text-sm text-gray-900 flex items-center gap-1'>
+                    <Icon icon="ph:calendar-duotone" fontSize={16} className="text-gray-400" />
+                    {assessmentWithGoals.end_date || 'N/A'}
+                  </p>
+                </div>
+                <div className='flex flex-col space-y-1'>
+                  <label className='text-xs font-medium text-gray-500 uppercase tracking-wide'>Final Rating</label>
+                  {assessmentWithGoals.final_rating ? (
+                    <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1">
+                        <Icon icon="ph:star-fill" fontSize={18} className="text-yellow-500" />
+                        <span className='text-lg font-semibold text-gray-900'>
+                          {parseFloat(assessmentWithGoals.final_rating.toString()).toFixed(2)}
+                        </span>
+                        <span className='text-sm text-gray-500'>/5</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <Badge variant="outline" className="w-fit">Pending</Badge>
+                  )}
+                </div>
               </div>
-              <div className='flex flex-col'>
-                <label className='text-md font-semibold mb-2'>Status</label>
-                <Badge variant="outline">{assessmentWithGoals.status || 'draft'}</Badge>
-              </div>
-              <div className='flex flex-col'>
-                <label className='text-md font-semibold mb-2'>Cycle Name</label>
-                <p>{assessmentWithGoals.cycle_name || 'N/A'}</p>
-              </div>
-              <div className='flex flex-col'>
-                <label className='text-md font-semibold mb-2'>Start Date</label>
-                <p>{assessmentWithGoals.start_date || 'N/A'}</p>
-              </div>
-              <div className='flex flex-col'>
-                <label className='text-md font-semibold mb-2'>End Date</label>
-                <p>{assessmentWithGoals.end_date || 'N/A'}</p>
-              </div>
-              <div className='flex flex-col'>
-                <label className='text-md font-semibold mb-2'>Final Rating</label>
-                <p>{assessmentWithGoals.final_rating ? `${assessmentWithGoals.final_rating}/5` : 'Pending'}</p>
-              </div>
-            </div>
-          </div>
-          <Separator className='my-6' />
+            </CardContent>
+          </Card>
 
-          <div>
-            <h3 className='text-yellow-darker font-semibold'>
-              Employee Information
-            </h3>
-            <div className='grid grid-cols-3 mt-4 gap-4'>
-              <div className='flex flex-col'>
-                <label className='text-md font-semibold mb-2'>
-                  Employee Name
-                </label>
-                <p>
-                  {assessmentWithGoals.employee_name ||
-                   (typeof assessmentWithGoals.employee === 'object'
-                    ? `${assessmentWithGoals.employee.legal_firstname || assessmentWithGoals.employee.first_name || ''} ${assessmentWithGoals.employee.legal_lastname || assessmentWithGoals.employee.last_name || ''}`.trim()
-                    : '') || 'N/A'}
-                </p>
+          {/* Employee Information Card */}
+          <Card className="shadow-sm border-gray-200 mt-6">
+            <CardHeader className="bg-gray-50/50">
+              <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                <Icon icon="ph:user-circle-duotone" fontSize={24} className="text-green-600" />
+                Employee Information
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+                <div className='flex flex-col space-y-1'>
+                  <label className='text-xs font-medium text-gray-500 uppercase tracking-wide'>Employee Name</label>
+                  <p className='text-sm text-gray-900 font-medium'>
+                    {assessmentWithGoals.employee_name || 'N/A'}
+                  </p>
+                </div>
+                <div className='flex flex-col space-y-1'>
+                  <label className='text-xs font-medium text-gray-500 uppercase tracking-wide'>Email</label>
+                  {assessmentWithGoals.employee_email ? (
+                    <p className='text-sm text-gray-900 flex items-center gap-1'>
+                      <Icon icon="ph:envelope-duotone" fontSize={16} className="text-gray-400" />
+                      {assessmentWithGoals.employee_email}
+                    </p>
+                  ) : (
+                    <p className='text-sm text-gray-500 italic'>Not available</p>
+                  )}
+                </div>
+                <div className='flex flex-col space-y-1'>
+                  <label className='text-xs font-medium text-gray-500 uppercase tracking-wide'>Job Title</label>
+                  {assessmentWithGoals.employee_job_title ? (
+                    <p className='text-sm text-gray-900 flex items-center gap-1'>
+                      <Icon icon="ph:briefcase-duotone" fontSize={16} className="text-gray-400" />
+                      {assessmentWithGoals.employee_job_title}
+                    </p>
+                  ) : (
+                    <p className='text-sm text-gray-500 italic'>Not available</p>
+                  )}
+                </div>
+                <div className='flex flex-col space-y-1'>
+                  <label className='text-xs font-medium text-gray-500 uppercase tracking-wide'>Supervisor Name</label>
+                  {assessmentWithGoals.supervisor_name ? (
+                    <p className='text-sm text-gray-900 flex items-center gap-1'>
+                      <Icon icon="ph:user-focus-duotone" fontSize={16} className="text-gray-400" />
+                      {assessmentWithGoals.supervisor_name}
+                    </p>
+                  ) : (
+                    <p className='text-sm text-gray-500 italic'>Not available</p>
+                  )}
+                </div>
               </div>
-              <div className='flex flex-col'>
-                <label className='text-md font-semibold mb-2'>Email</label>
-                <p>
-                  {assessmentWithGoals.employee_email ||
-                   (typeof assessmentWithGoals.employee === 'object'
-                    ? assessmentWithGoals.employee.email
-                    : '') || 'N/A'}
-                </p>
-              </div>
-              <div className='flex flex-col'>
-                <label className='text-md font-semibold mb-2'>Job Title</label>
-                <p>
-                  {assessmentWithGoals.employee_job_title ||
-                   (typeof assessmentWithGoals.employee === 'object'
-                    ? assessmentWithGoals.employee.job_title || assessmentWithGoals.employee.job_id
-                    : '') || 'N/A'}
-                </p>
-              </div>
-              <div className='flex flex-col'>
-                <label className='text-md font-semibold mb-2'>Supervisor Name</label>
-                <p>
-                  {assessmentWithGoals.supervisor_name ||
-                   (typeof assessmentWithGoals.employee === 'object' && assessmentWithGoals.employee.supervisor
-                    ? typeof assessmentWithGoals.employee.supervisor === 'object'
-                      ? `${assessmentWithGoals.employee.supervisor.first_name || ''} ${assessmentWithGoals.employee.supervisor.last_name || ''}`.trim()
-                      : ''
-                    : '') || 'N/A'}
-                </p>
-              </div>
-            </div>
-          </div>
-          <Separator className='my-6' />
+            </CardContent>
+          </Card>
 
-          {/* Employee Goals */}
-          <div>
-            <h3 className='text-yellow-darker font-semibold mb-4'>Employee Goals</h3>
+          {/* Employee Goals Section */}
+          <div className='mt-6'>
+            <div className='flex items-center gap-2 mb-4'>
+              <Icon icon="ph:target-duotone" fontSize={24} className="text-orange-600" />
+              <h3 className='text-lg font-semibold text-gray-900'>Employee Goals</h3>
+              {assessmentWithGoals.goals && assessmentWithGoals.goals.length > 0 && (
+                <Badge variant='secondary' className='ml-2'>
+                  {assessmentWithGoals.goals.length} {assessmentWithGoals.goals.length === 1 ? 'Goal' : 'Goals'}
+                </Badge>
+              )}
+            </div>
             {assessmentWithGoals.goals && assessmentWithGoals.goals.length > 0 ? (
               <div className='grid gap-4'>
-                {assessmentWithGoals.goals.map((goal, index) => {
-                  const totalWeight = goal.total_weight || goal.narratives?.reduce((sum, n) => sum + parseFloat(n.weight?.toString() || '0'), 0);
+                {assessmentWithGoals.goals.map((goal: any, index: number) => {
+                  const totalWeight = goal.total_weight || goal.narratives?.reduce((sum: number, n: any) => sum + parseFloat(n.weight?.toString() || '0'), 0);
 
                   return (
-                    <Card key={goal.id || index}>
-                      <CardHeader>
-                        <div className='flex justify-between items-start'>
+                    <Card key={goal.id || index} className='shadow-sm border-gray-200 hover:shadow-md transition-shadow'>
+                      <CardHeader className='pb-3'>
+                        <div className='flex justify-between items-start gap-4'>
                           <div className='flex-1'>
-                            <CardTitle className='text-base'>{goal.title || goal.goal || "Untitled Goal"}</CardTitle>
-                            {goal.description && (
-                              <p className='text-sm text-gray-600 mt-1'>{goal.description}</p>
-                            )}
+                            <div className='flex items-start gap-2'>
+                              <div className='mt-0.5 bg-blue-100 text-blue-700 rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0'>
+                                <span className='text-xs font-semibold'>{index + 1}</span>
+                              </div>
+                              <div className='flex-1'>
+                                <CardTitle className='text-base text-gray-900'>
+                                  {goal.title || goal.goal || "Untitled Goal"}
+                                </CardTitle>
+                                {goal.description && (
+                                  <p className='text-sm text-gray-600 mt-1'>{goal.description}</p>
+                                )}
+                              </div>
+                            </div>
 
                             {/* Narratives/Tasks */}
                             {goal.narratives && goal.narratives.length > 0 && (
-                              <div className='mt-3 pl-2 border-l-2 border-gray-200'>
-                                <p className='text-xs font-medium text-gray-500 mb-1'>Tasks:</p>
-                                <ul className='space-y-1'>
-                                  {goal.narratives.map((narrative, idx) => (
-                                    <li key={idx} className='text-xs flex items-start gap-2'>
-                                      <span className='text-gray-400'>•</span>
-                                      <span className='flex-1'>{narrative.description}</span>
-                                      <Badge variant='secondary' className='text-xs h-4'>
+                              <div className='mt-4 ml-8 bg-gray-50 rounded-lg p-3 border border-gray-100'>
+                                <p className='text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide flex items-center gap-1'>
+                                  <Icon icon="ph:list-checks-duotone" fontSize={14} />
+                                  Tasks ({goal.narratives.length})
+                                </p>
+                                <ul className='space-y-2'>
+                                  {goal.narratives.map((narrative: any, idx: number) => (
+                                    <li key={idx} className='flex items-start gap-2 text-sm'>
+                                      <Icon icon="ph:check-circle-duotone" fontSize={16} className='text-green-500 mt-0.5 flex-shrink-0' />
+                                      <span className='flex-1 text-gray-700'>{narrative.description}</span>
+                                      <Badge variant='secondary' className='text-xs'>
                                         {parseFloat(narrative.weight?.toString() || '0').toFixed(0)}%
                                       </Badge>
                                     </li>
@@ -381,84 +642,158 @@ const PerformanceDetails = () => {
                               </div>
                             )}
                           </div>
-                          <Badge variant='outline'>
-                            Weight: {totalWeight ? parseFloat(totalWeight.toString()).toFixed(0) : goal.weight || 0}%
-                          </Badge>
+                          <div className='flex flex-col items-end gap-2'>
+                            <Badge variant='outline' className='whitespace-nowrap'>
+                              Weight: {totalWeight ? parseFloat(totalWeight.toString()).toFixed(0) : goal.weight || 0}%
+                            </Badge>
+                            {goal.average_rating && (
+                              <div className='flex items-center gap-1 bg-yellow-50 px-2 py-1 rounded border border-yellow-200'>
+                                <Icon icon="ph:star-fill" fontSize={14} className='text-yellow-500' />
+                                <span className='text-sm font-semibold text-gray-900'>
+                                  {goal.average_rating.toFixed(2)}/5
+                                </span>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </CardHeader>
-                      {goal.average_rating && (
-                        <CardContent>
-                          <p className='text-sm'>
-                            <span className='font-semibold'>Average Rating: </span>
-                            {goal.average_rating}/5
-                          </p>
-                        </CardContent>
-                      )}
                     </Card>
                   );
                 })}
               </div>
             ) : (
-              <p className='text-gray-500'>No goals set for this assessment</p>
+              <Card className='shadow-sm border-dashed border-gray-300'>
+                <CardContent className='py-12 text-center'>
+                  <Icon icon="ph:target-duotone" fontSize={48} className='text-gray-300 mx-auto mb-3' />
+                  <p className='text-gray-500 text-sm'>No goals set for this assessment</p>
+                </CardContent>
+              </Card>
             )}
           </div>
-          <Separator className='my-6' />
 
-          {/* Evaluators */}
-          <div className='flex flex-col gap-4'>
-            <h3 className='text-yellow-darker font-semibold'>Evaluators</h3>
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+          {/* Evaluators Section */}
+          <div className='mt-6'>
+            <div className='flex items-center gap-2 mb-4'>
+              <Icon icon="ph:users-three-duotone" fontSize={24} className="text-purple-600" />
+              <h3 className='text-lg font-semibold text-gray-900'>Evaluators</h3>
+              {assessmentWithGoals.evaluators && assessmentWithGoals.evaluators.length > 0 && (
+                <Badge variant='secondary' className='ml-2'>
+                  {assessmentWithGoals.evaluators.length} {assessmentWithGoals.evaluators.length === 1 ? 'Evaluator' : 'Evaluators'}
+                </Badge>
+              )}
+            </div>
+            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
               {assessmentWithGoals.evaluators && assessmentWithGoals.evaluators.length > 0 ? (
-                assessmentWithGoals.evaluators.map((evaluator, index) => {
-                  const evaluatorUser = typeof evaluator.evaluator === 'object'
-                    ? evaluator.evaluator
-                    : null;
+                assessmentWithGoals.evaluators.map((evaluator: any, index: number) => {
+                  // Get evaluator name - prefer evaluator_name field, fallback to user object
+                  const evaluatorName = evaluator.evaluator_name ||
+                    (typeof evaluator.evaluator === 'object'
+                      ? `${evaluator.evaluator.first_name} ${evaluator.evaluator.last_name}`
+                      : 'Unknown Evaluator');
+
+                  // Get evaluator email if available
+                  const evaluatorEmail = evaluator.evaluator_email ||
+                    (typeof evaluator.evaluator === 'object' ? evaluator.evaluator.email : null);
+
+                  // Get initials for avatar
+                  const nameParts = evaluatorName.split(' ');
+                  const initials = nameParts.length >= 2
+                    ? `${nameParts[0][0]}${nameParts[1][0]}`
+                    : evaluatorName.substring(0, 2);
+
+                  const statusColors = {
+                    completed: 'bg-green-50 text-green-700 border-green-200',
+                    in_progress: 'bg-blue-50 text-blue-700 border-blue-200',
+                    pending: 'bg-gray-50 text-gray-700 border-gray-200',
+                  };
+
+                  const statusIcons = {
+                    completed: 'ph:check-circle-fill',
+                    in_progress: 'ph:clock-duotone',
+                    pending: 'ph:hourglass-duotone',
+                  };
 
                   return (
-                    <Card key={evaluator.id || index}>
+                    <Card key={evaluator.id || index} className='shadow-sm border-gray-200 hover:shadow-md transition-shadow'>
                       <CardContent className='pt-6'>
-                        <div className='space-y-3'>
-                          <div className='flex justify-between items-center'>
-                            <p className='font-semibold'>
-                              {evaluatorUser
-                                ? `${evaluatorUser.first_name} ${evaluatorUser.last_name}`
-                                : 'Unknown'}
-                            </p>
+                        <div className='space-y-4'>
+                          {/* Header with name and status */}
+                          <div className='flex items-start justify-between gap-2'>
+                            <div className='flex items-center gap-2'>
+                              <div className='w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center text-white font-semibold text-sm flex-shrink-0'>
+                                {initials.toUpperCase()}
+                              </div>
+                              <div>
+                                <p className='font-semibold text-gray-900'>
+                                  {evaluatorName}
+                                </p>
+                                <p className='text-xs text-gray-500 capitalize'>{evaluator.evaluator_type} Evaluator</p>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Status Badge */}
+                          <div className='flex justify-center'>
                             <Badge
-                              variant={
-                                evaluator.status === 'completed'
-                                  ? 'default'
-                                  : evaluator.status === 'in_progress'
-                                  ? 'secondary'
-                                  : 'outline'
-                              }
+                              variant="outline"
+                              className={`w-full justify-center ${statusColors[evaluator.status as keyof typeof statusColors] || statusColors.pending}`}
                             >
-                              {evaluator.status || 'pending'}
+                              <Icon icon={statusIcons[evaluator.status as keyof typeof statusIcons] || statusIcons.pending} fontSize={14} className='mr-1' />
+                              {evaluator.status?.replace('_', ' ').toUpperCase() || 'PENDING'}
                             </Badge>
                           </div>
-                          <div className='flex text-sm'>
-                            <p className='w-[140px] text-gray-600'>Type:</p>
-                            <p className='capitalize'>{evaluator.evaluator_type}</p>
+
+                          {/* Details */}
+                          <div className='space-y-2 pt-2 border-t border-gray-100'>
+                            {evaluatorEmail && (
+                              <div className='flex items-center gap-2 text-sm'>
+                                <Icon icon="ph:envelope-duotone" fontSize={16} className='text-gray-400 flex-shrink-0' />
+                                <p className='text-gray-700 truncate'>{evaluatorEmail}</p>
+                              </div>
+                            )}
+                            {evaluator.submitted_at && (
+                              <div className='flex items-center gap-2 text-sm'>
+                                <Icon icon="ph:calendar-check-duotone" fontSize={16} className='text-gray-400 flex-shrink-0' />
+                                <div>
+                                  <p className='text-xs text-gray-500'>Submitted</p>
+                                  <p className='text-gray-700'>{new Date(evaluator.submitted_at).toLocaleDateString()}</p>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* View Evaluation Button for completed evaluations */}
+                            {evaluator.status === 'completed' && (
+                              <div className='pt-2'>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => {
+                                    // Create a detailed view of the evaluation
+                                    const evaluationDetails = formatEvaluationDetails(evaluator, assessmentWithGoals);
+
+                                    // For now, show in a large alert - in production this would be a modal
+                                    alert(evaluationDetails);
+                                  }}
+                                  className="w-full text-xs"
+                                >
+                                  <Icon icon="ph:eye-duotone" fontSize={14} className='mr-1' />
+                                  View Evaluation
+                                </Button>
+                              </div>
+                            )}
                           </div>
-                          {evaluatorUser?.email && (
-                            <div className='flex text-sm'>
-                              <p className='w-[140px] text-gray-600'>Email:</p>
-                              <p>{evaluatorUser.email}</p>
-                            </div>
-                          )}
-                          {evaluator.submitted_at && (
-                            <div className='flex text-sm'>
-                              <p className='w-[140px] text-gray-600'>Submitted:</p>
-                              <p>{new Date(evaluator.submitted_at).toLocaleDateString()}</p>
-                            </div>
-                          )}
                         </div>
                       </CardContent>
                     </Card>
                   );
                 })
               ) : (
-                <p className='text-gray-500'>No evaluators assigned</p>
+                <Card className='shadow-sm border-dashed border-gray-300'>
+                  <CardContent className='py-12 text-center'>
+                    <Icon icon="ph:users-three-duotone" fontSize={48} className='text-gray-300 mx-auto mb-3' />
+                    <p className='text-gray-500 text-sm'>No evaluators assigned</p>
+                  </CardContent>
+                </Card>
               )}
             </div>
           </div>
