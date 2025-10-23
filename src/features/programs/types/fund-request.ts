@@ -5,7 +5,14 @@ import { TFundRequestActivity } from "features/programs/types/program-validator"
 export interface FundRequestPaginatedData {
     id: string;
     activities: [];
-    project: string;
+    project: string | {
+        id?: string;
+        project_id?: string;
+        title?: string;
+        start_date?: string;
+        end_date?: string;
+        [key: string]: any;
+    };
     financial_year: string;
     location: string | { name: string; state?: string; [key: string]: any };
     location_name?: string;
@@ -143,9 +150,10 @@ export interface TFundRequestResponseData {
     updated_datetime: "2024-12-04T06:30:35.603276Z";
     year: string;
     month: string;
-    currency: "USD";
-    type: "MAIN";
+    currency: "USD" | "NGN";
+    type: "MAIN" | "SUPPLEMENTARY";
     status: "PENDING" | "REVIEWED" | "LOCATION_REVIEWED" | "LOCATION_AUTHORIZED" | "STATE_REVIEWED" | "STATE_AUTHORIZED" | "HQ_REVIEWED" | "HQ_AUTHORIZED" | "HQ_APPROVED" | "REJECTED";
+    total_amount: string | number;
     created_by: string;
     updated_by: string | null;
     reviewer: string | null;

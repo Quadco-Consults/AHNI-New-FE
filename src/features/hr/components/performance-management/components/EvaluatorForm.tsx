@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "components/ui/card";
 import { Badge } from "components/ui/badge";
 import { useRouter, useParams } from "next/navigation";
 import { HrRoutes } from "constants/RouterConstants";
-import { useUpdatePerformanceAssesment, useGetPerformanceAssesment } from "@/features/hr/controllers/hrPerformanceAssessmentController";
+import { useSubmitEvaluation, useGetPerformanceAssesment } from "@/features/hr/controllers/hrPerformanceAssessmentController";
 import { toast } from "sonner";
 import { Label } from "components/ui/label";
 import { EvaluationSubmission } from "@/features/hr/types/performance-assesment";
@@ -52,9 +52,9 @@ const EvaluatorForm: React.FC<EvaluatorFormProps> = ({ assessmentId, evaluatorId
     !!assessmentId
   );
 
-  const { updatePerformanceAssesment, isLoading: isSubmitting } = useUpdatePerformanceAssesment(assessmentId);
+  const { submitEvaluation, isLoading: isSubmitting } = useSubmitEvaluation(assessmentId);
 
-  const assessment = assessmentData?.data;
+  const assessment = (assessmentData?.data?.data || assessmentData?.data) as any;
   // Backend returns employee_goals, not goals
   const goals = assessment?.employee_goals || assessment?.goals || [];
 
@@ -78,28 +78,15 @@ const EvaluatorForm: React.FC<EvaluatorFormProps> = ({ assessmentId, evaluatorId
 
   const onSubmit = async (data: EvaluationFormData) => {
     try {
-      // Get employee ID from assessment
-      const employeeId = typeof assessment?.employee === 'object'
-        ? assessment.employee.id
-        : assessment?.employee;
-
-      // Include all required assessment fields for the update
-      const submission: any = {
-        ...assessment, // Include all existing assessment data
-        assessment_id: assessmentId,
+      // Submit evaluation with evaluator ID and ratings
+      const submission = {
         evaluator_id: evaluatorId,
-        employee: employeeId,
-        description: assessment?.description,
-        cycle_name: assessment?.cycle_name,
-        status: assessment?.status,
-        start_date: assessment?.start_date,
-        end_date: assessment?.end_date,
         goal_ratings: data.goal_ratings,
       };
 
       console.log("Submitting evaluation:", submission);
 
-      await updatePerformanceAssesment(submission);
+      await submitEvaluation(submission);
 
       // Invalidate cache to refresh data
       queryClient.invalidateQueries({ queryKey: ["performance-assessments"] });

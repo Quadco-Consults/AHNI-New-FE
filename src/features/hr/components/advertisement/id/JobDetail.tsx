@@ -47,7 +47,6 @@ const JobDetail = (props: JobAdvertisement) => {
     created_datetime,
     commencement_date,
     any_other_info,
-    interviewers,
   } = props || {};
 
 
@@ -168,37 +167,6 @@ const JobDetail = (props: JobAdvertisement) => {
           <p className='text-sm'>
             {any_other_info}
           </p>
-        </div>
-      )}
-
-      {/* Interviewers section */}
-      {interviewers && interviewers.length > 0 && (
-        <div>
-          <h4 className='font-medium mb-2'>Interviewers</h4>
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-3'>
-            {interviewers.map((interviewer) => (
-              <div
-                key={interviewer.id}
-                className='bg-gray-50 rounded-md p-3 border border-gray-200'
-              >
-                <div className='flex items-center gap-2'>
-                  <div className='bg-blue-100 text-blue-800 rounded-full w-8 h-8 flex items-center justify-center font-medium'>
-                    {interviewer.first_name?.[0]}
-                    {interviewer.last_name?.[0]}
-                  </div>
-                  <div>
-                    <p className='font-medium'>{interviewer.full_name}</p>
-                    <p className='text-sm text-gray-500'>{interviewer.email}</p>
-                    {interviewer.mobile_number && (
-                      <p className='text-xs text-gray-500'>
-                        {interviewer.mobile_number}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
         </div>
       )}
 

@@ -71,36 +71,58 @@ export const useCombinedApplicationStatus = (advertisementId: string, statusFilt
         });
 
         console.log(`👤 Processing ${app.applicant_email}:`, {
+          applicationId: app.id,
           applicationStatus: app.status,
           hasInterview: !!interview,
           interviewId: interview?.id,
+          interviewApplication: interview?.application,
+          matchedCorrectly: interview ? (
+            (typeof interview.application === 'string' && interview.application === app.id) ||
+            (typeof interview.application === 'object' && interview.application?.id === app.id)
+          ) : 'no-interview',
         });
 
         // Determine if interview is completed (has evaluation data)
+        // ONLY mark as completed if there are actual submitted scores, not just defaults
         const interviewCompleted = interview ? (
-          interview.appearance_comments ||
-          interview.oral_communication_comments ||
-          interview.teamwork_comments ||
-          interview.work_ethics_comments ||
-          interview.analytical_comments ||
-          interview.knowledge_comments ||
-          interview.experience_comments ||
-          (interview.recommendation && interview.recommendation.trim().length > 0) ||
-          // Check if ratings are not all default (1) values
-          [
-            interview.appearance_rating,
-            interview.oral_communication_rating,
-            interview.teamwork_rating,
-            interview.work_ethics_rating,
-            interview.analytical_rating,
-            interview.knowledge_rating,
-            interview.experience_rating
-          ].some(rating => rating && rating !== 1)
+          // Multi-scorer: Check if interview has any submitted scores
+          (interview.interviewer_scores && interview.interviewer_scores.length > 0) ||
+          (interview.scores && interview.scores.length > 0) ||
+          (interview.completed_evaluations && interview.completed_evaluations > 0) ||
+          // Legacy single-scorer: MUST have comments (not just ratings) to be considered completed
+          // This prevents false positives from default rating values
+          (
+            interview.appearance_comments ||
+            interview.oral_communication_comments ||
+            interview.teamwork_comments ||
+            interview.work_ethics_comments ||
+            interview.analytical_comments ||
+            interview.knowledge_comments ||
+            interview.experience_comments ||
+            (interview.recommendation && interview.recommendation.trim().length > 0)
+          )
         ) : false;
 
-        // Calculate interview score if available
-        const interviewScore = interview?.percentage_score ||
-          (interview?.average_score ? Math.round(interview.average_score * 20) : null); // Convert 5-point scale to percentage
+        // Debug logging for interview completion status
+        if (interview) {
+          console.log(`🔍 Interview completion check for ${app.applicant_email}:`, {
+            hasInterviewerScores: !!(interview.interviewer_scores && interview.interviewer_scores.length > 0),
+            interviewerScoresCount: interview.interviewer_scores?.length || 0,
+            hasScores: !!(interview.scores && interview.scores.length > 0),
+            scoresCount: interview.scores?.length || 0,
+            completedEvaluations: interview.completed_evaluations || 0,
+            percentageScore: interview.percentage_score,
+            averageScore: interview.average_score,
+            interviewCompleted: interviewCompleted,
+          });
+        }
+
+        // Calculate interview score ONLY if interview is actually completed
+        // Don't use default/placeholder scores
+        const interviewScore = interviewCompleted ? (
+          interview?.percentage_score ||
+          (interview?.average_score ? Math.round(interview.average_score * 20) : null)
+        ) : null;
 
         // Determine real status - prioritize ACCEPTED/PREFERRED over interview status
         let realStatus = app.status;
@@ -162,13 +184,7 @@ export const getStatusDisplay = (candidate: CandidateWithRealStatus) => {
       color: "bg-purple-50 text-purple-500",
       status: "PREFERRED"
     };
-  } else if (candidate.interviewCompleted && candidate.interviewScore) {
-    return {
-      text: `INTERVIEWED (${candidate.interviewScore}%)`,
-      color: "bg-green-50 text-green-500",
-      status: "INTERVIEWED"
-    };
-  } else if (candidate.interviewCompleted && !candidate.interviewScore) {
+  } else if (candidate.interviewCompleted) {
     return {
       text: "INTERVIEWED",
       color: "bg-green-50 text-green-500",

@@ -60,7 +60,15 @@ export const useAllInterviewedCandidates = () => {
         });
 
         // Check if interview is completed
+        // For committee interviews: check if interviewer_scores array has submissions
+        // For legacy single-interviewer: check for comments/ratings
         const interviewCompleted = interview ? (
+          // Check for multi-interviewer committee interviews
+          (interview.interviewer_scores && interview.interviewer_scores.length > 0) ||
+          (interview.scores && interview.scores.length > 0) ||
+          (interview.completed_evaluations && interview.completed_evaluations > 0) ||
+          interview.status === "COMPLETED" ||
+          // Legacy single-interviewer check
           interview.appearance_comments ||
           interview.oral_communication_comments ||
           interview.teamwork_comments ||

@@ -22,7 +22,7 @@ const Advertisement = () => {
     search: debouncedSearchValue,
   });
 
-  console.log("Advertisement", data);
+  const advertisements = data?.data?.results || [];
 
   if (isLoading) {
     return <Loading />;
@@ -31,7 +31,7 @@ const Advertisement = () => {
   return (
     <Card className='space-y-10'>
       <div className='flex justify-between'>
-        <SearchBar />
+        <SearchBar onchange={(e) => setSearchTerm(e.target.value)} />
 
         <Link href={HrRoutes.ADVERTISEMENT_ADD}>
           <Button>
@@ -40,14 +40,34 @@ const Advertisement = () => {
         </Link>
       </div>
 
-      <div className='grid grid-cols-1 gap-5 md:grid-cols-2'>
-        {/* @ts-ignore */}
-        {data?.data?.results.map((job, idx) => (
-          <Card key={idx} className='space-y-4'>
+      {advertisements.length === 0 ? (
+        <div className='flex flex-col items-center justify-center py-12 text-center'>
+          <Briefcase size={48} className='text-gray-400 mb-4' />
+          <h3 className='text-lg font-semibold text-gray-700 mb-2'>
+            No job advertisements found
+          </h3>
+          <p className='text-gray-500 mb-4'>
+            {searchTerm
+              ? `No results for "${searchTerm}"`
+              : "Create your first job advertisement to get started"
+            }
+          </p>
+          <Link href={HrRoutes.ADVERTISEMENT_ADD}>
+            <Button>
+              <AddSquareIcon /> Create Job Advertisement
+            </Button>
+          </Link>
+        </div>
+      ) : (
+        <div className='grid grid-cols-1 gap-5 md:grid-cols-2'>
+          {advertisements.map((job, idx) => (
+            <Card key={job?.id || idx} className='space-y-4'>
             <Badge variant='darkYellow'>
               Date Posted: {format(job?.created_datetime, "dd, MMM, yy")}
             </Badge>
-            <h4 className='font-semibold text-lg'>{job?.title}</h4>
+            <h4 className='font-semibold text-lg'>
+              {job?.title || job?.position?.name || "Untitled Position"}
+            </h4>
 
             <div className='flex flex-wrap gap-2'>
               <Badge variant='md'>
@@ -61,14 +81,10 @@ const Advertisement = () => {
                 {format(job?.created_datetime, "dd-MMM-yyyy")}
               </Badge>
               <Badge variant='md'>
-                <MapPin size={15} /> {
-                  typeof job?.locations === 'object' && job?.locations?.name 
-                    ? job.locations.name 
-                    : Array.isArray(job?.locations) 
-                      ? job.locations.map(loc => typeof loc === 'object' ? loc.name : loc).join(', ')
-                      : String(job?.locations || 'N/A')
-                }
-                {/* <MapPin size={15} /> Various LGAs of {BADGES.lga} */}
+                <MapPin size={15} />{" "}
+                {Array.isArray(job?.locations) && job.locations.length > 0
+                  ? job.locations.map(loc => loc?.name).filter(Boolean).join(', ')
+                  : 'Location not specified'}
               </Badge>
               <Badge variant='md'>
                 <Briefcase size={15} /> {job?.job_type}
@@ -90,8 +106,9 @@ const Advertisement = () => {
               </Link>
             </div>
           </Card>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </Card>
   );
 };

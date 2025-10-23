@@ -66,23 +66,30 @@ export const useGetAllFundRequests = ({
     ],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get(BASE_URL, {
-          params: {
-            page,
-            size,
-            ...(project && { project }),
-            ...(status && { status }),
-            ...(month && { month }),
-            ...(year && { year }),
-            ...(type && { type }),
-            ...(search && { search }),
-          },
-        });
+        // Build params object, excluding undefined/empty values
+        const params: Record<string, any> = {
+          page,
+          size,
+        };
+
+        if (project) params.project = project;
+        if (status) params.status = status;
+        if (month) params.month = month;
+        if (year) params.year = year;
+        if (type) params.type = type;
+        if (search) params.search = search;
+
+        const response = await AxiosWithToken.get(BASE_URL, { params });
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
+        console.error("Fund Request API Error:", {
+          status: axiosError.response?.status,
+          data: axiosError.response?.data,
+          message: (axiosError.response?.data as any)?.message,
+        });
         throw new Error(
-          "Sorry: " + (axiosError.response?.data as any)?.message
+          "Sorry: " + ((axiosError.response?.data as any)?.message || axiosError.message)
         );
       }
     },
@@ -322,6 +329,8 @@ export const useApproveFundRequest = (id: string) => {
 };
 
 // Helper hook to get available actions based on current status
+// NOTE: HQ-level approvals (HQ_REVIEWED, HQ_AUTHORIZED, HQ_APPROVED) must be done
+// through batch approval endpoints, not individual fund request approvals
 export const useFundRequestActions = (currentStatus: string) => {
   const getAvailableActions = () => {
     switch (currentStatus) {
@@ -358,55 +367,23 @@ export const useFundRequestActions = (currentStatus: string) => {
         ];
 
       case "LOCATION_AUTHORIZED":
-        return [
-          {
-            action: "HQ_REVIEW",
-            label: "HQ Review",
-            requiresStatus: true,
-            status: "HQ_REVIEWED",
-          },
-          {
-            action: "REJECT",
-            label: "Reject",
-            requiresStatus: true,
-            status: "REJECTED",
-          },
-        ];
+        // When fund request reaches LOCATION_AUTHORIZED, it's automatically added to a batch
+        // HQ approvals must be done through batch approval interface
+        return []; // No individual actions available, proceed to batch approval
 
       case "HQ_REVIEWED":
-        return [
-          {
-            action: "HQ_AUTHORIZE",
-            label: "HQ Authorize",
-            requiresStatus: true,
-            status: "HQ_AUTHORIZED",
-          },
-          {
-            action: "REJECT",
-            label: "Reject",
-            requiresStatus: true,
-            status: "REJECTED",
-          },
-        ];
+        // HQ approvals are batch-based, no individual actions
+        return [];
 
       case "HQ_AUTHORIZED":
-        return [
-          {
-            action: "HQ_APPROVE",
-            label: "HQ Final Approve",
-            requiresStatus: true,
-            status: "HQ_APPROVED",
-          },
-          {
-            action: "REJECT",
-            label: "Reject",
-            requiresStatus: true,
-            status: "REJECTED",
-          },
-        ];
+        // HQ approvals are batch-based, no individual actions
+        return [];
 
       case "HQ_APPROVED":
         return []; // Final status, no actions
+
+      case "REJECTED":
+        return []; // Rejected, no further actions
 
       default:
         return [];

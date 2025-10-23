@@ -32,9 +32,10 @@ import FormInput from "@/components/FormInput";
 import { useAppDispatch } from "@/hooks/useStore";
 import { closeDialog } from "@/store/ui";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
+import { filterAhniStaffOnly } from "@/utils/userFilters";
+import { useGetEmployeeOnboardings } from "@/features/hr/controllers/employeeOnboardingController";
 
 export const InterviewSchema = z.object({
-  application: z.string().min(1, "Please select an application"),
   interview_type: z.string().min(1, "Interview type is required"),
   interviewer: z.string().optional(),
   interviewers: z.array(z.string()).optional().default([]),
@@ -101,10 +102,17 @@ const CreateInterviewModal = ({ jobAdvertisementId, data, onClose }: CreateInter
   }
 
   const { data: jobAdvert } = useGetJobAdvertisement(advertisementId);
-  const { data: users } = useGetAllUsers({
+
+  // Fetch from both sources: Users table AND Employee database
+  const { data: users, isLoading: isUsersLoading } = useGetAllUsers({
     page: 1,
     size: 2000,
     search: "",
+  });
+
+  const { data: employeeData, isLoading: isEmployeesLoading } = useGetEmployeeOnboardings({
+    page: 1,
+    size: 2000,
   });
 
   // Fetch shortlisted applications for this advertisement
@@ -146,9 +154,58 @@ const CreateInterviewModal = ({ jobAdvertisementId, data, onClose }: CreateInter
   // Handle grade/level display
   const gradeDisplay = grade?.name || grade || level?.name || level || 'Not specified';
 
+  // Combine users from both sources with deduplication
+  const allStaff = useMemo(() => {
+    const usersResults = (users as any)?.data?.results || [];
+    const employeeResults = (employeeData as any)?.data?.results || [];
+
+    console.log('🔍 Raw data sources:', {
+      users: usersResults.length,
+      employees: employeeResults.length,
+      usersLoading: isUsersLoading,
+      employeesLoading: isEmployeesLoading,
+    });
+
+    const combined = [
+      // Users from user table (filter to exclude vendors)
+      ...filterAhniStaffOnly(usersResults),
+      // Employees from employee database (all are AHNI staff)
+      ...employeeResults.map((emp: any) => ({
+        id: emp.id,
+        first_name: emp.legal_firstname || emp.first_name,
+        last_name: emp.legal_lastname || emp.last_name,
+        email: emp.email,
+        user_type: 'STAFF',
+        designation: emp.designation?.name || emp.position,
+        department: emp.department?.name,
+        phone_number: emp.phone_number || emp.mobile_number,
+        is_staff: true,
+        _source: 'employee_database'
+      }))
+    ];
+
+    // Remove duplicates based on email
+    const uniqueStaff = combined.reduce((acc: any[], current: any) => {
+      const exists = acc.find(item => item.email === current.email);
+      if (!exists) {
+        acc.push(current);
+      }
+      return acc;
+    }, []);
+
+    console.log('👥 Combined AHNI staff:', {
+      fromUsers: filterAhniStaffOnly(usersResults).length,
+      fromEmployees: employeeResults.length,
+      combined: combined.length,
+      afterDedup: uniqueStaff.length,
+    });
+
+    return uniqueStaff;
+  }, [users, employeeData, isUsersLoading, isEmployeesLoading]);
+
   const userOptions = useMemo(
     () =>
-      (users as any)?.data?.results?.map((user: any) => {
+      allStaff.map((user: any) => {
         // Handle different user object structures
         const firstName = user.first_name || user.name?.split(' ')[0] || '';
         const lastName = user.last_name || user.name?.split(' ')[1] || '';
@@ -157,8 +214,8 @@ const CreateInterviewModal = ({ jobAdvertisementId, data, onClose }: CreateInter
           label: fullName,
           value: String(user.id), // Ensure value is string
         };
-      }) || [],
-    [users]
+      }),
+    [allStaff]
   );
 
   const applicationOptions = useMemo(
@@ -179,18 +236,20 @@ const CreateInterviewModal = ({ jobAdvertisementId, data, onClose }: CreateInter
     [applicationsData]
   );
 
-  const usersOptions = (users as any)?.data?.results?.map(
-    (user: any) => {
-      // Handle different user object structures
-      const firstName = user.first_name || user.name?.split(' ')[0] || '';
-      const lastName = user.last_name || user.name?.split(' ')[1] || '';
-      const fullName = `${firstName} ${lastName}`.trim() || user.name || 'Unnamed User';
-      return {
-        name: fullName,
-        id: String(user.id), // Ensure id is string
-      };
-    }
-  ) || [];
+  const usersOptions = useMemo(
+    () =>
+      allStaff.map((user: any) => {
+        // Handle different user object structures
+        const firstName = user.first_name || user.name?.split(' ')[0] || '';
+        const lastName = user.last_name || user.name?.split(' ')[1] || '';
+        const fullName = `${firstName} ${lastName}`.trim() || user.name || 'Unnamed User';
+        return {
+          name: fullName,
+          id: String(user.id), // Ensure id is string
+        };
+      }),
+    [allStaff]
+  );
 
   // Debug logging
   console.log("Users data:", users);
@@ -203,7 +262,6 @@ const CreateInterviewModal = ({ jobAdvertisementId, data, onClose }: CreateInter
   const form = useForm<TInterviewFormValues>({
     resolver: zodResolver(InterviewSchema),
     defaultValues: {
-      application: preSelectedApplicationId || "",
       interview_type: "",
       interviewer: "",
       start_date: "",
@@ -224,11 +282,6 @@ const CreateInterviewModal = ({ jobAdvertisementId, data, onClose }: CreateInter
       console.log("Form data:", data);
       console.log("Advertisement ID:", advertisementId);
       console.log("Form validation state:", form.formState.errors);
-
-      if (!data.application) {
-        toast.error("Please select an application");
-        return;
-      }
 
       // Validate form data
       if (!data.interview_type) {
@@ -251,21 +304,35 @@ const CreateInterviewModal = ({ jobAdvertisementId, data, onClose }: CreateInter
         return;
       }
 
-      const interviewData = {
-        application: data.application,
-        interview_type: data.interview_type,
-        interviewers: data.interview_type === "committee" ? data.interviewers : (data.interviewer ? [data.interviewer] : []),
-        start_date: new Date(data.start_date).toISOString(),
-        end_date: new Date(data.end_date).toISOString(),
-      };
+      // Get all shortlisted applications
+      const shortlistedApplications = (applicationsData as any)?.data?.results || [];
 
-      console.log("Interview data being sent:", interviewData);
-      console.log("API endpoint:", "hr/jobs/interviews/");
+      if (shortlistedApplications.length === 0) {
+        toast.error("No shortlisted applicants found");
+        return;
+      }
 
-      const result = await createInterview(interviewData);
-      console.log("API Response:", result);
+      console.log(`📋 Creating interviews for ${shortlistedApplications.length} shortlisted applicants`);
 
-      toast.success("Interview created successfully");
+      // Create interview for each shortlisted applicant
+      const promises = shortlistedApplications.map((application: any) => {
+        const interviewData = {
+          application: application.id,
+          interview_type: data.interview_type,
+          interviewers: data.interview_type === "committee" ? data.interviewers : (data.interviewer ? [data.interviewer] : []),
+          start_date: new Date(data.start_date).toISOString(),
+          end_date: new Date(data.end_date).toISOString(),
+        };
+
+        console.log(`📋 Creating interview for applicant ${application.id}:`, interviewData);
+        return createInterview(interviewData);
+      });
+
+      // Wait for all interviews to be created
+      const results = await Promise.all(promises);
+      console.log("✅ All interviews created successfully:", results);
+
+      toast.success(`Successfully created ${shortlistedApplications.length} interview(s)!`);
 
       // Close the dialog
       if (onClose) {
@@ -375,22 +442,22 @@ const CreateInterviewModal = ({ jobAdvertisementId, data, onClose }: CreateInter
           </div>
         )}
 
+        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <h4 className="font-semibold text-blue-900 mb-2">Interview Creation</h4>
+          <p className="text-sm text-blue-700">
+            This will create interviews for <span className="font-bold">{applicationOptions.length} shortlisted applicant(s)</span>
+          </p>
+        </div>
+
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
             className="flex flex-col gap-y-7"
           >
             <FormSelect
-              name="application"
-              label="Select Application"
-              placeholder="Choose an application to interview"
-              required
-              options={applicationOptions}
-            />
-
-            <FormSelect
               name="interview_type"
               label="Interview type"
+              required
               options={[
                 { label: "Committee", value: "committee" },
                 { label: "Non Committee", value: "non_committee" }

@@ -158,12 +158,13 @@ export const usePatchEmployeeOnboarding = (id: string) => {
   const { callApi, isLoading, isSuccess, error, data } = useApiManager<
     EmployeeOnboarding,
     Error,
-    Partial<EmployeeOnboarding>
+    Partial<EmployeeOnboarding> | FormData
   >({
     endpoint: `${BASE_URL}${id}/`,
     queryKey: ["employee-onboardings", "employee-onboarding"],
     isAuth: true,
     method: "PATCH",
+    contentType: null, // Allow FormData to be sent properly
   });
 
   const patchEmployeeOnboarding = async (details: Partial<EmployeeOnboarding>) => {

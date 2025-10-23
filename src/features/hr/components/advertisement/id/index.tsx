@@ -7,6 +7,8 @@ import JobDetail from "./JobDetail";
 import SubmittedApplication from "./SubmittedApplication";
 import Shortlist from "./Shortlist";
 import InterviewAnalysis from "./InterviewAnalysis";
+import Interviewed from "./Interviewed";
+import MyInterviews from "./MyInterviews";
 import  { useGetJobAdvertisement } from "@/features/hr/controllers/jobAdvertisementController";
 import { Loading } from "components/Loading";
 import { useParams } from "next/navigation";
@@ -36,14 +38,26 @@ const AdvertisementDetail = () => {
     {
       label: "Shortlist",
       value: "shortlist",
-
       // @ts-ignore
-      children: <Shortlist />,
+      children: data?.data ? <Shortlist {...data.data} /> : <div>Loading...</div>,
+    },
+    {
+      label: "My Interviews",
+      value: "my_interviews",
+      // @ts-ignore
+      children: data?.data ? <MyInterviews {...data.data} /> : <div>Loading...</div>,
+    },
+    {
+      label: "Interviewed",
+      value: "interviewed",
+      // @ts-ignore
+      children: data?.data ? <Interviewed {...data.data} /> : <div>Loading...</div>,
     },
     {
       label: "Interview Analysis",
       value: "interview_analysis",
-      children: <InterviewAnalysis />,
+      // @ts-ignore
+      children: data?.data ? <InterviewAnalysis {...data.data} /> : <div>Loading...</div>,
     },
   ];
   if (isLoading) {

@@ -32,25 +32,34 @@ const WorkforceDatabase = () => {
   const [employeeID, setEmployeedId] = useState("");
   const [isDialogOpen, setDialogOpen] = useState(false);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const { data: employeeData, isLoading: getEmployeeLoading } = useGetEmployeeOnboardings({ page: 1, size: 200 });
+  const { data: employeeData, isLoading: getEmployeeLoading } = useGetEmployeeOnboardings({
+    page: 1,
+    size: 1000,
+    search: searchTerm
+  });
   const { data: userData, isLoading: getUserLoading } = useGetAllUsers({ page: 1, size: 200 });
 
   const { deleteEmployeeOnboarding, isLoading } =
     useDeleteEmployeeOnboarding(employeeID);
 
-  console.log("Employee data:", employeeData);
-  console.log("User data:", userData);
-  
+  console.log("🔍 Workforce Database Debug:");
+  console.log("  Employee data:", employeeData);
+  console.log("  Employee count:", employeeData?.data?.results?.length);
+  console.log("  All employees:", employeeData?.data?.results);
+  console.log("  User data:", userData);
+
   // Filter users to only include AHNI_STAFF and ADMIN user types
   const filteredUsers = userData?.data?.results?.filter((user: any) => {
     // Include only AHNI_STAFF and ADMIN user types for workforce database
     return user.user_type === "AHNI_STAFF" || user.user_type === "ADMIN";
   }) || [];
 
-  console.log("All users:", userData?.data?.results?.length || 0);
-  console.log("Filtered AHNI staff and admin:", filteredUsers.length);
-  console.log("Excluded other user types:", (userData?.data?.results?.length || 0) - filteredUsers.length);
+  console.log("📊 User Stats:");
+  console.log("  All users:", userData?.data?.results?.length || 0);
+  console.log("  Filtered AHNI staff and admin:", filteredUsers.length);
+  console.log("  Excluded other user types:", (userData?.data?.results?.length || 0) - filteredUsers.length);
 
   // Combine employee onboarding data with filtered user data
   const combinedData = [
@@ -185,7 +194,13 @@ const WorkforceDatabase = () => {
 
   return (
     <div className='space-y-6'>
-      <div className='flex justify-end'>
+      <div className='flex justify-between items-center'>
+        <div>
+          <p className='text-sm text-gray-600'>
+            Total Employees: {combinedData.length}
+            {searchTerm && ` (filtered from ${(employeeData?.data?.results?.length || 0) + filteredUsers.length})`}
+          </p>
+        </div>
         <Button onClick={() => setIsUploadModalOpen(true)}>
           <AddSquareIcon /> Upload Employees Data
         </Button>
@@ -197,9 +212,10 @@ const WorkforceDatabase = () => {
             <SearchIcon />
             <input
               className='ml-2 h-6 border-none bg-none focus:outline-none outline-none w-[100%]'
-              // onChange={onchange}
+              onChange={(e) => setSearchTerm(e.target.value)}
               type='text'
-              placeholder='Search...'
+              placeholder='Search by name, ID, or email...'
+              value={searchTerm}
             />
           </span>
           <Button className='shadow-sm' variant='ghost'>

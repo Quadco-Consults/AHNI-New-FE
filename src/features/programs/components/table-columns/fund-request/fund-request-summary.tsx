@@ -1,18 +1,10 @@
 import { ColumnDef } from "@tanstack/react-table";
-import DeleteIcon from "components/icons/DeleteIcon";
-import EyeIcon from "components/icons/EyeIcon";
-import { Edit } from "lucide-react";
-import ConfirmationDialog from "components/ConfirmationDialog";
 import { Badge } from "components/ui/badge";
 import { Button } from "components/ui/button";
 import { RouteEnum } from "constants/RouterConstants";
 import { FundRequestPaginatedData } from "definations/program-types/fund-request";
 import { cn } from "lib/utils";
-import { useState } from "react";
-import { useParams } from "next/navigation";
 import Link from "next/link";
-import { useDeleteFundRequest } from "@/features/programs/controllers/fundRequestController";
-import { toast } from "sonner";
 import { formatNumberCurrency } from "utils/utls";
 
 export const fundRequestSummaryColumns: ColumnDef<FundRequestPaginatedData>[] =
@@ -96,74 +88,28 @@ export const fundRequestSummaryColumns: ColumnDef<FundRequestPaginatedData>[] =
   ];
 
 const TableMenu = ({ data }: { data: FundRequestPaginatedData }) => {
-  const [isDialogOpen, setDialogOpen] = useState(false);
+  // Extract project ID from the fund request data
+  const projectId = typeof data.project === 'object' && data.project?.id
+    ? data.project.id
+    : typeof data.project === 'string'
+    ? data.project
+    : '';
 
-  const { id } = useParams();
-
-  const { deleteFundRequest, isLoading } = useDeleteFundRequest(data?.id);
-
-  const handleDeleteFundRequest = async () => {
-    try {
-      await deleteFundRequest();
-      toast.success("Fund Request Deleted");
-      setDialogOpen(false);
-    } catch (error: any) {
-      toast.error(error.response?.data?.message ?? error.message ?? "Something went wrong");
-    }
-  };
+  // Build the URL with project ID and fundRequestId as query parameter
+  const viewUrl = projectId
+    ? `${RouteEnum.PROGRAM_FUND_REQUEST_VIEW_ACTIVITY.replace(":id", projectId)}?fundRequestId=${data?.id}`
+    : RouteEnum.PROGRAM_FUND_REQUEST_SINGLE_VIEW.replace(":id", data?.id);
 
   return (
-    <div className="flex items-center gap-1">
-      <Link
-        href={{
-          pathname: RouteEnum.PROGRAM_FUND_REQUEST_VIEW_ACTIVITY.replace(
-            ":id",
-            id as string
-          ),
-          search: `?fundRequestId=${data?.id}`,
-        }}
-      >
-        <Button
-          type='button'
-          variant='ghost'
-          size='sm'
-          className='text-[#DEA004] hover:text-[#DEA004]'
-        >
-          <EyeIcon />
-        </Button>
-      </Link>
-
-      <Link
-        href={RouteEnum.PROGRAM_FUND_REQUEST_EDIT.replace(":id", data?.id)}
-      >
-        <Button
-          type='button'
-          variant='ghost'
-          size='sm'
-          className='text-blue-600 hover:text-blue-800'
-          title="Edit Fund Request"
-        >
-          <Edit size={16} />
-        </Button>
-      </Link>
-
+    <Link href={viewUrl}>
       <Button
         type='button'
         variant='ghost'
         size='sm'
-        className='text-red-600 hover:text-red-800'
-        onClick={() => setDialogOpen(true)}
+        className='text-[#DEA004] hover:text-[#DEA004]'
       >
-        <DeleteIcon />
+        View
       </Button>
-
-      <ConfirmationDialog
-        open={isDialogOpen}
-        title='Are you sure you want to delete this fund request?'
-        loading={isLoading}
-        onCancel={() => setDialogOpen(false)}
-        onOk={handleDeleteFundRequest}
-      />
-    </div>
+    </Link>
   );
 };

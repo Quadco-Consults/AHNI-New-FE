@@ -25,16 +25,32 @@ import {
 export default function AllFundRequestPreview() {
   const { id } = useParams();
 
-  // Ensure id is a string
+  // Ensure id is a string and decode it
   const projectId = Array.isArray(id) ? id[0] : String(id || '');
+  const decodedId = decodeURIComponent(projectId);
 
-  console.log('Project ID:', projectId, 'Type:', typeof projectId);
+  console.log('Project ID:', decodedId, 'Type:', typeof decodedId);
 
-  const { data: fundRequest, isLoading } = useGetAllFundRequests({
-    project: projectId,
-  });
+  // Helper function to check if string is a valid UUID
+  const isValidUUID = (str: string) => {
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    return uuidRegex.test(str);
+  };
 
-  const { data: project } = useGetSingleProject(projectId || skipToken);
+  const isUUID = isValidUUID(decodedId);
+
+  // Fetch project only if ID is a valid UUID
+  const { data: project } = useGetSingleProject(
+    decodedId,
+    isUUID
+  );
+
+  // Use project UUID if we have it, otherwise fallback to search parameter
+  const fundRequestParams = project?.data?.id
+    ? { project: project.data.id, size: 1000, enabled: true }
+    : { search: decodedId, size: 1000, enabled: !!decodedId };
+
+  const { data: fundRequest, isLoading } = useGetAllFundRequests(fundRequestParams);
 
   const fundRequestLength = fundRequest?.data?.results?.length || 0;
 

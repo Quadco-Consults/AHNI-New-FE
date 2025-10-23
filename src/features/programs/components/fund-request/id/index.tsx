@@ -12,7 +12,7 @@ import { DialogType } from "constants/dailogs";
 import { useAppDispatch } from "hooks/useStore";
 import { LoadingSpinner } from "components/Loading";
 import { skipToken } from "@reduxjs/toolkit/query/react";
-import { useGetSingleProject } from "@/features/projects/controllers/projectController";
+import { useGetSingleProject, useGetAllProjects } from "@/features/projects/controllers/projectController";
 import { useGetAllFundRequests } from "@/features/programs/controllers/fundRequestController";
 import { RouteEnum } from "constants/RouterConstants";
 import FundRequestSummary from "./FundRequestSummary";
@@ -24,13 +24,40 @@ export default function FundRequestDetail() {
   const params = useParams();
   const id = params?.id as string;
 
-  const { data: project, isLoading: projectLoading } = useGetSingleProject(
-    id ?? skipToken
+  // Decode the URL-encoded ID
+  const decodedId = decodeURIComponent(id || "");
+
+  // Helper function to check if string is a valid UUID
+  const isValidUUID = (str: string) => {
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    return uuidRegex.test(str);
+  };
+
+  const isUUID = isValidUUID(decodedId);
+
+  // Fetch project: if UUID, get by ID; if not, search by project_id
+  const { data: project, isLoading: projectByIdLoading } = useGetSingleProject(
+    isUUID ? decodedId : skipToken,
+    isUUID
   );
+
+  const { data: projectsBySearch, isLoading: projectsBySearchLoading } = useGetAllProjects({
+    search: !isUUID ? decodedId : "",
+    enabled: !!decodedId && !isUUID,
+    size: 1,
+  });
+
+  const projectLoading = projectByIdLoading || projectsBySearchLoading;
+  const projectFromSearch = projectsBySearch?.data?.results?.[0];
+  const actualProject = project || (projectFromSearch ? { data: projectFromSearch } : null);
+  const actualProjectId = actualProject?.data?.id;
+
   const { data: fundRequests, isLoading: fundRequestsLoading } =
     useGetAllFundRequests({
-      project: id || "",
-      enabled: !!id,
+      // Use the actual project UUID from either direct fetch or search
+      project: actualProjectId,
+      enabled: !!actualProjectId,
+      size: 1000,
     });
 
   const dispatch = useAppDispatch();
@@ -38,12 +65,37 @@ export default function FundRequestDetail() {
   const isLoading = projectLoading || fundRequestsLoading;
   const firstFundRequest = fundRequests?.data?.results?.[0];
 
+  // If project data is not available but we have fund requests, extract project info from the first fund request
+  const projectData = actualProject?.data || (firstFundRequest?.project && typeof firstFundRequest.project === 'object' ? firstFundRequest.project : null);
+
+  // If we still don't have project data but have fund requests, create a fallback project object
+  const fallbackProjectData = !projectData && fundRequests?.data?.results?.length ? {
+    id: decodedId,
+    title: decodedId,
+    project_id: decodedId,
+    start_date: firstFundRequest?.created_datetime?.split('T')[0] || 'N/A',
+    end_date: 'N/A',
+  } : null;
+
+  const finalProjectData = projectData || fallbackProjectData;
+
   const goBack = () => {
     router.back();
   };
 
   if (isLoading) {
     return <LoadingSpinner />;
+  }
+
+  // If project is not found and we have no fund requests either
+  if (!finalProjectData && !projectLoading && !fundRequests?.data?.results?.length) {
+    return (
+      <Card className='p-8 text-center space-y-4'>
+        <p className='text-red-600 font-semibold'>No fund requests found</p>
+        <p className='text-gray-600'>No fund requests found for project "{decodedId}".</p>
+        <Button onClick={goBack}>Go Back</Button>
+      </Card>
+    );
   }
 
   return (
@@ -74,13 +126,13 @@ export default function FundRequestDetail() {
               )}
             >
               <Button
-                variant='ghost'
-                className='bg-[#FFF2F2] text-primary hover:bg-[#FFF2F2] hover:text-primary'
+                variant='outline'
               >
                 Preview
               </Button>
             </Link>
-            {/* <Button
+            <Button
+              className='bg-primary text-white hover:bg-primary/90'
               onClick={() => {
                 dispatch(
                   openDialog({
@@ -94,17 +146,17 @@ export default function FundRequestDetail() {
               }}
             >
               Approval
-            </Button> */}
+            </Button>
           </div>
         </div>
         {isLoading ? (
           <LoadingSpinner />
         ) : (
-          project?.data && (
+          finalProjectData && (
             <>
               <TabsContent value='summary'>
                 <Card>
-                  <Summary data={project.data} />
+                  <Summary data={finalProjectData} />
                 </Card>
               </TabsContent>
               <TabsContent value='fund Request Summary'>
@@ -129,7 +181,7 @@ export default function FundRequestDetail() {
                 )}
               </TabsContent> */}
               <TabsContent value='hq Approval'>
-                <ProjectBatchApproval projectId={id || ""} />
+                <ProjectBatchApproval projectId={finalProjectData.id || decodedId || ""} />
               </TabsContent>
             </>
           )
