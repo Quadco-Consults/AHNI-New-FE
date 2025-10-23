@@ -71,9 +71,9 @@ const AddModification = () => {
 
   // Create options for the approved_by dropdown
   const userOptions = useMemo(() => {
-    if (!usersData?.data?.results) return [];
+    if (!(usersData as any)?.data?.results) return [];
 
-    return usersData.data.results.map((user) => ({
+    return (usersData as any).data.results.map((user: any) => ({
       value: user.id,
       label: `${user.first_name} ${user.last_name} (${user.email})`,
     }));
@@ -123,35 +123,25 @@ const AddModification = () => {
     };
 
     const formattedEffectiveDate = formatDate(submitData.effective_date);
-    const formattedApprovalDate = formatDate(submitData.approval_date);
+
+    // Create title from modification type and number
+    const modificationTitle = `${submitData.modification_type} - ${submitData.modification_number}`;
+
+    // Backend expects only these 4 fields
+    const payload = {
+      amount: submitData.amount_usd,
+      description: submitData.reason,
+      date: formattedEffectiveDate,
+      title: modificationTitle,
+    };
 
     try {
       if (isSubGrant) {
         // For subgrants
-        await createSubGrantModification({
-          modification_number: submitData.modification_number,
-          modification_type: submitData.modification_type,
-          reason: submitData.reason,
-          amount_usd: submitData.amount_usd,
-          amount_ngn: submitData.amount_ngn,
-          effective_date: formattedEffectiveDate,
-          approval_date: formattedApprovalDate,
-          notes: submitData.notes,
-          approved_by: submitData.approved_by,
-        } as any);
+        await createSubGrantModification(payload as any);
       } else {
         // For regular grants
-        await createGrantModification({
-          modification_number: submitData.modification_number,
-          modification_type: submitData.modification_type,
-          reason: submitData.reason,
-          amount_usd: submitData.amount_usd,
-          amount_ngn: submitData.amount_ngn,
-          effective_date: formattedEffectiveDate,
-          approval_date: formattedApprovalDate,
-          notes: submitData.notes,
-          approved_by: submitData.approved_by,
-        } as any);
+        await createGrantModification(payload as any);
       }
 
       toast.success(isSubGrant ? "Sub-Grant Modified Successfully" : "Grant Modified Successfully");

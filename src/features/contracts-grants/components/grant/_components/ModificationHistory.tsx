@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import { useAppDispatch } from "hooks/useStore";
+import { useGetAllModifications } from "@/features/contracts-grants/controllers/grantController";
 
 interface ModificationData {
   id: string;
@@ -50,16 +51,22 @@ const modificationColumns: ColumnDef<ModificationData>[] = [
     accessorKey: "date",
     cell: ({ getValue }) => {
       const value = getValue() as string;
-      return new Date(value).toLocaleDateString("en-US");
+      if (!value) return "N/A";
+      const date = new Date(value);
+      return isNaN(date.getTime()) ? "Invalid Date" : date.toLocaleDateString("en-US");
     },
     size: 120,
   },
   {
     header: "Created",
     accessorKey: "created_datetime",
-    cell: ({ getValue }) => {
+    cell: ({ getValue, row }) => {
       const value = getValue() as string;
-      return new Date(value).toLocaleDateString("en-US");
+      // Try created_datetime first, then fallback to created_at or date
+      const dateValue = value || (row.original as any).created_at || (row.original as any).date;
+      if (!dateValue) return "N/A";
+      const date = new Date(dateValue);
+      return isNaN(date.getTime()) ? "N/A" : date.toLocaleDateString("en-US");
     },
     size: 120,
   },
@@ -154,43 +161,21 @@ const ModificationHistory: React.FC = () => {
   const params = useParams();
   const grantId = typeof params?.id === 'string' ? params.id : Array.isArray(params?.id) ? params.id[0] : undefined;
 
-  // For now, let's use mock data since we need to create the controller
-  // const { data, isFetching, error } = useGetAllModifications({
-  //   grantId: grantId || "",
-  //   page,
-  //   size: 10,
-  //   enabled: !!grantId
-  // });
+  // Fetch modifications from the API
+  const { data, isFetching, error } = useGetAllModifications({
+    grantId: grantId || "",
+    page,
+    size: 10,
+    enabled: !!grantId
+  });
 
-  // Mock data for now
-  const mockData = {
-    data: {
-      results: [
-        {
-          id: "1",
-          title: "Budget Increase",
-          amount: "50000",
-          description: "Additional funding for equipment procurement",
-          date: "2024-01-15",
-          created_datetime: "2024-01-15T10:30:00Z"
-        },
-        {
-          id: "2", 
-          title: "Timeline Extension",
-          amount: "0",
-          description: "Project timeline extended by 6 months",
-          date: "2024-02-20",
-          created_datetime: "2024-02-20T14:15:00Z"
-        }
-      ],
-      paginator: {
-        count: 2,
-        page_size: 10,
-        page: 1,
-        total_pages: 1
-      }
+  // Debug: Log the data structure to see what fields are available
+  React.useEffect(() => {
+    if (data) {
+      console.log('Modifications API Response:', data);
+      console.log('Modifications Results:', (data as any)?.data?.results);
     }
-  };
+  }, [data]);
 
   return (
     <section className="w-full flex flex-col space-y-[1.25rem]">
@@ -205,14 +190,14 @@ const ModificationHistory: React.FC = () => {
             <p className="text-yellow-600 text-sm mt-1">Unable to load modification data without a valid grant ID</p>
           </div>
         )}
-        
+
         <DataTable
           columns={modificationColumns}
-          data={mockData?.data?.results || []}
-          isLoading={false}
+          data={(data as any)?.data?.results || []}
+          isLoading={isFetching}
           pagination={{
-            total: mockData?.data?.paginator?.count ?? 0,
-            pageSize: mockData?.data?.paginator?.page_size ?? 10,
+            total: (data as any)?.data?.paginator?.count ?? 0,
+            pageSize: (data as any)?.data?.paginator?.page_size ?? 10,
             onChange: (page: number) => setPage(page),
           }}
         />
