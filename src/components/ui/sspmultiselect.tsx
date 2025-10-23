@@ -14,7 +14,7 @@ import {
     CommandList,
     CommandSeparator,
 } from "components/ui/command";
-import { UsersResultsData } from "features/auth/types/user";
+import { IUser } from "features/auth/types/user";
 
 const multiSelectVariants = cva("m-1", {
     variants: {
@@ -37,7 +37,7 @@ interface MultiSelectFormFieldProps
     extends React.ButtonHTMLAttributes<HTMLButtonElement>,
         VariantProps<typeof multiSelectVariants> {
     asChild?: boolean;
-    options: UsersResultsData[];
+    options: IUser[];
     defaultValue?: string[];
     disabled?: boolean;
     placeholder: string;

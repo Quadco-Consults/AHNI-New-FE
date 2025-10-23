@@ -54,7 +54,7 @@ const Composition = () => {
   // Combine users from both sources
   const allStaff = [
     // Users from user table (filter to exclude vendors)
-    ...filterAhniStaffOnly((user?.results || []) as any[]),
+    ...filterAhniStaffOnly((user?.data?.results || []) as any[]),
     // Employees from employee database (all are AHNI staff)
     ...((employeeData?.data?.results || []) as any[]).map((emp: any) => ({
       id: emp.id,
@@ -211,8 +211,8 @@ const Composition = () => {
                 <div className='space-y-1'>
                   <Label>Month/Year</Label>
                   <div className='grid grid-cols-2 w-1/3 col-span-3 gap-x-6 '>
-                    <FormInput type='number' name='month' placeholder='MM' />
-                    <FormInput type='number' name='year' placeholder='YYYY' />
+                    <FormInput type='text' name='month' placeholder='MM' />
+                    <FormInput type='text' name='year' placeholder='YYYY' />
                   </div>
                 </div>
 

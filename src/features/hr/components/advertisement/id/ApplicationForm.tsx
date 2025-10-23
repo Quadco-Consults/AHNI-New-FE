@@ -58,7 +58,11 @@ const ApplicationForm = () => {
     if (adDetails?.data) {
       // @ts-ignore
       form.setValue("employment_type", adDetails.data.job_type.toUpperCase());
-      form.setValue("position_applied", adDetails.data.title!);
+
+      // Use position name as fallback if title is null
+      const positionTitle = adDetails.data.title || adDetails.data.position?.name || "";
+      form.setValue("position_applied", positionTitle);
+
       form.setValue(
         "interview_date",
         adDetails.data.commencement_date?.toString()

@@ -34,6 +34,9 @@ const EmployeeInformation = () => {
   // First try to get existing employee onboarding data for editing
   const { data: existingEmployee, isLoading: employeeLoading, error: employeeError } = useGetEmployeeOnboarding(id as string);
 
+  // Determine if we're in edit mode
+  const isEditing = !!existingEmployee?.data;
+
   // Only fetch job application data if there's no existing employee
   const { data: jobApplicationData, isLoading: jobLoading, error: jobError } = useGetJobApplication(
     id as string,
@@ -41,7 +44,7 @@ const EmployeeInformation = () => {
   );
 
   // Extract the advertisement ID from the job application
-  const advertisementId = jobApplicationData?.data?.advertisement;
+  const advertisementId = (jobApplicationData?.data as any)?.advertisement;
 
   // Get the advertisement details to get the location and job type
   const { data: advertisement, isLoading: adLoading } = useGetJobAdvertisement(
@@ -53,7 +56,6 @@ const EmployeeInformation = () => {
   const data = existingEmployee?.data ? existingEmployee : jobApplicationData;
   const isLoading = employeeLoading || jobLoading || adLoading;
   const error = employeeError && jobError ? employeeError : null;
-  const isEditing = !!existingEmployee?.data;
 
   console.log("EmployeeInformation - Data Sources:", {
     id,
@@ -73,6 +75,7 @@ const EmployeeInformation = () => {
   const { data: qualifications, isLoading: getLoading } =
     useGetEmployeeOnboardingQualificationsList({
       employee: id as string,
+      enabled: isEditing, // Only fetch qualifications if we're editing an existing employee
     });
 
   return (

@@ -75,7 +75,10 @@ export const hrBeneficiarySchema = object({
   is_primary: z.boolean(),
   name: string().min(1, "Field is required"),
   relationship: string().min(1, "Field is required"),
-  percentage_of_benefit: string().min(1, "Field is required"),
+  percentage_of_benefit: z.preprocess(
+    (val) => String(val),
+    string().min(1, "Field is required")
+  ),
   phone_number: string().min(1, "Field is required"),
 });
 

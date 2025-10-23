@@ -23,13 +23,25 @@ import {
   usePatchJobApplicationAccepted,
   usePatchJobApplicationPreferred,
   useUpdateJobApplicationToInterviewed,
+  useBulkShortlistApplicants,
+  useBulkRejectApplicants,
+  useBulkUpdateStatus,
 } from "@/features/hr/controllers/hrJobApplicationsController";
 import { useCombinedApplicationStatus, getStatusDisplay } from "@/features/hr/controllers/useCombinedApplicationStatus";
 import { useGetJobAdvertisements } from "@/features/hr/controllers/jobAdvertisementController";
 import { Loading } from "components/Loading";
-import { CheckCheckIcon } from "lucide-react";
+import { CheckCheckIcon, ClipboardList, UserCheck, UserX, Users } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "components/ui/dialog";
+import { Textarea } from "components/ui/textarea";
 import useDebounce from "utils/useDebounce";
 import {
   Select,
@@ -71,10 +83,21 @@ const ApplicationsTable = ({
   const [advertSearchTerm, setAdvertSearchTerm] = useState("");
   const debouncedAdvertSearch = useDebounce(advertSearchTerm, 1000);
 
+  // State for row selection
+  const [rowSelection, setRowSelection] = useState({});
+  const [showRejectDialog, setShowRejectDialog] = useState(false);
+  const [rejectionReason, setRejectionReason] = useState("");
+
+  // Bulk operation hooks
+  const { mutate: bulkShortlist, isPending: isShortlisting } = useBulkShortlistApplicants();
+  const { mutate: bulkReject, isPending: isRejecting } = useBulkRejectApplicants();
+  const { mutate: bulkUpdateStatus, isPending: isUpdating } = useBulkUpdateStatus();
+
   // Fetch advertisements for dropdown
   const { data: advertsData, isLoading: isLoadingAdverts } =
     useGetJobAdvertisements({
       search: debouncedAdvertSearch,
+      size: 1000, // Fetch all advertisements for dropdown
     });
 
   // Use combined applications + interviews data for real status
@@ -92,6 +115,75 @@ const ApplicationsTable = ({
 
   // Determine if we need to show the advertisement selector
   const showAdvertSelector = !propId && !urlId;
+
+  // Get selected application IDs
+  const getSelectedIds = () => {
+    return Object.keys(rowSelection)
+      .filter((key) => rowSelection[key as keyof typeof rowSelection])
+      .map((index) => combinedData[Number(index)]?.id)
+      .filter(Boolean);
+  };
+
+  const selectedCount = getSelectedIds().length;
+
+  // Bulk action handlers
+  const handleBulkShortlist = () => {
+    const ids = getSelectedIds();
+    if (ids.length === 0) {
+      toast.error("Please select at least one applicant");
+      return;
+    }
+
+    bulkShortlist(
+      { application_ids: ids },
+      {
+        onSuccess: () => {
+          setRowSelection({});
+        },
+      }
+    );
+  };
+
+  const handleBulkReject = () => {
+    const ids = getSelectedIds();
+    if (ids.length === 0) {
+      toast.error("Please select at least one applicant");
+      return;
+    }
+
+    if (!rejectionReason.trim()) {
+      toast.error("Please provide a rejection reason");
+      return;
+    }
+
+    bulkReject(
+      { application_ids: ids, rejection_reason: rejectionReason },
+      {
+        onSuccess: () => {
+          setRowSelection({});
+          setShowRejectDialog(false);
+          setRejectionReason("");
+        },
+      }
+    );
+  };
+
+  const handleBulkInterview = () => {
+    const ids = getSelectedIds();
+    if (ids.length === 0) {
+      toast.error("Please select at least one applicant");
+      return;
+    }
+
+    bulkUpdateStatus(
+      { application_ids: ids, status: "SHORTLISTED", notes: "Moved to interview pool" },
+      {
+        onSuccess: () => {
+          setRowSelection({});
+        },
+      }
+    );
+  };
 
   // Define columns inside component to access isOnboardingPage
   const getColumns = (): ColumnDef<AdvertisementResults>[] => [
@@ -172,7 +264,13 @@ const ApplicationsTable = ({
       header: "Actions",
       id: "actions",
       size: 100,
-      cell: ({ row }) => <ActionList data={row.original} isOnboardingPage={isOnboardingPage} />,
+      cell: ({ row }) => (
+        <ActionList
+          data={row.original}
+          isOnboardingPage={isOnboardingPage}
+          currentTabStatus={status}
+        />
+      ),
     },
   ];
 
@@ -193,9 +291,9 @@ const ApplicationsTable = ({
                 <p className='text-sm text-muted-foreground'>Loading...</p>
               </div>
             ) : (advertsData?.data?.results || []).length > 0 ? (
-              (advertsData?.data?.results || []).map((advert) => (
+              (advertsData?.data?.results || []).map((advert: any) => (
                 <SelectItem key={advert.id} value={advert.id}>
-                  {advert.title}
+                  {advert.title || advert.position?.name || advert.id}
                 </SelectItem>
               ))
             ) : (
@@ -256,6 +354,64 @@ const ApplicationsTable = ({
         )}
       </div>
 
+      {/* Bulk Action Buttons */}
+      {selectedCount > 0 && (
+        <div className='flex items-center gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg'>
+          <div className='flex items-center gap-2'>
+            <Users className='h-5 w-5 text-blue-600' />
+            <span className='font-medium text-blue-900'>
+              {selectedCount} {selectedCount === 1 ? 'applicant' : 'applicants'} selected
+            </span>
+          </div>
+
+          <div className='ml-auto flex items-center gap-2'>
+            {status === "" && (
+              <Button
+                variant='default'
+                size='sm'
+                className='bg-green-600 hover:bg-green-700'
+                onClick={handleBulkShortlist}
+                disabled={isShortlisting}
+              >
+                <UserCheck className='h-4 w-4 mr-2' />
+                Shortlist Selected
+              </Button>
+            )}
+
+            {status === "SHORTLISTED" && (
+              <Button
+                variant='default'
+                size='sm'
+                className='bg-blue-600 hover:bg-blue-700'
+                onClick={handleBulkInterview}
+                disabled={isUpdating}
+              >
+                <ClipboardList className='h-4 w-4 mr-2' />
+                Move to Interview
+              </Button>
+            )}
+
+            <Button
+              variant='destructive'
+              size='sm'
+              onClick={() => setShowRejectDialog(true)}
+              disabled={isRejecting}
+            >
+              <UserX className='h-4 w-4 mr-2' />
+              Reject Selected
+            </Button>
+
+            <Button
+              variant='ghost'
+              size='sm'
+              onClick={() => setRowSelection({})}
+            >
+              Clear Selection
+            </Button>
+          </div>
+        </div>
+      )}
+
       {!selectedAdvertId ? (
         <div className='text-center py-8 border rounded-md'>
           <p className='text-gray-500'>
@@ -263,12 +419,61 @@ const ApplicationsTable = ({
           </p>
         </div>
       ) : (
-        <DataTable
-          // @ts-ignore
-          data={data?.data?.results}
-          columns={getColumns()}
-          isLoading={false}
-        />
+        <>
+          <DataTable
+            // @ts-ignore
+            data={data?.data?.results}
+            columns={getColumns()}
+            isLoading={false}
+            state={{ rowSelection }}
+            onRowSelectionChange={setRowSelection}
+            enableRowSelection
+          />
+
+          {/* Reject Dialog */}
+          <Dialog open={showRejectDialog} onOpenChange={setShowRejectDialog}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Reject Selected Applicants</DialogTitle>
+                <DialogDescription>
+                  You are about to reject {selectedCount} {selectedCount === 1 ? 'applicant' : 'applicants'}.
+                  Please provide a reason for rejection.
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className='space-y-4 py-4'>
+                <div className='space-y-2'>
+                  <label className='text-sm font-medium'>Rejection Reason</label>
+                  <Textarea
+                    placeholder='Enter reason for rejection...'
+                    value={rejectionReason}
+                    onChange={(e) => setRejectionReason(e.target.value)}
+                    rows={4}
+                  />
+                </div>
+              </div>
+
+              <DialogFooter>
+                <Button
+                  variant='ghost'
+                  onClick={() => {
+                    setShowRejectDialog(false);
+                    setRejectionReason("");
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant='destructive'
+                  onClick={handleBulkReject}
+                  disabled={isRejecting || !rejectionReason.trim()}
+                >
+                  {isRejecting ? "Rejecting..." : "Confirm Rejection"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </>
       )}
     </div>
   );
@@ -276,7 +481,15 @@ const ApplicationsTable = ({
 
 export default ApplicationsTable;
 
-const ActionList = ({ data, isOnboardingPage }: { data: any; isOnboardingPage: boolean }) => {
+const ActionList = ({
+  data,
+  isOnboardingPage,
+  currentTabStatus,
+}: {
+  data: any;
+  isOnboardingPage: boolean;
+  currentTabStatus?: string;
+}) => {
   const { patchJobApplicationAccepted } = usePatchJobApplicationAccepted(data?.id as string);
   const { patchJobApplicationPreferred } = usePatchJobApplicationPreferred(data?.id as string);
   const { updateJobApplicationToInterviewed } = useUpdateJobApplicationToInterviewed(data?.id as string);
@@ -284,6 +497,12 @@ const ActionList = ({ data, isOnboardingPage }: { data: any; isOnboardingPage: b
   const statusInfo = getStatusDisplay(data);
   const hasCompletedInterview = data?.interviewCompleted || false;
   const realStatus = statusInfo.status;
+
+  // Determine what actions to show based on current tab
+  const isSubmittedTab = !currentTabStatus || currentTabStatus === "";
+  const isShortlistTab = currentTabStatus === "SHORTLISTED";
+  const isAcceptedTab = currentTabStatus === "ACCEPTED";
+  const isPreferredTab = currentTabStatus === "PREFERRED";
 
   const handleAccepted = async () => {
     try {
@@ -346,7 +565,24 @@ const ActionList = ({ data, isOnboardingPage }: { data: any; isOnboardingPage: b
               </Button>
             </Link>
 
-            {data?.status?.toLowerCase() === "accepted" && !isOnboardingPage && (
+            {/* Conduct Interview - Only show on Shortlist tab, not on Accepted/onboarding page */}
+            {!isSubmittedTab && !isAcceptedTab && !isOnboardingPage && data?.interview?.id && (
+              <Link
+                href={`/dashboard/hr/interviews/${data.interview.id}/score`}
+                className='flex flex-col items-start justify-between gap-1'
+              >
+                <Button
+                  className='w-full flex items-center justify-start gap-2'
+                  variant='ghost'
+                >
+                  <ClipboardList />
+                  Conduct Interview
+                </Button>
+              </Link>
+            )}
+
+            {/* Mark as Preferred - Only on Accepted tab */}
+            {isAcceptedTab && data?.status?.toLowerCase() === "accepted" && !isOnboardingPage && (
               <Button
                 className='w-full flex items-center justify-start gap-2'
                 variant='ghost'
@@ -357,7 +593,8 @@ const ActionList = ({ data, isOnboardingPage }: { data: any; isOnboardingPage: b
               </Button>
             )}
 
-            {data?.status?.toLowerCase() === "accepted" && isOnboardingPage && (
+            {/* Onboard - Only on Accepted tab with onboarding page */}
+            {isAcceptedTab && data?.status?.toLowerCase() === "accepted" && isOnboardingPage && (
               <Link
                 href={`/dashboard/hr/onboarding/start-onboarding/${data?.id}`}
                 className='flex flex-col items-start justify-between gap-1'
@@ -372,7 +609,8 @@ const ActionList = ({ data, isOnboardingPage }: { data: any; isOnboardingPage: b
               </Link>
             )}
 
-            {data?.status?.toLowerCase() === "preferred" && (
+            {/* Onboard - Only on Preferred tab */}
+            {isPreferredTab && data?.status?.toLowerCase() === "preferred" && (
               <Link
                 href={`/dashboard/hr/onboarding/start/${data?.id}`}
                 className='flex flex-col items-start justify-between gap-1'
@@ -387,16 +625,20 @@ const ActionList = ({ data, isOnboardingPage }: { data: any; isOnboardingPage: b
               </Link>
             )}
 
-            {(data?.status?.toLowerCase() === "shortlisted" || realStatus === "INTERVIEWED") && (
-              <Button
-                className='w-full flex items-center justify-start gap-2'
-                variant='ghost'
-                onClick={handleAccepted}
-              >
-                <CheckCheckIcon />
-                Accept
-              </Button>
-            )}
+            {/* Accept - Only show after interview is completed, NOT on Submitted or Shortlist tabs */}
+            {!isSubmittedTab &&
+              !isShortlistTab &&
+              realStatus === "INTERVIEWED" &&
+              data?.status?.toLowerCase() !== "accepted" && (
+                <Button
+                  className='w-full flex items-center justify-start gap-2'
+                  variant='ghost'
+                  onClick={handleAccepted}
+                >
+                  <CheckCheckIcon />
+                  Accept
+                </Button>
+              )}
           </div>
         </PopoverContent>
       </Popover>

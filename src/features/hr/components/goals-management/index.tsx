@@ -84,6 +84,8 @@ const GoalsManagement: React.FC = () => {
     if (goalsData) {
       console.log("Goals API Response:", goalsData);
       console.log("Goals Data Array:", goalsData?.data);
+      console.log("Goals Results:", goalsData?.data?.results);
+      console.log("Goals Count:", goalsData?.data?.results?.length || 0);
     }
   }, [goalsData]);
 
@@ -231,7 +233,7 @@ const GoalsManagement: React.FC = () => {
       {/* Search and Actions Bar */}
       <div className="w-full flex justify-between items-center">
         <div className="flex items-center justify-center">
-          <SearchBar onchange={(value) => setSearchTerm(value)} />
+          <SearchBar onchange={(e: any) => setSearchTerm(e.target.value)} />
           <Button variant="ghost">
             <FilterIcon2 />
           </Button>

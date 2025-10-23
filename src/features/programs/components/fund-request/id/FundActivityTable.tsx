@@ -56,7 +56,8 @@ export default function FundActivityTable({
         .map((activity) => activity.amount)
         .reduce(
             (accumulator, value) =>
-                (Number(accumulator as any) + Number(value as any)) as any
+                (Number(accumulator as any) + Number(value as any)) as any,
+            0
         );
 
     const currencySybmol = currency === "NGN" ? "₦" : "$";

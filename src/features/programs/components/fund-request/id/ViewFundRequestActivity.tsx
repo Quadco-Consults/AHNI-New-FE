@@ -14,9 +14,11 @@ import { useMemo } from "react";
 import { useGetUserProfile, useGetAllUsers } from "@/features/auth/controllers";
 import ApprovalDisplay, { ApprovalInfo } from "components/ApprovalDisplay";
 import { Button } from "components/ui/button";
-import { Download, FileText } from "lucide-react";
+import { Download, FileText, ArrowLeft } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function ViewFundRequestActivity() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const currentUser = useAppSelector((state) => state.auth.user);
   const { data: profile } = useGetUserProfile();
@@ -408,6 +410,18 @@ Generated on: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString
 
   return (
     <Card className='py-16'>
+      {/* Back Button */}
+      <div className='mb-6 px-6'>
+        <Button
+          onClick={() => router.back()}
+          variant="outline"
+          className="flex items-center gap-2"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back
+        </Button>
+      </div>
+
       <div className='flex flex-col items-center'>
         <img src={(logoPng as any).src || logoPng} alt='logo' width={150} />
         <h4 className='mt-5 text-lg font-bold'>

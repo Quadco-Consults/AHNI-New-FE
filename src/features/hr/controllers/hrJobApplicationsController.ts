@@ -1,8 +1,9 @@
 import useApiManager from "@/constants/mainController";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { AxiosError } from "axios";
 import { JobApplication } from "../types/job-application";
+import { toast } from "sonner";
 
 // API Response interface
 interface ApiResponse<TData = unknown> {
@@ -276,6 +277,83 @@ export const useUpdateJobApplicationToInterviewed = (id: string) => {
   return { updateJobApplicationToInterviewed, data, isLoading, isSuccess, error };
 };
 
+
+// ===== BULK OPERATIONS =====
+
+/**
+ * Bulk Shortlist Applicants
+ * @description Moves multiple applicants to shortlisted status
+ */
+export const useBulkShortlistApplicants = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (payload: { application_ids: string[]; notes?: string }) => {
+      const response = await AxiosWithToken.post(`${BASE_URL}bulk-shortlist/`, payload);
+      return response.data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["job-applications"] });
+      queryClient.invalidateQueries({ queryKey: ["combined-application-status"] });
+      toast.success(data.message || "Applicants shortlisted successfully!");
+    },
+    onError: (error: AxiosError) => {
+      const errorMessage =
+        (error.response?.data as any)?.message || "Failed to shortlist applicants";
+      toast.error(errorMessage);
+    },
+  });
+};
+
+/**
+ * Bulk Reject Applicants
+ * @description Rejects multiple applicants with reason
+ */
+export const useBulkRejectApplicants = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (payload: { application_ids: string[]; rejection_reason: string }) => {
+      const response = await AxiosWithToken.post(`${BASE_URL}bulk-reject/`, payload);
+      return response.data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["job-applications"] });
+      queryClient.invalidateQueries({ queryKey: ["combined-application-status"] });
+      toast.success(data.message || "Applicants rejected successfully!");
+    },
+    onError: (error: AxiosError) => {
+      const errorMessage =
+        (error.response?.data as any)?.message || "Failed to reject applicants";
+      toast.error(errorMessage);
+    },
+  });
+};
+
+/**
+ * Bulk Update Status
+ * @description Updates status for multiple applicants
+ */
+export const useBulkUpdateStatus = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (payload: { application_ids: string[]; status: string; notes?: string }) => {
+      const response = await AxiosWithToken.post(`${BASE_URL}bulk-update-status/`, payload);
+      return response.data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["job-applications"] });
+      queryClient.invalidateQueries({ queryKey: ["combined-application-status"] });
+      toast.success(data.message || "Applications updated successfully!");
+    },
+    onError: (error: AxiosError) => {
+      const errorMessage =
+        (error.response?.data as any)?.message || "Failed to update applications";
+      toast.error(errorMessage);
+    },
+  });
+};
 
 // Legacy exports for backward compatibility
 export const useCreateJobApplicationMutation = useCreateJobApplication;

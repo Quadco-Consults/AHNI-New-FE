@@ -98,14 +98,21 @@ const BasicInformation = ({
   const { createEmployeeOnboarding, isLoading } =
     useCreateEmployeeOnboarding();
 
-  // Check if employee onboarding already exists for this job application
+  // Check if this is existing employee data (has legal_firstname) or job application data
+  const isExistingEmployeeData = !!(info?.data?.legal_firstname || info?.data?.legal_lastname);
+
+  // If we have existing employee data, use info.data.id directly as the employee ID
+  // If it's job application data, query for existing employee onboarding by application ID
   const { data: existingEmployeeData, isLoading: existingEmployeeLoading } = useGetEmployeeOnboardingByApplication(
-    info?.data?.id,
-    !!info?.data?.id
+    info?.data?.application?.id || info?.data?.id,
+    !isExistingEmployeeData && !!info?.data?.id  // Only query if it's job application data
   );
 
   // Get the existing employee ID for patch operations
-  const existingEmployeeId = existingEmployeeData?.data?.results?.[0]?.id;
+  // If info.data is already employee data, use its ID directly
+  const existingEmployeeId = isExistingEmployeeData
+    ? info?.data?.id
+    : existingEmployeeData?.data?.results?.[0]?.id;
 
   // Initialize patch hook with the existing employee ID (if available)
   const { patchEmployeeOnboarding, isLoading: updateLoading } = usePatchEmployeeOnboarding(
@@ -177,8 +184,12 @@ const BasicInformation = ({
     formData.append("project", data.project);
     formData.append("department", data.department);
 
-    // Check if employee onboarding already exists
-    const existingEmployee = existingEmployeeData?.data?.results?.[0];
+    // Determine if we're updating existing employee or creating new one
+    // If info.data has employee fields (legal_firstname), we're updating
+    // Otherwise, check if we found an existing employee onboarding via the query
+    const existingEmployee = isExistingEmployeeData
+      ? info?.data  // Use info.data directly if it's employee data
+      : existingEmployeeData?.data?.results?.[0];  // Otherwise use query result
 
     // Only add application field for new employees, not updates
     if (!existingEmployee) {
@@ -192,9 +203,11 @@ const BasicInformation = ({
     }
 
     console.log("📝 Update vs Create decision:", {
+      isExistingEmployeeData,
       hasExistingEmployee: !!existingEmployee,
       existingEmployeeId: existingEmployee?.id,
       willIncludeApplicationField: !existingEmployee,
+      infoDataId: info?.data?.id,
       existingEmployeeData: existingEmployeeData?.data
     });
 
@@ -253,9 +266,33 @@ const BasicInformation = ({
         localStorage.setItem("workforceID", existingEmployee.id);
         onNext();
         reset();
-      } catch (error) {
-        console.error("Update error:", error);
-        toast.error("Failed to update employee information");
+      } catch (error: any) {
+        console.error("❌ Update error:", error);
+        console.error("❌ Error response:", error?.response?.data);
+        console.error("❌ Error message:", error?.message);
+
+        // Try to extract a meaningful error message
+        let errorMessage = "Failed to update employee information";
+        if (error?.response?.data) {
+          const responseData = error.response.data;
+          if (typeof responseData === 'string') {
+            errorMessage = responseData;
+          } else if (responseData.message) {
+            errorMessage = responseData.message;
+          } else if (responseData.error) {
+            errorMessage = responseData.error;
+          } else if (responseData.serial_id_code) {
+            errorMessage = `Serial ID: ${responseData.serial_id_code}`;
+          } else {
+            // Get first error from response
+            const firstKey = Object.keys(responseData)[0];
+            if (firstKey && responseData[firstKey]) {
+              errorMessage = `${firstKey}: ${JSON.stringify(responseData[firstKey])}`;
+            }
+          }
+        }
+
+        toast.error(errorMessage);
       }
     } else {
       // Create new employee onboarding

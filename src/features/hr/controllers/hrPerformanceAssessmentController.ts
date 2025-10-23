@@ -142,6 +142,57 @@ export const useUpdatePerformanceAssesment = (id: string) => {
   return { updatePerformanceAssesment, data, isLoading, isSuccess, error };
 };
 
+// Submit Assessment (Change status from draft to completed)
+export const useSubmitPerformanceAssesment = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    PerformanceAssesment,
+    Error,
+    { status: string }
+  >({
+    endpoint: `${BASE_URL}${id}/`,
+    queryKey: ["performance-assessments", "performance-assessment"],
+    isAuth: true,
+    method: "PATCH",
+  });
+
+  const submitPerformanceAssesment = async (status: 'draft' | 'in_progress' | 'completed' | 'approved' = 'completed') => {
+    try {
+      await callApi({ status });
+    } catch (error) {
+      console.error("Performance assessment submit error:", error);
+      throw error;
+    }
+  };
+
+  return { submitPerformanceAssesment, data, isLoading, isSuccess, error };
+};
+
+// Submit Evaluator's evaluation (update evaluator status and submit ratings)
+export const useSubmitEvaluation = (assessmentId: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    any,
+    Error,
+    any
+  >({
+    endpoint: `${BASE_URL}${assessmentId}/submit-evaluation/`,
+    queryKey: ["performance-assessments", "performance-assessment"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const submitEvaluation = async (evaluationData: any) => {
+    try {
+      const response = await callApi(evaluationData);
+      return response;
+    } catch (error) {
+      console.error("Evaluation submit error:", error);
+      throw error;
+    }
+  };
+
+  return { submitEvaluation, data, isLoading, isSuccess, error };
+};
+
 // Legacy exports for backward compatibility
 export const useCreatePerformanceAssesmentMutation = useCreatePerformanceAssesment;
 export const useGetPerformanceAssesmentQuery = useGetPerformanceAssesment;

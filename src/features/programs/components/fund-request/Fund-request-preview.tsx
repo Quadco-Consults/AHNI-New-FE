@@ -43,7 +43,14 @@ export default function Summary() {
     programFundRequest.location
   );
 
-  const { data: reviewer } = useGetSingleUser(programFundRequest?.reviewer);
+  // Fetch all approvers
+  const { data: locationReviewer } = useGetSingleUser(programFundRequest?.location_reviewer);
+  const { data: locationAuthorizer } = useGetSingleUser(programFundRequest?.location_authorizer);
+  const { data: stateReviewer } = useGetSingleUser(programFundRequest?.state_reviewer);
+  const { data: stateAuthorizer } = useGetSingleUser(programFundRequest?.state_authorizer);
+  const { data: hqReviewer } = useGetSingleUser(programFundRequest?.hq_reviewer);
+  const { data: hqAuthorizer } = useGetSingleUser(programFundRequest?.hq_authorizer);
+  const { data: hqApprover } = useGetSingleUser(programFundRequest?.hq_approver);
 
   const { data: costCategories } = useGetAllCostCategories({
     page: 1,
@@ -114,11 +121,96 @@ export default function Summary() {
             <p className='text-sm text-gray-500'>{location?.data.name}</p>
           </div>
           <div className='space-y-3'>
-            <h3 className='font-semibold'>Reviewer</h3>
-            <p className='text-sm text-gray-500'>
-              {reviewer?.data.first_name}&nbsp;
-              {reviewer?.data.last_name}
-            </p>
+            <h3 className='font-semibold'>Type</h3>
+            <p className='text-sm text-gray-500'>{programFundRequest?.type || 'N/A'}</p>
+          </div>
+          <div className='space-y-3'>
+            <h3 className='font-semibold'>Available Balance</h3>
+            <p className='text-sm text-gray-500'>{programFundRequest?.available_balance || 'N/A'}</p>
+          </div>
+        </div>
+
+        <hr className='pb-5' />
+
+        {/* Approval Workflow Section */}
+        <div className='space-y-5 pb-5'>
+          <h3 className='font-semibold text-lg'>Approval Workflow</h3>
+
+          {/* Location Level */}
+          <div className='border-l-4 border-blue-500 pl-4 space-y-3'>
+            <h4 className='font-semibold text-blue-700'>Location Level Approvals</h4>
+            <div className='grid grid-cols-2 gap-5'>
+              <div className='space-y-2'>
+                <p className='text-sm font-medium text-gray-600'>Location Reviewer</p>
+                <p className='text-sm text-gray-900'>
+                  {locationReviewer?.data?.first_name && locationReviewer?.data?.last_name
+                    ? `${locationReviewer.data.first_name} ${locationReviewer.data.last_name}`
+                    : 'Not assigned'}
+                </p>
+              </div>
+              <div className='space-y-2'>
+                <p className='text-sm font-medium text-gray-600'>Location Authorizer</p>
+                <p className='text-sm text-gray-900'>
+                  {locationAuthorizer?.data?.first_name && locationAuthorizer?.data?.last_name
+                    ? `${locationAuthorizer.data.first_name} ${locationAuthorizer.data.last_name}`
+                    : 'Not assigned'}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* State Level */}
+          <div className='border-l-4 border-green-500 pl-4 space-y-3'>
+            <h4 className='font-semibold text-green-700'>State Level Approvals</h4>
+            <div className='grid grid-cols-2 gap-5'>
+              <div className='space-y-2'>
+                <p className='text-sm font-medium text-gray-600'>State Reviewer</p>
+                <p className='text-sm text-gray-900'>
+                  {stateReviewer?.data?.first_name && stateReviewer?.data?.last_name
+                    ? `${stateReviewer.data.first_name} ${stateReviewer.data.last_name}`
+                    : 'Not assigned'}
+                </p>
+              </div>
+              <div className='space-y-2'>
+                <p className='text-sm font-medium text-gray-600'>State Authorizer</p>
+                <p className='text-sm text-gray-900'>
+                  {stateAuthorizer?.data?.first_name && stateAuthorizer?.data?.last_name
+                    ? `${stateAuthorizer.data.first_name} ${stateAuthorizer.data.last_name}`
+                    : 'Not assigned'}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* HQ Level */}
+          <div className='border-l-4 border-purple-500 pl-4 space-y-3'>
+            <h4 className='font-semibold text-purple-700'>Headquarters Level Approvals</h4>
+            <div className='grid grid-cols-3 gap-5'>
+              <div className='space-y-2'>
+                <p className='text-sm font-medium text-gray-600'>HQ Reviewer</p>
+                <p className='text-sm text-gray-900'>
+                  {hqReviewer?.data?.first_name && hqReviewer?.data?.last_name
+                    ? `${hqReviewer.data.first_name} ${hqReviewer.data.last_name}`
+                    : 'Not assigned'}
+                </p>
+              </div>
+              <div className='space-y-2'>
+                <p className='text-sm font-medium text-gray-600'>HQ Authorizer</p>
+                <p className='text-sm text-gray-900'>
+                  {hqAuthorizer?.data?.first_name && hqAuthorizer?.data?.last_name
+                    ? `${hqAuthorizer.data.first_name} ${hqAuthorizer.data.last_name}`
+                    : 'Not assigned'}
+                </p>
+              </div>
+              <div className='space-y-2'>
+                <p className='text-sm font-medium text-gray-600'>HQ Final Approver</p>
+                <p className='text-sm text-gray-900'>
+                  {hqApprover?.data?.first_name && hqApprover?.data?.last_name
+                    ? `${hqApprover.data.first_name} ${hqApprover.data.last_name}`
+                    : 'Not assigned'}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 

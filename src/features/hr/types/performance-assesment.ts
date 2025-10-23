@@ -114,11 +114,28 @@ export interface Goal {
 export interface Competency {
   id?: string;
   competency: string;
+  name?: string; // Alias for competency
   evaluation_category: string;
-  weight: string;
-  rating: string;
-  comments: string;
+  category?: string; // Alias for evaluation_category
+  weight: string | number;
+  rating?: string | number;
+  comments?: string;
+  description?: string;
   evaluator?: string;
+  active?: boolean;
+  created_datetime?: string;
+  updated_datetime?: string;
+}
+
+// Competency ratings - one per evaluator per competency
+export interface CompetencyRating {
+  id?: string;
+  competency_id: string;
+  competency_name?: string;
+  assessment_id: string;
+  evaluator_id: string;
+  rating: number; // 1-5 scale
+  comments?: string;
   created_datetime?: string;
   updated_datetime?: string;
 }

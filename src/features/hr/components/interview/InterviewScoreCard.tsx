@@ -141,7 +141,8 @@ const InterviewScoreCard = ({
       }
     }
 
-    const scoreData: Partial<InterviewScore> = {
+    const scoreData: any = {
+      interview: interviewId, // Backend expects 'interview' field (ForeignKey)
       appearance_rating: formData["rating-0"],
       appearance_comments: formData["comments-0"],
       communication_rating: formData["rating-1"],

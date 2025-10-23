@@ -160,10 +160,18 @@ const CreateGoal = () => {
 
       await createGoal(payload);
 
-      // Success - invalidate cache and redirect
-      queryClient.invalidateQueries({ queryKey: ["goals"] });
+      // Success - invalidate ALL goal-related cache and redirect
+      await queryClient.invalidateQueries({ queryKey: ["goals"] });
+      await queryClient.invalidateQueries({ queryKey: ["employee-goals"] });
+      await queryClient.refetchQueries({ queryKey: ["goals"] });
+      await queryClient.refetchQueries({ queryKey: ["employee-goals"] });
+
       toast.success("Goal created successfully");
-      router.push(HrRoutes.GOALS_MANAGEMENT);
+
+      // Small delay to ensure cache is refreshed before navigation
+      setTimeout(() => {
+        router.push(HrRoutes.GOALS_MANAGEMENT);
+      }, 500);
     } catch (error: any) {
       console.error("Goal creation error:", error);
       toast.error(error?.message || "Failed to create goal");

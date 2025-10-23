@@ -377,6 +377,7 @@ export const RouteEnum = {
 
   PROGRAM_FUND_REQUEST: "/dashboard/programs/fund-request",
   PROGRAM_FUND_REQUEST_DETAILS: "/dashboard/programs/fund-request/:id/",
+  PROGRAM_FUND_REQUEST_SINGLE_VIEW: "/dashboard/programs/fund-request/view/:id",
   PROGRAM_FUND_REQUEST_CREATE: "/dashboard/programs/fund-request/create/",
   PROGRAM_FUND_REQUEST_EDIT: "/dashboard/programs/fund-request/:id/edit",
   PROGRAM_FUND_REQUEST_FUND_SUMMARY:
@@ -390,6 +391,9 @@ export const RouteEnum = {
 
   PROGRAM_FUND_REQUEST_VIEW_ALL_FUND_REQUESTS:
     "/dashboard/programs/fund-request/:id/all-requests",
+
+  // Project-related fund requests
+  PROGRAM_PROJECT_FUND_REQUESTS: "/dashboard/programs/projects/:id/fund-requests",
 
   PROGRAM_STAKEHOLDER_MANAGEMENT_ANALYSIS:
     "/dashboard/programs/stakeholder-management/analysis&mapping",

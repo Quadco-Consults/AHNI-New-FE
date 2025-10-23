@@ -97,9 +97,19 @@ export const validateGoalPayload = (payload: CreateGoalPayload): string[] => {
 
 // ===== GOALS HOOKS =====
 
+// Paginated Response interface
+interface PaginatedResponse<T> {
+  pagination: {
+    count: number;
+    next: string | null;
+    previous: string | null;
+  };
+  results: T[];
+}
+
 // Get Goals for Employee
 export const useGetEmployeeGoals = (employeeId: string, enabled: boolean = true) => {
-  return useQuery<ApiResponse<Goal[]>>({
+  return useQuery<ApiResponse<PaginatedResponse<Goal>>>({
     queryKey: ["employee-goals", employeeId],
     queryFn: async () => {
       try {
@@ -134,7 +144,7 @@ export const useGetGoals = ({
   size?: number;
   enabled?: boolean;
 } = {}) => {
-  return useQuery<ApiResponse<Goal[]>>({
+  return useQuery<ApiResponse<PaginatedResponse<Goal>>>({
     queryKey: ["goals", search, page, size],
     queryFn: async () => {
       try {
