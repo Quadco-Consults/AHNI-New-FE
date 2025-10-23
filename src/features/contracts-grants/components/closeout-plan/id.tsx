@@ -33,6 +33,14 @@ export default function CloseOutPlan() {
     const departmentName = typeof closeoutPlan.department === 'object' ? closeoutPlan.department.name : closeoutPlan.department;
     const locationName = typeof closeoutPlan.location === 'object' ? closeoutPlan.location.name : closeoutPlan.location;
 
+    // Debug: Log the closeout plan data structure
+    console.log('Closeout Plan Full Data:', closeoutPlan);
+    console.log('Tasks:', closeoutPlan.tasks);
+    if (closeoutPlan.tasks && closeoutPlan.tasks.length > 0) {
+        console.log('First Task Fields:', Object.keys(closeoutPlan.tasks[0]));
+        console.log('First Task Data:', closeoutPlan.tasks[0]);
+    }
+
     return (
         <main className="space-y-5">
             <BackNavigation />
