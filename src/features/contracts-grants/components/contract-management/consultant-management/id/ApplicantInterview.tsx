@@ -387,27 +387,98 @@ export default function ApplicantInterviewPage() {
 
                 console.log('✨ Finished status update check for AdHoc interview');
             } else {
-                // For Consultancy interviews, use the old endpoint
+                // For Consultancy interviews - implement proper committee logic
+                console.log('🔍 Finding consultancy interview for applicant:', applicantId);
+                console.log('🔍 Available pending consultancy interviews:', pendingInterviews);
+
+                // Find the interview for this applicant
+                let applicantInterview = pendingInterviews.find((interview: any) => {
+                    const interviewApplicants = interview.applicants || [];
+                    return interviewApplicants.some((app: any) => {
+                        const appId = typeof app === 'string' ? app : app.id;
+                        return appId === applicantId;
+                    });
+                });
+
+                if (!applicantInterview) {
+                    console.error('❌ Consultancy interview not found!');
+                    throw new Error('No consultancy interview found for this applicant. Please ensure an interview has been created.');
+                }
+
+                console.log('Found consultancy interview ID:', applicantInterview.id);
+
+                // Submit score to consultancy interview endpoint
                 interviewResponse = await AxiosWithToken.post(
-                    `/contract-grants/consultancy/applicants/${applicantId}/interviews/`,
+                    `/contract-grants/consultancy/interviews/${applicantInterview.id}/scores/`,
                     interviewPayload
                 );
-                console.log('Consultancy interview created successfully:', interviewResponse.data);
+                console.log('Consultancy interview score submitted successfully:', interviewResponse.data);
 
-                // Step 2: Update applicant status to INTERVIEWED (only for consultancy)
-                console.log('Updating applicant status to INTERVIEWED');
-                const statusResponse = await AxiosWithToken.patch(
-                    `/contract-grants/consultancy/applicants/${applicantId}/`,
-                    { status: "INTERVIEWED" }
-                );
-                console.log('Status updated successfully:', statusResponse.data);
+                // Check if all committee members have submitted their scores
+                try {
+                    // Get interview details to check committee size
+                    const interviewDetails = applicantInterview;
+                    const interviewers = interviewDetails.interviewers || interviewDetails.interviewer_details || [];
+                    const totalInterviewers = Array.isArray(interviewers) ? interviewers.length : 1;
+
+                    console.log('📊 Consultancy Committee Info:', {
+                        interviewId: applicantInterview.id,
+                        totalInterviewers,
+                        interviewers
+                    });
+
+                    // Fetch submitted scores for this interview
+                    let submittedScoresCount = 0;
+                    try {
+                        const scoresResponse = await AxiosWithToken.get(
+                            `/contract-grants/consultancy/interviews/${applicantInterview.id}/scores/`
+                        );
+                        const submittedScores = scoresResponse.data?.data || scoresResponse.data?.results || [];
+                        submittedScoresCount = Array.isArray(submittedScores) ? submittedScores.length : 0;
+
+                        console.log('📦 Consultancy submitted scores:', submittedScores);
+                        console.log('📦 Total submitted scores:', submittedScoresCount);
+                    } catch (scoresError) {
+                        console.warn('⚠️ Could not fetch scores, assuming this is the first submission');
+                        submittedScoresCount = 1; // This submission
+                    }
+
+                    console.log('📝 Consultancy Scores Info:', {
+                        totalInterviewers,
+                        submittedScoresCount,
+                        allSubmitted: submittedScoresCount >= totalInterviewers
+                    });
+
+                    // Only update applicant status if all interviewers have submitted
+                    if (submittedScoresCount >= totalInterviewers && totalInterviewers > 0) {
+                        console.log('✅ All consultancy committee members have submitted! Updating applicant status to INTERVIEWED');
+
+                        const statusResponse = await AxiosWithToken.patch(
+                            `/contract-grants/consultancy/applicants/${applicantId}/`,
+                            { status: "INTERVIEWED" }
+                        );
+                        console.log('✅ Consultancy applicant status updated successfully:', statusResponse.data);
+                    } else {
+                        console.log('⏳ Waiting for remaining consultancy committee members to submit their scores');
+                        console.log(`⏳ Currently ${submittedScoresCount}/${totalInterviewers} committee members have submitted`);
+                    }
+                } catch (statusError: any) {
+                    console.error('❌ Error checking consultancy interview completion status:', statusError);
+                    // Don't throw - the score submission was successful
+                }
             }
 
             toast.success(`Interview completed successfully! Total score: ${totalScore}/50`);
 
-            // Navigate back to the previous page after successful submission
+            // Navigate to the appropriate database page after successful submission
             setTimeout(() => {
-                router.back();
+                if (isAdhocInterview) {
+                    // For AdHoc interviews, go to adhoc database
+                    router.push('/dashboard/programs/adhoc-database');
+                } else {
+                    // For Consultancy interviews, go to consultancy database
+                    router.push('/dashboard/c-and-g/consultancy-database');
+                }
             }, 1500);
 
         } catch (error: any) {
