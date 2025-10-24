@@ -1,6 +1,5 @@
-import { TDepartmentData } from "definations/modules/config/department";
-import { TLocationData } from "definations/modules/config/location";
-import { IProjectSingleData } from "definations/project";
+import { TDepartmentData, TLocationData } from "@/features/modules/types/config";
+import { IProjectSingleData } from "@/features/projects/types/project";
 import { z } from "zod";
 
 export const CloseOutPlanSchema = z.object({
@@ -26,8 +25,8 @@ export const CloseOutPlanSchema = z.object({
 
 export type TCloseOutPlanFormData = z.infer<typeof CloseOutPlanSchema>;
 
-// Activity within a key task
-export interface ICloseOutPlanActivity {
+// Task/Activity object (flat structure as returned by backend)
+export interface ICloseOutPlanTask {
     id: string;
     description: string;
     designation: string;
@@ -39,20 +38,12 @@ export interface ICloseOutPlanActivity {
     updated_datetime: string;
 }
 
-// Key Task with its activities
-export interface ICloseOutPlanTask {
-    id: string;
-    key_task: string;
-    activities: ICloseOutPlanActivity[];
-    created_datetime: string;
-    updated_datetime: string;
-}
-
 export interface ICloseOutPlanPaginatedData {
     id: string;
     project: string | IProjectSingleData; // Can be string ID or expanded project object
     department: string;
     location: string;
+    key_task?: string; // Section heading for the plan
     status?: string;
     created_datetime: string;
     updated_datetime: string;
@@ -62,10 +53,12 @@ export interface ICloseOutPlanPaginatedData {
 
 export interface ICloseOutPlanSingleData {
     id: string;
-    project: IProjectSingleData;
-    department: TDepartmentData;
-    location: TLocationData;
-    tasks: ICloseOutPlanTask[];
+    project: IProjectSingleData | string;
+    department: TDepartmentData | string;
+    location: TLocationData | string;
+    key_task?: string; // Section heading for the entire plan
+    tasks: ICloseOutPlanTask[]; // Flat array of tasks, each with description
+    status?: string;
     created_datetime: string;
     updated_datetime: string;
     created_by: string;
