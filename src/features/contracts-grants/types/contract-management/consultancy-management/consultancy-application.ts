@@ -138,6 +138,10 @@ export interface IConsultancyStaffPaginatedData {
     signature: null;
     created_by: string;
     updated_by: string | null;
+    // Interview schedule fields
+    schedule_id?: string;
+    schedule?: ConsultancyInterviewSchedule;
+    has_interview?: boolean; // Flag set by parent component indicating if interview exists
     // Adhoc-specific fields (optional)
     gender?: string | null;
     state_of_origin?: string | null;

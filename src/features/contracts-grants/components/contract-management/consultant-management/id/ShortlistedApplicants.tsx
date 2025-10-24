@@ -6,10 +6,11 @@ import { consultancyStaffColumns } from "@/features/contracts-grants/components/
 import { shortlistedApplicantColumn } from "@/features/contracts-grants/components/table-columns/contract-management/consultant-management/shortlisted-applicant";
 import DataTable from "components/Table/DataTable";
 import TableFilters from "components/Table/TableFilters";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useParams, usePathname } from "next/navigation";
 import { useGetAllConsultancyStaffs } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
 import { useGetShortlistedApplicants } from "@/features/programs/controllers/adhocApplicantController";
+import { useGetAllConsultancyInterviews } from "@/features/contracts-grants/controllers/consultancyInterviewController";
 
 export default function ShortlistedAppplicants() {
   const params = useParams();
@@ -50,6 +51,35 @@ export default function ShortlistedAppplicants() {
 
   // Use the appropriate query result
   const { data, isFetching } = isAdhoc ? adhocQuery : consultancyQuery;
+
+  // Fetch interviews for consultancy (to check which applicants have interviews scheduled)
+  const { data: interviewsData } = useGetAllConsultancyInterviews(
+    !isAdhoc ? id : undefined,
+    !isAdhoc && !!id
+  );
+
+  // Create a Set of applicant IDs that have interview schedules
+  const applicantsWithInterviews = useMemo(() => {
+    if (!interviewsData?.data) return new Set<string>();
+
+    const applicantIds = new Set<string>();
+    const interviews = interviewsData.data;
+
+    console.log('📋 Interviews data received:', interviews);
+
+    if (Array.isArray(interviews)) {
+      interviews.forEach((interview: any) => {
+        // interview.application is the applicant ID
+        if (interview.application) {
+          applicantIds.add(interview.application);
+          console.log('✅ Found interview for applicant:', interview.application);
+        }
+      });
+    }
+
+    console.log('📊 Applicants with interviews:', Array.from(applicantIds));
+    return applicantIds;
+  }, [interviewsData]);
 
   // Map API response to expected format for shortlisted applicants
   const mappedShortlistedApplicants = data?.data?.results
@@ -100,6 +130,8 @@ export default function ShortlistedAppplicants() {
       contract_request: typeof applicant.contract_request === 'object'
         ? applicant.contract_request?.name || 'N/A'
         : applicant.contract_request || 'N/A',
+      // Add interview information
+      has_interview: applicantsWithInterviews.has(applicant.id),
     })) || [];
 
   console.log("🔍 ShortlistedApplicants Debug:");
