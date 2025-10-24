@@ -102,7 +102,7 @@ export default function ConsultancyStaffDetails() {
           <Button
             className='flex gap-x-[.5rem] items-center bg-blue-600 hover:bg-blue-700'
             disabled={isModifyLoading}
-            onClick={() => router.push(`${window.location.pathname.replace('/details', '')}/adhoc-interview`)}
+            onClick={() => router.push(`${window.location.pathname.replace('/details', '')}/interview`)}
           >
             <PersonIcon />
             <span>Conduct Interview</span>
