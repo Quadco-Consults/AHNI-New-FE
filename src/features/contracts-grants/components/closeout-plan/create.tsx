@@ -233,9 +233,9 @@ export default function CreateCloseOutPlan() {
       }];
 
       form.reset({
-        project: proj.id,
-        department: typeof dept === 'string' ? dept : dept.id, // Handle both string and object
-        location: loc.id,
+        project: typeof proj === 'string' ? proj : proj.id,
+        department: typeof dept === 'string' ? dept : dept.id,
+        location: typeof loc === 'string' ? loc : loc.id,
         tasks: formTasks,
       });
     }
