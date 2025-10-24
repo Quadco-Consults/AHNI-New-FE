@@ -178,7 +178,7 @@ export const useGetAllConsultancyInterviews = (consultancyId?: string, enabled: 
     queryKey: ["consultancy-interviews", consultancyId],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get(BASE_URL, {
+        const response = await AxiosWithToken.get("/contract-grants/consultancy/applicant-interviews/", {
           params: consultancyId ? { consultancy: consultancyId } : undefined,
         });
         return response.data;
