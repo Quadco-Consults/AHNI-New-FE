@@ -32,6 +32,7 @@ export default function CreateConsultancyReport() {
     const form = useForm<TConsultancyReportFormData>({
         resolver: zodResolver(ConsultancyReportSchema),
         defaultValues: {
+            project: "",
             supervisor: "",
             consultant: "",
             report_date: "",
@@ -196,6 +197,10 @@ export default function CreateConsultancyReport() {
     useEffect(() => {
         if (data && consultantOptions) {
             // Extract IDs from nested objects or use direct ID if already a string
+            const projectId = typeof data.data.project === 'object'
+                ? (data.data.project as any)?.id
+                : data.data.project;
+
             const supervisorId = typeof data.data.supervisor === 'object'
                 ? data.data.supervisor.id
                 : data.data.supervisor;
@@ -213,6 +218,7 @@ export default function CreateConsultancyReport() {
 
             console.log('📝 Loaded consultancy report for editing:', {
                 reportId: id,
+                projectId,
                 supervisorId,
                 consultantManagementId,
                 consultantApplicantId,
@@ -221,6 +227,7 @@ export default function CreateConsultancyReport() {
 
             form.reset({
                 ...data.data,
+                project: projectId,
                 supervisor: supervisorId,
                 consultant: consultantApplicantId, // Use applicant ID for the form
                 consultancy_duration: String(data.data.consultancy_duration),
