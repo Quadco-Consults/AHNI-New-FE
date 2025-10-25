@@ -88,8 +88,15 @@ export default function AcceptanceForm() {
 
             toast.success("Contract rejected successfully");
 
-            // Navigate back to the acceptance list
-            router.push("/dashboard/programs/adhoc/adhoc-acceptance");
+            // Navigate back to the appropriate acceptance list based on applicant type
+            const applicantType = applicant?.type || "ADHOC_STAFF";
+            const isAdhocType = applicantType === "ADHOC_STAFF" || applicantType === "ADHOC";
+            const rejectionRedirectPath = isAdhocType
+                ? "/dashboard/programs/adhoc/adhoc-acceptance"
+                : "/dashboard/c-and-g/consultant/consultance-acceptance";
+
+            console.log(`✅ Redirecting to ${rejectionRedirectPath} after rejection (User type: ${applicantType}, isAdhoc: ${isAdhocType})`);
+            router.push(rejectionRedirectPath);
 
         } catch (error) {
             console.error("Contract rejection error:", error);
@@ -201,9 +208,18 @@ export default function AcceptanceForm() {
                 toast.warning("Contract accepted! However, user account creation failed. Admin will create your account manually.");
             }
 
-            // Navigate to the adhoc database page
+            // Navigate to the appropriate database page based on applicant type
             setTimeout(() => {
-                router.push("/dashboard/programs/adhoc-database");
+                // Determine the correct redirect path based on applicant type
+                // ADHOC_STAFF and ADHOC types go to adhoc-database
+                // CONSULTANT and FACILITATOR types go to consultancy-database
+                const isAdhocType = userType === "ADHOC_STAFF" || userType === "ADHOC";
+                const redirectPath = isAdhocType
+                    ? "/dashboard/programs/adhoc-database"
+                    : "/dashboard/c-and-g/consultancy-database";
+
+                console.log(`✅ Redirecting to ${redirectPath} (User type: ${userType}, isAdhoc: ${isAdhocType})`);
+                router.push(redirectPath);
             }, 2500);
 
         } catch (error) {
