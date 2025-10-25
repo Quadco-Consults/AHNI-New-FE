@@ -1158,40 +1158,84 @@ const getDeparmentalLinks = () => {
         { name: "C&G Reports", path: "/" },
       ],
     },
-    // {
-    //   name: "Finance",
-    //   icon: <FinanceIcon />,
-    //   link: [
-    //     {
-    //       name: "Overview",
-    //       sublinks: [
-    //         {
-    //           name: "Documents Submitted to be Reviewed",
-    //           path: "/",
-    //         },
-    //         {
-    //           name: "Documents Awaiting Payment Vouchers",
-    //           path: "/",
-    //         },
-    //         {
-    //           name: "Documents Awaiting Final Approval",
-    //           path: "/",
-    //         },
-    //       ],
-    //     },
-    //     { name: "Employee Compensation & Benefits", path: "/" },
-    //     { name: "Payment Requests", path: "/" },
-    //     { name: "Payment Voucher", path: "/" },
-    //     { name: "General Leger", path: "/" },
-    //     { name: "Employee Compensation & Benefits", path: "/" },
-    //     { name: "Time Sheet Management", path: "/" },
-    //     { name: "Trial Balance", path: "/" },
-    //     { name: "Audit", path: "/" },
-    //     { name: "Budget", path: "/" },
-    //     { name: "Petty Cash Request", path: "/" },
-    //     { name: "Bank Reconciliation", path: "/" },
-    //     { name: "Invoice", path: "/" },
-    //   ],
-    // },
+    {
+      name: "Finance",
+      path: "/dashboard/finance",
+      icon: <DollarSign />,
+      link: [
+        {
+          name: "Overview",
+          path: "/dashboard/finance",
+        },
+        {
+          name: "Financial Classifications",
+          path: "/dashboard/finance/classifications",
+        },
+        {
+          name: "Chart of Accounts",
+          path: "/dashboard/finance/chart-of-accounts",
+        },
+        {
+          name: "Journal Entries",
+          path: "/dashboard/finance/journal-entries",
+        },
+        {
+          name: "Financial Reports",
+          path: "/dashboard/finance/reports",
+        },
+        {
+          name: "Bank Reconciliation",
+          path: "/dashboard/finance/bank-reconciliation",
+        },
+        {
+          name: "Integration Dashboard",
+          path: "/dashboard/finance/integration-dashboard",
+        },
+        {
+          name: "Financial Analysis",
+          path: "/dashboard/finance/analysis",
+        },
+        {
+          name: "QuickBooks Settings",
+          path: "/dashboard/finance/quickbooks/settings",
+        },
+        {
+          name: "QuickBooks Sync",
+          path: "/dashboard/finance/quickbooks/sync",
+        },
+        {
+          name: "Customer Management",
+          path: "/dashboard/finance/customers",
+        },
+        {
+          name: "Invoicing & Billing",
+          path: "/dashboard/finance/invoices",
+        },
+        {
+          name: "Sales Orders",
+          path: "/dashboard/finance/sales-orders",
+        },
+        {
+          name: "Accounts Receivable",
+          path: "/dashboard/finance/accounts-receivable",
+        },
+        {
+          name: "Tax Management",
+          path: "/dashboard/finance/tax-management",
+        },
+        {
+          name: "Accounts Payable",
+          path: "/dashboard/finance/accounts-payable",
+        },
+        {
+          name: "Fixed Assets",
+          path: "/dashboard/finance/fixed-assets",
+        },
+        {
+          name: "Expense Tracking",
+          path: "/dashboard/finance/expenses",
+        },
+      ],
+    },
   ];
 };

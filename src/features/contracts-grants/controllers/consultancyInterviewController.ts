@@ -14,7 +14,7 @@ interface ApiResponse<TData = unknown> {
   data: TData;
 }
 
-const BASE_URL = "/contract-grants/consultancy/interviews/";
+const BASE_URL = "/contract-grants/consultancy/interview-scores/";
 
 // ===== MULTI-SCORER CONSULTANCY INTERVIEW HOOKS =====
 
@@ -25,7 +25,7 @@ export const useSubmitConsultancyInterviewScore = (interviewId: string) => {
     Error,
     Partial<ConsultancyInterviewScore>
   >({
-    endpoint: `${BASE_URL}${interviewId}/scores/`,
+    endpoint: `${BASE_URL}`,
     queryKey: ["consultancy-interviews", "consultancy-interview-scores"],
     isAuth: true,
     method: "POST",
@@ -35,7 +35,14 @@ export const useSubmitConsultancyInterviewScore = (interviewId: string) => {
     try {
       console.log("Submitting consultancy interview score for interview:", interviewId);
       console.log("Score data:", scoreData);
-      const result = await callApi(scoreData);
+
+      // Add interview ID to the payload since backend expects it
+      const payload = {
+        ...scoreData,
+        interview: interviewId
+      };
+
+      const result = await callApi(payload);
       console.log("Score submission response:", result);
       return result;
     } catch (error) {
@@ -53,7 +60,7 @@ export const useGetConsultancyInterviewScores = (interviewId: string, enabled: b
     queryKey: ["consultancy-interview-scores", interviewId],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get(`${BASE_URL}${interviewId}/scores/`);
+        const response = await AxiosWithToken.get(`${BASE_URL}?interview_id=${interviewId}`);
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
@@ -90,7 +97,7 @@ export const useGetMyConsultancyInterviewScore = (interviewId: string, enabled: 
     queryKey: ["my-consultancy-interview-score", interviewId],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get(`${BASE_URL}${interviewId}/my-score/`);
+        const response = await AxiosWithToken.get(`${BASE_URL}my-score/${interviewId}/`);
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
@@ -107,23 +114,30 @@ export const useGetMyConsultancyInterviewScore = (interviewId: string, enabled: 
 };
 
 // Update My Consultancy Interview Score
-export const useUpdateConsultancyInterviewScore = (interviewId: string, scoreId: string) => {
+export const useUpdateConsultancyInterviewScore = () => {
   const { callApi, isLoading, isSuccess, error, data } = useApiManager<
     ApiResponse<ConsultancyInterviewScore>,
     Error,
     Partial<ConsultancyInterviewScore>
   >({
-    endpoint: `${BASE_URL}${interviewId}/scores/${scoreId}/`,
+    endpoint: `${BASE_URL}`,
     queryKey: ["consultancy-interviews", "consultancy-interview-scores"],
     isAuth: true,
-    method: "PATCH",
+    method: "POST",  // Backend uses POST for both create and update
   });
 
-  const updateScore = async (scoreData: Partial<ConsultancyInterviewScore>) => {
+  const updateScore = async (interviewId: string, scoreData: Partial<ConsultancyInterviewScore>) => {
     try {
-      console.log("Updating consultancy interview score:", scoreId);
+      console.log("Updating consultancy interview score for interview:", interviewId);
       console.log("Update data:", scoreData);
-      const result = await callApi(scoreData);
+
+      // Add interview ID to the payload since backend expects it
+      const payload = {
+        ...scoreData,
+        interview: interviewId
+      };
+
+      const result = await callApi(payload);
       console.log("Score update response:", result);
       return result;
     } catch (error) {
@@ -160,7 +174,7 @@ export const useGetConsultancyInterviewSummary = (interviewId: string, enabled: 
     queryKey: ["consultancy-interview-summary", interviewId],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get(`${BASE_URL}${interviewId}/summary/`);
+        const response = await AxiosWithToken.get(`${BASE_URL}summary/${interviewId}/`);
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;

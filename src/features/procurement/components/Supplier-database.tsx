@@ -340,7 +340,7 @@ const VendorAction = ({ data }: any) => {
     <div className='flex items-center gap-3'>
       <div>
         <Avatar>
-          <AvatarImage src={data?.vendor?.png} />
+          <AvatarImage src={data?.vendor?.passport} />
           <AvatarFallback>{data?.company_name?.charAt(0) || "?"}</AvatarFallback>
         </Avatar>
       </div>
