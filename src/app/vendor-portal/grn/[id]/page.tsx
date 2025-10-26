@@ -17,10 +17,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
-import { toast } from '@/hooks/use-toast';
+import { toast } from "sonner";
 
 import { useGRNDetails, useRespondToGRN, POGRNUtils } from '@/features/vendor-portal/controllers/purchaseOrderController';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { LoadingSpinner } from "components/Loading";
 
 const GRNResponseSchema = z.object({
   response_type: z.enum(['ACKNOWLEDGE', 'DISPUTE', 'PROVIDE_INFO']),
