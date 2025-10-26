@@ -16,6 +16,103 @@ interface ApiResponse<TData = unknown> {
 
 const BASE_URL = "/contract-grants/consultancy/interviews/";
 
+// Interview creation interface
+interface CreateConsultancyInterviewData {
+  applicant: string;
+  interview_type: string;
+  committee_members: string[];
+  date: string;
+  location?: string;
+}
+
+// ===== CONSULTANCY INTERVIEW CREATION & MANAGEMENT =====
+
+// Create Individual or Committee Interview
+export const useCreateConsultancyInterview = () => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    ApiResponse<ConsultancyInterviewSchedule>,
+    Error,
+    CreateConsultancyInterviewData
+  >({
+    endpoint: BASE_URL,
+    queryKey: ["consultancy-interviews"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const createInterview = async (details: CreateConsultancyInterviewData) => {
+    try {
+      console.log("Creating consultancy interview:", details);
+      const result = await callApi(details);
+      console.log("Interview creation response:", result);
+      return result;
+    } catch (error) {
+      console.error("Consultancy interview creation error:", error);
+      throw error;
+    }
+  };
+
+  return { createInterview, data, isLoading, isSuccess, error };
+};
+
+// Bulk Create Interviews
+export const useBulkCreateConsultancyInterviews = () => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    ApiResponse<ConsultancyInterviewSchedule[]>,
+    Error,
+    {
+      applicants: string[];
+      interview_type: string;
+      committee_members: string[];
+      date: string;
+      location?: string;
+    }
+  >({
+    endpoint: `${BASE_URL}bulk-create/`,
+    queryKey: ["consultancy-interviews"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const bulkCreateInterviews = async (details: {
+    applicants: string[];
+    interview_type: string;
+    committee_members: string[];
+    date: string;
+    location?: string;
+  }) => {
+    try {
+      console.log("Bulk creating consultancy interviews:", details);
+      const result = await callApi(details);
+      console.log("Bulk interview creation response:", result);
+      return result;
+    } catch (error) {
+      console.error("Bulk consultancy interview creation error:", error);
+      throw error;
+    }
+  };
+
+  return { bulkCreateInterviews, data, isLoading, isSuccess, error };
+};
+
+// Get Single Consultancy Interview
+export const useGetSingleConsultancyInterview = (interviewId: string, enabled: boolean = true) => {
+  return useQuery<ApiResponse<ConsultancyInterviewSchedule>>({
+    queryKey: ["consultancy-interview", interviewId],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get(`${BASE_URL}${interviewId}/`);
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    enabled: enabled && !!interviewId,
+    refetchOnWindowFocus: false,
+  });
+};
+
 // ===== MULTI-SCORER CONSULTANCY INTERVIEW HOOKS =====
 
 // Submit Individual Interview Score
@@ -142,8 +239,8 @@ export const useGetConsultancyInterviewSummary = (interviewId: string, enabled: 
     completed_evaluations: number;
     pending_evaluations: number;
     average_scores: {
-      relevant_experience: number;
-      project_management: number;
+      similar_work_experience: number;
+      project_management_knowledge: number;
       recent_experience: number;
       comparable_projects: number;
       communication_skills: number;
