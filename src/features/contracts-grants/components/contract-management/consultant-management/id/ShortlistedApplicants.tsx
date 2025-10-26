@@ -58,27 +58,28 @@ export default function ShortlistedAppplicants() {
     !isAdhoc && !!id
   );
 
-  // Create a Set of applicant IDs that have interview schedules
-  const applicantsWithInterviews = useMemo(() => {
-    if (!interviewsData?.data) return new Set<string>();
+  // Create a Map of applicant IDs to their interview schedules
+  const applicantInterviewMap = useMemo(() => {
+    if (!interviewsData?.data) return new Map<string, any>();
 
-    const applicantIds = new Set<string>();
+    const interviewMap = new Map<string, any>();
     const interviews = interviewsData.data;
 
     console.log('📋 Interviews data received:', interviews);
 
     if (Array.isArray(interviews)) {
       interviews.forEach((interview: any) => {
-        // interview.application is the applicant ID
-        if (interview.application) {
-          applicantIds.add(interview.application);
-          console.log('✅ Found interview for applicant:', interview.application);
+        // Check both 'application' (new API) and 'applicant' (old API) fields
+        const applicantId = interview.application || interview.applicant;
+        if (applicantId) {
+          interviewMap.set(applicantId, interview);
+          console.log('✅ Found interview for applicant:', applicantId, interview);
         }
       });
     }
 
-    console.log('📊 Applicants with interviews:', Array.from(applicantIds));
-    return applicantIds;
+    console.log('📊 Applicant interview map:', Array.from(interviewMap.entries()));
+    return interviewMap;
   }, [interviewsData]);
 
   // Map API response to expected format for shortlisted applicants
@@ -107,32 +108,38 @@ export default function ShortlistedAppplicants() {
 
       return belongsToThisConsultant;
     })
-    ?.map((applicant: any) => ({
-      ...applicant,
-      // Map name fields - handle both consultancy and adhoc structures
-      first_name: applicant.first_name || applicant.other_names || applicant.name || 'Unknown',
-      last_name: applicant.last_name || applicant.sur_name || applicant.contractor_name || '',
-      name: applicant.name || `${applicant.first_name || applicant.other_names || ''} ${applicant.last_name || applicant.sur_name || ''}`.trim() || 'Unknown',
-      email: applicant.email || applicant.email_address,
-      // Ensure consultant_id is present for consultancy
-      consultant_id: applicant.consultant_id || id,
-      consultancy: applicant.consultancy || id,
-      // Handle potentially problematic fields
-      technical_monitor_user: typeof applicant.technical_monitor_user === 'object'
-        ? applicant.technical_monitor_user?.name || 'N/A'
-        : applicant.technical_monitor_user || 'N/A',
-      location: typeof applicant.location === 'object'
-        ? applicant.location?.name || 'N/A'
-        : applicant.location || 'N/A',
-      project: typeof applicant.project === 'object'
-        ? applicant.project?.name || 'N/A'
-        : applicant.project || 'N/A',
-      contract_request: typeof applicant.contract_request === 'object'
-        ? applicant.contract_request?.name || 'N/A'
-        : applicant.contract_request || 'N/A',
-      // Add interview information
-      has_interview: applicantsWithInterviews.has(applicant.id),
-    })) || [];
+    ?.map((applicant: any) => {
+      const interview = applicantInterviewMap.get(applicant.id);
+      return {
+        ...applicant,
+        // Map name fields - handle both consultancy and adhoc structures
+        first_name: applicant.first_name || applicant.other_names || applicant.name || 'Unknown',
+        last_name: applicant.last_name || applicant.sur_name || applicant.contractor_name || '',
+        name: applicant.name || `${applicant.first_name || applicant.other_names || ''} ${applicant.last_name || applicant.sur_name || ''}`.trim() || 'Unknown',
+        email: applicant.email || applicant.email_address,
+        // Ensure consultant_id is present for consultancy
+        consultant_id: applicant.consultant_id || id,
+        consultancy: applicant.consultancy || id,
+        // Handle potentially problematic fields
+        technical_monitor_user: typeof applicant.technical_monitor_user === 'object'
+          ? applicant.technical_monitor_user?.name || 'N/A'
+          : applicant.technical_monitor_user || 'N/A',
+        location: typeof applicant.location === 'object'
+          ? applicant.location?.name || 'N/A'
+          : applicant.location || 'N/A',
+        project: typeof applicant.project === 'object'
+          ? applicant.project?.name || 'N/A'
+          : applicant.project || 'N/A',
+        contract_request: typeof applicant.contract_request === 'object'
+          ? applicant.contract_request?.name || 'N/A'
+          : applicant.contract_request || 'N/A',
+        // Add interview information with full schedule data
+        has_interview: !!interview,
+        schedule: interview || undefined,
+        schedule_id: interview?.id || undefined,
+        average_scores: interview?.average_scores || applicant.average_scores || undefined,
+      };
+    }) || [];
 
   console.log("🔍 ShortlistedApplicants Debug:");
   console.log("- Current Consultant ID:", id);
