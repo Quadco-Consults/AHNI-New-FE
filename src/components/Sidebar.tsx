@@ -1132,7 +1132,7 @@ const getDeparmentalLinks = () => {
             },
 
             {
-              name: "Consultancy Acceptance",
+              name: "Consultant contract Dashboard",
               path: "/dashboard/c-and-g/consultant/consultance-acceptance",
             },
 

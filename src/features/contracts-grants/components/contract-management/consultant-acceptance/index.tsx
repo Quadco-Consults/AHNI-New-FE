@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { usePathname } from "next/navigation";
 import Card from "components/Card";
 import { Button } from "components/ui/button";
@@ -11,14 +11,14 @@ import { useGetAllAdhocAdvertisements } from "@/features/programs/controllers/ad
 import { useRouter } from "next/navigation";
 import { FileText, Users, Calendar, Briefcase, Eye, CheckCircle, Clock } from "lucide-react";
 
-export default function ConsultancyAcceptance() {
+export default function ConsultantContractDashboard() {
     const [page, setPage] = useState(1);
     const router = useRouter();
     const pathname = usePathname();
 
+
     // Determine type based on pathname
     const applicantType = pathname?.includes("adhoc") ? "ADHOC" : "CONSULTANT";
-    const staffLabel = applicantType === "ADHOC" ? "adhoc staff" : "consultants";
 
     // Fetch all contract requests/advertisements based on type
     const { data: contractRequestsData, isFetching: isLoadingContractRequests } = useGetAllContractRequests({
@@ -69,8 +69,8 @@ export default function ConsultancyAcceptance() {
     if (allApplicantsRaw.length > 0) {
         console.log("📋 Sample Applicant Structure:", allApplicantsRaw[0]);
         console.log("📋 Sample Applicant Type Field:", allApplicantsRaw[0].type);
-        console.log("📋 Sample Applicant Has Consultants:", allApplicantsRaw[0].consultants);
-        console.log("📋 Sample Applicant Has Consultancy:", allApplicantsRaw[0].consultancy);
+        console.log("📋 Sample Applicant Has Consultants:", (allApplicantsRaw[0] as any).consultants);
+        console.log("📋 Sample Applicant Has Consultancy:", (allApplicantsRaw[0] as any).consultancy);
         console.log("📋 Sample Applicant Contract Request:", allApplicantsRaw[0].contract_request);
     }
 
@@ -108,9 +108,9 @@ export default function ConsultancyAcceptance() {
         const applicantsForRequest = allApplicants.filter(applicant => {
             if (applicantType === "ADHOC") {
                 // For AdHoc, match by advertisement field
-                const advertisementId = typeof applicant.advertisement === 'object' && applicant.advertisement !== null
-                    ? (applicant.advertisement as any).id
-                    : applicant.advertisement;
+                const advertisementId = typeof (applicant as any).advertisement === 'object' && (applicant as any).advertisement !== null
+                    ? ((applicant as any).advertisement as any).id
+                    : (applicant as any).advertisement;
                 return advertisementId === request.id;
             } else {
                 // For Consultancy, match by contract_request field
@@ -137,7 +137,7 @@ export default function ConsultancyAcceptance() {
     // Handle applicants without a contract_request/advertisement (legacy data)
     const uncategorizedApplicants = allApplicants.filter(applicant => {
         if (applicantType === "ADHOC") {
-            return !applicant.advertisement || applicant.advertisement === null;
+            return !(applicant as any).advertisement || (applicant as any).advertisement === null;
         } else {
             return !applicant.contract_request || applicant.contract_request === null;
         }
@@ -156,9 +156,9 @@ export default function ConsultancyAcceptance() {
             {/* Header */}
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900">Contract Acceptance Portal</h1>
+                    <h1 className="text-3xl font-bold text-gray-900">Consultant Contract Dashboard</h1>
                     <p className="text-gray-600 mt-2">
-                        Job adverts with issued contracts awaiting acceptance from {staffLabel}
+                        Issued Contracts
                     </p>
                 </div>
                 <div className="flex items-center gap-3">
