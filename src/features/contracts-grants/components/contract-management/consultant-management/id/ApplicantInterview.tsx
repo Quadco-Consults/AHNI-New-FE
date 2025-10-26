@@ -33,8 +33,8 @@ const scoreOptions = ["1", "2", "3", "4", "5"].map((value) => ({
 }));
 
 const evaluationCriteria = [
-    { name: "relevant_experience", label: "Has done similar work previously (nature of task)" },
-    { name: "project_management", label: "Understands project management and the potential task(s)" },
+    { name: "similar_work_experience", label: "Has done similar work previously (nature of task)" },
+    { name: "project_management_knowledge", label: "Understands project management and the potential task(s)" },
     { name: "recent_experience", label: "Experience is recent (2-3 years)" },
     { name: "comparable_projects", label: "Worked with projects comparable to the AHNi (budget and complexity)" },
     { name: "communication_skills", label: "Excellent Communication Skills" },
@@ -298,8 +298,8 @@ export default function ApplicantInterviewPage() {
             // Interview type - required field
             interview_type: "NON_COMMITTEE",
             // Initialize all scoring fields with empty values - matching backend field names
-            relevant_experience: "",
-            project_management: "",
+            similar_work_experience: "",
+            project_management_knowledge: "",
             recent_experience: "",
             comparable_projects: "",
             communication_skills: "",

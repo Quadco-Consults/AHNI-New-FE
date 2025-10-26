@@ -134,7 +134,7 @@ export default function CreateInterview() {
     defaultValues: {
       consultancy: "",
       interview_type: "",
-      interview_date: "",
+      date: "", // Backend confirmed: single "date" field
       committee_members: [],
     },
   });
@@ -163,7 +163,7 @@ export default function CreateInterview() {
     const interviewData = {
       consultancy: data?.data.id,
       interview_type: interview_data.interview_type,
-      interview_date: interview_data.interview_date,
+      date: interview_data.date, // Backend confirmed: single "date" field
       committee_members:
         watch("interview_type") === "COMMITTEE"
           ? interview_data.committee_members
@@ -216,7 +216,7 @@ export default function CreateInterview() {
               <FormInput
                 type='date'
                 label='Interview Date'
-                name='interview_date'
+                name='date'
                 required
               />
             </div>
