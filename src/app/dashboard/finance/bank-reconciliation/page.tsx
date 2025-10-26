@@ -286,10 +286,24 @@ export default function BankReconciliationPage() {
   const getCurrentUserInfo = () => {
     if (!userProfile?.data) return null;
     const user = userProfile.data;
+
+    // Safely extract position and department - they might be objects
+    const position = typeof user.position === 'string'
+      ? user.position
+      : (typeof user.position === 'object' && user.position && 'name' in user.position)
+      ? (user.position as any).name
+      : "Staff";
+
+    const department = typeof user.department === 'string'
+      ? user.department
+      : (typeof user.department === 'object' && user.department && 'name' in user.department)
+      ? (user.department as any).name
+      : "Finance";
+
     return {
-      name: user.full_name || `${user.first_name} ${user.last_name}`,
-      designation: user.position || "Staff", // Use position as designation
-      department: user.department || "Finance"
+      name: user.full_name || `${user.first_name || ""} ${user.last_name || ""}`.trim() || "Unknown User",
+      designation: position,
+      department: department
     };
   };
 
@@ -533,7 +547,7 @@ export default function BankReconciliationPage() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge variant="outline">{reconciliation.project}</Badge>
+                    <Badge variant="outline">{String(reconciliation.project)}</Badge>
                   </TableCell>
                   <TableCell>{reconciliation.period}</TableCell>
                   <TableCell className="font-mono">
@@ -825,10 +839,10 @@ export default function BankReconciliationPage() {
                     <div className="flex items-center space-x-2 p-3 bg-blue-50 border border-blue-200 rounded-md">
                       <div className="flex-1">
                         <div className="font-medium text-blue-900">
-                          {getCurrentUserInfo()?.name}
+                          {getCurrentUserInfo()?.name || "N/A"}
                         </div>
                         <div className="text-sm text-blue-700">
-                          {getCurrentUserInfo()?.designation} - {getCurrentUserInfo()?.department}
+                          {getCurrentUserInfo()?.designation || "N/A"} - {getCurrentUserInfo()?.department || "N/A"}
                         </div>
                       </div>
                       <div className="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded">
