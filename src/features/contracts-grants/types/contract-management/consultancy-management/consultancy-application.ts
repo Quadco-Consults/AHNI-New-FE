@@ -84,6 +84,34 @@ export interface IConsultancyStaffPaginatedData {
     consultants?: string[]; // ManyToMany relationship - array of consultant IDs
     consultancy?: string; // Backward compatibility
     consultant_id?: string; // Backward compatibility
+    average_score?: number; // Backend calculated average score (total of all criteria)
+    scores?: any; // Alternative score field name
+    interview_score?: any; // Alternative singular score field name
+    evaluationScores?: any; // Alternative evaluation scores field name
+    // Multi-scorer system fields
+    average_scores?: {
+        relevant_experience?: number;
+        similar_work_experience?: number;
+        project_management_knowledge?: number;
+        recent_experience?: number;
+        comparable_projects?: number;
+        communication_skills?: number;
+        technical_skill?: number;
+        relevant_qualification?: number;
+        academic_credentials?: number;
+        timeline_management?: number;
+        toolset_framework?: number;
+        total?: number;
+        percentage?: number;
+    };
+    total_interviewers?: number;
+    completed_evaluations?: number;
+    // Interview data fields
+    interview_data?: any[]; // Array of interview records from separate API
+    interviews?: any[]; // Alternative field name for interview records
+    total_score?: number; // Direct total score on applicant
+    interview_date?: string; // Interview date field
+    date?: string; // Alternative date field
     interview_scores?: {
         relevant_experience?: number;
         project_management?: number;

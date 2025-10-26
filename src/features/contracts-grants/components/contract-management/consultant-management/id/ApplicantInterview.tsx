@@ -21,13 +21,14 @@ import { useUpdateAdhocApplicantStatus } from "@/features/programs/controllers/a
 import { AlertCircle, ShieldX } from "lucide-react";
 
 const guide = [
-    { main: "Unacceptable", sub: "(Did not meet any requirements)" },
-    { main: "Marginal", sub: "(Meets some requirements, but not others)" },
-    { main: "Acceptable", sub: "(Meets most but not all reuirements)" },
-    { main: "Excellent", sub: "(Meets all exceeds all requirements)" },
+    { main: "1 - Unacceptable", sub: "(Did not meet any requirements)" },
+    { main: "2 - Poor", sub: "(Meets very few requirements)" },
+    { main: "3 - Marginal", sub: "(Meets some requirements, but not others)" },
+    { main: "4 - Acceptable", sub: "(Meets most but not all requirements)" },
+    { main: "5 - Excellent", sub: "(Meets and exceeds all requirements)" },
 ];
 
-const scoreOptions = ["1", "2", "3", "4"].map((value) => ({
+const scoreOptions = ["1", "2", "3", "4", "5"].map((value) => ({
     label: value,
     value,
 }));
@@ -668,14 +669,121 @@ export default function ApplicantInterviewPage() {
                     try {
                         // DIAGNOSTIC: Check applicant status BEFORE submitting score
                         console.log('🔍 BEFORE SCORE SUBMISSION - Fetching current applicant status...');
+                        let currentApplicantStatus = 'UNKNOWN';
                         try {
                             const beforeResponse = await AxiosWithToken.get(
                                 `/contract-grants/consultancy/applicants/${applicantId}/`
                             );
-                            console.log('🔍 BEFORE - Applicant status:', beforeResponse.data?.data?.status || beforeResponse.data?.status);
+                            currentApplicantStatus = beforeResponse.data?.data?.status || beforeResponse.data?.status || 'UNKNOWN';
+                            console.log('🔍 BEFORE - Applicant status:', currentApplicantStatus);
                             console.log('🔍 BEFORE - Full applicant data:', beforeResponse.data);
+
+                            // SAFETY CHECK: If already INTERVIEWED, don't submit again
+                            if (currentApplicantStatus === 'INTERVIEWED') {
+                                console.warn('⚠️ APPLICANT ALREADY INTERVIEWED - Preventing duplicate submission');
+                                toast.warning('This applicant has already been interviewed by all committee members.');
+                                return;
+                            }
                         } catch (beforeError: any) {
                             console.error('⚠️ Could not fetch applicant status before submission:', beforeError);
+                        }
+
+                        // CRITICAL CHECK: Prevent backend auto-update by validating completion status BEFORE submission
+                        console.log('🔍 PRE-SUBMISSION COMPLETION CHECK - Fetching current scores...');
+                        try {
+                            const existingScoresResponse = await AxiosWithToken.get(
+                                `/contract-grants/consultancy/interview-scores/`,
+                                {
+                                    params: {
+                                        interview: applicantInterview.id,
+                                        // Add any other filters the API supports
+                                    }
+                                }
+                            );
+
+                            console.log('🔍 Existing scores response:', existingScoresResponse.data);
+
+                            // Extract scores array from response
+                            let existingScores = existingScoresResponse.data?.data || existingScoresResponse.data?.results || [];
+                            if (!Array.isArray(existingScores) && typeof existingScores === 'object') {
+                                existingScores = existingScores.data || existingScores.results || [];
+                            }
+
+                            const totalCommitteeMembers = applicantInterview.committee_members?.length || 0;
+                            const currentScoreCount = Array.isArray(existingScores) ? existingScores.length : 0;
+
+                            console.log('🚨 PRE-SUBMISSION ANALYSIS:', {
+                                totalCommitteeMembers,
+                                currentScoreCount,
+                                afterSubmissionCount: currentScoreCount + 1,
+                                wouldTriggerCompletion: (currentScoreCount + 1) >= totalCommitteeMembers,
+                                shouldBlock: (currentScoreCount + 1) >= totalCommitteeMembers && totalCommitteeMembers > (currentScoreCount + 1),
+                                committeeMembers: applicantInterview.committee_members
+                            });
+
+                            // Check if current user already submitted
+                            const userAlreadySubmitted = Array.isArray(existingScores) && existingScores.some((score: any) => {
+                                const scorerId = score.interviewer || score.scorer || score.user;
+                                const scoreInterviewId = typeof score.interview === 'string' ? score.interview : score.interview?.id;
+                                const matches = scorerId === currentUserId && scoreInterviewId === applicantInterview.id;
+                                console.log('🔍 Score check:', {
+                                    scoreId: score.id,
+                                    scorerId,
+                                    currentUserId,
+                                    scoreInterviewId,
+                                    targetInterviewId: applicantInterview.id,
+                                    matches
+                                });
+                                return matches;
+                            });
+
+                            if (userAlreadySubmitted) {
+                                console.warn('⚠️ USER ALREADY SUBMITTED SCORE - Preventing duplicate submission');
+                                toast.warning('You have already submitted your score for this interview.');
+                                return;
+                            }
+
+                            // CRITICAL: Check if this submission would prematurely trigger completion
+                            // If we have 3 committee members and currently 1 score, adding 1 more would make it 2/3
+                            // But the backend might incorrectly trigger completion at 2/3 instead of waiting for 3/3
+                            const afterSubmissionCount = currentScoreCount + 1;
+
+                            // Only allow submission if either:
+                            // 1. This is the final submission (afterSubmissionCount === totalCommitteeMembers)
+                            // 2. We're not at a risky threshold where backend might auto-update
+
+                            const isFinalSubmission = afterSubmissionCount === totalCommitteeMembers;
+                            const isRiskySubmission = afterSubmissionCount >= 2 && afterSubmissionCount < totalCommitteeMembers && totalCommitteeMembers >= 3;
+
+                            console.log('🚨 SUBMISSION RISK ANALYSIS:', {
+                                isFinalSubmission,
+                                isRiskySubmission,
+                                afterSubmissionCount,
+                                totalCommitteeMembers,
+                                decision: isFinalSubmission ? 'ALLOW (Final)' : isRiskySubmission ? 'BLOCK (Risky)' : 'ALLOW (Safe)'
+                            });
+
+                            if (isRiskySubmission) {
+                                console.error('🛑 BLOCKING SUBMISSION - Backend bug prevention');
+                                console.error('🛑 This submission would likely trigger premature status update');
+                                console.error(`🛑 Current: ${currentScoreCount}/${totalCommitteeMembers}, After submission: ${afterSubmissionCount}/${totalCommitteeMembers}`);
+
+                                toast.error(
+                                    `Cannot submit score at this time due to a backend issue. ` +
+                                    `Currently ${currentScoreCount}/${totalCommitteeMembers} interviews completed. ` +
+                                    `Please wait for ${totalCommitteeMembers - afterSubmissionCount} more interviewer(s) to complete before submitting, ` +
+                                    `or ensure this is the final (${totalCommitteeMembers}/${totalCommitteeMembers}) submission.`,
+                                    { duration: 8000 }
+                                );
+                                return;
+                            }
+
+                            console.log('✅ User has not submitted score yet - proceeding with submission');
+                            console.log(`✅ Safe submission: ${afterSubmissionCount}/${totalCommitteeMembers}`);
+
+                        } catch (existingScoresError: any) {
+                            console.warn('⚠️ Could not check existing scores:', existingScoresError);
+                            console.warn('⚠️ Proceeding with submission (assuming first submission) - but this is risky');
                         }
 
                         // Prepare payload with interview_id and applicant_id in the body
@@ -706,7 +814,6 @@ export default function ApplicantInterviewPage() {
                             console.log('🔍 AFTER - Full applicant data:', afterResponse.data);
 
                             // Check if backend auto-updated the status
-                            const beforeStatus = 'SHORTLISTED'; // We assume it was SHORTLISTED
                             if (afterStatus === 'INTERVIEWED') {
                                 console.error('🚨🚨🚨 BACKEND AUTO-UPDATE DETECTED! 🚨🚨🚨');
                                 console.error('🚨 The backend changed the status to INTERVIEWED immediately after score submission!');
@@ -761,20 +868,22 @@ export default function ApplicantInterviewPage() {
                             condition: `${completedEvaluations} >= ${totalInterviewers} && ${totalInterviewers} > 0`
                         });
 
-                        // CRITICAL DIAGNOSTIC: Check the condition step by step
-                        const condition1 = completedEvaluations >= totalInterviewers;
+                        // CRITICAL DIAGNOSTIC: Check the condition step by step with additional safeguards
+                        const condition1 = completedEvaluations === totalInterviewers; // Changed to strict equality
                         const condition2 = totalInterviewers > 0;
-                        const finalCondition = condition1 && condition2;
+                        const condition3 = completedEvaluations >= 3; // Ensure we have at least 3 (your minimum committee size)
+                        const finalCondition = condition1 && condition2 && condition3;
 
-                        console.log('🔍 STATUS UPDATE CONDITION CHECK:');
-                        console.log(`   completedEvaluations (${completedEvaluations}) >= totalInterviewers (${totalInterviewers}) = ${condition1}`);
+                        console.log('🔍 STATUS UPDATE CONDITION CHECK (WITH SAFEGUARDS):');
+                        console.log(`   completedEvaluations (${completedEvaluations}) === totalInterviewers (${totalInterviewers}) = ${condition1} (STRICT EQUALITY)`);
                         console.log(`   totalInterviewers (${totalInterviewers}) > 0 = ${condition2}`);
-                        console.log(`   FINAL: ${condition1} && ${condition2} = ${finalCondition}`);
+                        console.log(`   completedEvaluations (${completedEvaluations}) >= 3 = ${condition3} (MINIMUM COMMITTEE SIZE)`);
+                        console.log(`   FINAL: ${condition1} && ${condition2} && ${condition3} = ${finalCondition}`);
                         console.log(`   WILL UPDATE STATUS: ${finalCondition ? 'YES ✅' : 'NO ❌'}`);
 
                         // CRITICAL: Only update status after ALL interviewers complete
-                        // Use strict equality to be extra safe
-                        if (completedEvaluations >= totalInterviewers && totalInterviewers > 0) {
+                        // Use STRICT EQUALITY and minimum committee size check to prevent premature updates
+                        if (completedEvaluations === totalInterviewers && totalInterviewers > 0 && completedEvaluations >= 3) {
                             console.log('🚨🚨🚨 ENTERING STATUS UPDATE BLOCK 🚨🚨🚨');
                             console.log('🚨 About to call PATCH to update applicant status to INTERVIEWED');
                             console.log('🚨 Applicant ID:', applicantId);
@@ -862,19 +971,19 @@ export default function ApplicantInterviewPage() {
             if (isFullyComplete) {
                 toast.success(
                     `Interview fully completed! All ${completionInfo?.totalInterviewers || ''} committee members have submitted their evaluations. ` +
-                    `Your score: ${totalScore}/44. Applicant status updated to INTERVIEWED.`,
+                    `Your score: ${totalScore}/55. Applicant status updated to INTERVIEWED.`,
                     { duration: 5000 }
                 );
             } else if (completionInfo) {
                 toast.success(
-                    `Your evaluation submitted successfully! Total score: ${totalScore}/44. ` +
+                    `Your evaluation submitted successfully! Total score: ${totalScore}/55. ` +
                     `Progress: ${completionInfo.completedEvaluations}/${completionInfo.totalInterviewers} committee members completed. ` +
                     `Waiting for ${completionInfo.remaining} more interviewer(s).`,
                     { duration: 5000 }
                 );
             } else {
                 // Fallback message (for non-committee or legacy flow)
-                toast.success(`Interview completed successfully! Total score: ${totalScore}/44`);
+                toast.success(`Interview completed successfully! Total score: ${totalScore}/55`);
             }
 
             // Navigate back to the previous page after successful submission
@@ -951,7 +1060,7 @@ export default function ApplicantInterviewPage() {
                 <p className="text-sm">
                     Kindly use this matrix to comparatively evaluate consulting
                     candidates. For each consultant, next to each criteria enter
-                    a ranking ranging between 1 and 4, where:
+                    a ranking ranging between 1 and 5, where:
                 </p>
 
                 <ul className="text-sm list-disc pl-[15px] space-y-5">
@@ -1000,7 +1109,7 @@ export default function ApplicantInterviewPage() {
                                             return !isNaN(numScore) ? sum + numScore : sum;
                                         }, 0);
                                     })()
-                                }/44</p>
+                                }/55</p>
                             </div>
                             <div className="flex items-center justify-end gap-x-5">
                                 <Button 
