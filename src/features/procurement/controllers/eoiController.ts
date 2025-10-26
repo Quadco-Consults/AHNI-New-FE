@@ -1,6 +1,7 @@
 import useApiManager from "@/constants/mainController";
 import { useQuery } from "@tanstack/react-query";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
+import Axios from "@/constants/api_management/MyHttpHelper";
 import { AxiosError } from "axios";
 import {
   EOIData,
@@ -53,6 +54,32 @@ export const useGetSingleEoi = (id: string, enabled: boolean = true) => {
       }
     },
     enabled: enabled && !!id,
+    refetchOnWindowFocus: false,
+  });
+};
+
+// Get All Public EOIs (without authentication)
+export const useGetPublicEois = ({
+  page = 1,
+  size = 20,
+  search = "",
+  status = "",
+  enabled = true,
+}: TRequest & { enabled?: boolean }) => {
+  return useQuery<TPaginatedResponse<EOIData>>({
+    queryKey: ["public-eois", page, size, search, status],
+    queryFn: async () => {
+      try {
+        const response = await Axios.get(BASE_URL, {
+          params: { page, size, search, status },
+        });
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    enabled: enabled,
     refetchOnWindowFocus: false,
   });
 };
