@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Search, Plus, Filter, Download, TrendingUp, TrendingDown, DollarSign, Calendar, FileText, Trash2, Edit } from "lucide-react";
 import DataTable from "@/components/DataTable";
+import { useGetAllItemsQuery } from "@/features/modules/controllers/config/itemController";
+import { convertItemToFixedAsset, calculateAssetSummary, generateDepreciationSchedule } from "@/features/finance/utils/depreciation-calculator";
+import { FixedAsset, AssetFilters } from "@/features/finance/types/fixed-assets.types";
 
 const FixedAssetsPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -19,120 +22,90 @@ const FixedAssetsPage = () => {
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [isAssetDialogOpen, setIsAssetDialogOpen] = useState(false);
   const [isDisposalDialogOpen, setIsDisposalDialogOpen] = useState(false);
-  const [selectedAsset, setSelectedAsset] = useState(null);
+  const [selectedAsset, setSelectedAsset] = useState<FixedAsset | null>(null);
+  const [page, setPage] = useState(1);
+  const [isAssetDetailDialogOpen, setIsAssetDetailDialogOpen] = useState(false);
 
-  // Mock data for fixed assets
-  const assetSummary = {
-    totalAssets: 127,
-    totalCost: 2450000,
-    totalDepreciation: 420000,
-    netBookValue: 2030000,
-    monthlyDepreciation: 18500,
-    assetsAdded: 5,
-    assetsDisposed: 2,
-  };
+  // Fetch assets from admin module
+  const { data: assetsData, isLoading } = useGetAllItemsQuery({
+    page,
+    size: 50,
+    search: searchTerm,
+    expand: "category,assignee,asset_type,project,donor,asset_condition,location,classification,implementer",
+  });
 
-  const mockAssets = [
-    {
-      id: "1",
-      assetNumber: "FA-001",
-      name: "Office Building",
-      category: "Real Estate",
-      acquisitionDate: "2020-01-15",
-      cost: 850000,
-      accumulatedDepreciation: 127500,
-      netBookValue: 722500,
-      depreciationMethod: "Straight Line",
-      usefulLife: 20,
-      location: "Main Office",
-      status: "Active",
-      lastDepreciation: "2024-01-31",
-    },
-    {
-      id: "2",
-      assetNumber: "FA-002",
-      name: "Production Equipment",
-      category: "Machinery",
-      acquisitionDate: "2021-06-10",
-      cost: 125000,
-      accumulatedDepreciation: 31250,
-      netBookValue: 93750,
-      depreciationMethod: "Double Declining",
-      usefulLife: 8,
-      location: "Factory Floor",
-      status: "Active",
-      lastDepreciation: "2024-01-31",
-    },
-    {
-      id: "3",
-      assetNumber: "FA-003",
-      name: "Company Vehicles",
-      category: "Vehicles",
-      acquisitionDate: "2022-03-20",
-      cost: 45000,
-      accumulatedDepreciation: 13500,
-      netBookValue: 31500,
-      depreciationMethod: "Units of Production",
-      usefulLife: 5,
-      location: "Fleet",
-      status: "Active",
-      lastDepreciation: "2024-01-31",
-    },
-    {
-      id: "4",
-      assetNumber: "FA-004",
-      name: "Old Computer System",
-      category: "IT Equipment",
-      acquisitionDate: "2018-09-15",
-      cost: 25000,
-      accumulatedDepreciation: 25000,
-      netBookValue: 0,
-      depreciationMethod: "Straight Line",
-      usefulLife: 5,
-      location: "IT Department",
-      status: "Fully Depreciated",
-      lastDepreciation: "2023-09-15",
-    },
-  ];
+  // Convert admin assets to fixed assets with financial calculations
+  const fixedAssets = useMemo(() => {
+    if (!assetsData?.data?.results) return [];
+    return assetsData.data.results.map(item => convertItemToFixedAsset(item));
+  }, [assetsData]);
 
-  const mockDepreciationSchedule = [
-    {
-      id: "1",
-      assetNumber: "FA-001",
-      assetName: "Office Building",
-      period: "Feb 2024",
-      depreciationAmount: 3542,
-      accumulatedDepreciation: 131042,
-      netBookValue: 718958,
-      method: "Straight Line",
-    },
-    {
-      id: "2",
-      assetNumber: "FA-002",
-      assetName: "Production Equipment",
-      period: "Feb 2024",
-      depreciationAmount: 1953,
-      accumulatedDepreciation: 33203,
-      netBookValue: 91797,
-      method: "Double Declining",
-    },
-  ];
+  // Filter assets based on current filters
+  const filteredAssets = useMemo(() => {
+    return fixedAssets.filter(asset => {
+      if (selectedCategory !== "all") {
+        const categoryName = typeof asset.category === "string"
+          ? asset.category
+          : asset.category?.name || "";
+        if (!categoryName.toLowerCase().includes(selectedCategory.toLowerCase())) {
+          return false;
+        }
+      }
 
-  const mockDisposals = [
-    {
-      id: "1",
-      assetNumber: "FA-010",
-      assetName: "Old Laptop",
-      disposalDate: "2024-01-15",
-      originalCost: 2500,
-      accumulatedDepreciation: 2200,
-      netBookValue: 300,
-      salePrice: 150,
-      gainLoss: -150,
-      disposalMethod: "Sale",
-      reason: "End of useful life",
-    },
-  ];
+      if (selectedStatus !== "all") {
+        if (selectedStatus === "active" && asset.assetStatus !== "active") return false;
+        if (selectedStatus === "fully-depreciated" && !asset.isFullyDepreciated) return false;
+        if (selectedStatus === "disposed" && asset.assetStatus !== "disposed") return false;
+      }
+
+      return true;
+    });
+  }, [fixedAssets, selectedCategory, selectedStatus]);
+
+  // Calculate summary from real data
+  const assetSummary = useMemo(() => {
+    return calculateAssetSummary(filteredAssets);
+  }, [filteredAssets]);
+
+  // Generate depreciation schedule for current month
+  const currentDepreciationSchedule = useMemo(() => {
+    const currentDate = new Date();
+    const currentPeriod = currentDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
+
+    return filteredAssets
+      .filter(asset => !asset.isFullyDepreciated)
+      .slice(0, 10) // Limit to first 10 for performance
+      .map(asset => ({
+        id: asset.id,
+        assetNumber: asset.assetNumber,
+        assetName: asset.name,
+        period: currentPeriod,
+        depreciationAmount: Math.round(asset.monthlyDepreciation),
+        accumulatedDepreciation: Math.round(asset.accumulatedDepreciation + asset.monthlyDepreciation),
+        netBookValue: Math.round(asset.currentBookValue - asset.monthlyDepreciation),
+        method: asset.depreciationMethod.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()),
+      }));
+  }, [filteredAssets]);
+
+  // Get disposed assets (for now, using mock data since we don't have disposal tracking yet)
+  const disposedAssets = useMemo(() => {
+    return filteredAssets
+      .filter(asset => asset.assetStatus === "disposed" || asset.isFullyDepreciated)
+      .slice(0, 5) // Limit for demo
+      .map(asset => ({
+        id: asset.id,
+        assetNumber: asset.assetNumber,
+        assetName: asset.name,
+        disposalDate: new Date().toISOString().split('T')[0], // Mock disposal date
+        originalCost: asset.originalCost,
+        accumulatedDepreciation: asset.accumulatedDepreciation,
+        netBookValue: asset.currentBookValue,
+        salePrice: asset.currentBookValue * 0.6, // Mock sale price
+        gainLoss: (asset.currentBookValue * 0.6) - asset.currentBookValue,
+        disposalMethod: "Sale",
+        reason: asset.isFullyDepreciated ? "Fully depreciated" : "End of useful life",
+      }));
+  }, [filteredAssets]);
 
   const assetColumns = [
     {
@@ -146,32 +119,67 @@ const FixedAssetsPage = () => {
     {
       accessorKey: "category",
       header: "Category",
+      cell: ({ row }) => {
+        const asset = row.original as FixedAsset;
+        const categoryName = typeof asset.category === "string"
+          ? asset.category
+          : asset.category?.name || "N/A";
+        return categoryName;
+      },
     },
     {
-      accessorKey: "cost",
+      accessorKey: "originalCost",
       header: "Original Cost",
-      cell: ({ row }) => `$${row.getValue("cost").toLocaleString()}`,
+      cell: ({ row }) => {
+        const cost = row.getValue("originalCost") as number;
+        return `$${cost.toLocaleString()}`;
+      },
     },
     {
       accessorKey: "accumulatedDepreciation",
       header: "Accumulated Depreciation",
-      cell: ({ row }) => `$${row.getValue("accumulatedDepreciation").toLocaleString()}`,
+      cell: ({ row }) => {
+        const depreciation = row.getValue("accumulatedDepreciation") as number;
+        return `$${depreciation.toLocaleString()}`;
+      },
     },
     {
-      accessorKey: "netBookValue",
+      accessorKey: "currentBookValue",
       header: "Net Book Value",
-      cell: ({ row }) => `$${row.getValue("netBookValue").toLocaleString()}`,
+      cell: ({ row }) => {
+        const bookValue = row.getValue("currentBookValue") as number;
+        return `$${bookValue.toLocaleString()}`;
+      },
     },
     {
-      accessorKey: "status",
+      accessorKey: "currentLocation",
+      header: "Location",
+    },
+    {
+      accessorKey: "assetStatus",
       header: "Status",
       cell: ({ row }) => {
-        const status = row.getValue("status");
+        const asset = row.original as FixedAsset;
+        const status = asset.assetStatus;
+        const isFullyDepreciated = asset.isFullyDepreciated;
+
+        let variant: "default" | "secondary" | "destructive" = "default";
+        let displayStatus = status;
+
+        if (isFullyDepreciated) {
+          variant = "secondary";
+          displayStatus = "Fully Depreciated";
+        } else if (status === "active") {
+          variant = "default";
+          displayStatus = "Active";
+        } else if (status === "disposed") {
+          variant = "destructive";
+          displayStatus = "Disposed";
+        }
+
         return (
-          <Badge
-            variant={status === "Active" ? "default" : status === "Fully Depreciated" ? "secondary" : "destructive"}
-          >
-            {status}
+          <Badge variant={variant}>
+            {displayStatus}
           </Badge>
         );
       },
@@ -181,13 +189,34 @@ const FixedAssetsPage = () => {
       header: "Actions",
       cell: ({ row }) => (
         <div className="flex gap-2">
-          <Button size="sm" variant="outline" onClick={() => setSelectedAsset(row.original)}>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              setSelectedAsset(row.original as FixedAsset);
+              setIsAssetDetailDialogOpen(true);
+            }}
+            title="View Details"
+          >
+            <FileText className="h-4 w-4" />
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => setSelectedAsset(row.original as FixedAsset)}
+            title="Edit Asset"
+          >
             <Edit className="h-4 w-4" />
           </Button>
-          <Button size="sm" variant="outline" onClick={() => {
-            setSelectedAsset(row.original);
-            setIsDisposalDialogOpen(true);
-          }}>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              setSelectedAsset(row.original as FixedAsset);
+              setIsDisposalDialogOpen(true);
+            }}
+            title="Dispose Asset"
+          >
             <Trash2 className="h-4 w-4" />
           </Button>
         </div>
@@ -384,10 +413,10 @@ const FixedAssetsPage = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              ${assetSummary.netBookValue.toLocaleString()}
+              ${Math.round(assetSummary.totalCurrentBookValue).toLocaleString()}
             </div>
             <p className="text-xs text-muted-foreground">
-              Current market value
+              Current book value
             </p>
           </CardContent>
         </Card>
@@ -399,7 +428,7 @@ const FixedAssetsPage = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              ${assetSummary.monthlyDepreciation.toLocaleString()}
+              ${Math.round(assetSummary.monthlyDepreciation).toLocaleString()}
             </div>
             <p className="text-xs text-muted-foreground">
               This month's depreciation
@@ -414,7 +443,7 @@ const FixedAssetsPage = () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              ${assetSummary.totalDepreciation.toLocaleString()}
+              ${Math.round(assetSummary.totalAccumulatedDepreciation).toLocaleString()}
             </div>
             <p className="text-xs text-muted-foreground">
               Accumulated to date
@@ -477,7 +506,16 @@ const FixedAssetsPage = () => {
                 </Select>
               </div>
 
-              <DataTable columns={assetColumns} data={mockAssets} />
+              <DataTable
+                columns={assetColumns}
+                data={filteredAssets}
+                isLoading={isLoading}
+                pagination={{
+                  total: assetsData?.data?.pagination?.count ?? 0,
+                  pageSize: assetsData?.data?.pagination?.page_size ?? 0,
+                  onChange: (page: number) => setPage(page),
+                }}
+              />
             </CardContent>
           </Card>
         </TabsContent>
@@ -505,7 +543,7 @@ const FixedAssetsPage = () => {
                 </Button>
               </div>
 
-              <DataTable columns={depreciationColumns} data={mockDepreciationSchedule} />
+              <DataTable columns={depreciationColumns} data={currentDepreciationSchedule} />
             </CardContent>
           </Card>
         </TabsContent>
@@ -527,7 +565,7 @@ const FixedAssetsPage = () => {
               </div>
             </CardHeader>
             <CardContent>
-              <DataTable columns={disposalColumns} data={mockDisposals} />
+              <DataTable columns={disposalColumns} data={disposedAssets} />
             </CardContent>
           </Card>
         </TabsContent>
@@ -630,6 +668,239 @@ const FixedAssetsPage = () => {
             </Button>
             <Button onClick={() => setIsDisposalDialogOpen(false)}>
               Record Disposal
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Asset Detail Dialog */}
+      <Dialog open={isAssetDetailDialogOpen} onOpenChange={setIsAssetDetailDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Asset Details - {selectedAsset?.name}</DialogTitle>
+            <DialogDescription>
+              Complete financial and operational details for {selectedAsset?.assetNumber}
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedAsset && (
+            <div className="space-y-6">
+              {/* Basic Information */}
+              <div className="grid grid-cols-2 gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Basic Information</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <Label className="text-sm font-medium text-gray-600">Asset Number</Label>
+                        <p className="text-sm">{selectedAsset.assetNumber}</p>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-gray-600">Asset Name</Label>
+                        <p className="text-sm">{selectedAsset.name}</p>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-gray-600">Category</Label>
+                        <p className="text-sm">
+                          {typeof selectedAsset.category === "string"
+                            ? selectedAsset.category
+                            : selectedAsset.category?.name || "N/A"}
+                        </p>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-gray-600">Asset Type</Label>
+                        <p className="text-sm">
+                          {typeof selectedAsset.asset_type === "string"
+                            ? selectedAsset.asset_type
+                            : selectedAsset.asset_type?.name || "N/A"}
+                        </p>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-gray-600">Current Location</Label>
+                        <p className="text-sm">{selectedAsset.currentLocation || "N/A"}</p>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-gray-600">Project</Label>
+                        <p className="text-sm">{selectedAsset.assignedProject || "N/A"}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Financial Summary</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <Label className="text-sm font-medium text-gray-600">Original Cost</Label>
+                        <p className="text-lg font-semibold">${selectedAsset.originalCost.toLocaleString()}</p>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-gray-600">Current Book Value</Label>
+                        <p className="text-lg font-semibold text-green-600">
+                          ${selectedAsset.currentBookValue.toLocaleString()}
+                        </p>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-gray-600">Accumulated Depreciation</Label>
+                        <p className="text-lg font-semibold text-red-600">
+                          ${selectedAsset.accumulatedDepreciation.toLocaleString()}
+                        </p>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-gray-600">Monthly Depreciation</Label>
+                        <p className="text-lg font-semibold">
+                          ${selectedAsset.monthlyDepreciation.toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="pt-2">
+                      <Label className="text-sm font-medium text-gray-600">Status</Label>
+                      <div className="mt-1">
+                        <Badge
+                          variant={
+                            selectedAsset.isFullyDepreciated
+                              ? "secondary"
+                              : selectedAsset.assetStatus === "active"
+                              ? "default"
+                              : "destructive"
+                          }
+                        >
+                          {selectedAsset.isFullyDepreciated
+                            ? "Fully Depreciated"
+                            : selectedAsset.assetStatus === "active"
+                            ? "Active"
+                            : selectedAsset.assetStatus}
+                        </Badge>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Depreciation Details */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Depreciation Information</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <Label className="text-sm font-medium text-gray-600">Depreciation Method</Label>
+                      <p className="text-sm capitalize">
+                        {selectedAsset.depreciationMethod.replace('_', ' ')}
+                      </p>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-gray-600">Useful Life</Label>
+                      <p className="text-sm">{selectedAsset.usefulLifeYears} years</p>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-gray-600">Depreciation Rate</Label>
+                      <p className="text-sm">{selectedAsset.depreciationRate.toFixed(2)}%</p>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-gray-600">Acquisition Date</Label>
+                      <p className="text-sm">
+                        {new Date(selectedAsset.acquisitionDate).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-gray-600">Years in Service</Label>
+                      <p className="text-sm">
+                        {(
+                          (new Date().getTime() - new Date(selectedAsset.acquisitionDate).getTime()) /
+                          (1000 * 3600 * 24 * 365.25)
+                        ).toFixed(1)} years
+                      </p>
+                    </div>
+                    <div>
+                      <Label className="text-sm font-medium text-gray-600">Yearly Depreciation</Label>
+                      <p className="text-sm">${selectedAsset.yearlyDepreciation.toLocaleString()}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Additional Asset Details */}
+              {(selectedAsset.serial_number || selectedAsset.plate_number || selectedAsset.chasis_number) && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Asset Identifiers</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-3 gap-4">
+                      {selectedAsset.serial_number && (
+                        <div>
+                          <Label className="text-sm font-medium text-gray-600">Serial Number</Label>
+                          <p className="text-sm">{selectedAsset.serial_number}</p>
+                        </div>
+                      )}
+                      {selectedAsset.plate_number && (
+                        <div>
+                          <Label className="text-sm font-medium text-gray-600">Plate Number</Label>
+                          <p className="text-sm">{selectedAsset.plate_number}</p>
+                        </div>
+                      )}
+                      {selectedAsset.chasis_number && (
+                        <div>
+                          <Label className="text-sm font-medium text-gray-600">Chassis Number</Label>
+                          <p className="text-sm">{selectedAsset.chasis_number}</p>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Depreciation Schedule Preview */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Depreciation Schedule (Next 12 Months)</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="max-h-64 overflow-y-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b">
+                          <th className="text-left p-2">Period</th>
+                          <th className="text-right p-2">Opening Value</th>
+                          <th className="text-right p-2">Depreciation</th>
+                          <th className="text-right p-2">Closing Value</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {generateDepreciationSchedule(selectedAsset, 12).map((schedule, index) => (
+                          <tr key={index} className="border-b">
+                            <td className="p-2">{schedule.period}</td>
+                            <td className="text-right p-2">${schedule.openingBookValue.toLocaleString()}</td>
+                            <td className="text-right p-2">${schedule.depreciationAmount.toLocaleString()}</td>
+                            <td className="text-right p-2">${schedule.closingBookValue.toLocaleString()}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          <div className="flex justify-end gap-2 mt-6">
+            <Button variant="outline" onClick={() => setIsAssetDetailDialogOpen(false)}>
+              Close
+            </Button>
+            <Button
+              onClick={() => {
+                setIsAssetDetailDialogOpen(false);
+                setIsDisposalDialogOpen(true);
+              }}
+            >
+              Dispose Asset
             </Button>
           </div>
         </DialogContent>

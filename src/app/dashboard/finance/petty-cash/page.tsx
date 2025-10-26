@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "components/ui/button";
 import { Input } from "components/ui/input";
 import { Badge } from "components/ui/badge";
@@ -47,12 +47,48 @@ import {
   Printer,
   Receipt,
   Users,
-  Calculator
+  Calculator,
+  Send,
+  ThumbsUp,
+  ThumbsDown,
+  FileCheck
 } from "lucide-react";
 import { toast } from "sonner";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import {
+  useGetPettyCashRequests,
+  useCreatePettyCashRequest,
+  useGetPettyCashAuthorizers,
+  useSubmitPettyCashForApproval,
+  useApprovePettyCashRequest,
+  useDownloadCertificate,
+  useExportPettyCash,
+  useGetMyPendingApprovals,
+  useMarkPettyCashAsPaid
+} from "@/features/finance/controllers/pettyCashController";
+import { CreatePettyCashRequest, AHNI_PROJECTS, AHNI_DEPARTMENTS, AHNI_LOCATIONS } from "@/features/finance/types/petty-cash.types";
 
-// AHNI Petty Cash (Honour Certificate) Data Structure
-interface PettyCashRequest {
+// Form validation schema
+const PettyCashFormSchema = z.object({
+  payeeName: z.string().min(1, "Payee name is required"),
+  purpose: z.string().min(10, "Purpose must be at least 10 characters"),
+  amountFigures: z.number().min(1, "Amount must be greater than 0"),
+  currency: z.enum(["NGN", "USD"]).default("NGN"),
+  project: z.string().min(1, "Project is required"),
+  department: z.string().min(1, "Department is required"),
+  location: z.string().min(1, "Location is required"),
+  authorizerId: z.string().min(1, "Authorizer is required"),
+  accountCode: z.string().optional(),
+  accountDescription: z.string().optional(),
+  notes: z.string().optional(),
+});
+
+type PettyCashFormData = z.infer<typeof PettyCashFormSchema>;
+
+// AHNI Petty Cash (Honour Certificate) Data Structure - Legacy interface for demo data
+interface LegacyPettyCashRequest {
   id: string;
   certificateNumber: string;
   date: string;
@@ -61,7 +97,7 @@ interface PettyCashRequest {
   amountWords: string;
   amountFigures: number;
   currency: "NGN" | "USD";
-  status: "draft" | "pending_approval" | "approved" | "paid" | "cancelled";
+  status: "draft" | "pending_approval" | "approved" | "paid" | "cancelled" | "rejected";
   authorizedBy?: {
     name: string;
     signature: string;
@@ -91,7 +127,7 @@ interface PettyCashRequest {
 }
 
 // Sample AHNI Petty Cash Data
-const samplePettyCashRequests: PettyCashRequest[] = [
+const samplePettyCashRequests: LegacyPettyCashRequest[] = [
   {
     id: "pc_001",
     certificateNumber: "HC/2024/001",
@@ -215,13 +251,52 @@ const ahniDepartments = ["Finance", "Admin", "HR", "Programs", "Procurement", "F
 const ahniLocations = ["Abuja", "Lagos", "Kano", "Gombe", "Nasarawa", "Kaduna"];
 
 export default function PettyCashPage() {
-  const [requests, setRequests] = useState<PettyCashRequest[]>(samplePettyCashRequests);
+  // Legacy state for demo data - will be replaced by API calls
+  const [requests, setRequests] = useState<LegacyPettyCashRequest[]>(samplePettyCashRequests);
   const [selectedProject, setSelectedProject] = useState("all");
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [selectedPeriod, setSelectedPeriod] = useState("2024-10");
   const [showCreateDialog, setShowCreateDialog] = useState(false);
-  const [selectedRequest, setSelectedRequest] = useState<PettyCashRequest | null>(null);
+  const [selectedRequest, setSelectedRequest] = useState<LegacyPettyCashRequest | null>(null);
   const [showCertificateView, setShowCertificateView] = useState(false);
+  const [showApprovalDialog, setShowApprovalDialog] = useState(false);
+  const [currentTab, setCurrentTab] = useState("all");
+
+  // API hooks
+  const { data: pettyCashData, isLoading: isLoadingRequests, refetch } = useGetPettyCashRequests({
+    status: selectedStatus !== "all" ? selectedStatus : undefined,
+    project: selectedProject !== "all" ? selectedProject : undefined,
+  });
+
+  const { data: authorizersData, isLoading: isLoadingAuthorizers } = useGetPettyCashAuthorizers();
+  const { data: pendingApprovalsData } = useGetMyPendingApprovals();
+  const { createRequest, isLoading: isCreating } = useCreatePettyCashRequest();
+  const { submitForApproval } = useSubmitPettyCashForApproval("");
+  const { processApproval } = useApprovePettyCashRequest("");
+  const { downloadCertificate } = useDownloadCertificate();
+  const { exportToExcel } = useExportPettyCash();
+  const { markAsPaid } = useMarkPettyCashAsPaid("");
+
+  // Form handling
+  const form = useForm<PettyCashFormData>({
+    resolver: zodResolver(PettyCashFormSchema),
+    defaultValues: {
+      currency: "NGN",
+      amountFigures: 0,
+    },
+  });
+
+  // Use API data if available, otherwise fallback to sample data
+  const displayRequests = pettyCashData?.data || requests;
+  const authorizers = authorizersData?.data || [];
+
+  // Convert API PettyCashRequest to LegacyPettyCashRequest for compatibility
+  const convertToLegacy = (apiRequest: any): LegacyPettyCashRequest => ({
+    ...apiRequest,
+    attachments: apiRequest.attachments?.map((att: any) => att.filename || att.url || '') || []
+  });
+
+  const pendingApprovals = pendingApprovalsData?.data?.map(convertToLegacy) || [];
 
   // Filter requests
   const filteredRequests = requests.filter(req => {
@@ -305,11 +380,74 @@ export default function PettyCashPage() {
     return result.trim() + ' Naira Only';
   };
 
-  const exportToExcel = () => {
-    toast.success("Petty cash records exported to Excel");
+  // Form submission handler
+  const onSubmitForm = async (data: PettyCashFormData) => {
+    try {
+      console.log("Submitting petty cash request:", data);
+      await createRequest(data);
+      toast.success("Petty cash request created successfully!");
+      setShowCreateDialog(false);
+      form.reset();
+      refetch(); // Refresh the data
+    } catch (error: any) {
+      toast.error(error.message || "Failed to create petty cash request");
+    }
   };
 
-  const printCertificate = (request: PettyCashRequest) => {
+  // Submit for approval
+  const handleSubmitForApproval = async (request: LegacyPettyCashRequest) => {
+    try {
+      await submitForApproval();
+      toast.success("Request submitted for approval");
+      refetch();
+    } catch (error: any) {
+      toast.error(error.message || "Failed to submit for approval");
+    }
+  };
+
+  // Approve/Reject handler
+  const handleApprovalAction = async (action: "approve" | "reject", comments?: string) => {
+    if (!selectedRequest) return;
+
+    try {
+      await processApproval({ action, comments });
+      toast.success(`Request ${action}d successfully`);
+      setShowApprovalDialog(false);
+      setSelectedRequest(null);
+      refetch();
+    } catch (error: any) {
+      toast.error(error.message || `Failed to ${action} request`);
+    }
+  };
+
+  // Download certificate
+  const handleDownloadCertificate = async (request: LegacyPettyCashRequest) => {
+    try {
+      await downloadCertificate(request.id);
+      toast.success("Certificate downloaded successfully");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to download certificate");
+    }
+  };
+
+  // Export to Excel
+  const handleExportToExcel = async () => {
+    try {
+      await exportToExcel({
+        format: "excel",
+        includeAttachments: false,
+        filters: {
+          status: selectedStatus !== "all" ? selectedStatus : undefined,
+          project: selectedProject !== "all" ? selectedProject : undefined,
+        }
+      });
+      toast.success("Petty cash records exported successfully");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to export records");
+    }
+  };
+
+  const printCertificate = (request: LegacyPettyCashRequest) => {
     setSelectedRequest(request);
     setShowCertificateView(true);
   };
@@ -331,7 +469,7 @@ export default function PettyCashPage() {
           </p>
         </div>
         <div className="flex items-center space-x-2">
-          <Button onClick={exportToExcel} variant="outline">
+          <Button onClick={handleExportToExcel} variant="outline">
             <FileSpreadsheet size={16} className="mr-2" />
             Export Excel
           </Button>
@@ -467,12 +605,22 @@ export default function PettyCashPage() {
         </div>
       </div>
 
-      {/* Petty Cash Requests List */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Honour Certificates (Petty Cash)</CardTitle>
-        </CardHeader>
-        <CardContent>
+      {/* Tabs for different views */}
+      <Tabs value={currentTab} onValueChange={setCurrentTab} className="space-y-4">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="all">All Requests</TabsTrigger>
+          <TabsTrigger value="pending-approval">
+            Pending My Approval ({pendingApprovals.length})
+          </TabsTrigger>
+          <TabsTrigger value="my-requests">My Requests</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="all">
+          <Card>
+            <CardHeader>
+              <CardTitle>All Honour Certificates (Petty Cash)</CardTitle>
+            </CardHeader>
+            <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
@@ -510,7 +658,7 @@ export default function PettyCashPage() {
                   </TableCell>
                   <TableCell>{getStatusBadge(request.status)}</TableCell>
                   <TableCell>
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-1">
                       <Button
                         variant="ghost"
                         size="sm"
@@ -519,25 +667,205 @@ export default function PettyCashPage() {
                       >
                         <Eye className="w-4 h-4" />
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          setSelectedRequest(request);
-                          setShowCreateDialog(true);
-                        }}
-                        title="Edit Certificate"
-                      >
-                        <Edit2 className="w-4 h-4" />
-                      </Button>
+
+                      {request.status === "draft" && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedRequest(request);
+                            setShowCreateDialog(true);
+                          }}
+                          title="Edit Certificate"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </Button>
+                      )}
+
+                      {request.status === "draft" && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleSubmitForApproval(request)}
+                          title="Submit for Approval"
+                        >
+                          <Send className="w-4 h-4" />
+                        </Button>
+                      )}
+
+                      {request.status === "approved" && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDownloadCertificate(request)}
+                          title="Download Certificate"
+                        >
+                          <Download className="w-4 h-4" />
+                        </Button>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="pending-approval">
+          <Card>
+            <CardHeader>
+              <CardTitle>Pending My Approval ({pendingApprovals.length})</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {pendingApprovals.length === 0 ? (
+                <div className="text-center py-8">
+                  <AlertCircle className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                  <p className="text-gray-600">No requests pending your approval</p>
+                </div>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Certificate #</TableHead>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Payee</TableHead>
+                      <TableHead>Purpose</TableHead>
+                      <TableHead>Amount</TableHead>
+                      <TableHead>Requested By</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {pendingApprovals.map((request) => (
+                      <TableRow key={request.id}>
+                        <TableCell className="font-mono">{request.certificateNumber}</TableCell>
+                        <TableCell>{request.date}</TableCell>
+                        <TableCell className="font-medium">{request.payeeName}</TableCell>
+                        <TableCell className="max-w-xs">
+                          <div className="truncate" title={request.purpose}>
+                            {request.purpose}
+                          </div>
+                        </TableCell>
+                        <TableCell className="font-mono">
+                          {formatCurrency(request.amountFigures, request.currency)}
+                        </TableCell>
+                        <TableCell>
+                          <div>
+                            <div className="font-medium">{request.requestedBy.name}</div>
+                            <div className="text-sm text-gray-500">{request.requestedBy.designation}</div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center space-x-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => printCertificate(request)}
+                              title="View Details"
+                            >
+                              <Eye className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                setSelectedRequest(request);
+                                setShowApprovalDialog(true);
+                              }}
+                              className="text-green-600 hover:text-green-700"
+                              title="Approve"
+                            >
+                              <ThumbsUp className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                setSelectedRequest(request);
+                                setShowApprovalDialog(true);
+                              }}
+                              className="text-red-600 hover:text-red-700"
+                              title="Reject"
+                            >
+                              <ThumbsDown className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="my-requests">
+          <Card>
+            <CardHeader>
+              <CardTitle>My Requests</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Certificate #</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Purpose</TableHead>
+                    <TableHead>Amount</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredRequests
+                    .filter(req => req.requestedBy.name === "Current User") // This should be dynamic
+                    .map((request) => (
+                    <TableRow key={request.id}>
+                      <TableCell className="font-mono">{request.certificateNumber}</TableCell>
+                      <TableCell>{request.date}</TableCell>
+                      <TableCell className="max-w-xs">
+                        <div className="truncate" title={request.purpose}>
+                          {request.purpose}
+                        </div>
+                      </TableCell>
+                      <TableCell className="font-mono">
+                        {formatCurrency(request.amountFigures, request.currency)}
+                      </TableCell>
+                      <TableCell>{getStatusBadge(request.status)}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center space-x-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => printCertificate(request)}
+                            title="View Certificate"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </Button>
+
+                          {request.status === "approved" && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDownloadCertificate(request)}
+                              title="Download Certificate"
+                            >
+                              <Download className="w-4 h-4" />
+                            </Button>
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
 
       {/* Honour Certificate View Dialog */}
       {selectedRequest && showCertificateView && (
@@ -661,36 +989,96 @@ export default function PettyCashPage() {
               {selectedRequest ? "Edit" : "Create New"} Honour Certificate
             </DialogTitle>
             <DialogDescription>
-              Create a new petty cash honour certificate for AHNI
+              Create a new petty cash honour certificate for AHNI. All requests require approval before payment.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmitForm)} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="payeeName">Name of Payee *</Label>
                 <Input
                   id="payeeName"
                   placeholder="Enter payee name"
-                  defaultValue={selectedRequest?.payeeName}
+                  {...form.register("payeeName")}
                 />
+                {form.formState.errors.payeeName && (
+                  <p className="text-sm text-red-600">{form.formState.errors.payeeName.message}</p>
+                )}
               </div>
               <div>
-                <Label htmlFor="amount">Amount (₦) *</Label>
+                <Label htmlFor="authorizerId">Select Authorizer *</Label>
+                <Select
+                  value={form.watch("authorizerId")}
+                  onValueChange={(value) => form.setValue("authorizerId", value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Choose an authorizer" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {authorizers.map((authorizer) => (
+                      <SelectItem key={authorizer.id} value={authorizer.id}>
+                        {authorizer.name} - {authorizer.designation}
+                        <span className="text-sm text-gray-500 ml-2">
+                          (Limit: {formatCurrency(authorizer.approvalLimit)})
+                        </span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {form.formState.errors.authorizerId && (
+                  <p className="text-sm text-red-600">{form.formState.errors.authorizerId.message}</p>
+                )}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="amountFigures">Amount (₦) *</Label>
                 <Input
-                  id="amount"
+                  id="amountFigures"
                   type="number"
                   step="0.01"
                   placeholder="0.00"
-                  defaultValue={selectedRequest?.amountFigures}
+                  {...form.register("amountFigures", { valueAsNumber: true })}
                   onChange={(e) => {
                     const amount = parseFloat(e.target.value) || 0;
-                    const wordsElement = document.getElementById("amountWords") as HTMLInputElement;
+                    form.setValue("amountFigures", amount);
+                    // Update amount in words display
+                    const wordsElement = document.getElementById("amountWords");
                     if (wordsElement) {
-                      wordsElement.value = numberToWords(amount);
+                      wordsElement.textContent = numberToWords(amount);
                     }
                   }}
                 />
+                {form.formState.errors.amountFigures && (
+                  <p className="text-sm text-red-600">{form.formState.errors.amountFigures.message}</p>
+                )}
+              </div>
+              <div>
+                <Label htmlFor="currency">Currency</Label>
+                <Select
+                  value={form.watch("currency")}
+                  onValueChange={(value: "NGN" | "USD") => form.setValue("currency", value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="NGN">Nigerian Naira (₦)</SelectItem>
+                    <SelectItem value="USD">US Dollar ($)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="amountWords">Amount in Words</Label>
+              <div
+                id="amountWords"
+                className="p-2 bg-gray-50 border rounded text-sm min-h-[40px] flex items-center"
+              >
+                {numberToWords(form.watch("amountFigures") || 0)}
               </div>
             </div>
 
@@ -699,67 +1087,77 @@ export default function PettyCashPage() {
               <Textarea
                 id="purpose"
                 placeholder="Enter purpose of payment"
-                defaultValue={selectedRequest?.purpose}
                 rows={2}
+                {...form.register("purpose")}
               />
-            </div>
-
-            <div>
-              <Label htmlFor="amountWords">Amount in Words</Label>
-              <Input
-                id="amountWords"
-                placeholder="Amount will be converted automatically"
-                defaultValue={selectedRequest?.amountWords}
-                readOnly
-                className="bg-gray-50"
-              />
+              {form.formState.errors.purpose && (
+                <p className="text-sm text-red-600">{form.formState.errors.purpose.message}</p>
+              )}
             </div>
 
             <div className="grid grid-cols-3 gap-4">
               <div>
                 <Label htmlFor="project">Project *</Label>
-                <Select defaultValue={selectedRequest?.project}>
+                <Select
+                  value={form.watch("project")}
+                  onValueChange={(value) => form.setValue("project", value)}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select project" />
                   </SelectTrigger>
                   <SelectContent>
-                    {ahniProjects.map((project) => (
-                      <SelectItem key={project} value={project || "unknown"}>
+                    {AHNI_PROJECTS.map((project) => (
+                      <SelectItem key={project} value={project}>
                         {project}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
+                {form.formState.errors.project && (
+                  <p className="text-sm text-red-600">{form.formState.errors.project.message}</p>
+                )}
               </div>
               <div>
                 <Label htmlFor="department">Department *</Label>
-                <Select defaultValue={selectedRequest?.department}>
+                <Select
+                  value={form.watch("department")}
+                  onValueChange={(value) => form.setValue("department", value)}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select department" />
                   </SelectTrigger>
                   <SelectContent>
-                    {ahniDepartments.map((dept) => (
-                      <SelectItem key={dept} value={dept || "unknown"}>
+                    {AHNI_DEPARTMENTS.map((dept) => (
+                      <SelectItem key={dept} value={dept}>
                         {dept}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
+                {form.formState.errors.department && (
+                  <p className="text-sm text-red-600">{form.formState.errors.department.message}</p>
+                )}
               </div>
               <div>
-                <Label htmlFor="location">Location</Label>
-                <Select defaultValue={selectedRequest?.location}>
+                <Label htmlFor="location">Location *</Label>
+                <Select
+                  value={form.watch("location")}
+                  onValueChange={(value) => form.setValue("location", value)}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select location" />
                   </SelectTrigger>
                   <SelectContent>
-                    {ahniLocations.map((location) => (
-                      <SelectItem key={location} value={location || "unknown"}>
+                    {AHNI_LOCATIONS.map((location) => (
+                      <SelectItem key={location} value={location}>
                         {location}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
+                {form.formState.errors.location && (
+                  <p className="text-sm text-red-600">{form.formState.errors.location.message}</p>
+                )}
               </div>
             </div>
 
@@ -769,7 +1167,7 @@ export default function PettyCashPage() {
                 <Input
                   id="accountCode"
                   placeholder="e.g., 5100-001"
-                  defaultValue={selectedRequest?.accountingEntry?.accountCode}
+                  {...form.register("accountCode")}
                 />
               </div>
               <div>
@@ -777,7 +1175,7 @@ export default function PettyCashPage() {
                 <Input
                   id="accountDescription"
                   placeholder="e.g., Travel & Transport"
-                  defaultValue={selectedRequest?.accountingEntry?.description}
+                  {...form.register("accountDescription")}
                 />
               </div>
             </div>
@@ -787,27 +1185,121 @@ export default function PettyCashPage() {
               <Textarea
                 id="notes"
                 placeholder="Any additional notes or comments"
-                defaultValue={selectedRequest?.notes}
                 rows={2}
+                {...form.register("notes")}
               />
             </div>
-          </div>
 
-          <DialogFooter>
-            <Button variant="outline" onClick={() => {
-              setShowCreateDialog(false);
-              setSelectedRequest(null);
-            }}>
-              Cancel
-            </Button>
-            <Button onClick={() => {
-              setShowCreateDialog(false);
-              setSelectedRequest(null);
-              toast.success(selectedRequest ? "Certificate updated successfully" : "Certificate created successfully");
-            }}>
-              {selectedRequest ? "Update" : "Create"} Certificate
-            </Button>
-          </DialogFooter>
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setShowCreateDialog(false);
+                  setSelectedRequest(null);
+                  form.reset();
+                }}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isCreating}>
+                {isCreating ? "Creating..." : selectedRequest ? "Update" : "Create"} Certificate
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Approval Dialog */}
+      <Dialog open={showApprovalDialog} onOpenChange={setShowApprovalDialog}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Review Petty Cash Request</DialogTitle>
+            <DialogDescription>
+              Review the request details and approve or reject
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedRequest && (
+            <div className="space-y-4">
+              {/* Request Summary */}
+              <div className="bg-gray-50 p-4 rounded-lg space-y-2">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <span className="font-medium">Certificate #:</span>
+                    <span className="ml-2">{selectedRequest.certificateNumber}</span>
+                  </div>
+                  <div>
+                    <span className="font-medium">Amount:</span>
+                    <span className="ml-2 font-mono">
+                      {formatCurrency(selectedRequest.amountFigures, selectedRequest.currency)}
+                    </span>
+                  </div>
+                </div>
+                <div>
+                  <span className="font-medium">Payee:</span>
+                  <span className="ml-2">{selectedRequest.payeeName}</span>
+                </div>
+                <div>
+                  <span className="font-medium">Purpose:</span>
+                  <span className="ml-2">{selectedRequest.purpose}</span>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <span className="font-medium">Project:</span>
+                    <span className="ml-2">{selectedRequest.project}</span>
+                  </div>
+                  <div>
+                    <span className="font-medium">Department:</span>
+                    <span className="ml-2">{selectedRequest.department}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Approval Actions */}
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="approvalComments">Comments (Optional)</Label>
+                  <Textarea
+                    id="approvalComments"
+                    placeholder="Add any comments about your decision..."
+                    rows={3}
+                  />
+                </div>
+
+                <div className="flex justify-end space-x-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setShowApprovalDialog(false);
+                      setSelectedRequest(null);
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    onClick={() => {
+                      const comments = (document.getElementById("approvalComments") as HTMLTextAreaElement)?.value;
+                      handleApprovalAction("reject", comments);
+                    }}
+                  >
+                    <ThumbsDown className="w-4 h-4 mr-2" />
+                    Reject
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      const comments = (document.getElementById("approvalComments") as HTMLTextAreaElement)?.value;
+                      handleApprovalAction("approve", comments);
+                    }}
+                  >
+                    <ThumbsUp className="w-4 h-4 mr-2" />
+                    Approve
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>
