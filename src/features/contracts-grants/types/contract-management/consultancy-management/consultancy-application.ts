@@ -168,7 +168,8 @@ export interface ConsultancyInterviewScore {
     interviewer_name?: string;
     interviewer_email?: string;
 
-    // Rating scores (1-5 scale for consultancy) - Backend confirmed all 10 criteria
+    // Rating scores (1-4 scale for consultancy) - Backend confirmed all 11 criteria
+    relevant_experience: number;
     similar_work_experience: number;
     project_management_knowledge: number;
     recent_experience: number;
@@ -301,6 +302,7 @@ export interface IConsultancyStaffSingleData {
     interview_type?: 'COMMITTEE' | 'NON_COMMITTEE';
     scores?: ConsultancyInterviewScore[]; // All individual scores
     average_scores?: {
+        relevant_experience: number;
         similar_work_experience: number;
         project_management_knowledge: number;
         recent_experience: number;

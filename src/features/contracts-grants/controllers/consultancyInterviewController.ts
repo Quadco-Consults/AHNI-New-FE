@@ -239,6 +239,7 @@ export const useGetConsultancyInterviewSummary = (interviewId: string, enabled: 
     completed_evaluations: number;
     pending_evaluations: number;
     average_scores: {
+      relevant_experience: number;
       similar_work_experience: number;
       project_management_knowledge: number;
       recent_experience: number;
