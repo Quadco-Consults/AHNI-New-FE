@@ -49,24 +49,26 @@ const PerformanceManagement: React.FC = () => {
     return () => window.removeEventListener('focus', handleFocus);
   }, [refetch]);
 
-  React.useEffect(() => {
-    console.log("=== PERFORMANCE ASSESSMENT DEBUG ===");
-    console.log("Full response:", performanceAssesmentData);
-    console.log("Results:", performanceAssesmentData?.data?.results);
-    console.log("Results length:", performanceAssesmentData?.data?.results?.length);
-    console.log("Pagination:", performanceAssesmentData?.data?.pagination);
-    console.log("Is Loading:", isLoading);
+  // Debug logging removed to prevent console spam
+  // Uncomment for debugging:
+  // React.useEffect(() => {
+  //   console.log("=== PERFORMANCE ASSESSMENT DEBUG ===");
+  //   console.log("Full response:", performanceAssesmentData);
+  //   console.log("Results:", performanceAssesmentData?.data?.results);
+  //   console.log("Results length:", performanceAssesmentData?.data?.results?.length);
+  //   console.log("Pagination:", performanceAssesmentData?.data?.pagination);
+  //   console.log("Is Loading:", isLoading);
 
-    if (performanceAssesmentData && !isLoading) {
-      if (!performanceAssesmentData?.data?.results) {
-        console.error("❌ No results in response!");
-      } else if (performanceAssesmentData?.data?.results?.length === 0) {
-        console.warn("⚠️ No assessments found");
-      } else {
-        console.log("✅ Successfully loaded", performanceAssesmentData?.data?.results?.length, "assessments");
-      }
-    }
-  }, [performanceAssesmentData, isLoading]);
+  //   if (performanceAssesmentData && !isLoading) {
+  //     if (!performanceAssesmentData?.data?.results) {
+  //       console.error("❌ No results in response!");
+  //     } else if (performanceAssesmentData?.data?.results?.length === 0) {
+  //       console.warn("⚠️ No assessments found");
+  //     } else {
+  //       console.log("✅ Successfully loaded", performanceAssesmentData?.data?.results?.length, "assessments");
+  //     }
+  //   }
+  // }, [performanceAssesmentData, isLoading]);
 
   const columns: ColumnDef<any>[] = [
     {
@@ -116,10 +118,21 @@ const PerformanceManagement: React.FC = () => {
       accessorKey: "employee",
       size: 200,
       cell: ({ row }) => {
-        const employee = row?.original?.employee;
-        if (typeof employee === 'object') {
-          return <p>{`${employee.legal_firstname} ${employee.legal_lastname}`}</p>;
+        const assessment = row?.original;
+
+        // Check if employee_name exists (from backend)
+        if (assessment?.employee_name) {
+          return <p>{assessment.employee_name}</p>;
         }
+
+        // Check if employee is an object
+        const employee = assessment?.employee;
+        if (typeof employee === 'object' && employee) {
+          const firstName = employee.legal_firstname || employee.first_name || '';
+          const lastName = employee.legal_lastname || employee.last_name || '';
+          return <p>{`${firstName} ${lastName}`.trim() || 'N/A'}</p>;
+        }
+
         return <p>N/A</p>;
       },
     },
@@ -129,11 +142,13 @@ const PerformanceManagement: React.FC = () => {
       size: 150,
       cell: ({ row }) => {
         const rating = row?.original?.final_rating;
-        if (rating) {
+        const numericRating = rating ? parseFloat(rating.toString()) : null;
+
+        if (numericRating && numericRating > 0) {
           return (
             <div className="flex flex-col">
-              <p className="font-semibold">{rating}/5</p>
-              <p className="text-xs text-gray-600">{getRatingLabel(rating)}</p>
+              <p className="font-semibold">{numericRating.toFixed(2)}/5</p>
+              <p className="text-xs text-gray-600">{getRatingLabel(numericRating)}</p>
             </div>
           );
         }
@@ -212,7 +227,7 @@ const PerformanceManagement: React.FC = () => {
           className='bg-[#F9F9F9] hover:text-red-600'
           onClick={() => {
             // TODO: Implement delete functionality
-            console.log('Delete assessment:', assessmentId);
+            // Debug: console.log('Delete assessment:', assessmentId);
           }}
         >
           <Icon icon='ant-design:delete-twotone' fontSize={15} />
@@ -254,7 +269,7 @@ const PerformanceManagement: React.FC = () => {
             total: performanceAssesmentData?.data?.pagination?.count || 0,
             pageSize: 20,
             onChange: (page: number) => {
-              console.log("Page changed to:", page);
+              // Debug: console.log("Page changed to:", page);
             },
           }}
         />

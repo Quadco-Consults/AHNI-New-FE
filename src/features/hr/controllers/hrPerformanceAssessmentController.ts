@@ -56,10 +56,11 @@ export const useGetPerformanceAssesments = ({
             ...(search && { search }),
           },
         });
-        console.log("🔍 API Raw Response:", response);
-        console.log("🔍 Response Data:", response.data);
-        console.log("🔍 Response Data.data:", response.data?.data);
-        console.log("🔍 Response Data.data.results:", response.data?.data?.results);
+        // Debug logging removed to prevent console spam
+        // console.log("🔍 API Raw Response:", response);
+        // console.log("🔍 Response Data:", response.data);
+        // console.log("🔍 Response Data.data:", response.data?.data);
+        // console.log("🔍 Response Data.data.results:", response.data?.data?.results);
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
@@ -107,7 +108,7 @@ export const useCreatePerformanceAssesment = () => {
   const createPerformanceAssesment = async (details: Partial<PerformanceAssesment>) => {
     try {
       const response = await callApi(details);
-      console.log("Create response:", response);
+      // Debug: console.log("Create response:", response);
       return response;
     } catch (error) {
       console.error("Performance assessment create error:", error);
