@@ -27,12 +27,13 @@ const guide = [
     { main: "Excellent", sub: "(Meets all exceeds all requirements)" },
 ];
 
-const scoreOptions = ["1", "2", "3", "4", "5"].map((value) => ({
+const scoreOptions = ["1", "2", "3", "4"].map((value) => ({
     label: value,
     value,
 }));
 
 const evaluationCriteria = [
+    { name: "relevant_experience", label: "Relevant professional experience in the field" },
     { name: "similar_work_experience", label: "Has done similar work previously (nature of task)" },
     { name: "project_management_knowledge", label: "Understands project management and the potential task(s)" },
     { name: "recent_experience", label: "Experience is recent (2-3 years)" },
@@ -298,6 +299,7 @@ export default function ApplicantInterviewPage() {
             // Interview type - required field
             interview_type: "NON_COMMITTEE",
             // Initialize all scoring fields with empty values - matching backend field names
+            relevant_experience: "",
             similar_work_experience: "",
             project_management_knowledge: "",
             recent_experience: "",
@@ -327,7 +329,7 @@ export default function ApplicantInterviewPage() {
             return;
         }
 
-        if (scores.length < 10) {
+        if (scores.length < 11) {
             toast.error('Please fill in all evaluation criteria before submitting.');
             return;
         }
@@ -664,6 +666,18 @@ export default function ApplicantInterviewPage() {
                     console.log('📤 Submitting to multi-scorer endpoint:', `/contract-grants/consultancy/interview-scores/`);
 
                     try {
+                        // DIAGNOSTIC: Check applicant status BEFORE submitting score
+                        console.log('🔍 BEFORE SCORE SUBMISSION - Fetching current applicant status...');
+                        try {
+                            const beforeResponse = await AxiosWithToken.get(
+                                `/contract-grants/consultancy/applicants/${applicantId}/`
+                            );
+                            console.log('🔍 BEFORE - Applicant status:', beforeResponse.data?.data?.status || beforeResponse.data?.status);
+                            console.log('🔍 BEFORE - Full applicant data:', beforeResponse.data);
+                        } catch (beforeError: any) {
+                            console.error('⚠️ Could not fetch applicant status before submission:', beforeError);
+                        }
+
                         // Prepare payload with interview_id and applicant_id in the body
                         const multiScorerPayload = {
                             ...interviewPayload,
@@ -681,35 +695,103 @@ export default function ApplicantInterviewPage() {
                         console.log('✅ Score submitted successfully via multi-scorer API');
                         console.log('✅ Response:', interviewResponse.data);
 
+                        // DIAGNOSTIC: Check applicant status IMMEDIATELY AFTER submitting score
+                        console.log('🔍 IMMEDIATELY AFTER SCORE SUBMISSION - Fetching applicant status...');
+                        try {
+                            const afterResponse = await AxiosWithToken.get(
+                                `/contract-grants/consultancy/applicants/${applicantId}/`
+                            );
+                            const afterStatus = afterResponse.data?.data?.status || afterResponse.data?.status;
+                            console.log('🔍 AFTER - Applicant status:', afterStatus);
+                            console.log('🔍 AFTER - Full applicant data:', afterResponse.data);
+
+                            // Check if backend auto-updated the status
+                            const beforeStatus = 'SHORTLISTED'; // We assume it was SHORTLISTED
+                            if (afterStatus === 'INTERVIEWED') {
+                                console.error('🚨🚨🚨 BACKEND AUTO-UPDATE DETECTED! 🚨🚨🚨');
+                                console.error('🚨 The backend changed the status to INTERVIEWED immediately after score submission!');
+                                console.error('🚨 This means the backend has its own logic for updating applicant status.');
+                                console.error('🚨 The frontend condition check is bypassed by backend behavior!');
+                                console.error('🚨 THIS IS A BACKEND BUG - the backend should NOT auto-update until ALL committee members complete.');
+                            }
+                        } catch (afterError: any) {
+                            console.error('⚠️ Could not fetch applicant status after submission:', afterError);
+                        }
+
                         // Check completion status using correct backend URL
                         console.log('📊 Fetching completion status from:', `/contract-grants/consultancy/interview-scores/summary/${applicantInterview.id}/`);
                         const summaryResponse = await AxiosWithToken.get(
                             `/contract-grants/consultancy/interview-scores/summary/${applicantInterview.id}/`
                         );
-                        console.log('📊 Summary response:', summaryResponse.data);
+                        console.log('📊 RAW Summary response:', summaryResponse);
+                        console.log('📊 Summary response.data:', summaryResponse.data);
+                        console.log('📊 Summary response.data type:', typeof summaryResponse.data);
+                        console.log('📊 Summary response.data stringified:', JSON.stringify(summaryResponse.data, null, 2));
 
                         const summaryData = summaryResponse.data?.data || summaryResponse.data;
-                        const totalInterviewers = summaryData?.total_interviewers || 0;
+                        console.log('📊 Extracted summaryData:', summaryData);
+                        console.log('📊 summaryData stringified:', JSON.stringify(summaryData, null, 2));
+
+                        // IMPORTANT: Use the interview's committee_members array as source of truth for total count
+                        // The backend summary might have inconsistent counts
+                        const totalInterviewersFromInterview = applicantInterview.committee_members?.length || 0;
+                        const totalInterviewersFromSummary = summaryData?.total_interviewers || 0;
                         const completedEvaluations = summaryData?.completed_evaluations || 0;
 
-                        console.log('📊 Interview progress:', {
-                            completed: completedEvaluations,
-                            total: totalInterviewers,
+                        // Use the interview's committee count as the authoritative source
+                        const totalInterviewers = totalInterviewersFromInterview;
+
+                        // Warn if backend count differs from actual committee members
+                        if (totalInterviewersFromSummary !== totalInterviewersFromInterview) {
+                            console.warn('⚠️ BACKEND COUNT MISMATCH DETECTED!');
+                            console.warn(`⚠️ Backend says ${totalInterviewersFromSummary} total interviewers`);
+                            console.warn(`⚠️ Interview has ${totalInterviewersFromInterview} committee members`);
+                            console.warn(`⚠️ Using interview's committee_members.length (${totalInterviewersFromInterview}) as source of truth`);
+                        }
+
+                        console.log('📊 Interview progress (DETAILED):', {
+                            committeeMembers: applicantInterview.committee_members,
+                            committeeMembersCount: totalInterviewersFromInterview,
+                            backendTotalInterviewers: totalInterviewersFromSummary,
+                            countMismatch: totalInterviewersFromSummary !== totalInterviewersFromInterview,
+                            completedEvaluations: completedEvaluations,
+                            usingTotalCount: totalInterviewers,
                             percentage: summaryData?.completion_percentage,
-                            allComplete: completedEvaluations >= totalInterviewers && totalInterviewers > 0
+                            willUpdateStatus: completedEvaluations >= totalInterviewers && totalInterviewers > 0,
+                            condition: `${completedEvaluations} >= ${totalInterviewers} && ${totalInterviewers} > 0`
                         });
 
-                        // Only update status after ALL interviewers complete
+                        // CRITICAL DIAGNOSTIC: Check the condition step by step
+                        const condition1 = completedEvaluations >= totalInterviewers;
+                        const condition2 = totalInterviewers > 0;
+                        const finalCondition = condition1 && condition2;
+
+                        console.log('🔍 STATUS UPDATE CONDITION CHECK:');
+                        console.log(`   completedEvaluations (${completedEvaluations}) >= totalInterviewers (${totalInterviewers}) = ${condition1}`);
+                        console.log(`   totalInterviewers (${totalInterviewers}) > 0 = ${condition2}`);
+                        console.log(`   FINAL: ${condition1} && ${condition2} = ${finalCondition}`);
+                        console.log(`   WILL UPDATE STATUS: ${finalCondition ? 'YES ✅' : 'NO ❌'}`);
+
+                        // CRITICAL: Only update status after ALL interviewers complete
+                        // Use strict equality to be extra safe
                         if (completedEvaluations >= totalInterviewers && totalInterviewers > 0) {
+                            console.log('🚨🚨🚨 ENTERING STATUS UPDATE BLOCK 🚨🚨🚨');
+                            console.log('🚨 About to call PATCH to update applicant status to INTERVIEWED');
+                            console.log('🚨 Applicant ID:', applicantId);
+                            console.log('🚨 Endpoint:', `/contract-grants/consultancy/applicants/${applicantId}/`);
+                            console.log('🚨 Payload:', { status: "INTERVIEWED" });
                             console.log('✅ ALL committee members completed! Updating status to INTERVIEWED');
                             console.log(`✅ Final: ${completedEvaluations}/${totalInterviewers} completed`);
                             console.log('✅ Committee members:', applicantInterview.committee_members);
                             console.log('✅ This was the LAST required interview for this applicant');
 
-                            await AxiosWithToken.patch(
+                            const patchResponse = await AxiosWithToken.patch(
                                 `/contract-grants/consultancy/applicants/${applicantId}/`,
                                 { status: "INTERVIEWED" }
                             );
+                            console.log('✅ PATCH call completed!');
+                            console.log('✅ PATCH response:', patchResponse);
+                            console.log('✅ PATCH response.data:', patchResponse.data);
                             console.log('✅ Status successfully updated to INTERVIEWED');
 
                             // Store completion status for success message
@@ -720,6 +802,9 @@ export default function ApplicantInterviewPage() {
                                 percentage: summaryData?.completion_percentage
                             };
                         } else {
+                            console.log('🚫🚫🚫 NOT ENTERING STATUS UPDATE BLOCK 🚫🚫🚫');
+                            console.log('🚫 Status will NOT be updated to INTERVIEWED');
+                            console.log('🚫 The applicant status will remain as is (likely SHORTLISTED)');
                             console.log(`⏳ NOT all complete yet - status will remain SHORTLISTED`);
                             console.log(`⏳ Progress: ${completedEvaluations}/${totalInterviewers} committee members completed (${summaryData?.completion_percentage || 0}%)`);
                             console.log(`⏳ Still need ${totalInterviewers - completedEvaluations} more interviewer(s) to complete their evaluation`);
@@ -744,24 +829,17 @@ export default function ApplicantInterviewPage() {
                             application: applicantId,
                             scores: interviewPayload
                         });
-                        console.error('⚠️ FALLING BACK TO LEGACY ENDPOINT - THIS WILL UPDATE STATUS IMMEDIATELY!');
-                        console.error('⚠️ WARNING: Legacy fallback does NOT support multi-committee scoring!');
 
-                        // Show error to user about multi-scorer failure
-                        toast.error('Multi-committee scoring failed. Using legacy mode - status will be updated immediately.');
+                        // CRITICAL FIX: For committee interviews, DO NOT fall back to legacy mode
+                        // Legacy mode doesn't support multi-committee scoring and would incorrectly update status
+                        console.error('⚠️ COMMITTEE INTERVIEW - Cannot use legacy fallback!');
+                        console.error('⚠️ This interview requires all committee members to complete.');
 
-                        // Fallback to old endpoint
-                        interviewResponse = await AxiosWithToken.post(
-                            `/contract-grants/consultancy/applicants/${applicantId}/interviews/`,
-                            interviewPayload
-                        );
-                        console.log('⚠️ Legacy endpoint response:', interviewResponse.data);
+                        // Show error to user
+                        toast.error('Failed to submit interview score. Please try again or contact support.');
 
-                        await AxiosWithToken.patch(
-                            `/contract-grants/consultancy/applicants/${applicantId}/`,
-                            { status: "INTERVIEWED" }
-                        );
-                        console.log('⚠️ Status updated to INTERVIEWED via legacy fallback');
+                        // Re-throw the error instead of falling back
+                        throw multiScorerError;
                     }
                 } else {
                     console.log('📝 NON-COMMITTEE interview - using legacy workflow');
@@ -784,19 +862,19 @@ export default function ApplicantInterviewPage() {
             if (isFullyComplete) {
                 toast.success(
                     `Interview fully completed! All ${completionInfo?.totalInterviewers || ''} committee members have submitted their evaluations. ` +
-                    `Your score: ${totalScore}/50. Applicant status updated to INTERVIEWED.`,
+                    `Your score: ${totalScore}/44. Applicant status updated to INTERVIEWED.`,
                     { duration: 5000 }
                 );
             } else if (completionInfo) {
                 toast.success(
-                    `Your evaluation submitted successfully! Total score: ${totalScore}/50. ` +
+                    `Your evaluation submitted successfully! Total score: ${totalScore}/44. ` +
                     `Progress: ${completionInfo.completedEvaluations}/${completionInfo.totalInterviewers} committee members completed. ` +
                     `Waiting for ${completionInfo.remaining} more interviewer(s).`,
                     { duration: 5000 }
                 );
             } else {
                 // Fallback message (for non-committee or legacy flow)
-                toast.success(`Interview completed successfully! Total score: ${totalScore}/50`);
+                toast.success(`Interview completed successfully! Total score: ${totalScore}/44`);
             }
 
             // Navigate back to the previous page after successful submission
@@ -922,7 +1000,7 @@ export default function ApplicantInterviewPage() {
                                             return !isNaN(numScore) ? sum + numScore : sum;
                                         }, 0);
                                     })()
-                                }/50</p>
+                                }/44</p>
                             </div>
                             <div className="flex items-center justify-end gap-x-5">
                                 <Button 
