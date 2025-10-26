@@ -50,6 +50,7 @@ import {
   useGetAllEois,
   useCreateEoi,
   useUpdateEoi,
+  useDeleteEoi,
 } from "@/features/procurement/controllers/eoiController";
 import { toast } from "sonner";
 import FormButton from "@/components/FormButton";
@@ -87,6 +88,9 @@ const EOI = () => {
     createEoi,
     isLoading: createEoiLoading,
   } = useCreateEoi();
+
+  const [deletingEoiId, setDeletingEoiId] = useState<string | null>(null);
+  const { deleteEoi: performDelete, isLoading: deleteLoading } = useDeleteEoi(deletingEoiId || "");
 
   const {
     updateEoi,
@@ -216,7 +220,7 @@ const EOI = () => {
           eoi_number: data.eoi_number,
           type: data.type,
           categories: data.categories,
-          ...(data.type === "OPEN_TENDER" && { solicitation: data.solicitation }),
+          ...((data.type === "OPEN_TENDER" || data.type === "PROCUREMENT_WITH_REGISTRATION") && { solicitation: data.solicitation }),
         };
 
         console.log("Updating EOI with data:", updateData);
@@ -239,7 +243,7 @@ const EOI = () => {
         formData.append("document", file!);
         formData.append("eoi_number", data.eoi_number);
         formData.append("type", data.type);
-        if (data.type === "OPEN_TENDER") {
+        if (data.type === "OPEN_TENDER" || data.type === "PROCUREMENT_WITH_REGISTRATION") {
           formData.append("solicitation", data?.solicitation!);
         }
 
@@ -252,7 +256,7 @@ const EOI = () => {
 
         await createEoi(formData);
 
-        if (data?.type === "OPEN_TENDER") {
+        if (data?.type === "OPEN_TENDER" || data?.type === "PROCUREMENT_WITH_REGISTRATION") {
           // Pass comprehensive EOI details for full inheritance
           const urlParams = new URLSearchParams({
             type: data.type,
@@ -282,14 +286,26 @@ const EOI = () => {
   };
 
   const deleteEOIHandler = async () => {
+    if (!editingEoi?.id) {
+      toast.error("No EOI selected for deletion");
+      return;
+    }
+
     try {
-      // TODO: Implement proper delete functionality
-      // For now, just show success message
-      toast.success("Successfully Deleted.");
+      setDeletingEoiId(editingEoi.id);
+      await performDelete();
+
+      toast.success("EOI deleted successfully");
       setOpen(false);
+      setEditingEoi(null);
+      setDeletingEoiId(null);
+
+      // Refresh the EOI list
+      window.location.reload(); // Simple refresh, or you can use React Query invalidation
     } catch (error) {
-      console.log(error);
-      toast.error("Something went wrong");
+      console.error("Delete error:", error);
+      toast.error("Failed to delete EOI");
+      setDeletingEoiId(null);
     }
   };
 
@@ -298,8 +314,9 @@ const EOI = () => {
   }
 
   const tenderOptions = [
-    { label: "New Vendor", value: "NEW_VENDOR" },
+    { label: "New Vendor Registration", value: "NEW_VENDOR" },
     { label: "Open Tender", value: "OPEN_TENDER" },
+    { label: "Procurement with Registration", value: "PROCUREMENT_WITH_REGISTRATION" },
   ].map(({ label, value }) => ({
     label: label,
     value: value,
@@ -456,7 +473,7 @@ const EOI = () => {
                             options={tenderOptions}
                           />
                         </div>
-                        {tender === "OPEN_TENDER" && (
+                        {(tender === "OPEN_TENDER" || tender === "PROCUREMENT_WITH_REGISTRATION") && (
                           <div className="">
                             <FormSelect
                               name="solicitation"
