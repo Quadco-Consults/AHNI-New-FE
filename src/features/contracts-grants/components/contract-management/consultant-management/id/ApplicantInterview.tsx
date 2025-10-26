@@ -549,28 +549,260 @@ export default function ApplicantInterviewPage() {
 
                 console.log('✨ Finished status update check for AdHoc interview');
             } else {
-                // For Consultancy interviews, use the old endpoint
-                interviewResponse = await AxiosWithToken.post(
-                    `/contract-grants/consultancy/applicants/${applicantId}/interviews/`,
-                    interviewPayload
-                );
-                console.log('Consultancy interview created successfully:', interviewResponse.data);
+                // For Consultancy interviews, implement multi-scorer workflow
+                console.log('🔍 Finding consultancy interview for applicant:', applicantId);
+                console.log('🔍 Consultancy ID:', adhocId);
+                console.log('🔍 Available pending interviews:', pendingInterviews);
+                console.log('🔍 Pending interviews count:', pendingInterviews.length);
 
-                // Step 2: Update applicant status to INTERVIEWED (only for consultancy)
-                console.log('Updating applicant status to INTERVIEWED');
-                const statusResponse = await AxiosWithToken.patch(
-                    `/contract-grants/consultancy/applicants/${applicantId}/`,
-                    { status: "INTERVIEWED" }
-                );
-                console.log('Status updated successfully:', statusResponse.data);
+                // Find the interview for this applicant
+                let applicantInterview = pendingInterviews.find((interview: any) => {
+                    const interviewApplicant = interview.application || interview.applicant;
+                    const appId = typeof interviewApplicant === 'string' ? interviewApplicant : interviewApplicant?.id;
+                    console.log('🔍 Checking pending interview:', {
+                        interviewId: interview.id,
+                        application: interview.application,
+                        applicant: interview.applicant,
+                        extractedAppId: appId,
+                        targetApplicantId: applicantId,
+                        matches: appId === applicantId
+                    });
+                    return appId === applicantId;
+                });
+
+                console.log('🔍 Found in pending?', !!applicantInterview);
+
+                // If not in pending, fetch all interviews for this consultancy
+                if (!applicantInterview) {
+                    console.log('⚠️ Not in pending, fetching all interviews for consultancy:', adhocId);
+
+                    try {
+                        const allInterviewsResponse = await AxiosWithToken.get(
+                            `/contract-grants/consultancy/applicant-interviews/`,
+                            { params: adhocId ? { consultancy: adhocId } : undefined }
+                        );
+
+                        console.log('📋 All interviews response:', allInterviewsResponse.data);
+
+                        let allInterviews = allInterviewsResponse.data?.data?.results || allInterviewsResponse.data?.results || [];
+                        if (!Array.isArray(allInterviews) && typeof allInterviews === 'object') {
+                            allInterviews = allInterviews.data || allInterviews.results || [];
+                        }
+
+                        console.log('📋 Extracted interviews array:', allInterviews);
+                        console.log('📋 Total interviews found:', Array.isArray(allInterviews) ? allInterviews.length : 0);
+
+                        if (Array.isArray(allInterviews)) {
+                            const matches = allInterviews.filter((interview: any) => {
+                                const appId = interview.application || interview.applicant;
+                                const finalAppId = typeof appId === 'string' ? appId : appId?.id;
+                                const matches = finalAppId === applicantId;
+                                console.log('🔍 Checking interview:', {
+                                    interviewId: interview.id,
+                                    application: interview.application,
+                                    applicant: interview.applicant,
+                                    extractedAppId: finalAppId,
+                                    matches
+                                });
+                                return matches;
+                            });
+
+                            console.log('📋 Matching interviews:', matches);
+                            console.log('📋 Matches count:', matches.length);
+
+                            if (matches.length > 0) {
+                                applicantInterview = matches[matches.length - 1];
+                                console.log('✅ Found matching interview:', applicantInterview);
+                            } else {
+                                console.log('❌ No matching interviews found for applicant:', applicantId);
+                                console.log('❌ Available applicant IDs in interviews:', allInterviews.map((i: any) => i.application || i.applicant));
+                            }
+                        }
+                    } catch (fetchError: any) {
+                        console.error('❌ Error fetching all interviews:', fetchError);
+                        console.error('❌ Error response:', fetchError.response?.data);
+                    }
+                }
+
+                if (!applicantInterview) {
+                    console.error('❌ FINAL: No interview found!');
+                    console.error('❌ Applicant ID:', applicantId);
+                    console.error('❌ Consultancy ID:', adhocId);
+                    console.error('❌ Pending interviews:', pendingInterviews);
+
+                    throw new Error(
+                        'No interview found for this applicant.\n\n' +
+                        'Please ensure:\n' +
+                        '1. An interview has been created for this applicant\n' +
+                        '2. You are assigned as a committee member\n' +
+                        '3. The interview is still active\n\n' +
+                        'Check the console logs for more details.'
+                    );
+                }
+
+                console.log('✅ Found interview:', applicantInterview);
+                console.log('🔍 Interview details:', {
+                    id: applicantInterview.id,
+                    interview_type: applicantInterview.interview_type,
+                    committee_members: applicantInterview.committee_members,
+                    committee_members_count: applicantInterview.committee_members?.length || 0
+                });
+
+                const isCommitteeInterview = applicantInterview.interview_type === 'COMMITTEE' &&
+                                           applicantInterview.committee_members &&
+                                           applicantInterview.committee_members.length > 0;
+
+                console.log('🎯 Interview type check:', {
+                    isCommitteeInterview,
+                    interview_type: applicantInterview.interview_type,
+                    hasCommitteeMembers: !!applicantInterview.committee_members,
+                    committeeCount: applicantInterview.committee_members?.length || 0
+                });
+
+                if (isCommitteeInterview) {
+                    console.log('🎯 COMMITTEE interview detected - using multi-scorer workflow');
+                    console.log('📤 Submitting to multi-scorer endpoint:', `/contract-grants/consultancy/interview-scores/`);
+
+                    try {
+                        // Prepare payload with interview_id and applicant_id in the body
+                        const multiScorerPayload = {
+                            ...interviewPayload,
+                            interview: applicantInterview.id,  // Add interview_id to body
+                            application: applicantId,  // Add applicant_id to body (required by backend)
+                        };
+
+                        console.log('📤 Payload:', multiScorerPayload);
+
+                        // Submit to multi-scorer endpoint (correct backend URL)
+                        interviewResponse = await AxiosWithToken.post(
+                            `/contract-grants/consultancy/interview-scores/`,
+                            multiScorerPayload
+                        );
+                        console.log('✅ Score submitted successfully via multi-scorer API');
+                        console.log('✅ Response:', interviewResponse.data);
+
+                        // Check completion status using correct backend URL
+                        console.log('📊 Fetching completion status from:', `/contract-grants/consultancy/interview-scores/summary/${applicantInterview.id}/`);
+                        const summaryResponse = await AxiosWithToken.get(
+                            `/contract-grants/consultancy/interview-scores/summary/${applicantInterview.id}/`
+                        );
+                        console.log('📊 Summary response:', summaryResponse.data);
+
+                        const summaryData = summaryResponse.data?.data || summaryResponse.data;
+                        const totalInterviewers = summaryData?.total_interviewers || 0;
+                        const completedEvaluations = summaryData?.completed_evaluations || 0;
+
+                        console.log('📊 Interview progress:', {
+                            completed: completedEvaluations,
+                            total: totalInterviewers,
+                            percentage: summaryData?.completion_percentage,
+                            allComplete: completedEvaluations >= totalInterviewers && totalInterviewers > 0
+                        });
+
+                        // Only update status after ALL interviewers complete
+                        if (completedEvaluations >= totalInterviewers && totalInterviewers > 0) {
+                            console.log('✅ ALL committee members completed! Updating status to INTERVIEWED');
+                            console.log(`✅ Final: ${completedEvaluations}/${totalInterviewers} completed`);
+                            console.log('✅ Committee members:', applicantInterview.committee_members);
+                            console.log('✅ This was the LAST required interview for this applicant');
+
+                            await AxiosWithToken.patch(
+                                `/contract-grants/consultancy/applicants/${applicantId}/`,
+                                { status: "INTERVIEWED" }
+                            );
+                            console.log('✅ Status successfully updated to INTERVIEWED');
+
+                            // Store completion status for success message
+                            (interviewResponse as any).isFullyComplete = true;
+                            (interviewResponse as any).completionInfo = {
+                                completedEvaluations,
+                                totalInterviewers,
+                                percentage: summaryData?.completion_percentage
+                            };
+                        } else {
+                            console.log(`⏳ NOT all complete yet - status will remain SHORTLISTED`);
+                            console.log(`⏳ Progress: ${completedEvaluations}/${totalInterviewers} committee members completed (${summaryData?.completion_percentage || 0}%)`);
+                            console.log(`⏳ Still need ${totalInterviewers - completedEvaluations} more interviewer(s) to complete their evaluation`);
+                            console.log(`⏳ Remaining interviewers should appear in their "Pending Interviews" list`);
+
+                            // Store completion status for success message
+                            (interviewResponse as any).isFullyComplete = false;
+                            (interviewResponse as any).completionInfo = {
+                                completedEvaluations,
+                                totalInterviewers,
+                                remaining: totalInterviewers - completedEvaluations,
+                                percentage: summaryData?.completion_percentage
+                            };
+                        }
+                    } catch (multiScorerError: any) {
+                        console.error('❌ Multi-scorer API failed!');
+                        console.error('❌ Error message:', multiScorerError.message);
+                        console.error('❌ Response data:', multiScorerError.response?.data);
+                        console.error('❌ Status code:', multiScorerError.response?.status);
+                        console.error('❌ Request payload was:', {
+                            interview: applicantInterview.id,
+                            application: applicantId,
+                            scores: interviewPayload
+                        });
+                        console.error('⚠️ FALLING BACK TO LEGACY ENDPOINT - THIS WILL UPDATE STATUS IMMEDIATELY!');
+                        console.error('⚠️ WARNING: Legacy fallback does NOT support multi-committee scoring!');
+
+                        // Show error to user about multi-scorer failure
+                        toast.error('Multi-committee scoring failed. Using legacy mode - status will be updated immediately.');
+
+                        // Fallback to old endpoint
+                        interviewResponse = await AxiosWithToken.post(
+                            `/contract-grants/consultancy/applicants/${applicantId}/interviews/`,
+                            interviewPayload
+                        );
+                        console.log('⚠️ Legacy endpoint response:', interviewResponse.data);
+
+                        await AxiosWithToken.patch(
+                            `/contract-grants/consultancy/applicants/${applicantId}/`,
+                            { status: "INTERVIEWED" }
+                        );
+                        console.log('⚠️ Status updated to INTERVIEWED via legacy fallback');
+                    }
+                } else {
+                    console.log('📝 NON-COMMITTEE interview - using legacy workflow');
+                    // For non-committee, use old endpoint and update status immediately
+                    interviewResponse = await AxiosWithToken.post(
+                        `/contract-grants/consultancy/applicants/${applicantId}/interviews/`,
+                        interviewPayload
+                    );
+                    await AxiosWithToken.patch(
+                        `/contract-grants/consultancy/applicants/${applicantId}/`,
+                        { status: "INTERVIEWED" }
+                    );
+                }
             }
 
-            toast.success(`Interview completed successfully! Total score: ${totalScore}/50`);
+            // Show appropriate success message based on completion status
+            const completionInfo = (interviewResponse as any)?.completionInfo;
+            const isFullyComplete = (interviewResponse as any)?.isFullyComplete;
+
+            if (isFullyComplete) {
+                toast.success(
+                    `Interview fully completed! All ${completionInfo?.totalInterviewers || ''} committee members have submitted their evaluations. ` +
+                    `Your score: ${totalScore}/50. Applicant status updated to INTERVIEWED.`,
+                    { duration: 5000 }
+                );
+            } else if (completionInfo) {
+                toast.success(
+                    `Your evaluation submitted successfully! Total score: ${totalScore}/50. ` +
+                    `Progress: ${completionInfo.completedEvaluations}/${completionInfo.totalInterviewers} committee members completed. ` +
+                    `Waiting for ${completionInfo.remaining} more interviewer(s).`,
+                    { duration: 5000 }
+                );
+            } else {
+                // Fallback message (for non-committee or legacy flow)
+                toast.success(`Interview completed successfully! Total score: ${totalScore}/50`);
+            }
 
             // Navigate back to the previous page after successful submission
             setTimeout(() => {
                 router.back();
-            }, 1500);
+            }, 2000); // Increased to 2 seconds to give users time to read the message
 
         } catch (error: any) {
             console.error("Interview submission error:", error);

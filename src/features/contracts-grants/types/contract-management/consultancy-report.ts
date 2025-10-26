@@ -3,6 +3,7 @@ import { IConsultantSingleData } from "./consultancy-management/consultancy-mana
 import { IUser } from "definations/auth/user";
 
 export const ConsultancyReportSchema = z.object({
+    project: z.string().min(1, "Please select project"),
     supervisor: z.string().min(1, "Please select supervisor"),
     consultant: z.string().min(1, "Please select consultant"),
     report_date: z.string().min(1, "Please select report date"),
@@ -23,6 +24,7 @@ export type TConsultancyReportFormData = z.infer<
 
 export interface IConsultancyReportPaginatedData {
     id: string;
+    project?: string | { id: string; title: string };
     consultant: string;
     supervisor: string;
     created_datetime: string;
@@ -46,6 +48,7 @@ export interface IConsultancyReportPaginatedData {
 
 export interface IConsultancyReportSingleData {
     id: string;
+    project?: string | { id: string; title: string };
     consultant: IConsultantSingleData;
     supervisor: IUser;
     created_datetime: string;
