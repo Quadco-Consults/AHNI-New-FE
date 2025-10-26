@@ -570,3 +570,57 @@ export const useCreateBankAccount = () => {
 
   return { createBankAccount, data, isLoading, isSuccess, error };
 };
+
+export const useUpdateBankAccount = (id: string) => {
+  const queryClient = useQueryClient();
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    FinanceApiResponse<BankAccount>,
+    Error,
+    BankAccountFormData
+  >({
+    endpoint: `finance/bank-accounts/${id}/`,
+    queryKey: ["bank-accounts"],
+    isAuth: true,
+    method: "PATCH",
+  });
+
+  const updateBankAccount = async (data: BankAccountFormData) => {
+    try {
+      const result = await callApi(data);
+      queryClient.invalidateQueries({ queryKey: ["bank-accounts"] });
+      return result;
+    } catch (error) {
+      console.error("Bank account update error:", error);
+      throw error;
+    }
+  };
+
+  return { updateBankAccount, data, isLoading, isSuccess, error };
+};
+
+export const useDeleteBankAccount = () => {
+  const queryClient = useQueryClient();
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    FinanceApiResponse<any>,
+    Error,
+    Record<string, never>
+  >({
+    endpoint: "finance/bank-accounts/",
+    queryKey: ["bank-accounts"],
+    isAuth: true,
+    method: "DELETE",
+  });
+
+  const deleteBankAccount = async (id: string) => {
+    try {
+      const result = await callApi({} as Record<string, never>, `finance/bank-accounts/${id}/`);
+      queryClient.invalidateQueries({ queryKey: ["bank-accounts"] });
+      return result;
+    } catch (error) {
+      console.error("Bank account delete error:", error);
+      throw error;
+    }
+  };
+
+  return { deleteBankAccount, data, isLoading, isSuccess, error };
+};

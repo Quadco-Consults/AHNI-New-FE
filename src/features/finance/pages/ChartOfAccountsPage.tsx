@@ -112,28 +112,34 @@ export default function ChartOfAccountsPage() {
         <div className="bg-white p-4 rounded-lg border">
           <div className="text-2xl font-bold text-blue-600">{totalAccounts}</div>
           <div className="text-sm text-gray-600">Total Accounts</div>
+          <div className="text-xs text-gray-500 mt-1">AHNI Chart of Accounts</div>
         </div>
         <div className="bg-white p-4 rounded-lg border">
           <div className="text-2xl font-bold text-green-600">{activeAccounts}</div>
           <div className="text-sm text-gray-600">Active</div>
+          <div className="text-xs text-gray-500 mt-1">Multi-project tracking</div>
         </div>
         <div className="bg-white p-4 rounded-lg border">
           <div className="text-2xl font-bold text-purple-600">{accountsByType.ASSETS || 0}</div>
           <div className="text-sm text-gray-600">Assets</div>
+          <div className="text-xs text-gray-500 mt-1">Bank & Current Assets</div>
         </div>
         <div className="bg-white p-4 rounded-lg border">
           <div className="text-2xl font-bold text-red-600">{accountsByType.LIABILITIES || 0}</div>
           <div className="text-sm text-gray-600">Liabilities</div>
+          <div className="text-xs text-gray-500 mt-1">Payroll & Accruals</div>
         </div>
         <div className="bg-white p-4 rounded-lg border">
           <div className="text-2xl font-bold text-indigo-600">{accountsByType.EQUITY || 0}</div>
           <div className="text-sm text-gray-600">Equity</div>
+          <div className="text-xs text-gray-500 mt-1">Net Assets & Retained</div>
         </div>
         <div className="bg-white p-4 rounded-lg border">
           <div className="text-2xl font-bold text-orange-600">
             {(accountsByType.REVENUE || 0) + (accountsByType.EXPENSES || 0)}
           </div>
           <div className="text-sm text-gray-600">P&L Accounts</div>
+          <div className="text-xs text-gray-500 mt-1">Grant Revenue & Expenses</div>
         </div>
       </div>
 
@@ -182,7 +188,43 @@ export default function ChartOfAccountsPage() {
           </SelectContent>
         </Select>
 
-        {(filters.search || filters.account_type || filters.is_active !== undefined) && (
+        <Select
+          value={(filters as any).currency || "all"}
+          onValueChange={(value) => handleFilterChange("currency", value === "all" ? undefined : value)}
+        >
+          <SelectTrigger className="w-32">
+            <SelectValue placeholder="Currency" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All</SelectItem>
+            <SelectItem value="NGN">NGN</SelectItem>
+            <SelectItem value="USD">USD</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select
+          value={(filters as any).project || "all"}
+          onValueChange={(value) => handleFilterChange("project", value === "all" ? undefined : value)}
+        >
+          <SelectTrigger className="w-40">
+            <SelectValue placeholder="Project" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Projects</SelectItem>
+            <SelectItem value="ACEBAY">ACEBAY</SelectItem>
+            <SelectItem value="PLANE">PLANE</SelectItem>
+            <SelectItem value="GF_HIV">GF HIV Impact</SelectItem>
+            <SelectItem value="SIDHAS">SIDHAS</SelectItem>
+            <SelectItem value="SHARP">SHARP+</SelectItem>
+            <SelectItem value="MALARIA">Malaria</SelectItem>
+            <SelectItem value="RANA">RANA/UNICEF</SelectItem>
+            <SelectItem value="UNHCR">UNHCR</SelectItem>
+            <SelectItem value="UNFPA">UNFPA</SelectItem>
+            <SelectItem value="EPIC">EPiC</SelectItem>
+          </SelectContent>
+        </Select>
+
+        {(filters.search || filters.account_type || filters.is_active !== undefined || (filters as any).currency || (filters as any).project) && (
           <Button variant="outline" onClick={clearFilters}>
             Clear Filters
           </Button>

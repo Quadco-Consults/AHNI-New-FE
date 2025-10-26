@@ -33,6 +33,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import DataTable from "components/Table/DataTable";
+import SalesOrderForm from "../../../../features/finance/components/sales/SalesOrderForm";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -263,6 +264,12 @@ export default function SalesOrdersPage() {
       setDeletingOrder(null);
       toast.success("Sales order deleted successfully");
     }
+  };
+
+  const handleFormSuccess = () => {
+    // Refresh orders list when form succeeds
+    // This will be handled automatically by React Query when backend is ready
+    toast.success("Sales orders list refreshed");
   };
 
   const handleUpdateStatus = (order: SalesOrder, newStatus: SalesOrderStatus) => {
@@ -570,16 +577,13 @@ export default function SalesOrdersPage() {
         />
       </Card>
 
-      {/* Sales Order Form Dialog - To be implemented */}
-      {formOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg">
-            <h3 className="text-lg font-semibold mb-4">Create Sales Order</h3>
-            <p className="text-gray-600 mb-4">Sales order form will be implemented next.</p>
-            <Button onClick={() => setFormOpen(false)}>Close</Button>
-          </div>
-        </div>
-      )}
+      {/* Sales Order Form Dialog */}
+      <SalesOrderForm
+        open={formOpen}
+        onOpenChange={setFormOpen}
+        order={editingOrder}
+        onSuccess={handleFormSuccess}
+      />
 
       {/* View Order Dialog */}
       <Dialog open={!!viewingOrder} onOpenChange={() => setViewingOrder(null)}>

@@ -32,6 +32,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import DataTable from "components/Table/DataTable";
+import VendorBillForm from "features/finance/components/payables/VendorBillForm";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -258,6 +259,10 @@ export default function AccountsPayablePage() {
     page_size: 10,
   });
 
+  // Form state
+  const [formOpen, setFormOpen] = useState(false);
+  const [editingBill, setEditingBill] = useState<VendorBill | undefined>();
+
   const handleSearch = (search: string) => {
     setFilters(prev => ({ ...prev, search, page: 1 }));
   };
@@ -268,6 +273,23 @@ export default function AccountsPayablePage() {
 
   const clearFilters = () => {
     setFilters({ page: 1, page_size: 10 });
+  };
+
+  const handleCreateBill = () => {
+    setEditingBill(undefined);
+    setFormOpen(true);
+  };
+
+  const handleEditBill = (bill: VendorBill) => {
+    setEditingBill(bill);
+    setFormOpen(true);
+  };
+
+  const handleFormSuccess = () => {
+    // In a real app, you would refetch the data here
+    // For now, just show a success message
+    setFormOpen(false);
+    setEditingBill(undefined);
   };
 
   const getStatusColor = (status: BillStatus) => {
@@ -382,7 +404,7 @@ export default function AccountsPayablePage() {
                 <Eye className="mr-2 h-4 w-4" />
                 View Details
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleEditBill(bill)}>
                 <Edit className="mr-2 h-4 w-4" />
                 Edit
               </DropdownMenuItem>
@@ -437,7 +459,7 @@ export default function AccountsPayablePage() {
             <Download size={20} className="mr-2" />
             Export Data
           </Button>
-          <Button>
+          <Button onClick={handleCreateBill}>
             <Plus size={20} className="mr-2" />
             Add Bill
           </Button>
@@ -630,6 +652,14 @@ export default function AccountsPayablePage() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Vendor Bill Form */}
+      <VendorBillForm
+        open={formOpen}
+        onOpenChange={setFormOpen}
+        bill={editingBill}
+        onSuccess={handleFormSuccess}
+      />
     </div>
   );
 }

@@ -33,6 +33,7 @@ import {
 import { toast } from "sonner";
 import DataTable from "components/Table/DataTable";
 import { Invoice, InvoiceStatus } from "../../../../features/finance/types/invoice.types";
+import InvoiceForm from "../../../../features/finance/components/invoicing/InvoiceForm";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -211,6 +212,12 @@ export default function InvoicesPage() {
   const handleDownloadPDF = (invoice: Invoice) => {
     // API call would go here
     toast.success(`PDF for ${invoice.invoice_number} downloaded`);
+  };
+
+  const handleFormSuccess = () => {
+    // Refresh invoice list when form succeeds
+    // This will be handled automatically by React Query when backend is ready
+    toast.success("Invoice list refreshed");
   };
 
   const getStatusColor = (status: InvoiceStatus) => {
@@ -511,16 +518,13 @@ export default function InvoicesPage() {
         />
       </Card>
 
-      {/* Invoice Form Dialog - To be implemented */}
-      {formOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg">
-            <h3 className="text-lg font-semibold mb-4">Create Invoice</h3>
-            <p className="text-gray-600 mb-4">Invoice form will be implemented next.</p>
-            <Button onClick={() => setFormOpen(false)}>Close</Button>
-          </div>
-        </div>
-      )}
+      {/* Invoice Form Dialog */}
+      <InvoiceForm
+        open={formOpen}
+        onOpenChange={setFormOpen}
+        invoice={editingInvoice}
+        onSuccess={handleFormSuccess}
+      />
 
       {/* View Invoice Dialog */}
       <Dialog open={!!viewingInvoice} onOpenChange={() => setViewingInvoice(null)}>

@@ -34,6 +34,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import DataTable from "components/Table/DataTable";
+import PaymentForm from "../../../../features/finance/components/receivables/PaymentForm";
 import {
   AccountsReceivable,
   ARStatus,
@@ -150,6 +151,8 @@ export default function AccountsReceivablePage() {
   });
 
   const [activeTab, setActiveTab] = useState("overview");
+  const [showPaymentForm, setShowPaymentForm] = useState(false);
+  const [selectedReceivable, setSelectedReceivable] = useState<AccountsReceivable | null>(null);
 
   const accountsReceivable = mockAccountsReceivable;
 
@@ -167,8 +170,14 @@ export default function AccountsReceivablePage() {
   };
 
   const handleRecordPayment = (ar: AccountsReceivable) => {
-    toast.success(`Recording payment for ${ar.invoice_number}`);
-    // Open payment form
+    setSelectedReceivable(ar);
+    setShowPaymentForm(true);
+  };
+
+  const handlePaymentSuccess = () => {
+    // Refresh accounts receivable list when payment succeeds
+    // This will be handled automatically by React Query when backend is ready
+    toast.success("Accounts receivable list refreshed");
   };
 
   const handleSendReminder = (ar: AccountsReceivable) => {
@@ -390,7 +399,14 @@ export default function AccountsReceivablePage() {
             <FileText size={20} className="mr-2" />
             Generate Statement
           </Button>
-          <Button>
+          <Button onClick={() => {
+            // For demo purposes, select the first overdue receivable
+            const overdueReceivable = accountsReceivable.find(ar => ar.status === 'OVERDUE') || accountsReceivable[0];
+            if (overdueReceivable) {
+              setSelectedReceivable(overdueReceivable);
+              setShowPaymentForm(true);
+            }
+          }}>
             <Plus size={20} className="mr-2" />
             Record Payment
           </Button>
@@ -565,6 +581,16 @@ export default function AccountsReceivablePage() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Payment Form Dialog */}
+      {showPaymentForm && selectedReceivable && (
+        <PaymentForm
+          open={showPaymentForm}
+          onOpenChange={setShowPaymentForm}
+          accountsReceivable={selectedReceivable}
+          onSuccess={handlePaymentSuccess}
+        />
+      )}
     </div>
   );
 }

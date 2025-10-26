@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import DataTable from "components/Table/DataTable";
+import TaxCodeForm from "features/finance/components/tax/TaxCodeForm";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -209,6 +210,10 @@ export default function TaxManagementPage() {
     page_size: 10,
   });
 
+  // Form state
+  const [formOpen, setFormOpen] = useState(false);
+  const [editingTaxCode, setEditingTaxCode] = useState<TaxCode | undefined>();
+
   const handleSearch = (search: string) => {
     setFilters(prev => ({ ...prev, search, page: 1 }));
   };
@@ -219,6 +224,23 @@ export default function TaxManagementPage() {
 
   const clearFilters = () => {
     setFilters({ page: 1, page_size: 10 });
+  };
+
+  const handleCreateTaxCode = () => {
+    setEditingTaxCode(undefined);
+    setFormOpen(true);
+  };
+
+  const handleEditTaxCode = (taxCode: TaxCode) => {
+    setEditingTaxCode(taxCode);
+    setFormOpen(true);
+  };
+
+  const handleFormSuccess = () => {
+    // In a real app, you would refetch the data here
+    // For now, just show a success message
+    setFormOpen(false);
+    setEditingTaxCode(undefined);
   };
 
   const getStatusColor = (status: TaxStatus) => {
@@ -319,7 +341,7 @@ export default function TaxManagementPage() {
                 <Eye className="mr-2 h-4 w-4" />
                 View Details
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleEditTaxCode(taxCode)}>
                 <Edit className="mr-2 h-4 w-4" />
                 Edit
               </DropdownMenuItem>
@@ -364,7 +386,7 @@ export default function TaxManagementPage() {
             <Download size={20} className="mr-2" />
             Export Reports
           </Button>
-          <Button>
+          <Button onClick={handleCreateTaxCode}>
             <Plus size={20} className="mr-2" />
             Add Tax Code
           </Button>
@@ -574,6 +596,14 @@ export default function TaxManagementPage() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Tax Code Form */}
+      <TaxCodeForm
+        open={formOpen}
+        onOpenChange={setFormOpen}
+        taxCode={editingTaxCode}
+        onSuccess={handleFormSuccess}
+      />
     </div>
   );
 }

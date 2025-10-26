@@ -1176,12 +1176,16 @@ const getDeparmentalLinks = () => {
           path: "/dashboard/finance/chart-of-accounts",
         },
         {
+          name: "Bank Accounts",
+          path: "/dashboard/finance/bank-accounts",
+        },
+        {
           name: "Journal Entries",
           path: "/dashboard/finance/journal-entries",
         },
         {
           name: "Financial Reports",
-          path: "/dashboard/finance/reports",
+          path: "/dashboard/finance/financial-reports",
         },
         {
           name: "Bank Reconciliation",
@@ -1234,6 +1238,14 @@ const getDeparmentalLinks = () => {
         {
           name: "Expense Tracking",
           path: "/dashboard/finance/expenses",
+        },
+        {
+          name: "Budget Reports",
+          path: "/dashboard/finance/budget-reports",
+        },
+        {
+          name: "Petty Cash",
+          path: "/dashboard/finance/petty-cash",
         },
       ],
     },
