@@ -146,12 +146,7 @@ const TableMenu = (consultant: any) => {
     }
   };
 
-  // Get consultancy_id from the consultant data
-  // The field is 'consultants' and it's an array with the consultancy ID
-  const consultancyId = Array.isArray(consultant.consultants) && consultant.consultants.length > 0
-    ? consultant.consultants[0]
-    : null;
-  const applicantId = consultant.id;
+  const consultantId = consultant.id;
 
   return (
     <div className='flex items-center gap-2'>
@@ -163,34 +158,24 @@ const TableMenu = (consultant: any) => {
             </Button>
           </PopoverTrigger>
           <PopoverContent className='w-fit'>
-            {consultancyId && (
-              <>
-                <Link
-                  href={CG_ROUTES.CONSULTANCY_APPLICANT_DETAILS
-                    .replace(':id', consultancyId)
-                    .replace(':applicantId', applicantId)}
-                >
-                  <Button
-                    className='w-full flex items-center justify-start gap-2'
-                    variant='ghost'
-                  >
-                    <EyeIcon />
-                    View
-                  </Button>
-                </Link>
-                <Link
-                  href={CG_ROUTES.CREATE_CONSULTANCY_APPLICANT.replace(':id', consultancyId) + `?edit=${applicantId}`}
-                >
-                  <Button
-                    className='w-full flex items-center justify-start gap-2'
-                    variant='ghost'
-                  >
-                    <PencilIcon />
-                    Edit
-                  </Button>
-                </Link>
-              </>
-            )}
+            <Link href={`/dashboard/c-and-g/consultancy-database/${consultantId}/view`}>
+              <Button
+                className='w-full flex items-center justify-start gap-2'
+                variant='ghost'
+              >
+                <EyeIcon />
+                View Details
+              </Button>
+            </Link>
+            <Link href={`/dashboard/c-and-g/consultancy-database/${consultantId}/edit`}>
+              <Button
+                className='w-full flex items-center justify-start gap-2'
+                variant='ghost'
+              >
+                <PencilIcon />
+                Edit
+              </Button>
+            </Link>
             <Button
               className='w-full flex items-center justify-start gap-2'
               variant='ghost'
