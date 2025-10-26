@@ -95,6 +95,39 @@ export const useGetSingleGrant = (id: string, enabled: boolean = true) => {
   });
 };
 
+// Get All Modifications for a Grant
+export const useGetAllModifications = ({
+  grantId,
+  page = 1,
+  size = 10,
+  enabled = true,
+}: {
+  grantId: string;
+  page?: number;
+  size?: number;
+  enabled?: boolean;
+}) => {
+  return useQuery<PaginatedResponse<any>>({
+    queryKey: ["grant-modifications", grantId, page, size],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get(`${BASE_URL}${grantId}/modifications/`, {
+          params: {
+            page,
+            size,
+          },
+        });
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    enabled: enabled && !!grantId,
+    refetchOnWindowFocus: false,
+  });
+};
+
 // Create Grant
 export const useCreateGrant = () => {
   const { callApi, isLoading, isSuccess, error, data } = useApiManager<
@@ -127,7 +160,7 @@ export const useCreateModification = (id: string) => {
     TGrantFormData
   >({
     endpoint: `${BASE_URL}${id}/modifications/`,
-    queryKey: ["grants", "grant"],
+    queryKey: ["grants", "grant", "grant-modifications"],
     isAuth: true,
     method: "POST",
   });

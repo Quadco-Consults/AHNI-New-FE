@@ -6,12 +6,154 @@ import Card from "components/Card";
 import DescriptionCard from "components/DescriptionCard";
 import { LoadingSpinner } from "components/Loading";
 import { useParams } from "next/navigation";
-import { useGetSingleCloseOutPlan } from "@/features/contracts-grants/controllers/closeoutPlanController";
+import { useGetSingleCloseOutPlan, useUpdateTaskStatus } from "@/features/contracts-grants/controllers/closeoutPlanController";
+import { Button } from "components/ui/button";
+import { Icon } from "@iconify/react";
+import { toast } from "sonner";
+import html2canvas from "html2canvas";
+import { jsPDF } from "jspdf";
+import Image from "next/image";
+import logoPng from "@/assets/svgs/logo-bg.svg";
+import { useState } from "react";
 
 export default function CloseOutPlan() {
     const { id } = useParams();
 
-    const { data, isLoading } = useGetSingleCloseOutPlan(id ?? skipToken);
+    const { data, isLoading, refetch } = useGetSingleCloseOutPlan(id ?? skipToken);
+    const { updateTaskStatus } = useUpdateTaskStatus();
+    const [updatingTaskId, setUpdatingTaskId] = useState<string | null>(null);
+
+    // Handle status change
+    const handleStatusChange = async (taskId: string, newStatus: string) => {
+        try {
+            setUpdatingTaskId(taskId);
+            console.log('📝 Updating task status:', { taskId, newStatus });
+
+            const response = await updateTaskStatus(id as string, taskId, newStatus);
+            console.log('✅ Backend response:', response);
+
+            // Check if the status was actually updated
+            if (response?.data?.status === newStatus) {
+                toast.success("Status updated successfully");
+            } else {
+                console.warn('⚠️ Backend returned different status:', {
+                    sent: newStatus,
+                    received: response?.data?.status
+                });
+                toast.warning("Status update request sent, but backend returned old value");
+            }
+
+            // Refetch the data to show updated status
+            await refetch();
+        } catch (error: any) {
+            console.error('❌ Status update error:', error);
+            toast.error(error?.message || "Failed to update status");
+        } finally {
+            setUpdatingTaskId(null);
+        }
+    };
+
+    // Download PDF function
+    const handleDownloadPDF = async () => {
+        try {
+            toast.info('Generating PDF...');
+
+            const element = document.getElementById('closeout-plan-content');
+            if (!element) {
+                toast.error('Content not found');
+                return;
+            }
+
+            // Hide action buttons before capturing
+            const actionButtons = document.querySelector('.action-buttons') as HTMLElement;
+            const originalDisplay = actionButtons?.style.display;
+            if (actionButtons) {
+                actionButtons.style.display = 'none';
+            }
+
+            // Wait for DOM updates
+            await new Promise(resolve => setTimeout(resolve, 100));
+
+            const canvas = await html2canvas(element, {
+                scale: 2,
+                useCORS: true,
+                allowTaint: true,
+                backgroundColor: '#ffffff',
+                logging: false,
+            });
+
+            // Restore action buttons
+            if (actionButtons) {
+                actionButtons.style.display = originalDisplay || '';
+            }
+
+            if (!canvas || canvas.width === 0 || canvas.height === 0) {
+                toast.error('Failed to capture content for PDF');
+                return;
+            }
+
+            const imgWidth = 210; // A4 width in mm
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+            const pdf = new jsPDF({
+                orientation: 'portrait',
+                unit: 'mm',
+                format: 'a4',
+                compress: true
+            });
+
+            const imgData = canvas.toDataURL('image/jpeg', 0.95);
+            const pageHeight = 297; // A4 height in mm
+
+            if (imgHeight <= pageHeight) {
+                // Single page
+                pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
+            } else {
+                // Multiple pages
+                let sourceHeight = canvas.height;
+                let position = 0;
+                let pageNumber = 1;
+
+                while (sourceHeight > 0) {
+                    const pageCanvas = document.createElement('canvas');
+                    const pageContext = pageCanvas.getContext('2d');
+
+                    pageCanvas.width = canvas.width;
+                    pageCanvas.height = Math.min(canvas.height * pageHeight / imgHeight, sourceHeight);
+
+                    if (pageContext) {
+                        pageContext.drawImage(
+                            canvas,
+                            0, position,
+                            canvas.width, pageCanvas.height,
+                            0, 0,
+                            pageCanvas.width, pageCanvas.height
+                        );
+
+                        const pageImgData = pageCanvas.toDataURL('image/jpeg', 0.95);
+
+                        if (pageNumber > 1) {
+                            pdf.addPage();
+                        }
+
+                        const pageImgHeight = (pageCanvas.height * imgWidth) / pageCanvas.width;
+                        pdf.addImage(pageImgData, 'JPEG', 0, 0, imgWidth, pageImgHeight);
+
+                        position += pageCanvas.height;
+                        sourceHeight -= pageCanvas.height;
+                        pageNumber++;
+                    }
+                }
+            }
+
+            const fileName = `closeout-plan-${data?.data?.project?.title || 'report'}.pdf`;
+            pdf.save(fileName);
+            toast.success('PDF downloaded successfully!');
+        } catch (error) {
+            console.error('PDF generation error:', error);
+            toast.error('Failed to generate PDF');
+        }
+    };
 
     if (isLoading) {
         return <LoadingSpinner />;
@@ -33,11 +175,43 @@ export default function CloseOutPlan() {
     const departmentName = typeof closeoutPlan.department === 'object' ? closeoutPlan.department.name : closeoutPlan.department;
     const locationName = typeof closeoutPlan.location === 'object' ? closeoutPlan.location.name : closeoutPlan.location;
 
+    // Debug: Log the closeout plan data structure
+    console.log('Closeout Plan Full Data:', closeoutPlan);
+    console.log('Tasks:', closeoutPlan.tasks);
+    if (closeoutPlan.tasks && closeoutPlan.tasks.length > 0) {
+        console.log('First Task Fields:', Object.keys(closeoutPlan.tasks[0]));
+        console.log('First Task Data:', closeoutPlan.tasks[0]);
+    }
+
     return (
         <main className="space-y-5">
-            <BackNavigation />
+            <div className="flex justify-between items-center action-buttons">
+                <BackNavigation />
+                <Button
+                    onClick={handleDownloadPDF}
+                    className="flex items-center gap-2"
+                >
+                    <Icon icon="ph:download" />
+                    Download PDF
+                </Button>
+            </div>
 
-            <Card className="space-y-10">
+            <div id="closeout-plan-content">
+                <Card className="space-y-10">
+                    {/* Header with Logo */}
+                    <div className="flex flex-col items-center space-y-4 border-b pb-6">
+                        <Image
+                            src={logoPng}
+                            alt="Company Logo"
+                            width={120}
+                            height={120}
+                            className="object-contain"
+                        />
+                        <div className="text-center">
+                            <h1 className="text-2xl font-bold text-red-600">Close-Out Plan</h1>
+                            <p className="text-gray-600 mt-2">Pre Closeout and Close Out Activities</p>
+                        </div>
+                    </div>
                 {/* Project Details */}
                 <div className="grid grid-cols-2 gap-5">
                     <DescriptionCard
@@ -49,32 +223,56 @@ export default function CloseOutPlan() {
                         label="Location"
                         description={locationName || 'N/A'}
                     />
+
+                    <DescriptionCard
+                        label="Department"
+                        description={departmentName || 'N/A'}
+                    />
+
+                    <DescriptionCard
+                        label="Created Date"
+                        description={closeoutPlan.created_datetime
+                            ? new Date(closeoutPlan.created_datetime).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric'
+                            })
+                            : 'N/A'
+                        }
+                    />
                 </div>
 
                 {/* Close-Out Plan Table */}
                 <div className="space-y-5">
-                    <h3 className="text-xl font-bold">Pre Closeout and Close Out Activities</h3>
+                    <div className="flex justify-between items-center">
+                        <h3 className="text-xl font-bold text-red-600">Pre Closeout and Close Out Activities</h3>
+                        {closeoutPlan.key_task && (
+                            <span className="text-sm text-gray-600 font-semibold">
+                                Section: {closeoutPlan.key_task}
+                            </span>
+                        )}
+                    </div>
 
                     <div className="overflow-x-auto border border-gray-300 rounded-lg">
                         <table className="w-full border-collapse">
                             <thead>
-                                <tr className="bg-gray-100">
-                                    <th className="border border-gray-300 px-4 py-3 text-left font-bold text-sm w-20">
+                                <tr className="bg-red-50 border-b-2 border-red-600">
+                                    <th className="border border-gray-300 px-4 py-3 text-left font-bold text-sm w-20 text-red-700">
                                         TASK NO
                                     </th>
-                                    <th className="border border-gray-300 px-4 py-3 text-left font-bold text-sm">
+                                    <th className="border border-gray-300 px-4 py-3 text-left font-bold text-sm text-red-700">
                                         KEY TASKS
                                     </th>
-                                    <th className="border border-gray-300 px-4 py-3 text-left font-bold text-sm w-40">
+                                    <th className="border border-gray-300 px-4 py-3 text-left font-bold text-sm w-40 text-red-700">
                                         Responsible (R)
                                     </th>
-                                    <th className="border border-gray-300 px-4 py-3 text-left font-bold text-sm w-48">
+                                    <th className="border border-gray-300 px-4 py-3 text-left font-bold text-sm w-48 text-red-700">
                                         Timeline
                                     </th>
-                                    <th className="border border-gray-300 px-4 py-3 text-left font-bold text-sm w-32">
+                                    <th className="border border-gray-300 px-4 py-3 text-left font-bold text-sm w-32 text-red-700">
                                         STATUS
                                     </th>
-                                    <th className="border border-gray-300 px-4 py-3 text-left font-bold text-sm w-48">
+                                    <th className="border border-gray-300 px-4 py-3 text-left font-bold text-sm w-48 text-red-700">
                                         REMARKS
                                     </th>
                                 </tr>
@@ -82,9 +280,9 @@ export default function CloseOutPlan() {
                             <tbody>
                                 {/* Main Header Row */}
                                 {closeoutPlan.key_task && (
-                                    <tr className="bg-gray-50">
+                                    <tr className="bg-red-100">
                                         <td className="border border-gray-300 px-4 py-2" colSpan={6}>
-                                            <div className="font-bold text-base">{closeoutPlan.key_task}</div>
+                                            <div className="font-bold text-base text-red-800">{closeoutPlan.key_task}</div>
                                         </td>
                                     </tr>
                                 )}
@@ -146,8 +344,12 @@ export default function CloseOutPlan() {
                                                     )}
                                                 </td>
                                                 <td className="border border-gray-300 px-4 py-2">
-                                                    {task.status ? (
-                                                        <span className={`inline-block px-2 py-1 rounded text-xs font-medium ${
+                                                    {/* Interactive dropdown for screen */}
+                                                    <select
+                                                        value={task.status || "Pending"}
+                                                        onChange={(e) => handleStatusChange(task.id, e.target.value)}
+                                                        disabled={updatingTaskId === task.id}
+                                                        className={`print:hidden w-full px-2 py-1 rounded text-xs font-medium border-0 cursor-pointer focus:ring-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed ${
                                                             task.status === "Completed" || task.status === "COMPLETED"
                                                                 ? "bg-green-100 text-green-800" :
                                                             task.status === "In Progress" || task.status === "IN_PROGRESS"
@@ -157,12 +359,27 @@ export default function CloseOutPlan() {
                                                             task.status === "Pending" || task.status === "PENDING"
                                                                 ? "bg-yellow-100 text-yellow-800" :
                                                             "bg-gray-100 text-gray-800"
-                                                        }`}>
-                                                            {task.status}
-                                                        </span>
-                                                    ) : (
-                                                        <span>-</span>
-                                                    )}
+                                                        }`}
+                                                    >
+                                                        <option value="Pending">Pending</option>
+                                                        <option value="In Progress">In Progress</option>
+                                                        <option value="Completed">Completed</option>
+                                                        <option value="On Hold">On Hold</option>
+                                                    </select>
+                                                    {/* Static badge for PDF */}
+                                                    <span className={`hidden print:inline-block px-2 py-1 rounded text-xs font-medium ${
+                                                        task.status === "Completed" || task.status === "COMPLETED"
+                                                            ? "bg-green-100 text-green-800" :
+                                                        task.status === "In Progress" || task.status === "IN_PROGRESS"
+                                                            ? "bg-blue-100 text-blue-800" :
+                                                        task.status === "On Hold" || task.status === "ON_HOLD"
+                                                            ? "bg-yellow-100 text-yellow-800" :
+                                                        task.status === "Pending" || task.status === "PENDING"
+                                                            ? "bg-yellow-100 text-yellow-800" :
+                                                        "bg-gray-100 text-gray-800"
+                                                    }`}>
+                                                        {task.status || "Pending"}
+                                                    </span>
                                                 </td>
                                                 <td className="border border-gray-300 px-4 py-2 text-sm">
                                                     {task.remarks || "-"}
@@ -181,7 +398,8 @@ export default function CloseOutPlan() {
                         </table>
                     </div>
                 </div>
-            </Card>
+                </Card>
+            </div>
         </main>
     );
 }

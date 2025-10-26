@@ -6,10 +6,11 @@ import { consultancyStaffColumns } from "@/features/contracts-grants/components/
 import { shortlistedApplicantColumn } from "@/features/contracts-grants/components/table-columns/contract-management/consultant-management/shortlisted-applicant";
 import DataTable from "components/Table/DataTable";
 import TableFilters from "components/Table/TableFilters";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useParams, usePathname } from "next/navigation";
 import { useGetAllConsultancyStaffs } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
 import { useGetShortlistedApplicants } from "@/features/programs/controllers/adhocApplicantController";
+import { useGetAllConsultancyInterviews } from "@/features/contracts-grants/controllers/consultancyInterviewController";
 
 export default function ShortlistedAppplicants() {
   const params = useParams();
@@ -50,6 +51,36 @@ export default function ShortlistedAppplicants() {
   // Use the appropriate query result
   const { data, isFetching } = isAdhoc ? adhocQuery : consultancyQuery;
 
+  // Fetch interviews for consultancy (to check which applicants have interviews scheduled)
+  const { data: interviewsData } = useGetAllConsultancyInterviews(
+    !isAdhoc ? id : undefined,
+    !isAdhoc && !!id
+  );
+
+  // Create a Map of applicant IDs to their interview schedules
+  const applicantInterviewMap = useMemo(() => {
+    if (!interviewsData?.data) return new Map<string, any>();
+
+    const interviewMap = new Map<string, any>();
+    const interviews = interviewsData.data;
+
+    console.log('📋 Interviews data received:', interviews);
+
+    if (Array.isArray(interviews)) {
+      interviews.forEach((interview: any) => {
+        // Check both 'application' (new API) and 'applicant' (old API) fields
+        const applicantId = interview.application || interview.applicant;
+        if (applicantId) {
+          interviewMap.set(applicantId, interview);
+          console.log('✅ Found interview for applicant:', applicantId, interview);
+        }
+      });
+    }
+
+    console.log('📊 Applicant interview map:', Array.from(interviewMap.entries()));
+    return interviewMap;
+  }, [interviewsData]);
+
   // Map API response to expected format for shortlisted applicants
   const mappedShortlistedApplicants = data?.data?.results
     ?.filter((applicant: any) => {
@@ -79,30 +110,38 @@ export default function ShortlistedAppplicants() {
 
       return belongsToThisConsultant && isShortlisted;
     })
-    ?.map((applicant: any) => ({
-      ...applicant,
-      // Map name fields - handle both consultancy and adhoc structures
-      first_name: applicant.first_name || applicant.other_names || applicant.name || 'Unknown',
-      last_name: applicant.last_name || applicant.sur_name || applicant.contractor_name || '',
-      name: applicant.name || `${applicant.first_name || applicant.other_names || ''} ${applicant.last_name || applicant.sur_name || ''}`.trim() || 'Unknown',
-      email: applicant.email || applicant.email_address,
-      // Ensure consultant_id is present for consultancy
-      consultant_id: applicant.consultant_id || id,
-      consultancy: applicant.consultancy || id,
-      // Handle potentially problematic fields
-      technical_monitor_user: typeof applicant.technical_monitor_user === 'object'
-        ? applicant.technical_monitor_user?.name || 'N/A'
-        : applicant.technical_monitor_user || 'N/A',
-      location: typeof applicant.location === 'object'
-        ? applicant.location?.name || 'N/A'
-        : applicant.location || 'N/A',
-      project: typeof applicant.project === 'object'
-        ? applicant.project?.name || 'N/A'
-        : applicant.project || 'N/A',
-      contract_request: typeof applicant.contract_request === 'object'
-        ? applicant.contract_request?.name || 'N/A'
-        : applicant.contract_request || 'N/A',
-    })) || [];
+    ?.map((applicant: any) => {
+      const interview = applicantInterviewMap.get(applicant.id);
+      return {
+        ...applicant,
+        // Map name fields - handle both consultancy and adhoc structures
+        first_name: applicant.first_name || applicant.other_names || applicant.name || 'Unknown',
+        last_name: applicant.last_name || applicant.sur_name || applicant.contractor_name || '',
+        name: applicant.name || `${applicant.first_name || applicant.other_names || ''} ${applicant.last_name || applicant.sur_name || ''}`.trim() || 'Unknown',
+        email: applicant.email || applicant.email_address,
+        // Ensure consultant_id is present for consultancy
+        consultant_id: applicant.consultant_id || id,
+        consultancy: applicant.consultancy || id,
+        // Handle potentially problematic fields
+        technical_monitor_user: typeof applicant.technical_monitor_user === 'object'
+          ? applicant.technical_monitor_user?.name || 'N/A'
+          : applicant.technical_monitor_user || 'N/A',
+        location: typeof applicant.location === 'object'
+          ? applicant.location?.name || 'N/A'
+          : applicant.location || 'N/A',
+        project: typeof applicant.project === 'object'
+          ? applicant.project?.name || 'N/A'
+          : applicant.project || 'N/A',
+        contract_request: typeof applicant.contract_request === 'object'
+          ? applicant.contract_request?.name || 'N/A'
+          : applicant.contract_request || 'N/A',
+        // Add interview information with full schedule data
+        has_interview: !!interview,
+        schedule: interview || undefined,
+        schedule_id: interview?.id || undefined,
+        average_scores: interview?.average_scores || applicant.average_scores || undefined,
+      };
+    }) || [];
 
   console.log("🔍 ShortlistedApplicants Debug:");
   console.log("- Current Consultant ID:", id);

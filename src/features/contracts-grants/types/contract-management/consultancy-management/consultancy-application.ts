@@ -84,6 +84,34 @@ export interface IConsultancyStaffPaginatedData {
     consultants?: string[]; // ManyToMany relationship - array of consultant IDs
     consultancy?: string; // Backward compatibility
     consultant_id?: string; // Backward compatibility
+    average_score?: number; // Backend calculated average score (total of all criteria)
+    scores?: any; // Alternative score field name
+    interview_score?: any; // Alternative singular score field name
+    evaluationScores?: any; // Alternative evaluation scores field name
+    // Multi-scorer system fields
+    average_scores?: {
+        relevant_experience?: number;
+        similar_work_experience?: number;
+        project_management_knowledge?: number;
+        recent_experience?: number;
+        comparable_projects?: number;
+        communication_skills?: number;
+        technical_skill?: number;
+        relevant_qualification?: number;
+        academic_credentials?: number;
+        timeline_management?: number;
+        toolset_framework?: number;
+        total?: number;
+        percentage?: number;
+    };
+    total_interviewers?: number;
+    completed_evaluations?: number;
+    // Interview data fields
+    interview_data?: any[]; // Array of interview records from separate API
+    interviews?: any[]; // Alternative field name for interview records
+    total_score?: number; // Direct total score on applicant
+    interview_date?: string; // Interview date field
+    date?: string; // Alternative date field
     interview_scores?: {
         relevant_experience?: number;
         project_management?: number;
@@ -138,6 +166,10 @@ export interface IConsultancyStaffPaginatedData {
     signature: null;
     created_by: string;
     updated_by: string | null;
+    // Interview schedule fields
+    schedule_id?: string;
+    schedule?: ConsultancyInterviewSchedule;
+    has_interview?: boolean; // Flag set by parent component indicating if interview exists
     // Adhoc-specific fields (optional)
     gender?: string | null;
     state_of_origin?: string | null;
@@ -159,14 +191,15 @@ export interface IConsultancyStaffPaginatedData {
 // Individual interviewer's score for a consultancy applicant
 export interface ConsultancyInterviewScore {
     id: string;
-    interview_id: string;
-    interviewer_id: string;
+    interview: string; // Backend confirmed: "interview" not "interview_id"
+    interviewer: string; // Backend confirmed: "interviewer" not "interviewer_id"
     interviewer_name?: string;
     interviewer_email?: string;
 
-    // Rating scores (1-4 scale for consultancy)
+    // Rating scores (1-4 scale for consultancy) - Backend confirmed all 11 criteria
     relevant_experience: number;
-    project_management: number;
+    similar_work_experience: number;
+    project_management_knowledge: number;
     recent_experience: number;
     comparable_projects: number;
     communication_skills: number;
@@ -176,33 +209,36 @@ export interface ConsultancyInterviewScore {
     timeline_management: number;
     toolset_framework: number;
 
-    // Overall evaluation
-    total_score?: number; // Sum of all ratings (max 50)
-    percentage_score?: number; // (total_score / 50) * 100
+    // Overall evaluation - Backend calculates these automatically
+    total_score?: number; // Backend calculated sum
+    percentage_score?: number; // Backend calculated percentage
 
     // Metadata
     submitted_at?: string;
     status: 'PENDING' | 'SUBMITTED';
+    created_datetime?: string;
+    updated_datetime?: string;
 }
 
 // Interview schedule for consultancy interviews
 export interface ConsultancyInterviewSchedule {
     id: string;
-    application: string;
-    application_details?: {
+    applicant: {
         id: string;
-        applicant_name: string;
-        position: string;
+        name: string; // Backend confirmed: "name" not "applicant_name"
         email: string;
+        phone_number: string;
+        position_under_contract: string; // Backend confirmed field name
     };
     interview_type: 'COMMITTEE' | 'NON_COMMITTEE';
-    interviewers: string[]; // Array of user IDs
-    interviewer_details?: Array<{
+    committee_members: string[]; // Backend confirmed: "committee_members" not "interviewers"
+    committee_members_details?: Array<{
         id: string;
-        full_name: string;
+        first_name: string;
+        last_name: string;
         email: string;
     }>;
-    interview_date: string;
+    date: string; // Backend confirmed: single "date" field not "interview_date"
     location?: string;
     status: 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
 
@@ -295,7 +331,8 @@ export interface IConsultancyStaffSingleData {
     scores?: ConsultancyInterviewScore[]; // All individual scores
     average_scores?: {
         relevant_experience: number;
-        project_management: number;
+        similar_work_experience: number;
+        project_management_knowledge: number;
         recent_experience: number;
         comparable_projects: number;
         communication_skills: number;

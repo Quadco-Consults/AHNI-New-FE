@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import BackNavigation from "components/atoms/BackNavigation";
 import FormButton from "@/components/FormButton";
 import Card from "components/Card";
@@ -11,18 +12,20 @@ import { toast } from "sonner";
 import { useRouter, useParams } from "next/navigation";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { useGetSingleConsultancyApplicant } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
+import { useGetSingleConsultantManagement } from "@/features/contracts-grants/controllers/consultantManagementController";
 import { LoadingSpinner } from "components/Loading";
-import { useGetMyPendingAdhocInterviews } from "@/features/programs/controllers/adhocInterviewController";
-import { useGetMyPendingConsultancyInterviews } from "@/features/contracts-grants/controllers/consultancyInterviewController";
+import { useGetMyPendingAdhocInterviews, useGetAllAdhocInterviews } from "@/features/programs/controllers/adhocInterviewController";
+import { useGetMyPendingConsultancyInterviews, useGetAllConsultancyInterviews } from "@/features/contracts-grants/controllers/consultancyInterviewController";
 import { useGetUserProfile } from "@/features/auth/controllers/userController";
 import { useUpdateAdhocApplicantStatus } from "@/features/programs/controllers/adhocApplicantController";
 import { AlertCircle, ShieldX } from "lucide-react";
 
 const guide = [
-    { main: "Unacceptable", sub: "(Did not meet any requirements)" },
-    { main: "Marginal", sub: "(Meets some requirements, but not others)" },
-    { main: "Acceptable", sub: "(Meets most but not all reuirements)" },
-    { main: "Excellent", sub: "(Meets all exceeds all requirements)" },
+    { main: "1 - Unacceptable", sub: "(Did not meet any requirements)" },
+    { main: "2 - Poor", sub: "(Meets very few requirements)" },
+    { main: "3 - Marginal", sub: "(Meets some requirements, but not others)" },
+    { main: "4 - Acceptable", sub: "(Meets most but not all requirements)" },
+    { main: "5 - Excellent", sub: "(Meets and exceeds all requirements)" },
 ];
 
 const scoreOptions = ["1", "2", "3", "4", "5"].map((value) => ({
@@ -31,8 +34,9 @@ const scoreOptions = ["1", "2", "3", "4", "5"].map((value) => ({
 }));
 
 const evaluationCriteria = [
-    { name: "relevant_experience", label: "Has done similar work previously (nature of task)" },
-    { name: "project_management", label: "Understands project management and the potential task(s)" },
+    { name: "relevant_experience", label: "Relevant professional experience in the field" },
+    { name: "similar_work_experience", label: "Has done similar work previously (nature of task)" },
+    { name: "project_management_knowledge", label: "Understands project management and the potential task(s)" },
     { name: "recent_experience", label: "Experience is recent (2-3 years)" },
     { name: "comparable_projects", label: "Worked with projects comparable to the AHNi (budget and complexity)" },
     { name: "communication_skills", label: "Excellent Communication Skills" },
@@ -61,14 +65,69 @@ export default function ApplicantInterviewPage() {
     const { data: applicantData, isLoading } = useGetSingleConsultancyApplicant(applicantId);
     const applicantName = applicantData?.data?.name || "Applicant";
 
+    // Fetch consultancy data to get the correct consultancy ID for interviews
+    const { data: consultancyData } = useGetSingleConsultantManagement(adhocId);
+
     // Fetch current user profile
-    const { data: userProfile } = useGetUserProfile();
+    const { data: userProfile, isLoading: loadingUserProfile } = useGetUserProfile();
     const currentUserId = userProfile?.data?.id;
-    const isAdmin = userProfile?.data?.is_superuser || userProfile?.data?.is_staff;
+    const isAdmin = (userProfile?.data as any)?.is_superuser || (userProfile?.data as any)?.is_staff;
 
     // Fetch pending interviews for the current user (both types)
     const { data: adhocInterviews, isLoading: loadingAdhocInterviews } = useGetMyPendingAdhocInterviews(isAdhocInterview);
     const { data: consultancyInterviews, isLoading: loadingConsultancyInterviews } = useGetMyPendingConsultancyInterviews(!isAdhocInterview);
+
+    // Fetch all interviews to check committee membership (both types)
+    const { data: allAdhocInterviews } = useGetAllAdhocInterviews(isAdhocInterview ? adhocId : undefined, isAdhocInterview);
+    const { data: allConsultancyInterviews, isLoading: loadingAllConsultancyInterviews, error: errorAllConsultancyInterviews } = useGetAllConsultancyInterviews(isAdhocInterview ? undefined : adhocId, !isAdhocInterview);
+
+    console.log('🔍 Hook Parameters Debug:', {
+        isAdhocInterview,
+        adhocId,
+        consultancyIdParam: isAdhocInterview ? undefined : adhocId,
+        enabledParam: !isAdhocInterview,
+        loadingAllConsultancyInterviews,
+        errorAllConsultancyInterviews,
+    });
+
+    console.log('🔍 Consultancy Data Debug:', {
+        consultancyData: consultancyData,
+        consultancyDataStructure: consultancyData?.data,
+        possibleIds: {
+            id: consultancyData?.data?.id,
+            advertisement_id: (consultancyData?.data as any)?.advertisement_id,
+            consultant_id: (consultancyData?.data as any)?.consultant_id,
+            related_consultancy: (consultancyData?.data as any)?.consultancy,
+            rawData: consultancyData?.data,
+        },
+    });
+
+    // Test the API directly to see what's happening
+    React.useEffect(() => {
+        if (consultancyData?.data?.id) {
+            console.log('🧪 Testing API calls directly:');
+
+            // Test without consultancy parameter - CORRECT ENDPOINT
+            AxiosWithToken.get('/contract-grants/consultancy/applicant-interviews/')
+                .then(response => {
+                    console.log('🧪 API call WITHOUT consultancy param (CORRECT ENDPOINT):', response.data);
+                })
+                .catch(error => {
+                    console.log('🧪 API call WITHOUT consultancy param ERROR (CORRECT ENDPOINT):', error);
+                });
+
+            // Test with consultancy parameter - CORRECT ENDPOINT
+            AxiosWithToken.get('/contract-grants/consultancy/applicant-interviews/', {
+                params: { consultancy: consultancyData.data.id }
+            })
+                .then(response => {
+                    console.log('🧪 API call WITH consultancy param (CORRECT ENDPOINT):', response.data);
+                })
+                .catch(error => {
+                    console.log('🧪 API call WITH consultancy param ERROR (CORRECT ENDPOINT):', error);
+                });
+        }
+    }, [consultancyData?.data?.id]);
 
     // Check if user is authorized to interview this applicant
     // Handle nested data structure: response.data.data or response.data
@@ -98,38 +157,143 @@ export default function ApplicantInterviewPage() {
         pendingInterviews: pendingInterviews,
         adhocInterviewsRaw: adhocInterviews,
         consultancyInterviewsRaw: consultancyInterviews,
-        extractedData: adhocInterviews?.data,
+        allAdhocInterviewsRaw: allAdhocInterviews,
+        allConsultancyInterviewsRaw: allConsultancyInterviews,
+        extractedPendingData: isAdhocInterview ? adhocInterviews?.data : consultancyInterviews?.data,
+        extractedAllData: isAdhocInterview ? allAdhocInterviews?.data : allConsultancyInterviews?.data,
+        adhocId: adhocId,
     });
 
-    const isAuthorized = isAdmin || (Array.isArray(pendingInterviews) && pendingInterviews.some((interview: any) => {
-        // Check if this applicant is part of any of the user's pending interviews
-        // For AdHoc interviews, check both 'applicant' (singular) and 'applicants' (plural)
+    // Debug the raw API responses
+    console.log('🔍 Raw API Response Analysis:', {
+        allConsultancyInterviewsStructure: allConsultancyInterviews,
+        allConsultancyDataPath: allConsultancyInterviews?.data,
+        allConsultancyNestedPath: (allConsultancyInterviews?.data as any)?.data,
+        allConsultancyResultsPath: (allConsultancyInterviews?.data as any)?.results,
+    });
+
+    // Check if user is a committee member for any interview involving this applicant
+    const allInterviews = isAdhocInterview
+        ? extractInterviews(allAdhocInterviews)
+        : extractInterviews(allConsultancyInterviews);
+
+    console.log('🔍 Committee Check Setup:', {
+        loadingUserProfile,
+        currentUserId,
+        allInterviewsArray: Array.isArray(allInterviews),
+        allInterviewsLength: Array.isArray(allInterviews) ? allInterviews.length : 'not array',
+        allInterviews: allInterviews,
+    });
+
+    const isCommitteeMember = !loadingUserProfile && currentUserId && Array.isArray(allInterviews) && allInterviews.some((interview: any) => {
+        // Check if this applicant is part of this interview
         const interviewApplicant = interview.applicant; // Singular - for AdHoc
         const interviewApplicants = interview.applicants || []; // Plural - for Consultancy
+        const committeeMembers = interview.committee_members || [];
 
-        console.log('Checking interview:', {
+        console.log('🔍 Checking committee membership:', {
             interviewId: interview.id,
+            committeeMembers: committeeMembers,
+            currentUserId: currentUserId,
             applicant: interviewApplicant,
             applicants: interviewApplicants,
             lookingFor: applicantId,
+            fullInterview: interview,
         });
+
+        // Special logging for our target applicant
+        if (interviewApplicant === applicantId || interviewApplicants.some((app: any) => {
+            const appId = typeof app === 'string' ? app : app.id;
+            return appId === applicantId;
+        })) {
+            console.log('🎯 FOUND INTERVIEW FOR OUR APPLICANT:', {
+                interviewId: interview.id,
+                committeeMembers: committeeMembers,
+                committeeMembersLength: committeeMembers.length,
+                fullInterviewData: interview,
+                applicantMatches: interviewApplicant === applicantId,
+                applicantsArrayMatch: interviewApplicants.some((app: any) => {
+                    const appId = typeof app === 'string' ? app : app.id;
+                    return appId === applicantId;
+                }),
+            });
+        }
+
+        // First check if this interview involves our applicant
+        let hasApplicant = false;
 
         // Check singular applicant field (AdHoc interviews)
         if (interviewApplicant) {
             const appId = typeof interviewApplicant === 'string' ? interviewApplicant : interviewApplicant.id;
-            console.log('Comparing (singular):', appId, '===', applicantId, '?', appId === applicantId);
-            if (appId === applicantId) return true;
+            if (appId === applicantId) hasApplicant = true;
         }
 
         // Check plural applicants field (Consultancy interviews)
-        return interviewApplicants.some((app: any) => {
+        if (interviewApplicants.some((app: any) => {
             const appId = typeof app === 'string' ? app : app.id;
-            console.log('Comparing (plural):', appId, '===', applicantId, '?', appId === applicantId);
             return appId === applicantId;
-        });
-    }));
+        })) {
+            hasApplicant = true;
+        }
 
-    console.log('🔐 Authorization result:', isAuthorized);
+        // If this interview involves our applicant, check if user is a committee member
+        if (hasApplicant) {
+            const isUserInCommittee = committeeMembers.includes(currentUserId);
+            console.log('🔍 User in committee for this interview?', isUserInCommittee);
+            return isUserInCommittee;
+        }
+
+        return false;
+    });
+
+    console.log('🔓 Committee Member Authorization Check:', {
+        currentUserId,
+        isCommitteeMember,
+        allInterviews: allInterviews,
+        reason: 'Backend committee_members serializer has been fixed - proper authorization should work now'
+    });
+
+    const isAuthorized = (!loadingUserProfile && currentUserId) && (isAdmin ||
+        isCommitteeMember ||
+        (Array.isArray(pendingInterviews) && pendingInterviews.some((interview: any) => {
+            // Check if this applicant is part of any of the user's pending interviews
+            // For AdHoc interviews, check both 'applicant' (singular) and 'applicants' (plural)
+            const interviewApplicant = interview.applicant; // Singular - for AdHoc
+            const interviewApplicants = interview.applicants || []; // Plural - for Consultancy
+
+            console.log('Checking pending interview:', {
+                interviewId: interview.id,
+                applicant: interviewApplicant,
+                applicants: interviewApplicants,
+                lookingFor: applicantId,
+            });
+
+            // Check singular applicant field (AdHoc interviews)
+            if (interviewApplicant) {
+                const appId = typeof interviewApplicant === 'string' ? interviewApplicant : interviewApplicant.id;
+                console.log('Comparing (singular):', appId, '===', applicantId, '?', appId === applicantId);
+                if (appId === applicantId) return true;
+            }
+
+            // Check plural applicants field (Consultancy interviews)
+            return interviewApplicants.some((app: any) => {
+                const appId = typeof app === 'string' ? app : app.id;
+                console.log('Comparing (plural):', appId, '===', applicantId, '?', appId === applicantId);
+                return appId === applicantId;
+            });
+        })) ||
+        isCommitteeMember);
+
+    console.log('🔐 Authorization result:', {
+        isAuthorized,
+        isAdmin,
+        hasPendingInterviews: Array.isArray(pendingInterviews) && pendingInterviews.length > 0,
+        isCommitteeMember,
+        allInterviewsCount: Array.isArray(allInterviews) ? allInterviews.length : 0,
+        loadingUserProfile,
+        currentUserId,
+        userProfileLoaded: !!userProfile?.data,
+    });
 
     const form = useForm({
         defaultValues: {
@@ -137,7 +301,8 @@ export default function ApplicantInterviewPage() {
             interview_type: "NON_COMMITTEE",
             // Initialize all scoring fields with empty values - matching backend field names
             relevant_experience: "",
-            project_management: "",
+            similar_work_experience: "",
+            project_management_knowledge: "",
             recent_experience: "",
             comparable_projects: "",
             communication_skills: "",
@@ -165,7 +330,7 @@ export default function ApplicantInterviewPage() {
             return;
         }
 
-        if (scores.length < 10) {
+        if (scores.length < 11) {
             toast.error('Please fill in all evaluation criteria before submitting.');
             return;
         }
@@ -468,7 +633,27 @@ export default function ApplicantInterviewPage() {
                 }
             }
 
-            toast.success(`Interview completed successfully! Total score: ${totalScore}/50`);
+            // Show appropriate success message based on completion status
+            const completionInfo = (interviewResponse as any)?.completionInfo;
+            const isFullyComplete = (interviewResponse as any)?.isFullyComplete;
+
+            if (isFullyComplete) {
+                toast.success(
+                    `Interview fully completed! All ${completionInfo?.totalInterviewers || ''} committee members have submitted their evaluations. ` +
+                    `Your score: ${totalScore}/55. Applicant status updated to INTERVIEWED.`,
+                    { duration: 5000 }
+                );
+            } else if (completionInfo) {
+                toast.success(
+                    `Your evaluation submitted successfully! Total score: ${totalScore}/55. ` +
+                    `Progress: ${completionInfo.completedEvaluations}/${completionInfo.totalInterviewers} committee members completed. ` +
+                    `Waiting for ${completionInfo.remaining} more interviewer(s).`,
+                    { duration: 5000 }
+                );
+            } else {
+                // Fallback message (for non-committee or legacy flow)
+                toast.success(`Interview completed successfully! Total score: ${totalScore}/55`);
+            }
 
             // Navigate to the appropriate database page after successful submission
             setTimeout(() => {
@@ -550,7 +735,7 @@ export default function ApplicantInterviewPage() {
                 <p className="text-sm">
                     Kindly use this matrix to comparatively evaluate consulting
                     candidates. For each consultant, next to each criteria enter
-                    a ranking ranging between 1 and 4, where:
+                    a ranking ranging between 1 and 5, where:
                 </p>
 
                 <ul className="text-sm list-disc pl-[15px] space-y-5">
@@ -599,7 +784,7 @@ export default function ApplicantInterviewPage() {
                                             return !isNaN(numScore) ? sum + numScore : sum;
                                         }, 0);
                                     })()
-                                }/50</p>
+                                }/55</p>
                             </div>
                             <div className="flex items-center justify-end gap-x-5">
                                 <Button 

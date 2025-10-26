@@ -95,7 +95,7 @@ export const useGetAllConsultancyApplicants = ({
             ...(consultant_id && { consultant_id }),
             ...(status && { status }),
             ...(offer_accepted !== undefined && { offer_accepted }),
-            expand: 'advertisement',
+            expand: 'advertisement,schedule',
           },
         });
         return response.data;

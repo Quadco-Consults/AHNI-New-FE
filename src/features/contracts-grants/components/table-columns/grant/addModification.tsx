@@ -71,9 +71,9 @@ const AddModification = () => {
 
   // Create options for the approved_by dropdown
   const userOptions = useMemo(() => {
-    if (!usersData?.data?.results) return [];
+    if (!(usersData as any)?.data?.results) return [];
 
-    return usersData.data.results.map((user) => ({
+    return (usersData as any).data.results.map((user: any) => ({
       value: user.id,
       label: `${user.first_name} ${user.last_name} (${user.email})`,
     }));
@@ -127,8 +127,8 @@ const AddModification = () => {
 
     try {
       if (isSubGrant) {
-        // For subgrants
-        await createSubGrantModification({
+        // For subgrants - backend expects all fields
+        const subGrantPayload = {
           modification_number: submitData.modification_number,
           modification_type: submitData.modification_type,
           reason: submitData.reason,
@@ -138,20 +138,19 @@ const AddModification = () => {
           approval_date: formattedApprovalDate,
           notes: submitData.notes,
           approved_by: submitData.approved_by,
-        } as any);
+        };
+        console.log('SubGrant Modification Payload:', subGrantPayload);
+        await createSubGrantModification(subGrantPayload as any);
       } else {
-        // For regular grants
-        await createGrantModification({
-          modification_number: submitData.modification_number,
-          modification_type: submitData.modification_type,
-          reason: submitData.reason,
-          amount_usd: submitData.amount_usd,
-          amount_ngn: submitData.amount_ngn,
-          effective_date: formattedEffectiveDate,
-          approval_date: formattedApprovalDate,
-          notes: submitData.notes,
-          approved_by: submitData.approved_by,
-        } as any);
+        // For regular grants - backend expects only 4 simple fields
+        const modificationTitle = `${submitData.modification_type} - ${submitData.modification_number}`;
+        const grantPayload = {
+          amount: submitData.amount_usd,
+          description: submitData.reason,
+          date: formattedEffectiveDate,
+          title: modificationTitle,
+        };
+        await createGrantModification(grantPayload as any);
       }
 
       toast.success(isSubGrant ? "Sub-Grant Modified Successfully" : "Grant Modified Successfully");

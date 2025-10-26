@@ -30,20 +30,49 @@ export default function SingleConsultancyStaffDetails({
 
     // Fetch all individual interviews when component mounts
     useEffect(() => {
-        if (id && interview_scores) {
+        if (id && status === 'INTERVIEWED') {
             fetchAllInterviews();
         }
-    }, [id, interview_scores]);
+    }, [id, status]);
 
     const fetchAllInterviews = async () => {
         try {
             setLoadingInterviews(true);
+            console.log(`🔍 Fetching interviews for applicant ID: ${id}`);
+
+            // Use the correct endpoint for fetching interviews
             const response = await AxiosWithToken.get(
-                `/contract-grants/consultancy/applicants/${id}/interviews/`
+                `/contract-grants/consultancy/applicant-interviews/`,
+                {
+                    params: {
+                        applicant: id  // Filter by applicant ID (corrected parameter name)
+                    }
+                }
             );
-            setAllInterviews(response.data || []);
+
+            console.log(`📊 Raw interview response:`, response.data);
+
+            // Extract interviews from the response
+            let interviews = response.data?.data || response.data?.results || response.data || [];
+            if (!Array.isArray(interviews) && typeof interviews === 'object') {
+                interviews = interviews.data || interviews.results || [];
+            }
+
+            console.log(`✅ Filtered interviews for applicant ${id}:`, interviews);
+            console.log(`🔢 Total interviews found: ${Array.isArray(interviews) ? interviews.length : 0}`);
+
+            // Debug: Log the structure of the first interview
+            if (Array.isArray(interviews) && interviews.length > 0) {
+                console.log("🔍 First interview structure:", interviews[0]);
+                console.log("🔍 First interview keys:", Object.keys(interviews[0]));
+                console.log("🔍 First interview relevant_experience:", interviews[0].relevant_experience);
+                console.log("🔍 First interview total_score:", interviews[0].total_score);
+            }
+
+            setAllInterviews(Array.isArray(interviews) ? interviews : []);
         } catch (error) {
             console.error("Error fetching interviews:", error);
+            setAllInterviews([]); // Set empty array on error
         } finally {
             setLoadingInterviews(false);
         }
@@ -82,10 +111,128 @@ export default function SingleConsultancyStaffDetails({
         toolset_framework: "Proven toolset and framework",
     };
 
+    // Calculate average scores from individual interviews
+    const calculateAverageScores = () => {
+        console.log("🧮 calculateAverageScores called with:", {
+            allInterviews: allInterviews,
+            allInterviewsLength: allInterviews?.length || 0,
+            interview_scores: interview_scores
+        });
+
+        if (!allInterviews || allInterviews.length === 0) {
+            console.log("📝 No interviews found, using original interview_scores prop");
+            return interview_scores; // Fallback to original prop if no interviews
+        }
+
+        // Filter interviews that have actual scores
+        const completedInterviews = allInterviews.filter(interview => {
+            // Check if interview has individual criterion scores
+            const hasRelevantExp = interview.relevant_experience !== null &&
+                                  interview.relevant_experience !== undefined &&
+                                  interview.relevant_experience > 0;
+
+            // Check if interview has a calculated total_score (for committee interviews)
+            const hasTotalScore = interview.total_score && interview.total_score > 0;
+
+            console.log(`🔍 Interview ${interview.id || 'unknown'} filtering:`, {
+                relevant_experience: interview.relevant_experience,
+                hasRelevantExp: hasRelevantExp,
+                total_score: interview.total_score,
+                hasTotalScore: hasTotalScore,
+                passesFilter: hasRelevantExp || hasTotalScore,
+                allKeys: Object.keys(interview)
+            });
+
+            // Accept interview if it has either individual scores OR a calculated total
+            return hasRelevantExp || hasTotalScore;
+        });
+
+        console.log(`📊 Completed interviews: ${completedInterviews.length} out of ${allInterviews.length}`);
+
+        if (completedInterviews.length === 0) {
+            console.log("📝 No completed interviews found, using original interview_scores prop");
+            return interview_scores; // Fallback if no completed interviews
+        }
+
+        console.log(`🧮 Calculating average from ${completedInterviews.length} completed interviews`);
+
+        // Calculate averages for each criterion
+        const criteriaKeys = [
+            'relevant_experience',
+            'project_management',
+            'recent_experience',
+            'comparable_projects',
+            'communication_skills',
+            'technical_skill',
+            'relevant_qualification',
+            'academic_credentials',
+            'timeline_management',
+            'toolset_framework'
+        ];
+
+        const averageScores: any = {};
+        let totalSum = 0;
+
+        // Check if we have interviews with total_score but null individual criteria
+        const interviewsWithTotalOnly = completedInterviews.filter(interview =>
+            interview.total_score > 0 && interview.relevant_experience === null
+        );
+
+        if (interviewsWithTotalOnly.length > 0 && interviewsWithTotalOnly.length === completedInterviews.length) {
+            // All interviews have total_score but no individual criteria - use total_score directly
+            const totalScoreSum = completedInterviews.reduce((sum, interview) => sum + interview.total_score, 0);
+            const averageTotalScore = totalScoreSum / completedInterviews.length;
+
+            console.log(`✅ Using total_score directly. Average: ${averageTotalScore}`);
+
+            // Create a proportional breakdown (assuming equal distribution across criteria)
+            const averagePerCriteria = averageTotalScore / criteriaKeys.length;
+
+            criteriaKeys.forEach(key => {
+                averageScores[key] = Math.round(averagePerCriteria * 100) / 100;
+            });
+
+            averageScores.total_score = Math.round(averageTotalScore * 100) / 100;
+        } else {
+            // Normal case: calculate from individual criteria
+            criteriaKeys.forEach(key => {
+                const scores = completedInterviews
+                    .map(interview => interview[key])
+                    .filter(score => score !== null && score !== undefined && score > 0);
+
+                if (scores.length > 0) {
+                    const average = scores.reduce((sum, score) => sum + score, 0) / scores.length;
+                    averageScores[key] = Math.round(average * 100) / 100; // Round to 2 decimal places
+                    totalSum += average;
+                } else {
+                    averageScores[key] = 0;
+                }
+            });
+
+            averageScores.total_score = Math.round(totalSum * 100) / 100;
+        }
+
+        // Add interview date from most recent interview
+        if (completedInterviews.length > 0) {
+            const sortedInterviews = completedInterviews.sort((a, b) =>
+                new Date(b.date).getTime() - new Date(a.date).getTime()
+            );
+            averageScores.interview_date = sortedInterviews[0].date;
+        }
+
+        console.log("✅ Calculated average scores:", averageScores);
+        return averageScores;
+    };
+
+    // Use calculated scores or fallback to original prop
+    const effectiveInterviewScores = calculateAverageScores();
+
     // Debug logging
     console.log("📊 Interview Scores Debug:");
-    console.log("- Has interview_scores:", !!interview_scores);
-    console.log("- Interview scores data:", interview_scores);
+    console.log("- Has interview_scores prop:", !!interview_scores);
+    console.log("- Original interview_scores:", interview_scores);
+    console.log("- All interviews count:", allInterviews.length);
+    console.log("- Effective interview scores:", effectiveInterviewScores);
     console.log("- Applicant name:", name);
     console.log("- Applicant status:", status);
 
@@ -115,24 +262,24 @@ export default function SingleConsultancyStaffDetails({
                     </div>
                 </div>
 
-                {interview_scores && (
+                {effectiveInterviewScores && effectiveInterviewScores.total_score > 0 && (
                     <div className="bg-gradient-to-br from-[#DEA004] to-[#f59e0b] text-white rounded-2xl shadow-xl p-6 min-w-[280px]">
                         <div className="text-center">
                             <div className="text-sm font-medium opacity-90 mb-3">Overall Interview Score</div>
                             <div className="flex items-end justify-center gap-2 mb-2">
-                                <span className="text-6xl font-bold">{interview_scores.total_score || 0}</span>
+                                <span className="text-6xl font-bold">{effectiveInterviewScores.total_score || 0}</span>
                                 <span className="text-3xl font-semibold opacity-80 mb-3">/ 50</span>
                             </div>
                             <div className="text-sm opacity-90">
-                                {interview_scores.total_score && interview_scores.total_score >= 40 ? '🌟 Excellent Performance' :
-                                 interview_scores.total_score && interview_scores.total_score >= 30 ? '✨ Good Performance' :
-                                 interview_scores.total_score && interview_scores.total_score >= 20 ? '👍 Average Performance' :
+                                {effectiveInterviewScores.total_score && effectiveInterviewScores.total_score >= 40 ? '🌟 Excellent Performance' :
+                                 effectiveInterviewScores.total_score && effectiveInterviewScores.total_score >= 30 ? '✨ Good Performance' :
+                                 effectiveInterviewScores.total_score && effectiveInterviewScores.total_score >= 20 ? '👍 Average Performance' :
                                  '📝 Needs Improvement'}
                             </div>
-                            {interview_scores.interview_date && (
+                            {effectiveInterviewScores.interview_date && (
                                 <div className="mt-4 pt-4 border-t border-white/20">
                                     <p className="text-xs opacity-90">
-                                        Interviewed on {new Date(interview_scores.interview_date).toLocaleDateString('en-US', {
+                                        Interviewed on {new Date(effectiveInterviewScores.interview_date).toLocaleDateString('en-US', {
                                             year: 'numeric',
                                             month: 'long',
                                             day: 'numeric'
@@ -378,7 +525,7 @@ export default function SingleConsultancyStaffDetails({
                     </div>
                 </section>
 
-                {interview_scores && (
+                {effectiveInterviewScores && effectiveInterviewScores.total_score > 0 && (
                     <section className="col-span-3 space-y-4">
                         <h3 className="font-bold text-xl text-gray-900 flex items-center gap-2">
                             <svg className="w-6 h-6 text-[#DEA004]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -389,27 +536,35 @@ export default function SingleConsultancyStaffDetails({
 
                         <div className="bg-gradient-to-br from-gray-50 to-gray-100 p-6 rounded-xl border border-gray-200 shadow-sm">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {Object.entries(interview_scores).map(([key, value]) => {
+                                {Object.entries(effectiveInterviewScores).map(([key, value]) => {
                                     // Skip total_score and interview_date as they're handled separately
                                     if (key === 'total_score' || key === 'interview_date' || value === undefined) return null;
 
                                     const label = criteriaLabels[key];
                                     if (!label) return null;
 
-                                    // Calculate percentage for visual bar
-                                    const percentage = ((value as number) / 5) * 100;
+                                    // Convert value to number for calculations
+                                    const numValue = typeof value === 'string' ? parseFloat(value) : (value as number);
 
-                                    // Determine color based on score
+                                    // Skip if value is 0 or null
+                                    if (!numValue || numValue <= 0) return null;
+
+                                    // Calculate percentage for visual bar
+                                    const percentage = (numValue / 5) * 100;
+
+                                    // Determine color based on score (1-5 scale)
                                     let barColor = 'bg-red-500';
-                                    if (value >= 4) barColor = 'bg-green-500';
-                                    else if (value >= 3) barColor = 'bg-yellow-500';
+                                    if (numValue >= 5) barColor = 'bg-green-500';
+                                    else if (numValue >= 4) barColor = 'bg-blue-500';
+                                    else if (numValue >= 3) barColor = 'bg-yellow-500';
+                                    else if (numValue >= 2) barColor = 'bg-orange-500';
 
                                     return (
                                         <div key={key} className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
                                             <div className="flex justify-between items-start mb-2">
                                                 <p className="text-sm font-medium text-gray-700 leading-tight flex-1">{label}</p>
                                                 <div className="ml-3 flex items-center gap-1">
-                                                    <span className="text-xl font-bold text-gray-900">{value}</span>
+                                                    <span className="text-xl font-bold text-gray-900">{numValue.toFixed(1)}</span>
                                                     <span className="text-sm text-gray-500">/ 5</span>
                                                 </div>
                                             </div>
@@ -427,7 +582,7 @@ export default function SingleConsultancyStaffDetails({
                     </section>
                 )}
 
-                {interview_scores && allInterviews.length > 1 && (
+                {effectiveInterviewScores && allInterviews.length > 1 && (
                     <section className="col-span-3 space-y-4">
                         <div className="flex items-center justify-between">
                             <h3 className="font-bold text-xl text-gray-900 flex items-center gap-2">
@@ -454,7 +609,7 @@ export default function SingleConsultancyStaffDetails({
                             </div>
                         ) : (
                             <div className="space-y-6">
-                                {allInterviews.map((interview, index) => {
+                                {allInterviews.map((interview) => {
                                     const totalScore = [
                                         interview.relevant_experience,
                                         interview.project_management,

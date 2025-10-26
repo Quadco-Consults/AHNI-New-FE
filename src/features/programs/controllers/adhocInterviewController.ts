@@ -172,6 +172,26 @@ export const useGetAdhocInterviewSummary = (interviewId: string, enabled: boolea
   });
 };
 
+// Get All AdHoc Interviews (for a specific adhoc management program)
+export const useGetAllAdhocInterviews = (adhocId?: string, enabled: boolean = true) => {
+  return useQuery<ApiResponse<AdhocInterviewSchedule[]>>({
+    queryKey: ["adhoc-interviews", adhocId],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get(BASE_URL, {
+          params: adhocId ? { adhoc_management: adhocId } : undefined,
+        });
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    enabled: enabled,
+    refetchOnWindowFocus: false,
+  });
+};
+
 // Create AdHoc Interview
 export const useCreateAdhocInterview = () => {
   const queryClient = useQueryClient();

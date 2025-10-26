@@ -29,7 +29,13 @@ export default function CloseOutPlan() {
     // Merge project details with close-out plans
     const enrichedResults = useMemo(() => {
         const closeoutPlans = data?.data?.results || [];
-        const projects = projectsData?.data?.results || [];
+        // Try both possible data structures
+        const projects = (projectsData as any)?.data?.results || projectsData?.results || [];
+
+        // Debug logging
+        console.log('Projects data structure:', projectsData);
+        console.log('Projects count:', projects.length);
+        console.log('Closeout plans count:', closeoutPlans.length);
 
         return closeoutPlans.map(plan => {
             // If project is already an object, return as is
@@ -37,12 +43,24 @@ export default function CloseOutPlan() {
                 return plan;
             }
 
-            // Project is a string - try to match by both ID and title/name
-            const projectDetails = projects.find(p =>
-                p.id === plan.project ||
-                p.title === plan.project ||
-                p.project_id === plan.project
-            );
+            // Project is a string - try to match by ID, title, or project_id (case-insensitive)
+            const projectString = String(plan.project || '').trim().toLowerCase();
+            const projectDetails = projects.find(p => {
+                const id = (p.id || '').toLowerCase();
+                const title = (p.title || '').toLowerCase();
+                const projectId = (p.project_id || '').toLowerCase();
+
+                return id === projectString ||
+                       title === projectString ||
+                       projectId === projectString;
+            });
+
+            if (projectDetails) {
+                console.log(`✓ Matched "${plan.project}" → "${projectDetails.title}" (Donor: ${projectDetails.funding_sources?.map((f: any) => f.name).join(', ') || 'None'})`);
+            } else {
+                console.warn(`✗ No match found for closeout plan: "${plan.project}"`);
+                console.log('  Available projects:', projects.map(p => `"${p.title}"`).slice(0, 10));
+            }
 
             return {
                 ...plan,

@@ -165,3 +165,21 @@ export const useDeleteCloseOutPlanMutation = useDeleteCloseoutPlan;
 
 // Missing named export
 export const useGetSingleCloseOutPlan = useGetSingleCloseoutPlan;
+
+// Update Task Status
+export const useUpdateTaskStatus = () => {
+  const updateTaskStatus = async (planId: string, taskId: string, status: string) => {
+    try {
+      const response = await AxiosWithToken.patch(
+        `${BASE_URL}${planId}/tasks/${taskId}/`,
+        { status }
+      );
+      return response.data;
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+    }
+  };
+
+  return { updateTaskStatus };
+};
