@@ -33,13 +33,18 @@ const WorkforceDatabase = () => {
   const [isDialogOpen, setDialogOpen] = useState(false);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize] = useState(20); // Set reasonable page size
 
   const { data: employeeData, isLoading: getEmployeeLoading } = useGetEmployeeOnboardings({
     page: 1,
-    size: 1000,
+    size: 1000, // Get all employee onboarding records
     search: searchTerm
   });
-  const { data: userData, isLoading: getUserLoading } = useGetAllUsers({ page: 1, size: 200 });
+  const { data: userData, isLoading: getUserLoading } = useGetAllUsers({
+    page: 1,
+    size: 1000 // Get all users to properly combine
+  });
 
   const { deleteEmployeeOnboarding, isLoading } =
     useDeleteEmployeeOnboarding(employeeID);
@@ -61,23 +66,69 @@ const WorkforceDatabase = () => {
   console.log("  Filtered AHNI staff and admin:", filteredUsers.length);
   console.log("  Excluded other user types:", (userData?.data?.results?.length || 0) - filteredUsers.length);
 
-  // Combine employee onboarding data with filtered user data
+  // Get employee IDs to avoid duplicates
+  const onboardedEmployeeIds = new Set(
+    (employeeData?.data?.results || []).map((emp: any) => emp.user || emp.user_id || emp.id)
+  );
+
+  // Combine employee onboarding data with filtered user data, avoiding duplicates
   const combinedData = [
     ...(employeeData?.data?.results || []),
-    ...filteredUsers.map((user: any) => ({
-      id: user.id,
-      legal_firstname: user.first_name,
-      legal_lastname: user.last_name,
-      email: user.email,
-      employment_type: "Staff",
-      position: user.position,
-      serial_id_code: `AHNI-${user.id.slice(0, 8)}`, // Generate staff ID for users
-      designation: { name: user.position },
-      location: { email: user.email }
-    }))
+    ...filteredUsers
+      .filter((user: any) => !onboardedEmployeeIds.has(user.id)) // Exclude users who already have onboarding records
+      .map((user: any) => ({
+        id: user.id,
+        legal_firstname: user.first_name,
+        legal_lastname: user.last_name,
+        email: user.email,
+        employment_type: "Staff",
+        position: user.position,
+        serial_id_code: `AHNI-${user.id.slice(0, 8)}`, // Generate staff ID for users
+        designation: { name: user.position },
+        location: { email: user.email },
+        user_type: user.user_type,
+        is_from_user_table: true // Flag to identify source
+      }))
   ];
 
-  console.log("Combined workforce data:", combinedData);
+  // Apply search filtering on combined data
+  const filteredData = combinedData.filter((item: any) => {
+    if (!searchTerm) return true;
+
+    const searchLower = searchTerm.toLowerCase();
+    const fullName = `${item.legal_firstname || ""} ${item.legal_lastname || ""}`.toLowerCase();
+    const email = (item.location?.email || item.email || "").toLowerCase();
+    const staffId = (item.serial_id_code || "").toLowerCase();
+    const position = (item.designation?.name || item.position || "").toLowerCase();
+
+    return fullName.includes(searchLower) ||
+           email.includes(searchLower) ||
+           staffId.includes(searchLower) ||
+           position.includes(searchLower);
+  });
+
+  // Apply client-side pagination
+  const totalItems = filteredData.length;
+  const totalPages = Math.ceil(totalItems / pageSize);
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+  const workforceData = filteredData.slice(startIndex, endIndex);
+
+  console.log("📊 Combined Workforce Database Stats:");
+  console.log("  Employee onboarding records:", employeeData?.data?.results?.length || 0);
+  console.log("  Filtered users (no onboarding):", filteredUsers.length - onboardedEmployeeIds.size);
+  console.log("  Total combined items:", totalItems);
+  console.log("  Items after search filter:", filteredData.length);
+  console.log("  Current page:", currentPage);
+  console.log("  Page size:", pageSize);
+  console.log("  Items on current page:", workforceData.length);
+  console.log("  Total pages:", totalPages);
+
+  // Reset to first page when search term changes
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+    setCurrentPage(1); // Reset to first page on search
+  };
 
   const handleDelete = (id: string) => {
     setEmployeedId(id);
@@ -194,11 +245,31 @@ const WorkforceDatabase = () => {
 
   return (
     <div className='space-y-6'>
+      {/* Debug info for development */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+          <p className="text-sm text-blue-800">
+            <strong>Debug:</strong> Page {currentPage} of {totalPages}
+            {" | "}Onboarding: {employeeData?.data?.results?.length || 0}
+            {" | "}Users: {filteredUsers.filter((user: any) => !onboardedEmployeeIds.has(user.id)).length}
+            {" | "}Total: {totalItems} combined
+            {" | "}Showing: {workforceData.length} on page
+            {searchTerm && ` | Search: "${searchTerm}" (${filteredData.length} results)`}
+          </p>
+        </div>
+      )}
+
       <div className='flex justify-between items-center'>
         <div>
           <p className='text-sm text-gray-600'>
-            Total Employees: {combinedData.length}
-            {searchTerm && ` (filtered from ${(employeeData?.data?.results?.length || 0) + filteredUsers.length})`}
+            Total Employees: {totalItems}
+            {searchTerm && ` (${filteredData.length} found for "${searchTerm}")`}
+            <span className="ml-2 text-gray-500">
+              (Page {currentPage} of {totalPages})
+            </span>
+          </p>
+          <p className='text-xs text-gray-500 mt-1'>
+            {employeeData?.data?.results?.length || 0} from onboarding + {filteredUsers.filter((user: any) => !onboardedEmployeeIds.has(user.id)).length} from users
           </p>
         </div>
         <Button onClick={() => setIsUploadModalOpen(true)}>
@@ -212,7 +283,7 @@ const WorkforceDatabase = () => {
             <SearchIcon />
             <input
               className='ml-2 h-6 border-none bg-none focus:outline-none outline-none w-[100%]'
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => handleSearch(e.target.value)}
               type='text'
               placeholder='Search by name, ID, or email...'
               value={searchTerm}
@@ -224,9 +295,14 @@ const WorkforceDatabase = () => {
         </div>
 
         <DataTable
-          data={combinedData}
+          data={workforceData}
           columns={columns}
           isLoading={getEmployeeLoading || getUserLoading}
+          pagination={{
+            total: totalItems,
+            pageSize: pageSize,
+            onChange: (page: number) => setCurrentPage(page),
+          }}
         />
       </Card>
 
