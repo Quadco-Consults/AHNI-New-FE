@@ -52,13 +52,13 @@ const Registration = () => {
   const vendorId = query.get("id");
   const eoiId = query.get("eoi_id"); // Capture EOI ID from URL if vendor is registering from an EOI
 
-  // Use the hook correctly
+  // Use the hook correctly - only call if vendorId exists to avoid 401 on public pages
   const {
     data: vendor,
     isLoading,
     error,
     // @ts-ignore
-  } = VendorsAPI.useGetVendor(vendorId);
+  } = VendorsAPI.useGetVendor(vendorId, { enabled: !!vendorId });
 
   // Add the create vendor mutation hook
   const { createVendor: createVendorMutation, isLoading: isCreatingVendor } = VendorsAPI.useCreateVendor();

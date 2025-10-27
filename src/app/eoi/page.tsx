@@ -18,131 +18,57 @@ import {
   Users,
   Eye
 } from "lucide-react";
+import { useGetPublicEois } from "@/features/procurement/controllers/eoiController";
 import { EOIResultsData } from "@/features/procurement/types/eoi";
 
 export default function PublicOpportunitiesPage() {
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [typeFilter, setTypeFilter] = useState("all");
   const [page, setPage] = useState(1);
 
-  // Mock opportunities data for public display
-  // TODO: Replace with real API data when public endpoint is available
-  const mockOpportunities: EOIResultsData[] = [
-    {
-      id: "1",
-      created_at: "2024-10-01T00:00:00Z",
-      updated_at: "2024-10-01T00:00:00Z",
-      name: "Medical Equipment Procurement - Phase 2",
-      description: "Procurement of essential medical equipment including diagnostic machines, patient monitoring systems, and surgical instruments for healthcare facilities across Nigeria.",
-      status: "active",
-      opening_date: "2024-11-01T00:00:00Z",
-      closing_date: "2024-11-30T23:59:59Z",
-      document: "",
-      eoi_number: "EOI-2024-001",
-      type: "OPEN_TENDER",
-      financial_year: "2024",
-      categories: [
-        { id: "1", name: "Medical Equipment", parent_category: null },
-        { id: "2", name: "Healthcare Technology", parent_category: null }
-      ]
-    },
-    {
-      id: "2",
-      created_at: "2024-09-15T00:00:00Z",
-      updated_at: "2024-09-15T00:00:00Z",
-      name: "IT Infrastructure Services",
-      description: "Comprehensive IT infrastructure upgrade including network equipment, servers, cybersecurity solutions, and technical support services for AHNI facilities.",
-      status: "active",
-      opening_date: "2024-10-15T00:00:00Z",
-      closing_date: "2024-11-15T23:59:59Z",
-      document: "",
-      eoi_number: "EOI-2024-002",
-      type: "LIMITED_SOLICITATION",
-      financial_year: "2024",
-      categories: [
-        { id: "3", name: "Information Technology", parent_category: null },
-        { id: "4", name: "Network Infrastructure", parent_category: null }
-      ]
-    },
-    {
-      id: "3",
-      created_at: "2024-08-20T00:00:00Z",
-      updated_at: "2024-08-20T00:00:00Z",
-      name: "Healthcare Facility Maintenance Services",
-      description: "Ongoing maintenance and repair services for healthcare facilities including HVAC systems, electrical installations, plumbing, and general facility management.",
-      status: "closed",
-      opening_date: "2024-09-01T00:00:00Z",
-      closing_date: "2024-10-15T23:59:59Z",
-      document: "",
-      eoi_number: "EOI-2024-003",
-      type: "PROCUREMENT_WITH_REGISTRATION",
-      financial_year: "2024",
-      categories: [
-        { id: "5", name: "Facility Management", parent_category: null },
-        { id: "6", name: "Maintenance Services", parent_category: null }
-      ]
-    },
-    {
-      id: "4",
-      created_at: "2024-10-10T00:00:00Z",
-      updated_at: "2024-10-10T00:00:00Z",
-      name: "Pharmaceutical Supplies and Medical Consumables",
-      description: "Procurement of essential pharmaceuticals, medical consumables, personal protective equipment, and laboratory supplies for healthcare service delivery.",
-      status: "active",
-      opening_date: "2024-11-05T00:00:00Z",
-      closing_date: "2024-12-05T23:59:59Z",
-      document: "",
-      eoi_number: "EOI-2024-004",
-      type: "OPEN_TENDER",
-      financial_year: "2024",
-      categories: [
-        { id: "7", name: "Pharmaceuticals", parent_category: null },
-        { id: "8", name: "Medical Consumables", parent_category: null }
-      ]
-    },
-    {
-      id: "5",
-      created_at: "2024-09-25T00:00:00Z",
-      updated_at: "2024-09-25T00:00:00Z",
-      name: "Training and Capacity Building Services",
-      description: "Professional training services for healthcare workers, administrative staff, and technical personnel to enhance service delivery and operational efficiency.",
-      status: "pending",
-      opening_date: "2024-11-20T00:00:00Z",
-      closing_date: "2024-12-20T23:59:59Z",
-      document: "",
-      eoi_number: "EOI-2024-005",
-      type: "NEW_VENDOR",
-      financial_year: "2024",
-      categories: [
-        { id: "9", name: "Training Services", parent_category: null },
-        { id: "10", name: "Capacity Building", parent_category: null }
-      ]
-    }
-  ];
-
-  // Filter opportunities based on search and status
-  const filteredOpportunities = mockOpportunities.filter(opportunity => {
-    const matchesSearch = search === "" ||
-      opportunity.name.toLowerCase().includes(search.toLowerCase()) ||
-      opportunity.description.toLowerCase().includes(search.toLowerCase()) ||
-      opportunity.eoi_number.toLowerCase().includes(search.toLowerCase());
-
-    const matchesStatus = statusFilter === "all" || opportunity.status === statusFilter;
-
-    return matchesSearch && matchesStatus;
+  // Fetch real opportunity data from public API (EOI, RFQ, RFP)
+  const { data: eoiData, isLoading, error } = useGetPublicEois({
+    page,
+    size: 20,
+    search,
+    status: statusFilter === "all" ? "" : statusFilter,
+    opportunity_type: typeFilter === "all" ? "" : typeFilter,
+    enabled: true
   });
 
-  // Simulate pagination
-  const pageSize = 20;
-  const startIndex = (page - 1) * pageSize;
-  const endIndex = startIndex + pageSize;
-  const paginatedOpportunities = filteredOpportunities.slice(startIndex, endIndex);
-  const totalPages = Math.ceil(filteredOpportunities.length / pageSize);
+  const opportunities = eoiData?.data?.results || [];
+  const totalPages = eoiData?.data?.number_of_pages || 1;
 
-  const opportunities = paginatedOpportunities;
-  const isLoading = false;
-  const error = null;
+  // Helper function to determine opportunity type and route using new backend field
+  const getDetailRoute = (opportunity: any) => {
+    // Use the new opportunity_type field from backend
+    switch (opportunity.opportunity_type) {
+      case 'RFQ':
+        return `/rfq/${opportunity.id}`;
+      case 'RFP':
+        return `/rfp/${opportunity.id}`;
+      case 'EOI':
+      default:
+        return `/eoi/${opportunity.id}`;
+    }
+  };
+
+  const getOpportunityType = (opportunity: any) => {
+    // Use the new opportunity_type field, with fallback logic for compatibility
+    if (opportunity.opportunity_type) {
+      return opportunity.opportunity_type;
+    }
+
+    // Fallback logic for older data
+    if (opportunity.request_type === 'REQUEST FOR QUOTATION' ||
+        opportunity.rfq_id ||
+        opportunity.solicitation_items) {
+      return 'RFQ';
+    }
+    return 'EOI';
+  };
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -193,8 +119,8 @@ export default function PublicOpportunitiesPage() {
               Procurement Opportunities
             </h1>
             <p className="text-lg text-muted-foreground font-light max-w-2xl mx-auto">
-              Explore current procurement opportunities, expressions of interest, and tender announcements
-              from the Achieving Health Initiatives Nigeria (AHNI).
+              Explore current procurement opportunities including Expressions of Interest (EOI),
+              Requests for Quotation (RFQ), and tender announcements from the Achieving Health Initiatives Nigeria (AHNI).
             </p>
           </div>
         </div>
@@ -215,6 +141,19 @@ export default function PublicOpportunitiesPage() {
                     className="pl-10"
                   />
                 </div>
+              </div>
+              <div className="md:w-48">
+                <Select value={typeFilter} onValueChange={setTypeFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Filter by type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Types</SelectItem>
+                    <SelectItem value="EOI">EOI Only</SelectItem>
+                    <SelectItem value="RFQ">RFQ Only</SelectItem>
+                    <SelectItem value="RFP">RFP Only</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div className="md:w-48">
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -263,7 +202,7 @@ export default function PublicOpportunitiesPage() {
                   <FileText className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-lg font-semibold mb-2">No Opportunities Found</h3>
                   <p className="text-muted-foreground">
-                    {search || (statusFilter && statusFilter !== "all")
+                    {search || (statusFilter && statusFilter !== "all") || (typeFilter && typeFilter !== "all")
                       ? "Try adjusting your search criteria or filters."
                       : "There are currently no active procurement opportunities."}
                   </p>
@@ -295,22 +234,22 @@ export default function PublicOpportunitiesPage() {
                             )}
                           </div>
                           <CardTitle className="text-xl font-semibold mb-2">
-                            {opportunity.name}
+                            {opportunity.name || opportunity.title}
                           </CardTitle>
                           <div className="flex items-center gap-4 text-sm text-muted-foreground mb-2">
                             <div className="flex items-center gap-1">
                               <FileText className="h-4 w-4" />
-                              <span>{opportunity.eoi_number}</span>
+                              <span>{opportunity.reference_number || opportunity.eoi_number || opportunity.rfq_id || 'N/A'}</span>
                             </div>
                             <div className="flex items-center gap-1">
                               <Building2 className="h-4 w-4" />
-                              <span>{getTypeDisplay(opportunity.type || '')}</span>
+                              <span>{getOpportunityType(opportunity)} - {getTypeDisplay(opportunity.type || opportunity.request_type || '')}</span>
                             </div>
                           </div>
                         </div>
                         <div className="flex flex-col gap-2">
                           <Button
-                            onClick={() => router.push(`/eoi/${opportunity.id}`)}
+                            onClick={() => router.push(getDetailRoute(opportunity))}
                             className="flex items-center gap-2"
                           >
                             <Eye className="h-4 w-4" />
@@ -322,7 +261,7 @@ export default function PublicOpportunitiesPage() {
 
                     <CardContent>
                       <p className="text-muted-foreground mb-4 line-clamp-2">
-                        {opportunity.description}
+                        {opportunity.description || opportunity.background || 'No description available'}
                       </p>
 
                       <div className="grid md:grid-cols-2 gap-4 mb-4">

@@ -105,8 +105,20 @@ AxiosWithToken.interceptors.response.use(
     }
 
     if (error.response && error.response.status === 401) {
-      console.warn('Unauthorized access - redirecting to login');
-      window.location.href = "/auth/login";
+      console.warn('Unauthorized access detected');
+
+      // Check if we're on a public route - don't redirect these to login
+      const publicRoutes = ['/eoi/', '/rfq/', '/rfp/', '/vendor-portal/login'];
+      const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
+      const isPublicRoute = publicRoutes.some(route => currentPath.includes(route));
+
+      if (!isPublicRoute) {
+        console.warn('Redirecting to login from protected route');
+        window.location.href = "/auth/login";
+      } else {
+        console.warn('401 on public route - not redirecting to login');
+      }
+
       return Promise.reject(error);
     }
 
