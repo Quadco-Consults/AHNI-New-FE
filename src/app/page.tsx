@@ -123,35 +123,33 @@ export default function LandingPage() {
             </div>
 
             <nav className="hidden md:flex items-center space-x-6">
-              <a href="#opportunities" className="text-foreground/80 hover:text-primary transition-colors font-medium">Opportunities</a>
+              <Button
+                variant="ghost"
+                onClick={() => router.push('/eoi')}
+                className="text-foreground/80 hover:text-primary transition-colors font-medium"
+              >
+                View Opportunities
+              </Button>
               <a href="#about" className="text-foreground/80 hover:text-primary transition-colors font-medium">About</a>
               <a href="#contact" className="text-foreground/80 hover:text-primary transition-colors font-medium">Contact</a>
             </nav>
 
             <div className="flex items-center space-x-3">
-              {isAuthenticated ? (
-                <Button onClick={() => router.push('/dashboard')}>
-                  Go to Dashboard
-                </Button>
-              ) : (
-                <>
-                  <Button
-                    variant="outline"
-                    onClick={() => router.push('/vendor-portal/login')}
-                    className="flex items-center space-x-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground font-light"
-                  >
-                    <Users className="h-4 w-4" />
-                    <span>Vendor Portal</span>
-                  </Button>
-                  <Button
-                    onClick={() => router.push('/auth/login')}
-                    className="flex items-center space-x-2 font-light"
-                  >
-                    <Shield className="h-4 w-4" />
-                    <span>Staff Portal</span>
-                  </Button>
-                </>
-              )}
+              <Button
+                variant="outline"
+                onClick={() => router.push('/vendor-portal/login')}
+                className="flex items-center space-x-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground font-light"
+              >
+                <Users className="h-4 w-4" />
+                <span>Vendor Portal</span>
+              </Button>
+              <Button
+                onClick={() => router.push('/auth/login')}
+                className="flex items-center space-x-2 font-light"
+              >
+                <Shield className="h-4 w-4" />
+                <span>Staff Portal</span>
+              </Button>
             </div>
           </div>
         </div>
