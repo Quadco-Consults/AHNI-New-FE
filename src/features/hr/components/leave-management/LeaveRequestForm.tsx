@@ -56,6 +56,7 @@ const leaveRequestSchema = z.object({
   emergencyContactInfo: z.string().optional(),
   handoverNotes: z.string().optional(),
   backupPersonId: z.string().optional(),
+  approverId: z.string().min(1, "Please select an approver"),
 }).refine((data) => {
   const fromDate = new Date(data.fromDate);
   const toDate = new Date(data.toDate);
@@ -245,6 +246,7 @@ const EnhancedLeaveRequestForm = () => {
         duration: data.duration === 'custom' ? 'full_day' : data.duration,
         reason: data.reason,
         is_emergency: data.isEmergency || false,
+        approver: data.approverId,
         ...(data.backupPersonId && { backup_person: data.backupPersonId }),
         ...(data.handoverNotes && { handover_notes: data.handoverNotes })
       };
@@ -613,6 +615,34 @@ const EnhancedLeaveRequestForm = () => {
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select backup person" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {employees.map((employee) => (
+                          <SelectItem key={employee.id} value={employee.id}>
+                            <div>
+                              <div>{employee.name}</div>
+                              <div className="text-sm text-gray-500">{employee.department} - {employee.position}</div>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="approverId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Leave Approver *</FormLabel>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select who will approve this leave request" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
