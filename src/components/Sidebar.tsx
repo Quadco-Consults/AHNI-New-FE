@@ -149,6 +149,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
   const [selectedLinkSubIndex, setSelectedLinkSubIndex] = useState<
     null | number
   >(null);
+  const [showGlobalHub, setShowGlobalHub] = useState(false);
 
   return (
     <aside
@@ -561,16 +562,35 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
 
           {/* Global Hub */}
           <div className="">
-            <h4
+            <div
+              onClick={() => setShowGlobalHub(!showGlobalHub)}
               className={cn(
-                "text-black/40 px-2 py-3 text-xs font-semibold uppercase duration-200",
+                "hover:text-primary flex w-full items-center justify-between gap-3 px-2 py-3 text-xs font-semibold uppercase hover:cursor-pointer text-black/40 duration-200",
                 sidebarWidth === false ? "block" : "hidden"
               )}
             >
-              GLOBAL HUB
-            </h4>
+              <h4>GLOBAL HUB</h4>
+              <ChevronDown
+                className={cn(
+                  "h-4 w-4 -rotate-90 transition duration-200",
+                  showGlobalHub && "rotate-0"
+                )}
+                aria-hidden="true"
+              />
+            </div>
 
-            <div className="space-y-1">
+            <motion.div
+              animate={
+                showGlobalHub
+                  ? {
+                      height: "fit-content",
+                    }
+                  : {
+                      height: 0,
+                    }
+              }
+              className="h-0 overflow-hidden space-y-1"
+            >
               {globalHubMenu?.map(({ label, path, icon }, id) => {
                 const isActive = path && pathname && pathname.startsWith(path);
                 return (
@@ -603,7 +623,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                   </Link>
                 );
               })}
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
