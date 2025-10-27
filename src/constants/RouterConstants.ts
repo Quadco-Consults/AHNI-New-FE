@@ -547,6 +547,32 @@ export const CG_ROUTES = {
   CONTRACT_REQUEST_DETAILS: "/dashboard/c-and-g/contract-request/:id/",
 };
 
+export const OpportunityRoutes = {
+  // Unified opportunities portal
+  ALL_OPPORTUNITIES: "/dashboard/opportunities",
+  OPPORTUNITY_DETAIL: "/dashboard/opportunities/:id",
+
+  // External job advertisements (HR)
+  EXTERNAL_JOBS: "/dashboard/hr/advertisement",
+  EXTERNAL_JOBS_ADD: "/dashboard/hr/advertisement/add-advertisement",
+  EXTERNAL_JOBS_DETAIL: "/dashboard/hr/advertisement/:id",
+
+  // Consultant advertisements
+  CONSULTANT_JOBS: "/dashboard/c-and-g/consultancy",
+  CONSULTANT_JOBS_ADD: "/dashboard/c-and-g/consultancy/create-consultancy-details",
+  CONSULTANT_JOBS_DETAIL: "/dashboard/c-and-g/consultancy/:id/details",
+
+  // Adhoc advertisements (Project-based)
+  ADHOC_JOBS: "/dashboard/programs/adhoc-management",
+  ADHOC_JOBS_ADD: "/dashboard/programs/adhoc-management/create-adhoc-details",
+  ADHOC_JOBS_DETAIL: "/dashboard/programs/adhoc-management/:id/details",
+
+  // Facilitator advertisements
+  FACILITATOR_JOBS: "/dashboard/c-and-g/facilitator-management",
+  FACILITATOR_JOBS_ADD: "/dashboard/c-and-g/facilitator-management/create/application-details",
+  FACILITATOR_JOBS_DETAIL: "/dashboard/c-and-g/facilitator-management/:id",
+};
+
 export const HrRoutes = {
   ADVERTISEMENT: "/dashboard/hr/advertisement",
   ADVERTISEMENT_ADD: "/dashboard/hr/advertisement/add-advertisement",
