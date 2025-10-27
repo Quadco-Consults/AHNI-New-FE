@@ -32,6 +32,7 @@ import { useGetAllFacilitatorApplicants } from "@/features/contracts-grants/cont
 import { useGetVendor } from "@/features/procurement/controllers/vendorsController";
 import { numberToWords } from "@/utils/numberToWords";
 import { useGetAllAdhocApplicants } from "@/features/programs/controllers/adhocApplicantController";
+import { useGetChartOfAccounts } from "@/features/finance/controllers/accountingController";
 
 export default function CreatePaymentRequest() {
   const form = useForm<TPaymentRequestFormData>({
@@ -55,6 +56,10 @@ export default function CreatePaymentRequest() {
           phone_number: "",
           email: "",
           address: "",
+          expense_account: "",
+          department: "",
+          project: "",
+          cost_center: "",
         },
       ],
     },
@@ -206,6 +211,43 @@ export default function CreatePaymentRequest() {
     !!vendorId && paymentType === "PURCHASE_ORDER"
   );
 
+  // Get chart of accounts for expense account mapping
+  const { data: chartOfAccountsData } = useGetChartOfAccounts({
+    account_type: "EXPENSE",
+    is_active: true,
+  });
+
+  const expenseAccountOptions = useMemo(
+    () =>
+      chartOfAccountsData?.data?.map((account: any) => ({
+        label: `${account.account_code} - ${account.account_name}`,
+        value: account.id,
+        accountCode: account.account_code,
+        accountName: account.account_name,
+      })) || [],
+    [chartOfAccountsData]
+  );
+
+  // Helper function to suggest default expense account based on payment type
+  const getSuggestedExpenseAccount = (paymentType: string) => {
+    const accountSuggestions = {
+      "CONSULTANT": "professional-fees",
+      "FACILITATOR": "training-expenses",
+      "ADHOC_STAFF": "temporary-staff-costs",
+      "PURCHASE_ORDER": "office-supplies",
+      "OTHER": "miscellaneous-expenses"
+    };
+
+    const suggestedCode = accountSuggestions[paymentType as keyof typeof accountSuggestions];
+    if (suggestedCode) {
+      return expenseAccountOptions.find(account =>
+        account.accountCode?.toLowerCase().includes(suggestedCode) ||
+        account.accountName?.toLowerCase().includes(suggestedCode.replace('-', ' '))
+      );
+    }
+    return null;
+  };
+
   const onSubmit: SubmitHandler<TPaymentRequestFormData> = (data) => {
     sessionStorage.setItem("paymentRequestFormData", JSON.stringify(data));
 
@@ -277,6 +319,10 @@ export default function CreatePaymentRequest() {
               : typeof item.adhoc_staff === "string"
               ? item.adhoc_staff
               : "",
+          expense_account: item.expense_account || "",
+          department: item.department || "",
+          project: item.project || "",
+          cost_center: item.cost_center || "",
         })) || [
           {
             payment_to: "",
@@ -288,6 +334,10 @@ export default function CreatePaymentRequest() {
             phone_number: "",
             email: "",
             address: "",
+            expense_account: "",
+            department: "",
+            project: "",
+            cost_center: "",
           },
         ],
       });
@@ -351,6 +401,22 @@ export default function CreatePaymentRequest() {
       }
     }
   }, [vendorDetails, paymentType, form]);
+
+  // Auto-suggest expense account when payment type changes
+  useEffect(() => {
+    if (paymentType && expenseAccountOptions.length > 0) {
+      const suggestedAccount = getSuggestedExpenseAccount(paymentType);
+      if (suggestedAccount) {
+        // Set suggested account for all payment items
+        const currentItems = form.getValues("payment_items");
+        currentItems.forEach((_, index) => {
+          if (!form.getValues(`payment_items.${index}.expense_account`)) {
+            form.setValue(`payment_items.${index}.expense_account`, suggestedAccount.value);
+          }
+        });
+      }
+    }
+  }, [paymentType, expenseAccountOptions, form, getSuggestedExpenseAccount]);
 
   // Helper function to convert amount to words
   const handleAmountChange = (amount: string, index: number) => {
@@ -730,6 +796,47 @@ export default function CreatePaymentRequest() {
                           </div>
                         )}
                       </div>
+
+                      {/* Chart of Accounts Integration Section */}
+                      <div className='mt-6'>
+                        <h5 className='font-medium text-gray-900 mb-3 flex items-center'>
+                          📊 Accounting Information
+                          <span className='text-xs text-gray-500 ml-2 font-normal'>
+                            (For automatic journal entry creation)
+                          </span>
+                        </h5>
+                        <div className='grid grid-cols-2 gap-4 bg-blue-50 p-4 rounded-lg'>
+                          <div>
+                            <FormSelect
+                              label='Expense Account'
+                              name={`payment_items.${index}.expense_account`}
+                              placeholder='Select Expense Account'
+                              options={expenseAccountOptions}
+                            />
+                            <p className='text-xs text-blue-600 mt-1'>
+                              💡 Auto-suggested based on payment type. Select appropriate expense account for journal entry.
+                            </p>
+                          </div>
+
+                          <FormInput
+                            label='Department'
+                            name={`payment_items.${index}.department`}
+                            placeholder='Enter Department'
+                          />
+
+                          <FormInput
+                            label='Project'
+                            name={`payment_items.${index}.project`}
+                            placeholder='Enter Project'
+                          />
+
+                          <FormInput
+                            label='Cost Center'
+                            name={`payment_items.${index}.cost_center`}
+                            placeholder='Enter Cost Center'
+                          />
+                        </div>
+                      </div>
                     </CardContent>
                   </Card>
                 ))}
@@ -748,6 +855,10 @@ export default function CreatePaymentRequest() {
                       phone_number: "",
                       email: "",
                       address: "",
+                      expense_account: "",
+                      department: "",
+                      project: "",
+                      cost_center: "",
                     })
                   }
                   className='mt-4'
