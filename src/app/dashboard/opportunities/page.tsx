@@ -1,25 +1,28 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "components/ui/card";
-import { Input } from "components/ui/input";
-import { Button } from "components/ui/button";
-import { Badge } from "components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
+
+// Force dynamic rendering and disable static optimization
+export const dynamic = 'force-dynamic';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "components/ui/select";
+} from "@/components/ui/select";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuCheckboxItem,
   DropdownMenuTrigger,
-} from "components/ui/dropdown-menu";
-import { LoadingSpinner } from "components/Loading";
+} from "@/components/ui/dropdown-menu";
+import { LoadingSpinner } from "@/components/Loading";
 import {
   Search,
   Filter,
@@ -469,21 +472,21 @@ export default function OpportunitiesPage() {
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
-              disabled={filters.page === 1}
+              disabled={(filters.page || 1) <= 1}
               onClick={() =>
-                setFilters((prev) => ({ ...prev, page: prev.page! - 1 }))
+                setFilters((prev) => ({ ...prev, page: (prev.page || 1) - 1 }))
               }
             >
               Previous
             </Button>
             <span className="text-sm text-gray-600">
-              Page {filters.page} of {data.pagination.total_pages}
+              Page {filters.page || 1} of {data?.pagination?.total_pages || 1}
             </span>
             <Button
               variant="outline"
-              disabled={filters.page === data.pagination.total_pages}
+              disabled={(filters.page || 1) >= (data?.pagination?.total_pages || 1)}
               onClick={() =>
-                setFilters((prev) => ({ ...prev, page: prev.page! + 1 }))
+                setFilters((prev) => ({ ...prev, page: (prev.page || 1) + 1 }))
               }
             >
               Next

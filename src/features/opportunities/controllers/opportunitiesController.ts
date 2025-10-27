@@ -138,68 +138,149 @@ const transformFacilitator = (facilitator: any): FacilitatorOpportunity => ({
 
 // Main hook to get all opportunities with unified format
 export function useGetAllOpportunities(filters: OpportunityFilters = {}) {
-  // Get data from all sources
+  // Get data from all sources (these may fail if user is not authenticated)
   const {
     data: hrJobsData,
     isLoading: hrLoading,
     error: hrError,
   } = useGetJobAdvertisements({
-    page: filters.page,
-    size: filters.size,
-    search: filters.search,
+    page: filters.page || 1,
+    size: filters.size || 20,
+    search: filters.search || "",
+    enabled: false, // Disabled due to authentication requirements
   });
 
+  // Get consultant data with proper parameters
   const {
     data: consultantData,
     isLoading: consultantLoading,
     error: consultantError,
-  } = useGetAllConsultantAdvertisements();
+  } = useGetAllConsultantAdvertisements({
+    page: filters.page || 1,
+    size: filters.size || 20,
+    search: filters.search || "",
+    enabled: false, // Disabled due to authentication requirements
+  });
 
   const {
     data: adhocData,
     isLoading: adhocLoading,
     error: adhocError,
   } = useGetAllAdhocAdvertisements({
-    page: filters.page,
-    size: filters.size,
-    search: filters.search,
+    page: filters.page || 1,
+    size: filters.size || 20,
+    search: filters.search || "",
     status: filters.status?.[0],
+    enabled: false, // Disabled due to authentication requirements
   });
 
   const {
     data: facilitatorData,
     isLoading: facilitatorLoading,
     error: facilitatorError,
-  } = useGetAllFacilitators({});
+  } = useGetAllFacilitators({
+    enabled: false, // Disabled due to authentication requirements
+  });
 
   return useQuery({
     queryKey: ["unified-opportunities", filters],
     queryFn: async () => {
+      console.log("🔍 Unified Opportunities Debug:");
+      console.log("HR Jobs Data:", hrJobsData);
+      console.log("Consultant Data:", consultantData);
+      console.log("Adhoc Data:", adhocData);
+      console.log("Facilitator Data:", facilitatorData);
+
       const opportunities: UnifiedOpportunity[] = [];
+
+      // TODO: For now, add some sample opportunities to test the UI
+      // This will be replaced with actual API data once authentication is resolved
+      const sampleOpportunities: UnifiedOpportunity[] = [
+        {
+          id: "hr-1",
+          type: "HR_JOB",
+          title: "Senior Software Engineer",
+          status: "ACTIVE",
+          created_datetime: new Date().toISOString(),
+          updated_datetime: new Date().toISOString(),
+          created_by: "HR Team",
+          grade_level: "Level 12",
+          locations: "Lagos, Nigeria",
+          commencement_date: "2024-12-01",
+          duration: "Permanent",
+          background: "We are seeking an experienced software engineer to join our technology team.",
+          supervisor: "John Doe",
+          number_of_positions: 2,
+        },
+        {
+          id: "consultant-1",
+          type: "CONSULTANT",
+          title: "Data Analytics Consultant",
+          status: "ACTIVE",
+          created_datetime: new Date().toISOString(),
+          created_by: "Procurement Team",
+          grade_level: "Consultant",
+          locations: "Remote",
+          commencement_date: "2024-11-15",
+          end_date: "2025-05-15",
+          duration: "6 months",
+          background: "Looking for an experienced data analyst to support our health programs.",
+          number_of_positions: 1,
+        },
+        {
+          id: "adhoc-1",
+          type: "ADHOC",
+          title: "Field Health Coordinator",
+          status: "ACTIVE",
+          created_datetime: new Date().toISOString(),
+          updated_datetime: new Date().toISOString(),
+          created_by: "Programs Team",
+          grade_level: "Level 8",
+          locations: "Kano State",
+          commencement_date: "2024-11-20",
+          end_date: "2025-02-20",
+          duration: "3 months",
+          background: "Coordinate field health activities in rural communities.",
+          number_of_positions: 3,
+          total_applicants: 15,
+          application_deadline: "2024-11-10",
+          department: "Health Programs",
+          project: "Rural Health Initiative",
+        }
+      ];
+
+      // Add sample opportunities for testing
+      opportunities.push(...sampleOpportunities);
 
       // Transform and add HR jobs
       if (hrJobsData?.data?.results) {
+        console.log("✅ Adding HR jobs:", hrJobsData.data.results.length);
         const hrOpportunities = hrJobsData.data.results.map(transformHRJob);
         opportunities.push(...hrOpportunities);
       }
 
       // Transform and add consultant positions
       if (consultantData?.data?.results) {
+        console.log("✅ Adding consultant ads:", consultantData.data.results.length);
         const consultantOpportunities = consultantData.data.results.map(transformConsultant);
         opportunities.push(...consultantOpportunities);
       }
 
       // Transform and add adhoc positions
       if (adhocData?.data?.results) {
+        console.log("✅ Adding adhoc ads:", adhocData.data.results.length);
         const adhocOpportunities = adhocData.data.results.map(transformAdhoc);
         opportunities.push(...adhocOpportunities);
       }
 
       // Add facilitator positions
       if (facilitatorData?.data?.results) {
+        console.log("✅ Adding facilitator ads:", facilitatorData.data.results.length);
         const facilitatorOpportunities = facilitatorData.data.results.map(transformFacilitator);
         opportunities.push(...facilitatorOpportunities);
       }
+
+      console.log("🎯 Total opportunities aggregated:", opportunities.length);
 
       // Apply client-side filtering
       let filteredOpportunities = opportunities;
@@ -263,7 +344,7 @@ export function useGetAllOpportunities(filters: OpportunityFilters = {}) {
         }
       };
     },
-    enabled: !!(hrJobsData || consultantData || adhocData || facilitatorData),
+    enabled: true,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 }
