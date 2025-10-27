@@ -30,6 +30,7 @@ import { useGetLeaveDashboard, useGetLeaveRequests, useGetLeaveBalances } from "
 import { useGetUserProfile } from "@/features/auth/controllers/userController";
 import { format } from "date-fns";
 import { normalizeLeaveRequestEmployee, normalizeLeaveBalance } from "../../utils/normalizeLeaveData";
+import { formatEmployeeError } from "../../utils/employeeHelpers";
 
 
 const LeaveDashboard = () => {
@@ -145,28 +146,49 @@ const LeaveDashboard = () => {
   if (error) {
     const errorMessage = error instanceof Error ? error.message : String(error || "An error occurred");
 
-    // If employee profile not found, show helpful message
-    if (errorMessage.includes("Employee profile not found")) {
+    // If employee profile not found or user has no employee, show helpful message
+    if (errorMessage.includes("Employee profile not found") ||
+        errorMessage.includes("User has no employee") ||
+        errorMessage.includes("employee") && errorMessage.includes("not")) {
+
+      const errorInfo = formatEmployeeError(errorMessage);
+
       return (
         <div className="space-y-6">
           <BackendStatusBanner />
 
           <div className="flex items-center justify-center min-h-[400px]">
-            <div className="text-center max-w-md">
+            <div className="text-center max-w-lg">
               <AlertCircle className="w-12 h-12 text-amber-600 mx-auto mb-4" />
-              <h2 className="text-xl font-bold mb-2">Employee Profile Not Set Up</h2>
+              <h2 className="text-xl font-bold mb-2">{errorInfo.title}</h2>
               <p className="text-gray-600 mb-4">
-                Your user account exists, but you don't have an employee profile in the HR system yet.
+                {errorInfo.message}
               </p>
               <p className="text-sm text-gray-500 mb-6">
-                Please contact your HR administrator to set up your employee profile, or use the
-                system with limited functionality.
+                Please contact your HR administrator to set up your employee profile, or try accessing the Employee Onboarding section.
               </p>
               <div className="space-y-2">
                 <Button onClick={() => router.push('/dashboard')}>
                   Go to Dashboard
                 </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => router.push(errorInfo.actionRoute)}
+                >
+                  {errorInfo.actionText}
+                </Button>
               </div>
+
+              {/* Debug info for development */}
+              {process.env.NODE_ENV === 'development' && (
+                <div className="mt-6 p-4 bg-gray-100 rounded text-left text-sm">
+                  <p className="font-semibold mb-2">Debug Info:</p>
+                  <p className="text-gray-700">Error: {errorMessage}</p>
+                  <p className="text-gray-700 mt-1">
+                    This usually means the user account exists but there's no corresponding employee record in the HR system.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>

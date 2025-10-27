@@ -356,11 +356,34 @@ export const useGetLeaveBalances = (enabledOrEmployeeId?: boolean | string, enab
     queryFn: async () => {
       try {
         // Backend uses request.user.employee to get current employee's balances
+        console.log("🚀 Fetching leave balances...");
         const response = await AxiosWithToken.get(`hr/leave-balance/`);
+        console.log("✅ Leave balances response received:", response.data);
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        console.error("❌ Leave balances error details:", {
+          status: axiosError.response?.status,
+          statusText: axiosError.response?.statusText,
+          data: axiosError.response?.data,
+          message: axiosError.message,
+          url: `hr/leave-balance/`
+        });
+
+        // Extract detailed error message
+        const apiError = axiosError.response?.data as any;
+        let errorMessage = "Failed to load leave balances";
+
+        if (apiError?.message) {
+          errorMessage = apiError.message;
+        } else if (apiError?.detail) {
+          errorMessage = apiError.detail;
+        } else if (apiError?.error) {
+          errorMessage = apiError.error;
+        }
+
+        console.log("🔍 Leave balances error message:", errorMessage);
+        throw new Error("Sorry: " + errorMessage);
       }
     },
     enabled: isEnabled,
@@ -376,18 +399,35 @@ export const useGetLeaveDashboard = (enabled: boolean = true) => {
       try {
         // Backend uses request.user.employee to get current employee
         // No need to pass employee_id - it's inferred from the authenticated user
-        console.log("Fetching leave dashboard...");
+        console.log("🚀 Fetching leave dashboard...");
         const response = await AxiosWithToken.get(`${BASE_URL}dashboard/`);
-        console.log("Dashboard response:", response.data);
+        console.log("✅ Dashboard response received:", response.data);
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        console.error("Dashboard error:", {
+        console.error("❌ Dashboard error details:", {
           status: axiosError.response?.status,
+          statusText: axiosError.response?.statusText,
           data: axiosError.response?.data,
-          message: axiosError.message
+          message: axiosError.message,
+          url: `${BASE_URL}dashboard/`
         });
-        const errorMessage = (axiosError.response?.data as any)?.message || axiosError.message || "Failed to load dashboard";
+
+        // Extract detailed error message
+        const apiError = axiosError.response?.data as any;
+        let errorMessage = "Failed to load dashboard";
+
+        if (apiError?.message) {
+          errorMessage = apiError.message;
+        } else if (apiError?.detail) {
+          errorMessage = apiError.detail;
+        } else if (apiError?.error) {
+          errorMessage = apiError.error;
+        } else if (axiosError.message) {
+          errorMessage = axiosError.message;
+        }
+
+        console.log("🔍 Final error message being thrown:", errorMessage);
         throw new Error(errorMessage);
       }
     },
