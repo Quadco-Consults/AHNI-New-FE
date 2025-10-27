@@ -207,7 +207,7 @@ const ActivityMemoView = () => {
                   <span className="font-bold w-20 text-base">To:</span>
                   <div className="flex-1">
                     <div className="text-base">
-                      {memoData?.approved_by_details?.name || memoData?.approved_by || 'Approver'} (MD, AHNi)
+                      {memoData?.approved_by_details?.name || memoData?.approved_by || 'Approver'} (MD, AHNI)
                       <span className="ml-20 text-sm text-gray-600">
                         {memoData.requested_date ? format(new Date(memoData.requested_date), "PP") : new Date().toLocaleDateString()}
                       </span>
@@ -228,7 +228,7 @@ const ActivityMemoView = () => {
                     {memoData?.reviewed_by_details && memoData.reviewed_by_details.length > 0 ? (
                       memoData.reviewed_by_details.map((user: any, index: number) => (
                         <div key={index} className="text-base">
-                          {user.name || `${user.first_name} ${user.last_name}`} ({user.designation || 'Staff'}, AHNi)
+                          {user.name || `${user.first_name} ${user.last_name}`} ({user.designation || 'Staff'}, AHNI)
                           <span className="ml-8 text-sm text-gray-600">
                             {memoData.requested_date ? format(new Date(memoData.requested_date), "PP") : new Date().toLocaleDateString()}
                           </span>

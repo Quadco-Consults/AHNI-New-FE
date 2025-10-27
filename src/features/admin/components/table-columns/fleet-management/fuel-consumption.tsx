@@ -296,7 +296,7 @@ const TableMenu = (fuelData: IFuelRequestPaginatedData) => {
             <img src="/imgs/logo.png" alt="AHNI Logo" class="logo" />
             <div class="company-info">
               <h1 class="company-name">ACHIEVING HEALTH NIGERIA INITIATIVE</h1>
-              <p class="company-tagline">(AHNi) - Excellence in Healthcare Delivery</p>
+              <p class="company-tagline">(AHNI) - Excellence in Healthcare Delivery</p>
             </div>
             <div class="status-badge">${data.status || 'PENDING'}</div>
           </div>
@@ -385,7 +385,7 @@ const TableMenu = (fuelData: IFuelRequestPaginatedData) => {
           ` : ''}
 
           <div class="footer">
-            <p><strong>Achieving Health Nigeria Initiative (AHNi)</strong></p>
+            <p><strong>Achieving Health Nigeria Initiative (AHNI)</strong></p>
             <p>Fleet Management System - Fuel Consumption Request</p>
             <p>This is a computer-generated document and does not require a signature.</p>
           </div>

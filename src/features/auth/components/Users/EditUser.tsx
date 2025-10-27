@@ -32,7 +32,7 @@ const genderOptions = [
 ];
 
 const userTypeOptions = [
-  { label: "AHNi Staff", value: "AHNI_STAFF" },
+  { label: "AHNI Staff", value: "AHNI_STAFF" },
   { label: "Adhoc Staff", value: "ADHOC_STAFF" },
   { label: "Consultant", value: "CONSULTANT" },
   { label: "Facilitator", value: "FACILITATOR" },

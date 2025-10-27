@@ -365,7 +365,7 @@ const Upload = () => {
     {
       doc_type: "Reference Letter",
       label:
-        "Bank Reference Letter duly addressed to AHNi Procurement Committee",
+        "Bank Reference Letter duly addressed to AHNI Procurement Committee",
     },
     {
       doc_type: "Authorized Dealership",

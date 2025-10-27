@@ -383,7 +383,7 @@ const data: Data[] = [
   },
   {
     requisition: "Health Awareness Poster Design",
-    requested_project: "UnitedForHealth: AHNi-UNICEF Joint Initiative",
+    requested_project: "UnitedForHealth: AHNI-UNICEF Joint Initiative",
     status: "On Hold",
     unit: "Operations Department",
     isSelected: false,

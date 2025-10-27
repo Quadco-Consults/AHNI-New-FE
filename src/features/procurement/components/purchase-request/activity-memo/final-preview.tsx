@@ -261,9 +261,9 @@ const Preview = () => {
                   <div className='flex-1'>
                     {/* Display approved_by (primary recipient) */}
                     {requestsDetails?.approved_by_details?.name ? (
-                      <div className='text-lg leading-relaxed print:text-base'>{requestsDetails.approved_by_details.name} (MD, AHNi)</div>
+                      <div className='text-lg leading-relaxed print:text-base'>{requestsDetails.approved_by_details.name} (MD, AHNI)</div>
                     ) : (
-                      <div className='text-lg leading-relaxed print:text-base'>Dr. Umar Adamu (MD, AHNi)</div>
+                      <div className='text-lg leading-relaxed print:text-base'>Dr. Umar Adamu (MD, AHNI)</div>
                     )}
 
                     {/* Display any additional recipients */}
@@ -283,12 +283,12 @@ const Preview = () => {
                     {requestsDetails?.through_details?.length > 0 ? (
                       requestsDetails.through_details.map((user: any, index: number) => (
                         <div key={index} className='text-lg leading-relaxed print:text-base'>
-                          {user.name || `${user.first_name} ${user.last_name}`} ({user.designation || 'Staff'}, AHNi, Abuja)
+                          {user.name || `${user.first_name} ${user.last_name}`} ({user.designation || 'Staff'}, AHNI, Abuja)
                         </div>
                       ))
                     ) : (
                       <>
-                        <div className='text-lg leading-relaxed print:text-base'>Charles Ibezim (Director of Finance, AHNi, Abuja)</div>
+                        <div className='text-lg leading-relaxed print:text-base'>Charles Ibezim (Director of Finance, AHNI, Abuja)</div>
                         <div className='text-lg leading-relaxed print:text-base'>Tine Woji (Project Lead, Global Fund, Abuja)</div>
                       </>
                     )}

@@ -73,7 +73,7 @@ export default function SingleConsultancyStaffDetails({
         relevant_experience: "Has done similar work previously (nature of task)",
         project_management: "Understands project management and the potential task(s)",
         recent_experience: "Experience is recent (2-3 years)",
-        comparable_projects: "Worked with projects comparable to the AHNi (budget and complexity)",
+        comparable_projects: "Worked with projects comparable to the AHNI (budget and complexity)",
         communication_skills: "Excellent Communication Skills",
         technical_skill: "Relevant Technical Skill",
         relevant_qualification: "Qualifications are relevant to the consultancy",

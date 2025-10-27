@@ -395,19 +395,19 @@ export default function AcceptanceForm() {
                         <div className="space-y-4">
                             <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
                                 <AlertCircle className="h-5 w-5 text-amber-600" />
-                                AHNi Safeguarding Policy
+                                AHNI Safeguarding Policy
                             </h3>
 
                             <div className="bg-white border border-amber-200 rounded-lg p-4 text-sm text-gray-700 leading-relaxed space-y-3">
                                 <p>
-                                    AHNi is dedicated to ensuring a secure environment for all its employees, beneficiaries, and individuals
+                                    AHNI is dedicated to ensuring a secure environment for all its employees, beneficiaries, and individuals
                                     contracted by the organisation. This commitment extends to implementing measures aimed at safeguarding
-                                    vulnerable individuals from sexual exploitation and abuse (SEA), whether perpetrated by AHNi employees or
+                                    vulnerable individuals from sexual exploitation and abuse (SEA), whether perpetrated by AHNI employees or
                                     affiliated personnel.
                                 </p>
                                 <p>
-                                    Adhering to child safeguarding principles is fundamental to AHNi's approach. Our safeguarding policies are
-                                    applicable to and binding upon all AHNi staff, board members, volunteers, as well as partner staff
+                                    Adhering to child safeguarding principles is fundamental to AHNI's approach. Our safeguarding policies are
+                                    applicable to and binding upon all AHNI staff, board members, volunteers, as well as partner staff
                                     (including subcontractors, consultants, vendors, and sub-recipients), irrespective of the funding mechanism,
                                     contract amount, or agreement terms.
                                 </p>
@@ -425,7 +425,7 @@ export default function AcceptanceForm() {
                                     htmlFor="accept-safeguarding"
                                     className="text-sm font-medium text-gray-900 cursor-pointer leading-relaxed"
                                 >
-                                    I have read and agree to comply with the AHNi Safeguarding Policy
+                                    I have read and agree to comply with the AHNI Safeguarding Policy
                                 </label>
                             </div>
                         </div>
@@ -497,7 +497,7 @@ export default function AcceptanceForm() {
                                     ? "Processing..."
                                     : isAccepted
                                         ? "Update Contract Details"
-                                        : "Accept Contract & Join AHNi Team"}
+                                        : "Accept Contract & Join AHNI Team"}
                             </FormButton>
 
                             {!isAccepted && (
@@ -520,14 +520,14 @@ export default function AcceptanceForm() {
                     {!isAccepted ? (
                         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                             <p className="text-sm text-blue-800">
-                                <strong>What happens next?</strong> Once you accept this contract, your details will be added to the AHNi Adhoc Staff Database.
+                                <strong>What happens next?</strong> Once you accept this contract, your details will be added to the AHNI Adhoc Staff Database.
                                 You can then complete any additional information required for payroll and administrative purposes.
                             </p>
                         </div>
                     ) : !isEditMode ? (
                         <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                             <p className="text-sm text-green-800">
-                                <strong>Contract Accepted:</strong> Your contract has been accepted and you are now part of the AHNi Adhoc Staff Database.
+                                <strong>Contract Accepted:</strong> Your contract has been accepted and you are now part of the AHNI Adhoc Staff Database.
                                 Click "Edit Details" above if you need to update any information.
                             </p>
                         </div>

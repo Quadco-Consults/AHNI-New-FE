@@ -36,7 +36,7 @@ export default function ConsultancyDatabase() {
             {/* Header with Stats */}
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900">AHNi Consultant Database</h1>
+                    <h1 className="text-3xl font-bold text-gray-900">AHNI Consultant Database</h1>
                     <p className="text-gray-600 mt-2">
                         All consultants who have accepted their contracts and are actively engaged
                     </p>

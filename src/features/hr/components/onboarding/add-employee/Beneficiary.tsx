@@ -559,7 +559,7 @@ const Beneficiary = () => {
               </h4>
               <p className='text-small'>
                 By signing this document, I understand and agree that this
-                Beneficiary Designation Form will apply to AHNi Business Travel/
+                Beneficiary Designation Form will apply to AHNI Business Travel/
                 Accidental death and Dismemberment Policy.
               </p>
               <Separator />

@@ -405,7 +405,7 @@ export default function ViewFacilityMaintenance() {
                 </div>
                 <div class="company-info">
                   <h1 class="company-name">ACHIEVING HEALTH NIGERIA INITIATIVE</h1>
-                  <p class="company-tagline">(AHNi) - Excellence in Healthcare Delivery</p>
+                  <p class="company-tagline">(AHNI) - Excellence in Healthcare Delivery</p>
                 </div>
                 <div class="status-badge">${data.status || 'Pending'}</div>
               </div>
@@ -529,7 +529,7 @@ export default function ViewFacilityMaintenance() {
             ` : ''}
 
             <div class="footer">
-              <p class="footer-text" style="font-size: 13px; font-weight: 700;">Achieving Health Nigeria Initiative (AHNi)</p>
+              <p class="footer-text" style="font-size: 13px; font-weight: 700;">Achieving Health Nigeria Initiative (AHNI)</p>
               <p class="footer-text">Facility Management System - Maintenance Request Form</p>
               <p class="footer-text" style="font-style: italic;">This is a computer-generated document and does not require a signature.</p>
             </div>
