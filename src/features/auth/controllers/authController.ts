@@ -1,6 +1,6 @@
 import useApiManager from "@/constants/mainController";
 import { ILoginData, TLoginFormValues } from "../types/auth";
-import { setAccessToken, setCurrentUser } from "@/utils/auth";
+import { setAccessToken, setRefreshToken, setCurrentUser } from "@/utils/auth";
 
 // Additional types for authenticated password change
 interface AuthChangePasswordRequest {
@@ -30,7 +30,12 @@ export const useLogin = () => {
       // Store token and user data using utilities
       if (response.data?.access_token) {
         setAccessToken(response.data.access_token);
-        
+
+        // Store refresh token if available
+        if (response.data?.refresh_token) {
+          setRefreshToken(response.data.refresh_token);
+        }
+
         if (response.data?.user) {
           setCurrentUser(response.data.user);
         }
