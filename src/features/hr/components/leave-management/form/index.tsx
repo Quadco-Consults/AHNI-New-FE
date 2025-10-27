@@ -60,10 +60,13 @@ const LeaveForm = ({ onSuccess }: LeaveFormProps) => {
 
   // Fetch employees for approver selection
   const { data: employeesData, isLoading: loadingEmployees } = useGetEmployeeOnboardings({ size: 100 });
+
+  // Debug logging for employee data
+  console.log('Leave form - employeesData:', employeesData);
   const employees = Array.isArray(employeesData?.data)
     ? employeesData.data.map((emp: any) => ({
         id: emp.id,
-        name: `${emp.first_name} ${emp.last_name}`,
+        name: `${emp.legal_firstname || emp.first_name || ''} ${emp.legal_lastname || emp.last_name || ''}`.trim(),
         department: typeof emp.department === 'object' ? emp.department?.name || 'N/A' : emp.department || 'N/A',
         employeeId: emp.employee_id || emp.id,
         position: emp.position || emp.job_title || 'N/A'
@@ -71,12 +74,15 @@ const LeaveForm = ({ onSuccess }: LeaveFormProps) => {
     : Array.isArray(employeesData?.data?.results)
     ? employeesData.data.results.map((emp: any) => ({
         id: emp.id,
-        name: `${emp.first_name} ${emp.last_name}`,
+        name: `${emp.legal_firstname || emp.first_name || ''} ${emp.legal_lastname || emp.last_name || ''}`.trim(),
         department: typeof emp.department === 'object' ? emp.department?.name || 'N/A' : emp.department || 'N/A',
         employeeId: emp.employee_id || emp.id,
         position: emp.position || emp.job_title || 'N/A'
       }))
     : [];
+
+  // Debug logging for mapped employees
+  console.log('Leave form - mapped employees:', employees);
 
   // Get employee ID from the first balance record
   const employeeId = balances.length > 0 ? balances[0]?.employee?.id || balances[0]?.employee : "";
