@@ -112,6 +112,7 @@ export interface LeaveRequestFormData {
   emergencyContactInfo?: string;
   handoverNotes?: string;
   backupPersonId?: string;
+  approverId: string;
   attachments?: File[];
 }
 
