@@ -16,7 +16,10 @@ import {
   ArrowRight,
   Building2,
   Users,
-  Eye
+  Eye,
+  Briefcase,
+  User,
+  Presentation
 } from "lucide-react";
 import { useGetPublicEois } from "@/features/procurement/controllers/eoiController";
 import { EOIResultsData } from "@/features/procurement/types/eoi";
@@ -49,6 +52,14 @@ export default function PublicOpportunitiesPage() {
         return `/rfq/${opportunity.id}`;
       case 'RFP':
         return `/rfp/${opportunity.id}`;
+      case 'JOB':
+        return `/jobs/${opportunity.id}`;
+      case 'ADHOC':
+        return `/adhoc-jobs/${opportunity.id}`;
+      case 'CONSULTANT':
+        return `/consultant-jobs/${opportunity.id}`;
+      case 'FACILITATOR':
+        return `/facilitator-jobs/${opportunity.id}`;
       case 'EOI':
       default:
         return `/eoi/${opportunity.id}`;
@@ -86,6 +97,23 @@ export default function PublicOpportunitiesPage() {
 
   const getTypeDisplay = (type: string) => {
     switch (type) {
+      // Procurement types
+      case 'EOI':
+        return 'Expression of Interest';
+      case 'RFQ':
+        return 'Request for Quotation';
+      case 'RFP':
+        return 'Request for Proposal';
+      // Job types
+      case 'JOB':
+        return 'Job Advertisement';
+      case 'ADHOC':
+        return 'Adhoc Position';
+      case 'CONSULTANT':
+        return 'Consultant Opportunity';
+      case 'FACILITATOR':
+        return 'Facilitator Position';
+      // Legacy types
       case 'NEW_VENDOR':
         return 'New Vendor Registration';
       case 'OPEN_TENDER':
@@ -93,7 +121,51 @@ export default function PublicOpportunitiesPage() {
       case 'PROCUREMENT_WITH_REGISTRATION':
         return 'Procurement with Registration';
       default:
-        return 'Expression of Interest';
+        return type || 'Opportunity';
+    }
+  };
+
+  const getTypeIcon = (type: string) => {
+    switch (type) {
+      // Procurement types
+      case 'EOI':
+      case 'RFQ':
+      case 'RFP':
+        return <FileText className="h-4 w-4" />;
+      // Job types
+      case 'JOB':
+        return <Briefcase className="h-4 w-4" />;
+      case 'ADHOC':
+        return <Clock className="h-4 w-4" />;
+      case 'CONSULTANT':
+        return <User className="h-4 w-4" />;
+      case 'FACILITATOR':
+        return <Presentation className="h-4 w-4" />;
+      default:
+        return <FileText className="h-4 w-4" />;
+    }
+  };
+
+  const getTypeColor = (type: string) => {
+    switch (type) {
+      // Procurement types
+      case 'EOI':
+        return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'RFQ':
+        return 'bg-purple-100 text-purple-800 border-purple-200';
+      case 'RFP':
+        return 'bg-indigo-100 text-indigo-800 border-indigo-200';
+      // Job types
+      case 'JOB':
+        return 'bg-green-100 text-green-800 border-green-200';
+      case 'ADHOC':
+        return 'bg-orange-100 text-orange-800 border-orange-200';
+      case 'CONSULTANT':
+        return 'bg-pink-100 text-pink-800 border-pink-200';
+      case 'FACILITATOR':
+        return 'bg-cyan-100 text-cyan-800 border-cyan-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
 
@@ -116,11 +188,11 @@ export default function PublicOpportunitiesPage() {
         <div className="container mx-auto px-4 py-8">
           <div className="text-center">
             <h1 className="text-4xl font-light text-foreground mb-4">
-              Procurement Opportunities
+              All Opportunities
             </h1>
             <p className="text-lg text-muted-foreground font-light max-w-2xl mx-auto">
-              Explore current procurement opportunities including Expressions of Interest (EOI),
-              Requests for Quotation (RFQ), and tender announcements from the Achieving Health Initiatives Nigeria (AHNI).
+              Explore current opportunities including procurement (EOI, RFQ, RFP) and employment opportunities
+              (Jobs, Adhoc positions, Consultant roles, Facilitator positions) from the Achieving Health Initiatives Nigeria (AHNI).
             </p>
           </div>
         </div>
@@ -149,9 +221,13 @@ export default function PublicOpportunitiesPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Types</SelectItem>
-                    <SelectItem value="EOI">EOI Only</SelectItem>
-                    <SelectItem value="RFQ">RFQ Only</SelectItem>
-                    <SelectItem value="RFP">RFP Only</SelectItem>
+                    <SelectItem value="EOI">EOI - Expression of Interest</SelectItem>
+                    <SelectItem value="RFQ">RFQ - Request for Quotation</SelectItem>
+                    <SelectItem value="RFP">RFP - Request for Proposal</SelectItem>
+                    <SelectItem value="JOB">Job Advertisements</SelectItem>
+                    <SelectItem value="ADHOC">Adhoc Positions</SelectItem>
+                    <SelectItem value="CONSULTANT">Consultant Opportunities</SelectItem>
+                    <SelectItem value="FACILITATOR">Facilitator Positions</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -204,7 +280,7 @@ export default function PublicOpportunitiesPage() {
                   <p className="text-muted-foreground">
                     {search || (statusFilter && statusFilter !== "all") || (typeFilter && typeFilter !== "all")
                       ? "Try adjusting your search criteria or filters."
-                      : "There are currently no active procurement opportunities."}
+                      : "There are currently no active opportunities available."}
                   </p>
                 </CardContent>
               </Card>
@@ -220,7 +296,16 @@ export default function PublicOpportunitiesPage() {
                     <CardHeader className="pb-4">
                       <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
                         <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
+                          <div className="flex items-center gap-2 mb-2 flex-wrap">
+                            <Badge
+                              variant="outline"
+                              className={getTypeColor(getOpportunityType(opportunity))}
+                            >
+                              <span className="flex items-center gap-1">
+                                {getTypeIcon(getOpportunityType(opportunity))}
+                                {getTypeDisplay(getOpportunityType(opportunity))}
+                              </span>
+                            </Badge>
                             <Badge
                               variant="outline"
                               className={getStatusColor(opportunity.status)}
@@ -239,12 +324,19 @@ export default function PublicOpportunitiesPage() {
                           <div className="flex items-center gap-4 text-sm text-muted-foreground mb-2">
                             <div className="flex items-center gap-1">
                               <FileText className="h-4 w-4" />
-                              <span>{opportunity.reference_number || opportunity.eoi_number || opportunity.rfq_id || 'N/A'}</span>
+                              <span>Ref: {opportunity.reference_number || opportunity.eoi_number || opportunity.rfq_id || 'N/A'}</span>
                             </div>
-                            <div className="flex items-center gap-1">
-                              <Building2 className="h-4 w-4" />
-                              <span>{getOpportunityType(opportunity)} - {getTypeDisplay(opportunity.type || opportunity.request_type || '')}</span>
-                            </div>
+                            {(opportunity.department || opportunity.project || opportunity.location) && (
+                              <div className="flex items-center gap-1">
+                                <Building2 className="h-4 w-4" />
+                                <span>
+                                  {opportunity.department ||
+                                   (typeof opportunity.project === 'string' ? opportunity.project : opportunity.project?.title) ||
+                                   (Array.isArray(opportunity.location) ? opportunity.location.join(', ') : opportunity.location) ||
+                                   'AHNI'}
+                                </span>
+                              </div>
+                            )}
                           </div>
                         </div>
                         <div className="flex flex-col gap-2">
