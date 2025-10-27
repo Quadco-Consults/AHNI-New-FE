@@ -3,7 +3,6 @@
 import { useParams } from "next/navigation";
 import { useState } from "react";
 import Registration from "@/features/procurement/components/vendor-management/vendor-registration/Registration";
-import EoiAPI, { useGetPublicEoi } from "@/features/procurement/controllers/eoiController";
 import { useGetPublicOpportunity } from "@/features/procurement/controllers/solicitationController";
 import { LoadingSpinner } from "components/Loading";
 import Card from "components/Card";
@@ -22,7 +21,7 @@ import {
   Calendar
 } from "lucide-react";
 
-export default function PublicEOIPage() {
+export default function PublicRFQPage() {
   const params = useParams();
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
   const [selectedPath, setSelectedPath] = useState<'new_vendor' | 'existing_vendor' | null>(null);
@@ -40,26 +39,20 @@ export default function PublicEOIPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Card className="p-8 text-center">
-          <h2 className="text-xl font-semibold text-gray-800 mb-2">EOI Not Found</h2>
-          <p className="text-gray-600">The Expression of Interest you're looking for could not be found or may have expired.</p>
+          <h2 className="text-xl font-semibold text-gray-800 mb-2">RFQ Not Found</h2>
+          <p className="text-gray-600">The Request for Quotation you're looking for could not be found or may have expired.</p>
         </Card>
       </div>
     );
   }
 
-  const eoiData = data.data;
+  const rfqData = data.data;
 
-  // Check if EOI is still open for submissions
-  const isOpen = eoiData.status === "OPEN" && new Date(eoiData.closing_date) > new Date();
+  // Check if RFQ is still open for submissions
+  const isOpen = rfqData.status === "OPEN" && new Date(rfqData.closing_date) > new Date();
 
-  // If EOI is closed, we'll still show details but disable submissions
-
-  const isProcurementWithRegistration = eoiData.type === 'PROCUREMENT_WITH_REGISTRATION';
-  const isNewVendorOnly = eoiData.type === 'NEW_VENDOR';
-  const isOpenTender = eoiData.type === 'OPEN_TENDER';
-
-  // Common EOI Details Component - Always shown
-  const EOIDetailsSection = () => (
+  // Common RFQ Details Component - Always shown
+  const RFQDetailsSection = () => (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12">
       <div className="container mx-auto px-4 max-w-6xl">
         {/* Header */}
@@ -67,8 +60,8 @@ export default function PublicEOIPage() {
           <div className="bg-white p-3 rounded-full w-16 h-16 mx-auto mb-6 flex items-center justify-center">
             <Building2 className="h-8 w-8 text-blue-600" />
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">{eoiData.name}</h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">{eoiData.description}</p>
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">{rfqData.title}</h1>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">{rfqData.background}</p>
 
           <div className="flex flex-wrap justify-center gap-4 mt-6">
             {!isOpen && (
@@ -85,101 +78,84 @@ export default function PublicEOIPage() {
             )}
             <Badge variant="secondary" className="text-sm px-3 py-1">
               <FileText className="h-4 w-4 mr-1" />
-              {getTypeDisplay(eoiData.type || '')}
+              {rfqData.request_type || 'Request for Quotation'}
             </Badge>
-            {eoiData.eoi_number && (
+            {rfqData.rfq_id && (
               <Badge variant="outline" className="text-sm px-3 py-1">
-                ID: {eoiData.eoi_number}
+                ID: {rfqData.rfq_id}
               </Badge>
             )}
           </div>
         </div>
 
-        {/* EOI Information */}
+        {/* RFQ Information */}
         <Card className="p-8 mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Opportunity Details</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Request Details</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div className="flex items-center gap-2 text-sm">
               <Calendar className="h-4 w-4 text-green-600" />
               <span className="font-medium">Opens:</span>
-              <span>{formatDate(eoiData.opening_date)}</span>
+              <span>{formatDate(rfqData.opening_date)}</span>
             </div>
             <div className="flex items-center gap-2 text-sm">
               <Clock className="h-4 w-4 text-red-600" />
               <span className="font-medium">Closes:</span>
-              <span className={!isOpen ? 'text-red-600' : ''}>{formatDate(eoiData.closing_date)}</span>
+              <span className={!isOpen ? 'text-red-600' : ''}>{formatDate(rfqData.closing_date)}</span>
             </div>
-          </div>
-
-          {eoiData.categories && eoiData.categories.length > 0 && (
-            <div className="mb-6">
-              <h4 className="font-semibold text-gray-900 mb-2">Categories</h4>
-              <div className="flex flex-wrap gap-2">
-                {eoiData.categories.map((category, index) => (
-                  <Badge key={index} variant="secondary" className="text-xs">
-                    {typeof category === 'string' ? category : category.name}
-                  </Badge>
-                ))}
+            {rfqData.tender_type && (
+              <div className="flex items-center gap-2 text-sm">
+                <Building2 className="h-4 w-4 text-blue-600" />
+                <span className="font-medium">Tender Type:</span>
+                <span>{rfqData.tender_type}</span>
               </div>
-            </div>
-          )}
+            )}
+          </div>
 
           {/* Status Alert */}
           {!isOpen && (
             <Alert className="mb-6">
               <Info className="h-4 w-4" />
               <AlertDescription>
-                <strong>This opportunity is closed.</strong> Submissions are no longer being accepted.
-                {eoiData.closing_date && (
-                  <span> This EOI closed on {formatDate(eoiData.closing_date)}.</span>
+                <strong>This request is closed.</strong> Submissions are no longer being accepted.
+                {rfqData.closing_date && (
+                  <span> This RFQ closed on {formatDate(rfqData.closing_date)}.</span>
                 )}
               </AlertDescription>
             </Alert>
           )}
         </Card>
 
-        {/* Procurement Details if available */}
-        {eoiData.procurement_details && (
+        {/* Solicitation Items if available */}
+        {rfqData.solicitation_items && rfqData.solicitation_items.length > 0 && (
           <Card className="p-8 mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Procurement Requirements</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {eoiData.procurement_details.technical_requirements && (
-                <div>
-                  <h4 className="font-semibold text-gray-900 mb-2">Technical Requirements</h4>
-                  <p className="text-gray-600 text-sm">{eoiData.procurement_details.technical_requirements}</p>
-                </div>
-              )}
-              {eoiData.procurement_details.financial_requirements && (
-                <div>
-                  <h4 className="font-semibold text-gray-900 mb-2">Financial Requirements</h4>
-                  <p className="text-gray-600 text-sm">{eoiData.procurement_details.financial_requirements}</p>
-                </div>
-              )}
-              {eoiData.procurement_details.min_vendor_experience_years && (
-                <div>
-                  <h4 className="font-semibold text-gray-900 mb-2">Experience Required</h4>
-                  <p className="text-gray-600 text-sm">Minimum {eoiData.procurement_details.min_vendor_experience_years} years</p>
-                </div>
-              )}
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">Required Items</h2>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="border-b">
+                    <th className="text-left p-3 font-semibold">Item</th>
+                    <th className="text-left p-3 font-semibold">Lot</th>
+                    <th className="text-left p-3 font-semibold">Quantity</th>
+                    <th className="text-left p-3 font-semibold">Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rfqData.solicitation_items.map((item, index) => (
+                    <tr key={index} className="border-b hover:bg-gray-50">
+                      <td className="p-3">{item.item_detail?.name || 'N/A'}</td>
+                      <td className="p-3">{item.lot_detail?.name || item.lot}</td>
+                      <td className="p-3">{item.quantity} {item.item_detail?.uom || ''}</td>
+                      <td className="p-3">{item.item_detail?.description || 'N/A'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </Card>
         )}
       </div>
     </div>
   );
-
-  const getTypeDisplay = (type: string) => {
-    switch (type) {
-      case 'NEW_VENDOR':
-        return 'New Vendor Registration';
-      case 'OPEN_TENDER':
-        return 'Open Tender';
-      case 'PROCUREMENT_WITH_REGISTRATION':
-        return 'Procurement with Registration';
-      default:
-        return 'Expression of Interest';
-    }
-  };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -191,23 +167,33 @@ export default function PublicEOIPage() {
 
   const getDaysRemaining = () => {
     const now = new Date();
-    const closing = new Date(eoiData.closing_date);
+    const closing = new Date(rfqData.closing_date);
     const diffTime = closing.getTime() - now.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return diffDays;
   };
 
-  // Always show details first
+  const getTypeDisplay = (type: string) => {
+    switch (type) {
+      case 'REQUEST FOR QUOTATION':
+        return 'Request for Quotation';
+      case 'OPEN_TENDER':
+        return 'Open Tender';
+      default:
+        return 'Procurement Request';
+    }
+  };
+
+  // If RFQ is closed, show details with submission disabled
   if (!isOpen) {
-    // For closed EOIs, show details with submission disabled
     return (
       <>
-        <EOIDetailsSection />
+        <RFQDetailsSection />
         <div className="bg-gray-50 py-8">
           <div className="container mx-auto px-4 max-w-4xl text-center">
             <Card className="p-8">
               <h2 className="text-xl font-semibold text-gray-800 mb-2">Submission Period Closed</h2>
-              <p className="text-gray-600">This Expression of Interest is no longer accepting submissions.</p>
+              <p className="text-gray-600">This Request for Quotation is no longer accepting submissions.</p>
             </Card>
           </div>
         </div>
@@ -215,11 +201,11 @@ export default function PublicEOIPage() {
     );
   }
 
-  // For dual-purpose EOI, show details then path selection
-  if (isProcurementWithRegistration && !selectedPath) {
+  // For open RFQs, show details then path selection
+  if (!selectedPath) {
     return (
       <>
-        <EOIDetailsSection />
+        <RFQDetailsSection />
         <div className="bg-gray-50 py-12">
           <div className="container mx-auto px-4 max-w-6xl">
             {/* Path Selection */}
@@ -232,9 +218,9 @@ export default function PublicEOIPage() {
                     <div className="bg-green-100 p-4 rounded-full w-20 h-20 mx-auto mb-6 flex items-center justify-center">
                       <UserPlus className="h-10 w-10 text-green-600" />
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-4">New Vendor Registration + Bid</h3>
+                    <h3 className="text-xl font-bold text-gray-900 mb-4">New Vendor Registration + Quote</h3>
                     <p className="text-gray-600 mb-6">
-                      First time working with AHNI? Register as a new vendor and submit your bid for this procurement opportunity simultaneously.
+                      First time working with AHNI? Register as a new vendor and submit your quotation for this RFQ simultaneously.
                     </p>
 
                     <div className="space-y-3 mb-6">
@@ -244,18 +230,12 @@ export default function PublicEOIPage() {
                       </div>
                       <div className="flex items-center gap-3 text-sm text-gray-700">
                         <CheckCircle className="h-4 w-4 text-green-600" />
-                        <span>Submit procurement bid</span>
+                        <span>Submit quotation</span>
                       </div>
                       <div className="flex items-center gap-3 text-sm text-gray-700">
                         <CheckCircle className="h-4 w-4 text-green-600" />
                         <span>One-step process</span>
                       </div>
-                      {eoiData.registration_settings?.expedited_review && (
-                        <div className="flex items-center gap-3 text-sm text-green-700 font-medium">
-                          <CheckCircle className="h-4 w-4 text-green-600" />
-                          <span>Expedited review process</span>
-                        </div>
-                      )}
                     </div>
 
                     <Button
@@ -263,7 +243,7 @@ export default function PublicEOIPage() {
                       className="w-full"
                       size="lg"
                     >
-                      Register & Submit Bid
+                      Register & Submit Quote
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   </div>
@@ -275,9 +255,9 @@ export default function PublicEOIPage() {
                     <div className="bg-blue-100 p-4 rounded-full w-20 h-20 mx-auto mb-6 flex items-center justify-center">
                       <Briefcase className="h-10 w-10 text-blue-600" />
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-4">Existing Vendor Login + Bid</h3>
+                    <h3 className="text-xl font-bold text-gray-900 mb-4">Existing Vendor Login + Quote</h3>
                     <p className="text-gray-600 mb-6">
-                      Already registered with AHNI? Login to your vendor portal and submit your bid for this procurement opportunity.
+                      Already registered with AHNI? Login to your vendor portal and submit your quotation for this RFQ.
                     </p>
 
                     <div className="space-y-3 mb-6">
@@ -287,7 +267,7 @@ export default function PublicEOIPage() {
                       </div>
                       <div className="flex items-center gap-3 text-sm text-gray-700">
                         <CheckCircle className="h-4 w-4 text-blue-600" />
-                        <span>Submit procurement bid</span>
+                        <span>Submit quotation</span>
                       </div>
                       <div className="flex items-center gap-3 text-sm text-gray-700">
                         <CheckCircle className="h-4 w-4 text-blue-600" />
@@ -305,7 +285,7 @@ export default function PublicEOIPage() {
                       className="w-full"
                       size="lg"
                     >
-                      Login & Submit Bid
+                      Login & Submit Quote
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   </div>
@@ -317,12 +297,9 @@ export default function PublicEOIPage() {
             <Alert className="mb-8">
               <Info className="h-4 w-4" />
               <AlertDescription>
-                <strong>Important:</strong> This procurement opportunity is open to both new and existing vendors.
-                {eoiData.procurement_details?.auto_qualify_vendors && (
-                  <span> Qualified vendors will be automatically considered for the bid evaluation.</span>
-                )}
-                {eoiData.closing_date && (
-                  <span> Submissions must be received by {formatDate(eoiData.closing_date)}.</span>
+                <strong>Important:</strong> This quotation request is open to both new and existing vendors.
+                {rfqData.closing_date && (
+                  <span> Submissions must be received by {formatDate(rfqData.closing_date)}.</span>
                 )}
               </AlertDescription>
             </Alert>
@@ -334,7 +311,7 @@ export default function PublicEOIPage() {
 
   // Redirect existing vendors to vendor portal
   if (selectedPath === 'existing_vendor') {
-    window.location.href = `/vendor-portal/login?redirect=/vendor-portal/rfqs&eoi=${id}`;
+    window.location.href = `/vendor-portal/login?redirect=/vendor-portal/rfqs&rfq=${id}`;
     return (
       <div className="min-h-screen flex items-center justify-center">
         <LoadingSpinner />
@@ -343,37 +320,29 @@ export default function PublicEOIPage() {
     );
   }
 
-  // Show regular EOI form for new vendors or non-dual-purpose EOIs
-  const getEOITypeDescription = () => {
-    if (isProcurementWithRegistration) {
-      return "Register as a new vendor and submit your bid for this procurement opportunity";
-    } else if (isNewVendorOnly) {
-      return "Register to become a qualified vendor for future opportunities";
-    } else {
-      return "Submit your response to this EOI opportunity";
-    }
+  // Show vendor registration form for new vendors
+  const getTypeDescription = () => {
+    return "Register as a new vendor and submit your quotation for this RFQ";
   };
 
   return (
     <>
-      <EOIDetailsSection />
+      <RFQDetailsSection />
       <div className="bg-gray-50 py-8">
         <div className="container mx-auto px-4 max-w-4xl">
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              {isProcurementWithRegistration ? "Vendor Registration & Procurement Bid" : "Submit Your Response"}
+              Vendor Registration & Quotation Submission
             </h1>
-            <p className="text-gray-600">{getEOITypeDescription()}</p>
+            <p className="text-gray-600">{getTypeDescription()}</p>
 
-            {isProcurementWithRegistration && (
-              <Button
-                variant="outline"
-                onClick={() => setSelectedPath(null)}
-                className="mt-4"
-              >
-                ← Back to path selection
-              </Button>
-            )}
+            <Button
+              variant="outline"
+              onClick={() => setSelectedPath(null)}
+              className="mt-4"
+            >
+              ← Back to path selection
+            </Button>
           </div>
 
           <Registration />

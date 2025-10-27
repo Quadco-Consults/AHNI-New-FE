@@ -1,6 +1,7 @@
 import useApiManager from "@/constants/mainController";
 import { useQuery } from "@tanstack/react-query";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
+import Axios from "@/constants/api_management/MyHttpHelper";
 import { AxiosError } from "axios";
 import { TSolicitationQuotationFormData } from "@/features/procurement/types/procurement-validator";
 import {
@@ -143,6 +144,24 @@ export const useCreateSolicitation = () => {
   };
 
   return { createSolicitation, data, isLoading, isSuccess, error };
+};
+
+// Get Single Public Opportunity (EOI or RFQ) - without authentication
+export const useGetPublicOpportunity = (id: string, enabled: boolean = true) => {
+  return useQuery<TResponse<any>>({
+    queryKey: ["public-opportunity", id],
+    queryFn: async () => {
+      try {
+        const response = await Axios.get(`public/opportunities/${id}/`);
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    enabled: enabled && !!id,
+    refetchOnWindowFocus: false,
+  });
 };
 
 // Legacy exports for backward compatibility

@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import Axios from "@/constants/api_management/MyHttpHelper";
 import { AxiosError } from "axios";
+import { useGetPublicOpportunity } from "./solicitationController";
 import {
   EOIData,
   EOIResponse,
@@ -58,20 +59,26 @@ export const useGetSingleEoi = (id: string, enabled: boolean = true) => {
   });
 };
 
-// Get All Public EOIs (without authentication)
+// Get All Public Opportunities (EOI, RFQ, RFP) - without authentication
 export const useGetPublicEois = ({
   page = 1,
   size = 20,
   search = "",
   status = "",
+  opportunity_type = "",
   enabled = true,
-}: TRequest & { enabled?: boolean }) => {
+}: TRequest & { opportunity_type?: string; enabled?: boolean }) => {
   return useQuery<TPaginatedResponse<EOIData>>({
-    queryKey: ["public-eois", page, size, search, status],
+    queryKey: ["public-opportunities", page, size, search, status, opportunity_type],
     queryFn: async () => {
       try {
-        const response = await Axios.get(BASE_URL, {
-          params: { page, size, search, status },
+        const params: any = { page, size, search, status };
+        if (opportunity_type) {
+          params.opportunity_type = opportunity_type;
+        }
+
+        const response = await Axios.get("public/opportunities/", {
+          params,
         });
         return response.data;
       } catch (error) {
@@ -80,6 +87,24 @@ export const useGetPublicEois = ({
       }
     },
     enabled: enabled,
+    refetchOnWindowFocus: false,
+  });
+};
+
+// Get Single Public EOI (without authentication)
+export const useGetPublicEoi = (id: string, enabled: boolean = true) => {
+  return useQuery<TResponse<EOIResultsData>>({
+    queryKey: ["public-eoi", id],
+    queryFn: async () => {
+      try {
+        const response = await Axios.get(`public/opportunities/${id}/`);
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    enabled: enabled && !!id,
     refetchOnWindowFocus: false,
   });
 };
@@ -286,6 +311,9 @@ export const useGetEOISubmissions = (eoiId: string) => {
 const EoiAPI = {
   useGetAllEois,
   useGetSingleEoi,
+  useGetPublicEois,
+  useGetPublicEoi,
+  useGetPublicOpportunity, // Unified public API for EOI and RFQ
   useCreateEoi,
   useUpdateEoi,
   useModifyEoi,
