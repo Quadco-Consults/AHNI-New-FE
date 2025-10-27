@@ -677,10 +677,10 @@ const getDeparmentalLinks = () => {
   return [
     {
       name: "Opportunities",
-      path: "/dashboard/opportunities",
+      path: "/eoi",
       icon: <Briefcase />,
       link: [
-        { name: "All Opportunities", path: "/dashboard/opportunities" },
+        { name: "All Opportunities", path: "/eoi" },
         { name: "External Jobs", path: "/dashboard/hr/advertisement" },
         { name: "Consultant Positions", path: "/dashboard/c-and-g/consultancy" },
         { name: "Project-based Roles", path: "/dashboard/programs/adhoc-management" },
@@ -997,7 +997,7 @@ const getDeparmentalLinks = () => {
         {
           name: "Recruitment",
           sublinks: [
-            { name: "All Opportunities", path: "/dashboard/opportunities" },
+            { name: "All Opportunities", path: "/eoi" },
             { name: "Advertisement", path: "/dashboard/hr/advertisement" },
             { name: "Selection", path: "/dashboard/hr/selection" },
             { name: "Onboarding", path: "/dashboard/hr/onboarding" },

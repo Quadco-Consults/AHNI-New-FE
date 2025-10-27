@@ -1,5 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
-import { AxiosWithToken } from "@/constants/api_management/MyHttpHelperWithToken";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { VendorAuthUtils } from "./vendorAuthController";
 import { VendorPortalStats, VendorRFQAccess } from "../types/vendor-auth";
 
@@ -160,6 +160,41 @@ export const useVendorRFQDetails = (rfqId: string) => {
         return false;
       }
       return failureCount < 3;
+    },
+  });
+};
+
+// Mark Notification as Read Hook
+export const useMarkNotificationRead = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (notificationId: string) => {
+      const token = VendorAuthUtils.getVendorToken();
+      if (!token) {
+        throw new Error('No vendor token found');
+      }
+
+      const response = await AxiosWithToken.patch(
+        `/procurements/vendors/notifications/${notificationId}/mark-read/`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      return response.data;
+    },
+    onSuccess: () => {
+      // Invalidate and refetch notifications
+      queryClient.invalidateQueries({ queryKey: ['vendor-notifications'] });
+    },
+    onError: (error: any) => {
+      if (error?.response?.status === 401) {
+        VendorAuthUtils.removeVendorToken();
+      }
     },
   });
 };

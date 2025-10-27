@@ -548,9 +548,9 @@ export const CG_ROUTES = {
 };
 
 export const OpportunityRoutes = {
-  // Unified opportunities portal
-  ALL_OPPORTUNITIES: "/dashboard/opportunities",
-  OPPORTUNITY_DETAIL: "/dashboard/opportunities/:id",
+  // Public opportunities portal
+  ALL_OPPORTUNITIES: "/eoi",
+  OPPORTUNITY_DETAIL: "/eoi/:id",
 
   // External job advertisements (HR)
   EXTERNAL_JOBS: "/dashboard/hr/advertisement",
