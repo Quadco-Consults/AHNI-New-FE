@@ -17,6 +17,7 @@ import {
   useGetLeaveBalances,
   useValidateLeaveRequest,
 } from "@/features/hr/controllers/leaveRequestController";
+import { useGetEmployeeOnboardings } from "@/features/hr/controllers/employeeOnboardingController";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { Badge } from "components/ui/badge";
@@ -28,6 +29,7 @@ interface LeaveFormData {
   fromDate: string;
   toDate: string;
   duration: "full_day" | "half_day_morning" | "half_day_afternoon";
+  approverId: string;
 }
 
 interface LeaveFormProps {
@@ -56,6 +58,26 @@ const LeaveForm = ({ onSuccess }: LeaveFormProps) => {
     ? balancesData.data.results
     : [];
 
+  // Fetch employees for approver selection
+  const { data: employeesData, isLoading: loadingEmployees } = useGetEmployeeOnboardings({ size: 100 });
+  const employees = Array.isArray(employeesData?.data)
+    ? employeesData.data.map((emp: any) => ({
+        id: emp.id,
+        name: `${emp.first_name} ${emp.last_name}`,
+        department: emp.department || 'N/A',
+        employeeId: emp.employee_id || emp.id,
+        position: emp.position || emp.job_title || 'N/A'
+      }))
+    : Array.isArray(employeesData?.data?.results)
+    ? employeesData.data.results.map((emp: any) => ({
+        id: emp.id,
+        name: `${emp.first_name} ${emp.last_name}`,
+        department: emp.department || 'N/A',
+        employeeId: emp.employee_id || emp.id,
+        position: emp.position || emp.job_title || 'N/A'
+      }))
+    : [];
+
   // Get employee ID from the first balance record
   const employeeId = balances.length > 0 ? balances[0]?.employee?.id || balances[0]?.employee : "";
 
@@ -69,6 +91,7 @@ const LeaveForm = ({ onSuccess }: LeaveFormProps) => {
       fromDate: "",
       toDate: "",
       duration: "full_day",
+      approverId: "",
     },
   });
 
@@ -111,6 +134,7 @@ const LeaveForm = ({ onSuccess }: LeaveFormProps) => {
       duration: data.duration,
       reason: data.reason,
       is_emergency: false,
+      approver: data.approverId,
     };
 
     console.log("Submitting leave request with data:", requestData);
@@ -183,7 +207,7 @@ const LeaveForm = ({ onSuccess }: LeaveFormProps) => {
   };
 
   // Loading state
-  if (loadingTypes || loadingBalances) {
+  if (loadingTypes || loadingBalances || loadingEmployees) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-600 border-t-transparent" />
@@ -249,6 +273,17 @@ const LeaveForm = ({ onSuccess }: LeaveFormProps) => {
                 required
                 placeholder="Please provide a detailed reason for your leave request..."
               />
+
+              {/* Approver Selection */}
+              <FormSelect label="Leave Approver" name="approverId" required>
+                <SelectContent>
+                  {employees.map((employee: any) => (
+                    <SelectItem key={employee.id} value={employee.id}>
+                      {employee.name} - {employee.department}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </FormSelect>
             </div>
 
             {/* Action Buttons */}
