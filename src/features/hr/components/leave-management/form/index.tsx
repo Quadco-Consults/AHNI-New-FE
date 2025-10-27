@@ -30,6 +30,8 @@ interface LeaveFormData {
   toDate: string;
   duration: "full_day" | "half_day_morning" | "half_day_afternoon";
   approverId: string;
+  backupPersonId: string;
+  handoverNotes: string;
 }
 
 interface LeaveFormProps {
@@ -87,6 +89,10 @@ const LeaveForm = ({ onSuccess }: LeaveFormProps) => {
   // Get employee ID from the first balance record
   const employeeId = balances.length > 0 ? balances[0]?.employee?.id || balances[0]?.employee : "";
 
+  // Debug logging for employee ID
+  console.log('Leave form - employeeId:', employeeId);
+  console.log('Leave form - balances:', balances);
+
   // Mutations
   const { validateLeaveRequest, isLoading: isValidating } = useValidateLeaveRequest();
 
@@ -98,6 +104,8 @@ const LeaveForm = ({ onSuccess }: LeaveFormProps) => {
       toDate: "",
       duration: "full_day",
       approverId: "",
+      backupPersonId: "",
+      handoverNotes: "",
     },
   });
 
@@ -113,6 +121,12 @@ const LeaveForm = ({ onSuccess }: LeaveFormProps) => {
   // Validation now only happens on form submit
 
   const onSubmit = async (data: LeaveFormData) => {
+    // Check if employee ID is available
+    if (!employeeId) {
+      toast.error("Employee information not found. Please refresh the page and try again.");
+      return;
+    }
+
     // Validate first
     try {
       const validation = await validateLeaveRequest({
@@ -141,6 +155,8 @@ const LeaveForm = ({ onSuccess }: LeaveFormProps) => {
       reason: data.reason,
       is_emergency: false,
       approver: data.approverId,
+      backup_person: data.backupPersonId || null,
+      handover_notes: data.handoverNotes || null,
     };
 
     console.log("Submitting leave request with data:", requestData);
@@ -290,6 +306,25 @@ const LeaveForm = ({ onSuccess }: LeaveFormProps) => {
                   ))}
                 </SelectContent>
               </FormSelect>
+
+              {/* Backup Person Selection */}
+              <FormSelect label="Backup Person (Who will cover your duties)" name="backupPersonId" required>
+                <SelectContent>
+                  {employees.map((employee: any) => (
+                    <SelectItem key={employee.id} value={employee.id}>
+                      {employee.name} - {employee.department}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </FormSelect>
+
+              {/* Handover Notes */}
+              <FormTextArea
+                label="Handover Notes"
+                name="handoverNotes"
+                required
+                placeholder="Please provide details about ongoing tasks, deadlines, and instructions for your backup person..."
+              />
             </div>
 
             {/* Action Buttons */}
