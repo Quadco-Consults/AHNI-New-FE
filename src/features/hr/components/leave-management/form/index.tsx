@@ -64,7 +64,7 @@ const LeaveForm = ({ onSuccess }: LeaveFormProps) => {
     ? employeesData.data.map((emp: any) => ({
         id: emp.id,
         name: `${emp.first_name} ${emp.last_name}`,
-        department: emp.department || 'N/A',
+        department: typeof emp.department === 'object' ? emp.department?.name || 'N/A' : emp.department || 'N/A',
         employeeId: emp.employee_id || emp.id,
         position: emp.position || emp.job_title || 'N/A'
       }))
@@ -72,7 +72,7 @@ const LeaveForm = ({ onSuccess }: LeaveFormProps) => {
     ? employeesData.data.results.map((emp: any) => ({
         id: emp.id,
         name: `${emp.first_name} ${emp.last_name}`,
-        department: emp.department || 'N/A',
+        department: typeof emp.department === 'object' ? emp.department?.name || 'N/A' : emp.department || 'N/A',
         employeeId: emp.employee_id || emp.id,
         position: emp.position || emp.job_title || 'N/A'
       }))
