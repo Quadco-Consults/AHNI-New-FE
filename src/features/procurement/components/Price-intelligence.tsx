@@ -1,10 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Card from "@/components/Card";
 import { LoadingSpinner } from "@/components/Loading";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useGetAllPriceIntelligence, useGetSinglePriceIntelligence } from "@/features/procurement/controllers/priceIntelligenceController";
 import BreadcrumbCard from "@/components/Breadcrumb";
 import {
@@ -31,8 +33,45 @@ const PriceIntelligence = () => {
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Get price intelligence data
-  const { data, isLoading, error } = useGetAllPriceIntelligence({ page: 1, size: 20 });
+  // State for pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
+
+  // State for search and filtering
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
+
+  // Debounce search term
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+      setCurrentPage(1); // Reset to page 1 when search changes
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  // Get price intelligence data with pagination and filters
+  const { data, isLoading, error } = useGetAllPriceIntelligence({
+    page: currentPage,
+    size: pageSize,
+    search: debouncedSearchTerm,
+    category: categoryFilter
+  });
+
+  // Reset to page 1 when search/filter changes
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value);
+    // Page reset is handled by debounce effect
+  };
+
+  const handleCategoryChange = (value: string) => {
+    // Convert "all" to empty string for API
+    const apiValue = value === "all" ? "" : value;
+    setCategoryFilter(apiValue);
+    setCurrentPage(1);
+  };
 
   // Get single item details when modal is open
   const { data: itemDetailsData, isLoading: isItemLoading, error: itemDetailsError } = useGetSinglePriceIntelligence(
@@ -65,7 +104,20 @@ const PriceIntelligence = () => {
 
   // Extract data safely
   const items = data?.data?.results || [];
+  const pagination = data?.data?.pagination;
 
+  // Debug information in development
+  if (process.env.NODE_ENV === 'development' && data) {
+    console.log('🔍 Price Intelligence API Response:', {
+      totalItems: pagination?.count || 0,
+      currentPage: pagination?.page || 1,
+      pageSize: pagination?.page_size || 0,
+      totalPages: pagination?.total_pages || 0,
+      resultsCount: items.length,
+      hasNextPage: !!pagination?.next,
+      fullPagination: pagination
+    });
+  }
 
   // Handle item click to open modal
   const handleItemClick = (itemId: string) => {
@@ -80,7 +132,46 @@ const PriceIntelligence = () => {
     return (
       <div className='space-y-10'>
         <BreadcrumbCard list={breadcrumbs} />
-        <div className="text-gray-500 p-4">No price intelligence data available.</div>
+        <div className="text-center py-12">
+          <Icon icon="ph:database-duotone" className="mx-auto h-12 w-12 text-gray-400" />
+          <h3 className="mt-2 text-sm font-medium text-gray-900">
+            {pagination?.count > 0 ? 'No items on this page' : 'No price intelligence data available'}
+          </h3>
+          <p className="mt-1 text-sm text-gray-500">
+            {pagination?.count > 0
+              ? `Found ${pagination.count} total items across ${pagination.total_pages} pages, but none on page ${pagination.page}.`
+              : 'Price intelligence data will appear here once items have purchase history.'
+            }
+          </p>
+          {process.env.NODE_ENV === 'development' && pagination && (
+            <details className="mt-4 text-left max-w-md mx-auto">
+              <summary className="cursor-pointer text-xs text-blue-600">Debug Info</summary>
+              <pre className="text-xs bg-gray-100 p-2 rounded mt-2 overflow-auto">
+                {JSON.stringify(pagination, null, 2)}
+              </pre>
+            </details>
+          )}
+          <div className="mt-4 space-x-2">
+            <Button
+              variant="outline"
+              onClick={() => window.location.reload()}
+            >
+              Refresh Data
+            </Button>
+            {pagination?.count > 0 && pagination?.next && (
+              <Button
+                variant="default"
+                onClick={() => {
+                  // For now, just reload - we can add proper pagination later
+                  console.log('Next page available:', pagination.next);
+                  window.location.reload();
+                }}
+              >
+                Try Next Page
+              </Button>
+            )}
+          </div>
+        </div>
       </div>
     );
   }
@@ -88,6 +179,79 @@ const PriceIntelligence = () => {
   return (
     <div className='space-y-10'>
       <BreadcrumbCard list={breadcrumbs} />
+
+      {/* Search and Filter Controls */}
+      <div className="bg-white p-6 rounded-lg border">
+        <div className="flex flex-col md:flex-row gap-4 items-end">
+          <div className="flex-1">
+            <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-2">
+              Search Items
+            </label>
+            <div className="relative">
+              <Icon icon="ph:magnifying-glass" className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Input
+                id="search"
+                type="text"
+                placeholder="Search by item name, description..."
+                value={searchTerm}
+                onChange={(e) => handleSearchChange(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+          </div>
+
+          <div className="w-full md:w-64">
+            <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
+              Category
+            </label>
+            <Select value={categoryFilter || "all"} onValueChange={handleCategoryChange}>
+              <SelectTrigger>
+                <SelectValue placeholder="All Categories" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                <SelectItem value="office_supplies">Office Supplies</SelectItem>
+                <SelectItem value="construction">Construction</SelectItem>
+                <SelectItem value="medical">Medical</SelectItem>
+                <SelectItem value="technology">Technology</SelectItem>
+                <SelectItem value="services">Services</SelectItem>
+                <SelectItem value="equipment">Equipment</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {(searchTerm || categoryFilter) && (
+            <Button
+              variant="outline"
+              onClick={() => {
+                setSearchTerm("");
+                setDebouncedSearchTerm("");
+                setCategoryFilter("");
+                setCurrentPage(1);
+              }}
+              className="whitespace-nowrap"
+            >
+              <Icon icon="ph:x" className="w-4 h-4 mr-1" />
+              Clear Filters
+            </Button>
+          )}
+        </div>
+
+        {/* Results Summary */}
+        {(searchTerm || categoryFilter) && pagination && (
+          <div className="mt-4 pt-4 border-t">
+            <p className="text-sm text-gray-600">
+              {searchTerm && (
+                <span>Searching for "<strong>{searchTerm}</strong>" </span>
+              )}
+              {categoryFilter && (
+                <span>in category "<strong>{categoryFilter}</strong>" </span>
+              )}
+              • Found {pagination.count} result{pagination.count !== 1 ? 's' : ''}
+            </p>
+          </div>
+        )}
+      </div>
 
       <div className='grid grid-cols-2 gap-6'>
         {items.map((price: any) => (
@@ -155,6 +319,68 @@ const PriceIntelligence = () => {
           </Card>
         ))}
       </div>
+
+      {/* Pagination Controls */}
+      {pagination && pagination.total_pages > 1 && (
+        <div className="flex items-center justify-between border-t pt-6">
+          <div className="text-sm text-gray-700">
+            Showing page {pagination.page} of {pagination.total_pages}
+            ({pagination.count} total items)
+          </div>
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              <Icon icon="ph:arrow-left" className="w-4 h-4 mr-1" />
+              Previous
+            </Button>
+
+            {/* Page numbers */}
+            <div className="flex space-x-1">
+              {Array.from({ length: Math.min(pagination.total_pages, 5) }, (_, i) => {
+                const pageNum = i + 1;
+                return (
+                  <Button
+                    key={pageNum}
+                    variant={currentPage === pageNum ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setCurrentPage(pageNum)}
+                    className="w-8 h-8 p-0"
+                  >
+                    {pageNum}
+                  </Button>
+                );
+              })}
+              {pagination.total_pages > 5 && (
+                <>
+                  <span className="px-2">...</span>
+                  <Button
+                    variant={currentPage === pagination.total_pages ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setCurrentPage(pagination.total_pages)}
+                    className="w-8 h-8 p-0"
+                  >
+                    {pagination.total_pages}
+                  </Button>
+                </>
+              )}
+            </div>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(currentPage + 1)}
+              disabled={currentPage === pagination.total_pages}
+            >
+              Next
+              <Icon icon="ph:arrow-right" className="w-4 h-4 ml-1" />
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* Item Details Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
