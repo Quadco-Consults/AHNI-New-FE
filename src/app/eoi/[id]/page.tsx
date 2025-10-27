@@ -6,7 +6,7 @@ import Registration from "@/features/procurement/components/vendor-management/ve
 import EoiAPI, { useGetPublicEoi } from "@/features/procurement/controllers/eoiController";
 import { useGetPublicOpportunity } from "@/features/procurement/controllers/solicitationController";
 import { LoadingSpinner } from "components/Loading";
-import Card from "components/Card";
+import { Card as UICard, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "components/ui/button";
 import { Badge } from "components/ui/badge";
 import { Alert, AlertDescription } from "components/ui/alert";
@@ -39,10 +39,12 @@ export default function PublicEOIPage() {
   if (error || !data?.data) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Card className="p-8 text-center">
-          <h2 className="text-xl font-semibold text-gray-800 mb-2">EOI Not Found</h2>
-          <p className="text-gray-600">The Expression of Interest you're looking for could not be found or may have expired.</p>
-        </Card>
+        <UICard>
+          <CardContent className="p-8 text-center">
+            <h2 className="text-xl font-semibold text-foreground mb-2">EOI Not Found</h2>
+            <p className="text-muted-foreground">The Expression of Interest you're looking for could not be found or may have expired.</p>
+          </CardContent>
+        </UICard>
       </div>
     );
   }
@@ -60,109 +62,143 @@ export default function PublicEOIPage() {
 
   // Common EOI Details Component - Always shown
   const EOIDetailsSection = () => (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12">
-      <div className="container mx-auto px-4 max-w-6xl">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <div className="bg-white p-3 rounded-full w-16 h-16 mx-auto mb-6 flex items-center justify-center">
-            <Building2 className="h-8 w-8 text-blue-600" />
-          </div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">{eoiData.name}</h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">{eoiData.description}</p>
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+      {/* Header - Matching main EOI page style */}
+      <div className="bg-white border-b border-border">
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center">
+            <h1 className="text-4xl font-light text-foreground mb-4">{eoiData.name}</h1>
+            <p className="text-lg text-muted-foreground font-light max-w-3xl mx-auto mb-6">
+              {eoiData.description}
+            </p>
 
-          <div className="flex flex-wrap justify-center gap-4 mt-6">
-            {!isOpen && (
-              <Badge variant="destructive" className="text-sm px-3 py-1">
-                <Clock className="h-4 w-4 mr-1" />
-                Closed
+            <div className="flex flex-wrap justify-center gap-4 mt-6">
+              {!isOpen && (
+                <Badge variant="outline" className="bg-red-100 text-red-800 border-red-200">
+                  <Clock className="h-4 w-4 mr-1" />
+                  Closed
+                </Badge>
+              )}
+              {isOpen && (
+                <Badge variant="outline" className="bg-green-100 text-green-800 border-green-200">
+                  <Clock className="h-4 w-4 mr-1" />
+                  {getDaysRemaining()} days remaining
+                </Badge>
+              )}
+              <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-200">
+                <FileText className="h-4 w-4 mr-1" />
+                {getTypeDisplay(eoiData.type || '')}
               </Badge>
-            )}
-            {isOpen && (
-              <Badge variant="default" className="text-sm px-3 py-1">
-                <Clock className="h-4 w-4 mr-1" />
-                {getDaysRemaining()} days remaining
-              </Badge>
-            )}
-            <Badge variant="secondary" className="text-sm px-3 py-1">
-              <FileText className="h-4 w-4 mr-1" />
-              {getTypeDisplay(eoiData.type || '')}
-            </Badge>
-            {eoiData.eoi_number && (
-              <Badge variant="outline" className="text-sm px-3 py-1">
-                ID: {eoiData.eoi_number}
-              </Badge>
-            )}
+              {eoiData.eoi_number && (
+                <Badge variant="outline" className="bg-gray-100 text-gray-800 border-gray-200">
+                  ID: {eoiData.eoi_number}
+                </Badge>
+              )}
+            </div>
           </div>
         </div>
+      </div>
+
+      <div className="container mx-auto px-4 py-6">
+        {/* Status Alert */}
+        {!isOpen && (
+          <UICard className="mb-6">
+            <CardContent className="p-6">
+              <Alert>
+                <Info className="h-4 w-4" />
+                <AlertDescription>
+                  <strong>This opportunity is closed.</strong> Submissions are no longer being accepted.
+                  {eoiData.closing_date && (
+                    <span> This EOI closed on {formatDate(eoiData.closing_date)}.</span>
+                  )}
+                </AlertDescription>
+              </Alert>
+            </CardContent>
+          </UICard>
+        )}
 
         {/* EOI Information */}
-        <Card className="p-8 mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Opportunity Details</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <div className="flex items-center gap-2 text-sm">
-              <Calendar className="h-4 w-4 text-green-600" />
-              <span className="font-medium">Opens:</span>
-              <span>{formatDate(eoiData.opening_date)}</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm">
-              <Clock className="h-4 w-4 text-red-600" />
-              <span className="font-medium">Closes:</span>
-              <span className={!isOpen ? 'text-red-600' : ''}>{formatDate(eoiData.closing_date)}</span>
-            </div>
-          </div>
-
-          {eoiData.categories && eoiData.categories.length > 0 && (
-            <div className="mb-6">
-              <h4 className="font-semibold text-gray-900 mb-2">Categories</h4>
-              <div className="flex flex-wrap gap-2">
-                {eoiData.categories.map((category, index) => (
-                  <Badge key={index} variant="secondary" className="text-xs">
-                    {typeof category === 'string' ? category : category.name}
-                  </Badge>
-                ))}
+        <UICard className="mb-6">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-xl font-semibold">Opportunity Details</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Calendar className="h-4 w-4 text-green-600" />
+                <span className="font-medium">Opens:</span>
+                <span>{formatDate(eoiData.opening_date)}</span>
               </div>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Clock className="h-4 w-4 text-red-600" />
+                <span className="font-medium">Closes:</span>
+                <span className={!isOpen ? 'text-red-600' : ''}>{formatDate(eoiData.closing_date)}</span>
+              </div>
+              {(eoiData.department || eoiData.project || eoiData.location) && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Building2 className="h-4 w-4" />
+                  <span className="font-medium">Department:</span>
+                  <span>
+                    {eoiData.department ||
+                     (typeof eoiData.project === 'string' ? eoiData.project : eoiData.project?.title) ||
+                     (Array.isArray(eoiData.location) ? eoiData.location.join(', ') : eoiData.location) ||
+                     'AHNI'}
+                  </span>
+                </div>
+              )}
+              {eoiData.eoi_number && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <FileText className="h-4 w-4" />
+                  <span className="font-medium">Reference:</span>
+                  <span>{eoiData.eoi_number}</span>
+                </div>
+              )}
             </div>
-          )}
 
-          {/* Status Alert */}
-          {!isOpen && (
-            <Alert className="mb-6">
-              <Info className="h-4 w-4" />
-              <AlertDescription>
-                <strong>This opportunity is closed.</strong> Submissions are no longer being accepted.
-                {eoiData.closing_date && (
-                  <span> This EOI closed on {formatDate(eoiData.closing_date)}.</span>
-                )}
-              </AlertDescription>
-            </Alert>
-          )}
-        </Card>
+            {eoiData.categories && eoiData.categories.length > 0 && (
+              <div className="mb-4">
+                <h4 className="font-semibold text-foreground mb-2">Categories</h4>
+                <div className="flex flex-wrap gap-2">
+                  {eoiData.categories.map((category, index) => (
+                    <Badge key={index} variant="outline" className="bg-blue-100 text-blue-800 border-blue-200">
+                      {typeof category === 'string' ? category : category.name}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </UICard>
 
         {/* Procurement Details if available */}
         {eoiData.procurement_details && (
-          <Card className="p-8 mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Procurement Requirements</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {eoiData.procurement_details.technical_requirements && (
-                <div>
-                  <h4 className="font-semibold text-gray-900 mb-2">Technical Requirements</h4>
-                  <p className="text-gray-600 text-sm">{eoiData.procurement_details.technical_requirements}</p>
-                </div>
-              )}
-              {eoiData.procurement_details.financial_requirements && (
-                <div>
-                  <h4 className="font-semibold text-gray-900 mb-2">Financial Requirements</h4>
-                  <p className="text-gray-600 text-sm">{eoiData.procurement_details.financial_requirements}</p>
-                </div>
-              )}
-              {eoiData.procurement_details.min_vendor_experience_years && (
-                <div>
-                  <h4 className="font-semibold text-gray-900 mb-2">Experience Required</h4>
-                  <p className="text-gray-600 text-sm">Minimum {eoiData.procurement_details.min_vendor_experience_years} years</p>
-                </div>
-              )}
-            </div>
-          </Card>
+          <UICard className="mb-6">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-xl font-semibold">Procurement Requirements</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {eoiData.procurement_details.technical_requirements && (
+                  <div>
+                    <h4 className="font-semibold text-foreground mb-2">Technical Requirements</h4>
+                    <p className="text-muted-foreground text-sm">{eoiData.procurement_details.technical_requirements}</p>
+                  </div>
+                )}
+                {eoiData.procurement_details.financial_requirements && (
+                  <div>
+                    <h4 className="font-semibold text-foreground mb-2">Financial Requirements</h4>
+                    <p className="text-muted-foreground text-sm">{eoiData.procurement_details.financial_requirements}</p>
+                  </div>
+                )}
+                {eoiData.procurement_details.min_vendor_experience_years && (
+                  <div>
+                    <h4 className="font-semibold text-foreground mb-2">Experience Required</h4>
+                    <p className="text-muted-foreground text-sm">Minimum {eoiData.procurement_details.min_vendor_experience_years} years</p>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </UICard>
         )}
       </div>
     </div>
@@ -203,12 +239,14 @@ export default function PublicEOIPage() {
     return (
       <>
         <EOIDetailsSection />
-        <div className="bg-gray-50 py-8">
+        <div className="bg-muted/20 py-8">
           <div className="container mx-auto px-4 max-w-4xl text-center">
-            <Card className="p-8">
-              <h2 className="text-xl font-semibold text-gray-800 mb-2">Submission Period Closed</h2>
-              <p className="text-gray-600">This Expression of Interest is no longer accepting submissions.</p>
-            </Card>
+            <UICard>
+              <CardContent className="p-8">
+                <h2 className="text-xl font-semibold text-foreground mb-2">Submission Period Closed</h2>
+                <p className="text-muted-foreground">This Expression of Interest is no longer accepting submissions.</p>
+              </CardContent>
+            </UICard>
           </div>
         </div>
       </>
@@ -220,33 +258,33 @@ export default function PublicEOIPage() {
     return (
       <>
         <EOIDetailsSection />
-        <div className="bg-gray-50 py-12">
+        <div className="bg-muted/20 py-12">
           <div className="container mx-auto px-4 max-w-6xl">
             {/* Path Selection */}
             <div className="mb-12">
-              <h2 className="text-2xl font-bold text-gray-900 text-center mb-8">Choose Your Participation Path</h2>
+              <h2 className="text-2xl font-light text-foreground text-center mb-8">Choose Your Participation Path</h2>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* New Vendor Path */}
-                <Card className="p-8 hover:shadow-lg transition-shadow border-2 hover:border-blue-200">
-                  <div className="text-center">
+                <UICard className="hover:shadow-lg transition-all">
+                  <CardContent className="p-8 text-center">
                     <div className="bg-green-100 p-4 rounded-full w-20 h-20 mx-auto mb-6 flex items-center justify-center">
                       <UserPlus className="h-10 w-10 text-green-600" />
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-4">New Vendor Registration + Bid</h3>
-                    <p className="text-gray-600 mb-6">
+                    <h3 className="text-xl font-semibold text-foreground mb-4">New Vendor Registration + Bid</h3>
+                    <p className="text-muted-foreground mb-6">
                       First time working with AHNI? Register as a new vendor and submit your bid for this procurement opportunity simultaneously.
                     </p>
 
                     <div className="space-y-3 mb-6">
-                      <div className="flex items-center gap-3 text-sm text-gray-700">
+                      <div className="flex items-center gap-3 text-sm text-muted-foreground">
                         <CheckCircle className="h-4 w-4 text-green-600" />
                         <span>Complete vendor registration</span>
                       </div>
-                      <div className="flex items-center gap-3 text-sm text-gray-700">
+                      <div className="flex items-center gap-3 text-sm text-muted-foreground">
                         <CheckCircle className="h-4 w-4 text-green-600" />
                         <span>Submit procurement bid</span>
                       </div>
-                      <div className="flex items-center gap-3 text-sm text-gray-700">
+                      <div className="flex items-center gap-3 text-sm text-muted-foreground">
                         <CheckCircle className="h-4 w-4 text-green-600" />
                         <span>One-step process</span>
                       </div>
@@ -266,34 +304,34 @@ export default function PublicEOIPage() {
                       Register & Submit Bid
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
-                  </div>
-                </Card>
+                  </CardContent>
+                </UICard>
 
                 {/* Existing Vendor Path */}
-                <Card className="p-8 hover:shadow-lg transition-shadow border-2 hover:border-blue-200">
-                  <div className="text-center">
+                <UICard className="hover:shadow-lg transition-all">
+                  <CardContent className="p-8 text-center">
                     <div className="bg-blue-100 p-4 rounded-full w-20 h-20 mx-auto mb-6 flex items-center justify-center">
                       <Briefcase className="h-10 w-10 text-blue-600" />
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-4">Existing Vendor Login + Bid</h3>
-                    <p className="text-gray-600 mb-6">
+                    <h3 className="text-xl font-semibold text-foreground mb-4">Existing Vendor Login + Bid</h3>
+                    <p className="text-muted-foreground mb-6">
                       Already registered with AHNI? Login to your vendor portal and submit your bid for this procurement opportunity.
                     </p>
 
                     <div className="space-y-3 mb-6">
-                      <div className="flex items-center gap-3 text-sm text-gray-700">
+                      <div className="flex items-center gap-3 text-sm text-muted-foreground">
                         <CheckCircle className="h-4 w-4 text-blue-600" />
                         <span>Access vendor portal</span>
                       </div>
-                      <div className="flex items-center gap-3 text-sm text-gray-700">
+                      <div className="flex items-center gap-3 text-sm text-muted-foreground">
                         <CheckCircle className="h-4 w-4 text-blue-600" />
                         <span>Submit procurement bid</span>
                       </div>
-                      <div className="flex items-center gap-3 text-sm text-gray-700">
+                      <div className="flex items-center gap-3 text-sm text-muted-foreground">
                         <CheckCircle className="h-4 w-4 text-blue-600" />
                         <span>Track submission status</span>
                       </div>
-                      <div className="flex items-center gap-3 text-sm text-gray-700">
+                      <div className="flex items-center gap-3 text-sm text-muted-foreground">
                         <CheckCircle className="h-4 w-4 text-blue-600" />
                         <span>Faster processing</span>
                       </div>
@@ -308,8 +346,8 @@ export default function PublicEOIPage() {
                       Login & Submit Bid
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
-                  </div>
-                </Card>
+                  </CardContent>
+                </UICard>
               </div>
             </div>
 
@@ -357,24 +395,26 @@ export default function PublicEOIPage() {
   return (
     <>
       <EOIDetailsSection />
-      <div className="bg-gray-50 py-8">
+      <div className="bg-muted/20 py-8">
         <div className="container mx-auto px-4 max-w-4xl">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              {isProcurementWithRegistration ? "Vendor Registration & Procurement Bid" : "Submit Your Response"}
-            </h1>
-            <p className="text-gray-600">{getEOITypeDescription()}</p>
+          <UICard className="mb-6">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-2xl font-light">
+                {isProcurementWithRegistration ? "Vendor Registration & Procurement Bid" : "Submit Your Response"}
+              </CardTitle>
+              <p className="text-muted-foreground">{getEOITypeDescription()}</p>
 
-            {isProcurementWithRegistration && (
-              <Button
-                variant="outline"
-                onClick={() => setSelectedPath(null)}
-                className="mt-4"
-              >
-                ← Back to path selection
-              </Button>
-            )}
-          </div>
+              {isProcurementWithRegistration && (
+                <Button
+                  variant="outline"
+                  onClick={() => setSelectedPath(null)}
+                  className="mt-4"
+                >
+                  ← Back to path selection
+                </Button>
+              )}
+            </CardHeader>
+          </UICard>
 
           <Registration />
         </div>

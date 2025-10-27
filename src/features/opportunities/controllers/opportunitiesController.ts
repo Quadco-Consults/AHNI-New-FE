@@ -136,9 +136,22 @@ const transformFacilitator = (facilitator: any): FacilitatorOpportunity => ({
   evaluation_comments: facilitator.evaluation_comments,
 });
 
+// Helper to check if user is authenticated
+const isAuthenticated = () => {
+  if (typeof window !== 'undefined') {
+    return !!localStorage.getItem("token");
+  }
+  return false;
+};
+
 // Main hook to get all opportunities with unified format
 export function useGetAllOpportunities(filters: OpportunityFilters = {}) {
-  // Get data from all sources (these may fail if user is not authenticated)
+  const authenticated = isAuthenticated();
+
+  console.log("🔐 Authentication Status:", authenticated ? "Authenticated" : "Not Authenticated");
+  console.log("🔐 Current Page Path:", typeof window !== 'undefined' ? window.location.pathname : 'SSR');
+
+  // Get data from all sources (only if authenticated)
   const {
     data: hrJobsData,
     isLoading: hrLoading,
@@ -147,7 +160,7 @@ export function useGetAllOpportunities(filters: OpportunityFilters = {}) {
     page: filters.page || 1,
     size: filters.size || 20,
     search: filters.search || "",
-    enabled: false, // Disabled due to authentication requirements
+    enabled: authenticated, // Only enabled if authenticated
   });
 
   // Get consultant data with proper parameters
@@ -159,7 +172,7 @@ export function useGetAllOpportunities(filters: OpportunityFilters = {}) {
     page: filters.page || 1,
     size: filters.size || 20,
     search: filters.search || "",
-    enabled: false, // Disabled due to authentication requirements
+    enabled: authenticated, // Only enabled if authenticated
   });
 
   const {
@@ -171,7 +184,7 @@ export function useGetAllOpportunities(filters: OpportunityFilters = {}) {
     size: filters.size || 20,
     search: filters.search || "",
     status: filters.status?.[0],
-    enabled: false, // Disabled due to authentication requirements
+    enabled: authenticated, // Only enabled if authenticated
   });
 
   const {
@@ -179,7 +192,7 @@ export function useGetAllOpportunities(filters: OpportunityFilters = {}) {
     isLoading: facilitatorLoading,
     error: facilitatorError,
   } = useGetAllFacilitators({
-    enabled: false, // Disabled due to authentication requirements
+    enabled: authenticated, // Only enabled if authenticated
   });
 
   return useQuery({
@@ -193,64 +206,44 @@ export function useGetAllOpportunities(filters: OpportunityFilters = {}) {
 
       const opportunities: UnifiedOpportunity[] = [];
 
-      // TODO: For now, add some sample opportunities to test the UI
-      // This will be replaced with actual API data once authentication is resolved
-      const sampleOpportunities: UnifiedOpportunity[] = [
-        {
-          id: "hr-1",
-          type: "HR_JOB",
-          title: "Senior Software Engineer",
-          status: "ACTIVE",
-          created_datetime: new Date().toISOString(),
-          updated_datetime: new Date().toISOString(),
-          created_by: "HR Team",
-          grade_level: "Level 12",
-          locations: "Lagos, Nigeria",
-          commencement_date: "2024-12-01",
-          duration: "Permanent",
-          background: "We are seeking an experienced software engineer to join our technology team.",
-          supervisor: "John Doe",
-          number_of_positions: 2,
-        },
-        {
-          id: "consultant-1",
-          type: "CONSULTANT",
-          title: "Data Analytics Consultant",
-          status: "ACTIVE",
-          created_datetime: new Date().toISOString(),
-          created_by: "Procurement Team",
-          grade_level: "Consultant",
-          locations: "Remote",
-          commencement_date: "2024-11-15",
-          end_date: "2025-05-15",
-          duration: "6 months",
-          background: "Looking for an experienced data analyst to support our health programs.",
-          number_of_positions: 1,
-        },
-        {
-          id: "adhoc-1",
-          type: "ADHOC",
-          title: "Field Health Coordinator",
-          status: "ACTIVE",
-          created_datetime: new Date().toISOString(),
-          updated_datetime: new Date().toISOString(),
-          created_by: "Programs Team",
-          grade_level: "Level 8",
-          locations: "Kano State",
-          commencement_date: "2024-11-20",
-          end_date: "2025-02-20",
-          duration: "3 months",
-          background: "Coordinate field health activities in rural communities.",
-          number_of_positions: 3,
-          total_applicants: 15,
-          application_deadline: "2024-11-10",
-          department: "Health Programs",
-          project: "Rural Health Initiative",
-        }
-      ];
-
-      // Add sample opportunities for testing
-      opportunities.push(...sampleOpportunities);
+      // If not authenticated, provide sample data for demo purposes
+      if (!authenticated) {
+        console.log("🔒 User not authenticated - providing sample data for demo");
+        const sampleOpportunities: UnifiedOpportunity[] = [
+          {
+            id: "sample-hr-1",
+            type: "HR_JOB",
+            title: "Senior Software Engineer (Demo)",
+            status: "ACTIVE",
+            created_datetime: new Date().toISOString(),
+            updated_datetime: new Date().toISOString(),
+            created_by: "HR Team",
+            grade_level: "Level 12",
+            locations: "Lagos, Nigeria",
+            commencement_date: "2024-12-01",
+            duration: "Permanent",
+            background: "Sample job posting - login to see real opportunities.",
+            supervisor: "John Doe",
+            number_of_positions: 2,
+          },
+          {
+            id: "sample-consultant-1",
+            type: "CONSULTANT",
+            title: "Data Analytics Consultant (Demo)",
+            status: "ACTIVE",
+            created_datetime: new Date().toISOString(),
+            created_by: "Procurement Team",
+            grade_level: "Consultant",
+            locations: "Remote",
+            commencement_date: "2024-11-15",
+            end_date: "2025-05-15",
+            duration: "6 months",
+            background: "Sample consultant opportunity - login to see real opportunities.",
+            number_of_positions: 1,
+          },
+        ];
+        opportunities.push(...sampleOpportunities);
+      }
 
       // Transform and add HR jobs
       if (hrJobsData?.data?.results) {

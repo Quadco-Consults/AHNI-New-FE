@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -25,6 +25,7 @@ import { useGetPublicEois } from "@/features/procurement/controllers/eoiControll
 import { EOIResultsData } from "@/features/procurement/types/eoi";
 import { useGetAllOpportunities } from "@/features/opportunities/controllers/opportunitiesController";
 import { OPPORTUNITY_TYPE_CONFIGS, OPPORTUNITY_STATUS_CONFIGS } from "@/features/opportunities/types";
+import { debugTokenStatus, testTokenRefresh, clearAllTokens } from "@/utils/token-debug";
 
 export default function PublicOpportunitiesPage() {
   const router = useRouter();
@@ -32,6 +33,14 @@ export default function PublicOpportunitiesPage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
   const [page, setPage] = useState(1);
+  const [isClient, setIsClient] = useState(false);
+
+  // Handle client-side hydration
+  useEffect(() => {
+    setIsClient(true);
+    console.log("🔍 EOI Page Component Loading");
+    console.log("🔍 Current URL:", window.location.href);
+  }, []);
 
   // Backend is ready for all 7 opportunity types!
   const getOpportunityTypeParam = () => {
@@ -49,73 +58,36 @@ export default function PublicOpportunitiesPage() {
     type: typeFilter === "all" ? [] : [typeFilter],
   });
 
-  // Also fetch procurement opportunities for backward compatibility (optional - may fail)
+  // Also fetch procurement opportunities for backward compatibility (test if working now)
   const { data: eoiData, error: eoiError } = useGetPublicEois({
     page,
     size: 20,
     search,
     status: statusFilter === "all" ? "" : statusFilter,
     opportunity_type: getOpportunityTypeParam(),
-    enabled: false // Disabled due to 500 error
+    enabled: true // Re-enabled to test if 500 error is resolved
   });
 
   // Combine unified opportunities with procurement opportunities
   const jobOpportunities = unifiedData?.opportunities || [];
   const procurementOpportunities = eoiData?.data?.results || [];
 
-  // Add sample procurement opportunities since the API is currently failing
-  const sampleProcurementOpportunities = [
-    {
-      id: "eoi-1",
-      opportunity_type: "EOI",
-      title: "Supply of Medical Equipment",
-      description: "Expression of Interest for the supply of advanced medical equipment for rural health centers.",
-      submission_deadline: "2024-11-30T23:59:59Z",
-      publication_date: "2024-10-15T00:00:00Z",
-      status: "active",
-      budget_range: "₦50,000,000 - ₦100,000,000",
-      location: "Multiple States",
-      requirements: "Medical equipment suppliers with international certification",
-      contact_email: "procurement@ahni.org"
-    },
-    {
-      id: "rfq-1",
-      opportunity_type: "RFQ",
-      title: "Request for IT Infrastructure Services",
-      description: "RFQ for comprehensive IT infrastructure upgrade including servers, networking equipment, and maintenance services.",
-      submission_deadline: "2024-12-15T17:00:00Z",
-      publication_date: "2024-10-20T00:00:00Z",
-      status: "active",
-      budget_range: "₦25,000,000 - ₦75,000,000",
-      location: "Lagos, Abuja",
-      requirements: "Certified IT service providers with 5+ years experience",
-      contact_email: "it-procurement@ahni.org"
-    },
-    {
-      id: "rfp-1",
-      opportunity_type: "RFP",
-      title: "Health Program Implementation Services",
-      description: "Request for Proposal for implementing community health programs across 6 northern states.",
-      submission_deadline: "2024-12-20T15:00:00Z",
-      publication_date: "2024-10-25T00:00:00Z",
-      status: "active",
-      budget_range: "₦200,000,000 - ₦500,000,000",
-      location: "Kano, Kaduna, Katsina, Jigawa, Bauchi, Gombe",
-      requirements: "NGOs and development organizations with proven track record in health program implementation",
-      contact_email: "programs-procurement@ahni.org"
-    }
-  ];
+  // Real procurement opportunities will come from API
+
+  // Check authentication status (only on client)
+  const isAuthenticated = isClient ? !!localStorage.getItem("token") : false;
 
   // Debug logging
   console.log("🔍 EOI Page Debug:");
+  console.log("Authentication Status:", isAuthenticated ? "Authenticated" : "Not Authenticated");
   console.log("Unified data:", unifiedData);
   console.log("Job opportunities:", jobOpportunities.length);
-  console.log("Procurement opportunities:", procurementOpportunities.length + sampleProcurementOpportunities.length);
+  console.log("Procurement opportunities:", procurementOpportunities.length);
   console.log("EOI Error:", eoiError);
   console.log("Unified Error:", error);
 
   // Filter opportunities client-side for special filters
-  const allOpportunities = [...jobOpportunities, ...procurementOpportunities, ...sampleProcurementOpportunities];
+  const allOpportunities = [...jobOpportunities, ...procurementOpportunities];
   const opportunities = useMemo(() => {
     if (typeFilter === "procurement") {
       return allOpportunities.filter(op =>
@@ -276,12 +248,23 @@ export default function PublicOpportunitiesPage() {
               Explore current opportunities including procurement (EOI, RFQ, RFP) and employment opportunities
               (Jobs, Adhoc positions, Consultant roles, Facilitator positions) from the Achieving Health Initiatives Nigeria (AHNI).
             </p>
-            <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg max-w-xl mx-auto">
-              <p className="text-sm text-green-800">
-                ✅ <strong>Ready:</strong> Backend supports all 7 opportunity types! Job opportunities will appear automatically
-                when HR, Programs, and Contract & Grants teams publish new positions.
-              </p>
-            </div>
+            {!isAuthenticated && (
+              <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg max-w-2xl mx-auto">
+                <p className="text-sm text-blue-700">
+                  📝 <strong>Note:</strong> You're viewing sample opportunities.
+                  <a href="/auth/login" className="text-blue-600 hover:text-blue-800 underline ml-1">
+                    Login
+                  </a> to see all real job advertisements and apply.
+                </p>
+              </div>
+            )}
+            {isAuthenticated && (
+              <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg max-w-2xl mx-auto">
+                <p className="text-sm text-green-700">
+                  ✅ <strong>Authenticated:</strong> You're seeing real opportunities from our database.
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -505,6 +488,41 @@ export default function PublicOpportunitiesPage() {
           </>
         )}
       </div>
+
+      {/* Development Debug Tools - Remove in production */}
+      {process.env.NODE_ENV === 'development' && isClient && (
+        <div className="container mx-auto px-4 py-4 border-t border-yellow-200 bg-yellow-50">
+          <div className="text-center">
+            <h3 className="text-sm font-semibold text-yellow-800 mb-2">Debug Tools (Dev Only)</h3>
+            <div className="flex justify-center gap-2 flex-wrap">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={debugTokenStatus}
+                className="text-xs"
+              >
+                Debug Tokens
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={testTokenRefresh}
+                className="text-xs"
+              >
+                Test Refresh
+              </Button>
+              <Button
+                size="sm"
+                variant="destructive"
+                onClick={clearAllTokens}
+                className="text-xs"
+              >
+                Clear Tokens
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Back to Home */}
       <div className="container mx-auto px-4 py-8">

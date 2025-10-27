@@ -21,7 +21,12 @@ export default function DashboardLayout({
     
     useEffect(() => {
         const token = getAccessToken();
-        if (!token) {
+        console.log("🔐 Dashboard Layout - Token check:", !!token);
+        console.log("🔐 Dashboard Layout - Current path:", window.location.pathname);
+
+        // Only redirect if we're actually in a dashboard route
+        if (!token && window.location.pathname.startsWith('/dashboard')) {
+            console.log("🚨 Redirecting to login from dashboard");
             redirect("/auth/login");
         }
     }, []);
