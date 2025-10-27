@@ -16,20 +16,32 @@ export default function ConsumablesHomePage() {
   const [bulkUploadOpen, setBulkUploadOpen] = useState(false);
   const [bulkAssignOpen, setBulkAssignOpen] = useState(false);
 
-  // Consumables category UUID - filters to show only consumable items
-  const CONSUMABLES_CATEGORY_ID = "fadb6228-23de-4b04-9eac-b75940cf622f";
-
-  // Fetch only consumables by filtering with the Consumables category ID
+  // Fetch all items without category filter for now to debug the issue
   const { data: item, isFetching } = useGetAllItemsQuery({
     page,
     size: 20,
-    category: CONSUMABLES_CATEGORY_ID, // Filter for consumables category only
+    // Temporarily removed category filter to show all created items
+    // category: CONSUMABLES_CATEGORY_ID,
   });
+
+  // Debug logging to understand what items are being returned
+  console.log("🔍 Consumables page - All items:", item?.data?.results || []);
+  console.log("🔍 Consumables page - Total items count:", item?.data?.pagination?.count || 0);
 
   return (
     <div className="space-y-10">
       <Card className="space-y-10">
         <div className="space-y-5">
+          {/* Debug notice - will be removed after proper category filtering is implemented */}
+          {process.env.NODE_ENV === 'development' && (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <p className="text-sm text-blue-800">
+                <strong>Debug Mode:</strong> Showing all items (category filter temporarily disabled).
+                Total items: {item?.data?.pagination?.count || 0}
+              </p>
+            </div>
+          )}
+
           <div className="flex justify-end gap-3">
             <Button
               variant="outline"
