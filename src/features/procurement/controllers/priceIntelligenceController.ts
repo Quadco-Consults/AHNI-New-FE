@@ -14,7 +14,7 @@ const BASE_URL = "procurements/price-intelligence/";
 // Get All Price Intelligence (List view)
 export const useGetAllPriceIntelligence = ({
   page = 1,
-  size = 20,
+  size = 10, // Match backend default page size
   search = "",
   category = "",
   enabled = true,
@@ -26,14 +26,36 @@ export const useGetAllPriceIntelligence = ({
         const response = await AxiosWithToken.get(BASE_URL, {
           params: { page, size, search, category },
         });
+
+        // Debug log in development
+        if (process.env.NODE_ENV === 'development') {
+          console.log('🔍 API Response Structure:', {
+            status: response.data?.status,
+            message: response.data?.message,
+            resultsCount: response.data?.data?.results?.length || 0,
+            totalCount: response.data?.data?.pagination?.count || 0,
+            requestParams: { page, size, search, category }
+          });
+        }
+
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
+        console.error('🔍 Price Intelligence API Error:', {
+          status: axiosError.response?.status,
+          statusText: axiosError.response?.statusText,
+          data: axiosError.response?.data,
+          params: { page, size, search, category }
+        });
         throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
       }
     },
     enabled: enabled,
     refetchOnWindowFocus: false,
+    // Enhanced retry and caching logic
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: 3,
+    retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 };
 
