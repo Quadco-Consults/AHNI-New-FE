@@ -623,7 +623,7 @@ export default function Dashboard() {
 
                 <Card className="space-y-5">
                     <div className="flex justify-between">
-                        <h4 className="font-bold text-base">AHNi Tasks</h4>
+                        <h4 className="font-bold text-base">AHNI Tasks</h4>
                         <div>
                             <Popover>
                                 <PopoverTrigger asChild>

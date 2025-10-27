@@ -50,7 +50,7 @@ export default function AdhocDatabase() {
             {/* Header with Stats */}
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900">AHNi Adhoc Staff Database</h1>
+                    <h1 className="text-3xl font-bold text-gray-900">AHNI Adhoc Staff Database</h1>
                     <p className="text-gray-600 mt-2">
                         All adhoc staff who have accepted their contracts and are actively engaged
                     </p>

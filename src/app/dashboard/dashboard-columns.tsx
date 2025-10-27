@@ -86,7 +86,7 @@ export const dasboardData: Data[] = [
   },
   {
     ref: {
-      name: "AHNI Education Initiative",
+      name: "Achieving Health Nigeria Initiative",
       desc: "Promoting digital education",
     },
     amount: 48000,
@@ -101,7 +101,7 @@ export const dasboardData: Data[] = [
   },
   {
     ref: {
-      name: "AHNI Education Initiative",
+      name: "Achieving Health Nigeria Initiative",
       desc: "Promoting digital education",
     },
     amount: 48000,

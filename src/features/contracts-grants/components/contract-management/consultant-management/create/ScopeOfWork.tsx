@@ -349,7 +349,7 @@ export default function ScopeOfWork() {
                             <p className="text-[#4D4545] text-sm">
                                 The fee rate for this work will be paid at the
                                 end of every month of assignment upon
-                                satisfactory approval by the AHNi Technical
+                                satisfactory approval by the AHNI Technical
                                 Monitor.
                             </p>
 
@@ -433,9 +433,9 @@ export default function ScopeOfWork() {
                 <p className='text-[#4D4545] text-sm'>
                   All information, documents and data resulting from the
                   performance of Contractor's work under this Agreement shall be
-                  the sole property of AHNi. Upon termination of Agreement,
-                  Contractor agrees to return to AHNi all property and materials
-                  within Contractor's possession or control which belong to AHNi
+                  the sole property of AHNI. Upon termination of Agreement,
+                  Contractor agrees to return to AHNI all property and materials
+                  within Contractor's possession or control which belong to AHNI
                   or which contain Confidential Information.
                 </p>
               </div>

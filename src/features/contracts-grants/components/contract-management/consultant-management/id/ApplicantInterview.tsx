@@ -34,7 +34,7 @@ const evaluationCriteria = [
     { name: "relevant_experience", label: "Has done similar work previously (nature of task)" },
     { name: "project_management", label: "Understands project management and the potential task(s)" },
     { name: "recent_experience", label: "Experience is recent (2-3 years)" },
-    { name: "comparable_projects", label: "Worked with projects comparable to the AHNi (budget and complexity)" },
+    { name: "comparable_projects", label: "Worked with projects comparable to the AHNI (budget and complexity)" },
     { name: "communication_skills", label: "Excellent Communication Skills" },
     { name: "technical_skill", label: "Relevant Technical Skill" },
     { name: "relevant_qualification", label: "Qualifications are relevant to the consultancy" },

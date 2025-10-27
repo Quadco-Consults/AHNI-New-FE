@@ -20,7 +20,7 @@ export const useDownloadWorkPlanTemplate = (enabled: boolean = true) => {
     queryFn: async () => {
       try {
         // Fetch the local template file from the public directory
-        const response = await fetch("/AHNi_Workplan_Template.xlsx");
+        const response = await fetch("/AHNI_Workplan_Template.xlsx");
 
         if (!response.ok) {
           throw new Error("Failed to download template");
@@ -32,7 +32,7 @@ export const useDownloadWorkPlanTemplate = (enabled: boolean = true) => {
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.href = url;
-        link.setAttribute("download", "AHNi_Workplan_Template.xlsx");
+        link.setAttribute("download", "AHNI_Workplan_Template.xlsx");
         document.body.appendChild(link);
         link.click();
         link.remove();

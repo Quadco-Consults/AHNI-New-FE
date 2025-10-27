@@ -126,7 +126,7 @@ export default function VendorFuelTrackerExample() {
   const vendor = vendorDetails?.data;
   const vendorName = vendor?.company_name || "Unknown Vendor";
   const location = vendor?.state || vendor?.company_address?.split(",").pop()?.trim() || "Unknown Location";
-  const projectTitle = "AHNi HQ for Fuel Consumption Tracker for Project Vehicles";
+  const projectTitle = "AHNI HQ for Fuel Consumption Tracker for Project Vehicles";
 
   // Handle case where vendor exists but has no fuel purchases
   const fuelPurchases = vendorPurchases?.data?.results || [];
@@ -318,7 +318,7 @@ export default function VendorFuelTrackerExample() {
                 </div>
                 <div class="company-info">
                   <h1 class="company-name">ACHIEVING HEALTH NIGERIA INITIATIVE</h1>
-                  <p class="company-tagline">(AHNi) - Excellence in Healthcare Delivery</p>
+                  <p class="company-tagline">(AHNI) - Excellence in Healthcare Delivery</p>
                 </div>
                 <div class="vendor-badge">Vendor Report</div>
               </div>
@@ -396,7 +396,7 @@ export default function VendorFuelTrackerExample() {
             </table>
 
             <div class="footer">
-              <p class="footer-text" style="font-size: 12px; font-weight: 700;">Achieving Health Nigeria Initiative (AHNi)</p>
+              <p class="footer-text" style="font-size: 12px; font-weight: 700;">Achieving Health Nigeria Initiative (AHNI)</p>
               <p class="footer-text">Fleet Management System - Vendor Fuel Consumption Report</p>
               <p class="footer-text" style="font-style: italic;">This is a computer-generated document and does not require a signature.</p>
             </div>
@@ -426,7 +426,7 @@ export default function VendorFuelTrackerExample() {
         <div className="bg-blue-50 border border-blue-200 rounded-md p-4 mb-6">
           <h3 className="text-blue-800 font-semibold">No Fuel Requests Found</h3>
           <p className="text-blue-600 text-sm mt-1">
-            <strong>{vendorName}</strong> is a registered vendor, but AHNi has not made any fuel requests to this vendor yet.
+            <strong>{vendorName}</strong> is a registered vendor, but AHNI has not made any fuel requests to this vendor yet.
           </p>
           <p className="text-blue-600 text-sm mt-2">
             Location: {location}
@@ -518,7 +518,7 @@ export default function VendorFuelTrackerExample() {
 
       {/* Footer */}
       <div className="mt-6 text-center text-sm text-gray-500">
-        <p>Achieving Health Nigeria Initiative (AHNi) - Fleet Management System</p>
+        <p>Achieving Health Nigeria Initiative (AHNI) - Fleet Management System</p>
         <p className="mt-1">Generated on {format(new Date(), "MMMM dd, yyyy 'at' hh:mm a")}</p>
       </div>
     </div>

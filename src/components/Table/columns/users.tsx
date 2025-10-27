@@ -301,7 +301,7 @@ export const userColumns: ColumnDef<IUser>[] = [
       const formatUserType = (type: string) => {
         switch (type) {
           case "AHNI_STAFF":
-            return "AHNi Staff";
+            return "AHNI Staff";
           case "ADHOC_STAFF":
             return "Adhoc Staff";
           case "CONSULTANT":
