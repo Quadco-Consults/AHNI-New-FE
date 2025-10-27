@@ -88,7 +88,8 @@ export const useCombinedApplicationStatus = (advertisementId: string, statusFilt
           // Multi-scorer: Check if interview has any submitted scores
           (interview.interviewer_scores && interview.interviewer_scores.length > 0) ||
           (interview.scores && interview.scores.length > 0) ||
-          (interview.completed_evaluations && interview.completed_evaluations > 0) ||
+          (interview.completed_evaluations && interview.total_interviewers &&
+           interview.completed_evaluations >= interview.total_interviewers) ||
           // Legacy single-scorer: MUST have comments (not just ratings) to be considered completed
           // This prevents false positives from default rating values
           (
@@ -111,6 +112,8 @@ export const useCombinedApplicationStatus = (advertisementId: string, statusFilt
             hasScores: !!(interview.scores && interview.scores.length > 0),
             scoresCount: interview.scores?.length || 0,
             completedEvaluations: interview.completed_evaluations || 0,
+            totalInterviewers: interview.total_interviewers || 0,
+            fullyComplete: (interview.completed_evaluations >= interview.total_interviewers),
             percentageScore: interview.percentage_score,
             averageScore: interview.average_score,
             interviewCompleted: interviewCompleted,

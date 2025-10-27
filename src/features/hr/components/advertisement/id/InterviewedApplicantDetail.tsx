@@ -57,12 +57,39 @@ const InterviewedApplicantDetail = () => {
   // Find the interview for this specific application from all interviews
   const foundInterview = !interviewId && allInterviewsData
     ? (allInterviewsData as any)?.data?.results?.find((interview: any) => {
+        console.log("🔍 Searching interview:", interview.id, "for applicant:", applicantId);
+        console.log("🔍 Interview application field:", interview.application);
+
+        // Check direct string match
         if (typeof interview.application === 'string') {
-          return interview.application === applicantId;
+          const match = interview.application === applicantId;
+          console.log("🔍 String match:", match);
+          return match;
         }
+
+        // Check object with id property
         if (typeof interview.application === 'object' && interview.application?.id) {
-          return interview.application.id === applicantId;
+          const match = interview.application.id === applicantId;
+          console.log("🔍 Object ID match:", match);
+          return match;
         }
+
+        // Check if application field contains applicant email
+        if (applicant?.applicant_email && interview.application?.applicant_email) {
+          const match = interview.application.applicant_email === applicant.applicant_email;
+          console.log("🔍 Email match:", match);
+          return match;
+        }
+
+        // Check candidate_name match as fallback
+        if (applicant && interview.candidate_name) {
+          const applicantName = `${applicant.applicant_first_name || ""} ${applicant.applicant_last_name || ""}`.trim();
+          const match = interview.candidate_name.toLowerCase().includes(applicantName.toLowerCase()) && applicantName.length > 0;
+          console.log("🔍 Name match:", match, "comparing:", interview.candidate_name, "vs", applicantName);
+          return match;
+        }
+
+        console.log("🔍 No match found for this interview");
         return false;
       })
     : null;
