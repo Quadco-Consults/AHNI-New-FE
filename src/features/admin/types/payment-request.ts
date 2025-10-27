@@ -18,6 +18,11 @@ export const PaymentItemSchema = z.object({
     consultant_legacy_id: z.string().optional(),
     staff_legacy_id: z.string().optional(),
     facilitator_legacy_id: z.string().optional(),
+    // Chart of Accounts integration fields
+    expense_account: z.string().optional(),
+    department: z.string().optional(),
+    project: z.string().optional(),
+    cost_center: z.string().optional(),
 });
 
 // Main payment request schema
@@ -93,6 +98,11 @@ export interface IPaymentRequestPayload {
         consultant_legacy_id?: string;
         staff_legacy_id?: string;
         facilitator_legacy_id?: string;
+        // Chart of Accounts integration fields
+        expense_account?: string;
+        department?: string;
+        project?: string;
+        cost_center?: string;
     }>;
 }
 
@@ -193,5 +203,10 @@ export interface IPaymentRequestSingleData {
         consultant?: string | null;
         facilitator?: string | null;
         adhoc_staff?: string | null;
+        // Chart of Accounts integration fields
+        expense_account?: string;
+        department?: string;
+        project?: string;
+        cost_center?: string;
     }>;
 }

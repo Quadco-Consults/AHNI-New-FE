@@ -56,10 +56,7 @@ const ConsultancyScoreCard = ({
 
   const { submitScore, isLoading: submitLoading } =
     useSubmitConsultancyInterviewScore(interviewId);
-  const { updateScore, isLoading: updateLoading } = useUpdateConsultancyInterviewScore(
-    interviewId,
-    existingScore?.id || ""
-  );
+  const { updateScore, isLoading: updateLoading } = useUpdateConsultancyInterviewScore();
 
   const form = useForm<Record<string, any>>({
     defaultValues: {
@@ -148,7 +145,7 @@ const ConsultancyScoreCard = ({
 
     try {
       if (isEditing && existingScore?.id) {
-        await updateScore(scoreData);
+        await updateScore(interviewId, scoreData);
         toast.success("Your consultancy interview score has been updated successfully");
       } else {
         await submitScore(scoreData);
