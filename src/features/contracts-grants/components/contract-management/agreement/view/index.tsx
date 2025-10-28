@@ -60,17 +60,35 @@ export default function AgreementView() {
 
     const agreement = data?.data;
 
-    // Get documents from multiple sources - prioritize agreement_documents from main API
-    const documents = agreement?.agreement_documents || documentsData?.data || [];
+    // Get documents from multiple sources with fallback handling
+    let documents = [];
+    let documentsSource = 'none';
+
+    // Try multiple data extraction methods
+    if (agreement?.agreement_documents && Array.isArray(agreement.agreement_documents) && agreement.agreement_documents.length > 0) {
+        documents = agreement.agreement_documents;
+        documentsSource = 'agreement_documents';
+    } else if (Array.isArray(documentsData?.data)) {
+        documents = documentsData.data;
+        documentsSource = 'documents_api_direct';
+    } else if (Array.isArray(documentsData?.data?.data)) {
+        documents = documentsData.data.data;
+        documentsSource = 'documents_api_nested';
+    } else if (documentsData?.data?.results && Array.isArray(documentsData.data.results)) {
+        documents = documentsData.data.results;
+        documentsSource = 'documents_api_paginated';
+    }
 
     // Debug documents source
     console.log('📄 Documents Source Debug:', {
         agreementDocuments: agreement?.agreement_documents,
         agreementDocumentsLength: agreement?.agreement_documents?.length || 0,
         documentsApiData: documentsData?.data,
+        documentsApiDataType: typeof documentsData?.data,
+        documentsApiDataKeys: documentsData?.data ? Object.keys(documentsData.data) : [],
         finalDocuments: documents,
         finalDocumentsLength: documents?.length || 0,
-        usingSource: agreement?.agreement_documents ? 'agreement_documents' : documentsData?.data ? 'documents_api' : 'none'
+        usingSource: documentsSource
     });
 
     // Debug logging
