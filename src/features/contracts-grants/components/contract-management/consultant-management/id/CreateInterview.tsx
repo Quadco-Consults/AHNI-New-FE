@@ -34,27 +34,92 @@ import { useGetAllUsers } from "@/features/auth/controllers/userController";
 import { Badge } from "components/ui/badge";
 import { toast } from "sonner";
 import { useCreateContractInterview } from "@/features/contracts-grants/controllers/contractController";
-import { useGetAllConsultancyStaffs } from "@/features/contracts-grants/controllers/consultantManagementController";
+import { useGetAllConsultancyStaffs } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
 import { filterAhniStaffOnly } from "@/utils/userFilters";
 import { useGetEmployeeOnboardings } from "@/features/hr/controllers/employeeOnboardingController";
+import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
+import { useState } from "react";
 
 export default function CreateInterview() {
   const router = useRouter();
 
   const params = useParams();
-  const applicantId = params?.id as string;
+  const consultancyId = params?.id as string;
+
+  console.log('🔍 CreateInterview - Consultancy ID:', consultancyId);
 
   const { data } = useGetSingleConsultantManagement(
-    applicantId || "",
-    !!applicantId
+    consultancyId || "",
+    !!consultancyId
   );
 
-  const { data: applicants } = useGetAllConsultancyStaffs({
+  // State for manual fallback fetch
+  const [manualApplicants, setManualApplicants] = useState<any>(null);
+  const [manualLoading, setManualLoading] = useState(false);
+  const [manualError, setManualError] = useState<any>(null);
+
+  const { data: applicants, isLoading: isLoadingApplicants, error: applicantsError, refetch } = useGetAllConsultancyStaffs({
     page: 1,
     size: 100000000,
-    search: applicantId || "",
-    enabled: !!applicantId,
+    consultants: consultancyId || "",  // Changed from 'search' to 'consultants'
+    status: "SHORTLISTED",  // Only fetch shortlisted applicants
+    enabled: !!consultancyId,
   });
+
+  console.log('🔍 CreateInterview - React Query Applicants:', {
+    consultancyId,
+    loading: isLoadingApplicants,
+    error: applicantsError ? String(applicantsError) : null,
+    hasData: !!applicants,
+    dataStructure: applicants ? Object.keys(applicants) : [],
+    resultsCount: applicants?.data?.results?.length || 0,
+    results: applicants?.data?.results || []
+  });
+
+  // Manual fallback fetch when React Query gets stuck
+  useEffect(() => {
+    if (consultancyId && !applicants && !manualApplicants && !isLoadingApplicants) {
+      console.log('🧪 CreateInterview - Manual API test starting...');
+      setManualLoading(true);
+
+      AxiosWithToken.get('/contract-grants/consultancy/applicants/', {
+        params: {
+          page: 1,
+          size: 100,
+          consultants: consultancyId,
+          status: 'SHORTLISTED',
+          expand: 'advertisement,schedule',
+        }
+      })
+      .then(response => {
+        console.log('✅ CreateInterview - Manual fetch SUCCESS:', {
+          status: response.status,
+          data: response.data,
+          resultsCount: response.data?.data?.results?.length || 0,
+        });
+        setManualApplicants(response.data);
+        setManualLoading(false);
+      })
+      .catch(error => {
+        console.error('❌ CreateInterview - Manual fetch FAILED:', error);
+        setManualError(error);
+        setManualLoading(false);
+      });
+    }
+  }, [consultancyId, applicants, manualApplicants, isLoadingApplicants]);
+
+  // Use fallback values
+  const finalApplicants = applicants || manualApplicants;
+  const finalLoading = isLoadingApplicants || manualLoading;
+  const finalError = applicantsError || manualError;
+
+  console.log('🎯 CreateInterview - Final state:', {
+    finalApplicants: !!finalApplicants,
+    finalLoading,
+    finalError: finalError ? String(finalError) : null,
+    resultsCount: finalApplicants?.data?.results?.length || 0,
+  });
+
   // Fetch from both sources: Users table AND Employee database
   const { data: users, isLoading: isUsersLoading, error: usersError } = useGetAllUsers({
     page: 1,
@@ -134,7 +199,7 @@ export default function CreateInterview() {
     defaultValues: {
       consultancy: "",
       interview_type: "",
-      interview_date: "",
+      date: "", // Backend confirmed: single "date" field
       committee_members: [],
     },
   });
@@ -160,26 +225,40 @@ export default function CreateInterview() {
     ) || [];
 
   const onSubmit = async (interview_data: any) => {
+    const shortlistedApplicants = finalApplicants?.data?.results || [];
+
+    if (shortlistedApplicants.length === 0) {
+      toast.error("No shortlisted applicants found. Please shortlist applicants first.");
+      return;
+    }
+
+    console.log('📤 CreateInterview - Submitting interview:', {
+      consultancyId: data?.data.id,
+      interviewType: interview_data.interview_type,
+      interviewDate: interview_data.date,
+      committeeMembers: interview_data.committee_members?.length || 0,
+      applicantsCount: shortlistedApplicants.length,
+      applicantIds: shortlistedApplicants.map((a: any) => a.id),
+    });
+
     const interviewData = {
       consultancy: data?.data.id,
       interview_type: interview_data.interview_type,
-      interview_date: interview_data.interview_date,
+      date: interview_data.date, // Backend confirmed: single "date" field
       committee_members:
         watch("interview_type") === "COMMITTEE"
           ? interview_data.committee_members
           : [],
-      applicants:
-        applicants?.data?.results?.map((applicant) => applicant.id) || [],
+      applicants: shortlistedApplicants.map((applicant: any) => applicant.id),
     };
 
     try {
       await createContractInterview(interviewData as any);
-      toast.success("Successfully created.");
-      // router.push(RouteEnum.COMPETITIVE_BID_ANALYSIS);
+      toast.success(`Successfully created interview for ${shortlistedApplicants.length} applicant(s).`);
       router.back();
     } catch (error) {
       toast.error("Something went wrong");
-      console.log(error);
+      console.error('❌ CreateInterview - Submit error:', error);
     }
   };
 
@@ -216,10 +295,54 @@ export default function CreateInterview() {
               <FormInput
                 type='date'
                 label='Interview Date'
-                name='interview_date'
+                name='date'
                 required
               />
             </div>
+
+            {/* Shortlisted Applicants Banner */}
+            {finalLoading ? (
+              <div className='bg-gray-50 border border-gray-200 rounded-lg p-4 mt-6'>
+                <div className='flex items-center gap-3'>
+                  <LoadingSpinner />
+                  <div>
+                    <h3 className='font-semibold text-gray-700'>Loading Applicants...</h3>
+                    <p className='text-sm text-gray-500'>Fetching shortlisted candidates...</p>
+                  </div>
+                </div>
+              </div>
+            ) : finalError ? (
+              <div className='bg-red-50 border border-red-200 rounded-lg p-4 mt-6'>
+                <h3 className='font-semibold text-red-900 mb-2'>Error Loading Applicants</h3>
+                <p className='text-sm text-red-700'>{String(finalError)}</p>
+              </div>
+            ) : finalApplicants?.data?.results && finalApplicants.data.results.length > 0 ? (
+              <div className='bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6'>
+                <h3 className='font-semibold text-blue-900 mb-2'>
+                  Applicants to be Interviewed ({finalApplicants.data.results.length})
+                </h3>
+                <p className='text-sm text-blue-700 mb-3'>
+                  The following shortlisted applicants will be included in this interview:
+                </p>
+                <div className='flex flex-wrap gap-2'>
+                  {finalApplicants.data.results.map((applicant: any) => (
+                    <Badge
+                      key={applicant.id}
+                      className='bg-blue-600 text-white py-1 px-3'
+                    >
+                      {applicant.name || 'Unknown'}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div className='bg-yellow-50 border border-yellow-200 rounded-lg p-4 mt-6'>
+                <h3 className='font-semibold text-yellow-900 mb-2'>No Shortlisted Applicants</h3>
+                <p className='text-sm text-yellow-700'>
+                  There are no shortlisted applicants for this consultancy. Please shortlist applicants first before creating an interview.
+                </p>
+              </div>
+            )}
 
             {/* <Button
               variant='outline'

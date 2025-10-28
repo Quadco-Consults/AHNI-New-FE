@@ -26,30 +26,76 @@ export default function CloseOutPlan() {
         size: 1000,
     });
 
-    // Merge project details with close-out plans
+    // Merge project details with close-out plans with optimized matching
     const enrichedResults = useMemo(() => {
         const closeoutPlans = data?.data?.results || [];
-        const projects = projectsData?.data?.results || [];
+        // Try both possible data structures
+        const projects = (projectsData as any)?.data?.results || projectsData?.results || [];
 
-        return closeoutPlans.map(plan => {
+        // Debug logging (only in development)
+        if (process.env.NODE_ENV === 'development') {
+            console.log('Close out plans enrichment:', {
+                closeoutPlansCount: closeoutPlans.length,
+                projectsCount: projects.length,
+                samplePlan: closeoutPlans[0],
+                sampleProject: projects[0]
+            });
+        }
+
+        // Create lookup map for better performance
+        const projectLookup = new Map();
+        projects.forEach((p: any) => {
+            const id = String(p.id || '').toLowerCase();
+            const title = String(p.title || '').toLowerCase();
+            const projectId = String(p.project_id || '').toLowerCase();
+
+            if (id) projectLookup.set(id, p);
+            if (title) projectLookup.set(title, p);
+            if (projectId) projectLookup.set(projectId, p);
+        });
+
+        let matchedCount = 0;
+        let unmatchedPlans: string[] = [];
+
+        const enrichedPlans = closeoutPlans.map(plan => {
             // If project is already an object, return as is
             if (typeof plan.project === 'object') {
+                matchedCount++;
                 return plan;
             }
 
-            // Project is a string - try to match by both ID and title/name
-            const projectDetails = projects.find(p =>
-                p.id === plan.project ||
-                p.title === plan.project ||
-                p.project_id === plan.project
-            );
+            // Project is a string - try to match using lookup map
+            const projectString = String(plan.project || '').trim().toLowerCase();
+            const projectDetails = projectLookup.get(projectString);
 
-            return {
-                ...plan,
-                project: projectDetails || plan.project,
-            };
+            if (projectDetails) {
+                matchedCount++;
+                if (process.env.NODE_ENV === 'development') {
+                    console.log(`✓ Matched "${plan.project}" → "${projectDetails.title}"`);
+                }
+                return {
+                    ...plan,
+                    project: projectDetails,
+                };
+            } else {
+                unmatchedPlans.push(plan.project);
+                return {
+                    ...plan,
+                    project: plan.project, // Keep original if no match found
+                };
+            }
         });
-    }, [data?.data?.results, projectsData?.data?.results]);
+
+        // Summary logging
+        if (process.env.NODE_ENV === 'development' && closeoutPlans.length > 0) {
+            console.log(`Close out plan matching summary: ${matchedCount}/${closeoutPlans.length} matched`);
+            if (unmatchedPlans.length > 0) {
+                console.warn('Unmatched plans:', unmatchedPlans.slice(0, 5));
+            }
+        }
+
+        return enrichedPlans;
+    }, [data?.data?.results, projectsData]);
 
     const isLoading = isFetching || isLoadingProjects;
 
@@ -71,8 +117,8 @@ export default function CloseOutPlan() {
                         data={enrichedResults}
                         isLoading={isLoading}
                         pagination={{
-                            total: data?.data?.pagination?.count ?? 0,
-                            pageSize: data?.data?.pagination?.page_size ?? 10,
+                            total: data?.data?.paginator?.count ?? 0,
+                            pageSize: data?.data?.paginator?.page_size ?? 10,
                             onChange: (page: number) => setPage(page),
                         }}
                     />

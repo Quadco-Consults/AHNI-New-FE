@@ -11,7 +11,7 @@ import { useGetAllAdhocAdvertisements } from "@/features/programs/controllers/ad
 import { useRouter } from "next/navigation";
 import { FileText, Users, Calendar, Briefcase, Eye, CheckCircle, Clock } from "lucide-react";
 
-export default function ConsultancyAcceptance() {
+export default function ConsultantContractDashboard() {
     const [page, setPage] = useState(1);
     const router = useRouter();
     const pathname = usePathname();
@@ -156,9 +156,9 @@ export default function ConsultancyAcceptance() {
             {/* Header */}
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900">Contract Acceptance Portal</h1>
+                    <h1 className="text-3xl font-bold text-gray-900">Consultant Contract Dashboard</h1>
                     <p className="text-gray-600 mt-2">
-                        Job adverts with issued contracts awaiting acceptance from {staffLabel}
+                        Issued Contracts
                     </p>
                 </div>
                 <div className="flex items-center gap-3">

@@ -13,7 +13,7 @@ import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { useGetSingleConsultancyApplicant } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
 import { LoadingSpinner } from "components/Loading";
 import { useGetMyPendingAdhocInterviews } from "@/features/programs/controllers/adhocInterviewController";
-import { useGetMyPendingConsultancyInterviews } from "@/features/contracts-grants/controllers/consultancyInterviewController";
+import { useGetMyPendingConsultancyInterviews, useGetAllConsultancyInterviews } from "@/features/contracts-grants/controllers/consultancyInterviewController";
 import { useGetUserProfile } from "@/features/auth/controllers/userController";
 import { useUpdateAdhocApplicantStatus } from "@/features/programs/controllers/adhocApplicantController";
 import { AlertCircle, ShieldX } from "lucide-react";
@@ -48,11 +48,12 @@ export default function ApplicantInterviewPage() {
     const params = useParams();
     // Handle URL parameters based on Next.js App Router structure:
     // /dashboard/programs/adhoc-management/[id]/applicant/[applicantId]/adhoc-interview/page.tsx
-    const adhocId = params?.id as string;        // The consultancy/adhoc management ID
+    const managementId = params?.id as string;        // The consultancy/adhoc management ID
     const applicantId = params?.applicantId as string;  // The applicant ID
 
-    // Determine if this is an AdHoc interview based on the URL path
+    // Determine the interview type based on the URL path
     const isAdhocInterview = typeof window !== 'undefined' && window.location.pathname.includes('/adhoc-management/');
+    const isConsultantInterview = typeof window !== 'undefined' && window.location.pathname.includes('/consultant-management/');
 
     // Mutation hook for updating applicant status (only for AdHoc)
     const updateApplicantStatus = useUpdateAdhocApplicantStatus(applicantId);
@@ -64,17 +65,24 @@ export default function ApplicantInterviewPage() {
     // Fetch current user profile
     const { data: userProfile } = useGetUserProfile();
     const currentUserId = userProfile?.data?.id;
-    const isAdmin = userProfile?.data?.is_superuser || userProfile?.data?.is_staff;
+    const isAdmin = (userProfile?.data as any)?.is_superuser || (userProfile?.data as any)?.is_staff;
 
     // Fetch pending interviews for the current user (both types)
     const { data: adhocInterviews, isLoading: loadingAdhocInterviews } = useGetMyPendingAdhocInterviews(isAdhocInterview);
-    const { data: consultancyInterviews, isLoading: loadingConsultancyInterviews } = useGetMyPendingConsultancyInterviews(!isAdhocInterview);
+    const { data: consultancyInterviews, isLoading: loadingConsultancyInterviews } = useGetMyPendingConsultancyInterviews(isConsultantInterview);
+
+    // Fetch all interviews to check committee membership (both types)
+    const { data: allConsultancyInterviews } = useGetAllConsultancyInterviews(isConsultantInterview ? managementId : undefined, isConsultantInterview);
 
     // Check if user is authorized to interview this applicant
     // Handle nested data structure: response.data.data or response.data
     const extractInterviews = (response: any) => {
         if (!response) return [];
+
+        // For consultancy interviews: ApiResponse<ConsultancyInterviewSchedule[]> -> response.data is the array
         if (Array.isArray(response.data)) return response.data;
+
+        // For other interview types that might have nested structure
         if (response.data && Array.isArray(response.data.data)) return response.data.data;
         if (response.data && typeof response.data === 'object' && !Array.isArray(response.data)) {
             // If data is an object, it might contain the interviews array
@@ -87,49 +95,111 @@ export default function ApplicantInterviewPage() {
 
     const pendingInterviews = isAdhocInterview
         ? extractInterviews(adhocInterviews)
-        : extractInterviews(consultancyInterviews);
+        : isConsultantInterview
+        ? extractInterviews(consultancyInterviews)
+        : [];
 
-    console.log('🔐 Interview Access Control Debug:', {
-        isAdhocInterview,
-        currentUserId,
-        isAdmin,
-        applicantId,
-        pendingInterviewsCount: pendingInterviews.length,
-        pendingInterviews: pendingInterviews,
-        adhocInterviewsRaw: adhocInterviews,
-        consultancyInterviewsRaw: consultancyInterviews,
-        extractedData: adhocInterviews?.data,
-    });
+    // Check if user is a committee member for any interview involving this applicant
+    const allInterviews = isAdhocInterview
+        ? extractInterviews(adhocInterviews) // For adhoc, use pending interviews
+        : extractInterviews(allConsultancyInterviews);
 
-    const isAuthorized = isAdmin || (Array.isArray(pendingInterviews) && pendingInterviews.some((interview: any) => {
-        // Check if this applicant is part of any of the user's pending interviews
-        // For AdHoc interviews, check both 'applicant' (singular) and 'applicants' (plural)
+    const isCommitteeMember = currentUserId && Array.isArray(allInterviews) && allInterviews.some((interview: any) => {
+        // Check if this applicant is part of this interview
         const interviewApplicant = interview.applicant; // Singular - for AdHoc
         const interviewApplicants = interview.applicants || []; // Plural - for Consultancy
+        const committeeMembers = interview.committee_members || [];
 
-        console.log('Checking interview:', {
+        console.log('🔍 Checking committee membership:', {
             interviewId: interview.id,
+            committeeMembers: committeeMembers,
+            currentUserId: currentUserId,
             applicant: interviewApplicant,
             applicants: interviewApplicants,
             lookingFor: applicantId,
         });
 
+        // First check if this interview involves our applicant
+        let hasApplicant = false;
+
         // Check singular applicant field (AdHoc interviews)
         if (interviewApplicant) {
             const appId = typeof interviewApplicant === 'string' ? interviewApplicant : interviewApplicant.id;
-            console.log('Comparing (singular):', appId, '===', applicantId, '?', appId === applicantId);
-            if (appId === applicantId) return true;
+            if (appId === applicantId) hasApplicant = true;
         }
 
         // Check plural applicants field (Consultancy interviews)
-        return interviewApplicants.some((app: any) => {
+        if (interviewApplicants.some((app: any) => {
             const appId = typeof app === 'string' ? app : app.id;
-            console.log('Comparing (plural):', appId, '===', applicantId, '?', appId === applicantId);
             return appId === applicantId;
-        });
-    }));
+        })) {
+            hasApplicant = true;
+        }
 
-    console.log('🔐 Authorization result:', isAuthorized);
+        // If this interview involves our applicant, check if user is a committee member
+        if (hasApplicant) {
+            const isUserInCommittee = committeeMembers.includes(currentUserId);
+            console.log('🔍 User in committee for this interview?', isUserInCommittee);
+            return isUserInCommittee;
+        }
+
+        return false;
+    });
+
+    // Debug committee membership and authorization
+    console.log('🔐 Interview Access Control Debug:', {
+        isAdhocInterview,
+        isConsultantInterview,
+        currentUserId,
+        isAdmin,
+        applicantId,
+        pendingInterviewsCount: pendingInterviews.length,
+        allInterviewsCount: Array.isArray(allInterviews) ? allInterviews.length : 0,
+        isCommitteeMember,
+        loadingStates: {
+            loadingAdhocInterviews,
+            loadingConsultancyInterviews
+        }
+    });
+
+    const isAuthorized = currentUserId && (isAdmin ||
+        isCommitteeMember ||
+        (Array.isArray(pendingInterviews) && pendingInterviews.some((interview: any) => {
+            // Check if this applicant is part of any of the user's pending interviews
+            // For AdHoc interviews, check both 'applicant' (singular) and 'applicants' (plural)
+            const interviewApplicant = interview.applicant; // Singular - for AdHoc
+            const interviewApplicants = interview.applicants || []; // Plural - for Consultancy
+
+            console.log('Checking interview:', {
+                interviewId: interview.id,
+                applicant: interviewApplicant,
+                applicants: interviewApplicants,
+                lookingFor: applicantId,
+            });
+
+            // Check singular applicant field (AdHoc interviews)
+            if (interviewApplicant) {
+                const appId = typeof interviewApplicant === 'string' ? interviewApplicant : interviewApplicant.id;
+                console.log('Comparing (singular):', appId, '===', applicantId, '?', appId === applicantId);
+                if (appId === applicantId) return true;
+            }
+
+            // Check plural applicants field (Consultancy interviews)
+            return interviewApplicants.some((app: any) => {
+                const appId = typeof app === 'string' ? app : app.id;
+                console.log('Comparing (plural):', appId, '===', applicantId, '?', appId === applicantId);
+                return appId === applicantId;
+            });
+        })));
+
+    console.log('🔐 Authorization result:', {
+        isAuthorized,
+        isAdmin,
+        isCommitteeMember,
+        hasPendingInterviews: Array.isArray(pendingInterviews) && pendingInterviews.length > 0,
+        allInterviewsCount: Array.isArray(allInterviews) ? allInterviews.length : 0,
+        currentUserId,
+    });
 
     const form = useForm({
         defaultValues: {
@@ -540,7 +610,7 @@ export default function ApplicantInterviewPage() {
             <Card className="space-y-5">
                 <div>
                     <h1 className="text-[#DEA004] font-bold text-lg">
-                        Consultant Evaluation Metric
+                        {isAdhocInterview ? "Adhoc Interview" : isConsultantInterview ? "Consultant Interview" : "Interview"}
                     </h1>
                     <p className="text-gray-600 mt-2">
                         Interviewing: <span className="font-semibold text-gray-900">{applicantName}</span>

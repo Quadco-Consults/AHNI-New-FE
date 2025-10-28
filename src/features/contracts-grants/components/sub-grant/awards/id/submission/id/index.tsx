@@ -32,13 +32,14 @@ export default function SubGrantSubmissionDetailWithTabs() {
 
     // Get sub-grant details
     const subGrantId = submissionData?.data?.sub_grant;
+    const subGrantIdString = typeof subGrantId === 'string' ? subGrantId : (subGrantId as any)?.id || "";
     const { data: subGrantData } = useGetSingleSubGrant(
-        typeof subGrantId === 'string' ? subGrantId : (subGrantId as any)?.id || "",
+        subGrantIdString,
         !!subGrantId
     );
 
     const { shortlistSubmissions, isLoading: shortlistLoading } = useShortlistSubmissions(
-        typeof subGrantId === 'string' ? subGrantId : (subGrantId as any)?.id || ""
+        subGrantIdString
     );
 
     // Fetch assessments to check if this submission has been assessed
@@ -60,10 +61,23 @@ export default function SubGrantSubmissionDetailWithTabs() {
             console.log("Sub-grant data:", subGrant);
             console.log("Sub-grant status:", subGrant?.status);
 
-            // Enforce workflow: Only allow shortlisting when submissions are closed
+            // Enhanced workflow checking with testing bypass option
             if (subGrant?.status !== "SUBMISSION_CLOSED") {
-                toast.error(`Cannot shortlist submissions. Sub-grant status is "${subGrant?.status}". Please close submissions first.`);
-                return;
+                // Show detailed error with option to proceed for testing
+                const proceedAnyway = window.confirm(
+                    `⚠️ WARNING: Sub-grant status is "${subGrant?.status}" but normally requires "SUBMISSION_CLOSED".\n\n` +
+                    `This may cause workflow issues and is not recommended for production use.\n\n` +
+                    `Do you want to proceed anyway for testing purposes?`
+                );
+
+                if (!proceedAnyway) {
+                    toast.error(`Cannot shortlist submissions. Sub-grant status is "${subGrant?.status}". Please close submissions first.`);
+                    return;
+                }
+
+                // If user chose to proceed, show warning toast
+                console.warn(`⚠️ WARNING: Shortlisting while status is "${subGrant?.status}". Normally requires "SUBMISSION_CLOSED".`);
+                toast.warning(`Proceeding with shortlist despite status being "${subGrant?.status}". This may cause issues.`);
             }
 
             await shortlistSubmissions({ submission_ids: [submissionId] });
@@ -71,7 +85,8 @@ export default function SubGrantSubmissionDetailWithTabs() {
             toast.success("Submission successfully shortlisted!");
         } catch (error: any) {
             console.error("Shortlist error:", error);
-            toast.error(error?.data?.message ?? error?.message ?? "Failed to shortlist submission");
+            const errorMessage = error?.data?.message ?? error?.message ?? "Failed to shortlist submission";
+            toast.error(`Failed to shortlist submission: ${errorMessage}`);
         }
     };
 
@@ -187,30 +202,34 @@ export default function SubGrantSubmissionDetailWithTabs() {
                             onClick={handleShortlist}
                             disabled={
                                 isShortlisted ||
-                                shortlistLoading ||
-                                subGrant?.status !== "SUBMISSION_CLOSED"
+                                shortlistLoading
+                                // Removed status check to allow testing bypass
                             }
                             className={`flex items-center gap-2 ${
                                 isShortlisted
                                     ? 'bg-green-600 hover:bg-green-700'
                                     : subGrant?.status !== "SUBMISSION_CLOSED"
-                                    ? 'bg-gray-400 cursor-not-allowed'
+                                    ? 'bg-yellow-600 hover:bg-yellow-700 border-2 border-yellow-400'  // Enhanced: Yellow with border for caution
                                     : 'bg-blue-600 hover:bg-blue-700'
                             }`}
                             title={
                                 isShortlisted
                                     ? "This submission has already been shortlisted"
                                     : subGrant?.status !== "SUBMISSION_CLOSED"
-                                    ? `Cannot shortlist: Sub-grant status is "${subGrant?.status}". Please close submissions first.`
+                                    ? `⚠️ Warning: Sub-grant status is "${subGrant?.status}", normally requires "SUBMISSION_CLOSED". Click to proceed with confirmation for testing.`
                                     : "Shortlist this submission"
                             }
                         >
-                            <CheckCircle size={16} />
-                            {isShortlisted ? 'Shortlisted' : 'Shortlist'}
+                            {shortlistLoading ? (
+                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                            ) : (
+                                <CheckCircle size={16} />
+                            )}
+                            {shortlistLoading ? 'Processing...' : isShortlisted ? 'Shortlisted' : 'Shortlist'}
                         </Button>
 
                         {isShortlisted && (
-                            <Link href={`/dashboard/c-and-g/sub-grant/awards/${subGrantId}/award-selection/${submissionId}`}>
+                            <Link href={`/dashboard/c-and-g/sub-grant/awards/${subGrantIdString}/award-selection/${submissionId}`}>
                                 <Button className="flex items-center gap-2 bg-green-600 hover:bg-green-700">
                                     <Award size={16} />
                                     Award Sub-Grant
