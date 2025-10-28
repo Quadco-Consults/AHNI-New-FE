@@ -763,7 +763,7 @@ const getDeparmentalLinks = () => {
             },
 
             {
-              name: "Adhoc Acceptance",
+              name: "Adhoc Portal",
               path: "/dashboard/programs/adhoc/adhoc-acceptance",
             },
 
