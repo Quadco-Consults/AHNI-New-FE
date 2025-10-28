@@ -12,9 +12,11 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
 import { useGetSingleSubGrant } from "@/features/contracts-grants/controllers/subGrantController";
+import { useOpenSubmissions, useCloseSubmissions, usePublishSubGrant } from "@/features/contracts-grants/controllers/subGrantWorkflowController";
 import { skipToken } from "@reduxjs/toolkit/query";
 import { LoadingSpinner } from "components/Loading";
 import { useState } from "react";
+import { toast } from "sonner";
 
 const SubGrantDetails = () => {
     const [tabValue, setTabValue] = useState("details");
@@ -22,7 +24,90 @@ const SubGrantDetails = () => {
     const params = useParams();
     const id = params?.id as string;
 
-    const { data, isLoading } = useGetSingleSubGrant(id ?? skipToken);
+    const { data, isLoading, refetch } = useGetSingleSubGrant(id ?? skipToken);
+
+    // Get current sub-grant status for workflow validation
+    const subGrantStatus = data?.data?.status;
+
+    // Workflow control hooks
+    const { openSubmissions, isLoading: openingSubmissions } = useOpenSubmissions(id || "");
+    const { closeSubmissions, isLoading: closingSubmissions } = useCloseSubmissions(id || "");
+    const { publishSubGrant, isLoading: isPublishing } = usePublishSubGrant(id || "");
+
+    // Debug logging for button visibility
+    console.log("🔍 SUB-GRANT DEBUG INFO - BUTTON VISIBILITY:", {
+        subGrantId: id,
+        subGrantStatus,
+        isLoading,
+        hasData: !!data?.data,
+        rawStatusFromAPI: data?.data?.status,
+        showOpenButton: subGrantStatus === "ADVERTISED",
+        showCloseButton: subGrantStatus === "SUBMISSION_OPEN",
+        allStatuses: ["DRAFT", "ADVERTISED", "SUBMISSION_OPEN", "SUBMISSION_CLOSED", "AWARDED"]
+    });
+
+    // More prominent debug
+    if (data?.data) {
+        console.log("✅ SUB-GRANT DATA LOADED:", data.data);
+        console.log("🎯 CURRENT STATUS:", subGrantStatus);
+        console.log("🔘 SHOW BUTTONS?", {
+            openSubmissions: subGrantStatus === "ADVERTISED",
+            closeSubmissions: subGrantStatus === "SUBMISSION_OPEN"
+        });
+    } else {
+        console.log("❌ NO SUB-GRANT DATA YET, isLoading:", isLoading);
+    }
+
+    // Workflow control handlers
+    const handleOpenSubmissions = async () => {
+        try {
+            await openSubmissions();
+            toast.success("Submissions opened successfully!");
+            refetch(); // Refresh data to show updated status
+        } catch (error: any) {
+            toast.error(error?.message || "Failed to open submissions");
+        }
+    };
+
+    const handleCloseSubmissions = async () => {
+        try {
+            await closeSubmissions();
+            toast.success("Submissions closed successfully!");
+            refetch(); // Refresh data to show updated status
+        } catch (error: any) {
+            toast.error(error?.message || "Failed to close submissions");
+        }
+    };
+
+    const handlePublishSubGrant = async () => {
+        try {
+            await publishSubGrant();
+            toast.success("Sub-Grant published successfully!");
+            refetch(); // Refresh data to show updated status
+        } catch (error: any) {
+            toast.error(error?.message || "Failed to publish sub-grant");
+        }
+    };
+
+    // Workflow progress indicator
+    const getWorkflowStep = () => {
+        switch (subGrantStatus) {
+            case "DRAFT":
+                return { step: 1, title: "Draft", description: "Sub-grant is being prepared" };
+            case "ADVERTISED":
+                return { step: 2, title: "Advertised", description: "Sub-grant has been published" };
+            case "SUBMISSION_OPEN":
+                return { step: 3, title: "Submissions Open", description: "Accepting applications" };
+            case "SUBMISSION_CLOSED":
+                return { step: 4, title: "Submissions Closed", description: "Ready for shortlisting and assessment" };
+            case "AWARDED":
+                return { step: 5, title: "Awarded", description: "Sub-grants have been awarded" };
+            default:
+                return { step: 0, title: "Unknown", description: "Status not recognized" };
+        }
+    };
+
+    const currentStep = getWorkflowStep();
 
     if (isLoading) {
         return <LoadingSpinner />;
@@ -30,6 +115,63 @@ const SubGrantDetails = () => {
 
     return (
         <section className="space-y-5">
+            {/* Workflow Status Indicator */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h4 className="font-semibold text-blue-900">Workflow Status</h4>
+                        <p className="text-blue-700">{currentStep.title} - {currentStep.description}</p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        {/* Admin Control Buttons */}
+                        {subGrantStatus === "DRAFT" && (
+                            <Button
+                                onClick={handlePublishSubGrant}
+                                disabled={isPublishing}
+                                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 text-sm"
+                            >
+                                {isPublishing ? "Publishing..." : "Publish Sub-Grant"}
+                            </Button>
+                        )}
+
+                        {subGrantStatus === "ADVERTISED" && (
+                            <Button
+                                onClick={handleOpenSubmissions}
+                                disabled={openingSubmissions}
+                                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 text-sm"
+                            >
+                                {openingSubmissions ? "Opening..." : "Open Submissions"}
+                            </Button>
+                        )}
+
+                        {subGrantStatus === "SUBMISSION_OPEN" && (
+                            <Button
+                                onClick={handleCloseSubmissions}
+                                disabled={closingSubmissions}
+                                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 text-sm"
+                            >
+                                {closingSubmissions ? "Closing..." : "Close Submissions"}
+                            </Button>
+                        )}
+
+                        {/* Progress Indicator */}
+                        <div className="flex items-center gap-1">
+                            {[1, 2, 3, 4, 5].map((step) => (
+                                <div
+                                    key={step}
+                                    className={`w-3 h-3 rounded-full ${
+                                        step <= currentStep.step
+                                            ? 'bg-blue-600'
+                                            : 'bg-gray-300'
+                                    }`}
+                                    title={`Step ${step}`}
+                                />
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div className="flex items-center justify-between">
                 <BackNavigation />
 
