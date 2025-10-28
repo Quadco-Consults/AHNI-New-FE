@@ -148,49 +148,34 @@ const ModificationTableMenu = (data: ModificationData) => {
   );
 };
 
-const ModificationHistory: React.FC = () => {
+interface ModificationHistoryProps {
+  modifications?: any[];
+}
+
+const ModificationHistory: React.FC<ModificationHistoryProps> = ({ modifications = [] }) => {
   const [page, setPage] = useState(1);
 
   const params = useParams();
   const grantId = typeof params?.id === 'string' ? params.id : Array.isArray(params?.id) ? params.id[0] : undefined;
 
-  // For now, let's use mock data since we need to create the controller
-  // const { data, isFetching, error } = useGetAllModifications({
-  //   grantId: grantId || "",
-  //   page,
-  //   size: 10,
-  //   enabled: !!grantId
-  // });
+  // Debug logging
+  console.log("ModificationHistory - Received modifications:", modifications);
+  console.log("ModificationHistory - Modifications count:", modifications.length);
 
-  // Mock data for now
-  const mockData = {
+  // Use the modifications prop passed from parent component
+  const data = {
     data: {
-      results: [
-        {
-          id: "1",
-          title: "Budget Increase",
-          amount: "50000",
-          description: "Additional funding for equipment procurement",
-          date: "2024-01-15",
-          created_datetime: "2024-01-15T10:30:00Z"
-        },
-        {
-          id: "2", 
-          title: "Timeline Extension",
-          amount: "0",
-          description: "Project timeline extended by 6 months",
-          date: "2024-02-20",
-          created_datetime: "2024-02-20T14:15:00Z"
-        }
-      ],
+      results: modifications,
       paginator: {
-        count: 2,
+        count: modifications.length,
         page_size: 10,
         page: 1,
-        total_pages: 1
+        total_pages: Math.ceil(modifications.length / 10)
       }
     }
   };
+
+  const isFetching = false;
 
   return (
     <section className="w-full flex flex-col space-y-[1.25rem]">
@@ -205,14 +190,21 @@ const ModificationHistory: React.FC = () => {
             <p className="text-yellow-600 text-sm mt-1">Unable to load modification data without a valid grant ID</p>
           </div>
         )}
+
+        {grantId && data?.data?.results?.length === 0 && !isFetching && (
+          <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-blue-800 font-medium">No modifications found</p>
+            <p className="text-blue-600 text-sm mt-1">No modifications have been created for this grant yet. Click "Add Modification" to create one.</p>
+          </div>
+        )}
         
         <DataTable
           columns={modificationColumns}
-          data={mockData?.data?.results || []}
-          isLoading={false}
+          data={data?.data?.results || []}
+          isLoading={isFetching}
           pagination={{
-            total: mockData?.data?.paginator?.count ?? 0,
-            pageSize: mockData?.data?.paginator?.page_size ?? 10,
+            total: data?.data?.paginator?.count ?? 0,
+            pageSize: data?.data?.paginator?.page_size ?? 10,
             onChange: (page: number) => setPage(page),
           }}
         />

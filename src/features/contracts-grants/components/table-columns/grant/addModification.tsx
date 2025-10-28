@@ -53,8 +53,16 @@ const AddModification = () => {
 
   // Detect if this is a subgrant or regular grant
   const subGrantId = dialogProps?.subGrantId as string;
-  const grantId = dialogProps?.grantId as string;
+  const grantId = dialogProps?.grantId as string || (result as any)?.id; // Fallback to result.id if grantId not provided
   const isSubGrant = !!subGrantId;
+
+  console.log("Debug grant/subgrant IDs:", {
+    subGrantId,
+    grantId,
+    isSubGrant,
+    dialogProps,
+    resultId: result?.id
+  });
 
   // Use appropriate controller based on type
   const { createModification: createGrantModification, isLoading: isGrantLoading } =
@@ -96,7 +104,7 @@ const AddModification = () => {
   const onSubmit: SubmitHandler<TModificationFormData> = async (data) => {
     console.log({ crakcen: data });
 
-    if (!isSubGrant && !grantId) {
+    if (!grantId && !subGrantId) {
       toast.error("Grant ID or SubGrant ID is required");
       return;
     }
@@ -126,12 +134,18 @@ const AddModification = () => {
     const formattedApprovalDate = formatDate(submitData.approval_date);
 
     try {
+      // Generate title from modification type and number
+      const title = `${submitData.modification_type.replace(/_/g, ' ')} #${submitData.modification_number}`;
+
       if (isSubGrant) {
         // For subgrants
         await createSubGrantModification({
+          title: title,
           modification_number: submitData.modification_number,
           modification_type: submitData.modification_type,
           reason: submitData.reason,
+          description: submitData.reason, // Use reason as description
+          amount: submitData.amount_usd, // Use USD as primary amount
           amount_usd: submitData.amount_usd,
           amount_ngn: submitData.amount_ngn,
           effective_date: formattedEffectiveDate,
@@ -142,9 +156,12 @@ const AddModification = () => {
       } else {
         // For regular grants
         await createGrantModification({
+          title: title,
           modification_number: submitData.modification_number,
           modification_type: submitData.modification_type,
           reason: submitData.reason,
+          description: submitData.reason, // Use reason as description
+          amount: submitData.amount_usd, // Use USD as primary amount
           amount_usd: submitData.amount_usd,
           amount_ngn: submitData.amount_ngn,
           effective_date: formattedEffectiveDate,
