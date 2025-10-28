@@ -62,10 +62,36 @@ export default function Summary() {
 
   const handleSubmit = async () => {
     try {
-      const res = await createFundRequest(programFundRequest);
+      // Calculate amount for each activity and add total obligation
+      const activitiesWithAmount = programFundRequest?.activities?.map((activity: any) => {
+        const amount = activity.amount ||
+          (Number(activity.unit_cost || 0) *
+           Number(activity.quantity || 0) *
+           Number(activity.frequency || 0));
+
+        return {
+          ...activity,
+          amount: amount.toString()
+        };
+      }) || [];
+
+      // Calculate total obligation amount
+      const totalObligationAmount = activitiesWithAmount.reduce((total, activity) => {
+        return total + Number(activity.amount || 0);
+      }, 0);
+
+      // Prepare payload with calculated amounts
+      const payload = {
+        ...programFundRequest,
+        activities: activitiesWithAmount,
+        total_obligation_amount: totalObligationAmount.toString()
+      };
+
+      console.log("Submitting payload:", payload);
+      const res = await createFundRequest(payload);
 
       console.log({ res });
-      if (res?.status === "success") {
+      if (res?.status === true || res?.message) {
         router.push(RouteEnum.PROGRAM_FUND_REQUEST);
         localStorage.removeItem("programFundRequest");
       }
@@ -114,7 +140,7 @@ export default function Summary() {
           </div>
           <div className='space-y-3'>
             <h3 className='font-semibold'>Financial Year</h3>
-            <p className='text-sm text-gray-500'>{financialYear?.data.year}</p>
+            <p className='text-sm text-gray-500'>{(financialYear?.data as any)?.year}</p>
           </div>
           <div className='space-y-3'>
             <h3 className='font-semibold'>Location</h3>
@@ -127,6 +153,18 @@ export default function Summary() {
           <div className='space-y-3'>
             <h3 className='font-semibold'>Available Balance</h3>
             <p className='text-sm text-gray-500'>{programFundRequest?.available_balance || 'N/A'}</p>
+          </div>
+          <div className='space-y-3'>
+            <h3 className='font-semibold'>Total Obligation Amount</h3>
+            <p className='text-sm text-gray-500'>
+              {programFundRequest?.activities?.reduce((total, activity: any) => {
+                const amount = activity.amount ||
+                  (Number(activity.unit_cost || 0) *
+                   Number(activity.quantity || 0) *
+                   Number(activity.frequency || 0));
+                return total + amount;
+              }, 0).toLocaleString() || 'N/A'}
+            </p>
           </div>
         </div>
 
@@ -221,9 +259,27 @@ export default function Summary() {
 
       <DataTable
         data={programFundRequest?.activities || []}
-        columns={columns(costCategories?.data?.results || [])}
+        columns={columns((costCategories as any)?.data?.results || []) as any}
         isLoading={false}
       />
+
+      {/* Grand Total Row */}
+      <div className='mt-4 flex justify-end'>
+        <div className='bg-gray-50 p-4 rounded-lg min-w-[300px]'>
+          <div className='flex justify-between items-center'>
+            <span className='font-semibold text-lg'>Grand Total:</span>
+            <span className='font-bold text-xl text-primary'>
+              {programFundRequest?.activities?.reduce((total, activity: any) => {
+                const amount = activity.amount ||
+                  (Number(activity.unit_cost || 0) *
+                   Number(activity.quantity || 0) *
+                   Number(activity.frequency || 0));
+                return total + amount;
+              }, 0).toLocaleString() || '0'}
+            </span>
+          </div>
+        </div>
+      </div>
 
       <div className='flex justify-end gap-5 mt-16'>
         <Button
@@ -251,7 +307,7 @@ const columns = (costCategories: any[]): ColumnDef<TFundRequestActivity>[] => {
   return [
     {
       header: "S/N",
-      accessorFn: (data, index) => `${index}`,
+      accessorFn: (_, index) => `${index}`,
       size: 80,
     },
 
