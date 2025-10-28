@@ -31,7 +31,7 @@ import {
 import { useGetAllDepartments } from "@/features/modules/controllers/config/departmentController";
 import { useGetAllLocations } from "@/features/modules/controllers/config/locationController";
 import { useGetAllProjectsQuery } from "@/features/projects/controllers/projectController";
-import { useGetAllUsers } from "@/features/auth/controllers/userController";
+import { useGetAllPositions } from "@/features/modules/controllers/config/positionController";
 import { useGetAllActivityHeadings } from "@/features/contracts-grants/controllers/activityHeadingController";
 import { toast } from "sonner";
 
@@ -118,20 +118,41 @@ export default function CreateCloseOutPlan() {
     [location?.data.results]
   );
 
-  const { data: users } = useGetAllUsers({
+  const { data: positions } = useGetAllPositions({
     page: 1,
     size: 2000000,
     search: "",
     enabled: true,
   });
 
-  const userOptions = useMemo(
-    () =>
-      users?.data.results.map((user) => ({
-        label: `${user.first_name} ${user.last_name}`,
-        value: user.id,
-      })) || [],
-    [users?.data.results]
+  // Debug: Log positions data
+  useEffect(() => {
+    console.log('Positions API Response:', positions);
+    console.log('Positions data structure:', (positions as any)?.data);
+    console.log('Positions results:', (positions as any)?.data?.results);
+    console.log('Positions results (alt):', (positions as any)?.results);
+  }, [positions]);
+
+  const positionOptions = useMemo(
+    () => {
+      // Try multiple possible data structures
+      const results = (positions as any)?.data?.results ||
+                     (positions as any)?.results ||
+                     (positions as any)?.data ||
+                     [];
+
+      console.log('Position options being created from:', results);
+
+      const options = results.map((position: any) => ({
+        label: position.title || position.name,
+        value: position.title || position.name,
+      }));
+
+      console.log('Position options:', options);
+
+      return options;
+    },
+    [positions]
   );
 
   // Fetch activity headings from API
@@ -157,6 +178,26 @@ export default function CreateCloseOutPlan() {
 
   const onSubmit: SubmitHandler<TCloseOutPlanFormData> = async (data) => {
     try {
+      // Validation: Check for required fields
+      if (!data.project) {
+        toast.error("Please select a project");
+        return;
+      }
+      if (!data.location) {
+        toast.error("Please select a location");
+        return;
+      }
+
+      // Validate that at least one activity has a description
+      const hasValidActivity = data.tasks.some(task =>
+        task.activities.some(activity => activity.description?.trim())
+      );
+
+      if (!hasValidActivity) {
+        toast.error("Please add at least one activity with a description");
+        return;
+      }
+
       // Transform nested structure to flat structure for backend
       // Backend expects tasks array with activity fields directly, not nested activities
       const transformedData = {
@@ -165,27 +206,34 @@ export default function CreateCloseOutPlan() {
         location: data.location,
         key_task: data.tasks[0]?.key_task || null, // Use first task's key_task
         tasks: data.tasks.flatMap(task =>
-          task.activities.map(activity => ({
-            designation: activity.designation,
-            remarks: activity.remarks,
-            status: activity.status,
-            start_date: activity.start_date,
-            end_date: activity.end_date,
-          }))
+          task.activities
+            .filter(activity => activity.description?.trim()) // Only include activities with descriptions
+            .map(activity => ({
+              description: activity.description,
+              designation: activity.designation,
+              remarks: activity.remarks,
+              status: activity.status,
+              start_date: activity.start_date,
+              end_date: activity.end_date,
+            }))
         )
       };
 
+      console.log('Submitting close out plan data:', transformedData);
+
       if (id) {
         await modifyCloseOutPlan(transformedData as any);
-        toast.success("Close Out Plan Updated");
+        toast.success("Close Out Plan updated successfully!");
       } else {
         await createCloseOutPlan(transformedData as any);
-        toast.success("Close Out Plan Created");
+        toast.success("Close Out Plan created successfully!");
       }
 
       router.push(CG_ROUTES.CLOSE_OUT);
     } catch (error: any) {
-      toast.error(error?.data?.message ?? "Something went wrong");
+      console.error('Close out plan submission error:', error);
+      const errorMessage = error?.data?.message || error?.message || "Failed to save close out plan";
+      toast.error(`Error: ${errorMessage}`);
     }
   };
 
@@ -259,7 +307,7 @@ export default function CreateCloseOutPlan() {
                   control={form.control}
                   register={form.register}
                   canDelete={taskFields.length > 1}
-                  userOptions={userOptions}
+                  positionOptions={positionOptions}
                   activityHeadingOptions={activityHeadingOptions}
                 />
               ))}
@@ -284,21 +332,39 @@ export default function CreateCloseOutPlan() {
               </FadedButton>
             </div>
 
-            <div className='flex justify-end items-center gap-x-5'>
-              <FadedButton
-                type='button'
-                size='lg'
-                className='text-primary'
-                onClick={() => router.push(CG_ROUTES.CLOSE_OUT)}
-              >
-                Cancel
-              </FadedButton>
-              <FormButton
-                loading={isCreateLoading || isModifyLoading}
-                size='lg'
-              >
-                Submit
-              </FormButton>
+            <div className='flex justify-between items-center pt-6 border-t border-gray-200'>
+              <div className='text-sm text-gray-600'>
+                {id ? (
+                  <p>📝 Updating existing close out plan</p>
+                ) : (
+                  <p>📋 Creating new close out plan • Ensure all required fields are completed</p>
+                )}
+              </div>
+              <div className='flex items-center gap-x-4'>
+                <FadedButton
+                  type='button'
+                  size='lg'
+                  className='text-gray-600 hover:text-gray-800'
+                  onClick={() => router.push(CG_ROUTES.CLOSE_OUT)}
+                  disabled={isCreateLoading || isModifyLoading}
+                >
+                  Cancel
+                </FadedButton>
+                <FormButton
+                  loading={isCreateLoading || isModifyLoading}
+                  size='lg'
+                  className={`min-w-[120px] ${
+                    isCreateLoading || isModifyLoading
+                      ? 'bg-blue-400'
+                      : 'bg-blue-600 hover:bg-blue-700'
+                  }`}
+                >
+                  {isCreateLoading || isModifyLoading
+                    ? (id ? 'Updating...' : 'Creating...')
+                    : (id ? 'Update Plan' : 'Create Plan')
+                  }
+                </FormButton>
+              </div>
             </div>
           </form>
         </Form>
@@ -313,7 +379,7 @@ function TaskItem({
   control,
   register,
   canDelete,
-  userOptions,
+  positionOptions,
   activityHeadingOptions,
 }: {
   taskIndex: number;
@@ -321,7 +387,7 @@ function TaskItem({
   control: any;
   register: any;
   canDelete: boolean;
-  userOptions: { label: string; value: string }[];
+  positionOptions: { label: string; value: string }[];
   activityHeadingOptions: { label: string; value: string }[];
 }) {
   const {
@@ -340,13 +406,18 @@ function TaskItem({
           <FormSelect
             label='Section Heading (Optional)'
             name={`tasks.${taskIndex}.key_task`}
-            placeholder='Select section heading'
+            placeholder='Select section heading or leave blank'
             options={activityHeadingOptions}
           />
-          <p className='text-xs text-gray-500 mt-1'>
-            Select a section heading to group activities, or leave blank if not needed.
-            Manage headings in <a href="/dashboard/c-and-g/close-out-plan/activity-headings" className="text-primary hover:underline" target="_blank">Activity Headings</a>.
-          </p>
+          <div className='text-xs text-gray-600 mt-1 p-2 bg-blue-50 rounded border border-blue-200'>
+            <p className='font-medium text-blue-800 mb-1'>💡 Section Heading Guide:</p>
+            <ul className='list-disc list-inside space-y-1 text-blue-700'>
+              <li>Use section headings to group related activities (e.g., "Files & Records", "Financial Reports")</li>
+              <li>Activities under the same heading will be grouped together in reports</li>
+              <li>Leave blank if activities don't need grouping</li>
+              <li>Manage custom headings in <a href="/dashboard/c-and-g/close-out-plan/activity-headings" className="text-primary hover:underline font-medium" target="_blank">Activity Headings</a></li>
+            </ul>
+          </div>
         </div>
         {canDelete && (
           <Button
@@ -382,20 +453,31 @@ function TaskItem({
           </div>
           <div className='space-y-5'>
             <FormTextArea
-              label='Description'
+              label='Description *'
               name={`tasks.${taskIndex}.activities.${activityIndex}.description`}
-              placeholder='Enter Activity Description (or Section Heading like "FILES, DATA AND RECORDS")'
+              placeholder='Enter detailed activity description (e.g., "Review and archive project files", "Submit final financial report")'
               required
+              rows={3}
             />
-            <p className='text-xs text-gray-500 -mt-3'>
-              💡 Tip: To create a section header, just fill in the description and leave dates/designation empty
-            </p>
+            <div className='text-xs text-gray-600 -mt-2 p-2 bg-yellow-50 rounded border border-yellow-200'>
+              <p className='font-medium text-yellow-800 mb-1'>📝 Activity Description Tips:</p>
+              <ul className='list-disc list-inside space-y-1 text-yellow-700'>
+                <li><strong>Be specific:</strong> "Submit final financial report to donor" instead of "Financial report"</li>
+                <li><strong>Include action:</strong> Start with verbs like "Review", "Submit", "Archive", "Prepare"</li>
+                <li><strong>For section headers:</strong> Use titles like "FILES, DATA AND RECORDS" and leave dates/designation empty</li>
+              </ul>
+            </div>
             <div className='grid grid-cols-2 gap-5'>
               <FormSelect
                 label='Designation / Responsible'
                 name={`tasks.${taskIndex}.activities.${activityIndex}.designation`}
-                placeholder='Select Employee - Optional for headers'
-                options={userOptions}
+                placeholder={
+                  positionOptions.length > 0
+                    ? 'Select responsible position/role (optional for section headers)'
+                    : 'Loading positions...'
+                }
+                options={positionOptions}
+                disabled={positionOptions.length === 0}
               />
 
               <FormSelect
@@ -412,21 +494,26 @@ function TaskItem({
 
               <FormInput
                 type='date'
-                label='Start Date'
+                label='Start Date (Optional)'
                 name={`tasks.${taskIndex}.activities.${activityIndex}.start_date`}
+                placeholder='Select planned start date'
               />
 
               <FormInput
                 type='date'
-                label='End Date'
+                label='End Date (Optional)'
                 name={`tasks.${taskIndex}.activities.${activityIndex}.end_date`}
+                placeholder='Select target completion date'
               />
 
-              <FormTextArea
-                label='Remarks'
-                name={`tasks.${taskIndex}.activities.${activityIndex}.remarks`}
-                placeholder='Enter Remarks (optional)'
-              />
+              <div className='col-span-2'>
+                <FormTextArea
+                  label='Remarks (Optional)'
+                  name={`tasks.${taskIndex}.activities.${activityIndex}.remarks`}
+                  placeholder='Add any additional notes, comments, or special instructions for this activity'
+                  rows={2}
+                />
+              </div>
             </div>
           </div>
         </div>
