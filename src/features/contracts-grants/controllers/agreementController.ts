@@ -275,14 +275,19 @@ export const useGetAgreementDocuments = (agreementId: string, enabled: boolean =
     queryKey: ["agreement-documents", agreementId],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get(`${BASE_URL}${agreementId}/documents/`);
+        const response = await AxiosWithToken.get(`${BASE_URL}${agreementId}/documents/`, {
+          params: {
+            include_inactive: true,  // Include inactive documents
+          }
+        });
         console.log('🔍 GET Documents API Response:', response.data);
         console.log('🔍 Response structure:', {
           hasStatus: 'status' in response.data,
           hasMessage: 'message' in response.data,
           hasData: 'data' in response.data,
           dataType: Array.isArray(response.data?.data) ? 'array' : typeof response.data?.data,
-          dataLength: Array.isArray(response.data?.data) ? response.data.data.length : 'N/A'
+          dataLength: Array.isArray(response.data?.data) ? response.data.data.length : 'N/A',
+          rawData: response.data
         });
         return response.data;
       } catch (error) {

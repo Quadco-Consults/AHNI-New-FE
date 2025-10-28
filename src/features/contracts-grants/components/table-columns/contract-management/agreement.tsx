@@ -327,7 +327,7 @@ const TableMenu = ({ id, status }: IAgreementPaginatedData) => {
 
             <ConfirmationDialog
                 open={isDialogOpen}
-                title="Are you sure you want to delete this expenditure?"
+                title="Are you sure you want to delete this agreement?"
                 loading={isLoading}
                 onCancel={() => setDialogOpen(false)}
                 onOk={handleDelete}
