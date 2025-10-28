@@ -540,6 +540,7 @@ export const CG_ROUTES = {
   AWARDED_BENEFICIARIES: "/dashboard/c-and-g/awarded-beneficiaries",
 
   CONSULTANCY_DATABASE: "/dashboard/c-and-g/consultancy-database",
+  CONSULTANCY_DATABASE_VIEW: "/dashboard/c-and-g/consultancy-database/:id/view",
 
   CONTRACT_REQUEST: "/dashboard/c-and-g/contract-request/",
   CREATE_CONTRACT_REQUEST:

@@ -15,7 +15,47 @@ import { useGetAllAgreements } from "@/features/contracts-grants/controllers/agr
 export default function Agreement() {
     const [page, setPage] = useState(1);
 
-    const { data, isFetching } = useGetAllAgreements({ page, size: 10 });
+    const { data, isFetching, error } = useGetAllAgreements({ page, size: 10 });
+
+    // Debug logging
+    console.log('📋 Agreements Data:', {
+        data,
+        isFetching,
+        error,
+        results: data?.data?.results,
+        resultsLength: data?.data?.results?.length,
+        pagination: data?.data?.pagination
+    });
+
+    // Handle error state
+    if (error) {
+        return (
+            <section>
+                <div className="flex items-center justify-between">
+                    <BackNavigation extraText="Agreements" />
+                    <Link href={CG_ROUTES.CREATE_AGREEMENT}>
+                        <Button>
+                            <Plus size={20} />
+                            Create Agreement
+                        </Button>
+                    </Link>
+                </div>
+                <Card className="p-6">
+                    <div className="text-center">
+                        <p className="text-red-600 mb-4">Error loading agreements:</p>
+                        <p className="text-gray-600">{error.message}</p>
+                        <Button
+                            onClick={() => window.location.reload()}
+                            className="mt-4"
+                            variant="outline"
+                        >
+                            Try Again
+                        </Button>
+                    </div>
+                </Card>
+            </section>
+        );
+    }
 
     return (
         <section>
@@ -32,11 +72,11 @@ export default function Agreement() {
                 <TableFilters>
                     <DataTable
                         columns={agreementColumns}
-                        data={data?.data.results || []}
+                        data={data?.data?.results || []}
                         isLoading={isFetching}
                         pagination={{
-                            total: data?.data.pagination.count ?? 0,
-                            pageSize: data?.data.pagination.page_size ?? 0,
+                            total: data?.data?.pagination?.count ?? 0,
+                            pageSize: data?.data?.pagination?.page_size ?? 0,
                             onChange: (page: number) => setPage(page),
                         }}
                     />

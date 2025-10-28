@@ -161,6 +161,17 @@ const TableMenu = (consultant: any) => {
             </Button>
           </PopoverTrigger>
           <PopoverContent className='w-fit'>
+            <Link
+              href={CG_ROUTES.CONSULTANCY_DATABASE_VIEW.replace(':id', applicantId)}
+            >
+              <Button
+                className='w-full flex items-center justify-start gap-2'
+                variant='ghost'
+              >
+                <EyeIcon />
+                View Consultant Details
+              </Button>
+            </Link>
             {consultancyId && (
               <>
                 <Link
@@ -173,7 +184,7 @@ const TableMenu = (consultant: any) => {
                     variant='ghost'
                   >
                     <EyeIcon />
-                    View
+                    View Application
                   </Button>
                 </Link>
                 <Link
