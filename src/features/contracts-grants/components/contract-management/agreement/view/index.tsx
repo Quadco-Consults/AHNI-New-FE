@@ -8,6 +8,8 @@ import {
     useCreateContractModification,
     useGetAgreementDocuments,
     useUploadContractDocument,
+    useApproveAgreement,
+    useRejectAgreement,
 } from "@/features/contracts-grants/controllers/agreementController";
 import { Button } from "components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "components/ui/card";
@@ -17,7 +19,7 @@ import { Label } from "components/ui/label";
 import { Input } from "components/ui/input";
 import { Textarea } from "components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
-import { ArrowLeft, FileText, Plus, Download, Eye, RefreshCw, CheckCircle, AlertCircle, Building2, Calendar, DollarSign, MapPin, User, Phone, Mail } from "lucide-react";
+import { ArrowLeft, FileText, Plus, Download, Eye, RefreshCw, CheckCircle, AlertCircle, Building2, Calendar, DollarSign, MapPin, User, Phone, Mail, ThumbsUp, ThumbsDown, X } from "lucide-react";
 import { CG_ROUTES } from "constants/RouterConstants";
 import { toast } from "sonner";
 import { IContractDocument } from "@/features/contracts-grants/types/contract-management/agreement";
@@ -41,14 +43,35 @@ export default function AgreementView() {
     const [uploadRemarks, setUploadRemarks] = useState("");
     const [uploadTitle, setUploadTitle] = useState("");
 
+    // Approval/Rejection state
+    const [isApprovalDialogOpen, setIsApprovalDialogOpen] = useState(false);
+    const [isRejectionDialogOpen, setIsRejectionDialogOpen] = useState(false);
+    const [rejectionReason, setRejectionReason] = useState("");
+
     const { data, isLoading, isError, error, refetch } = useGetSingleAgreement(agreementId);
     const { data: documentsData, isLoading: documentsLoading, isError: documentsError, error: documentsErrorMessage, refetch: refetchDocuments } = useGetAgreementDocuments(agreementId);
     const { submitAgreement, isLoading: isSubmitting, isSuccess: submitSuccess } = useSubmitAgreement(agreementId);
     const { createModification, isLoading: isCreatingModification, isSuccess: modificationSuccess } = useCreateContractModification(agreementId);
     const { uploadDocument, isLoading: isUploadingDocument, isSuccess: uploadSuccess } = useUploadContractDocument(agreementId);
 
+    // Approval/Rejection hooks
+    const { approveAgreement, isLoading: isApproving, isSuccess: approvalSuccess } = useApproveAgreement(agreementId);
+    const { rejectAgreement, isLoading: isRejecting, isSuccess: rejectionSuccess } = useRejectAgreement(agreementId);
+
     const agreement = data?.data;
-    const documents = documentsData?.data || [];
+
+    // Get documents from multiple sources - prioritize agreement_documents from main API
+    const documents = agreement?.agreement_documents || documentsData?.data || [];
+
+    // Debug documents source
+    console.log('📄 Documents Source Debug:', {
+        agreementDocuments: agreement?.agreement_documents,
+        agreementDocumentsLength: agreement?.agreement_documents?.length || 0,
+        documentsApiData: documentsData?.data,
+        finalDocuments: documents,
+        finalDocumentsLength: documents?.length || 0,
+        usingSource: agreement?.agreement_documents ? 'agreement_documents' : documentsData?.data ? 'documents_api' : 'none'
+    });
 
     // Debug logging
     useEffect(() => {
@@ -102,6 +125,23 @@ export default function AgreementView() {
         }
     }, [uploadSuccess]);
 
+    useEffect(() => {
+        if (approvalSuccess) {
+            toast.success("Agreement approved successfully!");
+            setIsApprovalDialogOpen(false);
+            refetch();
+        }
+    }, [approvalSuccess]);
+
+    useEffect(() => {
+        if (rejectionSuccess) {
+            toast.success("Agreement rejected successfully");
+            setIsRejectionDialogOpen(false);
+            setRejectionReason("");
+            refetch();
+        }
+    }, [rejectionSuccess]);
+
     const resetModificationForm = () => {
         setModificationType('EXTENSION');
         setModificationDescription("");
@@ -124,6 +164,27 @@ export default function AgreementView() {
             return;
         }
         await submitAgreement();
+    };
+
+    const handleApproveAgreement = async () => {
+        try {
+            await approveAgreement();
+        } catch (error: any) {
+            toast.error(error?.message || "Failed to approve agreement");
+        }
+    };
+
+    const handleRejectAgreement = async () => {
+        if (!rejectionReason.trim()) {
+            toast.error("Please provide a reason for rejection");
+            return;
+        }
+
+        try {
+            await rejectAgreement(rejectionReason);
+        } catch (error: any) {
+            toast.error(error?.message || "Failed to reject agreement");
+        }
     };
 
     const handleUploadDocument = async () => {
@@ -245,6 +306,8 @@ export default function AgreementView() {
     const canEdit = agreement?.status === 'DRAFT' || !agreement?.status;
     const canSubmit = canEdit && documents && documents.length > 0;
     const isActive = agreement?.status === 'ACTIVE';
+    const isSubmitted = agreement?.status === 'SUBMITTED';
+    const canApproveOrReject = isSubmitted;
 
     if (isLoading) {
         return (
@@ -369,6 +432,28 @@ export default function AgreementView() {
                                     <CheckCircle className="mr-2 h-4 w-4" />
                                     Submit for Approval
                                 </Button>
+                            )}
+                            {canApproveOrReject && (
+                                <>
+                                    <Button
+                                        onClick={() => setIsApprovalDialogOpen(true)}
+                                        disabled={isApproving}
+                                        className="bg-green-600 hover:bg-green-700"
+                                        size="sm"
+                                    >
+                                        <ThumbsUp className="mr-2 h-4 w-4" />
+                                        {isApproving ? 'Approving...' : 'Approve'}
+                                    </Button>
+                                    <Button
+                                        onClick={() => setIsRejectionDialogOpen(true)}
+                                        disabled={isRejecting}
+                                        variant="destructive"
+                                        size="sm"
+                                    >
+                                        <ThumbsDown className="mr-2 h-4 w-4" />
+                                        {isRejecting ? 'Rejecting...' : 'Reject'}
+                                    </Button>
+                                </>
                             )}
                         </div>
                     </div>
@@ -1107,6 +1192,96 @@ export default function AgreementView() {
                             className="bg-indigo-600 hover:bg-indigo-700"
                         >
                             {isUploadingDocument ? "Uploading..." : "Upload Document"}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Approval Confirmation Dialog */}
+            <Dialog open={isApprovalDialogOpen} onOpenChange={setIsApprovalDialogOpen}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                            <ThumbsUp className="h-5 w-5 text-green-600" />
+                            Approve Agreement
+                        </DialogTitle>
+                    </DialogHeader>
+                    <div className="py-4">
+                        <p className="text-sm text-gray-600">
+                            Are you sure you want to approve this agreement? Once approved, the agreement will become active and will be in effect immediately.
+                        </p>
+                        <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded">
+                            <p className="text-sm font-medium text-green-800">This action will:</p>
+                            <ul className="text-xs text-green-700 mt-1 list-disc list-inside">
+                                <li>Change status from "Submitted" to "Active"</li>
+                                <li>Make the agreement effective immediately</li>
+                                <li>Enable contract tracking and monitoring</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setIsApprovalDialogOpen(false)}>
+                            Cancel
+                        </Button>
+                        <Button
+                            onClick={handleApproveAgreement}
+                            disabled={isApproving}
+                            className="bg-green-600 hover:bg-green-700"
+                        >
+                            {isApproving ? "Approving..." : "Approve Agreement"}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Rejection Dialog */}
+            <Dialog open={isRejectionDialogOpen} onOpenChange={setIsRejectionDialogOpen}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                            <ThumbsDown className="h-5 w-5 text-red-600" />
+                            Reject Agreement
+                        </DialogTitle>
+                    </DialogHeader>
+                    <div className="py-4 space-y-4">
+                        <p className="text-sm text-gray-600">
+                            Please provide a reason for rejecting this agreement. This information will be shared with the submitter.
+                        </p>
+
+                        <div>
+                            <Label>Rejection Reason *</Label>
+                            <Textarea
+                                value={rejectionReason}
+                                onChange={(e) => setRejectionReason(e.target.value)}
+                                placeholder="Please explain why this agreement is being rejected..."
+                                rows={4}
+                                className="mt-1"
+                                required
+                            />
+                        </div>
+
+                        <div className="p-3 bg-red-50 border border-red-200 rounded">
+                            <p className="text-sm font-medium text-red-800">This action will:</p>
+                            <ul className="text-xs text-red-700 mt-1 list-disc list-inside">
+                                <li>Change status from "Submitted" to "Rejected"</li>
+                                <li>Return the agreement to the submitter for revision</li>
+                                <li>Require resubmission after addressing feedback</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => {
+                            setIsRejectionDialogOpen(false);
+                            setRejectionReason("");
+                        }}>
+                            Cancel
+                        </Button>
+                        <Button
+                            onClick={handleRejectAgreement}
+                            disabled={isRejecting || !rejectionReason.trim()}
+                            variant="destructive"
+                        >
+                            {isRejecting ? "Rejecting..." : "Reject Agreement"}
                         </Button>
                     </DialogFooter>
                 </DialogContent>
