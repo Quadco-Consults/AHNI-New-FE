@@ -19,7 +19,9 @@ import {
   FileBarChart,
   ScrollText,
   Users,
-  Droplet
+  Droplet,
+  Clock,
+  Calendar
 } from "lucide-react";
 // Direct Next.js paths - no RouterConstants needed
 import { Icon } from "@iconify/react";
@@ -105,7 +107,7 @@ const globalHubMenu = [
     category: "financial"
   },
 
-  // Contracts & HR
+  // Contracts
   {
     label: "Contract Request",
     path: "/dashboard/c-and-g/contract-request",
@@ -117,6 +119,26 @@ const globalHubMenu = [
     path: "/dashboard/c-and-g/consultancy-report",
     icon: <FileBarChart className="w-4 h-4" />,
     category: "contracts"
+  },
+
+  // HR - Staff Self-Service
+  {
+    label: "My Timesheet",
+    path: "/dashboard/hr/timesheet-management",
+    icon: <Clock className="w-4 h-4" />,
+    category: "hr"
+  },
+  {
+    label: "Apply for Leave",
+    path: "/dashboard/hr/leave-management/apply",
+    icon: <Calendar className="w-4 h-4" />,
+    category: "hr"
+  },
+  {
+    label: "My Leave Dashboard",
+    path: "/dashboard/hr/leave-management",
+    icon: <Calendar className="w-4 h-4" />,
+    category: "hr"
   },
   {
     label: "Adhoc Staff Requisition",
@@ -149,6 +171,28 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
   const [selectedLinkSubIndex, setSelectedLinkSubIndex] = useState<
     null | number
   >(null);
+
+  // Global Hub dropdown state
+  const [showGlobalHubMenu, setShowGlobalHubMenu] = useState(false);
+  const [selectedGlobalHubCategory, setSelectedGlobalHubCategory] = useState<string | null>(null);
+
+  // Group Global Hub menu items by category
+  const globalHubCategories = {
+    procurement: { label: "Procurement & Purchasing", icon: <ShoppingCart className="w-4 h-4" /> },
+    inventory: { label: "Inventory Management", icon: <Package className="w-4 h-4" /> },
+    fleet: { label: "Fleet & Transport", icon: <Car className="w-4 h-4" /> },
+    maintenance: { label: "Maintenance", icon: <Wrench className="w-4 h-4" /> },
+    financial: { label: "Financial Services", icon: <DollarSign className="w-4 h-4" /> },
+    contracts: { label: "Contracts & Reports", icon: <FileText className="w-4 h-4" /> },
+    hr: { label: "Staff Self-Service", icon: <Users className="w-4 h-4" /> },
+    support: { label: "Support", icon: <HeartHandshake className="w-4 h-4" /> }
+  };
+
+  const groupedGlobalHubMenu = Object.entries(globalHubCategories).map(([category, categoryInfo]) => ({
+    category,
+    ...categoryInfo,
+    items: globalHubMenu.filter(item => item.category === category)
+  })).filter(group => group.items.length > 0);
 
   return (
     <aside
@@ -571,38 +615,90 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
             </h4>
 
             <div className="space-y-1">
-              {globalHubMenu?.map(({ label, path, icon }, id) => {
-                const isActive = path && pathname && pathname.startsWith(path);
-                return (
-                  <Link
-                    key={id}
-                    href={path || "#"}
+              {groupedGlobalHubMenu?.map((category) => (
+                <div key={category.category}>
+                  {/* Category Header */}
+                  <div
                     className={cn(
-                      "group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
-                      isActive
-                        ? "bg-primary/10 text-primary"
-                        : "text-gray-700 hover:bg-primary/5 hover:text-primary dark:text-gray-300 dark:hover:bg-primary/10"
+                      "group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 cursor-pointer",
+                      "text-gray-700 hover:bg-primary/5 hover:text-primary dark:text-gray-300 dark:hover:bg-primary/10"
                     )}
+                    onClick={() => {
+                      if (selectedGlobalHubCategory === category.category && showGlobalHubMenu) {
+                        setShowGlobalHubMenu(false);
+                        setSelectedGlobalHubCategory(null);
+                      } else {
+                        setShowGlobalHubMenu(true);
+                        setSelectedGlobalHubCategory(category.category);
+                      }
+                    }}
                   >
-                    <span
+                    <div className="flex w-full items-center gap-3">
+                      <span className="flex-shrink-0">
+                        {category.icon}
+                      </span>
+                      <h4
+                        className={cn(
+                          "w-[100%] truncate font-medium",
+                          sidebarWidth === false ? "block" : "hidden"
+                        )}
+                      >
+                        {category.label}
+                      </h4>
+                    </div>
+                    <ChevronDown
                       className={cn(
-                        "flex-shrink-0 transition-transform duration-200",
-                        isActive && "scale-110"
+                        "h-5 w-5 -rotate-90 transition duration-200",
+                        showGlobalHubMenu && selectedGlobalHubCategory === category.category && "rotate-0"
                       )}
-                    >
-                      {icon}
-                    </span>
-                    <h4
-                      className={cn(
-                        "truncate transition-all duration-200",
-                        sidebarWidth === false ? "block" : "hidden"
-                      )}
-                    >
-                      {label}
-                    </h4>
-                  </Link>
-                );
-              })}
+                      aria-hidden="true"
+                    />
+                  </div>
+
+                  {/* Category Items */}
+                  <motion.ul
+                    animate={
+                      showGlobalHubMenu && selectedGlobalHubCategory === category.category
+                        ? { height: "auto", opacity: 1 }
+                        : { height: 0, opacity: 0 }
+                    }
+                    className="overflow-hidden"
+                  >
+                    <div className="space-y-1 pl-6 pt-1">
+                      {category.items.map((item, itemIndex) => {
+                        const isActive = item.path && pathname && pathname.startsWith(item.path);
+                        return (
+                          <Link
+                            key={itemIndex}
+                            href={item.path || "#"}
+                            className={cn(
+                              "group flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all duration-200",
+                              isActive
+                                ? "bg-primary/10 text-primary"
+                                : "text-gray-600 hover:bg-primary/5 hover:text-primary dark:text-gray-400 dark:hover:bg-primary/10"
+                            )}
+                          >
+                            <span
+                              className={cn(
+                                "bg-gray-400 hover:bg-primary aspect-square w-2 rounded-full border",
+                                isActive && "bg-primary border-primary"
+                              )}
+                            ></span>
+                            <h6
+                              className={cn(
+                                "truncate transition-all duration-200",
+                                sidebarWidth === false ? "block" : "hidden"
+                              )}
+                            >
+                              {item.label}
+                            </h6>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  </motion.ul>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -1132,7 +1228,7 @@ const getDeparmentalLinks = () => {
             },
 
             {
-              name: "Consultant contract Dashboard",
+              name: "Consultant Contract Dashboard",
               path: "/dashboard/c-and-g/consultant/consultance-acceptance",
             },
 
