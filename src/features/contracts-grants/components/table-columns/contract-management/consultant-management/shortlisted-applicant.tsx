@@ -6,13 +6,7 @@ import { Button } from "components/ui/button";
 import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
 import { useParams, usePathname } from "next/navigation";
 import Link from "next/link";
-import { CG_ROUTES, ProgramRoutes } from "constants/RouterConstants";
 import { IConsultancyStaffPaginatedData } from "@/features/contracts-grants/types/contract-management/consultancy-management/consultancy-application";
-import { useAppDispatch } from "hooks/useStore";
-import { openDialog } from "store/ui";
-import { DialogType } from "constants/dailogs";
-import ConfirmationDialog from "components/ConfirmationDialog";
-import { useState } from "react";
 
 export const shortlistedApplicantColumn: ColumnDef<IConsultancyStaffPaginatedData>[] =
   [
@@ -54,18 +48,58 @@ export const shortlistedApplicantColumn: ColumnDef<IConsultancyStaffPaginatedDat
     {
       header: "Interview Score",
       id: "interview_score",
-      size: 150,
+      size: 200,
       cell: ({ row }) => {
+        const schedule = row.original.schedule;
+        const averageScores = row.original.average_scores;
         const interviewScores = row.original.interview_scores;
-        if (!interviewScores || !interviewScores.total_score) {
-          return <span className="text-gray-400 text-sm">Not interviewed</span>;
+
+        // For multi-scorer/committee interviews
+        if (schedule) {
+          const totalInterviewers = schedule.total_interviewers || 0;
+          const completedEvaluations = schedule.completed_evaluations || 0;
+          const isComplete = completedEvaluations >= totalInterviewers && totalInterviewers > 0;
+
+          if (completedEvaluations === 0) {
+            return (
+              <div className='flex flex-col'>
+                <span className="text-gray-400 text-sm">Pending</span>
+                <span className="text-xs text-gray-400">0/{totalInterviewers} completed</span>
+              </div>
+            );
+          }
+
+          return (
+            <div className='flex flex-col gap-1'>
+              {isComplete && averageScores ? (
+                <div className='flex items-center gap-2'>
+                  <span className="font-semibold text-green-700">
+                    {Math.round(averageScores.total * 10) / 10}
+                  </span>
+                  <span className="text-gray-500 text-sm">/ 50</span>
+                  <span className="text-xs text-green-600">(avg)</span>
+                </div>
+              ) : (
+                <span className="text-yellow-600 text-sm font-medium">In Progress</span>
+              )}
+              <span className="text-xs text-gray-500">
+                {completedEvaluations}/{totalInterviewers} completed
+              </span>
+            </div>
+          );
         }
-        return (
-          <div className="flex items-center gap-2">
-            <span className="font-semibold text-gray-900">{interviewScores.total_score}</span>
-            <span className="text-gray-500 text-sm">/ 50</span>
-          </div>
-        );
+
+        // Legacy single-interviewer fallback
+        if (interviewScores && interviewScores.total_score) {
+          return (
+            <div className="flex items-center gap-2">
+              <span className="font-semibold text-gray-900">{interviewScores.total_score}</span>
+              <span className="text-gray-500 text-sm">/ 50</span>
+            </div>
+          );
+        }
+
+        return <span className="text-gray-400 text-sm">Not interviewed</span>;
       },
     },
 
@@ -84,21 +118,31 @@ export const shortlistedApplicantColumn: ColumnDef<IConsultancyStaffPaginatedDat
     },
   ];
 
-const TableMenu = ({ id }: IConsultancyStaffPaginatedData) => {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-
+const TableMenu = (applicant: any) => {
+  const { id, interview_scores, schedule_id, has_interview } = applicant;
   const { id: adhocId } = useParams();
 
   const pathname = usePathname();
 
-  const type = pathname.includes("adhoc-management") ? "ADHOC" : "CONSULTANT";
+  const type = pathname && pathname.includes("adhoc-management") ? "ADHOC" : "CONSULTANT";
 
-  const path =
-    type === "ADHOC"
-      ? ProgramRoutes.ADHOC_APPLICANT_INTERVIEW
-      : CG_ROUTES.CREATE_CONSULTANCY_APPLICANT;
+  // Check if an interview has been created/scheduled
+  // Priority: has_interview flag from parent (most reliable), then schedule_id, then interview_date
+  const interviewCreated = has_interview || schedule_id || (interview_scores && interview_scores.interview_date);
 
-  const dispatch = useAppDispatch();
+  console.log('🔍 Interview Detection & Routing:', {
+    applicantId: id,
+    pathname,
+    type,
+    has_interview,
+    schedule_id,
+    interview_date: interview_scores?.interview_date,
+    interviewCreated,
+    interview_scores,
+    interviewUrl: type === "ADHOC"
+      ? `/dashboard/programs/adhoc-management/${adhocId}/applicant/${id}/adhoc-interview`
+      : `/dashboard/c-and-g/consultancy/${adhocId}/applicant/${id}/interview`
+  });
 
   return (
     <div className='flex items-center gap-2'>
@@ -113,55 +157,37 @@ const TableMenu = ({ id }: IConsultancyStaffPaginatedData) => {
             <Link
               href={
                 type === "ADHOC"
-                  ? `/dashboard/programs/adhoc-management/${adhocId}/applicant/${id}/adhoc-interview`
-                  : `/dashboard/c-and-g/consultant-management/${adhocId}/applicant/${id}`
+                  ? `/dashboard/programs/adhoc-management/${adhocId}/applicant/${id}/details`
+                  : `/dashboard/c-and-g/consultancy/${adhocId}/applicant/${id}/details`
               }
             >
               <Button
                 className='w-full flex items-center justify-start gap-2'
                 variant='ghost'
               >
-                Interview Consultant
+                View
               </Button>
             </Link>
 
-            <Button
-              className='w-full flex items-center justify-start gap-2'
-              variant='ghost'
-              onClick={() => {
-                dispatch(
-                  openDialog({
-                    type: DialogType.PREFERRED_CONSULTANT_MODAL,
-                    dialogProps: {
-                      header: "Select Preferred Consultant",
-                      size: "lg",
-                    },
-                  })
-                );
-              }}
-            >
-              Preferred Consultant
-            </Button>
-
-            <Button
-              className='w-full flex items-center justify-start gap-2'
-              variant='ghost'
-              onClick={() => setIsDialogOpen(true)}
-            >
-              Issue Contract
-            </Button>
+            {interviewCreated && (
+              <Link
+                href={
+                  type === "ADHOC"
+                    ? `/dashboard/programs/adhoc-management/${adhocId}/applicant/${id}/adhoc-interview`
+                    : `/dashboard/c-and-g/consultancy/${adhocId}/applicant/${id}/interview`
+                }
+              >
+                <Button
+                  className='w-full flex items-center justify-start gap-2'
+                  variant='ghost'
+                >
+                  Interview Candidate
+                </Button>
+              </Link>
+            )}
           </PopoverContent>
         </Popover>
       </>
-
-      <ConfirmationDialog
-        open={isDialogOpen}
-        title='Are you sure you want to issue a contract to Dave Wilson?'
-        message='Are you sure you want to proceed with issuing a contract to Dave Wilson? This action will formally initiate the contracting process, notifying them and granting access to the contract details for review and signature.'
-        loading={false}
-        onCancel={() => setIsDialogOpen(false)}
-        onOk={() => {}}
-      />
     </div>
   );
 };

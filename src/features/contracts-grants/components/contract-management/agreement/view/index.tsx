@@ -1042,7 +1042,7 @@ export default function AgreementView() {
                                                             </div>
                                                             <div className="flex-1 min-w-0">
                                                                 <h4 className="font-semibold text-sm text-gray-900 truncate mb-1.5">
-                                                                    {(doc as any).title || doc.document_name}
+                                                                    {doc.title || doc.file_name}
                                                                 </h4>
                                                                 <div className="flex items-center gap-2 flex-wrap">
                                                                     <span className={`px-2.5 py-1 rounded-full text-xs font-medium border ${getDocumentTypeColor(doc.document_type)}`}>
@@ -1061,7 +1061,7 @@ export default function AgreementView() {
                                                         <div className="pl-12 space-y-1.5 text-xs text-gray-600">
                                                             <div className="flex items-center gap-1.5">
                                                                 <Calendar className="h-3 w-3 text-gray-400" />
-                                                                <span>{formatDate((doc as any).created_datetime || doc.uploaded_at)}</span>
+                                                                <span>{formatDate(doc.created_datetime)}</span>
                                                             </div>
                                                             {doc.file_size && (
                                                                 <div className="flex items-center gap-1.5">
@@ -1085,7 +1085,7 @@ export default function AgreementView() {
                                                             <Button
                                                                 variant="outline"
                                                                 size="sm"
-                                                                onClick={() => window.open((doc as any).file_url || doc.document_url, '_blank')}
+                                                                onClick={() => window.open(doc.file_url || doc.file, '_blank')}
                                                                 className="flex-1 text-xs h-8 bg-white hover:bg-indigo-50 hover:border-indigo-300 hover:text-indigo-700"
                                                             >
                                                                 <Eye className="h-3.5 w-3.5 mr-1.5" />
@@ -1096,8 +1096,8 @@ export default function AgreementView() {
                                                                 size="sm"
                                                                 onClick={() => {
                                                                     const link = document.createElement('a');
-                                                                    link.href = (doc as any).file_url || doc.document_url;
-                                                                    link.download = (doc as any).title || doc.document_name;
+                                                                    link.href = doc.file_url || doc.file;
+                                                                    link.download = doc.title || doc.file_name;
                                                                     link.click();
                                                                 }}
                                                                 className="flex-1 text-xs h-8 bg-white hover:bg-indigo-50 hover:border-indigo-300 hover:text-indigo-700"

@@ -236,15 +236,27 @@ export interface IAgreementPaginatedData {
 // Contract Document interface
 export interface IContractDocument {
     id: string;
-    document_url: string;
-    document_name: string;
+    title: string;
+    file: string;  // Cloudinary URL
+    file_url: string;  // Same as file
+    file_name: string;
+    description?: string | null;
     document_type: 'CONTRACT' | 'EXTENSION' | 'ADDENDUM' | 'AMENDMENT';
-    version: number;
-    contract_number: string;
-    uploaded_at: string;
-    uploaded_by?: string;
-    file_size?: number;
+    version?: number | null;
+    contract_number?: string | null;
+    file_size_bytes: number;
+    file_size: number;
+    is_active: boolean;
+    created_datetime: string;
+    updated_datetime: string;
+    created_by_name?: string;
     remarks?: string;
+
+    // Legacy/alternative field names for backward compatibility
+    document_url?: string;  // Alias for file_url
+    document_name?: string;  // Alias for file_name or title
+    uploaded_at?: string;  // Alias for created_datetime
+    uploaded_by?: string;  // Alias for created_by_name
 }
 
 // Contract Modification interface

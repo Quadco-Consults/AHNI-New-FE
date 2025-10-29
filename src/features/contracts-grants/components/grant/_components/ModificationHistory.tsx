@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import { useAppDispatch } from "hooks/useStore";
+import { useGetAllModifications } from "@/features/contracts-grants/controllers/grantController";
 
 interface ModificationData {
   id: string;
@@ -50,16 +51,22 @@ const modificationColumns: ColumnDef<ModificationData>[] = [
     accessorKey: "date",
     cell: ({ getValue }) => {
       const value = getValue() as string;
-      return new Date(value).toLocaleDateString("en-US");
+      if (!value) return "N/A";
+      const date = new Date(value);
+      return isNaN(date.getTime()) ? "Invalid Date" : date.toLocaleDateString("en-US");
     },
     size: 120,
   },
   {
     header: "Created",
     accessorKey: "created_datetime",
-    cell: ({ getValue }) => {
+    cell: ({ getValue, row }) => {
       const value = getValue() as string;
-      return new Date(value).toLocaleDateString("en-US");
+      // Try created_datetime first, then fallback to created_at or date
+      const dateValue = value || (row.original as any).created_at || (row.original as any).date;
+      if (!dateValue) return "N/A";
+      const date = new Date(dateValue);
+      return isNaN(date.getTime()) ? "N/A" : date.toLocaleDateString("en-US");
     },
     size: 120,
   },
@@ -148,34 +155,27 @@ const ModificationTableMenu = (data: ModificationData) => {
   );
 };
 
-interface ModificationHistoryProps {
-  modifications?: any[];
-}
-
-const ModificationHistory: React.FC<ModificationHistoryProps> = ({ modifications = [] }) => {
+const ModificationHistory: React.FC = () => {
   const [page, setPage] = useState(1);
 
   const params = useParams();
   const grantId = typeof params?.id === 'string' ? params.id : Array.isArray(params?.id) ? params.id[0] : undefined;
 
-  // Debug logging
-  console.log("ModificationHistory - Received modifications:", modifications);
-  console.log("ModificationHistory - Modifications count:", modifications.length);
+  // Fetch modifications from the API
+  const { data, isFetching, error } = useGetAllModifications({
+    grantId: grantId || "",
+    page,
+    size: 10,
+    enabled: !!grantId
+  });
 
-  // Use the modifications prop passed from parent component
-  const data = {
-    data: {
-      results: modifications,
-      paginator: {
-        count: modifications.length,
-        page_size: 10,
-        page: 1,
-        total_pages: Math.ceil(modifications.length / 10)
-      }
+  // Debug: Log the data structure to see what fields are available
+  React.useEffect(() => {
+    if (data) {
+      console.log('Modifications API Response:', data);
+      console.log('Modifications Results:', (data as any)?.data?.results);
     }
-  };
-
-  const isFetching = false;
+  }, [data]);
 
   return (
     <section className="w-full flex flex-col space-y-[1.25rem]">
@@ -191,20 +191,13 @@ const ModificationHistory: React.FC<ModificationHistoryProps> = ({ modifications
           </div>
         )}
 
-        {grantId && data?.data?.results?.length === 0 && !isFetching && (
-          <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <p className="text-blue-800 font-medium">No modifications found</p>
-            <p className="text-blue-600 text-sm mt-1">No modifications have been created for this grant yet. Click "Add Modification" to create one.</p>
-          </div>
-        )}
-        
         <DataTable
           columns={modificationColumns}
-          data={data?.data?.results || []}
+          data={(data as any)?.data?.results || []}
           isLoading={isFetching}
           pagination={{
-            total: data?.data?.paginator?.count ?? 0,
-            pageSize: data?.data?.paginator?.page_size ?? 10,
+            total: (data as any)?.data?.paginator?.count ?? 0,
+            pageSize: (data as any)?.data?.paginator?.page_size ?? 10,
             onChange: (page: number) => setPage(page),
           }}
         />

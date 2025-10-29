@@ -59,11 +59,10 @@ export default function FacilitatorApplicants({ facilitatorId }: FacilitatorAppl
   const columns: ColumnDef<IFacilitatorApplicantPaginatedData>[] = [
     {
       header: "Name",
-      accessorKey: "first_name",
+      accessorKey: "name",
       cell: ({ row }) => {
-        const firstName = typeof row.original.first_name === 'string' ? row.original.first_name : '';
-        const lastName = typeof row.original.last_name === 'string' ? row.original.last_name : '';
-        return `${firstName} ${lastName}`.trim() || 'N/A';
+        const name = row.original.name;
+        return typeof name === 'string' && name ? name : 'N/A';
       }
     },
     {

@@ -13,7 +13,7 @@ import {
   FormItem,
   FormMessage,
 } from "components/ui/form";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useParams, useRouter } from "next/navigation";
 import { useGetSingleConsultantManagement } from "@/features/contracts-grants/controllers/consultantManagementController";
@@ -38,7 +38,6 @@ import { useGetAllConsultancyStaffs } from "@/features/contracts-grants/controll
 import { filterAhniStaffOnly } from "@/utils/userFilters";
 import { useGetEmployeeOnboardings } from "@/features/hr/controllers/employeeOnboardingController";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
-import { useState } from "react";
 
 export default function CreateInterview() {
   const router = useRouter();
@@ -119,7 +118,6 @@ export default function CreateInterview() {
     finalError: finalError ? String(finalError) : null,
     resultsCount: finalApplicants?.data?.results?.length || 0,
   });
-
   // Fetch from both sources: Users table AND Employee database
   const { data: users, isLoading: isUsersLoading, error: usersError } = useGetAllUsers({
     page: 1,
@@ -235,7 +233,7 @@ export default function CreateInterview() {
     console.log('📤 CreateInterview - Submitting interview:', {
       consultancyId: data?.data.id,
       interviewType: interview_data.interview_type,
-      interviewDate: interview_data.date,
+      interviewDate: interview_data.interview_date,
       committeeMembers: interview_data.committee_members?.length || 0,
       applicantsCount: shortlistedApplicants.length,
       applicantIds: shortlistedApplicants.map((a: any) => a.id),
@@ -343,14 +341,6 @@ export default function CreateInterview() {
                 </p>
               </div>
             )}
-
-            {/* <Button
-              variant='outline'
-              size='lg'
-              className='text-[#DEA004] border-[#DEA004] border-solid '
-            >
-              Select Committes
-            </Button> */}
 
             {watch("interview_type") === "COMMITTEE" && (
               <div className='flex items-center gap-2 flex-wrap'>

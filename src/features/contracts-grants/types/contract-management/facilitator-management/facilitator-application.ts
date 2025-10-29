@@ -16,13 +16,14 @@ export interface IFacilitatorApplicantPaginatedData {
   id: string;
   created_datetime: string;
   updated_datetime: string;
-  first_name: string;
-  last_name: string;
+  name: string;  // API returns single name field
+  first_name?: string;  // Optional for form data
+  last_name?: string;   // Optional for form data
   email: string;
   phone_number: string;
-  qualifications: string;
-  experience: string;
-  status: "APPLIED" | "SELECTED" | "REJECTED";
+  qualifications?: string;
+  experience?: string;
+  status: "APPLIED" | "SELECTED" | "REJECTED" | "APPROVED";
   facilitator: string | any; // API might return object instead of string
   created_by: string | any; // API might return object instead of string
   updated_by: string | null | any; // API might return object instead of string
@@ -32,13 +33,14 @@ export interface IFacilitatorApplicantSingleData {
   id: string;
   created_datetime: string;
   updated_datetime: string;
-  first_name: string;
-  last_name: string;
+  name: string;  // API returns single name field
+  first_name?: string;  // Optional for form data
+  last_name?: string;   // Optional for form data
   email: string;
   phone_number: string;
-  qualifications: string;
-  experience: string;
-  status: "APPLIED" | "SELECTED" | "REJECTED";
+  qualifications?: string;
+  experience?: string;
+  status: "APPLIED" | "SELECTED" | "REJECTED" | "APPROVED";
   facilitator: string;
   created_by: string;
   updated_by: string | null;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { usePathname } from "next/navigation";
 import Card from "components/Card";
 import { Button } from "components/ui/button";
@@ -16,9 +16,9 @@ export default function ConsultantContractDashboard() {
     const router = useRouter();
     const pathname = usePathname();
 
+
     // Determine type based on pathname
     const applicantType = pathname?.includes("adhoc") ? "ADHOC" : "CONSULTANT";
-    const staffLabel = applicantType === "ADHOC" ? "adhoc staff" : "consultants";
 
     // Fetch all contract requests/advertisements based on type
     const { data: contractRequestsData, isFetching: isLoadingContractRequests } = useGetAllContractRequests({
@@ -69,8 +69,8 @@ export default function ConsultantContractDashboard() {
     if (allApplicantsRaw.length > 0) {
         console.log("📋 Sample Applicant Structure:", allApplicantsRaw[0]);
         console.log("📋 Sample Applicant Type Field:", allApplicantsRaw[0].type);
-        console.log("📋 Sample Applicant Has Consultants:", allApplicantsRaw[0].consultants);
-        console.log("📋 Sample Applicant Has Consultancy:", allApplicantsRaw[0].consultancy);
+        console.log("📋 Sample Applicant Has Consultants:", (allApplicantsRaw[0] as any).consultants);
+        console.log("📋 Sample Applicant Has Consultancy:", (allApplicantsRaw[0] as any).consultancy);
         console.log("📋 Sample Applicant Contract Request:", allApplicantsRaw[0].contract_request);
     }
 
@@ -108,9 +108,9 @@ export default function ConsultantContractDashboard() {
         const applicantsForRequest = allApplicants.filter(applicant => {
             if (applicantType === "ADHOC") {
                 // For AdHoc, match by advertisement field
-                const advertisementId = typeof applicant.advertisement === 'object' && applicant.advertisement !== null
-                    ? (applicant.advertisement as any).id
-                    : applicant.advertisement;
+                const advertisementId = typeof (applicant as any).advertisement === 'object' && (applicant as any).advertisement !== null
+                    ? ((applicant as any).advertisement as any).id
+                    : (applicant as any).advertisement;
                 return advertisementId === request.id;
             } else {
                 // For Consultancy, match by contract_request field
@@ -137,7 +137,7 @@ export default function ConsultantContractDashboard() {
     // Handle applicants without a contract_request/advertisement (legacy data)
     const uncategorizedApplicants = allApplicants.filter(applicant => {
         if (applicantType === "ADHOC") {
-            return !applicant.advertisement || applicant.advertisement === null;
+            return !(applicant as any).advertisement || (applicant as any).advertisement === null;
         } else {
             return !applicant.contract_request || applicant.contract_request === null;
         }
