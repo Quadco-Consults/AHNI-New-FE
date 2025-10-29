@@ -52,8 +52,25 @@ export default function ApplicantInterviewPage() {
     const applicantId = params?.applicantId as string;  // The applicant ID
 
     // Determine the interview type based on the URL path
-    const isAdhocInterview = typeof window !== 'undefined' && window.location.pathname.includes('/adhoc-management/');
-    const isConsultantInterview = typeof window !== 'undefined' && window.location.pathname.includes('/consultant-management/');
+    // Check the management type first (adhoc-management vs consultant-management)
+    const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
+
+    // Since this component is in consultant-management folder, we can override based on the file location
+    // This ensures that if we're in the consultant-management context, it's always a consultant interview
+    const isAdhocInterview = pathname.includes('/adhoc-management/');
+    const isConsultantInterview = !isAdhocInterview; // If not adhoc, then it's consultant (since this component is in consultant folder)
+
+    // Debug the URL detection
+    console.log('🔍 URL Detection Debug:', {
+        pathname,
+        isAdhocInterview,
+        isConsultantInterview,
+        managementId,
+        applicantId,
+        logicUsed: 'If NOT adhoc-management path, then consultant interview (since component is in consultant folder)',
+        explanation: 'This component is in consultant-management context, so unless explicitly adhoc-management, it should be CONSULTANT interview',
+        titleWillShow: isAdhocInterview ? "Adhoc Interview" : isConsultantInterview ? "Consultant Interview" : "Interview"
+    });
 
     // Mutation hook for updating applicant status (only for AdHoc)
     const updateApplicantStatus = useUpdateAdhocApplicantStatus(applicantId);
@@ -470,9 +487,35 @@ export default function ApplicantInterviewPage() {
                     });
                 });
 
+                // If not found in pending interviews, try to find in all interviews (fallback)
+                if (!applicantInterview) {
+                    console.log('🔍 Interview not found in pending list, searching all interviews...');
+                    const allInterviews = extractInterviews(allConsultancyInterviews);
+                    console.log('🔍 All consultancy interviews:', allInterviews);
+
+                    applicantInterview = allInterviews.find((interview: any) => {
+                        const interviewApplicants = interview.applicants || [];
+                        return interviewApplicants.some((app: any) => {
+                            const appId = typeof app === 'string' ? app : app.id;
+                            return appId === applicantId;
+                        });
+                    });
+
+                    if (applicantInterview) {
+                        console.log('✅ Found interview in all interviews list:', applicantInterview.id);
+                    }
+                }
+
                 if (!applicantInterview) {
                     console.error('❌ Consultancy interview not found!');
-                    throw new Error('No consultancy interview found for this applicant. Please ensure an interview has been created.');
+                    console.error('📊 Debug Info:', {
+                        applicantId,
+                        pendingInterviewsCount: pendingInterviews.length,
+                        allInterviewsCount: extractInterviews(allConsultancyInterviews).length,
+                        currentUserId,
+                        isAdmin
+                    });
+                    throw new Error('No consultancy interview found for this applicant. Please ensure an interview has been created and you are assigned as an interviewer.');
                 }
 
                 console.log('Found consultancy interview ID:', applicantInterview.id);
@@ -561,7 +604,20 @@ export default function ApplicantInterviewPage() {
                 || error.message
                 || "Failed to submit interview. Please try again.";
 
-            toast.error(`Failed to submit interview: ${errorMessage}`);
+            // Enhanced error message for interview not found errors
+            if (errorMessage.includes('No consultancy interview found') || errorMessage.includes('interview not found')) {
+                toast.error(
+                    `Failed to submit interview: ${errorMessage}`,
+                    {
+                        description: isConsultantInterview
+                            ? "Please contact an administrator to ensure a consultancy interview has been scheduled for this applicant and you are assigned as an interviewer."
+                            : "Please contact an administrator to ensure an adhoc interview has been scheduled for this applicant.",
+                        duration: 8000
+                    }
+                );
+            } else {
+                toast.error(`Failed to submit interview: ${errorMessage}`);
+            }
         }
     };
 
