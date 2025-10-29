@@ -131,16 +131,6 @@ const ImprovedEvaluatorForm: React.FC<ImprovedEvaluatorFormProps> = ({
   const watchedGoalRatings = watch("goal_ratings");
   const watchedCompetencyRatings = watch("competency_ratings");
 
-  const completionPercentage = useMemo(() => {
-    const totalItems = (goals.length || 0) + (competencies.length || 0);
-    if (totalItems === 0) return 0;
-
-    const ratedGoals = watchedGoalRatings?.filter(r => r.rating > 0).length || 0;
-    const ratedComps = watchedCompetencyRatings?.filter(r => r.rating > 0).length || 0;
-
-    return ((ratedGoals + ratedComps) / totalItems) * 100;
-  }, [goals, competencies, watchedGoalRatings, watchedCompetencyRatings]);
-
   const overallRating = useMemo(() => {
     let totalScore = 0;
     let totalWeight = 0;
