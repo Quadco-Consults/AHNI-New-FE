@@ -350,6 +350,16 @@ export interface IConsultancyStaffSingleData {
     completed_evaluations?: number;
     schedule_id?: string;
     schedule?: ConsultancyInterviewSchedule;
+    status: string;
+    type: string;
+    offer_accepted: boolean;
+    offer_acceptance_date: string | null;
+    acceptance_country?: string;
+    acceptance_city?: string;
+    acceptance_date?: string;
+    acceptance_confirmed_name?: string;
+    acceptance_ip_address?: string;
+    acceptance_timestamp?: string;
     created_by: string;
     updated_by: null;
 }
