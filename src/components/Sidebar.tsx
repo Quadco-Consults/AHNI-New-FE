@@ -19,7 +19,9 @@ import {
   FileBarChart,
   ScrollText,
   Users,
-  Droplet
+  Droplet,
+  Clock,
+  Calendar
 } from "lucide-react";
 // Direct Next.js paths - no RouterConstants needed
 import { Icon } from "@iconify/react";
@@ -105,7 +107,7 @@ const globalHubMenu = [
     category: "financial"
   },
 
-  // Contracts & HR
+  // Contracts
   {
     label: "Contract Request",
     path: "/dashboard/c-and-g/contract-request",
@@ -117,6 +119,26 @@ const globalHubMenu = [
     path: "/dashboard/c-and-g/consultancy-report",
     icon: <FileBarChart className="w-4 h-4" />,
     category: "contracts"
+  },
+
+  // HR - Staff Self-Service
+  {
+    label: "My Timesheet",
+    path: "/dashboard/hr/timesheet-management",
+    icon: <Clock className="w-4 h-4" />,
+    category: "hr"
+  },
+  {
+    label: "Apply for Leave",
+    path: "/dashboard/hr/leave-management/apply",
+    icon: <Calendar className="w-4 h-4" />,
+    category: "hr"
+  },
+  {
+    label: "My Leave Dashboard",
+    path: "/dashboard/hr/leave-management",
+    icon: <Calendar className="w-4 h-4" />,
+    category: "hr"
   },
   {
     label: "Adhoc Staff Requisition",

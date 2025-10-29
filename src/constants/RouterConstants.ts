@@ -648,3 +648,46 @@ export enum ProgramRoutes {
   MY_ADHOC_REQUISITIONS = "/dashboard/adhoc-requisition/my-requisitions",
   ADHOC_REQUISITION_APPROVALS = "/dashboard/adhoc-requisition/approvals",
 }
+
+// FINANCE MODULE ROUTES
+export const FINANCE_ROUTES = {
+  // Core Finance
+  FINANCE_OVERVIEW: "/dashboard/finance",
+
+  // Classifications
+  CLASSIFICATIONS: "/dashboard/finance/classifications",
+
+  // Accounting
+  CHART_OF_ACCOUNTS: "/dashboard/finance/chart-of-accounts",
+  JOURNAL_ENTRIES: "/dashboard/finance/journal-entries",
+  BANK_ACCOUNTS: "/dashboard/finance/bank-accounts",
+  BANK_RECONCILIATION: "/dashboard/finance/bank-reconciliation",
+
+  // Financial Reports
+  FINANCIAL_REPORTS: "/dashboard/finance/financial-reports",
+  REPORTS: "/dashboard/finance/reports",
+  BUDGET_REPORTS: "/dashboard/finance/budget-reports",
+  ANALYSIS: "/dashboard/finance/analysis",
+
+  // Invoicing & Sales
+  INVOICES: "/dashboard/finance/invoices",
+  CUSTOMERS: "/dashboard/finance/customers",
+  SALES_ORDERS: "/dashboard/finance/sales-orders",
+  ACCOUNTS_RECEIVABLE: "/dashboard/finance/accounts-receivable",
+
+  // Expenses & Payables
+  ACCOUNTS_PAYABLE: "/dashboard/finance/accounts-payable",
+  EXPENSES: "/dashboard/finance/expenses",
+  EXPENSE_TRACKING: "/dashboard/finance/expense-tracking",
+  PETTY_CASH: "/dashboard/finance/petty-cash",
+
+  // Tax & Assets
+  TAX_MANAGEMENT: "/dashboard/finance/tax-management",
+  FIXED_ASSETS: "/dashboard/finance/fixed-assets",
+
+  // Integration
+  INTEGRATION_DASHBOARD: "/dashboard/finance/integration-dashboard",
+  QUICKBOOKS_SETTINGS: "/dashboard/finance/quickbooks-settings",
+  QUICKBOOKS_SYNC: "/dashboard/finance/quickbooks/sync",
+  QUICKBOOKS_CONFIG: "/dashboard/finance/quickbooks/settings",
+}
