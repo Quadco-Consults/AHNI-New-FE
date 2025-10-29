@@ -26,76 +26,48 @@ export default function CloseOutPlan() {
         size: 1000,
     });
 
-    // Merge project details with close-out plans with optimized matching
+    // Merge project details with close-out plans
     const enrichedResults = useMemo(() => {
         const closeoutPlans = data?.data?.results || [];
         // Try both possible data structures
         const projects = (projectsData as any)?.data?.results || projectsData?.results || [];
 
-        // Debug logging (only in development)
-        if (process.env.NODE_ENV === 'development') {
-            console.log('Close out plans enrichment:', {
-                closeoutPlansCount: closeoutPlans.length,
-                projectsCount: projects.length,
-                samplePlan: closeoutPlans[0],
-                sampleProject: projects[0]
-            });
-        }
+        // Debug logging
+        console.log('Projects data structure:', projectsData);
+        console.log('Projects count:', projects.length);
+        console.log('Closeout plans count:', closeoutPlans.length);
 
-        // Create lookup map for better performance
-        const projectLookup = new Map();
-        projects.forEach((p: any) => {
-            const id = String(p.id || '').toLowerCase();
-            const title = String(p.title || '').toLowerCase();
-            const projectId = String(p.project_id || '').toLowerCase();
-
-            if (id) projectLookup.set(id, p);
-            if (title) projectLookup.set(title, p);
-            if (projectId) projectLookup.set(projectId, p);
-        });
-
-        let matchedCount = 0;
-        let unmatchedPlans: string[] = [];
-
-        const enrichedPlans = closeoutPlans.map(plan => {
+        return closeoutPlans.map(plan => {
             // If project is already an object, return as is
             if (typeof plan.project === 'object') {
-                matchedCount++;
                 return plan;
             }
 
-            // Project is a string - try to match using lookup map
+            // Project is a string - try to match by ID, title, or project_id (case-insensitive)
             const projectString = String(plan.project || '').trim().toLowerCase();
-            const projectDetails = projectLookup.get(projectString);
+            const projectDetails = projects.find(p => {
+                const id = (p.id || '').toLowerCase();
+                const title = (p.title || '').toLowerCase();
+                const projectId = (p.project_id || '').toLowerCase();
+
+                return id === projectString ||
+                       title === projectString ||
+                       projectId === projectString;
+            });
 
             if (projectDetails) {
-                matchedCount++;
-                if (process.env.NODE_ENV === 'development') {
-                    console.log(`✓ Matched "${plan.project}" → "${projectDetails.title}"`);
-                }
-                return {
-                    ...plan,
-                    project: projectDetails,
-                };
+                console.log(`✓ Matched "${plan.project}" → "${projectDetails.title}" (Donor: ${projectDetails.funding_sources?.map((f: any) => f.name).join(', ') || 'None'})`);
             } else {
-                unmatchedPlans.push(plan.project);
-                return {
-                    ...plan,
-                    project: plan.project, // Keep original if no match found
-                };
+                console.warn(`✗ No match found for closeout plan: "${plan.project}"`);
+                console.log('  Available projects:', projects.map(p => `"${p.title}"`).slice(0, 10));
             }
+
+            return {
+                ...plan,
+                project: projectDetails || plan.project,
+            };
         });
-
-        // Summary logging
-        if (process.env.NODE_ENV === 'development' && closeoutPlans.length > 0) {
-            console.log(`Close out plan matching summary: ${matchedCount}/${closeoutPlans.length} matched`);
-            if (unmatchedPlans.length > 0) {
-                console.warn('Unmatched plans:', unmatchedPlans.slice(0, 5));
-            }
-        }
-
-        return enrichedPlans;
-    }, [data?.data?.results, projectsData]);
+    }, [data?.data?.results, projectsData?.data?.results]);
 
     const isLoading = isFetching || isLoadingProjects;
 
@@ -117,8 +89,8 @@ export default function CloseOutPlan() {
                         data={enrichedResults}
                         isLoading={isLoading}
                         pagination={{
-                            total: data?.data?.paginator?.count ?? 0,
-                            pageSize: data?.data?.paginator?.page_size ?? 10,
+                            total: data?.data?.pagination?.count ?? 0,
+                            pageSize: data?.data?.pagination?.page_size ?? 10,
                             onChange: (page: number) => setPage(page),
                         }}
                     />

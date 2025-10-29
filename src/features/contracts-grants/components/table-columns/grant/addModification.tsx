@@ -53,16 +53,8 @@ const AddModification = () => {
 
   // Detect if this is a subgrant or regular grant
   const subGrantId = dialogProps?.subGrantId as string;
-  const grantId = dialogProps?.grantId as string || (result as any)?.id; // Fallback to result.id if grantId not provided
+  const grantId = dialogProps?.grantId as string;
   const isSubGrant = !!subGrantId;
-
-  console.log("Debug grant/subgrant IDs:", {
-    subGrantId,
-    grantId,
-    isSubGrant,
-    dialogProps,
-    resultId: result?.id
-  });
 
   // Use appropriate controller based on type
   const { createModification: createGrantModification, isLoading: isGrantLoading } =
@@ -79,9 +71,9 @@ const AddModification = () => {
 
   // Create options for the approved_by dropdown
   const userOptions = useMemo(() => {
-    if (!usersData?.data?.results) return [];
+    if (!(usersData as any)?.data?.results) return [];
 
-    return usersData.data.results.map((user) => ({
+    return (usersData as any).data.results.map((user: any) => ({
       value: user.id,
       label: `${user.first_name} ${user.last_name} (${user.email})`,
     }));
@@ -104,7 +96,7 @@ const AddModification = () => {
   const onSubmit: SubmitHandler<TModificationFormData> = async (data) => {
     console.log({ crakcen: data });
 
-    if (!grantId && !subGrantId) {
+    if (!isSubGrant && !grantId) {
       toast.error("Grant ID or SubGrant ID is required");
       return;
     }
@@ -134,41 +126,31 @@ const AddModification = () => {
     const formattedApprovalDate = formatDate(submitData.approval_date);
 
     try {
-      // Generate title from modification type and number
-      const title = `${submitData.modification_type.replace(/_/g, ' ')} #${submitData.modification_number}`;
-
       if (isSubGrant) {
-        // For subgrants
-        await createSubGrantModification({
-          title: title,
+        // For subgrants - backend expects all fields
+        const subGrantPayload = {
           modification_number: submitData.modification_number,
           modification_type: submitData.modification_type,
           reason: submitData.reason,
-          description: submitData.reason, // Use reason as description
-          amount: submitData.amount_usd, // Use USD as primary amount
           amount_usd: submitData.amount_usd,
           amount_ngn: submitData.amount_ngn,
           effective_date: formattedEffectiveDate,
           approval_date: formattedApprovalDate,
           notes: submitData.notes,
           approved_by: submitData.approved_by,
-        } as any);
+        };
+        console.log('SubGrant Modification Payload:', subGrantPayload);
+        await createSubGrantModification(subGrantPayload as any);
       } else {
-        // For regular grants
-        await createGrantModification({
-          title: title,
-          modification_number: submitData.modification_number,
-          modification_type: submitData.modification_type,
-          reason: submitData.reason,
-          description: submitData.reason, // Use reason as description
-          amount: submitData.amount_usd, // Use USD as primary amount
-          amount_usd: submitData.amount_usd,
-          amount_ngn: submitData.amount_ngn,
-          effective_date: formattedEffectiveDate,
-          approval_date: formattedApprovalDate,
-          notes: submitData.notes,
-          approved_by: submitData.approved_by,
-        } as any);
+        // For regular grants - backend expects only 4 simple fields
+        const modificationTitle = `${submitData.modification_type} - ${submitData.modification_number}`;
+        const grantPayload = {
+          amount: submitData.amount_usd,
+          description: submitData.reason,
+          date: formattedEffectiveDate,
+          title: modificationTitle,
+        };
+        await createGrantModification(grantPayload as any);
       }
 
       toast.success(isSubGrant ? "Sub-Grant Modified Successfully" : "Grant Modified Successfully");

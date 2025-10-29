@@ -1,7 +1,6 @@
 "use client";
 
 import { useForm, Controller } from "react-hook-form";
-import { useEffect, useRef, useMemo, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "components/ui/button";
@@ -19,13 +18,8 @@ import { toast } from "sonner";
 import { Label } from "components/ui/label";
 import { useQueryClient } from "@tanstack/react-query";
 import { Progress } from "components/ui/progress";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
+import { useMemo, useEffect } from "react";
 
 // Rating scale: 1-5
 const RATING_OPTIONS = [
@@ -36,20 +30,12 @@ const RATING_OPTIONS = [
   { value: 5, label: "5 - Outstanding", color: "bg-green-500" },
 ];
 
-// Updated schema to support narrative-level ratings
 const EvaluationSchema = z.object({
   goal_ratings: z.array(
     z.object({
       goal_id: z.string(),
-      narratives: z.array(
-        z.object({
-          narrative_id: z.string().optional(),
-          description: z.string(),
-          rating: z.number().min(1).max(5),
-          comment: z.string().optional(),
-        })
-      ),
-      manager_comment: z.string().optional(),
+      rating: z.number().min(1).max(5),
+      comments: z.string().optional(),
     })
   ),
   competency_ratings: z.array(
@@ -83,7 +69,7 @@ const ImprovedEvaluatorForm: React.FC<ImprovedEvaluatorFormProps> = ({
   );
 
   // Fetch competencies based on employee's job title
-  const assessment = assessmentData?.data as any; // Type assertion to fix property access
+  const assessment = assessmentData?.data;
   const employee = typeof assessment?.employee === 'object'
     ? assessment.employee
     : null;
@@ -101,25 +87,17 @@ const ImprovedEvaluatorForm: React.FC<ImprovedEvaluatorFormProps> = ({
   const goals = assessment?.employee_goals || assessment?.goals || [];
   const competencies = competenciesData?.data?.results || [];
 
-  // Debug data structure (check competency IDs)
-  useEffect(() => {
-    if (competencies.length > 0) {
-      console.log("🔍 Competency Debug:");
-      competencies.forEach((comp: any, index: number) => {
-        console.log(`  - Competency ${index}:`, {
-          id: comp.id,
-          name: comp.name,
-          category: comp.category,
-          weight: comp.weight
-        });
-      });
-    }
-  }, [competencies.length]);
+  console.log("🎯 Improved Evaluation Form:");
+  console.log("  Assessment:", assessment);
+  console.log("  Goals:", goals);
+  console.log("  Competencies:", competencies);
+  console.log("  Employee Job Title:", jobTitle);
 
   const {
     control,
     handleSubmit,
     watch,
+    formState: { errors },
     reset,
   } = useForm<EvaluationFormData>({
     resolver: zodResolver(EvaluationSchema),
@@ -130,157 +108,84 @@ const ImprovedEvaluatorForm: React.FC<ImprovedEvaluatorFormProps> = ({
     },
   });
 
-  // Track if form has been initialized to prevent excessive resets
-  const isFormInitialized = useRef(false);
-
-  // State to trigger completion recalculation
-  const [completionTrigger, setCompletionTrigger] = useState(0);
-
-  // Initialize form values when data loads (only once)
+  // Initialize form values when data loads
   useEffect(() => {
-    console.log("🔄 FORM INIT EFFECT RUNNING:");
-    console.log("  - Goals length:", goals.length);
-    console.log("  - Competencies length:", competencies.length);
-    console.log("  - isFormInitialized:", isFormInitialized.current);
-    console.log("  - isLoadingAssessment:", isLoadingAssessment);
-    console.log("  - isLoadingCompetencies:", isLoadingCompetencies);
-
-    // Only initialize when we have both goals AND competencies loaded, and not already initialized
-    if (!isFormInitialized.current &&
-        !isLoadingAssessment &&
-        !isLoadingCompetencies &&
-        goals.length > 0) { // Remove competencies.length > 0 requirement for now
-
-      console.log("🔄 FORM RESET TRIGGERED:");
-
-      const formData = {
-        goal_ratings: goals.map((goal: any) => ({
+    if (goals.length > 0 || competencies.length > 0) {
+      reset({
+        goal_ratings: goals.map((goal) => ({
           goal_id: goal.id?.toString() || "",
-          narratives: (goal.narratives || []).map((narrative: any) => ({
-            narrative_id: narrative.id?.toString() || "",
-            description: narrative.description || "",
-            rating: 0, // Start with 0, user must select
-            comment: "",
-          })),
-          manager_comment: "",
+          rating: 3,
+          comments: "",
         })),
-        competency_ratings: competencies.map((comp: any, index: number) => ({
-          competency_id: comp.id?.toString() || `default-${index}`, // Better fallback ID
-          rating: 0, // Changed from 3 to 0 to match validation expectations
+        competency_ratings: competencies.map((comp) => ({
+          competency_id: comp.id?.toString() || "",
+          rating: 3,
           comments: "",
         })),
         overall_comments: "",
-      };
-
-      console.log("  - Form data being set:", formData);
-      reset(formData);
-      isFormInitialized.current = true;
+      });
     }
-  }, [goals.length, competencies.length, isLoadingAssessment, isLoadingCompetencies, reset]);
+  }, [goals, competencies, reset]);
 
   // Calculate overall rating based on weights
   const watchedGoalRatings = watch("goal_ratings");
   const watchedCompetencyRatings = watch("competency_ratings");
 
-  // Debug form value changes (reduced logging)
-  useEffect(() => {
-    if (watchedGoalRatings && watchedGoalRatings.length > 0) {
-      console.log("📝 GOAL RATINGS CHANGED:", watchedGoalRatings);
-    }
-    if (watchedCompetencyRatings && watchedCompetencyRatings.length > 0) {
-      console.log("📝 COMPETENCY RATINGS CHANGED:", watchedCompetencyRatings);
-    }
-  }, [watchedGoalRatings, watchedCompetencyRatings]);
-
   const completionPercentage = useMemo(() => {
-    // Add a small delay to ensure form state has updated
-    const calculateCompletion = () => {
-      // Count total narratives across all goals
-      const totalNarratives = goals.reduce((sum: number, goal: any) => sum + (goal.narratives?.length || 0), 0);
-      const totalCompetencies = competencies.length || 0;
-      const totalItems = totalNarratives + totalCompetencies;
+    const totalItems = (goals.length || 0) + (competencies.length || 0);
+    if (totalItems === 0) return 0;
 
-      console.log("📊 Completion Calculation (Trigger:", completionTrigger, "):");
-      console.log("  - Total narratives:", totalNarratives);
-      console.log("  - Total competencies:", totalCompetencies);
-      console.log("  - Total items:", totalItems);
+    const ratedGoals = watchedGoalRatings?.filter(r => r.rating > 0).length || 0;
+    const ratedComps = watchedCompetencyRatings?.filter(r => r.rating > 0).length || 0;
 
-      if (totalItems === 0) return 100; // If no items to rate, consider complete
-
-    // Count rated narratives
-    console.log("🔍 DETAILED RATING CHECK:");
-    console.log("  - watchedGoalRatings structure:", watchedGoalRatings);
-    console.log("  - watchedCompetencyRatings structure:", watchedCompetencyRatings);
-
-    const ratedNarratives = watchedGoalRatings?.reduce((sum: number, goalRating: any) => {
-      console.log(`  - Processing goal rating:`, goalRating);
-      const narrativeRatings = goalRating.narratives?.filter((n: any) => {
-        console.log(`    - Narrative: description="${n.description}", rating=${n.rating}`);
-        return n.rating > 0;
-      }).length || 0;
-      console.log(`    - Goal ${goalRating.goal_id} narratives rated:`, narrativeRatings);
-      return sum + narrativeRatings;
-    }, 0) || 0;
-
-    const ratedComps = watchedCompetencyRatings?.filter((r: any) => {
-      console.log(`    - Competency ${r.competency_id}: rating=${r.rating}, isRated=${r.rating > 0}`);
-      return r.rating > 0;
-    }).length || 0;
-
-    console.log("  - Rated narratives:", ratedNarratives);
-    console.log("  - Rated competencies:", ratedComps);
-
-      const percentage = ((ratedNarratives + ratedComps) / totalItems) * 100;
-      console.log("  - Completion:", percentage, "%");
-
-      return Math.round(percentage); // Round to avoid floating point issues
-    };
-
-    return calculateCompletion();
-  }, [goals, competencies, watchedGoalRatings, watchedCompetencyRatings, completionTrigger]);
+    return ((ratedGoals + ratedComps) / totalItems) * 100;
+  }, [goals, competencies, watchedGoalRatings, watchedCompetencyRatings]);
 
   const overallRating = useMemo(() => {
     let totalScore = 0;
     let totalWeight = 0;
 
-    // Calculate goal scores using narrative-level ratings
+    // Calculate goal scores (50% weight)
     if (goals.length > 0 && watchedGoalRatings?.length > 0) {
-      watchedGoalRatings.forEach((goalRating, goalIdx) => {
-        const goal = goals[goalIdx];
-        if (!goal || !goalRating.narratives) return;
+      const goalScore = watchedGoalRatings.reduce((sum, rating, idx) => {
+        const goal = goals[idx];
+        const weight = goal?.total_weight
+          ? parseFloat(goal.total_weight.toString())
+          : goal?.narratives?.reduce((s: number, n: any) => s + parseFloat(n.weight?.toString() || '0'), 0) || 0;
+        return sum + (rating.rating * weight);
+      }, 0);
+      const goalTotalWeight = goals.reduce((sum, goal) => {
+        const weight = goal?.total_weight
+          ? parseFloat(goal.total_weight.toString())
+          : goal?.narratives?.reduce((s: number, n: any) => s + parseFloat(n.weight?.toString() || '0'), 0) || 0;
+        return sum + weight;
+      }, 0);
 
-        goalRating.narratives.forEach((narrativeRating, narrativeIdx) => {
-          const narrative = goal.narratives?.[narrativeIdx];
-          if (!narrative) return;
-
-          const weight = parseFloat(narrative.weight?.toString() || '0');
-          if (narrativeRating.rating > 0) {
-            totalScore += narrativeRating.rating * weight;
-            totalWeight += weight;
-          }
-        });
-      });
+      if (goalTotalWeight > 0) {
+        totalScore += (goalScore / goalTotalWeight) * 50;
+        totalWeight += 50;
+      }
     }
 
-    // Calculate competency scores (if applicable)
+    // Calculate competency scores (50% weight)
     if (competencies.length > 0 && watchedCompetencyRatings?.length > 0) {
-      const compScore = watchedCompetencyRatings.reduce((sum: number, rating: any, idx: number) => {
+      const compScore = watchedCompetencyRatings.reduce((sum, rating, idx) => {
         const comp = competencies[idx];
         const weight = typeof comp?.weight === 'number'
           ? comp.weight
-          : parseFloat((comp?.weight as any)?.toString() || '0');
+          : parseFloat(comp?.weight?.toString() || '0');
         return sum + (rating.rating * weight);
       }, 0);
-      const compTotalWeight = competencies.reduce((sum: number, comp: any) => {
+      const compTotalWeight = competencies.reduce((sum, comp) => {
         const weight = typeof comp?.weight === 'number'
           ? comp.weight
-          : parseFloat((comp?.weight as any)?.toString() || '0');
+          : parseFloat(comp?.weight?.toString() || '0');
         return sum + weight;
       }, 0);
 
       if (compTotalWeight > 0) {
-        totalScore += compScore;
-        totalWeight += compTotalWeight;
+        totalScore += (compScore / compTotalWeight) * 50;
+        totalWeight += 50;
       }
     }
 
@@ -311,7 +216,7 @@ const ImprovedEvaluatorForm: React.FC<ImprovedEvaluatorFormProps> = ({
         final_rating: overallRating, // Include calculated rating
       };
 
-      // Debug: console.log("📤 Submitting evaluation:", submission);
+      console.log("📤 Submitting evaluation:", submission);
 
       await updatePerformanceAssesment(submission);
 
@@ -345,6 +250,8 @@ const ImprovedEvaluatorForm: React.FC<ImprovedEvaluatorFormProps> = ({
       </div>
     );
   }
+
+  // Note: completionPercentage is already defined above
 
   return (
     <div className="form-container px-4 py-6">
@@ -397,20 +304,6 @@ const ImprovedEvaluatorForm: React.FC<ImprovedEvaluatorFormProps> = ({
             <span className="text-sm text-gray-600">{completionPercentage.toFixed(0)}% Complete</span>
           </div>
           <Progress value={completionPercentage} className="h-2" />
-
-          {/* Warning message when 0% complete */}
-          {completionPercentage === 0 && (
-            <div className="mt-3 p-3 bg-orange-50 border border-orange-200 rounded-lg">
-              <div className="flex items-center gap-2 text-orange-800">
-                <div className="w-4 h-4 bg-orange-500 rounded-full flex items-center justify-center">
-                  <span className="text-white text-xs font-bold">!</span>
-                </div>
-                <span className="text-sm font-medium">
-                  Please select ratings for all narratives and competencies to enable submission
-                </span>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Overall Rating Preview */}
@@ -433,10 +326,27 @@ const ImprovedEvaluatorForm: React.FC<ImprovedEvaluatorFormProps> = ({
 
       {/* Evaluation Form */}
       <form onSubmit={handleSubmit(onSubmit)}>
-        <div className="space-y-8">
-          {/* Reviews Section - Goals with Narratives Table */}
-          <div className="mb-8">
-            <h3 className="text-xl font-semibold text-gray-800 mb-4">Reviews</h3>
+        <Tabs defaultValue="goals" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="goals">
+              Goals ({goals.length})
+            </TabsTrigger>
+            <TabsTrigger value="competencies">
+              Competencies ({competencies.length})
+            </TabsTrigger>
+            <TabsTrigger value="summary">
+              Summary
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Goals Tab */}
+          <TabsContent value="goals" className="space-y-6">
+            <div className="mb-4">
+              <h3 className="text-xl font-semibold text-gray-800">Rate Employee Goals</h3>
+              <p className="text-sm text-gray-600 mt-1">
+                Evaluate each goal based on achievement and quality of work
+              </p>
+            </div>
 
             {goals.length === 0 ? (
               <Card>
@@ -445,295 +355,277 @@ const ImprovedEvaluatorForm: React.FC<ImprovedEvaluatorFormProps> = ({
                 </CardContent>
               </Card>
             ) : (
-              goals.map((goal: any, goalIndex: number) => {
-                const goalTotalWeight = goal.narratives?.reduce(
-                  (sum: number, n: any) => sum + parseFloat(n.weight?.toString() || '0'),
-                  0
-                ) || 0;
+              goals.map((goal, index) => (
+                <Card key={goal.id || index} className="border-l-4 border-l-blue-500">
+                  <CardHeader>
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <CardTitle className="text-base">{goal.title || "Untitled Goal"}</CardTitle>
+                        {goal.description && (
+                          <p className="text-sm text-gray-600 mt-1">{goal.description}</p>
+                        )}
 
-                return (
-                  <div key={goal.id || goalIndex} className="mb-8">
-                    {/* Goal Header with yellow background */}
-                    <div className="bg-yellow-50 border border-yellow-200 rounded-t-lg px-4 py-3">
-                      <h4 className="text-base font-semibold text-yellow-900">
-                        {goal.title || "Untitled Goal"} (Weight: {goalTotalWeight.toFixed(1)})
-                      </h4>
-                    </div>
-
-                    {/* Table for narratives */}
-                    <div className="border border-t-0 border-gray-200 rounded-b-lg overflow-hidden">
-                      <table className="w-full">
-                        <thead className="bg-gray-50">
-                          <tr>
-                            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider border-b">
-                              Evaluation Category
-                            </th>
-                            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider border-b">
-                              Competencies
-                            </th>
-                            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider border-b w-24">
-                              Weight
-                            </th>
-                            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider border-b w-32">
-                              Rating
-                            </th>
-                            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider border-b">
-                              Comment
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
-                          {goal.narratives && goal.narratives.length > 0 ? (
-                            goal.narratives.map((narrative: any, narrativeIndex: number) => {
-                              const currentRating = watchedGoalRatings?.[goalIndex]?.narratives?.[narrativeIndex]?.rating || 0;
-                              const needsRating = currentRating === 0;
-
-                              return (
-                              <tr key={narrativeIndex} className={`hover:bg-gray-50 ${needsRating ? 'bg-yellow-50' : ''}`}>
-                                <td className="px-4 py-3 text-sm text-gray-900">
-                                  {goal.title || "Untitled Goal"}
-                                </td>
-                                <td className="px-4 py-3 text-sm text-gray-700">
-                                  {narrative.description || "No description"}
-                                  {needsRating && <span className="ml-2 text-orange-500 font-bold">*</span>}
-                                </td>
-                                <td className="px-4 py-3 text-sm">
-                                  <Badge variant="secondary">
+                        {/* Narratives/Tasks */}
+                        {goal.narratives && goal.narratives.length > 0 && (
+                          <div className="mt-3 pl-2 border-l-2 border-gray-200">
+                            <p className="text-xs font-medium text-gray-500 mb-1">Tasks:</p>
+                            <ul className="space-y-1">
+                              {goal.narratives.map((narrative, idx) => (
+                                <li key={idx} className="text-xs flex items-start gap-2">
+                                  <span className="text-gray-400">•</span>
+                                  <span className="flex-1">{narrative.description}</span>
+                                  <Badge variant="secondary" className="text-xs h-4">
                                     {parseFloat(narrative.weight?.toString() || '0').toFixed(0)}%
                                   </Badge>
-                                </td>
-                                <td className="px-4 py-3">
-                                  <Controller
-                                    name={`goal_ratings.${goalIndex}.narratives.${narrativeIndex}.rating`}
-                                    control={control}
-                                    render={({ field }) => (
-                                      <Select
-                                        value={field.value?.toString() || "0"}
-                                        onValueChange={(value) => {
-                                          console.log(`🎯 Narrative Rating Changed: Goal ${goalIndex}, Narrative ${narrativeIndex}, Value: ${value}`);
-                                          field.onChange(parseInt(value));
-                                          // Trigger completion recalculation
-                                          setTimeout(() => setCompletionTrigger(prev => prev + 1), 100);
-                                        }}
-                                      >
-                                        <SelectTrigger className={`w-full ${needsRating ? 'border-orange-400 border-2' : ''}`}>
-                                          <SelectValue placeholder="Select rating" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                          <SelectItem value="0" disabled>
-                                            Select rating
-                                          </SelectItem>
-                                          {RATING_OPTIONS.map((option) => (
-                                            <SelectItem key={option.value} value={option.value.toString()}>
-                                              {option.value} - {option.label.split(' - ')[1]}
-                                            </SelectItem>
-                                          ))}
-                                        </SelectContent>
-                                      </Select>
-                                    )}
-                                  />
-                                </td>
-                                <td className="px-4 py-3">
-                                  <Controller
-                                    name={`goal_ratings.${goalIndex}.narratives.${narrativeIndex}.comment`}
-                                    control={control}
-                                    render={({ field }) => (
-                                      <Textarea
-                                        {...field}
-                                        placeholder="Add comment..."
-                                        rows={2}
-                                        className="text-sm"
-                                      />
-                                    )}
-                                  />
-                                </td>
-                              </tr>
-                              );
-                            })
-                          ) : (
-                            <tr>
-                              <td colSpan={5} className="px-4 py-8 text-center text-gray-500 text-sm">
-                                No narratives/tasks assigned for this goal.
-                              </td>
-                            </tr>
-                          )}
-                        </tbody>
-                      </table>
-
-                      {/* Manager Comments Section */}
-                      <div className="bg-gray-50 px-4 py-4 border-t border-gray-200">
-                        <Label htmlFor={`manager-comment-${goalIndex}`} className="text-sm font-semibold text-gray-700 mb-2 block">
-                          Manager Comments
-                        </Label>
-                        <Controller
-                          name={`goal_ratings.${goalIndex}.manager_comment`}
-                          control={control}
-                          render={({ field }) => (
-                            <Textarea
-                              {...field}
-                              id={`manager-comment-${goalIndex}`}
-                              placeholder="Provide overall feedback for this goal area..."
-                              rows={3}
-                              className="bg-white"
-                            />
-                          )}
-                        />
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
                       </div>
+                      <Badge variant="outline">
+                        Weight: {goal.total_weight
+                          ? parseFloat(goal.total_weight.toString()).toFixed(0)
+                          : goal.narratives?.reduce((sum, n) => sum + parseFloat(n.weight?.toString() || '0'), 0).toFixed(0) || 0}%
+                      </Badge>
                     </div>
-                  </div>
-                );
-              })
-            )}
-          </div>
-
-          {/* Competencies Section (if any) */}
-          {competencies.length > 0 && (
-            <div className="mb-8">
-              <div className="bg-yellow-50 border border-yellow-200 rounded-t-lg px-4 py-3">
-                <h4 className="text-base font-semibold text-yellow-900">
-                  Additional Competencies
-                </h4>
-              </div>
-
-              <div className="border border-t-0 border-gray-200 rounded-b-lg overflow-hidden">
-                <table className="w-full">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider border-b">
-                        Evaluation Category
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider border-b">
-                        Competencies
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider border-b w-24">
-                        Weight
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider border-b w-32">
-                        Rating
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider border-b">
-                        Comment
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {competencies.map((comp, index) => (
-                      <tr key={comp.id || index} className="hover:bg-gray-50">
-                        <td className="px-4 py-3 text-sm text-gray-900">
-                          {comp.category}
-                        </td>
-                        <td className="px-4 py-3 text-sm text-gray-700">
-                          {comp.name}
-                        </td>
-                        <td className="px-4 py-3 text-sm">
-                          <Badge variant="secondary">
-                            {comp.weight}%
-                          </Badge>
-                        </td>
-                        <td className="px-4 py-3">
-                          <Controller
-                            name={`competency_ratings.${index}.rating`}
-                            control={control}
-                            render={({ field }) => (
-                              <Select
-                                value={field.value?.toString() || "0"}
-                                onValueChange={(value) => {
-                                  console.log(`🎯 Competency Rating Changed: Index ${index}, Value: ${value}`);
-                                  field.onChange(parseInt(value));
-                                  // Trigger completion recalculation
-                                  setTimeout(() => setCompletionTrigger(prev => prev + 1), 100);
-                                }}
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <Label htmlFor={`goal-rating-${index}`} className="font-semibold">
+                        Rating (1-5) *
+                      </Label>
+                      <Controller
+                        name={`goal_ratings.${index}.rating`}
+                        control={control}
+                        render={({ field }) => (
+                          <div className="flex gap-2 mt-2">
+                            {RATING_OPTIONS.map((option) => (
+                              <button
+                                key={option.value}
+                                type="button"
+                                onClick={() => field.onChange(option.value)}
+                                className={`flex-1 px-4 py-2 border rounded-md transition-all ${
+                                  field.value === option.value
+                                    ? `${option.color} text-white border-transparent shadow-md`
+                                    : "bg-white hover:bg-gray-50 border-gray-300"
+                                }`}
+                                title={option.label}
                               >
-                                <SelectTrigger className="w-full">
-                                  <SelectValue placeholder="Select rating" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="0" disabled>
-                                    Select rating
-                                  </SelectItem>
-                                  {RATING_OPTIONS.map((option) => (
-                                    <SelectItem key={option.value} value={option.value.toString()}>
-                                      {option.value} - {option.label.split(' - ')[1]}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            )}
-                          />
-                        </td>
-                        <td className="px-4 py-3">
-                          <Controller
-                            name={`competency_ratings.${index}.comments`}
-                            control={control}
-                            render={({ field }) => (
-                              <Textarea
-                                {...field}
-                                placeholder="Add comment..."
-                                rows={2}
-                                className="text-sm"
-                              />
-                            )}
-                          />
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
+                                {option.value}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      />
+                      <p className="text-sm text-gray-600 mt-1">
+                        {RATING_OPTIONS.find(
+                          (opt) => opt.value === watchedGoalRatings?.[index]?.rating
+                        )?.label}
+                      </p>
+                      {errors.goal_ratings?.[index]?.rating && (
+                        <p className="text-sm text-red-600 mt-1">
+                          {errors.goal_ratings[index]?.rating?.message}
+                        </p>
+                      )}
+                    </div>
 
-          {/* Overall Rating Section */}
-          <Card className="border-2 border-gray-200">
-            <CardHeader>
-              <CardTitle className="text-base">Overall Rating</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-4 mb-4">
-                <Label className="text-sm font-medium">Overall:</Label>
-                <Badge variant="default" className="text-lg px-4 py-1">
-                  {overallRating > 0 ? overallRating.toFixed(2) : "N/A"}
-                </Badge>
-                {overallRating > 0 && (
-                  <span className="text-sm text-gray-600">
-                    {RATING_OPTIONS.find(opt => Math.round(overallRating) === opt.value)?.label}
-                  </span>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+                    <div>
+                      <Label htmlFor={`goal-comments-${index}`}>Comments</Label>
+                      <Controller
+                        name={`goal_ratings.${index}.comments`}
+                        control={control}
+                        render={({ field }) => (
+                          <Textarea
+                            {...field}
+                            id={`goal-comments-${index}`}
+                            placeholder="Provide specific feedback on goal achievement, challenges, and recommendations..."
+                            rows={3}
+                          />
+                        )}
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            )}
+          </TabsContent>
+
+          {/* Competencies Tab */}
+          <TabsContent value="competencies" className="space-y-6">
+            <div className="mb-4">
+              <h3 className="text-xl font-semibold text-gray-800">Rate Competencies</h3>
+              <p className="text-sm text-gray-600 mt-1">
+                Evaluate behavioral and technical competencies demonstrated during this period
+              </p>
+            </div>
+
+            {competencies.length === 0 ? (
+              <Card>
+                <CardContent className="py-8 text-center text-gray-500">
+                  No competencies configured. Using default evaluation criteria.
+                </CardContent>
+              </Card>
+            ) : (
+              competencies.map((comp, index) => (
+                <Card key={comp.id || index} className="border-l-4 border-l-green-500">
+                  <CardHeader>
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <CardTitle className="text-base">{comp.name || comp.competency}</CardTitle>
+                        {comp.description && (
+                          <p className="text-sm text-gray-600 mt-1">{comp.description}</p>
+                        )}
+                        <Badge variant="secondary" className="mt-2">
+                          {comp.category || comp.evaluation_category}
+                        </Badge>
+                      </div>
+                      <Badge variant="outline">
+                        Weight: {typeof comp.weight === 'number'
+                          ? comp.weight
+                          : parseFloat(comp.weight?.toString() || '0')}%
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <Label htmlFor={`comp-rating-${index}`} className="font-semibold">
+                        Rating (1-5) *
+                      </Label>
+                      <Controller
+                        name={`competency_ratings.${index}.rating`}
+                        control={control}
+                        render={({ field }) => (
+                          <div className="flex gap-2 mt-2">
+                            {RATING_OPTIONS.map((option) => (
+                              <button
+                                key={option.value}
+                                type="button"
+                                onClick={() => field.onChange(option.value)}
+                                className={`flex-1 px-4 py-2 border rounded-md transition-all ${
+                                  field.value === option.value
+                                    ? `${option.color} text-white border-transparent shadow-md`
+                                    : "bg-white hover:bg-gray-50 border-gray-300"
+                                }`}
+                                title={option.label}
+                              >
+                                {option.value}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      />
+                      <p className="text-sm text-gray-600 mt-1">
+                        {RATING_OPTIONS.find(
+                          (opt) => opt.value === watchedCompetencyRatings?.[index]?.rating
+                        )?.label}
+                      </p>
+                      {errors.competency_ratings?.[index]?.rating && (
+                        <p className="text-sm text-red-600 mt-1">
+                          {errors.competency_ratings[index]?.rating?.message}
+                        </p>
+                      )}
+                    </div>
+
+                    <div>
+                      <Label htmlFor={`comp-comments-${index}`}>Comments</Label>
+                      <Controller
+                        name={`competency_ratings.${index}.comments`}
+                        control={control}
+                        render={({ field }) => (
+                          <Textarea
+                            {...field}
+                            id={`comp-comments-${index}`}
+                            placeholder="Provide examples and specific observations related to this competency..."
+                            rows={3}
+                          />
+                        )}
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            )}
+          </TabsContent>
+
+          {/* Summary Tab */}
+          <TabsContent value="summary" className="space-y-6">
+            <div className="mb-4">
+              <h3 className="text-xl font-semibold text-gray-800">Evaluation Summary</h3>
+              <p className="text-sm text-gray-600 mt-1">
+                Review your ratings and provide overall feedback
+              </p>
+            </div>
+
+            {/* Summary Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-sm">Goals Rating</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold">
+                    {goals.length > 0 && watchedGoalRatings?.length > 0
+                      ? (watchedGoalRatings.reduce((sum, r) => sum + r.rating, 0) / watchedGoalRatings.length).toFixed(2)
+                      : "N/A"}
+                  </div>
+                  <p className="text-sm text-gray-600">Average across {goals.length} goals</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-sm">Competencies Rating</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold">
+                    {competencies.length > 0 && watchedCompetencyRatings?.length > 0
+                      ? (watchedCompetencyRatings.reduce((sum, r) => sum + r.rating, 0) / watchedCompetencyRatings.length).toFixed(2)
+                      : "N/A"}
+                  </div>
+                  <p className="text-sm text-gray-600">Average across {competencies.length} competencies</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Overall Comments */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Overall Feedback</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Controller
+                  name="overall_comments"
+                  control={control}
+                  render={({ field }) => (
+                    <Textarea
+                      {...field}
+                      placeholder="Provide overall feedback, strengths, areas for improvement, and recommendations for development..."
+                      rows={6}
+                    />
+                  )}
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
 
         {/* Action Buttons */}
-        <div className="flex flex-col items-end gap-4 mt-8">
-          {/* Debug completion percentage */}
-          <div className="text-xs text-gray-500">
-            Debug: Completion = {completionPercentage}%, Submit disabled = {isSubmitting || completionPercentage < 100}
-          </div>
-
-          {completionPercentage < 100 && (
-            <div className="text-sm text-orange-600 bg-orange-50 border border-orange-200 rounded px-4 py-2">
-              ⚠️ Please rate all narratives and competencies to enable submission ({completionPercentage.toFixed(0)}% complete)
-            </div>
-          )}
-          <div className="flex gap-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => router.push(HrRoutes.PERFORMANCE_MANAGEMENT)}
-              disabled={isSubmitting}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              disabled={isSubmitting || completionPercentage < 100}
-              className="bg-red-600 hover:bg-red-700 text-white disabled:bg-gray-400 disabled:cursor-not-allowed"
-              title={completionPercentage < 100 ? `Complete all ratings to submit (${completionPercentage.toFixed(0)}% done)` : "Submit assessment"}
-            >
-              {isSubmitting ? "Submitting..." : "Submit Assessment"}
-            </Button>
-          </div>
+        <div className="flex justify-end gap-4 mt-8">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => router.push(HrRoutes.PERFORMANCE_MANAGEMENT)}
+            disabled={isSubmitting}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            disabled={isSubmitting || completionPercentage < 100}
+          >
+            {isSubmitting ? "Submitting..." : "Submit Evaluation"}
+          </Button>
         </div>
       </form>
     </div>

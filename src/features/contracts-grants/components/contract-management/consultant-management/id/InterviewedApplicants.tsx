@@ -6,6 +6,7 @@ import DataTable from "components/Table/DataTable";
 import { LoadingSpinner } from "components/Loading";
 import { useGetAllConsultancyApplicants, useUpdateConsultancyApplicant } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
 import { useGetApplicantsByAdvertisement } from "@/features/programs/controllers/adhocApplicantController";
+import { useGetAllConsultancyInterviews } from "@/features/contracts-grants/controllers/consultancyInterviewController";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "components/ui/button";
@@ -55,6 +56,12 @@ export default function InterviewedApplicants() {
     }
   );
 
+  // Fetch interview data for consultancy applicants
+  const interviewQuery = useGetAllConsultancyInterviews(
+    !isAdhoc ? consultancyId : undefined, // Only fetch for consultancy, not adhoc
+    !isAdhoc && !!consultancyId // Only enable for consultancy
+  );
+
   // Use the appropriate query result
   const { data, isFetching, error } = isAdhoc ? adhocQuery : consultancyQuery;
 
@@ -81,6 +88,12 @@ export default function InterviewedApplicants() {
     first_name: applicant.first_name || applicant.other_names || applicant.name || 'Unknown',
     last_name: applicant.last_name || applicant.sur_name || applicant.contractor_name || '',
     email: applicant.email || applicant.email_address,
+    // Map position field from various possible field names
+    position: applicant.position_under_contract ||
+              applicant.position ||
+              applicant.job_title ||
+              applicant.role ||
+              'Position not specified',
     // Ensure consultant_id is present
     consultant_id: applicant.consultant_id || consultancyId,
     consultancy: applicant.consultancy || consultancyId,
@@ -99,8 +112,81 @@ export default function InterviewedApplicants() {
       : applicant.contract_request || 'N/A',
   })) || [];
 
+  // Function to merge interview data with applicant data
+  const mergeInterviewData = (applicants: any[], interviews: any) => {
+    // Handle different interview data structures
+    const interviewArray = Array.isArray(interviews)
+      ? interviews
+      : interviews?.data
+      ? (Array.isArray(interviews.data) ? interviews.data : [])
+      : [];
+
+    if (!interviewArray || interviewArray.length === 0) return applicants;
+
+    return applicants.map(applicant => {
+      // Find all interviews for this applicant
+      const applicantInterviews = interviewArray.filter((interview: any) =>
+        interview.applicant === applicant.id
+      );
+
+      if (applicantInterviews.length === 0) {
+        return applicant;
+      }
+
+      // Calculate aggregated interview data
+      const completedInterviews = applicantInterviews.filter((interview: any) =>
+        interview.total_score > 0 || interview.relevant_experience !== null
+      );
+
+      if (completedInterviews.length === 0) {
+        return applicant;
+      }
+
+      // Calculate average score
+      let totalScore = 0;
+      let scoreCount = 0;
+
+      completedInterviews.forEach((interview: any) => {
+        if (interview.total_score && interview.total_score > 0) {
+          totalScore += interview.total_score;
+          scoreCount++;
+        }
+      });
+
+      if (scoreCount > 0) {
+        const averageScore = totalScore / scoreCount;
+        return {
+          ...applicant,
+          total_score: averageScore,
+          average_score: averageScore,
+          interview_data: applicantInterviews
+        };
+      }
+
+      return applicant;
+    });
+  };
+
+  // Get interview data for merging
+  const interviewData = interviewQuery.data?.data || [];
+
+  // Debug: Log the interview data structure
+  console.log("🔍 Interview Data Structure Debug:", {
+    raw_response: interviewQuery.data,
+    data_field: interviewQuery.data?.data,
+    data_type: typeof interviewQuery.data?.data,
+    is_array: Array.isArray(interviewQuery.data?.data),
+    length: interviewQuery.data?.data?.length || 0,
+    first_item: interviewQuery.data?.data?.[0] || null
+  });
+
+  // Merge interview data with applicants (only for consultancy)
+  const applicantsWithScores = !isAdhoc
+    ? mergeInterviewData(mappedApplicants, interviewData)
+    : mappedApplicants;
+
   // Filter for interviewed applicants only
-  const interviewedApplicants = mappedApplicants.filter(
+  const interviewedApplicants = applicantsWithScores.filter(
     (applicant) => applicant.status === "INTERVIEWED"
   );
 
@@ -108,6 +194,8 @@ export default function InterviewedApplicants() {
   console.log("- Current Consultancy ID:", consultancyId);
   console.log("- Original Results Count:", data?.data?.results?.length || 0);
   console.log("- Mapped Results Count:", mappedApplicants.length);
+  console.log("- Interview Data Count:", interviewData.length);
+  console.log("- Applicants With Scores Count:", applicantsWithScores.length);
   console.log("- Interviewed Count:", interviewedApplicants.length);
   console.log("- Is Fetching:", isFetching);
 
@@ -117,8 +205,18 @@ export default function InterviewedApplicants() {
       console.log(`  Interviewed ${index + 1}:`, {
         name: `${applicant.first_name} ${applicant.last_name}`,
         email: applicant.email,
+        position: applicant.position,
         status: applicant.status,
-        id: applicant.id
+        id: applicant.id,
+        total_score: applicant.total_score,
+        average_score: applicant.average_score,
+        has_interview_data: !!applicant.interview_data,
+        position_fields: {
+          position_under_contract: applicant.position_under_contract,
+          position: applicant.position,
+          job_title: applicant.job_title,
+          role: applicant.role
+        }
       });
     });
   }
@@ -221,16 +319,77 @@ export default function InterviewedApplicants() {
       id: "interview_score",
       size: 150,
       cell: ({ row }) => {
-        const interviewScores = (row.original as any).interview_scores;
-        if (!interviewScores || !interviewScores.total_score) {
-          return <span className="text-gray-400 text-sm">Not scored</span>;
+        const applicant = row.original as any;
+
+        console.log("🔍 Interview Score Cell Debug:", {
+          applicant_id: applicant.id,
+          name: `${applicant.first_name} ${applicant.last_name}`,
+          status: applicant.status,
+          total_score: applicant.total_score,
+          average_score: applicant.average_score,
+          interview_scores: applicant.interview_scores,
+          interview_data: applicant.interview_data,
+          all_score_keys: Object.keys(applicant).filter(key =>
+            key.toLowerCase().includes('score') || key.toLowerCase().includes('interview')
+          )
+        });
+
+        // Method 1: Check direct scores from merged interview data
+        const directScore = applicant.total_score || applicant.average_score;
+        if (directScore && directScore > 0) {
+          const percentage = (directScore / 50) * 100;
+          return (
+            <div className="flex items-center gap-2">
+              <span className="font-semibold text-gray-900">{directScore.toFixed(1)}</span>
+              <span className="text-gray-500 text-sm">/ 50</span>
+              <span className="text-xs text-gray-400">({percentage.toFixed(1)}%)</span>
+            </div>
+          );
         }
-        return (
-          <div className="flex items-center gap-2">
-            <span className="font-semibold text-gray-900">{interviewScores.total_score}</span>
-            <span className="text-gray-500 text-sm">/ 50</span>
-          </div>
-        );
+
+        // Method 2: Check interview_data array (from merged data)
+        const interviewData = applicant.interview_data;
+        if (interviewData && Array.isArray(interviewData) && interviewData.length > 0) {
+          const completedInterviews = interviewData.filter((interview: any) =>
+            interview.total_score && interview.total_score > 0
+          );
+
+          if (completedInterviews.length > 0) {
+            const totalScore = completedInterviews.reduce((sum: number, interview: any) =>
+              sum + interview.total_score, 0
+            );
+            const averageScore = totalScore / completedInterviews.length;
+            const percentage = (averageScore / 50) * 100;
+
+            return (
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-gray-900">{averageScore.toFixed(1)}</span>
+                <span className="text-gray-500 text-sm">/ 50</span>
+                <span className="text-xs text-gray-400">({percentage.toFixed(1)}%)</span>
+              </div>
+            );
+          }
+        }
+
+        // Method 3: Check legacy interview_scores object
+        const interviewScores = applicant.interview_scores;
+        if (interviewScores && interviewScores.total_score && interviewScores.total_score > 0) {
+          const percentage = (interviewScores.total_score / 50) * 100;
+          return (
+            <div className="flex items-center gap-2">
+              <span className="font-semibold text-gray-900">{interviewScores.total_score}</span>
+              <span className="text-gray-500 text-sm">/ 50</span>
+              <span className="text-xs text-gray-400">({percentage.toFixed(1)}%)</span>
+            </div>
+          );
+        }
+
+        // For interviewed applicants without scores, show pending status
+        if (applicant.status === 'INTERVIEWED') {
+          return <span className="text-orange-500 text-sm">Score pending</span>;
+        }
+
+        return <span className="text-gray-400 text-sm">Not scored</span>;
       },
     },
     {

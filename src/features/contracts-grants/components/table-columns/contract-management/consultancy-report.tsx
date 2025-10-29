@@ -22,6 +22,20 @@ export const consultancyReportColumns: ColumnDef<IConsultancyReportPaginatedData
             id: "consultant",
             accessorKey: "consultant",
             size: 200,
+            cell: ({ row }) => {
+                const consultant = row.original.consultant;
+
+                // Handle different possible data structures
+                if (typeof consultant === 'object' && consultant !== null) {
+                    // Check for name first (enriched data), then fall back to title
+                    const consultantName = (consultant as any).name || (consultant as any).title || 'N/A';
+                    return <span className="font-medium">{consultantName}</span>;
+                } else if (typeof consultant === 'string') {
+                    return <span className="font-medium">{consultant}</span>;
+                }
+
+                return <span className="text-gray-400">N/A</span>;
+            },
         },
 
         {
@@ -43,6 +57,21 @@ export const consultancyReportColumns: ColumnDef<IConsultancyReportPaginatedData
             id: "supervisor",
             accessorKey: "supervisor",
             size: 200,
+            cell: ({ row }) => {
+                const supervisor = row.original.supervisor;
+
+                // Handle different possible data structures
+                if (typeof supervisor === 'object' && supervisor !== null) {
+                    const firstName = (supervisor as any).first_name || '';
+                    const lastName = (supervisor as any).last_name || '';
+                    const fullName = `${firstName} ${lastName}`.trim();
+                    return <span>{fullName || 'N/A'}</span>;
+                } else if (typeof supervisor === 'string') {
+                    return <span>{supervisor}</span>;
+                }
+
+                return <span>N/A</span>;
+            },
         },
 
         {

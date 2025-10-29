@@ -35,15 +35,23 @@ export default function CreateFacilitatorApplicant() {
 
   const onSubmit = async (data: TFacilitatorApplicantFormData) => {
     try {
+      // Combine first_name and last_name into name for the API
+      const { first_name, last_name, ...restData } = data;
+      const fullName = `${first_name} ${last_name}`.trim();
+
       const payload = {
-        ...data,
+        ...restData,
+        name: fullName,  // API expects 'name' field
         facilitator_id: id as string,
       };
+
+      console.log('📤 Facilitator applicant payload:', payload);
 
       await createFacilitatorApplicant(payload);
       toast.success("Facilitator applicant registered successfully");
       router.push(`/dashboard/c-and-g/facilitator-management/${id}`);
     } catch (error: any) {
+      console.error('❌ Facilitator applicant error:', error);
       toast.error(error?.message || "Something went wrong");
     }
   };

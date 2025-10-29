@@ -149,7 +149,6 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
   const [selectedLinkSubIndex, setSelectedLinkSubIndex] = useState<
     null | number
   >(null);
-  const [showGlobalHub, setShowGlobalHub] = useState(false);
 
   return (
     <aside
@@ -562,35 +561,16 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
 
           {/* Global Hub */}
           <div className="">
-            <div
-              onClick={() => setShowGlobalHub(!showGlobalHub)}
+            <h4
               className={cn(
-                "hover:text-primary flex w-full items-center justify-between gap-3 px-2 py-3 text-xs font-semibold uppercase hover:cursor-pointer text-black/40 duration-200",
+                "text-black/40 px-2 py-3 text-xs font-semibold uppercase duration-200",
                 sidebarWidth === false ? "block" : "hidden"
               )}
             >
-              <h4>GLOBAL HUB</h4>
-              <ChevronDown
-                className={cn(
-                  "h-4 w-4 -rotate-90 transition duration-200",
-                  showGlobalHub && "rotate-0"
-                )}
-                aria-hidden="true"
-              />
-            </div>
+              GLOBAL HUB
+            </h4>
 
-            <motion.div
-              animate={
-                showGlobalHub
-                  ? {
-                      height: "fit-content",
-                    }
-                  : {
-                      height: 0,
-                    }
-              }
-              className="h-0 overflow-hidden space-y-1"
-            >
+            <div className="space-y-1">
               {globalHubMenu?.map(({ label, path, icon }, id) => {
                 const isActive = path && pathname && pathname.startsWith(path);
                 return (
@@ -623,7 +603,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                   </Link>
                 );
               })}
-            </motion.div>
+            </div>
           </div>
         </div>
       </section>
@@ -763,7 +743,7 @@ const getDeparmentalLinks = () => {
             },
 
             {
-              name: "Adhoc Portal",
+              name: "Adhoc Acceptance",
               path: "/dashboard/programs/adhoc/adhoc-acceptance",
             },
 
@@ -1152,7 +1132,7 @@ const getDeparmentalLinks = () => {
             },
 
             {
-              name: "Consultant Contract Dashboard",
+              name: "Consultant contract Dashboard",
               path: "/dashboard/c-and-g/consultant/consultance-acceptance",
             },
 
