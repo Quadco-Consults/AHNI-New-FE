@@ -7,7 +7,7 @@ import Card from "components/Card";
 import { LoadingSpinner } from "components/Loading";
 import { Button } from "components/ui/button";
 import { useParams } from "next/navigation";
-import { useGetSingleConsultancyReport, useUpdateConsultancyReport } from "@/features/contracts-grants/controllers/consultancyReportController";
+import { useGetSingleConsultancyReport, useApproveConsultancyReport } from "@/features/contracts-grants/controllers/consultancyReportController";
 import { Download, Printer, CheckCircle } from "lucide-react";
 import { useReactToPrint } from "react-to-print";
 import Image from "next/image";
@@ -29,7 +29,7 @@ export default function ConsultancyReportDetails() {
         id ?? skipToken
     );
 
-    const { updateConsultancyReport } = useUpdateConsultancyReport(
+    const { approveConsultancyReport } = useApproveConsultancyReport(
         (id as string) || ""
     );
 
@@ -162,38 +162,8 @@ export default function ConsultancyReportDetails() {
                 return;
             }
 
-            // Extract consultant and supervisor IDs
-            const consultantId = typeof report.consultant === 'object'
-                ? report.consultant.id
-                : report.consultant;
-
-            const supervisorId = typeof report.supervisor === 'object'
-                ? report.supervisor.id
-                : report.supervisor;
-
-            const projectId = typeof report.project === 'object'
-                ? report.project.id
-                : report.project;
-
-            // Update the report status to approved with all required fields
-            const updateData = {
-                project: projectId,
-                supervisor: supervisorId,
-                consultant: consultantId,
-                report_date: report.report_date,
-                consultancy_start_date: report.consultancy_start_date,
-                consultancy_end_date: report.consultancy_end_date,
-                consultancy_duration: report.consultancy_duration?.toString(),
-                purpose: report.purpose,
-                executive_summary: report.executive_summary,
-                achievements: report.achievements,
-                challenges_recommendations: report.challenges_recommendations,
-                status: "APPROVED",
-            };
-
-            console.log('📤 Approval payload:', updateData);
-
-            await updateConsultancyReport(updateData as any);
+            // Call the approve endpoint
+            await approveConsultancyReport();
 
             // Invalidate queries to refetch the updated report data
             await queryClient.invalidateQueries({
@@ -430,26 +400,25 @@ export default function ConsultancyReportDetails() {
                 <div ref={printRef} id="printable-report" className="p-8 bg-white">
                     {/* Header with Logo */}
                     <div className="border-b-4 border-red-600 pb-6 mb-8">
-                        <div className="flex items-start justify-between mb-4">
-                            <div className="flex-1">
+                        <div className="text-center mb-4">
+                            <div className="flex justify-center mb-4">
                                 <Image
                                     src={logoImg}
                                     alt="AHNi Logo"
                                     width={150}
                                     height={60}
-                                    className="mb-4"
                                 />
-                                <h2 className="text-sm font-semibold text-gray-700">
-                                    Achieving Health Nigeria Initiative
-                                </h2>
-                                <p className="text-xs text-gray-600 mt-1">
-                                    17 Lawal Street, Off Oweh Street, Jibowu, Lagos, Nigeria
-                                </p>
-                                <p className="text-xs text-gray-600">
-                                    Tel: +234 1 8752583, 8752584 | Email: info@actionhealthinc.org
-                                </p>
                             </div>
-                            <div className="text-right">
+                            <h2 className="text-sm font-semibold text-gray-700">
+                                Achieving Health Nigeria Initiative (AHNi)
+                            </h2>
+                            <p className="text-xs text-gray-600 mt-1">
+                                30 Anthony Enahoro Street, Utako District, Abuja, Nigeria
+                            </p>
+                            <p className="text-xs text-gray-600">
+                                Tel: +234.94615555 | Email: AHNiOperations@ahnigeria.org
+                            </p>
+                            <div className="flex justify-center mt-4">
                                 <div className="bg-red-600 text-white px-4 py-2 rounded-lg">
                                     <p className="text-xs font-semibold">Report Date</p>
                                     <p className="text-sm font-bold">{report?.report_date || 'N/A'}</p>
@@ -599,7 +568,7 @@ export default function ConsultancyReportDetails() {
 
                         <div className="text-center mt-8 pt-6 border-t border-gray-200">
                             <p className="text-xs text-gray-500">
-                                This is a confidential document prepared by Achieving Health Nigeria Initiative
+                                This is a confidential document prepared by Achieving Health Nigeria Initiative (AHNi)
                             </p>
                             <p className="text-xs text-gray-500 mt-1">
                                 Generated on {new Date().toLocaleDateString('en-US', {

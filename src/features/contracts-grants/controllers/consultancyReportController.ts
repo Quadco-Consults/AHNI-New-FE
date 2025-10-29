@@ -167,6 +167,31 @@ export const useDeleteConsultancyReport = (id: string) => {
   return { deleteConsultancyReport, data, isLoading, isSuccess, error };
 };
 
+// Approve Consultancy Report
+export const useApproveConsultancyReport = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    ApiResponse<IConsultancyReportSingleData>,
+    Error,
+    Record<string, never>
+  >({
+    endpoint: `${BASE_URL}${id}/approve/`,
+    queryKey: ["consultancyReports", "consultancyReport"],
+    isAuth: true,
+    method: "PATCH",
+  });
+
+  const approveConsultancyReport = async () => {
+    try {
+      await callApi({} as Record<string, never>);
+    } catch (error) {
+      console.error("Consultancy report approve error:", error);
+      throw error;
+    }
+  };
+
+  return { approveConsultancyReport, data, isLoading, isSuccess, error };
+};
+
 // Legacy exports for backward compatibility with RTK Query naming
 export const useGetAllConsultancyReportsQuery = useGetAllConsultancyReports;
 export const useGetSingleConsultancyReportQuery = useGetSingleConsultancyReport;
