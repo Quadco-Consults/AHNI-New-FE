@@ -75,7 +75,7 @@ export default function ConsultancyStaffList() {
 
   // Function to merge interview data with applicant data
   const mergeInterviewData = (applicants: any[], interviews: any[]) => {
-    if (!interviews || interviews.length === 0) return applicants;
+    if (!interviews || !Array.isArray(interviews) || interviews.length === 0) return applicants;
 
     return applicants.map(applicant => {
       // Find all interviews for this applicant
@@ -135,8 +135,10 @@ export default function ConsultancyStaffList() {
     });
   };
 
-  // Get interview data for merging
-  const interviewData = interviewQuery.data?.data || [];
+  // Get interview data for merging - ensure it's always an array
+  const interviewData = Array.isArray(interviewQuery.data?.data)
+    ? interviewQuery.data.data
+    : [];
 
   // Map API response to expected format and merge with interview data
   const baseApplicants = data?.data?.results
