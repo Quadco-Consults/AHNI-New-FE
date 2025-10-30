@@ -256,31 +256,31 @@ const ImprovedEvaluatorForm: React.FC<ImprovedEvaluatorFormProps> = ({
               <div>
                 <span className="font-semibold text-gray-700">Employee: </span>
                 <span className="text-gray-900">
-                  {assessment.employee_name ||
-                   (typeof assessment.employee === 'object'
-                    ? `${assessment.employee.legal_firstname || assessment.employee.first_name} ${assessment.employee.legal_lastname || assessment.employee.last_name}`
-                    : assessment.employee)}
+                  {(assessment as any).employee_name ||
+                   (typeof (assessment as any).employee === 'object'
+                    ? `${(assessment as any).employee.legal_firstname || (assessment as any).employee.first_name} ${(assessment as any).employee.legal_lastname || (assessment as any).employee.last_name}`
+                    : (assessment as any).employee)}
                 </span>
               </div>
               <div>
                 <span className="font-semibold text-gray-700">Job Title: </span>
-                <span className="text-gray-900">{assessment.employee_job_title || jobTitle || "N/A"}</span>
+                <span className="text-gray-900">{(assessment as any).employee_job_title || jobTitle || "N/A"}</span>
               </div>
               <div>
                 <span className="font-semibold text-gray-700">Cycle: </span>
-                <span className="text-gray-900">{assessment.cycle_name}</span>
+                <span className="text-gray-900">{(assessment as any).cycle_name}</span>
               </div>
               <div>
                 <span className="font-semibold text-gray-700">Period: </span>
                 <span className="text-gray-900">
-                  {assessment.start_date ? new Date(assessment.start_date).toLocaleDateString() : "N/A"} to{" "}
-                  {assessment.end_date ? new Date(assessment.end_date).toLocaleDateString() : "N/A"}
+                  {(assessment as any).start_date ? new Date((assessment as any).start_date).toLocaleDateString() : "N/A"} to{" "}
+                  {(assessment as any).end_date ? new Date((assessment as any).end_date).toLocaleDateString() : "N/A"}
                 </span>
               </div>
-              {assessment.description && (
+              {(assessment as any).description && (
                 <div className="col-span-2">
                   <span className="font-semibold text-gray-700">Description: </span>
-                  <span className="text-gray-900">{assessment.description}</span>
+                  <span className="text-gray-900">{(assessment as any).description}</span>
                 </div>
               )}
             </div>
@@ -345,7 +345,7 @@ const ImprovedEvaluatorForm: React.FC<ImprovedEvaluatorFormProps> = ({
                 </CardContent>
               </Card>
             ) : (
-              goals.map((goal, index) => (
+              goals.map((goal: any, index: number) => (
                 <Card key={goal.id || index} className="border-l-4 border-l-blue-500">
                   <CardHeader>
                     <div className="flex justify-between items-start">
@@ -360,7 +360,7 @@ const ImprovedEvaluatorForm: React.FC<ImprovedEvaluatorFormProps> = ({
                           <div className="mt-3 pl-2 border-l-2 border-gray-200">
                             <p className="text-xs font-medium text-gray-500 mb-1">Tasks:</p>
                             <ul className="space-y-1">
-                              {goal.narratives.map((narrative, idx) => (
+                              {goal.narratives.map((narrative: any, idx: number) => (
                                 <li key={idx} className="text-xs flex items-start gap-2">
                                   <span className="text-gray-400">•</span>
                                   <span className="flex-1">{narrative.description}</span>
@@ -376,7 +376,7 @@ const ImprovedEvaluatorForm: React.FC<ImprovedEvaluatorFormProps> = ({
                       <Badge variant="outline">
                         Weight: {goal.total_weight
                           ? parseFloat(goal.total_weight.toString()).toFixed(0)
-                          : goal.narratives?.reduce((sum, n) => sum + parseFloat(n.weight?.toString() || '0'), 0).toFixed(0) || 0}%
+                          : goal.narratives?.reduce((sum: number, n: any) => sum + parseFloat(n.weight?.toString() || '0'), 0).toFixed(0) || 0}%
                       </Badge>
                     </div>
                   </CardHeader>
@@ -462,18 +462,18 @@ const ImprovedEvaluatorForm: React.FC<ImprovedEvaluatorFormProps> = ({
                   <CardHeader>
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
-                        <CardTitle className="text-base">{comp.name || comp.competency}</CardTitle>
+                        <CardTitle className="text-base">{comp.name || (comp as any).competency}</CardTitle>
                         {comp.description && (
                           <p className="text-sm text-gray-600 mt-1">{comp.description}</p>
                         )}
                         <Badge variant="secondary" className="mt-2">
-                          {comp.category || comp.evaluation_category}
+                          {comp.category || (comp as any).evaluation_category}
                         </Badge>
                       </div>
                       <Badge variant="outline">
                         Weight: {typeof comp.weight === 'number'
                           ? comp.weight
-                          : parseFloat(comp.weight?.toString() || '0')}%
+                          : parseFloat((comp.weight as any)?.toString() || '0')}%
                       </Badge>
                     </div>
                   </CardHeader>
