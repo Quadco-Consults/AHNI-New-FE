@@ -134,17 +134,17 @@ const RegisterDetails = () => {
                         <div className="grid grid-cols-2 gap-3">
                             <DescriptionCard
                                 label="Contact Person Name"
-                                description=""
+                                description={data?.data.contact_person_name || ""}
                             />
 
                             <DescriptionCard
                                 label="Contact Person Email"
-                                description=""
+                                description={data?.data.contact_person_email || ""}
                             />
 
                             <DescriptionCard
                                 label="Contact Person Phone Number"
-                                description=""
+                                description={data?.data.contact_person_phone_number || ""}
                             />
                         </div>
                     </>
