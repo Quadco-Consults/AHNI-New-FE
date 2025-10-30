@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
 import { HrRoutes } from "constants/RouterConstants";
 import {
   useUpdatePerformanceAssesment,
-  useGetPerformanceAssesment
+  useGetPerformanceAssesment,
 } from "@/features/hr/controllers/hrPerformanceAssessmentController";
 import { useGetCompetencies } from "@/features/hr/controllers/competenciesController";
 import { toast } from "sonner";
@@ -57,31 +57,30 @@ interface ImprovedEvaluatorFormProps {
 
 const ImprovedEvaluatorForm: React.FC<ImprovedEvaluatorFormProps> = ({
   assessmentId,
-  evaluatorId
+  evaluatorId,
 }) => {
   const router = useRouter();
   const queryClient = useQueryClient();
 
   // Fetch the assessment to get goals and employee details
-  const { data: assessmentData, isLoading: isLoadingAssessment } = useGetPerformanceAssesment(
-    assessmentId,
-    !!assessmentId
-  );
+  const { data: assessmentData, isLoading: isLoadingAssessment } =
+    useGetPerformanceAssesment(assessmentId, !!assessmentId);
 
   // Fetch competencies based on employee's job title
   const assessment = assessmentData?.data;
-  const employee = typeof assessment?.employee === 'object'
-    ? assessment.employee
-    : null;
+  const employee =
+    typeof assessment?.employee === "object" ? assessment.employee : null;
 
   const jobTitle = employee?.job_title || "";
 
-  const { data: competenciesData, isLoading: isLoadingCompetencies } = useGetCompetencies({
-    enabled: !!assessmentId,
-    active: true,
-  });
+  const { data: competenciesData, isLoading: isLoadingCompetencies } =
+    useGetCompetencies({
+      enabled: !!assessmentId,
+      active: true,
+    });
 
-  const { updatePerformanceAssesment, isLoading: isSubmitting } = useUpdatePerformanceAssesment(assessmentId);
+  const { updatePerformanceAssesment, isLoading: isSubmitting } =
+    useUpdatePerformanceAssesment(assessmentId);
 
   // Backend returns employee_goals, not goals
   const goals = assessment?.employee_goals || assessment?.goals || [];
@@ -141,13 +140,21 @@ const ImprovedEvaluatorForm: React.FC<ImprovedEvaluatorFormProps> = ({
         const goal = goals[idx];
         const weight = goal?.total_weight
           ? parseFloat(goal.total_weight.toString())
-          : goal?.narratives?.reduce((s: number, n: any) => s + parseFloat(n.weight?.toString() || '0'), 0) || 0;
-        return sum + (rating.rating * weight);
+          : goal?.narratives?.reduce(
+              (s: number, n: any) =>
+                s + parseFloat(n.weight?.toString() || "0"),
+              0
+            ) || 0;
+        return sum + rating.rating * weight;
       }, 0);
       const goalTotalWeight = goals.reduce((sum, goal) => {
         const weight = goal?.total_weight
           ? parseFloat(goal.total_weight.toString())
-          : goal?.narratives?.reduce((s: number, n: any) => s + parseFloat(n.weight?.toString() || '0'), 0) || 0;
+          : goal?.narratives?.reduce(
+              (s: number, n: any) =>
+                s + parseFloat(n.weight?.toString() || "0"),
+              0
+            ) || 0;
         return sum + weight;
       }, 0);
 
@@ -161,15 +168,17 @@ const ImprovedEvaluatorForm: React.FC<ImprovedEvaluatorFormProps> = ({
     if (competencies.length > 0 && watchedCompetencyRatings?.length > 0) {
       const compScore = watchedCompetencyRatings.reduce((sum, rating, idx) => {
         const comp = competencies[idx];
-        const weight = typeof comp?.weight === 'number'
-          ? comp.weight
-          : parseFloat(comp?.weight?.toString() || '0');
-        return sum + (rating.rating * weight);
+        const weight =
+          typeof comp?.weight === "number"
+            ? comp.weight
+            : parseFloat(comp?.weight?.toString() || "0");
+        return sum + rating.rating * weight;
       }, 0);
       const compTotalWeight = competencies.reduce((sum, comp) => {
-        const weight = typeof comp?.weight === 'number'
-          ? comp.weight
-          : parseFloat(comp?.weight?.toString() || '0');
+        const weight =
+          typeof comp?.weight === "number"
+            ? comp.weight
+            : parseFloat(comp?.weight?.toString() || "0");
         return sum + weight;
       }, 0);
 
@@ -185,9 +194,10 @@ const ImprovedEvaluatorForm: React.FC<ImprovedEvaluatorFormProps> = ({
   const onSubmit = async (data: EvaluationFormData) => {
     try {
       // Get employee ID from assessment
-      const employeeId = typeof assessment?.employee === 'object'
-        ? assessment.employee.id
-        : assessment?.employee;
+      const employeeId =
+        typeof assessment?.employee === "object"
+          ? assessment.employee.id
+          : assessment?.employee;
 
       // Prepare submission with both goals and competencies
       const submission: any = {
@@ -212,12 +222,17 @@ const ImprovedEvaluatorForm: React.FC<ImprovedEvaluatorFormProps> = ({
 
       // Invalidate cache to refresh data
       queryClient.invalidateQueries({ queryKey: ["performance-assessments"] });
-      queryClient.invalidateQueries({ queryKey: ["performance-assessment", assessmentId] });
+      queryClient.invalidateQueries({
+        queryKey: ["performance-assessment", assessmentId],
+      });
 
       toast.success("Evaluation submitted successfully");
       router.push(HrRoutes.PERFORMANCE_MANAGEMENT);
     } catch (error: any) {
-      const errorMessage = error?.response?.data?.message || error?.message || "Failed to submit evaluation";
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to submit evaluation";
       toast.error(errorMessage);
       console.error("❌ Submission error:", error);
       console.error("Error response:", error?.response?.data);
@@ -257,30 +272,53 @@ const ImprovedEvaluatorForm: React.FC<ImprovedEvaluatorFormProps> = ({
                 <span className="font-semibold text-gray-700">Employee: </span>
                 <span className="text-gray-900">
                   {(assessment as any).employee_name ||
-                   (typeof (assessment as any).employee === 'object'
-                    ? `${(assessment as any).employee.legal_firstname || (assessment as any).employee.first_name} ${(assessment as any).employee.legal_lastname || (assessment as any).employee.last_name}`
-                    : (assessment as any).employee)}
+                    (typeof (assessment as any).employee === "object"
+                      ? `${
+                          (assessment as any).employee.legal_firstname ||
+                          (assessment as any).employee.first_name
+                        } ${
+                          (assessment as any).employee.legal_lastname ||
+                          (assessment as any).employee.last_name
+                        }`
+                      : (assessment as any).employee)}
                 </span>
               </div>
               <div>
                 <span className="font-semibold text-gray-700">Job Title: </span>
-                <span className="text-gray-900">{(assessment as any).employee_job_title || jobTitle || "N/A"}</span>
+                <span className="text-gray-900">
+                  {(assessment as any).employee_job_title || jobTitle || "N/A"}
+                </span>
               </div>
               <div>
                 <span className="font-semibold text-gray-700">Cycle: </span>
-                <span className="text-gray-900">{(assessment as any).cycle_name}</span>
+                <span className="text-gray-900">
+                  {(assessment as any).cycle_name}
+                </span>
               </div>
               <div>
                 <span className="font-semibold text-gray-700">Period: </span>
                 <span className="text-gray-900">
-                  {(assessment as any).start_date ? new Date((assessment as any).start_date).toLocaleDateString() : "N/A"} to{" "}
-                  {(assessment as any).end_date ? new Date((assessment as any).end_date).toLocaleDateString() : "N/A"}
+                  {(assessment as any).start_date
+                    ? new Date(
+                        (assessment as any).start_date
+                      ).toLocaleDateString()
+                    : "N/A"}{" "}
+                  to{" "}
+                  {(assessment as any).end_date
+                    ? new Date(
+                        (assessment as any).end_date
+                      ).toLocaleDateString()
+                    : "N/A"}
                 </span>
               </div>
               {(assessment as any).description && (
                 <div className="col-span-2">
-                  <span className="font-semibold text-gray-700">Description: </span>
-                  <span className="text-gray-900">{(assessment as any).description}</span>
+                  <span className="font-semibold text-gray-700">
+                    Description:{" "}
+                  </span>
+                  <span className="text-gray-900">
+                    {(assessment as any).description}
+                  </span>
                 </div>
               )}
             </div>
@@ -291,7 +329,9 @@ const ImprovedEvaluatorForm: React.FC<ImprovedEvaluatorFormProps> = ({
         <div className="mt-6">
           <div className="flex justify-between items-center mb-2">
             <Label className="text-sm font-medium">Evaluation Progress</Label>
-            <span className="text-sm text-gray-600">{completionPercentage.toFixed(0)}% Complete</span>
+            <span className="text-sm text-gray-600">
+              {completionPercentage.toFixed(0)}% Complete
+            </span>
           </div>
           <Progress value={completionPercentage} className="h-2" />
         </div>
@@ -300,13 +340,19 @@ const ImprovedEvaluatorForm: React.FC<ImprovedEvaluatorFormProps> = ({
         {overallRating > 0 && (
           <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
             <div className="flex justify-between items-center">
-              <span className="font-semibold text-yellow-900">Calculated Overall Rating:</span>
+              <span className="font-semibold text-yellow-900">
+                Calculated Overall Rating:
+              </span>
               <div className="flex items-center gap-2">
                 <Badge variant="default" className="text-lg px-4 py-1">
                   {overallRating.toFixed(2)} / 5.0
                 </Badge>
                 <span className="text-sm text-yellow-700">
-                  {RATING_OPTIONS.find(opt => Math.round(overallRating) === opt.value)?.label.split(' - ')[1]}
+                  {
+                    RATING_OPTIONS.find(
+                      (opt) => Math.round(overallRating) === opt.value
+                    )?.label.split(" - ")[1]
+                  }
                 </span>
               </div>
             </div>
@@ -318,21 +364,19 @@ const ImprovedEvaluatorForm: React.FC<ImprovedEvaluatorFormProps> = ({
       <form onSubmit={handleSubmit(onSubmit)}>
         <Tabs defaultValue="goals" className="space-y-6">
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="goals">
-              Goals ({goals.length})
-            </TabsTrigger>
+            <TabsTrigger value="goals">Goals ({goals.length})</TabsTrigger>
             <TabsTrigger value="competencies">
               Competencies ({competencies.length})
             </TabsTrigger>
-            <TabsTrigger value="summary">
-              Summary
-            </TabsTrigger>
+            <TabsTrigger value="summary">Summary</TabsTrigger>
           </TabsList>
 
           {/* Goals Tab */}
           <TabsContent value="goals" className="space-y-6">
             <div className="mb-4">
-              <h3 className="text-xl font-semibold text-gray-800">Rate Employee Goals</h3>
+              <h3 className="text-xl font-semibold text-gray-800">
+                Rate Employee Goals
+              </h3>
               <p className="text-sm text-gray-600 mt-1">
                 Evaluate each goal based on achievement and quality of work
               </p>
@@ -346,43 +390,76 @@ const ImprovedEvaluatorForm: React.FC<ImprovedEvaluatorFormProps> = ({
               </Card>
             ) : (
               goals.map((goal: any, index: number) => (
-                <Card key={goal.id || index} className="border-l-4 border-l-blue-500">
+                <Card
+                  key={goal.id || index}
+                  className="border-l-4 border-l-blue-500"
+                >
                   <CardHeader>
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
-                        <CardTitle className="text-base">{goal.title || "Untitled Goal"}</CardTitle>
+                        <CardTitle className="text-base">
+                          {goal.title || "Untitled Goal"}
+                        </CardTitle>
                         {goal.description && (
-                          <p className="text-sm text-gray-600 mt-1">{goal.description}</p>
+                          <p className="text-sm text-gray-600 mt-1">
+                            {goal.description}
+                          </p>
                         )}
 
                         {/* Narratives/Tasks */}
                         {goal.narratives && goal.narratives.length > 0 && (
                           <div className="mt-3 pl-2 border-l-2 border-gray-200">
-                            <p className="text-xs font-medium text-gray-500 mb-1">Tasks:</p>
+                            <p className="text-xs font-medium text-gray-500 mb-1">
+                              Tasks:
+                            </p>
                             <ul className="space-y-1">
-                              {goal.narratives.map((narrative: any, idx: number) => (
-                                <li key={idx} className="text-xs flex items-start gap-2">
-                                  <span className="text-gray-400">•</span>
-                                  <span className="flex-1">{narrative.description}</span>
-                                  <Badge variant="secondary" className="text-xs h-4">
-                                    {parseFloat(narrative.weight?.toString() || '0').toFixed(0)}%
-                                  </Badge>
-                                </li>
-                              ))}
+                              {goal.narratives.map(
+                                (narrative: any, idx: number) => (
+                                  <li
+                                    key={idx}
+                                    className="text-xs flex items-start gap-2"
+                                  >
+                                    <span className="text-gray-400">•</span>
+                                    <span className="flex-1">
+                                      {narrative.description}
+                                    </span>
+                                    <Badge
+                                      variant="secondary"
+                                      className="text-xs h-4"
+                                    >
+                                      {parseFloat(
+                                        narrative.weight?.toString() || "0"
+                                      ).toFixed(0)}
+                                      %
+                                    </Badge>
+                                  </li>
+                                )
+                              )}
                             </ul>
                           </div>
                         )}
                       </div>
                       <Badge variant="outline">
-                        Weight: {goal.total_weight
+                        Weight:{" "}
+                        {goal.total_weight
                           ? parseFloat(goal.total_weight.toString()).toFixed(0)
-                          : goal.narratives?.reduce((sum: number, n: any) => sum + parseFloat(n.weight?.toString() || '0'), 0).toFixed(0) || 0}%
+                          : goal.narratives
+                              ?.reduce(
+                                (sum: number, n: any) =>
+                                  sum + parseFloat(n.weight?.toString() || "0"),
+                                0
+                              )
+                              .toFixed(0) || 0}
+                        %
                       </Badge>
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div>
-                      <Label htmlFor={`goal-rating-${index}`} className="font-semibold">
+                      <Label
+                        htmlFor={`goal-rating-${index}`}
+                        className="font-semibold"
+                      >
                         Rating (1-5) *
                       </Label>
                       <Controller
@@ -409,9 +486,12 @@ const ImprovedEvaluatorForm: React.FC<ImprovedEvaluatorFormProps> = ({
                         )}
                       />
                       <p className="text-sm text-gray-600 mt-1">
-                        {RATING_OPTIONS.find(
-                          (opt) => opt.value === watchedGoalRatings?.[index]?.rating
-                        )?.label}
+                        {
+                          RATING_OPTIONS.find(
+                            (opt) =>
+                              opt.value === watchedGoalRatings?.[index]?.rating
+                          )?.label
+                        }
                       </p>
                       {errors.goal_ratings?.[index]?.rating && (
                         <p className="text-sm text-red-600 mt-1">
@@ -444,9 +524,12 @@ const ImprovedEvaluatorForm: React.FC<ImprovedEvaluatorFormProps> = ({
           {/* Competencies Tab */}
           <TabsContent value="competencies" className="space-y-6">
             <div className="mb-4">
-              <h3 className="text-xl font-semibold text-gray-800">Rate Competencies</h3>
+              <h3 className="text-xl font-semibold text-gray-800">
+                Rate Competencies
+              </h3>
               <p className="text-sm text-gray-600 mt-1">
-                Evaluate behavioral and technical competencies demonstrated during this period
+                Evaluate behavioral and technical competencies demonstrated
+                during this period
               </p>
             </div>
 
@@ -458,28 +541,40 @@ const ImprovedEvaluatorForm: React.FC<ImprovedEvaluatorFormProps> = ({
               </Card>
             ) : (
               competencies.map((comp, index) => (
-                <Card key={comp.id || index} className="border-l-4 border-l-green-500">
+                <Card
+                  key={comp.id || index}
+                  className="border-l-4 border-l-green-500"
+                >
                   <CardHeader>
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
-                        <CardTitle className="text-base">{comp.name || (comp as any).competency}</CardTitle>
+                        <CardTitle className="text-base">
+                          {comp.name || (comp as any).competency}
+                        </CardTitle>
                         {comp.description && (
-                          <p className="text-sm text-gray-600 mt-1">{comp.description}</p>
+                          <p className="text-sm text-gray-600 mt-1">
+                            {comp.description}
+                          </p>
                         )}
                         <Badge variant="secondary" className="mt-2">
                           {comp.category || (comp as any).evaluation_category}
                         </Badge>
                       </div>
                       <Badge variant="outline">
-                        Weight: {typeof comp.weight === 'number'
+                        Weight:{" "}
+                        {typeof comp.weight === "number"
                           ? comp.weight
-                          : parseFloat((comp.weight as any)?.toString() || '0')}%
+                          : parseFloat((comp.weight as any)?.toString() || "0")}
+                        %
                       </Badge>
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div>
-                      <Label htmlFor={`comp-rating-${index}`} className="font-semibold">
+                      <Label
+                        htmlFor={`comp-rating-${index}`}
+                        className="font-semibold"
+                      >
                         Rating (1-5) *
                       </Label>
                       <Controller
@@ -506,9 +601,13 @@ const ImprovedEvaluatorForm: React.FC<ImprovedEvaluatorFormProps> = ({
                         )}
                       />
                       <p className="text-sm text-gray-600 mt-1">
-                        {RATING_OPTIONS.find(
-                          (opt) => opt.value === watchedCompetencyRatings?.[index]?.rating
-                        )?.label}
+                        {
+                          RATING_OPTIONS.find(
+                            (opt) =>
+                              opt.value ===
+                              watchedCompetencyRatings?.[index]?.rating
+                          )?.label
+                        }
                       </p>
                       {errors.competency_ratings?.[index]?.rating && (
                         <p className="text-sm text-red-600 mt-1">
@@ -541,7 +640,9 @@ const ImprovedEvaluatorForm: React.FC<ImprovedEvaluatorFormProps> = ({
           {/* Summary Tab */}
           <TabsContent value="summary" className="space-y-6">
             <div className="mb-4">
-              <h3 className="text-xl font-semibold text-gray-800">Evaluation Summary</h3>
+              <h3 className="text-xl font-semibold text-gray-800">
+                Evaluation Summary
+              </h3>
               <p className="text-sm text-gray-600 mt-1">
                 Review your ratings and provide overall feedback
               </p>
@@ -556,10 +657,17 @@ const ImprovedEvaluatorForm: React.FC<ImprovedEvaluatorFormProps> = ({
                 <CardContent>
                   <div className="text-3xl font-bold">
                     {goals.length > 0 && watchedGoalRatings?.length > 0
-                      ? (watchedGoalRatings.reduce((sum, r) => sum + r.rating, 0) / watchedGoalRatings.length).toFixed(2)
+                      ? (
+                          watchedGoalRatings.reduce(
+                            (sum, r) => sum + r.rating,
+                            0
+                          ) / watchedGoalRatings.length
+                        ).toFixed(2)
                       : "N/A"}
                   </div>
-                  <p className="text-sm text-gray-600">Average across {goals.length} goals</p>
+                  <p className="text-sm text-gray-600">
+                    Average across {goals.length} goals
+                  </p>
                 </CardContent>
               </Card>
 
@@ -569,11 +677,19 @@ const ImprovedEvaluatorForm: React.FC<ImprovedEvaluatorFormProps> = ({
                 </CardHeader>
                 <CardContent>
                   <div className="text-3xl font-bold">
-                    {competencies.length > 0 && watchedCompetencyRatings?.length > 0
-                      ? (watchedCompetencyRatings.reduce((sum, r) => sum + r.rating, 0) / watchedCompetencyRatings.length).toFixed(2)
+                    {competencies.length > 0 &&
+                    watchedCompetencyRatings?.length > 0
+                      ? (
+                          watchedCompetencyRatings.reduce(
+                            (sum, r) => sum + r.rating,
+                            0
+                          ) / watchedCompetencyRatings.length
+                        ).toFixed(2)
                       : "N/A"}
                   </div>
-                  <p className="text-sm text-gray-600">Average across {competencies.length} competencies</p>
+                  <p className="text-sm text-gray-600">
+                    Average across {competencies.length} competencies
+                  </p>
                 </CardContent>
               </Card>
             </div>
