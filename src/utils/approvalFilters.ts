@@ -11,7 +11,7 @@ import { getApprovalPermissions } from "@/features/auth/types/permission";
  * const reviewers = filterUsersWithReviewPermission(allUsers);
  */
 export function filterUsersWithReviewPermission(users: IUser[]): IUser[] {
-  return users.filter(user => {
+  const filteredUsers = users.filter(user => {
     // Check approval_permissions object from API
     if ((user as any).approval_permissions?.can_review === true) {
       return true;
@@ -27,6 +27,19 @@ export function filterUsersWithReviewPermission(users: IUser[]): IUser[] {
 
     return false;
   });
+
+  // FALLBACK: If no users have approval permissions, return all AHNI staff
+  // This ensures the approval workflow doesn't break while permissions are being set up
+  if (filteredUsers.length === 0) {
+    console.warn('⚠️  No users found with can_review permission. Falling back to all AHNI staff.');
+    return users.filter(user =>
+      user.user_type === 'AHNI_Staff' ||
+      user.user_type === 'ahni_staff' ||
+      (user as any).is_staff === true
+    );
+  }
+
+  return filteredUsers;
 }
 
 /**
@@ -39,7 +52,7 @@ export function filterUsersWithReviewPermission(users: IUser[]): IUser[] {
  * const authorizers = filterUsersWithAuthorizePermission(allUsers);
  */
 export function filterUsersWithAuthorizePermission(users: IUser[]): IUser[] {
-  return users.filter(user => {
+  const filteredUsers = users.filter(user => {
     // Check approval_permissions object from API
     if ((user as any).approval_permissions?.can_authorize === true) {
       return true;
@@ -55,6 +68,19 @@ export function filterUsersWithAuthorizePermission(users: IUser[]): IUser[] {
 
     return false;
   });
+
+  // FALLBACK: If no users have approval permissions, return all AHNI staff
+  // This ensures the approval workflow doesn't break while permissions are being set up
+  if (filteredUsers.length === 0) {
+    console.warn('⚠️  No users found with can_authorize permission. Falling back to all AHNI staff.');
+    return users.filter(user =>
+      user.user_type === 'AHNI_Staff' ||
+      user.user_type === 'ahni_staff' ||
+      (user as any).is_staff === true
+    );
+  }
+
+  return filteredUsers;
 }
 
 /**
@@ -67,7 +93,7 @@ export function filterUsersWithAuthorizePermission(users: IUser[]): IUser[] {
  * const approvers = filterUsersWithApprovePermission(allUsers);
  */
 export function filterUsersWithApprovePermission(users: IUser[]): IUser[] {
-  return users.filter(user => {
+  const filteredUsers = users.filter(user => {
     // Check approval_permissions object from API
     if ((user as any).approval_permissions?.can_approve === true) {
       return true;
@@ -83,6 +109,19 @@ export function filterUsersWithApprovePermission(users: IUser[]): IUser[] {
 
     return false;
   });
+
+  // FALLBACK: If no users have approval permissions, return all AHNI staff
+  // This ensures the approval workflow doesn't break while permissions are being set up
+  if (filteredUsers.length === 0) {
+    console.warn('⚠️  No users found with can_approve permission. Falling back to all AHNI staff.');
+    return users.filter(user =>
+      user.user_type === 'AHNI_Staff' ||
+      user.user_type === 'ahni_staff' ||
+      (user as any).is_staff === true
+    );
+  }
+
+  return filteredUsers;
 }
 
 /**

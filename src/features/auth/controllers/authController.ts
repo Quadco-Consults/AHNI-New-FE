@@ -1,6 +1,8 @@
 import useApiManager from "@/constants/mainController";
 import { ILoginData, TLoginFormValues } from "../types/auth";
 import { setAccessToken, setCurrentUser } from "@/utils/auth";
+// import { useDispatch } from "react-redux";
+// import { setAuth } from "@/store/auth/authSlice";
 
 // Additional types for authenticated password change
 interface AuthChangePasswordRequest {
@@ -13,6 +15,8 @@ interface AuthChangePasswordRequest {
 
 // Login
 export const useLogin = () => {
+  // const dispatch = useDispatch();
+
   const { callApi, isLoading, isSuccess, error, data } = useApiManager<
     ILoginData,
     Error,
@@ -30,9 +34,16 @@ export const useLogin = () => {
       // Store token and user data using utilities
       if (response.data?.access_token) {
         setAccessToken(response.data.access_token);
-        
+
         if (response.data?.user) {
           setCurrentUser(response.data.user);
+
+          // TODO: Update Redux store later when we fix the sync issue
+          // dispatch(setAuth({
+          //   access_token: response.data.access_token,
+          //   refresh_token: response.data.refresh_token || '',
+          //   user: response.data.user
+          // }));
         }
       }
       return response;

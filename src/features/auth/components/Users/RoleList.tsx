@@ -3,21 +3,31 @@ import { LoadingSpinner } from "components/Loading";
 import { Button } from "components/ui/button";
 import { Card, CardContent, CardHeader } from "components/ui/card";
 import { Badge } from "components/ui/badge";
+import { Checkbox } from "components/ui/checkbox";
+import { Input } from "components/ui/input";
 import { DialogType, largeDailogScreen } from "constants/dailogs";
 import { useAppDispatch } from "hooks/useStore";
-import { Shield, Key, Trash2, Users, ShieldCheck } from "lucide-react";
-import { useState } from "react";
+import { Shield, Key, Trash2, Users, ShieldCheck, Search, RefreshCw, Eye, Edit } from "lucide-react";
+import { useState, useMemo } from "react";
 import { useDeleteRole, useGetAllRoles } from "../../controllers/roleController";
+import { useGetRolesEnhanced, useBulkRoleOperationsEnhanced } from "../../controllers/enhancedRoleController";
 import { toast } from "sonner";
 import { openDialog } from "store/ui";
+import { cn } from "@/lib/utils";
 
 export default function AllRoles() {
   const [roleId, setRoleId] = useState("");
+  const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
 
-  const { data: role, isLoading, error } = useGetAllRoles({
-    page: 1,
-    size: 2000000,
+  const { data: role, isLoading, error, refetch } = useGetAllRoles({
+    page: currentPage,
+    size: 50,
+    search: searchTerm,
   });
+
+  const { bulkDeleteRoles, isLoading: isBulkLoading } = useBulkRoleOperationsEnhanced();
 
   const dispatch = useAppDispatch();
 
@@ -56,9 +66,40 @@ export default function AllRoles() {
       await deleteRole();
       toast.success("Role deleted successfully");
       setRoleId("");
+      refetch(); // Refresh the list
     } catch (error: any) {
       toast.error(error?.message || "Failed to delete role");
     }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedRoles.length === 0) {
+      toast.error("No roles selected");
+      return;
+    }
+
+    if (confirm(`Are you sure you want to delete ${selectedRoles.length} role(s)?`)) {
+      try {
+        await bulkDeleteRoles(selectedRoles);
+        toast.success("Roles deleted successfully");
+        setSelectedRoles([]);
+        refetch();
+      } catch (error: any) {
+        toast.error(error?.message || "Failed to delete roles");
+      }
+    }
+  };
+
+  const handleRoleSelect = (roleId: string, selected: boolean) => {
+    setSelectedRoles(prev =>
+      selected
+        ? [...prev, roleId]
+        : prev.filter(id => id !== roleId)
+    );
+  };
+
+  const handleSelectAll = (selected: boolean) => {
+    setSelectedRoles(selected ? rolesList.map(role => String(role.id)) : []);
   };
 
   // Calculate permission counts
@@ -81,6 +122,18 @@ export default function AllRoles() {
     return permissions.some(module => module.module === 'approvals');
   };
 
+  const rolesList = (role as any)?.data?.results || [];
+  const isAllSelected = rolesList.length > 0 && selectedRoles.length === rolesList.length;
+  const isSomeSelected = selectedRoles.length > 0 && selectedRoles.length < rolesList.length;
+
+  // Filter roles based on search term - must be called before any early returns
+  const filteredRoles = useMemo(() => {
+    if (!searchTerm) return rolesList;
+    return rolesList.filter((role: any) =>
+      role.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [rolesList, searchTerm]);
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -88,8 +141,6 @@ export default function AllRoles() {
       </div>
     );
   }
-
-  const rolesList = (role as any)?.data?.results || [];
 
   if (!rolesList || rolesList.length === 0) {
     return (
@@ -113,111 +164,156 @@ export default function AllRoles() {
 
   return (
     <div className="space-y-4">
-      {/* Summary Header */}
-      <Card className="bg-gray-50 border-gray-200">
-        <CardContent className="p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-white rounded-lg shadow-sm">
-                <Users className="w-5 h-5 text-gray-700" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">Total Roles</p>
-                <p className="text-2xl font-bold text-gray-900">{rolesList.length}</p>
-              </div>
-            </div>
-            <div className="text-right">
-              <p className="text-xs text-gray-500">Click any role to manage permissions</p>
-            </div>
+      {/* Clean Search and Actions Bar */}
+      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+        <div className="flex-1 max-w-md">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search roles..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
           </div>
-        </CardContent>
-      </Card>
+        </div>
 
-      {/* Roles Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {rolesList.map(({ id, name, permissions }: any, i: number) => {
+        <div className="flex items-center gap-2">
+          {selectedRoles.length > 0 && (
+            <>
+              <span className="text-sm text-gray-600">
+                {selectedRoles.length} selected
+              </span>
+              <Button
+                size="sm"
+                variant="destructive"
+                onClick={handleBulkDelete}
+                disabled={isBulkLoading}
+              >
+                <Trash2 className="w-4 h-4 mr-1" />
+                Delete ({selectedRoles.length})
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setSelectedRoles([])}
+              >
+                Clear
+              </Button>
+            </>
+          )}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => refetch()}
+            disabled={isLoading}
+          >
+            <RefreshCw className={cn("w-4 h-4", isLoading && "animate-spin")} />
+          </Button>
+        </div>
+      </div>
+
+      {/* Clean Roles List */}
+      <div className="space-y-3">
+        {filteredRoles.map(({ id, name, permissions }: any, i: number) => {
           const stats = getRoleStats(permissions);
           const isApprovalRole = hasApprovalPermissions(permissions);
+          const isSelected = selectedRoles.includes(String(id));
 
           return (
             <Card
               key={id}
-              className="group hover:shadow-lg transition-all duration-200 hover:border-gray-400 cursor-pointer relative overflow-hidden"
+              className={cn(
+                "hover:shadow-md transition-all duration-200",
+                isSelected ? "ring-2 ring-blue-500 border-blue-300 bg-blue-50/30" : ""
+              )}
             >
-              {/* Role Number Badge */}
-              <div className="absolute top-3 right-3">
-                <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-xs font-semibold text-gray-600 group-hover:bg-gray-200 transition-colors">
-                  #{i + 1}
-                </div>
-              </div>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <Checkbox
+                      checked={isSelected}
+                      onCheckedChange={(checked) =>
+                        handleRoleSelect(String(id), checked as boolean)
+                      }
+                    />
 
-              <CardHeader className="pb-3">
-                <div className="space-y-3">
-                  <div className="flex items-start gap-3">
-                    <div className="p-2 bg-gray-100 rounded-lg group-hover:bg-gray-200 transition-colors">
-                      <Shield className="w-5 h-5 text-gray-700" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-lg font-bold capitalize text-gray-900 group-hover:text-gray-700 transition-colors">
-                        {name}
-                      </h3>
-                      <div className="flex items-center gap-2 mt-1">
-                        {isApprovalRole && (
-                          <Badge variant="outline" className="text-xs gap-1 bg-gray-100 text-gray-700 border-gray-300">
-                            <ShieldCheck className="w-3 h-3" />
-                            Approval Role
-                          </Badge>
-                        )}
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-blue-100 rounded-lg">
+                        <Shield className="w-5 h-5 text-blue-600" />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900 capitalize">
+                          {name}
+                        </h3>
+                        <div className="flex items-center gap-4 text-sm text-gray-500">
+                          <span>{stats.total} permissions</span>
+                          <span>{stats.modules} modules</span>
+                          {isApprovalRole && (
+                            <Badge variant="outline" className="text-xs">
+                              <ShieldCheck className="w-3 h-3 mr-1" />
+                              Approval Role
+                            </Badge>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </CardHeader>
 
-              <CardContent className="pt-0 space-y-4">
-                {/* Stats */}
-                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                   <div className="flex items-center gap-2">
-                    <Key className="w-4 h-4 text-gray-500" />
-                    <span className="text-sm text-gray-600">Permissions</span>
+                    <Button
+                      variant="default"
+                      size="sm"
+                      className="gap-2"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onRoleClick(
+                          String(id),
+                          name,
+                          permissions as unknown as string
+                        );
+                      }}
+                    >
+                      <Key className="w-4 h-4" />
+                      Manage Permissions
+                    </Button>
+
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="gap-2"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        dispatch(
+                          openDialog({
+                            type: DialogType.EditRoleModal,
+                            dialogProps: {
+                              header: "Edit Role",
+                              width: "max-w-md",
+                              height: "max-h-[700px]",
+                              roleId: String(id),
+                              roleName: name,
+                            },
+                          })
+                        );
+                      }}
+                    >
+                      <Edit className="w-4 h-4" />
+                      Edit
+                    </Button>
+
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="gap-2 hover:bg-red-50 hover:text-red-600 hover:border-red-300"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setRoleId(id);
+                      }}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
                   </div>
-                  <span className="text-sm font-semibold text-gray-900">{stats.total}</span>
-                </div>
-
-                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <div className="flex items-center gap-2">
-                    <Users className="w-4 h-4 text-gray-500" />
-                    <span className="text-sm text-gray-600">Modules</span>
-                  </div>
-                  <span className="text-sm font-semibold text-gray-900">{stats.modules}</span>
-                </div>
-
-                {/* Actions */}
-                <div className="flex items-center gap-2 pt-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex-1 gap-2"
-                    onClick={() =>
-                      onRoleClick(
-                        String(id),
-                        name,
-                        permissions as unknown as string
-                      )
-                    }
-                  >
-                    <Key className="w-4 h-4" />
-                    Manage
-                  </Button>
-
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="gap-2 hover:bg-red-50 hover:text-red-600 hover:border-red-300"
-                    onClick={() => setRoleId(id)}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
                 </div>
               </CardContent>
             </Card>

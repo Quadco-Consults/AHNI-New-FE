@@ -29,6 +29,7 @@ import { useAuth } from "hooks/useAuth";
 import { useRouter } from "next/navigation";
 import { useGetAllProjects } from "features/projects/controllers/projectController";
 import { formatNumberCurrency } from "utils/utls";
+// import PermissionTest from "@/components/PermissionTest";
 
 // Helper function to get notification icon based on priority/category
 const getNotificationIcon = (notification: TNotification) => {

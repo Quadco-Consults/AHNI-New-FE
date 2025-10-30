@@ -199,6 +199,219 @@ export const useDeleteRole = (id: string) => {
   return { deleteRole, data, isLoading, isSuccess, error };
 };
 
+// ===== ENHANCED ROLE MANAGEMENT =====
+
+// Get permissions grouped by module for role assignment
+export const useGetPermissionsGrouped = ({
+  roleId = "",
+  enabled = true,
+}: { roleId?: string; enabled?: boolean } = {}) => {
+  return useQuery({
+    queryKey: ["permissions-grouped", roleId],
+    queryFn: async () => {
+      try {
+        const endpoint = roleId ?
+          `/permissions/grouped/?role_id=${roleId}` :
+          "/permissions/grouped/";
+        const response = await AxiosWithToken.get(endpoint);
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    enabled: enabled,
+    refetchOnWindowFocus: false,
+  });
+};
+
+// Assign multiple permissions to role
+export const useAssignPermissionsToRole = (roleId: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    any,
+    Error,
+    { permission_ids: number[] }
+  >({
+    endpoint: `/auth/roles/${roleId}/assign_permissions/`,
+    queryKey: ["roles", "permissions"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const assignPermissions = async (permissionIds: number[]) => {
+    try {
+      await callApi({ permission_ids: permissionIds });
+    } catch (error) {
+      console.error("Assign permissions error:", error);
+      throw error;
+    }
+  };
+
+  return { assignPermissions, data, isLoading, isSuccess, error };
+};
+
+// Remove permissions from role
+export const useRemovePermissionsFromRole = (roleId: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    any,
+    Error,
+    { permission_ids: number[] }
+  >({
+    endpoint: `/auth/roles/${roleId}/remove_permissions/`,
+    queryKey: ["roles", "permissions"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const removePermissions = async (permissionIds: number[]) => {
+    try {
+      await callApi({ permission_ids: permissionIds });
+    } catch (error) {
+      console.error("Remove permissions error:", error);
+      throw error;
+    }
+  };
+
+  return { removePermissions, data, isLoading, isSuccess, error };
+};
+
+// Get users with their roles
+export const useGetUsersWithRoles = ({
+  page = 1,
+  size = 20,
+  search = "",
+  roleId = "",
+  enabled = true,
+}: TRequest & { roleId?: string; enabled?: boolean }) => {
+  return useQuery({
+    queryKey: ["users-roles", page, size, search, roleId],
+    queryFn: async () => {
+      try {
+        const params: any = { page, size };
+        if (search) params.search = search;
+        if (roleId) params.role_id = roleId;
+
+        const response = await AxiosWithToken.get("/users/with-roles/", { params });
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    enabled: enabled,
+    refetchOnWindowFocus: false,
+  });
+};
+
+// Assign users to role
+export const useAssignUsersToRole = (roleId: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    any,
+    Error,
+    { user_ids: number[] }
+  >({
+    endpoint: `/auth/roles/${roleId}/assign_users/`,
+    queryKey: ["roles", "users"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const assignUsers = async (userIds: number[]) => {
+    try {
+      await callApi({ user_ids: userIds });
+    } catch (error) {
+      console.error("Assign users error:", error);
+      throw error;
+    }
+  };
+
+  return { assignUsers, data, isLoading, isSuccess, error };
+};
+
+// Assign roles to user
+export const useAssignRolesToUser = (userId: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    any,
+    Error,
+    { role_ids: number[] }
+  >({
+    endpoint: `/auth/users/${userId}/assign_roles/`,
+    queryKey: ["users", "roles"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const assignRoles = async (roleIds: number[]) => {
+    try {
+      await callApi({ role_ids: roleIds });
+    } catch (error) {
+      console.error("Assign roles error:", error);
+      throw error;
+    }
+  };
+
+  return { assignRoles, data, isLoading, isSuccess, error };
+};
+
+// Bulk role operations
+export const useBulkRoleOperations = () => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    any,
+    Error,
+    any
+  >({
+    endpoint: "roles/bulk/",
+    queryKey: ["roles"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const bulkActivateRoles = async (roleIds: string[]) => {
+    try {
+      await callApi({
+        action: 'activate',
+        role_ids: roleIds
+      });
+    } catch (error) {
+      console.error("Bulk activate roles error:", error);
+      throw error;
+    }
+  };
+
+  const bulkDeactivateRoles = async (roleIds: string[]) => {
+    try {
+      await callApi({
+        action: 'deactivate',
+        role_ids: roleIds
+      });
+    } catch (error) {
+      console.error("Bulk deactivate roles error:", error);
+      throw error;
+    }
+  };
+
+  const bulkDeleteRoles = async (roleIds: string[]) => {
+    try {
+      await callApi({
+        action: 'delete',
+        role_ids: roleIds
+      });
+    } catch (error) {
+      console.error("Bulk delete roles error:", error);
+      throw error;
+    }
+  };
+
+  return {
+    bulkActivateRoles,
+    bulkDeactivateRoles,
+    bulkDeleteRoles,
+    isLoading,
+    isSuccess,
+    error
+  };
+};
+
 // Legacy exports for backward compatibility
 export const useGetAllRolesQuery = useGetAllRoles;
 export const useGetSingleRoleQuery = useGetSingleRole;

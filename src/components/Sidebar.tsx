@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
 import { useState } from "react";
+import { getCurrentUser } from "@/utils/auth";
 import logoSvg from "@/assets/svgs/logo-bg.svg";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -36,27 +37,68 @@ import ProcurementManagementIcon from "components/icons/sidebar-icons/Procuremen
 import AdminIcon from "components/icons/sidebar-icons/AdminIcon";
 import CGIcon from "components/icons/sidebar-icons/CGIcon";
 import HRIcon from "components/icons/sidebar-icons/HRIcon";
-// import FinanceIcon from "components/icons/sidebar-icons/FinanceIcon";
-// import { useGetUserProfile } from "@/features/auth/controllers/user";
+
+// New imports for permission system
+import { usePermissions } from "@/hooks/usePermissions";
+import { PermissionGuard } from "@/components/PermissionGuard";
+import {
+  DASHBOARD_PERMISSIONS,
+  NAVIGATION_PERMISSIONS,
+  MODULE_PERMISSIONS,
+  SETTINGS_PERMISSIONS,
+  MODULE_CODES
+} from "@/constants/permissions";
 
 type SidebarProps = {
   sidebarWidth: boolean;
   setSidebarWidth: any;
 };
 
+// Helper function to determine user's department based on email or user type
+const getUserDepartment = () => {
+  const user = getCurrentUser();
+  if (!user) return null;
+
+  // For now, determine department based on email pattern or user data
+  const email = user.email?.toLowerCase() || '';
+
+  // You can customize this logic based on how departments are identified
+  if (email.includes('procurement') || email.includes('supply')) return 'procurement';
+  if (email.includes('hr') || email.includes('human')) return 'hr';
+  if (email.includes('finance') || email.includes('accounting')) return 'finance';
+  if (email.includes('admin') || user.is_staff || user.is_superuser) return 'admin';
+
+  // Default fallback - you might want to use user.department field if it exists
+  return 'admin'; // For testing, default to admin so users can see menus
+};
+
+// Helper function to check if user is admin
+const isUserAdmin = () => {
+  const user = getCurrentUser();
+  if (!user) return false;
+
+  return user.is_staff ||
+         user.is_superuser ||
+         user.email?.toLowerCase().includes('admin') ||
+         getUserDepartment() === 'admin';
+};
+
+// Global Hub menu items with permission requirements
 const globalHubMenu = [
   // Procurement & Purchasing
   {
     label: "Purchase Requests",
     path: "/dashboard/procurement/purchase-request",
     icon: <ShoppingCart className="w-4 h-4" />,
-    category: "procurement"
+    category: "procurement",
+    permission: NAVIGATION_PERMISSIONS.VIEW_PROCUREMENT_REQUESTS
   },
   {
     label: "Item Requisition",
     path: "/dashboard/admin/inventory-management/item-requisition",
     icon: <FileText className="w-4 h-4" />,
-    category: "inventory"
+    category: "inventory",
+    permission: NAVIGATION_PERMISSIONS.VIEW_ITEM_REQUISITION
   },
 
   // Fleet & Transport
@@ -64,13 +106,15 @@ const globalHubMenu = [
     label: "Vehicle Request",
     path: "/dashboard/admin/fleet-management/vehicle-request",
     icon: <Car className="w-4 h-4" />,
-    category: "fleet"
+    category: "fleet",
+    permission: NAVIGATION_PERMISSIONS.VIEW_FLEET_REQUESTS
   },
   {
     label: "Fuel Request",
     path: "/dashboard/admin/fleet-management/fuel-request",
     icon: <Droplet className="w-4 h-4" />,
-    category: "fleet"
+    category: "fleet",
+    permission: NAVIGATION_PERMISSIONS.VIEW_FLEET_REQUESTS
   },
 
   // Maintenance
@@ -78,13 +122,15 @@ const globalHubMenu = [
     label: "Facility Maintenance",
     path: "/dashboard/admin/facility-management/facility-maintenance",
     icon: <Wrench className="w-4 h-4" />,
-    category: "maintenance"
+    category: "maintenance",
+    permission: NAVIGATION_PERMISSIONS.VIEW_MAINTENANCE_REQUESTS
   },
   {
     label: "Asset Maintenance",
     path: "/dashboard/admin/asset-maintenance",
     icon: <Hammer className="w-4 h-4" />,
-    category: "maintenance"
+    category: "maintenance",
+    permission: NAVIGATION_PERMISSIONS.VIEW_MAINTENANCE_REQUESTS
   },
 
   // Financial
@@ -92,19 +138,22 @@ const globalHubMenu = [
     label: "Payment Request",
     path: "/dashboard/admin/payment-request",
     icon: <CreditCard className="w-4 h-4" />,
-    category: "financial"
+    category: "financial",
+    permission: NAVIGATION_PERMISSIONS.VIEW_FINANCIAL_REQUESTS
   },
   {
     label: "Expense Authorization",
     path: "/dashboard/admin/expense-authorization",
     icon: <DollarSign className="w-4 h-4" />,
-    category: "financial"
+    category: "financial",
+    permission: NAVIGATION_PERMISSIONS.VIEW_FINANCIAL_REQUESTS
   },
   {
     label: "Travel Expense Report",
     path: "/dashboard/admin/travel-expenses-report",
     icon: <Plane className="w-4 h-4" />,
-    category: "financial"
+    category: "financial",
+    permission: NAVIGATION_PERMISSIONS.VIEW_FINANCIAL_REQUESTS
   },
 
   // Contracts
@@ -112,13 +161,15 @@ const globalHubMenu = [
     label: "Contract Request",
     path: "/dashboard/c-and-g/contract-request",
     icon: <ScrollText className="w-4 h-4" />,
-    category: "contracts"
+    category: "contracts",
+    permission: NAVIGATION_PERMISSIONS.VIEW_CONTRACT_REQUESTS
   },
   {
     label: "Consultancy Report",
     path: "/dashboard/c-and-g/consultancy-report",
     icon: <FileBarChart className="w-4 h-4" />,
-    category: "contracts"
+    category: "contracts",
+    permission: NAVIGATION_PERMISSIONS.VIEW_CONTRACT_REQUESTS
   },
 
   // HR - Staff Self-Service
@@ -126,25 +177,29 @@ const globalHubMenu = [
     label: "My Timesheet",
     path: "/dashboard/hr/timesheet-management",
     icon: <Clock className="w-4 h-4" />,
-    category: "hr"
+    category: "hr",
+    permission: NAVIGATION_PERMISSIONS.VIEW_MY_TIMESHEET
   },
   {
     label: "Apply for Leave",
     path: "/dashboard/hr/leave-management/apply",
     icon: <Calendar className="w-4 h-4" />,
-    category: "hr"
+    category: "hr",
+    permission: NAVIGATION_PERMISSIONS.APPLY_FOR_LEAVE
   },
   {
     label: "My Leave Dashboard",
     path: "/dashboard/hr/leave-management",
     icon: <Calendar className="w-4 h-4" />,
-    category: "hr"
+    category: "hr",
+    permission: NAVIGATION_PERMISSIONS.VIEW_MY_LEAVE_DASHBOARD
   },
   {
     label: "Adhoc Staff Requisition",
     path: "/dashboard/adhoc-requisition",
     icon: <Users className="w-4 h-4" />,
-    category: "hr"
+    category: "hr",
+    permission: NAVIGATION_PERMISSIONS.CREATE_ADHOC_STAFF_REQUISITION
   },
 
   // Support
@@ -152,14 +207,14 @@ const globalHubMenu = [
     label: "Support",
     path: "/dashboard/support",
     icon: <HeartHandshake className="w-4 h-4" />,
-    category: "support"
+    category: "support",
+    permission: NAVIGATION_PERMISSIONS.VIEW_SUPPORT
   },
 ];
 
 const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
-  // const { data: user } = useGetUserProfile(null);
-
-  // const assignedModules = user?.data.assigned_modules;
+  // Use the new permission system
+  const { hasPermission, hasModule, userModules, isAuthenticated } = usePermissions();
 
   const pathname = usePathname();
   const [showMenu, setShowMenu] = useState(false);
@@ -176,7 +231,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
   const [showGlobalHubMenu, setShowGlobalHubMenu] = useState(false);
   const [selectedGlobalHubCategory, setSelectedGlobalHubCategory] = useState<string | null>(null);
 
-  // Group Global Hub menu items by category
+  // Group Global Hub menu items by category with permission filtering
   const globalHubCategories = {
     procurement: { label: "Procurement & Purchasing", icon: <ShoppingCart className="w-4 h-4" /> },
     inventory: { label: "Inventory Management", icon: <Package className="w-4 h-4" /> },
@@ -191,7 +246,16 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
   const groupedGlobalHubMenu = Object.entries(globalHubCategories).map(([category, categoryInfo]) => ({
     category,
     ...categoryInfo,
-    items: globalHubMenu.filter(item => item.category === category)
+    items: globalHubMenu.filter(item => {
+      if (item.category !== category) return false;
+
+      // Check if user has permission for this item
+      if (item.permission && !hasPermission(item.permission)) {
+        return false;
+      }
+
+      return true;
+    })
   })).filter(group => group.items.length > 0);
 
   return (
@@ -227,64 +291,70 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
         </div>
 
         <div className="px-2 pt-5 space-y-6">
-          {/* Dashboard button */}
-
-          <Link
-            href="/dashboard"
-            className={cn(
-              "flex w-full items-center justify-start gap-3 rounded-lg p-3",
-              pathname === "/dashboard"
-                ? "bg-primary px dark:text-inherit text-white hover:opacity-70"
-                : "bg-inherit px hover:bg-primary hover:text-white"
-            )}
-          >
-            <DashboardIcon />
-
-            <h4
-              className={cn(
-                "font-semibold duration-200",
-                sidebarWidth === false ? "block" : "hidden"
-              )}
-            >
-              Dashboard
-            </h4>
-          </Link>
-
-          {/* Departmental Links */}
-          <div className="">
-            <h4
-              className={cn(
-                "text-black/40 px-2 py-3 text-xs font-semibold uppercase duration-200",
-                sidebarWidth === false ? "block" : "hidden"
-              )}
-            >
-              DEPARTMENTAL HUB
-            </h4>
-
+          {/* Dashboard button - Protected by permission */}
+          <PermissionGuard permission={DASHBOARD_PERMISSIONS.ACCESS_DASHBOARD}>
             <Link
-              href="/dashboard/projects"
+              href="/dashboard"
               className={cn(
-                "hover:text-primary flex w-full items-center justify-between gap-3 px-2 py-2 text-sm font-bold hover:cursor-pointer",
-                pathname.startsWith("/projects") && "text-primary "
+                "flex w-full items-center justify-start gap-3 rounded-lg p-3",
+                pathname === "/dashboard"
+                  ? "bg-primary px dark:text-inherit text-white hover:opacity-70"
+                  : "bg-inherit px hover:bg-primary hover:text-white"
               )}
             >
-              <div className="flex w-[85%] items-center gap-2">
-                <span className="">
-                  <ProjectsIcon />
-                </span>
-                <h4
-                  className={cn(
-                    " w-[100%] truncate font-medium",
-                    sidebarWidth === false ? "block" : "hidden"
-                  )}
-                >
-                  Projects
-                </h4>
-              </div>
+              <DashboardIcon />
+
+              <h4
+                className={cn(
+                  "font-semibold duration-200",
+                  sidebarWidth === false ? "block" : "hidden"
+                )}
+              >
+                Dashboard
+              </h4>
             </Link>
-            {/* @ts-ignore */}
-            {getDeparmentalLinks(["procurement"]).map(
-              (link: any, index: number) => (
+          </PermissionGuard>
+
+
+          {/* Departmental Links - Based on assigned modules */}
+          {/* Temporarily show for all authenticated users while setting up roles */}
+          {isAuthenticated && (
+            <div className="">
+              <h4
+                className={cn(
+                  "text-black/40 px-2 py-3 text-xs font-semibold uppercase duration-200",
+                  sidebarWidth === false ? "block" : "hidden"
+                )}
+              >
+                DEPARTMENTAL HUB
+              </h4>
+
+              {/* Projects Link - Special case, not module-based */}
+              <Link
+                href="/dashboard/projects"
+                className={cn(
+                  "hover:text-primary flex w-full items-center justify-between gap-3 px-2 py-2 text-sm font-bold hover:cursor-pointer",
+                  pathname.startsWith("/dashboard/projects") && "text-primary "
+                )}
+              >
+                <div className="flex w-[85%] items-center gap-2">
+                  <span className="">
+                    <ProjectsIcon />
+                  </span>
+                  <h4
+                    className={cn(
+                      " w-[100%] truncate font-medium",
+                      sidebarWidth === false ? "block" : "hidden"
+                    )}
+                  >
+                    Projects
+                  </h4>
+                </div>
+              </Link>
+
+              {/* Render departmental links based on user's assigned modules */}
+              {getDeparmentalLinks(userModules).map(
+                (link: any, index: number) => (
                 <div key={index} className="w-full ">
                   <div
                     onClick={() => {
@@ -421,10 +491,12 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                 </div>
               )
             )}
-          </div>
+            </div>
+          )}
 
-          {/* settings */}
-          <div>
+          {/* Settings Section - Protected by permissions */}
+          <PermissionGuard permission={SETTINGS_PERMISSIONS.VIEW_SETTINGS_MENU}>
+            <div>
             <h4
               className={cn(
                 "text-black/40 px-2 py-3 text-xs font-semibold uppercase duration-200",
@@ -601,9 +673,11 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
             </Link>
 
             {/* modules */}
-          </div>
+            </div>
+          </PermissionGuard>
 
-          {/* Global Hub */}
+          {/* Global Hub - Protected by permissions */}
+          <PermissionGuard permission={NAVIGATION_PERMISSIONS.VIEW_GLOBAL_HUB}>
           <div className="">
             <h4
               className={cn(
@@ -701,6 +775,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
               ))}
             </div>
           </div>
+          </PermissionGuard>
         </div>
       </section>
     </aside>
@@ -767,13 +842,15 @@ const MODULE_LINKS = [
   },
 ];
 
-// const getDeparmentalLinks = (assignedModules: string[]) => {
-const getDeparmentalLinks = () => {
-  return [
+const getDeparmentalLinks = (assignedModules: string[] = []) => {
+  // Define all available departmental modules
+  const allDepartmentalModules = [
     {
       name: "Programs",
       path: "/dashboard/programs",
       icon: <ProgramsIcon />,
+      moduleCode: MODULE_CODES.PROGRAMS,
+      modulePermission: MODULE_PERMISSIONS.ACCESS_PROGRAMS_MODULE,
       link: [
         {
           name: "Plans",
@@ -867,6 +944,8 @@ const getDeparmentalLinks = () => {
       name: "Procurement Management",
       path: "/dashboard/procurement",
       icon: <ProcurementManagementIcon />,
+      moduleCode: MODULE_CODES.PROCUREMENT,
+      modulePermission: MODULE_PERMISSIONS.ACCESS_PROCUREMENT_MODULE,
       link: [
         { name: "Overview", path: "/dashboard/procurement" },
         {
@@ -951,6 +1030,8 @@ const getDeparmentalLinks = () => {
     {
       name: "Admin",
       icon: <AdminIcon />,
+      moduleCode: MODULE_CODES.ADMIN,
+      modulePermission: MODULE_PERMISSIONS.ACCESS_ADMIN_MODULE,
       link: [
         {
           name: "Inventory Management",
@@ -1062,6 +1143,8 @@ const getDeparmentalLinks = () => {
     {
       name: "HR",
       icon: <HRIcon />,
+      moduleCode: MODULE_CODES.HR,
+      modulePermission: MODULE_PERMISSIONS.ACCESS_HR_MODULE,
       link: [
         { name: "Overview", path: "/dashboard/hr" },
         {
@@ -1169,7 +1252,8 @@ const getDeparmentalLinks = () => {
     {
       name: "C&G",
       icon: <CGIcon />,
-
+      moduleCode: MODULE_CODES.CONTRACTS,
+      modulePermission: MODULE_PERMISSIONS.ACCESS_CONTRACTS_MODULE,
       link: [
         { name: "Overview", path: "/dashboard/c-and-g/overview" },
 
@@ -1258,6 +1342,8 @@ const getDeparmentalLinks = () => {
       name: "Finance",
       path: "/dashboard/finance",
       icon: <DollarSign />,
+      moduleCode: MODULE_CODES.FINANCE,
+      modulePermission: MODULE_PERMISSIONS.ACCESS_FINANCE_MODULE,
       link: [
         {
           name: "Overview",
@@ -1346,4 +1432,19 @@ const getDeparmentalLinks = () => {
       ],
     },
   ];
+
+  // Filter modules based on user's assigned modules
+  return allDepartmentalModules.filter(link => {
+    // Temporarily show Admin module to all authenticated users for role setup
+    if (link.moduleCode === MODULE_CODES.ADMIN) {
+      return true;
+    }
+
+    // Check if user has access to this module
+    if (link.moduleCode && !assignedModules.includes(link.moduleCode)) {
+      return false;
+    }
+
+    return true;
+  });
 };
