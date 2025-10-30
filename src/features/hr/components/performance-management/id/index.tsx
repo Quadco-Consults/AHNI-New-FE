@@ -464,11 +464,11 @@ const PerformanceDetails = () => {
         </div>
       </div>
       {/* Show evaluation form if user is evaluating */}
-      {isEvaluating && currentUserId ? (
+      {isEvaluating && currentUserEvaluator ? (
         <div className='mt-6'>
           <ImprovedEvaluatorForm
             assessmentId={assessmentId}
-            evaluatorId={currentUserId}
+            evaluatorId={currentUserEvaluator.id}
           />
         </div>
       ) : (

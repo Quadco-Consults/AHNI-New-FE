@@ -175,7 +175,7 @@ export const useSubmitEvaluation = (assessmentId: string) => {
     Error,
     any
   >({
-    endpoint: `${BASE_URL}${assessmentId}/submit-evaluation/`,
+    endpoint: `${BASE_URL}${assessmentId}/evaluate/`,
     queryKey: ["performance-assessments", "performance-assessment"],
     isAuth: true,
     method: "POST",

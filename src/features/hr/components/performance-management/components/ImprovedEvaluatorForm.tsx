@@ -10,7 +10,7 @@ import { Badge } from "components/ui/badge";
 import { useRouter } from "next/navigation";
 import { HrRoutes } from "constants/RouterConstants";
 import {
-  useUpdatePerformanceAssesment,
+  useSubmitEvaluation,
   useGetPerformanceAssesment
 } from "@/features/hr/controllers/hrPerformanceAssessmentController";
 import { useGetCompetencies } from "@/features/hr/controllers/competenciesController";
@@ -81,7 +81,7 @@ const ImprovedEvaluatorForm: React.FC<ImprovedEvaluatorFormProps> = ({
     active: true,
   });
 
-  const { updatePerformanceAssesment, isLoading: isSubmitting } = useUpdatePerformanceAssesment(assessmentId);
+  const { submitEvaluation, isLoading: isSubmitting } = useSubmitEvaluation(assessmentId);
 
   // Backend returns employee_goals, not goals
   const goals = assessment?.employee_goals || assessment?.goals || [];
@@ -182,33 +182,49 @@ const ImprovedEvaluatorForm: React.FC<ImprovedEvaluatorFormProps> = ({
     return totalWeight > 0 ? totalScore / totalWeight : 0;
   }, [goals, competencies, watchedGoalRatings, watchedCompetencyRatings]);
 
+  // Calculate completion percentage based on filled ratings
+  const completionPercentage = useMemo(() => {
+    const totalItems = goals.length + competencies.length;
+    if (totalItems === 0) return 100;
+
+    const completedGoals = watchedGoalRatings?.filter(r => r.rating > 0).length || 0;
+    const completedCompetencies = watchedCompetencyRatings?.filter(r => r.rating > 0).length || 0;
+
+    return ((completedGoals + completedCompetencies) / totalItems) * 100;
+  }, [goals, competencies, watchedGoalRatings, watchedCompetencyRatings]);
+
   const onSubmit = async (data: EvaluationFormData) => {
     try {
-      // Get employee ID from assessment
-      const employeeId = typeof assessment?.employee === 'object'
-        ? assessment.employee.id
-        : assessment?.employee;
+      // Transform competency_ratings to match API expected format
+      // API expects { competency: "id", evaluation_category: "string", weight: number, rating: number, comments: string }
+      // Note: goal_ratings already has correct format with "goal_id"
+      const transformedCompetencies = data.competency_ratings.map((comp, index) => {
+        const competencyData = competencies[index];
+        const weight = typeof competencyData?.weight === 'number'
+          ? competencyData.weight
+          : parseFloat(competencyData?.weight?.toString() || '0');
 
-      // Prepare submission with both goals and competencies
-      const submission: any = {
-        ...assessment,
-        assessment_id: assessmentId,
+        return {
+          competency: comp.competency_id, // API expects "competency" not "competency_id"
+          evaluation_category: competencyData?.category || competencyData?.evaluation_category || "Technical", // Include evaluation_category
+          weight: weight, // Include weight from competency data
+          rating: comp.rating,
+          comments: comp.comments || "",
+        };
+      });
+
+      // Prepare evaluation submission data matching the API expected format
+      const evaluationData = {
         evaluator_id: evaluatorId,
-        employee: employeeId,
-        description: assessment?.description,
-        cycle_name: assessment?.cycle_name,
-        status: "completed", // Mark as completed after submission
-        start_date: assessment?.start_date,
-        end_date: assessment?.end_date,
-        goal_ratings: data.goal_ratings,
-        competency_ratings: data.competency_ratings,
+        goal_ratings: data.goal_ratings, // Already has correct format with "goal_id"
+        competencies: transformedCompetencies,
         overall_comments: data.overall_comments,
         final_rating: overallRating, // Include calculated rating
       };
 
-      console.log("📤 Submitting evaluation:", submission);
+      console.log("📤 Submitting evaluation:", evaluationData);
 
-      await updatePerformanceAssesment(submission);
+      await submitEvaluation(evaluationData);
 
       // Invalidate cache to refresh data
       queryClient.invalidateQueries({ queryKey: ["performance-assessments"] });
@@ -240,8 +256,6 @@ const ImprovedEvaluatorForm: React.FC<ImprovedEvaluatorFormProps> = ({
       </div>
     );
   }
-
-  // Note: completionPercentage is already defined above
 
   return (
     <div className="form-container px-4 py-6">
