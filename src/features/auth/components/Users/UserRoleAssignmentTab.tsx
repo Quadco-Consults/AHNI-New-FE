@@ -30,7 +30,8 @@ import {
   UserMinus,
   Loader2,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  UserCircle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { LoadingSpinner } from '@/components/Loading';
@@ -41,6 +42,7 @@ import {
   useAssignRolesToUser,
   useAssignUsersToRole
 } from '../../controllers/roleController';
+import { useGetAllUsers } from '../../controllers/userController';
 
 interface User {
   id: number;
@@ -48,7 +50,7 @@ interface User {
   first_name?: string;
   last_name?: string;
   avatar?: string;
-  department?: string;
+  department?: string | { id: string; name: string; description?: string; created_datetime?: string; updated_datetime?: string; };
   is_active: boolean;
   roles?: any[];
 }
@@ -144,7 +146,9 @@ const UserRoleCard: React.FC<UserRoleCardProps> = ({
               <div className="font-medium">{getDisplayName(user)}</div>
               <div className="text-sm text-muted-foreground">{user.email}</div>
               {user.department && (
-                <div className="text-xs text-muted-foreground">{user.department}</div>
+                <div className="text-xs text-muted-foreground">
+                  {typeof user.department === 'string' ? user.department : user.department?.name || 'Unknown Department'}
+                </div>
               )}
             </div>
           </div>
@@ -225,9 +229,11 @@ const RoleUserCard: React.FC<RoleUserCardProps> = ({
   const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
   const [hasChanges, setHasChanges] = useState(false);
 
-  const roleUsers = users.filter(user =>
-    user.roles?.some(userRole => userRole.id === role.id)
-  );
+  // Memoize roleUsers to prevent infinite re-renders
+  const roleUsers = useMemo(() =>
+    users.filter(user =>
+      user.roles?.some(userRole => userRole.id === role.id)
+    ), [users, role.id]);
 
   useEffect(() => {
     const userIds = roleUsers.map(user => user.id);
@@ -319,7 +325,7 @@ const RoleUserCard: React.FC<RoleUserCardProps> = ({
                   }
                 </div>
                 <div className="text-xs text-muted-foreground">
-                  {user.department || user.email}
+                  {typeof user.department === 'string' ? user.department : user.department?.name || user.email}
                 </div>
               </div>
             </div>
@@ -355,10 +361,135 @@ const RoleUserCard: React.FC<RoleUserCardProps> = ({
   );
 };
 
+// Helper function to get display name
+const getDisplayName = (user: User): string => {
+  if (user.first_name && user.last_name) {
+    return `${user.first_name} ${user.last_name}`;
+  }
+  return user.email;
+};
+
+// Simple User Card Component
+interface UserCardProps {
+  user: User;
+  isSelected: boolean;
+  onClick: () => void;
+}
+
+const UserCard: React.FC<UserCardProps> = ({ user, isSelected, onClick }) => {
+  const departmentName = typeof user.department === 'string' ? user.department : user.department?.name;
+
+  return (
+    <div
+      className={cn(
+        "p-4 cursor-pointer transition-colors hover:bg-gray-50",
+        isSelected ? "bg-blue-50 border-l-4 border-l-blue-500" : ""
+      )}
+      onClick={onClick}
+    >
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-3">
+          <Avatar className="h-8 w-8">
+            <AvatarImage src={user.avatar} alt={getDisplayName(user)} />
+            <AvatarFallback className="text-xs">
+              {user.email.substring(0, 2).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+          <div>
+            <div className="font-medium text-sm">{getDisplayName(user)}</div>
+            <div className="text-xs text-gray-500">{user.email}</div>
+            {departmentName && (
+              <div className="text-xs text-gray-400">{departmentName}</div>
+            )}
+          </div>
+        </div>
+        <Badge variant={user.is_active ? "default" : "secondary"} className="text-xs">
+          {user.is_active ? "Active" : "Inactive"}
+        </Badge>
+      </div>
+    </div>
+  );
+};
+
+// Role Assignment Panel Component
+interface RoleAssignmentPanelProps {
+  user: User;
+  availableRoles: Role[];
+  onRoleChange: (userId: number, roleIds: number[]) => void;
+  isLoading: boolean;
+}
+
+const RoleAssignmentPanel: React.FC<RoleAssignmentPanelProps> = ({
+  user,
+  availableRoles,
+  onRoleChange,
+  isLoading
+}) => {
+  const [selectedRoles, setSelectedRoles] = useState<number[]>([]);
+
+  useEffect(() => {
+    // Initialize with user's current roles
+    const userRoleIds = user.roles?.map(role => role.id) || [];
+    setSelectedRoles(userRoleIds);
+  }, [user]);
+
+  const handleRoleToggle = (roleId: number) => {
+    setSelectedRoles(prev => {
+      const newRoles = prev.includes(roleId)
+        ? prev.filter(id => id !== roleId)
+        : [...prev, roleId];
+
+      // Immediately apply the change
+      onRoleChange(user.id, newRoles);
+      return newRoles;
+    });
+  };
+
+  return (
+    <div className="bg-white border border-gray-200 rounded-lg">
+      <div className="p-4 border-b border-gray-200">
+        <div className="flex items-center space-x-3">
+          <Avatar className="h-10 w-10">
+            <AvatarImage src={user.avatar} alt={getDisplayName(user)} />
+            <AvatarFallback>
+              {user.email.substring(0, 2).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+          <div>
+            <div className="font-medium">{getDisplayName(user)}</div>
+            <div className="text-sm text-gray-500">{user.email}</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="p-4">
+        <h4 className="font-medium text-sm text-gray-900 mb-3">Available Roles</h4>
+        <div className="space-y-2 max-h-80 overflow-y-auto">
+          {availableRoles.map((role) => (
+            <div key={role.id} className="flex items-center space-x-3 p-2 rounded hover:bg-gray-50">
+              <Checkbox
+                id={`role-${role.id}`}
+                checked={selectedRoles.includes(role.id)}
+                onCheckedChange={() => handleRoleToggle(role.id)}
+                disabled={isLoading}
+              />
+              <label htmlFor={`role-${role.id}`} className="flex-1 cursor-pointer">
+                <div className="font-medium text-sm">{role.name}</div>
+                {role.description && (
+                  <div className="text-xs text-gray-500">{role.description}</div>
+                )}
+              </label>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const UserRoleAssignmentTab: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [departmentFilter, setDepartmentFilter] = useState<string>('all');
-  const [activeTab, setActiveTab] = useState('by-user');
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   // Using your existing hooks with enhanced functionality
   const { data: rolesData, isLoading: isLoadingRoles, refetch: refetchRoles } = useGetAllRoles({
@@ -367,9 +498,10 @@ const UserRoleAssignmentTab: React.FC = () => {
     search: ''
   });
 
-  const { data: usersData, isLoading: isLoadingUsers, refetch: refetchUsers } = useGetUsersWithRoles({
+  // FALLBACK: Use basic users endpoint instead of users/with-roles (which is currently failing)
+  const { data: usersData, isLoading: isLoadingUsers, refetch: refetchUsers } = useGetAllUsers({
     page: 1,
-    size: 1000,
+    size: 100,
     search: searchTerm
   });
 
@@ -391,7 +523,7 @@ const UserRoleAssignmentTab: React.FC = () => {
   const users = (usersData as any)?.data?.results || [];
 
   const filteredUsers = useMemo(() => {
-    let filtered = users;
+    let filtered = users || [];
 
     if (searchTerm) {
       filtered = filtered.filter((user: User) =>
@@ -401,18 +533,9 @@ const UserRoleAssignmentTab: React.FC = () => {
       );
     }
 
-    if (departmentFilter !== 'all') {
-      filtered = filtered.filter((user: User) => user.department === departmentFilter);
-    }
-
     return filtered;
-  }, [users, searchTerm, departmentFilter]);
+  }, [users, searchTerm]);
 
-  const departments = useMemo(() => {
-    if (!users) return [];
-    const depts = new Set(users.map((user: User) => user.department).filter(Boolean));
-    return Array.from(depts);
-  }, [users]);
 
   const handleUserRoleChange = async (userId: number, roleIds: number[]) => {
     try {
@@ -422,17 +545,6 @@ const UserRoleAssignmentTab: React.FC = () => {
     } catch (error) {
       console.error('Failed to update user roles:', error);
       toast.error('Failed to update user roles');
-    }
-  };
-
-  const handleRoleUserChange = async (roleId: number, userIds: number[]) => {
-    try {
-      await assignUsers(userIds);
-      await loadData();
-      toast.success('Role users updated successfully');
-    } catch (error) {
-      console.error('Failed to update role users:', error);
-      toast.error('Failed to update role users');
     }
   };
 
@@ -464,75 +576,71 @@ const UserRoleAssignmentTab: React.FC = () => {
         </Button>
       </div>
 
-      {/* Search and Filters */}
-      <div className="flex flex-col md:flex-row gap-4">
-        <div className="flex-1">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search users..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
-          </div>
+      {/* Simple Search */}
+      <div className="mb-6">
+        <div className="relative max-w-md">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search users by name or email..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
         </div>
-        <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
-          <SelectTrigger className="w-48">
-            <SelectValue placeholder="Filter by department" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Departments</SelectItem>
-            {departments.map(dept => (
-              <SelectItem key={dept} value={dept}>
-                {dept}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
       </div>
 
-      {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="by-user">Assign by User</TabsTrigger>
-          <TabsTrigger value="by-role">Assign by Role</TabsTrigger>
-        </TabsList>
+      {/* Simple Two-Column Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
-        <TabsContent value="by-user" className="space-y-4">
-          <div className="text-sm text-muted-foreground">
-            Select roles for each user
+        {/* Left Column: Users List */}
+        <div>
+          <div className="mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">Users ({filteredUsers.length})</h3>
+            <p className="text-sm text-gray-600">Click on a user to manage their roles</p>
           </div>
-          <ScrollArea className="h-96 w-full">
-            {filteredUsers.map((user: User) => (
-              <UserRoleCard
-                key={user.id}
-                user={user}
-                availableRoles={roles}
-                onRoleChange={handleUserRoleChange}
-                isLoading={isAssigningToUser}
-              />
-            ))}
-          </ScrollArea>
-        </TabsContent>
 
-        <TabsContent value="by-role" className="space-y-4">
-          <div className="text-sm text-muted-foreground">
-            Select users for each role
+          <div className="bg-white border border-gray-200 rounded-lg">
+            <ScrollArea className="h-[500px]">
+              <div className="divide-y divide-gray-100">
+                {filteredUsers.map((user: User) => (
+                  <UserCard
+                    key={user.id}
+                    user={user}
+                    isSelected={selectedUser?.id === user.id}
+                    onClick={() => setSelectedUser(user)}
+                  />
+                ))}
+              </div>
+            </ScrollArea>
           </div>
-          <ScrollArea className="h-96 w-full">
-            {roles.map((role: Role) => (
-              <RoleUserCard
-                key={role.id}
-                role={role}
-                users={filteredUsers}
-                onUserChange={handleRoleUserChange}
-                isLoading={isAssigningToRole}
-              />
-            ))}
-          </ScrollArea>
-        </TabsContent>
-      </Tabs>
+        </div>
+
+        {/* Right Column: Role Management */}
+        <div>
+          <div className="mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">
+              {selectedUser ? `Roles for ${getDisplayName(selectedUser)}` : 'Select a User'}
+            </h3>
+            <p className="text-sm text-gray-600">
+              {selectedUser ? 'Check/uncheck roles to assign or remove them' : 'Choose a user from the left to manage their roles'}
+            </p>
+          </div>
+
+          {selectedUser ? (
+            <RoleAssignmentPanel
+              user={selectedUser}
+              availableRoles={roles}
+              onRoleChange={handleUserRoleChange}
+              isLoading={isAssigningToUser}
+            />
+          ) : (
+            <div className="bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+              <UserCircle className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+              <p className="text-gray-500">Select a user from the left to start managing their roles</p>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
