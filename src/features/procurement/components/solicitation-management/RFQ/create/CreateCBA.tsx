@@ -52,6 +52,7 @@ import {
 } from "@/features/procurement/controllers";
 import { useGetAllUsers } from "@/features/auth/controllers";
 import { useGetSolicitationSubmission } from "@/features/procurement/controllers/vendorBidSubmissionsController";
+import { useGetPurchaseRequest } from "@/features/procurement/controllers/purchaseRequestController";
 import { useRouter, useSearchParams } from "next/navigation";
 import { CbaSchema } from "@/features/procurement/types/procurement-validator";
 import { LotsResultsData } from "@/features/procurement/types/lots";
@@ -112,6 +113,15 @@ const CreateCBA = () => {
   // Get selected RFQ details
   const selectedRFQ = rfqData?.data?.results?.find(rfq => rfq.id === (rfqId || solicitationId));
 
+  // Get purchase request ID from the selected RFQ
+  const purchaseRequestId = selectedRFQ?.purchase_request;
+
+  // Fetch purchase request data if we have an ID
+  const { data: purchaseRequestData } = useGetPurchaseRequest(
+    purchaseRequestId || "",
+    !!purchaseRequestId
+  );
+
   const form = useForm<z.infer<typeof CbaSchema> & {
     reviewer?: string;
     authoriser?: string;
@@ -137,6 +147,14 @@ const CreateCBA = () => {
       form.setValue("solicitation", rfqId);
     }
   }, [rfqId, form]);
+
+  // Auto-populate assignee from purchase request
+  useEffect(() => {
+    if (purchaseRequestData?.data?.assigned_to) {
+      console.log("🔧 Auto-populating assignee from purchase request:", purchaseRequestData.data.assigned_to);
+      form.setValue("assignee", purchaseRequestData.data.assigned_to);
+    }
+  }, [purchaseRequestData, form]);
 
   // Filter to only show internal users (AHNI_STAFF and ADMIN) and exclude vendors/external users
   const internalUsers = users?.data?.results?.filter((user) =>

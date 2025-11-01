@@ -18,6 +18,7 @@ import { useGetPurchaseRequestById } from "@/features/procurement/controllers/pu
 import { useCreateSolicitation } from "@/features/procurement/controllers/solicitationController";
 // Removed unused imports for items and lots
 import { LoadingSpinner } from "components/Loading";
+import { useQueryClient } from "@tanstack/react-query";
 
 // Schema for RFP Proposal matching backend requirements
 const RFPProposalFormSchema = z.object({
@@ -57,6 +58,7 @@ type RFPProposalFormData = z.infer<typeof RFPProposalFormSchema>;
 
 const Proposal = () => {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [quotationData, setQuotationData] = useState<any>(null);
   // Removed isPopulating state - not needed for single RFP form
 
@@ -225,13 +227,21 @@ const Proposal = () => {
 
       if (result) {
         toast.success("RFP created successfully!");
-        router.push("/dashboard/procurement/solicitation-management/rfp");
 
-        // Clear stored form data after successful creation
-        setTimeout(() => {
-          sessionStorage.removeItem("rfpProposalFormData");
-          sessionStorage.removeItem("rfpCompleteFormData");
-        }, 1000);
+        // Invalidate solicitations cache to ensure list refreshes
+        console.log("🔄 Invalidating solicitations cache...");
+        await queryClient.invalidateQueries({
+          queryKey: ["solicitations"],
+          exact: false,
+          refetchType: "active",
+        });
+
+        // Clear stored form data
+        sessionStorage.removeItem("rfpProposalFormData");
+        sessionStorage.removeItem("rfpCompleteFormData");
+
+        // Navigate to RFP list page
+        router.push("/dashboard/procurement/solicitation-management/rfp");
       } else {
         throw new Error("No result returned from API");
       }
