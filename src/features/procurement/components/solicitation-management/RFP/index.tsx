@@ -16,7 +16,9 @@ const generatePath = (route: string, params?: Record<string, any>): string => {
   let path = route;
   if (params) {
     Object.entries(params).forEach(([key, value]) => {
+      // Replace both [id] and :id formats
       path = path.replace(`[${key}]`, String(value));
+      path = path.replace(`:${key}`, String(value));
     });
   }
   return path;
