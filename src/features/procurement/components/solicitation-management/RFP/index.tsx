@@ -42,15 +42,15 @@ const RFP = () => {
   console.log("🔍 RFP Listing Debug:", {
     isLoading,
     filteredData: data,
-    filteredResults: data?.results,
-    filteredResultCount: data?.results?.length,
+    filteredResults: data?.data?.results,
+    filteredResultCount: data?.data?.results?.length,
     allData: allData,
-    allResults: allData?.results,
-    allResultCount: allData?.results?.length,
-    uniqueRequestTypes: [...new Set(allData?.results?.map(item => item.request_type) || [])],
+    allResults: allData?.data?.results,
+    allResultCount: allData?.data?.results?.length,
+    uniqueRequestTypes: [...new Set(allData?.data?.results?.map(item => item.request_type) || [])],
     filterApplied: "REQUEST FOR PROPOSAL",
-    hasResults: !!data?.results?.length,
-    sampleItems: allData?.results?.slice(0, 3)?.map(item => ({
+    hasResults: !!data?.data?.results?.length,
+    sampleItems: allData?.data?.results?.slice(0, 3)?.map(item => ({
       id: item.id,
       title: item.title,
       request_type: item.request_type,
@@ -86,9 +86,9 @@ const RFP = () => {
           </Link>
         </div>
 
-        {data?.results && data.results.length > 0 ? (
+        {data?.data?.results && data.data.results.length > 0 ? (
           <div className='grid grid-cols-2 gap-5'>
-            {data.results.map((item: any) => (
+            {data.data.results.map((item: any) => (
               <Card key={item?.id} className='space-y-4'>
                 <img src={typeof eoiPng === 'string' ? eoiPng : eoiPng.src} alt='rfp' />
                 <h2 className='text-lg font-bold'>{item?.title}</h2>
@@ -136,20 +136,20 @@ const RFP = () => {
             </p>
 
             {/* Debug info for troubleshooting */}
-            {allData?.results && allData.results.length > 0 && (
+            {allData?.data?.results && allData.data.results.length > 0 && (
               <div className='mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-left'>
                 <p className='text-yellow-800 text-sm font-medium mb-2'>
-                  🔧 Debug Info: Found {allData.results.length} total solicitations
+                  🔧 Debug Info: Found {allData.data.results.length} total solicitations
                 </p>
                 <div className='text-xs text-yellow-700 space-y-1'>
                   <div><strong>Available request types:</strong></div>
-                  {[...new Set(allData.results.map(item => item.request_type))].map((type, index) => (
+                  {[...new Set(allData.data.results.map(item => item.request_type))].map((type, index) => (
                     <div key={index} className="ml-2">• {type || 'No request_type'}</div>
                   ))}
                 </div>
                 <div className='text-xs text-yellow-700 mt-3 space-y-1'>
                   <div><strong>Sample solicitations:</strong></div>
-                  {allData.results.slice(0, 3).map((item, index) => (
+                  {allData.data.results.slice(0, 3).map((item, index) => (
                     <div key={index} className="ml-2">
                       <strong>{item.title || 'Untitled'}</strong>: {item.request_type || 'No request_type'}
                     </div>
@@ -164,8 +164,8 @@ const RFP = () => {
         )}
 
         <Pagination
-          total={data?.pagination?.count ?? 0}
-          itemsPerPage={data?.pagination?.page_size ?? 0}
+          total={data?.data?.pagination?.count ?? 0}
+          itemsPerPage={data?.data?.pagination?.page_size ?? 0}
           onChange={(page: number) => setPage(page)}
         />
       </div>
