@@ -29,6 +29,20 @@ export const useGetAllProcurementTrackers = ({
     queryKey: ["procurement-trackers", page, size, search, status, item_type, service_status, services_only, year],
     queryFn: async () => {
       try {
+        console.log('🔍 Procurement Tracker API Request:', {
+          url: BASE_URL,
+          params: {
+            page,
+            size,
+            search,
+            status,
+            item_type,
+            service_status,
+            services_only,
+            year
+          },
+        });
+
         const response = await AxiosWithToken.get(BASE_URL, {
           params: {
             page,
@@ -40,6 +54,13 @@ export const useGetAllProcurementTrackers = ({
             services_only,
             year
           },
+        });
+
+        console.log('🔍 Procurement Tracker API Response:', {
+          resultsCount: response.data?.data?.results?.length || 0,
+          totalCount: response.data?.data?.pagination?.count || 0,
+          search: search,
+          hasData: !!response.data?.data
         });
 
         // Transform the response to match expected structure

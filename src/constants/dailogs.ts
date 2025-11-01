@@ -78,6 +78,7 @@ export const DialogType = {
   ChangeProcurementTrackerStatusModal: "ChangeProcurementTrackerStatusModal",
   ChangeProcurementTrackerRemarkModal: "ChangeProcurementTrackerRemarkModal",
   AssignToModal: "AssignToModal",
+  AssignPurchaseRequestModal: "AssignPurchaseRequestModal",
   EditValue: "EditValue",
 
   NewLeave: "NewLeave",

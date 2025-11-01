@@ -15,6 +15,7 @@ import { format } from "date-fns";
 import { ActivityMemoApprovalAPI } from "@/features/procurement/controllers/activityMemoApprovalController";
 import { useGetUserProfile } from "@/features/auth/controllers/userController";
 import { toast } from "sonner";
+import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 
 interface ActivityMemoListProps {
   status: 'pending' | 'approved';
@@ -86,6 +87,27 @@ const ActivityMemoList = ({ status }: ActivityMemoListProps) => {
       refetch();
     } catch (error: any) {
       toast.error(`Failed to review: ${error.message || 'Unknown error'}`);
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
+  // Handle delete
+  const handleDelete = async (memoId: string | undefined) => {
+    if (!memoId) return;
+
+    // Confirm deletion
+    if (!window.confirm("Are you sure you want to delete this activity memo? This action cannot be undone.")) {
+      return;
+    }
+
+    setProcessingId(memoId);
+    try {
+      await AxiosWithToken.delete(`procurements/purchase-request-memo/${memoId}/`);
+      toast.success("Activity memo deleted successfully!");
+      refetch();
+    } catch (error: any) {
+      toast.error(`Failed to delete: ${error.response?.data?.message || error.message || 'Unknown error'}`);
     } finally {
       setProcessingId(null);
     }
@@ -218,9 +240,14 @@ const ActivityMemoList = ({ status }: ActivityMemoListProps) => {
             >
               <Icon icon="solar:pen-bold-duotone" fontSize={15} />
             </button>
-            <IconButton className="bg-[#F9F9F9] hover:text-primary">
+            <button
+              onClick={() => handleDelete(memo.id)}
+              disabled={isProcessing}
+              className="rounded-lg px-2 py-2 bg-[#F9F9F9] hover:text-red-600 dark:text-black dark:hover:text-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Delete"
+            >
               <Icon icon="ant-design:delete-twotone" fontSize={15} />
-            </IconButton>
+            </button>
           </div>
         );
       },

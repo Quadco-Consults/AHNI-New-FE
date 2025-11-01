@@ -8,6 +8,7 @@ import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useGetAllPriceIntelligence, useGetSinglePriceIntelligence } from "@/features/procurement/controllers/priceIntelligenceController";
+import { useGetAllCategoriesManager } from "@/features/modules/controllers/config/categoryController";
 import BreadcrumbCard from "@/components/Breadcrumb";
 import {
   Dialog,
@@ -41,6 +42,13 @@ const PriceIntelligence = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
+
+  // Fetch categories from API
+  const { data: categoriesData } = useGetAllCategoriesManager({
+    page: 1,
+    size: 1000, // Get all categories
+    search: "",
+  });
 
   // Debounce search term
   useEffect(() => {
@@ -210,12 +218,11 @@ const PriceIntelligence = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Categories</SelectItem>
-                <SelectItem value="office_supplies">Office Supplies</SelectItem>
-                <SelectItem value="construction">Construction</SelectItem>
-                <SelectItem value="medical">Medical</SelectItem>
-                <SelectItem value="technology">Technology</SelectItem>
-                <SelectItem value="services">Services</SelectItem>
-                <SelectItem value="equipment">Equipment</SelectItem>
+                {categoriesData?.data?.results?.map((category: any) => (
+                  <SelectItem key={category.id} value={category.id}>
+                    {category.name}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -245,7 +252,9 @@ const PriceIntelligence = () => {
                 <span>Searching for "<strong>{searchTerm}</strong>" </span>
               )}
               {categoryFilter && (
-                <span>in category "<strong>{categoryFilter}</strong>" </span>
+                <span>in category "<strong>{
+                  categoriesData?.data?.results?.find((cat: any) => cat.id === categoryFilter)?.name || categoryFilter
+                }</strong>" </span>
               )}
               • Found {pagination.count} result{pagination.count !== 1 ? 's' : ''}
             </p>
