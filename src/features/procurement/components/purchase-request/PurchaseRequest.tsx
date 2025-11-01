@@ -255,8 +255,8 @@ function PurchaseRequest({
                   onClick={() => {
                     dispatch(
                       openDialog({
-                        type: DialogType.AssignToModal,
-                        // dialogProps: { id, status },
+                        type: DialogType.AssignPurchaseRequestModal,
+                        dialogProps: { id: data?.id, assignedTo: data?.assigned_to },
                       })
                     );
                   }}

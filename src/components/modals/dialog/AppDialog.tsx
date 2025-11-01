@@ -82,6 +82,7 @@ import ChangeWorkPlanStatusModal from "@/features/programs/components/modals/Cha
 import ChangeProcurementTrackerStatusModal from "@/features/procurement/components/modals/ChangeProcurementTrackerStatusModal";
 import ChangeProcurementTrackerRemarkModal from "@/features/procurement/components/modals/ChangeProcurementTrackerRemarkModal";
 import AssignToModal from "@/features/common/components/modals/AssignToModal";
+import AssignPurchaseRequestModal from "@/features/procurement/components/modals/AssignPurchaseRequestModal";
 import EditValue from "@/features/hr/components/EditValue";
 import NewLeaveForm from "@/features/hr/components/NewLeaveForm";
 import AddObligationModal from "@/features/contracts-grants/components/modals/ObligationModal";
@@ -195,6 +196,7 @@ const dialogs: Record<string, ReactNode> = {
     <ChangeProcurementTrackerRemarkModal />
   ),
   [DialogType.AssignToModal]: <AssignToModal />,
+  [DialogType.AssignPurchaseRequestModal]: <AssignPurchaseRequestModal />,
   [DialogType.EditValue]: <EditValue />,
   [DialogType.NewLeave]: <NewLeaveForm />,
   [DialogType.ADD_OBLIGATION_MODAL]: <AddObligationModal />,
