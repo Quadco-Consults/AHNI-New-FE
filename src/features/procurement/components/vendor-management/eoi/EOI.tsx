@@ -59,6 +59,7 @@ import { SelectContent, SelectItem } from "components/ui/select";
 import { TFinancialYearData } from "@/features/admin/types/config/financial-year";
 import { useGetAllFinancialYearsManager } from "@/features/modules/controllers/config/financialYearController";
 import DeleteIcon from "components/icons/DeleteIcon";
+import { useQueryClient } from "@tanstack/react-query";
 
 const EOI = () => {
   const [startDate, setStartDate] = useState<Date>();
@@ -69,6 +70,7 @@ const EOI = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [editingEoi, setEditingEoi] = useState<EOIResultsData | null>(null);
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     console.log("File change event triggered");
@@ -81,7 +83,7 @@ const EOI = () => {
       setFile(selectedFile);
     }
   };
-  const { data, isLoading } = useGetAllEois({});
+  const { data, isLoading, refetch } = useGetAllEois({});
 
   const {
     createEoi,
@@ -220,8 +222,30 @@ const EOI = () => {
         };
 
         console.log("Updating EOI with data:", updateData);
-        await updateEoi(updateData);
-        toast.success("EOI updated successfully!");
+        const result = await updateEoi(updateData);
+
+        if (result) {
+          toast.success("EOI updated successfully!");
+
+          console.log("Invalidating eois cache after update...");
+          // Invalidate all queries that start with "eois" to force a refresh
+          await queryClient.invalidateQueries({
+            queryKey: ["eois"],
+            exact: false,
+            refetchType: "active",
+          });
+
+          console.log("Refetching EOI list after update...");
+          await refetch();
+
+          // Give time for the UI to update
+          await new Promise(resolve => setTimeout(resolve, 500));
+
+          setOpen(false);
+          // Reset state
+          setIsEditMode(false);
+          setEditingEoi(null);
+        }
       } else {
         // Create mode - use FormData for file upload
         console.log("File selected:", file);
@@ -250,34 +274,90 @@ const EOI = () => {
           console.log(key, value);
         }
 
-        await createEoi(formData);
+        console.log("Calling createEoi...");
+        const result = await createEoi(formData);
+        console.log("createEoi result:", result);
 
-        if (data?.type === "OPEN_TENDER") {
-          // Pass comprehensive EOI details for full inheritance
-          const urlParams = new URLSearchParams({
-            type: data.type,
-            eoi_name: data.name,
-            eoi_description: data.description,
-            eoi_number: data.eoi_number,
-            solicitation_type: data.solicitation || "R_F_Q",
-            // Pass categories as comma-separated string
-            eoi_categories: data.categories.join(",")
+        if (result) {
+          const newEoiId = result.data?.id;
+          console.log("New EOI ID:", newEoiId);
+
+          toast.success("EOI created successfully!");
+
+          console.log("Invalidating eois cache...");
+          // Invalidate all queries that start with "eois" to force a refresh
+          await queryClient.invalidateQueries({
+            queryKey: ["eois"],
+            exact: false,
+            refetchType: "active", // Only refetch active queries
           });
 
-          router.push(
-            `/dashboard/procurement/solicitation-management/rfq/create/quotation?${urlParams.toString()}`
-          );
-        }
-        toast.success("EOI created successfully!");
-      }
+          console.log("Refetching EOI list...");
+          // Force a refetch of the current query - try multiple times if needed
+          let refetchResult = await refetch();
+          console.log("First refetch result:", refetchResult);
 
-      setOpen(false);
-      // Reset state
-      setIsEditMode(false);
-      setEditingEoi(null);
-    } catch (error) {
-      console.log(error);
-      toast.error("Something went wrong");
+          // Check if the newly created EOI is in the results
+          let newEoiFound = refetchResult.data?.data?.results?.some(
+            (eoi: EOIResultsData) => eoi.id === newEoiId
+          );
+          console.log("New EOI found in first refetch?", newEoiFound);
+
+          // If not found, try refetching a few more times with delays
+          // (Sometimes the backend needs a moment to index the new record)
+          if (!newEoiFound && newEoiId) {
+            console.log("New EOI not found, trying additional refetches...");
+            for (let i = 0; i < 3; i++) {
+              await new Promise(resolve => setTimeout(resolve, 800));
+              refetchResult = await refetch();
+              newEoiFound = refetchResult.data?.data?.results?.some(
+                (eoi: EOIResultsData) => eoi.id === newEoiId
+              );
+              console.log(`Refetch attempt ${i + 2}, found?`, newEoiFound);
+              if (newEoiFound) break;
+            }
+          }
+
+          if (!newEoiFound && newEoiId) {
+            console.warn(
+              "New EOI created but not appearing in list. It might be on another page due to pagination/ordering."
+            );
+            toast.info(
+              "EOI created successfully! It may appear on another page.",
+              { duration: 5000 }
+            );
+          }
+
+          setOpen(false);
+          // Reset state
+          setIsEditMode(false);
+          setEditingEoi(null);
+
+          // If it's an OPEN_TENDER, navigate to RFQ creation after ensuring data is visible
+          if (data?.type === "OPEN_TENDER") {
+            // Give the UI more time to show the new EOI before navigation
+            setTimeout(() => {
+              const urlParams = new URLSearchParams({
+                type: data.type,
+                eoi_name: data.name,
+                eoi_description: data.description,
+                eoi_number: data.eoi_number,
+                solicitation_type: data.solicitation || "R_F_Q",
+                // Pass categories as comma-separated string
+                eoi_categories: data.categories.join(",")
+              });
+
+              router.push(
+                `/dashboard/procurement/solicitation-management/rfq/create/quotation?${urlParams.toString()}`
+              );
+            }, 2000); // Even longer delay to ensure the EOI is visible before navigation
+          }
+        }
+      }
+    } catch (error: any) {
+      console.log("Error details:", error);
+      const errorMessage = error?.message || "Something went wrong";
+      toast.error(errorMessage);
     }
   };
 

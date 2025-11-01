@@ -1,8 +1,7 @@
 "use client";
 
-"use client";
-
 /* eslint-disable react/prop-types */
+import React from "react";
 import { Icon } from "@iconify/react";
 import Card from "components/Card";
 import IconButton from "components/IconButton";
@@ -22,7 +21,49 @@ import { VendorsResultsData } from "definations/procurement-types/vendors";
 import { toast } from "sonner";
 
 const VendorManagement = () => {
-  const { data, isLoading } = useGetVendors({});
+  const [searchTerm, setSearchTerm] = React.useState("");
+  const [statusFilter, setStatusFilter] = React.useState("");
+  const [tempStatusFilters, setTempStatusFilters] = React.useState({
+    Approved: false,
+    Pending: false,
+    "In Progress": false,
+    Rejected: false,
+  });
+  const [isFilterOpen, setIsFilterOpen] = React.useState(false);
+
+  const { data, isLoading } = useGetVendors({
+    search: searchTerm,
+    status: statusFilter,
+  });
+
+  const handleApplyFilters = () => {
+    // Get selected statuses
+    const selectedStatuses = Object.entries(tempStatusFilters)
+      .filter(([_, isChecked]) => isChecked)
+      .map(([status]) => status);
+
+    // Join with comma if multiple statuses selected, or use single status
+    setStatusFilter(selectedStatuses.length > 0 ? selectedStatuses.join(",") : "");
+    setIsFilterOpen(false);
+  };
+
+  const handleResetFilters = () => {
+    setTempStatusFilters({
+      Approved: false,
+      Pending: false,
+      "In Progress": false,
+      Rejected: false,
+    });
+    setStatusFilter("");
+    setIsFilterOpen(false);
+  };
+
+  const handleStatusToggle = (status: keyof typeof tempStatusFilters) => {
+    setTempStatusFilters((prev) => ({
+      ...prev,
+      [status]: !prev[status],
+    }));
+  };
 
   return (
     <div className='space-y-10'>
@@ -48,9 +89,11 @@ const VendorManagement = () => {
                   placeholder='Search Category'
                   type='search'
                   className='h-6 border-none bg-none'
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
-              <Popover>
+              <Popover open={isFilterOpen} onOpenChange={setIsFilterOpen}>
                 <PopoverTrigger asChild>
                   <Button className='bg-[#FFF2F2] text-primary'>
                     <svg
@@ -71,6 +114,11 @@ const VendorManagement = () => {
                       />
                     </svg>
                     Actions
+                    {statusFilter && (
+                      <span className="ml-2 px-2 py-0.5 bg-primary text-white text-xs rounded-full">
+                        {statusFilter.split(",").length}
+                      </span>
+                    )}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className='w-64'>
@@ -80,26 +128,40 @@ const VendorManagement = () => {
                   <div className='p-5 space-y-5'>
                     <div className='space-y-1'>
                       <div className='flex items-center gap-5'>
-                        <Checkbox checked />
+                        <Checkbox
+                          checked={tempStatusFilters.Approved}
+                          onCheckedChange={() => handleStatusToggle("Approved")}
+                        />
                         <h6>Approved</h6>
                       </div>
                       <div className='flex items-center gap-5'>
-                        <Checkbox />
+                        <Checkbox
+                          checked={tempStatusFilters.Pending}
+                          onCheckedChange={() => handleStatusToggle("Pending")}
+                        />
                         <h6>Pending</h6>
                       </div>
                       <div className='flex items-center gap-5'>
-                        <Checkbox />
+                        <Checkbox
+                          checked={tempStatusFilters["In Progress"]}
+                          onCheckedChange={() => handleStatusToggle("In Progress")}
+                        />
                         <h6>In Progress</h6>
                       </div>
                       <div className='flex items-center gap-5'>
-                        <Checkbox />
+                        <Checkbox
+                          checked={tempStatusFilters.Rejected}
+                          onCheckedChange={() => handleStatusToggle("Rejected")}
+                        />
                         <h6>Rejected</h6>
                       </div>
                     </div>
 
                     <div className='flex justify-end gap-4'>
-                      <Button variant='ghost'>Reset</Button>
-                      <Button>Apply</Button>
+                      <Button variant='ghost' onClick={handleResetFilters}>
+                        Reset
+                      </Button>
+                      <Button onClick={handleApplyFilters}>Apply</Button>
                     </div>
                   </div>
                 </PopoverContent>

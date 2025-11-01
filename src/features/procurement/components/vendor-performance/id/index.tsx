@@ -1,7 +1,5 @@
 "use client";
 
-"use client";
-
 import Card from "components/Card";
 import {
   Table,
@@ -10,12 +8,16 @@ import {
   TableHeader,
   TableRow,
 } from "components/ui/table";
-import logoPng from "@/assets/svgs/logo-bg.svg";
+import logoPng from "@/assets/imgs/logo-bg.png";
 import GoBack from "components/GoBack";
 import { useParams } from "next/navigation";
 import VendorsEvaluaionAndPerformanceAPI from "@/features/procurement/controllers/vendorPerformanceEvaluationController";
 import { Button } from "components/ui/button";
 import { BsFiletypePdf } from "react-icons/bs";
+import Image from "next/image";
+import html2canvas from "html2canvas";
+import { jsPDF } from "jspdf";
+import { toast } from "sonner";
 
 const VendorPerformance = () => {
   const { id } = useParams();
@@ -31,23 +33,136 @@ const VendorPerformance = () => {
     0
   );
 
+  // Download PDF function - Client-side generation
+  const handleDownloadPDF = async () => {
+    try {
+      toast.info('Generating PDF...');
+
+      const element = document.getElementById('vendor-performance-content');
+      if (!element) {
+        toast.error('Vendor performance content not found');
+        return;
+      }
+
+      // Hide action buttons before generating PDF
+      const actionButtons = document.querySelector('.action-buttons') as HTMLElement;
+      const originalDisplay = actionButtons?.style.display;
+      if (actionButtons) {
+        actionButtons.style.display = 'none';
+      }
+
+      // Wait for the DOM to update
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff',
+        logging: false,
+      });
+
+      // Restore action buttons
+      if (actionButtons) {
+        actionButtons.style.display = originalDisplay || '';
+      }
+
+      if (!canvas || canvas.width === 0 || canvas.height === 0) {
+        toast.error('Failed to capture content for PDF');
+        return;
+      }
+
+      const imgWidth = 210; // A4 width in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4',
+        compress: true
+      });
+
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+      const pageHeight = 297; // A4 height in mm
+
+      if (imgHeight <= pageHeight) {
+        // Single page
+        pdf.addImage(imgData, 'JPEG', 0, 0, imgWidth, imgHeight);
+      } else {
+        // Multiple pages
+        let sourceHeight = canvas.height;
+        let position = 0;
+        let pageNumber = 1;
+
+        while (sourceHeight > 0) {
+          const pageCanvas = document.createElement('canvas');
+          const pageContext = pageCanvas.getContext('2d');
+
+          pageCanvas.width = canvas.width;
+          pageCanvas.height = Math.min(canvas.height * pageHeight / imgHeight, sourceHeight);
+
+          if (pageContext) {
+            pageContext.drawImage(
+              canvas,
+              0, position,
+              canvas.width, pageCanvas.height,
+              0, 0,
+              pageCanvas.width, pageCanvas.height
+            );
+
+            const pageImgData = pageCanvas.toDataURL('image/jpeg', 0.95);
+
+            if (pageNumber > 1) {
+              pdf.addPage();
+            }
+
+            pdf.addImage(pageImgData, 'JPEG', 0, 0, imgWidth, pageHeight);
+          }
+
+          sourceHeight -= pageCanvas.height;
+          position += pageCanvas.height;
+          pageNumber++;
+        }
+      }
+
+      const vendorName = vendorEvaluationData?.data?.vendor?.name || 'vendor';
+      const fileName = `Vendor-Performance-${vendorName.replace(/[^a-zA-Z0-9]/g, '-')}-${id}.pdf`;
+
+      pdf.save(fileName);
+
+      toast.success('PDF downloaded successfully');
+    } catch (error) {
+      console.error('PDF generation error:', error);
+      toast.error('Failed to generate PDF. Please try again.');
+    }
+  };
+
   return (
     <div className='bg-white p-8'>
-      <GoBack />
-
-      <div className='flex justify-center items-center flex-col'>
-        <img src={logoPng} alt='logo' width={200} />
-        <h1>Achieving Health Nigeria Initiative (AHNI)</h1>
+      <div className="action-buttons mb-4">
+        <GoBack />
       </div>
-      <div className='mt-8'>
-        <div className='flex justify-end'>
-          <Button variant='custom' className='mb-4 ml-auto'>
-            <span>
-              <BsFiletypePdf size={25} />
-            </span>
-            Download
-          </Button>
+
+      <div id='vendor-performance-content'>
+        <div className='flex justify-center items-center flex-col mb-6'>
+          <Image
+            src={logoPng}
+            alt='AHNI Logo'
+            width={200}
+            height={200}
+            className='mb-4'
+          />
+          <h1 className='text-2xl font-bold'>Achieving Health Nigeria Initiative (AHNI)</h1>
         </div>
+        <div className='mt-8'>
+          <div className='flex justify-end action-buttons'>
+            <Button variant='custom' className='mb-4 ml-auto' onClick={handleDownloadPDF}>
+              <span>
+                <BsFiletypePdf size={25} />
+              </span>
+              Download
+            </Button>
+          </div>
         <Card className='border-primary flex flex-col gap-[17px]'>
           <div className='flex items-center gap-[30px] '>
             <h2 className='w-[240px] text-[18px] font-semibold text-gray-900'>
@@ -245,6 +360,7 @@ const VendorPerformance = () => {
             </TableBody>
           </Table>
         </div>
+      </div>
       </div>
     </div>
   );
