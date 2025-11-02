@@ -18,10 +18,6 @@ const RFPDetails = () => {
   const { id } = useParams();
   const solicitationId = Array.isArray(id) ? id[0] : id;
 
-  const { data, isLoading } = useGetSingleSolicitation(solicitationId ?? skipToken);
-
-  if (isLoading) return <LoadingSpinner />;
-
   const breadcrumbs = [
     { name: "Procurement", icon: true },
     { name: "Solicitation Management", icon: true },
@@ -29,7 +25,52 @@ const RFPDetails = () => {
     { name: "Detail", icon: false },
   ];
 
-  console.log({ data: data?.data?.tender_type });
+  const { data, isLoading, error } = useGetSingleSolicitation(solicitationId ?? skipToken);
+
+  if (isLoading) return <LoadingSpinner />;
+
+  if (error) {
+    return (
+      <div className='space-y-5'>
+        <BreadcrumbCard list={breadcrumbs} />
+        <GoBack />
+        <div className='text-center p-10'>
+          <h3 className='text-lg font-semibold text-red-600 mb-2'>Error Loading RFP Details</h3>
+          <p className='text-gray-600'>{error.message || 'Failed to load RFP advertisement details'}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!data?.data) {
+    return (
+      <div className='space-y-5'>
+        <BreadcrumbCard list={breadcrumbs} />
+        <GoBack />
+        <div className='text-center p-10'>
+          <h3 className='text-lg font-semibold text-yellow-600 mb-2'>No RFP Found</h3>
+          <p className='text-gray-600'>The RFP advertisement with ID {solicitationId} was not found.</p>
+        </div>
+      </div>
+    );
+  }
+
+  console.log("🚀 RFP MAIN PAGE DEBUG:", {
+    solicitationId,
+    fullResponse: data,
+    responseData: data?.data,
+    error,
+    isLoading,
+    title: data?.data?.title,
+    tender_type: data?.data?.tender_type,
+    status: data?.data?.status,
+    rfq_id: data?.data?.rfq_id,
+    background: data?.data?.background,
+    solicitation_items: data?.data?.solicitation_items,
+    allDataKeys: data?.data ? Object.keys(data.data) : [],
+    hasData: !!data?.data,
+    apiEndpoint: `procurements/solicitations/${solicitationId}`
+  });
   return (
     <div className='space-y-5'>
       <BreadcrumbCard list={breadcrumbs} />
