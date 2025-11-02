@@ -54,9 +54,44 @@ const EnhancedCBADetails = () => {
     return <LoadingSpinner />;
   }
 
+  // Debug logging to understand the data structure
+  console.log("🔍 Enhanced CBA Debug:", {
+    cbaId: id,
+    cbaData: cbaData,
+    cbaType: cbaData?.data?.cba_type,
+    committeeMembers: cbaData?.data?.committee_members,
+    isCommitteeCBA,
+    memberParticipation,
+    allMembersSubmitted,
+    currentUser,
+    isCommitteeMember: isCommitteeMember,
+    participationLoading
+  });
+
   // For non-committee CBAs, show the original component
   if (!isCommitteeCBA) {
-    return <CompetitiveBidAnalysisDetail />;
+    // Add a notice for debugging
+    return (
+      <div className="space-y-6">
+        <BreadcrumbCard list={breadcrumbs} />
+        <GoBack />
+
+        {/* Debug Notice */}
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+          <h3 className="text-yellow-800 font-semibold mb-2">🔍 Debug Information</h3>
+          <p className="text-yellow-700 text-sm mb-2">
+            This CBA is not configured as a committee-based CBA.
+          </p>
+          <div className="text-xs text-yellow-600 bg-yellow-100 p-2 rounded">
+            <strong>CBA Type:</strong> {cbaData?.data?.cba_type || 'undefined'}<br/>
+            <strong>Committee Members:</strong> {cbaData?.data?.committee_members?.length || 0} members<br/>
+            <strong>Expected:</strong> cba_type should be 'COMMITTEE' with committee_members array
+          </div>
+        </div>
+
+        <CompetitiveBidAnalysisDetail />
+      </div>
+    );
   }
 
   const handleSendReminders = () => {
@@ -104,14 +139,14 @@ const EnhancedCBADetails = () => {
           <TabsTrigger value="committee-overview">Committee Overview</TabsTrigger>
           <TabsTrigger
             value="consensus-analysis"
-            disabled={!allMembersSubmitted}
+            disabled={false}
             className="disabled:opacity-50"
           >
             Consensus Analysis
           </TabsTrigger>
           <TabsTrigger
             value="final-results"
-            disabled={!allMembersSubmitted}
+            disabled={false}
             className="disabled:opacity-50"
           >
             Final Results
@@ -203,6 +238,18 @@ const EnhancedCBADetails = () => {
                     {Math.round(((memberParticipation?.submitted_members?.length || 0) / (memberParticipation?.total_members || 1)) * 100)}%
                   </div>
                   <div className="text-sm text-gray-600">Completion Rate</div>
+                </div>
+              </div>
+
+              {/* Debug Panel */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h4 className="text-blue-800 font-semibold mb-2">🔍 Tab Status Debug</h4>
+                <div className="text-xs text-blue-700 space-y-1">
+                  <div><strong>All Members Submitted:</strong> {allMembersSubmitted ? 'Yes' : 'No'}</div>
+                  <div><strong>Committee Members:</strong> {cbaData?.data?.committee_members?.length || 0}</div>
+                  <div><strong>Submitted Count:</strong> {memberParticipation?.submitted_members?.length || 0}</div>
+                  <div><strong>Consensus Tab:</strong> {allMembersSubmitted ? 'Enabled' : 'Disabled (need all members)'}</div>
+                  <div><strong>Final Results Tab:</strong> {allMembersSubmitted ? 'Enabled' : 'Disabled (need all members)'}</div>
                 </div>
               </div>
             </div>
