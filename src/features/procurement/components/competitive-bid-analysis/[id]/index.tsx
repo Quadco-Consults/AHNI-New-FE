@@ -37,6 +37,12 @@ import { useGetSingleSolicitation } from "@/features/procurement/controllers/sol
 import AnalysisResults from "./AnalysisResults";
 import SignatureWorkflowAPI from "@/features/procurement/controllers/signatureWorkflowController";
 import { useQueryClient } from "@tanstack/react-query";
+import { useGetMemberParticipation, useCurrentUser } from "@/features/procurement/controllers/committeeEvaluationController";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
+import CommitteeParticipationBanner from "./committee-evaluation/CommitteeParticipationBanner";
+import MemberEvaluationDashboard from "./committee-evaluation/MemberEvaluationDashboard";
+import ConsensusAnalysis from "./committee-evaluation/ConsensusAnalysis";
+import { useMemo } from "react";
 
 const generatePath = (route: string, params?: Record<string, any>): string => {
   let path = route;
@@ -52,8 +58,10 @@ const CompetitiveBidAnalysisDetail = () => {
     const { id } = useParams();
     const [open, setOpen] = useState(false);
     const queryClient = useQueryClient();
+    const currentUser = useCurrentUser();
 
     const { data, isLoading, error } = CbaAPI.useGetSingleCba(id as string);
+    const { data: memberParticipation, isLoading: participationLoading } = useGetMemberParticipation(id as string);
 
     // Get RFQ/Solicitation ID from CBA data
     const solicitationId = typeof data?.data?.solicitation === 'object'
@@ -96,6 +104,30 @@ const CompetitiveBidAnalysisDetail = () => {
     };
 
     const currentStep = getCurrentApprovalStep();
+
+    // Committee evaluation logic
+    const isCommitteeCBA = data?.data?.cba_type === 'COMMITTEE';
+
+    // Check if all committee members have submitted their evaluations
+    const allMembersSubmitted = useMemo(() => {
+        if (!data?.data?.committee_members || !memberParticipation) return false;
+
+        return data.data.committee_members.every(member =>
+            memberParticipation.submitted_members.includes(member.id)
+        );
+    }, [data, memberParticipation]);
+
+    // Check if current user is a committee member
+    const isCommitteeMember = useMemo(() => {
+        if (!isCommitteeCBA || !data?.data?.committee_members) return false;
+
+        return data.data.committee_members.some(member => member.id === currentUser.id);
+    }, [isCommitteeCBA, data, currentUser.id]);
+
+    const handleSendReminders = () => {
+        // TODO: Implement reminder functionality
+        console.log("Sending reminders to pending committee members");
+    };
 
     const form = useForm<z.infer<typeof CbaApprovalSchema>>({
         resolver: zodResolver(CbaApprovalSchema),
@@ -178,10 +210,18 @@ const CompetitiveBidAnalysisDetail = () => {
                             </div>
                             <div>
                                 <h1 className="text-3xl font-bold">
-                                    {data?.data?.title || 'Competitive Bid Analysis'}
+                                    {isCommitteeCBA
+                                        ? 'Committee-Based CBA Analysis'
+                                        : (data?.data?.title || 'Competitive Bid Analysis')
+                                    }
                                 </h1>
                                 <p className="text-blue-100 text-sm mt-1">
                                     Analysis ID: {(id as string).slice(0, 8)}...
+                                    {isCommitteeCBA && (
+                                        <span className="ml-2 bg-white/20 px-2 py-1 rounded text-xs">
+                                            Committee Evaluation
+                                        </span>
+                                    )}
                                 </p>
                             </div>
                         </div>
@@ -234,6 +274,177 @@ const CompetitiveBidAnalysisDetail = () => {
                     </div>
                 )}
             </div>
+
+            {/* Committee Participation Banner - Only for Committee CBAs */}
+            {isCommitteeCBA && (
+                <CommitteeParticipationBanner
+                    memberParticipation={memberParticipation}
+                    allSubmitted={allMembersSubmitted}
+                    onSendReminders={handleSendReminders}
+                />
+            )}
+
+            {/* Committee Evaluation Tabs - Only for Committee CBAs */}
+            {isCommitteeCBA && (
+                <Tabs defaultValue={isCommitteeMember ? "my-evaluation" : "committee-overview"} className="space-y-6">
+                    <TabsList className="grid w-full grid-cols-4">
+                        {isCommitteeMember && (
+                            <TabsTrigger value="my-evaluation">My Evaluation</TabsTrigger>
+                        )}
+                        <TabsTrigger value="committee-overview">Committee Overview</TabsTrigger>
+                        <TabsTrigger
+                            value="consensus-analysis"
+                            disabled={!allMembersSubmitted}
+                            className="disabled:opacity-50"
+                        >
+                            Consensus Analysis
+                        </TabsTrigger>
+                        <TabsTrigger
+                            value="final-results"
+                            disabled={!allMembersSubmitted}
+                            className="disabled:opacity-50"
+                        >
+                            Final Results
+                        </TabsTrigger>
+                    </TabsList>
+
+                    {/* Individual Member Evaluation Tab */}
+                    {isCommitteeMember && (
+                        <TabsContent value="my-evaluation" className="space-y-6">
+                            <MemberEvaluationDashboard />
+                        </TabsContent>
+                    )}
+
+                    {/* Committee Overview Tab */}
+                    <TabsContent value="committee-overview" className="space-y-6">
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            {/* Committee Members List */}
+                            <div className="lg:col-span-2 space-y-4">
+                                <h3 className="text-lg font-semibold text-gray-900">Committee Members</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {data?.data?.committee_members?.map((member) => {
+                                        const memberStatus = memberParticipation?.members?.find(m => m.id === member.id);
+                                        const isCurrentUserMember = member.id === currentUser.id;
+
+                                        return (
+                                            <div
+                                                key={member.id}
+                                                className={`p-4 border rounded-lg ${
+                                                    isCurrentUserMember
+                                                        ? 'border-blue-300 bg-blue-50'
+                                                        : memberStatus?.submitted
+                                                        ? 'border-green-300 bg-green-50'
+                                                        : 'border-gray-200 bg-gray-50'
+                                                }`}
+                                            >
+                                                <div className="flex items-center justify-between">
+                                                    <div>
+                                                        <h4 className="font-semibold text-gray-900">
+                                                            {member.first_name} {member.last_name}
+                                                            {isCurrentUserMember && (
+                                                                <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                                                                    You
+                                                                </span>
+                                                            )}
+                                                        </h4>
+                                                        <p className="text-sm text-gray-600">{member.designation}</p>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        {memberStatus?.submitted ? (
+                                                            <div className="text-green-600 text-sm font-semibold">
+                                                                ✓ Submitted
+                                                            </div>
+                                                        ) : (
+                                                            <div className="text-yellow-600 text-sm font-semibold">
+                                                                ⏳ Pending
+                                                            </div>
+                                                        )}
+                                                        {memberStatus?.submitted_at && (
+                                                            <div className="text-xs text-gray-500 mt-1">
+                                                                {new Date(memberStatus.submitted_at).toLocaleDateString()}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
+                            {/* Quick Stats */}
+                            <div className="space-y-4">
+                                <h3 className="text-lg font-semibold text-gray-900">Quick Stats</h3>
+                                <div className="space-y-3">
+                                    <div className="bg-white p-4 border rounded-lg">
+                                        <div className="text-2xl font-bold text-green-600">
+                                            {memberParticipation?.submitted_members?.length || 0}
+                                        </div>
+                                        <div className="text-sm text-gray-600">Evaluations Submitted</div>
+                                    </div>
+                                    <div className="bg-white p-4 border rounded-lg">
+                                        <div className="text-2xl font-bold text-yellow-600">
+                                            {memberParticipation?.pending_members?.length || 0}
+                                        </div>
+                                        <div className="text-sm text-gray-600">Pending Evaluations</div>
+                                    </div>
+                                    <div className="bg-white p-4 border rounded-lg">
+                                        <div className="text-2xl font-bold text-blue-600">
+                                            {Math.round(((memberParticipation?.submitted_members?.length || 0) / (memberParticipation?.total_members || 1)) * 100)}%
+                                        </div>
+                                        <div className="text-sm text-gray-600">Completion Rate</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </TabsContent>
+
+                    {/* Consensus Analysis Tab */}
+                    <TabsContent value="consensus-analysis" className="space-y-6">
+                        {allMembersSubmitted ? (
+                            <ConsensusAnalysis cbaId={id as string} />
+                        ) : (
+                            <div className="text-center py-12">
+                                <div className="text-gray-400 text-lg mb-4">
+                                    Consensus analysis will be available once all committee members submit their evaluations.
+                                </div>
+                                <div className="text-sm text-gray-500">
+                                    Currently waiting for {memberParticipation?.pending_members?.length || 0} more evaluation(s).
+                                </div>
+                            </div>
+                        )}
+                    </TabsContent>
+
+                    {/* Final Results Tab */}
+                    <TabsContent value="final-results" className="space-y-6">
+                        {allMembersSubmitted ? (
+                            <div className="space-y-6">
+                                {/* This would integrate with the existing CBA analysis results */}
+                                <div className="bg-white border rounded-lg p-6">
+                                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Final CBA Results</h3>
+                                    <p className="text-gray-600 mb-4">
+                                        Based on committee consensus analysis, the following results have been determined:
+                                    </p>
+
+                                    {/* This would show the original CBA analysis component but with consensus data */}
+                                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                        <p className="text-blue-800 text-sm">
+                                            Integration with existing CBA analysis results will show here.
+                                            This will display the final vendor selection based on committee consensus.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="text-center py-12">
+                                <div className="text-gray-400 text-lg mb-4">
+                                    Final results will be available once consensus analysis is completed.
+                                </div>
+                            </div>
+                        )}
+                    </TabsContent>
+                </Tabs>
+            )}
 
             {/* Quick Actions Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
