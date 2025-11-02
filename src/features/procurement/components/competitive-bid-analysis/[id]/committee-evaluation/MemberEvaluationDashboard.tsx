@@ -11,13 +11,12 @@ import { Loading } from "components/Loading";
 import { toast } from "sonner";
 import VendorScoringCard from "./VendorScoringCard";
 import {
-  useGetMyMemberEvaluation,
+  useGetMemberEvaluation,
   useSubmitMemberEvaluation,
-  useMarkEvaluationSubmitted,
-  useEvaluationStatus,
+  useCurrentUser,
 } from "@/features/procurement/controllers/committeeEvaluationController";
-import { useCurrentUser } from "@/hooks/auth";
 import { useGetSingleCba } from "@/features/procurement/controllers/cbaController";
+import { useGetVendorBidSubmissions } from "@/features/procurement/controllers/vendorBidSubmissionsController";
 import { IVendorEvaluation, IItemSelection } from "@/features/procurement/types/cba";
 
 // Mock vendor data - replace with actual data from CBA
@@ -91,10 +90,39 @@ const MemberEvaluationDashboard = () => {
   const currentUser = useCurrentUser();
 
   const { data: cbaData, isLoading: cbaLoading } = useGetSingleCba(id);
-  const { data: memberEvaluation, isLoading: evaluationLoading } = useGetMyMemberEvaluation(id);
-  const { submitEvaluation, isLoading: isSubmittingEval } = useSubmitMemberEvaluation(id);
-  const { mutate: markSubmitted, isPending: isMarkingSubmitted } = useMarkEvaluationSubmitted(id);
-  const { hasSubmitted, canSubmit } = useEvaluationStatus(id);
+  const { data: memberEvaluation, isLoading: evaluationLoading } = useGetMemberEvaluation(id, currentUser.id);
+  const { mutate: submitEvaluation, isPending: isSubmitting } = useSubmitMemberEvaluation(id);
+
+  // Get actual vendor bid submissions
+  const solicitationId = cbaData?.data?.solicitation?.id;
+  const { data: vendorBidSubmissions, isLoading: vendorDataLoading } = useGetVendorBidSubmissions(solicitationId);
+
+  // Process vendor data from actual submissions or fallback to mock data
+  const vendorData = useMemo(() => {
+    if (vendorBidSubmissions?.results?.length > 0) {
+      return vendorBidSubmissions.results.map((submission: any) => ({
+        id: submission.id,
+        name: submission.vendor_name || submission.vendor?.name || 'Unknown Vendor',
+        items: submission.bid_items?.map((item: any) => ({
+          id: item.id,
+          description: item.item?.description || item.description || 'Item',
+          specification: item.specification || '',
+          qty: item.quantity || 1,
+          unitPrice: parseFloat(item.unit_price) || 0,
+          total: parseFloat(item.total_price) || 0,
+          brand: item.brand || ''
+        })) || [],
+        grandTotal: parseFloat(submission.total_price) || 0,
+        deliveryTime: submission.delivery_time || 'Not specified',
+        paymentTerms: submission.payment_terms || 'Not specified',
+        technicalEvaluations: submission.technical_responses || []
+      }));
+    }
+
+    // Fallback to mock data for testing
+    console.log("📝 Using mock vendor data - no actual submissions found");
+    return mockVendorData;
+  }, [vendorBidSubmissions]);
 
   // Local state for evaluation data
   const [evaluation, setEvaluation] = useState<{
@@ -117,7 +145,7 @@ const MemberEvaluationDashboard = () => {
       });
     } else {
       // Initialize with empty evaluations for each vendor
-      const initialEvaluations = mockVendorData.map(vendor => ({
+      const initialEvaluations = vendorData.map(vendor => ({
         vendor_id: vendor.id,
         vendor_name: vendor.name,
         technical_score: 0,
@@ -138,7 +166,7 @@ const MemberEvaluationDashboard = () => {
         status: 'pending'
       });
     }
-  }, [memberEvaluation]);
+  }, [memberEvaluation, vendorData]);
 
   // Calculate evaluation progress
   const evaluationProgress = useMemo(() => {
@@ -215,22 +243,38 @@ const MemberEvaluationDashboard = () => {
       return;
     }
 
-    // First save the evaluation, then mark as submitted
-    handleSaveDraft().then(() => {
-      markSubmitted(true, {
-        onSuccess: () => {
-          toast.success("Evaluation submitted successfully");
-        },
-        onError: () => {
-          toast.error("Failed to submit evaluation");
-        }
-      });
-    });
+    const submissionData = {
+      id: memberEvaluation?.id,
+      cba_id: id,
+      member_id: currentUser.id,
+      member_name: currentUser.name,
+      member_designation: currentUser.designation,
+      vendor_evaluations: evaluation.vendor_evaluations,
+      overall_recommendation: evaluation.overall_recommendation,
+      status: 'submitted' as const
+    };
+
+    submitEvaluation(submissionData);
   };
 
-  if (cbaLoading || evaluationLoading) {
+  if (cbaLoading || evaluationLoading || vendorDataLoading) {
     return <Loading />;
   }
+
+  // Debug logging to understand the evaluation process
+  console.log("🔍 Member Evaluation Dashboard Debug:", {
+    cbaId: id,
+    currentUser,
+    memberEvaluation,
+    evaluation,
+    evaluationProgress,
+    isEvaluationComplete,
+    isSubmitted: evaluation.status === 'submitted',
+    solicitationId,
+    vendorBidSubmissions,
+    vendorData,
+    vendorCount: vendorData.length
+  });
 
   const isSubmitted = evaluation.status === 'submitted';
 
@@ -246,19 +290,19 @@ const MemberEvaluationDashboard = () => {
         </div>
 
         <div className="flex items-center space-x-4">
-          <Badge variant={hasSubmitted ? "success" : "darkYellow"} className="text-sm">
-            {hasSubmitted ? "Submitted" : "In Progress"}
+          <Badge variant={isSubmitted ? "default" : "secondary"} className="text-sm">
+            {isSubmitted ? "Submitted" : "In Progress"}
           </Badge>
 
-          {!hasSubmitted && (
+          {!isSubmitted && (
             <div className="flex space-x-2">
               <Button
                 variant="outline"
                 onClick={handleSaveDraft}
-                disabled={isSubmittingEval}
+                disabled={isSubmitting}
                 className="text-blue-600 border-blue-600"
               >
-                {isSubmittingEval ? (
+                {isSubmitting ? (
                   <>
                     <Icon icon="eos-icons:loading" className="w-4 h-4 mr-2" />
                     Saving...
@@ -270,10 +314,10 @@ const MemberEvaluationDashboard = () => {
 
               <Button
                 onClick={handleSubmit}
-                disabled={!isEvaluationComplete || isMarkingSubmitted || isSubmittingEval}
+                disabled={!isEvaluationComplete || isSubmitting}
                 className="bg-blue-600 hover:bg-blue-700"
               >
-                {isMarkingSubmitted ? (
+                {isSubmitting ? (
                   <>
                     <Icon icon="eos-icons:loading" className="w-4 h-4 mr-2" />
                     Submitting...
@@ -343,21 +387,35 @@ const MemberEvaluationDashboard = () => {
           Vendor Evaluations
         </h3>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {mockVendorData.map(vendor => {
-            const vendorEvaluation = evaluation.vendor_evaluations.find(ve => ve.vendor_id === vendor.id);
+        {vendorData.length > 0 ? (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {vendorData.map(vendor => {
+              const vendorEvaluation = evaluation.vendor_evaluations.find(ve => ve.vendor_id === vendor.id);
 
-            return (
-              <VendorScoringCard
-                key={vendor.id}
-                vendor={vendor}
-                evaluation={vendorEvaluation}
-                onUpdate={(field, value, itemId) => handleVendorUpdate(vendor.id, field, value, itemId)}
-                disabled={isSubmitted}
-              />
-            );
-          })}
-        </div>
+              return (
+                <VendorScoringCard
+                  key={vendor.id}
+                  vendor={vendor}
+                  evaluation={vendorEvaluation}
+                  onUpdate={(field, value, itemId) => handleVendorUpdate(vendor.id, field, value, itemId)}
+                  disabled={isSubmitted}
+                />
+              );
+            })}
+          </div>
+        ) : (
+          <Card className="p-8 text-center">
+            <Icon icon="mdi:inbox-outline" className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-gray-700 mb-2">No Vendor Submissions</h3>
+            <p className="text-gray-500 mb-4">
+              No vendor bid submissions found for this CBA. Vendors need to submit their bids before evaluation can begin.
+            </p>
+            <div className="text-sm text-gray-400 bg-gray-50 p-3 rounded">
+              <strong>Solicitation ID:</strong> {solicitationId || 'Not found'}<br/>
+              <strong>Status:</strong> {vendorDataLoading ? 'Loading...' : 'No submissions available'}
+            </div>
+          </Card>
+        )}
       </div>
 
       {/* Overall Recommendation */}

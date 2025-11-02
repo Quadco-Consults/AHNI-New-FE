@@ -1,6 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
+import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
+import { AxiosError } from "axios";
+import { getCurrentUser } from "@/utils/auth";
 import {
   ICommitteeMemberEvaluation,
   IMemberParticipation,
@@ -9,121 +12,20 @@ import {
   IVendorConsensusScore
 } from "../types/cba";
 
-// Mock data for development - replace with actual API calls when backend is ready
-const mockMemberEvaluations: ICommitteeMemberEvaluation[] = [
-  {
-    id: "eval-1",
-    cba_id: "cba-123",
-    member_id: "member-1",
-    member_name: "John Doe",
-    member_designation: "Senior Procurement Officer",
-    vendor_evaluations: [
-      {
-        vendor_id: "vendor-1",
-        vendor_name: "SOUTHGATE TECHNOLOGIES LIMITED",
-        technical_score: 85,
-        price_score: 75,
-        overall_score: 81,
-        technical_comments: "Strong technical capability, good track record",
-        price_comments: "Competitive pricing, reasonable terms",
-        recommended: true,
-        item_selections: [
-          { item_id: "item-1", selected: true },
-          { item_id: "item-2", selected: true },
-        ]
-      },
-      {
-        vendor_id: "vendor-2",
-        vendor_name: "TECH SOLUTIONS PLC",
-        technical_score: 70,
-        price_score: 90,
-        overall_score: 77,
-        technical_comments: "Good technical skills but limited experience",
-        price_comments: "Very competitive pricing",
-        recommended: false,
-        item_selections: [
-          { item_id: "item-1", selected: false },
-          { item_id: "item-2", selected: true },
-        ]
-      }
-    ],
-    overall_recommendation: "Recommend SOUTHGATE TECHNOLOGIES for technical superiority",
-    status: "submitted",
-    submitted_at: new Date("2025-01-01"),
-    created_at: new Date("2025-01-01"),
-    updated_at: new Date("2025-01-01")
-  },
-  {
-    id: "eval-2",
-    cba_id: "cba-123",
-    member_id: "member-2",
-    member_name: "Jane Smith",
-    member_designation: "Technical Analyst",
-    vendor_evaluations: [
-      {
-        vendor_id: "vendor-1",
-        vendor_name: "SOUTHGATE TECHNOLOGIES LIMITED",
-        technical_score: 90,
-        price_score: 70,
-        overall_score: 83,
-        technical_comments: "Excellent technical specifications and experience",
-        price_comments: "Price is higher but justified by quality",
-        recommended: true,
-        item_selections: [
-          { item_id: "item-1", selected: true },
-          { item_id: "item-2", selected: true },
-        ]
-      },
-      {
-        vendor_id: "vendor-2",
-        vendor_name: "TECH SOLUTIONS PLC",
-        technical_score: 65,
-        price_score: 95,
-        overall_score: 75,
-        technical_comments: "Meets basic requirements but lacks advanced features",
-        price_comments: "Best price offer in the market",
-        recommended: false,
-        item_selections: [
-          { item_id: "item-1", selected: false },
-          { item_id: "item-2", selected: false },
-        ]
-      }
-    ],
-    overall_recommendation: "SOUTHGATE TECHNOLOGIES despite higher cost",
-    status: "submitted",
-    submitted_at: new Date("2025-01-01"),
-    created_at: new Date("2025-01-01"),
-    updated_at: new Date("2025-01-01")
-  }
-];
+// API Base URLs
+const CBA_BASE_URL = "procurements/cba/";
+const CBA_ANALYSIS_BASE_URL = "procurements/cba-analysis-submission/";
+const CBA_SIGNATURE_WORKFLOW_BASE_URL = "procurements/cba-signature-workflow/";
 
-const mockMemberParticipation: IMemberParticipation = {
-  cba_id: "cba-123",
-  total_members: 3,
-  submitted_members: ["member-1", "member-2"],
-  pending_members: ["member-3"],
-  members: [
-    {
-      id: "member-1",
-      name: "John Doe",
-      designation: "Senior Procurement Officer",
-      submitted: true,
-      submitted_at: new Date("2025-01-01")
-    },
-    {
-      id: "member-2",
-      name: "Jane Smith",
-      designation: "Technical Analyst",
-      submitted: true,
-      submitted_at: new Date("2025-01-01")
-    },
-    {
-      id: "member-3",
-      name: "Mike Johnson",
-      designation: "Financial Analyst",
-      submitted: false
-    }
-  ]
+// Current user hook using actual auth system
+export const useCurrentUser = () => {
+  const user = getCurrentUser();
+  return {
+    id: user?.id || user?.user_id || "",
+    name: user?.name || `${user?.first_name || ""} ${user?.last_name || ""}`.trim() || "Unknown User",
+    designation: user?.designation || user?.role || "Staff Member",
+    email: user?.email || ""
+  };
 };
 
 // Get member evaluation for current user
@@ -131,15 +33,21 @@ export const useGetMemberEvaluation = (cbaId: string, memberId: string) => {
   return useQuery<ICommitteeMemberEvaluation | null>({
     queryKey: ["member-evaluation", cbaId, memberId],
     queryFn: async () => {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 500));
+      try {
+        const response = await AxiosWithToken.get(
+          `${CBA_ANALYSIS_BASE_URL}?cba_id=${cbaId}&member_id=${memberId}`
+        );
 
-      // Return mock data for now
-      const evaluation = mockMemberEvaluations.find(
-        eval => eval.cba_id === cbaId && eval.member_id === memberId
-      );
-
-      return evaluation || null;
+        // Return the first evaluation for this member if it exists
+        const evaluations = response.data?.results || [];
+        return evaluations.find((evaluation: any) => evaluation.member_id === memberId) || null;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        if (axiosError.response?.status === 404) {
+          return null; // No evaluation found yet
+        }
+        throw new Error("Failed to fetch member evaluation: " + (axiosError.response?.data as any)?.message);
+      }
     },
     enabled: !!cbaId && !!memberId,
   });
@@ -150,9 +58,16 @@ export const useGetAllMemberEvaluations = (cbaId: string) => {
   return useQuery<ICommitteeMemberEvaluation[]>({
     queryKey: ["all-member-evaluations", cbaId],
     queryFn: async () => {
-      await new Promise(resolve => setTimeout(resolve, 500));
+      try {
+        const response = await AxiosWithToken.get(
+          `${CBA_ANALYSIS_BASE_URL}?cba_id=${cbaId}`
+        );
 
-      return mockMemberEvaluations.filter(eval => eval.cba_id === cbaId);
+        return response.data?.results || [];
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Failed to fetch all member evaluations: " + (axiosError.response?.data as any)?.message);
+      }
     },
     enabled: !!cbaId,
   });
@@ -163,9 +78,61 @@ export const useGetMemberParticipation = (cbaId: string) => {
   return useQuery<IMemberParticipation>({
     queryKey: ["member-participation", cbaId],
     queryFn: async () => {
-      await new Promise(resolve => setTimeout(resolve, 300));
+      try {
+        // Get CBA data to get committee members
+        const cbaResponse = await AxiosWithToken.get(`${CBA_BASE_URL}${cbaId}/`);
+        const cbaData = cbaResponse.data?.data;
 
-      return mockMemberParticipation;
+        console.log("🔍 Member Participation Debug:", {
+          cbaId,
+          cbaResponse: cbaResponse.data,
+          cbaData,
+          committeeMembers: cbaData?.committee_members
+        });
+
+        if (!cbaData?.committee_members) {
+          throw new Error("CBA has no committee members");
+        }
+
+        // Get all evaluations for this CBA
+        const evaluationsResponse = await AxiosWithToken.get(
+          `${CBA_ANALYSIS_BASE_URL}?cba_id=${cbaId}`
+        );
+        const evaluations = evaluationsResponse.data?.results || [];
+
+        // Build participation data
+        const submittedMemberIds = evaluations
+          .filter((evaluation: any) => evaluation.status === 'submitted')
+          .map((evaluation: any) => evaluation.member_id);
+
+        const members = cbaData.committee_members.map((member: any) => {
+          const hasSubmitted = submittedMemberIds.includes(member.id);
+          const evaluation = evaluations.find((evaluation: any) => evaluation.member_id === member.id);
+
+          return {
+            id: member.id,
+            name: `${member.first_name} ${member.last_name}`,
+            email: member.email || '',
+            designation: member.designation || '',
+            submitted: hasSubmitted,
+            status: hasSubmitted ? 'submitted' : 'pending',
+            submitted_at: evaluation?.submitted_at ? new Date(evaluation.submitted_at) : undefined
+          };
+        });
+
+        return {
+          cba_id: cbaId,
+          total_members: cbaData.committee_members.length,
+          submitted_members: submittedMemberIds,
+          pending_members: cbaData.committee_members
+            .filter((member: any) => !submittedMemberIds.includes(member.id))
+            .map((member: any) => member.id),
+          members: members
+        };
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Failed to fetch member participation: " + (axiosError.response?.data as any)?.message);
+      }
     },
     enabled: !!cbaId,
   });
@@ -177,22 +144,42 @@ export const useSubmitMemberEvaluation = (cbaId: string) => {
 
   return useMutation({
     mutationFn: async (evaluationData: Partial<ICommitteeMemberEvaluation>) => {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      try {
+        const payload = {
+          cba_id: cbaId,
+          member_id: evaluationData.member_id,
+          member_name: evaluationData.member_name,
+          member_designation: evaluationData.member_designation,
+          vendor_evaluations: evaluationData.vendor_evaluations,
+          overall_recommendation: evaluationData.overall_recommendation,
+          status: evaluationData.status || 'submitted'
+        };
 
-      console.log("Submitting member evaluation:", evaluationData);
+        let response;
+        if (evaluationData.id) {
+          // Update existing evaluation
+          response = await AxiosWithToken.put(
+            `${CBA_ANALYSIS_BASE_URL}${evaluationData.id}/`,
+            payload
+          );
+        } else {
+          // Create new evaluation
+          response = await AxiosWithToken.post(
+            CBA_ANALYSIS_BASE_URL,
+            payload
+          );
+        }
 
-      // Mock successful response
-      return {
-        id: evaluationData.id || `eval-${Date.now()}`,
-        ...evaluationData,
-        status: 'submitted',
-        submitted_at: new Date()
-      };
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Failed to submit evaluation: " + (axiosError.response?.data as any)?.message);
+      }
     },
     onSuccess: () => {
       toast.success("Evaluation submitted successfully!");
       queryClient.invalidateQueries({ queryKey: ["member-evaluation", cbaId] });
+      queryClient.invalidateQueries({ queryKey: ["all-member-evaluations", cbaId] });
       queryClient.invalidateQueries({ queryKey: ["member-participation", cbaId] });
     },
     onError: (error) => {
@@ -281,34 +268,31 @@ export const useGenerateConsensus = (cbaId: string) => {
 
   return useMutation({
     mutationFn: async () => {
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      try {
+        // Submit committee consensus to approve the committee step in workflow
+        const response = await AxiosWithToken.post(
+          `${CBA_SIGNATURE_WORKFLOW_BASE_URL}${cbaId}/approve-step/`,
+          {
+            step: 'committee',
+            signature_comment: 'Committee consensus reached and approved'
+          }
+        );
 
-      console.log("Generating consensus for CBA:", cbaId);
-
-      // Mock successful consensus generation
-      return {
-        success: true,
-        message: "Consensus generated successfully"
-      };
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Failed to generate consensus: " + (axiosError.response?.data as any)?.message);
+      }
     },
     onSuccess: () => {
-      toast.success("Consensus analysis generated successfully!");
-      queryClient.invalidateQueries({ queryKey: ["consensus-analysis", cbaId] });
+      toast.success("Committee consensus approved successfully!");
+      queryClient.invalidateQueries({ queryKey: ["all-member-evaluations", cbaId] });
+      queryClient.invalidateQueries({ queryKey: ["member-participation", cbaId] });
+      queryClient.invalidateQueries({ queryKey: ["cba-signature-workflow", cbaId] });
     },
     onError: (error) => {
       console.error("Error generating consensus:", error);
       toast.error("Failed to generate consensus. Please try again.");
     }
   });
-};
-
-// Hook to get current user (mock for now)
-export const useCurrentUser = () => {
-  // Mock current user - replace with actual auth context
-  return {
-    id: "member-1",
-    name: "John Doe",
-    designation: "Senior Procurement Officer",
-    email: "john.doe@ahni.ng"
-  };
 };

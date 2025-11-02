@@ -135,7 +135,7 @@ const columns: ColumnDef<CbaResultsData>[] = [
     },
   },
   {
-    header: "RFQ nO",
+    header: "RFQ No",
     accessorKey: "title",
     size: 300,
     cell: ({ row }) => {
