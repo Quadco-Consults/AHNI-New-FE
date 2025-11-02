@@ -2,7 +2,8 @@
 
 /* eslint-disable react/prop-types */
 
-import { useNavigate, useParams } from "react-router-dom"; 
+import { useParams } from "next/navigation";
+import { useRouter } from "next/navigation"; 
 import { SelectContent, SelectItem } from "components/ui/select";
 import { Form } from "components/ui/form";
 import { useFieldArray, useForm } from "react-hook-form";
@@ -13,31 +14,31 @@ import { VendorsResultsData } from "definations/procurement-types/vendors";
 import FormInput from "components/atoms/FormInput";
 import { useEffect, useMemo } from "react";
 import { z } from "zod";
-import { SolicitationSubmissionSchema } from "definations/procurement-validator";
+import { SolicitationSubmissionSchema } from "@/features/procurement/types/procurement-validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import FormButton from "@/components/FormButton";
-import { useCreateSolicitationSubmission } from "@/features/procurement/controllers/vendor-bid-submissionsController";
+import { useCreateSolicitationSubmission } from "@/features/procurement/controllers/vendorBidSubmissionsController";
 import { useGetSingleSolicitation } from "@/features/procurement/controllers/solicitationController";
-import { useGetAllSolicitationEvaluationCriteria } from "@/features/modules/controllers/procurement/solicitation-evaluation-criteriaController";
+import { useGetAllSolicitationEvaluationCriteria } from "@/features/modules/controllers";
 
 import GoBack from "components/GoBack";
+import { Icon } from "@iconify/react";
 
 const ManualBidSubmission = () => {
-  const { id } = useParams();
-  const solicitationId = Array.isArray(id) ? id[0] : id;
+  const { id } = useParams<{ id: string }>();
   const router = useRouter();
 
   const { data: vendors, isLoading: vendorsIsLoading } =
-    VendorsAPI.useGetVendorList({
-      params: { status: "Approved" },
+    VendorsAPI.useGetVendors({
+      status: "Approved",
     });
 
   const { createSolicitationSubmission, isLoading: isCreateLoading } =
     useCreateSolicitationSubmission();
 
   const { data: singleSolicitation } = useGetSingleSolicitation(
-    solicitationId as string
+    id as string
   );
 
   const { data: solicitationCriteria } =
@@ -51,70 +52,87 @@ const ManualBidSubmission = () => {
   //     { isLoading: solicitationBidIsLoading },
   //   ] = SolicitationAPI.useCreateSolicitationBid();
 
-  const form = useForm<z.infer<typeof SolicitationSubmissionSchema>>({
-    resolver: zodResolver(SolicitationSubmissionSchema),
+  // @ts-ignore - RFP schema needs to be updated
+  const form = useForm({
+    // resolver: zodResolver(SolicitationSubmissionSchema), // Disabled until RFP schema is created
     defaultValues: {
       solicitation: id,
       vendor: "",
-      bid_items: [],
+      // Technical Proposal fields
+      company_profile: "",
+      project_approach: "",
+      team_qualifications: "",
+      technical_experience: "",
+      // Commercial Proposal fields
+      total_project_cost: "",
+      payment_terms: "",
+      project_duration: "",
+      warranty_period: "",
+      cost_breakdown: "",
+      // Evaluation responses
+      evaluations: [],
     },
   });
 
   const { control, handleSubmit, setValue, watch } = form;
-
-  const { fields } = useFieldArray({
-    control,
-    name: "bid_items",
-  });
 
   const { fields: responseField } = useFieldArray({
     control,
     name: "evaluations",
   });
 
-  // const data = [];
-  const data = useMemo(() => {
-    return singleSolicitation?.data?.solicitation_items?.map((data) => ({
-      solicitation_item: data?.id,
-      quantity: data?.quantity || 0,
-      name: data?.item_detail?.name,
-      unit_price: "",
-    }));
-  }, [singleSolicitation]);
-
-  const dataVal = useMemo(() => {
-    return solicitationCriteria?.data?.results?.map((data) => ({
+  const evaluationData = useMemo(() => {
+    return solicitationCriteria?.results?.map((data) => ({
       response: "",
       evaluation_criteria: data?.id,
     }));
   }, [solicitationCriteria]);
 
   useEffect(() => {
-    if (data) {
-      setValue("bid_items", data);
+    if (evaluationData) {
+      setValue("evaluations", evaluationData);
     }
-  }, [data, setValue, singleSolicitation]);
-
-  useEffect(() => {
-    if (dataVal) {
-      setValue("evaluations", dataVal);
-    }
-  }, [dataVal, setValue]);
-
-  const itemsWatchData = watch("bid_items");
+  }, [evaluationData, setValue]);
 
   const onSubmit = async (
-    data: z.infer<typeof SolicitationSubmissionSchema>
+    data: any // Using any until RFP schema is created
   ) => {
     try {
-      // @ts-ignore
-      await createSolicitationSubmission(data)();
+      console.log("🚀 Submitting RFP proposal data:", data);
 
-      toast.success("Successfully created.");
+      // Validate that vendor is selected
+      if (!data.vendor) {
+        toast.error("Please select a vendor");
+        return;
+      }
+
+      // Validate technical proposal fields
+      const technicalFields = ['company_profile', 'project_approach', 'team_qualifications', 'technical_experience'];
+      for (const field of technicalFields) {
+        // @ts-ignore
+        if (!data[field] || data[field].trim() === '') {
+          toast.error(`Please fill in the ${field.replace('_', ' ')} field`);
+          return;
+        }
+      }
+
+      // Validate commercial proposal fields
+      const commercialFields = ['total_project_cost', 'payment_terms', 'project_duration', 'warranty_period'];
+      for (const field of commercialFields) {
+        // @ts-ignore
+        if (!data[field] || data[field].toString().trim() === '') {
+          toast.error(`Please fill in the ${field.replace('_', ' ')} field`);
+          return;
+        }
+      }
+
+      await createSolicitationSubmission(data);
+
+      toast.success("Service proposal submitted successfully!");
       router.back();
     } catch (error) {
-      toast.error("Something went wrong");
-      console.log(error);
+      console.error("Error submitting proposal:", error);
+      toast.error("Failed to submit proposal. Please try again.");
     }
   };
 
@@ -122,8 +140,15 @@ const ManualBidSubmission = () => {
     <div className='space-y-10'>
       <GoBack />
       <div>
-        <h4 className='text-lg font-bold'>Manual Bid Submission Form</h4>
-        <h6>{singleSolicitation?.data?.title}</h6>
+        <h4 className='text-lg font-bold text-blue-600'>Service Proposal Submission Form</h4>
+        <div className='space-y-2'>
+          <h6 className='text-gray-700 font-medium'>{singleSolicitation?.data?.title}</h6>
+          <div className='flex gap-4 text-sm text-gray-500'>
+            <span><strong>RFP ID:</strong> {singleSolicitation?.data?.rfq_id}</span>
+            <span><strong>Status:</strong> {singleSolicitation?.data?.status}</span>
+            <span><strong>Type:</strong> Service Request</span>
+          </div>
+        </div>
       </div>
 
       <Form {...form}>
@@ -140,103 +165,138 @@ const ManualBidSubmission = () => {
             </SelectContent>
           </FormSelect>
 
-          <div className='space-y-1'>
-            <h4 className='text-base font-bold'>Items Quotation</h4>
-            <h6>Please provide your quotation for the following Items</h6>
+          {/* Technical Proposal Section */}
+          <div className='space-y-6 border-t pt-6'>
+            <div className='space-y-2'>
+              <h4 className='text-lg font-bold text-blue-600 flex items-center gap-2'>
+                <Icon icon='carbon:document-tasks' />
+                Technical Proposal
+              </h4>
+              <p className='text-gray-600'>Please provide your technical approach and qualifications for this service.</p>
+            </div>
+
+            <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+              <FormInput
+                name='company_profile'
+                label='Company Profile & Experience'
+                placeholder='Describe your company background and relevant experience'
+                required
+              />
+              <FormInput
+                name='project_approach'
+                label='Project Approach & Methodology'
+                placeholder='Outline your approach to delivering this service'
+                required
+              />
+            </div>
+
+            <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+              <FormInput
+                name='team_qualifications'
+                label='Team Qualifications'
+                placeholder='Describe key team members and their qualifications'
+                required
+              />
+              <FormInput
+                name='technical_experience'
+                label='Relevant Technical Experience'
+                placeholder='Highlight relevant past projects and expertise'
+                required
+              />
+            </div>
+
+            <div className='space-y-4'>
+              <h5 className='font-semibold text-gray-800'>Technical Documents Upload</h5>
+              <div className='border-2 border-dashed border-blue-300 rounded-lg p-8 text-center'>
+                <Icon icon='carbon:document-add' className='mx-auto text-4xl text-blue-400 mb-3' />
+                <p className='text-gray-600 mb-2'>Upload technical proposal documents</p>
+                <p className='text-sm text-gray-500'>Accepted formats: PDF, DOC, DOCX (Max 10MB)</p>
+                <button type='button' className='mt-3 px-4 py-2 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100'>
+                  Choose Files
+                </button>
+              </div>
+            </div>
           </div>
 
-          <div>
-            <table className='w-full border mt-10'>
-              <thead>
-                <tr className='text-amber-500 whitespace-nowrap border-b-2 text-sm font-semibold'>
-                  <th className='px-2 py-5 w-[50px]'>S/N</th>
-                  <th className='px-2 py-5 w-[300px]'>Items Description</th>
-                  <th className='px-2 py-5 w-[150px]'>Qty</th>
-                  <th className='px-2 py-5 w-[150px]'> Unit price</th>
-                  <th className='px-2 py-5 w-[150px]'>Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                {fields.map((field, index) => {
-                  console.log({
-                    field,
-                    quantity: Number(itemsWatchData[index]?.quantity),
-                    unit: Number(itemsWatchData[index]?.unit_price),
-                    itemsWatchData,
-                  });
+          {/* Commercial Proposal Section */}
+          <div className='space-y-6 border-t pt-6'>
+            <div className='space-y-2'>
+              <h4 className='text-lg font-bold text-green-600 flex items-center gap-2'>
+                <Icon icon='carbon:currency-dollar' />
+                Commercial Proposal
+              </h4>
+              <p className='text-gray-600'>Please provide your commercial terms and pricing for this service.</p>
+            </div>
 
-                  return (
-                    <tr key={index} className='w-full'>
-                      <td className='w-[50px] p-2 text-center '>
-                        <span className='p-2 px-4 text-xs bg-black text-white rounded'>
-                          {index + 1}.
-                        </span>
-                      </td>
-                      <td className=' p-2 text-center w-[400px]'>
-                        <div className='space-y-2'>
-                          <h2 className='font-semibold'>
-                            {/* {singleSolicitation?.data.items[index]?.item?.name} */}
-                            {/* @ts-ignore */}
-                            {field?.name}
-                          </h2>
-                          {/* @ts-ignore */}
-                          <h6>{field?.description} </h6>
-                        </div>
-                      </td>
-                      <td className='w-[100px] flex items-center p-2 text-center mx-auto'>
-                        <FormInput
-                          label=''
-                          name={`bid_items.[${index}].quantity`}
-                          type='number'
-                          className='w-full'
-                        />
-                      </td>
-                      <td className='w-[100px] p-2 text-center mx-auto'>
-                        <FormInput
-                          label=''
-                          type='number'
-                          name={`bid_items.[${index}].unit_price`}
-                          className='w-full'
-                        />
-                      </td>
+            <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+              <FormInput
+                name='total_project_cost'
+                label='Total Project Cost (₦)'
+                type='number'
+                placeholder='0.00'
+                required
+              />
+              <FormInput
+                name='payment_terms'
+                label='Payment Terms'
+                placeholder='e.g., 30% upfront, 70% on completion'
+                required
+              />
+            </div>
 
-                      <td className='w-[100px] p-2 text-center'>
-                        <h6>
-                          ₦
-                          {Number(
-                            Number(itemsWatchData[index]?.quantity) *
-                              Number(itemsWatchData[index]?.unit_price)
-                          ).toLocaleString()}
-                        </h6>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-            <div className=''>
-              {/* Calculate total */}
-              <div className='flex items-center justify-center w-fit gap-20 px-5 py-3 border rounded-lg border-primary text-primary ml-auto mt-6'>
-                <h4>Total:</h4>
-                <span>
-                  ₦
-                  {itemsWatchData
-                    .reduce((acc, item) => {
-                      const quantity = Number(item?.quantity) || 0;
-                      const unitPrice = Number(item?.unit_price) || 0;
-                      return acc + quantity * unitPrice;
-                    }, 0)
-                    .toLocaleString()}
-                </span>
+            <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+              <FormInput
+                name='project_duration'
+                label='Project Duration'
+                placeholder='e.g., 6 months, 12 weeks'
+                required
+              />
+              <FormInput
+                name='warranty_period'
+                label='Warranty/Support Period'
+                placeholder='e.g., 12 months support'
+                required
+              />
+            </div>
+
+            <FormInput
+              name='cost_breakdown'
+              label='Cost Breakdown (Optional)'
+              placeholder='Provide detailed breakdown of costs if required'
+            />
+
+            <div className='space-y-4'>
+              <h5 className='font-semibold text-gray-800'>Commercial Documents Upload</h5>
+              <div className='border-2 border-dashed border-green-300 rounded-lg p-8 text-center'>
+                <Icon icon='carbon:document-add' className='mx-auto text-4xl text-green-400 mb-3' />
+                <p className='text-gray-600 mb-2'>Upload commercial proposal documents</p>
+                <p className='text-sm text-gray-500'>Accepted formats: PDF, DOC, DOCX (Max 10MB)</p>
+                <button type='button' className='mt-3 px-4 py-2 bg-green-50 text-green-600 rounded-md hover:bg-green-100'>
+                  Choose Files
+                </button>
+              </div>
+            </div>
+
+            <div className='bg-green-50 border border-green-200 rounded-lg p-6'>
+              <h5 className='font-semibold text-green-800 mb-3'>Commercial Summary</h5>
+              <div className='grid grid-cols-2 gap-4 text-sm'>
+                <div>
+                  <span className='text-gray-600'>Total Project Cost:</span>
+                  <div className='font-semibold text-green-700 text-lg'>₦{(watch as any)('total_project_cost') ? Number((watch as any)('total_project_cost')).toLocaleString() : '0.00'}</div>
+                </div>
+                <div>
+                  <span className='text-gray-600'>Duration:</span>
+                  <div className='font-semibold text-green-700'>{(watch as any)('project_duration') || 'TBD'}</div>
+                </div>
               </div>
             </div>
           </div>
           <div className='grid grid-cols-3 gap-5'>
-            {responseField.map((field, index) => {
+            {responseField.map((_, index) => {
               return (
                 <tr key={index} className='w-full'>
                   <FormInput
-                    label={solicitationCriteria?.data.results[index]?.name}
+                    label={solicitationCriteria?.results?.[index]?.name}
                     name={`evaluations.[${index}].response`}
                     className='w-full'
                   />
