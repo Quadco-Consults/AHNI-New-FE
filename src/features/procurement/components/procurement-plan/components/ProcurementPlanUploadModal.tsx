@@ -177,8 +177,12 @@ const ProcurementPlanUploadModal = (props: PropsType) => {
       const errorCount = responseData?.error_count || 0;
       const errors = responseData?.errors || [];
 
-      // If there are errors, show them to the user
-      if (errorCount > 0 || createdCount === 0) {
+      // Enhanced success detection: if backend doesn't provide counts but response is successful
+      const hasBackendCountFields = responseData?.hasOwnProperty('created_count') || responseData?.hasOwnProperty('error_count');
+      const isResponseSuccess = !errorCount && (!hasBackendCountFields || createdCount > 0);
+
+      // If there are explicit errors or confirmed zero records, show error
+      if (errorCount > 0 || (hasBackendCountFields && createdCount === 0)) {
         toast.error(`Upload failed: ${errorCount} errors, ${createdCount} records created`, {
           duration: 5000
         });
@@ -209,7 +213,12 @@ const ProcurementPlanUploadModal = (props: PropsType) => {
         refetchType: "all"
       });
 
-      toast.success(`Procurement Plan uploaded successfully! ${createdCount} line items created.`);
+      // Show appropriate success message based on available data
+      const successMessage = hasBackendCountFields
+        ? `Procurement Plan uploaded successfully! ${createdCount} line items created.`
+        : `Procurement Plan uploaded successfully!`;
+
+      toast.success(successMessage);
       props.onCancel();
       dispatch(closeDialog());
     } catch (error: any) {
