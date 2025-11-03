@@ -213,7 +213,7 @@ const ActionListAction = ({ data }: any) => {
               {/* Edit CBA - Using RFQ Create CBA route for editing */}
               <Link
                 className='w-full'
-                href={`/dashboard/procurement/solicitation-management/rfq/create/create-cba?id=${data?.id}&edit=true`}
+                href={`/dashboard/procurement/solicitation-management/rfq/create/create-cba?cba_id=${data?.id}&edit=true`}
               >
                 <Button
                   className='w-full flex items-center justify-start gap-2'
