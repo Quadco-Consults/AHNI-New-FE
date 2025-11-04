@@ -29,9 +29,8 @@ const SiteVisitList = () => {
   // Fetch site visits data
   const { data: siteVisits, isFetching, error } = useGetAllSiteVisits({
     page,
-    size: 20,
+    page_size: 20,
     search,
-    enabled: true,
   });
 
   const breadcrumbs = [
@@ -44,12 +43,13 @@ const SiteVisitList = () => {
     const statusConfig = {
       [SiteVisitStatus.DRAFT]: "bg-gray-100 text-gray-800",
       [SiteVisitStatus.SUBMITTED]: "bg-blue-100 text-blue-800",
-      [SiteVisitStatus.UNDER_REVIEW]: "bg-yellow-100 text-yellow-800",
       [SiteVisitStatus.REVIEWED]: "bg-purple-100 text-purple-800",
       [SiteVisitStatus.AUTHORIZED]: "bg-indigo-100 text-indigo-800",
       [SiteVisitStatus.APPROVED]: "bg-green-100 text-green-800",
-      [SiteVisitStatus.REJECTED]: "bg-red-100 text-red-800",
-      [SiteVisitStatus.EA_CREATED]: "bg-emerald-100 text-emerald-800",
+      [SiteVisitStatus.EA_GENERATED]: "bg-emerald-100 text-emerald-800",
+      [SiteVisitStatus.IN_PROGRESS]: "bg-yellow-100 text-yellow-800",
+      [SiteVisitStatus.COMPLETED]: "bg-green-200 text-green-900",
+      [SiteVisitStatus.CANCELLED]: "bg-red-100 text-red-800",
     };
 
     return (
@@ -63,9 +63,12 @@ const SiteVisitList = () => {
     const typeConfig = {
       [SiteVisitType.SUPPORTIVE_SUPERVISION]: "bg-blue-100 text-blue-800",
       [SiteVisitType.INTEGRATED_SUPPORTIVE_SUPERVISION]: "bg-purple-100 text-purple-800",
-      [SiteVisitType.EMERGENCY_SUPERVISION]: "bg-red-100 text-red-800",
+      [SiteVisitType.EMERGENCY_SUPPORTIVE_SUPERVISION]: "bg-red-100 text-red-800",
       [SiteVisitType.STAKEHOLDER_ENGAGEMENT]: "bg-green-100 text-green-800",
-      [SiteVisitType.OTHERS]: "bg-gray-100 text-gray-800",
+      [SiteVisitType.MONITORING_EVALUATION]: "bg-cyan-100 text-cyan-800",
+      [SiteVisitType.TRAINING_WORKSHOP]: "bg-orange-100 text-orange-800",
+      [SiteVisitType.TECHNICAL_ASSISTANCE]: "bg-teal-100 text-teal-800",
+      [SiteVisitType.OTHER]: "bg-gray-100 text-gray-800",
     };
 
     return (
@@ -90,22 +93,29 @@ const SiteVisitList = () => {
       render: (item: TSiteVisitPaginatedData) => (
         <div>
           <div className="font-medium">{item.title}</div>
-          <div className="text-xs text-gray-500">{item.location}</div>
+          <div className="text-xs text-gray-500">
+            {item.location_name || item.location}
+          </div>
+          {item.full_visit_number && (
+            <div className="text-xs text-blue-600 font-mono">
+              #{item.full_visit_number}
+            </div>
+          )}
         </div>
       ),
     },
     {
-      key: "site_visit_type",
+      key: "visit_type",
       label: "Type",
-      render: (item: TSiteVisitPaginatedData) => getTypeBadge(item.site_visit_type),
+      render: (item: TSiteVisitPaginatedData) => getTypeBadge(item.visit_type),
     },
     {
-      key: "proposed_dates",
-      label: "Proposed Dates",
+      key: "dates",
+      label: "Visit Dates",
       render: (item: TSiteVisitPaginatedData) => (
         <div className="text-sm">
-          <div>{formatDate(item.proposed_start_date)}</div>
-          <div className="text-gray-500">to {formatDate(item.proposed_end_date)}</div>
+          <div>{formatDate(item.start_date)}</div>
+          <div className="text-gray-500">to {formatDate(item.end_date)}</div>
         </div>
       ),
     },
