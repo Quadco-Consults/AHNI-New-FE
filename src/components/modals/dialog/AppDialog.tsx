@@ -78,6 +78,8 @@ import AddPosition from "@/features/admin/components/config/AddPosition";
 import AddGrade from "@/features/admin/components/config/AddGrade";
 import AddLevel from "@/features/admin/components/config/AddLevel";
 import AddAssetClassification from "@/features/admin/components/AddAssetClassification";
+import AddExchangeRate from "@/features/admin/components/config/AddExchangeRate";
+import AddTravelRate from "@/features/admin/components/config/AddTravelRate";
 import ChangeWorkPlanStatusModal from "@/features/programs/components/modals/ChangeWorkPlanStatusModal";
 import ChangeProcurementTrackerStatusModal from "@/features/procurement/components/modals/ChangeProcurementTrackerStatusModal";
 import ChangeProcurementTrackerRemarkModal from "@/features/procurement/components/modals/ChangeProcurementTrackerRemarkModal";
@@ -188,6 +190,8 @@ const dialogs: Record<string, ReactNode> = {
   [DialogType.AddLevel]: <AddLevel />,
 
   [DialogType.AddAssetClassification]: <AddAssetClassification />,
+  [DialogType.AddExchangeRate]: <AddExchangeRate />,
+  [DialogType.AddTravelRate]: <AddTravelRate />,
   [DialogType.ChangeWorkPlanStatusModal]: <ChangeWorkPlanStatusModal />,
   [DialogType.ChangeProcurementTrackerStatusModal]: (
     <ChangeProcurementTrackerStatusModal />

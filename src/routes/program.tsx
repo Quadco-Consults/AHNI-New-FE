@@ -95,6 +95,26 @@ export const program = [
     ),
   },
 
+  // Site Visit routes
+  {
+    path: RouteEnum.PROGRAM_SITE_VISIT,
+    element: lazy(
+      () => import("app/dashboard/programs/plan/site-visit/page")
+    ),
+  },
+  {
+    path: RouteEnum.PROGRAM_SITE_VISIT_CREATE,
+    element: lazy(
+      () => import("app/dashboard/programs/plan/site-visit/create/page")
+    ),
+  },
+  {
+    path: RouteEnum.PROGRAM_SITE_VISIT_DETAILS,
+    element: lazy(
+      () => import("app/dashboard/programs/plan/site-visit/[id]/page")
+    ),
+  },
+
   //consultant (adhoc) management
   {
     path: CG_ROUTES.CONSULTANCY,

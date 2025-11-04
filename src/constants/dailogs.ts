@@ -74,6 +74,8 @@ export const DialogType = {
   AddGrade: "AddGrade",
   AddLevel: "AddLevel",
   AddAssetClassification: "AddAssetClassification",
+  AddExchangeRate: "AddExchangeRate",
+  AddTravelRate: "AddTravelRate",
   ChangeWorkPlanStatusModal: "ChangeWorkPlanStatusModal",
   ChangeProcurementTrackerStatusModal: "ChangeProcurementTrackerStatusModal",
   ChangeProcurementTrackerRemarkModal: "ChangeProcurementTrackerRemarkModal",

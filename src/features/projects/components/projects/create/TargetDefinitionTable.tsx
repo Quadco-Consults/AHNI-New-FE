@@ -27,6 +27,7 @@ interface TargetDefinitionTableProps {
   targets: ProjectTargetDefinition[];
   onTargetsChange: (targets: ProjectTargetDefinition[]) => void;
   viewMode: 'simple' | 'quarterly';
+  isEditable?: boolean;
 }
 
 // Sample performance indicators
@@ -47,7 +48,7 @@ const FISCAL_YEARS = [
   { label: 'FY26 (2025/2026)', value: 'FY26' },
 ];
 
-export default function TargetDefinitionTable({ targets, onTargetsChange, viewMode }: TargetDefinitionTableProps) {
+export default function TargetDefinitionTable({ targets, onTargetsChange, viewMode, isEditable = true }: TargetDefinitionTableProps) {
 
   const handleAddTarget = () => {
     const newTarget: ProjectTargetDefinition = {

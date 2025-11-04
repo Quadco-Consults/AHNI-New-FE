@@ -96,6 +96,7 @@ export default function TargetsToggleView({ isEditable = true, onTargetsChange }
           targets={projectTargets}
           onTargetsChange={handleTargetsChange}
           viewMode={viewMode}
+          isEditable={isEditable}
         />
 
         {/* Important Note */}
