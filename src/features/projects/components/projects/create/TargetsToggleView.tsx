@@ -36,10 +36,14 @@ export default function TargetsToggleView({ isEditable = true, onTargetsChange }
         {/* View Mode Toggle */}
         <div className="flex justify-between items-center">
           <div>
-            <Label className="font-semibold text-lg">Performance Targets</Label>
+            <Label className="font-semibold text-lg">Step 1: Define Performance Targets</Label>
             <p className="text-sm text-gray-600 mt-1">
-              Choose between simple annual tracking or detailed quarterly breakdown.
+              Start by defining what you want to achieve. Choose between simple annual tracking or detailed quarterly breakdown.
             </p>
+            <div className="flex items-center gap-2 mt-2">
+              <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold">1</div>
+              <span className="text-sm text-blue-600 font-medium">Define your measurable goals first - this will guide your budget and planning.</span>
+            </div>
           </div>
 
           <div className="flex gap-2">
