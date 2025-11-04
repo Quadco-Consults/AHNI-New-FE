@@ -42,7 +42,7 @@ import {
   TProjectFormValues,
 } from "@/features/projects/types/project";
 import ConsortiumPartners from "./ConsortiumPartners";
-import TargetsSection, { ProjectTarget } from "./TargetsSection";
+import SimpleTargetsTable, { SimpleTarget } from "./SimpleTargetsTable";
 import BreadcrumbCard, { TBreadcrumbList } from "components/Breadcrumb";
 import LongArrowLeft from "components/icons/LongArrowLeft";
 import { RouteEnum } from "constants/RouterConstants";
@@ -62,7 +62,7 @@ const breadcrumbs: TBreadcrumbList[] = [
 
 export default function ProjectSummaryPage() {
   // State for managing project targets
-  const [projectTargets, setProjectTargets] = useState<ProjectTarget[]>([]);
+  const [projectTargets, setProjectTargets] = useState<SimpleTarget[]>([]);
 
   const { data: beneficiary } = useGetAllBeneficiaries({
     page: 1,
@@ -565,9 +565,10 @@ export default function ProjectSummaryPage() {
                 />
 
                 {/* New Performance Targets Section */}
-                <TargetsSection
+                <SimpleTargetsTable
                   targets={projectTargets}
                   onTargetsChange={setProjectTargets}
+                  isEditable={true}
                 />
 
                 <div className='space-y-1'>
