@@ -35,6 +35,7 @@ export const UpdateUserSchema = z.object({
   location: z.string().optional(),
   department: z.string().optional(),
   position: z.string().optional(),
+  designation: z.string().optional(), // Same as position
   user_type: z.string().optional(),
   roles: z.array(z.string().min(1, "Please select user roles")).optional(),
   is_active: z.boolean().optional(),
