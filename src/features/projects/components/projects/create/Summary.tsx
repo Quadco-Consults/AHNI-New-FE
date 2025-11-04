@@ -379,6 +379,23 @@ export default function ProjectSummaryPage() {
                   />
                 </div>
 
+                {/* Performance Targets Section - MOVED TO TOP */}
+                <TargetsToggleView
+                  isEditable={true}
+                  onTargetsChange={setProjectTargets}
+                />
+
+                {/* Visual separator after Step 1 */}
+                <div className="border-t-2 border-blue-100 pt-6 mt-8">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="w-6 h-6 bg-green-600 text-white rounded-full flex items-center justify-center text-xs font-bold">2</div>
+                    <span className="text-lg font-semibold text-gray-800">Project Details & Planning</span>
+                  </div>
+                  <p className="text-sm text-gray-600 mb-6">
+                    Now that you've defined your targets, provide the project details and planning information.
+                  </p>
+                </div>
+
                 <FormTextArea
                   name='goal'
                   label='Goal of the project'
@@ -562,12 +579,6 @@ export default function ProjectSummaryPage() {
                   name='expected_results'
                   placeholder='Enter Expected Results'
                   required
-                />
-
-                {/* New Performance Targets Section */}
-                <TargetsToggleView
-                  isEditable={true}
-                  onTargetsChange={setProjectTargets}
                 />
 
                 <div className='space-y-1'>
