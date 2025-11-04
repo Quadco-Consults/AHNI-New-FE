@@ -43,6 +43,7 @@ import {
 } from "@/features/projects/types/project";
 import ConsortiumPartners from "./ConsortiumPartners";
 import TargetsToggleView from "./TargetsToggleView";
+import { ProjectTargetDefinition } from "./TargetDefinitionTable";
 import BreadcrumbCard, { TBreadcrumbList } from "components/Breadcrumb";
 import LongArrowLeft from "components/icons/LongArrowLeft";
 import { RouteEnum } from "constants/RouterConstants";
@@ -62,7 +63,7 @@ const breadcrumbs: TBreadcrumbList[] = [
 
 export default function ProjectSummaryPage() {
   // State for managing project targets
-  const [projectTargets, setProjectTargets] = useState<any[]>([]);
+  const [projectTargets, setProjectTargets] = useState<ProjectTargetDefinition[]>([]);
 
   const { data: beneficiary } = useGetAllBeneficiaries({
     page: 1,
