@@ -99,124 +99,241 @@ export const ApprovalStatusLabels = {
   [ApprovalStatus.NEEDS_REVISION]: "Needs Revision"
 };
 
-// Zod Schema for form validation
+// ===== BACKEND-ALIGNED INTERFACES =====
+
+// Main Site Visit Interface (Backend Aligned)
+export interface ISiteVisit {
+  // Basic Information
+  id: string;
+  title: string;
+  visit_type: SiteVisitType;
+  other_visit_type?: string;
+  purpose: string;
+
+  // Location & Address
+  location: string;
+  location_name?: string;
+  specific_address?: string;
+
+  // Timing
+  start_date: string;
+  end_date: string;
+  duration_days?: number;
+
+  // Project & Budget
+  project?: string;
+  project_title?: string;
+  estimated_budget?: number;
+
+  // Status & Workflow
+  status: SiteVisitStatus;
+  submission_date?: string;
+
+  // Visit Numbering (Auto-generated)
+  visit_number_prefix?: string;
+  visit_number_month?: string;
+  visit_number_sequence?: number;
+  full_visit_number?: string;
+
+  // Additional
+  special_requirements?: string;
+  expected_outcomes?: string;
+  comments?: string;
+
+  // Computed Fields
+  team_members_count?: number;
+  is_approved?: boolean;
+  can_generate_ea?: boolean;
+
+  // Timestamps
+  created_datetime: string;
+  updated_datetime: string;
+  created_by: string;
+  updated_by?: string;
+}
+
+// Site Visit Team Member Interface (Backend Aligned)
+export interface ISiteVisitTeamMember {
+  id: string;
+  site_visit: string;
+  user: string;
+  user_name?: string;
+  role: TeamMemberRole;
+  visit_number?: string;
+  expense_authorization?: string;
+  ea_number?: string;
+  per_day_allowance?: number;
+  transport_cost?: number;
+  accommodation_cost?: number;
+  total_estimated_cost?: number;
+  notification_sent: boolean;
+  ea_generated: boolean;
+  comments?: string;
+  created_datetime: string;
+  updated_datetime: string;
+}
+
+// Site Visit Approval Interface (Backend Aligned)
+export interface ISiteVisitApproval {
+  id: string;
+  site_visit: string;
+  approval_type: ApprovalType;
+  approver: string;
+  approver_name?: string;
+  status: ApprovalStatus;
+  approval_date?: string;
+  comments?: string;
+  rejection_reason?: string;
+  notification_sent: boolean;
+  reminder_sent: boolean;
+  is_pending?: boolean;
+  is_approved?: boolean;
+  is_rejected?: boolean;
+  needs_revision?: boolean;
+  days_pending?: number;
+  created_datetime: string;
+  updated_datetime: string;
+}
+
+// Create Site Visit Request Interface
+export interface ICreateSiteVisitRequest {
+  title: string;
+  visit_type: SiteVisitType;
+  other_visit_type?: string;
+  purpose: string;
+  location: string;
+  specific_address?: string;
+  start_date: string;
+  end_date: string;
+  project?: string;
+  estimated_budget?: number;
+  special_requirements?: string;
+  expected_outcomes?: string;
+  comments?: string;
+
+  // Team Members (nested)
+  team_members: Array<{
+    user: string;
+    role: TeamMemberRole;
+    per_day_allowance?: number;
+    transport_cost?: number;
+    accommodation_cost?: number;
+    comments?: string;
+  }>;
+
+  // Approval Workflow
+  reviewer: string;
+  authorizer: string;
+  approver: string;
+}
+
+// Update Status Request Interface
+export interface IUpdateStatusRequest {
+  status: SiteVisitStatus;
+  comments?: string;
+}
+
+// Approval Action Request Interface
+export interface IApprovalActionRequest {
+  action: 'APPROVE' | 'REJECT' | 'REQUEST_REVISION';
+  comments?: string;
+  rejection_reason?: string;
+}
+
+// Dashboard Statistics Interface
+export interface IDashboardResponse {
+  data: {
+    total_visits: number;
+    by_status: { [status: string]: number };
+    by_type: { [type: string]: number };
+    recent_visits: ISiteVisit[];
+    pending_approvals: number;
+    my_pending_visits: ISiteVisit[];
+  };
+  success: boolean;
+}
+
+// Query Parameters for List Requests
+export interface ISiteVisitListParams {
+  page?: number;
+  page_size?: number;
+  status?: string;
+  visit_type?: string;
+  location?: string;
+  project?: string;
+  start_date?: string;
+  search?: string;
+  ordering?: string;
+}
+
+// Error Response Interface
+export interface IErrorResponse {
+  error: string;
+  details?: {
+    field_errors?: { [field: string]: string[] };
+    non_field_errors?: string[];
+  };
+  success: false;
+}
+
+// Zod Schema for form validation (Updated)
 export const SiteVisitApplicationSchema = z.object({
   title: z.string().min(1, "Site visit title is required"),
-  location: z.string().min(1, "Location is required"),
-  facility: z.string().optional(),
-  state: z.string().min(1, "State is required"),
-  lga: z.string().optional(),
-  site_visit_type: z.nativeEnum(SiteVisitType, {
+  visit_type: z.nativeEnum(SiteVisitType, {
     required_error: "Site visit type is required"
   }),
-  other_type_description: z.string().optional(),
-  travel_reason: z.string().min(1, "Reason for travel is required"),
-  expected_outcome: z.string().min(1, "Expected outcome is required"),
-  proposed_start_date: z.string().min(1, "Start date is required"),
-  proposed_end_date: z.string().min(1, "End date is required"),
-  team_members: z.array(z.string()).min(1, "At least one team member is required"),
+  other_visit_type: z.string().optional(),
+  purpose: z.string().min(1, "Purpose is required"),
+  location: z.string().min(1, "Location is required"),
+  specific_address: z.string().optional(),
+  start_date: z.string().min(1, "Start date is required"),
+  end_date: z.string().min(1, "End date is required"),
+  project: z.string().optional(),
+  estimated_budget: z.number().optional(),
+  special_requirements: z.string().optional(),
+  expected_outcomes: z.string().optional(),
+  comments: z.string().optional(),
+
+  // Team Members
+  team_members: z.array(z.object({
+    user: z.string().min(1, "User is required"),
+    role: z.nativeEnum(TeamMemberRole),
+    per_day_allowance: z.number().optional(),
+    transport_cost: z.number().optional(),
+    accommodation_cost: z.number().optional(),
+    comments: z.string().optional(),
+  })).min(1, "At least one team member is required"),
+
+  // Approval Workflow
   reviewer: z.string().min(1, "Reviewer is required"),
   authorizer: z.string().min(1, "Authorizer is required"),
   approver: z.string().min(1, "Approver is required"),
-  additional_comments: z.string().optional(),
-  project: z.string().optional(),
 }).refine((data) => {
-  // If site visit type is "OTHERS", other_type_description is required
-  if (data.site_visit_type === SiteVisitType.OTHERS) {
-    return data.other_type_description && data.other_type_description.trim().length > 0;
+  // If visit type is "OTHER", other_visit_type is required
+  if (data.visit_type === SiteVisitType.OTHER) {
+    return data.other_visit_type && data.other_visit_type.trim().length > 0;
   }
   return true;
 }, {
-  message: "Description is required when site visit type is 'Others'",
-  path: ["other_type_description"]
+  message: "Description is required when visit type is 'Other'",
+  path: ["other_visit_type"]
 }).refine((data) => {
   // End date should be after start date
-  if (data.proposed_start_date && data.proposed_end_date) {
-    return new Date(data.proposed_end_date) >= new Date(data.proposed_start_date);
+  if (data.start_date && data.end_date) {
+    return new Date(data.end_date) >= new Date(data.start_date);
   }
   return true;
 }, {
   message: "End date must be after start date",
-  path: ["proposed_end_date"]
+  path: ["end_date"]
 });
 
 export type TSiteVisitApplicationFormValues = z.infer<typeof SiteVisitApplicationSchema>;
 
-// Approval Level Interface
-export interface ISiteVisitApprovalLevel {
-  id: string;
-  level: number;
-  approver: IUser;
-  role: "REVIEWER" | "AUTHORIZER" | "APPROVER";
-  status: "PENDING" | "APPROVED" | "REJECTED";
-  comments?: string;
-  approval_date?: string;
-  created_datetime: string;
-  updated_datetime: string;
-}
-
-// Team Member Interface
-export interface ISiteVisitTeamMember {
-  id: string;
-  user: IUser;
-  role?: string;
-  added_datetime: string;
-}
-
-// Main Site Visit Interface
-export interface ISiteVisitData {
-  id: string;
-  title: string;
-  location: string;
-  facility?: TFacilityData;
-  state: string;
-  lga?: string;
-  site_visit_type: SiteVisitType;
-  other_type_description?: string;
-  travel_reason: string;
-  expected_outcome: string;
-  proposed_start_date: string;
-  proposed_end_date: string;
-  actual_start_date?: string;
-  actual_end_date?: string;
-  team_members: ISiteVisitTeamMember[];
-  reviewer: IUser;
-  authorizer: IUser;
-  approver: IUser;
-  additional_comments?: string;
-  status: SiteVisitStatus;
-  approvals: ISiteVisitApprovalLevel[];
-  current_approval_level?: number;
-  ea_reference?: string;
-  ea_created_date?: string;
-  project?: string;
-  created_by: IUser;
-  created_datetime: string;
-  updated_datetime: string;
-  submitted_date?: string;
-  final_approval_date?: string;
-}
-
-// Paginated Response Interface
-export interface TSiteVisitPaginatedData {
-  id: string;
-  title: string;
-  location: string;
-  state: string;
-  site_visit_type: SiteVisitType;
-  proposed_start_date: string;
-  proposed_end_date: string;
-  status: SiteVisitStatus;
-  team_members_count: number;
-  created_by: string;
-  created_datetime: string;
-  updated_datetime: string;
-}
-
-// Site Visit Report Interface
+// Site Visit Report Interface (Keeping existing for compatibility)
 export interface ISiteVisitReport {
   id: string;
-  site_visit: ISiteVisitData;
+  site_visit: ISiteVisit;
   report_title: string;
   executive_summary: string;
   objectives_met: string;
@@ -230,7 +347,24 @@ export interface ISiteVisitReport {
   updated_datetime: string;
 }
 
-// Location/Facility Selection Interface
+// Paginated Response Interface (Updated)
+export interface TSiteVisitPaginatedData {
+  id: string;
+  title: string;
+  visit_type: SiteVisitType;
+  location: string;
+  location_name?: string;
+  start_date: string;
+  end_date: string;
+  status: SiteVisitStatus;
+  team_members_count: number;
+  full_visit_number?: string;
+  created_by: string;
+  created_datetime: string;
+  updated_datetime: string;
+}
+
+// Location/Facility Selection Interface (Keeping existing for compatibility)
 export interface ISiteVisitLocation {
   id: string;
   name: string;
@@ -243,13 +377,40 @@ export interface ISiteVisitLocation {
   };
 }
 
-// Export commonly used types for easier imports
+// Status Transition Rules for Frontend Validation
+export const allowedTransitions: { [key in SiteVisitStatus]: SiteVisitStatus[] } = {
+  [SiteVisitStatus.DRAFT]: [SiteVisitStatus.SUBMITTED, SiteVisitStatus.CANCELLED],
+  [SiteVisitStatus.SUBMITTED]: [SiteVisitStatus.IN_PROGRESS, SiteVisitStatus.CANCELLED],
+  [SiteVisitStatus.REVIEWED]: [SiteVisitStatus.CANCELLED],
+  [SiteVisitStatus.AUTHORIZED]: [SiteVisitStatus.CANCELLED],
+  [SiteVisitStatus.APPROVED]: [SiteVisitStatus.IN_PROGRESS],
+  [SiteVisitStatus.EA_GENERATED]: [SiteVisitStatus.IN_PROGRESS, SiteVisitStatus.CANCELLED],
+  [SiteVisitStatus.IN_PROGRESS]: [SiteVisitStatus.COMPLETED],
+  [SiteVisitStatus.COMPLETED]: [],
+  [SiteVisitStatus.CANCELLED]: []
+};
+
+// Export Legacy Types for Backward Compatibility
 export type {
   TSiteVisitApplicationFormValues as SiteVisitFormData,
-  ISiteVisitData as SiteVisit,
+  ISiteVisit as SiteVisitData,
+  ISiteVisit as SiteVisit,
   TSiteVisitPaginatedData as SiteVisitListItem,
-  ISiteVisitApprovalLevel as SiteVisitApproval,
+  ISiteVisitApproval as SiteVisitApproval,
   ISiteVisitTeamMember as SiteVisitTeamMember,
   ISiteVisitReport as SiteVisitReport,
   ISiteVisitLocation as SiteVisitLocation
+};
+
+// New Export Names (Backend Aligned)
+export type {
+  ISiteVisit,
+  ISiteVisitTeamMember,
+  ISiteVisitApproval,
+  ICreateSiteVisitRequest,
+  IUpdateStatusRequest,
+  IApprovalActionRequest,
+  IDashboardResponse,
+  ISiteVisitListParams,
+  IErrorResponse
 };

@@ -3,36 +3,48 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { AxiosError } from "axios";
 import {
-  ISiteVisitData,
+  ISiteVisit,
+  ISiteVisitTeamMember,
+  ISiteVisitApproval,
   TSiteVisitPaginatedData,
   TSiteVisitApplicationFormValues,
   ISiteVisitReport,
+  ICreateSiteVisitRequest,
+  IUpdateStatusRequest,
+  IApprovalActionRequest,
+  IDashboardResponse,
+  ISiteVisitListParams,
+  IErrorResponse,
 } from "../types/site-visit";
 import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
 
-const BASE_URL = "programs/plans/site-visits/";
+// Updated Base URLs for Backend Alignment
+const SITE_VISIT_BASE_URL = "programs/site-visits/";
+const TEAM_MEMBER_BASE_URL = "programs/site-visit-team-members/";
+const APPROVAL_BASE_URL = "programs/site-visit-approvals/";
 
-// ===== SITE VISIT HOOKS =====
+// ===== MAIN SITE VISIT ENDPOINTS =====
 
-// Get All Site Visits
-export const useGetAllSiteVisits = ({
-  page = 1,
-  size = 20,
-  search = "",
-  status = "",
-  site_visit_type = "",
-  enabled = true,
-}: TRequest & {
-  status?: string;
-  site_visit_type?: string;
-  enabled?: boolean;
-}) => {
+// Get All Site Visits (Updated for backend alignment)
+export const useGetAllSiteVisits = (params: ISiteVisitListParams = {}) => {
+  const {
+    page = 1,
+    page_size = 20,
+    search = "",
+    status = "",
+    visit_type = "",
+    location = "",
+    project = "",
+    start_date = "",
+    ordering = "-created_datetime",
+  } = params;
+
   return useQuery<TPaginatedResponse<TSiteVisitPaginatedData>>({
-    queryKey: ["site-visits", page, size, search, status, site_visit_type],
+    queryKey: ["site-visits", page, page_size, search, status, visit_type, location, project, start_date, ordering],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get(BASE_URL, {
-          params: { page, size, search, status, site_visit_type },
+        const response = await AxiosWithToken.get(SITE_VISIT_BASE_URL, {
+          params: { page, page_size, search, status, visit_type, location, project, start_date, ordering },
         });
         return response.data;
       } catch (error) {
@@ -40,18 +52,17 @@ export const useGetAllSiteVisits = ({
         throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
       }
     },
-    enabled: enabled,
     refetchOnWindowFocus: false,
   });
 };
 
-// Get Single Site Visit
+// Get Single Site Visit (Updated for backend alignment)
 export const useGetSingleSiteVisit = (id: string, enabled: boolean = true) => {
-  return useQuery<TResponse<ISiteVisitData>>({
+  return useQuery<TResponse<ISiteVisit>>({
     queryKey: ["site-visit", id],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get(`${BASE_URL}${id}/`);
+        const response = await AxiosWithToken.get(`${SITE_VISIT_BASE_URL}${id}/`);
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
@@ -63,104 +74,45 @@ export const useGetSingleSiteVisit = (id: string, enabled: boolean = true) => {
   });
 };
 
-// Create Site Visit Application
+// Create Site Visit (Updated for backend alignment)
 export const useCreateSiteVisit = () => {
-  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
-    ISiteVisitData,
-    Error,
-    TSiteVisitApplicationFormValues
-  >({
-    endpoint: BASE_URL,
-    queryKey: ["site-visits"],
-    isAuth: true,
-    method: "POST",
-  });
-
-  const createSiteVisit = async (details: TSiteVisitApplicationFormValues) => {
-    try {
-      await callApi(details);
-    } catch (error) {
-      console.error("Site visit create error:", error);
-    }
-  };
-
-  return { createSiteVisit, data, isLoading, isSuccess, error };
-};
-
-// Update Site Visit Application
-export const useUpdateSiteVisit = (id: string) => {
-  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
-    ISiteVisitData,
-    Error,
-    Partial<TSiteVisitApplicationFormValues>
-  >({
-    endpoint: `${BASE_URL}${id}/`,
-    queryKey: ["site-visits", "site-visit"],
-    isAuth: true,
-    method: "PUT",
-  });
-
-  const updateSiteVisit = async (details: Partial<TSiteVisitApplicationFormValues>) => {
-    try {
-      await callApi(details);
-    } catch (error) {
-      console.error("Site visit update error:", error);
-    }
-  };
-
-  return { updateSiteVisit, data, isLoading, isSuccess, error };
-};
-
-// Delete Site Visit
-export const useDeleteSiteVisit = (id: string) => {
-  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
-    ISiteVisitData,
-    Error,
-    Record<string, never>
-  >({
-    endpoint: `${BASE_URL}${id}/`,
-    queryKey: ["site-visits"],
-    isAuth: true,
-    method: "DELETE",
-  });
-
-  const deleteSiteVisit = async () => {
-    try {
-      await callApi({} as Record<string, never>);
-    } catch (error) {
-      console.error("Site visit delete error:", error);
-    }
-  };
-
-  return { deleteSiteVisit, data, isLoading, isSuccess, error };
-};
-
-// Submit Site Visit for Approval
-export const useSubmitSiteVisit = (id: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async () => {
+    mutationFn: async (data: ICreateSiteVisitRequest) => {
       try {
-        const response = await AxiosWithToken.post(`${BASE_URL}${id}/submit/`);
+        const response = await AxiosWithToken.post(SITE_VISIT_BASE_URL, data);
         return response.data;
       } catch (error: any) {
-        console.error("Site visit submit error:", error);
-
-        if (error.response?.status === 404) {
-          throw new Error("Site visit not found or you don't have permission to submit it.");
-        }
-        if (error.response?.status === 400) {
-          throw new Error(
-            error.response?.data?.detail ||
-            error.response?.data?.message ||
-            "Cannot submit site visit. Please check all required fields are completed."
-          );
-        }
+        console.error("Site visit create error:", error);
         throw new Error(
-          error.response?.data?.detail ||
           error.response?.data?.message ||
-          "Failed to submit site visit"
+          error.response?.data?.error ||
+          "Failed to create site visit"
+        );
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["site-visits"] });
+    },
+  });
+};
+
+// Update Site Visit (Updated for backend alignment)
+export const useUpdateSiteVisit = (id: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: Partial<ICreateSiteVisitRequest>) => {
+      try {
+        const response = await AxiosWithToken.put(`${SITE_VISIT_BASE_URL}${id}/`, data);
+        return response.data;
+      } catch (error: any) {
+        console.error("Site visit update error:", error);
+        throw new Error(
+          error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Failed to update site visit"
         );
       }
     },
@@ -171,7 +123,437 @@ export const useSubmitSiteVisit = (id: string) => {
   });
 };
 
-// Approve/Reject Site Visit (3-Level Workflow: Reviewer → Authorizer → Approver)
+// Delete Site Visit
+export const useDeleteSiteVisit = (id: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => {
+      try {
+        const response = await AxiosWithToken.delete(`${SITE_VISIT_BASE_URL}${id}/`);
+        return response.data;
+      } catch (error: any) {
+        console.error("Site visit delete error:", error);
+        throw new Error(
+          error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Failed to delete site visit"
+        );
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["site-visits"] });
+    },
+  });
+};
+
+// Update Site Visit Status (New backend endpoint)
+export const useUpdateSiteVisitStatus = (id: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: IUpdateStatusRequest) => {
+      try {
+        const response = await AxiosWithToken.post(`${SITE_VISIT_BASE_URL}${id}/update_status/`, data);
+        return response.data;
+      } catch (error: any) {
+        console.error("Site visit status update error:", error);
+        throw new Error(
+          error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Failed to update site visit status"
+        );
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["site-visits"] });
+      queryClient.invalidateQueries({ queryKey: ["site-visit", id] });
+    },
+  });
+};
+
+// Generate EAs from Approved Site Visit (New backend endpoint)
+export const useGenerateEAsFromSiteVisit = (id: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => {
+      try {
+        const response = await AxiosWithToken.post(`${SITE_VISIT_BASE_URL}${id}/generate_eas/`);
+        return response.data;
+      } catch (error: any) {
+        console.error("EA generation error:", error);
+        throw new Error(
+          error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Failed to generate EAs from site visit"
+        );
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["site-visits"] });
+      queryClient.invalidateQueries({ queryKey: ["site-visit", id] });
+      queryClient.invalidateQueries({ queryKey: ["site-visit-team-members"] });
+    },
+  });
+};
+
+// Get Site Visit Approval Status (Updated for backend alignment)
+export const useGetSiteVisitApprovalStatus = (id: string) => {
+  return useQuery({
+    queryKey: ["site-visit-approval-status", id],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get(`${SITE_VISIT_BASE_URL}${id}/approval_status/`);
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    enabled: !!id,
+    refetchOnWindowFocus: false,
+  });
+};
+
+// Get My Pending Approvals (New backend endpoint)
+export const useGetMyPendingApprovals = () => {
+  return useQuery({
+    queryKey: ["my-pending-approvals"],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get(`${SITE_VISIT_BASE_URL}my_approvals/`);
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    refetchOnWindowFocus: false,
+  });
+};
+
+// Get Site Visit Dashboard Statistics (New backend endpoint)
+export const useGetSiteVisitDashboard = () => {
+  return useQuery<IDashboardResponse>({
+    queryKey: ["site-visit-dashboard"],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get(`${SITE_VISIT_BASE_URL}dashboard/`);
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    refetchOnWindowFocus: false,
+  });
+};
+
+// ===== TEAM MEMBER ENDPOINTS =====
+
+// Get All Team Members for a Site Visit
+export const useGetSiteVisitTeamMembers = (siteVisitId: string) => {
+  return useQuery<TPaginatedResponse<ISiteVisitTeamMember>>({
+    queryKey: ["site-visit-team-members", siteVisitId],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get(TEAM_MEMBER_BASE_URL, {
+          params: { site_visit: siteVisitId },
+        });
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    enabled: !!siteVisitId,
+    refetchOnWindowFocus: false,
+  });
+};
+
+// Add Team Member to Site Visit (New backend endpoint)
+export const useAddTeamMember = (siteVisitId: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: {
+      user: string;
+      role: string;
+      per_day_allowance?: number;
+      transport_cost?: number;
+      accommodation_cost?: number;
+      comments?: string;
+    }) => {
+      try {
+        const response = await AxiosWithToken.post(`${SITE_VISIT_BASE_URL}${siteVisitId}/add_team_member/`, data);
+        return response.data;
+      } catch (error: any) {
+        console.error("Add team member error:", error);
+        throw new Error(
+          error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Failed to add team member"
+        );
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["site-visit-team-members", siteVisitId] });
+      queryClient.invalidateQueries({ queryKey: ["site-visit", siteVisitId] });
+    },
+  });
+};
+
+// Remove Team Member from Site Visit (New backend endpoint)
+export const useRemoveTeamMember = (siteVisitId: string, memberId: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => {
+      try {
+        const response = await AxiosWithToken.delete(`${SITE_VISIT_BASE_URL}${siteVisitId}/team-members/${memberId}/`);
+        return response.data;
+      } catch (error: any) {
+        console.error("Remove team member error:", error);
+        throw new Error(
+          error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Failed to remove team member"
+        );
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["site-visit-team-members", siteVisitId] });
+      queryClient.invalidateQueries({ queryKey: ["site-visit", siteVisitId] });
+    },
+  });
+};
+
+// Generate EA for Team Member (New backend endpoint)
+export const useGenerateTeamMemberEA = (memberId: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => {
+      try {
+        const response = await AxiosWithToken.post(`${TEAM_MEMBER_BASE_URL}${memberId}/generate_ea/`);
+        return response.data;
+      } catch (error: any) {
+        console.error("Generate team member EA error:", error);
+        throw new Error(
+          error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Failed to generate EA for team member"
+        );
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["site-visit-team-members"] });
+    },
+  });
+};
+
+// Get My Site Visits as Team Member (New backend endpoint)
+export const useGetMyVisitsAsTeamMember = () => {
+  return useQuery({
+    queryKey: ["my-visits-as-team-member"],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get(`${TEAM_MEMBER_BASE_URL}my_visits/`);
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    refetchOnWindowFocus: false,
+  });
+};
+
+// ===== APPROVAL ENDPOINTS =====
+
+// Get All Approvals for a Site Visit
+export const useGetSiteVisitApprovals = (siteVisitId: string) => {
+  return useQuery<TPaginatedResponse<ISiteVisitApproval>>({
+    queryKey: ["site-visit-approvals", siteVisitId],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get(APPROVAL_BASE_URL, {
+          params: { site_visit: siteVisitId },
+        });
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    enabled: !!siteVisitId,
+    refetchOnWindowFocus: false,
+  });
+};
+
+// Perform Approval Action (New backend endpoint)
+export const useApprovalAction = (approvalId: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: IApprovalActionRequest) => {
+      try {
+        const response = await AxiosWithToken.post(`${APPROVAL_BASE_URL}${approvalId}/approve_action/`, data);
+        return response.data;
+      } catch (error: any) {
+        console.error("Approval action error:", error);
+        throw new Error(
+          error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Failed to process approval action"
+        );
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["site-visit-approvals"] });
+      queryClient.invalidateQueries({ queryKey: ["site-visits"] });
+      queryClient.invalidateQueries({ queryKey: ["my-pending-approvals"] });
+    },
+  });
+};
+
+// Quick Approve (New backend endpoint)
+export const useQuickApprove = (approvalId: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (comments?: string) => {
+      try {
+        const response = await AxiosWithToken.post(`${APPROVAL_BASE_URL}${approvalId}/approve/`, { comments });
+        return response.data;
+      } catch (error: any) {
+        console.error("Quick approve error:", error);
+        throw new Error(
+          error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Failed to approve"
+        );
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["site-visit-approvals"] });
+      queryClient.invalidateQueries({ queryKey: ["site-visits"] });
+      queryClient.invalidateQueries({ queryKey: ["my-pending-approvals"] });
+    },
+  });
+};
+
+// Quick Reject (New backend endpoint)
+export const useQuickReject = (approvalId: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: { comments?: string; rejection_reason?: string }) => {
+      try {
+        const response = await AxiosWithToken.post(`${APPROVAL_BASE_URL}${approvalId}/reject/`, data);
+        return response.data;
+      } catch (error: any) {
+        console.error("Quick reject error:", error);
+        throw new Error(
+          error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Failed to reject"
+        );
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["site-visit-approvals"] });
+      queryClient.invalidateQueries({ queryKey: ["site-visits"] });
+      queryClient.invalidateQueries({ queryKey: ["my-pending-approvals"] });
+    },
+  });
+};
+
+// Get Pending Approvals for Current User (New backend endpoint)
+export const useGetPendingApprovals = () => {
+  return useQuery({
+    queryKey: ["pending-approvals"],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get(`${APPROVAL_BASE_URL}pending/`);
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    refetchOnWindowFocus: false,
+  });
+};
+
+// Get Approval History for Site Visit (New backend endpoint)
+export const useGetApprovalHistory = (siteVisitId: string) => {
+  return useQuery({
+    queryKey: ["approval-history", siteVisitId],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get(`${APPROVAL_BASE_URL}site-visit/${siteVisitId}/history/`);
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    enabled: !!siteVisitId,
+    refetchOnWindowFocus: false,
+  });
+};
+
+// Get Approval Dashboard (New backend endpoint)
+export const useGetApprovalDashboard = () => {
+  return useQuery({
+    queryKey: ["approval-dashboard"],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get(`${APPROVAL_BASE_URL}dashboard/`);
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    refetchOnWindowFocus: false,
+  });
+};
+
+// Send Reminder for Approval (New backend endpoint)
+export const useSendApprovalReminder = (approvalId: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => {
+      try {
+        const response = await AxiosWithToken.post(`${APPROVAL_BASE_URL}${approvalId}/send_reminder/`);
+        return response.data;
+      } catch (error: any) {
+        console.error("Send reminder error:", error);
+        throw new Error(
+          error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Failed to send reminder"
+        );
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["site-visit-approvals"] });
+    },
+  });
+};
+
+// ===== LEGACY HOOKS FOR BACKWARD COMPATIBILITY =====
+
+// Submit Site Visit for Approval (Legacy - now uses update status)
+export const useSubmitSiteVisit = (id: string) => {
+  return useUpdateSiteVisitStatus(id);
+};
+
+// Approve/Reject Site Visit (Legacy - now uses approval action)
 export const useApproveSiteVisit = (id: string) => {
   const queryClient = useQueryClient();
 
@@ -184,130 +566,50 @@ export const useApproveSiteVisit = (id: string) => {
       comments?: string;
     }) => {
       try {
-        const endpoint = `${BASE_URL}${id}/approve/`;
-        console.log('🔵 Site Visit Approval endpoint:', endpoint);
-        console.log('🔵 Request payload:', { action, comments });
+        // Find the approval for current user by getting approval status first
+        const approvalStatusResponse = await AxiosWithToken.get(`${SITE_VISIT_BASE_URL}${id}/approval_status/`);
+        const approvals = approvalStatusResponse.data?.data?.approvals || [];
+
+        // Find pending approval for current user
+        const currentUserApproval = approvals.find((approval: any) =>
+          approval.status === 'PENDING' && approval.is_current_user_approval
+        );
+
+        if (!currentUserApproval) {
+          throw new Error("No pending approval found for current user");
+        }
 
         const response = await AxiosWithToken.post(
-          endpoint,
+          `${APPROVAL_BASE_URL}${currentUserApproval.id}/approve_action/`,
           {
-            action,
+            action: action.toUpperCase(),
             comments,
           }
         );
 
-        console.log('✅ Site Visit Approval response:', response.data);
         return response.data;
       } catch (error: any) {
-        console.error('❌ Site Visit Approval error:', {
-          status: error.response?.status,
-          statusText: error.response?.statusText,
-          data: error.response?.data,
-          url: error.config?.url,
-        });
-
-        // Check if response is HTML (backend endpoint not deployed)
-        const isHtmlResponse = typeof error.response?.data === 'string' &&
-          error.response?.data.trim().startsWith('<!DOCTYPE');
-
-        if (error.response?.status === 404) {
-          if (isHtmlResponse) {
-            throw new Error(
-              "The site visit approval endpoint is not yet deployed to the server. Please contact the backend team to deploy the /approve/ endpoint."
-            );
-          }
-          throw new Error(
-            error.response?.data?.detail ||
-            error.response?.data?.message ||
-            "Site visit not found. It may have been deleted or you don't have permission to access it."
-          );
-        }
-        if (error.response?.status === 403) {
-          throw new Error(
-            error.response?.data?.detail ||
-            error.response?.data?.message ||
-            "You don't have permission to approve this site visit at this level."
-          );
-        }
-        if (error.response?.status === 400) {
-          throw new Error(
-            error.response?.data?.detail ||
-            error.response?.data?.message ||
-            "Cannot approve at this time. Check the approval workflow status."
-          );
-        }
+        console.error('Site Visit Approval error:', error);
         throw new Error(
-          error.response?.data?.detail ||
           error.response?.data?.message ||
+          error.response?.data?.error ||
           "Failed to process approval"
         );
       }
     },
     onSuccess: () => {
-      // Refresh site visit data
       queryClient.invalidateQueries({ queryKey: ["site-visits"] });
       queryClient.invalidateQueries({ queryKey: ["site-visit", id] });
     },
   });
 };
 
-// Get Site Visit Approval Status
-export const useGetSiteVisitApprovalStatus = (id: string) => {
-  return useQuery({
-    queryKey: ["site-visit-approval-status", id],
-    queryFn: async () => {
-      try {
-        const response = await AxiosWithToken.get(
-          `${BASE_URL}${id}/approval-status/`
-        );
-        return response.data;
-      } catch (error) {
-        const axiosError = error as AxiosError;
-        throw new Error(
-          "Sorry: " + (axiosError.response?.data as any)?.message
-        );
-      }
-    },
-    enabled: !!id,
-    refetchOnWindowFocus: false,
-  });
-};
-
-// Create EA from Approved Site Visit (Triggered automatically on final approval)
+// Create EA from Approved Site Visit (Legacy - now uses generate EAs)
 export const useCreateEAFromSiteVisit = (id: string) => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async () => {
-      try {
-        const response = await AxiosWithToken.post(`${BASE_URL}${id}/create-ea/`);
-        return response.data;
-      } catch (error: any) {
-        console.error("EA creation error:", error);
-
-        if (error.response?.status === 404) {
-          throw new Error("Site visit not found or not eligible for EA creation.");
-        }
-        if (error.response?.status === 400) {
-          throw new Error(
-            error.response?.data?.detail ||
-            error.response?.data?.message ||
-            "Site visit is not yet approved or EA has already been created."
-          );
-        }
-        throw new Error(
-          error.response?.data?.detail ||
-          error.response?.data?.message ||
-          "Failed to create EA from site visit"
-        );
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["site-visits"] });
-      queryClient.invalidateQueries({ queryKey: ["site-visit", id] });
-    },
-  });
+  return useGenerateEAsFromSiteVisit(id);
 };
+
+// ===== SITE VISIT REPORTS (Keeping existing implementation) =====
 
 // Get Site Visit Report
 export const useGetSiteVisitReport = (id: string) => {
@@ -315,7 +617,7 @@ export const useGetSiteVisitReport = (id: string) => {
     queryKey: ["site-visit-report", id],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get(`${BASE_URL}${id}/report/`);
+        const response = await AxiosWithToken.get(`${SITE_VISIT_BASE_URL}${id}/report/`);
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
@@ -342,7 +644,7 @@ export const useCreateSiteVisitReport = (siteVisitId: string) => {
       attachments?: string[];
     }
   >({
-    endpoint: `${BASE_URL}${siteVisitId}/report/`,
+    endpoint: `${SITE_VISIT_BASE_URL}${siteVisitId}/report/`,
     queryKey: ["site-visit-report"],
     isAuth: true,
     method: "POST",
@@ -367,6 +669,8 @@ export const useCreateSiteVisitReport = (siteVisitId: string) => {
   return { createReport, data, isLoading, isSuccess, error };
 };
 
+// ===== EXPORTS FOR BACKWARD COMPATIBILITY =====
+
 // Legacy exports for backward compatibility
 export const useGetAllSiteVisitsQuery = useGetAllSiteVisits;
 export const useGetSingleSiteVisitQuery = useGetSingleSiteVisit;
@@ -380,3 +684,30 @@ export const useGetAllSiteVisitsManager = useGetAllSiteVisits;
 export const useGetSingleSiteVisitManager = useGetSingleSiteVisit;
 export const useUpdateSiteVisitManager = useUpdateSiteVisit;
 export const useDeleteSiteVisitManager = useDeleteSiteVisit;
+
+// New exports (Backend Aligned)
+export {
+  useGetAllSiteVisits,
+  useGetSingleSiteVisit,
+  useCreateSiteVisit,
+  useUpdateSiteVisit,
+  useDeleteSiteVisit,
+  useUpdateSiteVisitStatus,
+  useGenerateEAsFromSiteVisit,
+  useGetSiteVisitApprovalStatus,
+  useGetMyPendingApprovals,
+  useGetSiteVisitDashboard,
+  useGetSiteVisitTeamMembers,
+  useAddTeamMember,
+  useRemoveTeamMember,
+  useGenerateTeamMemberEA,
+  useGetMyVisitsAsTeamMember,
+  useGetSiteVisitApprovals,
+  useApprovalAction,
+  useQuickApprove,
+  useQuickReject,
+  useGetPendingApprovals,
+  useGetApprovalHistory,
+  useGetApprovalDashboard,
+  useSendApprovalReminder,
+};
