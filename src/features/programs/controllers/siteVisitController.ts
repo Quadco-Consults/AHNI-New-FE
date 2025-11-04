@@ -685,29 +685,3 @@ export const useGetSingleSiteVisitManager = useGetSingleSiteVisit;
 export const useUpdateSiteVisitManager = useUpdateSiteVisit;
 export const useDeleteSiteVisitManager = useDeleteSiteVisit;
 
-// New exports (Backend Aligned)
-export {
-  useGetAllSiteVisits,
-  useGetSingleSiteVisit,
-  useCreateSiteVisit,
-  useUpdateSiteVisit,
-  useDeleteSiteVisit,
-  useUpdateSiteVisitStatus,
-  useGenerateEAsFromSiteVisit,
-  useGetSiteVisitApprovalStatus,
-  useGetMyPendingApprovals,
-  useGetSiteVisitDashboard,
-  useGetSiteVisitTeamMembers,
-  useAddTeamMember,
-  useRemoveTeamMember,
-  useGenerateTeamMemberEA,
-  useGetMyVisitsAsTeamMember,
-  useGetSiteVisitApprovals,
-  useApprovalAction,
-  useQuickApprove,
-  useQuickReject,
-  useGetPendingApprovals,
-  useGetApprovalHistory,
-  useGetApprovalDashboard,
-  useSendApprovalReminder,
-};

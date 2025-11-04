@@ -802,8 +802,16 @@ const getDeparmentalLinks = () => {
               path: "/dashboard/programs/plan/supportive-supervision-plan",
             },
             {
+              name: "Annual Supervision Plan",
+              path: "/dashboard/programs/plan/annual-supervision",
+            },
+            {
               name: "Site Visit",
               path: "/dashboard/programs/plan/site-visit",
+            },
+            {
+              name: "Supervision Evaluation",
+              path: "/dashboard/programs/plan/supervision-evaluation",
             },
           ],
         },
