@@ -9,6 +9,8 @@ import {
 import {
   TFundRequestFormValues,
   TFundRequestWithActivitiesFormValues,
+  TFundRequestBackendPayload,
+  transformFormDataToBackendPayload,
 } from "definations/program-validator";
 
 // API Response interfaces
@@ -37,6 +39,50 @@ interface FundRequestFilterParams {
 }
 
 const BASE_URL = "/programs/fund-requests/";
+
+// ===== UNIQUE IDENTIFIER SEQUENCE HOOKS =====
+
+// Get Next Sequence Number for Fund Request Identifier
+export const useGetNextSequenceNumber = () => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    { next_sequence: number },
+    Error,
+    {
+      project_id: string;
+      location_code: string;
+      year: number;
+      month: number;
+    }
+  >({
+    endpoint: `${BASE_URL}next-sequence/`,
+    queryKey: ["fund-requests", "next-sequence"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const getNextSequence = async (
+    projectId: string,
+    locationCode: string,
+    year: number,
+    month: number
+  ) => {
+    try {
+      const response = await callApi({
+        project_id: projectId,
+        location_code: locationCode,
+        year,
+        month,
+      });
+      return response?.data?.next_sequence || 1;
+    } catch (error) {
+      console.error("Get next sequence error:", error);
+      // Fallback to 1 if API call fails
+      return 1;
+    }
+  };
+
+  return { getNextSequence, data, isLoading, isSuccess, error };
+};
 
 // ===== FUND REQUEST HOOKS =====
 
@@ -142,7 +188,7 @@ export const useCreateFundRequest = () => {
   const { callApi, isLoading, isSuccess, error, data } = useApiManager<
     null,
     Error,
-    TFundRequestFormValues
+    TFundRequestBackendPayload
   >({
     endpoint: BASE_URL,
     queryKey: ["fund-requests"],
@@ -150,12 +196,17 @@ export const useCreateFundRequest = () => {
     method: "POST",
   });
 
-  const createFundRequest = async (details: TFundRequestFormValues) => {
+  const createFundRequest = async (details: TFundRequestFormValues & { activities: any[] }) => {
     try {
-      const res = await callApi(details);
+      // Transform form data to backend payload format
+      const backendPayload = transformFormDataToBackendPayload(details);
+      console.log("Transformed payload for backend:", backendPayload);
+
+      const res = await callApi(backendPayload);
       return res;
     } catch (error) {
       console.error("Fund request create error:", error);
+      throw error;
     }
   };
 
@@ -167,7 +218,7 @@ export const useUpdateFundRequest = (id: string) => {
   const { callApi, isLoading, isSuccess, error, data } = useApiManager<
     null,
     Error,
-    TFundRequestWithActivitiesFormValues
+    TFundRequestBackendPayload
   >({
     endpoint: `${BASE_URL}${id}/`,
     queryKey: ["fund-requests"],
@@ -179,7 +230,11 @@ export const useUpdateFundRequest = (id: string) => {
     details: TFundRequestWithActivitiesFormValues
   ) => {
     try {
-      await callApi(details);
+      // Transform form data to backend payload format
+      const backendPayload = transformFormDataToBackendPayload(details);
+      console.log("Transformed update payload for backend:", backendPayload);
+
+      await callApi(backendPayload);
     } catch (error) {
       const axiosError = error as AxiosError;
       if (axiosError.response?.status === 400) {
@@ -202,7 +257,7 @@ export const usePatchFundRequest = (id: string) => {
   const { callApi, isLoading, isSuccess, error, data } = useApiManager<
     null,
     Error,
-    Partial<TFundRequestWithActivitiesFormValues>
+    Partial<TFundRequestBackendPayload>
   >({
     endpoint: `${BASE_URL}${id}/`,
     queryKey: ["fund-requests"],
@@ -214,7 +269,19 @@ export const usePatchFundRequest = (id: string) => {
     details: Partial<TFundRequestWithActivitiesFormValues>
   ) => {
     try {
-      await callApi(details);
+      // For partial updates, only transform if we have the full data structure
+      let payload: Partial<TFundRequestBackendPayload>;
+
+      if (details.activities) {
+        // Full transformation needed when activities are involved
+        payload = transformFormDataToBackendPayload(details as TFundRequestWithActivitiesFormValues);
+      } else {
+        // Simple field updates can be passed through
+        payload = details as Partial<TFundRequestBackendPayload>;
+      }
+
+      console.log("Transformed patch payload for backend:", payload);
+      await callApi(payload);
     } catch (error) {
       const axiosError = error as AxiosError;
       if (axiosError.response?.status === 400) {

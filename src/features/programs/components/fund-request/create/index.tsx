@@ -28,7 +28,11 @@ import {
   useGetLocationList,
 } from "@/features/modules/controllers/config/locationController";
 import { useGetAllUsers } from "@/features/auth/controllers/userController";
-import { useMemo, useEffect } from "react";
+import { useMemo, useEffect, useState } from "react";
+import {
+  generateFundRequestIdentifierAuto,
+  getLocationCode
+} from "@/utils/fundRequestIdentifier";
 
 const getYearOptions = () => {
   const currentYear = new Date().getFullYear();
@@ -154,33 +158,62 @@ const CreateFundRequest = () => {
   );
 
   const { handleSubmit, watch, setValue } = form;
+  const [isGeneratingUniqueCode, setIsGeneratingUniqueCode] = useState(false);
 
   // Watch the location and project fields for changes
   const selectedLocationId = watch("location");
   const selectedProjectId = watch("project");
+  const selectedMonth = watch("month");
+  const selectedYear = watch("year");
 
-  // Auto-fill unique_code when location or project changes
+  // Auto-generate unique_code when location, project, month, or year changes
   useEffect(() => {
-    if (selectedLocationId && selectedProjectId && location?.data.results && project?.data.results) {
-      const selectedLocation = location.data.results.find(
-        (loc) => loc.id === selectedLocationId
-      );
-      const selectedProject = project.data.results.find(
-        (proj) => proj.id === selectedProjectId
-      );
-      
-      if (selectedLocation?.unique_code && selectedProject?.project_id) {
-        // Project ID from database (e.g., "advgfre")
-        // Location code (e.g., "-02") 
-        // Final format: Project ID + Location Code = "advgfre-02"
-        const compositeUniqueCode = `${selectedProject.project_id}${selectedLocation.unique_code}`;
-        setValue("uuid_code", compositeUniqueCode);
-      } else if (selectedLocation?.unique_code) {
-        // Fallback to location code only if project_id is not available
-        setValue("uuid_code", selectedLocation.unique_code);
+    const generateUniqueCode = async () => {
+      if (selectedLocationId && selectedProjectId && location?.data.results && project?.data.results) {
+        const selectedLocation = location.data.results.find(
+          (loc) => loc.id === selectedLocationId
+        );
+        const selectedProject = project.data.results.find(
+          (proj) => proj.id === selectedProjectId
+        );
+
+        if (selectedLocation && selectedProject?.project_id) {
+          setIsGeneratingUniqueCode(true);
+
+          try {
+            // Get year and month (with defaults)
+            const year = selectedYear ? parseInt(selectedYear) : new Date().getFullYear();
+            const month = selectedMonth ? selectedMonth : String(new Date().getMonth() + 1);
+
+            // Generate new format identifier
+            // Format: {PROJECT_ID}-{LOCATION_CODE}-{YEAR}-{MONTH}-{SEQUENCE}
+            const uniqueCode = await generateFundRequestIdentifierAuto(
+              selectedProject,
+              selectedLocation,
+              year,
+              parseInt(month)
+            );
+
+            setValue("uuid_code", uniqueCode);
+          } catch (error) {
+            console.error("Error generating unique code:", error);
+
+            // Fallback to simpler format if API call fails
+            const locationCode = getLocationCode(selectedLocation);
+            const year = selectedYear ? selectedYear.slice(-2) : String(new Date().getFullYear()).slice(-2);
+            const monthFormatted = selectedMonth ? String(parseInt(selectedMonth)).padStart(2, '0') : String(new Date().getMonth() + 1).padStart(2, '0');
+
+            const fallbackCode = `${selectedProject.project_id}-${locationCode}-${year}-${monthFormatted}-01`;
+            setValue("uuid_code", fallbackCode);
+          } finally {
+            setIsGeneratingUniqueCode(false);
+          }
+        }
       }
-    }
-  }, [selectedLocationId, selectedProjectId, location, project, setValue]);
+    };
+
+    generateUniqueCode();
+  }, [selectedLocationId, selectedProjectId, selectedMonth, selectedYear, location, project, setValue]);
 
   const onSubmit: SubmitHandler<TFundRequestFormValues> = async (data) => {
     if (typeof window !== 'undefined') {
@@ -270,7 +303,7 @@ const CreateFundRequest = () => {
                 label='Unique Identifier Code'
                 name='uuid_code'
                 required
-                placeholder='Auto-filled from project + location (e.g., advgfre-02)'
+                placeholder={isGeneratingUniqueCode ? 'Generating unique code...' : 'Auto-generated (e.g., ACE1-1001000-ASO-25-11-01)'}
                 disabled
               />
 

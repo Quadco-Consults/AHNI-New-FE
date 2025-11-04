@@ -2,43 +2,101 @@ import { z } from "zod";
 import { IUser } from "features/auth/types/user";
 import { TFacilityData } from "definations/modules/program/facility";
 
-// Site Visit Types and Categories
+// ===== BACKEND-ALIGNED ENUMS AND TYPES =====
+
+// Site Visit Types (Backend Aligned)
 export enum SiteVisitType {
   SUPPORTIVE_SUPERVISION = "SUPPORTIVE_SUPERVISION",
   INTEGRATED_SUPPORTIVE_SUPERVISION = "INTEGRATED_SUPPORTIVE_SUPERVISION",
-  EMERGENCY_SUPERVISION = "EMERGENCY_SUPERVISION",
+  EMERGENCY_SUPPORTIVE_SUPERVISION = "EMERGENCY_SUPPORTIVE_SUPERVISION",
   STAKEHOLDER_ENGAGEMENT = "STAKEHOLDER_ENGAGEMENT",
-  OTHERS = "OTHERS"
+  MONITORING_EVALUATION = "MONITORING_EVALUATION",
+  TRAINING_WORKSHOP = "TRAINING_WORKSHOP",
+  TECHNICAL_ASSISTANCE = "TECHNICAL_ASSISTANCE",
+  OTHER = "OTHER"
 }
 
 export const SiteVisitTypeLabels = {
   [SiteVisitType.SUPPORTIVE_SUPERVISION]: "Supportive Supervision",
   [SiteVisitType.INTEGRATED_SUPPORTIVE_SUPERVISION]: "Integrated Supportive Supervision",
-  [SiteVisitType.EMERGENCY_SUPERVISION]: "Emergency Supervision",
+  [SiteVisitType.EMERGENCY_SUPPORTIVE_SUPERVISION]: "Emergency Supportive Supervision",
   [SiteVisitType.STAKEHOLDER_ENGAGEMENT]: "Stakeholder Engagement",
-  [SiteVisitType.OTHERS]: "Others"
+  [SiteVisitType.MONITORING_EVALUATION]: "Monitoring & Evaluation",
+  [SiteVisitType.TRAINING_WORKSHOP]: "Training Workshop",
+  [SiteVisitType.TECHNICAL_ASSISTANCE]: "Technical Assistance",
+  [SiteVisitType.OTHER]: "Other"
 };
 
+// Site Visit Status (Backend Aligned)
 export enum SiteVisitStatus {
   DRAFT = "DRAFT",
   SUBMITTED = "SUBMITTED",
-  UNDER_REVIEW = "UNDER_REVIEW",
   REVIEWED = "REVIEWED",
   AUTHORIZED = "AUTHORIZED",
   APPROVED = "APPROVED",
-  REJECTED = "REJECTED",
-  EA_CREATED = "EA_CREATED"
+  EA_GENERATED = "EA_GENERATED",
+  IN_PROGRESS = "IN_PROGRESS",
+  COMPLETED = "COMPLETED",
+  CANCELLED = "CANCELLED"
 }
 
 export const SiteVisitStatusLabels = {
   [SiteVisitStatus.DRAFT]: "Draft",
   [SiteVisitStatus.SUBMITTED]: "Submitted",
-  [SiteVisitStatus.UNDER_REVIEW]: "Under Review",
   [SiteVisitStatus.REVIEWED]: "Reviewed",
   [SiteVisitStatus.AUTHORIZED]: "Authorized",
   [SiteVisitStatus.APPROVED]: "Approved",
-  [SiteVisitStatus.REJECTED]: "Rejected",
-  [SiteVisitStatus.EA_CREATED]: "EA Created"
+  [SiteVisitStatus.EA_GENERATED]: "EA Generated",
+  [SiteVisitStatus.IN_PROGRESS]: "In Progress",
+  [SiteVisitStatus.COMPLETED]: "Completed",
+  [SiteVisitStatus.CANCELLED]: "Cancelled"
+};
+
+// Team Member Roles (Backend Aligned)
+export enum TeamMemberRole {
+  TEAM_LEAD = "TEAM_LEAD",
+  SUPERVISOR = "SUPERVISOR",
+  TECHNICAL_EXPERT = "TECHNICAL_EXPERT",
+  COORDINATOR = "COORDINATOR",
+  OBSERVER = "OBSERVER",
+  SUPPORT_STAFF = "SUPPORT_STAFF"
+}
+
+export const TeamMemberRoleLabels = {
+  [TeamMemberRole.TEAM_LEAD]: "Team Lead",
+  [TeamMemberRole.SUPERVISOR]: "Supervisor",
+  [TeamMemberRole.TECHNICAL_EXPERT]: "Technical Expert",
+  [TeamMemberRole.COORDINATOR]: "Coordinator",
+  [TeamMemberRole.OBSERVER]: "Observer",
+  [TeamMemberRole.SUPPORT_STAFF]: "Support Staff"
+};
+
+// Approval Types (Backend Aligned)
+export enum ApprovalType {
+  REVIEW = "REVIEW",
+  AUTHORIZATION = "AUTHORIZATION",
+  APPROVAL = "APPROVAL"
+}
+
+export const ApprovalTypeLabels = {
+  [ApprovalType.REVIEW]: "Review",
+  [ApprovalType.AUTHORIZATION]: "Authorization",
+  [ApprovalType.APPROVAL]: "Final Approval"
+};
+
+// Approval Status (Backend Aligned)
+export enum ApprovalStatus {
+  PENDING = "PENDING",
+  APPROVED = "APPROVED",
+  REJECTED = "REJECTED",
+  NEEDS_REVISION = "NEEDS_REVISION"
+}
+
+export const ApprovalStatusLabels = {
+  [ApprovalStatus.PENDING]: "Pending",
+  [ApprovalStatus.APPROVED]: "Approved",
+  [ApprovalStatus.REJECTED]: "Rejected",
+  [ApprovalStatus.NEEDS_REVISION]: "Needs Revision"
 };
 
 // Zod Schema for form validation

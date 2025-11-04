@@ -23,6 +23,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import FormInput from "components/atoms/FormInput";
 import FormSelect from "components/atoms/FormSelect";
 import { useGetAllCostCategoriesManager } from "@/features/modules/controllers/finance/costCategoryController";
+import ActivityBulkImport from "../ActivityBulkImport";
+import { Copy, Trash2 } from "lucide-react";
 
 const FundSummary: React.FC = () => {
   const router = useRouter();
@@ -32,7 +34,7 @@ const FundSummary: React.FC = () => {
     resolver: zodResolver(FundRequestActivitySchema),
   });
 
-  const { fields, append } = useFieldArray({
+  const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: "activities",
   });
@@ -92,6 +94,7 @@ const FundSummary: React.FC = () => {
                 <TableHead>Frequency</TableHead>
                 <TableHead>Cost Category</TableHead>
                 <TableHead>Comment</TableHead>
+                <TableHead className="w-[120px]">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -142,10 +145,88 @@ const FundSummary: React.FC = () => {
                       placeholder=''
                     />
                   </TableCell>
+                  <TableCell>
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          // Duplicate this activity
+                          const currentActivity = form.getValues(`activities.${index}`);
+                          append({
+                            activity_description: currentActivity.activity_description,
+                            quantity: currentActivity.quantity,
+                            unit_cost: currentActivity.unit_cost,
+                            frequency: currentActivity.frequency,
+                            comment: currentActivity.comment,
+                            category: currentActivity.category,
+                          });
+                        }}
+                        title="Duplicate activity"
+                      >
+                        <Copy size={14} />
+                      </Button>
+                      {fields.length > 1 && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => remove(index)}
+                          title="Remove activity"
+                        >
+                          <Trash2 size={14} />
+                        </Button>
+                      )}
+                    </div>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
+
+          {/* Bulk Import and Quick Actions */}
+          <ActivityBulkImport
+            onImport={(activities) => {
+              // Map imported activities to the expected format
+              const mappedActivities = activities.map(activity => ({
+                activity_description: activity.activity_description,
+                quantity: activity.quantity,
+                unit_cost: activity.unit_cost,
+                frequency: activity.frequency,
+                comment: activity.comment,
+                category: activity.category,
+              }));
+
+              // Append all activities at once
+              mappedActivities.forEach(activity => append(activity));
+            }}
+            categories={costCategory?.data?.results?.map((cat: any) => ({
+              id: cat.id,
+              name: cat.name
+            })) || []}
+            onAddMultiple={(count) => {
+              // Add multiple empty rows
+              for (let i = 0; i < count; i++) {
+                append({
+                  activity_description: "",
+                  quantity: "",
+                  unit_cost: "",
+                  frequency: "",
+                  comment: "",
+                  category: "",
+                });
+              }
+            }}
+            existingActivities={fields.map((field, index) => ({
+              activity_description: form.watch(`activities.${index}.activity_description`) || "",
+              quantity: form.watch(`activities.${index}.quantity`) || "",
+              unit_cost: form.watch(`activities.${index}.unit_cost`) || "",
+              frequency: form.watch(`activities.${index}.frequency`) || "",
+              comment: form.watch(`activities.${index}.comment`) || "",
+              category: form.watch(`activities.${index}.category`) || "",
+            }))}
+          />
 
           <Button
             type='button'

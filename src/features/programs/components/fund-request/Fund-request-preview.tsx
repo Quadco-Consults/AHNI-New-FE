@@ -8,6 +8,10 @@ import { Button } from "components/ui/button";
 import { ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { RouteEnum } from "constants/RouterConstants";
+import {
+  FundRequestDisplayUtils,
+  validateFundRequestData,
+} from "@/features/programs/utils/fundRequestDisplayUtils";
 
 import { ColumnDef } from "@tanstack/react-table";
 import {
@@ -23,6 +27,7 @@ import {
 import { useGetSingleUser } from "@/features/auth/controllers";
 import { useCreateFundRequest } from "../../controllers";
 import { useGetAllCostCategories } from "@/features/modules/controllers";
+import { useGetProjectDisbursementSummary } from "@/features/finance/controllers/projectFinanceController";
 
 export default function Summary() {
   const router = useRouter();
@@ -57,51 +62,52 @@ export default function Summary() {
     size: 1000,
   });
 
+  // Fetch project disbursement summary for validation
+  const { data: disbursementSummary, isLoading: isDisbursementLoading } = useGetProjectDisbursementSummary(
+    programFundRequest?.project || ""
+  );
+
   const { createFundRequest, isLoading: isCreateLoading } =
     useCreateFundRequest();
 
   const handleSubmit = async () => {
     try {
-      // Calculate amount for each activity and add total obligation
-      const activitiesWithAmount = programFundRequest?.activities?.map((activity: any) => {
-        const amount = activity.amount ||
-          (Number(activity.unit_cost || 0) *
-           Number(activity.quantity || 0) *
-           Number(activity.frequency || 0));
+      console.log("Submitting fund request with data:", programFundRequest);
 
-        return {
-          ...activity,
-          amount: amount.toString()
-        };
-      }) || [];
-
-      // Calculate total obligation amount
-      const totalObligationAmount = activitiesWithAmount.reduce((total, activity) => {
-        return total + Number(activity.amount || 0);
-      }, 0);
-
-      // Prepare payload with calculated amounts
-      const payload = {
-        ...programFundRequest,
-        activities: activitiesWithAmount,
-        total_obligation_amount: totalObligationAmount.toString()
-      };
-
-      console.log("Submitting payload:", payload);
-      const res = await createFundRequest(payload);
-
-      console.log({ res });
-      if (res?.status === true || res?.message) {
-        router.push(RouteEnum.PROGRAM_FUND_REQUEST);
-        localStorage.removeItem("programFundRequest");
+      // Validate data before submission - including project disbursement checks
+      const validation = validateFundRequestData(
+        programFundRequest,
+        disbursementSummary?.data ? {
+          total_disbursements: disbursementSummary.data.total_disbursements,
+          remaining_budget: disbursementSummary.data.remaining_budget,
+        } : undefined
+      );
+      if (!validation.isValid) {
+        toast.error(`Validation failed: ${validation.errors.join(", ")}`);
+        return;
       }
 
-      // if (typeof window !== "undefined") {
-      // }
+      // The createFundRequest function now handles the transformation internally
+      const res = await createFundRequest(programFundRequest);
+
+      console.log("Fund request submission response:", { res });
+
+      if (res?.status === true || res?.data?.id) {
+        toast.success("Fund request submitted successfully!");
+        router.push(RouteEnum.PROGRAM_FUND_REQUEST);
+        localStorage.removeItem("programFundRequest");
+      } else {
+        throw new Error("Unexpected response format from server");
+      }
     } catch (error: any) {
-      toast.error(
-        error.response?.data?.message ?? error.message ?? "Something went wrong"
-      );
+      console.error("Fund request submission error:", error);
+
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to submit fund request. Please try again.";
+
+      toast.error(errorMessage);
     }
   };
 
@@ -155,17 +161,117 @@ export default function Summary() {
             <p className='text-sm text-gray-500'>{programFundRequest?.available_balance || 'N/A'}</p>
           </div>
           <div className='space-y-3'>
-            <h3 className='font-semibold'>Total Obligation Amount</h3>
+            <h3 className='font-semibold'>New Request Amount</h3>
             <p className='text-sm text-gray-500'>
-              {programFundRequest?.activities?.reduce((total, activity: any) => {
-                const amount = activity.amount ||
-                  (Number(activity.unit_cost || 0) *
-                   Number(activity.quantity || 0) *
-                   Number(activity.frequency || 0));
-                return total + amount;
-              }, 0).toLocaleString() || 'N/A'}
+              {FundRequestDisplayUtils.formatCurrency(
+                FundRequestDisplayUtils.calculateActivitiesTotal(programFundRequest?.activities || []),
+                programFundRequest?.currency || 'NGN'
+              )}
             </p>
           </div>
+        </div>
+
+        <hr className='pb-5' />
+
+        {/* Project Disbursement Summary Section */}
+        <div className='space-y-5 pb-5'>
+          <h3 className='font-semibold text-lg'>Project Budget Overview</h3>
+
+          {isDisbursementLoading ? (
+            <div className='bg-gray-50 p-4 rounded-lg'>
+              <p className='text-sm text-gray-500'>Loading project disbursement data...</p>
+            </div>
+          ) : disbursementSummary?.data ? (
+            <div className='bg-blue-50 p-4 rounded-lg space-y-3'>
+              <div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
+                <div>
+                  <p className='text-xs font-medium text-gray-600 uppercase tracking-wide'>Current Disbursements</p>
+                  <p className='text-lg font-semibold text-blue-800'>
+                    {FundRequestDisplayUtils.formatCurrency(disbursementSummary.data.total_disbursements, programFundRequest?.currency || 'NGN')}
+                  </p>
+                </div>
+                <div>
+                  <p className='text-xs font-medium text-gray-600 uppercase tracking-wide'>New Request</p>
+                  <p className='text-lg font-semibold text-orange-800'>
+                    {FundRequestDisplayUtils.formatCurrency(
+                      FundRequestDisplayUtils.calculateActivitiesTotal(programFundRequest?.activities || []),
+                      programFundRequest?.currency || 'NGN'
+                    )}
+                  </p>
+                </div>
+                <div>
+                  <p className='text-xs font-medium text-gray-600 uppercase tracking-wide'>Remaining Budget</p>
+                  <p className='text-lg font-semibold text-green-800'>
+                    {FundRequestDisplayUtils.formatCurrency(disbursementSummary.data.remaining_budget, programFundRequest?.currency || 'NGN')}
+                  </p>
+                </div>
+                <div>
+                  <p className='text-xs font-medium text-gray-600 uppercase tracking-wide'>Budget Utilization</p>
+                  <p className='text-lg font-semibold text-purple-800'>
+                    {disbursementSummary.data.disbursement_percentage.toFixed(1)}%
+                  </p>
+                </div>
+              </div>
+
+              {/* Budget Status Indicator */}
+              {(() => {
+                const newRequestAmount = FundRequestDisplayUtils.calculateActivitiesTotal(programFundRequest?.activities || []);
+                const afterRequestRemaining = disbursementSummary.data.remaining_budget - newRequestAmount;
+
+                if (afterRequestRemaining < 0) {
+                  return (
+                    <div className='bg-red-100 border-l-4 border-red-500 p-3 rounded'>
+                      <div className='flex items-center'>
+                        <div className='text-red-700'>
+                          <p className='font-medium'>⚠️ Budget Exceeded</p>
+                          <p className='text-sm'>
+                            This request would exceed the project budget by{' '}
+                            {FundRequestDisplayUtils.formatCurrency(Math.abs(afterRequestRemaining), programFundRequest?.currency || 'NGN')}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                } else if (afterRequestRemaining < disbursementSummary.data.remaining_budget * 0.1) {
+                  return (
+                    <div className='bg-yellow-100 border-l-4 border-yellow-500 p-3 rounded'>
+                      <div className='flex items-center'>
+                        <div className='text-yellow-700'>
+                          <p className='font-medium'>⚠️ Low Budget Remaining</p>
+                          <p className='text-sm'>
+                            After this request, only{' '}
+                            {FundRequestDisplayUtils.formatCurrency(afterRequestRemaining, programFundRequest?.currency || 'NGN')}{' '}
+                            will remain in the project budget.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                } else {
+                  return (
+                    <div className='bg-green-100 border-l-4 border-green-500 p-3 rounded'>
+                      <div className='flex items-center'>
+                        <div className='text-green-700'>
+                          <p className='font-medium'>✅ Budget Available</p>
+                          <p className='text-sm'>
+                            After this request,{' '}
+                            {FundRequestDisplayUtils.formatCurrency(afterRequestRemaining, programFundRequest?.currency || 'NGN')}{' '}
+                            will remain in the project budget.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
+              })()}
+            </div>
+          ) : (
+            <div className='bg-yellow-50 p-4 rounded-lg'>
+              <p className='text-sm text-yellow-700'>
+                ⚠️ Unable to load project disbursement data. Validation will use basic available balance check.
+              </p>
+            </div>
+          )}
         </div>
 
         <hr className='pb-5' />
@@ -181,17 +287,13 @@ export default function Summary() {
               <div className='space-y-2'>
                 <p className='text-sm font-medium text-gray-600'>Location Reviewer</p>
                 <p className='text-sm text-gray-900'>
-                  {locationReviewer?.data?.first_name && locationReviewer?.data?.last_name
-                    ? `${locationReviewer.data.first_name} ${locationReviewer.data.last_name}`
-                    : 'Not assigned'}
+                  {FundRequestDisplayUtils.getUserDisplayName(locationReviewer)}
                 </p>
               </div>
               <div className='space-y-2'>
                 <p className='text-sm font-medium text-gray-600'>Location Authorizer</p>
                 <p className='text-sm text-gray-900'>
-                  {locationAuthorizer?.data?.first_name && locationAuthorizer?.data?.last_name
-                    ? `${locationAuthorizer.data.first_name} ${locationAuthorizer.data.last_name}`
-                    : 'Not assigned'}
+                  {FundRequestDisplayUtils.getUserDisplayName(locationAuthorizer)}
                 </p>
               </div>
             </div>
@@ -204,17 +306,13 @@ export default function Summary() {
               <div className='space-y-2'>
                 <p className='text-sm font-medium text-gray-600'>State Reviewer</p>
                 <p className='text-sm text-gray-900'>
-                  {stateReviewer?.data?.first_name && stateReviewer?.data?.last_name
-                    ? `${stateReviewer.data.first_name} ${stateReviewer.data.last_name}`
-                    : 'Not assigned'}
+                  {FundRequestDisplayUtils.getUserDisplayName(stateReviewer)}
                 </p>
               </div>
               <div className='space-y-2'>
                 <p className='text-sm font-medium text-gray-600'>State Authorizer</p>
                 <p className='text-sm text-gray-900'>
-                  {stateAuthorizer?.data?.first_name && stateAuthorizer?.data?.last_name
-                    ? `${stateAuthorizer.data.first_name} ${stateAuthorizer.data.last_name}`
-                    : 'Not assigned'}
+                  {FundRequestDisplayUtils.getUserDisplayName(stateAuthorizer)}
                 </p>
               </div>
             </div>
@@ -227,25 +325,19 @@ export default function Summary() {
               <div className='space-y-2'>
                 <p className='text-sm font-medium text-gray-600'>HQ Reviewer</p>
                 <p className='text-sm text-gray-900'>
-                  {hqReviewer?.data?.first_name && hqReviewer?.data?.last_name
-                    ? `${hqReviewer.data.first_name} ${hqReviewer.data.last_name}`
-                    : 'Not assigned'}
+                  {FundRequestDisplayUtils.getUserDisplayName(hqReviewer)}
                 </p>
               </div>
               <div className='space-y-2'>
                 <p className='text-sm font-medium text-gray-600'>HQ Authorizer</p>
                 <p className='text-sm text-gray-900'>
-                  {hqAuthorizer?.data?.first_name && hqAuthorizer?.data?.last_name
-                    ? `${hqAuthorizer.data.first_name} ${hqAuthorizer.data.last_name}`
-                    : 'Not assigned'}
+                  {FundRequestDisplayUtils.getUserDisplayName(hqAuthorizer)}
                 </p>
               </div>
               <div className='space-y-2'>
                 <p className='text-sm font-medium text-gray-600'>HQ Final Approver</p>
                 <p className='text-sm text-gray-900'>
-                  {hqApprover?.data?.first_name && hqApprover?.data?.last_name
-                    ? `${hqApprover.data.first_name} ${hqApprover.data.last_name}`
-                    : 'Not assigned'}
+                  {FundRequestDisplayUtils.getUserDisplayName(hqApprover)}
                 </p>
               </div>
             </div>
@@ -267,15 +359,12 @@ export default function Summary() {
       <div className='mt-4 flex justify-end'>
         <div className='bg-gray-50 p-4 rounded-lg min-w-[300px]'>
           <div className='flex justify-between items-center'>
-            <span className='font-semibold text-lg'>Grand Total:</span>
+            <span className='font-semibold text-lg'>Total Disbursement:</span>
             <span className='font-bold text-xl text-primary'>
-              {programFundRequest?.activities?.reduce((total, activity: any) => {
-                const amount = activity.amount ||
-                  (Number(activity.unit_cost || 0) *
-                   Number(activity.quantity || 0) *
-                   Number(activity.frequency || 0));
-                return total + amount;
-              }, 0).toLocaleString() || '0'}
+              {FundRequestDisplayUtils.formatCurrency(
+                FundRequestDisplayUtils.calculateActivitiesTotal(programFundRequest?.activities || []),
+                programFundRequest?.currency || 'NGN'
+              )}
             </span>
           </div>
         </div>
@@ -316,7 +405,7 @@ const columns = (costCategories: any[]): ColumnDef<TFundRequestActivity>[] => {
       id: "description",
       accessorKey: "activity_description",
       size: 200,
-      footer: "GRAND TOTAL",
+      footer: "TOTAL DISBURSEMENT",
     },
 
     {
@@ -325,12 +414,9 @@ const columns = (costCategories: any[]): ColumnDef<TFundRequestActivity>[] => {
       size: 200,
       cell: ({ row }) => {
         const activity = row.original;
-        // Calculate amount if not provided: unit_cost * quantity * frequency
-        const amount = activity.amount ||
-          (Number(activity.unit_cost || 0) *
-           Number(activity.quantity || 0) *
-           Number(activity.frequency || 0));
-        return amount ? amount.toLocaleString() : '-';
+        // Calculate amount using utility function
+        const amount = FundRequestDisplayUtils.calculateActivitiesTotal([activity]);
+        return FundRequestDisplayUtils.formatCurrency(amount, 'NGN');
       },
     },
 
@@ -341,7 +427,7 @@ const columns = (costCategories: any[]): ColumnDef<TFundRequestActivity>[] => {
       size: 200,
       cell: ({ getValue }) => {
         const value = getValue() as string;
-        return value ? Number(value).toLocaleString() : '-';
+        return value ? FundRequestDisplayUtils.formatCurrency(value, 'NGN') : '-';
       },
     },
     {
@@ -356,16 +442,7 @@ const columns = (costCategories: any[]): ColumnDef<TFundRequestActivity>[] => {
       size: 200,
       cell: ({ row }) => {
         const category = row.original.category;
-        // If category is an object, return the name
-        if (typeof category === 'object' && category !== null) {
-          return (category as any).name || (category as any).category_name || '-';
-        }
-        // If it's a string (ID), look it up in costCategories
-        if (typeof category === 'string') {
-          const found = costCategories.find((cat) => cat.id === category);
-          return found?.name || found?.category_name || category;
-        }
-        return '-';
+        return FundRequestDisplayUtils.getCategoryName(category, costCategories);
       },
     },
 
