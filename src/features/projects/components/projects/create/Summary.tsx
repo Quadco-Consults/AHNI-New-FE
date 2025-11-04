@@ -14,7 +14,7 @@ import { FormField, FormItem, Form, FormControl } from "components/ui/form";
 import Card from "components/Card";
 import FormInput from "components/atoms/FormInput";
 import MultiSelectFormField from "components/ui/multiselect";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormTextArea from "components/atoms/FormTextArea";
 import { toast } from "sonner";
@@ -42,6 +42,7 @@ import {
   TProjectFormValues,
 } from "@/features/projects/types/project";
 import ConsortiumPartners from "./ConsortiumPartners";
+import TargetsSection, { ProjectTarget } from "./TargetsSection";
 import BreadcrumbCard, { TBreadcrumbList } from "components/Breadcrumb";
 import LongArrowLeft from "components/icons/LongArrowLeft";
 import { RouteEnum } from "constants/RouterConstants";
@@ -60,6 +61,9 @@ const breadcrumbs: TBreadcrumbList[] = [
 ];
 
 export default function ProjectSummaryPage() {
+  // State for managing project targets
+  const [projectTargets, setProjectTargets] = useState<ProjectTarget[]>([]);
+
   const { data: beneficiary } = useGetAllBeneficiaries({
     page: 1,
     size: 2000000,
@@ -284,6 +288,8 @@ export default function ProjectSummaryPage() {
       currency: currency,
       location,
       intervention_area,
+      // Add the new targets data
+      targets: projectTargets,
     };
     console.log({ formData });
 
@@ -558,11 +564,10 @@ export default function ProjectSummaryPage() {
                   required
                 />
 
-                <FormInput
-                  label='Achievement against target'
-                  name='achievement_against_target'
-                  placeholder='Enter Achievement Against Target'
-                  required
+                {/* New Performance Targets Section */}
+                <TargetsSection
+                  targets={projectTargets}
+                  onTargetsChange={setProjectTargets}
                 />
 
                 <div className='space-y-1'>
