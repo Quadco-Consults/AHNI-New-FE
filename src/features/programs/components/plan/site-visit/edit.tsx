@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
-import { useGetSingleSiteVisit } from "../../controllers/siteVisitController";
+import { useGetSingleSiteVisit } from "../../../controllers/siteVisitController";
 import { LoadingSpinner } from "components/Loading";
 
 interface SiteVisitEditProps {
