@@ -8,8 +8,17 @@ import BreadcrumbCard from "components/Breadcrumb";
 import DataTable from "components/Table/DataTable";
 import Pagination from "components/Pagination";
 import { Input } from "components/ui/input";
-import { Search, Plus, FileDown, Upload } from "lucide-react";
+import { Search, Plus, FileDown, Upload, Eye, Edit, Trash2, CheckCircle, MoreHorizontal } from "lucide-react";
 import { RouteEnum } from "constants/RouterConstants";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "components/ui/dropdown-menu";
+import { toast } from "sonner";
 
 import {
   SiteVisitStatus,
@@ -19,7 +28,9 @@ import {
   TSiteVisitPaginatedData,
 } from "@/features/programs/types/site-visit";
 
-import { useGetAllSiteVisits } from "@/features/programs/controllers/siteVisitController";
+import {
+  useGetAllSiteVisits
+} from "@/features/programs/controllers/siteVisitController";
 
 const SiteVisitList = () => {
   const router = useRouter();
@@ -32,6 +43,7 @@ const SiteVisitList = () => {
     page_size: 20,
     search,
   });
+
 
   const breadcrumbs = [
     { name: "Programs", icon: true },
@@ -88,58 +100,129 @@ const SiteVisitList = () => {
 
   const columns = [
     {
-      key: "title",
-      label: "Title",
-      render: (item: TSiteVisitPaginatedData) => (
-        <div>
-          <div className="font-medium">{item.title}</div>
-          <div className="text-xs text-gray-500">
-            {item.location_name || item.location}
-          </div>
-          {item.full_visit_number && (
-            <div className="text-xs text-blue-600 font-mono">
-              #{item.full_visit_number}
+      id: "title",
+      header: "Title",
+      cell: ({ row }: any) => {
+        const item = row.original;
+        return (
+          <div>
+            <div className="font-medium">{item.title}</div>
+            <div className="text-xs text-gray-500">
+              {item.location_name || item.location}
             </div>
-          )}
-        </div>
-      ),
+            {item.full_visit_number && (
+              <div className="text-xs text-blue-600 font-mono">
+                #{item.full_visit_number}
+              </div>
+            )}
+          </div>
+        );
+      },
     },
     {
-      key: "visit_type",
-      label: "Type",
-      render: (item: TSiteVisitPaginatedData) => getTypeBadge(item.visit_type),
+      id: "visit_type",
+      header: "Type",
+      cell: ({ row }: any) => {
+        const item = row.original;
+        return getTypeBadge(item.visit_type);
+      },
     },
     {
-      key: "dates",
-      label: "Visit Dates",
-      render: (item: TSiteVisitPaginatedData) => (
-        <div className="text-sm">
-          <div>{formatDate(item.start_date)}</div>
-          <div className="text-gray-500">to {formatDate(item.end_date)}</div>
-        </div>
-      ),
+      id: "dates",
+      header: "Visit Dates",
+      cell: ({ row }: any) => {
+        const item = row.original;
+        return (
+          <div className="text-sm">
+            <div>{formatDate(item.start_date)}</div>
+            <div className="text-gray-500">to {formatDate(item.end_date)}</div>
+          </div>
+        );
+      },
     },
     {
-      key: "team_members",
-      label: "Team Size",
-      render: (item: TSiteVisitPaginatedData) => (
-        <span className="text-sm">{item.team_members_count} members</span>
-      ),
+      id: "team_members",
+      header: "Team Size",
+      cell: ({ row }: any) => {
+        const item = row.original;
+        return <span className="text-sm">{item.team_members_count} members</span>;
+      },
     },
     {
-      key: "status",
-      label: "Status",
-      render: (item: TSiteVisitPaginatedData) => getStatusBadge(item.status),
+      id: "status",
+      header: "Status",
+      cell: ({ row }: any) => {
+        const item = row.original;
+        return getStatusBadge(item.status);
+      },
     },
     {
-      key: "created_by",
-      label: "Created By",
-      render: (item: TSiteVisitPaginatedData) => (
-        <div className="text-sm">
-          <div>{item.created_by}</div>
-          <div className="text-xs text-gray-500">{formatDate(item.created_datetime)}</div>
-        </div>
-      ),
+      id: "created_by",
+      header: "Created By",
+      cell: ({ row }: any) => {
+        const item = row.original;
+        return (
+          <div className="text-sm">
+            <div>{item.created_by}</div>
+            <div className="text-xs text-gray-500">{formatDate(item.created_datetime)}</div>
+          </div>
+        );
+      },
+    },
+    {
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }: any) => {
+        const item = row.original;
+        const canApprove = item.status === SiteVisitStatus.SUBMITTED || item.status === SiteVisitStatus.REVIEWED;
+        const canEdit = item.status === SiteVisitStatus.DRAFT || item.status === SiteVisitStatus.SUBMITTED;
+        const canDelete = item.status === SiteVisitStatus.DRAFT;
+
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0" onClick={(e) => e.stopPropagation()}>
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuItem onClick={(e) => handleView(item, e)}>
+                <Eye className="mr-2 h-4 w-4" />
+                View Details
+              </DropdownMenuItem>
+              {canEdit && (
+                <DropdownMenuItem onClick={(e) => handleEdit(item, e)}>
+                  <Edit className="mr-2 h-4 w-4" />
+                  Edit
+                </DropdownMenuItem>
+              )}
+              {canApprove && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={(e) => handleApprove(item, e)}>
+                    <CheckCircle className="mr-2 h-4 w-4" />
+                    Approve
+                  </DropdownMenuItem>
+                </>
+              )}
+              {canDelete && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={(e) => handleDelete(item, e)}
+                    className="text-red-600"
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete
+                  </DropdownMenuItem>
+                </>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
+      },
     },
   ];
 
@@ -159,6 +242,33 @@ const SiteVisitList = () => {
   const handleImport = () => {
     // TODO: Implement import functionality
     console.log("Import site visits");
+  };
+
+  // Action handlers
+  const handleView = (item: TSiteVisitPaginatedData, e: React.MouseEvent) => {
+    e.stopPropagation();
+    router.push(`${RouteEnum.PROGRAM_SITE_VISIT}/${item.id}` || `/dashboard/programs/plan/site-visit/${item.id}`);
+  };
+
+  const handleEdit = (item: TSiteVisitPaginatedData, e: React.MouseEvent) => {
+    e.stopPropagation();
+    router.push(`${RouteEnum.PROGRAM_SITE_VISIT}/${item.id}/edit` || `/dashboard/programs/plan/site-visit/${item.id}/edit`);
+  };
+
+  const handleDelete = (item: TSiteVisitPaginatedData, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (confirm(`Are you sure you want to delete "${item.title}"? This action cannot be undone.`)) {
+      // For now, show a message - we'll implement the actual deletion
+      toast.info("Delete functionality will be implemented soon");
+    }
+  };
+
+  const handleApprove = (item: TSiteVisitPaginatedData, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (confirm(`Are you sure you want to approve "${item.title}"?`)) {
+      // For now, show a message - we'll implement the actual approval
+      toast.info("Approval functionality will be implemented soon");
+    }
   };
 
   return (
@@ -235,25 +345,16 @@ const SiteVisitList = () => {
           <>
             <DataTable
               columns={columns}
-              data={siteVisits?.data?.results || []}
+              data={siteVisits?.results || []}
               onRowClick={handleRowClick}
-              emptyState={{
-                title: "No site visits found",
-                description: "No site visit applications have been created yet.",
-                action: (
-                  <Button onClick={handleCreateNew} className="mt-4">
-                    Create First Application
-                  </Button>
-                ),
-              }}
             />
 
             {/* Pagination */}
-            {siteVisits?.data?.results && siteVisits.data.results.length > 0 && (
+            {siteVisits?.results && siteVisits.results.length > 0 && (
               <div className="mt-6">
                 <Pagination
-                  total={siteVisits?.data?.pagination?.count ?? 0}
-                  itemsPerPage={siteVisits?.data?.pagination?.page_size ?? 20}
+                  total={siteVisits?.pagination?.count ?? 0}
+                  itemsPerPage={siteVisits?.pagination?.page_size ?? 20}
                   onChange={(newPage: number) => setPage(newPage)}
                 />
               </div>

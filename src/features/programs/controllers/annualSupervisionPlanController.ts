@@ -455,26 +455,4 @@ export const useGetMyPlannedVisits = () => {
   });
 };
 
-// ===== EXPORTS =====
-
-export {
-  // Annual Plan hooks
-  useGetAllAnnualPlans,
-  useGetSingleAnnualPlan,
-  useGetCurrentAnnualPlan,
-  useGetAnnualPlanDashboard,
-  useValidateExcelUpload,
-  useCreateAnnualPlan,
-  useUpdateAnnualPlan,
-  useDeleteAnnualPlan,
-  useActivateAnnualPlan,
-  useDownloadExcelTemplate,
-
-  // Planned Visit hooks
-  useGetPlannedVisits,
-  useGetAvailablePlannedVisits,
-  useUpdatePlannedVisit,
-  useLinkSiteVisitToPlannedVisit,
-  useCompletePlannedVisit,
-  useGetMyPlannedVisits,
-};
+// All exports are already handled individually above
