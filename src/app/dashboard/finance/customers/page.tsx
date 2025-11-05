@@ -133,6 +133,7 @@ export default function CustomersPage() {
   // Column definitions
   const columns = [
     {
+      id: "customer_number",
       accessorKey: "customer_number",
       header: "Customer #",
       cell: ({ row }: any) => (
@@ -140,6 +141,7 @@ export default function CustomersPage() {
       ),
     },
     {
+      id: "display_name",
       accessorKey: "display_name",
       header: "Customer Name",
       cell: ({ row }: any) => (
@@ -154,6 +156,7 @@ export default function CustomersPage() {
       ),
     },
     {
+      id: "customer_type",
       accessorKey: "customer_type",
       header: "Type",
       cell: ({ row }: any) => (
@@ -163,6 +166,7 @@ export default function CustomersPage() {
       ),
     },
     {
+      id: "email",
       accessorKey: "email",
       header: "Contact",
       cell: ({ row }: any) => (
@@ -183,6 +187,7 @@ export default function CustomersPage() {
       ),
     },
     {
+      id: "is_active",
       accessorKey: "is_active",
       header: "Status",
       cell: ({ row }: any) => (
@@ -353,15 +358,12 @@ export default function CustomersPage() {
         <DataTable
           columns={columns}
           data={customers}
-          pageCount={Math.ceil(totalCustomers / (filters.page_size || 10))}
-          pageIndex={(filters.page || 1) - 1}
-          pageSize={filters.page_size || 10}
-          onPaginationChange={(pagination) => {
-            setFilters(prev => ({
-              ...prev,
-              page: pagination.pageIndex + 1,
-              page_size: pagination.pageSize,
-            }));
+          pagination={{
+            total: totalCustomers,
+            pageSize: filters.page_size || 10,
+            onChange: (page) => {
+              setFilters(prev => ({ ...prev, page }));
+            }
           }}
         />
       </Card>

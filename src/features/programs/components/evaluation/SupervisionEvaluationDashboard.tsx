@@ -92,7 +92,8 @@ export default function SupervisionEvaluationDashboard({
   };
 
   const handleStatusFilter = (status: string) => {
-    setSearchParams(prev => ({ ...prev, status, page: 1 }));
+    const actualStatus = status === "all" ? "" : status;
+    setSearchParams(prev => ({ ...prev, status: actualStatus, page: 1 }));
   };
 
   const handleGenerateReport = async (format: 'PDF' | 'EXCEL') => {
@@ -154,7 +155,7 @@ export default function SupervisionEvaluationDashboard({
             <DownloadIcon className="h-4 w-4 mr-2" />
             Export Excel
           </Button>
-          <Button onClick={() => router.push("/programs/evaluation/create")}>
+          <Button onClick={() => router.push("/dashboard/programs/plan/supervision-evaluation/create")}>
             <PlusIcon className="h-4 w-4 mr-2" />
             New Evaluation
           </Button>
@@ -303,13 +304,13 @@ export default function SupervisionEvaluationDashboard({
                 />
               </div>
             </div>
-            <Select value={searchParams.status} onValueChange={handleStatusFilter}>
+            <Select value={searchParams.status || "all"} onValueChange={handleStatusFilter}>
               <SelectTrigger className="w-48">
                 <FilterIcon className="h-4 w-4 mr-2" />
                 <SelectValue placeholder="Filter by status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Statuses</SelectItem>
+                <SelectItem value="all">All Statuses</SelectItem>
                 {Object.entries(SupervisionEvaluationStatusLabels).map(([value, label]) => (
                   <SelectItem key={value} value={value}>
                     {label}
@@ -337,7 +338,7 @@ export default function SupervisionEvaluationDashboard({
                 <div
                   key={evaluation.id}
                   className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer"
-                  onClick={() => router.push(`/programs/evaluation/${evaluation.id}`)}
+                  onClick={() => router.push(`/dashboard/programs/plan/supervision-evaluation/${evaluation.id}`)}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
@@ -456,7 +457,7 @@ export default function SupervisionEvaluationDashboard({
               <p className="text-gray-500">No evaluations found</p>
               <Button
                 className="mt-4"
-                onClick={() => router.push("/programs/evaluation/create")}
+                onClick={() => router.push("/dashboard/programs/plan/supervision-evaluation/create")}
               >
                 Create First Evaluation
               </Button>

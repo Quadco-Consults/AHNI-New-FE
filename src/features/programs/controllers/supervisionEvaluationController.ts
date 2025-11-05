@@ -436,28 +436,4 @@ export const useGenerateEvaluationReport = () => {
   });
 };
 
-// ===== EXPORTED HOOKS =====
-
-export {
-  // Supervision Evaluation hooks
-  useGetAllSupervisionEvaluations,
-  useGetSingleSupervisionEvaluation,
-  useGetEvaluationsBySiteVisit,
-  useGetMyEvaluations,
-  useCreateSupervisionEvaluation,
-  useUpdateSupervisionEvaluation,
-  useCompleteSupervisionEvaluation,
-  useDeleteSupervisionEvaluation,
-
-  // Evaluation Response hooks
-  useGetEvaluationResponses,
-  useUpdateEvaluationResponse,
-
-  // Evaluation Template hooks
-  useGetEvaluationTemplates,
-  useGetSingleEvaluationTemplate,
-
-  // Dashboard and Analytics hooks
-  useGetEvaluationDashboard,
-  useGenerateEvaluationReport,
-};
+// All exports are already handled individually above

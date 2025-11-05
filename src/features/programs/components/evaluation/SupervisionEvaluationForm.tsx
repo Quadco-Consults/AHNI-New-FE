@@ -178,7 +178,7 @@ export default function SupervisionEvaluationForm({
       if (onSuccess) {
         onSuccess(result.data.id);
       } else {
-        router.push(`/programs/evaluation/${result.data.id}`);
+        router.push(`/dashboard/programs/plan/supervision-evaluation/${result.data.id}`);
       }
     } catch (error: any) {
       toast.error(error.message || "Failed to create evaluation");
