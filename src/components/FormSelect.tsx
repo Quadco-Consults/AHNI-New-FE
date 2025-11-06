@@ -62,7 +62,6 @@ const FormSelect: FC<SelectProps> = ({
               <Select
                 onValueChange={onChange}
                 value={value}
-                defaultValue={value}
               >
                 <FormControl>
                   <SelectTrigger>

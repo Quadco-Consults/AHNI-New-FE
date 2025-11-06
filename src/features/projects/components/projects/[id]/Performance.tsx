@@ -22,6 +22,11 @@ export default function Performance(props: PerformanceProps) {
     targets, // Targets set during project creation
   } = props;
 
+  // Debug: Log what targets we're receiving from props (commented out for production)
+  // console.log("📊 Performance component received targets:", targets);
+  // console.log("📊 Targets type:", typeof targets);
+  // console.log("📊 Is array:", Array.isArray(targets));
+
   return (
     <div className="space-y-6">
       {/* New Performance Tracking Section */}

@@ -5,23 +5,7 @@ import { Button } from "components/ui/button";
 import { Label } from "components/ui/label";
 import { FaTimes, FaPlus } from "react-icons/fa";
 import { toast } from "sonner";
-
-export interface ProjectTargetDefinition {
-  id?: string;
-  indicator_code: string;
-  indicator_name: string;
-  tracking_mode: 'SIMPLE' | 'QUARTERLY';
-  fiscal_year: string;
-  // Targets only (no achievements during creation)
-  annual_target: number;
-  // Quarterly targets (if quarterly mode)
-  q1_target?: number;
-  q2_target?: number;
-  q3_target?: number;
-  q4_target?: number;
-  // Notes about the target
-  target_notes?: string;
-}
+import { ProjectTargetDefinition } from "@/features/projects/types/project";
 
 interface TargetDefinitionTableProps {
   targets: ProjectTargetDefinition[];

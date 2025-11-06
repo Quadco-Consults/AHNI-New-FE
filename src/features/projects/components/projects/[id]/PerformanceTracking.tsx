@@ -53,8 +53,27 @@ export default function PerformanceTracking({ projectId, projectTargets = [] }: 
 
   // Initialize targets with achievement tracking
   useEffect(() => {
-    // If no projectTargets passed, create sample data for demonstration
-    let sourceTargets = projectTargets;
+    // Debug: Log what projectTargets we're receiving (commented out for production)
+    // console.log("🎯 PerformanceTracking received projectTargets:", projectTargets);
+    // console.log("🎯 projectTargets length:", projectTargets.length);
+
+    // Map backend target structure to component expected structure
+    let sourceTargets = projectTargets.map(target => ({
+      id: target.id,
+      indicator_code: target.indicator_code,
+      indicator_name: target.indicator_name,
+      tracking_mode: target.tracking_mode,
+      fiscal_year: target.fiscal_year,
+      annual_target: Number(target.target_value) || 0, // Map target_value to annual_target
+      q1_target: target.q1_target,
+      q2_target: target.q2_target,
+      q3_target: target.q3_target,
+      q4_target: target.q4_target,
+      target_notes: target.comments || '',
+      achievements: target.achievements || []
+    }));
+
+    // console.log("🎯 Mapped sourceTargets:", sourceTargets);
 
     if (sourceTargets.length === 0) {
       // Create sample targets based on user's data format
@@ -287,13 +306,13 @@ export default function PerformanceTracking({ projectId, projectTargets = [] }: 
                 const q4_achievement = target.achievements.find(a => a.quarter === 'Q4')?.achievement_value || 0;
 
                 const cumulativeAchievement = q1_achievement + q2_achievement + q3_achievement + q4_achievement;
-                const performancePercent = target.annual_target > 0 ? (cumulativeAchievement / target.annual_target) : 0;
+                const performancePercent = (target.annual_target || 0) > 0 ? (cumulativeAchievement / (target.annual_target || 1)) : 0;
                 const isOnTarget = performancePercent >= 0.80;
 
                 return (
                   <tr key={target.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
                     <td className="px-3 py-3 border border-gray-300 font-medium">{target.indicator_code}</td>
-                    <td className="px-3 py-3 border border-gray-300 text-right">{target.annual_target.toLocaleString()}</td>
+                    <td className="px-3 py-3 border border-gray-300 text-right">{target.annual_target?.toLocaleString() || '0'}</td>
 
                     {/* Q1 Achievement - Editable */}
                     <td className="px-3 py-3 border border-gray-300 text-right">
