@@ -19,6 +19,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import FormTextArea from "components/atoms/FormTextArea";
 import { toast } from "sonner";
 import { useGetAllUsers } from "@/features/auth/controllers/userController";
+import { filterAhniStaffOnly } from "@/utils/userFilters";
+import { useGetEmployeeOnboardings } from "@/features/hr/controllers/employeeOnboardingController";
 import {
   addObjective,
   clearObjectives,
@@ -43,7 +45,7 @@ import {
 } from "@/features/projects/types/project";
 import ConsortiumPartners from "./ConsortiumPartners";
 import TargetsToggleView from "./TargetsToggleView";
-import { ProjectTargetDefinition } from "./TargetDefinitionTable";
+import { ProjectTargetDefinition } from "@/features/projects/types/project";
 import BreadcrumbCard, { TBreadcrumbList } from "components/Breadcrumb";
 import LongArrowLeft from "components/icons/LongArrowLeft";
 import { RouteEnum } from "constants/RouterConstants";
@@ -83,11 +85,37 @@ export default function ProjectSummaryPage() {
     search: "",
   });
 
-  const userOptions = user?.data?.results?.map((user) => ({
-    name: user.first_name + " " + user.last_name,
-    id: user.id,
-  }));
-  console.log({ userOptions });
+  // Get employee data like in site visit creator
+  const { data: employeeData } = useGetEmployeeOnboardings({
+    page: 1,
+    size: 2000000,
+    search: "",
+  });
+
+  // Combine and filter AHNI users and employees like site visit creator
+  const userOptions = useMemo(() => {
+    const allUsers = user?.data?.results || [];
+    const allEmployees = employeeData?.data?.results || [];
+
+    // Filter only AHNI staff from users
+    const ahniUsers = filterAhniStaffOnly(allUsers);
+
+    // Map both users and employees to consistent format
+    const usersList = ahniUsers.map((userItem) => ({
+      name: `${userItem.first_name} ${userItem.last_name}`,
+      id: userItem.id,
+      type: 'user'
+    }));
+
+    const employeesList = allEmployees.map((employee) => ({
+      name: `${employee.first_name} ${employee.last_name}`,
+      id: employee.id,
+      type: 'employee'
+    }));
+
+    // Combine both lists
+    return [...usersList, ...employeesList];
+  }, [user?.data?.results, employeeData?.data?.results]);
 
   const { data: partner } = useGetAllPartners({
     page: 1,
@@ -129,12 +157,11 @@ export default function ProjectSummaryPage() {
       project_managers: [],
       expected_results: "",
       budget_performance: "",
-      achievement_against_target: "",
       beneficiaries: [],
       currency: "USD",
       start_date: "",
       end_date: "",
-      intervention_area: [],
+      intervention_area: "",
     },
   });
 
@@ -159,7 +186,6 @@ export default function ProjectSummaryPage() {
         project_managers,
         funding_sources,
         expected_results,
-        achievement_against_target,
         beneficiaries,
         objectives,
         partners,
@@ -189,7 +215,6 @@ export default function ProjectSummaryPage() {
         project_managers: projectManagers,
         funding_sources: fundingSources,
         expected_results,
-        achievement_against_target,
         beneficiaries: beneficiariesArr,
         currency,
         start_date,
@@ -232,7 +257,7 @@ export default function ProjectSummaryPage() {
 
   const locationOptions = useMemo(
     () =>
-      location?.data.results.map(({ name, id }) => ({
+      location?.data?.results?.map(({ name, id }) => ({
         label: name,
         value: id,
       })),
@@ -241,33 +266,39 @@ export default function ProjectSummaryPage() {
 
   const interventionAreaOptions = useMemo(
     () =>
-      interventionAreas?.data.results.map(({ code, id }) => ({
+      interventionAreas?.data?.results?.map(({ code, id }) => ({
         label: code,
         value: id,
       })),
     [interventionAreas]
   );
 
-  console.log({ formCheck: form.getValues() });
+  // Debug form values and validation state
+  console.log("📋 Current form values:", form.getValues());
+  console.log("❌ Form errors:", form.formState.errors);
+  console.log("✅ Form is valid:", form.formState.isValid);
 
-  const onSubmit: SubmitHandler<TProjectFormValues> = async ({
-    title,
-    project_id,
-    goal,
-    narrative,
-    budget_performance,
-    project_managers,
-    funding_sources,
-    expected_results,
-    achievement_against_target,
-    beneficiaries,
-    budget,
-    currency,
-    start_date,
-    end_date,
-    location,
-    intervention_area,
-  }) => {
+  const onSubmit: SubmitHandler<TProjectFormValues> = async (data) => {
+    console.log("🔥 FORM SUBMITTED! Data received:", data);
+
+    const {
+      title,
+      project_id,
+      goal,
+      narrative,
+      budget_performance,
+      project_managers,
+      funding_sources,
+      expected_results,
+      achievement_against_target,
+      beneficiaries,
+      budget,
+      currency,
+      start_date,
+      end_date,
+      location,
+      intervention_area,
+    } = data;
     const partnersId = consortiumPartners.map((partner) => partner.id);
 
     const formData = {
@@ -292,19 +323,24 @@ export default function ProjectSummaryPage() {
       // Add the new targets data
       targets: projectTargets,
     };
-    console.log({ formData });
+    console.log("🚀 FORM SUBMISSION:", { formData });
+    console.log("🎯 Project targets being sent:", projectTargets);
 
     try {
       let id;
 
       if (projectId) {
+        console.log("📝 Updating existing project:", projectId);
         await updateProject(formData);
         toast.success("Project Updated Successfully.");
         id = projectId;
       } else {
+        console.log("✨ Creating new project...");
         const res = await addProject(formData as any);
+        console.log("✅ Project creation response:", res);
         toast.success("Project Created Successfully.");
         id = res?.data?.id;
+        console.log("🆔 Extracted project ID:", id);
       }
 
       let path = pathname;
@@ -317,7 +353,8 @@ export default function ProjectSummaryPage() {
       dispatch(clearObjectives());
       dispatch(clearPartners());
     } catch (error: any) {
-      console.log({ error });
+      console.error("❌ PROJECT CREATION ERROR:", error);
+      console.log("📄 Error details:", error);
       toast.error("Failed to save project. Please try again.");
     }
   };
@@ -484,7 +521,7 @@ export default function ProjectSummaryPage() {
                       <FormItem>
                         <FormControl>
                           <MultiSelectFormField
-                            options={fundingSource?.data.results || []}
+                            options={fundingSource?.data?.results || []}
                             defaultValue={field.value}
                             onValueChange={field.onChange}
                             placeholder='Select Funding Sources'
@@ -626,6 +663,17 @@ export default function ProjectSummaryPage() {
                   disabled={isLoading}
                   type='submit'
                   size='lg'
+                  onClick={async (e) => {
+                    console.log("🔘 Next button clicked!");
+                    console.log("🔍 Form valid?", form.formState.isValid);
+                    console.log("🔍 Form errors:", form.formState.errors);
+
+                    // Force form submission regardless of validation status
+                    e.preventDefault();
+                    const formData = form.getValues();
+                    console.log("🚀 Forcing submission with data:", formData);
+                    await onSubmit(formData);
+                  }}
                 >
                   Next
                 </FormButton>

@@ -18,7 +18,7 @@ import { Icon } from "@iconify/react";
 import { RouteEnum } from "constants/RouterConstants";
 import { useGetSingleProject } from "@/features/projects/controllers/projectController";
 import Performance from "./Performance";
-import Activity from "./Activity";
+import ActivityReport from "./ActivityReport";
 import ObligationHistory from "features/contracts-grants/components/grant/_components/ObligationHistory";
 // import { useGetSingleSubGrant } from "@/features/c&g/subgrant/sub-grant";
 
@@ -106,7 +106,9 @@ export default function ProjectDetail() {
             </TabsContent>
 
             <TabsContent value='activity'>
-              <Activity />
+              <Card>
+                <ActivityReport {...project.data} />
+              </Card>
             </TabsContent>
           </>
         )}
