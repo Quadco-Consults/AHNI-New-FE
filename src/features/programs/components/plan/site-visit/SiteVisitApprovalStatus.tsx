@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "components/ui/button";
 import Card from "components/Card";
 import { Badge } from "components/ui/badge";
@@ -24,7 +24,9 @@ import {
 
 import {
   useApproveSiteVisit,
-  useCreateEAFromSiteVisit
+  useCreateEAFromSiteVisit,
+  useApprovalAction,
+  useUpdateSiteVisitStatus
 } from "@/features/programs/controllers/siteVisitController";
 
 interface SiteVisitApprovalStatusProps {
@@ -39,10 +41,45 @@ const SiteVisitApprovalStatus = ({
   const [showCommentForm, setShowCommentForm] = useState(false);
   const [comments, setComments] = useState("");
   const [actionType, setActionType] = useState<"approve" | "reject">("approve");
+  const [activeStepId, setActiveStepId] = useState<string | null>(null);
+
+  // Force reset the form state to show buttons
+  const resetFormState = () => {
+    setShowCommentForm(false);
+    setComments("");
+    setActiveStepId(null);
+    setActionType("approve");
+  };
+
+  // Fix status inconsistency - if all approvals are done but status isn't "APPROVED"
+  const handleFixStatus = async () => {
+    try {
+      await statusUpdateMutation.mutateAsync({
+        status: SiteVisitStatus.APPROVED,
+        comments: "Status updated to match completed approvals"
+      });
+      toast.success("Site visit status updated to APPROVED");
+      window.location.reload();
+    } catch (error: any) {
+      console.error("Status update failed:", error);
+      toast.error("Failed to update status");
+    }
+  };
+
+  // Force reset state on component mount to clear any stuck states
+  useEffect(() => {
+    resetFormState();
+  }, [siteVisit.id]);
 
   // API hooks
   const approveMutation = useApproveSiteVisit(siteVisit.id);
   const createEAMutation = useCreateEAFromSiteVisit(siteVisit.id);
+
+  // Use direct approval action for specific approval IDs
+  const directApprovalMutation = useApprovalAction(activeStepId || "");
+
+  // Status update mutation for fixing status inconsistencies
+  const statusUpdateMutation = useUpdateSiteVisitStatus(siteVisit.id);
 
   const formatDate = (dateString: string) => {
     try {
@@ -82,23 +119,39 @@ const SiteVisitApprovalStatus = ({
     }
   };
 
-  const handleAction = (type: "approve" | "reject") => {
+  const handleAction = (type: "approve" | "reject", stepId: string) => {
     setActionType(type);
+    setActiveStepId(stepId);
     setShowCommentForm(true);
   };
 
   const handleSubmitAction = async () => {
     try {
+      console.log("🔍 Submitting approval action:", {
+        actionType,
+        comments,
+        activeStepId,
+        siteVisitId: siteVisit.id
+      });
+
       if (onApprovalAction) {
         onApprovalAction(actionType, comments);
-      } else {
-        // Call API to approve/reject
-        await approveMutation.mutateAsync({
-          action: actionType,
-          comments: comments,
-        });
+      } else if (activeStepId && directApprovalMutation) {
+        // Use the specific approval ID to make the direct approval call
+        const payload = {
+          action: actionType.toUpperCase() as 'APPROVE' | 'REJECT',
+          comments: comments || undefined,
+          rejection_reason: actionType === 'reject' ? comments : undefined,
+        };
+        console.log("🔍 Direct API payload:", payload);
+
+        const result = await directApprovalMutation.mutateAsync(payload);
+        console.log("🔍 API success result:", result);
 
         toast.success(`Site visit ${actionType}d successfully`);
+
+        // Force refresh the site visit data to show updated approval status
+        window.location.reload();
 
         // If this is the final approval and it's approved, automatically create EA
         if (actionType === "approve" &&
@@ -117,40 +170,88 @@ const SiteVisitApprovalStatus = ({
       }
       setShowCommentForm(false);
       setComments("");
+      setActiveStepId(null);
     } catch (error: any) {
       console.error("Approval action failed:", error);
+      console.error("Error details:", {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
+
       toast.error(
         error.message || `Failed to ${actionType} site visit`
       );
+      // Reset state even on error so user can try again
+      setShowCommentForm(false);
+      setComments("");
+      setActiveStepId(null);
     }
   };
 
-  const getCurrentUserCanApprove = () => {
-    // TODO: Implement logic to check if current user can approve at current level
-    return false;
+  const getCurrentUserCanApprove = (step: any) => {
+    // For now, we'll check if there's a pending approval for this step
+    // In a real implementation, you'd also check if the current user ID matches the approver
+    return step.approval?.status === 'PENDING';
   };
 
-  // Create approval workflow display
+  // Debug site visit data
+  console.log("🔍 Site Visit Approval Data:", {
+    reviewer: siteVisit.reviewer,
+    authorizer: siteVisit.authorizer,
+    approver: siteVisit.approver,
+    reviewer_id: siteVisit.reviewer_id,
+    authorizer_id: siteVisit.authorizer_id,
+    approver_id: siteVisit.approver_id,
+    approvals: siteVisit.approvals,
+    approvalsDetails: siteVisit.approvals?.map(a => ({
+      id: a.id,
+      approval_type: a.approval_type,
+      approver: a.approver,
+      approver_name: a.approver_name,
+      status: a.status,
+      status_display: a.status_display,
+      approval_date: a.approval_date,
+      comments: a.comments,
+      is_approved: a.is_approved,
+      is_pending: a.is_pending
+    })),
+    reviewer_name: siteVisit.reviewer_name,
+    authorizer_name: siteVisit.authorizer_name,
+    approver_name: siteVisit.approver_name,
+    created_by: siteVisit.created_by,
+    siteVisitKeys: Object.keys(siteVisit)
+  });
+
+  // Check if all approvals are completed but status is inconsistent
+  const allApprovalsCompleted = siteVisit.approvals?.every(approval => approval.status === 'APPROVED') || false;
+  const statusInconsistent = allApprovalsCompleted && siteVisit.status !== SiteVisitStatus.APPROVED;
+
+  // Create approval workflow display based on actual approval records
   const approvalWorkflow = [
     {
       level: 1,
       role: "Reviewer",
-      user: siteVisit.reviewer,
-      approval: siteVisit.approvals?.find(a => a.level === 1),
+      approval: siteVisit.approvals?.find(a => a.approval_type === 'REVIEW'),
     },
     {
       level: 2,
       role: "Authorizer",
-      user: siteVisit.authorizer,
-      approval: siteVisit.approvals?.find(a => a.level === 2),
+      approval: siteVisit.approvals?.find(a => a.approval_type === 'AUTHORIZATION'),
     },
     {
       level: 3,
-      role: "Approver",
-      user: siteVisit.approver,
-      approval: siteVisit.approvals?.find(a => a.level === 3),
+      role: "Final Approver",
+      approval: siteVisit.approvals?.find(a => a.approval_type === 'APPROVAL'),
     },
-  ];
+  ].map(step => ({
+    ...step,
+    user: step.approval ? {
+      first_name: step.approval.approver_name?.split(' ')[0] || step.approval.approver_name,
+      last_name: step.approval.approver_name?.split(' ')[1] || '',
+      email: step.approval.approver || '', // This is the user ID
+    } : null
+  }));
 
   return (
     <div className="space-y-6">
@@ -158,9 +259,32 @@ const SiteVisitApprovalStatus = ({
       <Card className="p-6">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold">Approval Status</h3>
-          <Badge className={getStatusColor(siteVisit.status)}>
-            {siteVisit.status.replace("_", " ")}
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge className={getStatusColor(siteVisit.status)}>
+              {siteVisit.status.replace("_", " ")}
+            </Badge>
+            {showCommentForm && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={resetFormState}
+                className="text-xs"
+              >
+                Reset Form
+              </Button>
+            )}
+            {statusInconsistent && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleFixStatus}
+                className="text-xs bg-orange-50 border-orange-200 text-orange-800 hover:bg-orange-100"
+                disabled={statusUpdateMutation.isPending}
+              >
+                {statusUpdateMutation.isPending ? "Fixing..." : "Fix Status"}
+              </Button>
+            )}
+          </div>
         </div>
 
         <div className="text-sm text-gray-600">
@@ -205,6 +329,17 @@ const SiteVisitApprovalStatus = ({
             const isActive = siteVisit.current_approval_level === step.level;
             const isCompleted = step.approval && step.approval.status === "APPROVED";
             const isRejected = step.approval && step.approval.status === "REJECTED";
+            const canApprove = getCurrentUserCanApprove(step);
+
+            console.log(`🔍 Step ${step.role}:`, {
+              step: step,
+              canApprove: canApprove,
+              approvalStatus: step.approval?.status,
+              showCommentForm: showCommentForm,
+              activeStepId: activeStepId,
+              stepApprovalId: step.approval?.id,
+              willShowButtons: canApprove && (!showCommentForm || activeStepId !== step.approval?.id)
+            });
 
             return (
               <div
@@ -231,10 +366,22 @@ const SiteVisitApprovalStatus = ({
                       <h4 className="font-medium">{step.role}</h4>
                       <div className="flex items-center gap-2 text-sm text-gray-600">
                         <User size={14} />
-                        <span>
-                          {step.user.first_name} {step.user.last_name}
-                        </span>
-                        <span className="text-gray-400">({step.user.email})</span>
+                        {step.approval?.approver_name ? (
+                          <span>{step.approval.approver_name}</span>
+                        ) : step.user ? (
+                          <>
+                            <span>
+                              {step.user.first_name || step.user.name || 'Unknown'} {step.user.last_name || ''}
+                            </span>
+                            {step.user.email && step.user.email !== step.approval?.approver && (
+                              <span className="text-gray-400">({step.user.email})</span>
+                            )}
+                          </>
+                        ) : (
+                          <span className="text-orange-500">
+                            Not assigned yet
+                          </span>
+                        )}
                       </div>
                     </div>
 
@@ -265,19 +412,21 @@ const SiteVisitApprovalStatus = ({
                   )}
 
                   {/* Action Buttons for Current User */}
-                  {isActive && getCurrentUserCanApprove() && !showCommentForm && (
+                  {getCurrentUserCanApprove(step) && (!showCommentForm || activeStepId !== step.approval?.id) && (
                     <div className="flex gap-2 mt-3">
                       <Button
                         size="sm"
-                        onClick={() => handleAction("approve")}
+                        onClick={() => handleAction("approve", step.approval?.id || "")}
                         className="bg-green-600 hover:bg-green-700"
                       >
-                        Approve
+                        {step.role === "Reviewer" ? "Review & Approve" :
+                         step.role === "Authorizer" ? "Authorize" :
+                         "Final Approve"}
                       </Button>
                       <Button
                         size="sm"
                         variant="destructive"
-                        onClick={() => handleAction("reject")}
+                        onClick={() => handleAction("reject", step.approval?.id || "")}
                       >
                         Reject
                       </Button>
@@ -291,7 +440,7 @@ const SiteVisitApprovalStatus = ({
       </Card>
 
       {/* Comment Form */}
-      {showCommentForm && (
+      {showCommentForm && activeStepId && (
         <Card className="p-6">
           <h3 className="text-lg font-semibold mb-4">
             {actionType === "approve" ? "Approve" : "Reject"} Site Visit
@@ -331,6 +480,7 @@ const SiteVisitApprovalStatus = ({
                 onClick={() => {
                   setShowCommentForm(false);
                   setComments("");
+                  setActiveStepId(null);
                 }}
               >
                 Cancel

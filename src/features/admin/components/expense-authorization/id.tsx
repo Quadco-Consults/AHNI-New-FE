@@ -241,7 +241,7 @@ export default function ExpenseAuthorizationDetailsPage() {
                     <div>
                       <p className="text-sm text-gray-600">FCO</p>
                       <p className="font-medium text-gray-900">
-                        {data.data.fco.name}
+                        {data.data.fco?.name || 'No FCO assigned'}
                       </p>
                     </div>
                   </div>

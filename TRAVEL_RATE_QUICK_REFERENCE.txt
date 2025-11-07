@@ -1,0 +1,156 @@
+================================================================================
+                    TRAVEL RATE ISSUE - QUICK REFERENCE
+================================================================================
+
+PROBLEM IN ONE LINE:
+  Backend sends "lodging_rate" but frontend expects "accommodation_rate"
+
+STATUS:
+  Create/Update: WORKS
+  Read/Display:  BROKEN
+  Calculations:  BROKEN
+
+ROOT CAUSE:
+  No response transformation for incoming API data
+
+
+================================================================================
+                         AFFECTED COMPONENTS
+================================================================================
+
+CRITICAL IMPACT:
+  AllTravelRates.tsx          -> Shows "NGN 0" instead of real amounts
+  AddTravelRate.tsx           -> Form edit shows 0 instead of real values
+  useTravelRates.ts           -> Calculates 0 lodging costs
+  EAGenerationWorkflow.tsx    -> Generates incorrect EA costs
+  Site Visit System           -> Wrong total project costs
+
+VISIBLE SYMPTOM:
+  Travel rate list displays "NGN 0" for accommodation costs
+
+
+================================================================================
+                        DATA TRANSFORMATION ISSUE
+================================================================================
+
+OUTGOING (POST/PUT) - WORKS:
+  Form: accommodation_rate: 50000
+    |
+    v
+  Controller: lodging_rate: 50000  [TRANSFORMATION APPLIED]
+    |
+    v
+  Backend: Saves correctly
+
+INCOMING (GET) - BROKEN:
+  Backend: lodging_rate: 50000
+    |
+    v
+  Controller: lodging_rate: 50000  [NO TRANSFORMATION!]
+    |
+    v
+  Type expects accommodation_rate: undefined
+    |
+    v
+  Component: formatCurrency(undefined) -> "NGN 0"
+
+
+================================================================================
+                          FILES TO MODIFY
+================================================================================
+
+PRIORITY 1 - MUST FIX:
+  [1] travelRateController.ts
+      Add: Response transformation in GET queries
+      Map: lodging_rate -> accommodation_rate
+
+  [2] All components using the mismatched data:
+      - AllTravelRates.tsx (line 146)
+      - AddTravelRate.tsx (line 35)
+      - useTravelRates.ts (line 68)
+
+PRIORITY 2 - VERIFY:
+  [3] TravelFeesCalculator.tsx
+  [4] EAGenerationWorkflow.tsx
+  [5] Site visit components
+
+
+================================================================================
+                            QUICK FIX
+================================================================================
+
+In travelRateController.ts, modify useGetAllTravelRatesManager:
+
+BEFORE:
+  return response.data;  // Raw API response
+
+AFTER:
+  // Transform lodging_rate to accommodation_rate for compatibility
+  return {
+    ...response.data,
+    data: {
+      ...response.data?.data,
+      results: response.data?.data?.results?.map((item: any) => ({
+        ...item,
+        accommodation_rate: item.lodging_rate,
+      })) || [],
+    },
+  };
+
+Same transformation needed for:
+  - useGetSingleTravelRateManager
+  - useGetSingleTravelRateQuery
+
+
+================================================================================
+                          FIELD MAPPING
+================================================================================
+
+              Backend Name     ->  Frontend Expects     Status
+Lodging       lodging_rate     ->  accommodation_rate   BROKEN
+Per Diem      per_diem_rate    ->  per_diem_rate        OK
+Meals         meal_allowance   ->  meal_allowance       OK
+Transport     transport_allow  ->  transport_allow      OK
+Date          effective_date   ->  effective_date       OK
+Active        is_active        ->  is_active            OK
+
+
+================================================================================
+                        VERIFICATION STEPS
+================================================================================
+
+1. Add transformation in controller
+2. Test: Add new travel rate
+   Expected: Saves correctly
+3. Test: View travel rates list
+   Expected: Shows actual NGN amounts, not "NGN 0"
+4. Test: Edit existing travel rate
+   Expected: Form populated with correct values
+5. Test: Travel fee calculations
+   Expected: Shows correct lodging costs
+6. Test: EA generation
+   Expected: Correct total costs
+
+
+================================================================================
+                       IMPACT SEVERITY
+================================================================================
+
+Severity:     HIGH
+Affected:     Core financial/operational features
+Scope:        5 files must change
+Complexity:   Low (simple field mapping)
+Fix Time:     30-60 minutes
+Test Time:    30 minutes
+
+
+================================================================================
+                          KEY INSIGHT
+================================================================================
+
+The code DOES handle field transformation when SENDING data to backend
+(accommodation_rate -> lodging_rate), but it does NOT transform when
+RECEIVING data back from backend (lodging_rate -> accommodation_rate).
+
+This asymmetry causes the display bug.
+

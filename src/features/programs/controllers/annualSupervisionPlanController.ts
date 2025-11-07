@@ -6,15 +6,43 @@ import {
   IPlannedVisit,
   IAnnualPlanDashboardData,
   ICreateAnnualPlanRequest,
+  ICreateAnnualPlanManualRequest,
   IUpdatePlannedVisitRequest,
   IUploadValidationResult,
   IUploadProcessingResult,
 } from "../types/annual-supervision-plan";
 import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
 
-// Base URLs for API endpoints
-const ANNUAL_PLAN_BASE_URL = "programs/annual-supervision-plans/";
-const PLANNED_VISIT_BASE_URL = "programs/planned-visits/";
+// Fallback template creation function
+const createFallbackTemplate = () => {
+  console.log('📝 Creating fallback Excel template...');
+
+  // Create CSV content with the required columns
+  const csvContent = `Location Name,Location Code,Facility Name,Visit Type,Requires Evaluation,Preferred Quarter,Duration (Days)
+"Sample Location 1","LOC001","Sample Facility 1","SUPPORTIVE_SUPERVISION","YES","Q1","3"
+"Sample Location 2","LOC002","Sample Facility 2","INTEGRATED_SUPPORTIVE_SUPERVISION","NO","Q2","5"
+"Sample Location 3","LOC003","Sample Facility 3","SUPPORTIVE_SUPERVISION","YES","Q3","2"`;
+
+  // Create a blob with CSV content
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+
+  // Create download link
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.setAttribute('download', 'annual-supervision-plan-template.csv');
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(url);
+
+  console.log('✅ Fallback CSV template downloaded successfully');
+  return { success: true, filename: 'annual-supervision-plan-template.csv', fallback: true };
+};
+
+// Base URLs for API endpoints (matching backend implementation)
+const ANNUAL_PLAN_BASE_URL = "programs/plans/annual-supervision-plans/";
+const PLANNED_VISIT_BASE_URL = "programs/plans/planned-visits/";
 
 // ===== ANNUAL SUPERVISION PLAN ENDPOINTS =====
 
@@ -44,7 +72,15 @@ export const useGetAllAnnualPlans = (params: {
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        console.error("Annual supervision plans API error:", error);
+
+        // Handle specific backend errors
+        const errorData = axiosError.response?.data as any;
+        if (errorData?.message?.includes("'Location' is not defined")) {
+          throw new Error("Backend configuration error: Location model not properly imported. Please check the Django backend imports.");
+        }
+
+        throw new Error("Sorry: " + (errorData?.message || "Failed to load annual supervision plans"));
       }
     },
     refetchOnWindowFocus: false,
@@ -125,6 +161,17 @@ export const useValidateExcelUpload = () => {
         return response.data;
       } catch (error: any) {
         console.error("Validation error:", error);
+
+        // If the endpoint returns 405 Method Not Allowed, skip validation
+        if (error.response?.status === 405) {
+          console.warn("⚠️ Validation endpoint not available (405), skipping validation step");
+          return {
+            isValid: true,
+            errors: [],
+            message: "Validation skipped - endpoint not available"
+          };
+        }
+
         throw new Error(
           error.response?.data?.message ||
           error.response?.data?.error ||
@@ -142,19 +189,67 @@ export const useCreateAnnualPlan = () => {
   return useMutation({
     mutationFn: async (data: ICreateAnnualPlanRequest): Promise<IUploadProcessingResult> => {
       try {
+        console.log('🔍 DEBUG: Create Annual Plan Data:', {
+          financial_year_id: data.financial_year_id,
+          title: data.title,
+          description: data.description,
+          reviewer_id: data.reviewer_id,
+          authorizer_id: data.authorizer_id,
+          approver_id: data.approver_id,
+          upload_file: data.upload_file?.name
+        });
+
         const formData = new FormData();
         formData.append('financial_year_id', data.financial_year_id);
         formData.append('title', data.title);
         if (data.description) {
           formData.append('description', data.description);
         }
+
+        // Add workflow assignment fields with explicit logging
+        console.log('🔍 DEBUG: Assignment field values:', {
+          reviewer_id: data.reviewer_id,
+          authorizer_id: data.authorizer_id,
+          approver_id: data.approver_id
+        });
+
+        if (data.reviewer_id && data.reviewer_id !== 'none') {
+          formData.append('reviewer_id', data.reviewer_id);
+          console.log('✅ Added reviewer_id:', data.reviewer_id);
+        }
+        if (data.authorizer_id && data.authorizer_id !== 'none') {
+          formData.append('authorizer_id', data.authorizer_id);
+          console.log('✅ Added authorizer_id:', data.authorizer_id);
+        }
+        if (data.approver_id && data.approver_id !== 'none') {
+          formData.append('approver_id', data.approver_id);
+          console.log('✅ Added approver_id:', data.approver_id);
+        }
+
         formData.append('upload_file', data.upload_file);
+
+        // Log what's in formData
+        console.log('🔍 DEBUG: FormData contents:');
+        for (let [key, value] of formData.entries()) {
+          console.log(`  ${key}:`, value);
+        }
 
         const response = await AxiosWithToken.post(ANNUAL_PLAN_BASE_URL, formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
         });
+
+        console.log('✅ Upload Success response:', response.data);
+        console.log('🔍 DEBUG: Created plan assignment fields from upload:', {
+          reviewer_id: response.data?.data?.reviewer_id,
+          authorizer_id: response.data?.data?.authorizer_id,
+          approver_id: response.data?.data?.approver_id,
+          reviewer_name: response.data?.data?.reviewer_name,
+          authorizer_name: response.data?.data?.authorizer_name,
+          approver_name: response.data?.data?.approver_name
+        });
+
         return response.data;
       } catch (error: any) {
         console.error("Annual plan creation error:", error);
@@ -169,6 +264,109 @@ export const useCreateAnnualPlan = () => {
       queryClient.invalidateQueries({ queryKey: ["annual-supervision-plans"] });
       queryClient.invalidateQueries({ queryKey: ["current-annual-plan"] });
       queryClient.invalidateQueries({ queryKey: ["annual-plan-dashboard"] });
+    },
+  });
+};
+
+// Create Annual Plan with Manual Form (JSON for manual endpoint)
+export const useCreateAnnualPlanManual = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: ICreateAnnualPlanManualRequest): Promise<IAnnualSupervisionPlan> => {
+      try {
+        console.log('📊 Sending JSON data to manual endpoint:', data);
+
+        // Send JSON data directly to manual endpoint
+        const requestData = {
+          financial_year_id: data.financial_year_id,
+          title: data.title,
+          description: data.description || '',
+          // Add workflow assignment fields
+          reviewer_id: data.reviewer_id || null,
+          authorizer_id: data.authorizer_id || null,
+          approver_id: data.approver_id || null,
+          planned_visits: data.planned_visits.map(visit => {
+            // Ensure the 3 required fields are always present and valid
+            const mappedVisit = {
+              // REQUIRED FIELDS (as per backend specification)
+              location_name: visit.location_name || '', // Must be string
+              visit_type: visit.visit_type || 'SUPPORTIVE_SUPERVISION', // Must be valid enum
+              requires_evaluation: visit.requires_evaluation === "YES" || visit.requires_evaluation === true, // Must be boolean
+
+              // OPTIONAL UUID FIELDS (null if empty, to avoid UUID validation errors)
+              location_id: visit.location_id && visit.location_id.trim() !== '' ? visit.location_id : null,
+              facility_id: visit.facility_id && visit.facility_id.trim() !== '' ? visit.facility_id : null,
+
+              // OPTIONAL STRING FIELDS (empty string is fine)
+              location_code: visit.location_code || '',
+              facility_name: visit.facility_name || '',
+              preferred_quarter: visit.preferred_quarter || '',
+
+              // OPTIONAL NUMBER FIELD
+              duration_days: visit.duration_days || 1
+            };
+
+            // Validate that required fields have valid values
+            if (!mappedVisit.location_name || mappedVisit.location_name.trim() === '') {
+              console.error('❌ Missing required location_name for visit:', visit);
+            }
+            if (!mappedVisit.visit_type || !['SUPPORTIVE_SUPERVISION', 'INTEGRATED_SUPPORTIVE_SUPERVISION'].includes(mappedVisit.visit_type)) {
+              console.error('❌ Invalid visit_type for visit:', visit);
+            }
+            if (typeof mappedVisit.requires_evaluation !== 'boolean') {
+              console.error('❌ Invalid requires_evaluation type for visit:', visit);
+            }
+
+            return mappedVisit;
+          })
+        };
+
+        console.log('📋 JSON request data for manual endpoint:', JSON.stringify(requestData, null, 2));
+        console.log('🔗 API URL:', `${ANNUAL_PLAN_BASE_URL}manual/`);
+
+        const response = await AxiosWithToken.post(`${ANNUAL_PLAN_BASE_URL}manual/`, requestData, {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        console.log('✅ Success response:', response.data);
+        console.log('🔍 DEBUG: Created plan assignment fields:', {
+          reviewer_id: response.data?.data?.reviewer_id,
+          authorizer_id: response.data?.data?.authorizer_id,
+          approver_id: response.data?.data?.approver_id,
+          reviewer_name: response.data?.data?.reviewer_name,
+          authorizer_name: response.data?.data?.authorizer_name,
+          approver_name: response.data?.data?.approver_name
+        });
+        return response.data;
+      } catch (error: any) {
+        console.error("❌ Manual creation error:", error);
+        console.error("📊 Error details:", {
+          status: error.response?.status,
+          statusText: error.response?.statusText,
+          message: error.message,
+          data: error.response?.data,
+          headers: error.response?.headers
+        });
+        console.error("🌐 Request that failed:", {
+          url: `${ANNUAL_PLAN_BASE_URL}manual/`,
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          data: JSON.stringify(data, null, 2)
+        });
+
+        throw new Error(
+          error.response?.data?.message ||
+          error.response?.data?.error ||
+          error.message ||
+          "Failed to create annual plan manually"
+        );
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["annual-supervision-plans"] });
     },
   });
 };
@@ -253,11 +451,176 @@ export const useActivateAnnualPlan = (id: string) => {
   });
 };
 
+// Submit Plan for Review
+export const useSubmitForReview = (id: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => {
+      try {
+        const response = await AxiosWithToken.post(`${ANNUAL_PLAN_BASE_URL}${id}/submit-for-review/`);
+        return response.data;
+      } catch (error: any) {
+        console.error("Submit for review error:", error);
+        throw new Error(
+          error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Failed to submit plan for review"
+        );
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["annual-supervision-plans"] });
+      queryClient.invalidateQueries({ queryKey: ["annual-supervision-plan", id] });
+      queryClient.invalidateQueries({ queryKey: ["current-annual-plan"] });
+      queryClient.invalidateQueries({ queryKey: ["annual-plan-dashboard"] });
+    },
+  });
+};
+
+// Review Annual Plan
+export const useReviewAnnualPlan = (id: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: { decision: 'APPROVE' | 'REJECT'; comments?: string }) => {
+      try {
+        const response = await AxiosWithToken.post(`${ANNUAL_PLAN_BASE_URL}${id}/review/`, data);
+        return response.data;
+      } catch (error: any) {
+        console.error("Annual plan review error:", error);
+        throw new Error(
+          error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Failed to review annual plan"
+        );
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["annual-supervision-plans"] });
+      queryClient.invalidateQueries({ queryKey: ["annual-supervision-plan", id] });
+      queryClient.invalidateQueries({ queryKey: ["current-annual-plan"] });
+      queryClient.invalidateQueries({ queryKey: ["annual-plan-dashboard"] });
+    },
+  });
+};
+
+// Submit Plan for Authorization
+export const useSubmitForAuthorization = (id: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => {
+      try {
+        const response = await AxiosWithToken.post(`${ANNUAL_PLAN_BASE_URL}${id}/submit-for-authorization/`);
+        return response.data;
+      } catch (error: any) {
+        console.error("Submit for authorization error:", error);
+        throw new Error(
+          error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Failed to submit plan for authorization"
+        );
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["annual-supervision-plans"] });
+      queryClient.invalidateQueries({ queryKey: ["annual-supervision-plan", id] });
+      queryClient.invalidateQueries({ queryKey: ["current-annual-plan"] });
+      queryClient.invalidateQueries({ queryKey: ["annual-plan-dashboard"] });
+    },
+  });
+};
+
+// Authorize Annual Plan
+export const useAuthorizeAnnualPlan = (id: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: { decision: 'APPROVE' | 'REJECT'; comments?: string }) => {
+      try {
+        const response = await AxiosWithToken.post(`${ANNUAL_PLAN_BASE_URL}${id}/authorize/`, data);
+        return response.data;
+      } catch (error: any) {
+        console.error("Annual plan authorization error:", error);
+        throw new Error(
+          error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Failed to authorize annual plan"
+        );
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["annual-supervision-plans"] });
+      queryClient.invalidateQueries({ queryKey: ["annual-supervision-plan", id] });
+      queryClient.invalidateQueries({ queryKey: ["current-annual-plan"] });
+      queryClient.invalidateQueries({ queryKey: ["annual-plan-dashboard"] });
+    },
+  });
+};
+
+// Submit Plan for Approval
+export const useSubmitForApproval = (id: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => {
+      try {
+        const response = await AxiosWithToken.post(`${ANNUAL_PLAN_BASE_URL}${id}/submit-for-approval/`);
+        return response.data;
+      } catch (error: any) {
+        console.error("Submit for approval error:", error);
+        throw new Error(
+          error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Failed to submit plan for approval"
+        );
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["annual-supervision-plans"] });
+      queryClient.invalidateQueries({ queryKey: ["annual-supervision-plan", id] });
+      queryClient.invalidateQueries({ queryKey: ["current-annual-plan"] });
+      queryClient.invalidateQueries({ queryKey: ["annual-plan-dashboard"] });
+    },
+  });
+};
+
+// Approve Annual Plan
+export const useApproveAnnualPlan = (id: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: { decision: 'APPROVE' | 'REJECT'; comments?: string }) => {
+      try {
+        const response = await AxiosWithToken.post(`${ANNUAL_PLAN_BASE_URL}${id}/approve/`, data);
+        return response.data;
+      } catch (error: any) {
+        console.error("Annual plan approval error:", error);
+        throw new Error(
+          error.response?.data?.message ||
+          error.response?.data?.error ||
+          "Failed to approve annual plan"
+        );
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["annual-supervision-plans"] });
+      queryClient.invalidateQueries({ queryKey: ["annual-supervision-plan", id] });
+      queryClient.invalidateQueries({ queryKey: ["current-annual-plan"] });
+      queryClient.invalidateQueries({ queryKey: ["annual-plan-dashboard"] });
+    },
+  });
+};
+
 // Download Excel Template
 export const useDownloadExcelTemplate = () => {
   return useMutation({
     mutationFn: async () => {
       try {
+        console.log('🔄 Starting template download...');
+        console.log('📡 API URL:', `${ANNUAL_PLAN_BASE_URL}download-template/`);
+
         const response = await AxiosWithToken.get(
           `${ANNUAL_PLAN_BASE_URL}download-template/`,
           {
@@ -265,22 +628,70 @@ export const useDownloadExcelTemplate = () => {
           }
         );
 
+        console.log('✅ Template downloaded successfully');
+        console.log('📊 Response status:', response.status);
+        console.log('📁 Response headers:', response.headers);
+        console.log('📝 Blob size:', response.data.size);
+
+        // Check if the response is actually a blob
+        if (!response.data || response.data.size === 0) {
+          throw new Error('Downloaded file is empty or invalid');
+        }
+
+        // Get filename from headers if available
+        const contentDisposition = response.headers['content-disposition'];
+        let filename = 'annual-supervision-plan-template.xlsx';
+
+        if (contentDisposition) {
+          const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+          if (filenameMatch) {
+            filename = filenameMatch[1].replace(/['"]/g, '');
+          }
+        }
+
+        console.log('📄 Filename:', filename);
+
         // Create download link
         const url = window.URL.createObjectURL(new Blob([response.data]));
         const link = document.createElement('a');
         link.href = url;
-        link.setAttribute('download', 'annual-supervision-plan-template.xlsx');
+        link.setAttribute('download', filename);
         document.body.appendChild(link);
         link.click();
         link.remove();
         window.URL.revokeObjectURL(url);
 
-        return { success: true };
+        console.log('🎉 File download initiated successfully');
+        return { success: true, filename };
       } catch (error: any) {
-        console.error("Template download error:", error);
+        console.error("❌ Template download error:", error);
+        console.error("📊 Error details:", {
+          message: error.message,
+          status: error.response?.status,
+          statusText: error.response?.statusText,
+          data: error.response?.data,
+          headers: error.response?.headers
+        });
+
+        // Handle specific error cases
+        if (error.response?.status === 404) {
+          console.log('⚠️ Backend template endpoint not found, creating fallback template...');
+          // Create a fallback template if backend endpoint doesn't exist
+          return createFallbackTemplate();
+        } else if (error.response?.status === 401) {
+          throw new Error("Authentication required. Please log in again.");
+        } else if (error.response?.status === 403) {
+          throw new Error("Access denied. You don't have permission to download the template.");
+        } else if (error.response?.status === 500) {
+          throw new Error("Server error. Please try again later or contact support.");
+        } else if (error.code === 'NETWORK_ERROR' || !error.response) {
+          throw new Error("Network error. Please check your internet connection.");
+        }
+
         throw new Error(
           error.response?.data?.message ||
           error.response?.data?.error ||
+          error.message ||
           "Failed to download template"
         );
       }

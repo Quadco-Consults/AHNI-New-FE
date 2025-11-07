@@ -5,6 +5,12 @@ import { z } from "zod";
 export enum AnnualPlanStatus {
   DRAFT = "DRAFT",
   UPLOADED = "UPLOADED",
+  UNDER_REVIEW = "UNDER_REVIEW",
+  REVIEWED = "REVIEWED",
+  UNDER_AUTHORIZATION = "UNDER_AUTHORIZATION",
+  AUTHORIZED = "AUTHORIZED",
+  UNDER_APPROVAL = "UNDER_APPROVAL",
+  APPROVED = "APPROVED",
   ACTIVE = "ACTIVE",
   COMPLETED = "COMPLETED"
 }
@@ -12,6 +18,12 @@ export enum AnnualPlanStatus {
 export const AnnualPlanStatusLabels = {
   [AnnualPlanStatus.DRAFT]: "Draft",
   [AnnualPlanStatus.UPLOADED]: "Uploaded",
+  [AnnualPlanStatus.UNDER_REVIEW]: "Under Review",
+  [AnnualPlanStatus.REVIEWED]: "Reviewed",
+  [AnnualPlanStatus.UNDER_AUTHORIZATION]: "Under Authorization",
+  [AnnualPlanStatus.AUTHORIZED]: "Authorized",
+  [AnnualPlanStatus.UNDER_APPROVAL]: "Under Approval",
+  [AnnualPlanStatus.APPROVED]: "Approved",
   [AnnualPlanStatus.ACTIVE]: "Active",
   [AnnualPlanStatus.COMPLETED]: "Completed"
 };
@@ -62,6 +74,14 @@ export interface IAnnualSupervisionPlan {
   upload_date?: string;
   uploaded_by: string;
   uploaded_by_name?: string;
+
+  // Workflow Assignments
+  reviewer_id?: string;
+  reviewer_name?: string;
+  authorizer_id?: string;
+  authorizer_name?: string;
+  approver_id?: string;
+  approver_name?: string;
 
   // Auto-generated Statistics
   total_planned_visits: number;
@@ -198,6 +218,32 @@ export interface ICreateAnnualPlanRequest {
   title: string;
   description?: string;
   upload_file: File;
+  reviewer_id?: string;
+  authorizer_id?: string;
+  approver_id?: string;
+}
+
+// Manual form submission (JSON data, no file)
+export interface ICreateAnnualPlanManualRequest {
+  financial_year_id: string;
+  title: string;
+  description?: string;
+  planned_visits: IPlannedVisitCreate[];
+  reviewer_id?: string;
+  authorizer_id?: string;
+  approver_id?: string;
+}
+
+export interface IPlannedVisitCreate {
+  location_id: string;
+  location_name: string;
+  location_code?: string;
+  facility_id?: string;
+  facility_name?: string;
+  visit_type: string;
+  requires_evaluation: boolean;
+  preferred_quarter: string;
+  duration_days: number;
 }
 
 export interface IUpdatePlannedVisitRequest {
@@ -239,6 +285,9 @@ export const AnnualPlanUploadSchema = z.object({
   financial_year_id: z.string().min(1, "Financial year is required"),
   title: z.string().min(1, "Title is required"),
   description: z.string().optional(),
+  reviewer_id: z.string().optional(),
+  authorizer_id: z.string().optional(),
+  approver_id: z.string().optional(),
   upload_file: z.any().refine((file) => file instanceof File, "Upload file is required")
 });
 
@@ -287,6 +336,8 @@ export type {
   ILocationMatchResult,
   IUploadProcessingResult,
   ICreateAnnualPlanRequest,
+  ICreateAnnualPlanManualRequest,
+  IPlannedVisitCreate,
   IUpdatePlannedVisitRequest,
   IAnnualPlanDashboardData
 };

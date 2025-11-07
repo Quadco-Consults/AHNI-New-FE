@@ -55,6 +55,7 @@ import {
 } from "@/features/programs/controllers/annualSupervisionPlanController";
 
 import { useGetAllFinancialYears } from "@/features/modules/controllers";
+import { useGetAllUsers } from "@/features/auth/controllers/userController";
 
 interface AnnualPlanUploadProps {
   onSuccess?: (result: IUploadProcessingResult) => void;
@@ -73,6 +74,12 @@ const AnnualPlanUpload = ({ onSuccess, onCancel }: AnnualPlanUploadProps) => {
     size: 100,
   });
 
+  // Fetch users for workflow role assignments
+  const { data: usersData, isLoading: isLoadingUsers } = useGetAllUsers({
+    page: 1,
+    size: 1000, // Get all users
+  });
+
   // Mutations
   const createAnnualPlanMutation = useCreateAnnualPlan();
   const validateUploadMutation = useValidateExcelUpload();
@@ -85,10 +92,14 @@ const AnnualPlanUpload = ({ onSuccess, onCancel }: AnnualPlanUploadProps) => {
       financial_year_id: "",
       title: "",
       description: "",
+      reviewer_id: "none",
+      authorizer_id: "none",
+      approver_id: "none",
     },
   });
 
   const financialYears = financialYearsData?.data?.results || [];
+  const users = usersData?.data?.results || [];
 
   const handleFileChange = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -125,9 +136,13 @@ const AnnualPlanUpload = ({ onSuccess, onCancel }: AnnualPlanUploadProps) => {
       setValidationResult(validation);
 
       if (validation.isValid) {
-        toast.success(`File validated successfully! ${validation.validRowsCount} valid entries found.`);
+        if (validation.message?.includes("skipped")) {
+          toast.info("Validation endpoint not available - file will be processed directly");
+        } else {
+          toast.success(`File validated successfully! ${validation.validRowsCount || 0} valid entries found.`);
+        }
       } else {
-        toast.warning(`File has validation issues. ${validation.validRowsCount} valid entries, ${validation.invalidRows.length} errors.`);
+        toast.warning(`File has validation issues. ${validation.validRowsCount || 0} valid entries, ${validation.invalidRows?.length || 0} errors.`);
       }
     } catch (error: any) {
       toast.error(error.message || "Failed to validate file");
@@ -157,6 +172,9 @@ const AnnualPlanUpload = ({ onSuccess, onCancel }: AnnualPlanUploadProps) => {
         financial_year_id: data.financial_year_id,
         title: data.title,
         description: data.description,
+        reviewer_id: data.reviewer_id === "none" ? null : data.reviewer_id,
+        authorizer_id: data.authorizer_id === "none" ? null : data.authorizer_id,
+        approver_id: data.approver_id === "none" ? null : data.approver_id,
         upload_file: uploadFile!,
       });
 
@@ -250,15 +268,19 @@ const AnnualPlanUpload = ({ onSuccess, onCancel }: AnnualPlanUploadProps) => {
                         </FormControl>
                         <SelectContent>
                           {isLoadingFinancialYears ? (
-                            <SelectItem value="" disabled>
+                            <SelectItem value="loading" disabled>
                               Loading financial years...
                             </SelectItem>
-                          ) : (
+                          ) : financialYears.length > 0 ? (
                             financialYears.map((year: any) => (
                               <SelectItem key={year.id} value={year.id}>
                                 {year.year} ({year.start_date} - {year.end_date})
                               </SelectItem>
                             ))
+                          ) : (
+                            <SelectItem value="no-data" disabled>
+                              No financial years available
+                            </SelectItem>
                           )}
                         </SelectContent>
                       </Select>
@@ -305,6 +327,147 @@ const AnnualPlanUpload = ({ onSuccess, onCancel }: AnnualPlanUploadProps) => {
                   </FormItem>
                 )}
               />
+
+              {/* Workflow Role Assignments */}
+              <div className="space-y-4">
+                <div className="border-t pt-6">
+                  <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
+                    <Users className="h-5 w-5" />
+                    Workflow Assignments (Optional)
+                  </h3>
+                  <p className="text-sm text-gray-600 mb-6">
+                    Assign users who will review, authorize, and approve this annual supervision plan.
+                  </p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {/* Reviewer Selection */}
+                    <FormField
+                      control={form.control}
+                      name="reviewer_id"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Reviewer</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select reviewer" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="none">No reviewer assigned</SelectItem>
+                              {isLoadingUsers ? (
+                                <SelectItem value="loading" disabled>
+                                  Loading users...
+                                </SelectItem>
+                              ) : users.length > 0 ? (
+                                users.map((user: any) => (
+                                  <SelectItem key={user.id} value={user.id}>
+                                    {user.full_name || `${user.first_name} ${user.last_name}`}
+                                    {user.designation && (
+                                      <span className="text-gray-500 text-xs ml-1">
+                                        ({user.designation})
+                                      </span>
+                                    )}
+                                  </SelectItem>
+                                ))
+                              ) : (
+                                <SelectItem value="no-data" disabled>
+                                  No users available
+                                </SelectItem>
+                              )}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {/* Authorizer Selection */}
+                    <FormField
+                      control={form.control}
+                      name="authorizer_id"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Authorizer</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select authorizer" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="none">No authorizer assigned</SelectItem>
+                              {isLoadingUsers ? (
+                                <SelectItem value="loading" disabled>
+                                  Loading users...
+                                </SelectItem>
+                              ) : users.length > 0 ? (
+                                users.map((user: any) => (
+                                  <SelectItem key={user.id} value={user.id}>
+                                    {user.full_name || `${user.first_name} ${user.last_name}`}
+                                    {user.designation && (
+                                      <span className="text-gray-500 text-xs ml-1">
+                                        ({user.designation})
+                                      </span>
+                                    )}
+                                  </SelectItem>
+                                ))
+                              ) : (
+                                <SelectItem value="no-data" disabled>
+                                  No users available
+                                </SelectItem>
+                              )}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {/* Approver Selection */}
+                    <FormField
+                      control={form.control}
+                      name="approver_id"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Approver</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select approver" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="none">No approver assigned</SelectItem>
+                              {isLoadingUsers ? (
+                                <SelectItem value="loading" disabled>
+                                  Loading users...
+                                </SelectItem>
+                              ) : users.length > 0 ? (
+                                users.map((user: any) => (
+                                  <SelectItem key={user.id} value={user.id}>
+                                    {user.full_name || `${user.first_name} ${user.last_name}`}
+                                    {user.designation && (
+                                      <span className="text-gray-500 text-xs ml-1">
+                                        ({user.designation})
+                                      </span>
+                                    )}
+                                  </SelectItem>
+                                ))
+                              ) : (
+                                <SelectItem value="no-data" disabled>
+                                  No users available
+                                </SelectItem>
+                              )}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+              </div>
 
               {/* File Upload */}
               <div className="space-y-4">
