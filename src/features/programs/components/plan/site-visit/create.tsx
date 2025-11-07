@@ -10,7 +10,7 @@ import { Button } from "components/ui/button";
 import { Label } from "components/ui/label";
 import { SelectContent, SelectItem } from "components/ui/select";
 import { LoadingSpinner } from "components/Loading";
-import MultiSelectFormField from "components/ui/sspmultiselect";
+import MultiSelectFormField from "components/ui/multiselect";
 import { Textarea } from "components/ui/textarea";
 import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -25,6 +25,8 @@ import {
   TSiteVisitApplicationFormValues,
   SiteVisitType,
   SiteVisitTypeLabels,
+  TeamMemberRole,
+  SiteVisitStatus,
 } from "@/features/programs/types/site-visit";
 
 import { useCreateSiteVisit } from "@/features/programs/controllers/siteVisitController";
@@ -36,18 +38,46 @@ import {
 import { useGetAllUsers } from "@/features/auth/controllers/userController";
 import { filterAhniStaffOnly } from "@/utils/userFilters";
 import { useGetEmployeeOnboardings } from "@/features/hr/controllers/employeeOnboardingController";
+import { useGetAllAnnualPlans } from "@/features/programs/controllers/annualSupervisionPlanController";
+import { AnnualPlanStatus } from "@/features/programs/types/annual-supervision-plan";
+import { useGetAllLocations } from "@/features/modules/controllers/config/locationController";
+import { useGetAllProjects } from "@/features/projects/controllers/projectController";
+import TravelFeesCalculator from "@/features/programs/components/travel-fees/TravelFeesCalculator";
+import { TravelFees } from "@/features/programs/hooks/useTravelRates";
 
 const SiteVisitCreate = () => {
   const router = useRouter();
   const [selectedFacility, setSelectedFacility] = useState<string>("");
+  const [selectedPlan, setSelectedPlan] = useState<string>("");
+  const [selectedPlannedVisit, setSelectedPlannedVisit] = useState<string>("");
+  const [travelFees, setTravelFees] = useState<TravelFees | null>(null);
 
   // Site Visit API
-  const { createSiteVisit, isLoading: isCreating, isSuccess, error: createError } = useCreateSiteVisit();
+  const createSiteVisit = useCreateSiteVisit();
+  const isCreating = createSiteVisit.isPending;
 
   // Fetch facilities
   const { data: facility, isLoading: isFacilityLoading } = useGetAllFacility({
     page: 1,
     size: 2000000,
+  });
+
+  // Fetch approved annual supervision plans
+  const { data: annualPlansData, isLoading: isPlansLoading } = useGetAllAnnualPlans({
+    page: 1,
+    size: 1000,
+  });
+
+  // Fetch locations
+  const { data: locationsData, isLoading: isLocationsLoading } = useGetAllLocations({
+    page: 1,
+    size: 1000,
+  });
+
+  // Fetch projects
+  const { data: projectsData, isLoading: isProjectsLoading } = useGetAllProjects({
+    page: 1,
+    size: 1000,
   });
 
   // Fetch from both sources: Users table AND Employee database
@@ -88,6 +118,19 @@ const SiteVisitCreate = () => {
 
   const ahniStaffUsers = uniqueStaff;
 
+  // Debug team members data structure
+  console.log("🔍 Debug - ahniStaffUsers sample:", ahniStaffUsers?.slice(0, 2));
+  console.log("🔍 Debug - Total staff count:", ahniStaffUsers?.length);
+
+  // Filter for approved/active annual plans
+  const approvedPlans = (annualPlansData?.data?.results || []).filter((plan: any) =>
+    plan.status === AnnualPlanStatus.APPROVED || plan.status === AnnualPlanStatus.ACTIVE
+  );
+
+  // Get selected plan details
+  const selectedPlanData = approvedPlans.find((plan: any) => plan.id === selectedPlan);
+  const plannedVisits = selectedPlanData?.planned_visits || [];
+
   // Get facility details when one is selected
   const { data: facilityData, isFetching: isSingleFacilityLoading } =
     useGetSingleFacilityManager(selectedFacility || "", !!selectedFacility);
@@ -100,24 +143,77 @@ const SiteVisitCreate = () => {
       facility: "",
       state: "",
       lga: "",
-      site_visit_type: SiteVisitType.SUPPORTIVE_SUPERVISION,
+      visit_type: SiteVisitType.SUPPORTIVE_SUPERVISION,
       other_type_description: "",
-      travel_reason: "",
+      purpose: "",
       expected_outcome: "",
-      proposed_start_date: "",
-      proposed_end_date: "",
+      start_date: "",
+      end_date: "",
       team_members: [],
       reviewer: "",
       authorizer: "",
       approver: "",
       additional_comments: "",
-      project: "",
+      project: "none", // Default to "No Project"
+      travel_fees: {
+        lodging: 0,
+        meals: 0,
+        interstate: 0,
+        airportTaxi: 0,
+        carHire: 0,
+        numberOfNights: 1,
+        totalPerPerson: 0,
+      },
     },
   });
 
   const { handleSubmit, watch, setValue } = form;
   const facilityId = watch("facility");
-  const siteVisitType = watch("site_visit_type");
+  const siteVisitType = watch("visit_type");
+  const location = watch("location");
+  const state = watch("state");
+  const startDate = watch("start_date");
+  const endDate = watch("end_date");
+  const teamMembers = watch("team_members");
+
+  // Clear plan selections when site visit type changes
+  useEffect(() => {
+    if (siteVisitType &&
+        siteVisitType !== SiteVisitType.SUPPORTIVE_SUPERVISION &&
+        siteVisitType !== SiteVisitType.INTEGRATED_SUPPORTIVE_SUPERVISION &&
+        siteVisitType !== SiteVisitType.EMERGENCY_SUPPORTIVE_SUPERVISION) {
+      setSelectedPlan("");
+      setSelectedPlannedVisit("");
+    }
+  }, [siteVisitType]);
+
+  // Auto-populate form fields when a planned visit is selected
+  useEffect(() => {
+    if (selectedPlannedVisit) {
+      const plannedVisit = plannedVisits.find((visit: any) => visit.id === selectedPlannedVisit);
+      if (plannedVisit) {
+        // Auto-populate location information
+        form.setValue("location", plannedVisit.location_name || "");
+        form.setValue("state", plannedVisit.location_name || "");
+
+        if (plannedVisit.facility_id) {
+          form.setValue("facility", plannedVisit.facility_id);
+          setSelectedFacility(plannedVisit.facility_id);
+        }
+
+        // Auto-populate title based on plan and visit type
+        const autoTitle = `${plannedVisit.visit_type.replace('_', ' ')} - ${plannedVisit.location_name}`;
+        form.setValue("title", autoTitle);
+
+        // Set visit type based on planned visit
+        form.setValue("visit_type", plannedVisit.visit_type as SiteVisitType);
+
+        // Set reason for travel
+        const reason = `Planned ${plannedVisit.visit_type.replace('_', ' ')} visit as per Annual Supervision Plan: ${selectedPlanData?.title}`;
+        form.setValue("purpose", reason);
+      }
+    }
+  }, [selectedPlannedVisit, plannedVisits, selectedPlanData, form]);
 
   // Update selected facility when form field changes
   useEffect(() => {
@@ -127,31 +223,88 @@ const SiteVisitCreate = () => {
   // Auto-populate location and state when facility is selected
   useEffect(() => {
     if (facilityData?.data) {
-      setValue("location", facilityData.data.name);
+      // Don't auto-set location from facility name - user should select proper location
+      // Only set state and LGA from facility data
       setValue("state", facilityData.data.state);
       setValue("lga", facilityData.data.lga || "");
     }
   }, [facilityData, setValue]);
 
+  // Handle travel fees updates from calculator
+  const handleTravelFeesUpdate = (fees: TravelFees, totalCost: number) => {
+    setTravelFees(fees);
+    setValue("travel_fees", fees);
+    console.log("🧾 Travel fees updated:", { fees, totalCost, teamMembersCount: teamMembers.length });
+  };
+
   const onSubmit: SubmitHandler<TSiteVisitApplicationFormValues> = async (
     data: TSiteVisitApplicationFormValues
   ) => {
+    console.log("🚀 FORM SUBMISSION STARTED");
+    console.log("📋 Raw form data:", data);
+    console.log("👥 Raw ahniStaffUsers data:", ahniStaffUsers?.slice(0, 3)); // Log first 3 users
+
     try {
-      console.log("Site Visit Application Data:", data);
+      // Format dates to YYYY-MM-DD format
+      const formatDate = (date: any) => {
+        if (!date) return "";
+        const d = new Date(date);
+        if (isNaN(d.getTime())) return "";
+        return d.toISOString().split('T')[0]; // YYYY-MM-DD format
+      };
 
-      await createSiteVisit(data);
+      console.log("📅 Original dates:", { start_date: data.start_date, end_date: data.end_date });
+      console.log("📅 Formatted dates:", {
+        start_date: formatDate(data.start_date),
+        end_date: formatDate(data.end_date)
+      });
 
-      if (isSuccess) {
-        toast.success("Site Visit application submitted successfully!");
-        // Redirect to site visit list
-        router.push(RouteEnum.PROGRAM_SITE_VISIT || "/dashboard/programs/plan/site-visit");
-      }
+      // Include annual plan and planned visit references if selected
+      const submissionData = {
+        ...data,
+        // Format dates properly
+        start_date: formatDate(data.start_date),
+        end_date: formatDate(data.end_date),
+        // Handle project field - convert "none" to null
+        project: data.project === "none" ? null : data.project,
+        // Set initial status for new site visits
+        status: SiteVisitStatus.DRAFT,
+        // Add references to annual plan and planned visit
+        annual_supervision_plan_id: selectedPlan || null,
+        planned_visit_id: selectedPlannedVisit || null,
+        // Include travel fees data
+        travel_fees: data.travel_fees || travelFees,
+      };
+
+      console.log("📤 Final submission data:", submissionData);
+      console.log("🔧 Workflow assignments:", {
+        reviewer: submissionData.reviewer,
+        authorizer: submissionData.authorizer,
+        approver: submissionData.approver,
+        status: submissionData.status
+      });
+      console.log("🔄 About to call createSiteVisit.mutateAsync");
+
+      // Use mutateAsync to properly handle success/error
+      const result = await createSiteVisit.mutateAsync(submissionData);
+
+      console.log("✅ API call successful:", result);
+      toast.success("Site Visit application submitted successfully!");
+
+      // Redirect to site visit list
+      router.push(RouteEnum.PROGRAM_SITE_VISIT || "/dashboard/programs/plan/site-visit");
 
     } catch (error: any) {
-      console.error("Site Visit creation error:", error);
+      console.error("❌ Site Visit creation error:", error);
+      console.error("❌ Error details:", {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+      });
+
       toast.error(
-        createError?.message ??
-        error.message ??
+        error.response?.data?.message ||
+        error.message ||
         "Failed to submit site visit application"
       );
     }
@@ -173,7 +326,10 @@ const SiteVisitCreate = () => {
           <h2 className="text-xl font-bold mb-6">Create Site Visit Application</h2>
 
           <Form {...form}>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            <form onSubmit={handleSubmit(onSubmit, (errors) => {
+              console.log("❌ Form validation errors:", errors);
+              console.log("❌ Form has validation errors - submission blocked");
+            })} className="space-y-6">
 
               {/* Basic Information */}
               <div className="space-y-4">
@@ -187,7 +343,7 @@ const SiteVisitCreate = () => {
                 />
 
                 <FormSelect
-                  name="site_visit_type"
+                  name="visit_type"
                   label="Site Visit Type"
                   placeholder="Select site visit type"
                   required
@@ -201,7 +357,86 @@ const SiteVisitCreate = () => {
                   </SelectContent>
                 </FormSelect>
 
-                {siteVisitType === SiteVisitType.OTHERS && (
+                {/* Annual Plan Selection for Supervision Visits */}
+                {(siteVisitType === SiteVisitType.SUPPORTIVE_SUPERVISION ||
+                  siteVisitType === SiteVisitType.INTEGRATED_SUPPORTIVE_SUPERVISION ||
+                  siteVisitType === SiteVisitType.EMERGENCY_SUPPORTIVE_SUPERVISION) && (
+                  <div className="space-y-4 border-l-4 border-blue-500 pl-4 bg-blue-50 p-4 rounded">
+                    <h4 className="font-medium text-blue-800">Link to Annual Supervision Plan</h4>
+                    <p className="text-sm text-blue-600">
+                      Select from approved annual supervision plans to auto-populate visit details
+                    </p>
+
+                    <FormSelect
+                      name="annual_plan"
+                      label="Annual Supervision Plan (Optional)"
+                      placeholder="Select an approved plan"
+                      value={selectedPlan}
+                      onValueChange={setSelectedPlan}
+                    >
+                      <SelectContent>
+                        {isPlansLoading ? (
+                          <div className="p-2">
+                            <LoadingSpinner />
+                          </div>
+                        ) : approvedPlans.length > 0 ? (
+                          approvedPlans.map((plan: any) => (
+                            <SelectItem key={plan.id} value={plan.id}>
+                              {plan.title} ({plan.financial_year_display})
+                            </SelectItem>
+                          ))
+                        ) : (
+                          <SelectItem value="no-plans" disabled>
+                            No approved plans available
+                          </SelectItem>
+                        )}
+                      </SelectContent>
+                    </FormSelect>
+
+                    {selectedPlan && plannedVisits.length > 0 && (
+                      <FormSelect
+                        name="planned_visit"
+                        label="Planned Visit (Optional)"
+                        placeholder="Select a planned visit"
+                        value={selectedPlannedVisit}
+                        onValueChange={setSelectedPlannedVisit}
+                      >
+                        <SelectContent>
+                          {plannedVisits
+                            .filter((visit: any) =>
+                              visit.visit_type === siteVisitType ||
+                              (siteVisitType === SiteVisitType.EMERGENCY_SUPPORTIVE_SUPERVISION &&
+                               visit.visit_type === SiteVisitType.SUPPORTIVE_SUPERVISION)
+                            )
+                            .map((visit: any) => (
+                              <SelectItem key={visit.id} value={visit.id}>
+                                {visit.location_name} - Q{visit.planned_quarter || '?'}
+                                {visit.facility_name && ` (${visit.facility_name})`}
+                              </SelectItem>
+                            ))}
+                          {plannedVisits
+                            .filter((visit: any) =>
+                              visit.visit_type === siteVisitType ||
+                              (siteVisitType === SiteVisitType.EMERGENCY_SUPPORTIVE_SUPERVISION &&
+                               visit.visit_type === SiteVisitType.SUPPORTIVE_SUPERVISION)
+                            ).length === 0 && (
+                              <SelectItem value="no-visits" disabled>
+                                No matching planned visits found
+                              </SelectItem>
+                            )}
+                        </SelectContent>
+                      </FormSelect>
+                    )}
+
+                    {selectedPlannedVisit && (
+                      <div className="text-sm text-green-600 bg-green-50 p-2 rounded">
+                        ✅ Form fields will be auto-populated from the selected planned visit
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {siteVisitType === SiteVisitType.OTHER && (
                   <FormField
                     control={form.control}
                     name="other_type_description"
@@ -263,12 +498,30 @@ const SiteVisitCreate = () => {
                   </Card>
                 )}
 
-                <FormInput
+                <FormSelect
                   name="location"
                   label="Location"
-                  placeholder="Enter specific location/address"
+                  placeholder="Select location"
                   required
-                />
+                >
+                  <SelectContent>
+                    {isLocationsLoading ? (
+                      <div className="p-2">
+                        <LoadingSpinner />
+                      </div>
+                    ) : locationsData?.data?.results?.length > 0 ? (
+                      locationsData.data.results.map((location: any) => (
+                        <SelectItem key={location.id} value={location.name}>
+                          {location.name}
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem value="no-locations" disabled>
+                        No locations available
+                      </SelectItem>
+                    )}
+                  </SelectContent>
+                </FormSelect>
 
                 <div className="grid grid-cols-2 gap-4">
                   <FormInput
@@ -291,13 +544,13 @@ const SiteVisitCreate = () => {
 
                 <FormField
                   control={form.control}
-                  name="travel_reason"
+                  name="purpose"
                   render={({ field }) => (
                     <FormItem>
-                      <Label>Reason for Travel *</Label>
+                      <Label>Purpose *</Label>
                       <FormControl>
                         <Textarea
-                          placeholder="Explain the reason for this site visit"
+                          placeholder="Explain the purpose of this site visit"
                           {...field}
                         />
                       </FormControl>
@@ -330,16 +583,34 @@ const SiteVisitCreate = () => {
 
                 <div className="grid grid-cols-2 gap-4">
                   <DateInput
-                    name="proposed_start_date"
+                    name="start_date"
                     label="Proposed Start Date"
                     required
                   />
                   <DateInput
-                    name="proposed_end_date"
+                    name="end_date"
                     label="Proposed End Date"
                     required
                   />
                 </div>
+              </div>
+
+              {/* Travel Fees */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-yellow-600">Travel Fees</h3>
+                <p className="text-sm text-gray-600">
+                  Configure travel costs for this site visit. Fees will be auto-calculated based on location and dates, or you can manually override them.
+                </p>
+
+                <TravelFeesCalculator
+                  locationName={location || ""}
+                  state={state || ""}
+                  startDate={startDate || ""}
+                  endDate={endDate || ""}
+                  teamMembersCount={teamMembers.length || 1}
+                  onFeesUpdate={handleTravelFeesUpdate}
+                  readOnly={false}
+                />
               </div>
 
               {/* Team Members */}
@@ -349,21 +620,44 @@ const SiteVisitCreate = () => {
                 <FormField
                   control={form.control}
                   name="team_members"
-                  render={({ field }) => (
-                    <FormItem>
-                      <Label>Select Team Members *</Label>
-                      <FormControl>
-                        <MultiSelectFormField
-                          options={ahniStaffUsers || []}
-                          defaultValue={field.value}
-                          onValueChange={field.onChange}
-                          placeholder="Select team members for this site visit"
-                          variant="inverted"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  render={({ field }) => {
+                    const transformedOptions = (ahniStaffUsers || []).map((user: any) => ({
+                      id: user.id,
+                      name: `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.email || 'Unknown User'
+                    }));
+
+                    console.log("🔍 Transformed options sample:", transformedOptions?.slice(0, 3));
+                    console.log("🔍 Current field value:", field.value);
+
+                    return (
+                      <FormItem>
+                        <Label>Select Team Members *</Label>
+                        <FormControl>
+                          <MultiSelectFormField
+                            options={transformedOptions}
+                            defaultValue={field.value?.map((member: any) => member.user) || []}
+                            onValueChange={(selectedIds) => {
+                              console.log("🔄 Team members selection changed:", selectedIds);
+                              // Transform selected IDs into the expected schema format
+                              const teamMembersData = (selectedIds || []).map((userId: string) => ({
+                                user: userId,
+                                role: TeamMemberRole.SUPPORT_STAFF, // Default role
+                                per_day_allowance: 0,
+                                transport_cost: 0,
+                                accommodation_cost: 0,
+                                comments: ""
+                              }));
+                              console.log("🔄 Transformed team members data:", teamMembersData);
+                              field.onChange(teamMembersData);
+                            }}
+                            placeholder="Select team members for this site visit"
+                            variant="inverted"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    );
+                  }}
                 />
               </div>
 
@@ -424,11 +718,34 @@ const SiteVisitCreate = () => {
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-yellow-600">Additional Information</h3>
 
-                <FormInput
+                <FormSelect
                   name="project"
                   label="Related Project"
-                  placeholder="Enter project reference (if applicable)"
-                />
+                  placeholder="Select project (optional)"
+                >
+                  <SelectContent>
+                    {isProjectsLoading ? (
+                      <div className="p-2">
+                        <LoadingSpinner />
+                      </div>
+                    ) : projectsData?.data?.results?.length > 0 ? (
+                      [
+                        <SelectItem key="no-project" value="none">
+                          No Project
+                        </SelectItem>,
+                        ...projectsData.data.results.map((project: any) => (
+                          <SelectItem key={project.id} value={project.id}>
+                            {project.title} ({project.project_code || 'No Code'})
+                          </SelectItem>
+                        ))
+                      ]
+                    ) : (
+                      <SelectItem value="no-projects" disabled>
+                        No projects available
+                      </SelectItem>
+                    )}
+                  </SelectContent>
+                </FormSelect>
 
                 <FormField
                   control={form.control}
@@ -458,7 +775,17 @@ const SiteVisitCreate = () => {
                 >
                   Cancel
                 </Button>
-                <FormButton type="submit" size="lg" disabled={isCreating}>
+                <FormButton
+                  type="submit"
+                  size="lg"
+                  disabled={isCreating}
+                  onClick={(e) => {
+                    console.log("🔥 Submit button clicked!");
+                    console.log("🔥 Current form values:", form.getValues());
+                    console.log("🔥 Form validation state:", form.formState);
+                    // Let the form handle the submit
+                  }}
+                >
                   {isCreating ? "Submitting..." : "Submit Application"}
                 </FormButton>
               </div>

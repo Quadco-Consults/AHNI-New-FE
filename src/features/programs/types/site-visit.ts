@@ -304,6 +304,17 @@ export const SiteVisitApplicationSchema = z.object({
     comments: z.string().optional(),
   })).min(1, "At least one team member is required"),
 
+  // Travel Fees
+  travel_fees: z.object({
+    lodging: z.number().min(0, "Lodging amount cannot be negative"),
+    meals: z.number().min(0, "Meals amount cannot be negative"),
+    interstate: z.number().min(0, "Interstate amount cannot be negative"),
+    airportTaxi: z.number().min(0, "Airport taxi amount cannot be negative"),
+    carHire: z.number().min(0, "Car hire amount cannot be negative"),
+    numberOfNights: z.number().min(1, "Number of nights must be at least 1"),
+    totalPerPerson: z.number().min(0, "Total per person cannot be negative"),
+  }).optional(),
+
   // Approval Workflow
   reviewer: z.string().min(1, "Reviewer is required"),
   authorizer: z.string().min(1, "Authorizer is required"),

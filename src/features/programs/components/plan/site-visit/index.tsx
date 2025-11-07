@@ -44,6 +44,10 @@ const SiteVisitList = () => {
     search,
   });
 
+  // Debug logging
+  console.log("🔍 Site Visits Data:", siteVisits);
+  console.log("🔍 Site Visits Results:", siteVisits?.data?.results?.slice(0, 2));
+
 
   const breadcrumbs = [
     { name: "Programs", icon: true },
@@ -124,7 +128,19 @@ const SiteVisitList = () => {
       header: "Type",
       cell: ({ row }: any) => {
         const item = row.original;
-        return getTypeBadge(item.visit_type);
+        console.log("🔍 Visit type data:", { visit_type: item.visit_type, visit_type_display: item.visit_type_display });
+
+        // If we have the enum value, use it; otherwise, try to map from display value or show display text
+        if (item.visit_type && SiteVisitTypeLabels[item.visit_type as SiteVisitType]) {
+          return getTypeBadge(item.visit_type);
+        } else {
+          // Fallback: show the display value in a simple badge
+          return (
+            <span className="px-2 py-1 text-xs rounded bg-gray-100 text-gray-800">
+              {item.visit_type_display || item.visit_type || "Unknown Type"}
+            </span>
+          );
+        }
       },
     },
     {
@@ -153,7 +169,24 @@ const SiteVisitList = () => {
       header: "Status",
       cell: ({ row }: any) => {
         const item = row.original;
-        return getStatusBadge(item.status);
+        console.log("🔍 Status data:", { status: item.status, status_display: item.status_display });
+
+        // If we have the enum value, use it; otherwise, try to map from display value or show display text
+        if (item.status && SiteVisitStatusLabels[item.status as SiteVisitStatus]) {
+          return getStatusBadge(item.status);
+        } else {
+          // Fallback: show the display value in a simple badge
+          const statusClass = item.status_display?.includes('Review') ? 'bg-blue-100 text-blue-800' :
+                             item.status_display?.includes('Authorized') ? 'bg-indigo-100 text-indigo-800' :
+                             item.status_display?.includes('Approved') ? 'bg-green-100 text-green-800' :
+                             'bg-gray-100 text-gray-800';
+
+          return (
+            <span className={`px-2 py-1 text-xs rounded-full ${statusClass}`}>
+              {item.status_display || item.status || "Unknown Status"}
+            </span>
+          );
+        }
       },
     },
     {
@@ -163,7 +196,7 @@ const SiteVisitList = () => {
         const item = row.original;
         return (
           <div className="text-sm">
-            <div>{item.created_by}</div>
+            <div>{item.creator_name || item.created_by}</div>
             <div className="text-xs text-gray-500">{formatDate(item.created_datetime)}</div>
           </div>
         );
@@ -345,16 +378,16 @@ const SiteVisitList = () => {
           <>
             <DataTable
               columns={columns}
-              data={siteVisits?.results || []}
+              data={siteVisits?.data?.results || []}
               onRowClick={handleRowClick}
             />
 
             {/* Pagination */}
-            {siteVisits?.results && siteVisits.results.length > 0 && (
+            {siteVisits?.data?.results && siteVisits.data.results.length > 0 && (
               <div className="mt-6">
                 <Pagination
-                  total={siteVisits?.pagination?.count ?? 0}
-                  itemsPerPage={siteVisits?.pagination?.page_size ?? 20}
+                  total={siteVisits?.data?.pagination?.count ?? 0}
+                  itemsPerPage={siteVisits?.data?.pagination?.page_size ?? 20}
                   onChange={(newPage: number) => setPage(newPage)}
                 />
               </div>

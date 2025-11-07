@@ -29,18 +29,10 @@ const AddTravelRate = () => {
   const form = useForm<TravelRateFormValues>({
     resolver: zodResolver(TravelRateSchema),
     defaultValues: {
-      location: data?.location ?? "",
       state: data?.state ?? "",
-      country: data?.country ?? "",
       accommodation_rate: data?.accommodation_rate ?? 0,
       meal_allowance: data?.meal_allowance ?? 0,
-      transport_allowance: data?.transport_allowance ?? 0,
-      per_diem_rate: data?.per_diem_rate ?? 0,
-      currency: data?.currency ?? "NGN",
       effective_date: data?.effective_date ? data.effective_date.split('T')[0] : "",
-      expiry_date: data?.expiry_date ? data.expiry_date.split('T')[0] : "",
-      category: data?.category ?? "Local",
-      staff_level: data?.staff_level ?? "",
       notes: data?.notes ?? "",
       is_active: data?.is_active ?? true,
     },
@@ -65,14 +57,44 @@ const AddTravelRate = () => {
     { label: "International", value: "International" },
   ];
 
-  const staffLevelOptions = [
-    { label: "All Levels", value: "" },
-    { label: "Level 1-5", value: "Level 1-5" },
-    { label: "Level 6-10", value: "Level 6-10" },
-    { label: "Level 11-15", value: "Level 11-15" },
-    { label: "Level 16+", value: "Level 16+" },
-    { label: "Directors", value: "Directors" },
-    { label: "Management", value: "Management" },
+  const nigerianStates = [
+    { label: "Abia", value: "Abia" },
+    { label: "Adamawa", value: "Adamawa" },
+    { label: "Akwa Ibom", value: "Akwa Ibom" },
+    { label: "Anambra", value: "Anambra" },
+    { label: "Bauchi", value: "Bauchi" },
+    { label: "Bayelsa", value: "Bayelsa" },
+    { label: "Benue", value: "Benue" },
+    { label: "Borno", value: "Borno" },
+    { label: "Cross River", value: "Cross River" },
+    { label: "Delta", value: "Delta" },
+    { label: "Ebonyi", value: "Ebonyi" },
+    { label: "Edo", value: "Edo" },
+    { label: "Ekiti", value: "Ekiti" },
+    { label: "Enugu", value: "Enugu" },
+    { label: "FCT", value: "FCT" },
+    { label: "Gombe", value: "Gombe" },
+    { label: "Imo", value: "Imo" },
+    { label: "Jigawa", value: "Jigawa" },
+    { label: "Kaduna", value: "Kaduna" },
+    { label: "Kano", value: "Kano" },
+    { label: "Katsina", value: "Katsina" },
+    { label: "Kebbi", value: "Kebbi" },
+    { label: "Kogi", value: "Kogi" },
+    { label: "Kwara", value: "Kwara" },
+    { label: "Lagos", value: "Lagos" },
+    { label: "Nasarawa", value: "Nasarawa" },
+    { label: "Niger", value: "Niger" },
+    { label: "Ogun", value: "Ogun" },
+    { label: "Ondo", value: "Ondo" },
+    { label: "Osun", value: "Osun" },
+    { label: "Oyo", value: "Oyo" },
+    { label: "Plateau", value: "Plateau" },
+    { label: "Rivers", value: "Rivers" },
+    { label: "Sokoto", value: "Sokoto" },
+    { label: "Taraba", value: "Taraba" },
+    { label: "Yobe", value: "Yobe" },
+    { label: "Zamfara", value: "Zamfara" },
   ];
 
   const onSubmit: SubmitHandler<TravelRateFormValues> = async (formData) => {
@@ -104,88 +126,15 @@ const AddTravelRate = () => {
         onSubmit={form.handleSubmit(onSubmit)}
         className='flex flex-col gap-y-7'
       >
-        <div className="grid grid-cols-3 gap-4">
-          <FormInput
-            label='Location'
-            name='location'
-            placeholder='Enter city/location'
-            required
-          />
-
-          <FormInput
+        <div className="grid grid-cols-2 gap-4">
+          <FormSelect
             label='State'
             name='state'
-            placeholder='Enter state'
+            placeholder='Select Nigerian state'
+            options={nigerianStates}
             required
           />
 
-          <FormInput
-            label='Country'
-            name='country'
-            placeholder='Enter country'
-            required
-          />
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <FormSelect
-            label='Category'
-            name='category'
-            placeholder='Select travel category'
-            options={categoryOptions}
-            required
-          />
-
-          <FormSelect
-            label='Currency'
-            name='currency'
-            placeholder='Select currency'
-            options={currencyOptions}
-            required
-          />
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <FormInput
-            label='Accommodation Rate'
-            name='accommodation_rate'
-            placeholder='Enter accommodation rate'
-            type="number"
-            step="0.01"
-            required
-          />
-
-          <FormInput
-            label='Per Diem Rate'
-            name='per_diem_rate'
-            placeholder='Enter per diem rate'
-            type="number"
-            step="0.01"
-            required
-          />
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <FormInput
-            label='Meal Allowance'
-            name='meal_allowance'
-            placeholder='Enter meal allowance'
-            type="number"
-            step="0.01"
-            required
-          />
-
-          <FormInput
-            label='Transport Allowance'
-            name='transport_allowance'
-            placeholder='Enter transport allowance'
-            type="number"
-            step="0.01"
-            required
-          />
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
           <FormInput
             label='Effective Date'
             name='effective_date'
@@ -193,26 +142,32 @@ const AddTravelRate = () => {
             type="date"
             required
           />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <FormInput
+            label='Accommodation Rate (₦)'
+            name='accommodation_rate'
+            placeholder='Enter daily lodging rate'
+            type="number"
+            step="0.01"
+            required
+          />
 
           <FormInput
-            label='Expiry Date'
-            name='expiry_date'
-            placeholder='Select expiry date (optional)'
-            type="date"
+            label='Meal & Incidental Expenses (₦)'
+            name='meal_allowance'
+            placeholder='Enter daily meal allowance'
+            type="number"
+            step="0.01"
+            required
           />
         </div>
 
-        <FormSelect
-          label='Staff Level'
-          name='staff_level'
-          placeholder='Select applicable staff level (optional)'
-          options={staffLevelOptions}
-        />
-
         <FormTextArea
-          label='Notes'
+          label='Notes (Optional)'
           name='notes'
-          placeholder='Enter additional notes (optional)'
+          placeholder='Enter additional notes about this travel rate'
         />
 
         <FormCheckbox
