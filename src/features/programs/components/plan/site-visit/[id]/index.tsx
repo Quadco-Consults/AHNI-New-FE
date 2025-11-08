@@ -43,8 +43,6 @@ const SiteVisitDetail = () => {
   const siteVisit = siteVisitResponse?.data;
 
   // Debug logging for site visit detail
-  console.log("🔍 Site Visit Response:", siteVisitResponse);
-  console.log("🔍 Site Visit Data:", siteVisit);
 
   const breadcrumbs = [
     { name: "Programs", icon: true },

@@ -130,7 +130,6 @@ export const useCreateTravelRateMutation = () => {
       const response = await callApi(transformedDetails as any);
       return response;
     } catch (error) {
-      console.error("Travel Rate create error:", error);
       throw error;
     }
   };
@@ -167,7 +166,7 @@ export const useUpdateTravelRateMutation = (id: string) => {
 
       await callApi(transformedDetails as any);
     } catch (error) {
-      console.error("Travel Rate update error:", error);
+      throw error;
     }
   };
 
@@ -190,7 +189,7 @@ export const useDeleteTravelRateMutation = (id: string) => {
     try {
       await callApi({} as Record<string, never>);
     } catch (error) {
-      console.error("Travel Rate delete error:", error);
+      throw error;
     }
   };
 
