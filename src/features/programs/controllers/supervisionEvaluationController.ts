@@ -436,4 +436,5 @@ export const useGenerateEvaluationReport = () => {
   });
 };
 
-// All exports are already handled individually above
+// Alias for backward compatibility
+export const useGetSupervisionEvaluationById = useGetSingleSupervisionEvaluation;
