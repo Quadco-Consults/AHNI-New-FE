@@ -5,7 +5,7 @@ import FormButton from "@/components/FormButton";
 import FormInput from "components/atoms/FormInput";
 import FormSelect from "components/atoms/FormSelect";
 import FormTextArea from "components/atoms/FormTextArea";
-import FormCheckbox from "components/atoms/FormCheckbox";
+import FormCheckBox from "@/components/FormCheckBox";
 import { Form } from "components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -153,10 +153,9 @@ const AddExchangeRate = () => {
           placeholder='Enter additional notes (optional)'
         />
 
-        <FormCheckbox
+        <FormCheckBox
           label='Active'
           name='is_active'
-          description='Check to make this exchange rate active'
         />
 
         <div className='flex justify-start gap-4'>

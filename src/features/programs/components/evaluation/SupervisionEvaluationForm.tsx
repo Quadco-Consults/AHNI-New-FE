@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { CalendarIcon, FileTextIcon, LocationIcon, UserIcon } from "lucide-react";
+import { CalendarIcon, FileTextIcon, MapPinIcon, UserIcon } from "lucide-react";
 import {
   CreateSupervisionEvaluationSchema,
   CreateSupervisionEvaluationFormData,
@@ -245,7 +245,7 @@ export default function SupervisionEvaluationForm({
                 <h4 className="font-medium text-gray-900 mb-2">Site Visit Details</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                   <div className="flex items-center gap-2">
-                    <LocationIcon className="h-4 w-4 text-gray-500" />
+                    <MapPinIcon className="h-4 w-4 text-gray-500" />
                     <span>{selectedSiteVisit.location_name}</span>
                     {selectedSiteVisit.facility_name && (
                       <span className="text-gray-500">• {selectedSiteVisit.facility_name}</span>
