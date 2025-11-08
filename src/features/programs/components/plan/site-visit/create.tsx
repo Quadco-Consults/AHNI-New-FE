@@ -119,8 +119,6 @@ const SiteVisitCreate = () => {
   const ahniStaffUsers = uniqueStaff;
 
   // Debug team members data structure
-  console.log("🔍 Debug - ahniStaffUsers sample:", ahniStaffUsers?.slice(0, 2));
-  console.log("🔍 Debug - Total staff count:", ahniStaffUsers?.length);
 
   // Filter for approved/active annual plans
   const approvedPlans = (annualPlansData?.data?.results || []).filter((plan: any) =>
@@ -234,15 +232,11 @@ const SiteVisitCreate = () => {
   const handleTravelFeesUpdate = (fees: TravelFees, totalCost: number) => {
     setTravelFees(fees);
     setValue("travel_fees", fees);
-    console.log("🧾 Travel fees updated:", { fees, totalCost, teamMembersCount: teamMembers.length });
   };
 
   const onSubmit: SubmitHandler<TSiteVisitApplicationFormValues> = async (
     data: TSiteVisitApplicationFormValues
   ) => {
-    console.log("🚀 FORM SUBMISSION STARTED");
-    console.log("📋 Raw form data:", data);
-    console.log("👥 Raw ahniStaffUsers data:", ahniStaffUsers?.slice(0, 3)); // Log first 3 users
 
     try {
       // Format dates to YYYY-MM-DD format
@@ -252,12 +246,6 @@ const SiteVisitCreate = () => {
         if (isNaN(d.getTime())) return "";
         return d.toISOString().split('T')[0]; // YYYY-MM-DD format
       };
-
-      console.log("📅 Original dates:", { start_date: data.start_date, end_date: data.end_date });
-      console.log("📅 Formatted dates:", {
-        start_date: formatDate(data.start_date),
-        end_date: formatDate(data.end_date)
-      });
 
       // Include annual plan and planned visit references if selected
       const submissionData = {
@@ -276,32 +264,15 @@ const SiteVisitCreate = () => {
         travel_fees: data.travel_fees || travelFees,
       };
 
-      console.log("📤 Final submission data:", submissionData);
-      console.log("🔧 Workflow assignments:", {
-        reviewer: submissionData.reviewer,
-        authorizer: submissionData.authorizer,
-        approver: submissionData.approver,
-        status: submissionData.status
-      });
-      console.log("🔄 About to call createSiteVisit.mutateAsync");
-
       // Use mutateAsync to properly handle success/error
       const result = await createSiteVisit.mutateAsync(submissionData);
 
-      console.log("✅ API call successful:", result);
       toast.success("Site Visit application submitted successfully!");
 
       // Redirect to site visit list
       router.push(RouteEnum.PROGRAM_SITE_VISIT || "/dashboard/programs/plan/site-visit");
 
     } catch (error: any) {
-      console.error("❌ Site Visit creation error:", error);
-      console.error("❌ Error details:", {
-        message: error.message,
-        response: error.response?.data,
-        status: error.response?.status,
-      });
-
       toast.error(
         error.response?.data?.message ||
         error.message ||
@@ -327,8 +298,6 @@ const SiteVisitCreate = () => {
 
           <Form {...form}>
             <form onSubmit={handleSubmit(onSubmit, (errors) => {
-              console.log("❌ Form validation errors:", errors);
-              console.log("❌ Form has validation errors - submission blocked");
             })} className="space-y-6">
 
               {/* Basic Information */}
@@ -626,8 +595,6 @@ const SiteVisitCreate = () => {
                       name: `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.email || 'Unknown User'
                     }));
 
-                    console.log("🔍 Transformed options sample:", transformedOptions?.slice(0, 3));
-                    console.log("🔍 Current field value:", field.value);
 
                     return (
                       <FormItem>
@@ -637,7 +604,6 @@ const SiteVisitCreate = () => {
                             options={transformedOptions}
                             defaultValue={field.value?.map((member: any) => member.user) || []}
                             onValueChange={(selectedIds) => {
-                              console.log("🔄 Team members selection changed:", selectedIds);
                               // Transform selected IDs into the expected schema format
                               const teamMembersData = (selectedIds || []).map((userId: string) => ({
                                 user: userId,
@@ -647,7 +613,6 @@ const SiteVisitCreate = () => {
                                 accommodation_cost: 0,
                                 comments: ""
                               }));
-                              console.log("🔄 Transformed team members data:", teamMembersData);
                               field.onChange(teamMembersData);
                             }}
                             placeholder="Select team members for this site visit"
@@ -780,9 +745,6 @@ const SiteVisitCreate = () => {
                   size="lg"
                   disabled={isCreating}
                   onClick={(e) => {
-                    console.log("🔥 Submit button clicked!");
-                    console.log("🔥 Current form values:", form.getValues());
-                    console.log("🔥 Form validation state:", form.formState);
                     // Let the form handle the submit
                   }}
                 >
