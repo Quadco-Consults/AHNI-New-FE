@@ -21,7 +21,9 @@ import {
   Users,
   Droplet,
   Clock,
-  Calendar
+  Calendar,
+  MapPin,
+  ClipboardList
 } from "lucide-react";
 // Direct Next.js paths - no RouterConstants needed
 import { Icon } from "@iconify/react";
@@ -147,6 +149,26 @@ const globalHubMenu = [
     category: "hr"
   },
 
+  // Programs & Plans
+  {
+    label: "Site Visit Application",
+    path: "/dashboard/programs/plan/site-visit",
+    icon: <Calendar className="w-4 h-4" />,
+    category: "programs"
+  },
+  {
+    label: "Site Visit Management",
+    path: "/dashboard/programs/plan/site-visit",
+    icon: <MapPin className="w-4 h-4" />,
+    category: "programs"
+  },
+  {
+    label: "Supervision Evaluation",
+    path: "/dashboard/programs/plan/supervision-evaluation",
+    icon: <ClipboardList className="w-4 h-4" />,
+    category: "programs"
+  },
+
   // Support
   {
     label: "Support",
@@ -179,6 +201,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
 
   // Group Global Hub menu items by category
   const globalHubCategories = {
+    programs: { label: "Programs & Planning", icon: <MapPin className="w-4 h-4" /> },
     procurement: { label: "Procurement & Purchasing", icon: <ShoppingCart className="w-4 h-4" /> },
     inventory: { label: "Inventory Management", icon: <Package className="w-4 h-4" /> },
     fleet: { label: "Fleet & Transport", icon: <Car className="w-4 h-4" /> },
