@@ -220,6 +220,55 @@ export default function SupervisionEvaluationForm({
     loadCriteriaForCategories();
   }, [selectedCategories]);
 
+  // Auto-populate form fields when site visit is selected
+  useEffect(() => {
+    const watchedSiteVisitId = form.watch("site_visit_id");
+    const selectedSiteVisit = filteredSiteVisits?.find(sv => sv.id === watchedSiteVisitId);
+
+    if (selectedSiteVisit && watchedSiteVisitId) {
+      console.log("🔄 Auto-populating form from site visit:", selectedSiteVisit);
+
+      // Auto-populate evaluation title based on site visit details
+      const autoTitle = `${selectedSiteVisit.visit_type_display} Evaluation - ${selectedSiteVisit.location_name}`;
+
+      // Auto-populate description with site visit details
+      const autoDescription = `Supervision evaluation for ${selectedSiteVisit.visit_type_display} conducted at ${selectedSiteVisit.location_name}` +
+        (selectedSiteVisit.facility_name ? ` (${selectedSiteVisit.facility_name})` : '') +
+        ` from ${formatDate(selectedSiteVisit.actual_start_date || selectedSiteVisit.start_date)} to ${formatDate(selectedSiteVisit.actual_end_date || selectedSiteVisit.end_date)}.` +
+        (selectedSiteVisit.team_lead_name ? ` Team Lead: ${selectedSiteVisit.team_lead_name}.` : '');
+
+      // Only auto-populate if fields are empty to avoid overwriting user input
+      if (!form.getValues("title")) {
+        form.setValue("title", autoTitle);
+      }
+
+      if (!form.getValues("description")) {
+        form.setValue("description", autoDescription);
+      }
+
+      // Set evaluation date to the end date of the site visit (when evaluation would typically occur)
+      const evaluationDate = formatDate(selectedSiteVisit.actual_end_date || selectedSiteVisit.end_date || new Date().toISOString());
+      form.setValue("evaluation_date", evaluationDate);
+
+      // Auto-suggest evaluation categories based on supervision type
+      if (categoriesData && Array.isArray(categoriesData) && selectedCategories.length === 0) {
+        const suggestedCategories = getSuggestedCategoriesForSupervision(selectedSiteVisit.visit_type_display, categoriesData);
+        if (suggestedCategories.length > 0) {
+          setSelectedCategories(suggestedCategories.map(cat => cat.id));
+          form.setValue("selected_categories", suggestedCategories.map(cat => cat.id));
+          console.log("💡 Auto-suggested categories:", suggestedCategories.map(cat => cat.name));
+        }
+      }
+
+      console.log("✅ Auto-populated form fields:", {
+        title: autoTitle,
+        description: autoDescription,
+        evaluation_date: evaluationDate,
+        suggested_categories: selectedCategories.length
+      });
+    }
+  }, [form.watch("site_visit_id"), filteredSiteVisits, form]);
+
   // Handle category selection
   const handleCategoryToggle = (categoryId: string, categoryName: string) => {
     setSelectedCategories(prev => {
@@ -339,14 +388,13 @@ export default function SupervisionEvaluationForm({
         console.warn("⚠️ Backend didn't return evaluation ID - attempting to fetch the created evaluation");
 
         try {
-          // Attempt to find the evaluation that was just created for this site visit
-          const { useGetEvaluationsBySiteVisit } = await import('@/features/programs/controllers/supervisionEvaluationController');
+          console.log("🔍 Attempting to find newly created evaluation for site visit:", payload.site_visit_id);
 
-          console.log("🔍 Attempting to fetch evaluations for site visit:", payload.site_visit_id);
-
-          // Since we can't use hooks here, we'll make a direct API call
+          // Method 1: Try to fetch evaluations with search/filtering
           const token = localStorage.getItem('token');
-          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/programs/supervision-evaluations/by-site-visit/${payload.site_visit_id}/`, {
+
+          // First try: Search all evaluations with a filter
+          let response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/programs/supervision-evaluations/?page=1&page_size=100&search=${payload.site_visit_id}`, {
             headers: {
               'Authorization': `Bearer ${token}`,
             },
@@ -354,23 +402,55 @@ export default function SupervisionEvaluationForm({
 
           if (response.ok) {
             const evaluationsData = await response.json();
-            console.log("📊 Evaluations for site visit:", evaluationsData);
+            console.log("📊 All evaluations search result:", evaluationsData);
 
-            // Look for the most recently created evaluation
             const evaluations = evaluationsData?.data?.results || evaluationsData?.results || [];
-            const latestEvaluation = evaluations[evaluations.length - 1]; // Most recent
+            const matchingEvaluation = evaluations.find((evaluation: any) =>
+              evaluation.site_visit_id === payload.site_visit_id ||
+              evaluation.site_visit === payload.site_visit_id
+            );
+
+            if (matchingEvaluation?.id) {
+              console.log("✅ Found newly created evaluation ID via search:", matchingEvaluation.id);
+
+              if (onSuccess) {
+                onSuccess(matchingEvaluation.id);
+              } else {
+                router.push(`/dashboard/programs/plan/supervision-evaluation/${matchingEvaluation.id}`);
+              }
+              return;
+            }
+          }
+
+          // Method 2: Try the original by-site-visit endpoint as fallback
+          console.log("🔄 Trying by-site-visit endpoint as fallback...");
+          response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/programs/supervision-evaluations/by-site-visit/${payload.site_visit_id}/`, {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            },
+          });
+
+          if (response.ok) {
+            const evaluationsData = await response.json();
+            console.log("📊 By-site-visit evaluations:", evaluationsData);
+
+            const evaluations = evaluationsData?.data?.results || evaluationsData?.results || [];
+            const latestEvaluation = evaluations[evaluations.length - 1];
 
             if (latestEvaluation?.id) {
-              console.log("✅ Found newly created evaluation ID:", latestEvaluation.id);
+              console.log("✅ Found evaluation ID via by-site-visit:", latestEvaluation.id);
 
               if (onSuccess) {
                 onSuccess(latestEvaluation.id);
               } else {
                 router.push(`/dashboard/programs/plan/supervision-evaluation/${latestEvaluation.id}`);
               }
-              return; // Exit early if we found the ID
+              return;
             }
+          } else if (response.status === 404) {
+            console.log("ℹ️ By-site-visit endpoint returned 404 - this is expected when evaluation is very new");
           }
+
         } catch (fetchError) {
           console.warn("⚠️ Failed to fetch created evaluation:", fetchError);
         }
@@ -406,6 +486,26 @@ export default function SupervisionEvaluationForm({
       });
       toast.error(error.message || "Failed to create evaluation");
     }
+  };
+
+  // Helper function to suggest categories based on supervision type
+  const getSuggestedCategoriesForSupervision = (visitType: string, categories: any[]) => {
+    // Define category suggestions based on supervision type
+    const supervisionCategoryMappings = {
+      "Supportive Supervision": ["finance system", "core management systems", "data management system", "standards of service delivery"],
+      "Integrated Supportive Supervision": ["finance system", "computer system", "core management systems", "data management system", "standards of service delivery", "hei management"],
+      "Emergency Supportive Supervision": ["finance system", "core management systems", "standards of service delivery"]
+    };
+
+    const suggestedCategoryNames = supervisionCategoryMappings[visitType as keyof typeof supervisionCategoryMappings] ||
+                                  ["finance system", "core management systems", "standards of service delivery"]; // Default categories
+
+    // Find matching categories from the available categories
+    return categories.filter(cat =>
+      suggestedCategoryNames.some(suggested =>
+        cat.name?.toLowerCase().includes(suggested.toLowerCase())
+      )
+    ).slice(0, 3); // Limit to 3 suggested categories to avoid overwhelming the user
   };
 
   const selectedSiteVisit = filteredSiteVisits?.find(sv => sv.id === form.watch("site_visit_id"));

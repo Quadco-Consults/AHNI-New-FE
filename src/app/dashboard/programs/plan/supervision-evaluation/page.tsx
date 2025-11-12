@@ -19,7 +19,7 @@ import {
 import SupervisionEvaluationForm from "@/features/programs/components/evaluation/SupervisionEvaluationForm";
 import DataTable from "components/Table/DataTable";
 import { createSiteVisitEvaluationColumns } from "@/features/programs/components/table-columns/evaluation/site-visits-evaluation";
-import { supervisionEvaluationColumns } from "@/features/programs/components/table-columns/evaluation/supervision-evaluation";
+import { createSupervisionEvaluationColumns } from "@/features/programs/components/table-columns/evaluation/supervision-evaluation";
 
 // Import hooks
 import { useGetAllSiteVisits } from "@/features/programs/controllers/siteVisitController";
@@ -138,6 +138,25 @@ const SupervisionEvaluationPage = () => {
     }
   };
 
+  const handleViewEvaluationDetails = (evaluationId: string) => {
+    router.push(`/dashboard/programs/plan/supervision-evaluation/${evaluationId}`);
+  };
+
+  const handleEditEvaluation = (evaluationId: string) => {
+    // Navigate to edit evaluation
+    router.push(`/dashboard/programs/plan/supervision-evaluation/${evaluationId}/edit`);
+  };
+
+  const handleDeleteEvaluation = (evaluationId: string) => {
+    // TODO: Implement delete evaluation logic
+    console.log("Delete evaluation:", evaluationId);
+  };
+
+  const handleDownloadReport = (evaluationId: string) => {
+    // TODO: Implement download report logic
+    console.log("Download evaluation report:", evaluationId);
+  };
+
   const handleEvaluationSuccess = (evaluationId: string) => {
     setEvaluationDialogOpen(false);
     setSelectedSiteVisitId("");
@@ -163,6 +182,13 @@ const SupervisionEvaluationPage = () => {
   const siteVisitColumns = createSiteVisitEvaluationColumns({
     onCreateEvaluation: handleCreateEvaluation,
     onViewEvaluation: handleViewEvaluation,
+  });
+
+  const supervisionEvaluationColumns = createSupervisionEvaluationColumns({
+    onViewDetails: handleViewEvaluationDetails,
+    onEdit: handleEditEvaluation,
+    onDelete: handleDeleteEvaluation,
+    onDownloadReport: handleDownloadReport,
   });
 
   return (
