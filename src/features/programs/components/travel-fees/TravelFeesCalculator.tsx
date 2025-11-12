@@ -63,7 +63,7 @@ const TravelFeesCalculator = ({
     if (!manualOverride && startDate && endDate && (locationName || state)) {
       updateTravelFees(startDate, endDate, locationName);
     }
-  }, [startDate, endDate, locationName, state, manualOverride, updateTravelFees]);
+  }, [startDate, endDate, locationName, state, manualOverride]); // Removed updateTravelFees to prevent infinite loop
 
   // Notify parent of fee changes
   useEffect(() => {

@@ -110,6 +110,9 @@ export const useGetAllFundRequests = ({
       year,
       type,
     ],
+    retry: 2, // Reasonable retry count
+    staleTime: 0, // Always fetch fresh data to avoid cache issues
+    cacheTime: 0, // Don't cache to see backend fixes immediately
     queryFn: async () => {
       try {
         // Build params object, excluding undefined/empty values
@@ -128,15 +131,25 @@ export const useGetAllFundRequests = ({
         const response = await AxiosWithToken.get(BASE_URL, { params });
         return response.data;
       } catch (error) {
-        const axiosError = error as AxiosError;
-        console.error("Fund Request API Error:", {
-          status: axiosError.response?.status,
-          data: axiosError.response?.data,
-          message: (axiosError.response?.data as any)?.message,
-        });
-        throw new Error(
-          "Sorry: " + ((axiosError.response?.data as any)?.message || axiosError.message)
-        );
+        const axiosError = error as any;
+
+        // Log for debugging backend fixes
+        console.group("🔍 Fund Request API Debug");
+        console.log("Status:", axiosError.response?.status);
+        console.log("URL:", axiosError.config?.url);
+        console.log("Response:", axiosError.response?.data);
+        console.groupEnd();
+
+        // Show different messages based on actual status
+        if (axiosError.response?.status === 401) {
+          throw new Error("Authentication required - please log in again");
+        } else if (axiosError.response?.status === 403) {
+          throw new Error("Access denied - insufficient permissions");
+        } else if (axiosError.response?.status === 500) {
+          throw new Error("Server error (500) - backend issue");
+        } else {
+          throw new Error(`API Error (${axiosError.response?.status || 'unknown'}): ${axiosError.message}`);
+        }
       }
     },
     enabled: enabled,
@@ -355,12 +368,18 @@ export const useReviewFundRequest = (id: string) => {
     method: "POST",
   });
 
-  const reviewFundRequest = async ({ actionType, formData }) => {
+  const reviewFundRequest = async ({
+    actionType,
+    formData
+  }: {
+    actionType: string;
+    formData?: { comments?: string }
+  }) => {
     try {
       await callApi({
         status: actionType,
         comments: formData?.comments,
-      } as Record<string, never>);
+      } as any);
     } catch (error) {
       console.error("Fund request review error:", error);
       throw error;

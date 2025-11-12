@@ -175,6 +175,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
   // Global Hub dropdown state
   const [showGlobalHubMenu, setShowGlobalHubMenu] = useState(false);
   const [selectedGlobalHubCategory, setSelectedGlobalHubCategory] = useState<string | null>(null);
+  const [showGlobalHubSection, setShowGlobalHubSection] = useState(true);
 
   // Group Global Hub menu items by category
   const globalHubCategories = {
@@ -605,16 +606,67 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
 
           {/* Global Hub */}
           <div className="">
-            <h4
+            <div
               className={cn(
-                "text-black/40 px-2 py-3 text-xs font-semibold uppercase duration-200",
-                sidebarWidth === false ? "block" : "hidden"
+                "flex items-center justify-between px-2 py-3 cursor-pointer hover:text-primary transition-colors duration-200",
+                sidebarWidth === false ? "flex" : "hidden"
               )}
+              onClick={() => {
+                setShowGlobalHubSection(!showGlobalHubSection);
+                if (!showGlobalHubSection) {
+                  // If we're showing the section, also reset individual category states
+                  setShowGlobalHubMenu(false);
+                  setSelectedGlobalHubCategory(null);
+                }
+              }}
             >
-              GLOBAL HUB
-            </h4>
+              <h4 className="text-black/40 text-xs font-semibold uppercase duration-200">
+                GLOBAL HUB
+              </h4>
+              <ChevronDown
+                className={cn(
+                  "h-4 w-4 text-black/40 transition duration-200",
+                  showGlobalHubSection ? "rotate-0" : "-rotate-90"
+                )}
+                aria-hidden="true"
+              />
+            </div>
 
-            <div className="space-y-1">
+            {/* Icon only version for collapsed sidebar */}
+            <div
+              className={cn(
+                "flex items-center justify-center px-2 py-3 cursor-pointer hover:text-primary transition-colors duration-200 group",
+                sidebarWidth === true ? "flex" : "hidden"
+              )}
+              onClick={() => {
+                setShowGlobalHubSection(!showGlobalHubSection);
+                if (!showGlobalHubSection) {
+                  setShowGlobalHubMenu(false);
+                  setSelectedGlobalHubCategory(null);
+                }
+              }}
+              title="Global Hub"
+            >
+              <div className="relative">
+                <Package className="h-5 w-5 text-black/40 group-hover:text-primary transition-colors duration-200" />
+                <ChevronDown
+                  className={cn(
+                    "h-3 w-3 text-black/40 absolute -bottom-1 -right-1 transition duration-200",
+                    showGlobalHubSection ? "rotate-0" : "-rotate-90"
+                  )}
+                  aria-hidden="true"
+                />
+              </div>
+            </div>
+
+            <motion.div
+              animate={
+                showGlobalHubSection
+                  ? { height: "auto", opacity: 1 }
+                  : { height: 0, opacity: 0 }
+              }
+              className="overflow-hidden space-y-1"
+            >
               {groupedGlobalHubMenu?.map((category) => (
                 <div key={category.category}>
                   {/* Category Header */}
@@ -648,8 +700,9 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                     </div>
                     <ChevronDown
                       className={cn(
-                        "h-5 w-5 -rotate-90 transition duration-200",
-                        showGlobalHubMenu && selectedGlobalHubCategory === category.category && "rotate-0"
+                        "h-5 w-5 -rotate-90 transition duration-200 flex-shrink-0",
+                        showGlobalHubMenu && selectedGlobalHubCategory === category.category && "rotate-0",
+                        sidebarWidth === true ? "block" : "block" // Always show chevron for functionality
                       )}
                       aria-hidden="true"
                     />
@@ -699,7 +752,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                   </motion.ul>
                 </div>
               ))}
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>

@@ -5,6 +5,7 @@ import React, { useState } from "react";
 import GrantDetailsCard from "./_components/GrantDetailsCard";
 import ExpenditureHistory from "./_components/ExpenditureHistory";
 import ModificationHistory from "./_components/ModificationHistory";
+import DisbursementHistory from "./_components/DisbursementHistory";
 import AddSquareIcon from "components/icons/AddSquareIcon";
 import { Button } from "components/ui/button";
 import { openDialog } from "store/ui";
@@ -64,7 +65,8 @@ const GrantDetails: React.FC = () => {
 
         {(tabValue === "expenditure" ||
           tabValue === "obligation" ||
-          tabValue === "modifications") &&
+          tabValue === "modifications" ||
+          tabValue === "disbursements") &&
           grantId && (
             <Button
               className="flex gap-2 py-6"
@@ -77,6 +79,8 @@ const GrantDetails: React.FC = () => {
                         ? DialogType.ExpenditureModal
                         : tabValue === "obligation"
                         ? DialogType.ADD_OBLIGATION_MODAL
+                        : tabValue === "disbursements"
+                        ? DialogType.ADD_DISBURSEMENT_MODAL
                         : DialogType.MODIFY_GRANT,
                     dialogProps: {
                       header:
@@ -84,9 +88,12 @@ const GrantDetails: React.FC = () => {
                           ? "Add Expenditure"
                           : tabValue === "obligation"
                           ? "Add Obligation"
+                          : tabValue === "disbursements"
+                          ? "Add Disbursement"
                           : "Add Modification",
                       width: "max-w-lg",
                       grantId: grantId,
+                      projectId: data?.data?.project_id,
                       data: { id: grantId, title: data?.data?.title },
                     },
                   })
@@ -98,6 +105,8 @@ const GrantDetails: React.FC = () => {
                 ? "Add Expenditure"
                 : tabValue === "obligation"
                 ? "Add Obligation"
+                : tabValue === "disbursements"
+                ? "Add Disbursement"
                 : "Add Modification"}
             </Button>
           )}
@@ -119,6 +128,8 @@ const GrantDetails: React.FC = () => {
 
             <TabsTrigger value="obligation">Obligations</TabsTrigger>
 
+            <TabsTrigger value="disbursements">Disbursements</TabsTrigger>
+
             <TabsTrigger value="modifications">Modifications</TabsTrigger>
           </TabsList>
 
@@ -132,6 +143,10 @@ const GrantDetails: React.FC = () => {
 
           <TabsContent value="obligation">
             {data && <ObligationHistory {...data?.data as any} />}
+          </TabsContent>
+
+          <TabsContent value="disbursements">
+            {data && <DisbursementHistory {...data?.data as any} />}
           </TabsContent>
 
           <TabsContent value="modifications">

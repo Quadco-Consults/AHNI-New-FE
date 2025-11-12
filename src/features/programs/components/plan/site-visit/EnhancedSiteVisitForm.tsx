@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Card, CardContent, CardHeader, CardTitle } from "components/ui/card";
@@ -39,6 +39,8 @@ import {
   Clock,
 } from "lucide-react";
 
+import TravelFeesCalculator from "../../travel-fees/TravelFeesCalculator";
+import { TravelFees } from "../../hooks/useTravelRates";
 import {
   SiteVisitType,
   SiteVisitTypeLabels,
@@ -77,15 +79,12 @@ const EnhancedSiteVisitForm = ({
   const [selectedPlannedVisit, setSelectedPlannedVisit] = useState<any>(null);
   const [showAnnualPlanIntegration, setShowAnnualPlanIntegration] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<string>("");
+  const [travelFees, setTravelFees] = useState<TravelFees | null>(null);
 
   // Fetch data
   const { data: currentPlanData } = useGetCurrentAnnualPlan();
   const { data: locationsData } = useGetAllLocations({ page: 1, size: 1000 });
   const { data: usersData } = useGetAllUsers({ page: 1, size: 1000 });
-  const { data: plannedVisitsData } = useGetAvailablePlannedVisits(
-    selectedLocation,
-    form.watch('visit_type')
-  );
 
   // Mutations
   const createSiteVisitMutation = useCreateSiteVisit();
@@ -109,6 +108,18 @@ const EnhancedSiteVisitForm = ({
       expected_outcomes: "",
       comments: "",
       team_members: [],
+      travel_fees: {
+        lodging_per_night: 0,
+        meal_allowance_per_day: 0,
+        interstate_cost: 0,
+        airport_taxi: 0,
+        car_hire: 0,
+        total_per_person: 0,
+        team_size: 1,
+        number_of_nights: 1,
+        total_cost: 0,
+        location: "",
+      },
       reviewer: "",
       authorizer: "",
       approver: "",
@@ -121,23 +132,23 @@ const EnhancedSiteVisitForm = ({
   const plannedVisits = plannedVisitsData?.data?.results || [];
   const currentPlan = currentPlanData?.data;
 
-  const visitType = form.watch('visit_type');
-  const location = form.watch('location');
+  // EMERGENCY DEBUG MODE - Minimal state management
+  const visitType = form.watch('visit_type') || SiteVisitType.SUPPORTIVE_SUPERVISION;
 
-  // Check if visit type is supervision-related
+  // Temporarily disable planned visits to isolate issue
+  const plannedVisitsData = { data: { results: [] } };
+
+  // Disable all useEffects temporarily
+  /*
   useEffect(() => {
-    const isSupervision =
-      visitType === SiteVisitType.SUPPORTIVE_SUPERVISION ||
-      visitType === SiteVisitType.INTEGRATED_SUPPORTIVE_SUPERVISION;
+    setShowAnnualPlanIntegration(formState.isSupervisionType && !!currentPlan);
+  }, [formState.isSupervisionType, currentPlan]);
 
-    setShowAnnualPlanIntegration(isSupervision && !!currentPlan);
-  }, [visitType, currentPlan]);
-
-  // Update selected location for planned visits filtering
   useEffect(() => {
-    setSelectedLocation(location);
+    setSelectedLocation(formState.location);
     setSelectedPlannedVisit(null);
-  }, [location]);
+  }, [formState.location]);
+  */
 
   const handlePlannedVisitSelect = (plannedVisitId: string) => {
     const plannedVisit = plannedVisits.find(pv => pv.id === plannedVisitId);
@@ -166,10 +177,22 @@ const EnhancedSiteVisitForm = ({
     toast.success("Planned visit linked! Form populated with planned details.");
   };
 
+  // Handle travel fees updates from calculator
+  const handleTravelFeesUpdate = useCallback((fees: TravelFees, totalCost: number) => {
+    setTravelFees(fees);
+    form.setValue("travel_fees", fees);
+  }, [form]);
+
   const handleSubmit = async (data: TSiteVisitApplicationFormValues) => {
     try {
+      // Include travel fees data in submission
+      const submissionData = {
+        ...data,
+        travel_fees: data.travel_fees || travelFees,
+      };
+
       // Create the site visit
-      const createResult = await createSiteVisitMutation.mutateAsync(data);
+      const createResult = await createSiteVisitMutation.mutateAsync(submissionData);
       const siteVisitId = createResult.data?.id;
 
       if (!siteVisitId) {
@@ -210,8 +233,8 @@ const EnhancedSiteVisitForm = ({
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
-      {/* Annual Plan Integration (for supervision visits) */}
-      {showAnnualPlanIntegration && (
+      {/* Annual Plan Integration - TEMPORARILY DISABLED FOR DEBUGGING */}
+      {false && showAnnualPlanIntegration && (
         <Card className="border-blue-200 bg-blue-50">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-blue-800">
@@ -246,8 +269,8 @@ const EnhancedSiteVisitForm = ({
                 </div>
               </div>
 
-              {/* Planned Visits Selection */}
-              {location && plannedVisits.length > 0 && (
+              {/* Planned Visits Selection - TEMPORARILY DISABLED */}
+              {false && (
                 <div className="space-y-3">
                   <FormLabel>Link to Planned Visit (Optional)</FormLabel>
                   <div className="grid gap-3">
@@ -322,7 +345,7 @@ const EnhancedSiteVisitForm = ({
                 </div>
               )}
 
-              {location && plannedVisits.length === 0 && (
+              {false && (
                 <Alert>
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription>
@@ -382,7 +405,7 @@ const EnhancedSiteVisitForm = ({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Visit Type *</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value || ""}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select visit type" />
@@ -425,7 +448,7 @@ const EnhancedSiteVisitForm = ({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Location *</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value || ""}>
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select location" />
@@ -530,6 +553,16 @@ const EnhancedSiteVisitForm = ({
                 )}
               />
 
+              {/* Travel Fees - TEMPORARILY DISABLED FOR DEBUGGING */}
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-lg font-semibold text-red-600">Travel Fees * (DEBUG MODE - Calculator Disabled)</h3>
+                  <p className="text-sm text-red-600">
+                    TravelFeesCalculator disabled for debugging infinite loop.
+                  </p>
+                </div>
+              </div>
+
               {/* Expected Outcomes */}
               <FormField
                 control={form.control}
@@ -600,7 +633,7 @@ const EnhancedSiteVisitForm = ({
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Reviewer *</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <Select onValueChange={field.onChange} value={field.value || ""}>
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="Select reviewer" />
@@ -625,7 +658,7 @@ const EnhancedSiteVisitForm = ({
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Authorizer *</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <Select onValueChange={field.onChange} value={field.value || ""}>
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="Select authorizer" />
@@ -650,7 +683,7 @@ const EnhancedSiteVisitForm = ({
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Final Approver *</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <Select onValueChange={field.onChange} value={field.value || ""}>
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="Select approver" />

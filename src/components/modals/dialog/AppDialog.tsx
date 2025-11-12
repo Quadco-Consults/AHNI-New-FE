@@ -88,6 +88,7 @@ import AssignPurchaseRequestModal from "@/features/procurement/components/modals
 import EditValue from "@/features/hr/components/EditValue";
 import NewLeaveForm from "@/features/hr/components/NewLeaveForm";
 import AddObligationModal from "@/features/contracts-grants/components/modals/ObligationModal";
+import AddDisbursementModal from "@/features/contracts-grants/components/modals/DisbursementModal";
 import SubGrantManualSubUploadModal from "@/features/contracts-grants/components/modals/SubGrantSubUploadModal";
 import AddPreAwardQuestion from "@/features/contracts-grants/components/AddPreAwardQuestion";
 import AddModification from "@/features/contracts-grants/components/table-columns/grant/addModification";
@@ -204,6 +205,7 @@ const dialogs: Record<string, ReactNode> = {
   [DialogType.EditValue]: <EditValue />,
   [DialogType.NewLeave]: <NewLeaveForm />,
   [DialogType.ADD_OBLIGATION_MODAL]: <AddObligationModal />,
+  [DialogType.ADD_DISBURSEMENT_MODAL]: <AddDisbursementModal />,
   [DialogType.SUBGRANT_MANUAL_SUB_UPLOAD]: <SubGrantManualSubUploadModal />,
   [DialogType.ADD_PRE_AWARD_QUESTION_MODAL]: <AddPreAwardQuestion />,
   [DialogType.MODIFY_GRANT]: <AddModification />,

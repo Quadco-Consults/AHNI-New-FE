@@ -211,6 +211,20 @@ export interface ICreateSiteVisitRequest {
   expected_outcomes?: string;
   comments?: string;
 
+  // Travel Fees (calculated automatically)
+  travel_fees?: {
+    lodging_per_night: number;
+    meal_allowance_per_day: number;
+    interstate_cost: number;
+    airport_taxi: number;
+    car_hire: number;
+    total_per_person: number;
+    team_size: number;
+    number_of_nights: number;
+    total_cost: number;
+    location: string;
+  };
+
   // Team Members (nested)
   team_members: Array<{
     user: string;
@@ -304,16 +318,19 @@ export const SiteVisitApplicationSchema = z.object({
     comments: z.string().optional(),
   })).min(1, "At least one team member is required"),
 
-  // Travel Fees
+  // Travel Fees (REQUIRED for all site visits)
   travel_fees: z.object({
-    lodging: z.number().min(0, "Lodging amount cannot be negative"),
-    meals: z.number().min(0, "Meals amount cannot be negative"),
-    interstate: z.number().min(0, "Interstate amount cannot be negative"),
-    airportTaxi: z.number().min(0, "Airport taxi amount cannot be negative"),
-    carHire: z.number().min(0, "Car hire amount cannot be negative"),
-    numberOfNights: z.number().min(1, "Number of nights must be at least 1"),
-    totalPerPerson: z.number().min(0, "Total per person cannot be negative"),
-  }).optional(),
+    lodging_per_night: z.number().min(0, "Lodging per night cannot be negative"),
+    meal_allowance_per_day: z.number().min(0, "Meal allowance cannot be negative"),
+    interstate_cost: z.number().min(0, "Interstate cost cannot be negative"),
+    airport_taxi: z.number().min(0, "Airport taxi cost cannot be negative"),
+    car_hire: z.number().min(0, "Car hire cost cannot be negative"),
+    total_per_person: z.number().min(0, "Total per person cannot be negative"),
+    team_size: z.number().min(1, "Team size must be at least 1"),
+    number_of_nights: z.number().min(1, "Number of nights must be at least 1"),
+    total_cost: z.number().min(0, "Total cost cannot be negative"),
+    location: z.string().min(1, "Location is required for travel fee calculation"),
+  }),
 
   // Approval Workflow
   reviewer: z.string().min(1, "Reviewer is required"),

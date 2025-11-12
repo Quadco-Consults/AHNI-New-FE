@@ -15,8 +15,12 @@ import {
 import { TPaginatedResponse, TResponse } from "definations/index";
 
 // Base URLs for API endpoints
-const SUPERVISION_EVALUATION_BASE_URL = "programs/supervision-evaluations/";
+// Separate endpoints: create evaluation vs submit reviews
+const SUPERVISION_EVALUATION_BASE_URL = "programs/supervision-evaluations/";  // For listing and managing evaluation records
+const SUPERVISION_EVALUATION_CREATE_URL = "programs/supervision-evaluations/";  // For creating evaluation records
+const SUPERVISION_EVALUATION_REVIEW_URL = "programs/plans/supportive-supervision/"; // For submitting reviews
 const EVALUATION_RESPONSE_BASE_URL = "programs/evaluation-responses/";
+// Note: evaluation-templates endpoint may not exist - keeping for compatibility but will handle gracefully
 const EVALUATION_TEMPLATE_BASE_URL = "programs/evaluation-templates/";
 
 // ===== SUPERVISION EVALUATION ENDPOINTS =====
@@ -152,10 +156,40 @@ export const useCreateSupervisionEvaluation = () => {
   return useMutation({
     mutationFn: async (data: ICreateSupervisionEvaluationRequest): Promise<TResponse<ISupervisionEvaluation>> => {
       try {
-        const response = await AxiosWithToken.post(SUPERVISION_EVALUATION_BASE_URL, data);
+        // Step 1: Create the evaluation record first
+        const evaluationPayload = {
+          site_visit: data.site_visit_id, // Backend expects 'site_visit', not 'site_visit_id'
+          planned_visit_id: data.planned_visit_id || null,
+          title: data.title,
+          description: data.description,
+          purpose: data.description || data.title || "Supervision evaluation", // Backend requires purpose field
+          evaluation_date: data.evaluation_date,
+          selected_categories: data.selected_categories,
+          selected_criteria: data.selected_criteria
+        };
+
+        console.log("🔄 Step 1: Creating evaluation record with payload:", evaluationPayload);
+
+        const response = await AxiosWithToken.post(SUPERVISION_EVALUATION_CREATE_URL, evaluationPayload);
+
+        console.log("✅ Step 1 Complete: Evaluation record created:", response.data);
+
+        // TODO: Step 2 would be to submit reviews using the review endpoint if needed
+        // For now, just return the created evaluation
+
         return response.data;
       } catch (error: any) {
         console.error("Supervision evaluation creation error:", error);
+        console.error("❌ Error details:", {
+          message: error.message,
+          response: error.response?.data,
+          status: error.response?.status,
+          statusText: error.response?.statusText,
+          url: error.config?.url
+        });
+
+        // Note: 404 error handling removed since endpoint is now implemented
+
         throw new Error(
           error.response?.data?.message ||
           error.response?.data?.error ||
@@ -335,9 +369,25 @@ export const useGetEvaluationTemplates = () => {
     queryFn: async () => {
       try {
         const response = await AxiosWithToken.get(EVALUATION_TEMPLATE_BASE_URL);
-        return response.data;
+        console.log("📊 Templates API Response:", response.data);
+
+        // Handle different possible response structures
+        if (response.data?.data?.results) {
+          return response.data.data;
+        } else if (response.data?.results) {
+          return response.data;
+        } else {
+          return { results: [], pagination: { total: 0, page: 1, pages: 1, per_page: 20 } };
+        }
       } catch (error) {
         const axiosError = error as AxiosError;
+        console.warn("Templates endpoint not available:", axiosError.response?.status);
+
+        // Return empty results if templates endpoint doesn't exist (404)
+        if (axiosError.response?.status === 404) {
+          return { results: [], pagination: { total: 0, page: 1, pages: 1, per_page: 20 } };
+        }
+
         throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
       }
     },
