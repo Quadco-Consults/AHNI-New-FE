@@ -41,7 +41,7 @@ import {
 } from "lucide-react";
 
 import { useGetAllFinancialYears } from "@/features/modules/controllers";
-import { useCreateAnnualPlanManual } from "@/features/programs/controllers/annualSupervisionPlanController";
+import { useCreateAnnualPlanManual, useUpdateAnnualPlan } from "@/features/programs/controllers/annualSupervisionPlanController";
 import { useGetAllLocationsManager } from "@/features/modules/controllers/config/locationController";
 import { useGetAllFacilitiesManager } from "@/features/modules/controllers/program/facilityController";
 import { useGetAllUsers } from "@/features/auth/controllers/userController";
@@ -78,9 +78,11 @@ type ManualAnnualPlanFormData = z.infer<typeof ManualAnnualPlanSchema>;
 interface AnnualPlanManualFormProps {
   onSuccess?: (result: any) => void;
   onCancel?: () => void;
+  editMode?: boolean;
+  existingPlan?: any; // Will be properly typed later
 }
 
-const AnnualPlanManualForm = ({ onSuccess, onCancel }: AnnualPlanManualFormProps) => {
+const AnnualPlanManualForm = ({ onSuccess, onCancel, editMode = false, existingPlan }: AnnualPlanManualFormProps) => {
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 3;
 
@@ -108,13 +110,47 @@ const AnnualPlanManualForm = ({ onSuccess, onCancel }: AnnualPlanManualFormProps
     size: 1000, // Get all users
   });
 
-  // Mutations
+  // Mutations - conditionally use create or update based on edit mode
   const createAnnualPlanMutation = useCreateAnnualPlanManual();
+  const updateAnnualPlanMutation = useUpdateAnnualPlan(existingPlan?.id || "");
 
-  // Form setup
-  const form = useForm<ManualAnnualPlanFormData>({
-    resolver: zodResolver(ManualAnnualPlanSchema),
-    defaultValues: {
+  // Form setup - use existing plan data in edit mode
+  const getDefaultValues = () => {
+    if (editMode && existingPlan) {
+      return {
+        financial_year_id: existingPlan.financial_year || existingPlan.financial_year_id || "",
+        title: existingPlan.title || "",
+        description: existingPlan.description || "",
+        reviewer_id: existingPlan.reviewer_id || "none",
+        authorizer_id: existingPlan.authorizer_id || "none",
+        approver_id: existingPlan.approver_id || "none",
+        planned_visits: existingPlan.planned_visits && existingPlan.planned_visits.length > 0
+          ? existingPlan.planned_visits.map((visit: any) => ({
+              location_id: visit.location_id || "",
+              location_name: visit.location_name || "",
+              location_code: visit.location_code || "",
+              facility_id: visit.facility_id || "",
+              facility_name: visit.facility_name || "",
+              visit_type: visit.visit_type || "SUPPORTIVE_SUPERVISION",
+              requires_evaluation: visit.requires_evaluation === true ? "YES" : "NO",
+              preferred_quarter: visit.planned_quarter || "Q1",
+              duration_days: visit.estimated_duration_days || 1,
+            }))
+          : [{
+              location_id: "",
+              location_name: "",
+              location_code: "",
+              facility_id: "",
+              facility_name: "",
+              visit_type: "SUPPORTIVE_SUPERVISION",
+              requires_evaluation: "YES",
+              preferred_quarter: "Q1",
+              duration_days: 1,
+            }]
+      };
+    }
+
+    return {
       financial_year_id: "",
       title: "",
       description: "",
@@ -134,7 +170,12 @@ const AnnualPlanManualForm = ({ onSuccess, onCancel }: AnnualPlanManualFormProps
           duration_days: 3,
         },
       ],
-    },
+    };
+  };
+
+  const form = useForm<ManualAnnualPlanFormData>({
+    resolver: zodResolver(ManualAnnualPlanSchema),
+    defaultValues: getDefaultValues(),
   });
 
   const { fields, append, remove } = useFieldArray({
@@ -146,6 +187,79 @@ const AnnualPlanManualForm = ({ onSuccess, onCancel }: AnnualPlanManualFormProps
   const locations = locationsData?.data?.results || [];
   const facilities = facilitiesData?.data?.results || [];
   const users = usersData?.data?.results || [];
+
+  // Update form values when existing plan changes (edit mode)
+  useEffect(() => {
+    if (editMode && existingPlan && !isLoadingFinancialYears && !isLoadingLocations) {
+      const values = getDefaultValues();
+      console.log("🔄 Resetting form with values in edit mode:", values);
+      console.log("📋 Existing plan data:", existingPlan);
+      console.log("📋 Existing plan visits:", existingPlan.planned_visits);
+      console.log("⏰ Financial years loading:", isLoadingFinancialYears);
+      console.log("⏰ Locations loading:", isLoadingLocations);
+      console.log("📊 Financial years available:", financialYears.length);
+      console.log("🗺️ Locations available:", locations.length);
+
+      // Debug location mapping and fix mismatched location IDs
+      if (existingPlan.planned_visits && existingPlan.planned_visits.length > 0) {
+        const updatedVisits = existingPlan.planned_visits.map((visit: any, index: number) => {
+          console.log(`🏢 Visit ${index + 1} location data:`, {
+            location_id: visit.location_id,
+            location_name: visit.location_name,
+            location_code: visit.location_code
+          });
+
+          // Check if this location_id exists in available locations
+          const matchingLocation = locations.find((loc: any) => loc.id === visit.location_id);
+          console.log(`🔍 Matching location found:`, matchingLocation ? matchingLocation.name : "NO MATCH");
+
+          if (!matchingLocation && visit.location_name) {
+            // Try to find by name if ID doesn't match
+            const nameMatch = locations.find((loc: any) => loc.name === visit.location_name);
+            console.log(`🔍 Location name match:`, nameMatch ? nameMatch.name : "NO NAME MATCH");
+
+            if (nameMatch) {
+              console.log(`🔧 Fixing location ID from ${visit.location_id} to ${nameMatch.id} for location: ${visit.location_name}`);
+              return {
+                ...visit,
+                location_id: nameMatch.id,
+                location_code: nameMatch.unique_code || visit.location_code
+              };
+            }
+          }
+
+          return visit;
+        });
+
+        // Update the values with corrected location IDs
+        const correctedValues = {
+          ...values,
+          planned_visits: updatedVisits.map((visit: any) => ({
+            location_id: visit.location_id || "",
+            location_name: visit.location_name || "",
+            location_code: visit.location_code || "",
+            facility_id: visit.facility_id || "",
+            facility_name: visit.facility_name || "",
+            visit_type: visit.visit_type || "SUPPORTIVE_SUPERVISION",
+            requires_evaluation: visit.requires_evaluation === true ? "YES" : "NO",
+            preferred_quarter: visit.planned_quarter || "Q1",
+            duration_days: visit.estimated_duration_days || 1,
+          }))
+        };
+
+        console.log("🔧 Corrected form values:", correctedValues);
+        form.reset(correctedValues);
+        return; // Exit early since we've already reset with corrected values
+      }
+
+      console.log("🗺️ All available locations:", locations.map((loc: any) => ({ id: loc.id, name: loc.name })));
+      form.reset(values);
+    }
+  }, [editMode, existingPlan, isLoadingFinancialYears, isLoadingLocations]);
+
+  // Debug logging (can be removed in production)
+  // console.log("🗺️ Available locations:", locations);
+  // console.log("📊 Financial years:", financialYears);
 
   const handleNext = async () => {
     let fieldsToValidate: string[] = [];
@@ -206,7 +320,7 @@ const AnnualPlanManualForm = ({ onSuccess, onCancel }: AnnualPlanManualFormProps
     if (selectedLocation) {
       form.setValue(`planned_visits.${visitIndex}.location_id`, locationId);
       form.setValue(`planned_visits.${visitIndex}.location_name`, selectedLocation.name);
-      form.setValue(`planned_visits.${visitIndex}.location_code`, selectedLocation.code || "");
+      form.setValue(`planned_visits.${visitIndex}.location_code`, selectedLocation.unique_code || "");
       // Clear facility when location changes
       form.setValue(`planned_visits.${visitIndex}.facility_id`, "");
       form.setValue(`planned_visits.${visitIndex}.facility_name`, "");
@@ -245,36 +359,74 @@ const AnnualPlanManualForm = ({ onSuccess, onCancel }: AnnualPlanManualFormProps
 
   const handleSubmit = async (data: ManualAnnualPlanFormData) => {
     try {
-      console.log("🚀 Starting manual form submission...");
+      console.log(`🚀 Starting ${editMode ? 'update' : 'create'} form submission...`);
       console.log("📊 Form data:", data);
       console.log("📋 Planned visits details:", data.planned_visits);
+      console.log("🔧 Edit mode:", editMode);
+      console.log("📝 Existing plan ID:", existingPlan?.id);
 
-      // Manual Form -> JSON API (Direct, Proper Solution)
-      console.log("🚀 Sending JSON data to manual endpoint...");
+      let result;
 
-      // Send JSON data directly to manual endpoint
-      const result = await createAnnualPlanMutation.mutateAsync({
-        financial_year_id: data.financial_year_id,
-        title: data.title,
-        description: data.description,
-        reviewer_id: data.reviewer_id === "none" ? null : data.reviewer_id,
-        authorizer_id: data.authorizer_id === "none" ? null : data.authorizer_id,
-        approver_id: data.approver_id === "none" ? null : data.approver_id,
-        planned_visits: data.planned_visits.map(visit => ({
-          location_id: visit.location_id,
-          location_name: visit.location_name,
-          location_code: visit.location_code || "",
-          facility_id: visit.facility_id || "",
-          facility_name: visit.facility_name || "",
-          visit_type: visit.visit_type,
-          requires_evaluation: visit.requires_evaluation,
-          preferred_quarter: visit.preferred_quarter,
-          duration_days: visit.duration_days
-        }))
-      });
+      if (editMode && existingPlan?.id) {
+        // UPDATE MODE: Use the update mutation with PUT endpoint
+        console.log("🔄 Updating existing plan via PUT endpoint...");
+        console.log(`🔗 Update URL: ${existingPlan.id}/`);
 
-      console.log("✅ Manual form success via JSON API:", result);
-      toast.success("Annual supervision plan created successfully!");
+        const updateData = {
+          financial_year_id: data.financial_year_id,
+          title: data.title,
+          description: data.description || "",
+          reviewer_id: data.reviewer_id === "none" ? undefined : data.reviewer_id,
+          authorizer_id: data.authorizer_id === "none" ? undefined : data.authorizer_id,
+          approver_id: data.approver_id === "none" ? undefined : data.approver_id,
+          planned_visits: data.planned_visits.map(visit => ({
+            location_id: visit.location_id || null,
+            location_name: visit.location_name,
+            location_code: visit.location_code || "",
+            facility_id: visit.facility_id || null,
+            facility_name: visit.facility_name || "",
+            visit_type: visit.visit_type,
+            requires_evaluation: visit.requires_evaluation === "YES",
+            preferred_quarter: visit.preferred_quarter || "Q1",
+            duration_days: visit.duration_days || 3
+          }))
+        };
+
+        console.log("📋 Update request data:", JSON.stringify(updateData, null, 2));
+        result = await updateAnnualPlanMutation.mutateAsync(updateData);
+        console.log("✅ Update success:", result);
+        toast.success("Annual supervision plan updated successfully!");
+
+      } else {
+        // CREATE MODE: Use the create manual mutation with POST endpoint
+        console.log("🆕 Creating new plan via manual endpoint...");
+        console.log("🔗 Create URL: manual/");
+
+        const createData = {
+          financial_year_id: data.financial_year_id,
+          title: data.title,
+          description: data.description,
+          reviewer_id: data.reviewer_id === "none" ? undefined : data.reviewer_id,
+          authorizer_id: data.authorizer_id === "none" ? undefined : data.authorizer_id,
+          approver_id: data.approver_id === "none" ? undefined : data.approver_id,
+          planned_visits: data.planned_visits.map(visit => ({
+            location_id: visit.location_id,
+            location_name: visit.location_name,
+            location_code: visit.location_code || "",
+            facility_id: visit.facility_id || "",
+            facility_name: visit.facility_name || "",
+            visit_type: visit.visit_type,
+            requires_evaluation: visit.requires_evaluation === "YES",
+            preferred_quarter: visit.preferred_quarter || "Q1",
+            duration_days: visit.duration_days || 3
+          }))
+        };
+
+        console.log("📋 Create request data:", JSON.stringify(createData, null, 2));
+        result = await createAnnualPlanMutation.mutateAsync(createData);
+        console.log("✅ Create success:", result);
+        toast.success("Annual supervision plan created successfully!");
+      }
 
       if (onSuccess) {
         onSuccess(result);
@@ -290,7 +442,7 @@ const AnnualPlanManualForm = ({ onSuccess, onCancel }: AnnualPlanManualFormProps
         headers: error.response?.headers
       });
 
-      let errorMessage = "Failed to create annual plan";
+      let errorMessage = editMode ? "Failed to update annual plan" : "Failed to create annual plan";
 
       if (error.response?.data?.message) {
         errorMessage = error.response.data.message;
@@ -367,7 +519,7 @@ const AnnualPlanManualForm = ({ onSuccess, onCancel }: AnnualPlanManualFormProps
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Financial Year *</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select financial year" />
@@ -453,7 +605,7 @@ const AnnualPlanManualForm = ({ onSuccess, onCancel }: AnnualPlanManualFormProps
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Reviewer</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select reviewer" />
@@ -495,7 +647,7 @@ const AnnualPlanManualForm = ({ onSuccess, onCancel }: AnnualPlanManualFormProps
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Authorizer</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select authorizer" />
@@ -537,7 +689,7 @@ const AnnualPlanManualForm = ({ onSuccess, onCancel }: AnnualPlanManualFormProps
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Approver</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select approver" />
@@ -621,15 +773,16 @@ const AnnualPlanManualForm = ({ onSuccess, onCancel }: AnnualPlanManualFormProps
                     control={form.control}
                     name={`planned_visits.${index}.location_id`}
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Location *</FormLabel>
-                        <Select
-                          onValueChange={(value) => {
-                            field.onChange(value);
-                            handleLocationChange(value, index);
-                          }}
-                          defaultValue={field.value}
-                        >
+                        <FormItem>
+                          <FormLabel>Location *</FormLabel>
+                          <Select
+                            onValueChange={(value) => {
+                              console.log(`🔄 Location changed for visit ${index}:`, value);
+                              field.onChange(value);
+                              handleLocationChange(value, index);
+                            }}
+                            value={field.value}
+                          >
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select location" />
@@ -643,7 +796,7 @@ const AnnualPlanManualForm = ({ onSuccess, onCancel }: AnnualPlanManualFormProps
                             ) : locations.length > 0 ? (
                               locations.map((location: any) => (
                                 <SelectItem key={location.id} value={location.id}>
-                                  {location.name} {location.code && `(${location.code})`}
+                                  {location.name} {location.unique_code && `(${location.unique_code})`}
                                 </SelectItem>
                               ))
                             ) : (
@@ -692,7 +845,7 @@ const AnnualPlanManualForm = ({ onSuccess, onCancel }: AnnualPlanManualFormProps
                               field.onChange(value);
                               handleFacilityChange(value, index);
                             }}
-                            defaultValue={field.value}
+                            value={field.value}
                             disabled={!currentLocationId}
                           >
                             <FormControl>
@@ -737,7 +890,7 @@ const AnnualPlanManualForm = ({ onSuccess, onCancel }: AnnualPlanManualFormProps
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Visit Type *</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select visit type" />
@@ -763,7 +916,7 @@ const AnnualPlanManualForm = ({ onSuccess, onCancel }: AnnualPlanManualFormProps
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Requires Evaluation *</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select evaluation requirement" />
@@ -785,7 +938,7 @@ const AnnualPlanManualForm = ({ onSuccess, onCancel }: AnnualPlanManualFormProps
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Preferred Quarter</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select quarter" />
@@ -949,18 +1102,18 @@ const AnnualPlanManualForm = ({ onSuccess, onCancel }: AnnualPlanManualFormProps
               {currentStep === totalSteps && (
                 <Button
                   type="submit"
-                  disabled={createAnnualPlanMutation.isPending}
+                  disabled={editMode ? updateAnnualPlanMutation.isPending : createAnnualPlanMutation.isPending}
                   className="flex items-center gap-2"
                 >
-                  {createAnnualPlanMutation.isPending ? (
+                  {(editMode ? updateAnnualPlanMutation.isPending : createAnnualPlanMutation.isPending) ? (
                     <>
                       <LoadingSpinner />
-                      Creating Plan...
+                      {editMode ? 'Updating Plan...' : 'Creating Plan...'}
                     </>
                   ) : (
                     <>
                       <Save className="h-4 w-4" />
-                      Create Plan
+                      {editMode ? 'Update Plan' : 'Create Plan'}
                     </>
                   )}
                 </Button>

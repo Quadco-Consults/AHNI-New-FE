@@ -2,6 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Custom form styles */
+@layer components {
+  .required::after {
+    content: " *";
+    color: rgb(239 68 68); /* red-500 */
+  }
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;

@@ -299,6 +299,9 @@ export const SiteVisitApplicationSchema = z.object({
   other_visit_type: z.string().optional(),
   purpose: z.string().min(1, "Purpose is required"),
   location: z.string().min(1, "Location is required"),
+  facility: z.string().optional(),
+  state: z.string().min(1, "State is required"),
+  lga: z.string().optional(),
   specific_address: z.string().optional(),
   start_date: z.string().min(1, "Start date is required"),
   end_date: z.string().min(1, "End date is required"),
@@ -345,6 +348,19 @@ export const SiteVisitApplicationSchema = z.object({
 }, {
   message: "Description is required when visit type is 'Other'",
   path: ["other_visit_type"]
+}).refine((data) => {
+  // For supportive supervision visits, facility is required
+  const isSupportiveSupervision = data.visit_type === SiteVisitType.SUPPORTIVE_SUPERVISION ||
+                                  data.visit_type === SiteVisitType.INTEGRATED_SUPPORTIVE_SUPERVISION ||
+                                  data.visit_type === SiteVisitType.EMERGENCY_SUPPORTIVE_SUPERVISION;
+
+  if (isSupportiveSupervision) {
+    return data.facility && data.facility.trim().length > 0 && data.facility !== "no-facility";
+  }
+  return true;
+}, {
+  message: "Facility selection is required for supportive supervision visits",
+  path: ["facility"]
 }).refine((data) => {
   // End date should be after start date
   if (data.start_date && data.end_date) {
