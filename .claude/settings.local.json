@@ -14,7 +14,8 @@
       "Bash(git pull:*)",
       "Bash(npm run build:*)",
       "Bash(git merge:*)",
-      "Bash(npx eslint:*)"
+      "Bash(npx eslint:*)",
+      "Bash(xargs sed:*)"
     ],
     "deny": [],
     "ask": []

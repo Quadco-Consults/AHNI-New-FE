@@ -50,6 +50,10 @@ const TableAction = ({
   roles,
   position,
   department,
+  user_type,
+  location,
+  state,
+  address,
 }: IUser) => {
   // Don't render if no valid ID
   if (!id || id === "" || id === "undefined") {
@@ -61,7 +65,7 @@ const TableAction = ({
   }
 
   return (
-    <TableActionWithHooks 
+    <TableActionWithHooks
       id={id}
       first_name={first_name}
       last_name={last_name}
@@ -73,6 +77,10 @@ const TableAction = ({
       roles={roles}
       position={position}
       department={department}
+      user_type={user_type}
+      location={location}
+      state={state}
+      address={address}
     />
   );
 };
@@ -89,6 +97,10 @@ const TableActionWithHooks = ({
   roles,
   position,
   department,
+  user_type,
+  location,
+  state,
+  address,
 }: IUser) => {
   const dispatch = useAppDispatch();
 
@@ -115,6 +127,11 @@ const TableActionWithHooks = ({
             position,
             department,
             roles,
+            user_type,
+            location,
+            state,
+            address,
+            is_active,
           },
         },
       })
@@ -163,14 +180,14 @@ const TableActionWithHooks = ({
           <DropdownMenuSeparator />
           <DropdownMenuItem
             className='cursor-pointer '
-            onClick={() => handleEdit(id)}
+            onClick={handleEdit}
           >
             <Edit className='w-4 h-4 mr-2' />
             <span>Edit User</span>
           </DropdownMenuItem>
           <DropdownMenuItem
             className='cursor-pointer '
-            onClick={() => handleUpdate(id)}
+            onClick={handleUpdate}
           >
             <RefreshCw className='w-4 h-4 mr-2' />
             <span>Update Role</span>

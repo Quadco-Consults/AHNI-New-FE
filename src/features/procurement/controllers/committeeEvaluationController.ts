@@ -262,6 +262,31 @@ export const useCalculateConsensus = (memberEvaluations: ICommitteeMemberEvaluat
   return { calculateConsensus };
 };
 
+// Get RFP submissions (placeholder hook)
+export const useGetRFPSubmissions = (solicitationId: string) => {
+  return useQuery({
+    queryKey: ["rfp-submissions", solicitationId],
+    queryFn: async () => {
+      try {
+        if (!solicitationId) {
+          return { results: [] };
+        }
+
+        // TODO: Implement actual RFP submissions API call
+        // For now, return empty results to avoid build errors
+        const response = await AxiosWithToken.get(
+          `procurements/rfp-submissions/?solicitation_id=${solicitationId}`
+        );
+        return response.data || { results: [] };
+      } catch (error) {
+        console.warn("RFP submissions endpoint not implemented:", error);
+        return { results: [] };
+      }
+    },
+    enabled: !!solicitationId,
+  });
+};
+
 // Generate final consensus
 export const useGenerateConsensus = (cbaId: string) => {
   const queryClient = useQueryClient();

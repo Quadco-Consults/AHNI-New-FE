@@ -14,9 +14,11 @@ import {
   useGetMemberEvaluation,
   useSubmitMemberEvaluation,
   useCurrentUser,
+  useGetRFPSubmissions,
 } from "@/features/procurement/controllers/committeeEvaluationController";
 import { useGetSingleCba } from "@/features/procurement/controllers/cbaController";
 import { useGetVendorBidSubmissions } from "@/features/procurement/controllers/vendorBidSubmissionsController";
+import RFPDocumentViewer from "./RFPDocumentViewer";
 import { IVendorEvaluation, IItemSelection } from "@/features/procurement/types/cba";
 
 // Mock vendor data - replace with actual data from CBA
@@ -93,16 +95,43 @@ const MemberEvaluationDashboard = () => {
   const { data: memberEvaluation, isLoading: evaluationLoading } = useGetMemberEvaluation(id, currentUser.id);
   const { mutate: submitEvaluation, isPending: isSubmitting } = useSubmitMemberEvaluation(id);
 
-  // Get actual vendor bid submissions
+  // Get actual vendor bid submissions and RFP submissions
   const solicitationId = cbaData?.data?.solicitation?.id;
   const { data: vendorBidSubmissions, isLoading: vendorDataLoading } = useGetVendorBidSubmissions(solicitationId);
+  const { data: rfpSubmissions, isLoading: rfpDataLoading } = useGetRFPSubmissions(solicitationId);
+
+  // Determine if this is an RFP-based CBA
+  const isRFPBased = rfpSubmissions?.results?.length > 0;
 
   // Process vendor data from actual submissions or fallback to mock data
   const vendorData = useMemo(() => {
+    // RFP-based submissions (documents)
+    if (isRFPBased && rfpSubmissions?.results?.length > 0) {
+      return rfpSubmissions.results.map((submission: any) => ({
+        id: submission.id,
+        name: submission.vendor?.name || 'Unknown Vendor',
+        type: 'rfp',
+        documents: {
+          technical: submission.technical_documents || [],
+          commercial: submission.commercial_documents || []
+        },
+        evaluations: submission.evaluations || [],
+        submissionDate: submission.created_at,
+        // For RFP, we don't have traditional items/pricing
+        items: [],
+        grandTotal: 0,
+        deliveryTime: 'See technical proposal',
+        paymentTerms: 'See commercial proposal',
+        technicalEvaluations: submission.evaluations || []
+      }));
+    }
+
+    // Traditional bid submissions (items/pricing)
     if (vendorBidSubmissions?.results?.length > 0) {
       return vendorBidSubmissions.results.map((submission: any) => ({
         id: submission.id,
         name: submission.vendor_name || submission.vendor?.name || 'Unknown Vendor',
+        type: 'bid',
         items: submission.bid_items?.map((item: any) => ({
           id: item.id,
           description: item.item?.description || item.description || 'Item',
@@ -121,8 +150,8 @@ const MemberEvaluationDashboard = () => {
 
     // Fallback to mock data for testing
     console.log("📝 Using mock vendor data - no actual submissions found");
-    return mockVendorData;
-  }, [vendorBidSubmissions]);
+    return mockVendorData.map(vendor => ({ ...vendor, type: 'bid' }));
+  }, [vendorBidSubmissions, rfpSubmissions, isRFPBased]);
 
   // Local state for evaluation data
   const [evaluation, setEvaluation] = useState<{
@@ -257,7 +286,7 @@ const MemberEvaluationDashboard = () => {
     submitEvaluation(submissionData);
   };
 
-  if (cbaLoading || evaluationLoading || vendorDataLoading) {
+  if (cbaLoading || evaluationLoading || vendorDataLoading || rfpDataLoading) {
     return <Loading />;
   }
 
@@ -388,20 +417,73 @@ const MemberEvaluationDashboard = () => {
         </h3>
 
         {vendorData.length > 0 ? (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {vendorData.map(vendor => {
-              const vendorEvaluation = evaluation.vendor_evaluations.find(ve => ve.vendor_id === vendor.id);
+          <div className="space-y-6">
+            {/* Show evaluation type indicator */}
+            <div className="flex items-center space-x-2 text-sm text-gray-600">
+              <Icon
+                icon={isRFPBased ? "mdi:file-document-multiple" : "mdi:format-list-numbered"}
+                className="w-4 h-4"
+              />
+              <span>
+                {isRFPBased
+                  ? `Document-based evaluation (${vendorData.length} RFP submissions)`
+                  : `Item-based evaluation (${vendorData.length} bid submissions)`
+                }
+              </span>
+            </div>
 
-              return (
-                <VendorScoringCard
-                  key={vendor.id}
-                  vendor={vendor}
-                  evaluation={vendorEvaluation}
-                  onUpdate={(field, value, itemId) => handleVendorUpdate(vendor.id, field, value, itemId)}
-                  disabled={isSubmitted}
-                />
-              );
-            })}
+            {isRFPBased ? (
+              // RFP Document Review Interface
+              <div className="space-y-6">
+                {vendorData.map(vendor => (
+                  <div key={vendor.id} className="space-y-4">
+                    {/* RFP Document Viewer */}
+                    <RFPDocumentViewer
+                      submission={{
+                        id: vendor.id,
+                        vendor: {
+                          id: vendor.id,
+                          name: vendor.name
+                        },
+                        technical_documents: vendor.documents?.technical || [],
+                        commercial_documents: vendor.documents?.commercial || [],
+                        evaluations: vendor.evaluations || [],
+                        created_at: vendor.submissionDate || new Date().toISOString()
+                      }}
+                      onEvaluate={(vendorId) => {
+                        // Scroll to scoring section or open scoring modal
+                        console.log("Evaluate vendor:", vendorId);
+                      }}
+                    />
+
+                    {/* Scoring Card for RFP */}
+                    <VendorScoringCard
+                      vendor={vendor}
+                      evaluation={evaluation.vendor_evaluations.find(ve => ve.vendor_id === vendor.id)}
+                      onUpdate={(field, value, itemId) => handleVendorUpdate(vendor.id, field, value, itemId)}
+                      disabled={isSubmitted}
+                    />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              // Traditional Bid Evaluation Interface
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {vendorData.map(vendor => {
+                  const vendorEvaluation = evaluation.vendor_evaluations.find(ve => ve.vendor_id === vendor.id);
+
+                  return (
+                    <VendorScoringCard
+                      key={vendor.id}
+                      vendor={vendor}
+                      evaluation={vendorEvaluation}
+                      onUpdate={(field, value, itemId) => handleVendorUpdate(vendor.id, field, value, itemId)}
+                      disabled={isSubmitted}
+                    />
+                  );
+                })}
+              </div>
+            )}
           </div>
         ) : (
           <Card className="p-8 text-center">

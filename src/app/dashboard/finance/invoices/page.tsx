@@ -247,6 +247,7 @@ export default function InvoicesPage() {
   // Column definitions
   const columns = [
     {
+      id: "invoice_number",
       accessorKey: "invoice_number",
       header: "Invoice #",
       cell: ({ row }: any) => (
@@ -254,6 +255,7 @@ export default function InvoicesPage() {
       ),
     },
     {
+      id: "customer_name",
       accessorKey: "customer_name",
       header: "Customer",
       cell: ({ row }: any) => (
@@ -261,6 +263,7 @@ export default function InvoicesPage() {
       ),
     },
     {
+      id: "invoice_date",
       accessorKey: "invoice_date",
       header: "Date",
       cell: ({ row }: any) => (
@@ -270,6 +273,7 @@ export default function InvoicesPage() {
       ),
     },
     {
+      id: "due_date",
       accessorKey: "due_date",
       header: "Due Date",
       cell: ({ row }: any) => {
@@ -283,6 +287,7 @@ export default function InvoicesPage() {
       },
     },
     {
+      id: "total_amount",
       accessorKey: "total_amount",
       header: "Amount",
       cell: ({ row }: any) => (
@@ -292,6 +297,7 @@ export default function InvoicesPage() {
       ),
     },
     {
+      id: "balance_due",
       accessorKey: "balance_due",
       header: "Balance",
       cell: ({ row }: any) => {
@@ -304,6 +310,7 @@ export default function InvoicesPage() {
       },
     },
     {
+      id: "status",
       accessorKey: "status",
       header: "Status",
       cell: ({ row }: any) => {
@@ -505,15 +512,12 @@ export default function InvoicesPage() {
         <DataTable
           columns={columns}
           data={invoices}
-          pageCount={Math.ceil(totalInvoices / (filters.page_size || 10))}
-          pageIndex={(filters.page || 1) - 1}
-          pageSize={filters.page_size || 10}
-          onPaginationChange={(pagination) => {
-            setFilters(prev => ({
-              ...prev,
-              page: pagination.pageIndex + 1,
-              page_size: pagination.pageSize,
-            }));
+          pagination={{
+            total: totalInvoices,
+            pageSize: filters.page_size || 10,
+            onChange: (page) => {
+              setFilters(prev => ({ ...prev, page }));
+            }
           }}
         />
       </Card>

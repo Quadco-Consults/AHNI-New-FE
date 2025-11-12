@@ -236,6 +236,7 @@ export default function AccountsReceivablePage() {
   // Column definitions
   const columns = [
     {
+      id: "invoice_number",
       accessorKey: "invoice_number",
       header: "Invoice #",
       cell: ({ row }: any) => (
@@ -243,6 +244,7 @@ export default function AccountsReceivablePage() {
       ),
     },
     {
+      id: "customer_name",
       accessorKey: "customer_name",
       header: "Customer",
       cell: ({ row }: any) => (
@@ -250,6 +252,7 @@ export default function AccountsReceivablePage() {
       ),
     },
     {
+      id: "due_date",
       accessorKey: "due_date",
       header: "Due Date",
       cell: ({ row }: any) => {
@@ -263,6 +266,7 @@ export default function AccountsReceivablePage() {
       },
     },
     {
+      id: "amount_due",
       accessorKey: "amount_due",
       header: "Amount Due",
       cell: ({ row }: any) => (
@@ -272,6 +276,7 @@ export default function AccountsReceivablePage() {
       ),
     },
     {
+      id: "days_outstanding",
       accessorKey: "days_outstanding",
       header: "Days Outstanding",
       cell: ({ row }: any) => {
@@ -284,6 +289,7 @@ export default function AccountsReceivablePage() {
       },
     },
     {
+      id: "aging_bucket",
       accessorKey: "aging_bucket",
       header: "Aging",
       cell: ({ row }: any) => {
@@ -303,6 +309,7 @@ export default function AccountsReceivablePage() {
       },
     },
     {
+      id: "collection_status",
       accessorKey: "collection_status",
       header: "Collection Status",
       cell: ({ row }: any) => {
@@ -315,6 +322,7 @@ export default function AccountsReceivablePage() {
       },
     },
     {
+      id: "status",
       accessorKey: "status",
       header: "Status",
       cell: ({ row }: any) => {
@@ -546,15 +554,12 @@ export default function AccountsReceivablePage() {
             <DataTable
               columns={columns}
               data={accountsReceivable}
-              pageCount={Math.ceil(accountsReceivable.length / (filters.page_size || 10))}
-              pageIndex={(filters.page || 1) - 1}
-              pageSize={filters.page_size || 10}
-              onPaginationChange={(pagination) => {
-                setFilters(prev => ({
-                  ...prev,
-                  page: pagination.pageIndex + 1,
-                  page_size: pagination.pageSize,
-                }));
+              pagination={{
+                total: accountsReceivable.length,
+                pageSize: filters.page_size || 10,
+                onChange: (page) => {
+                  setFilters(prev => ({ ...prev, page }));
+                }
               }}
             />
           </Card>

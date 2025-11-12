@@ -6,6 +6,15 @@ import { FundRequestPaginatedData } from "definations/program-types/fund-request
 import { cn } from "lib/utils";
 import Link from "next/link";
 import { formatNumberCurrency } from "utils/utls";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "components/ui/dropdown-menu";
+import { Eye, Edit, Trash2, MoreHorizontal } from "lucide-react";
 
 export const fundRequestSummaryColumns: ColumnDef<FundRequestPaginatedData>[] =
   [
@@ -95,21 +104,62 @@ const TableMenu = ({ data }: { data: FundRequestPaginatedData }) => {
     ? data.project
     : '';
 
-  // Build the URL with project ID and fundRequestId as query parameter
+  // Build the URLs
   const viewUrl = projectId
     ? `${RouteEnum.PROGRAM_FUND_REQUEST_VIEW_ACTIVITY.replace(":id", projectId)}?fundRequestId=${data?.id}`
     : RouteEnum.PROGRAM_FUND_REQUEST_SINGLE_VIEW.replace(":id", data?.id);
 
+  const editUrl = RouteEnum.PROGRAM_FUND_REQUEST_EDIT.replace(":id", data?.id);
+
+  // Determine what actions are available based on status
+  const canEdit = data.status === "DRAFT" || data.status === "PENDING" || data.status === "REJECTED";
+  const canDelete = data.status === "DRAFT";
+
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (confirm(`Are you sure you want to delete this fund request (${data.uuid_code})? This action cannot be undone.`)) {
+      // TODO: Implement delete functionality
+      console.log("Delete fund request:", data.id);
+    }
+  };
+
   return (
-    <Link href={viewUrl}>
-      <Button
-        type='button'
-        variant='ghost'
-        size='sm'
-        className='text-[#DEA004] hover:text-[#DEA004]'
-      >
-        View
-      </Button>
-    </Link>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="h-8 w-8 p-0">
+          <span className="sr-only">Open menu</span>
+          <MoreHorizontal className="h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+        <DropdownMenuItem asChild>
+          <Link href={viewUrl}>
+            <Eye className="mr-2 h-4 w-4" />
+            View Details
+          </Link>
+        </DropdownMenuItem>
+        {canEdit && (
+          <DropdownMenuItem asChild>
+            <Link href={editUrl}>
+              <Edit className="mr-2 h-4 w-4" />
+              Edit
+            </Link>
+          </DropdownMenuItem>
+        )}
+        {canDelete && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={handleDelete}
+              className="text-red-600"
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete
+            </DropdownMenuItem>
+          </>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
