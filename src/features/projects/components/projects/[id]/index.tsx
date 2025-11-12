@@ -1,5 +1,6 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
 import { useParams } from "next/navigation";
+import { useEffect } from "react";
 import GoBack from "components/GoBack";
 import Card from "components/Card";
 import Summary from "./Summary";
@@ -17,14 +18,18 @@ import { Icon } from "@iconify/react";
 import { RouteEnum } from "constants/RouterConstants";
 import { useGetSingleProject } from "@/features/projects/controllers/projectController";
 import Performance from "./Performance";
-import Activity from "./Activity";
+import ActivityReport from "./ActivityReport";
 import ObligationHistory from "features/contracts-grants/components/grant/_components/ObligationHistory";
 // import { useGetSingleSubGrant } from "@/features/c&g/subgrant/sub-grant";
 
 export default function ProjectDetail() {
   const { id } = useParams();
 
-  localStorage.setItem("projectDetailID", id as string);
+  useEffect(() => {
+    if (typeof window !== 'undefined' && id) {
+      localStorage.setItem("projectDetailID", id as string);
+    }
+  }, [id]);
 
   const { data: project, isLoading } = useGetSingleProject(
     id as string,
@@ -101,7 +106,9 @@ export default function ProjectDetail() {
             </TabsContent>
 
             <TabsContent value='activity'>
-              <Activity />
+              <Card>
+                <ActivityReport {...project.data} />
+              </Card>
             </TabsContent>
           </>
         )}

@@ -74,6 +74,8 @@ export const DialogType = {
   AddGrade: "AddGrade",
   AddLevel: "AddLevel",
   AddAssetClassification: "AddAssetClassification",
+  AddExchangeRate: "AddExchangeRate",
+  AddTravelRate: "AddTravelRate",
   ChangeWorkPlanStatusModal: "ChangeWorkPlanStatusModal",
   ChangeProcurementTrackerStatusModal: "ChangeProcurementTrackerStatusModal",
   ChangeProcurementTrackerRemarkModal: "ChangeProcurementTrackerRemarkModal",
@@ -87,6 +89,7 @@ export const DialogType = {
 
   // GRANTS
   ADD_OBLIGATION_MODAL: "ADD_OBLIGATION_MODAL",
+  ADD_DISBURSEMENT_MODAL: "ADD_DISBURSEMENT_MODAL",
   SUBGRANT_MANUAL_SUB_UPLOAD: "SUBGRANT_MANUAL_SUB_UPLOAD",
   ADD_PRE_AWARD_QUESTION_MODAL: "ADD_PRE_AWARD_QUESTION_MODAL",
   MODIFY_GRANT: "MODIFY_GRANT",

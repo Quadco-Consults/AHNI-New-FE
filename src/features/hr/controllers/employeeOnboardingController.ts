@@ -130,13 +130,13 @@ export const useCreateEmployeeOnboarding = () => {
 };
 
 // Update Employee Onboarding (Full Update)
-export const useUpdateEmployeeOnboarding = () => {
+export const useUpdateEmployeeOnboarding = (id?: string) => {
   const { callApi, isLoading, isSuccess, error, data } = useApiManager<
     EmployeeOnboarding,
     Error,
     Partial<EmployeeOnboarding>
   >({
-    endpoint: `${BASE_URL}/`,
+    endpoint: id ? `${BASE_URL}${id}/` : BASE_URL,
     queryKey: ["employee-onboardings", "employee-onboarding"],
     isAuth: true,
     method: "PUT",

@@ -1,6 +1,7 @@
 import { TabsContent } from "@radix-ui/react-tabs";
 import { Tabs, TabsList, TabsTrigger } from "components/ui/tabs";
 import { Card } from "components/ui/card";
+import { ApiErrorBoundary } from "components/common/ApiErrorBoundary";
 import AllCategory from "./AllCategory";
 import AllSubcategories from "./AllSubcategories";
 import AllDepartments from "./AllDepartments";
@@ -10,6 +11,8 @@ import AllLocations from "./AllLocations";
 import AllPositions from "./AllPositions";
 import AllGrades from "./AllGrades";
 import Levels from "./Levels";
+import AllExchangeRates from "./AllExchangeRates";
+import AllTravelRates from "./AllTravelRates";
 
 const Config = () => {
   return (
@@ -26,25 +29,35 @@ const Config = () => {
             <TabsTrigger value='position'>Positions</TabsTrigger>
             <TabsTrigger value='grade'>Grades</TabsTrigger>
             <TabsTrigger value='level'>Levels</TabsTrigger>
+            <TabsTrigger value='exchangeRate'>Exchange Rates</TabsTrigger>
+            <TabsTrigger value='travelRate'>Travel Rates</TabsTrigger>
           </TabsList>
           <TabsContent value='categories'>
             <Card className='mt-10 pb-8 px-6'>
-              <AllCategory />
+              <ApiErrorBoundary>
+                <AllCategory />
+              </ApiErrorBoundary>
             </Card>
           </TabsContent>
           <TabsContent value='subcategories'>
             <Card className='mt-10 pb-8 px-6'>
-              <AllSubcategories />
+              <ApiErrorBoundary>
+                <AllSubcategories />
+              </ApiErrorBoundary>
             </Card>
           </TabsContent>
           <TabsContent value='department'>
             <Card className='mt-10 pb-8 px-6'>
-              <AllDepartments />
+              <ApiErrorBoundary>
+                <AllDepartments />
+              </ApiErrorBoundary>
             </Card>
           </TabsContent>
           <TabsContent value='financialYear'>
             <Card className='mt-10 pb-8 px-6'>
-              <AllFinancialYear />
+              <ApiErrorBoundary>
+                <AllFinancialYear />
+              </ApiErrorBoundary>
             </Card>
           </TabsContent>
           {/* <TabsContent value="items">
@@ -54,22 +67,44 @@ const Config = () => {
                     </TabsContent> */}
           <TabsContent value='locations'>
             <Card className='mt-10 pb-8 px-6'>
-              <AllLocations />
+              <ApiErrorBoundary>
+                <AllLocations />
+              </ApiErrorBoundary>
             </Card>
           </TabsContent>
           <TabsContent value='position'>
             <Card className='mt-10 pb-8 px-6'>
-              <AllPositions />
+              <ApiErrorBoundary>
+                <AllPositions />
+              </ApiErrorBoundary>
             </Card>
           </TabsContent>
           <TabsContent value='grade'>
             <Card className='mt-10 pb-8 px-6'>
-              <AllGrades />
+              <ApiErrorBoundary>
+                <AllGrades />
+              </ApiErrorBoundary>
             </Card>
           </TabsContent>
           <TabsContent value='level'>
             <Card className='mt-10 pb-8 px-6'>
-              <Levels />
+              <ApiErrorBoundary>
+                <Levels />
+              </ApiErrorBoundary>
+            </Card>
+          </TabsContent>
+          <TabsContent value='exchangeRate'>
+            <Card className='mt-10 pb-8 px-6'>
+              <ApiErrorBoundary>
+                <AllExchangeRates />
+              </ApiErrorBoundary>
+            </Card>
+          </TabsContent>
+          <TabsContent value='travelRate'>
+            <Card className='mt-10 pb-8 px-6'>
+              <ApiErrorBoundary>
+                <AllTravelRates />
+              </ApiErrorBoundary>
             </Card>
           </TabsContent>
         </Tabs>

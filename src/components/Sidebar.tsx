@@ -45,6 +45,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
   const [showSubMenu, setShowSubMenu] = useState(false);
   const [showGlobalHubMenu, setShowGlobalHubMenu] = useState(false);
   const [selectedGlobalHubCategory, setSelectedGlobalHubCategory] = useState<string | null>(null);
+  const [showGlobalHubSection, setShowGlobalHubSection] = useState(true);
 
   // Filter sidebar items based on permissions - memoized for performance
   const filteredDepartmentalLinks = useMemo(

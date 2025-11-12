@@ -267,6 +267,7 @@ export default function TaxManagementPage() {
   // Tax Codes columns
   const taxCodesColumns = [
     {
+      id: "code",
       accessorKey: "code",
       header: "Tax Code",
       cell: ({ row }: any) => (
@@ -274,6 +275,7 @@ export default function TaxManagementPage() {
       ),
     },
     {
+      id: "name",
       accessorKey: "name",
       header: "Name",
       cell: ({ row }: any) => (
@@ -281,6 +283,7 @@ export default function TaxManagementPage() {
       ),
     },
     {
+      id: "tax_type",
       accessorKey: "tax_type",
       header: "Type",
       cell: ({ row }: any) => {
@@ -293,6 +296,7 @@ export default function TaxManagementPage() {
       },
     },
     {
+      id: "tax_rate",
       accessorKey: "tax_rate",
       header: "Rate",
       cell: ({ row }: any) => (
@@ -303,6 +307,7 @@ export default function TaxManagementPage() {
       ),
     },
     {
+      id: "status",
       accessorKey: "status",
       header: "Status",
       cell: ({ row }: any) => {
@@ -315,6 +320,7 @@ export default function TaxManagementPage() {
       },
     },
     {
+      id: "effective_date",
       accessorKey: "effective_date",
       header: "Effective Date",
       cell: ({ row }: any) => (
@@ -494,15 +500,12 @@ export default function TaxManagementPage() {
             <DataTable
               columns={taxCodesColumns}
               data={mockTaxCodes}
-              pageCount={Math.ceil(mockTaxCodes.length / (filters.page_size || 10))}
-              pageIndex={(filters.page || 1) - 1}
-              pageSize={filters.page_size || 10}
-              onPaginationChange={(pagination) => {
-                setFilters(prev => ({
-                  ...prev,
-                  page: pagination.pageIndex + 1,
-                  page_size: pagination.pageSize,
-                }));
+              pagination={{
+                total: mockTaxCodes.length,
+                pageSize: filters.page_size || 10,
+                onChange: (page) => {
+                  setFilters(prev => ({ ...prev, page }));
+                }
               }}
             />
           </Card>

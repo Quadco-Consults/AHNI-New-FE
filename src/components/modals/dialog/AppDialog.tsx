@@ -78,6 +78,8 @@ import AddPosition from "@/features/admin/components/config/AddPosition";
 import AddGrade from "@/features/admin/components/config/AddGrade";
 import AddLevel from "@/features/admin/components/config/AddLevel";
 import AddAssetClassification from "@/features/admin/components/AddAssetClassification";
+import AddExchangeRate from "@/features/admin/components/config/AddExchangeRate";
+import AddTravelRate from "@/features/admin/components/config/AddTravelRate";
 import ChangeWorkPlanStatusModal from "@/features/programs/components/modals/ChangeWorkPlanStatusModal";
 import ChangeProcurementTrackerStatusModal from "@/features/procurement/components/modals/ChangeProcurementTrackerStatusModal";
 import ChangeProcurementTrackerRemarkModal from "@/features/procurement/components/modals/ChangeProcurementTrackerRemarkModal";
@@ -86,6 +88,7 @@ import AssignPurchaseRequestModal from "@/features/procurement/components/modals
 import EditValue from "@/features/hr/components/EditValue";
 import NewLeaveForm from "@/features/hr/components/NewLeaveForm";
 import AddObligationModal from "@/features/contracts-grants/components/modals/ObligationModal";
+import AddDisbursementModal from "@/features/contracts-grants/components/modals/DisbursementModal";
 import SubGrantManualSubUploadModal from "@/features/contracts-grants/components/modals/SubGrantSubUploadModal";
 import AddPreAwardQuestion from "@/features/contracts-grants/components/AddPreAwardQuestion";
 import AddModification from "@/features/contracts-grants/components/table-columns/grant/addModification";
@@ -188,6 +191,8 @@ const dialogs: Record<string, ReactNode> = {
   [DialogType.AddLevel]: <AddLevel />,
 
   [DialogType.AddAssetClassification]: <AddAssetClassification />,
+  [DialogType.AddExchangeRate]: <AddExchangeRate />,
+  [DialogType.AddTravelRate]: <AddTravelRate />,
   [DialogType.ChangeWorkPlanStatusModal]: <ChangeWorkPlanStatusModal />,
   [DialogType.ChangeProcurementTrackerStatusModal]: (
     <ChangeProcurementTrackerStatusModal />
@@ -200,6 +205,7 @@ const dialogs: Record<string, ReactNode> = {
   [DialogType.EditValue]: <EditValue />,
   [DialogType.NewLeave]: <NewLeaveForm />,
   [DialogType.ADD_OBLIGATION_MODAL]: <AddObligationModal />,
+  [DialogType.ADD_DISBURSEMENT_MODAL]: <AddDisbursementModal />,
   [DialogType.SUBGRANT_MANUAL_SUB_UPLOAD]: <SubGrantManualSubUploadModal />,
   [DialogType.ADD_PRE_AWARD_QUESTION_MODAL]: <AddPreAwardQuestion />,
   [DialogType.MODIFY_GRANT]: <AddModification />,

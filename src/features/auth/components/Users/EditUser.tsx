@@ -71,34 +71,14 @@ export default function EditUserModal() {
       location: "",
       department: "",
       position: "",
+      designation: "",
       user_type: "",
       roles: [],
       is_active: true,
     },
   });
 
-  // Reset form when dialog data changes
-  useEffect(() => {
-    if (dialogProps?.data) {
-      const userData = dialogProps.data;
-      form.reset({
-        first_name: userData.first_name ?? "",
-        last_name: userData.last_name ?? "",
-        email: userData.email ?? "",
-        mobile_number: userData.mobile_number ?? "",
-        gender: userData.gender ?? "",
-        location: userData.location?.id ?? userData.location ?? "",
-        department: userData.department?.id ?? userData.department ?? "",
-        position: userData.position?.id ?? userData.position ?? "",
-        user_type: userData.user_type ?? "",
-        roles: userData.roles?.map((role: any) => 
-          typeof role === 'string' ? role : role.id
-        ) ?? [],
-        is_active: userData.is_active ?? true,
-      });
-    }
-  }, [dialogProps?.data, form]);
-
+  // Move all data fetching hooks before useEffect
   const { data: department, isLoading: isDepartmentLoading, error: departmentError } = useGetAllDepartments({
     page: 1,
     size: 2000000,
@@ -118,6 +98,56 @@ export default function EditUserModal() {
     page: 1,
     size: 2000000,
   });
+
+  // Reset form when dialog data changes
+  useEffect(() => {
+    if (dialogProps?.data) {
+      const userData = dialogProps.data;
+
+      // Debug the user data structure
+      console.log("Full user data structure:", userData);
+      console.log("Location data:", userData.location);
+      console.log("Department data:", userData.department);
+      console.log("Position data:", userData.position);
+      console.log("Gender data:", userData.gender);
+      console.log("User type data:", userData.user_type);
+      console.log("Roles data:", userData.roles);
+
+      // Helper function to find location ID by name
+      const findLocationIdByName = (locationName: string) => {
+        if (!locationName || !location?.data?.results) {
+          console.log("Location lookup failed - missing data:", { locationName, hasLocationData: !!location?.data?.results });
+          return "";
+        }
+        console.log("Looking for location:", locationName, "in", location.data.results);
+        const foundLocation = location.data.results.find((loc: any) =>
+          loc.name === locationName
+        );
+        console.log("Found location:", foundLocation);
+        return foundLocation?.id ?? "";
+      };
+
+      const formData = {
+        first_name: userData.first_name ?? "",
+        last_name: userData.last_name ?? "",
+        email: userData.email ?? "",
+        mobile_number: userData.mobile_number ?? "",
+        gender: userData.gender ?? "",
+        location: userData.location?.id ?? findLocationIdByName(userData.location) ?? "",
+        department: userData.department?.id ?? userData.department ?? "",
+        position: userData.position?.id ?? userData.position ?? "",
+        designation: userData.position?.id ?? userData.position ?? "", // Same as position
+        user_type: userData.user_type ?? "",
+        roles: userData.roles?.map((role: any) =>
+          typeof role === 'string' ? role : role.id
+        ) ?? [],
+        is_active: userData.is_active ?? true,
+      };
+
+      console.log("Form data being set:", formData);
+      form.reset(formData);
+    }
+  }, [dialogProps?.data, form, location]);
 
   const departmentOptions = useMemo(
     () =>
@@ -186,9 +216,8 @@ export default function EditUserModal() {
   // For now, using userId as a placeholder until we implement proper ID lookup
   const { updateFacilitator, isLoading: isFacilitatorUpdateLoading } = useUpdateFacilitator(userId || "");
   
-  // For workforce updates - we'd need the employee ID
-  // For now, using userId as a placeholder until we implement proper ID lookup
-  const { updateEmployeeOnboarding, isLoading: isEmployeeUpdateLoading } = useUpdateEmployeeOnboarding();
+  // For workforce updates - backend now handles User ID lookup automatically
+  const { updateEmployeeOnboarding, isLoading: isEmployeeUpdateLoading } = useUpdateEmployeeOnboarding(userId);
 
   // Bank account management - for adhoc staff, consultants, etc.
   const { createEmployeeOnboardingBankAcct, isLoading: isBankCreateLoading } = useCreateEmployeeOnboardingBankAcct();
@@ -221,40 +250,55 @@ export default function EditUserModal() {
    * - AHNI_STAFF & ADMIN → Only update users table
    */
   const updateUserByType = async (data: TUpdateUserFormValues) => {
-    const userType = data.user_type || dialogProps?.data?.user_type;
+    // Always use the form data user_type first (for conversions), fallback to existing only if undefined
+    const userType = data.user_type ?? dialogProps?.data?.user_type;
     const userId = dialogProps?.data?.id;
-    
+
+    console.log("🔍 Debug updateUserByType:");
+    console.log("  Form data user_type:", data.user_type);
+    console.log("  Dialog data user_type:", dialogProps?.data?.user_type);
+    console.log("  Final determined userType:", userType);
+    console.log("  Full form data:", data);
+
     if (!userId) {
       throw new Error("No user ID available for update");
     }
-    
+
     // STEP 1: Always update main users table first
+    console.log("🚀 Updating main user table with data:", data);
     await updateUser(data);
     
     // STEP 2: Also update specialized table based on user type
+    console.log("🎯 Routing to user type case:", userType);
     switch (userType) {
       case "ADHOC_STAFF":
+        console.log("📝 Updating ADHOC_STAFF record");
         // Update adhoc table record linked to this user
         await updateAdhocUserRecord(userId, data);
         break;
       case "FACILITATOR":
+        console.log("📝 Updating FACILITATOR record");
         // Update facilitator table record linked to this user
         await updateFacilitatorUserRecord(userId, data);
         break;
       case "CONSULTANT":
+        console.log("📝 Updating CONSULTANT record");
         // Update consultant table record linked to this user
         await updateConsultantUserRecord(userId, data);
         break;
       case "VENDOR":
+        console.log("📝 Updating VENDOR record");
         // Update vendor table record linked to this user
         await updateVendorUserRecord(userId, data);
         break;
       case "AHNI_STAFF":
       case "ADMIN":
+        console.log("📝 Updating AHNI_STAFF/ADMIN workforce record");
         // Update workforce record in employee onboarding table
         await updateWorkforceUserRecord(userId, data);
         break;
       default:
+        console.log("📝 No specialized table to update for user type:", userType);
         // Only exists in main users table - no specialized table to update
         break;
     }
@@ -303,6 +347,7 @@ export default function EditUserModal() {
     console.log("Updating workforce record for user:", userId, data);
 
     // Update employee onboarding record in workforce database
+    // Backend now handles User ID lookup automatically
     const workforceUpdateData = mapUserUpdateToWorkforce(data);
     await updateEmployeeOnboarding(workforceUpdateData);
   };
@@ -448,26 +493,39 @@ export default function EditUserModal() {
   };
 
   // Helper function to map user update data to workforce format
+  // Only sends fields that are available from the user form to avoid required field errors
   const mapUserUpdateToWorkforce = (userData: TUpdateUserFormValues) => {
-    return {
-      // Update basic employee information
-      legal_firstname: userData.first_name,
-      legal_lastname: userData.last_name,
-      email: userData.email,
-      phone_number: userData.mobile_number,
-      
-      // Update employment details
-      employment_type: userData.user_type === "ADMIN" ? "Admin" : "Staff",
-      department: userData.department || "TBD - Department assignment required",
-      
-      // Update status to indicate possible incomplete profile
-      status: "⚠️ UPDATED FROM USER MANAGEMENT - May require HR onboarding completion",
-      
-      // Mark as updated from user management with incomplete warning
-      last_updated_from: "USER_MANAGEMENT",
-      extra_info: `⚠️ UPDATED FROM USER MANAGEMENT - If HR profile is incomplete (missing: date of birth, SSN, marital status, bank account details, PFA information, beneficiaries, emergency contacts, qualifications, passport/signature uploads, system authorizations), complete via HR employee onboarding process.`
-    };
+    const updateData: any = {};
+
+    // Only update basic employee information that we have from user form
+    if (userData.first_name) {
+      updateData.legal_firstname = userData.first_name;
+    }
+    if (userData.last_name) {
+      updateData.legal_lastname = userData.last_name;
+    }
+    if (userData.email) {
+      updateData.email = userData.email;
+    }
+    if (userData.mobile_number) {
+      updateData.phone_number = userData.mobile_number;
+    }
+
+    // Only update employment details if we have the data
+    if (userData.user_type) {
+      updateData.employment_type = userData.user_type === "ADMIN" ? "Admin" : "Staff";
+    }
+    if (userData.department) {
+      updateData.department = userData.department;
+    }
+
+    // Add metadata about the update source (optional fields)
+    updateData.last_updated_from = "USER_MANAGEMENT";
+    updateData.extra_info = `⚠️ UPDATED FROM USER MANAGEMENT on ${new Date().toISOString().split('T')[0]} - Basic employee information updated from user management. Complete HR onboarding process if additional details are needed (date of birth, SSN, marital status, bank account details, PFA information, beneficiaries, emergency contacts, qualifications, passport/signature uploads, system authorizations).`;
+
+    return updateData;
   };
+
 
   return (
     <div>
