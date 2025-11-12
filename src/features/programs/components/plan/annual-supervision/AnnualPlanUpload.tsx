@@ -60,9 +60,11 @@ import { useGetAllUsers } from "@/features/auth/controllers/userController";
 interface AnnualPlanUploadProps {
   onSuccess?: (result: IUploadProcessingResult) => void;
   onCancel?: () => void;
+  editMode?: boolean;
+  planId?: string | null;
 }
 
-const AnnualPlanUpload = ({ onSuccess, onCancel }: AnnualPlanUploadProps) => {
+const AnnualPlanUpload = ({ onSuccess, onCancel, editMode = false, planId }: AnnualPlanUploadProps) => {
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [validationResult, setValidationResult] = useState<IUploadValidationResult | null>(null);
   const [isValidating, setIsValidating] = useState(false);

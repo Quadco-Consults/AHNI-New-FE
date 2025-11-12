@@ -1,5 +1,5 @@
-import SiteVisitCreate from "@/features/programs/components/plan/site-visit/create";
+import SiteVisitFormNew from "@/features/programs/components/plan/site-visit/SiteVisitFormNew";
 
 export default function SiteVisitCreatePage() {
-  return <SiteVisitCreate />;
+  return <SiteVisitFormNew mode="create" />;
 }

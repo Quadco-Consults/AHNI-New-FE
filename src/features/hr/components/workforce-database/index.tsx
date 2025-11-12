@@ -99,7 +99,7 @@ const WorkforceDatabase = () => {
     const fullName = `${item.legal_firstname || ""} ${item.legal_lastname || ""}`.toLowerCase();
     const email = (item.location?.email || item.email || "").toLowerCase();
     const staffId = (item.serial_id_code || "").toLowerCase();
-    const position = (item.designation?.name || item.position || "").toLowerCase();
+    const position = String(item.designation?.name || item.position || "").toLowerCase();
 
     return fullName.includes(searchLower) ||
            email.includes(searchLower) ||

@@ -73,8 +73,15 @@ const MultiSelectFormField = forwardRef<
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
     useEffect(() => {
-      setSelectedValues(defaultValue || []);
-      selectedValuesSet.current = new Set(defaultValue);
+      const newDefaultValue = defaultValue || [];
+      // Only update if the values actually changed
+      const currentIds = selectedValues.sort().join(',');
+      const newIds = [...newDefaultValue].sort().join(',');
+
+      if (currentIds !== newIds) {
+        setSelectedValues(newDefaultValue);
+        selectedValuesSet.current = new Set(newDefaultValue);
+      }
     }, [defaultValue]);
 
     const handleInputKeyDown = (event: any) => {

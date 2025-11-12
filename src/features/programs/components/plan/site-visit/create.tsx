@@ -12,7 +12,7 @@ import { SelectContent, SelectItem } from "components/ui/select";
 import { LoadingSpinner } from "components/Loading";
 import MultiSelectFormField from "components/ui/multiselect";
 import { Textarea } from "components/ui/textarea";
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import Card from "components/Card";
@@ -595,9 +595,7 @@ const SiteVisitCreate = () => {
                       name: `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.email || 'Unknown User'
                     }));
 
-                    const selectedUserIds = useMemo(() => {
-                      return field.value?.map((member: any) => member.user) || [];
-                    }, [field.value]);
+                    const selectedUserIds = field.value?.map((member: any) => member.user) || [];
 
                     return (
                       <FormItem>
@@ -606,7 +604,7 @@ const SiteVisitCreate = () => {
                           <MultiSelectFormField
                             options={transformedOptions}
                             defaultValue={selectedUserIds}
-                            onValueChange={(selectedIds) => {
+                            onValueChange={useCallback((selectedIds) => {
                               // Transform selected IDs into the expected schema format
                               const teamMembersData = (selectedIds || []).map((userId: string) => ({
                                 user: userId,
@@ -617,7 +615,7 @@ const SiteVisitCreate = () => {
                                 comments: ""
                               }));
                               field.onChange(teamMembersData);
-                            }}
+                            }, [field.onChange])}
                             placeholder="Select team members for this site visit"
                             variant="inverted"
                           />
