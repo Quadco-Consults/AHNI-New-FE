@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import BreadcrumbCard from "components/Breadcrumb";
-import SupervisionEvaluationDashboard from "@/features/programs/components/evaluation/SupervisionEvaluationDashboard";
+import SiteVisitsNeedingEvaluation from "@/features/programs/components/evaluation/SiteVisitsNeedingEvaluation";
 import SupervisionEvaluationForm from "@/features/programs/components/evaluation/SupervisionEvaluationForm";
 import { Button } from "components/ui/button";
 import { Plus, FileDown, BarChart3, Filter } from "lucide-react";
@@ -19,6 +19,7 @@ import {
 const SupervisionEvaluationPage = () => {
   const router = useRouter();
   const [evaluationDialogOpen, setEvaluationDialogOpen] = useState(false);
+  const [selectedSiteVisitId, setSelectedSiteVisitId] = useState<string>("");
 
   const breadcrumbs = [
     { name: "Programs", icon: true },
@@ -26,7 +27,10 @@ const SupervisionEvaluationPage = () => {
     { name: "Supervision Evaluation", icon: false },
   ];
 
-  const handleCreateEvaluation = () => {
+  const handleCreateEvaluation = (siteVisitId?: string) => {
+    if (siteVisitId) {
+      setSelectedSiteVisitId(siteVisitId);
+    }
     setEvaluationDialogOpen(true);
   };
 
@@ -36,10 +40,37 @@ const SupervisionEvaluationPage = () => {
     console.log("View evaluation details:", evaluationId);
   };
 
-  const handleEvaluationSuccess = () => {
+  const handleEvaluationSuccess = (evaluationId: string) => {
     setEvaluationDialogOpen(false);
-    // Refresh the dashboard data
-    window.location.reload();
+    setSelectedSiteVisitId("");
+
+    // Trigger evaluations list refresh
+    setTimeout(() => {
+      if ((window as any).refreshEvaluationsList) {
+        console.log("🔄 Triggering evaluations list refresh...");
+        (window as any).refreshEvaluationsList();
+      }
+    }, 1000); // Wait 1 second for the backend to process
+
+    // Check if this is a placeholder ID (backend didn't return real ID)
+    if (evaluationId.startsWith('site-visit-')) {
+      // Navigate back to main list where the user can see the updated status
+      // The site should now show a "View Evaluation" button instead of "Create"
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000); // Wait 2 seconds for refresh to complete
+    } else {
+      // Navigate directly to the evaluation conducting interface
+      setTimeout(() => {
+        router.push(`/dashboard/programs/plan/supervision-evaluation/${evaluationId}`);
+      }, 1500); // Wait for refresh first
+    }
+  };
+
+  // Add a callback to be passed to SiteVisitsNeedingEvaluation for refreshing data
+  const handleEvaluationRefresh = () => {
+    // This will be called by the SiteVisitsNeedingEvaluation component after evaluation success
+    console.log("🔄 Evaluation refresh callback triggered");
   };
 
   const handleGenerateReport = () => {
@@ -62,7 +93,7 @@ const SupervisionEvaluationPage = () => {
           <div>
             <h1 className="text-2xl font-bold">Supervision Evaluation</h1>
             <p className="text-gray-600 mt-1">
-              Conduct evaluations, track performance metrics, and generate insights
+              Site visits requiring evaluation assessment and scoring
             </p>
           </div>
 
@@ -104,16 +135,20 @@ const SupervisionEvaluationPage = () => {
                     Create a new supervision evaluation to assess performance and provide feedback
                   </DialogDescription>
                 </DialogHeader>
-                <SupervisionEvaluationForm onSuccess={handleEvaluationSuccess} />
+                <SupervisionEvaluationForm
+                  siteVisitId={selectedSiteVisitId}
+                  onSuccess={handleEvaluationSuccess}
+                  onCancel={() => setEvaluationDialogOpen(false)}
+                />
               </DialogContent>
             </Dialog>
           </div>
         </div>
 
-        {/* Dashboard */}
-        <SupervisionEvaluationDashboard
+        {/* Site Visits Needing Evaluation */}
+        <SiteVisitsNeedingEvaluation
           onCreateEvaluation={handleCreateEvaluation}
-          onViewDetails={handleViewDetails}
+          onEvaluationSuccess={handleEvaluationRefresh}
         />
       </div>
     </div>

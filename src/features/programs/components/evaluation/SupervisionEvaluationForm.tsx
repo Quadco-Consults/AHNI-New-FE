@@ -75,25 +75,142 @@ export default function SupervisionEvaluationForm({
   const { data: siteVisitsData } = useGetAllSiteVisits({
     page: 1,
     page_size: 100,
-    status: "COMPLETED",
+    // Remove status filter to show all site visits, then filter on frontend
+    // status: "COMPLETED", // This status doesn't exist - use frontend filtering instead
   });
-  const { data: categoriesData } = useGetEvaluationCategories();
+  const { data: categoriesData, error: categoriesError, isLoading: isLoadingCategories } = useGetEvaluationCategories();
   const { data: templatesData } = useGetEvaluationTemplates();
 
-  // Load criteria when categories are selected
+  // Filter site visits to show only supervision visits that are approved/authorized
+  const filteredSiteVisits = React.useMemo(() => {
+    const results = (siteVisitsData as any)?.data?.results || siteVisitsData?.results || [];
+
+    if (!Array.isArray(results)) return [];
+
+    // Define supervision visit types
+    const supervisionTypes = [
+      "Supportive Supervision",
+      "Integrated Supportive Supervision",
+      "Emergency Supportive Supervision",
+    ];
+
+    // Define approved statuses
+    const approvedStatuses = [
+      "Authorized",
+      "EA Generated",
+    ];
+
+    return results.filter((siteVisit: any) => {
+      const hasApprovedStatus = approvedStatuses.includes(siteVisit.status_display);
+      const isSupervisionType = supervisionTypes.includes(siteVisit.visit_type_display);
+      return hasApprovedStatus && isSupervisionType;
+    });
+  }, [siteVisitsData]);
+
+  // Debug site visits and categories loading
+  useEffect(() => {
+    console.log("🔍 Site visits raw data:", siteVisitsData);
+    console.log("🔍 Filtered site visits:", filteredSiteVisits);
+    if (filteredSiteVisits.length === 0 && siteVisitsData) {
+      console.log("⚠️ No filtered site visits found. Check filtering logic.");
+
+      // Log available data to help debug
+      const results = (siteVisitsData as any)?.data?.results || siteVisitsData?.results || [];
+      if (Array.isArray(results) && results.length > 0) {
+        console.log("📊 Available site visit statuses:", results.map(sv => sv.status_display).filter(Boolean));
+        console.log("📊 Available site visit types:", results.map(sv => sv.visit_type_display).filter(Boolean));
+        console.log("📊 Sample site visit:", results[0]);
+      }
+    }
+  }, [siteVisitsData, filteredSiteVisits]);
+
+  // Debug categories loading
+  useEffect(() => {
+    console.log("🔍 Categories loading state:", {
+      isLoading: isLoadingCategories,
+      hasData: !!categoriesData,
+      hasError: !!categoriesError,
+      dataType: typeof categoriesData,
+      dataLength: Array.isArray(categoriesData) ? categoriesData.length : 'not array',
+      rawData: categoriesData,
+      error: categoriesError
+    });
+
+    // If we have data but it's not an array, check the structure
+    if (categoriesData && !Array.isArray(categoriesData)) {
+      console.log("📊 Categories data structure exploration:", {
+        keys: Object.keys(categoriesData),
+        hasResults: 'results' in categoriesData,
+        hasData: 'data' in categoriesData,
+        actualData: categoriesData
+      });
+    }
+  }, [categoriesData, categoriesError, isLoadingCategories]);
+
+  // Load criteria when categories are selected using direct API calls with correct auth
   useEffect(() => {
     const loadCriteriaForCategories = async () => {
-      if (selectedCategories.length === 0) return;
+      if (selectedCategories.length === 0) {
+        setCriteriaByCategory({});
+        return;
+      }
 
+      console.log("🔄 Loading criteria for categories:", selectedCategories);
       const newCriteriaByCategory: Record<string, any[]> = {};
 
       for (const categoryId of selectedCategories) {
         try {
-          // This would need to be implemented as a direct API call since we need it synchronously
-          // For now, we'll use a placeholder structure
-          newCriteriaByCategory[categoryId] = [];
+          // Use the correct token name that AxiosWithToken uses
+          const token = localStorage.getItem("token");
+
+          if (!token) {
+            console.error(`❌ No auth token found for category ${categoryId}`);
+            newCriteriaByCategory[categoryId] = [];
+            continue;
+          }
+
+          // Make direct API call to get criteria for this category using correct endpoint and auth
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/programs/supervision-evaluation-criteria/?page=1&size=20&search=&evaluation_category=${categoryId}`, {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          });
+
+          if (response.ok) {
+            const responseData = await response.json();
+            console.log(`📊 Direct API criteria response for category ${categoryId}:`, responseData);
+            console.log(`🌐 Criteria API URL called:`, response.url);
+            console.log(`📡 Criteria API status:`, response.status, response.statusText);
+
+            // Handle different possible response structures
+            let criteriaData = [];
+            if (responseData?.data?.results) {
+              criteriaData = responseData.data.results;
+            } else if (responseData?.results) {
+              criteriaData = responseData.results;
+            } else if (Array.isArray(responseData)) {
+              criteriaData = responseData;
+            } else if (responseData?.data && Array.isArray(responseData.data)) {
+              criteriaData = responseData.data;
+            } else {
+              console.warn(`Unexpected direct API criteria response structure for category ${categoryId}:`, responseData);
+              criteriaData = responseData || [];
+            }
+
+            newCriteriaByCategory[categoryId] = criteriaData;
+            console.log(`✅ Loaded ${criteriaData?.length || 0} criteria for category ${categoryId}`);
+          } else {
+            console.log(`⚠️ No criteria found for category ${categoryId} (${response.status})`);
+            console.log(`🌐 Failed Criteria API URL:`, response.url);
+            console.log(`📡 Failed Criteria API status:`, response.status, response.statusText);
+            const errorText = await response.text();
+            console.log(`📝 Error response body:`, errorText);
+            newCriteriaByCategory[categoryId] = [];
+          }
         } catch (error) {
-          console.error(`Failed to load criteria for category ${categoryId}:`, error);
+          console.error(`❌ Failed to load criteria for category ${categoryId}:`, error);
+          newCriteriaByCategory[categoryId] = [];
         }
       }
 
@@ -107,15 +224,24 @@ export default function SupervisionEvaluationForm({
   const handleCategoryToggle = (categoryId: string, categoryName: string) => {
     setSelectedCategories(prev => {
       const isSelected = prev.includes(categoryId);
+      const newCategories = isSelected
+        ? prev.filter(id => id !== categoryId)
+        : [...prev, categoryId];
+
+      // Update the form field as well
+      form.setValue("selected_categories", newCategories);
+
       if (isSelected) {
         // Remove category and its criteria
-        setSelectedCriteria(prevCriteria =>
-          prevCriteria.filter(c => c.category_id !== categoryId)
-        );
-        return prev.filter(id => id !== categoryId);
-      } else {
-        return [...prev, categoryId];
+        setSelectedCriteria(prevCriteria => {
+          const newCriteria = prevCriteria.filter(c => c.category_id !== categoryId);
+          // Update form criteria field
+          form.setValue("selected_criteria", newCriteria.map(c => c.id));
+          return newCriteria;
+        });
       }
+
+      return newCategories;
     });
   };
 
@@ -128,14 +254,17 @@ export default function SupervisionEvaluationForm({
   }, categoryName: string) => {
     setSelectedCriteria(prev => {
       const isSelected = prev.some(c => c.id === criteria.id);
-      if (isSelected) {
-        return prev.filter(c => c.id !== criteria.id);
-      } else {
-        return [...prev, {
-          ...criteria,
-          category_name: categoryName,
-        }];
-      }
+      const newCriteria = isSelected
+        ? prev.filter(c => c.id !== criteria.id)
+        : [...prev, {
+            ...criteria,
+            category_name: categoryName,
+          }];
+
+      // Update the form field as well
+      form.setValue("selected_criteria", newCriteria.map(c => c.id));
+
+      return newCriteria;
     });
   };
 
@@ -171,21 +300,115 @@ export default function SupervisionEvaluationForm({
         selected_criteria: selectedCriteria.map(c => c.id),
       };
 
+      console.log("🚀 Creating evaluation with payload:", payload);
+      console.log("🔍 Form data:", data);
+      console.log("🔍 Selected categories:", selectedCategories);
+      console.log("🔍 Selected criteria:", selectedCriteria);
+
       const result = await createEvaluationMutation.mutateAsync(payload);
+
+      console.log("✅ Evaluation created successfully:", result);
+      console.log("📊 Full response structure:", JSON.stringify(result, null, 2));
+      console.log("🔍 Checking ID paths:", {
+        'result.data.id': result.data?.id,
+        'result.id': result.id,
+        'result.data': result.data,
+        'full_result': result
+      });
 
       toast.success("Supervision evaluation created successfully");
 
-      if (onSuccess) {
-        onSuccess(result.data.id);
+      // Enhanced ID extraction with multiple fallback paths
+      const evaluationId = result.data?.id ||
+                          result.id ||
+                          result.data?.evaluation?.id ||
+                          result.data?.evaluation_id ||
+                          result.data?.uuid ||
+                          result.uuid ||
+                          null;
+
+      console.log("🔍 Extracted evaluation ID:", evaluationId);
+
+      if (evaluationId) {
+        if (onSuccess) {
+          onSuccess(evaluationId);
+        } else {
+          router.push(`/dashboard/programs/plan/supervision-evaluation/${evaluationId}`);
+        }
       } else {
-        router.push(`/dashboard/programs/plan/supervision-evaluation/${result.data.id}`);
+        console.warn("⚠️ Backend didn't return evaluation ID - attempting to fetch the created evaluation");
+
+        try {
+          // Attempt to find the evaluation that was just created for this site visit
+          const { useGetEvaluationsBySiteVisit } = await import('@/features/programs/controllers/supervisionEvaluationController');
+
+          console.log("🔍 Attempting to fetch evaluations for site visit:", payload.site_visit_id);
+
+          // Since we can't use hooks here, we'll make a direct API call
+          const token = localStorage.getItem('token');
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/programs/supervision-evaluations/by-site-visit/${payload.site_visit_id}/`, {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            },
+          });
+
+          if (response.ok) {
+            const evaluationsData = await response.json();
+            console.log("📊 Evaluations for site visit:", evaluationsData);
+
+            // Look for the most recently created evaluation
+            const evaluations = evaluationsData?.data?.results || evaluationsData?.results || [];
+            const latestEvaluation = evaluations[evaluations.length - 1]; // Most recent
+
+            if (latestEvaluation?.id) {
+              console.log("✅ Found newly created evaluation ID:", latestEvaluation.id);
+
+              if (onSuccess) {
+                onSuccess(latestEvaluation.id);
+              } else {
+                router.push(`/dashboard/programs/plan/supervision-evaluation/${latestEvaluation.id}`);
+              }
+              return; // Exit early if we found the ID
+            }
+          }
+        } catch (fetchError) {
+          console.warn("⚠️ Failed to fetch created evaluation:", fetchError);
+        }
+
+        // If all attempts fail, fall back to site visit navigation
+        console.warn("⚠️ Using site visit fallback navigation");
+
+        if (onSuccess) {
+          // Pass a placeholder ID that the parent can handle
+          onSuccess(`site-visit-${payload.site_visit_id}`);
+        } else {
+          // Navigate back to the main list
+          router.push('/dashboard/programs/plan/supervision-evaluation');
+        }
+
+        toast.success("Evaluation created successfully! Please look for the updated site with 'View Evaluation' button.");
+
+        // Trigger evaluations refresh if available
+        setTimeout(() => {
+          if ((window as any).refreshEvaluationsList) {
+            console.log("🔄 Triggering evaluations refresh from form...");
+            (window as any).refreshEvaluationsList();
+          }
+        }, 500);
       }
     } catch (error: any) {
+      console.error("❌ Evaluation creation failed:", error);
+      console.error("❌ Error details:", {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        statusText: error.response?.statusText
+      });
       toast.error(error.message || "Failed to create evaluation");
     }
   };
 
-  const selectedSiteVisit = siteVisitsData?.results?.find(sv => sv.id === form.watch("site_visit_id"));
+  const selectedSiteVisit = filteredSiteVisits?.find(sv => sv.id === form.watch("site_visit_id"));
 
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
@@ -226,7 +449,7 @@ export default function SupervisionEvaluationForm({
                 disabled={!!siteVisitId}
               >
                 <option value="">Select a completed site visit</option>
-                {siteVisitsData?.results?.map((siteVisit) => (
+                {filteredSiteVisits?.map((siteVisit) => (
                   <option key={siteVisit.id} value={siteVisit.id}>
                     {siteVisit.title} - {siteVisit.location_name} ({formatDate(siteVisit.actual_end_date || siteVisit.start_date)})
                   </option>
@@ -362,26 +585,115 @@ export default function SupervisionEvaluationForm({
             {/* Categories */}
             <div>
               <h4 className="font-medium text-gray-900 mb-3">Available Categories</h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                {categoriesData?.map((category) => (
-                  <div key={category.id} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={`category-${category.id}`}
-                      checked={selectedCategories.includes(category.id)}
-                      onCheckedChange={() => handleCategoryToggle(category.id, category.name)}
-                    />
-                    <Label htmlFor={`category-${category.id}`} className="text-sm font-medium">
-                      {category.name}
-                    </Label>
-                  </div>
-                ))}
-              </div>
+
+              {isLoadingCategories ? (
+                <div className="text-center py-4">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto"></div>
+                  <p className="text-sm text-gray-600 mt-2">Loading categories...</p>
+                </div>
+              ) : categoriesError ? (
+                <div className="text-center py-4 text-red-500">
+                  <p className="text-sm">Failed to load categories: {categoriesError.message}</p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="mt-2"
+                    onClick={() => window.location.reload()}
+                  >
+                    Retry
+                  </Button>
+                </div>
+              ) : !categoriesData || categoriesData.length === 0 ? (
+                <div className="text-center py-4 text-gray-500">
+                  <p className="text-sm">No evaluation categories available</p>
+                  <p className="text-xs mt-1">Please contact your administrator to set up evaluation categories</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {categoriesData.map((category) => (
+                    <div key={category.id} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`category-${category.id}`}
+                        checked={selectedCategories.includes(category.id)}
+                        onCheckedChange={() => handleCategoryToggle(category.id, category.name)}
+                      />
+                      <Label htmlFor={`category-${category.id}`} className="text-sm font-medium">
+                        {category.name}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              )}
+
               {form.formState.errors.selected_categories && (
                 <p className="text-red-500 text-sm mt-2">
                   {form.formState.errors.selected_categories.message}
                 </p>
               )}
             </div>
+
+            {/* Criteria Selection for Selected Categories */}
+            {selectedCategories.length > 0 && (
+              <>
+                <Separator />
+                <div>
+                  <h4 className="font-medium text-gray-900 mb-3">Select Evaluation Criteria</h4>
+                  <div className="space-y-6">
+                    {selectedCategories.map((categoryId) => {
+                      const category = categoriesData?.find(c => c.id === categoryId);
+                      const categoryCriteria = criteriaByCategory[categoryId] || [];
+
+                      return (
+                        <div key={categoryId} className="border rounded-lg p-4">
+                          <h5 className="font-medium text-gray-800 mb-3 flex items-center gap-2">
+                            <Badge variant="secondary">{category?.name}</Badge>
+                            <span className="text-sm text-gray-500">
+                              ({categoryCriteria.length} criteria available)
+                            </span>
+                          </h5>
+
+                          {categoryCriteria.length > 0 ? (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                              {categoryCriteria.map((criteria: any) => (
+                                <div key={criteria.id} className="flex items-start space-x-2 p-2 border rounded hover:bg-gray-50">
+                                  <Checkbox
+                                    id={`criteria-${criteria.id}`}
+                                    checked={selectedCriteria.some(c => c.id === criteria.id)}
+                                    onCheckedChange={() => handleCriteriaToggle(
+                                      {
+                                        id: criteria.id,
+                                        name: criteria.name,
+                                        description: criteria.description,
+                                        category_id: categoryId,
+                                      },
+                                      category?.name || 'Unknown Category'
+                                    )}
+                                  />
+                                  <div className="flex-1">
+                                    <Label htmlFor={`criteria-${criteria.id}`} className="text-sm font-medium cursor-pointer">
+                                      {criteria.name}
+                                    </Label>
+                                    {criteria.description && (
+                                      <p className="text-xs text-gray-600 mt-1">
+                                        {criteria.description}
+                                      </p>
+                                    )}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div className="text-center py-4 text-gray-500">
+                              <p className="text-sm">Loading criteria...</p>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </>
+            )}
 
             {/* Selected Categories Summary */}
             {selectedCategories.length > 0 && (

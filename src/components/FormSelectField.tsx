@@ -71,7 +71,6 @@ const FormSelect = forwardRef<HTMLButtonElement, SelectProps>(({
                 }
               }}
               value={value || ""}
-              defaultValue={value || ""}
               disabled={disabled}
               {...rest}
               {...props}

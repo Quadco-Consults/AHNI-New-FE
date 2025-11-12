@@ -1,4 +1,4 @@
-import SupervisionEvaluationDetail from "@/features/programs/components/evaluation/SupervisionEvaluationDetail";
+import SupervisionEvaluationDetails from "@/features/programs/components/evaluation/SupervisionEvaluationDetails";
 
 interface SupervisionEvaluationDetailPageProps {
   params: { id: string };
@@ -7,5 +7,11 @@ interface SupervisionEvaluationDetailPageProps {
 export default function SupervisionEvaluationDetailPage({
   params
 }: SupervisionEvaluationDetailPageProps) {
-  return <SupervisionEvaluationDetail evaluationId={params.id} />;
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <SupervisionEvaluationDetails evaluationId={params.id} />
+      </div>
+    </div>
+  );
 }

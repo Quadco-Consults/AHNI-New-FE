@@ -12,7 +12,7 @@ import { SelectContent, SelectItem } from "components/ui/select";
 import { LoadingSpinner } from "components/Loading";
 import MultiSelectFormField from "components/ui/multiselect";
 import { Textarea } from "components/ui/textarea";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import Card from "components/Card";
@@ -229,10 +229,10 @@ const SiteVisitCreate = () => {
   }, [facilityData, setValue]);
 
   // Handle travel fees updates from calculator
-  const handleTravelFeesUpdate = (fees: TravelFees, totalCost: number) => {
+  const handleTravelFeesUpdate = useCallback((fees: TravelFees, totalCost: number) => {
     setTravelFees(fees);
     setValue("travel_fees", fees);
-  };
+  }, [setValue]);
 
   const onSubmit: SubmitHandler<TSiteVisitApplicationFormValues> = async (
     data: TSiteVisitApplicationFormValues
@@ -595,6 +595,9 @@ const SiteVisitCreate = () => {
                       name: `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.email || 'Unknown User'
                     }));
 
+                    const selectedUserIds = useMemo(() => {
+                      return field.value?.map((member: any) => member.user) || [];
+                    }, [field.value]);
 
                     return (
                       <FormItem>
@@ -602,7 +605,7 @@ const SiteVisitCreate = () => {
                         <FormControl>
                           <MultiSelectFormField
                             options={transformedOptions}
-                            defaultValue={field.value?.map((member: any) => member.user) || []}
+                            defaultValue={selectedUserIds}
                             onValueChange={(selectedIds) => {
                               // Transform selected IDs into the expected schema format
                               const teamMembersData = (selectedIds || []).map((userId: string) => ({

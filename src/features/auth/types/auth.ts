@@ -58,3 +58,19 @@ export const ChangePasswordSchema = z
     });
 
 export type TChangePasswordFormValues = z.infer<typeof ChangePasswordSchema>;
+
+// Base paginated response type
+export interface TBasePaginatedResponse<T> {
+    data: {
+        results: T[];
+        paginator: {
+            count: number;
+            page_size: number;
+            page?: number;
+            next?: string | null;
+            previous?: string | null;
+        };
+    };
+    status: boolean;
+    message: string;
+}

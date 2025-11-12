@@ -38,19 +38,25 @@ export interface DepartmentFormValues {
 // Financial Year types
 export interface FinancialYearData {
   id: string;
-  name: string;
-  start_date: string;
-  end_date: string;
-  is_active: boolean;
+  year: string; // e.g., "2024-2025"
+  is_current: boolean;
   created_at: string;
   updated_at: string;
+  // Legacy fields for backward compatibility (may be undefined)
+  name?: string;
+  start_date?: string;
+  end_date?: string;
+  is_active?: boolean;
 }
 
 export interface FinancialYearFormValues {
-  name: string;
-  start_date: string;
-  end_date: string;
-  is_active: boolean;
+  year: string; // e.g., "2024-2025"
+  is_current: boolean;
+  // Legacy fields for backward compatibility
+  name?: string;
+  start_date?: string;
+  end_date?: string;
+  is_active?: boolean;
 }
 
 // Item types
