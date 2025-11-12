@@ -29,7 +29,19 @@ import {
 import { formatDate } from "utils/date";
 import { ISupervisionEvaluation, SupervisionEvaluationStatus } from "@/features/programs/types/supervision-evaluation";
 
-export const supervisionEvaluationColumns: ColumnDef<ISupervisionEvaluation>[] = [
+interface SupervisionEvaluationColumnsProps {
+  onViewDetails: (evaluationId: string) => void;
+  onEdit?: (evaluationId: string) => void;
+  onDelete?: (evaluationId: string) => void;
+  onDownloadReport?: (evaluationId: string) => void;
+}
+
+export const createSupervisionEvaluationColumns = ({
+  onViewDetails,
+  onEdit,
+  onDelete,
+  onDownloadReport,
+}: SupervisionEvaluationColumnsProps): ColumnDef<ISupervisionEvaluation>[] => [
   {
     id: "select",
     header: ({ table }) => (
@@ -238,25 +250,35 @@ export const supervisionEvaluationColumns: ColumnDef<ISupervisionEvaluation>[] =
       const evaluation = row.original;
 
       const handleView = () => {
-        // Navigate to evaluation details/conduct page
-        console.log("View evaluation:", evaluation.id);
-        // router.push(`/dashboard/programs/plan/supervision-evaluation/${evaluation.id}`);
+        onViewDetails(evaluation.id);
       };
 
       const handleEdit = () => {
-        console.log("Edit evaluation:", evaluation.id);
+        if (onEdit) {
+          onEdit(evaluation.id);
+        } else {
+          console.log("Edit evaluation:", evaluation.id);
+        }
       };
 
       const handleDelete = () => {
-        console.log("Delete evaluation:", evaluation.id);
+        if (onDelete) {
+          onDelete(evaluation.id);
+        } else {
+          console.log("Delete evaluation:", evaluation.id);
+        }
       };
 
       const handleDownloadReport = () => {
-        console.log("Download evaluation report:", evaluation.id);
+        if (onDownloadReport) {
+          onDownloadReport(evaluation.id);
+        } else {
+          console.log("Download evaluation report:", evaluation.id);
+        }
       };
 
       const handleContinueEvaluation = () => {
-        console.log("Continue evaluation:", evaluation.id);
+        onViewDetails(evaluation.id);
       };
 
       const canEdit = evaluation.status === SupervisionEvaluationStatus.PENDING ||
