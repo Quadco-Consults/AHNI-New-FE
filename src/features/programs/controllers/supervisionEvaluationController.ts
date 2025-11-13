@@ -169,10 +169,26 @@ export const useCreateSupervisionEvaluation = () => {
         };
 
         console.log("🔄 Step 1: Creating evaluation record with payload:", evaluationPayload);
+        console.log("🔍 Payload inspection:", {
+          hasSelectedCategories: !!evaluationPayload.selected_categories,
+          categoriesCount: evaluationPayload.selected_categories?.length || 0,
+          categoriesArray: evaluationPayload.selected_categories,
+          hasSelectedCriteria: !!evaluationPayload.selected_criteria,
+          criteriaCount: evaluationPayload.selected_criteria?.length || 0,
+          criteriaArray: evaluationPayload.selected_criteria
+        });
 
         const response = await AxiosWithToken.post(SUPERVISION_EVALUATION_CREATE_URL, evaluationPayload);
 
         console.log("✅ Step 1 Complete: Evaluation record created:", response.data);
+        console.log("🔍 Response categories/criteria check:", {
+          responseHasCategories: !!response.data?.data?.categories,
+          responseCategoriesLength: response.data?.data?.categories?.length || 0,
+          responseHasCriteria: !!response.data?.data?.criteria,
+          responseCriteriaLength: response.data?.data?.criteria?.length || 0,
+          responseCategories: response.data?.data?.categories,
+          responseCriteria: response.data?.data?.criteria
+        });
 
         // TODO: Step 2 would be to submit reviews using the review endpoint if needed
         // For now, just return the created evaluation
@@ -320,6 +336,9 @@ export const useUpdateEvaluationResponse = (evaluationId: string) => {
       try {
         const formData = new FormData();
 
+        // Ensure evaluation_id is included
+        formData.append('evaluation_id', evaluationId);
+
         // Append basic fields
         Object.entries(data).forEach(([key, value]) => {
           if (key !== 'evidence_files' && value !== undefined && value !== null) {
@@ -334,8 +353,14 @@ export const useUpdateEvaluationResponse = (evaluationId: string) => {
           });
         }
 
+        console.log("🚀 API Request Details:", {
+          endpoint: `${EVALUATION_RESPONSE_BASE_URL}update-response/`,
+          evaluationId,
+          formDataEntries: Array.from(formData.entries())
+        });
+
         const response = await AxiosWithToken.post(
-          `${EVALUATION_RESPONSE_BASE_URL}${evaluationId}/update-response/`,
+          `${EVALUATION_RESPONSE_BASE_URL}update-response/`,
           formData,
           {
             headers: {
@@ -346,6 +371,13 @@ export const useUpdateEvaluationResponse = (evaluationId: string) => {
         return response.data;
       } catch (error: any) {
         console.error("Evaluation response update error:", error);
+        console.error("🔍 Detailed error info:", {
+          status: error.response?.status,
+          statusText: error.response?.statusText,
+          data: error.response?.data,
+          url: error.config?.url,
+          method: error.config?.method
+        });
         throw new Error(
           error.response?.data?.message ||
           error.response?.data?.error ||

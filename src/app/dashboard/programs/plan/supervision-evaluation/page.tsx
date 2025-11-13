@@ -48,9 +48,9 @@ const SupervisionEvaluationPage = () => {
   // Evaluations query parameters
   const [evaluationParams, setEvaluationParams] = useState({
     page: 1,
-    page_size: 20,
+    page_size: 100, // Increased to get all evaluations
     search: "",
-    status: "",
+    status: "", // Empty status to get all statuses
   });
 
   const breadcrumbs = [
@@ -60,8 +60,33 @@ const SupervisionEvaluationPage = () => {
   ];
 
   // Fetch data
-  const { data: siteVisitsData, isLoading: isLoadingSiteVisits } = useGetAllSiteVisits(siteVisitParams);
-  const { data: evaluationsData, isLoading: isLoadingEvaluations, refetch: refetchEvaluations } = useGetAllSupervisionEvaluations(evaluationParams);
+  const { data: siteVisitsData, isLoading: isLoadingSiteVisits, refetch: refetchSiteVisits } = useGetAllSiteVisits(siteVisitParams);
+  const { data: evaluationsData, isLoading: isLoadingEvaluations, refetch: refetchEvaluations, error: evaluationsError } = useGetAllSupervisionEvaluations(evaluationParams);
+
+  // Debug: Log the evaluations API response
+  React.useEffect(() => {
+    console.log("🔍 Evaluations API Debug:", {
+      isLoading: isLoadingEvaluations,
+      hasError: !!evaluationsError,
+      error: evaluationsError,
+      rawData: evaluationsData,
+      dataType: typeof evaluationsData,
+      hasResults: evaluationsData?.results,
+      resultsLength: evaluationsData?.results?.length,
+      dataKeys: evaluationsData ? Object.keys(evaluationsData) : [],
+      hasDataField: evaluationsData?.data,
+      dataFieldKeys: evaluationsData?.data ? Object.keys(evaluationsData.data) : []
+    });
+
+    // Log first few evaluations if they exist
+    if (evaluationsData?.results?.length > 0) {
+      console.log("📋 First evaluation sample:", evaluationsData.results[0]);
+    } else if (evaluationsData?.data?.results?.length > 0) {
+      console.log("📋 First evaluation sample (from data field):", evaluationsData.data.results[0]);
+    } else {
+      console.log("❌ No evaluations found in response structure:", evaluationsData);
+    }
+  }, [evaluationsData, isLoadingEvaluations, evaluationsError]);
 
   // Process site visits for evaluation table
   const siteVisitsForEvaluation = React.useMemo(() => {
@@ -81,9 +106,29 @@ const SupervisionEvaluationPage = () => {
       "EA Generated",
     ];
 
+    // Handle different response structures - try both direct results and nested data.results
+    const evaluationsResults = evaluationsData?.data?.results || evaluationsData?.results || [];
+
     const existingEvaluationSiteVisitIds = new Set(
-      evaluationsData?.results?.map(evaluation => evaluation.site_visit_id) || []
+      evaluationsResults?.map(evaluation => evaluation.site_visit_id || evaluation.site_visit) || []
     );
+
+    console.log("🔍 Processing site visits for evaluation table:", {
+      totalEvaluations: evaluationsResults?.length || 0,
+      siteVisitIds: Array.from(existingEvaluationSiteVisitIds),
+      rawEvaluations: evaluationsResults,
+      filteredSiteVisitsCount: actualResults?.length || 0
+    });
+
+    // Debug: Log each evaluation's site visit mapping
+    evaluationsResults?.forEach(evaluation => {
+      console.log(`📋 Evaluation ${evaluation.id}:`, {
+        title: evaluation.title,
+        site_visit_field: evaluation.site_visit,
+        site_visit_id_field: evaluation.site_visit_id,
+        status: evaluation.status
+      });
+    });
 
     return actualResults
       .filter((siteVisit: any) => {
@@ -93,19 +138,41 @@ const SupervisionEvaluationPage = () => {
       })
       .map((siteVisit: any) => {
         const hasEvaluation = existingEvaluationSiteVisitIds.has(siteVisit.id);
-        const evaluation = evaluationsData?.results?.find(evaluation => evaluation.site_visit_id === siteVisit.id);
+        const evaluation = evaluationsResults?.find(evaluation =>
+          (evaluation.site_visit_id && evaluation.site_visit_id === siteVisit.id) ||
+          (evaluation.site_visit && evaluation.site_visit === siteVisit.id)
+        );
 
-        return {
+        const result = {
           ...siteVisit,
           hasEvaluation,
           evaluationStatus: evaluation?.status || 'PENDING',
           evaluationId: evaluation?.id || null,
         };
+
+        console.log(`🔍 Processing site visit ${siteVisit.location_name} (${siteVisit.id}):`, {
+          hasEvaluation,
+          evaluationId: evaluation?.id,
+          status: evaluation?.status,
+          evaluationTitle: evaluation?.title
+        });
+
+        if (hasEvaluation) {
+          console.log(`✅ Site visit ${siteVisit.id} has evaluation:`, {
+            evaluationId: evaluation?.id,
+            status: evaluation?.status,
+            hasEvaluation
+          });
+        } else {
+          console.log(`❌ No evaluation found for site visit ${siteVisit.location_name} (${siteVisit.id})`);
+        }
+
+        return result;
       });
   }, [siteVisitsData, evaluationsData]);
 
-  // Get evaluations data
-  const evaluations = evaluationsData?.results || [];
+  // Get evaluations data - use the correct nested structure
+  const evaluations = evaluationsData?.data?.results || evaluationsData?.results || [];
 
   // Calculate statistics
   const stats = React.useMemo(() => {
@@ -132,10 +199,28 @@ const SupervisionEvaluationPage = () => {
   };
 
   const handleViewEvaluation = (siteVisitId: string) => {
-    const evaluation = evaluations.find(evaluation => evaluation.site_visit_id === siteVisitId);
+    // Use the correct evaluations array that handles nested structure
+    const evaluationsArray = evaluationsData?.data?.results || evaluationsData?.results || [];
+    const evaluation = evaluationsArray.find(evaluation =>
+      (evaluation.site_visit_id && evaluation.site_visit_id === siteVisitId) ||
+      (evaluation.site_visit && evaluation.site_visit === siteVisitId)
+    );
     if (evaluation) {
+      console.log("🎯 Navigating to evaluation:", evaluation.id, "for site visit:", siteVisitId);
       router.push(`/dashboard/programs/plan/supervision-evaluation/${evaluation.id}`);
+    } else {
+      console.warn("❌ No evaluation found for site visit:", siteVisitId);
+      console.log("Available evaluations:", evaluationsArray?.map(e => ({
+        id: e.id,
+        site_visit_id: e.site_visit_id,
+        site_visit: e.site_visit,
+        title: e.title
+      })));
     }
+  };
+
+  const handleViewSiteVisit = (siteVisitId: string) => {
+    router.push(`/dashboard/programs/plan/site-visit/${siteVisitId}`);
   };
 
   const handleViewEvaluationDetails = (evaluationId: string) => {
@@ -145,6 +230,10 @@ const SupervisionEvaluationPage = () => {
   const handleEditEvaluation = (evaluationId: string) => {
     // Navigate to edit evaluation
     router.push(`/dashboard/programs/plan/supervision-evaluation/${evaluationId}/edit`);
+  };
+
+  const handleViewReport = (evaluationId: string) => {
+    router.push(`/dashboard/programs/plan/supervision-evaluation/${evaluationId}/report`);
   };
 
   const handleDeleteEvaluation = (evaluationId: string) => {
@@ -160,13 +249,23 @@ const SupervisionEvaluationPage = () => {
   const handleEvaluationSuccess = (evaluationId: string) => {
     setEvaluationDialogOpen(false);
     setSelectedSiteVisitId("");
-    refetchEvaluations();
+
+    console.log("✅ Evaluation created successfully, refreshing data...");
+
+    // Refetch both evaluations and site visits to update the table
+    // Use a small delay to ensure backend data is consistent
+    setTimeout(() => {
+      refetchEvaluations();
+      refetchSiteVisits();
+      console.log("🔄 Data refetch triggered for evaluations and site visits");
+    }, 500);
 
     // Navigate to conduct evaluation if successful
     if (!evaluationId.startsWith('site-visit-')) {
       setTimeout(() => {
+        console.log("🧭 Navigating to evaluation:", evaluationId);
         router.push(`/dashboard/programs/plan/supervision-evaluation/${evaluationId}`);
-      }, 1000);
+      }, 1500); // Increased delay to allow data refresh
     }
   };
 
@@ -178,10 +277,29 @@ const SupervisionEvaluationPage = () => {
     console.log("Export supervision evaluation data");
   };
 
+  // Add manual refresh function for testing
+  const handleManualRefresh = async () => {
+    console.log("🔄 Manual refresh triggered...");
+
+    try {
+      console.log("🔄 Refetching evaluations...");
+      const evalResult = await refetchEvaluations();
+      console.log("📊 Evaluations refetch result:", evalResult);
+
+      console.log("🔄 Refetching site visits...");
+      const siteVisitResult = await refetchSiteVisits();
+      console.log("📊 Site visits refetch result:", siteVisitResult);
+    } catch (error) {
+      console.error("❌ Refetch error:", error);
+    }
+  };
+
   // Table columns
   const siteVisitColumns = createSiteVisitEvaluationColumns({
     onCreateEvaluation: handleCreateEvaluation,
     onViewEvaluation: handleViewEvaluation,
+    onViewSiteVisit: handleViewSiteVisit,
+    onViewReport: handleViewReport,
   });
 
   const supervisionEvaluationColumns = createSupervisionEvaluationColumns({
@@ -224,6 +342,15 @@ const SupervisionEvaluationPage = () => {
             >
               <FileDown size={16} />
               Export Data
+            </Button>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleManualRefresh}
+              className="flex items-center gap-2"
+            >
+              🔄 Refresh
             </Button>
 
             <Dialog open={evaluationDialogOpen} onOpenChange={setEvaluationDialogOpen}>
