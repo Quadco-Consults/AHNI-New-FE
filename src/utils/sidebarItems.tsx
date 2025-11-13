@@ -126,8 +126,8 @@ export const departmentalLinks: SidebarItem[] = [
             ]
           },
           {
-            name: "Annual Plan",
-            path: "/dashboard/programs/plan/annual-plan"
+            name: "Annual Supervision Plan",
+            path: "/dashboard/programs/plan/annual-supervision"
           },
           {
             name: "Site Visit",
@@ -1671,8 +1671,8 @@ export const globalHubLinks: GlobalHubItem[] = [
 
   // Programs & Plans
   {
-    label: "Annual Plan",
-    path: "/dashboard/programs/plan/annual-plan",
+    label: "Annual Supervision Plan",
+    path: "/dashboard/programs/plan/annual-supervision",
     icon: <Calendar className="w-4 h-4" />,
     category: "programs"
   },
