@@ -16,7 +16,9 @@ import {
   Users,
   Droplet,
   Clock,
-  Calendar
+  Calendar,
+  MapPin,
+  ClipboardList
 } from "lucide-react";
 import ProgramsIcon from "components/icons/sidebar-icons/ProgramsIcon";
 import ProcurementManagementIcon from "components/icons/sidebar-icons/ProcurementManagementIcon";
@@ -120,6 +122,36 @@ export const departmentalLinks: SidebarItem[] = [
               {
                 module: "programs",
                 codenames: ["view_supportivesupervisionplan"]
+              }
+            ]
+          },
+          {
+            name: "Annual Plan",
+            path: "/dashboard/programs/plan/annual-plan",
+            permissions: [
+              {
+                module: "programs",
+                codenames: ["view_annualplan"]
+              }
+            ]
+          },
+          {
+            name: "Site Visit",
+            path: "/dashboard/programs/plan/site-visit",
+            permissions: [
+              {
+                module: "programs",
+                codenames: ["view_sitevisit"]
+              }
+            ]
+          },
+          {
+            name: "Supervision Evaluation",
+            path: "/dashboard/programs/plan/supervision-evaluation",
+            permissions: [
+              {
+                module: "programs",
+                codenames: ["view_supervisionevaluation"]
               }
             ]
           }
@@ -1655,6 +1687,56 @@ export const globalHubLinks: GlobalHubItem[] = [
     ]
   },
 
+  // Programs & Plans
+  {
+    label: "Annual Plan",
+    path: "/dashboard/programs/plan/annual-plan",
+    icon: <Calendar className="w-4 h-4" />,
+    category: "programs",
+    permissions: [
+      {
+        module: "programs",
+        codenames: ["view_annualplan"]
+      }
+    ]
+  },
+  {
+    label: "Site Visit Application",
+    path: "/dashboard/programs/plan/site-visit",
+    icon: <Calendar className="w-4 h-4" />,
+    category: "programs",
+    permissions: [
+      {
+        module: "programs",
+        codenames: ["view_sitevisit"]
+      }
+    ]
+  },
+  {
+    label: "Site Visit Management",
+    path: "/dashboard/programs/plan/site-visit",
+    icon: <MapPin className="w-4 h-4" />,
+    category: "programs",
+    permissions: [
+      {
+        module: "programs",
+        codenames: ["view_sitevisit"]
+      }
+    ]
+  },
+  {
+    label: "Supervision Evaluation",
+    path: "/dashboard/programs/plan/supervision-evaluation",
+    icon: <ClipboardList className="w-4 h-4" />,
+    category: "programs",
+    permissions: [
+      {
+        module: "programs",
+        codenames: ["view_supervisionevaluation"]
+      }
+    ]
+  },
+
   // Support
   {
     label: "Support",
@@ -1796,6 +1878,7 @@ export const moduleLinks: SidebarItem[] = [
 
 // Category definitions for Global Hub UI
 export const globalHubCategories = {
+  programs: { label: "Programs & Planning", icon: <MapPin className="w-4 h-4" /> },
   procurement: { label: "Procurement & Purchasing", icon: <ShoppingCart className="w-4 h-4" /> },
   inventory: { label: "Inventory Management", icon: <Package className="w-4 h-4" /> },
   fleet: { label: "Fleet & Transport", icon: <Car className="w-4 h-4" /> },
