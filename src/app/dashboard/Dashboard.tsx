@@ -178,7 +178,7 @@ export default function Dashboard() {
     // Fetch real notifications - limit to 6 for dashboard display
     const { data: notificationsData, isLoading: notificationsLoading } = useGetNotifications({ 
         size: 6, 
-        enabled: isLoggedIn 
+        enabled: isLoggedIn  
     });
 
     // Fetch real project data - use same pattern as notifications (which work)
