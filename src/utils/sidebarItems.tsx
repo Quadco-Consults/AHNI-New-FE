@@ -127,33 +127,15 @@ export const departmentalLinks: SidebarItem[] = [
           },
           {
             name: "Annual Plan",
-            path: "/dashboard/programs/plan/annual-plan",
-            permissions: [
-              {
-                module: "programs",
-                codenames: ["view_workplan", "view_activityplan"]
-              }
-            ]
+            path: "/dashboard/programs/plan/annual-plan"
           },
           {
             name: "Site Visit",
-            path: "/dashboard/programs/plan/site-visit",
-            permissions: [
-              {
-                module: "programs",
-                codenames: ["view_workplan", "view_activityplan"]
-              }
-            ]
+            path: "/dashboard/programs/plan/site-visit"
           },
           {
             name: "Supervision Evaluation",
-            path: "/dashboard/programs/plan/supervision-evaluation",
-            permissions: [
-              {
-                module: "programs",
-                codenames: ["view_workplan", "view_activityplan"]
-              }
-            ]
+            path: "/dashboard/programs/plan/supervision-evaluation"
           }
         ]
       },
@@ -1692,49 +1674,25 @@ export const globalHubLinks: GlobalHubItem[] = [
     label: "Annual Plan",
     path: "/dashboard/programs/plan/annual-plan",
     icon: <Calendar className="w-4 h-4" />,
-    category: "programs",
-    permissions: [
-      {
-        module: "programs",
-        codenames: ["view_workplan", "view_activityplan"]
-      }
-    ]
+    category: "programs"
   },
   {
     label: "Site Visit Application",
     path: "/dashboard/programs/plan/site-visit",
     icon: <Calendar className="w-4 h-4" />,
-    category: "programs",
-    permissions: [
-      {
-        module: "programs",
-        codenames: ["view_workplan", "view_activityplan"]
-      }
-    ]
+    category: "programs"
   },
   {
     label: "Site Visit Management",
     path: "/dashboard/programs/plan/site-visit",
     icon: <MapPin className="w-4 h-4" />,
-    category: "programs",
-    permissions: [
-      {
-        module: "programs",
-        codenames: ["view_workplan", "view_activityplan"]
-      }
-    ]
+    category: "programs"
   },
   {
     label: "Supervision Evaluation",
     path: "/dashboard/programs/plan/supervision-evaluation",
     icon: <ClipboardList className="w-4 h-4" />,
-    category: "programs",
-    permissions: [
-      {
-        module: "programs",
-        codenames: ["view_workplan", "view_activityplan"]
-      }
-    ]
+    category: "programs"
   },
 
   // Support
