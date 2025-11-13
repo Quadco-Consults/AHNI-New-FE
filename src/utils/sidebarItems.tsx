@@ -131,7 +131,7 @@ export const departmentalLinks: SidebarItem[] = [
             permissions: [
               {
                 module: "programs",
-                codenames: ["view_annualplan"]
+                codenames: ["view_workplan", "view_activityplan"]
               }
             ]
           },
@@ -141,7 +141,7 @@ export const departmentalLinks: SidebarItem[] = [
             permissions: [
               {
                 module: "programs",
-                codenames: ["view_sitevisit"]
+                codenames: ["view_workplan", "view_activityplan"]
               }
             ]
           },
@@ -151,7 +151,7 @@ export const departmentalLinks: SidebarItem[] = [
             permissions: [
               {
                 module: "programs",
-                codenames: ["view_supervisionevaluation"]
+                codenames: ["view_workplan", "view_activityplan"]
               }
             ]
           }
@@ -1696,7 +1696,7 @@ export const globalHubLinks: GlobalHubItem[] = [
     permissions: [
       {
         module: "programs",
-        codenames: ["view_annualplan"]
+        codenames: ["view_workplan", "view_activityplan"]
       }
     ]
   },
@@ -1708,7 +1708,7 @@ export const globalHubLinks: GlobalHubItem[] = [
     permissions: [
       {
         module: "programs",
-        codenames: ["view_sitevisit"]
+        codenames: ["view_workplan", "view_activityplan"]
       }
     ]
   },
@@ -1720,7 +1720,7 @@ export const globalHubLinks: GlobalHubItem[] = [
     permissions: [
       {
         module: "programs",
-        codenames: ["view_sitevisit"]
+        codenames: ["view_workplan", "view_activityplan"]
       }
     ]
   },
@@ -1732,7 +1732,7 @@ export const globalHubLinks: GlobalHubItem[] = [
     permissions: [
       {
         module: "programs",
-        codenames: ["view_supervisionevaluation"]
+        codenames: ["view_workplan", "view_activityplan"]
       }
     ]
   },
