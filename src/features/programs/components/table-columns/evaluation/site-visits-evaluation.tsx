@@ -23,7 +23,8 @@ import {
   MapPin,
   Users,
   FileText,
-  ClipboardList
+  ClipboardList,
+  BarChart3
 } from "lucide-react";
 import { formatDate } from "utils/date";
 import { TSiteVisitPaginatedData, SiteVisitTypeLabels } from "@/features/programs/types/site-visit";
@@ -38,11 +39,15 @@ interface SiteVisitForEvaluation extends TSiteVisitPaginatedData {
 interface SiteVisitEvaluationColumnsProps {
   onCreateEvaluation: (siteVisitId: string) => void;
   onViewEvaluation: (siteVisitId: string) => void;
+  onViewSiteVisit: (siteVisitId: string) => void;
+  onViewReport: (evaluationId: string) => void;
 }
 
 export const createSiteVisitEvaluationColumns = ({
   onCreateEvaluation,
   onViewEvaluation,
+  onViewSiteVisit,
+  onViewReport,
 }: SiteVisitEvaluationColumnsProps): ColumnDef<SiteVisitForEvaluation>[] => [
   {
     id: "select",
@@ -244,7 +249,7 @@ export const createSiteVisitEvaluationColumns = ({
       const siteVisit = row.original;
 
       const handleViewSiteVisit = () => {
-        console.log("View site visit:", siteVisit.id);
+        onViewSiteVisit(siteVisit.id);
       };
 
       const handleCreateEvaluation = () => {
@@ -253,6 +258,12 @@ export const createSiteVisitEvaluationColumns = ({
 
       const handleViewEvaluation = () => {
         onViewEvaluation(siteVisit.id);
+      };
+
+      const handleViewReport = () => {
+        if (siteVisit.evaluationId) {
+          onViewReport(siteVisit.evaluationId);
+        }
       };
 
       return (
@@ -295,14 +306,7 @@ export const createSiteVisitEvaluationColumns = ({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Site Visit Actions</DropdownMenuLabel>
-
-              <DropdownMenuItem onClick={handleViewSiteVisit}>
-                <Eye className="mr-2 h-4 w-4" />
-                View Site Visit
-              </DropdownMenuItem>
-
-              <DropdownMenuSeparator />
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
 
               {!siteVisit.hasEvaluation ? (
                 <DropdownMenuItem onClick={handleCreateEvaluation}>
@@ -310,20 +314,35 @@ export const createSiteVisitEvaluationColumns = ({
                   Create Evaluation
                 </DropdownMenuItem>
               ) : (
-                <DropdownMenuItem onClick={handleViewEvaluation}>
-                  {siteVisit.evaluationStatus === 'COMPLETED' ? (
-                    <>
-                      <Eye className="mr-2 h-4 w-4" />
-                      View Evaluation
-                    </>
-                  ) : (
-                    <>
-                      <PlayCircle className="mr-2 h-4 w-4" />
-                      Continue Evaluation
-                    </>
+                <>
+                  <DropdownMenuItem onClick={handleViewEvaluation}>
+                    {siteVisit.evaluationStatus === 'COMPLETED' ? (
+                      <>
+                        <Eye className="mr-2 h-4 w-4" />
+                        Conduct Evaluation (View)
+                      </>
+                    ) : (
+                      <>
+                        <PlayCircle className="mr-2 h-4 w-4" />
+                        Conduct Evaluation (Continue)
+                      </>
+                    )}
+                  </DropdownMenuItem>
+                  {siteVisit.evaluationStatus === 'COMPLETED' && (
+                    <DropdownMenuItem onClick={handleViewReport}>
+                      <BarChart3 className="mr-2 h-4 w-4" />
+                      View Report
+                    </DropdownMenuItem>
                   )}
-                </DropdownMenuItem>
+                </>
               )}
+
+              <DropdownMenuSeparator />
+
+              <DropdownMenuItem onClick={handleViewSiteVisit}>
+                <FileText className="mr-2 h-4 w-4" />
+                View Site Visit Details
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
