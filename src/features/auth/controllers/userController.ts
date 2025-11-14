@@ -128,11 +128,25 @@ export const useUpdateUser = (id: string) => {
     queryKey: ["users", "user", "user-profile"],
     isAuth: true,
     method: "PATCH",
-    contentType: null, // Allow FormData for file uploads
+    contentType: "application/json", // Explicitly set content type for JSON data
   });
 
   const updateUser = async (details: TUpdateUserFormValues | FormData) => {
     try {
+      // Log the data being sent for debugging
+      console.log("🔍 UpdateUser - Data being sent:", {
+        dataType: details instanceof FormData ? 'FormData' : 'JSON',
+        data: details instanceof FormData ? 'FormData (cannot stringify)' : JSON.stringify(details, null, 2)
+      });
+
+      // Validate that we're not sending empty or malformed JSON
+      if (!(details instanceof FormData)) {
+        const jsonString = JSON.stringify(details);
+        if (!jsonString || jsonString.trim() === '' || jsonString === 'null' || jsonString === 'undefined') {
+          throw new Error('Invalid data: Cannot send empty or malformed JSON');
+        }
+      }
+
       await callApi(details);
     } catch (error) {
       console.error("User update error:", error);
