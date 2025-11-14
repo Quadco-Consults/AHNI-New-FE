@@ -20,6 +20,7 @@ import { useGetSingleProject } from "@/features/projects/controllers/projectCont
 import Performance from "./Performance";
 import ActivityReport from "./ActivityReport";
 import ObligationHistory from "features/contracts-grants/components/grant/_components/ObligationHistory";
+import DisbursementHistory from "features/contracts-grants/components/grant/_components/DisbursementHistory";
 // import { useGetSingleSubGrant } from "@/features/c&g/subgrant/sub-grant";
 
 export default function ProjectDetail() {
@@ -70,6 +71,8 @@ export default function ProjectDetail() {
 
           <TabsTrigger value='obligation'>Project Obligation</TabsTrigger>
 
+          <TabsTrigger value='disbursement'>Disbursements</TabsTrigger>
+
           <TabsTrigger value='performance'>Project Performance</TabsTrigger>
 
           <TabsTrigger value='uploads'>Uploads</TabsTrigger>
@@ -91,6 +94,16 @@ export default function ProjectDetail() {
               ) : (
                 <Card>
                   {project && <ObligationHistory {...project?.data} />}
+                </Card>
+              )}
+            </TabsContent>
+
+            <TabsContent value='disbursement'>
+              {isLoading ? (
+                <LoadingSpinner />
+              ) : (
+                <Card>
+                  {project && <DisbursementHistory {...project?.data} />}
                 </Card>
               )}
             </TabsContent>
