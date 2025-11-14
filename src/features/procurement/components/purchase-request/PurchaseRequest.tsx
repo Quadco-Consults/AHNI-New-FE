@@ -35,7 +35,6 @@ function PurchaseRequest({
   const [selectedPRForDetails, setSelectedPRForDetails] = useState<PurchaseRequestResultsData | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const [activeTab, setActiveTab] = useState(0); // 0: Activity Memo, 1: Expense Table, 2: Purchase Request
-  const [manualActivityMemoId, setManualActivityMemoId] = useState<string>('');
 
   const { data, isLoading, refetch } = useGetPurchaseRequests({});
   const { data: currentUser } = useGetUserProfile();
@@ -52,8 +51,8 @@ function PurchaseRequest({
   const { data: activityMemoData } = useGetActivityMemo(activityMemoId as string, !!isValidActivityMemoId);
 
   // Get activity memo data for selected PR details view
-  // Try multiple possible field names for activity memo ID, with manual override
-  const detailsActivityMemoId = manualActivityMemoId || selectedPRForDetails?.request_memo || selectedPRForDetails?.activity_memo || selectedPRForDetails?.memo_id;
+  // Try multiple possible field names for activity memo ID
+  const detailsActivityMemoId = selectedPRForDetails?.request_memo || selectedPRForDetails?.activity_memo || selectedPRForDetails?.memo_id;
   const isValidDetailsActivityMemoId = detailsActivityMemoId &&
     detailsActivityMemoId !== 'undefined' &&
     detailsActivityMemoId !== 'null' &&
@@ -588,65 +587,6 @@ function PurchaseRequest({
                             <p className="text-yellow-800 mb-2">No Activity Memo data available for this Purchase Request</p>
                             <p className="text-sm text-yellow-600">This Purchase Request may not have an associated Activity Memo, or the memo data could not be loaded.</p>
                           </div>
-                          <div className="bg-white rounded p-3 text-xs text-gray-600">
-                            <p><strong>Debug Information:</strong></p>
-                            <p>PR ID: {selectedPRForDetails.id}</p>
-                            <p>Ref Number: {selectedPRForDetails.ref_number}</p>
-                            <p>Request Memo ID: {selectedPRForDetails.request_memo || 'Not set'}</p>
-                            <p>Activity Memo ID: {selectedPRForDetails.activity_memo || 'Not set'}</p>
-                            <p>Memo ID: {selectedPRForDetails.memo_id || 'Not set'}</p>
-                            <p>Manual Override ID: {manualActivityMemoId || 'None'}</p>
-                            <p>Final Attempted ID: {detailsActivityMemoId || 'None'}</p>
-                            <p>Loading: {isLoadingActivityMemo ? 'Yes' : 'No'}</p>
-                            <p>Error: {activityMemoError ? 'Yes' : 'No'}</p>
-                            <p>API Response: {detailsActivityMemoData ? 'Received' : 'None'}</p>
-                            <p>Available Activity Memos: {allActivityMemos?.data?.results?.length || 0}</p>
-                            {allActivityMemos?.data?.results?.length > 0 && (
-                              <p>First Memo ID: {allActivityMemos.data.results[0].id}</p>
-                            )}
-                          </div>
-                          {allActivityMemos?.data?.results?.length > 0 && !detailsActivityMemoId && (
-                            <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded">
-                              <p className="text-blue-800 text-sm mb-2">
-                                <strong>Available Activity Memos:</strong> There are {allActivityMemos.data.results.length} Activity Memos in the system.
-                              </p>
-                              <div className="space-y-1 text-xs">
-                                {allActivityMemos.data.results.slice(0, 3).map((memo: any) => (
-                                  <div key={memo.id} className="flex items-center justify-between">
-                                    <div className="flex items-center space-x-2">
-                                      <span className="font-mono bg-gray-100 px-1 rounded">{memo.id}</span>
-                                      <span>{memo.subject || memo.title || 'Untitled Memo'}</span>
-                                    </div>
-                                    <button
-                                      onClick={() => setManualActivityMemoId(memo.id)}
-                                      className="text-xs px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-                                    >
-                                      Test
-                                    </button>
-                                  </div>
-                                ))}
-                              </div>
-                              <p className="text-xs text-blue-600 mt-2">
-                                This Purchase Request doesn't appear to be linked to any Activity Memo.
-                                Contact your administrator to link this PR to an appropriate Activity Memo.
-                              </p>
-                              <div className="mt-3 flex items-center space-x-2">
-                                <input
-                                  type="text"
-                                  placeholder="Enter Activity Memo ID to test"
-                                  value={manualActivityMemoId}
-                                  onChange={(e) => setManualActivityMemoId(e.target.value)}
-                                  className="text-xs px-2 py-1 border border-gray-300 rounded flex-1"
-                                />
-                                <button
-                                  onClick={() => setManualActivityMemoId('')}
-                                  className="text-xs px-2 py-1 bg-gray-500 text-white rounded hover:bg-gray-600"
-                                >
-                                  Clear
-                                </button>
-                              </div>
-                            </div>
-                          )}
                         </div>
 
                         {/* Show sample memo structure */}
@@ -853,13 +793,6 @@ function PurchaseRequest({
                           <div className="text-center mb-4">
                             <p className="text-yellow-800 mb-2">No Expense data available</p>
                             <p className="text-sm text-yellow-600">No expenses found in the linked Activity Memo. Showing sample AHNI expense structure.</p>
-                          </div>
-                          <div className="bg-white rounded p-3 text-xs text-gray-600">
-                            <p><strong>Debug Information:</strong></p>
-                            <p>Activity Memo ID: {detailsActivityMemoId || 'None'}</p>
-                            <p>Activity Memo Data: {detailsActivityMemoData ? 'Loaded' : 'Not loaded'}</p>
-                            <p>Expenses Array: {detailsActivityMemoData?.data?.expenses ? `${detailsActivityMemoData.data.expenses.length} items` : 'Not available'}</p>
-                            <p>Loading: {isLoadingActivityMemo ? 'Yes' : 'No'}</p>
                           </div>
                         </div>
 
