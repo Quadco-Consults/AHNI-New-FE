@@ -190,69 +190,15 @@ export default function Dashboard() {
         enabled: isLoggedIn  // Use same pattern as notifications
     });
 
-    // Debug logging to understand what's happening
-    React.useEffect(() => {
-        console.log("🔍 Dashboard Debug Info:");
-        console.log("- Current URL:", window.location.href);
-        console.log("- Is logged in:", isLoggedIn);
-        console.log("- Projects loading:", projectsLoading);
-        console.log("- Projects data:", projectsData);
-        console.log("- Projects error:", projectsError);
-        console.log("- Projects results:", projectsData?.results);
-        console.log("- Projects results length:", projectsData?.results?.length);
-        if (projectsData?.results && projectsData.results.length > 0) {
-            console.log("- First project:", projectsData.results[0]);
-            console.log("- First project funding sources:", projectsData.results[0].funding_sources);
-        }
-        
-        // Test API endpoint directly
-        console.log("🔍 Testing API endpoint directly...");
-        
-        // Let's also test if we can access the projects page data directly
-        const token = localStorage.getItem("token");
-        console.log("🔍 Auth token:", token ? "Present" : "Missing");
-        
-        fetch('https://ahni-erp-029252c2fbb9.herokuapp.com/api/v1/projects/', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                ...(token && { 'Authorization': `Bearer ${token}` })
-            },
-        })
-        .then(response => {
-            console.log("🔍 Direct API Response Status:", response.status);
-            console.log("🔍 Direct API Response Headers:", response.headers);
-            return response.json();
-        })
-        .then(data => {
-            console.log("🔍 Direct API Response Data:", data);
-        })
-        .catch(error => {
-            console.log("🔍 Direct API Error:", error);
-        });
-        
-    }, [projectsData, projectsLoading, projectsError, isLoggedIn]);
 
     // Transform project data to match dashboard table format
     const transformedProjectData = React.useMemo(() => {
-        console.log("🔄 Transform Data - Raw projects data:", projectsData);
-        console.log("🔄 Transform Data - Results array:", projectsData?.results);
-        console.log("🔄 Transform Data - Results length:", projectsData?.results?.length);
-        
         // Use sample data if no real data is available
         if (!projectsData?.results || projectsData.results.length === 0) {
-            console.log("🚨 No projects data available, using sample data");
             return sampleProjectData;
         }
-        
+
         return projectsData.results.map((project, index) => {
-            console.log(`🔄 Transforming project ${index + 1}:`, {
-                title: project.title, // API uses 'title' not 'name'
-                id: project.id,
-                budget: project.budget,
-                funding_sources: project.funding_sources,
-                status: project.status
-            });
             
             // Get funding source names for display
             const fundingSourceNames = project.funding_sources?.map(source => source.name).join(", ") || "No funding sources";
@@ -325,8 +271,7 @@ export default function Dashboard() {
                 start_date: project.start_date,
                 end_date: project.end_date,
             };
-            
-            console.log(`✅ Transformed project ${index + 1}:`, transformedProject);
+
             return transformedProject;
         });
     }, [projectsData]);
