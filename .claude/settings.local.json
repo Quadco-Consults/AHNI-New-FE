@@ -15,7 +15,8 @@
       "Bash(npm run build:*)",
       "Bash(git merge:*)",
       "Bash(npx eslint:*)",
-      "Bash(xargs sed:*)"
+      "Bash(xargs sed:*)",
+      "Bash(lsof:*)"
     ],
     "deny": [],
     "ask": []
