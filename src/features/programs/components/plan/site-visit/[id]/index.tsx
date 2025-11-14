@@ -17,7 +17,8 @@ import {
   XCircle,
   Clock,
   Download,
-  Edit
+  Edit,
+  AlertTriangle
 } from "lucide-react";
 
 import {
@@ -29,9 +30,10 @@ import {
   ISiteVisitData,
 } from "@/features/programs/types/site-visit";
 
-import { useGetSingleSiteVisit } from "@/features/programs/controllers/siteVisitController";
+import { useGetSingleSiteVisit, useGenerateEAsFromSiteVisit } from "@/features/programs/controllers/siteVisitController";
 
 import SiteVisitApprovalStatus from "../SiteVisitApprovalStatus";
+import { toast } from "sonner";
 
 const SiteVisitDetail = () => {
   const params = useParams();
@@ -41,6 +43,31 @@ const SiteVisitDetail = () => {
   // Fetch site visit data
   const { data: siteVisitResponse, isFetching, error } = useGetSingleSiteVisit(id, !!id);
   const siteVisit = siteVisitResponse?.data;
+
+  // EA Generation
+  const generateEAsMutation = useGenerateEAsFromSiteVisit();
+
+  const handleGenerateEAs = async () => {
+    if (!id) {
+      toast.error("Site visit ID is missing");
+      return;
+    }
+
+    try {
+      const result = await generateEAsMutation.mutateAsync(id);
+
+      if (result.success) {
+        toast.success(`Successfully generated ${result.eas_created} EA(s) for site visit team members`);
+        // Refresh site visit data to show updated EA status
+        window.location.reload();
+      } else {
+        toast.error(result.message || "Failed to generate EAs");
+      }
+    } catch (error: any) {
+      console.error("EA generation error:", error);
+      toast.error(error.message || "An error occurred while generating EAs");
+    }
+  };
 
   // Debug logging for site visit detail
 
@@ -408,13 +435,25 @@ const SiteVisitDetail = () => {
 
               {siteVisit.status === 'APPROVED' || siteVisit.ea_reference ? (
                 <div className="space-y-4">
-                  <div className="flex items-center gap-3 p-4 bg-green-50 border border-green-200 rounded-lg">
-                    <CheckCircle className="h-6 w-6 text-green-600" />
-                    <div>
-                      <p className="font-medium text-green-800">EA Generation Available</p>
-                      <p className="text-sm text-green-700">Site visit has been approved and is eligible for EA generation</p>
+                  {siteVisit.ea_reference ? (
+                    <div className="flex items-center gap-3 p-4 bg-green-50 border border-green-200 rounded-lg">
+                      <CheckCircle className="h-6 w-6 text-green-600" />
+                      <div>
+                        <p className="font-medium text-green-800">EA Successfully Created</p>
+                        <p className="text-sm text-green-700">Expense authorizations were automatically generated when the site visit was approved</p>
+                      </div>
                     </div>
-                  </div>
+                  ) : (
+                    <div className="flex items-center gap-3 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+                      <AlertTriangle className="h-6 w-6 text-orange-600" />
+                      <div>
+                        <p className="font-medium text-orange-800">EA Auto-Creation May Have Failed</p>
+                        <p className="text-sm text-orange-700">
+                          Site visit is approved but EA was not automatically created. This usually happens when team members have incomplete employee records.
+                        </p>
+                      </div>
+                    </div>
+                  )}
 
                   {siteVisit.ea_reference && (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -429,6 +468,51 @@ const SiteVisitDetail = () => {
                           <p className="mt-1">{formatDate(siteVisit.ea_created_date)}</p>
                         </div>
                       )}
+                    </div>
+                  )}
+
+                  {/* Team Member Validation Warning */}
+                  {siteVisit.status === 'APPROVED' && !(siteVisit as any).ea_reference && (siteVisit as any).team_members && (
+                    <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                      <h4 className="font-medium text-blue-900 mb-2">EA Auto-Creation Requirements</h4>
+                      <p className="text-sm text-blue-700 mb-3">
+                        For automatic EA creation to work, each team member must have complete employee records. Check the items below:
+                      </p>
+                      <ul className="text-sm text-blue-700 space-y-1">
+                        <li>✓ Employee record exists in the system</li>
+                        <li>✓ Employee has a valid address on file</li>
+                        <li>✓ Employee is assigned to a department</li>
+                        <li>✓ Travel rates are configured for the destination state</li>
+                      </ul>
+                      <p className="text-xs text-blue-600 mt-2">
+                        If any team member is missing these requirements, the entire EA auto-creation process fails and must be done manually.
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Generate EA Button */}
+                  {siteVisit.status === 'APPROVED' && !(siteVisit as any).ea_reference && (
+                    <div className="mt-4">
+                      <Button
+                        onClick={handleGenerateEAs}
+                        disabled={generateEAsMutation.isPending}
+                        className="flex items-center gap-2"
+                      >
+                        {generateEAsMutation.isPending ? (
+                          <>
+                            <LoadingSpinner />
+                            Generating EAs...
+                          </>
+                        ) : (
+                          <>
+                            <FileText className="h-4 w-4" />
+                            Generate Expense Authorization
+                          </>
+                        )}
+                      </Button>
+                      <p className="text-xs text-gray-600 mt-2">
+                        This will attempt to create EAs manually if auto-creation failed, or if this site visit was approved before auto-creation was implemented.
+                      </p>
                     </div>
                   )}
                 </div>

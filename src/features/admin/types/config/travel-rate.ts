@@ -2,8 +2,8 @@ import { z } from "zod";
 
 export const TravelRateSchema = z.object({
   state: z.string().min(1, "State is required"),
-  accommodation_rate: z.number().min(0, "Accommodation rate must be 0 or greater"),
-  meal_allowance: z.number().min(0, "Meal allowance must be 0 or greater"),
+  accommodation_rate: z.coerce.number().min(0, "Accommodation rate must be 0 or greater"),
+  meal_allowance: z.coerce.number().min(0, "Meal allowance must be 0 or greater"),
   effective_date: z.string().min(1, "Effective date is required"),
   notes: z.string().optional(),
   is_active: z.boolean().default(true),

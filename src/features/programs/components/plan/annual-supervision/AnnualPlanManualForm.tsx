@@ -53,7 +53,7 @@ const PlannedVisitSchema = z.object({
   location_code: z.string().optional(), // Will be populated automatically
   facility_id: z.string().optional(),
   facility_name: z.string().optional(), // Will be populated automatically
-  visit_type: z.enum(["SUPPORTIVE_SUPERVISION", "INTEGRATED_SUPPORTIVE_SUPERVISION"], {
+  visit_type: z.enum(["SUPPORTIVE_SUPERVISION", "INTEGRATED_SUPPORTIVE_SUPERVISION", "EMERGENCY_SUPPORTIVE_SUPERVISION"], {
     required_error: "Visit type is required",
   }),
   requires_evaluation: z.enum(["YES", "NO"], {
@@ -902,6 +902,9 @@ const AnnualPlanManualForm = ({ onSuccess, onCancel, editMode = false, existingP
                             </SelectItem>
                             <SelectItem value="INTEGRATED_SUPPORTIVE_SUPERVISION">
                               Integrated Supportive Supervision
+                            </SelectItem>
+                            <SelectItem value="EMERGENCY_SUPPORTIVE_SUPERVISION">
+                              Emergency Supportive Supervision
                             </SelectItem>
                           </SelectContent>
                         </Select>

@@ -10,34 +10,67 @@ import {
   IUpdatePlannedVisitRequest,
   IUploadValidationResult,
   IUploadProcessingResult,
+  ITemplateDownloadResult,
 } from "../types/annual-supervision-plan";
-import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
+import { TPaginatedResponse, TResponse } from "definations/index";
 
 // Fallback template creation function
-const createFallbackTemplate = () => {
+const createFallbackTemplate = (): ITemplateDownloadResult => {
   console.log('📝 Creating fallback Excel template...');
 
-  // Create CSV content with the required columns
+  // Create comprehensive CSV content with the required columns and better examples
   const csvContent = `Location Name,Location Code,Facility Name,Visit Type,Requires Evaluation,Preferred Quarter,Duration (Days)
-"Sample Location 1","LOC001","Sample Facility 1","SUPPORTIVE_SUPERVISION","YES","Q1","3"
-"Sample Location 2","LOC002","Sample Facility 2","INTEGRATED_SUPPORTIVE_SUPERVISION","NO","Q2","5"
-"Sample Location 3","LOC003","Sample Facility 3","SUPPORTIVE_SUPERVISION","YES","Q3","2"`;
+"Regional Hospital North","RHN001","Regional Hospital North Main Building","SUPPORTIVE_SUPERVISION","YES","Q1","3"
+"District Health Office East","DHO002","District Health Office East","INTEGRATED_SUPPORTIVE_SUPERVISION","NO","Q2","5"
+"Primary Healthcare Center West","PHC003","Primary Healthcare Center West","SUPPORTIVE_SUPERVISION","YES","Q3","2"
+"Community Health Post South","CHP004","Community Health Post South","SUPPORTIVE_SUPERVISION","NO","Q4","1"
+"Maternal Health Clinic Central","MHC005","Maternal Health Clinic Central","INTEGRATED_SUPPORTIVE_SUPERVISION","YES","Q1","4"`;
 
-  // Create a blob with CSV content
-  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  // Create enhanced CSV with BOM for Excel compatibility
+  const BOM = '\uFEFF';
+  const enhancedCsvContent = BOM + csvContent;
 
-  // Create download link
-  const url = window.URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.setAttribute('download', 'annual-supervision-plan-template.csv');
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  window.URL.revokeObjectURL(url);
+  // Create a blob with CSV content optimized for Excel
+  const blob = new Blob([enhancedCsvContent], {
+    type: 'text/csv;charset=utf-8;'
+  });
 
-  console.log('✅ Fallback CSV template downloaded successfully');
-  return { success: true, filename: 'annual-supervision-plan-template.csv', fallback: true };
+  // Create download link with improved handling
+  try {
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'annual-supervision-plan-template.csv');
+    link.style.display = 'none';
+    document.body.appendChild(link);
+
+    // Force click and cleanup
+    link.click();
+
+    // Cleanup after delay
+    setTimeout(() => {
+      try {
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      } catch (cleanupError) {
+        console.warn('⚠️ Cleanup warning:', cleanupError);
+      }
+    }, 1000);
+
+    console.log('✅ Fallback CSV template downloaded successfully');
+    console.log('📋 Template includes 5 sample entries with all required and optional fields');
+    console.log('💡 Tip: Save this CSV file and open it in Excel to use as your template');
+
+    return {
+      success: true,
+      filename: 'annual-supervision-plan-template.csv',
+      fallback: true,
+      message: 'CSV template downloaded successfully. Open in Excel to edit and save as .xlsx when done.'
+    };
+  } catch (error: any) {
+    console.error('❌ Failed to create fallback template:', error);
+    throw new Error('Unable to download template. Please contact support.');
+  }
 };
 
 // Base URLs for API endpoints (matching backend implementation)
@@ -147,7 +180,13 @@ export const useValidateExcelUpload = () => {
     mutationFn: async (file: File): Promise<IUploadValidationResult> => {
       try {
         const formData = new FormData();
-        formData.append('file', file);
+        formData.append('upload_file', file);  // Fixed: Use 'upload_file' to match backend expectation
+
+        console.log('🔍 DEBUG: Validating file:', {
+          name: file.name,
+          size: file.size,
+          type: file.type
+        });
 
         const response = await AxiosWithToken.post(
           `${ANNUAL_PLAN_BASE_URL}validate-upload/`,
@@ -156,9 +195,45 @@ export const useValidateExcelUpload = () => {
             headers: {
               'Content-Type': 'multipart/form-data',
             },
+            timeout: 30000, // 30 seconds timeout for validation
           }
         );
-        return response.data;
+
+        // Transform backend response to match frontend interface
+        const backendData = response.data?.data || response.data;
+        console.log('🔍 DEBUG: Backend validation response:', backendData);
+
+        // Extract errors array - handle both object and string formats
+        const errors = [];
+        if (backendData.errors) {
+          for (const error of backendData.errors) {
+            if (typeof error === 'string') {
+              errors.push(error);
+            } else if (error.error) {
+              errors.push(error.error);
+            } else {
+              errors.push(JSON.stringify(error));
+            }
+          }
+        }
+
+        // Extract warnings array
+        const warnings = backendData.warnings || [];
+
+        // Transform to frontend interface
+        const transformedResponse: IUploadValidationResult = {
+          isValid: backendData.is_valid || false,
+          errors: errors,
+          warnings: warnings,
+          validRows: backendData.preview_data || [],
+          invalidRows: [], // Backend doesn't seem to provide this in the current format
+          totalRows: backendData.total_rows || 0,
+          validRowsCount: backendData.valid_rows || 0,
+          message: backendData.message || (backendData.is_valid ? 'Validation successful' : 'Validation completed with issues')
+        };
+
+        console.log('🔍 DEBUG: Transformed response:', transformedResponse);
+        return transformedResponse;
       } catch (error: any) {
         console.error("Validation error:", error);
 
@@ -168,6 +243,11 @@ export const useValidateExcelUpload = () => {
           return {
             isValid: true,
             errors: [],
+            warnings: [],
+            validRows: [],
+            invalidRows: [],
+            totalRows: 0,
+            validRowsCount: 0,
             message: "Validation skipped - endpoint not available"
           };
         }
@@ -187,6 +267,7 @@ export const useCreateAnnualPlan = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
+    retry: false, // Disable automatic retries to prevent multiple requests
     mutationFn: async (data: ICreateAnnualPlanRequest): Promise<IUploadProcessingResult> => {
       try {
         console.log('🔍 DEBUG: Create Annual Plan Data:', {
@@ -226,18 +307,106 @@ export const useCreateAnnualPlan = () => {
           console.log('✅ Added approver_id:', data.approver_id);
         }
 
+        // Debug file before appending to FormData
+        console.log('🔍 DEBUG: File before FormData append:', {
+          file: data.upload_file,
+          name: data.upload_file?.name,
+          size: data.upload_file?.size,
+          type: data.upload_file?.type,
+          lastModified: data.upload_file?.lastModified
+        });
+
+        if (!data.upload_file || data.upload_file.size === 0) {
+          throw new Error('File is empty or undefined. Please select a valid file.');
+        }
+
+        // Additional file validation - try to read a small portion to verify it's readable
+        try {
+          const fileSlice = data.upload_file.slice(0, 100);
+          const arrayBuffer = await fileSlice.arrayBuffer();
+          console.log('🔍 File content validation:', {
+            firstBytesLength: arrayBuffer.byteLength,
+            firstFewBytes: Array.from(new Uint8Array(arrayBuffer.slice(0, 20))).map(b => b.toString(16).padStart(2, '0')).join(' ')
+          });
+        } catch (readError) {
+          console.error('❌ File read validation failed:', readError);
+          throw new Error('File appears to be corrupted or unreadable. Please select a different file.');
+        }
+
         formData.append('upload_file', data.upload_file);
 
         // Log what's in formData
         console.log('🔍 DEBUG: FormData contents:');
         for (let [key, value] of formData.entries()) {
-          console.log(`  ${key}:`, value);
+          if (value instanceof File) {
+            console.log(`  ${key}:`, {
+              name: value.name,
+              size: value.size,
+              type: value.type,
+              lastModified: value.lastModified
+            });
+          } else {
+            console.log(`  ${key}:`, value);
+          }
         }
 
+        // Check token before making request
+        const token = localStorage.getItem('token');
+        console.log('🔍 DEBUG: Token status:', {
+          hasToken: !!token,
+          tokenPreview: token ? `${token.substring(0, 20)}...` : 'NO TOKEN'
+        });
+
+        // === COMPREHENSIVE REQUEST DEBUG START ===
+        console.log('🔥 ABOUT TO MAKE REQUEST - COMPLETE DEBUG:', {
+          url: ANNUAL_PLAN_BASE_URL,
+          fullUrl: `${AxiosWithToken.defaults.baseURL || ''}${ANNUAL_PLAN_BASE_URL}`,
+          method: 'POST',
+          timeout: 120000,
+          formDataKeys: Array.from(formData.keys()),
+          axiosInstance: 'AxiosWithToken',
+          timestamp: new Date().toISOString()
+        });
+
+        // Detailed FormData analysis
+        console.log('📋 DETAILED FORMDATA ANALYSIS:');
+        for (const [key, value] of formData.entries()) {
+          if (value instanceof File) {
+            console.log(`  📁 ${key}:`, {
+              name: value.name,
+              size: value.size,
+              type: value.type,
+              lastModified: new Date(value.lastModified).toISOString(),
+              isFile: true
+            });
+          } else {
+            console.log(`  📝 ${key}:`, {
+              value: value,
+              type: typeof value,
+              length: value?.length || 0,
+              isFile: false
+            });
+          }
+        }
+
+        // Environment debug
+        console.log('🌐 REQUEST ENVIRONMENT:', {
+          nodeEnv: process.env.NODE_ENV,
+          baseUrl: process.env.NEXT_PUBLIC_BASE_URL,
+          userAgent: navigator.userAgent,
+          currentUrl: window.location.href
+        });
+
         const response = await AxiosWithToken.post(ANNUAL_PLAN_BASE_URL, formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
+          timeout: 120000, // 2 minutes timeout for file processing
+          // Note: Don't set Content-Type - let browser handle FormData boundaries
+        });
+
+        console.log('🎉 REQUEST COMPLETED SUCCESSFULLY:', {
+          status: response.status,
+          statusText: response.statusText,
+          responseSize: JSON.stringify(response.data || {}).length,
+          responseHeaders: response.headers
         });
 
         console.log('✅ Upload Success response:', response.data);
@@ -252,10 +421,130 @@ export const useCreateAnnualPlan = () => {
 
         return response.data;
       } catch (error: any) {
-        console.error("Annual plan creation error:", error);
+        // === COMPREHENSIVE ERROR ANALYSIS ===
+        console.error("❌ UPLOAD FAILED - COMPREHENSIVE ERROR ANALYSIS:");
+
+        // Basic error info
+        console.error("🔍 BASIC ERROR INFO:", {
+          errorType: error.constructor.name,
+          message: error.message,
+          code: error.code,
+          stack: error.stack?.split('\n').slice(0, 5).join('\n') // First 5 lines of stack
+        });
+
+        // Response analysis
+        if (error.response) {
+          console.error("📡 HTTP RESPONSE DETAILS:", {
+            status: error.response.status,
+            statusText: error.response.statusText,
+            headers: {...error.response.headers},
+            responseData: error.response.data,
+            responseDataType: typeof error.response.data,
+            responseDataString: JSON.stringify(error.response.data, null, 2)
+          });
+
+          // Special analysis for different status codes
+          if (error.response.status === 500) {
+            console.error("🚨 500 INTERNAL SERVER ERROR ANALYSIS:", {
+              likelyCauses: [
+                'Backend code error',
+                'Database connection issue',
+                'Serializer validation error',
+                'File processing error',
+                'Missing dependencies'
+              ],
+              responseBody: error.response.data,
+              responseHeaders: error.response.headers
+            });
+          }
+
+          if (error.response.status === 400) {
+            console.error("📋 400 BAD REQUEST ANALYSIS:", {
+              validationErrors: error.response.data?.errors || 'No validation errors in response',
+              message: error.response.data?.message || 'No message in response',
+              enhancedValidation: JSON.stringify(error.response.data).includes('[ENHANCED_VALIDATION]')
+            });
+          }
+        } else if (error.request) {
+          console.error("🌐 NETWORK/REQUEST ERROR:", {
+            noResponse: true,
+            requestInfo: {
+              url: error.config?.url,
+              method: error.config?.method,
+              timeout: error.config?.timeout,
+              baseURL: error.config?.baseURL
+            },
+            likelyCauses: [
+              'Network connectivity issue',
+              'CORS error',
+              'Request timeout',
+              'Server not responding'
+            ]
+          });
+        } else {
+          console.error("⚙️ CLIENT-SIDE ERROR:", {
+            clientError: true,
+            message: error.message,
+            likelyCauses: [
+              'JavaScript error in request setup',
+              'FormData construction error',
+              'File reading error'
+            ]
+          });
+        }
+
+        // Request data analysis
+        if (error.config?.data instanceof FormData) {
+          console.error("📋 REQUEST DATA ANALYSIS:");
+          console.error("  🔍 FormData contents that were sent:");
+          Array.from(error.config.data.entries()).forEach((entry: any) => {
+            const [key, value] = entry;
+            if (value instanceof File) {
+              console.error(`    📁 ${key}:`, {
+                fileName: value.name,
+                fileSize: value.size,
+                fileType: value.type,
+                lastModified: new Date(value.lastModified).toISOString()
+              });
+            } else {
+              console.error(`    📝 ${key}:`, {
+                value: value,
+                type: typeof value,
+                length: String(value).length
+              });
+            }
+          });
+        }
+
+        // Configuration analysis
+        console.error("⚙️ REQUEST CONFIGURATION:", {
+          url: error.config?.url,
+          method: error.config?.method,
+          baseURL: error.config?.baseURL,
+          timeout: error.config?.timeout,
+          headers: error.config?.headers ? {...error.config.headers} : 'No headers'
+        });
+
+        // Environment context
+        console.error("🌍 ENVIRONMENT CONTEXT:", {
+          userAgent: navigator.userAgent,
+          currentTime: new Date().toISOString(),
+          currentUrl: window.location.href,
+          nodeEnv: process.env.NODE_ENV,
+          baseUrlEnv: process.env.NEXT_PUBLIC_BASE_URL
+        });
+
+        console.error("=".repeat(80));
+
+        // Handle specific error types
+        if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
+          throw new Error("Request timeout. The file processing is taking too long. Please try again or use a smaller file.");
+        }
+
         throw new Error(
           error.response?.data?.message ||
           error.response?.data?.error ||
+          error.message ||
           "Failed to create annual plan"
         );
       }
@@ -292,7 +581,11 @@ export const useCreateAnnualPlanManual = () => {
               // REQUIRED FIELDS (as per backend specification)
               location_name: visit.location_name || '', // Must be string
               visit_type: visit.visit_type || 'SUPPORTIVE_SUPERVISION', // Must be valid enum
-              requires_evaluation: visit.requires_evaluation === "YES" || visit.requires_evaluation === true, // Must be boolean
+              requires_evaluation: (
+                typeof visit.requires_evaluation === "boolean"
+                  ? visit.requires_evaluation
+                  : visit.requires_evaluation === "YES" || visit.requires_evaluation === "yes"
+              ), // Must be boolean
 
               // OPTIONAL UUID FIELDS (null if empty, to avoid UUID validation errors)
               location_id: visit.location_id && visit.location_id.trim() !== '' ? visit.location_id : null,
@@ -616,7 +909,7 @@ export const useApproveAnnualPlan = (id: string) => {
 // Download Excel Template
 export const useDownloadExcelTemplate = () => {
   return useMutation({
-    mutationFn: async () => {
+    mutationFn: async (): Promise<ITemplateDownloadResult> => {
       try {
         console.log('🔄 Starting template download...');
         console.log('📡 API URL:', `${ANNUAL_PLAN_BASE_URL}download-template/`);
@@ -625,17 +918,26 @@ export const useDownloadExcelTemplate = () => {
           `${ANNUAL_PLAN_BASE_URL}download-template/`,
           {
             responseType: 'blob',
+            timeout: 30000, // 30 second timeout for downloads
           }
         );
 
         console.log('✅ Template downloaded successfully');
         console.log('📊 Response status:', response.status);
         console.log('📁 Response headers:', response.headers);
-        console.log('📝 Blob size:', response.data.size);
+        console.log('📝 Blob size:', response.data?.size || 0);
+        console.log('📝 Blob type:', response.data?.type || 'unknown');
 
         // Check if the response is actually a blob
         if (!response.data || response.data.size === 0) {
-          throw new Error('Downloaded file is empty or invalid');
+          console.warn('⚠️ Downloaded file is empty, using fallback template...');
+          return createFallbackTemplate();
+        }
+
+        // Check if the response is actually JSON (error response disguised as blob)
+        if (response.data.type === 'application/json' || response.data.size < 100) {
+          console.warn('⚠️ Response appears to be JSON error, using fallback template...');
+          return createFallbackTemplate();
         }
 
         // Get filename from headers if available
@@ -651,18 +953,41 @@ export const useDownloadExcelTemplate = () => {
 
         console.log('📄 Filename:', filename);
 
-        // Create download link
-        const url = window.URL.createObjectURL(new Blob([response.data]));
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', filename);
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        window.URL.revokeObjectURL(url);
+        // Ensure we have a proper blob
+        let blob = response.data;
+        if (!(blob instanceof Blob)) {
+          console.log('🔧 Converting response to blob...');
+          blob = new Blob([response.data], {
+            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+          });
+        }
 
-        console.log('🎉 File download initiated successfully');
-        return { success: true, filename };
+        // Create download link with additional checks
+        try {
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.setAttribute('download', filename);
+          link.style.display = 'none';
+          document.body.appendChild(link);
+
+          // Force click and cleanup
+          link.click();
+
+          // Cleanup after a short delay to ensure download starts
+          setTimeout(() => {
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+          }, 1000);
+
+          console.log('🎉 File download initiated successfully');
+          return { success: true, filename };
+        } catch (downloadError: any) {
+          console.error('❌ Download link creation failed:', downloadError);
+          console.log('⚠️ Falling back to CSV template...');
+          return createFallbackTemplate();
+        }
+
       } catch (error: any) {
         console.error("❌ Template download error:", error);
         console.error("📊 Error details:", {
@@ -670,13 +995,14 @@ export const useDownloadExcelTemplate = () => {
           status: error.response?.status,
           statusText: error.response?.statusText,
           data: error.response?.data,
-          headers: error.response?.headers
+          headers: error.response?.headers,
+          code: error.code,
+          stack: error.stack
         });
 
         // Handle specific error cases
         if (error.response?.status === 404) {
           console.log('⚠️ Backend template endpoint not found, creating fallback template...');
-          // Create a fallback template if backend endpoint doesn't exist
           return createFallbackTemplate();
         } else if (error.response?.status === 401) {
           throw new Error("Authentication required. Please log in again.");
@@ -684,16 +1010,17 @@ export const useDownloadExcelTemplate = () => {
           throw new Error("Access denied. You don't have permission to download the template.");
         } else if (error.response?.status === 500) {
           throw new Error("Server error. Please try again later or contact support.");
-        } else if (error.code === 'NETWORK_ERROR' || !error.response) {
-          throw new Error("Network error. Please check your internet connection.");
+        } else if (error.code === 'NETWORK_ERROR' || error.code === 'ERR_NETWORK' || !error.response) {
+          console.log('⚠️ Network error, using fallback template...');
+          return createFallbackTemplate();
+        } else if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
+          console.log('⚠️ Request timeout, using fallback template...');
+          return createFallbackTemplate();
         }
 
-        throw new Error(
-          error.response?.data?.message ||
-          error.response?.data?.error ||
-          error.message ||
-          "Failed to download template"
-        );
+        // If all else fails, use fallback template
+        console.log('⚠️ Unexpected error, using fallback template...');
+        return createFallbackTemplate();
       }
     },
   });

@@ -58,8 +58,16 @@ const LocationSection: React.FC<LocationSectionProps> = ({
   React.useEffect(() => {
     if (facilityData && requiresFacility) {
       // If facility is selected for supportive supervision, use facility's state and LGA
-      setValue("state", facilityData.state || "");
-      setValue("lga", facilityData.lga || "");
+      let stateValue = facilityData.state || "";
+
+      // Handle FCT name variations
+      if (stateValue === "Federal Capital Territory (FCT)" || stateValue === "Federal Capital Territory") {
+        stateValue = "FCT";
+      }
+
+      setValue("location", stateValue);  // Location/State dropdown
+      setValue("state", stateValue);     // State dropdown
+      setValue("lga", facilityData.lga || "");         // LGA field
     }
   }, [facilityData, requiresFacility, setValue]);
 
@@ -92,7 +100,7 @@ const LocationSection: React.FC<LocationSectionProps> = ({
                   <SelectContent>
                     {isFacilitiesLoading ? (
                       <div className="flex items-center justify-center p-4">
-                        <LoadingSpinner size="sm" />
+                        <LoadingSpinner />
                         <span className="ml-2 text-sm">Loading facilities...</span>
                       </div>
                     ) : facilities.length > 0 ? (
@@ -183,7 +191,7 @@ const LocationSection: React.FC<LocationSectionProps> = ({
                 <SelectContent>
                   {isLocationsLoading ? (
                     <div className="flex items-center justify-center p-4">
-                      <LoadingSpinner size="sm" />
+                      <LoadingSpinner />
                       <span className="ml-2 text-sm">Loading states...</span>
                     </div>
                   ) : (
