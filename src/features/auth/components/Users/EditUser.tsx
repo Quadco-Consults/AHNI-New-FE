@@ -225,13 +225,29 @@ export default function EditUserModal() {
 
   const onSubmit: SubmitHandler<TUpdateUserFormValues> = async (data) => {
     if (!userId) return;
-    
+
     try {
+      // Validate form data before processing
+      console.log("🔍 Form submission data:", JSON.stringify(data, null, 2));
+
+      // Check for empty or invalid data
+      if (!data || typeof data !== 'object') {
+        throw new Error("Invalid form data: Data is null, undefined, or not an object");
+      }
+
+      // Ensure required fields are present
+      const requiredFields = ['first_name', 'last_name', 'email', 'mobile_number'];
+      const missingFields = requiredFields.filter(field => !data[field as keyof TUpdateUserFormValues]);
+      if (missingFields.length > 0) {
+        throw new Error(`Missing required fields: ${missingFields.join(', ')}`);
+      }
+
       // Route to appropriate database based on user type
       await updateUserByType(data);
       toast.success("User updated successfully");
       dispatch(closeDialog());
     } catch (error: any) {
+      console.error("Form submission error:", error);
       toast.error(error?.message || "Failed to update user");
     }
   };
@@ -266,7 +282,14 @@ export default function EditUserModal() {
 
     // STEP 1: Always update main users table first
     console.log("🚀 Updating main user table with data:", data);
-    await updateUser(data);
+
+    // Create a clean copy of the data, removing any undefined values
+    const cleanData = Object.fromEntries(
+      Object.entries(data).filter(([_, value]) => value !== undefined)
+    );
+    console.log("🧹 Cleaned data for API:", JSON.stringify(cleanData, null, 2));
+
+    await updateUser(cleanData as TUpdateUserFormValues);
     
     // STEP 2: Also update specialized table based on user type
     console.log("🎯 Routing to user type case:", userType);

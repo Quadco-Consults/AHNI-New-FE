@@ -147,6 +147,20 @@ AxiosWithToken.interceptors.request.use(
       });
 
     } else if (config.data && !config.headers['Content-Type']) {
+      // Validate JSON data before setting content type
+      if (typeof config.data === 'object') {
+        try {
+          const jsonString = JSON.stringify(config.data);
+          if (!jsonString || jsonString.trim() === '' || jsonString === 'null' || jsonString === 'undefined') {
+            console.error('🚨 INTERCEPTOR: Empty or invalid JSON data detected:', config.data);
+            throw new Error('Invalid JSON format. The request body appears to contain only whitespace or invalid characters.');
+          }
+          console.log('✅ JSON validation passed for request to:', config.url);
+        } catch (error) {
+          console.error('🚨 INTERCEPTOR: JSON serialization failed:', error);
+          throw error;
+        }
+      }
       // For JSON data, set application/json if not already set
       config.headers['Content-Type'] = 'application/json';
     }
