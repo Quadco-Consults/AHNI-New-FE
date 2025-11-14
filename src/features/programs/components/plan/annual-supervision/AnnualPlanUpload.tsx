@@ -50,8 +50,8 @@ import {
 
 import {
   useCreateAnnualPlan,
-  useValidateExcelUpload,
   useDownloadExcelTemplate,
+  useValidateExcelUpload,
 } from "@/features/programs/controllers/annualSupervisionPlanController";
 
 import { useGetAllFinancialYears } from "@/features/modules/controllers";
@@ -67,25 +67,33 @@ interface AnnualPlanUploadProps {
 const AnnualPlanUpload = ({ onSuccess, onCancel, editMode = false, planId }: AnnualPlanUploadProps) => {
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [validationResult, setValidationResult] = useState<IUploadValidationResult | null>(null);
-  const [isValidating, setIsValidating] = useState(false);
   const [showValidationDetails, setShowValidationDetails] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Fetch financial years
-  const { data: financialYearsData, isLoading: isLoadingFinancialYears } = useGetAllFinancialYears({
+  const {
+    data: financialYearsData,
+    isLoading: isLoadingFinancialYears,
+    error: financialYearsError
+  } = useGetAllFinancialYears({
     page: 1,
     size: 100,
   });
 
   // Fetch users for workflow role assignments
-  const { data: usersData, isLoading: isLoadingUsers } = useGetAllUsers({
+  const {
+    data: usersData,
+    isLoading: isLoadingUsers,
+    error: usersError
+  } = useGetAllUsers({
     page: 1,
     size: 1000, // Get all users
   });
 
   // Mutations
   const createAnnualPlanMutation = useCreateAnnualPlan();
-  const validateUploadMutation = useValidateExcelUpload();
   const downloadTemplateMutation = useDownloadExcelTemplate();
+  const validateUploadMutation = useValidateExcelUpload();
 
   // Form setup
   const form = useForm<AnnualPlanUploadFormData>({
@@ -100,8 +108,29 @@ const AnnualPlanUpload = ({ onSuccess, onCancel, editMode = false, planId }: Ann
     },
   });
 
-  const financialYears = financialYearsData?.data?.results || [];
-  const users = usersData?.data?.results || [];
+  // Handle different possible response structures from backend
+  const financialYears = financialYearsData?.results ||
+                         (financialYearsData as any)?.data?.results ||
+                         (Array.isArray((financialYearsData as any)?.data) ? (financialYearsData as any).data : []) ||
+                         (Array.isArray(financialYearsData) ? financialYearsData : []);
+
+  const users = usersData?.results ||
+                (usersData as any)?.data?.results ||
+                (Array.isArray((usersData as any)?.data) ? (usersData as any).data : []) ||
+                (Array.isArray(usersData) ? usersData : []);
+
+  // Debug logging (can be removed in production)
+  // console.log('🔍 DEBUG: Financial Years Data:', { count: financialYears.length, isLoading: isLoadingFinancialYears });
+  // console.log('🔍 DEBUG: Users Data:', { count: users.length, isLoading: isLoadingUsers });
+
+  // Log errors if any
+  if (financialYearsError) {
+    console.error('❌ Financial Years API Error:', financialYearsError);
+  }
+
+  if (usersError) {
+    console.error('❌ Users API Error:', usersError);
+  }
 
   const handleFileChange = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -131,62 +160,183 @@ const AnnualPlanUpload = ({ onSuccess, onCancel, editMode = false, planId }: Ann
     setUploadFile(file);
     form.setValue('upload_file', file);
 
-    // Auto-validate the file
-    setIsValidating(true);
-    try {
-      const validation = await validateUploadMutation.mutateAsync(file);
-      setValidationResult(validation);
+    // Display file upload success (validation happens during creation)
+    toast.success(`File selected: ${file.name}. Click "Create Annual Plan" to process and validate.`);
 
-      if (validation.isValid) {
-        if (validation.message?.includes("skipped")) {
-          toast.info("Validation endpoint not available - file will be processed directly");
-        } else {
-          toast.success(`File validated successfully! ${validation.validRowsCount || 0} valid entries found.`);
-        }
-      } else {
-        toast.warning(`File has validation issues. ${validation.validRowsCount || 0} valid entries, ${validation.invalidRows?.length || 0} errors.`);
-      }
-    } catch (error: any) {
-      toast.error(error.message || "Failed to validate file");
-      setValidationResult(null);
-    } finally {
-      setIsValidating(false);
-    }
-  }, [validateUploadMutation, form]);
+    // Clear any previous validation results
+    setValidationResult(null);
+  }, [form]);
 
   const handleDownloadTemplate = async () => {
     try {
-      await downloadTemplateMutation.mutateAsync();
-      toast.success("Template downloaded successfully");
+      const result = await downloadTemplateMutation.mutateAsync();
+
+      if (result.fallback) {
+        toast.info(
+          result.message ||
+          "CSV template downloaded successfully. Open in Excel to edit and save as .xlsx when done.",
+          { duration: 5000 }
+        );
+      } else {
+        toast.success("Template downloaded successfully");
+      }
     } catch (error: any) {
       toast.error(error.message || "Failed to download template");
     }
   };
 
-  const handleSubmit = async (data: AnnualPlanUploadFormData) => {
-    if (!validationResult?.isValid) {
-      toast.error("Please fix validation errors before submitting");
+  // 🧪 TEST FUNCTION: Validate endpoint isolation
+  const handleTestValidateOnly = async () => {
+    if (!uploadFile) {
+      toast.error("Please select a file first");
       return;
     }
 
     try {
+      console.log('🧪 TESTING VALIDATE-UPLOAD ENDPOINT ONLY:');
+      console.log('📁 File being validated:', {
+        name: uploadFile.name,
+        size: uploadFile.size,
+        type: uploadFile.type
+      });
+
+      const result = await validateUploadMutation.mutateAsync(uploadFile);
+
+      console.log('✅ VALIDATE ENDPOINT SUCCESS:', result);
+
+      if (result.isValid) {
+        toast.success(`✅ Validate endpoint works! Found ${result.validRowsCount} valid entries. Your backend validation is working!`);
+      } else {
+        toast.warning(`⚠️ Validate endpoint works but found validation issues: ${result.errors.length} errors`);
+      }
+
+      // Check for enhanced validation markers
+      const hasEnhancedValidation = JSON.stringify(result).includes('[ENHANCED_VALIDATION]');
+      console.log('🔍 Enhanced validation detected:', hasEnhancedValidation);
+
+      if (hasEnhancedValidation) {
+        toast.success('🎯 [ENHANCED_VALIDATION] markers found - your backend code IS working!');
+      }
+
+    } catch (error: any) {
+      console.error('❌ VALIDATE ENDPOINT FAILED:', error);
+
+      if (error.response?.status === 500) {
+        toast.error('🚨 Validate endpoint also returns 500 - this is a Heroku/routing level issue!');
+      } else if (error.response?.status === 405) {
+        toast.warning('⚠️ Validate endpoint returns 405 - endpoint may not exist');
+      } else {
+        toast.error(`Validate endpoint error: ${error.message}`);
+      }
+    }
+  };
+
+  const handleSubmit = async (data: AnnualPlanUploadFormData) => {
+    if (!uploadFile) {
+      toast.error("Please select a file to upload");
+      return;
+    }
+
+    // Prevent multiple submissions
+    if (createAnnualPlanMutation.isPending || isSubmitting) {
+      console.warn("⚠️ Preventing duplicate submission - already in progress");
+      toast.info("Plan creation is already in progress...");
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+
+      // Debug file state before submission
+      console.log("🔍 DEBUG: File state before submission:", {
+        file: uploadFile,
+        name: uploadFile?.name,
+        size: uploadFile?.size,
+        type: uploadFile?.type,
+        lastModified: uploadFile?.lastModified
+      });
+
+      // Check if file is still readable
+      if (uploadFile && uploadFile.size === 0) {
+        throw new Error("File appears to be empty or corrupted. Please select the file again.");
+      }
+
+      console.log("🚀 Starting annual plan creation with validation...");
+      toast.info("Processing file and creating annual plan, this may take a few minutes...", { duration: 5000 });
+
       const result = await createAnnualPlanMutation.mutateAsync({
         financial_year_id: data.financial_year_id,
         title: data.title,
         description: data.description,
-        reviewer_id: data.reviewer_id === "none" ? null : data.reviewer_id,
-        authorizer_id: data.authorizer_id === "none" ? null : data.authorizer_id,
-        approver_id: data.approver_id === "none" ? null : data.approver_id,
+        reviewer_id: data.reviewer_id === "none" ? undefined : data.reviewer_id,
+        authorizer_id: data.authorizer_id === "none" ? undefined : data.authorizer_id,
+        approver_id: data.approver_id === "none" ? undefined : data.approver_id,
         upload_file: uploadFile!,
       });
 
+      console.log("✅ Annual plan created successfully!");
       toast.success("Annual plan created successfully!");
 
       if (onSuccess) {
         onSuccess(result);
       }
     } catch (error: any) {
-      toast.error(error.message || "Failed to create annual plan");
+      console.error("❌ Plan creation failed:", error);
+
+      // Handle specific error types
+      const responseData = error.response?.data;
+      const errorMessage = responseData?.message || error.message;
+
+      // Check for authentication errors first
+      if (error.response?.status === 401 || responseData?.error_code === "not_authenticated") {
+        toast.error(
+          "Authentication failed. Please log out and log back in, then try again.",
+          { duration: 8000 }
+        );
+        return;
+      }
+
+      // Check if this is the "Empty file" Django issue
+      if (errorMessage?.includes("Empty file")) {
+        toast.error(
+          "File upload issue detected. This appears to be a backend configuration problem. " +
+          "Please contact your system administrator to check Django file upload settings.",
+          { duration: 8000 }
+        );
+
+        // Log detailed info for backend team
+        console.error("🔧 BACKEND ISSUE: Django reports 'Empty file' but frontend file is valid:", {
+          fileSize: uploadFile?.size,
+          fileName: uploadFile?.name,
+          fileType: uploadFile?.type,
+          errorResponse: error.response?.data,
+          suggestion: "Check Django settings: FILE_UPLOAD_MAX_MEMORY_SIZE, DATA_UPLOAD_MAX_MEMORY_SIZE, middleware configuration"
+        });
+        return;
+      }
+
+      // Check if error contains validation details
+      const errorData = error.response?.data;
+      if (errorData?.errors || errorData?.warnings) {
+        // Show validation results on error
+        const validationResult: IUploadValidationResult = {
+          isValid: false,
+          errors: errorData.errors || [],
+          warnings: errorData.warnings || [],
+          validRows: errorData.preview_data || [],
+          invalidRows: [],
+          totalRows: errorData.total_rows || 0,
+          validRowsCount: errorData.valid_rows || 0,
+          message: errorData.message || "File validation failed"
+        };
+        setValidationResult(validationResult);
+        toast.error(`File validation failed. ${validationResult.validRowsCount} valid entries found.`);
+      } else {
+        toast.error(error.message || "Failed to create annual plan");
+      }
+    } finally {
+      setIsSubmitting(false);
+      console.log("🔄 Submission state reset");
     }
   };
 
@@ -276,12 +426,12 @@ const AnnualPlanUpload = ({ onSuccess, onCancel, editMode = false, planId }: Ann
                           ) : financialYears.length > 0 ? (
                             financialYears.map((year: any) => (
                               <SelectItem key={year.id} value={year.id}>
-                                {year.year} ({year.start_date} - {year.end_date})
+                                {year.year || year.name || `FY ${year.id}`} {year.start_date && year.end_date ? `(${year.start_date} - ${year.end_date})` : ''}
                               </SelectItem>
                             ))
                           ) : (
                             <SelectItem value="no-data" disabled>
-                              No financial years available
+                              {financialYearsData ? 'No financial years found' : 'Failed to load financial years. Please refresh the page.'}
                             </SelectItem>
                           )}
                         </SelectContent>
@@ -364,7 +514,7 @@ const AnnualPlanUpload = ({ onSuccess, onCancel, editMode = false, planId }: Ann
                               ) : users.length > 0 ? (
                                 users.map((user: any) => (
                                   <SelectItem key={user.id} value={user.id}>
-                                    {user.full_name || `${user.first_name} ${user.last_name}`}
+                                    {user.full_name || `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.username || `User ${user.id}`}
                                     {user.designation && (
                                       <span className="text-gray-500 text-xs ml-1">
                                         ({user.designation})
@@ -374,7 +524,7 @@ const AnnualPlanUpload = ({ onSuccess, onCancel, editMode = false, planId }: Ann
                                 ))
                               ) : (
                                 <SelectItem value="no-data" disabled>
-                                  No users available
+                                  {usersData ? 'No users found' : 'Failed to load users. Please refresh the page.'}
                                 </SelectItem>
                               )}
                             </SelectContent>
@@ -406,7 +556,7 @@ const AnnualPlanUpload = ({ onSuccess, onCancel, editMode = false, planId }: Ann
                               ) : users.length > 0 ? (
                                 users.map((user: any) => (
                                   <SelectItem key={user.id} value={user.id}>
-                                    {user.full_name || `${user.first_name} ${user.last_name}`}
+                                    {user.full_name || `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.username || `User ${user.id}`}
                                     {user.designation && (
                                       <span className="text-gray-500 text-xs ml-1">
                                         ({user.designation})
@@ -416,7 +566,7 @@ const AnnualPlanUpload = ({ onSuccess, onCancel, editMode = false, planId }: Ann
                                 ))
                               ) : (
                                 <SelectItem value="no-data" disabled>
-                                  No users available
+                                  {usersData ? 'No users found' : 'Failed to load users. Please refresh the page.'}
                                 </SelectItem>
                               )}
                             </SelectContent>
@@ -448,7 +598,7 @@ const AnnualPlanUpload = ({ onSuccess, onCancel, editMode = false, planId }: Ann
                               ) : users.length > 0 ? (
                                 users.map((user: any) => (
                                   <SelectItem key={user.id} value={user.id}>
-                                    {user.full_name || `${user.first_name} ${user.last_name}`}
+                                    {user.full_name || `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.username || `User ${user.id}`}
                                     {user.designation && (
                                       <span className="text-gray-500 text-xs ml-1">
                                         ({user.designation})
@@ -458,7 +608,7 @@ const AnnualPlanUpload = ({ onSuccess, onCancel, editMode = false, planId }: Ann
                                 ))
                               ) : (
                                 <SelectItem value="no-data" disabled>
-                                  No users available
+                                  {usersData ? 'No users found' : 'Failed to load users. Please refresh the page.'}
                                 </SelectItem>
                               )}
                             </SelectContent>
@@ -506,21 +656,12 @@ const AnnualPlanUpload = ({ onSuccess, onCancel, editMode = false, planId }: Ann
               </div>
 
               {/* Validation Results */}
-              {(isValidating || validationResult) && (
+              {validationResult && (
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-lg">
-                      {isValidating ? (
-                        <>
-                          <LoadingSpinner />
-                          Validating File...
-                        </>
-                      ) : (
-                        <>
-                          {getValidationIcon(validationResult?.isValid || false)}
-                          Validation Results
-                        </>
-                      )}
+                      {getValidationIcon(validationResult?.isValid || false)}
+                      Validation Results
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -536,34 +677,34 @@ const AnnualPlanUpload = ({ onSuccess, onCancel, editMode = false, planId }: Ann
                           </div>
                           <div className="text-center p-3 bg-green-50 rounded">
                             <div className="text-2xl font-bold text-green-600">
-                              {validationResult.validRowsCount}
+                              {validationResult.validRowsCount || 0}
                             </div>
                             <div className="text-sm text-green-600">Valid Rows</div>
                           </div>
                           <div className="text-center p-3 bg-red-50 rounded">
                             <div className="text-2xl font-bold text-red-600">
-                              {validationResult.invalidRows.length}
+                              {validationResult.invalidRows?.length || 0}
                             </div>
                             <div className="text-sm text-red-600">Invalid Rows</div>
                           </div>
                           <div className="text-center p-3 bg-yellow-50 rounded">
                             <div className="text-2xl font-bold text-yellow-600">
-                              {validationResult.warnings.length}
+                              {validationResult.warnings?.length || 0}
                             </div>
                             <div className="text-sm text-yellow-600">Warnings</div>
                           </div>
                         </div>
 
                         {/* Errors and Warnings */}
-                        {(validationResult.errors.length > 0 || validationResult.warnings.length > 0) && (
+                        {(validationResult.errors?.length > 0 || validationResult.warnings?.length > 0) && (
                           <div className="space-y-3">
-                            {validationResult.errors.length > 0 && (
+                            {validationResult.errors?.length > 0 && (
                               <Alert variant="destructive">
                                 <XCircle className="h-4 w-4" />
                                 <AlertDescription>
                                   <strong>Errors:</strong>
                                   <ul className="list-disc list-inside mt-1">
-                                    {validationResult.errors.map((error, index) => (
+                                    {validationResult.errors?.map((error, index) => (
                                       <li key={index} className="text-sm">{error}</li>
                                     ))}
                                   </ul>
@@ -571,13 +712,13 @@ const AnnualPlanUpload = ({ onSuccess, onCancel, editMode = false, planId }: Ann
                               </Alert>
                             )}
 
-                            {validationResult.warnings.length > 0 && (
+                            {validationResult.warnings?.length > 0 && (
                               <Alert>
                                 <AlertCircle className="h-4 w-4" />
                                 <AlertDescription>
                                   <strong>Warnings:</strong>
                                   <ul className="list-disc list-inside mt-1">
-                                    {validationResult.warnings.map((warning, index) => (
+                                    {validationResult.warnings?.map((warning, index) => (
                                       <li key={index} className="text-sm">{warning}</li>
                                     ))}
                                   </ul>
@@ -585,7 +726,7 @@ const AnnualPlanUpload = ({ onSuccess, onCancel, editMode = false, planId }: Ann
                               </Alert>
                             )}
 
-                            {validationResult.invalidRows.length > 0 && (
+                            {validationResult.invalidRows?.length > 0 && (
                               <div>
                                 <Button
                                   type="button"
@@ -598,11 +739,11 @@ const AnnualPlanUpload = ({ onSuccess, onCancel, editMode = false, planId }: Ann
 
                                 {showValidationDetails && (
                                   <div className="mt-3 max-h-60 overflow-y-auto border rounded p-3 bg-gray-50">
-                                    {validationResult.invalidRows.map((invalidRow, index) => (
+                                    {validationResult.invalidRows?.map((invalidRow, index) => (
                                       <div key={index} className="mb-2 p-2 bg-white rounded border">
                                         <div className="font-medium text-sm">Row {invalidRow.row}</div>
                                         <ul className="list-disc list-inside text-xs text-red-600 mt-1">
-                                          {invalidRow.errors.map((error, errorIndex) => (
+                                          {invalidRow.errors?.map((error, errorIndex) => (
                                             <li key={errorIndex}>{error}</li>
                                           ))}
                                         </ul>
@@ -627,19 +768,40 @@ const AnnualPlanUpload = ({ onSuccess, onCancel, editMode = false, planId }: Ann
                     Cancel
                   </Button>
                 )}
+
+                {/* 🧪 TEST BUTTON: Validate Endpoint Only */}
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={handleTestValidateOnly}
+                  disabled={!uploadFile || validateUploadMutation.isPending}
+                  className="flex items-center gap-2"
+                >
+                  {validateUploadMutation.isPending ? (
+                    <>
+                      <LoadingSpinner />
+                      Testing...
+                    </>
+                  ) : (
+                    <>
+                      🧪 Test Validate Only
+                    </>
+                  )}
+                </Button>
+
                 <Button
                   type="submit"
                   disabled={
                     createAnnualPlanMutation.isPending ||
-                    !uploadFile ||
-                    !validationResult?.isValid
+                    isSubmitting ||
+                    !uploadFile
                   }
                   className="flex items-center gap-2"
                 >
-                  {createAnnualPlanMutation.isPending ? (
+                  {(createAnnualPlanMutation.isPending || isSubmitting) ? (
                     <>
                       <LoadingSpinner />
-                      Creating Plan...
+                      Processing... (This may take a few minutes)
                     </>
                   ) : (
                     <>

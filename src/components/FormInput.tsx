@@ -59,8 +59,14 @@ const FormInput: FC<InputProps> = ({ name, label, disabled, ...rest }) => {
                   onChange={(e) => {
                     // Convert to number for number inputs
                     if (type === 'number') {
-                      const value = e.target.value === '' ? '' : parseFloat(e.target.value);
-                      onChange(value);
+                      const stringValue = e.target.value;
+                      if (stringValue === '' || stringValue === null || stringValue === undefined) {
+                        onChange(undefined); // Let validation handle empty values
+                      } else {
+                        const numericValue = parseFloat(stringValue);
+                        // Only set valid numbers, otherwise keep as undefined
+                        onChange(isNaN(numericValue) ? undefined : numericValue);
+                      }
                     } else {
                       onChange(e);
                     }

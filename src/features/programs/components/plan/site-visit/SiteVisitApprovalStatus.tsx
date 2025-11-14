@@ -24,7 +24,6 @@ import {
 
 import {
   useApproveSiteVisit,
-  useCreateEAFromSiteVisit,
   useApprovalAction,
   useUpdateSiteVisitStatus
 } from "@/features/programs/controllers/siteVisitController";
@@ -73,7 +72,6 @@ const SiteVisitApprovalStatus = ({
 
   // API hooks
   const approveMutation = useApproveSiteVisit(siteVisit.id);
-  const createEAMutation = useCreateEAFromSiteVisit(siteVisit.id);
 
   // Use direct approval action for specific approval IDs
   const directApprovalMutation = useApprovalAction(activeStepId || "");
@@ -148,25 +146,17 @@ const SiteVisitApprovalStatus = ({
         const result = await directApprovalMutation.mutateAsync(payload);
         console.log("🔍 API success result:", result);
 
-        toast.success(`Site visit ${actionType}d successfully`);
+        // Check if EA was automatically created by backend
+        if (actionType === "approve" && result?.data?.ea_created) {
+          toast.success(`Site visit ${actionType}d successfully! EA has been automatically created.`);
+        } else if (actionType === "approve" && result?.data?.is_final_approval) {
+          toast.success(`Site visit ${actionType}d successfully! EA creation is in progress.`);
+        } else {
+          toast.success(`Site visit ${actionType}d successfully`);
+        }
 
         // Force refresh the site visit data to show updated approval status
         window.location.reload();
-
-        // If this is the final approval and it's approved, automatically create EA
-        if (actionType === "approve" &&
-            siteVisit.current_approval_level === 3) { // Final approval level
-          try {
-            await createEAMutation.mutateAsync();
-            toast.success("EA has been automatically created for this site visit!");
-          } catch (eaError: any) {
-            console.warn("EA creation failed:", eaError);
-            toast.warning(
-              "Site visit approved successfully, but EA creation failed. " +
-              "Please create the EA manually or contact support."
-            );
-          }
-        }
       }
       setShowCommentForm(false);
       setComments("");
@@ -204,7 +194,7 @@ const SiteVisitApprovalStatus = ({
     authorizer_id: siteVisit.authorizer_id,
     approver_id: siteVisit.approver_id,
     approvals: siteVisit.approvals,
-    approvalsDetails: siteVisit.approvals?.map(a => ({
+    approvalsDetails: siteVisit.approvals?.map((a: any) => ({
       id: a.id,
       approval_type: a.approval_type,
       approver: a.approver,
@@ -224,7 +214,7 @@ const SiteVisitApprovalStatus = ({
   });
 
   // Check if all approvals are completed but status is inconsistent
-  const allApprovalsCompleted = siteVisit.approvals?.every(approval => approval.status === 'APPROVED') || false;
+  const allApprovalsCompleted = siteVisit.approvals?.every((approval: any) => approval.status === 'APPROVED') || false;
   const statusInconsistent = allApprovalsCompleted && siteVisit.status !== SiteVisitStatus.APPROVED;
 
   // Create approval workflow display based on actual approval records
@@ -232,17 +222,17 @@ const SiteVisitApprovalStatus = ({
     {
       level: 1,
       role: "Reviewer",
-      approval: siteVisit.approvals?.find(a => a.approval_type === 'REVIEW'),
+      approval: siteVisit.approvals?.find((a: any) => a.approval_type === 'REVIEW'),
     },
     {
       level: 2,
       role: "Authorizer",
-      approval: siteVisit.approvals?.find(a => a.approval_type === 'AUTHORIZATION'),
+      approval: siteVisit.approvals?.find((a: any) => a.approval_type === 'AUTHORIZATION'),
     },
     {
       level: 3,
       role: "Final Approver",
-      approval: siteVisit.approvals?.find(a => a.approval_type === 'APPROVAL'),
+      approval: siteVisit.approvals?.find((a: any) => a.approval_type === 'APPROVAL'),
     },
   ].map(step => ({
     ...step,
@@ -250,6 +240,7 @@ const SiteVisitApprovalStatus = ({
       first_name: step.approval.approver_name?.split(' ')[0] || step.approval.approver_name,
       last_name: step.approval.approver_name?.split(' ')[1] || '',
       email: step.approval.approver || '', // This is the user ID
+      name: step.approval.approver_name || step.approval.approver
     } : null
   }));
 
@@ -300,7 +291,7 @@ const SiteVisitApprovalStatus = ({
           {siteVisit.status === SiteVisitStatus.REJECTED && (
             <p>Site visit has been rejected. Please review the comments and resubmit if needed.</p>
           )}
-          {siteVisit.status === SiteVisitStatus.EA_CREATED && (
+          {siteVisit.status === SiteVisitStatus.EA_GENERATED && (
             <p>Site visit has been approved and an EA has been automatically created.</p>
           )}
         </div>
@@ -325,7 +316,7 @@ const SiteVisitApprovalStatus = ({
         <h3 className="text-lg font-semibold mb-4">Approval Workflow</h3>
 
         <div className="space-y-4">
-          {approvalWorkflow.map((step, index) => {
+          {approvalWorkflow.map((step) => {
             const isActive = siteVisit.current_approval_level === step.level;
             const isCompleted = step.approval && step.approval.status === "APPROVED";
             const isRejected = step.approval && step.approval.status === "REJECTED";
@@ -466,13 +457,11 @@ const SiteVisitApprovalStatus = ({
                 disabled={
                   (actionType === "reject" && !comments.trim()) ||
                   approveMutation.isPending ||
-                  createEAMutation.isPending
+                  directApprovalMutation.isPending
                 }
               >
-                {approveMutation.isPending
+                {approveMutation.isPending || directApprovalMutation.isPending
                   ? `${actionType === "approve" ? "Approving" : "Rejecting"}...`
-                  : createEAMutation.isPending
-                  ? "Creating EA..."
                   : `Confirm ${actionType === "approve" ? "Approval" : "Rejection"}`}
               </Button>
               <Button
@@ -491,7 +480,7 @@ const SiteVisitApprovalStatus = ({
       )}
 
       {/* EA Creation Status */}
-      {siteVisit.status === SiteVisitStatus.EA_CREATED && (
+      {siteVisit.status === SiteVisitStatus.EA_GENERATED && (
         <Card className="p-6 border-green-200 bg-green-50">
           <div className="flex items-start gap-3">
             <CheckCircle className="h-6 w-6 text-green-600 mt-1" />

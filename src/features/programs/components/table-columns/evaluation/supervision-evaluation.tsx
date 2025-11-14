@@ -338,3 +338,19 @@ export const createSupervisionEvaluationColumns = ({
     },
   },
 ];
+
+// Default export for backward compatibility
+export const supervisionEvaluationColumns = createSupervisionEvaluationColumns({
+  onViewDetails: (evaluationId: string) => {
+    console.log("View evaluation details:", evaluationId);
+  },
+  onEdit: (evaluationId: string) => {
+    console.log("Edit evaluation:", evaluationId);
+  },
+  onDelete: (evaluationId: string) => {
+    console.log("Delete evaluation:", evaluationId);
+  },
+  onDownloadReport: (evaluationId: string) => {
+    console.log("Download evaluation report:", evaluationId);
+  },
+});

@@ -2,6 +2,7 @@ import {
   useMutation,
   useQueryClient,
   UseMutationResult,
+  QueryClient,
 } from "@tanstack/react-query";
 import { toast } from "sonner";
 import AxiosWithToken from "./api_management/MyHttpHelperWithToken";
@@ -198,5 +199,19 @@ const useApiManager = <TData = unknown, TError = Error, TVariables = unknown>({
     mutation,
   };
 };
+
+// Export a QueryClient instance for direct use (outside of React components)
+export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      retry: 2,
+      refetchOnWindowFocus: false,
+    },
+    mutations: {
+      retry: 1,
+    },
+  },
+});
 
 export default useApiManager;

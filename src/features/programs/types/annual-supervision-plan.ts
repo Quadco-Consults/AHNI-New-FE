@@ -119,7 +119,7 @@ export interface IPlannedVisit {
   facility_name?: string;
 
   // Visit Details
-  visit_type: 'SUPPORTIVE_SUPERVISION' | 'INTEGRATED_SUPPORTIVE_SUPERVISION';
+  visit_type: 'SUPPORTIVE_SUPERVISION' | 'INTEGRATED_SUPPORTIVE_SUPERVISION' | 'EMERGENCY_SUPPORTIVE_SUPERVISION';
 
   // Planning Information (from upload)
   planned_quarter?: Quarter;
@@ -160,7 +160,7 @@ export interface IAnnualPlanUploadRow {
   location_code?: string;
   facility_name?: string;
   facility_code?: string;
-  visit_type: 'SUPPORTIVE_SUPERVISION' | 'INTEGRATED_SUPPORTIVE_SUPERVISION';
+  visit_type: 'SUPPORTIVE_SUPERVISION' | 'INTEGRATED_SUPPORTIVE_SUPERVISION' | 'EMERGENCY_SUPPORTIVE_SUPERVISION';
   requires_evaluation: 'YES' | 'NO';
   preferred_quarter?: 'Q1' | 'Q2' | 'Q3' | 'Q4';
   estimated_duration_days?: number;
@@ -181,6 +181,7 @@ export interface IUploadValidationResult {
   }>;
   totalRows: number;
   validRowsCount: number;
+  message?: string; // Optional message field for validation feedback
 }
 
 export interface ILocationMatchResult {
@@ -190,6 +191,14 @@ export interface ILocationMatchResult {
   facility_id?: string;
   facility_name?: string;
   error?: string;
+}
+
+// Template Download Result Interface
+export interface ITemplateDownloadResult {
+  success: boolean;
+  filename: string;
+  fallback?: boolean;
+  message?: string;
 }
 
 export interface IUploadProcessingResult {
@@ -320,7 +329,7 @@ export const EXCEL_TEMPLATE_COLUMNS = [
 
 // Validation Rules
 export const UPLOAD_VALIDATION_RULES = {
-  visit_type: ['SUPPORTIVE_SUPERVISION', 'INTEGRATED_SUPPORTIVE_SUPERVISION'],
+  visit_type: ['SUPPORTIVE_SUPERVISION', 'INTEGRATED_SUPPORTIVE_SUPERVISION', 'EMERGENCY_SUPPORTIVE_SUPERVISION'],
   requires_evaluation: ['YES', 'NO'],
   preferred_quarter: ['Q1', 'Q2', 'Q3', 'Q4'],
   max_duration_days: 30,
