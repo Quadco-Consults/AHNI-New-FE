@@ -11,7 +11,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogDescription
+  DialogDescription,
+  DialogFooter
 } from "components/ui/dialog";
 import {
   Upload,
@@ -20,10 +21,12 @@ import {
   AlertCircle,
   CheckCircle,
   Copy,
-  Plus
+  Plus,
+  Info
 } from "lucide-react";
 import { toast } from "sonner";
 import { Alert, AlertDescription } from "components/ui/alert";
+import { CreateCostCategoryManager } from "@/features/modules/controllers/finance/costCategoryController";
 
 interface ActivityImportData {
   activity_description: string;
@@ -39,13 +42,15 @@ interface ActivityBulkImportProps {
   categories: Array<{ id: string; name: string }>;
   onAddMultiple: (count: number) => void;
   existingActivities?: ActivityImportData[];
+  onCategoriesCreated?: () => void; // Callback to refresh categories
 }
 
 const ActivityBulkImport = ({
   onImport,
   categories,
   onAddMultiple,
-  existingActivities = []
+  existingActivities = [],
+  onCategoriesCreated
 }: ActivityBulkImportProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -53,8 +58,12 @@ const ActivityBulkImport = ({
     success: number;
     errors: string[];
   } | null>(null);
+  const [newCategories, setNewCategories] = useState<string[]>([]);
+  const [showCategoryConfirmation, setShowCategoryConfirmation] = useState(false);
+  const [pendingActivities, setPendingActivities] = useState<ActivityImportData[]>([]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { createCostCategory, isLoading: isCreatingCategory } = CreateCostCategoryManager();
 
   // CSV Template for download
   const generateCSVTemplate = () => {
@@ -103,7 +112,7 @@ const ActivityBulkImport = ({
   };
 
   // Parse CSV file
-  const parseCSV = (text: string): ActivityImportData[] => {
+  const parseCSV = (text: string): { activities: ActivityImportData[], newCategories: string[] } => {
     const lines = text.split('\n').filter(line => line.trim());
     if (lines.length < 2) throw new Error("CSV must have at least a header row and one data row");
 
@@ -120,6 +129,7 @@ const ActivityBulkImport = ({
 
     const activities: ActivityImportData[] = [];
     const errors: string[] = [];
+    const detectedNewCategories = new Set<string>();
 
     for (let i = 1; i < lines.length; i++) {
       try {
@@ -160,13 +170,14 @@ const ActivityBulkImport = ({
           continue;
         }
 
-        // Validate category exists
+        // Check if category exists (case-insensitive)
         const categoryExists = categories.some(cat =>
           cat.name.toLowerCase() === activity.category.toLowerCase()
         );
+
         if (!categoryExists && activity.category) {
-          errors.push(`Row ${i + 1}: Category "${activity.category}" not found`);
-          continue;
+          // Track new category instead of throwing error
+          detectedNewCategories.add(activity.category);
         }
 
         activities.push(activity);
@@ -179,7 +190,10 @@ const ActivityBulkImport = ({
       setImportResults({ success: activities.length, errors });
     }
 
-    return activities;
+    return {
+      activities,
+      newCategories: Array.from(detectedNewCategories)
+    };
   };
 
   // Handle file upload
@@ -202,13 +216,23 @@ const ActivityBulkImport = ({
 
     try {
       const text = await file.text();
-      const activities = parseCSV(text);
+      const { activities, newCategories: detectedNewCategories } = parseCSV(text);
 
       if (activities.length === 0) {
         toast.error("No valid activities found in the file");
         return;
       }
 
+      // If new categories detected, show confirmation dialog
+      if (detectedNewCategories.length > 0) {
+        setNewCategories(detectedNewCategories);
+        setPendingActivities(activities);
+        setShowCategoryConfirmation(true);
+        setIsProcessing(false);
+        return;
+      }
+
+      // No new categories, proceed with import
       onImport(activities);
       setImportResults({ success: activities.length, errors: [] });
       toast.success(`Successfully imported ${activities.length} activities!`);
@@ -223,6 +247,73 @@ const ActivityBulkImport = ({
         fileInputRef.current.value = '';
       }
     }
+  };
+
+  // Handle creating new categories and proceeding with import
+  const handleCreateCategoriesAndImport = async () => {
+    setIsProcessing(true);
+
+    try {
+      // Create all new categories
+      const createdCategories: Array<{ name: string, id: string }> = [];
+
+      for (const categoryName of newCategories) {
+        try {
+          await createCostCategory({ name: categoryName });
+          toast.success(`Category "${categoryName}" created successfully`);
+        } catch (error) {
+          console.error(`Error creating category ${categoryName}:`, error);
+          toast.error(`Failed to create category "${categoryName}"`);
+        }
+      }
+
+      // Refresh categories list
+      if (onCategoriesCreated) {
+        onCategoriesCreated();
+      }
+
+      // Small delay to allow categories to be refreshed
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // Proceed with import
+      onImport(pendingActivities);
+      setImportResults({
+        success: pendingActivities.length,
+        errors: []
+      });
+
+      toast.success(
+        `Successfully created ${newCategories.length} categories and imported ${pendingActivities.length} activities!`
+      );
+
+      // Reset state
+      setShowCategoryConfirmation(false);
+      setNewCategories([]);
+      setPendingActivities([]);
+
+    } catch (error) {
+      console.error("Error in category creation:", error);
+      toast.error("Failed to create categories");
+    } finally {
+      setIsProcessing(false);
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  // Handle canceling category creation
+  const handleCancelCategoryCreation = () => {
+    setShowCategoryConfirmation(false);
+    setNewCategories([]);
+    setPendingActivities([]);
+    setIsProcessing(false);
+    // Reset file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+    toast.info("Import cancelled");
   };
 
   // Export existing activities to CSV
@@ -377,6 +468,72 @@ const ActivityBulkImport = ({
               </div>
             </Card>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* New Categories Confirmation Dialog */}
+      <Dialog open={showCategoryConfirmation} onOpenChange={setShowCategoryConfirmation}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Info size={20} className="text-blue-600" />
+              New Categories Detected
+            </DialogTitle>
+            <DialogDescription>
+              The following categories don't exist in your system yet. Would you like to create them?
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <Alert>
+              <Info className="h-4 w-4" />
+              <AlertDescription>
+                <p className="font-medium mb-2">
+                  {newCategories.length} new {newCategories.length === 1 ? 'category' : 'categories'} will be created:
+                </p>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {newCategories.map((category, index) => (
+                    <span
+                      key={index}
+                      className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium"
+                    >
+                      {category}
+                    </span>
+                  ))}
+                </div>
+              </AlertDescription>
+            </Alert>
+
+            <div className="bg-gray-50 p-3 rounded-md">
+              <p className="text-sm text-gray-700">
+                <strong>Import Summary:</strong>
+              </p>
+              <ul className="text-sm text-gray-600 mt-1 space-y-1">
+                <li>• {pendingActivities.length} activities ready to import</li>
+                <li>• {newCategories.length} new categories to create</li>
+              </ul>
+            </div>
+          </div>
+
+          <DialogFooter className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={handleCancelCategoryCreation}
+              disabled={isProcessing || isCreatingCategory}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleCreateCategoriesAndImport}
+              disabled={isProcessing || isCreatingCategory}
+            >
+              {isProcessing || isCreatingCategory ? (
+                <>Creating Categories...</>
+              ) : (
+                <>Create & Import</>
+              )}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 

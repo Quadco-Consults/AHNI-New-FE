@@ -40,7 +40,21 @@ export const fundRequestSummaryColumns: ColumnDef<FundRequestPaginatedData>[] =
       accessorFn: (data) => {
         const currencySymbol = data.currency === "NGN" ? "₦" : "$";
 
-        return `${formatNumberCurrency(data.total_amount, currencySymbol)}`;
+        // If total_amount is 0 or null, calculate from activities
+        let totalAmount = Number(data.total_amount || 0);
+
+        if (totalAmount === 0 && data.activities && Array.isArray(data.activities)) {
+          // Calculate total from activities
+          totalAmount = data.activities.reduce((sum: number, activity: any) => {
+            const unitCost = Number(activity.unit_cost || 0);
+            const quantity = Number(activity.quantity || 0);
+            const frequency = Number(activity.frequency || 0);
+            const activityAmount = unitCost * quantity * frequency;
+            return sum + activityAmount;
+          }, 0);
+        }
+
+        return `${formatNumberCurrency(totalAmount, currencySymbol)}`;
       },
       footer(props) {
         const data = props.table
@@ -48,11 +62,27 @@ export const fundRequestSummaryColumns: ColumnDef<FundRequestPaginatedData>[] =
           .flatRows.map((row) => row.original);
 
         const sum = data
-          .map((data) => data.total_amount)
+          .map((fundRequest) => {
+            // If total_amount is 0 or null, calculate from activities
+            let totalAmount = Number(fundRequest.total_amount || 0);
+
+            if (totalAmount === 0 && fundRequest.activities && Array.isArray(fundRequest.activities)) {
+              // Calculate total from activities
+              totalAmount = fundRequest.activities.reduce((sum: number, activity: any) => {
+                const unitCost = Number(activity.unit_cost || 0);
+                const quantity = Number(activity.quantity || 0);
+                const frequency = Number(activity.frequency || 0);
+                const activityAmount = unitCost * quantity * frequency;
+                return sum + activityAmount;
+              }, 0);
+            }
+
+            return totalAmount;
+          })
           .reduce(
             (accumulator, value) =>
               (Number(accumulator as any) + Number(value as any)) as any,
-            []
+            0
           );
 
         return <span>{formatNumberCurrency(sum, "$")}</span>;

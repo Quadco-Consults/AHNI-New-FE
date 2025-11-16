@@ -69,6 +69,8 @@ const FundRequestWorkflowStatus: React.FC<FundRequestWorkflowStatusProps> = ({
       "PENDING",
       "LOCATION_REVIEWED",
       "LOCATION_AUTHORIZED",
+      "STATE_REVIEWED",
+      "STATE_AUTHORIZED",
     ];
     const currentIndex = statusOrder.indexOf(currentStatus);
     const stepIndex = statusOrder.indexOf(stepStatus.toUpperCase());
@@ -100,9 +102,27 @@ const FundRequestWorkflowStatus: React.FC<FundRequestWorkflowStatusProps> = ({
     },
     {
       id: "LOCATION_AUTHORIZED",
-      title: "Ready for HQ Approval",
+      title: "State Review",
       status: getStepStatus("LOCATION_AUTHORIZED"),
-      description: "Location approval complete - ready for project-level HQ approval",
+      description: "Review by state office",
+      canAction: canStateReview && currentStatus === "LOCATION_AUTHORIZED",
+      actionLabel: "State Review",
+      actionType: "STATE_REVIEWED",
+    },
+    {
+      id: "STATE_REVIEWED",
+      title: "State Authorization",
+      status: getStepStatus("STATE_REVIEWED"),
+      description: "Authorization from state office",
+      canAction: canStateAuthorize && currentStatus === "STATE_REVIEWED",
+      actionLabel: "State Authorize",
+      actionType: "STATE_AUTHORIZED",
+    },
+    {
+      id: "STATE_AUTHORIZED",
+      title: "Ready for HQ Approval",
+      status: getStepStatus("STATE_AUTHORIZED"),
+      description: "State approval complete - ready for project-level HQ approval",
       canAction: false,
       actionLabel: "",
       actionType: undefined,
@@ -171,7 +191,11 @@ const FundRequestWorkflowStatus: React.FC<FundRequestWorkflowStatusProps> = ({
       case "LOCATION_REVIEWED":
         return "Awaiting location office authorization";
       case "LOCATION_AUTHORIZED":
-        return "Location approval complete - ready for project-level HQ approval";
+        return "Awaiting state office review";
+      case "STATE_REVIEWED":
+        return "Awaiting state office authorization";
+      case "STATE_AUTHORIZED":
+        return "State approval complete - ready for project-level HQ approval";
       case "HQ_REVIEWED":
         return "Under HQ review (project-level)";
       case "HQ_AUTHORIZED":
@@ -184,7 +208,17 @@ const FundRequestWorkflowStatus: React.FC<FundRequestWorkflowStatusProps> = ({
         return "Unknown status";
     }
   };
-  console.log({ step: workflowSteps });
+  console.log('=== WORKFLOW STATUS DEBUG ===');
+  console.log('Current Status:', currentStatus);
+  console.log('Permissions:', {
+    canLocationReview,
+    canLocationAuthorize,
+    canStateReview,
+    canStateAuthorize,
+    canReject,
+  });
+  console.log('Workflow Steps:', workflowSteps);
+  console.log('Steps with canAction=true:', workflowSteps.filter(s => s.canAction));
 
   return (
     <Card className='p-6'>

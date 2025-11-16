@@ -38,6 +38,7 @@ export interface TFundRequestBackendPayload {
 
   // Calculated fields
   total_disbursement_amount?: string;
+  total_amount?: string; // Backend expects this field for the total amount
 }
 
 export interface TFundRequestActivityBackendPayload {
@@ -194,6 +195,7 @@ export const transformFormDataToBackendPayload = (
     hq_approver: formData.hq_approver,
     activities: activitiesWithAmount,
     total_disbursement_amount: totalDisbursementAmount.toString(),
+    total_amount: totalDisbursementAmount.toString(), // Include total_amount for backend compatibility
   };
 };
 

@@ -45,6 +45,11 @@ export default function FundRequestSummary() {
 
     const { data: fundRequest, isLoading } = useGetAllFundRequests(fundRequestParams);
 
+    // Debug: Log fund request data to check if activities are included
+    console.log('Fund Request Data:', fundRequest?.data?.results);
+    console.log('Sample Fund Request:', fundRequest?.data?.results?.[0]);
+    console.log('Sample Activities:', fundRequest?.data?.results?.[0]?.activities);
+
     return (
         <Card>
             <TableFilters>

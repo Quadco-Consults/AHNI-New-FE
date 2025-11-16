@@ -138,20 +138,26 @@ export const getNextSequenceNumber = async (
   month: number
 ): Promise<number> => {
   try {
-    // Dynamically import to avoid circular dependency
-    const { useGetNextSequenceNumber } = await import('@/features/programs/controllers/fundRequestController');
+    // Get the auth token from localStorage
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
 
     // Since we can't use hooks outside of React components, we'll make a direct API call
-    // This is a utility function that can be called from anywhere
     const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://ahni-erp-029252c2fbb9.herokuapp.com/api/v1';
+
+    console.log('Fetching next sequence number for:', { projectId, locationCode, year, month });
+
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+    };
+
+    // Add authorization header if token exists
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
 
     const response = await fetch(`${API_BASE_URL}/programs/fund-requests/next-sequence/`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        // Add authorization header if needed
-        // 'Authorization': `Bearer ${token}`
-      },
+      headers,
       body: JSON.stringify({
         project_id: projectId,
         location_code: locationCode,
@@ -161,15 +167,23 @@ export const getNextSequenceNumber = async (
     });
 
     if (!response.ok) {
-      throw new Error(`API call failed: ${response.status}`);
+      const errorText = await response.text();
+      console.error(`API call failed with status ${response.status}:`, errorText);
+      throw new Error(`API call failed: ${response.status} - ${errorText}`);
     }
 
     const data = await response.json();
-    return data?.data?.next_sequence || data?.next_sequence || 1;
+    const nextSequence = data?.data?.next_sequence || data?.next_sequence || 1;
+
+    console.log('Next sequence number received from API:', nextSequence);
+
+    return nextSequence;
   } catch (error) {
     console.error('Error getting next sequence number:', error);
+    console.error('Request details:', { projectId, locationCode, year, month });
     // Fallback to 1 if API call fails
     console.warn('getNextSequenceNumber: Using fallback sequence number 1 due to API error.');
+    console.warn('WARNING: This may result in duplicate reference numbers if the same location has multiple fund requests for the same period!');
     return 1;
   }
 };

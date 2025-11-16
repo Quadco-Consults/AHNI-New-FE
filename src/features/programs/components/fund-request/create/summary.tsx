@@ -39,12 +39,12 @@ const FundSummary: React.FC = () => {
     name: "activities",
   });
 
-  const { data: costCategory } = useGetAllCostCategoriesManager({
+  const { data: costCategory, refetch: refetchCategories } = useGetAllCostCategoriesManager({
     page: 1,
     size: 2000000,
   });
 
-  const costCategoryOptions = costCategory?.data?.results?.map(
+  const costCategoryOptions = ((costCategory as any)?.data?.results || (costCategory as any)?.results || []).map(
     ({ name, id }: any) => ({
       label: name,
       value: id,
@@ -188,23 +188,40 @@ const FundSummary: React.FC = () => {
           {/* Bulk Import and Quick Actions */}
           <ActivityBulkImport
             onImport={(activities) => {
-              // Map imported activities to the expected format
-              const mappedActivities = activities.map(activity => ({
-                activity_description: activity.activity_description,
-                quantity: activity.quantity,
-                unit_cost: activity.unit_cost,
-                frequency: activity.frequency,
-                comment: activity.comment,
-                category: activity.category,
-              }));
+              // Map category names to category IDs
+              const categories = (costCategory as any)?.data?.results || (costCategory as any)?.results || [];
+              const categoryMap = new Map(
+                categories.map((cat: any) => [
+                  cat.name.toLowerCase(),
+                  cat.id
+                ])
+              );
+
+              // Map imported activities to the expected format with category IDs
+              const mappedActivities = activities.map(activity => {
+                const categoryId = categoryMap.get(activity.category.toLowerCase()) || activity.category || "";
+
+                return {
+                  activity_description: activity.activity_description,
+                  quantity: activity.quantity,
+                  unit_cost: activity.unit_cost,
+                  frequency: activity.frequency,
+                  comment: activity.comment,
+                  category: String(categoryId), // Now using category ID instead of name
+                };
+              });
 
               // Append all activities at once
               mappedActivities.forEach(activity => append(activity));
             }}
-            categories={costCategory?.data?.results?.map((cat: any) => ({
+            categories={((costCategory as any)?.data?.results || (costCategory as any)?.results || []).map((cat: any) => ({
               id: cat.id,
               name: cat.name
-            })) || []}
+            }))}
+            onCategoriesCreated={() => {
+              // Refetch categories after new ones are created
+              refetchCategories();
+            }}
             onAddMultiple={(count) => {
               // Add multiple empty rows
               for (let i = 0; i < count; i++) {

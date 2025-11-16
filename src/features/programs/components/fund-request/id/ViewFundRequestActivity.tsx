@@ -219,6 +219,17 @@ export default function ViewFundRequestActivity() {
     return approvals;
   }, [fundRequest, usersData]);
 
+  console.log('=== APPROVAL WORKFLOW DEBUG ===');
+  console.log('Current User ID:', profile?.data?.id);
+  console.log('Fund Request Status:', fundRequest?.data?.status);
+  console.log('Permissions:', permissions);
+  console.log('Fund Request Data:', {
+    location_reviewer: fundRequest?.data?.location_reviewer,
+    location_authorizer: fundRequest?.data?.location_authorizer,
+    state_reviewer: fundRequest?.data?.state_reviewer,
+    state_authorizer: fundRequest?.data?.state_authorizer,
+  });
+  console.log('Should show workflow:', fundRequest && fundRequest.data.status !== "HQ_APPROVED");
   console.log({ permissions, fundRequest, currentUser, profile });
 
   // Download functionality
