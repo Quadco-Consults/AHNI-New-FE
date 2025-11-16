@@ -244,15 +244,12 @@ export const validateFundRequestData = (
         `exceeds remaining project budget (${formatCurrency(projectDisbursementSummary.remaining_budget, data.currency)})`
       );
     }
-  } else {
-    // Fallback to simple available balance check if disbursement summary not available
-    const availableBalance = parseFloat(data.available_balance);
-    if (!isNaN(newDisbursementAmount) && !isNaN(availableBalance) && newDisbursementAmount > availableBalance) {
-      errors.push(
-        `Total disbursement amount (${formatCurrency(newDisbursementAmount, data.currency)}) exceeds available balance (${formatCurrency(availableBalance, data.currency)})`
-      );
-    }
   }
+  // Note: We removed the fallback validation that compared disbursement amount against
+  // location available_balance because they represent different things:
+  // - available_balance = cash on hand at a specific location
+  // - disbursement amount = total project activity costs
+  // These should not be compared for validation purposes.
 
   return {
     isValid: errors.length === 0,

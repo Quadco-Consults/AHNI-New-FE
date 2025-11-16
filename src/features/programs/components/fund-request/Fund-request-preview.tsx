@@ -38,6 +38,11 @@ export default function Summary() {
       ? JSON.parse(localStorage.getItem("programFundRequest") || "{}")
       : {};
 
+  // Debug: Log the data from localStorage
+  console.log("Program Fund Request Data from localStorage:", programFundRequest);
+  console.log("Has project?", !!programFundRequest.project);
+  console.log("Has activities?", programFundRequest.activities?.length);
+
   const { data: project } = useGetSingleProject(programFundRequest.project);
 
   const { data: financialYear } = useGetSingleFinancialYearManager(
@@ -72,6 +77,13 @@ export default function Summary() {
 
   const handleSubmit = async () => {
     try {
+      // Check if essential data exists
+      if (!programFundRequest.project) {
+        toast.error("Missing fund request data. Please start from the beginning.");
+        router.push("/dashboard/programs/fund-request/create");
+        return;
+      }
+
       console.log("Submitting fund request with data:", programFundRequest);
 
       // Validate data before submission - including project disbursement checks
