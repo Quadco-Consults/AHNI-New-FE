@@ -147,6 +147,11 @@ export interface ISiteVisit {
   is_approved?: boolean;
   can_generate_ea?: boolean;
 
+  // EA (Environmental Assessment) Fields
+  ea_reference?: string;
+  ea_created_date?: string;
+  ea_created?: boolean;
+
   // Timestamps
   created_datetime: string;
   updated_datetime: string;
