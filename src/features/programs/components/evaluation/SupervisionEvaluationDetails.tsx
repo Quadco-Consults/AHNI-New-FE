@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -84,9 +84,10 @@ export default function SupervisionEvaluationDetails({
 
   // API hooks
   const { data: evaluationData, isLoading } = useGetSingleSupervisionEvaluation(evaluationId);
-  const { data: responsesData } = useGetEvaluationResponses(evaluationId);
+  const { data: responsesData, isLoading: isLoadingResponses, error: responsesError } = useGetEvaluationResponses(evaluationId);
   const updateResponseMutation = useUpdateEvaluationResponse(evaluationId);
   const completeEvaluationMutation = useCompleteSupervisionEvaluation(evaluationId);
+
 
   // Fetch categories and criteria for the evaluation
   const { data: categoriesData } = useGetEvaluationCategories(true);
@@ -216,15 +217,48 @@ export default function SupervisionEvaluationDetails({
   });
 
   const evaluation = evaluationData?.data;
+
+  // Create unified responses data - use evaluation_items if responses endpoint is empty
+  const unifiedResponsesData = useMemo(() => {
+    // If we have responses from the dedicated endpoint, use those
+    if (responsesData?.results && responsesData.results.length > 0) {
+      return responsesData;
+    }
+
+    // Otherwise, convert evaluation_items to response format
+    if (evaluation?.evaluation_items && evaluation.evaluation_items.length > 0) {
+      const convertedResults = evaluation.evaluation_items.map(item => ({
+        id: item.id,
+        criteria_id: item.criteria,
+        response_value: item.rating === 'true' ? true : item.rating === 'false' ? false : null,
+        text_response: item.observations,
+        comments: item.recommendations,
+        rating_value: item.score,
+        evidence: item.evidence,
+        is_compliant: item.is_compliant,
+        created_datetime: item.created_datetime,
+        updated_datetime: item.updated_datetime
+      }));
+
+      return {
+        results: convertedResults,
+        count: convertedResults.length,
+        next: null,
+        previous: null
+      };
+    }
+
+    return null;
+  }, [responsesData, evaluation?.evaluation_items]);
   const isReadOnly = evaluation?.status === SupervisionEvaluationStatus.COMPLETED;
   const canEdit = evaluation?.status === SupervisionEvaluationStatus.IN_PROGRESS ||
                   evaluation?.status === SupervisionEvaluationStatus.PENDING;
 
   // Initialize responses when data loads
   useEffect(() => {
-    if (responsesData?.results) {
+    if (unifiedResponsesData?.results) {
       const responseMap: Record<string, any> = {};
-      responsesData.results.forEach(response => {
+      unifiedResponsesData.results.forEach((response: any) => {
         responseMap[response.criteria_id] = {
           response_value: response.response_value,
           rating_value: response.rating_value,
@@ -234,7 +268,7 @@ export default function SupervisionEvaluationDetails({
       });
       setResponses(responseMap);
     }
-  }, [responsesData]);
+  }, [unifiedResponsesData]);
 
   // Initialize action items if editing
   useEffect(() => {
@@ -415,7 +449,7 @@ export default function SupervisionEvaluationDetails({
   }
 
   return (
-    <div className="max-w-6xl mx-auto p-6 space-y-6">
+    <div className="w-full max-w-none p-6 space-y-6">
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
@@ -803,17 +837,32 @@ export default function SupervisionEvaluationDetails({
                   <CardTitle>Evaluation Responses</CardTitle>
                 </CardHeader>
                 <CardContent>
+                  {/* Debug Info - Only in development */}
+                  {process.env.NODE_ENV === 'development' && false && (
+                    <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded text-xs">
+                      <strong>Debug Info:</strong><br />
+                      Responses Count: {unifiedResponsesData?.results?.length || 0}<br />
+                      Source: {(responsesData?.results?.length || 0) > 0 ? 'Responses API' : 'Evaluation Items'}<br />
+                      Loading: {isLoadingResponses ? 'Yes' : 'No'}<br />
+                      Error: {responsesError ? 'Yes' : 'No'}
+                    </div>
+                  )}
                   <div className="space-y-6">
-                    {responsesData?.results && responsesData.results.length > 0 ? (
+                    {isLoadingResponses && !(evaluation as any)?.evaluation_items ? (
+                      <div className="text-center py-6">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                        <p className="text-gray-600 mt-2">Loading evaluation responses...</p>
+                      </div>
+                    ) : unifiedResponsesData?.results && unifiedResponsesData.results.length > 0 ? (
                       // Group responses by category
                       Array.from(new Set(
-                        responsesData.results.map(response => {
+                        unifiedResponsesData.results.map((response: any) => {
                           const criterion = Array.from(criteriaMap.values()).find(c => c.id === response.criteria_id);
                           return criterion?.categoryId || criterion?.evaluation_category?.id || criterion?.evaluation_category || criterion?.category_id || criterion?.category;
                         }).filter(Boolean)
-                      )).map((categoryId) => {
+                      )).map((categoryId: any) => {
                         const category = categoriesMap.get(categoryId);
-                        const categoryResponses = responsesData.results.filter(response => {
+                        const categoryResponses = unifiedResponsesData.results.filter((response: any) => {
                           const criterion = Array.from(criteriaMap.values()).find(c => c.id === response.criteria_id);
                           const criterionCategoryId = criterion?.categoryId || criterion?.evaluation_category?.id || criterion?.evaluation_category || criterion?.category_id || criterion?.category;
                           return criterionCategoryId === categoryId;
@@ -828,7 +877,7 @@ export default function SupervisionEvaluationDetails({
                               {category?.name || 'Unknown Category'}
                             </h4>
                             <div className="space-y-3">
-                              {categoryResponses.map((response) => {
+                              {categoryResponses.map((response: any) => {
                                 const criterion = Array.from(criteriaMap.values()).find(c => c.id === response.criteria_id);
 
                                 if (!criterion) {
@@ -908,9 +957,17 @@ export default function SupervisionEvaluationDetails({
                       <div className="text-center py-6 text-gray-500">
                         <ClipboardList className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                         <h3 className="text-lg font-medium text-gray-900 mb-2">No Responses Available</h3>
-                        <p className="text-gray-600">
-                          This evaluation has not been completed yet or no responses have been recorded.
+                        <p className="text-gray-600 mb-4">
+                          {evaluation?.status === 'COMPLETED'
+                            ? 'This completed evaluation appears to have no recorded responses. This may indicate a data synchronization issue.'
+                            : 'This evaluation has not been completed yet. Responses will appear here once the evaluation is submitted.'
+                          }
                         </p>
+                        {evaluation?.status === 'COMPLETED' && (
+                          <p className="text-xs text-orange-600">
+                            If you expect to see responses here, please contact your system administrator or try refreshing the page.
+                          </p>
+                        )}
                       </div>
                     )}
                   </div>

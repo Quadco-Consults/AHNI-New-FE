@@ -85,13 +85,28 @@ export const createSupervisionEvaluationColumns = ({
     header: "Location",
     cell: ({ row }) => {
       const evaluation = row.original;
+
+      // Try multiple possible location sources with fallbacks
+      const locationName = evaluation.location_name ||
+                          evaluation.location?.name ||
+                          evaluation.site_visit?.location_name ||
+                          evaluation.site_visit_location ||
+                          evaluation.facility_name ||
+                          evaluation.facility?.name;
+
+      const facilityName = evaluation.facility_name ||
+                          evaluation.facility?.name ||
+                          evaluation.site_visit?.facility_name;
+
       return (
-        <div className="flex items-center gap-1 text-sm">
-          <MapPin className="h-3 w-3 text-gray-400" />
-          <span>{evaluation.location_name || "N/A"}</span>
-          {evaluation.facility_name && (
-            <div className="text-xs text-gray-500 ml-2">
-              at {evaluation.facility_name}
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-1 text-sm">
+            <MapPin className="h-3 w-3 text-gray-400" />
+            <span className="font-medium">{locationName || "Unknown Location"}</span>
+          </div>
+          {facilityName && facilityName !== locationName && (
+            <div className="text-xs text-gray-500 ml-4">
+              at {facilityName}
             </div>
           )}
         </div>
@@ -115,11 +130,30 @@ export const createSupervisionEvaluationColumns = ({
     accessorKey: "evaluator_name",
     header: "Evaluator",
     cell: ({ row }) => {
-      const evaluatorName = row.getValue("evaluator_name") as string;
+      const evaluation = row.original;
+
+      // Try multiple possible evaluator name sources with fallbacks
+      const getFullName = (evaluator: any) => {
+        if (!evaluator) return null;
+        if (evaluator.first_name && evaluator.last_name) {
+          return `${evaluator.first_name} ${evaluator.last_name}`;
+        }
+        return evaluator.first_name || evaluator.last_name || null;
+      };
+
+      const evaluatorName = evaluation.evaluator_name ||
+                           evaluation.evaluator?.name ||
+                           evaluation.evaluator?.full_name ||
+                           getFullName(evaluation.evaluator) ||
+                           evaluation.created_by_name ||
+                           evaluation.created_by?.name ||
+                           getFullName(evaluation.created_by) ||
+                           "Unknown Evaluator";
+
       return (
         <div className="flex items-center gap-1 text-sm">
           <Users className="h-3 w-3 text-gray-400" />
-          {evaluatorName || "N/A"}
+          <span className="font-medium">{evaluatorName}</span>
         </div>
       );
     },
@@ -188,9 +222,36 @@ export const createSupervisionEvaluationColumns = ({
     accessorKey: "overall_score",
     header: "Score",
     cell: ({ row }) => {
-      const score = row.getValue("overall_score") as number;
-      if (score === undefined || score === null) {
-        return <span className="text-gray-400 text-sm">N/A</span>;
+      const evaluation = row.original;
+
+      // Try multiple possible score sources with fallbacks
+      const score = evaluation.overall_score ||
+                   evaluation.score ||
+                   evaluation.total_score ||
+                   evaluation.percentage_score;
+
+      // Check if evaluation is completed and calculate a temporary score if needed
+      const isCompleted = evaluation.status === SupervisionEvaluationStatus.COMPLETED;
+
+      // If no score but it's completed, try to calculate from category scores
+      let calculatedScore = null;
+      if (!score && isCompleted && evaluation.category_scores?.length > 0) {
+        const totalScore = evaluation.category_scores.reduce((sum, cat) => sum + (cat.percentage_score || 0), 0);
+        const avgScore = totalScore / evaluation.category_scores.length;
+        calculatedScore = avgScore;
+      }
+
+      const finalScore = score || calculatedScore;
+
+      if (finalScore === undefined || finalScore === null) {
+        // Show different messages based on status
+        if (evaluation.status === SupervisionEvaluationStatus.PENDING) {
+          return <span className="text-gray-400 text-sm">Pending</span>;
+        } else if (evaluation.status === SupervisionEvaluationStatus.IN_PROGRESS) {
+          return <span className="text-blue-500 text-sm">In Progress</span>;
+        } else {
+          return <span className="text-gray-400 text-sm">Not Calculated</span>;
+        }
       }
 
       const getScoreColor = (score: number) => {
@@ -200,8 +261,8 @@ export const createSupervisionEvaluationColumns = ({
       };
 
       return (
-        <Badge variant="outline" className={getScoreColor(score)}>
-          {score.toFixed(1)}%
+        <Badge variant="outline" className={getScoreColor(finalScore)}>
+          {finalScore.toFixed(1)}%
         </Badge>
       );
     },
@@ -210,21 +271,68 @@ export const createSupervisionEvaluationColumns = ({
     accessorKey: "follow_up_required",
     header: "Follow-up",
     cell: ({ row }) => {
-      const followUpRequired = row.getValue("follow_up_required") as boolean;
-      const followUpDate = row.original.follow_up_date;
+      const evaluation = row.original;
 
-      if (!followUpRequired) {
-        return <span className="text-gray-400 text-sm">None</span>;
+      // Debug: Log the evaluation data for follow-up investigation
+      console.log(`🔍 Follow-up Debug for evaluation ${evaluation.id}:`, {
+        evaluation,
+        follow_up_required: evaluation.follow_up_required,
+        follow_up_date: evaluation.follow_up_date,
+        follow_up_notes: evaluation.follow_up_notes,
+        action_items: evaluation.action_items,
+        recommendations: evaluation.recommendations,
+        status: evaluation.status,
+        availableFields: Object.keys(evaluation)
+      });
+
+      // Try multiple possible follow-up sources with fallbacks
+      const followUpRequired = evaluation.follow_up_required ||
+                              (evaluation as any).followup_required ||
+                              (evaluation as any).requires_followup ||
+                              false;
+
+      const followUpDate = evaluation.follow_up_date ||
+                          (evaluation as any).followup_date ||
+                          (evaluation as any).follow_up_due_date;
+
+      // For completed evaluations, check if there are action items or recommendations
+      const hasActionItems = evaluation.action_items && evaluation.action_items.length > 0;
+      const hasRecommendations = evaluation.recommendations && evaluation.recommendations.trim() !== '';
+
+      // Determine if follow-up is implicitly needed based on content
+      const implicitFollowUp = hasActionItems || hasRecommendations;
+
+      if (!followUpRequired && !implicitFollowUp) {
+        // Check status to provide more context
+        if (evaluation.status === SupervisionEvaluationStatus.PENDING) {
+          return <span className="text-gray-400 text-sm">TBD</span>;
+        } else if (evaluation.status === SupervisionEvaluationStatus.IN_PROGRESS) {
+          return <span className="text-blue-500 text-sm">Pending</span>;
+        } else {
+          return <span className="text-gray-400 text-sm">None Required</span>;
+        }
       }
+
+      const isRequired = followUpRequired || implicitFollowUp;
 
       return (
         <div className="flex flex-col gap-1">
-          <Badge variant="outline" className="border-orange-200 text-orange-700 bg-orange-50 w-fit">
-            Required
+          <Badge
+            variant="outline"
+            className={isRequired ?
+              "border-orange-200 text-orange-700 bg-orange-50 w-fit" :
+              "border-blue-200 text-blue-700 bg-blue-50 w-fit"}
+          >
+            {followUpRequired ? "Required" : "Recommended"}
           </Badge>
           {followUpDate && (
             <div className="text-xs text-gray-500">
               Due: {formatDate(followUpDate)}
+            </div>
+          )}
+          {(hasActionItems || hasRecommendations) && !followUpDate && (
+            <div className="text-xs text-gray-500">
+              {hasActionItems ? `${evaluation.action_items?.length || 0} action items` : 'Recommendations available'}
             </div>
           )}
         </div>

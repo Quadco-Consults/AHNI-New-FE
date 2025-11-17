@@ -52,7 +52,73 @@ const SupervisionEvaluationReport = () => {
   const responses = evaluationResponses?.results || evaluationResponses?.data?.results || [];
   const siteVisit = siteVisitData?.data;
 
-  // Debug logging
+  // Create unified responses - use evaluation_items if responses are empty or missing category info
+  const unifiedResponses = (() => {
+    // If we have proper responses with category info, use those
+    if (responses && responses.length > 0 && responses.some((r: any) => r.category_name)) {
+      return responses;
+    }
+
+    // Otherwise, convert evaluation_items to response format
+    if ((evaluation as any)?.evaluation_items) {
+      return (evaluation as any).evaluation_items.map((item: any) => ({
+        id: item.id,
+        criteria_id: item.criteria,
+        criteria_name: item.criteria_name,
+        category_name: item.category_name,
+        response_value: item.rating === 'true' ? true : false,
+        text_response: item.observations,
+        comments: item.recommendations,
+        rating_value: item.score,
+        evidence: item.evidence,
+        is_compliant: item.is_compliant
+      }));
+    }
+
+    return responses; // fallback to original responses
+  })();
+
+
+  // Get location and facility information with fallbacks from site visit
+  const facilityName = evaluation?.facility_name ||
+                       (evaluation as any)?.site_visit_location ||
+                       (siteVisit as any)?.facility_name ||
+                       siteVisit?.location_name ||
+                       siteVisit?.title ||
+                       "Not specified";
+
+  const locationName = evaluation?.location_name ||
+                      (evaluation as any)?.site_visit_location ||
+                      siteVisit?.location_name ||
+                      siteVisit?.title ||
+                      "Not specified";
+
+  const evaluatorName = evaluation?.evaluator_name ||
+                       (evaluation as any)?.evaluator?.full_name ||
+                       (evaluation as any)?.evaluator?.first_name + " " + (evaluation as any)?.evaluator?.last_name ||
+                       "Not specified";
+
+  // Get facility representative information
+  const facilityRepName = (evaluation as any)?.reviewed_by_name ||
+                          (evaluation as any)?.approved_by_name ||
+                          (evaluation as any)?.facility_representative?.full_name ||
+                          (evaluation as any)?.facility_representative_name ||
+                          (siteVisit as any)?.facility_contact_name ||
+                          "Not specified";
+
+  const facilityRepDesignation = (evaluation as any)?.reviewed_by_designation ||
+                                (evaluation as any)?.approved_by_designation ||
+                                (evaluation as any)?.facility_representative?.designation ||
+                                (evaluation as any)?.facility_representative?.job_title ||
+                                (siteVisit as any)?.facility_contact_designation ||
+                                "Facility Manager";
+
+  const facilityRepDate = (evaluation as any)?.reviewed_at ||
+                         (evaluation as any)?.approved_at ||
+                         evaluation?.evaluation_date ||
+                         "Not specified";
+
+  // Debug logging (after all variables are declared)
   console.log("🔍 Report Debug Data:", {
     evaluation: {
       id: evaluation?.id,
@@ -66,22 +132,22 @@ const SupervisionEvaluationReport = () => {
       selected_categories: evaluation?.selected_categories,
     },
     responses: {
-      length: responses.length,
-      data: responses.slice(0, 2), // First 2 responses for debugging
-      responsesDataStructure: evaluationResponses,
+      originalLength: responses.length,
+      unifiedLength: unifiedResponses.length,
     },
     siteVisit: {
       id: siteVisit?.id,
-      facility_name: siteVisit?.facility_name,
-      location_name: siteVisit?.location_name,
       title: siteVisit?.title,
     },
+    computed: {
+      facilityName,
+      locationName,
+      evaluatorName,
+      facilityRepName,
+      facilityRepDesignation,
+      facilityRepDate,
+    },
   });
-
-  // Get location and facility information with fallbacks from site visit
-  const facilityName = evaluation?.facility_name || siteVisit?.facility_name || siteVisit?.location_name || "Not specified";
-  const locationName = evaluation?.location_name || siteVisit?.location_name || "Not specified";
-  const evaluatorName = evaluation?.evaluator_name || "Not specified";
 
   return (
     <div className="space-y-6">
@@ -177,7 +243,7 @@ const SupervisionEvaluationReport = () => {
                     : 'Not Available'}
                 </td>
                 <td className="border border-black px-3 py-2 font-semibold bg-gray-100 w-1/4">Total Responses:</td>
-                <td className="border border-black px-3 py-2">{responses.length}</td>
+                <td className="border border-black px-3 py-2">{unifiedResponses.length}</td>
               </tr>
               <tr>
                 <td className="border border-black px-3 py-2 font-semibold bg-gray-100">Completion Rate:</td>
@@ -194,13 +260,13 @@ const SupervisionEvaluationReport = () => {
         </div>
 
         {/* Evaluation Checklist */}
-        {responses && responses.length > 0 ? (
+        {unifiedResponses && unifiedResponses.length > 0 ? (
           <div className="mt-6 page-break-before">
             <h3 className="font-bold text-sm mb-2 uppercase">Evaluation Checklist</h3>
 
             {(() => {
-              // Group responses by category
-              const groupedResponses = responses.reduce((acc: any, response: any) => {
+              // Group unified responses by category
+              const groupedResponses = unifiedResponses.reduce((acc: any, response: any) => {
                 const category = response.category_name || "Uncategorized";
                 if (!acc[category]) acc[category] = [];
                 acc[category].push(response);
@@ -424,16 +490,20 @@ const SupervisionEvaluationReport = () => {
               <tr>
                 <td className="border border-black px-3 py-2 font-semibold">Facility Representative</td>
                 <td className="border border-black px-3 py-2">
-                  _______________________
+                  {facilityRepName !== "Not specified" ? facilityRepName : "_______________________"}
                 </td>
                 <td className="border border-black px-3 py-2">
-                  _______________________
+                  {facilityRepDesignation !== "Facility Manager" && facilityRepDesignation ? facilityRepDesignation : "_______________________"}
                 </td>
                 <td className="border border-black px-3 py-2 h-16">
                   _______________________
                 </td>
                 <td className="border border-black px-3 py-2">
-                  _______________________
+                  {facilityRepDate !== "Not specified" && facilityRepDate
+                    ? (typeof facilityRepDate === 'string' && facilityRepDate !== evaluation?.evaluation_date
+                        ? new Date(facilityRepDate).toLocaleDateString()
+                        : "_______________________")
+                    : "_______________________"}
                 </td>
               </tr>
             </tbody>
