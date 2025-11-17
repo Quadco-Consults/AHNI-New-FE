@@ -8,7 +8,6 @@ import {
   FaFileExcel,
   FaFilePdf,
   FaChartLine,
-  FaCalendarAlt,
   FaDollarSign,
   FaBullseye,
   FaUsers,
@@ -22,6 +21,10 @@ import {
 } from "react-icons/fa";
 import { toast } from "sonner";
 import { IProjectSingleData } from "@/features/projects/types/project";
+import {
+  useGetProjectActivityReport,
+  useGenerateProjectReport
+} from "@/features/projects/controllers/projectController";
 
 interface ActivityReportProps extends IProjectSingleData {
   budget_performance_calculated?: {
@@ -36,132 +39,122 @@ export default function ActivityReport(props: ActivityReportProps) {
   const {
     id,
     title,
-    project_id,
     budget,
     currency,
     start_date,
     end_date,
-    targets,
     project_managers,
     beneficiaries,
     funding_sources,
     budget_performance_calculated,
     achievement_against_target_calculated,
     created_datetime,
-    updated_datetime
+    targets
   } = props;
 
   const [selectedDateRange, setSelectedDateRange] = useState<'all' | '30d' | '90d' | 'year'>('all');
 
-  // Mock financial data - In real implementation, these would come from APIs
-  const mockFinancialData = useMemo(() => ({
-    disbursements: [
-      {
-        id: '1',
-        amount: 25000,
-        date: '2024-10-15',
-        purpose: 'Initial project setup and equipment',
-        status: 'completed',
-        requestedBy: 'John Doe',
-        approvedBy: 'Finance Director'
-      },
-      {
-        id: '2',
-        amount: 15000,
-        date: '2024-11-01',
-        purpose: 'Staff training and capacity building',
-        status: 'pending',
-        requestedBy: 'Jane Smith',
-        approvedBy: 'Pending'
-      }
-    ],
-    fundRequests: [
-      {
-        id: '1',
-        amount: 50000,
-        date: '2024-09-20',
-        purpose: 'Q1 operational expenses',
-        status: 'approved',
-        requestedBy: 'Project Manager',
-        approvalDate: '2024-09-25'
-      },
-      {
-        id: '2',
-        amount: 30000,
-        date: '2024-11-05',
-        purpose: 'Equipment procurement for Phase 2',
-        status: 'under_review',
-        requestedBy: 'Technical Lead',
-        approvalDate: null
-      }
-    ],
-    expenses: [
-      {
-        id: '1',
-        amount: 8500,
-        date: '2024-10-20',
-        category: 'Equipment',
-        description: 'Medical supplies and diagnostic equipment',
-        vendor: 'MedSupply Co.',
-        status: 'paid'
-      },
-      {
-        id: '2',
-        amount: 3200,
-        date: '2024-11-02',
-        category: 'Training',
-        description: 'Staff capacity building workshop',
-        vendor: 'Training Solutions Ltd',
-        status: 'pending'
-      },
-      {
-        id: '3',
-        amount: 2800,
-        date: '2024-11-03',
-        category: 'Operations',
-        description: 'Monthly utility bills and office rent',
-        vendor: 'Facility Management',
-        status: 'paid'
-      }
-    ]
-  }), []);
+  // Fetch real activity report data
+  const {
+    data: activityReportData,
+    isLoading: isLoadingReport,
+    error: reportError
+  } = useGetProjectActivityReport(id, !!id);
+
+  // Report generation hook
+  const {
+    generateReport,
+    isLoading: isGeneratingReport
+  } = useGenerateProjectReport(id);
+
+  // Real financial data from API response
+  const financialData = useMemo(() => {
+    if (!activityReportData?.data?.data) {
+      return {
+        disbursements: [],
+        fundRequests: [],
+        expenses: []
+      };
+    }
+
+    const data = activityReportData.data.data;
+    return {
+      disbursements: data.disbursements || [],
+      fundRequests: data.fund_requests || [],
+      expenses: data.expenses || []
+    };
+  }, [activityReportData]);
 
   // Calculate project statistics
   const projectStats = useMemo(() => {
-    const totalTargets = targets?.length || 0;
-    const achievedTargets = targets?.filter(t =>
-      (t.achievements?.reduce((sum, a) => sum + (a.achievement_value || 0), 0) || 0) >= (Number(t.target_value) || 0) * 0.8
-    ).length || 0;
+    // Use real data from API or fallback to calculated values from project
+    const reportData = activityReportData?.data?.data;
+    const summary = reportData?.summary || {};
+    const financialSummary = reportData?.financial_summary || {};
 
-    const totalBudget = Number(budget) || 0;
-    const budgetUtilized = totalBudget * ((budget_performance_calculated?.budget_performance_percentage || 0) / 100);
 
-    const projectDuration = new Date(end_date).getTime() - new Date(start_date).getTime();
-    const daysPassed = Math.floor(projectDuration / (1000 * 60 * 60 * 24));
+    // Get API response details first
+    const achievementDetails = reportData?.achievement_details || {};
+    const budgetDetails = reportData?.budget_details || {};
 
-    // Calculate financial metrics
-    const totalDisbursements = mockFinancialData.disbursements.reduce((sum, d) => sum + d.amount, 0);
-    const completedDisbursements = mockFinancialData.disbursements
-      .filter(d => d.status === 'completed')
-      .reduce((sum, d) => sum + d.amount, 0);
+    const totalBudget = financialSummary.total_budget || Number(budget) || budgetDetails.total_project_budget || 0;
+    const budgetPerformancePercentage = budgetDetails.budget_performance_percentage ||
+      budget_performance_calculated?.budget_performance_percentage ||
+      summary.budget_utilization_percentage || 0;
+    const budgetUtilized = budgetDetails.completed_activities_budget ||
+      (totalBudget * (budgetPerformancePercentage / 100));
 
-    const totalFundRequests = mockFinancialData.fundRequests.reduce((sum, f) => sum + f.amount, 0);
-    const approvedFundRequests = mockFinancialData.fundRequests
-      .filter(f => f.status === 'approved')
-      .reduce((sum, f) => sum + f.amount, 0);
+    let daysPassed = summary.project_duration_days || 0;
+    if (!daysPassed && start_date && end_date) {
+      const projectDuration = new Date(end_date).getTime() - new Date(start_date).getTime();
+      daysPassed = Math.floor(projectDuration / (1000 * 60 * 60 * 24));
+    }
 
-    const totalExpenses = mockFinancialData.expenses.reduce((sum, e) => sum + e.amount, 0);
-    const paidExpenses = mockFinancialData.expenses
-      .filter(e => e.status === 'paid')
-      .reduce((sum, e) => sum + e.amount, 0);
+    // Use financial summary data from API for totals
+    const totalDisbursements = financialSummary.total_disbursements || 0;
+    const completedDisbursements = financialData.disbursements
+      .filter((d: any) => d.status === 'Completed')
+      .reduce((sum: number, d: any) => sum + d.amount, 0);
+
+    const totalFundRequests = financialSummary.total_fund_requests || 0;
+    const approvedFundRequests = financialData.fundRequests
+      .filter((f: any) => f.status === 'Approved')
+      .reduce((sum: number, f: any) => sum + f.amount, 0);
+
+    const totalExpenses = financialSummary.total_expenses ||
+      financialData.expenses.reduce((sum: number, e: any) => sum + e.amount, 0);
+    const paidExpenses = financialData.expenses
+      .filter((e: any) => e.status === 'paid')
+      .reduce((sum: number, e: any) => sum + e.amount, 0);
+
+
+    // Calculate target metrics from actual targets (props) with fallback to API data
+    const totalTargets = targets?.length || achievementDetails.total_planned_activities || 1; // Default to 1 to avoid division by zero
+
+    // Calculate achieved targets based on achievement percentage >= 80%
+    const achievedTargets = targets?.filter((target: any) => {
+      // Check if target has achievements and calculate percentage
+      const achievements = target.achievements || [];
+      if (achievements.length === 0) return false;
+
+      // Get the latest or total achievement
+      const totalAchieved = achievements.reduce((sum: number, ach: any) => sum + (Number(ach.actual) || 0), 0);
+      const targetValue = Number(target.annual_target || target.target_value || 0);
+      const achievementPercentage = targetValue > 0 ? (totalAchieved / targetValue * 100) : 0;
+
+      return achievementPercentage >= 80;
+    }).length || achievementDetails.total_completed_activities || 0;
+
+    const targetAchievementPercentage = totalTargets > 0 ? (achievedTargets / totalTargets * 100) :
+      (achievementDetails.achievement_percentage || achievement_against_target_calculated?.achievement_percentage || 0);
 
     return {
       totalTargets,
       achievedTargets,
-      targetAchievementRate: totalTargets > 0 ? (achievedTargets / totalTargets * 100) : 0,
+      targetAchievementRate: targetAchievementPercentage,
       totalBudget,
       budgetUtilized,
-      budgetUtilizationRate: budget_performance_calculated?.budget_performance_percentage || 0,
+      budgetUtilizationRate: budgetDetails.budget_performance_percentage || budget_performance_calculated?.budget_performance_percentage || 0,
       projectDuration: daysPassed,
       totalBeneficiaries: beneficiaries?.length || 0,
       totalManagers: project_managers?.length || 0,
@@ -175,9 +168,10 @@ export default function ActivityReport(props: ActivityReportProps) {
       fundRequestApprovalRate: totalFundRequests > 0 ? (approvedFundRequests / totalFundRequests * 100) : 0,
       totalExpenses,
       paidExpenses,
-      expensePaymentRate: totalExpenses > 0 ? (paidExpenses / totalExpenses * 100) : 0
+      expensePaymentRate: totalExpenses > 0 ? (paidExpenses / totalExpenses * 100) : 0,
+      cashFlow: financialSummary.cash_flow || (completedDisbursements - paidExpenses)
     };
-  }, [targets, budget, budget_performance_calculated, start_date, end_date, beneficiaries, project_managers, funding_sources]);
+  }, [activityReportData, budget, budget_performance_calculated, start_date, end_date, beneficiaries, project_managers, funding_sources, achievement_against_target_calculated, financialData, targets]);
 
   // Mock activity timeline data
   const activityTimeline = useMemo(() => [
@@ -225,16 +219,70 @@ export default function ActivityReport(props: ActivityReportProps) {
 
   const handleDownloadReport = async (format: 'pdf' | 'excel' | 'csv') => {
     try {
-      // Mock download functionality - in real implementation, this would call an API
-      toast.success(`${format.toUpperCase()} report download started`);
+      // Convert selectedDateRange to actual dates if needed
+      let start_date, end_date;
+      const now = new Date();
 
-      // Here you would typically make an API call to generate and download the report
-      // Example: await downloadProjectReport(id, format, selectedDateRange);
+      switch (selectedDateRange) {
+        case '30d':
+          start_date = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+          end_date = now.toISOString().split('T')[0];
+          break;
+        case '90d':
+          start_date = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+          end_date = now.toISOString().split('T')[0];
+          break;
+        case 'year':
+          start_date = new Date(now.getFullYear(), 0, 1).toISOString().split('T')[0];
+          end_date = now.toISOString().split('T')[0];
+          break;
+        case 'all':
+        default:
+          start_date = start_date;
+          end_date = end_date;
+          break;
+      }
 
+      // Call real API to generate and download report
+      await generateReport({
+        type: format,
+        start_date,
+        end_date
+      });
+
+      toast.success(`${format.toUpperCase()} report downloaded successfully`);
     } catch (error) {
+      console.error('Report download error:', error);
       toast.error(`Failed to download ${format.toUpperCase()} report`);
     }
   };
+
+  // Show loading state while fetching data
+  if (isLoadingReport) {
+    return (
+      <div className="space-y-6">
+        <Card className="p-6">
+          <div className="flex items-center justify-center h-32">
+            <div className="text-gray-500">Loading activity report data...</div>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
+  // Show error state if data fetch failed
+  if (reportError) {
+    return (
+      <div className="space-y-6">
+        <Card className="p-6">
+          <div className="flex items-center justify-center h-32 text-red-500">
+            <FaExclamationTriangle className="mr-2" />
+            Error loading activity report: {reportError.message}
+          </div>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -353,13 +401,13 @@ export default function ActivityReport(props: ActivityReportProps) {
             <div>
               <p className="text-sm font-medium text-gray-600">Cash Flow</p>
               <p className="text-2xl font-bold text-purple-600">
-                {currency} {(projectStats.completedDisbursements - projectStats.paidExpenses).toLocaleString()}
+                {currency} {projectStats.cashFlow.toLocaleString()}
               </p>
               <p className="text-xs text-gray-500">
                 available balance
               </p>
             </div>
-            {(projectStats.completedDisbursements - projectStats.paidExpenses) >= 0 ?
+            {projectStats.cashFlow >= 0 ?
               <FaArrowUp className="h-8 w-8 text-green-500" /> :
               <FaArrowDown className="h-8 w-8 text-red-500" />
             }
@@ -391,26 +439,29 @@ export default function ActivityReport(props: ActivityReportProps) {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Button
             onClick={() => handleDownloadReport('pdf')}
-            className="flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700"
+            disabled={isGeneratingReport}
+            className="flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 disabled:opacity-50"
           >
             <FaFilePdf className="h-4 w-4" />
-            Download PDF Report
+            {isGeneratingReport ? 'Generating...' : 'Download PDF Report'}
           </Button>
 
           <Button
             onClick={() => handleDownloadReport('excel')}
-            className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700"
+            disabled={isGeneratingReport}
+            className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 disabled:opacity-50"
           >
             <FaFileExcel className="h-4 w-4" />
-            Download Excel Report
+            {isGeneratingReport ? 'Generating...' : 'Download Excel Report'}
           </Button>
 
           <Button
             onClick={() => handleDownloadReport('csv')}
-            className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700"
+            disabled={isGeneratingReport}
+            className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
           >
             <FaDownload className="h-4 w-4" />
-            Download CSV Data
+            {isGeneratingReport ? 'Generating...' : 'Download CSV Data'}
           </Button>
         </div>
       </Card>
@@ -510,7 +561,7 @@ export default function ActivityReport(props: ActivityReportProps) {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {mockFinancialData.disbursements.map((disbursement) => (
+                {financialData.disbursements.map((disbursement: any) => (
                   <tr key={disbursement.id} className="hover:bg-gray-50">
                     <td className="px-3 py-2 text-gray-900">
                       {new Date(disbursement.date).toLocaleDateString()}
@@ -520,7 +571,7 @@ export default function ActivityReport(props: ActivityReportProps) {
                     </td>
                     <td className="px-3 py-2">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        disbursement.status === 'completed'
+                        disbursement.status === 'Completed'
                           ? 'bg-green-100 text-green-800'
                           : 'bg-yellow-100 text-yellow-800'
                       }`}>
@@ -528,7 +579,7 @@ export default function ActivityReport(props: ActivityReportProps) {
                       </span>
                     </td>
                     <td className="px-3 py-2 text-gray-600 text-xs">
-                      {disbursement.purpose}
+                      {disbursement.description}
                     </td>
                   </tr>
                 ))}
@@ -550,11 +601,11 @@ export default function ActivityReport(props: ActivityReportProps) {
                   <th className="px-3 py-2 text-left font-medium text-gray-900">Date</th>
                   <th className="px-3 py-2 text-left font-medium text-gray-900">Amount</th>
                   <th className="px-3 py-2 text-left font-medium text-gray-900">Status</th>
-                  <th className="px-3 py-2 text-left font-medium text-gray-900">Purpose</th>
+                  <th className="px-3 py-2 text-left font-medium text-gray-900">Location</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {mockFinancialData.fundRequests.map((request) => (
+                {financialData.fundRequests.map((request: any) => (
                   <tr key={request.id} className="hover:bg-gray-50">
                     <td className="px-3 py-2 text-gray-900">
                       {new Date(request.date).toLocaleDateString()}
@@ -564,7 +615,7 @@ export default function ActivityReport(props: ActivityReportProps) {
                     </td>
                     <td className="px-3 py-2">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        request.status === 'approved'
+                        request.status === 'Approved'
                           ? 'bg-green-100 text-green-800'
                           : 'bg-orange-100 text-orange-800'
                       }`}>
@@ -572,7 +623,7 @@ export default function ActivityReport(props: ActivityReportProps) {
                       </span>
                     </td>
                     <td className="px-3 py-2 text-gray-600 text-xs">
-                      {request.purpose}
+                      {request.location}
                     </td>
                   </tr>
                 ))}
@@ -601,7 +652,7 @@ export default function ActivityReport(props: ActivityReportProps) {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {mockFinancialData.expenses.map((expense) => (
+              {financialData.expenses.map((expense: any) => (
                 <tr key={expense.id} className="hover:bg-gray-50">
                   <td className="px-3 py-2 text-gray-900">
                     {new Date(expense.date).toLocaleDateString()}

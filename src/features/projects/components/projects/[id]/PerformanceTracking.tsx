@@ -121,27 +121,11 @@ export default function PerformanceTracking({ projectId, projectTargets = [] }: 
     }
 
     const targetsWithAchievements: TargetWithAchievements[] = sourceTargets.map(target => {
-      // Create sample achievements for demonstration
+      // Initialize empty achievements - only use actual data from backend
       const achievements: Achievement[] = [];
 
-      // Add sample achievements based on the user's data
-      if (target.indicator_code === 'TX_CURR') {
-        achievements.push({ id: '1', target_id: target.id, quarter: 'Q4', achievement_value: 104207, achievement_date: '2025-03-31', comments: '' });
-      } else if (target.indicator_code === 'TX_NEW') {
-        achievements.push(
-          { id: '2', target_id: target.id, quarter: 'Q1', achievement_value: 2060, achievement_date: '2024-12-31', comments: '' },
-          { id: '3', target_id: target.id, quarter: 'Q2', achievement_value: 1749, achievement_date: '2025-03-31', comments: '' },
-          { id: '4', target_id: target.id, quarter: 'Q3', achievement_value: 1615, achievement_date: '2025-06-30', comments: '' },
-          { id: '5', target_id: target.id, quarter: 'Q4', achievement_value: 1421, achievement_date: '2025-09-30', comments: '' }
-        );
-      } else if (target.indicator_code === 'HTS_TST') {
-        achievements.push(
-          { id: '6', target_id: target.id, quarter: 'Q1', achievement_value: 210799, achievement_date: '2024-12-31', comments: '' },
-          { id: '7', target_id: target.id, quarter: 'Q2', achievement_value: 144766, achievement_date: '2025-03-31', comments: '' },
-          { id: '8', target_id: target.id, quarter: 'Q3', achievement_value: 191834, achievement_date: '2025-06-30', comments: '' },
-          { id: '9', target_id: target.id, quarter: 'Q4', achievement_value: 165843, achievement_date: '2025-09-30', comments: '' }
-        );
-      }
+      // TODO: In the future, this should fetch actual achievements from the backend
+      // For now, start with empty achievements that users can add through the UI
 
       const totalAchievement = achievements.reduce((sum, ach) => sum + ach.achievement_value, 0);
       const percentageAchieved = target.annual_target > 0 ? (totalAchievement / target.annual_target) * 100 : 0;
@@ -229,20 +213,6 @@ export default function PerformanceTracking({ projectId, projectTargets = [] }: 
   const handleCancelEdit = () => {
     setEditingCell(null);
     setEditValue('');
-  };
-
-  const getQuarterlyAchievement = (target: TargetWithAchievements, quarter: string) => {
-    return target.achievements.find(ach => ach.quarter === quarter);
-  };
-
-  const getQuarterlyTarget = (target: TargetWithAchievements, quarter: string) => {
-    switch (quarter) {
-      case 'Q1': return target.q1_target || 0;
-      case 'Q2': return target.q2_target || 0;
-      case 'Q3': return target.q3_target || 0;
-      case 'Q4': return target.q4_target || 0;
-      default: return 0;
-    }
   };
 
   return (
