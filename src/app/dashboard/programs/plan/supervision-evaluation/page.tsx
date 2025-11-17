@@ -81,8 +81,26 @@ const SupervisionEvaluationPage = () => {
     // Log first few evaluations if they exist
     if (evaluationsData?.results?.length > 0) {
       console.log("📋 First evaluation sample:", evaluationsData.results[0]);
-    } else if (evaluationsData?.data?.results?.length > 0) {
-      console.log("📋 First evaluation sample (from data field):", evaluationsData.data.results[0]);
+      const firstEval = evaluationsData.results[0];
+      console.log("🔍 Follow-up data in first evaluation:", {
+        follow_up_required: firstEval?.follow_up_required,
+        follow_up_date: firstEval?.follow_up_date,
+        follow_up_notes: firstEval?.follow_up_notes,
+        action_items: firstEval?.action_items,
+        recommendations: firstEval?.recommendations,
+        availableFields: firstEval ? Object.keys(firstEval) : []
+      });
+    } else if ((evaluationsData as any)?.data?.results?.length > 0) {
+      const firstEval = (evaluationsData as any).data.results[0];
+      console.log("📋 First evaluation sample (from data field):", firstEval);
+      console.log("🔍 Follow-up data in first evaluation:", {
+        follow_up_required: firstEval?.follow_up_required,
+        follow_up_date: firstEval?.follow_up_date,
+        follow_up_notes: firstEval?.follow_up_notes,
+        action_items: firstEval?.action_items,
+        recommendations: firstEval?.recommendations,
+        availableFields: firstEval ? Object.keys(firstEval) : []
+      });
     } else {
       console.log("❌ No evaluations found in response structure:", evaluationsData);
     }

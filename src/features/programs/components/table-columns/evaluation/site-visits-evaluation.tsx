@@ -27,13 +27,15 @@ import {
   BarChart3
 } from "lucide-react";
 import { formatDate } from "utils/date";
-import { TSiteVisitPaginatedData, SiteVisitTypeLabels } from "@/features/programs/types/site-visit";
+import { TSiteVisitPaginatedData, SiteVisitTypeLabels, SiteVisitType } from "@/features/programs/types/site-visit";
 
 // Extended interface for site visits with evaluation status
 interface SiteVisitForEvaluation extends TSiteVisitPaginatedData {
   hasEvaluation: boolean;
   evaluationStatus?: string;
   evaluationId?: string;
+  visit_type_display?: string;
+  status_display?: string;
 }
 
 interface SiteVisitEvaluationColumnsProps {
@@ -92,7 +94,13 @@ export const createSiteVisitEvaluationColumns = ({
     header: "Visit Type",
     cell: ({ row }) => {
       const visitType = row.getValue("visit_type") as string;
-      const displayType = SiteVisitTypeLabels[visitType] || visitType;
+      const visitTypeDisplay = (row.original as any).visit_type_display;
+
+      // Use display value if available, otherwise try enum lookup, then fallback to raw value
+      const displayType = visitTypeDisplay ||
+                         SiteVisitTypeLabels[visitType as SiteVisitType] ||
+                         visitType ||
+                         "Not specified";
 
       return (
         <Badge variant="secondary" className="text-xs">
