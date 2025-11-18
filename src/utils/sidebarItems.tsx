@@ -1469,6 +1469,16 @@ export const departmentalLinks: SidebarItem[] = [
           }
         ]
         },
+        {
+          name: "Travel Reconciliation",
+          path: "/dashboard/finance/travel-reconciliation",
+          permissions: [
+          {
+            module: "finance",
+            codenames: ["view_travelreconciliation"]
+          }
+        ]
+        },
     ]
   }
 ];

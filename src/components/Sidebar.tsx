@@ -35,6 +35,7 @@ type SidebarProps = {
 const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
   const { data: user } = useGetUserProfile();
   const permissions = user?.data.permissions || [];
+  const userRoles = user?.data.roles || [];
   const pathname = usePathname();
 
   // State for collapsible sections
@@ -49,18 +50,18 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
 
   // Filter sidebar items based on permissions - memoized for performance
   const filteredDepartmentalLinks = useMemo(
-    () => filterSidebarByPermissions(departmentalLinks, permissions),
-    [permissions]
+    () => filterSidebarByPermissions(departmentalLinks, permissions, userRoles),
+    [permissions, userRoles]
   );
 
   const filteredModuleLinks = useMemo(
-    () => filterSidebarByPermissions(moduleLinks, permissions),
-    [permissions]
+    () => filterSidebarByPermissions(moduleLinks, permissions, userRoles),
+    [permissions, userRoles]
   );
 
   const filteredGlobalHubItems = useMemo(
-    () => filterGlobalHubByPermissions(globalHubLinks, permissions),
-    [permissions]
+    () => filterGlobalHubByPermissions(globalHubLinks, permissions, userRoles),
+    [permissions, userRoles]
   );
 
   const groupedGlobalHubMenu = useMemo(
