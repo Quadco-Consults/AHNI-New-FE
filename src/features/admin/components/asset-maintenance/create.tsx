@@ -20,7 +20,7 @@ import { useCreateAssetMaintenanceMutation } from "@/features/admin/controllers/
 import { useGetAllAssetsQuery } from "@/features/admin/controllers/assetController";
 import { useGetAllUsersQuery } from "@/features/auth/controllers/userController";
 import { useGetAllDepartmentsQuery } from "@/features/modules/controllers/config/departmentController";
-import { useGetAllLocationsQuery } from "@/features/modules/controllers/config/locationController";
+import { useGetAHNIOfficeLocations } from "@/features/modules/controllers/config/locationController";
 import { toast } from "sonner";
 import { useGetAllItemsQuery } from "@/features/modules/controllers";
 import {
@@ -113,7 +113,7 @@ export default function CreateAssetMaintenance() {
     [department]
   );
 
-  const { data: location } = useGetAllLocationsQuery({
+  const { data: location } = useGetAHNIOfficeLocations({
     page: 1,
     size: 2000000,
   });

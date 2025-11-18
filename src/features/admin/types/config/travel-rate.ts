@@ -15,11 +15,15 @@ export interface ITravelRate {
   id: string;
   location: string;
   state: string;
+  state_name?: string; // State name from relationship
+  state_code?: string; // State code from relationship
   country: string;
   accommodation_rate: number;
   meal_allowance: number;
   transport_allowance: number;
   per_diem_rate: number;
+  lodging_rate?: number; // Backend field name
+  mie_rate?: number; // Backend field name
   currency: string;
   effective_date: string;
   expiry_date?: string;

@@ -48,6 +48,7 @@ export const DialogType = {
   AddMarketPrice: "AddMarketPrice",
   AddNewItems: "AddNewItems",
   AddLocations: "AddLocations",
+  AddStates: "AddStates",
   AddLots: "AddLots",
   AddSolicitation: "AddSolicitation",
   AddPrequalificationCategory: "AddPrequalificationCategory",

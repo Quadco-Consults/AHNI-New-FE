@@ -24,7 +24,7 @@ import {
 import { useGetAllUsersQuery } from "@/features/auth/controllers/userController";
 import { toast } from "sonner";
 import AssetRequestLayout from "./Layout";
-import { useGetAllLocationsQuery } from "@/features/modules/controllers/config/locationController";
+import { useGetAHNIOfficeLocations } from "@/features/modules/controllers/config/locationController";
 import { useGetAllItemsQuery } from "@/features/modules/controllers";
 import { CATEGORY_IDS } from "@/constants/categories";
 
@@ -91,7 +91,7 @@ export default function CreateAssetRequestDetails() {
 
   const { data: assetRequest } = useGetSingleAssetRequestQuery(id || "", !!id);
 
-  const { data: location } = useGetAllLocationsQuery({
+  const { data: location } = useGetAHNIOfficeLocations({
     page: 1,
     size: 2000000,
   });

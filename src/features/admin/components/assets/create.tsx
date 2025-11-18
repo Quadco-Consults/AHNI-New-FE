@@ -19,7 +19,7 @@ import { useRouter } from "next/navigation";
 import { useGetAllAssetConditions } from "@/features/modules/controllers/admin/assetConditionController";
 import { useGetAllAssetTypes } from "@/features/modules/controllers/admin/assetTypeController";
 import { useGetAllAssetClassifications } from "@/features/modules/controllers/config/assetClassificationController";
-import { useGetAllLocations } from "@/features/modules/controllers/config/locationController";
+import { useGetAHNIOfficeLocations } from "@/features/modules/controllers/config/locationController";
 import { useGetAllProjects } from "@/features/projects/controllers/projectController";
 import { useGetAllUsers } from "@/features/auth/controllers/userController";
 import { toast } from "sonner";
@@ -181,7 +181,7 @@ export default function CreateAsset() {
     [assetCondition]
   );
 
-  const { data: location } = useGetAllLocations({
+  const { data: location } = useGetAHNIOfficeLocations({
     page: 1,
     size: 2000000,
     search: "",
