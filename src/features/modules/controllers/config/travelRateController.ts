@@ -14,9 +14,13 @@ const transformTravelRateResponse = (rate: any): ITravelRate => {
     meal_allowance: rate.mie_rate || rate.meal_allowance || 0,
     // Map mie_rate to per_diem_rate for table display
     per_diem_rate: rate.mie_rate || rate.per_diem_rate || 0,
+    // Handle state relationship - backend returns state object with name and code
+    state: rate.state?.name || rate.state_name || rate.state || '',
+    state_name: rate.state?.name || rate.state_name || rate.state || '',
+    state_code: rate.state?.code || rate.state_code || '',
     // Fill in missing frontend fields with defaults
-    location: rate.state || rate.location || '',
-    country: rate.country || 'NIGERIA',
+    location: rate.state?.name || rate.state_name || rate.location || '',
+    country: rate.country || 'Nigeria',
     transport_allowance: rate.transport_allowance || 0,
     currency: rate.currency || 'NGN',
     category: rate.category || 'Local',
@@ -38,7 +42,7 @@ export const useGetAllTravelRatesManager = ({
     queryKey: ["travel-rates", page, size, search],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get("/travel-rates/", {
+        const response = await AxiosWithToken.get("/config/travel-rates/", {
           params: { page, size, search },
         });
 
@@ -75,7 +79,7 @@ export const useGetSingleTravelRateManager = (id: string, enabled: boolean = tru
     queryKey: ["travel-rate", id],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get(`/travel-rates/${id}/`);
+        const response = await AxiosWithToken.get(`/config/travel-rates/${id}/`);
 
         // Transform the single travel rate response
         const transformedData = {
@@ -108,17 +112,35 @@ export const useCreateTravelRateMutation = () => {
     Error,
     TravelRateFormData
   >({
-    endpoint: "/travel-rates/",
+    endpoint: "/config/travel-rates/",
     queryKey: "travel-rates",
     isAuth: true,
     method: "POST",
   });
 
-  const createTravelRate = async (details: TravelRateFormData) => {
+  const createTravelRate = async (details: TravelRateFormData & { stateId?: string }) => {
     try {
-      // Transform frontend data to backend format (only required fields)
+      // Get state ID by name if not provided
+      let stateId = details.stateId;
+      if (!stateId && details.state) {
+        // Need to get state ID from the states API
+        try {
+          const statesResponse = await AxiosWithToken.get("/config/states/", {
+            params: { page: 1, size: 50, search: details.state }
+          });
+          const matchingState = statesResponse.data?.data?.results?.find(
+            (s: any) => s.name === details.state
+          );
+          stateId = matchingState?.id;
+        } catch (error) {
+          console.error("Failed to find state ID:", error);
+          throw new Error(`State "${details.state}" not found`);
+        }
+      }
+
+      // Transform frontend data to backend format
       const transformedDetails = {
-        state: details.state,
+        state: stateId, // Send state ID instead of name
         lodging_rate: details.accommodation_rate,
         mie_rate: details.meal_allowance,
         effective_date: details.effective_date,
@@ -143,19 +165,36 @@ export const useUpdateTravelRateMutation = (id: string) => {
     Error,
     Partial<TravelRateFormData>
   >({
-    endpoint: `/travel-rates/${id}/`,
+    endpoint: `/config/travel-rates/${id}/`,
     queryKey: ["travel-rates", "travel-rate"],
     isAuth: true,
     method: "PUT",
   });
 
-  const updateTravelRate = async (details: Partial<TravelRateFormData>) => {
+  const updateTravelRate = async (details: Partial<TravelRateFormData> & { stateId?: string }) => {
     try {
+      // Get state ID by name if not provided
+      let stateId = details.stateId;
+      if (!stateId && details.state) {
+        try {
+          const statesResponse = await AxiosWithToken.get("/config/states/", {
+            params: { page: 1, size: 50, search: details.state }
+          });
+          const matchingState = statesResponse.data?.data?.results?.find(
+            (s: any) => s.name === details.state
+          );
+          stateId = matchingState?.id;
+        } catch (error) {
+          console.error("Failed to find state ID:", error);
+          throw new Error(`State "${details.state}" not found`);
+        }
+      }
+
       // Transform frontend data to backend format
       const transformedDetails: any = {};
 
       // Map required fields if present
-      if ('state' in details) transformedDetails.state = details.state;
+      if (stateId) transformedDetails.state = stateId; // Send state ID
       if ('accommodation_rate' in details) transformedDetails.lodging_rate = details.accommodation_rate;
       if ('meal_allowance' in details) transformedDetails.mie_rate = details.meal_allowance;
       if ('effective_date' in details) transformedDetails.effective_date = details.effective_date;
@@ -179,7 +218,7 @@ export const useDeleteTravelRateMutation = (id: string) => {
     Error,
     Record<string, never>
   >({
-    endpoint: `/travel-rates/${id}/`,
+    endpoint: `/config/travel-rates/${id}/`,
     queryKey: ["travel-rates"],
     isAuth: true,
     method: "DELETE",

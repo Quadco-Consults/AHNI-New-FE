@@ -12,6 +12,7 @@ import {
   TResponse,
   ApiResponse
 } from "../../types";
+import { nigerianStates } from "@/lib/index";
 
 // GET Operations (Queries)
 export const useGetAllLocationsManager = ({ 
@@ -147,3 +148,110 @@ export const useDeleteLocationMutation = () => {
 
 // Missing named export
 export const useGetLocationList = useGetAllLocationsManager;
+
+// ============================================
+// SPECIALIZED LOCATION HOOKS FOR DIFFERENT CONTEXTS
+// ============================================
+
+/**
+ * Hook for AHNI office locations only (excludes states)
+ * Use this for: Asset creation, general forms, inventory management
+ */
+export const useGetAHNIOfficeLocations = ({
+  page = 1,
+  size = 20,
+  search = "",
+  enabled = true
+}: FilterParams & { enabled?: boolean } = {}) => {
+  return useQuery<ApiResponse<TPaginatedResponse<LocationResultsData>>>({
+    queryKey: ["ahni-office-locations", page, size, search],
+    queryFn: async () => {
+      const response = await AxiosWithToken.get("/config/locations/", {
+        params: { page, size, search }
+      });
+
+      // Filter out entries that are just state names (not actual AHNI offices)
+      if (response.data?.data?.results) {
+        const filteredResults = response.data.data.results.filter((location: any) => {
+          // Exclude if the location name is just a Nigerian state name
+          return !nigerianStates.includes(location.name);
+        });
+
+        response.data.data.results = filteredResults;
+      }
+
+      return response.data;
+    },
+    enabled,
+    refetchOnWindowFocus: false,
+  });
+};
+
+/**
+ * Hook for site visit locations (includes states + facilities + AHNI offices)
+ * Use this for: Site visit creation, travel planning
+ */
+export const useGetSiteVisitLocations = ({
+  page = 1,
+  size = 20,
+  search = "",
+  enabled = true
+}: FilterParams & { enabled?: boolean } = {}) => {
+  return useQuery<{data: {results: Array<{id: string, name: string, type: string}>}}>({
+    queryKey: ["site-visit-locations", page, size, search],
+    queryFn: async () => {
+      // Combine multiple location sources
+      const [locationsResponse, facilitiesResponse] = await Promise.all([
+        AxiosWithToken.get("/config/locations/", { params: { page, size, search } }),
+        AxiosWithToken.get("/programs/facility/", { params: { page, size, search } }).catch(() => ({ data: { data: { results: [] } } }))
+      ]);
+
+      const combinedResults: Array<{id: string, name: string, type: string}> = [];
+
+      // Add Nigerian states
+      const filteredStates = nigerianStates.filter(state =>
+        search ? state.toLowerCase().includes(search.toLowerCase()) : true
+      );
+      filteredStates.forEach(state => {
+        combinedResults.push({
+          id: `state_${state.replace(/\s+/g, '_').toLowerCase()}`,
+          name: state,
+          type: 'state'
+        });
+      });
+
+      // Add AHNI office locations
+      if (locationsResponse.data?.data?.results) {
+        locationsResponse.data.data.results.forEach((location: any) => {
+          // Only include if it's not just a state name
+          if (!nigerianStates.includes(location.name)) {
+            combinedResults.push({
+              id: location.id,
+              name: location.name,
+              type: 'office'
+            });
+          }
+        });
+      }
+
+      // Add facilities
+      if (facilitiesResponse.data?.data?.results) {
+        facilitiesResponse.data.data.results.forEach((facility: any) => {
+          combinedResults.push({
+            id: facility.id,
+            name: facility.name,
+            type: 'facility'
+          });
+        });
+      }
+
+      return {
+        data: {
+          results: combinedResults
+        }
+      };
+    },
+    enabled,
+    refetchOnWindowFocus: false,
+  });
+};

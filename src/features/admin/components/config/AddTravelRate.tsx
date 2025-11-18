@@ -20,20 +20,29 @@ import {
   useAddTravelRateMutation,
   useUpdateTravelRateMutation,
 } from "@/features/modules/controllers/config/travelRateController";
+import { useGetAllStatesQuery } from "@/features/modules/controllers/config/stateController";
 
 const AddTravelRate = () => {
   const { dialogProps } = useAppSelector(dailogSelector);
 
   const data = dialogProps?.data as unknown as ITravelRate;
 
+  // Fetch states from our states system
+  const { data: statesData } = useGetAllStatesQuery({
+    page: 1,
+    size: 50, // Get all states
+    search: ""
+  });
+
   const form = useForm<TravelRateFormValues>({
     resolver: zodResolver(TravelRateSchema),
     defaultValues: {
-      state: data?.state ?? "",
-      accommodation_rate: data?.accommodation_rate ?? 0,
-      meal_allowance: data?.meal_allowance ?? 0,
+      state: data?.state_name || data?.state || "",
+      // Handle both frontend and backend field names
+      accommodation_rate: data?.lodging_rate || data?.accommodation_rate || 0,
+      meal_allowance: data?.mie_rate || data?.meal_allowance || 0,
       effective_date: data?.effective_date ? data.effective_date.split('T')[0] : "",
-      notes: data?.notes ?? "",
+      notes: data?.notes || "",
       is_active: data?.is_active ?? true,
     },
   });
@@ -57,45 +66,11 @@ const AddTravelRate = () => {
     { label: "International", value: "International" },
   ];
 
-  const nigerianStates = [
-    { label: "Abia", value: "Abia" },
-    { label: "Adamawa", value: "Adamawa" },
-    { label: "Akwa Ibom", value: "Akwa Ibom" },
-    { label: "Anambra", value: "Anambra" },
-    { label: "Bauchi", value: "Bauchi" },
-    { label: "Bayelsa", value: "Bayelsa" },
-    { label: "Benue", value: "Benue" },
-    { label: "Borno", value: "Borno" },
-    { label: "Cross River", value: "Cross River" },
-    { label: "Delta", value: "Delta" },
-    { label: "Ebonyi", value: "Ebonyi" },
-    { label: "Edo", value: "Edo" },
-    { label: "Ekiti", value: "Ekiti" },
-    { label: "Enugu", value: "Enugu" },
-    { label: "FCT", value: "FCT" },
-    { label: "Gombe", value: "Gombe" },
-    { label: "Imo", value: "Imo" },
-    { label: "Jigawa", value: "Jigawa" },
-    { label: "Kaduna", value: "Kaduna" },
-    { label: "Kano", value: "Kano" },
-    { label: "Katsina", value: "Katsina" },
-    { label: "Kebbi", value: "Kebbi" },
-    { label: "Kogi", value: "Kogi" },
-    { label: "Kwara", value: "Kwara" },
-    { label: "Lagos", value: "Lagos" },
-    { label: "Nasarawa", value: "Nasarawa" },
-    { label: "Niger", value: "Niger" },
-    { label: "Ogun", value: "Ogun" },
-    { label: "Ondo", value: "Ondo" },
-    { label: "Osun", value: "Osun" },
-    { label: "Oyo", value: "Oyo" },
-    { label: "Plateau", value: "Plateau" },
-    { label: "Rivers", value: "Rivers" },
-    { label: "Sokoto", value: "Sokoto" },
-    { label: "Taraba", value: "Taraba" },
-    { label: "Yobe", value: "Yobe" },
-    { label: "Zamfara", value: "Zamfara" },
-  ];
+  // Generate state options from our states system
+  const stateOptions = statesData?.data?.results?.map((state) => ({
+    label: `${state.name} (${state.code})`,
+    value: state.name,
+  })) || [];
 
   const onSubmit: SubmitHandler<TravelRateFormValues> = async (formData) => {
     try {
@@ -130,8 +105,8 @@ const AddTravelRate = () => {
           <FormSelect
             label='State'
             name='state'
-            placeholder='Select Nigerian state'
-            options={nigerianStates}
+            placeholder={statesData?.data?.results?.length ? 'Select Nigerian state' : 'Loading states...'}
+            options={stateOptions}
             required
           />
 

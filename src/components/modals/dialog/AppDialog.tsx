@@ -55,6 +55,7 @@ import AddDepartments from "@/features/admin/components/config/AddDepartments";
 import AddFinancialYear from "@/features/admin/components/config/AddFinancialYear";
 import AddItems from "@/features/admin/components/config/AddItems";
 import AddLocations from "@/features/admin/components/config/AddLocations";
+import AddStates from "@/features/admin/components/config/AddStates";
 import AddLots from "@/features/procurement/components/AddLots";
 import AddSolicitation from "@/features/procurement/components/modals/AddSolicitationModal";
 import AddPrequalificationCategory from "@/features/procurement/components/AddPrequalificationCategory";
@@ -162,6 +163,7 @@ const dialogs: Record<string, ReactNode> = {
   [DialogType.AddFinancialYear]: <AddFinancialYear />,
   [DialogType.AddItems]: <AddItems />,
   [DialogType.AddLocations]: <AddLocations />,
+  [DialogType.AddStates]: <AddStates />,
   [DialogType.AddLots]: <AddLots />,
   [DialogType.AddSolicitation]: <AddSolicitation />,
   [DialogType.AddPrequalificationCategory]: <AddPrequalificationCategory />,

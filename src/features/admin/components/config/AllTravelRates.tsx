@@ -125,6 +125,12 @@ export default function AllTravelRates() {
 
         {isFetching ? (
           <LoadingSpinner />
+        ) : error ? (
+          <div className="text-center py-8 text-red-500">
+            <p>Error loading travel rates</p>
+            <p className="text-xs mt-1">{error?.toString() || 'Unknown error'}</p>
+            <p className="text-xs mt-1">Check if the backend API endpoint /travel-rates/ exists</p>
+          </div>
         ) : (
           <div>
             {travelRates?.data?.results?.map((item) => (
@@ -133,17 +139,17 @@ export default function AllTravelRates() {
                 className='flex justify-between mt-6 text-[#756D6D] font-normal text-xs items-center'
               >
                 <div className='flex-1'>
-                  <p className="font-medium">{item?.location || 'N/A'}</p>
-                  <p className="text-xs text-gray-500">{item?.state || 'N/A'}, {item?.country || 'N/A'}</p>
+                  <p className="font-medium">{item?.state_name || item?.state || 'N/A'}</p>
+                  <p className="text-xs text-gray-500">{item?.state_code || 'N/A'}, Nigeria</p>
                 </div>
                 <div className='flex-1'>
-                  {getCategoryBadge(item?.category || 'Local')}
+                  {getCategoryBadge('Local')}
                 </div>
                 <p className='flex-1 font-semibold text-green-600'>
-                  {formatCurrency(item?.per_diem_rate, item?.currency || 'NGN')}
+                  {formatCurrency(item?.mie_rate || item?.per_diem_rate, 'NGN')}
                 </p>
                 <p className='flex-1 font-semibold text-blue-600'>
-                  {formatCurrency(item?.accommodation_rate, item?.currency || 'NGN')}
+                  {formatCurrency(item?.lodging_rate || item?.accommodation_rate, 'NGN')}
                 </p>
                 <p className='flex-1'>{formatDate(item?.effective_date)}</p>
                 <div className='flex-1'>

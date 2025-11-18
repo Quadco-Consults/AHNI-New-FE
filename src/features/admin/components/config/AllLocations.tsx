@@ -73,6 +73,7 @@ export default function AllLocations() {
       <div>
         <div className='flex text-[#756D6D] font-semibold text-sm border-b border-gray-300 pb-4'>
           <h1 className='flex-1'>Name</h1>
+          <h1 className='flex-1'>Code</h1>
           <h1 className='flex-1'>Address</h1>
           <h1 className='flex-1'>City</h1>
           <h1 className='flex-1'>State</h1>
@@ -91,6 +92,7 @@ export default function AllLocations() {
                 className='flex justify-between mt-6 text-[#756D6D] font-normal text-xs'
               >
                 <p className='flex-1'>{item.name}</p>
+                <p className='flex-1 font-mono text-blue-600'>{item.code || 'N/A'}</p>
                 <p className='flex-1'>{item.address}</p>
                 <p className='flex-1'>{item.city}</p>
                 <p className='flex-1'>{item.state}</p>
