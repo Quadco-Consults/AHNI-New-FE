@@ -1,15 +1,77 @@
 import { SidebarItem, GlobalHubItem, PermissionRequirement } from './sidebarItems';
 
 /**
+ * Check if user is super admin
+ * @param userPermissions - Array of user's permissions from API
+ * @param userRoles - Array of user's roles (optional, for when available)
+ * @returns boolean - true if user is super admin
+ */
+function isSuperAdmin(userPermissions: any[], userRoles?: any[]): boolean {
+  // Method 1: Check user roles for admin indicators
+  if (userRoles && userRoles.length > 0) {
+    const adminRoles = ['super admin', 'superadmin', 'administrator', 'admin', 'super_admin', 'system_admin'];
+    const hasAdminRole = userRoles.some(role => {
+      // Ensure role is a string and not null/undefined
+      if (typeof role === 'string' && role) {
+        return adminRoles.some(adminRole =>
+          role.toLowerCase().includes(adminRole.toLowerCase())
+        );
+      }
+      // If role is an object, try to extract role name
+      if (typeof role === 'object' && role && (role as any).name) {
+        const roleName = (role as any).name;
+        if (typeof roleName === 'string') {
+          return adminRoles.some(adminRole =>
+            roleName.toLowerCase().includes(adminRole.toLowerCase())
+          );
+        }
+      }
+      return false;
+    });
+    if (hasAdminRole) return true;
+  }
+
+  // Method 2: Check for admin/superuser permissions
+  const hasAdminPermissions = userPermissions.some(p =>
+    p.module === 'admin' ||
+    p.module === 'superuser' ||
+    p.module === 'users' && p.permissions?.some((perm: any) =>
+      perm.codename === 'is_superuser' ||
+      perm.codename === 'can_view_all' ||
+      perm.codename === 'superuser_access' ||
+      perm.codename === 'view_user' // Users module access is usually admin-level
+    )
+  );
+
+  // Method 3: Check if user has permissions across all major modules (likely super admin)
+  const majorModules = ['admin', 'finance', 'hr', 'programs', 'procurements', 'users'];
+  const hasAllModules = majorModules.every(module =>
+    userPermissions.some(p => p.module === module)
+  );
+
+  // Method 4: Check if user has a very high number of permissions (super admin pattern)
+  const hasHighPermissionCount = userPermissions.length >= 5; // Arbitrary threshold
+
+  return hasAdminPermissions || hasAllModules || hasHighPermissionCount;
+}
+
+/**
  * Check if user has the required permissions
  * @param userPermissions - Array of user's permissions from API
  * @param requiredPermissions - Array of required permission sets
+ * @param userRoles - Array of user's roles (optional, for super admin check)
  * @returns boolean - true if user has access
  */
 export function hasPermission(
   userPermissions: any[],
-  requiredPermissions?: PermissionRequirement[]
+  requiredPermissions?: PermissionRequirement[],
+  userRoles?: any[]
 ): boolean {
+  // Super admin bypass - super admins can see everything
+  if (isSuperAdmin(userPermissions, userRoles)) {
+    return true;
+  }
+
   // If no permissions required, item is visible to all authenticated users
   if (!requiredPermissions || requiredPermissions.length === 0) {
     return true;
@@ -47,22 +109,25 @@ export function hasPermission(
  * Recursively filter sidebar items based on user permissions
  * @param items - Array of sidebar items
  * @param userPermissions - User's permissions from API
+ * @param userRoles - User's roles (optional, for super admin check)
  * @returns Filtered array of sidebar items
  */
 export function filterSidebarByPermissions(
   items: SidebarItem[],
-  userPermissions: any[]
+  userPermissions: any[],
+  userRoles?: any[]
 ): SidebarItem[] {
   return items
-    .filter(item => hasPermission(userPermissions, item.permissions))
+    .filter(item => hasPermission(userPermissions, item.permissions, userRoles))
     .map(item => {
       // If item has children, recursively filter them
       if (item.children && item.children.length > 0) {
         const filteredChildren = filterSidebarByPermissions(
           item.children,
-          userPermissions
+          userPermissions,
+          userRoles
         );
-        
+
         // Only include parent if it has visible children or has its own path
         if (filteredChildren.length > 0 || item.path) {
           return {
@@ -81,14 +146,16 @@ export function filterSidebarByPermissions(
  * Filter global hub items by user permissions
  * @param items - Array of global hub items
  * @param userPermissions - User's permissions from API
+ * @param userRoles - User's roles (optional, for super admin check)
  * @returns Filtered array of global hub items
  */
 export function filterGlobalHubByPermissions(
   items: GlobalHubItem[],
-  userPermissions: any[]
+  userPermissions: any[],
+  userRoles?: any[]
 ): GlobalHubItem[] {
-  return items.filter(item => 
-    hasPermission(userPermissions, item.permissions)
+  return items.filter(item =>
+    hasPermission(userPermissions, item.permissions, userRoles)
   );
 }
 
