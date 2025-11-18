@@ -48,6 +48,11 @@ export interface TConsumablePaginatedData {
   updated_by: null;
   item: TItemData;
   store_stocks?: TItemStoreStockData[]; // Store stock information for the item
+
+  // Master Catalog properties (calculated from store_stocks)
+  total_quantity?: number; // Sum of all store quantities
+  total_available?: number; // Sum of all store available quantities
+  stores_count?: number; // Number of stores with this item
 }
 
 export interface TConsumableSingleData {

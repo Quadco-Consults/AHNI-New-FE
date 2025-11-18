@@ -5,8 +5,8 @@ import dynamic from "next/dynamic";
 
 const ForgotPassword = dynamic(
   () =>
-    import("features/auth/components").then((mod) => ({
-      default: mod.ForgotPassword,
+    import("@/features/auth/components/ForgotPassword").then((mod) => ({
+      default: mod.default,
     })),
   {
     ssr: false,

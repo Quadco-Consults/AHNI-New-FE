@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import BackNavigation from "components/BackNavigation";
@@ -11,6 +11,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Pencil, MapPin, User, Building2, Calendar, CheckCircle, XCircle, Package, TrendingDown, AlertTriangle, AlertCircle, Plus, Eye, FileText, TrendingUp } from "lucide-react";
 import { useGetSingleStore } from "@/features/admin/controllers/storeController";
 import { useGetStoreInventory } from "@/features/admin/controllers/itemStoreStockController";
+import { useQuery } from "@tanstack/react-query";
+import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { AdminRoutes } from "@/constants/RouterConstants";
 import { cn } from "@/lib/utils";
 import { TItemStoreStockData, getStockAlertLevel } from "@/features/admin/types/inventory-management/item-store-stock";
@@ -35,10 +37,257 @@ export default function StoreDetailPage({ storeId }: StoreDetailPageProps) {
   const [activeTab, setActiveTab] = useState("overview");
   const { data: storeData, isLoading } = useGetSingleStore(storeId);
 
-  // Note: The item-store-stocks endpoint is not yet available on the backend
-  // This will be enabled once the backend implements the endpoint
-  const { data: inventoryData, isLoading: inventoryLoading, error: inventoryError } = useGetStoreInventory(storeId);
+  // Enhanced debugging to identify duplicate store issue
+  const { data: allItemsData, isLoading: inventoryLoading, error: inventoryError } = useQuery({
+    queryKey: ["store-inventory-comprehensive", storeId],
+    queryFn: async () => {
+      console.log("🔍 ENHANCED DUPLICATE STORE DEBUGGING...");
+      console.log("🔍 Current Store ID being viewed:", storeId);
 
+      // STEP 1: Get ALL stores to identify duplicates
+      try {
+        console.log("🔍 STEP 1: Analyzing all stores for duplicates...");
+        const storesResponse = await AxiosWithToken.get("admins/inventory/stores/", {
+          params: { page: 1, size: 100 }
+        });
+        const allStores = storesResponse.data?.data?.results || [];
+
+        // Find all HQ stores (duplicates)
+        const hqStores = allStores.filter((store: any) =>
+          store.name?.toLowerCase().includes('hq') ||
+          store.name?.toLowerCase().includes('main')
+        );
+
+        console.log("🔍 ALL STORES IN SYSTEM:", allStores.map((s: any) => ({ id: s.id, name: s.name, code: s.code })));
+        console.log("🔍 HQ/MAIN STORES FOUND:", hqStores.map((s: any) => ({ id: s.id, name: s.name, code: s.code, created: s.created_datetime })));
+        console.log("🔍 DUPLICATE DETECTION - HQ stores count:", hqStores.length);
+
+        if (hqStores.length > 1) {
+          console.log("⚠️ DUPLICATE HQ STORES DETECTED!");
+        }
+      } catch (error: any) {
+        console.log("❌ STORES ANALYSIS FAILED:", error.response?.data || error.message);
+      }
+
+      // STEP 2: Get ALL item-store-stocks to see which stores have items
+      try {
+        console.log("🔍 STEP 2: Analyzing ALL item-store-stocks globally...");
+        const globalStockResponse = await AxiosWithToken.get("admins/inventory/item-store-stocks/", {
+          params: {
+            page: 1,
+            size: 1000,
+            expand: "item_detail,item_detail.category,store_detail,store_detail.location",
+          },
+        });
+
+        const allStocks = globalStockResponse.data?.data?.results || [];
+        console.log("🔍 TOTAL STOCKS IN SYSTEM:", allStocks.length);
+
+        // Group stocks by store to see which stores have inventory
+        const storeInventoryMap = new Map();
+        allStocks.forEach((stock: any) => {
+          const stockStoreId = typeof stock.store_detail === 'string'
+            ? stock.store_detail
+            : stock.store_detail?.id;
+
+          const stockStoreName = typeof stock.store_detail === 'string'
+            ? stockStoreId
+            : stock.store_detail?.name;
+
+          if (!storeInventoryMap.has(stockStoreId)) {
+            storeInventoryMap.set(stockStoreId, {
+              storeId: stockStoreId,
+              storeName: stockStoreName,
+              itemCount: 0,
+              items: []
+            });
+          }
+
+          const storeData = storeInventoryMap.get(stockStoreId);
+          storeData.itemCount++;
+          storeData.items.push({
+            itemName: stock.item_detail?.name,
+            quantity: stock.quantity
+          });
+        });
+
+        console.log("🔍 STORES WITH INVENTORY:");
+        for (const [storeId, data] of storeInventoryMap) {
+          console.log(`  Store ID: ${storeId} | Name: ${data.storeName} | Items: ${data.itemCount}`);
+          if (data.storeName?.toLowerCase().includes('hq') || data.storeName?.toLowerCase().includes('main')) {
+            console.log(`  ⭐ HQ/MAIN STORE WITH ${data.itemCount} ITEMS:`, data.items);
+          }
+        }
+
+        // Check if current store has any inventory
+        const currentStoreStocks = allStocks.filter((stock: any) => {
+          const stockStoreId = typeof stock.store_detail === 'string'
+            ? stock.store_detail
+            : stock.store_detail?.id;
+          return stockStoreId === storeId;
+        });
+
+        console.log(`🔍 CURRENT STORE (${storeId}) HAS ${currentStoreStocks.length} ITEMS`);
+
+        if (currentStoreStocks.length === 0) {
+          console.log("❌ PROBLEM IDENTIFIED: Current store has NO inventory!");
+          console.log("🔍 Looking for which store HAS the inventory...");
+
+          // Find stores with inventory that might be the "correct" one
+          const storesWithInventory = Array.from(storeInventoryMap.entries())
+            .filter(([_, data]) => data.itemCount > 0)
+            .map(([storeId, data]) => ({ storeId, ...data }));
+
+          console.log("📋 STORES THAT HAVE INVENTORY:", storesWithInventory);
+        }
+
+        if (currentStoreStocks.length > 0) {
+          console.log("✅ FOUND INVENTORY FOR CURRENT STORE:", currentStoreStocks.length, "items");
+          // Transform to items format
+          return {
+            status: true,
+            message: "Retrieved inventory for current store",
+            data: {
+              results: currentStoreStocks.map((stock: any) => ({
+                ...stock.item_detail,
+                store_stocks: [stock]
+              })),
+              pagination: globalStockResponse.data.data.pagination
+            }
+          };
+        }
+      } catch (error: any) {
+        console.log("❌ GLOBAL STOCK ANALYSIS FAILED:", error.response?.data || error.message);
+      }
+
+      // STEP 3: Test direct endpoint for current store
+      try {
+        console.log("🔍 STEP 3: Testing direct endpoint for current store...");
+        const storeStockResponse = await AxiosWithToken.get("admins/inventory/item-store-stocks/", {
+          params: {
+            store: storeId,
+            page: 1,
+            size: 1000,
+            expand: "item_detail,item_detail.category,store_detail,store_detail.location",
+          },
+        });
+
+        if (storeStockResponse.data?.data?.results?.length > 0) {
+          console.log("✅ FOUND STOCKS WITH DIRECT ENDPOINT:", storeStockResponse.data.data.results.length, "items");
+          return {
+            ...storeStockResponse.data,
+            data: {
+              ...storeStockResponse.data.data,
+              results: storeStockResponse.data.data.results.map((stock: any) => ({
+                ...stock.item_detail,
+                store_stocks: [stock]
+              }))
+            }
+          };
+        }
+      } catch (error: any) {
+        console.log("❌ DIRECT ENDPOINT FAILED:", error.response?.data || error.message);
+      }
+
+      // STEP 4: Fall back to empty result
+      console.log("🔍 STEP 4: No inventory found for current store");
+      return {
+        status: true,
+        message: "No inventory found",
+        data: {
+          results: [],
+          pagination: { count: 0 }
+        }
+      };
+    },
+    enabled: !!storeId,
+    refetchOnWindowFocus: false,
+  });
+
+  // Process inventory data for the specific store - handle both transformed and original data formats
+  const inventory = useMemo(() => {
+    if (!allItemsData?.data?.results) return [];
+
+    const allItems = allItemsData.data.results;
+    const storeInventory: any[] = [];
+
+    allItems.forEach((item: any) => {
+      // Handle transformed data from item-store-stocks endpoint (new format)
+      if (item.store_stocks && Array.isArray(item.store_stocks) && item.store_stocks.length > 0) {
+        console.log("🔍 PROCESSING TRANSFORMED ITEM-STORE-STOCKS FORMAT:", item);
+
+        item.store_stocks.forEach((stock: any) => {
+          // For item-store-stocks data, the stock already has the right store filtering
+          storeInventory.push({
+            id: stock.id,
+            item: stock.item || item.id,
+            item_detail: {
+              id: stock.item || item.id,
+              name: item.name || stock.itemName || stock.item_data?.name,
+              category: item.category_detail || item.category || stock.item_data?.category,
+            },
+            itemName: item.name || stock.itemName || stock.item_data?.name,
+            store: stock.store || storeId,
+            store_detail: stock.store_detail || { id: stock.store },
+            quantity: stock.quantity || 0,
+            available_quantity: stock.available_quantity || 0,
+            reserved_quantity: stock.reserved_quantity || 0,
+            re_order_level: stock.re_order_level || 0,
+            buffer_stock: stock.buffer_stock || 0,
+            max_stock: stock.max_stock || 0,
+            created_datetime: stock.created_datetime,
+            updated_datetime: stock.updated_datetime,
+          });
+        });
+      }
+      // Handle original items format (fallback)
+      else if (item.store_stocks && Array.isArray(item.store_stocks)) {
+        console.log("🔍 PROCESSING ORIGINAL ITEMS FORMAT:", item);
+
+        // Find stock for this specific store
+        const storeStock = item.store_stocks.find((stock: any) => {
+          const stockStoreId = typeof stock.store_detail === 'string'
+            ? stock.store_detail
+            : stock.store_detail?.id;
+          return stockStoreId === storeId;
+        });
+
+        if (storeStock) {
+          storeInventory.push({
+            id: storeStock.id,
+            item: item.id,
+            item_detail: {
+              id: item.id,
+              name: item.name,
+              category: item.category || item.category_detail,
+            },
+            itemName: item.name,
+            store: storeId,
+            store_detail: storeStock.store_detail,
+            quantity: storeStock.quantity || 0,
+            available_quantity: storeStock.available_quantity || 0,
+            reserved_quantity: storeStock.reserved_quantity || 0,
+            re_order_level: storeStock.re_order_level || 0,
+            buffer_stock: storeStock.buffer_stock || 0,
+            max_stock: storeStock.max_stock || 0,
+            created_datetime: storeStock.created_datetime,
+            updated_datetime: storeStock.updated_datetime,
+          });
+        }
+      }
+    });
+
+    console.log("🔍 FINAL INVENTORY PROCESSING DEBUG - Store ID:", storeId);
+    console.log("🔍 FINAL INVENTORY PROCESSING DEBUG - API Response:", allItemsData);
+    console.log("🔍 FINAL INVENTORY PROCESSING DEBUG - All items count:", allItems.length);
+    console.log("🔍 FINAL INVENTORY PROCESSING DEBUG - Items with store_stocks:", allItems.filter((item: any) => item.store_stocks && item.store_stocks.length > 0).length);
+    console.log("🔍 FINAL INVENTORY PROCESSING DEBUG - Store inventory count:", storeInventory.length);
+    console.log("🔍 FINAL INVENTORY PROCESSING DEBUG - Store inventory:", storeInventory);
+
+    return storeInventory;
+  }, [allItemsData?.data?.results, storeId]);
+
+  // Early returns AFTER all hooks to avoid hook order issues
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -56,7 +305,6 @@ export default function StoreDetailPage({ storeId }: StoreDetailPageProps) {
   }
 
   const store = storeData.data;
-  const inventory = inventoryData?.data?.results || [];
 
   // Define columns for consumables table
   const consumableColumns: ColumnDef<any>[] = [
@@ -369,8 +617,7 @@ export default function StoreDetailPage({ storeId }: StoreDetailPageProps) {
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="mt-6">
-            {inventoryError ? (
-              /* Show backend integration message */
+            {false ? (
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
                 <AlertCircle className="w-12 h-12 text-blue-600 mx-auto mb-3" />
                 <h3 className="font-semibold text-blue-900 mb-2">
@@ -473,8 +720,8 @@ export default function StoreDetailPage({ storeId }: StoreDetailPageProps) {
 
           {/* Consumables Tab */}
           <TabsContent value="consumables" className="mt-6">
-            {inventoryError ? (
-              /* Backend endpoint not available yet */
+
+            {false ? (
               <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-lg p-8">
                 <div className="text-center space-y-4">
                   <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
