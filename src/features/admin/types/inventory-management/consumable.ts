@@ -30,7 +30,7 @@ export interface TConsumablePaginatedData {
   id: string;
   name: string;
   description: string;
-  category: string;
+  category: TCategoryData;
   created_datetime: string;
   updated_datetime: string;
   quantity: number;
@@ -47,6 +47,7 @@ export interface TConsumablePaginatedData {
   created_by: string;
   updated_by: null;
   item: TItemData;
+  store_stocks?: TItemStoreStockData[]; // Store stock information for the item
 }
 
 export interface TConsumableSingleData {
