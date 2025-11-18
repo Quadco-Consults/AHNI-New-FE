@@ -13,7 +13,7 @@ import {
 } from "features/admin/types/inventory-management/asset";
 import useQuery from "hooks/useQuery";
 import { nigerianStates } from "lib/index";
-import { useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { useGetAllAssetConditions } from "@/features/modules/controllers/admin/assetConditionController";
@@ -102,14 +102,15 @@ export default function CreateAsset() {
     search: "",
   });
 
-  const assetTypeOptions = useMemo(
-    () =>
-      assetType?.data.results.map(({ name, id }) => ({
-        label: name,
-        value: id,
-      })),
-    [assetType]
-  );
+  // Asset Type options removed - now auto-derived from category selection
+  // const assetTypeOptions = useMemo(
+  //   () =>
+  //     assetType?.data.results.map(({ name, id }) => ({
+  //       label: name,
+  //       value: id,
+  //     })),
+  //   [assetType]
+  // );
 
   const { data: project } = useGetAllProjects({
     page: 1,
@@ -388,6 +389,44 @@ export default function CreateAsset() {
   const isLabEquipment = selectedCategoryName.includes("lab") || selectedCategoryName.includes("laboratory");
   const isFurniture = selectedCategoryName.includes("furniture");
 
+  // Auto-derive asset type from category selection
+  const getAssetTypeByCategory = useCallback((categoryName: string) => {
+    if (!assetType?.data?.results) return null;
+
+    const normalizedCategory = categoryName.toLowerCase();
+
+    // Find matching asset type based on category name
+    return assetType.data.results.find((type: any) => {
+      const normalizedTypeName = type.name.toLowerCase();
+
+      if (normalizedCategory.includes("vehicle")) {
+        return normalizedTypeName.includes("vehicle") || normalizedTypeName.includes("transport");
+      }
+      if (normalizedCategory.includes("equipment") || normalizedCategory.includes("it")) {
+        return normalizedTypeName.includes("equipment") || normalizedTypeName.includes("technology");
+      }
+      if (normalizedCategory.includes("lab") || normalizedCategory.includes("laboratory")) {
+        return normalizedTypeName.includes("lab") || normalizedTypeName.includes("scientific");
+      }
+      if (normalizedCategory.includes("furniture")) {
+        return normalizedTypeName.includes("furniture") || normalizedTypeName.includes("office");
+      }
+
+      // Default fallback - try to match by name similarity
+      return normalizedTypeName.includes(normalizedCategory) || normalizedCategory.includes(normalizedTypeName);
+    });
+  }, [assetType]);
+
+  // Effect to auto-set asset type when category changes
+  useEffect(() => {
+    if (selectedCategoryName && assetType?.data?.results) {
+      const matchingAssetType = getAssetTypeByCategory(selectedCategoryName);
+      if (matchingAssetType) {
+        form.setValue("asset_type", matchingAssetType.id);
+      }
+    }
+  }, [selectedCategoryName, assetType, getAssetTypeByCategory, form]);
+
   const selectedAssetTypeId = form.watch("asset_type");
   const selectedAssetTypeName = assetType?.data.results.find(
     (assetType) => assetType.id === selectedAssetTypeId
@@ -412,13 +451,14 @@ export default function CreateAsset() {
                 required
               />
 
-              <FormSelect
+              {/* Asset Type is now auto-derived from Category selection */}
+              {/* <FormSelect
                 label='Asset Type'
                 name='asset_type'
                 placeholder='Select Asset Type'
                 required
                 options={assetTypeOptions}
-              />
+              /> */}
 
               <FormSelect
                 label='Project'
