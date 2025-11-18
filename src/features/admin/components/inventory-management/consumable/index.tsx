@@ -1,5 +1,5 @@
 "use client";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Card from "@/components/Card";
 import { Button } from "@/components/ui/button";
 import { Plus, Upload, Store } from "lucide-react";
@@ -18,6 +18,9 @@ export default function ConsumablesHomePage() {
   const [page, setPage] = useState(1);
   const [bulkUploadOpen, setBulkUploadOpen] = useState(false);
   const [bulkAssignOpen, setBulkAssignOpen] = useState(false);
+
+  // Pagination settings
+  const ITEMS_PER_PAGE = 15;
 
   // Get current user information for location-based filtering
   const currentUser: IUser | null = useAppSelector((state) => state.auth.user) || getCurrentUser();
@@ -83,52 +86,119 @@ export default function ConsumablesHomePage() {
     return { isSuper, isHQ, userLocationId, shouldFilter };
   }, [currentUser]);
 
-  // Define the consumables category ID
-  const CONSUMABLES_CATEGORY_ID = "fadb6228-23de-4b04-9eac-b75940cf622f";
+  // Smart consumable category detection
+  const isConsumableCategory = (categoryName: string) => {
+    if (!categoryName) return false;
+    const name = categoryName.toLowerCase();
 
-  // Fetch all items without category filter for now to debug the issue
+    // Keywords that indicate consumable categories
+    const consumableKeywords = [
+      'consumables', 'consumable', 'supplies', 'medical', 'office',
+      'cleaning', 'laboratory', 'lab', 'it consumables', 'stationery'
+    ];
+
+    // Exclude pure asset categories
+    const assetKeywords = ['vehicles', 'equipment', 'furniture', 'machinery'];
+
+    const hasConsumableKeyword = consumableKeywords.some(keyword => name.includes(keyword));
+    const hasAssetKeyword = assetKeywords.some(keyword => name.includes(keyword));
+
+    // Include if it has consumable keywords, exclude if it's clearly an asset
+    if (name.includes('medical equipment')) return false; // Medical Equipment is an asset
+    if (name.includes('it equipment')) return false; // IT Equipment is an asset
+
+    return hasConsumableKeyword || (!hasAssetKeyword && name.includes('medical'));
+  };
+
+  // Fetch ALL items first, then filter for consumables
   const { data: item, isFetching } = useGetAllItemsQuery({
     page,
-    size: 20,
-    // Temporarily removed category filter to show all created items
-    // category: CONSUMABLES_CATEGORY_ID,
+    size: 100, // Increased to get more items for filtering
+    // Remove category filter - we'll filter client-side for better control
     expand: "store_stocks,store_stocks.store_detail,store_stocks.store_detail.location", // Include store stock and location information
   });
 
-  // Filter consumables based on user access level
+  // Process consumables for Master Catalog view with store distribution
   const filteredConsumables = useMemo(() => {
     if (!item?.data?.results) return [];
 
     const allItems = item.data.results;
 
-    // Super Admin and HQ Admin: See all items
+    // First, filter to only consumable items based on category
+    const consumableItems = allItems.filter((item: any) => {
+      const categoryName = item.category?.name || item.category_detail?.name || '';
+      return isConsumableCategory(categoryName);
+    });
+
+    console.log(`🔍 SMART FILTERING - Total items: ${allItems.length}, Consumables: ${consumableItems.length}`);
+    console.log(`🔍 Consumable categories found:`, [...new Set(consumableItems.map((item: any) => item.category?.name || item.category_detail?.name))]);
+
+    // For Master Catalog, we want to show consumable types with their store distribution
+    const processedItems = consumableItems.map((item: any) => {
+      const storeStocks = item.store_stocks || [];
+
+      // Calculate total quantities across all stores
+      const totalQuantity = storeStocks.reduce((sum: number, stock: any) => sum + (stock.quantity || 0), 0);
+      const totalAvailable = storeStocks.reduce((sum: number, stock: any) => sum + (stock.available_quantity || 0), 0);
+
+      return {
+        ...item,
+        store_stocks: storeStocks,
+        total_quantity: totalQuantity,
+        total_available: totalAvailable,
+        stores_count: storeStocks.length,
+        // For legacy compatibility
+        quantity: totalQuantity,
+        available_quantity: totalAvailable,
+      };
+    });
+
+    // Apply location-based filtering for department admins
     if (!userAccessInfo.shouldFilter) {
-      console.log(`🔍 ${userAccessInfo.isSuper ? 'Super Admin' : 'HQ Admin'} - Showing all items globally:`, allItems.length);
-      return allItems;
+      console.log(`🔍 ${userAccessInfo.isSuper ? 'Super Admin' : 'HQ Admin'} - Master Catalog showing all consumables globally:`, processedItems.length);
+      return processedItems;
     }
 
-    // Department Admin: Filter by user's location
+    // Department Admin: Filter to show only items available in their location
     if (!userAccessInfo.userLocationId) {
       console.log('⚠️ Department Admin without location - showing no items');
       return [];
     }
 
-    const locationFilteredItems = allItems.filter((item: any) => {
-      // Check if item has store stocks in the user's location
-      const hasStockInUserLocation = item.store_stocks?.some((stock: any) => {
+    const locationFilteredItems = processedItems.filter((item: any) => {
+      // Show items that have stock in the user's location OR unassigned items
+      if (!item.store_stocks || item.store_stocks.length === 0) {
+        return true; // Show unassigned items (they can potentially be assigned)
+      }
+
+      return item.store_stocks.some((stock: any) => {
         const storeLocationId = typeof stock.store_detail?.location === 'string'
           ? stock.store_detail.location
           : stock.store_detail?.location?.id;
-
         return storeLocationId === userAccessInfo.userLocationId;
       });
-
-      return hasStockInUserLocation;
     });
 
-    console.log(`🔍 Department Admin (Location: ${userAccessInfo.userLocationId}) - Filtered items:`, locationFilteredItems.length, 'of', allItems.length);
+    console.log(`🔍 Department Admin (Location: ${userAccessInfo.userLocationId}) - Master Catalog filtered items:`, locationFilteredItems.length, 'of', processedItems.length);
     return locationFilteredItems;
   }, [item?.data?.results, userAccessInfo]);
+
+  // Client-side pagination
+  const paginatedConsumables = useMemo(() => {
+    const startIndex = (page - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    return filteredConsumables.slice(startIndex, endIndex);
+  }, [filteredConsumables, page, ITEMS_PER_PAGE]);
+
+  // Calculate total pages
+  const totalPages = Math.ceil(filteredConsumables.length / ITEMS_PER_PAGE);
+
+  // Reset to page 1 when filteredConsumables changes (e.g., when user access changes)
+  useEffect(() => {
+    if (page > totalPages && totalPages > 0) {
+      setPage(1);
+    }
+  }, [filteredConsumables.length, page, totalPages]);
 
   // Debug logging to understand what items are being returned
   console.log("🔍 SUPER ADMIN DEBUG - Current User:", currentUser);
@@ -150,9 +220,10 @@ export default function ConsumablesHomePage() {
           {process.env.NODE_ENV === 'development' && (
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
               <p className="text-sm text-blue-800">
-                <strong>Debug Mode:</strong> Showing all items (category filter temporarily disabled).
+                <strong>Smart Master Catalog:</strong> Auto-detected consumable categories.
                 Total items: {item?.data?.pagination?.count || 0} |
-                Filtered items: {filteredConsumables.length} |
+                Consumables found: {filteredConsumables.length} |
+                Page: {page}/{totalPages} ({ITEMS_PER_PAGE} per page) |
                 User Access: {userAccessInfo.isSuper ? 'Super Admin (Global)' : userAccessInfo.isHQ ? 'HQ Admin (Global)' : `Department Admin (Location: ${userAccessInfo.userLocationId || 'None'})`}
               </p>
             </div>
@@ -199,13 +270,14 @@ export default function ConsumablesHomePage() {
         </div>
         <TableFilters>
           <DataTable
-            data={filteredConsumables}
+            data={paginatedConsumables}
             isLoading={isFetching}
             // @ts-ignore
             columns={consumableColums}
             pagination={{
               total: filteredConsumables.length,
-              pageSize: item?.data.pagination.page_size ?? 20,
+              pageSize: ITEMS_PER_PAGE,
+              current: page,
               onChange: (page: number) => setPage(page),
             }}
           />
@@ -215,7 +287,7 @@ export default function ConsumablesHomePage() {
       <BulkUploadDialog
         open={bulkUploadOpen}
         onOpenChange={setBulkUploadOpen}
-        categoryId={undefined}
+        categoryId={undefined} // Uses smart category detection now
       />
 
       <BulkAssignToStoreDialog

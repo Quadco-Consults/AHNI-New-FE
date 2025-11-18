@@ -26,11 +26,23 @@ export const consumableColums: ColumnDef<TConsumablePaginatedData>[] = [
     accessorKey: `name`,
   },
   {
-    header: "Quantity",
-    id: "quantity",
-    accessorKey: "quantity",
+    header: "Total Quantity",
+    id: "total_quantity",
+    accessorKey: "total_quantity",
     cell: ({ row }) => {
-      return row.original.quantity || "N/A";
+      const totalQuantity = row.original.total_quantity || row.original.quantity || 0;
+      const storesCount = row.original.stores_count || 0;
+
+      if (storesCount === 0) {
+        return <span className="text-gray-400">Not distributed</span>;
+      }
+
+      return (
+        <div className="text-sm">
+          <div className="font-medium">{totalQuantity}</div>
+          <div className="text-xs text-gray-500">across {storesCount} store{storesCount !== 1 ? 's' : ''}</div>
+        </div>
+      );
     },
   },
   {
