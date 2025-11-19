@@ -18,7 +18,7 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   experimental: {
-    forceSwcTransforms: true, // Use SWC for faster transforms
+    // forceSwcTransforms: true, // Use SWC for faster transforms - temporarily disabled
     scrollRestoration: true, // Better scroll performance
     serverComponentsExternalPackages: [], // Optimize external packages
     optimizePackageImports: ['lucide-react', '@tanstack/react-query', 'recharts'], // Tree shake these packages
@@ -30,10 +30,10 @@ const nextConfig = {
   },
 
   webpack: (config, { isServer }) => {
-    // Enable caching back for better performance
-    config.cache = {
-      type: 'filesystem',
-    };
+    // Disable filesystem cache temporarily to debug webpack issues
+    // config.cache = {
+    //   type: 'filesystem',
+    // };
 
     // Fix Canvas issues for PDF generation
     if (isServer) {

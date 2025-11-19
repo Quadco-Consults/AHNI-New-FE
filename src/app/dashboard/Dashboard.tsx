@@ -1,1134 +1,1071 @@
-/* eslint-disable react/prop-types */
-import React from "react";
+"use client";
+
+import React, { useState, useEffect, useMemo } from "react";
 import Card from "components/Card";
 import { cn } from "lib/utils";
-import {
-    Select,
-    SelectContent,
-    SelectGroup,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "components/ui/select";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { Checkbox } from "components/ui/checkbox";
-import { Switch } from "components/ui/switch";
-import { Label } from "components/ui/label";
-import { Badge } from "components/ui/badge";
 import { Button } from "components/ui/button";
-import logoPng from "@/assets/svgs/logo-bg.svg";
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
+import { Badge } from "components/ui/badge";
 import { Progress } from "components/ui/progress";
 import DataTable from "components/DataTable";
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line, Legend, AreaChart, Area, ComposedChart } from "recharts";
+
+// Real data hooks - using working endpoints
+import { useGetAllProjects, useGetProjectDisbursements, useGetProjectExpenditures } from "@/features/projects/controllers/projectController";
+import { useGetWorkforces } from "@/features/hr/controllers/workforceController";
+import { useGetTrialBalance, useGetIncomeStatement, useGetBalanceSheet } from "@/features/finance/controllers/reportsController";
+import { useGetAllFundRequests } from "@/features/programs/controllers/fundRequestController";
 import {
-    dashboardColumns,
-} from "./dashboard-columns";
-import { useGetUserProfile } from "features/auth/controllers/userController";
-import { useGetNotifications, TNotification, useMarkNotificationAsRead } from "features/notifications/controllers/notificationController";
-import { useAuth } from "hooks/useAuth";
-import { useRouter } from "next/navigation";
-import { useGetAllProjects } from "features/projects/controllers/projectController";
-import { formatNumberCurrency } from "utils/utls";
+  CalendarDays,
+  DollarSign,
+  Users,
+  TrendingUp,
+  AlertCircle,
+  CheckCircle,
+  Clock,
+  ArrowUpRight,
+  ArrowDownRight,
+  FileText,
+  Settings,
+  Bell,
+  Plus,
+  Eye,
+  Download,
+  Filter,
+  Search,
+  RotateCcw,
+  BarChart3,
+  PieChart as PieChartIcon,
+  Calendar,
+  Target,
+  Zap,
+  Award,
+  Globe,
+  MapPin,
+  MessageSquare as MessageSquareIcon
+} from "lucide-react";
 
-// Helper function to get notification icon based on priority/category
-const getNotificationIcon = (notification: TNotification) => {
-    // Default icon SVG based on priority or module type
-    const defaultIcon = (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="currentColor" opacity="0.3"/>
-            <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" fill="none"/>
-            <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" fill="none"/>
-        </svg>
-    );
+// Enhanced color palette for charts
+const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8", "#82CA9D", "#FFC658"];
 
-    return defaultIcon;
+// Role-based permission system
+const USER_ROLES = {
+  ADMIN: 'admin',
+  PROJECT_MANAGER: 'project_manager',
+  REVIEWER: 'reviewer',
+  FINANCE: 'finance',
+  FIELD_OFFICER: 'field_officer',
+  STAFF: 'staff'
 };
 
-// Helper function to get styling based on notification priority
-const getNotificationStyling = (notification: TNotification) => {
-    const priority = notification.priority || 'medium';
-    
-    switch (priority) {
-        case 'urgent':
-            return {
-                backgroundColor: "bg-red-50",
-                textColor: "text-red-600",
-                indicatorColor: "bg-red-500"
-            };
-        case 'high':
-            return {
-                backgroundColor: "bg-orange-50",
-                textColor: "text-orange-600", 
-                indicatorColor: "bg-orange-500"
-            };
-        case 'medium':
-            return {
-                backgroundColor: "bg-yellow-50",
-                textColor: "text-yellow-600",
-                indicatorColor: "bg-yellow-500"
-            };
-        case 'low':
-            return {
-                backgroundColor: "bg-green-50",
-                textColor: "text-green-600",
-                indicatorColor: "bg-green-500"
-            };
-        default:
-            return {
-                backgroundColor: "bg-gray-50",
-                textColor: "text-gray-600",
-                indicatorColor: "bg-gray-500"
-            };
-    }
+const WORKFLOW_STATUS = {
+  PENDING: 'pending',
+  UNDER_REVIEW: 'under_review',
+  APPROVED: 'approved',
+  REJECTED: 'rejected',
+  REQUIRES_REVISION: 'requires_revision'
 };
 
-// Helper function to format time since creation
-const getTimeSinceCreation = (createdDateTime: string): string => {
-    const now = new Date();
-    const created = new Date(createdDateTime);
-    const diffInMs = now.getTime() - created.getTime();
-    const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
-    const diffInDays = Math.floor(diffInHours / 24);
 
-    if (diffInDays > 0) {
-        return diffInDays === 1 ? "1 day ago" : `${diffInDays} days ago`;
-    } else if (diffInHours > 0) {
-        return diffInHours === 1 ? "1 hour ago" : `${diffInHours} hours ago`;
-    } else {
-        const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
-        return diffInMinutes <= 1 ? "Just now" : `${diffInMinutes} minutes ago`;
-    }
-};
 
-// Sample data for display while fixing API issues - moved outside component to avoid re-renders
-const sampleProjectData = [
-    {
-        ref: { name: "Health Education Initiative", desc: "Community health awareness program focused on preventive care and nutrition education" },
-        amount: 2500000,
-        date: "15 Jan 2024",
-        status: "In Progress",
-        progress: 75,
-        manager_initials: ["AO", "MK"],
-        project_id: "AHNI-2024-001",
-        currency: "NGN",
-        funding_sources: "World Health Organization",
-        start_date: "2024-01-01",
-        end_date: "2024-06-30",
-    },
-    {
-        ref: { name: "Maternal Care Program", desc: "Improving maternal health services and reducing infant mortality rates" },
-        amount: 3200000,
-        date: "22 Feb 2024",
-        status: "Active",
-        progress: 60,
-        manager_initials: ["FJ", "NK"],
-        project_id: "AHNI-2024-002",
-        currency: "NGN",
-        funding_sources: "UNICEF, Gates Foundation",
-        start_date: "2024-02-01",
-        end_date: "2024-08-31",
-    },
-    {
-        ref: { name: "Nutrition Monitoring System", desc: "Digital platform for tracking nutritional indicators across communities" },
-        amount: 1800000,
-        date: "10 Mar 2024",
-        status: "Planning",
-        progress: 25,
-        manager_initials: ["SA", "BO"],
-        project_id: "AHNI-2024-003",
-        currency: "NGN",
-        funding_sources: "EU Development Fund",
-        start_date: "2024-03-01",
-        end_date: "2024-09-30",
-    },
-    {
-        ref: { name: "Rural Health Clinics", desc: "Establishing mobile health clinics in underserved rural areas" },
-        amount: 4500000,
-        date: "05 Apr 2024",
-        status: "Approved",
-        progress: 40,
-        manager_initials: ["OT", "EW"],
-        project_id: "AHNI-2024-004",
-        currency: "NGN",
-        funding_sources: "African Development Bank",
-        start_date: "2024-04-01",
-        end_date: "2024-12-31",
-    },
-    {
-        ref: { name: "Disease Surveillance Network", desc: "Early warning system for infectious disease outbreaks" },
-        amount: 2100000,
-        date: "18 May 2024",
-        status: "Completed",
-        progress: 100,
-        manager_initials: ["IC", "LM"],
-        project_id: "AHNI-2024-005",
-        currency: "NGN",
-        funding_sources: "CDC, WHO",
-        start_date: "2023-12-01",
-        end_date: "2024-05-31",
-    }
+// Sample user notifications
+const userNotifications = [
+  {
+    id: 'notif_001',
+    type: 'workflow_assigned',
+    title: 'New Budget Approval Request',
+    message: 'Dr. Michael Okafor has submitted a budget approval request for your review',
+    requestId: 'req_001',
+    isRead: false,
+    createdAt: '2024-11-18T10:30:00Z',
+    priority: 'high'
+  },
+  {
+    id: 'notif_002',
+    type: 'workflow_comment',
+    title: 'New Comment on Maternal Health Proposal',
+    message: 'Dr. Fatima Hassan added a comment to your review',
+    requestId: 'req_002',
+    isRead: false,
+    createdAt: '2024-11-18T09:45:00Z',
+    priority: 'medium'
+  },
+  {
+    id: 'notif_003',
+    type: 'workflow_approved',
+    title: 'Equipment Request Approved',
+    message: 'Your medical equipment procurement request has been approved',
+    requestId: 'req_003',
+    isRead: true,
+    createdAt: '2024-11-17T16:20:00Z',
+    priority: 'low'
+  }
+];
+
+
+// Sample metrics data
+const metricsData = [
+  { name: "Jan", projects: 12, budget: 850000, completed: 8 },
+  { name: "Feb", projects: 19, budget: 1200000, completed: 15 },
+  { name: "Mar", projects: 15, budget: 980000, completed: 12 },
+  { name: "Apr", projects: 22, budget: 1450000, completed: 18 },
+  { name: "May", projects: 18, budget: 1100000, completed: 16 },
+  { name: "Jun", projects: 25, budget: 1680000, completed: 22 }
+];
+
+// Project status distribution
+const statusData = [
+  { name: "Active", value: 45, color: "#00C49F" },
+  { name: "In Progress", value: 30, color: "#0088FE" },
+  { name: "Planning", value: 15, color: "#FFBB28" },
+  { name: "Completed", value: 10, color: "#82CA9D" }
+];
+
+// Dashboard columns for data table
+const dashboardColumns = [
+  {
+    accessorKey: "ref",
+    header: "Project",
+    cell: ({ row }: any) => (
+      <div className="space-y-1">
+        <div className="font-medium">{row.original.ref.name}</div>
+        <div className="text-xs text-gray-500 max-w-[200px] truncate">
+          {row.original.ref.desc}
+        </div>
+      </div>
+    ),
+  },
+  {
+    accessorKey: "amount",
+    header: "Budget",
+    cell: ({ row }: any) => (
+      <div className="font-medium">
+        {row.original.currency === "NGN" ? "₦" : "$"}
+        {row.original.amount?.toLocaleString() || "0"}
+      </div>
+    ),
+  },
+  {
+    accessorKey: "progress",
+    header: "Progress",
+    cell: ({ row }: any) => (
+      <div className="space-y-2">
+        <Progress value={row.original.progress} className="w-[60px]" />
+        <span className="text-xs text-gray-500">{row.original.progress}%</span>
+      </div>
+    ),
+  },
+  {
+    accessorKey: "status",
+    header: "Status",
+    cell: ({ row }: any) => (
+      <Badge variant={
+        row.original.status === "Active" ? "default" :
+        row.original.status === "In Progress" ? "secondary" :
+        row.original.status === "Completed" ? "outline" :
+        "destructive"
+      }>
+        {row.original.status}
+      </Badge>
+    ),
+  },
+  {
+    accessorKey: "priority",
+    header: "Priority",
+    cell: ({ row }: any) => (
+      <Badge variant={
+        row.original.priority === "High" ? "destructive" :
+        row.original.priority === "Medium" ? "default" :
+        "secondary"
+      }>
+        {row.original.priority}
+      </Badge>
+    ),
+  }
 ];
 
 export default function Dashboard() {
-    const { data: user } = useGetUserProfile();
-    const { isLoggedIn } = useAuth();
-    const router = useRouter();
-    const { mutate: markAsRead } = useMarkNotificationAsRead();
-    
-    // Fetch real notifications - limit to 6 for dashboard display
-    const { data: notificationsData, isLoading: notificationsLoading } = useGetNotifications({ 
-        size: 6, 
-        enabled: isLoggedIn  
-    });
+  console.log('Real Data Dashboard rendering');
 
-    // Fetch real project data - use same pattern as notifications (which work)
-    const { data: projectsData, isLoading: projectsLoading, error: projectsError } = useGetAllProjects({
-        page: 1,
-        size: 100, // Match the API debug call that shows 22 projects
-        search: "",
-        has_fund_requests: undefined, // Don't filter by funding requests
-        enabled: isLoggedIn  // Use same pattern as notifications
-    });
+  // Client-side check
+  const [isClient, setIsClient] = useState(false);
 
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
-    // Transform project data to match dashboard table format
-    const transformedProjectData = React.useMemo(() => {
-        // Use sample data if no real data is available
-        if (!projectsData?.results || projectsData.results.length === 0) {
-            return sampleProjectData;
-        }
+  // Real data hooks - focus on working endpoints only
+  const { data: projectsData, isLoading: isLoadingProjects, error: projectsError } = useGetAllProjects({
+    page: 1,
+    size: 100,
+    enabled: isClient,
+    retry: false,
+    refetchOnWindowFocus: false
+  });
 
-        return projectsData.results.map((project, index) => {
-            
-            // Get funding source names for display
-            const fundingSourceNames = project.funding_sources?.map(source => source.name).join(", ") || "No funding sources";
-            
-            // Calculate status based on project dates and status
-            const getProjectStatus = () => {
-                const now = new Date();
-                const endDate = new Date(project.end_date);
-                const startDate = new Date(project.start_date);
-                
-                if (project.status) {
-                    return project.status;
-                } else if (now > endDate) {
-                    return "Completed";
-                } else if (now < startDate) {
-                    return "Pending";
-                } else {
-                    return "In Progress";
-                }
-            };
+  const { data: workforceData, isLoading: isLoadingWorkforce, error: workforceError } = useGetWorkforces({
+    page: 1,
+    size: 50,
+    enabled: isClient,
+    retry: false,
+    refetchOnWindowFocus: false
+  });
 
-            // Calculate project progress based on dates
-            const calculateProgress = () => {
-                if (!project.start_date || !project.end_date) return 50; // Default if no dates
-                
-                const now = new Date();
-                const start = new Date(project.start_date);
-                const end = new Date(project.end_date);
-                
-                if (now < start) return 0; // Not started
-                if (now > end) return 100; // Completed
-                
-                const totalDuration = end.getTime() - start.getTime();
-                const elapsed = now.getTime() - start.getTime();
-                
-                return Math.min(Math.max((elapsed / totalDuration) * 100, 0), 100);
-            };
+  const { data: fundRequestsData, isLoading: isLoadingFundRequests, error: fundRequestsError } = useGetAllFundRequests({
+    enabled: isClient,
+    retry: false,
+    refetchOnWindowFocus: false
+  });
 
-            // Get project manager initials
-            const getProjectManagerInitials = () => {
-                if (!project.project_managers || project.project_managers.length === 0) {
-                    return ["PM"]; // Default initials
-                }
-                
-                return project.project_managers.slice(0, 3).map(manager => {
-                    const firstName = manager.first_name || "";
-                    const lastName = manager.last_name || "";
-                    return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase() || "PM";
-                });
-            };
+  // Financial reports
+  const { data: trialBalanceData, isLoading: isLoadingTrialBalance } = useGetTrialBalance({
+    date_from: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    date_to: new Date().toISOString().split('T')[0]
+  });
 
-            const transformedProject = {
-                ref: { 
-                    name: project.title || project.project_id, 
-                    desc: project.goal || project.narrative || "No description available" 
-                },
-                amount: parseFloat(project.budget) || 0,
-                date: new Date(project.created_datetime).toLocaleDateString('en-US', {
-                    day: 'numeric',
-                    month: 'short', 
-                    year: 'numeric'
-                }),
-                status: getProjectStatus(),
-                progress: Math.round(calculateProgress()),
-                manager_initials: getProjectManagerInitials(),
-                // Additional data that might be useful
-                project_id: project.id,
-                currency: project.currency,
-                funding_sources: fundingSourceNames,
-                start_date: project.start_date,
-                end_date: project.end_date,
-            };
+  const { data: incomeStatementData, isLoading: isLoadingIncomeStatement } = useGetIncomeStatement({
+    date_from: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    date_to: new Date().toISOString().split('T')[0]
+  });
 
-            return transformedProject;
+  // State for interactivity and real-time features
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [selectedTimeRange, setSelectedTimeRange] = useState('6M');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedStatus, setSelectedStatus] = useState('All');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [activeNotifications, setActiveNotifications] = useState(userNotifications);
+  const [selectedWorkflowFilter, setSelectedWorkflowFilter] = useState('assigned_to_me');
+
+  // Real-time clock update
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Process real projects data
+  const realProjectsAnalytics = useMemo(() => {
+    if (!projectsData?.data?.results) return null;
+
+    const projects = projectsData.data.results;
+
+    // Calculate real metrics
+    const totalProjects = projects.length;
+    const totalBudget = projects.reduce((sum: number, project: any) =>
+      sum + (parseFloat(project.budget) || 0), 0);
+
+    // Group by status
+    const statusGroups = projects.reduce((acc: any, project: any) => {
+      const status = project.status || 'Unknown';
+      acc[status] = (acc[status] || 0) + 1;
+      return acc;
+    }, {});
+
+    // Group by location
+    const locationGroups = projects.reduce((acc: any, project: any) => {
+      if (project.location && Array.isArray(project.location)) {
+        project.location.forEach((loc: any) => {
+          const locationName = loc.name || 'Unknown';
+          acc[locationName] = (acc[locationName] || 0) + 1;
         });
-    }, [projectsData]);
+      }
+      return acc;
+    }, {});
 
-    // Calculate pie chart data from projects (real or sample)
-    const pieData = React.useMemo(() => {
-        const dataToUse = transformedProjectData.length > 0 ? transformedProjectData : sampleProjectData;
-        
-        if (dataToUse.length === 0) {
-            return [
-                { name: "No Projects", value: 100, color: "#E5E5E5" }
-            ];
-        }
-        
-        // Group projects by funding source
-        const fundingSourceMap = new Map();
-        
-        dataToUse.forEach(project => {
-            // Handle different data structures (API vs sample data)
-            const fundingSources = project.funding_sources || [];
-            const budget = project.amount || parseFloat(project.budget) || 0;
-            
-            if (typeof fundingSources === 'string') {
-                // Sample data format: "WHO, UNICEF"
-                const sources = fundingSources.split(',').map(s => s.trim());
-                const budgetPerSource = budget / sources.length;
-                sources.forEach(source => {
-                    const currentValue = fundingSourceMap.get(source) || 0;
-                    fundingSourceMap.set(source, currentValue + budgetPerSource);
-                });
-            } else if (Array.isArray(fundingSources) && fundingSources.length > 0) {
-                // API data format: array of objects
-                const budgetPerSource = budget / fundingSources.length;
-                fundingSources.forEach(source => {
-                    const sourceName = source.name || source;
-                    const currentValue = fundingSourceMap.get(sourceName) || 0;
-                    fundingSourceMap.set(sourceName, currentValue + budgetPerSource);
-                });
-            } else {
-                // No funding source specified
-                const currentValue = fundingSourceMap.get("Other") || 0;
-                fundingSourceMap.set("Other", currentValue + budget);
-            }
+    // Group by intervention area
+    const interventionGroups = projects.reduce((acc: any, project: any) => {
+      const area = project.intervention_area?.code || 'Other';
+      acc[area] = (acc[area] || 0) + 1;
+      return acc;
+    }, {});
+
+    // Calculate time-based metrics
+    const currentDate = new Date();
+    const thisYear = projects.filter((p: any) => {
+      const startDate = new Date(p.start_date);
+      return startDate.getFullYear() === currentDate.getFullYear();
+    }).length;
+
+    const thisMonth = projects.filter((p: any) => {
+      const startDate = new Date(p.start_date);
+      return startDate.getFullYear() === currentDate.getFullYear() &&
+             startDate.getMonth() === currentDate.getMonth();
+    }).length;
+
+    // Calculate funding source distribution
+    const fundingGroups = projects.reduce((acc: any, project: any) => {
+      if (project.funding_sources && Array.isArray(project.funding_sources)) {
+        project.funding_sources.forEach((source: any) => {
+          const sourceName = source.name || 'Unknown';
+          acc[sourceName] = (acc[sourceName] || 0) + 1;
         });
-        
-        // Convert to pie chart format
-        const pieEntries = Array.from(fundingSourceMap.entries()).map(([name, value], index) => ({
-            name,
-            value,
-            color: COLORS[index % COLORS.length]
-        }));
-        
-        return pieEntries.length > 0 ? pieEntries : [{ name: "No Data", value: 100, color: "#E5E5E5" }];
-    }, [transformedProjectData]);
+      }
+      return acc;
+    }, {});
 
-    // Handle notification click - same logic as header dropdown
-    const handleNotificationClick = (notification: TNotification) => {
-        // Mark as read if unread
-        const isUnread = !notification.is_read || notification.status === "Pending";
-        if (isUnread) {
-            markAsRead(notification.id);
-        }
-
-        // Navigate to relevant module
-        const routes: { [key: string]: string } = {
-            'Project': '/dashboard/projects',
-            'ExpenseAuthorization': '/dashboard/admin/expense-authorization',
-            'Agreement': '/dashboard/c-and-g/agreements',
-            'User': '/account',
-            'ProcurementPlan': '/dashboard/procurement/procurement-plan',
-            'PurchaseOrder': '/dashboard/procurement/purchase-order',
-            'VehicleRequest': '/dashboard/admin/fleet-management/vehicle-request',
-            'FuelRequest': '/dashboard/admin/fleet-management/fuel-request',
-            'PaymentRequest': '/dashboard/admin/payment-request',
-            'AssetMaintenance': '/dashboard/admin/asset-maintenance',
-            'TravelExpenseReport': '/dashboard/admin/travel-expenses-report',
-            'ConsultancyReport': '/dashboard/c-and-g/consultancy-report',
-            'ContractRequest': '/dashboard/c-and-g/contract-request'
-        };
-
-        const route = routes[notification.module_type] || '/dashboard';
-        router.push(route);
+    return {
+      totalProjects,
+      totalBudget,
+      statusGroups,
+      locationGroups,
+      interventionGroups,
+      fundingGroups,
+      thisYear,
+      thisMonth,
+      averageBudget: totalProjects > 0 ? totalBudget / totalProjects : 0
     };
+  }, [projectsData]);
 
+  // Process real workforce data
+  const realWorkforceAnalytics = useMemo(() => {
+    if (!workforceData?.data?.results) return null;
+
+    const workforce = workforceData.data.results;
+
+    const totalEmployees = workforce.length;
+
+    // Group by department (assuming a department field exists)
+    const departmentGroups = workforce.reduce((acc: any, employee: any) => {
+      const dept = employee.department || 'Unknown';
+      acc[dept] = (acc[dept] || 0) + 1;
+      return acc;
+    }, {});
+
+    // Group by position/role
+    const positionGroups = workforce.reduce((acc: any, employee: any) => {
+      const position = employee.position || employee.job_title || 'Unknown';
+      acc[position] = (acc[position] || 0) + 1;
+      return acc;
+    }, {});
+
+    return {
+      totalEmployees,
+      departmentGroups,
+      positionGroups,
+      averageTeamSize: totalEmployees > 0 ? Math.ceil(totalEmployees / Math.max(Object.keys(departmentGroups).length, 1)) : 0
+    };
+  }, [workforceData]);
+
+  // Process real fund requests data
+  const realFundRequestAnalytics = useMemo(() => {
+    if (!fundRequestsData?.data?.results) return null;
+
+    const requests = fundRequestsData.data.results;
+
+    const totalRequests = requests.length;
+    const totalRequestedAmount = requests.reduce((sum: number, request: any) =>
+      sum + (parseFloat(request.amount) || 0), 0);
+
+    // Group by status
+    const statusGroups = requests.reduce((acc: any, request: any) => {
+      const status = request.status || 'Unknown';
+      acc[status] = (acc[status] || 0) + 1;
+      return acc;
+    }, {});
+
+    // Group by project
+    const projectGroups = requests.reduce((acc: any, request: any) => {
+      const projectName = request.project?.name || request.project_name || 'Unknown';
+      acc[projectName] = (acc[projectName] || 0) + 1;
+      return acc;
+    }, {});
+
+    // Calculate approval rates
+    const approvedRequests = requests.filter((r: any) =>
+      r.status?.toLowerCase().includes('approved')).length;
+    const rejectedRequests = requests.filter((r: any) =>
+      r.status?.toLowerCase().includes('rejected')).length;
+
+    return {
+      totalRequests,
+      totalRequestedAmount,
+      statusGroups,
+      projectGroups,
+      approvalRate: totalRequests > 0 ? (approvedRequests / totalRequests) * 100 : 0,
+      rejectionRate: totalRequests > 0 ? (rejectedRequests / totalRequests) * 100 : 0
+    };
+  }, [fundRequestsData]);
+
+  // Process financial reports data
+  const realFinancialAnalytics = useMemo(() => {
+    const trialBalance = trialBalanceData?.data || [];
+    const incomeStatement = incomeStatementData?.data || null;
+
+    let totalAssets = 0;
+    let totalLiabilities = 0;
+    let totalEquity = 0;
+    let totalRevenue = 0;
+    let totalExpenses = 0;
+
+    // Process trial balance for financial position
+    if (Array.isArray(trialBalance)) {
+      trialBalance.forEach((account: any) => {
+        const balance = parseFloat(account.net_balance) || 0;
+        const accountType = account.account_type?.toLowerCase() || '';
+
+        if (accountType.includes('asset')) {
+          totalAssets += balance;
+        } else if (accountType.includes('liability')) {
+          totalLiabilities += balance;
+        } else if (accountType.includes('equity')) {
+          totalEquity += balance;
+        }
+      });
+    }
+
+    // Process income statement
+    if (incomeStatement) {
+      totalRevenue = incomeStatement.income?.total_income || 0;
+      totalExpenses = incomeStatement.expenses?.total_expenses || 0;
+    }
+
+    const netIncome = totalRevenue - totalExpenses;
+    const profitMargin = totalRevenue > 0 ? (netIncome / totalRevenue) * 100 : 0;
+
+    return {
+      totalAssets,
+      totalLiabilities,
+      totalEquity,
+      totalRevenue,
+      totalExpenses,
+      netIncome,
+      profitMargin,
+      debtToEquity: totalEquity > 0 ? totalLiabilities / totalEquity : 0
+    };
+  }, [trialBalanceData, incomeStatementData]);
+
+  // Loading states
+  const isLoading = !isClient || isLoadingProjects || isLoadingWorkforce;
+  const hasError = projectsError || workforceError;
+
+  // Check if we have any real data to display
+  const hasRealData = realProjectsAnalytics || realWorkforceAnalytics || realFundRequestAnalytics || realFinancialAnalytics;
+
+  // Prepare chart data for visualizations
+  const chartData = useMemo(() => {
+    const data: any = {};
+
+    // Project status distribution for pie chart
+    if (realProjectsAnalytics?.statusGroups) {
+      data.projectStatusChart = Object.entries(realProjectsAnalytics.statusGroups).map(([status, count]) => ({
+        name: status,
+        value: count as number,
+        percentage: ((count as number) / realProjectsAnalytics.totalProjects * 100).toFixed(1)
+      }));
+    }
+
+    // Location distribution for bar chart
+    if (realProjectsAnalytics?.locationGroups) {
+      data.locationChart = Object.entries(realProjectsAnalytics.locationGroups)
+        .sort(([,a], [,b]) => (b as number) - (a as number))
+        .slice(0, 10) // Top 10 locations
+        .map(([location, count]) => ({
+          name: location,
+          projects: count as number
+        }));
+    }
+
+    // Funding source distribution
+    if (realProjectsAnalytics?.fundingGroups) {
+      data.fundingChart = Object.entries(realProjectsAnalytics.fundingGroups)
+        .sort(([,a], [,b]) => (b as number) - (a as number))
+        .slice(0, 8) // Top 8 funding sources
+        .map(([source, count]) => ({
+          name: source,
+          projects: count as number
+        }));
+    }
+
+    // Department distribution from workforce
+    if (realWorkforceAnalytics?.departmentGroups) {
+      data.departmentChart = Object.entries(realWorkforceAnalytics.departmentGroups)
+        .map(([department, count]) => ({
+          name: department,
+          employees: count as number,
+          percentage: ((count as number) / realWorkforceAnalytics.totalEmployees * 100).toFixed(1)
+        }));
+    }
+
+    // Fund request status distribution
+    if (realFundRequestAnalytics?.statusGroups) {
+      data.fundRequestChart = Object.entries(realFundRequestAnalytics.statusGroups).map(([status, count]) => ({
+        name: status,
+        value: count as number
+      }));
+    }
+
+    return data;
+  }, [realProjectsAnalytics, realWorkforceAnalytics, realFundRequestAnalytics]);
+
+  // Format currency helper
+  const formatCurrency = (amount: number, currency = 'NGN') => {
+    const symbol = currency === 'NGN' ? '₦' : currency === 'USD' ? '$' : currency;
+    if (amount >= 1000000) {
+      return `${symbol}${(amount / 1000000).toFixed(1)}M`;
+    } else if (amount >= 1000) {
+      return `${symbol}${(amount / 1000).toFixed(1)}K`;
+    }
+    return `${symbol}${amount.toLocaleString()}`;
+  };
+
+  // Show loading state
+  if (isLoading) {
     return (
-        <div className="space-y-10">
-            <h4 className="font-bold text-lg">Dashboard</h4>
-
-            <div className="grid gap-5 grid-cols-1 md:grid-cols-2">
-                <Card className="space-y-5">
-                    <div className="flex justify-between">
-                        <h4 className="font-bold text-base">Notifications</h4>
-                        <div>
-                            <Popover>
-                                <PopoverTrigger asChild>
-                                    <Button size="icon" variant="ghost">
-                                        <svg
-                                            width="21"
-                                            height="20"
-                                            viewBox="0 0 21 20"
-                                            fill="none"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                        >
-                                            <g opacity="0.3">
-                                                <path
-                                                    d="M13.8107 1.8934H16.1723C16.8061 1.8934 17.3486 2.10979 17.8 2.54257C18.2496 2.97535 18.4744 3.50664 18.4744 4.13646V6.4191C18.4744 7.03836 18.2496 7.56701 17.8 8.00507C17.3486 8.44488 16.8061 8.66479 16.1723 8.66479H13.8107C13.1751 8.66479 12.6325 8.44488 12.1829 8.00507C11.7316 7.56701 11.5059 7.03836 11.5059 6.4191V4.13646C11.5059 3.50664 11.7316 2.97535 12.1829 2.54257C12.6325 2.10979 13.1751 1.8934 13.8107 1.8934Z"
-                                                    fill="#FD4A36"
-                                                />
-                                            </g>
-                                            <g opacity="0.3">
-                                                <path
-                                                    d="M4.51497 10.929H6.87664C7.5122 10.929 8.05477 11.1489 8.50435 11.5887C8.95574 12.0267 9.18143 12.5554 9.18143 13.1746V15.4573C9.18143 16.0871 8.95574 16.6184 8.50435 17.0512C8.05477 17.484 7.5122 17.7003 6.87664 17.7003H4.51497C3.88122 17.7003 3.33865 17.484 2.88727 17.0512C2.43768 16.6184 2.21289 16.0871 2.21289 15.4573V13.1746C2.21289 12.5554 2.43768 12.0267 2.88727 11.5887C3.33865 11.1489 3.88122 10.929 4.51497 10.929Z"
-                                                    fill="#FD4A36"
-                                                />
-                                            </g>
-                                            <path
-                                                d="M13.8107 10.9474H16.1723C16.8061 10.9474 17.3486 11.1673 17.8 11.6071C18.2496 12.0452 18.4744 12.5739 18.4744 13.1931V15.4942C18.4744 16.1117 18.2496 16.6404 17.8 17.0802C17.3486 17.5183 16.8061 17.7373 16.1723 17.7373H13.8107C13.1751 17.7373 12.6325 17.5183 12.1829 17.0802C11.7316 16.6404 11.5059 16.1117 11.5059 15.4942V13.1931C11.5059 12.5739 11.7316 12.0452 12.1829 11.6071C12.6325 11.1673 13.1751 10.9474 13.8107 10.9474Z"
-                                                fill="#FD4A36"
-                                            />
-                                            <path
-                                                d="M4.51497 1.85645H6.87664C7.5122 1.85645 8.05477 2.07547 8.50435 2.51353C8.95574 2.95334 9.18143 3.482 9.18143 4.0995V6.40061C9.18143 7.01987 8.95574 7.54853 8.50435 7.98658C8.05477 8.4264 7.5122 8.64631 6.87664 8.64631H4.51497C3.88122 8.64631 3.33865 8.4264 2.88727 7.98658C2.43768 7.54853 2.21289 7.01987 2.21289 6.40061V4.0995C2.21289 3.482 2.43768 2.95334 2.88727 2.51353C3.33865 2.07547 3.88122 1.85645 4.51497 1.85645Z"
-                                                fill="#FD4A36"
-                                            />
-                                        </svg>
-                                    </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-64">
-                                    <h4 className="font-medium p-5 text-base">
-                                        Filter Options
-                                    </h4>
-                                    <hr />
-
-                                    <div className="p-5 space-y-5">
-                                        <div className="space-y-1">
-                                            <h4 className="font-medium">
-                                                Status:
-                                            </h4>
-                                            <Select>
-                                                <SelectTrigger className="w-[200px]">
-                                                    <SelectValue placeholder="Select Status" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectGroup>
-                                                        {/* <SelectLabel>Fruits</SelectLabel> */}
-                                                        <SelectItem value="apple">
-                                                            Approved
-                                                        </SelectItem>
-                                                        <SelectItem value="banana">
-                                                            Pending
-                                                        </SelectItem>
-                                                        <SelectItem value="blueberry">
-                                                            In Progress
-                                                        </SelectItem>
-                                                        <SelectItem value="grapes">
-                                                            Rejected
-                                                        </SelectItem>
-                                                    </SelectGroup>
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
-                                        <div className="space-y-1">
-                                            <h4 className="font-medium">
-                                                Member Type:
-                                            </h4>
-                                            <div className="flex items-center gap-3">
-                                                <div className="flex items-center gap-1">
-                                                    <Checkbox />{" "}
-                                                    <h6 className="text-grey-light">
-                                                        Author
-                                                    </h6>
-                                                </div>
-                                                <div className="flex items-center gap-1">
-                                                    <Checkbox checked />{" "}
-                                                    <h6 className="text-grey-light">
-                                                        Customer
-                                                    </h6>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="space-y-1">
-                                            <h4 className="font-medium">
-                                                Notifications:
-                                            </h4>
-                                            <div className="flex items-center space-x-2">
-                                                <Switch
-                                                    id="notifications-mode"
-                                                    checked
-                                                />
-                                                <Label htmlFor="notifications-mode">
-                                                    Enabled
-                                                </Label>
-                                            </div>
-                                        </div>
-
-                                        <div className="flex justify-end gap-4">
-                                            <Button variant="ghost">
-                                                Reset
-                                            </Button>
-                                            <Button>Apply</Button>
-                                        </div>
-                                    </div>
-                                </PopoverContent>
-                            </Popover>
-                        </div>
-                    </div>
-
-                    <div className="space-y-5 dark:text-black">
-                        {notificationsLoading ? (
-                            // Loading state
-                            Array(4).fill(0).map((_, index) => (
-                                <div
-                                    key={index}
-                                    className="flex items-center p-5 text-sm rounded-lg md:text-md bg-gray-100 animate-pulse"
-                                >
-                                    <div className="w-[15%]">
-                                        <div className="w-6 h-6 bg-gray-300 rounded"></div>
-                                    </div>
-                                    <div className="w-[70%]">
-                                        <div className="h-4 bg-gray-300 rounded mb-2"></div>
-                                        <div className="h-3 bg-gray-300 rounded w-3/4"></div>
-                                    </div>
-                                    <div className="w-[15%]">
-                                        <div className="h-4 bg-gray-300 rounded w-12"></div>
-                                    </div>
-                                </div>
-                            ))
-                        ) : !notificationsData?.results || notificationsData.results.length === 0 ? (
-                            // Empty state
-                            <div className="flex items-center justify-center p-8 text-gray-500">
-                                <div className="text-center">
-                                    <svg className="mx-auto h-12 w-12 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM9 7h11l-11 11H9V7z" />
-                                    </svg>
-                                    <h4 className="mt-2 font-medium">No notifications</h4>
-                                    <p className="text-sm">You're all caught up!</p>
-                                </div>
-                            </div>
-                        ) : (
-                            // Real notification data
-                            notificationsData.results.map((notification, index) => {
-                                const styling = getNotificationStyling(notification);
-                                const timeDisplay = getTimeSinceCreation(notification.created_datetime);
-                                const isUnread = !notification.is_read || notification.status === "Pending";
-                                
-                                return (
-                                    <div
-                                        key={notification.id}
-                                        className={cn(
-                                            "flex items-center p-5 text-sm rounded-lg md:text-md cursor-pointer hover:shadow-md transition-shadow",
-                                            styling.backgroundColor,
-                                            isUnread && "border-l-4 border-blue-500"
-                                        )}
-                                        onClick={() => handleNotificationClick(notification)}
-                                    >
-                                        <div className="w-[15%]">
-                                            <div className={styling.textColor}>
-                                                {getNotificationIcon(notification)}
-                                            </div>
-                                        </div>
-                                        <div className="w-[70%]">
-                                            <div className="flex items-center gap-2">
-                                                <h4 className="font-medium">{notification.title}</h4>
-                                                {isUnread && (
-                                                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                                                )}
-                                            </div>
-                                            <h6 className="text-sm text-grey-dark truncate">
-                                                {notification.message}
-                                            </h6>
-                                            <div className="flex items-center gap-2 mt-1">
-                                                <span className="text-xs text-gray-400">{timeDisplay}</span>
-                                                <span className="text-xs text-gray-400">•</span>
-                                                <span className="text-xs text-gray-400">{notification.module_type}</span>
-                                            </div>
-                                        </div>
-                                        <div className="w-[15%] flex flex-col items-center">
-                                            {notification.priority && (
-                                                <span className={cn("text-xs px-2 py-1 rounded-full", styling.backgroundColor, styling.textColor)}>
-                                                    {notification.priority}
-                                                </span>
-                                            )}
-                                            {notification.category && (
-                                                <span className="text-xs text-gray-500 mt-1">
-                                                    {notification.category}
-                                                </span>
-                                            )}
-                                        </div>
-                                    </div>
-                                );
-                            })
-                        )}
-                    </div>
-                </Card>
-
-                <Card className="space-y-5">
-                    <div className="flex justify-between">
-                        <h4 className="font-bold text-base">AHNI Tasks</h4>
-                        <div>
-                            <Popover>
-                                <PopoverTrigger asChild>
-                                    <Button size="icon" variant="ghost">
-                                        <svg
-                                            width="21"
-                                            height="20"
-                                            viewBox="0 0 21 20"
-                                            fill="none"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                        >
-                                            <g opacity="0.3">
-                                                <path
-                                                    d="M13.8107 1.8934H16.1723C16.8061 1.8934 17.3486 2.10979 17.8 2.54257C18.2496 2.97535 18.4744 3.50664 18.4744 4.13646V6.4191C18.4744 7.03836 18.2496 7.56701 17.8 8.00507C17.3486 8.44488 16.8061 8.66479 16.1723 8.66479H13.8107C13.1751 8.66479 12.6325 8.44488 12.1829 8.00507C11.7316 7.56701 11.5059 7.03836 11.5059 6.4191V4.13646C11.5059 3.50664 11.7316 2.97535 12.1829 2.54257C12.6325 2.10979 13.1751 1.8934 13.8107 1.8934Z"
-                                                    fill="#FD4A36"
-                                                />
-                                            </g>
-                                            <g opacity="0.3">
-                                                <path
-                                                    d="M4.51497 10.929H6.87664C7.5122 10.929 8.05477 11.1489 8.50435 11.5887C8.95574 12.0267 9.18143 12.5554 9.18143 13.1746V15.4573C9.18143 16.0871 8.95574 16.6184 8.50435 17.0512C8.05477 17.484 7.5122 17.7003 6.87664 17.7003H4.51497C3.88122 17.7003 3.33865 17.484 2.88727 17.0512C2.43768 16.6184 2.21289 16.0871 2.21289 15.4573V13.1746C2.21289 12.5554 2.43768 12.0267 2.88727 11.5887C3.33865 11.1489 3.88122 10.929 4.51497 10.929Z"
-                                                    fill="#FD4A36"
-                                                />
-                                            </g>
-                                            <path
-                                                d="M13.8107 10.9474H16.1723C16.8061 10.9474 17.3486 11.1673 17.8 11.6071C18.2496 12.0452 18.4744 12.5739 18.4744 13.1931V15.4942C18.4744 16.1117 18.2496 16.6404 17.8 17.0802C17.3486 17.5183 16.8061 17.7373 16.1723 17.7373H13.8107C13.1751 17.7373 12.6325 17.5183 12.1829 17.0802C11.7316 16.6404 11.5059 16.1117 11.5059 15.4942V13.1931C11.5059 12.5739 11.7316 12.0452 12.1829 11.6071C12.6325 11.1673 13.1751 10.9474 13.8107 10.9474Z"
-                                                fill="#FD4A36"
-                                            />
-                                            <path
-                                                d="M4.51497 1.85645H6.87664C7.5122 1.85645 8.05477 2.07547 8.50435 2.51353C8.95574 2.95334 9.18143 3.482 9.18143 4.0995V6.40061C9.18143 7.01987 8.95574 7.54853 8.50435 7.98658C8.05477 8.4264 7.5122 8.64631 6.87664 8.64631H4.51497C3.88122 8.64631 3.33865 8.4264 2.88727 7.98658C2.43768 7.54853 2.21289 7.01987 2.21289 6.40061V4.0995C2.21289 3.482 2.43768 2.95334 2.88727 2.51353C3.33865 2.07547 3.88122 1.85645 4.51497 1.85645Z"
-                                                fill="#FD4A36"
-                                            />
-                                        </svg>
-                                    </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-64">
-                                    <h4 className="font-medium p-5 text-base">
-                                        Filter Options
-                                    </h4>
-                                    <hr />
-
-                                    <div className="p-5 space-y-5">
-                                        <div className="space-y-1">
-                                            <h4 className="font-medium">
-                                                Status:
-                                            </h4>
-                                            <Select>
-                                                <SelectTrigger className="w-[200px]">
-                                                    <SelectValue placeholder="Select Status" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectGroup>
-                                                        {/* <SelectLabel>Fruits</SelectLabel> */}
-                                                        <SelectItem value="apple">
-                                                            Approved
-                                                        </SelectItem>
-                                                        <SelectItem value="banana">
-                                                            Pending
-                                                        </SelectItem>
-                                                        <SelectItem value="blueberry">
-                                                            In Progress
-                                                        </SelectItem>
-                                                        <SelectItem value="grapes">
-                                                            Rejected
-                                                        </SelectItem>
-                                                    </SelectGroup>
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
-                                        <div className="space-y-1">
-                                            <h4 className="font-medium">
-                                                Member Type:
-                                            </h4>
-                                            <div className="flex items-center gap-3">
-                                                <div className="flex items-center gap-1">
-                                                    <Checkbox />{" "}
-                                                    <h6 className="text-grey-light">
-                                                        Author
-                                                    </h6>
-                                                </div>
-                                                <div className="flex items-center gap-1">
-                                                    <Checkbox checked />{" "}
-                                                    <h6 className="text-grey-light">
-                                                        Customer
-                                                    </h6>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="space-y-1">
-                                            <h4 className="font-medium">
-                                                Notifications:
-                                            </h4>
-                                            <div className="flex items-center space-x-2">
-                                                <Switch
-                                                    id="notifications-mode"
-                                                    checked
-                                                />
-                                                <Label htmlFor="notifications-mode">
-                                                    Enabled
-                                                </Label>
-                                            </div>
-                                        </div>
-
-                                        <div className="flex justify-end gap-4">
-                                            <Button variant="ghost">
-                                                Reset
-                                            </Button>
-                                            <Button>Apply</Button>
-                                        </div>
-                                    </div>
-                                </PopoverContent>
-                            </Popover>
-                        </div>
-                    </div>
-
-                    <div className="space-y-7">
-                        {[
-                            {
-                                name: "Prepare Health Report",
-                                description: "Due in 2 Days",
-                                status: "Urgent",
-                                backgroundColor: "bg-yellow-50",
-                                textColor: "text-yellow-600",
-                                bgColor: "bg-yellow-600",
-                            },
-                            {
-                                name: "Organize Health Seminar",
-                                description: "Due in 5 Days",
-                                status: "Upcoming",
-                                backgroundColor: "bg-green-50",
-                                textColor: "text-green-600",
-                                bgColor: "bg-green-600",
-                            },
-                            {
-                                name: "Review Nutrition Guidelines",
-                                description: "Due in 1 Days",
-                                status: "Review",
-                                backgroundColor: "bg-red-50",
-                                textColor: "text-red-600",
-                                bgColor: "bg-red-600",
-                            },
-                            {
-                                name: "Update Financial Projections",
-                                description: "Due in 1 Week",
-                                status: "Important",
-                                backgroundColor: "bg-red-50",
-                                textColor: "text-red-600",
-                                bgColor: "bg-red-600",
-                            },
-                            {
-                                name: "Finalize Partnership Deal",
-                                description: "Due in 2 Days",
-                                status: "Partnership",
-                                backgroundColor: "bg-yellow-50",
-                                textColor: "text-yellow-600",
-                                bgColor: "bg-yellow-600",
-                            },
-                            {
-                                name: "Coordinate with Education Dept.",
-                                description: "Due in 1 Days",
-                                status: "Finance",
-                                backgroundColor: "bg-yellow-50",
-                                textColor: "text-yellow-600",
-                                bgColor: "bg-yellow-600",
-                            },
-                        ].map(
-                            ({
-                                name,
-                                description,
-                                status,
-                                backgroundColor,
-                                textColor,
-                                bgColor,
-                            }) => (
-                                <div
-                                    key={name}
-                                    className="flex gap-5 items-center text-sm md:text-md"
-                                >
-                                    <div className="flex items-center gap-2">
-                                        <div
-                                            className={cn(
-                                                "w-[5px] h-10 rounded-t-full rounded-b-full",
-                                                bgColor
-                                            )}
-                                        />
-                                        <div className="w-6 h-6 bg-gray-300 rounded-lg" />
-                                    </div>
-
-                                    <div className="w-[70%]">
-                                        <h4 className="font-medium">{name}</h4>
-                                        <h6 className="text-sm text-grey-dark">
-                                            {description}
-                                        </h6>
-                                    </div>
-
-                                    <div>
-                                        <Badge
-                                            className={cn(
-                                                textColor,
-                                                backgroundColor
-                                            )}
-                                        >
-                                            {status}
-                                        </Badge>
-                                    </div>
-                                </div>
-                            )
-                        )}
-                    </div>
-                </Card>
-            </div>
-
-            <div className="grid gap-5 grid-cols-1 md:grid-cols-2">
-                <Card className="space-y-4">
-                    <div>
-                        <h4 className="font-bold text-lg">
-                            Funding Received by Projects
-                        </h4>
-                        <h6 className="text-xs">
-                            List of funding&apos;s for AHNI projects
-                        </h6>
-                    </div>
-
-                    {!isLoggedIn ? (
-                        <div className="flex items-center justify-center p-8 text-gray-500">
-                            <div className="text-center">
-                                <h4 className="font-medium">Please log in</h4>
-                                <p className="text-sm">Log in to see your funded projects.</p>
-                            </div>
-                        </div>
-                    ) : projectsLoading ? (
-                        <DataTable
-                            data={[]}
-                            columns={dashboardColumns}
-                            isLoading={true}
-                        />
-                    ) : projectsError ? (
-                        <div className="flex items-center justify-center p-8 text-red-500">
-                            <div className="text-center">
-                                <h4 className="font-medium">Error loading projects</h4>
-                                <p className="text-sm">Failed to load project data. Please try refreshing the page.</p>
-                                <p className="text-xs mt-2">Error: {String(projectsError)}</p>
-                            </div>
-                        </div>
-                    ) : (
-                        <div>
-                            {(!projectsData?.results || projectsData.results.length === 0) && (
-                                <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                                    <p className="text-sm text-blue-700">
-                                        <strong>Note:</strong> Displaying sample data while API data issue is resolved.
-                                    </p>
-                                </div>
-                            )}
-                            <p className="text-xs text-gray-500 mb-2">
-                                Showing {transformedProjectData.length} projects
-                            </p>
-                            <DataTable
-                                data={transformedProjectData}
-                                columns={dashboardColumns}
-                                isLoading={false}
-                            />
-                        </div>
-                    )}
-                </Card>
-
-                <Card className="space-y-4">
-                    <div className="flex justify-between items-center">
-                        <div>
-                            <h4 className="font-bold text-lg">
-                                Projects Expenditure
-                            </h4>
-                            <h6 className="text-xs">
-                                Total Funds Expended on Major Initiatives
-                            </h6>
-                        </div>
-
-                        <div>
-                            <Popover>
-                                <PopoverTrigger asChild>
-                                    <Button size="icon" variant="ghost">
-                                        <svg
-                                            width="21"
-                                            height="20"
-                                            viewBox="0 0 21 20"
-                                            fill="none"
-                                            xmlns="http://www.w3.org/2000/svg"
-                                        >
-                                            <g opacity="0.3">
-                                                <path
-                                                    d="M13.8107 1.8934H16.1723C16.8061 1.8934 17.3486 2.10979 17.8 2.54257C18.2496 2.97535 18.4744 3.50664 18.4744 4.13646V6.4191C18.4744 7.03836 18.2496 7.56701 17.8 8.00507C17.3486 8.44488 16.8061 8.66479 16.1723 8.66479H13.8107C13.1751 8.66479 12.6325 8.44488 12.1829 8.00507C11.7316 7.56701 11.5059 7.03836 11.5059 6.4191V4.13646C11.5059 3.50664 11.7316 2.97535 12.1829 2.54257C12.6325 2.10979 13.1751 1.8934 13.8107 1.8934Z"
-                                                    fill="#FD4A36"
-                                                />
-                                            </g>
-                                            <g opacity="0.3">
-                                                <path
-                                                    d="M4.51497 10.929H6.87664C7.5122 10.929 8.05477 11.1489 8.50435 11.5887C8.95574 12.0267 9.18143 12.5554 9.18143 13.1746V15.4573C9.18143 16.0871 8.95574 16.6184 8.50435 17.0512C8.05477 17.484 7.5122 17.7003 6.87664 17.7003H4.51497C3.88122 17.7003 3.33865 17.484 2.88727 17.0512C2.43768 16.6184 2.21289 16.0871 2.21289 15.4573V13.1746C2.21289 12.5554 2.43768 12.0267 2.88727 11.5887C3.33865 11.1489 3.88122 10.929 4.51497 10.929Z"
-                                                    fill="#FD4A36"
-                                                />
-                                            </g>
-                                            <path
-                                                d="M13.8107 10.9474H16.1723C16.8061 10.9474 17.3486 11.1673 17.8 11.6071C18.2496 12.0452 18.4744 12.5739 18.4744 13.1931V15.4942C18.4744 16.1117 18.2496 16.6404 17.8 17.0802C17.3486 17.5183 16.8061 17.7373 16.1723 17.7373H13.8107C13.1751 17.7373 12.6325 17.5183 12.1829 17.0802C11.7316 16.6404 11.5059 16.1117 11.5059 15.4942V13.1931C11.5059 12.5739 11.7316 12.0452 12.1829 11.6071C12.6325 11.1673 13.1751 10.9474 13.8107 10.9474Z"
-                                                fill="#FD4A36"
-                                            />
-                                            <path
-                                                d="M4.51497 1.85645H6.87664C7.5122 1.85645 8.05477 2.07547 8.50435 2.51353C8.95574 2.95334 9.18143 3.482 9.18143 4.0995V6.40061C9.18143 7.01987 8.95574 7.54853 8.50435 7.98658C8.05477 8.4264 7.5122 8.64631 6.87664 8.64631H4.51497C3.88122 8.64631 3.33865 8.4264 2.88727 7.98658C2.43768 7.54853 2.21289 7.01987 2.21289 6.40061V4.0995C2.21289 3.482 2.43768 2.95334 2.88727 2.51353C3.33865 2.07547 3.88122 1.85645 4.51497 1.85645Z"
-                                                fill="#FD4A36"
-                                            />
-                                        </svg>
-                                    </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-64">
-                                    <h4 className="font-medium p-5 text-base">
-                                        Filter Options
-                                    </h4>
-                                    <hr />
-
-                                    <div className="p-5 space-y-5">
-                                        <div className="space-y-1">
-                                            <h4 className="font-medium">
-                                                Status:
-                                            </h4>
-                                            <Select>
-                                                <SelectTrigger className="w-[200px]">
-                                                    <SelectValue placeholder="Select Status" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectGroup>
-                                                        {/* <SelectLabel>Fruits</SelectLabel> */}
-                                                        <SelectItem value="apple">
-                                                            Approved
-                                                        </SelectItem>
-                                                        <SelectItem value="banana">
-                                                            Pending
-                                                        </SelectItem>
-                                                        <SelectItem value="blueberry">
-                                                            In Progress
-                                                        </SelectItem>
-                                                        <SelectItem value="grapes">
-                                                            Rejected
-                                                        </SelectItem>
-                                                    </SelectGroup>
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
-                                        <div className="space-y-1">
-                                            <h4 className="font-medium">
-                                                Member Type:
-                                            </h4>
-                                            <div className="flex items-center gap-3">
-                                                <div className="flex items-center gap-1">
-                                                    <Checkbox />{" "}
-                                                    <h6 className="text-grey-light">
-                                                        Author
-                                                    </h6>
-                                                </div>
-                                                <div className="flex items-center gap-1">
-                                                    <Checkbox checked />{" "}
-                                                    <h6 className="text-grey-light">
-                                                        Customer
-                                                    </h6>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="space-y-1">
-                                            <h4 className="font-medium">
-                                                Notifications:
-                                            </h4>
-                                            <div className="flex items-center space-x-2">
-                                                <Switch
-                                                    id="notifications-mode"
-                                                    checked
-                                                />
-                                                <Label htmlFor="notifications-mode">
-                                                    Enabled
-                                                </Label>
-                                            </div>
-                                        </div>
-
-                                        <div className="flex justify-end gap-4">
-                                            <Button variant="ghost">
-                                                Reset
-                                            </Button>
-                                            <Button>Apply</Button>
-                                        </div>
-                                    </div>
-                                </PopoverContent>
-                            </Popover>
-                        </div>
-                    </div>
-
-                    <div className="flex relative gap-5 flex-col md:flex-row">
-                        <ResponsiveContainer width="100%" height={300}>
-                            <PieChart width={400} height={400}>
-                                <Tooltip />
-                                <Pie
-                                    data={pieData}
-                                    cx="50%"
-                                    cy="50%"
-                                    labelLine={false}
-                                    label={renderCustomizedLabel}
-                                    outerRadius={120}
-                                    fill="#8884d8"
-                                    dataKey="value"
-                                >
-                                    {pieData.map((entry, index) => (
-                                        <Cell
-                                            key={`cell-${index}`}
-                                            fill={COLORS[index % COLORS.length]}
-                                        />
-                                    ))}
-                                </Pie>
-                            </PieChart>
-                        </ResponsiveContainer>
-
-                        <div className="block md:hidden">
-                            {pieData.map(({ name, color }) => (
-                                <div
-                                    key={name}
-                                    className="flex items-center gap-2"
-                                >
-                                    <div
-                                        style={{ backgroundColor: color }}
-                                        className="h-3 w-3 rounded-full"
-                                    />
-                                    <h4>{name}</h4>
-                                </div>
-                            ))}
-                        </div>
-                        <div className="absolute hidden top-5 right-5 md:block">
-                            {pieData.map(({ name, color }) => (
-                                <div
-                                    key={name}
-                                    className="flex items-center gap-2"
-                                >
-                                    <div
-                                        style={{ backgroundColor: color }}
-                                        className="h-3 w-3 rounded-full"
-                                    />
-                                    <h4>{name}</h4>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </Card>
-            </div>
-
-            <div className="space-y-5">
-                <div className="flex justify-between items-center">
-                    <h4 className="font-bold text-lg">
-                        Projects{" "}
-                        <span className="text-sm text-grey-dark">
-                            by Status
-                        </span>
-                    </h4>
-
-                    <Select>
-                        <SelectTrigger className="w-[100px]">
-                            <SelectValue placeholder="Status" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectGroup>
-                                {/* <SelectLabel>Fruits</SelectLabel> */}
-                                <SelectItem value="active">Active</SelectItem>
-                                <SelectItem value="in_progress">
-                                    In Progress
-                                </SelectItem>
-                                <SelectItem value="todo">Todo</SelectItem>
-                                <SelectItem value="completed">
-                                    Completed
-                                </SelectItem>
-                            </SelectGroup>
-                        </SelectContent>
-                    </Select>
-                </div>
-
-                <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
-                    {transformedProjectData.length > 0 ? transformedProjectData.slice(0, 3).map((project, index) => (
-                            <Card
-                                key={index}
-                                className="space-y-5 hover:border-primary"
-                            >
-                                <div className="flex justify-between items-center">
-                                    <div>
-                                        <img
-                                            src={logoPng}
-                                            alt="logo"
-                                            width={50}
-                                        />
-                                    </div>
-                                    <div className="bg-green-100 text-green-500 px-2 py-1 rounded-lg">
-                                        {project.status}
-                                    </div>
-                                </div>
-
-                                <div className="">
-                                    <h4 className="font-bold text-lg">
-                                        {project.ref.name}
-                                    </h4>
-                                    <h6>{project.ref.desc}</h6>
-                                </div>
-
-                                <div className="flex gap-5 items-center">
-                                    <div className="p-3 border border-dashed rounded-lg">
-                                        <h4 className="font-bold text-lg">
-                                            {project.end_date ? new Date(project.end_date).toLocaleDateString("en-US") : project.date}
-                                        </h4>
-                                        <h6>Due Date</h6>
-                                    </div>
-                                    <div className="p-3 border border-dashed rounded-lg">
-                                        <h4 className="font-bold text-lg">
-                                            {project.currency === "NGN" ? "₦" : "$"}{project.amount.toLocaleString()}
-                                        </h4>
-                                        <h6>Budget</h6>
-                                    </div>
-                                </div>
-
-                                <Progress value={project.progress} />
-
-                                <div className="flex">
-                                    {project.manager_initials.map((initials, idx) => (
-                                        <div 
-                                            key={idx}
-                                            className={`p-3 font-bold rounded-full text-center bg-[#7239EA] text-white ${idx > 0 ? '-ml-3' : ''}`}
-                                        >
-                                            {initials}
-                                        </div>
-                                    ))}
-                                </div>
-                            </Card>
-                        )) : null}
-                </div>
-            </div>
+      <div className="space-y-6 p-6">
+        <div className="flex justify-center items-center min-h-[400px]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading real dashboard data...</p>
+            <p className="text-sm text-gray-500 mt-2">Fetching projects, workforce, and financial data</p>
+          </div>
         </div>
+      </div>
     );
-}
+  }
 
-
-const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#775DD0"];
-
-const RADIAN = Math.PI / 180;
-const renderCustomizedLabel = ({
-    cx,
-    cy,
-    midAngle,
-    innerRadius,
-    outerRadius,
-    percent,
-}: any) => {
-    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
-    const x = cx + radius * Math.cos(-midAngle * RADIAN);
-    const y = cy + radius * Math.sin(-midAngle * RADIAN);
-
+  // Show error state
+  if (hasError) {
     return (
-        <text
-            x={x}
-            y={y}
-            fill="white"
-            textAnchor={x > cx ? "start" : "end"}
-            dominantBaseline="central"
-        >
-            {`${(percent * 100).toFixed(0)}%`}
-        </text>
+      <div className="space-y-6 p-6">
+        <div className="flex justify-center items-center min-h-[400px]">
+          <div className="text-center">
+            <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+            <h2 className="text-lg font-semibold text-gray-900 mb-2">Failed to load dashboard</h2>
+            <p className="text-gray-600 mb-4">There was an error loading your dashboard data.</p>
+            <Button onClick={() => window.location.reload()} className="gap-2">
+              <RotateCcw className="h-4 w-4" />
+              Retry
+            </Button>
+          </div>
+        </div>
+      </div>
     );
-};
+  }
+
+  // Show no data state
+  if (!hasRealData) {
+    return (
+      <div className="space-y-6 p-6">
+        <div className="flex justify-center items-center min-h-[400px]">
+          <div className="text-center">
+            <BarChart3 className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+            <h2 className="text-lg font-semibold text-gray-900 mb-2">No Data Available</h2>
+            <p className="text-gray-600 mb-4">No real data found from your ERP system endpoints.</p>
+            <Button onClick={() => window.location.reload()} className="gap-2">
+              <RotateCcw className="h-4 w-4" />
+              Refresh
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6 p-6">
+      {/* Real Data Dashboard Header */}
+      <div className="flex justify-between items-start">
+        <div className="flex-1">
+          <div className="flex items-center gap-4 mb-2">
+            <h1 className="text-3xl font-bold text-gray-900">Real Data Dashboard</h1>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 text-sm text-gray-500">
+                <Clock className="h-4 w-4" />
+                {currentTime.toLocaleTimeString()} • {currentTime.toLocaleDateString()}
+              </div>
+              <Badge variant="outline" className="bg-green-50 border-green-200 text-green-700">
+                Live Data
+              </Badge>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <p className="text-gray-600">
+              AHNI ERP Analytics • Data sourced from live endpoints
+            </p>
+          </div>
+        </div>
+
+        {/* Action Panel */}
+        <div className="flex items-center gap-3">
+          <Button variant="outline" size="sm" className="gap-2">
+            <Download className="h-4 w-4" />
+            Export Report
+          </Button>
+
+          <Button variant="outline" size="sm" className="gap-2" onClick={() => window.location.reload()}>
+            <RotateCcw className="h-4 w-4" />
+            Refresh Data
+          </Button>
+
+          <Button size="sm" className="gap-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800">
+            <Settings className="h-4 w-4" />
+            Configure
+          </Button>
+        </div>
+      </div>
+
+      {/* Real Data Key Metrics */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Project Analytics */}
+        {realProjectsAnalytics && (
+          <Card className="p-6 hover:shadow-lg transition-shadow border-l-4 border-l-blue-500">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Total Projects</p>
+                <p className="text-3xl font-bold text-gray-900">{realProjectsAnalytics.totalProjects}</p>
+                <p className="text-sm text-blue-600 mt-1">
+                  {realProjectsAnalytics.thisYear} started this year
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Avg budget: {formatCurrency(realProjectsAnalytics.averageBudget)}
+                </p>
+              </div>
+              <div className="h-14 w-14 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center">
+                <FileText className="h-7 w-7 text-blue-600" />
+              </div>
+            </div>
+          </Card>
+        )}
+
+        {/* Budget Analytics */}
+        {realProjectsAnalytics && (
+          <Card className="p-6 hover:shadow-lg transition-shadow border-l-4 border-l-green-500">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Total Budget</p>
+                <p className="text-3xl font-bold text-gray-900">{formatCurrency(realProjectsAnalytics.totalBudget)}</p>
+                <p className="text-sm text-green-600 mt-1">
+                  {realProjectsAnalytics.thisMonth} new this month
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  All active projects combined
+                </p>
+              </div>
+              <div className="h-14 w-14 bg-gradient-to-br from-green-100 to-green-200 rounded-xl flex items-center justify-center">
+                <DollarSign className="h-7 w-7 text-green-600" />
+              </div>
+            </div>
+          </Card>
+        )}
+
+        {/* Workforce Analytics */}
+        {realWorkforceAnalytics && (
+          <Card className="p-6 hover:shadow-lg transition-shadow border-l-4 border-l-purple-500">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Workforce</p>
+                <p className="text-3xl font-bold text-gray-900">{realWorkforceAnalytics.totalEmployees}</p>
+                <p className="text-sm text-purple-600 mt-1">
+                  {Object.keys(realWorkforceAnalytics.departmentGroups).length} departments
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Avg team size: {realWorkforceAnalytics.averageTeamSize}
+                </p>
+              </div>
+              <div className="h-14 w-14 bg-gradient-to-br from-purple-100 to-purple-200 rounded-xl flex items-center justify-center">
+                <Users className="h-7 w-7 text-purple-600" />
+              </div>
+            </div>
+          </Card>
+        )}
+
+        {/* Fund Request Analytics */}
+        {realFundRequestAnalytics && (
+          <Card className="p-6 hover:shadow-lg transition-shadow border-l-4 border-l-orange-500">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Fund Requests</p>
+                <p className="text-3xl font-bold text-gray-900">{realFundRequestAnalytics.totalRequests}</p>
+                <p className="text-sm text-orange-600 mt-1">
+                  {formatCurrency(realFundRequestAnalytics.totalRequestedAmount)} requested
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  {realFundRequestAnalytics.approvalRate.toFixed(0)}% approval rate
+                </p>
+              </div>
+              <div className="h-14 w-14 bg-gradient-to-br from-orange-100 to-orange-200 rounded-xl flex items-center justify-center">
+                <TrendingUp className="h-7 w-7 text-orange-600" />
+              </div>
+            </div>
+          </Card>
+        )}
+
+        {/* Financial Analytics */}
+        {realFinancialAnalytics && (
+          <Card className="p-6 hover:shadow-lg transition-shadow border-l-4 border-l-indigo-500 col-span-full lg:col-span-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <div className="text-center">
+                <p className="text-sm font-medium text-gray-600">Total Assets</p>
+                <p className="text-2xl font-bold text-gray-900">{formatCurrency(realFinancialAnalytics.totalAssets)}</p>
+              </div>
+              <div className="text-center">
+                <p className="text-sm font-medium text-gray-600">Total Revenue</p>
+                <p className="text-2xl font-bold text-green-600">{formatCurrency(realFinancialAnalytics.totalRevenue)}</p>
+              </div>
+              <div className="text-center">
+                <p className="text-sm font-medium text-gray-600">Net Income</p>
+                <p className={`text-2xl font-bold ${realFinancialAnalytics.netIncome >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  {formatCurrency(realFinancialAnalytics.netIncome)}
+                </p>
+              </div>
+              <div className="text-center">
+                <p className="text-sm font-medium text-gray-600">Profit Margin</p>
+                <p className={`text-2xl font-bold ${realFinancialAnalytics.profitMargin >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  {realFinancialAnalytics.profitMargin.toFixed(1)}%
+                </p>
+              </div>
+            </div>
+          </Card>
+        )}
+      </div>
+
+      {/* Real Data Visualizations */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Project Status Distribution */}
+        {chartData.projectStatusChart && chartData.projectStatusChart.length > 0 && (
+          <Card className="p-6">
+            <div className="flex justify-between items-center mb-4">
+              <div>
+                <h3 className="text-lg font-semibold">Project Status Distribution</h3>
+                <p className="text-sm text-gray-600">Real-time project status breakdown</p>
+              </div>
+              <Badge variant="outline" className="bg-blue-50 border-blue-200 text-blue-700">
+                {realProjectsAnalytics?.totalProjects} Projects
+              </Badge>
+            </div>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={chartData.projectStatusChart}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, percentage }) => `${name}: ${percentage}%`}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {chartData.projectStatusChart.map((entry: any, index: number) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    formatter={(value: any, name: any) => [`${value} projects`, name]}
+                    labelFormatter={() => 'Project Status'}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              {chartData.projectStatusChart.map((item: any, index: number) => (
+                <div key={index} className="flex items-center justify-between text-sm">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }}></div>
+                    <span>{item.name}</span>
+                  </div>
+                  <span className="font-medium">{item.percentage}%</span>
+                </div>
+              ))}
+            </div>
+          </Card>
+        )}
+
+        {/* Geographic Distribution */}
+        {chartData.locationChart && chartData.locationChart.length > 0 && (
+          <Card className="p-6">
+            <div className="flex justify-between items-center mb-4">
+              <div>
+                <h3 className="text-lg font-semibold">Geographic Distribution</h3>
+                <p className="text-sm text-gray-600">Projects by location/state</p>
+              </div>
+              <Badge variant="outline" className="bg-green-50 border-green-200 text-green-700">
+                {chartData.locationChart.length} Locations
+              </Badge>
+            </div>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={chartData.locationChart} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+                  <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                  <YAxis tick={{ fontSize: 12 }} />
+                  <Tooltip
+                    formatter={(value: any) => [`${value} projects`, 'Projects']}
+                    labelFormatter={(label: any) => `Location: ${label}`}
+                  />
+                  <Bar dataKey="projects" fill="#0088FE" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
+        )}
+
+        {/* Funding Source Distribution */}
+        {chartData.fundingChart && chartData.fundingChart.length > 0 && (
+          <Card className="p-6">
+            <div className="flex justify-between items-center mb-4">
+              <div>
+                <h3 className="text-lg font-semibold">Funding Sources</h3>
+                <p className="text-sm text-gray-600">Projects by funding organization</p>
+              </div>
+              <Badge variant="outline" className="bg-purple-50 border-purple-200 text-purple-700">
+                {chartData.fundingChart.length} Sources
+              </Badge>
+            </div>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={chartData.fundingChart} layout="horizontal" margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
+                  <XAxis type="number" tick={{ fontSize: 12 }} />
+                  <YAxis dataKey="name" type="category" tick={{ fontSize: 12 }} width={100} />
+                  <Tooltip
+                    formatter={(value: any) => [`${value} projects`, 'Projects']}
+                    labelFormatter={(label: any) => `Source: ${label}`}
+                  />
+                  <Bar dataKey="projects" fill="#8884D8" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
+        )}
+
+        {/* Department Distribution */}
+        {chartData.departmentChart && chartData.departmentChart.length > 0 && (
+          <Card className="p-6">
+            <div className="flex justify-between items-center mb-4">
+              <div>
+                <h3 className="text-lg font-semibold">Workforce Distribution</h3>
+                <p className="text-sm text-gray-600">Employees by department</p>
+              </div>
+              <Badge variant="outline" className="bg-orange-50 border-orange-200 text-orange-700">
+                {realWorkforceAnalytics?.totalEmployees} Employees
+              </Badge>
+            </div>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={chartData.departmentChart}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, percentage }) => `${name}: ${percentage}%`}
+                    outerRadius={80}
+                    fill="#82CA9D"
+                    dataKey="employees"
+                  >
+                    {chartData.departmentChart.map((entry: any, index: number) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[(index + 2) % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    formatter={(value: any, name: any) => [`${value} employees`, name]}
+                    labelFormatter={() => 'Department'}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="mt-4 grid grid-cols-1 gap-2">
+              {chartData.departmentChart.map((item: any, index: number) => (
+                <div key={index} className="flex items-center justify-between text-sm">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[(index + 2) % COLORS.length] }}></div>
+                    <span>{item.name}</span>
+                  </div>
+                  <span className="font-medium">{item.employees} ({item.percentage}%)</span>
+                </div>
+              ))}
+            </div>
+          </Card>
+        )}
+      </div>
+
+      {/* Real Projects Data Table */}
+      {projectsData?.data?.results && projectsData.data.results.length > 0 && (
+        <Card className="p-6">
+          <div className="flex justify-between items-center mb-6">
+            <div>
+              <h3 className="text-lg font-semibold">Active Projects</h3>
+              <p className="text-sm text-gray-600">Real project data from your ERP system</p>
+            </div>
+            <Button size="sm" className="gap-2">
+              <Eye className="h-4 w-4" />
+              View All Projects
+            </Button>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b">
+                  <th className="text-left p-3 font-medium">Project</th>
+                  <th className="text-left p-3 font-medium">Budget</th>
+                  <th className="text-left p-3 font-medium">Status</th>
+                  <th className="text-left p-3 font-medium">Location</th>
+                  <th className="text-left p-3 font-medium">Start Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {projectsData.data.results.slice(0, 10).map((project: any, index: number) => (
+                  <tr key={project.id || index} className="border-b hover:bg-gray-50">
+                    <td className="p-3">
+                      <div>
+                        <div className="font-medium">{project.title || project.name || `Project ${index + 1}`}</div>
+                        <div className="text-xs text-gray-500 max-w-[200px] truncate">
+                          {project.goal || project.description || 'No description available'}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="p-3">
+                      <div className="font-medium">
+                        {project.currency === "USD" ? "$" : "₦"}
+                        {parseFloat(project.budget || 0).toLocaleString()}
+                      </div>
+                    </td>
+                    <td className="p-3">
+                      <Badge variant={project.status === "ACTIVE" ? "default" : "secondary"}>
+                        {project.status || 'Unknown'}
+                      </Badge>
+                    </td>
+                    <td className="p-3">
+                      {project.location && Array.isArray(project.location)
+                        ? project.location.slice(0, 2).map((loc: any) => loc.name).join(', ')
+                        : 'Not specified'
+                      }
+                      {project.location && project.location.length > 2 &&
+                        <span className="text-xs text-gray-500"> +{project.location.length - 2} more</span>
+                      }
+                    </td>
+                    <td className="p-3 text-gray-600">
+                      {project.start_date ? new Date(project.start_date).toLocaleDateString() : 'TBD'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {projectsData.data.results.length > 10 && (
+            <div className="mt-4 text-center">
+              <p className="text-sm text-gray-500">
+                Showing 10 of {projectsData.data.results.length} total projects
+              </p>
+              <Button variant="outline" size="sm" className="mt-2">
+                Load More Projects
+              </Button>
+            </div>
+          )}
+        </Card>
+      )}
+
+      {/* Fund Requests Data Table */}
+      {fundRequestsData?.data?.results && fundRequestsData.data.results.length > 0 && (
+        <Card className="p-6">
+          <div className="flex justify-between items-center mb-6">
+            <div>
+              <h3 className="text-lg font-semibold">Recent Fund Requests</h3>
+              <p className="text-sm text-gray-600">Real fund request data from your system</p>
+            </div>
+            <Button size="sm" className="gap-2">
+              <TrendingUp className="h-4 w-4" />
+              View All Requests
+            </Button>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b">
+                  <th className="text-left p-3 font-medium">Request</th>
+                  <th className="text-left p-3 font-medium">Amount</th>
+                  <th className="text-left p-3 font-medium">Status</th>
+                  <th className="text-left p-3 font-medium">Project</th>
+                  <th className="text-left p-3 font-medium">Created</th>
+                </tr>
+              </thead>
+              <tbody>
+                {fundRequestsData.data.results.slice(0, 8).map((request: any, index: number) => (
+                  <tr key={request.id || index} className="border-b hover:bg-gray-50">
+                    <td className="p-3">
+                      <div>
+                        <div className="font-medium">{request.title || request.name || `Request ${index + 1}`}</div>
+                        <div className="text-xs text-gray-500 max-w-[200px] truncate">
+                          {request.description || 'No description available'}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="p-3">
+                      <div className="font-medium">
+                        ₦{parseFloat(request.amount || 0).toLocaleString()}
+                      </div>
+                    </td>
+                    <td className="p-3">
+                      <Badge variant={
+                        request.status?.toLowerCase().includes('approved') ? "default" :
+                        request.status?.toLowerCase().includes('pending') ? "secondary" :
+                        request.status?.toLowerCase().includes('rejected') ? "destructive" :
+                        "outline"
+                      }>
+                        {request.status || 'Unknown'}
+                      </Badge>
+                    </td>
+                    <td className="p-3 text-gray-600">
+                      {request.project?.name || request.project_name || 'Unassigned'}
+                    </td>
+                    <td className="p-3 text-gray-600">
+                      {request.created_at ? new Date(request.created_at).toLocaleDateString() : 'Unknown'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Card>
+      )}
+
+      {/* Data Sources Information */}
+      <Card className="p-6 bg-gradient-to-r from-blue-50 to-purple-50 border-none">
+        <div className="flex items-center gap-4">
+          <div className="h-12 w-12 bg-gradient-to-br from-blue-100 to-purple-200 rounded-xl flex items-center justify-center">
+            <BarChart3 className="h-6 w-6 text-blue-600" />
+          </div>
+          <div className="flex-1">
+            <h3 className="text-lg font-semibold text-gray-900">Real Data Dashboard</h3>
+            <p className="text-sm text-gray-600 mb-2">
+              This dashboard displays live data from your AHNI ERP system endpoints
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {realProjectsAnalytics && (
+                <Badge variant="outline" className="bg-white">
+                  ✓ Projects API ({realProjectsAnalytics.totalProjects} records)
+                </Badge>
+              )}
+              {realWorkforceAnalytics && (
+                <Badge variant="outline" className="bg-white">
+                  ✓ Workforce API ({realWorkforceAnalytics.totalEmployees} records)
+                </Badge>
+              )}
+              {realFundRequestAnalytics && (
+                <Badge variant="outline" className="bg-white">
+                  ✓ Fund Requests API ({realFundRequestAnalytics.totalRequests} records)
+                </Badge>
+              )}
+              {realFinancialAnalytics && (
+                <Badge variant="outline" className="bg-white">
+                  ✓ Financial Reports API
+                </Badge>
+              )}
+            </div>
+          </div>
+          <div className="text-right">
+            <p className="text-sm text-gray-500">Last updated</p>
+            <p className="text-lg font-semibold text-gray-900">
+              {new Date().toLocaleString()}
+            </p>
+          </div>
+        </div>
+      </Card>
+
+      {/* Footer */}
+      <div className="text-center text-sm text-gray-500 pt-4 border-t">
+        AHNI Real Data Dashboard • Live ERP Analytics • Last refreshed: {new Date().toLocaleString()}
+      </div>
+    </div>
+  );
+}

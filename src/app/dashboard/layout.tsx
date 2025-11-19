@@ -3,7 +3,7 @@
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Footer from "components/Footer";
 import Header from "components/Header";
 import Sidebar from "components/Sidebar";
@@ -18,13 +18,14 @@ export default function DashboardLayout({
     children: React.ReactNode;
 }) {
     const [sidebarWidth, setSidebarWidth] = useState(false);
-    
+    const router = useRouter();
+
     useEffect(() => {
         const token = getAccessToken();
         if (!token) {
-            redirect("/auth/login");
+            router.push("/auth/login");
         }
-    }, []);
+    }, [router]);
 
     return (
         <div className="flex">
