@@ -12,22 +12,16 @@ import {
 } from "redux-persist";
 
 const middlewareHandler = (getDefaultMiddleware: any) => {
-  const middlewareList = [
-    // ...your middleware here
-    ...getDefaultMiddleware({
-      serializableCheck: {
-        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
-      },
-    }),
-  ];
-
-  return middlewareList;
+  return getDefaultMiddleware({
+    serializableCheck: {
+      ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+    },
+  });
 };
 
 const makeStore = () => {
   return configureStore({
     reducer: rootReducer,
-    // @ts-ignore
     middleware: (getDefaultMiddleware) =>
       middlewareHandler(getDefaultMiddleware),
     devTools: process.env.NODE_ENV !== "production",

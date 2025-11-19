@@ -1,5 +1,6 @@
 import { combineReducers } from "@reduxjs/toolkit";
 import { persistReducer } from "redux-persist";
+import storage from "redux-persist/lib/storage/session";
 // Services removed - using TanStack Query instead
 
 const createNoopStorage = () => {
@@ -16,9 +17,7 @@ const createNoopStorage = () => {
   };
 };
 
-const storage = typeof window !== "undefined"
-  ? require("redux-persist/es/storage/session").default
-  : createNoopStorage();
+const persistStorage = typeof window !== "undefined" ? storage : createNoopStorage();
 import auth from "./auth/authSlice";
 import ui from "./ui";
 import consortiumPartnerReducer from "./formData/project-values";
@@ -33,7 +32,7 @@ import teamMember from "./admin/team-members";
 import steps from "./stepTracker";
 
 const persistConfig = {
-  storage,
+  storage: persistStorage,
   key: "ahni",
   blacklist: [
     "objectives",
