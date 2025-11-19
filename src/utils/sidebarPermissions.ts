@@ -1,28 +1,57 @@
 import { SidebarItem, GlobalHubItem, PermissionRequirement } from './sidebarItems';
+import { IUser } from '@/features/auth/types/auth';
+import {
+  isUserAdmin,
+  UIPermissionCategory,
+  calculateUIPermissions,
+  hasUIPermission,
+  calculateMenuPermissions
+} from '@/utils/positionRolePermissions';
 
 /**
- * Check if user is super admin
+ * Enhanced permission system integration
+ * This bridges our new position-role permission system with the existing sidebar logic
+ */
+
+/**
+ * Check if user is super admin using enhanced detection
  * @param userPermissions - Array of user's permissions from API
  * @param userRoles - Array of user's roles (optional, for when available)
+ * @param user - Full user object (optional, for enhanced admin detection)
  * @returns boolean - true if user is super admin
  */
-function isSuperAdmin(userPermissions: any[], userRoles?: any[]): boolean {
+function isSuperAdmin(userPermissions: any[], userRoles?: any[], user?: IUser): boolean {
+  // Use our enhanced admin detection if user object is available
+  if (user) {
+    return isUserAdmin(user);
+  }
+
+  // Fallback to legacy detection for backward compatibility
   // Method 1: Check user roles for admin indicators
   if (userRoles && userRoles.length > 0) {
-    const adminRoles = ['super admin', 'superadmin', 'administrator', 'admin', 'super_admin', 'system_admin'];
+    const adminRoles = ['director', 'super admin', 'superadmin', 'administrator', 'admin', 'super_admin', 'system_admin'];
     const hasAdminRole = userRoles.some(role => {
-      // Ensure role is a string and not null/undefined
+      // Handle string roles
       if (typeof role === 'string' && role) {
         return adminRoles.some(adminRole =>
           role.toLowerCase().includes(adminRole.toLowerCase())
         );
       }
-      // If role is an object, try to extract role name
+      // Handle role objects with name property (new structure)
       if (typeof role === 'object' && role && (role as any).name) {
         const roleName = (role as any).name;
         if (typeof roleName === 'string') {
           return adminRoles.some(adminRole =>
             roleName.toLowerCase().includes(adminRole.toLowerCase())
+          );
+        }
+      }
+      // Handle role objects with id property (fallback)
+      if (typeof role === 'object' && role && (role as any).id) {
+        const roleId = (role as any).id;
+        if (typeof roleId === 'string') {
+          return adminRoles.some(adminRole =>
+            roleId.toLowerCase().includes(adminRole.toLowerCase())
           );
         }
       }
@@ -56,19 +85,21 @@ function isSuperAdmin(userPermissions: any[], userRoles?: any[]): boolean {
 }
 
 /**
- * Check if user has the required permissions
+ * Enhanced permission check with position-role integration
  * @param userPermissions - Array of user's permissions from API
  * @param requiredPermissions - Array of required permission sets
  * @param userRoles - Array of user's roles (optional, for super admin check)
+ * @param user - Full user object (optional, for enhanced permission checking)
  * @returns boolean - true if user has access
  */
 export function hasPermission(
   userPermissions: any[],
   requiredPermissions?: PermissionRequirement[],
-  userRoles?: any[]
+  userRoles?: any[],
+  user?: IUser
 ): boolean {
   // Super admin bypass - super admins can see everything
-  if (isSuperAdmin(userPermissions, userRoles)) {
+  if (isSuperAdmin(userPermissions, userRoles, user)) {
     return true;
   }
 
@@ -77,7 +108,90 @@ export function hasPermission(
     return true;
   }
 
-  // Check if user has at least one of the required permission sets (OR logic between sets)
+  // If we have the full user object, try enhanced permission checking first
+  if (user) {
+    // Check if this is a simplified UI permission
+    const uiPermissions = calculateUIPermissions(user);
+    const menuPermissions = calculateMenuPermissions(user);
+
+    // Map some common permission requirements to our UI permissions
+    for (const requirement of requiredPermissions) {
+      const { module, codenames } = requirement;
+
+      // Check for module access patterns
+      switch (module) {
+        case 'hr':
+          if (codenames.some(code => code.includes('view')) &&
+              uiPermissions.includes(UIPermissionCategory.HR_MODULE)) {
+            return true;
+          }
+          if (codenames.some(code => code.includes('approve')) &&
+              uiPermissions.includes(UIPermissionCategory.APPROVE_REQUESTS)) {
+            return true;
+          }
+          break;
+
+        case 'finance':
+          if (codenames.some(code => code.includes('view')) &&
+              uiPermissions.includes(UIPermissionCategory.FINANCE_MODULE)) {
+            return true;
+          }
+          if (codenames.some(code => code.includes('authorize')) &&
+              uiPermissions.includes(UIPermissionCategory.AUTHORIZE_REQUESTS)) {
+            return true;
+          }
+          break;
+
+        case 'approvals':
+          if (codenames.some(code => code.includes('approve')) &&
+              uiPermissions.includes(UIPermissionCategory.APPROVE_REQUESTS)) {
+            return true;
+          }
+          if (codenames.some(code => code.includes('authorize')) &&
+              uiPermissions.includes(UIPermissionCategory.AUTHORIZE_REQUESTS)) {
+            return true;
+          }
+          if (codenames.some(code => code.includes('review')) &&
+              uiPermissions.includes(UIPermissionCategory.REVIEW_REQUESTS)) {
+            return true;
+          }
+          break;
+
+        case 'procurements':
+          if (uiPermissions.includes(UIPermissionCategory.PROCUREMENT_MODULE)) {
+            return true;
+          }
+          break;
+
+        case 'programs':
+          if (uiPermissions.includes(UIPermissionCategory.PROGRAMS_MODULE)) {
+            return true;
+          }
+          break;
+
+        case 'projects':
+          if (uiPermissions.includes(UIPermissionCategory.PROJECTS_MODULE)) {
+            return true;
+          }
+          break;
+
+        case 'config':
+          if (uiPermissions.includes(UIPermissionCategory.CONFIG_MODULE)) {
+            return true;
+          }
+          break;
+
+        case 'admin':
+          // Admin module typically requires administrative privileges
+          if (isUserAdmin(user)) {
+            return true;
+          }
+          break;
+      }
+    }
+  }
+
+  // Fallback to legacy permission checking
   return requiredPermissions.some(requirement => {
     // Find the module in user's permissions
     const userModulePerms = userPermissions.find(
@@ -106,26 +220,29 @@ export function hasPermission(
 }
 
 /**
- * Recursively filter sidebar items based on user permissions
+ * Enhanced sidebar filtering with position-role integration
  * @param items - Array of sidebar items
  * @param userPermissions - User's permissions from API
  * @param userRoles - User's roles (optional, for super admin check)
+ * @param user - Full user object (optional, for enhanced permission checking)
  * @returns Filtered array of sidebar items
  */
 export function filterSidebarByPermissions(
   items: SidebarItem[],
   userPermissions: any[],
-  userRoles?: any[]
+  userRoles?: any[],
+  user?: IUser
 ): SidebarItem[] {
   return items
-    .filter(item => hasPermission(userPermissions, item.permissions, userRoles))
+    .filter(item => hasPermission(userPermissions, item.permissions, userRoles, user))
     .map(item => {
       // If item has children, recursively filter them
       if (item.children && item.children.length > 0) {
         const filteredChildren = filterSidebarByPermissions(
           item.children,
           userPermissions,
-          userRoles
+          userRoles,
+          user
         );
 
         // Only include parent if it has visible children or has its own path
@@ -143,19 +260,21 @@ export function filterSidebarByPermissions(
 }
 
 /**
- * Filter global hub items by user permissions
+ * Enhanced global hub filtering with position-role integration
  * @param items - Array of global hub items
  * @param userPermissions - User's permissions from API
  * @param userRoles - User's roles (optional, for super admin check)
+ * @param user - Full user object (optional, for enhanced permission checking)
  * @returns Filtered array of global hub items
  */
 export function filterGlobalHubByPermissions(
   items: GlobalHubItem[],
   userPermissions: any[],
-  userRoles?: any[]
+  userRoles?: any[],
+  user?: IUser
 ): GlobalHubItem[] {
   return items.filter(item =>
-    hasPermission(userPermissions, item.permissions, userRoles)
+    hasPermission(userPermissions, item.permissions, userRoles, user)
   );
 }
 
@@ -210,17 +329,20 @@ export function getVisibleGlobalHubCategories(
 }
 
 /**
- * Check if a specific path is accessible by the user
- * Useful for route guards and redirects
+ * Enhanced path access checking with position-role integration
  * @param path - The route path to check
  * @param allSidebarItems - All sidebar items (departmental + module links)
  * @param userPermissions - User's permissions
+ * @param userRoles - User's roles (optional)
+ * @param user - Full user object (optional, for enhanced permission checking)
  * @returns boolean
  */
 export function canAccessPath(
   path: string,
   allSidebarItems: SidebarItem[],
-  userPermissions: any[]
+  userPermissions: any[],
+  userRoles?: any[],
+  user?: IUser
 ): boolean {
   // Recursively search for the path in sidebar items
   const findPath = (items: SidebarItem[]): SidebarItem | null => {
@@ -237,28 +359,31 @@ export function canAccessPath(
   };
 
   const item = findPath(allSidebarItems);
-  
+
   if (!item) return false; // Path not found in sidebar
-  
-  return hasPermission(userPermissions, item.permissions);
+
+  return hasPermission(userPermissions, item.permissions, userRoles, user);
 }
 
 /**
- * Get user's accessible routes for navigation
- * Returns flat array of all paths user can access
+ * Enhanced accessible paths retrieval with position-role integration
  * @param allSidebarItems - All sidebar items
  * @param userPermissions - User's permissions
+ * @param userRoles - User's roles (optional)
+ * @param user - Full user object (optional, for enhanced permission checking)
  * @returns Array of accessible paths
  */
 export function getAccessiblePaths(
   allSidebarItems: SidebarItem[],
-  userPermissions: any[]
+  userPermissions: any[],
+  userRoles?: any[],
+  user?: IUser
 ): string[] {
   const paths: string[] = [];
-  
+
   const extractPaths = (items: SidebarItem[]) => {
     items.forEach(item => {
-      if (hasPermission(userPermissions, item.permissions)) {
+      if (hasPermission(userPermissions, item.permissions, userRoles, user)) {
         if (item.path) {
           paths.push(item.path);
         }
@@ -268,7 +393,7 @@ export function getAccessiblePaths(
       }
     });
   };
-  
+
   extractPaths(allSidebarItems);
   return paths;
 }

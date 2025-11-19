@@ -13,8 +13,29 @@ export interface IUser {
     last_name: string;
     email: string;
     last_login: string;
-    roles: string[];
-    permissions: string[];
+    user_type?: string;
+    is_active?: boolean;
+    is_staff?: boolean;
+    is_superuser?: boolean;
+    // Updated to match our backend response structure
+    roles: IRole[];
+    permissions: IPermission[];
+}
+
+export interface IRole {
+    id: string;
+    name: string;
+}
+
+export interface IPermission {
+    module: string;
+    permissions: IPermissionDetail[];
+}
+
+export interface IPermissionDetail {
+    id: number;
+    name: string;
+    codename: string;
 }
 
 export interface ILoginData {

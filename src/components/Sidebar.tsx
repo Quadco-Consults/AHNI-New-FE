@@ -33,9 +33,10 @@ type SidebarProps = {
 };
 
 const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
-  const { data: user } = useGetUserProfile();
-  const permissions = user?.data.permissions || [];
-  const userRoles = user?.data.roles || [];
+  const { data: userProfile } = useGetUserProfile();
+  const user = userProfile?.data;
+  const permissions = userProfile?.data?.permissions || [];
+  const userRoles = userProfile?.data?.roles || [];
   const pathname = usePathname();
 
   // State for collapsible sections
@@ -48,20 +49,20 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
   const [selectedGlobalHubCategory, setSelectedGlobalHubCategory] = useState<string | null>(null);
   const [showGlobalHubSection, setShowGlobalHubSection] = useState(true);
 
-  // Filter sidebar items based on permissions - memoized for performance
+  // Enhanced sidebar filtering with position-role integration - memoized for performance
   const filteredDepartmentalLinks = useMemo(
-    () => filterSidebarByPermissions(departmentalLinks, permissions, userRoles),
-    [permissions, userRoles]
+    () => filterSidebarByPermissions(departmentalLinks, permissions, userRoles, user),
+    [permissions, userRoles, user]
   );
 
   const filteredModuleLinks = useMemo(
-    () => filterSidebarByPermissions(moduleLinks, permissions, userRoles),
-    [permissions, userRoles]
+    () => filterSidebarByPermissions(moduleLinks, permissions, userRoles, user),
+    [permissions, userRoles, user]
   );
 
   const filteredGlobalHubItems = useMemo(
-    () => filterGlobalHubByPermissions(globalHubLinks, permissions, userRoles),
-    [permissions, userRoles]
+    () => filterGlobalHubByPermissions(globalHubLinks, permissions, userRoles, user),
+    [permissions, userRoles, user]
   );
 
   const groupedGlobalHubMenu = useMemo(
