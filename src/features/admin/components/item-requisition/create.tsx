@@ -34,21 +34,52 @@ import { useGetAllUsersQuery, useGetUserProfile } from "@/features/auth/controll
 import { toast } from "sonner";
 import { useGetAllItemsQuery } from "@/features/modules/controllers/config/itemController";
 import { useGetAllStores } from "@/features/admin/controllers/storeController";
+import { useGetAllEnhancedConsumables } from "@/features/admin/controllers/consumableController";
 import {
   getReviewerOptions,
   getAuthorizerOptions,
   getApproverOptions
 } from "@/utils/approvalFilters";
 import { filterAhniStaffOnly } from "@/utils/userFilters";
+import { usePermissions } from "@/hooks/usePermissions";
 
 export default function CreateItemRequisition() {
   // Get current user's profile to detect their location
   const { data: currentUserProfile } = useGetUserProfile();
 
-  const { data: items } = useGetAllItemsQuery({
+  // Get current user information for auto-population
+  const { user: currentUser } = usePermissions();
+
+  // Get user department for auto-population
+  const userDepartment = currentUser?.employee?.department || currentUser?.department;
+
+  // Phase 6: Use Enhanced Consumables API with location-based filtering
+  const { data: consumables, isLoading: isLoadingConsumables, error: enhancedError } = useGetAllEnhancedConsumables({
+    page: 1,
+    size: 1000,
+    expand: "store_stocks", // Get store stock information for location filtering
+    enabled: !!currentUserProfile, // Only call when user profile is available
+  });
+
+  // Debug API calls
+  console.log("🔍 API DEBUG - Enhanced Consumables:", {
+    data: consumables,
+    isLoading: isLoadingConsumables,
+    error: enhancedError,
+  });
+
+  // Fallback: Legacy items API (filtered by consumables category)
+  const { data: items, isLoading: isLoadingItems, error: itemsError } = useGetAllItemsQuery({
     page: 1,
     size: 2000000,
     category: "fadb6228-23de-4b04-9eac-b75940cf622f",
+  });
+
+  // Debug API calls
+  console.log("🔍 API DEBUG - Legacy Items:", {
+    data: items,
+    isLoading: isLoadingItems,
+    error: itemsError,
   });
 
   const { data: user } = useGetAllUsersQuery({
@@ -124,14 +155,72 @@ export default function CreateItemRequisition() {
   const { createItemRequisition, isLoading: isCreateLoading } =
     useCreateItemRequisitionMutation();
 
-  const consumableOptions = useMemo(
-    () =>
-      items?.data.results.map(({ name, id }) => ({
+  const consumableOptions = useMemo(() => {
+    console.log("🔍 ENHANCED API - Consumables data:", consumables);
+    console.log("🔍 ENHANCED API - Consumables results:", consumables?.results);
+    console.log("🔍 ENHANCED API - Consumables data.results:", consumables?.data?.results);
+    console.log("🔍 ENHANCED API - Full structure:", JSON.stringify(consumables, null, 2));
+    console.log("🔍 LEGACY API - Items data:", items);
+    console.log("🔍 LEGACY API - Items results:", items?.data?.results);
+
+    // TEMPORARY: Test dropdown functionality with hardcoded options
+    const testOptions = [
+      { label: "Test Item 1 (Office Supply)", value: "test-1" },
+      { label: "Test Item 2 (Medical Supply)", value: "test-2" },
+      { label: "Test Item 3 (IT Equipment)", value: "test-3" },
+    ];
+
+    // Priority 1: Use Enhanced Consumables API if available
+    const enhancedResults = consumables?.results || consumables?.data?.results || consumables?.data?.data?.consumables;
+    if (enhancedResults && enhancedResults.length > 0) {
+      console.log("🔍 ENHANCED API - Using enhanced consumables data, items count:", enhancedResults.length);
+
+      // Filter consumables available in user's location
+      const userLocation = currentUserProfile?.data?.location?.id;
+      console.log("🔍 USER LOCATION - Location ID:", userLocation);
+
+      const locationFilteredItems = enhancedResults.filter((item: any) => {
+        // If no user location, show all items
+        if (!userLocation) return true;
+
+        // If no store stocks, include item (could be assigned later)
+        if (!item.store_stocks || item.store_stocks.length === 0) return true;
+
+        // Check if item is available in user's location
+        return item.store_stocks.some((stock: any) => {
+          const stockLocationId = stock.store_detail?.location?.id || stock.store_detail?.location;
+          return stockLocationId === userLocation && (stock.available_quantity > 0 || stock.quantity > 0);
+        });
+      });
+
+      console.log("🔍 LOCATION FILTER - Filtered items count:", locationFilteredItems.length, "of", enhancedResults.length);
+
+      return locationFilteredItems.map((item: any) => {
+        const totalAvailable = item.store_stocks?.reduce(
+          (sum: number, stock: any) => sum + (stock.available_quantity || stock.quantity || 0),
+          0
+        ) || 0;
+
+        return {
+          label: `${item.name} (Available: ${totalAvailable})`,
+          value: item.id,
+        };
+      });
+    }
+
+    // Priority 2: Use Legacy Items API if available
+    if (items?.data?.results && items.data.results.length > 0) {
+      console.log("🔍 LEGACY API - Using legacy items data, items count:", items.data.results.length);
+      return items.data.results.map(({ name, id }) => ({
         label: name,
         value: id,
-      })),
-    [items]
-  );
+      }));
+    }
+
+    // Priority 3: Use test data as fallback
+    console.log("🔍 FALLBACK - Using test data, options count:", testOptions.length);
+    return testOptions;
+  }, [consumables, items, currentUserProfile]);
 
   const departmentOptions = useMemo(
     () =>
@@ -144,30 +233,59 @@ export default function CreateItemRequisition() {
 
   // Phase 5: Store options - filtered by user's location
   const storeOptions = useMemo(() => {
-    if (!storesData?.data?.results) return [];
+    console.log("🔍 STORE OPTIONS DEBUG - Raw data:", {
+      storesData: storesData?.data?.results,
+      currentUserProfile: currentUserProfile?.data,
+      userLocation: currentUserProfile?.data?.location
+    });
+
+    if (!storesData?.data?.results) {
+      console.log("⚠️ STORE OPTIONS DEBUG - No stores data available");
+      return [];
+    }
 
     const userLocation = currentUserProfile?.data?.location;
 
+    console.log("🔍 STORE OPTIONS DEBUG - User location:", userLocation);
+
     // Filter stores based on user's location
     const filteredStores = storesData.data.results.filter((store: any) => {
+      console.log(`🔍 STORE OPTIONS DEBUG - Checking store:`, {
+        storeName: store.name,
+        storeType: store.store_type,
+        storeLocation: store.location,
+        storeLocationId: store.location?.id,
+        userLocation,
+        matchesId: store.location?.id === userLocation,
+        matchesDirect: store.location === userLocation
+      });
+
       // Always include CENTRAL stores (available to everyone)
       if (store.store_type === "CENTRAL") {
+        console.log(`✅ Including CENTRAL store: ${store.name}`);
         return true;
       }
 
       // For LOCATION stores, only show if it matches user's location
       if (store.store_type === "LOCATION" && userLocation) {
         // Check if store location matches user location (compare both ID and string)
-        return store.location?.id === userLocation || store.location === userLocation;
+        const matches = store.location?.id === userLocation || store.location === userLocation;
+        console.log(`${matches ? '✅' : '❌'} LOCATION store ${store.name}: ${matches ? 'INCLUDED' : 'EXCLUDED'}`);
+        return matches;
       }
 
+      console.log(`❌ Excluding store ${store.name}: No location match`);
       return false;
     });
 
-    return filteredStores.map((store: any) => ({
+    const options = filteredStores.map((store: any) => ({
       label: `${store.name} (${store.code}) - ${store.store_type === "CENTRAL" ? "Central" : "Location"}`,
       value: String(store.id), // Ensure value is always a string
     }));
+
+    console.log("🔍 STORE OPTIONS DEBUG - Final options:", options);
+
+    return options;
   }, [storesData, currentUserProfile]);
 
   const searchParams = useSearchParams();
@@ -186,7 +304,7 @@ export default function CreateItemRequisition() {
   const form = useForm<TItemRequisitionFormValues>({
     resolver: zodResolver(ItemRequisitionSchema),
     defaultValues: {
-      department: "",
+      department: userDepartment?.id || "", // Auto-populate user's department
       store: "", // Phase 5: Store selection
       reviewer: "",
       authorizer: "",
@@ -226,24 +344,73 @@ export default function CreateItemRequisition() {
     }
   };
 
-  // Auto-select store if only one is available for the user's location
+  // Auto-select store based on user's location
   useEffect(() => {
-    if (!id && storeOptions.length === 1) {
+    console.log("🔍 AUTO-SELECTION EFFECT TRIGGERED:", {
+      hasId: !!id,
+      storeOptionsLength: storeOptions.length,
+      hasUserLocation: !!currentUserProfile?.data?.location,
+      conditions: {
+        noId: !id,
+        hasStoreOptions: storeOptions.length > 0,
+        hasUserLocation: !!currentUserProfile?.data?.location,
+        allConditionsMet: !id && storeOptions.length > 0 && currentUserProfile?.data?.location
+      }
+    });
+
+    if (!id && storeOptions.length > 0 && currentUserProfile?.data?.location) {
       const currentValue = form.getValues("store");
 
-      if (!currentValue) {
-        // Use setTimeout to ensure the form is fully rendered
-        setTimeout(() => {
-          form.setValue("store", storeOptions[0].value, {
-            shouldValidate: true,
-            shouldDirty: true,
-            shouldTouch: true
-          });
-          toast.info(`Auto-selected: ${storeOptions[0].label}`);
-        }, 100);
+      console.log("🔍 AUTO-SELECTION CONDITIONS MET - Checking form value:", currentValue);
+
+      if (!currentValue && storesData?.data?.results) {
+        const userLocation = currentUserProfile.data.location;
+
+        console.log("🔍 STORE AUTO-SELECTION DEBUG:", {
+          userLocation,
+          storeOptions,
+          allStores: storesData.data.results,
+          currentValue
+        });
+
+        // Find the store that matches user's location (prefer LOCATION store over CENTRAL)
+        const userLocationStore = storesData.data.results.find((store: any) => {
+          const matches = store.store_type === "LOCATION" &&
+                         (store.location?.id === userLocation || store.location === userLocation);
+          console.log(`🔍 Checking store ${store.name} (${store.code}): type=${store.store_type}, location=${store.location?.id || store.location}, matches=${matches}`);
+          return matches;
+        });
+
+        // If no location store found, try central store
+        const centralStore = storesData.data.results.find((store: any) => {
+          return store.store_type === "CENTRAL";
+        });
+
+        const storeToSelect = userLocationStore || centralStore;
+
+        console.log("🔍 STORE SELECTION RESULT:", {
+          userLocationStore,
+          centralStore,
+          storeToSelect
+        });
+
+        if (storeToSelect) {
+          // Use setTimeout to ensure the form is fully rendered
+          setTimeout(() => {
+            form.setValue("store", String(storeToSelect.id), {
+              shouldValidate: true,
+              shouldDirty: true,
+              shouldTouch: true
+            });
+            console.log(`✅ Auto-selected store: ${storeToSelect.name} (${storeToSelect.code})`);
+            toast.info(`Auto-selected: ${storeToSelect.name} (${storeToSelect.code})`);
+          }, 100);
+        } else {
+          console.log("⚠️ No suitable store found for auto-selection");
+        }
       }
     }
-  }, [storeOptions, form, id]);
+  }, [storeOptions, form, id, currentUserProfile, storesData]);
 
   useEffect(() => {
     if (itemRequisition) {
@@ -315,13 +482,26 @@ export default function CreateItemRequisition() {
               <AddSquareIcon />
               Add Item
             </Button>
+
+            {/* Department Display Section */}
+            {userDepartment && (
+              <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <h3 className="text-lg font-bold text-blue-800 mb-2">Request Department</h3>
+                <p className="text-gray-700">
+                  <strong>Department:</strong> {userDepartment.name}
+                </p>
+                <p className="text-sm text-gray-600 mt-1">
+                  This requisition will be submitted for your department.
+                </p>
+              </div>
+            )}
+
             <div className='grid grid-cols-1 gap-5 md:grid-cols-2'>
-              <FormSelect
-                label='Department/Unit'
-                name='department'
-                placeholder='Select Department'
-                options={departmentOptions}
-                required
+              {/* Hidden department field - auto-populated */}
+              <input
+                type="hidden"
+                {...form.register('department')}
+                value={userDepartment?.id || ""}
               />
 
               {/* Phase 5: Store Selection - Auto-filtered by user location */}

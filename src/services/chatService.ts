@@ -131,8 +131,7 @@ class ChatService {
       this.baseURL = `${this.baseURL}/`;
     }
 
-    console.log('Chat API Base URL:', this.baseURL);
-    console.log('Using mock chat service:', this.isDevelopment);
+    // Chat service initialized
   }
 
   private getAuthHeaders() {

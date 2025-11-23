@@ -8,6 +8,7 @@ import DataTable from "@/components/Table/DataTable";
 import { consumableColums } from "@/features/admin/components/table-columns/inventory-management/consumables";
 import TableFilters from "@/components/Table/TableFilters";
 import { useGetAllItemsQuery } from "@/features/modules/controllers/config/itemController";
+import { useGetAllEnhancedConsumables } from "@/features/admin/controllers/consumableController";
 import BulkUploadDialog from "./BulkUploadDialog";
 import BulkAssignToStoreDialog from "./BulkAssignToStoreDialog";
 import { useAppSelector } from "hooks/useStore";
@@ -110,13 +111,25 @@ export default function ConsumablesHomePage() {
     return hasConsumableKeyword || (!hasAssetKeyword && name.includes('medical'));
   };
 
-  // Fetch ALL items first, then filter for consumables
-  const { data: item, isFetching } = useGetAllItemsQuery({
-    page,
+  // Use enhanced consumables endpoint with store-aware filtering
+  const { data: consumablesData, isFetching } = useGetAllEnhancedConsumables({
+    page: 1, // Get all items, we'll paginate client-side
     size: 100, // Increased to get more items for filtering
-    // Remove category filter - we'll filter client-side for better control
-    expand: "store_stocks,store_stocks.store_detail,store_stocks.store_detail.location", // Include store stock and location information
+    expand: "store_stocks", // Enhanced API already includes store details
+    // Note: Server-side location filtering is handled by the backend based on user permissions
   });
+
+  // Fallback to legacy items API if enhanced API is not available
+  const { data: legacyItemsData, isFetching: isFetchingLegacy } = useGetAllItemsQuery({
+    page,
+    size: 100,
+    expand: "store_stocks,store_stocks.store_detail,store_stocks.store_detail.location",
+    enabled: !consumablesData, // Only fetch if enhanced API didn't work
+  });
+
+  // Use enhanced data if available, otherwise fallback to legacy
+  const item = consumablesData || legacyItemsData;
+  const isLoading = isFetching || isFetchingLegacy;
 
   // Process consumables for Master Catalog view with store distribution
   const filteredConsumables = useMemo(() => {
@@ -124,22 +137,30 @@ export default function ConsumablesHomePage() {
 
     const allItems = item.data.results;
 
-    // First, filter to only consumable items based on category
-    const consumableItems = allItems.filter((item: any) => {
-      const categoryName = item.category?.name || item.category_detail?.name || '';
-      return isConsumableCategory(categoryName);
-    });
+    // If using enhanced API, items should already be filtered to consumables only
+    let consumableItems = allItems;
+
+    // If using legacy API (fallback), filter to only consumable items based on category
+    if (legacyItemsData && !consumablesData) {
+      consumableItems = allItems.filter((item: any) => {
+        const categoryName = item.category?.name || item.category_detail?.name || '';
+        return isConsumableCategory(categoryName);
+      });
+    }
 
     console.log(`🔍 SMART FILTERING - Total items: ${allItems.length}, Consumables: ${consumableItems.length}`);
+    console.log(`🔍 Using ${consumablesData ? 'Enhanced API' : 'Legacy API (fallback)'}`);
     console.log(`🔍 Consumable categories found:`, [...new Set(consumableItems.map((item: any) => item.category?.name || item.category_detail?.name))]);
 
     // For Master Catalog, we want to show consumable types with their store distribution
     const processedItems = consumableItems.map((item: any) => {
       const storeStocks = item.store_stocks || [];
 
-      // Calculate total quantities across all stores
-      const totalQuantity = storeStocks.reduce((sum: number, stock: any) => sum + (stock.quantity || 0), 0);
-      const totalAvailable = storeStocks.reduce((sum: number, stock: any) => sum + (stock.available_quantity || 0), 0);
+      // Enhanced API provides total_quantity_across_stores, fallback to calculation
+      const totalQuantity = item.total_quantity_across_stores ||
+        storeStocks.reduce((sum: number, stock: any) => sum + (stock.quantity || 0), 0);
+      const totalAvailable = item.total_available_across_stores ||
+        storeStocks.reduce((sum: number, stock: any) => sum + (stock.available_quantity || 0), 0);
 
       return {
         ...item,
@@ -153,7 +174,13 @@ export default function ConsumablesHomePage() {
       };
     });
 
-    // Apply location-based filtering for department admins
+    // If using enhanced API, location-based filtering is already handled by the backend
+    if (consumablesData) {
+      console.log(`🔍 Enhanced API - Server-side filtering applied. Items returned: ${processedItems.length}`);
+      return processedItems;
+    }
+
+    // Legacy API: Apply client-side location-based filtering for department admins
     if (!userAccessInfo.shouldFilter) {
       console.log(`🔍 ${userAccessInfo.isSuper ? 'Super Admin' : 'HQ Admin'} - Master Catalog showing all consumables globally:`, processedItems.length);
       return processedItems;
@@ -179,9 +206,9 @@ export default function ConsumablesHomePage() {
       });
     });
 
-    console.log(`🔍 Department Admin (Location: ${userAccessInfo.userLocationId}) - Master Catalog filtered items:`, locationFilteredItems.length, 'of', processedItems.length);
+    console.log(`🔍 Legacy API - Department Admin (Location: ${userAccessInfo.userLocationId}) - Master Catalog filtered items:`, locationFilteredItems.length, 'of', processedItems.length);
     return locationFilteredItems;
-  }, [item?.data?.results, userAccessInfo]);
+  }, [item?.data?.results, userAccessInfo, consumablesData, legacyItemsData]);
 
   // Client-side pagination
   const paginatedConsumables = useMemo(() => {
@@ -208,8 +235,10 @@ export default function ConsumablesHomePage() {
   console.log("🔍 SUPER ADMIN DEBUG - All items from API:", item?.data?.results || []);
   console.log("🔍 SUPER ADMIN DEBUG - Filtered items:", filteredConsumables);
   console.log("🔍 SUPER ADMIN DEBUG - Should show all items (no filter)?", !userAccessInfo.shouldFilter);
-  console.log("🔍 SUPER ADMIN DEBUG - API loading state:", isFetching);
-  console.log("🔍 SUPER ADMIN DEBUG - API error:", item?.error);
+  console.log("🔍 SUPER ADMIN DEBUG - API loading state:", isLoading);
+  console.log("🔍 SUPER ADMIN DEBUG - Enhanced API data:", consumablesData);
+  console.log("🔍 SUPER ADMIN DEBUG - Legacy API data:", legacyItemsData);
+  console.log("🔍 SUPER ADMIN DEBUG - Final item data:", item);
   console.log("🔍 SUPER ADMIN DEBUG - Total items count:", item?.data?.pagination?.count || 0);
 
   return (
@@ -220,7 +249,7 @@ export default function ConsumablesHomePage() {
           {process.env.NODE_ENV === 'development' && (
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
               <p className="text-sm text-blue-800">
-                <strong>Smart Master Catalog:</strong> Auto-detected consumable categories.
+                <strong>Enhanced Consumable API:</strong> {consumablesData ? '✅ Using Enhanced API' : '⚠️ Fallback to Legacy API'} |
                 Total items: {item?.data?.pagination?.count || 0} |
                 Consumables found: {filteredConsumables.length} |
                 Page: {page}/{totalPages} ({ITEMS_PER_PAGE} per page) |
@@ -271,7 +300,7 @@ export default function ConsumablesHomePage() {
         <TableFilters>
           <DataTable
             data={paginatedConsumables}
-            isLoading={isFetching}
+            isLoading={isLoading}
             // @ts-ignore
             columns={consumableColums}
             pagination={{

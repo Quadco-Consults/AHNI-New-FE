@@ -62,7 +62,7 @@ export default function PermissionGate({
   const { data: profileData } = useGetUserProfile();
 
   // Use provided user or fetch from profile
-  const user = propUser || profileData?.data?.user;
+  const user = propUser || profileData?.data;
 
   // If no user data available, don't show content
   if (!user) {

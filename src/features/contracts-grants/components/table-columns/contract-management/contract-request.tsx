@@ -53,18 +53,36 @@ export const contractRequestColumns: ColumnDef<IAgreementPaginatedData>[] = [
   {
     header: "Reviewer",
     id: "reviewer",
-    accessorKey: "current_reviewer_detail.first_name",
+    accessorKey: "reviewer_detail.full_name",
     size: 150,
     cell: ({ row }) => {
       const data = row.original as IAgreementPaginatedData;
-      return formatUserName(data.current_reviewer_detail, data.current_reviewer);
+      // Try both possible field names for reviewer
+      const reviewerDetail = data.reviewer_detail || data.current_reviewer_detail;
+      const reviewerId = data.reviewer || data.current_reviewer;
+
+      // Debug logging for reviewer field
+      if (data.title === 'test') { // Only log for the test record you mentioned
+        console.log('🔍 TABLE REVIEWER DEBUG:', {
+          title: data.title,
+          reviewer_detail: data.reviewer_detail,
+          current_reviewer_detail: data.current_reviewer_detail,
+          reviewer: data.reviewer,
+          current_reviewer: data.current_reviewer,
+          finalReviewerDetail: reviewerDetail,
+          finalReviewerId: reviewerId,
+          formatResult: formatUserName(reviewerDetail, reviewerId)
+        });
+      }
+
+      return formatUserName(reviewerDetail, reviewerId);
     },
   },
 
   {
-    header: "Authorizer", 
+    header: "Authorizer",
     id: "authorizer",
-    accessorKey: "authorizer_detail.first_name",
+    accessorKey: "authorizer_detail.full_name",
     size: 150,
     cell: ({ row }) => {
       const data = row.original as IAgreementPaginatedData;
@@ -74,8 +92,8 @@ export const contractRequestColumns: ColumnDef<IAgreementPaginatedData>[] = [
 
   {
     header: "Approver",
-    id: "approver", 
-    accessorKey: "approver_detail.first_name",
+    id: "approver",
+    accessorKey: "approver_detail.full_name",
     size: 150,
     cell: ({ row }) => {
       const data = row.original as IAgreementPaginatedData;

@@ -35,3 +35,12 @@ build/
 .env
 *.env
 .vercel
+
+# Documentation archives (excluded from build)
+documentation_archive/
+*.md
+!README.md
+
+# Development and analysis files
+backend_implementation/
+docs/

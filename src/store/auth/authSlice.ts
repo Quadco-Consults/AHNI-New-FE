@@ -5,8 +5,9 @@ import { ILoginData } from "features/auth/types/auth";
 
 const initialState: ILoginData = {
     access_token: "",
-
     refresh_token: "",
+    isAuthenticated: false,
+    loading: false,
     user: {
         id: "",
         first_name: "",
@@ -16,17 +17,24 @@ const initialState: ILoginData = {
         roles: [],
         permissions: [],
     },
+    permissions: [],
+    roles: [],
 };
 
 const authSlice = createSlice({
     name: "auth",
     initialState,
     reducers: {
-    setAuth: (state, { payload }: PayloadAction<ILoginData>) => {
+        setAuth: (state, { payload }: PayloadAction<ILoginData>) => {
             return {
                 ...state,
                 ...payload,
+                isAuthenticated: true,
+                loading: false,
             };
+        },
+        setLoading: (state, { payload }: PayloadAction<boolean>) => {
+            state.loading = payload;
         },
         logOut: () => {
             return {
@@ -36,7 +44,7 @@ const authSlice = createSlice({
     },
 });
 
-export const { setAuth, logOut } = authSlice.actions;
+export const { setAuth, setLoading, logOut } = authSlice.actions;
 
 export default authSlice.reducer;
 

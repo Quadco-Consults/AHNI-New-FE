@@ -4,8 +4,7 @@ import {
   isUserAdmin,
   UIPermissionCategory,
   calculateUIPermissions,
-  hasUIPermission,
-  calculateMenuPermissions
+  hasUIPermission
 } from '@/utils/positionRolePermissions';
 
 /**
@@ -73,13 +72,24 @@ function isSuperAdmin(userPermissions: any[], userRoles?: any[], user?: IUser): 
   );
 
   // Method 3: Check if user has permissions across all major modules (likely super admin)
-  const majorModules = ['admin', 'finance', 'hr', 'programs', 'procurements', 'users'];
-  const hasAllModules = majorModules.every(module =>
-    userPermissions.some(p => p.module === module)
-  );
+  // This check is too broad - commenting out as it incorrectly identifies HR users as super admins
+  // const majorModules = ['admin', 'finance', 'hr', 'programs', 'procurements', 'users'];
+  // const hasAllModules = majorModules.every(module =>
+  //   userPermissions.some(p => p.module === module)
+  // );
+  const hasAllModules = false; // Disable this check
 
   // Method 4: Check if user has a very high number of permissions (super admin pattern)
-  const hasHighPermissionCount = userPermissions.length >= 5; // Arbitrary threshold
+  // Increased threshold to be more restrictive - Admin Officers typically have 5-15 permissions
+  // Super admins should have significantly more (50+ permissions across modules)
+  const hasHighPermissionCount = userPermissions.length >= 50; // More realistic threshold for super admin
+
+  console.log('🔍 Super admin detection:', {
+    hasAdminPermissions,
+    hasAllModules,
+    hasHighPermissionCount,
+    permissionCount: userPermissions.length
+  });
 
   return hasAdminPermissions || hasAllModules || hasHighPermissionCount;
 }
@@ -98,10 +108,22 @@ export function hasPermission(
   userRoles?: any[],
   user?: IUser
 ): boolean {
-  // Super admin bypass - super admins can see everything
-  if (isSuperAdmin(userPermissions, userRoles, user)) {
+  // Debug logging to see what's happening
+  console.log('🔍 Permission Check:', {
+    userPermissionsCount: userPermissions.length,
+    requiredPermissions: requiredPermissions?.map(r => `${r.module}:${r.codenames.join(',')}`),
+    userRolesCount: userRoles?.length,
+    hasUser: !!user
+  });
+
+  // RE-ENABLE super admin bypass with improved detection
+  const isSuper = isSuperAdmin(userPermissions, userRoles, user);
+  console.log('🔍 Super admin check result:', isSuper);
+  if (isSuper) {
+    console.log('✅ Super admin access granted');
     return true;
   }
+  console.log('📋 Non-admin user - using standard permission checking');
 
   // If no permissions required, item is visible to all authenticated users
   if (!requiredPermissions || requiredPermissions.length === 0) {
@@ -112,7 +134,6 @@ export function hasPermission(
   if (user) {
     // Check if this is a simplified UI permission
     const uiPermissions = calculateUIPermissions(user);
-    const menuPermissions = calculateMenuPermissions(user);
 
     // Map some common permission requirements to our UI permissions
     for (const requirement of requiredPermissions) {
@@ -192,7 +213,7 @@ export function hasPermission(
   }
 
   // Fallback to legacy permission checking
-  return requiredPermissions.some(requirement => {
+  const hasLegacyPermission = requiredPermissions.some(requirement => {
     // Find the module in user's permissions
     const userModulePerms = userPermissions.find(
       p => p.module === requirement.module
@@ -217,6 +238,14 @@ export function hasPermission(
       );
     }
   });
+
+  if (hasLegacyPermission) {
+    console.log('✅ Legacy permission granted for:', requiredPermissions?.[0]?.module);
+    return true;
+  }
+
+  console.log('❌ Permission denied for:', requiredPermissions?.[0]?.module);
+  return false;
 }
 
 /**

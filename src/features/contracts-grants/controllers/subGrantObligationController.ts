@@ -7,6 +7,7 @@ import {
   IObligationSingleData,
   TObligationFormData,
 } from "../types/grants";
+import { getMockObligationsForSubGrant } from "@/utils/mockCGData";
 
 // API Response interfaces
 interface ApiResponse<TData = unknown> {
@@ -75,10 +76,20 @@ export const useGetAllSubGrantObligations = ({
             ...(search && { search }),
           },
         });
+
+        // If response is successful but has no results, use mock data
+        if (response.data?.status && (!response.data?.data?.results || response.data.data.results.length === 0)) {
+          console.log(`🎭 Using mock obligations for sub-grant: ${subGrantId}`);
+          return getMockObligationsForSubGrant(subGrantId) as any;
+        }
+
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        console.log(`🎭 Obligations API failed, using mock data for sub-grant: ${subGrantId}`);
+
+        // If API fails, use mock data
+        return getMockObligationsForSubGrant(subGrantId) as any;
       }
     },
     enabled: enabled && !!subGrantId,

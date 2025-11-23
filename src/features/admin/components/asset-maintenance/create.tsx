@@ -29,6 +29,7 @@ import {
   getApproverOptions
 } from "@/utils/approvalFilters";
 import { filterAhniStaffOnly } from "@/utils/userFilters";
+import { usePermissions } from "@/hooks/usePermissions";
 
 const descOptions = [
   {
@@ -42,8 +43,18 @@ const descOptions = [
 ];
 
 export default function CreateAssetMaintenance() {
+  // Get current user and their location context
+  const { user: currentUser } = usePermissions();
+
   // Get current date in YYYY-MM-DD format
   const currentDate = new Date().toISOString().split('T')[0];
+
+  console.log('🔍 ASSET MAINTENANCE USER CONTEXT:', {
+    currentUser: currentUser?.first_name + ' ' + currentUser?.last_name,
+    userLocation: currentUser?.location || currentUser?.employee?.location,
+    userDepartment: currentUser?.department?.name || currentUser?.employee?.department?.name,
+    context: 'asset_maintenance_creation'
+  });
 
   const form = useForm<TAssetMaintenanceFormData>({
     resolver: zodResolver(AssetMaintenanceSchema),
@@ -127,19 +138,94 @@ export default function CreateAssetMaintenance() {
     [location]
   );
 
+  // Get user's location for filtering assets
+  const userLocation = currentUser?.location || currentUser?.employee?.location;
+
+  // Asset categories that can be maintained (exclude services and consumables)
+  const assetCategories = [
+    "Vehicles",
+    "IT Equipment",
+    "Office Equipment",
+    "Furniture",
+    "Medical Equipment",
+    "Communications Equipment",
+    "Security Equipment"
+  ];
+
   const { data: asset } = useGetAllItemsQuery({
     page: 1,
     size: 2000000,
-    category: "17ca9ee7-603a-43a9-91e8-979652a8231c",
+    // Get all items, we'll filter client-side for better control
+  });
+
+  console.log('🔧 RAW ASSET DATA:', {
+    allItems: asset?.data?.results || [],
+    totalItems: asset?.data?.results?.length || 0,
+  });
+
+  // Client-side filtering to only show actual assets (exclude services and consumables) AND location filtering
+  const filteredAssets = useMemo(() => {
+    if (!asset?.data?.results) return [];
+
+    return asset.data.results.filter((item: any) => {
+      // Debug individual item
+      console.log('🔍 Checking item:', {
+        name: item.name,
+        category: item.category,
+        location: item.location,
+        userLocation,
+      });
+
+      // Get category name safely
+      const categoryName = item.category?.name || item.category || '';
+      const categoryNameLower = categoryName.toString().toLowerCase();
+
+      // Filter for asset categories only
+      const isAssetCategory = assetCategories.some(category =>
+        categoryNameLower.includes(category.toLowerCase())
+      );
+
+      // Additional checks to exclude services and consumables
+      const isNotService = !categoryNameLower.includes('service');
+      const isNotConsumable = !categoryNameLower.includes('consumable');
+      const isNotSupply = !categoryNameLower.includes('supply');
+      const isNotMaterial = !categoryNameLower.includes('material');
+
+      // Location filtering - check multiple location formats
+      const itemLocationName = item.location?.name || item.location || '';
+      const isAtUserLocation = !userLocation || // If no user location, show all
+        itemLocationName === userLocation ||
+        itemLocationName.includes(userLocation) ||
+        userLocation.includes(itemLocationName);
+
+      console.log('🏢 Location check:', {
+        itemName: item.name,
+        itemLocation: itemLocationName,
+        userLocation,
+        isAtUserLocation,
+        isAssetCategory,
+      });
+
+      return isAssetCategory && isNotService && isNotConsumable && isNotSupply && isNotMaterial && isAtUserLocation;
+    });
+  }, [asset, userLocation]);
+
+  console.log('🚗 FILTERED ASSET DATA:', {
+    userLocation,
+    totalItemsFromAPI: asset?.data?.results?.length || 0,
+    filteredAssetsCount: filteredAssets.length,
+    assetCategories: filteredAssets.map((item: any) => item.category?.name).filter(Boolean),
+    assetNames: filteredAssets.map((item: any) => item.name),
+    filterApplied: 'location + asset categories only'
   });
 
   const assetOptions = useMemo(
     () =>
-      asset?.data.results.map(({ name, id }) => ({
+      filteredAssets.map(({ name, id }) => ({
         label: name,
         value: id,
       })),
-    [asset]
+    [filteredAssets]
   );
 
   const { createAssetMaintenance, isLoading: isCreateLoading } =
@@ -178,6 +264,35 @@ export default function CreateAssetMaintenance() {
   return (
     <div className='flex flex-col gap-y-6'>
       <BackNavigation extraText='Request Asset Maintenance' />
+
+      {/* User Context Display */}
+      {userLocation && (
+        <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <h3 className="text-lg font-bold text-blue-800 mb-2">Asset Maintenance Request</h3>
+          <p className="text-gray-700">
+            Select an asset from your office location that requires maintenance (vehicles, IT equipment, furniture, etc.).
+          </p>
+          <div className="mt-3 p-2 bg-green-50 border border-green-200 rounded">
+            <p className="text-sm text-green-700">
+              <strong>Your Office Location:</strong> {userLocation}
+              <span className="ml-2 text-xs text-green-600">
+                ({filteredAssets.length} asset(s) available for maintenance)
+              </span>
+            </p>
+          </div>
+          {filteredAssets.length === 0 && (
+            <div className="mt-3 p-2 bg-yellow-50 border border-yellow-200 rounded">
+              <p className="text-sm text-yellow-700">
+                <strong>No assets found</strong> at your location for maintenance requests.
+              </p>
+              <p className="text-xs text-yellow-600 mt-1">
+                Assets include: vehicles, laptops, office equipment, furniture, etc.
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+
       <Card>
         <CardContent className='py-7'>
           <Form {...form}>
@@ -196,11 +311,18 @@ export default function CreateAssetMaintenance() {
                 />
 
                 <FormSelect
-                  label='Asset '
+                  label='Asset'
                   name='asset'
-                  placeholder='Select Asset'
+                  placeholder={
+                    !userLocation
+                      ? 'Loading user location...'
+                      : filteredAssets.length === 0
+                      ? 'No assets available at your location'
+                      : `Select Asset (${filteredAssets.length} available)`
+                  }
                   required
                   options={assetOptions}
+                  disabled={!userLocation || filteredAssets.length === 0}
                 />
 
                 <FormSelect
