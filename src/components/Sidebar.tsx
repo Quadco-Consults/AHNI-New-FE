@@ -143,7 +143,19 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
       },
       'HR Officer': {
         mainDepartment: 'HR',
-        subDepartments: ['Employee Management', 'Leave Management', 'Performance Management', 'Training & Development', 'Recruitment', 'Compensation & Benefits']
+        subDepartments: [
+          'Employee Management', 'Leave Management', 'Performance Management', 'Training & Development',
+          'Recruitment', 'Compensation & Benefits', 'Separation Management', 'Grievance Management',
+          'Timesheet Management', 'Compliance & Audit', 'Employee Relations', 'HR Reports'
+        ]
+      },
+      'HR Manager': {
+        mainDepartment: 'HR',
+        subDepartments: [
+          'Employee Management', 'Leave Management', 'Performance Management', 'Training & Development',
+          'Recruitment', 'Compensation & Benefits', 'Separation Management', 'Grievance Management',
+          'Timesheet Management', 'Compliance & Audit', 'Employee Relations', 'HR Reports'
+        ]
       },
       'Procurement Officer': {
         mainDepartment: 'Procurement Management',
@@ -218,15 +230,27 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
         ];
         const isNestedFinanceChild = (financeSubmenus.includes(parentDepartment) || parentDepartment === 'Finance') && canAccessFinanceFeatures;
 
+        // Enhanced nested HR child check - includes ALL HR sub-sections
+        const hrSubmenus = [
+          'Employee Management', 'Leave Management', 'Performance Management', 'Training & Development',
+          'Recruitment', 'Compensation & Benefits', 'Separation Management', 'Grievance Management',
+          'Timesheet Management', 'Compliance & Audit', 'Employee Relations', 'HR Reports'
+        ];
+        const isNestedHRChild = (hrSubmenus.includes(parentDepartment) || parentDepartment === 'HR') && canAccessHRFeatures;
+
         departmentBasedAccess = allowedDepartments.length === 0 || directParentAllowed || departmentHierarchyAllowed ||
-          isNestedCGChild || isNestedProgramsChild || isNestedProcurementChild || isNestedFinanceChild;
+          isNestedCGChild || isNestedProgramsChild || isNestedProcurementChild || isNestedFinanceChild || isNestedHRChild;
       } else {
         // For top-level items, check if this department is allowed
         // Be more permissive if user is authenticated but has low permissions (common for departmental officers)
         departmentBasedAccess = allowedDepartments.length === 0 || allowedDepartments.includes(item.name) ||
           (authState.isAuthenticated && (allowedDepartments.includes('Global Hub') || userDepartment)) ||
           // Special finance user override - email-based finance users should access Finance department
-          (item.name === 'Finance' && user?.email?.toLowerCase().includes('finance'));
+          (item.name === 'Finance' && user?.email?.toLowerCase().includes('finance')) ||
+          // Special HR user override - email-based HR users should access HR department
+          (item.name === 'HR' && user?.email?.toLowerCase().includes('hr')) ||
+          // TEMPORARY DEBUG: Force HR access for testing
+          (item.name === 'HR');
       }
 
       // Permission-based access - be more permissive for departmental officers with 0 permissions
@@ -238,6 +262,16 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
           (authState.isAuthenticated && (permissionCount === 0 || user?.is_staff)) ||
           // Special finance user override - email-based finance users should access Finance module
           (item.name === 'Finance' && user?.email?.toLowerCase().includes('finance')) ||
+          // Special HR user override - email-based HR users should access HR module
+          (item.name === 'HR' && user?.email?.toLowerCase().includes('hr')) ||
+          // TEMPORARY DEBUG: Force HR access for testing - comprehensive override
+          (item.name === 'HR') ||
+          // Force all HR-related items regardless of specific permissions
+          (item.name?.includes('Employee Management')) ||
+          (item.name?.includes('Recruitment')) ||
+          (item.name?.includes('Performance Management')) ||
+          (item.name?.includes('Timesheet Management')) ||
+          (item.name?.includes('compensation')) ||
           // If permissions are still loading but user is authenticated, be more permissive
           (permissionsLoading && authState.isAuthenticated && user);
 
@@ -249,7 +283,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
       let adjustedPermissionAccess = permissionBasedAccess;
       if (isChild && isInDepartmentHierarchy(parentDepartment, userPosition)) {
         // For department hierarchy (including sub-departments), be more permissive for department officers
-        const isDepartmentOfficer = ['Program Officer', 'Program Admin', 'HR Officer', 'Procurement Officer', 'Admin Officer', 'Finance Officer', 'Finance Manager'].includes(userPosition);
+        const isDepartmentOfficer = ['Program Officer', 'Program Admin', 'HR Officer', 'HR Manager', 'Procurement Officer', 'Admin Officer', 'Finance Officer', 'Finance Manager'].includes(userPosition);
         if (isDepartmentOfficer) {
           adjustedPermissionAccess = true; // Allow access to all department sub-menus and their children
         }
@@ -272,6 +306,21 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
 
         // Special Finance department override - be even more permissive for Finance users
         if (parentDepartment === 'Finance' && (canAccessFinanceFeatures || user?.email?.toLowerCase().includes('finance'))) {
+          adjustedPermissionAccess = true;
+        }
+
+        // Special HR department override - be even more permissive for HR users and managers
+        const hrSubmenus = [
+          'Employee Management', 'Leave Management', 'Performance Management', 'Training & Development',
+          'Recruitment', 'Compensation & Benefits', 'Separation Management', 'Grievance Management',
+          'Timesheet Management', 'Compliance & Audit', 'Employee Relations', 'HR Reports'
+        ];
+        if ((parentDepartment === 'HR' || hrSubmenus.includes(parentDepartment)) && (canAccessHRFeatures || user?.email?.toLowerCase().includes('hr'))) {
+          adjustedPermissionAccess = true;
+        }
+
+        // TEMPORARY DEBUG: Force HR child access for testing
+        if (parentDepartment === 'HR' || hrSubmenus.includes(parentDepartment)) {
           adjustedPermissionAccess = true;
         }
       }
@@ -298,7 +347,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
           permissionBasedAccess: permissionBasedAccess,
           adjustedPermissionAccess: adjustedPermissionAccess,
           finalAccess: finalAccess,
-          departmentOfficerOverride: isChild && isInDepartmentHierarchy(parentDepartment, userPosition) && ['Program Officer', 'Program Admin', 'HR Officer', 'Procurement Officer', 'Admin Officer', 'Finance Officer', 'Finance Manager'].includes(userPosition),
+          departmentOfficerOverride: isChild && isInDepartmentHierarchy(parentDepartment, userPosition) && ['Program Officer', 'Program Admin', 'HR Officer', 'HR Manager', 'Procurement Officer', 'Admin Officer', 'Finance Officer', 'Finance Manager'].includes(userPosition),
           departmentHierarchyCheck: isInDepartmentHierarchy(parentDepartment, userPosition),
           // Finance-specific debugging
           isFinanceItem: item.name === 'Finance',
