@@ -9,8 +9,6 @@ import { useAppDispatch } from "hooks/useStore";
 import { useState } from "react";
 import { Shield, Users, Key, Info } from "lucide-react";
 import { Card, CardContent } from "components/ui/card";
-import PermissionDebug from "@/components/debug/PermissionDebug";
-import DetailedPermissionDebug from "@/components/debug/DetailedPermissionDebug";
 import { usePermissions } from "@/hooks/usePermissions";
 import { useGetUserProfile } from "@/features/auth/controllers/userController";
 import { isUserAdmin } from "@/utils/positionRolePermissions";
@@ -22,38 +20,12 @@ const Authorization = () => {
 
   const dispatch = useAppDispatch();
 
-  // Debug the API response structure
-  console.log('🔍 Raw Profile Data:', {
-    userProfile,
-    isLoading: isProfileLoading,
-    error: profileError,
-    dataStructure: userProfile ? Object.keys(userProfile) : 'No data'
-  });
-
   // Extract user data from API response - the response should be TResponse<IUser>
   // So user data should be at userProfile?.data
   let user = userProfile?.data;
 
-  // If user is still not found but we have data, log the structure
-  if (userProfile && !user) {
-    console.log('🔴 User not found in expected locations. Full userProfile:', JSON.stringify(userProfile, null, 2));
-  }
-
   // Enhanced admin check for role management access
   const canManageRoles = user ? (isUserAdmin(user) || user.is_superuser === true || isAdmin) : false;
-
-  console.log('🔍 Authorization Access Check:', {
-    user: user ? `${user.first_name} ${user.last_name}` : 'No user',
-    isSuperuser: user?.is_superuser,
-    isSuperuserType: typeof user?.is_superuser,
-    isAdminFromHook: isAdmin,
-    isAdminFromUtil: user ? isUserAdmin(user) : false,
-    canManageRoles,
-    isLoading: isProfileLoading,
-    hasError: !!profileError,
-    userRoles: user?.roles?.map(r => r.name) || [],
-    rawUserObject: user ? JSON.stringify(user, null, 2) : 'null'
-  });
 
   return (
     <div className="space-y-6">
@@ -82,22 +54,12 @@ const Authorization = () => {
               size="lg"
               className="gap-2"
               disabled={!canManageRoles}
-              onClick={(event) => {
-                console.log('🔵 Add New Role button clicked!', event);
-                console.log('🔵 Button element:', event.target);
-                console.log('🔵 Button disabled state:', (event.target as HTMLButtonElement).disabled);
-                console.log('🔵 Can manage roles:', canManageRoles);
-                console.log('🔵 DialogType.AddNewRoleModal:', DialogType.AddNewRoleModal);
-                console.log('🔵 Dispatch function exists:', typeof dispatch === 'function');
-                console.log('🔵 openDialog function exists:', typeof openDialog === 'function');
-
+              onClick={() => {
                 if (!canManageRoles) {
-                  console.log('🔴 Access denied - insufficient permissions');
                   return;
                 }
 
                 try {
-                  console.log('🟡 About to dispatch dialog...');
                   const action = openDialog({
                     type: DialogType.AddNewRoleModal,
                     dialogProps: {
@@ -106,14 +68,9 @@ const Authorization = () => {
                       height: "max-h-[700px]",
                     },
                   });
-                  console.log('🟡 Action created:', action);
-
-                  const result = dispatch(action);
-                  console.log('🟡 Dispatch result:', result);
-                  console.log('🟢 Dialog dispatch successful');
+                  dispatch(action);
                 } catch (error) {
-                  console.error('🔴 Error dispatching dialog:', error);
-                  console.error('🔴 Error stack:', (error as Error).stack);
+                  console.error('Error opening add role dialog:', error);
                 }
               }}
             >
@@ -169,9 +126,6 @@ const Authorization = () => {
         </Card>
       </div>
 
-      {/* Debug Section - Temporary */}
-      <DetailedPermissionDebug />
-      <PermissionDebug />
 
       {/* Tabs Section */}
       <Tabs

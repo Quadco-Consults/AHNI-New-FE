@@ -21,23 +21,9 @@ export default function AllRoles() {
 
   const dispatch = useAppDispatch();
 
-  // Debug logging
-  console.log('📊 RoleList Data:', {
-    role,
-    isLoading,
-    error,
-    hasData: !!role?.data,
-    hasResults: !!(role as any)?.data?.results,
-    resultsLength: (role as any)?.data?.results?.length
-  });
 
   const onRoleClick = (id: string, name: string, permission: string) => {
-    console.log('🔧 Manage Role button clicked!', { id, name, permission });
-    console.log('🔧 DialogType.AddPermissionToRole:', DialogType.AddPermissionToRole);
-    console.log('🔧 Dispatch function exists:', typeof dispatch === 'function');
-
     try {
-      console.log('🟡 About to dispatch permission dialog...');
       const action = openDialog({
         type: DialogType.AddPermissionToRole,
         dialogProps: {
@@ -47,13 +33,9 @@ export default function AllRoles() {
           permission: permission,
         },
       });
-      console.log('🟡 Permission dialog action created:', action);
-
-      const result = dispatch(action);
-      console.log('🟡 Permission dialog dispatch result:', result);
-      console.log('🟢 Permission dialog dispatch successful');
+      dispatch(action);
     } catch (error) {
-      console.error('🔴 Error dispatching permission dialog:', error);
+      console.error('Error opening permission dialog:', error);
     }
   };
 
