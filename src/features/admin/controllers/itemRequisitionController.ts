@@ -165,7 +165,7 @@ export const useApproveItemRequisition = (id: string) => {
     Record<string, never>
   >({
     endpoint: `${BASE_URL}${id}/approve/`,
-    queryKey: ["itemRequisitions", "itemRequisition"],
+    queryKey: ["itemRequisitions", "itemRequisition", "user-profile"],
     isAuth: true,
     method: "POST",
   });
@@ -189,7 +189,7 @@ export const useRejectItemRequisition = (id: string) => {
     Record<string, never>
   >({
     endpoint: `${BASE_URL}${id}/reject/`,
-    queryKey: ["itemRequisitions", "itemRequisition"],
+    queryKey: ["itemRequisitions", "itemRequisition", "user-profile"],
     isAuth: true,
     method: "POST",
   });

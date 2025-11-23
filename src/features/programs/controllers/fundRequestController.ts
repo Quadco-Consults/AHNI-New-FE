@@ -12,6 +12,7 @@ import {
   TFundRequestBackendPayload,
   transformFormDataToBackendPayload,
 } from "definations/program-validator";
+import { handleApiError, createErrorContext } from "@/utils/errorHandlers";
 
 // API Response interfaces
 interface ApiResponse<TData = unknown> {
@@ -133,12 +134,14 @@ export const useGetAllFundRequests = ({
       } catch (error) {
         const axiosError = error as any;
 
-        // Log for debugging backend fixes
-        console.group("🔍 Fund Request API Debug");
-        console.log("Status:", axiosError.response?.status);
-        console.log("URL:", axiosError.config?.url);
-        console.log("Response:", axiosError.response?.data);
-        console.groupEnd();
+        // Log only for non-permission errors for debugging backend fixes
+        if (axiosError.response?.status !== 403) {
+          console.group("🔍 Fund Request API Debug");
+          console.log("Status:", axiosError.response?.status);
+          console.log("URL:", axiosError.config?.url);
+          console.log("Response:", axiosError.response?.data);
+          console.groupEnd();
+        }
 
         // Show different messages based on actual status
         if (axiosError.response?.status === 401) {

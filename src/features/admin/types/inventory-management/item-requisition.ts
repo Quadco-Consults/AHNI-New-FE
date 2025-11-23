@@ -84,6 +84,9 @@ export interface TItemRequisitionSingleData {
     treated_by: string;
     rejected_by: string;
     approved_by: string;
+    reviewer?: string; // Approval workflow fields
+    authorizer?: string;
+    approver?: string;
     created_by: IUser;
     created_datetime: string;
     updated_datetime: string;

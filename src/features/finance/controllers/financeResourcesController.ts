@@ -50,7 +50,7 @@ export const useGetBudgetLines = (filters?: {
   page_size?: number;
   ordering?: string;
 }) => {
-  return useQuery<FinanceApiResponse<PaginatedResponse<BudgetLine>>>(({
+  return useQuery<FinanceApiResponse<PaginatedResponse<BudgetLine>>>({
     queryKey: ["budget-lines", filters],
     queryFn: async () => {
       try {

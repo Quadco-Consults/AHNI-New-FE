@@ -14,6 +14,10 @@ import { useGetAllProjects, useGetProjectDisbursements, useGetProjectExpenditure
 import { useGetWorkforces } from "@/features/hr/controllers/workforceController";
 import { useGetTrialBalance, useGetIncomeStatement, useGetBalanceSheet } from "@/features/finance/controllers/reportsController";
 import { useGetAllFundRequests } from "@/features/programs/controllers/fundRequestController";
+
+// Department features and error handling
+import { useDepartmentFeatures } from "@/hooks/useDepartmentFeatures";
+import { handleApiError, createErrorContext } from "@/utils/errorHandlers";
 import {
   CalendarDays,
   DollarSign,
@@ -184,7 +188,18 @@ const dashboardColumns = [
 ];
 
 export default function Dashboard() {
-  console.log('Real Data Dashboard rendering');
+
+  // Department features for conditional rendering
+  const {
+    userDepartment,
+    hasEmployeeProfile,
+    getDepartmentDashboardWidgets,
+    getDepartmentTheme,
+    canAccessProgramsFeatures,
+    canAccessFinanceFeatures,
+    canAccessHRFeatures,
+    canAccessProcurementFeatures,
+  } = useDepartmentFeatures();
 
   // Client-side check
   const [isClient, setIsClient] = useState(false);
@@ -193,11 +208,11 @@ export default function Dashboard() {
     setIsClient(true);
   }, []);
 
-  // Real data hooks - focus on working endpoints only
+  // Department-based data loading
   const { data: projectsData, isLoading: isLoadingProjects, error: projectsError } = useGetAllProjects({
     page: 1,
     size: 100,
-    enabled: isClient,
+    enabled: isClient && (canAccessProgramsFeatures || canAccessFinanceFeatures),
     retry: false,
     refetchOnWindowFocus: false
   });
@@ -205,26 +220,28 @@ export default function Dashboard() {
   const { data: workforceData, isLoading: isLoadingWorkforce, error: workforceError } = useGetWorkforces({
     page: 1,
     size: 50,
-    enabled: isClient,
+    enabled: isClient && canAccessHRFeatures,
     retry: false,
     refetchOnWindowFocus: false
   });
 
   const { data: fundRequestsData, isLoading: isLoadingFundRequests, error: fundRequestsError } = useGetAllFundRequests({
-    enabled: isClient,
+    enabled: isClient && canAccessProgramsFeatures,
     retry: false,
     refetchOnWindowFocus: false
   });
 
-  // Financial reports
+  // Financial reports - only load if user has finance access
   const { data: trialBalanceData, isLoading: isLoadingTrialBalance } = useGetTrialBalance({
     date_from: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    date_to: new Date().toISOString().split('T')[0]
+    date_to: new Date().toISOString().split('T')[0],
+    enabled: isClient && canAccessFinanceFeatures
   });
 
   const { data: incomeStatementData, isLoading: isLoadingIncomeStatement } = useGetIncomeStatement({
     date_from: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    date_to: new Date().toISOString().split('T')[0]
+    date_to: new Date().toISOString().split('T')[0],
+    enabled: isClient && canAccessFinanceFeatures
   });
 
   // State for interactivity and real-time features

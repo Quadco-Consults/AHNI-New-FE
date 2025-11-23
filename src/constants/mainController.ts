@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import AxiosWithToken from "./api_management/MyHttpHelperWithToken";
 import Axios from "./api_management/MyHttpHelper";
 import { AxiosInstance, AxiosResponse, AxiosError } from "axios";
+import { handleApiError, createErrorContext } from "@/utils/errorHandlers";
 
 // Standard API response structure
 interface ApiResponse<TData = unknown> {
@@ -27,6 +28,11 @@ interface ApiManagerOptions<TData, TError> {
   contentType?: string | null;
   onSuccess?: (response: ApiResponse<TData>) => void;
   onError?: (error: TError) => void;
+  // New options for enhanced error handling
+  feature?: string;
+  operation?: string;
+  userDepartment?: string;
+  suppressEnhancedErrorHandling?: boolean;
 }
 
 interface ApiManagerReturn<TData, TError, TVariables> {
@@ -47,6 +53,10 @@ const useApiManager = <TData = unknown, TError = Error, TVariables = unknown>({
   isAuth = false,
   showSuccessToast = true,
   contentType = "application/json",
+  feature,
+  operation,
+  userDepartment,
+  suppressEnhancedErrorHandling = false,
 }: ApiManagerOptions<TData, TError>): ApiManagerReturn<
   TData,
   TError,
@@ -132,6 +142,16 @@ const useApiManager = <TData = unknown, TError = Error, TVariables = unknown>({
 
         if (status === 503) {
           errorMessage = "Server is temporarily unavailable. It may be restarting. Please try again in a moment.";
+        } else if (status === 404) {
+          // Enhanced 404 handling for employee profiles and missing resources
+          const responseMessage = axiosError.response.data?.message || axiosError.response.data?.error;
+          if (responseMessage?.includes('Employee profile')) {
+            errorMessage = "Your employee profile is not set up. Please contact HR to complete your profile setup.";
+          } else if (responseMessage?.includes('not found') || responseMessage?.includes('does not exist')) {
+            errorMessage = responseMessage;
+          } else {
+            errorMessage = "The requested resource was not found.";
+          }
         } else {
           errorMessage = axiosError.response.data?.message ||
                         axiosError.response.data?.error ||
@@ -179,7 +199,19 @@ const useApiManager = <TData = unknown, TError = Error, TVariables = unknown>({
       }
     },
     onError: (error: TError) => {
-      toast.error((error as Error).message);
+      // Use enhanced error handling if not suppressed
+      if (!suppressEnhancedErrorHandling) {
+        const errorContext = createErrorContext(
+          operation || `${method} request`,
+          userDepartment,
+          feature
+        );
+        handleApiError(error, errorContext);
+      } else {
+        // Fallback to simple toast
+        toast.error((error as Error).message);
+      }
+
       console.error(`${method} error:`, error);
     },
   });

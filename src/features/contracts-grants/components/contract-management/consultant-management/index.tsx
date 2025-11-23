@@ -11,6 +11,7 @@ import { useGetAllConsultantManagements } from "src/features/contracts-grants/co
 import { LoadingSpinner } from "components/Loading";
 import Pagination from "components/Pagination";
 import UserAdvertType from "hooks/useJobAdvertType";
+import { getMockConsultants } from "@/utils/mockCGData";
 
 export default function Consultancy() {
   const [page, setPage] = useState(1);
@@ -81,6 +82,14 @@ export default function Consultancy() {
       ) : error ? (
         <div className="text-center py-8 text-red-500">
           <p>Error loading data: {error.message}</p>
+          <div className="mt-4">
+            <p className="text-sm text-gray-600 mb-2">Showing sample data:</p>
+            <div className='w-full flex flex-wrap justify-between items-start gap-y-[1rem]'>
+              {getMockConsultants().data.results.map((consultant) => (
+                <ConsultancyCard key={consultant.id} {...consultant} />
+              ))}
+            </div>
+          </div>
         </div>
       ) : data?.data?.results?.length > 0 ? (
         <div className='w-full flex flex-wrap justify-between items-start gap-y-[1rem]'>
@@ -91,7 +100,12 @@ export default function Consultancy() {
       ) : (
         <div className="text-center py-8 text-gray-500">
           <p>No {advertType} consultants found.</p>
-          <p className="text-sm mt-2">Try creating a new {advertType} to get started.</p>
+          <p className="text-sm text-gray-600 mb-4">Showing sample data to demonstrate functionality:</p>
+          <div className='w-full flex flex-wrap justify-between items-start gap-y-[1rem]'>
+            {getMockConsultants().data.results.map((consultant) => (
+              <ConsultancyCard key={consultant.id} {...consultant} />
+            ))}
+          </div>
         </div>
       )}
 

@@ -24,8 +24,16 @@ export const obligationColumns: ColumnDef<IObligationPaginatedData>[] = [
     header: "Date",
     id: "date",
     size: 200,
-    accessorFn: ({ created_datetime }) =>
-      format(created_datetime, "dd-MMM-yyyy"),
+    accessorFn: ({ created_datetime }) => {
+      try {
+        if (!created_datetime) return "N/A";
+        const date = new Date(created_datetime);
+        if (isNaN(date.getTime())) return "Invalid Date";
+        return format(date, "dd-MMM-yyyy");
+      } catch (error) {
+        return "Invalid Date";
+      }
+    },
   },
 
   {

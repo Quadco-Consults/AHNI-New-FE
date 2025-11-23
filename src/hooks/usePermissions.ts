@@ -36,7 +36,7 @@ import { useMemo } from 'react';
  */
 export function usePermissions() {
   const { data: profileData, isLoading } = useGetUserProfile();
-  const user = profileData?.data?.user;
+  const user = profileData?.data;
 
   const permissions = useMemo(() => {
     if (!user) {

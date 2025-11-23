@@ -33,6 +33,12 @@ import { useGetVendor } from "@/features/procurement/controllers/vendorsControll
 import { numberToWords } from "@/utils/numberToWords";
 import { useGetAllAdhocApplicants } from "@/features/programs/controllers/adhocApplicantController";
 import { useGetChartOfAccounts } from "@/features/finance/controllers/accountingController";
+import {
+  getReviewerOptions,
+  getAuthorizerOptions,
+  getApproverOptions
+} from "@/utils/approvalFilters";
+import { filterAhniStaffOnly } from "@/utils/userFilters";
 
 export default function CreatePaymentRequest() {
   const form = useForm<TPaymentRequestFormData>({
@@ -98,16 +104,26 @@ export default function CreatePaymentRequest() {
     search: "",
   });
 
-  // Filter out vendors - only show AHNI staff/employees for approvers
-  const userOptions = useMemo(
-    () =>
-      user?.data?.results
-        ?.filter((userItem: any) => userItem.user_type !== "VENDOR") // Exclude vendors
-        ?.map((userItem: any) => ({
-          label: `${userItem.first_name} ${userItem.last_name}`,
-          value: userItem.id,
-        })),
-    [user]
+  // Filter for AHNI staff only (exclude vendors, consultants, external users)
+  const ahniStaff = useMemo(
+    () => filterAhniStaffOnly(user?.data?.results || []),
+    [user?.data?.results]
+  );
+
+  // Filtered options for approval workflow - only users with appropriate permissions
+  const reviewerOptions = useMemo(
+    () => getReviewerOptions(ahniStaff),
+    [ahniStaff]
+  );
+
+  const authorizerOptions = useMemo(
+    () => getAuthorizerOptions(ahniStaff),
+    [ahniStaff]
+  );
+
+  const approverOptions = useMemo(
+    () => getApproverOptions(ahniStaff),
+    [ahniStaff]
   );
 
   const paymentType = form.watch("payment_type") || "";
@@ -392,18 +408,22 @@ export default function CreatePaymentRequest() {
       if (vendor.bank_name) {
         form.setValue("payment_items.0.bank_name", vendor.bank_name);
       }
+      if (vendor.account_number) {
+        form.setValue("payment_items.0.account_number", vendor.account_number);
+      }
 
       // Contact details
       if (vendor.email) {
         form.setValue("payment_items.0.email", vendor.email);
       }
-      if (vendor.phone_number) {
-        form.setValue("payment_items.0.phone_number", vendor.phone_number);
+      if (vendor.phone_number || vendor.phone) {
+        form.setValue("payment_items.0.phone_number", vendor.phone_number || vendor.phone);
       }
 
-      // Address details
-      if (vendor.company_address) {
-        form.setValue("payment_items.0.address", vendor.company_address);
+      // Address details - check multiple possible field names
+      const vendorAddress = vendor.company_address || vendor.address || vendor.physical_address;
+      if (vendorAddress) {
+        form.setValue("payment_items.0.address", vendorAddress);
       }
 
       // Tax identification
@@ -843,7 +863,7 @@ export default function CreatePaymentRequest() {
                   name='reviewer'
                   placeholder='Select Reviewer'
                   required
-                  options={userOptions}
+                  options={reviewerOptions}
                 />
 
                 <FormSelect
@@ -851,7 +871,7 @@ export default function CreatePaymentRequest() {
                   name='authorizer'
                   placeholder='Select Authorizer'
                   required
-                  options={userOptions}
+                  options={authorizerOptions}
                 />
 
                 <FormSelect
@@ -859,7 +879,7 @@ export default function CreatePaymentRequest() {
                   name='approver'
                   placeholder='Select Approver'
                   required
-                  options={userOptions}
+                  options={approverOptions}
                 />
               </div>
 

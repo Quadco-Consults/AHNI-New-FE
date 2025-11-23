@@ -16,6 +16,7 @@ import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import { useDeleteExpenditure } from "@/features/contracts-grants/controllers/expenditureController";
 import { formatNumberCurrency } from "utils/utls";
+import { format } from "date-fns";
 
 export const expenditureColumns: ColumnDef<IExpenditurePaginatedData>[] = [
     {
@@ -23,8 +24,15 @@ export const expenditureColumns: ColumnDef<IExpenditurePaginatedData>[] = [
         id: "date",
         accessorKey: "created_datetime",
         cell: ({ getValue }) => {
-            const date = getValue() as string;
-            return date ? new Date(date).toLocaleDateString("en-US") : "N/A";
+            try {
+                const date = getValue() as string;
+                if (!date) return "N/A";
+                const dateObj = new Date(date);
+                if (isNaN(dateObj.getTime())) return "Invalid Date";
+                return format(dateObj, "dd-MMM-yyyy");
+            } catch (error) {
+                return "Invalid Date";
+            }
         },
         size: 200,
     },

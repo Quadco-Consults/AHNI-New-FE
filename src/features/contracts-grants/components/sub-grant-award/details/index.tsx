@@ -6,6 +6,7 @@ import { Button } from "components/ui/button";
 import SubGrantExpenditureHistory from "./_components/SubGrantExpenditureHistory";
 import SubGrantObligationHistory from "./_components/SubGrantObligationHistory";
 import SubGrantModificationHistory from "./_components/SubGrantModificationHistory";
+import SubGrantDisbursementHistory from "./_components/SubGrantDisbursementHistory";
 import AwardDetailsTab from "./_components/AwardDetailsTab";
 import { useParams } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
@@ -50,7 +51,8 @@ const SubGrantAwardDetails = () => {
 
                 {(tabValue === "expenditure" ||
                     tabValue === "obligation" ||
-                    tabValue === "modifications") &&
+                    tabValue === "modifications" ||
+                    tabValue === "disbursements") &&
                     subGrantId && (
                         <Button
                             className="flex gap-2 py-6"
@@ -63,6 +65,8 @@ const SubGrantAwardDetails = () => {
                                                 ? DialogType.ExpenditureModal
                                                 : tabValue === "obligation"
                                                 ? DialogType.ADD_OBLIGATION_MODAL
+                                                : tabValue === "disbursements"
+                                                ? DialogType.DisbursementModal
                                                 : DialogType.MODIFY_GRANT,
                                         dialogProps: {
                                             header:
@@ -70,6 +74,8 @@ const SubGrantAwardDetails = () => {
                                                     ? "Add Expenditure"
                                                     : tabValue === "obligation"
                                                     ? "Add Obligation"
+                                                    : tabValue === "disbursements"
+                                                    ? "Add Disbursement"
                                                     : "Add Modification",
                                             width: "max-w-lg",
                                             subGrantId: subGrantId,
@@ -88,6 +94,8 @@ const SubGrantAwardDetails = () => {
                                 ? "Add Expenditure"
                                 : tabValue === "obligation"
                                 ? "Add Obligation"
+                                : tabValue === "disbursements"
+                                ? "Add Disbursement"
                                 : "Add Modification"}
                         </Button>
                     )}
@@ -105,6 +113,8 @@ const SubGrantAwardDetails = () => {
                     <TabsTrigger value="obligation">Obligations</TabsTrigger>
 
                     <TabsTrigger value="expenditure">Expenditure History</TabsTrigger>
+
+                    <TabsTrigger value="disbursements">Disbursements</TabsTrigger>
 
                     <TabsTrigger value="modifications">Modifications</TabsTrigger>
                 </TabsList>
@@ -126,6 +136,10 @@ const SubGrantAwardDetails = () => {
                         total_obligation_amount={totalObligationAmount}
                         projectName={subGrant?.project?.title}
                     />
+                </TabsContent>
+
+                <TabsContent value="disbursements">
+                    <SubGrantDisbursementHistory subGrantId={subGrantId} />
                 </TabsContent>
 
                 <TabsContent value="modifications">

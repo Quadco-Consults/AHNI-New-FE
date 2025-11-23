@@ -3,6 +3,7 @@ import "./globals.css";
 import "@/utils/polyfills";
 import AppProviders from "./providers";
 import StoreProvider from "./StoreProvider";
+import AuthProvider from "@/components/auth/AuthProvider";
 import { ChatButton } from "@/components/chat";
 
 export const metadata: Metadata = {
@@ -19,10 +20,12 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <StoreProvider>
-          <AppProviders>
-            {children}
-            <ChatButton />
-          </AppProviders>
+          <AuthProvider>
+            <AppProviders>
+              {children}
+              <ChatButton />
+            </AppProviders>
+          </AuthProvider>
         </StoreProvider>
       </body>
     </html>

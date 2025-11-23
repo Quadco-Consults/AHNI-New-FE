@@ -9,8 +9,10 @@ import { LoadingSpinner } from "components/Loading";
 import { Separator } from "components/ui/separator";
 import { format } from "date-fns";
 import { FormProvider, useForm } from "react-hook-form";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+import { AdminRoutes } from "constants/RouterConstants";
+import { toast } from "sonner";
 import {
   useGetSingleItemRequisition,
   useApproveItemRequisition,
@@ -20,6 +22,7 @@ import StockAvailabilityCheck from "@/features/admin/components/item-requisition
 
 export default function ItemRequisitionDetailPage() {
   const { id } = useParams();
+  const router = useRouter();
 
   const { data: itemRequisition, isLoading, refetch } = useGetSingleItemRequisition(
     id || "", { enabled: !!id }
@@ -74,20 +77,24 @@ export default function ItemRequisitionDetailPage() {
       return accumulator + value;
     }, 0) || 0;
 
-  // Update state when actions succeed
+  // Update state when actions succeed with navigation
   useEffect(() => {
     if (isApproveSuccess) {
       setHasApproved(true);
-      refetch(); // Refetch to update the status
+      toast.success("Item Requisition Approved Successfully!");
+      // Navigate back to the list to prevent location context issues
+      router.push(AdminRoutes.ITEM_REQUISITION);
     }
-  }, [isApproveSuccess, refetch]);
+  }, [isApproveSuccess, router]);
 
   useEffect(() => {
     if (isRejectSuccess) {
       setHasRejected(true);
-      refetch(); // Refetch to update the status
+      toast.success("Item Requisition Rejected Successfully!");
+      // Navigate back to the list to prevent location context issues
+      router.push(AdminRoutes.ITEM_REQUISITION);
     }
-  }, [isRejectSuccess, refetch]);
+  }, [isRejectSuccess, router]);
 
   // Check if the item is already processed based on status (case insensitive)
   const statusValue = typeof itemRequisition?.data.status === 'object' && itemRequisition?.data.status !== null

@@ -33,15 +33,23 @@ import {
   FileDownIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { usePermissions } from "@/hooks/usePermissions";
 
 export default function AssetMaintenanceDetailsPage() {
   const { id } = useParams() as { id: string };
+  const { canManageApprovals } = usePermissions();
 
   const [comments, setComments] = useState("");
   const [showApprovalForm, setShowApprovalForm] = useState(false);
   const [approvalAction, setApprovalAction] = useState<
     "review" | "authorize" | "approve" | null
   >(null);
+
+  console.log('🔐 ASSET MAINTENANCE PERMISSIONS:', {
+    canManageApprovals,
+    ticketId: id,
+    context: 'asset_maintenance_detail'
+  });
 
   const {
     data: assetMaintenance,
@@ -243,9 +251,7 @@ export default function AssetMaintenanceDetailsPage() {
                       <p className="font-medium text-gray-900">
                         {assetMaintenance.data.staff_name ||
                          (assetMaintenance.data.created_by as any)?.full_name ||
-                         ((assetMaintenance.data.created_by as any)?.first_name && (assetMaintenance.data.created_by as any)?.last_name
-                           ? `${(assetMaintenance.data.created_by as any).first_name} ${(assetMaintenance.data.created_by as any).last_name}`
-                           : "N/A")}
+                         `User ID: ${assetMaintenance.data.created_by || 'Unknown'}`}
                       </p>
                     </div>
                   </div>
@@ -259,8 +265,7 @@ export default function AssetMaintenanceDetailsPage() {
                       <p className="font-medium text-gray-900">
                         {assetMaintenance.data.department?.name ||
                          (assetMaintenance.data.created_by as any)?.department?.name ||
-                         (assetMaintenance.data.created_by as any)?.department ||
-                         "N/A"}
+                         "Not Available"}
                       </p>
                     </div>
                   </div>
@@ -273,15 +278,41 @@ export default function AssetMaintenanceDetailsPage() {
                       <p className="text-sm text-gray-600">Location</p>
                       <p className="font-medium text-gray-900">
                         {assetMaintenance.data.location?.name ||
-                         (assetMaintenance.data.created_by as any)?.location?.name ||
-                         (assetMaintenance.data.created_by as any)?.location ||
-                         "N/A"}
+                         assetMaintenance.data.asset?.location?.name ||
+                         "Not Available"}
                       </p>
                     </div>
                   </div>
                 </div>
               </CardContent>
             </Card>
+
+            {/* Backend Data Issue Notice - Only show if all data sources are missing */}
+            {(!assetMaintenance.data.staff_name &&
+              !(assetMaintenance.data.created_by as any)?.full_name &&
+              !assetMaintenance.data.department?.name &&
+              !(assetMaintenance.data.created_by as any)?.department?.name &&
+              !assetMaintenance.data.location?.name &&
+              !assetMaintenance.data.asset?.location?.name) && (
+              <Card className="border-l-4 border-l-amber-500 bg-amber-50">
+                <CardContent className="pt-6">
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 bg-amber-100 rounded-full">
+                      <FileTextIcon className="w-5 h-5 text-amber-600" />
+                    </div>
+                    <div>
+                      <p className="text-amber-800 font-medium">
+                        Backend Data Issue
+                      </p>
+                      <p className="text-amber-700 text-sm mt-1">
+                        The Asset Maintenance API endpoint is not returning complete relational data (staff_name, department, location).
+                        The backend needs to populate these fields when fetching asset maintenance details.
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Asset & Maintenance Details */}
             <Card>
@@ -362,8 +393,29 @@ export default function AssetMaintenanceDetailsPage() {
               </CardContent>
             </Card>
 
-            {/* Approval History - Only show when there are actual approvals */}
-            {assetMaintenance?.data.approvals?.length > 0 && (
+            {/* User-friendly status message for regular users */}
+            {!canManageApprovals && (
+              <Card className="border-l-4 border-l-blue-500">
+                <CardContent className="pt-6">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-blue-100 rounded-full">
+                      <CheckCircleIcon className="w-6 h-6 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="text-blue-700 font-medium">
+                        Asset Maintenance Request Status: <strong>{currentStatus}</strong>
+                      </p>
+                      <p className="text-blue-600 text-sm mt-1">
+                        Your maintenance request has been submitted successfully. You will be notified when there are updates.
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Approval History - Only visible to users with approval management permissions */}
+            {canManageApprovals && assetMaintenance?.data.approvals?.length > 0 && (
               <Card>
                 <CardHeader>
                   <h3 className="text-xl font-semibold text-gray-900">
@@ -432,8 +484,8 @@ export default function AssetMaintenanceDetailsPage() {
               </Card>
             )}
 
-            {/* Approval Actions */}
-            {nextAction && (
+            {/* Approval Actions - Only visible to users with approval management permissions */}
+            {canManageApprovals && nextAction && (
               <Card className="border-l-4 border-l-amber-500">
                 <CardHeader className="bg-amber-50">
                   <h3 className="text-xl font-semibold text-gray-900">
@@ -472,8 +524,8 @@ export default function AssetMaintenanceDetailsPage() {
               </Card>
             )}
 
-            {/* Approval Form Modal */}
-            {showApprovalForm && (
+            {/* Approval Form Modal - Only accessible to users with approval management permissions */}
+            {canManageApprovals && showApprovalForm && (
               <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'>
                 <Card className='p-6 w-96 max-w-md'>
                   <h3 className='text-lg font-semibold mb-4'>

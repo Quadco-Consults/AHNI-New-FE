@@ -32,8 +32,13 @@ export default function AllRoles() {
   });
 
   const onRoleClick = (id: string, name: string, permission: string) => {
-    dispatch(
-      openDialog({
+    console.log('🔧 Manage Role button clicked!', { id, name, permission });
+    console.log('🔧 DialogType.AddPermissionToRole:', DialogType.AddPermissionToRole);
+    console.log('🔧 Dispatch function exists:', typeof dispatch === 'function');
+
+    try {
+      console.log('🟡 About to dispatch permission dialog...');
+      const action = openDialog({
         type: DialogType.AddPermissionToRole,
         dialogProps: {
           ...largeDailogScreen,
@@ -41,8 +46,15 @@ export default function AllRoles() {
           name,
           permission: permission,
         },
-      })
-    );
+      });
+      console.log('🟡 Permission dialog action created:', action);
+
+      const result = dispatch(action);
+      console.log('🟡 Permission dialog dispatch result:', result);
+      console.log('🟢 Permission dialog dispatch successful');
+    } catch (error) {
+      console.error('🔴 Error dispatching permission dialog:', error);
+    }
   };
 
   const { deleteRole, isLoading: isDeleteLoading } = useDeleteRole(roleId);

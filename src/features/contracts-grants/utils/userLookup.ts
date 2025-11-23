@@ -3,8 +3,9 @@
 
 export interface UserDetail {
   id: string;
-  first_name: string;
-  last_name: string;
+  first_name?: string;
+  last_name?: string;
+  full_name?: string;
   email?: string;
 }
 
@@ -21,7 +22,14 @@ export const getUserFromCache = (userId: string): UserDetail | null => {
 
 export const formatUserName = (user: UserDetail | null, fallbackId?: string): string => {
   if (user) {
-    return `${user.first_name} ${user.last_name}`;
+    // Prefer full_name if available, otherwise construct from first_name and last_name
+    if (user.full_name) {
+      return user.full_name;
+    } else if (user.first_name && user.last_name) {
+      return `${user.first_name} ${user.last_name}`;
+    } else if (user.first_name || user.last_name) {
+      return user.first_name || user.last_name || '';
+    }
   }
   if (fallbackId) {
     return `User ID: ${fallbackId}`;

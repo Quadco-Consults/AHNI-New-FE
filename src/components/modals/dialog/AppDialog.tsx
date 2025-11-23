@@ -134,7 +134,7 @@ const AppDialog = () => {
         setIsLoading(false);
       })
       .catch((error) => {
-        console.error(`Failed to load modal component for type: ${type}`, error);
+        console.error(`🎭 Failed to load modal component for type: ${type}`, error);
         setModalComponent(null);
         setIsLoading(false);
       });

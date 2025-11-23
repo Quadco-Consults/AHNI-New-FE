@@ -1485,6 +1485,43 @@ export const departmentalLinks: SidebarItem[] = [
 
 // ==================== GLOBAL HUB LINKS ====================
 export const globalHubLinks: GlobalHubItem[] = [
+  // ==================== UNIVERSAL ACCESS ITEMS ====================
+  // These items are available to ALL authenticated users regardless of department
+
+  {
+    label: "Announcements",
+    path: "/dashboard/global-hub/announcements",
+    icon: <FileBarChart className="w-4 h-4" />,
+    category: "communication"
+    // No permissions = universal access
+  },
+
+  {
+    label: "Organization Chart",
+    path: "/dashboard/global-hub/org-chart",
+    icon: <Users className="w-4 h-4" />,
+    category: "organization"
+    // No permissions = universal access
+  },
+
+  {
+    label: "Calendar",
+    path: "/dashboard/global-hub/calendar",
+    icon: <Calendar className="w-4 h-4" />,
+    category: "organization"
+    // No permissions = universal access
+  },
+
+  {
+    label: "Directory",
+    path: "/dashboard/global-hub/directory",
+    icon: <MapPin className="w-4 h-4" />,
+    category: "organization"
+    // No permissions = universal access
+  },
+
+  // ==================== DEPARTMENT-SPECIFIC ITEMS ====================
+
   // Procurement & Purchasing
   {
     label: "Purchase Requests",
@@ -1722,51 +1759,62 @@ export const globalHubLinks: GlobalHubItem[] = [
 
 // ==================== MODULE/SETTINGS LINKS ====================
 export const moduleLinks: SidebarItem[] = [
+  // Settings Menu - Available to admin-level users who manage users and permissions
   {
-    name: "Access Management",
-    path: "/dashboard/users",
+    name: "Settings",
     icon: <ScanEye />,
     permissions: [
       {
         module: "users",
-        codenames: ["view_user"]
-      },
-      {
-        module: "authorization",
-        codenames: ["view_role"]
+        codenames: ["view_user"],
+        requireAll: false // Any user management permission qualifies
       }
     ],
     children: [
       {
-        name: "Users",
-        path: "/dashboard/users",
+        name: "Access Management",
         permissions: [
           {
             module: "users",
-            codenames: ["view_user"]
+            codenames: ["view_user", "change_user"],
+            requireAll: false
           }
-        ]
-      },
-      {
-        name: "Authorization",
-        path: "/dashboard/authorization",
-        permissions: [
+        ],
+        children: [
           {
-            module: "authorization",
-            codenames: ["view_role", "view_permission"]
+            name: "Users",
+            path: "/dashboard/users",
+            permissions: [
+              {
+                module: "users",
+                codenames: ["view_user"]
+              }
+            ]
+          },
+          {
+            name: "Authorization",
+            path: "/dashboard/authorization",
+            permissions: [
+              {
+                module: "authorization",
+                codenames: ["view_role", "view_permission"]
+              }
+            ]
           }
         ]
       }
     ]
   },
+  // Modules Menu - Super Admin Only (is_superuser = true)
   {
     name: "Modules",
     path: "/dashboard/modules",
     icon: <Package />,
     permissions: [
       {
-        module: "config",
-        codenames: ["view_generalconfig"]
+        module: "superuser",
+        codenames: ["is_superuser"], // This will be handled by our unified permission system
+        requireAll: true
       }
     ],
     children: [
@@ -1775,8 +1823,8 @@ export const moduleLinks: SidebarItem[] = [
         path: "/dashboard/modules/project",
         permissions: [
           {
-            module: "config",
-            codenames: ["view_generalconfig"]
+            module: "superuser",
+            codenames: ["is_superuser"]
           }
         ]
       },
@@ -1785,8 +1833,8 @@ export const moduleLinks: SidebarItem[] = [
         path: "/dashboard/modules/programs",
         permissions: [
           {
-            module: "config",
-            codenames: ["view_generalconfig"]
+            module: "superuser",
+            codenames: ["is_superuser"]
           }
         ]
       },
@@ -1795,8 +1843,8 @@ export const moduleLinks: SidebarItem[] = [
         path: "/dashboard/modules/admin",
         permissions: [
           {
-            module: "config",
-            codenames: ["view_generalconfig"]
+            module: "superuser",
+            codenames: ["is_superuser"]
           }
         ]
       },
@@ -1805,8 +1853,8 @@ export const moduleLinks: SidebarItem[] = [
         path: "/dashboard/modules/config",
         permissions: [
           {
-            module: "config",
-            codenames: ["view_generalconfig"]
+            module: "superuser",
+            codenames: ["is_superuser"]
           }
         ]
       },
@@ -1815,8 +1863,8 @@ export const moduleLinks: SidebarItem[] = [
         path: "/dashboard/modules/procurement",
         permissions: [
           {
-            module: "config",
-            codenames: ["view_generalconfig"]
+            module: "superuser",
+            codenames: ["is_superuser"]
           }
         ]
       },
@@ -1825,8 +1873,8 @@ export const moduleLinks: SidebarItem[] = [
         path: "/dashboard/modules/hr",
         permissions: [
           {
-            module: "config",
-            codenames: ["view_generalconfig"]
+            module: "superuser",
+            codenames: ["is_superuser"]
           }
         ]
       },
@@ -1835,8 +1883,18 @@ export const moduleLinks: SidebarItem[] = [
         path: "/dashboard/modules/c-and-g",
         permissions: [
           {
-            module: "config",
-            codenames: ["view_generalconfig"]
+            module: "superuser",
+            codenames: ["is_superuser"]
+          }
+        ]
+      },
+      {
+        name: "Audit Log",
+        path: "/dashboard/modules/audit-log",
+        permissions: [
+          {
+            module: "superuser",
+            codenames: ["is_superuser"]
           }
         ]
       }
@@ -1846,6 +1904,11 @@ export const moduleLinks: SidebarItem[] = [
 
 // Category definitions for Global Hub UI
 export const globalHubCategories = {
+  // Universal categories available to all users
+  communication: { label: "Communication", icon: <FileBarChart className="w-4 h-4" /> },
+  organization: { label: "Organization", icon: <Users className="w-4 h-4" /> },
+
+  // Department-specific categories
   programs: { label: "Programs & Planning", icon: <MapPin className="w-4 h-4" /> },
   procurement: { label: "Procurement & Purchasing", icon: <ShoppingCart className="w-4 h-4" /> },
   inventory: { label: "Inventory Management", icon: <Package className="w-4 h-4" /> },

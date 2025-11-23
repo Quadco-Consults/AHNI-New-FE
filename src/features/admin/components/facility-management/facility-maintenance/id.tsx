@@ -19,15 +19,23 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { formatNumberCurrency } from "utils/utls";
 import { Download, FileText } from "lucide-react";
+import { usePermissions } from "@/hooks/usePermissions";
 
 export default function ViewFacilityMaintenance() {
   const { id } = useParams();
+  const { canManageApprovals } = usePermissions();
 
   const [comments, setComments] = useState("");
   const [showApprovalForm, setShowApprovalForm] = useState(false);
   const [approvalAction, setApprovalAction] = useState<
     "review" | "authorize" | "approve" | null
   >(null);
+
+  console.log('🔐 FACILITY MAINTENANCE PERMISSIONS:', {
+    canManageApprovals,
+    userId: id,
+    context: 'facility_maintenance_detail'
+  });
 
   const {
     data: facilityMaintenance,
@@ -656,8 +664,25 @@ export default function ViewFacilityMaintenance() {
                 description={facilityMaintenance?.data.problem_description}
               />
 
-              {/* Approvals History */}
-              {facilityMaintenance?.data.approvals &&
+              {/* User-friendly message for regular users */}
+              {!canManageApprovals && (
+                <div className='mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg'>
+                  <h3 className='text-lg font-semibold mb-2 text-blue-800'>
+                    Ticket Status
+                  </h3>
+                  <p className='text-blue-700'>
+                    Your facility maintenance request has been submitted successfully.
+                    The current status is <strong>{currentStatus}</strong>.
+                  </p>
+                  <p className='text-blue-600 text-sm mt-2'>
+                    You will be notified when there are updates to your request.
+                  </p>
+                </div>
+              )}
+
+              {/* Approvals History - Only visible to users with approval management permissions */}
+              {canManageApprovals &&
+                facilityMaintenance?.data.approvals &&
                 facilityMaintenance.data.approvals.length > 0 && (
                   <div className='mt-6'>
                     <h3 className='text-lg font-semibold mb-3'>
@@ -754,8 +779,8 @@ export default function ViewFacilityMaintenance() {
                   </div>
                 )}
 
-              {/* Approval Actions */}
-              {nextAction && (
+              {/* Approval Actions - Only visible to users with approval management permissions */}
+              {canManageApprovals && nextAction && (
                 <div className='mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg'>
                   <p className='text-sm text-blue-700 mb-3'>
                     This ticket is ready for {nextAction.label.toLowerCase()}.
@@ -769,8 +794,8 @@ export default function ViewFacilityMaintenance() {
                 </div>
               )}
 
-              {/* Approval Form Modal */}
-              {showApprovalForm && (
+              {/* Approval Form Modal - Only accessible to users with approval management permissions */}
+              {canManageApprovals && showApprovalForm && (
                 <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'>
                   <Card className='p-6 w-96 max-w-md'>
                     <h3 className='text-lg font-semibold mb-4'>
