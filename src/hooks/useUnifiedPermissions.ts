@@ -27,7 +27,7 @@ interface UseUnifiedPermissionsReturn {
 
 export const useUnifiedPermissions = (): UseUnifiedPermissionsReturn => {
   const authState = useAppSelector(state => state.auth);
-  const { data: userProfile, isLoading: profileLoading } = useGetUserProfile();
+  const { data: userProfile, isLoading: profileLoading } = useGetUserProfile(authState.isAuthenticated);
 
   // Create normalized permissions from all available sources
   const normalizedPermissions = useMemo(() => {
@@ -103,7 +103,8 @@ export const useUnifiedPermissions = (): UseUnifiedPermissionsReturn => {
 
   // Derived values
   const isAdmin = normalizedPermissions?.isAdmin || false;
-  const isLoading = profileLoading || !normalizedPermissions?.isHydrated;
+  // More robust loading logic - don't get stuck on profile loading if we have auth data
+  const isLoading = (profileLoading && !authState.user) || !normalizedPermissions?.isHydrated;
 
   // Legacy compatibility - provide raw permissions and roles
   const permissions = normalizedPermissions?.permissions || [];

@@ -161,6 +161,32 @@ export function hasPermission(
               uiPermissions.includes(UIPermissionCategory.AUTHORIZE_REQUESTS)) {
             return true;
           }
+          // Enhanced email-based fallback for finance users without specific permissions
+          if (user?.email?.toLowerCase().includes('finance')) {
+            // Finance managers should have access to ALL finance module features
+            const financeManagerPermissions = [
+              'view_budgetline', 'view_chartofaccounts', 'view_journalentry',
+              'view_financialreport', 'view_bankreconcialiation', 'view_integrationdashboard',
+              'view_financialanalysis', 'view_quickbookssettings', 'view_quickbookssync',
+              'view_customersmanagement', 'view_invoices', 'view_salesorders',
+              'view_accountsreceivable', 'view_taxmanagement', 'view_accountspayable',
+              'view_fixedassets', 'view_expensetracking', 'view_budgetreports',
+              'view_pettycash', 'view_travelreconciliation'
+            ];
+
+            // Check if any of the required codenames match finance manager permissions
+            const hasFinanceManagerAccess = codenames.some(code =>
+              financeManagerPermissions.includes(code) ||
+              code.includes('view') ||
+              code.includes('add') ||
+              code.includes('change')
+            );
+
+            if (hasFinanceManagerAccess) {
+              console.log('🏦 Finance manager email-based access granted for:', user.email, 'codenames:', codenames);
+              return true;
+            }
+          }
           break;
 
         case 'approvals':

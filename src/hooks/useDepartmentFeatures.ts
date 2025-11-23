@@ -1,5 +1,6 @@
 import { useAppSelector } from '@/store/hooks';
 import { authSelector } from '@/store/auth/authSlice';
+import { useMemo, useRef } from 'react';
 
 /**
  * Hook for department-based conditional rendering and feature management
@@ -7,6 +8,7 @@ import { authSelector } from '@/store/auth/authSlice';
  */
 export const useDepartmentFeatures = () => {
   const { user } = useAppSelector(authSelector);
+  const debugLoggedRef = useRef(false);
 
   // Get user department from multiple possible locations
   const getUserDepartment = (): string | null => {
@@ -19,14 +21,16 @@ export const useDepartmentFeatures = () => {
 
   const userDepartment = getUserDepartment();
 
-  // Debug department detection in development
-  if (process.env.NODE_ENV === 'development' && userDepartment) {
+  // Debug department detection in development (only log once per user change)
+  const userKey = user?.id || user?.email;
+  if (process.env.NODE_ENV === 'development' && userDepartment && userKey && !debugLoggedRef.current) {
     console.log('🏢 Department Features Debug:', {
       userDepartment,
       employeeDepartment: user?.employee?.department?.name,
       directDepartment: user?.department?.name,
       hasEmployeeStructure: !!user?.employee
     });
+    debugLoggedRef.current = true;
   }
 
   // Department checks - be more flexible with department name matching
@@ -44,17 +48,46 @@ export const useDepartmentFeatures = () => {
   const isCGOfficer = userEmail.includes('cgofficer') || userEmail.includes('contract');
   const isProgramsOfficer = userEmail.includes('programs') || userEmail.includes('program');
   const isHROfficer = userEmail.includes('hr') || userEmail.includes('human');
-  const isFinanceOfficer = userEmail.includes('finance');
+  const isFinanceOfficer = userEmail.includes('finance') || userEmail.includes('financemanager') || userEmail.includes('financeofficer');
   const isAdminOfficer = userEmail.includes('admin');
   const isProcurementOfficer = userEmail.includes('procurement');
 
-  // Feature access checks - more permissive for departmental officers
-  const canAccessProgramsFeatures = isProgramsDepartment || isProgramsOfficer || user?.is_superuser || user?.is_staff;
-  const canAccessContractsGrantsFeatures = isContractsGrantsDepartment || isCGOfficer || user?.is_superuser || user?.is_staff;
-  const canAccessHRFeatures = isHRDepartment || isHROfficer || user?.is_superuser || user?.is_staff;
-  const canAccessFinanceFeatures = isFinanceDepartment || isFinanceOfficer || user?.is_superuser || user?.is_staff;
-  const canAccessAdminFeatures = isAdminDepartment || isAdminOfficer || user?.is_superuser || user?.is_staff;
-  const canAccessProcurementFeatures = isProcurementDepartment || isProcurementOfficer || user?.is_superuser || user?.is_staff;
+  // Enhanced position-based detection for finance roles
+  const userPosition = user?.position?.name || user?.position?.title || '';
+  const isFinancePosition = userPosition.toLowerCase().includes('finance');
+
+  // Finance debug removed - issue resolved
+
+  // Feature access checks - more permissive for departmental officers (memoized)
+  const canAccessProgramsFeatures = useMemo(() =>
+    isProgramsDepartment || isProgramsOfficer || user?.is_superuser || user?.is_staff,
+    [isProgramsDepartment, isProgramsOfficer, user?.is_superuser, user?.is_staff]
+  );
+
+  const canAccessContractsGrantsFeatures = useMemo(() =>
+    isContractsGrantsDepartment || isCGOfficer || user?.is_superuser || user?.is_staff,
+    [isContractsGrantsDepartment, isCGOfficer, user?.is_superuser, user?.is_staff]
+  );
+
+  const canAccessHRFeatures = useMemo(() =>
+    isHRDepartment || isHROfficer || user?.is_superuser || user?.is_staff,
+    [isHRDepartment, isHROfficer, user?.is_superuser, user?.is_staff]
+  );
+
+  const canAccessFinanceFeatures = useMemo(() =>
+    isFinanceDepartment || isFinanceOfficer || isFinancePosition || user?.is_superuser || user?.is_staff,
+    [isFinanceDepartment, isFinanceOfficer, isFinancePosition, user?.is_superuser, user?.is_staff]
+  );
+
+  const canAccessAdminFeatures = useMemo(() =>
+    isAdminDepartment || isAdminOfficer || user?.is_superuser || user?.is_staff,
+    [isAdminDepartment, isAdminOfficer, user?.is_superuser, user?.is_staff]
+  );
+
+  const canAccessProcurementFeatures = useMemo(() =>
+    isProcurementDepartment || isProcurementOfficer || user?.is_superuser || user?.is_staff,
+    [isProcurementDepartment, isProcurementOfficer, user?.is_superuser, user?.is_staff]
+  );
 
   // Universal features (available to all departments)
   const canAccessLeaveManagement = true;
