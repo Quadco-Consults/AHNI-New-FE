@@ -209,71 +209,85 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
       let departmentBasedAccess = false;
 
       if (isChild && parentDepartment) {
-        // For child items, check if parent department is allowed OR if we're in department hierarchy
-        const directParentAllowed = allowedDepartments.includes(parentDepartment);
-        const departmentHierarchyAllowed = isInDepartmentHierarchy(parentDepartment, user?.position?.title || '');
+        // SUPERUSER OVERRIDE: Admins get access to everything
+        if (isAdmin || user?.is_superuser || user?.is_staff) {
+          departmentBasedAccess = true;
+        } else {
+          // For child items, check if parent department is allowed OR if we're in department hierarchy
+          const directParentAllowed = allowedDepartments.includes(parentDepartment);
+          const departmentHierarchyAllowed = isInDepartmentHierarchy(parentDepartment, user?.position?.title || '');
 
-        // Enhanced logic for nested children (children of children)
-        // Check if this is a nested child under the user's department
-        const isNestedCGChild = (parentDepartment === 'Contract Management' || parentDepartment === 'Sub Grants' ||
-          parentDepartment === 'Closeout') && canAccessContractsGrantsFeatures;
-        const isNestedProgramsChild = (parentDepartment === 'Plans' || parentDepartment === 'Stakeholder Management' ||
-          parentDepartment === 'Fund Request' || parentDepartment === 'Adhoc Management') && canAccessProgramsFeatures;
-        const isNestedProcurementChild = (parentDepartment === 'Purchase Request' || parentDepartment === 'Vendor Management') && canAccessProcurementFeatures;
-        // Enhanced nested finance child check - includes ALL 22 finance submenu items
-        const financeSubmenus = [
-          'Financial Classifications', 'Chart of Accounts', 'Bank Accounts', 'Journal Entries',
-          'Financial Reports', 'Bank Reconciliation', 'Integration Dashboard', 'Financial Analysis',
-          'QuickBooks Settings', 'QuickBooks Sync', 'Customer Management', 'Invoicing & Billing',
-          'Sales Orders', 'Accounts Receivable', 'Tax Management', 'Accounts Payable',
-          'Fixed Assets', 'Expense Tracking', 'Budget Reports', 'Petty Cash', 'Travel Reconciliation'
-        ];
-        const isNestedFinanceChild = (financeSubmenus.includes(parentDepartment) || parentDepartment === 'Finance') && canAccessFinanceFeatures;
+          // Enhanced logic for nested children (children of children)
+          // Check if this is a nested child under the user's department
+          const isNestedCGChild = (parentDepartment === 'Contract Management' || parentDepartment === 'Sub Grants' ||
+            parentDepartment === 'Closeout') && canAccessContractsGrantsFeatures;
+          const isNestedProgramsChild = (parentDepartment === 'Plans' || parentDepartment === 'Stakeholder Management' ||
+            parentDepartment === 'Fund Request' || parentDepartment === 'Adhoc Management') && canAccessProgramsFeatures;
+          const isNestedProcurementChild = (parentDepartment === 'Purchase Request' || parentDepartment === 'Vendor Management') && canAccessProcurementFeatures;
+          // Enhanced nested finance child check - includes ALL 22 finance submenu items
+          const financeSubmenus = [
+            'Financial Classifications', 'Chart of Accounts', 'Bank Accounts', 'Journal Entries',
+            'Financial Reports', 'Bank Reconciliation', 'Integration Dashboard', 'Financial Analysis',
+            'QuickBooks Settings', 'QuickBooks Sync', 'Customer Management', 'Invoicing & Billing',
+            'Sales Orders', 'Accounts Receivable', 'Tax Management', 'Accounts Payable',
+            'Fixed Assets', 'Expense Tracking', 'Budget Reports', 'Petty Cash', 'Travel Reconciliation'
+          ];
+          const isNestedFinanceChild = (financeSubmenus.includes(parentDepartment) || parentDepartment === 'Finance') && canAccessFinanceFeatures;
 
-        // Enhanced nested HR child check - includes ALL HR sub-sections
-        const hrSubmenus = [
-          'Employee Management', 'Leave Management', 'Performance Management', 'Training & Development',
-          'Recruitment', 'Compensation & Benefits', 'Separation Management', 'Grievance Management',
-          'Timesheet Management', 'Compliance & Audit', 'Employee Relations', 'HR Reports'
-        ];
-        const isNestedHRChild = (hrSubmenus.includes(parentDepartment) || parentDepartment === 'HR') && canAccessHRFeatures;
+          // Enhanced nested HR child check - includes ALL HR sub-sections
+          const hrSubmenus = [
+            'Employee Management', 'Leave Management', 'Performance Management', 'Training & Development',
+            'Recruitment', 'Compensation & Benefits', 'Separation Management', 'Grievance Management',
+            'Timesheet Management', 'Compliance & Audit', 'Employee Relations', 'HR Reports'
+          ];
+          const isNestedHRChild = (hrSubmenus.includes(parentDepartment) || parentDepartment === 'HR') && canAccessHRFeatures;
 
-        departmentBasedAccess = allowedDepartments.length === 0 || directParentAllowed || departmentHierarchyAllowed ||
-          isNestedCGChild || isNestedProgramsChild || isNestedProcurementChild || isNestedFinanceChild || isNestedHRChild;
+          departmentBasedAccess = allowedDepartments.length === 0 || directParentAllowed || departmentHierarchyAllowed ||
+            isNestedCGChild || isNestedProgramsChild || isNestedProcurementChild || isNestedFinanceChild || isNestedHRChild;
+        }
       } else {
-        // For top-level items, check if this department is allowed
-        // Be more permissive if user is authenticated but has low permissions (common for departmental officers)
-        departmentBasedAccess = allowedDepartments.length === 0 || allowedDepartments.includes(item.name) ||
-          (authState.isAuthenticated && (allowedDepartments.includes('Global Hub') || userDepartment)) ||
-          // Special finance user override - email-based finance users should access Finance department
-          (item.name === 'Finance' && user?.email?.toLowerCase().includes('finance')) ||
-          // Special HR user override - email-based HR users should access HR department
-          (item.name === 'HR' && user?.email?.toLowerCase().includes('hr')) ||
-          // TEMPORARY DEBUG: Force HR access for testing
-          (item.name === 'HR');
+        // SUPERUSER OVERRIDE: Admins get access to everything
+        if (isAdmin || user?.is_superuser || user?.is_staff) {
+          departmentBasedAccess = true;
+        } else {
+          // For top-level items, check if this department is allowed
+          // Be more permissive if user is authenticated but has low permissions (common for departmental officers)
+          departmentBasedAccess = allowedDepartments.length === 0 || allowedDepartments.includes(item.name) ||
+            (authState.isAuthenticated && (allowedDepartments.includes('Global Hub') || userDepartment)) ||
+            // Special finance user override - email-based finance users should access Finance department
+            (item.name === 'Finance' && user?.email?.toLowerCase().includes('finance')) ||
+            // Special HR user override - email-based HR users should access HR department
+            (item.name === 'HR' && user?.email?.toLowerCase().includes('hr')) ||
+            // TEMPORARY DEBUG: Force HR access for testing
+            (item.name === 'HR');
+        }
       }
 
       // Permission-based access - be more permissive for departmental officers with 0 permissions
       // Also handle case when permissions are still loading
-      const permissionBasedAccess = !item.permissions || item.permissions.length === 0
-        ? true
-        : hasPermission(item.permissions) ||
-          // Allow access if user is authenticated and has 0 permissions (common for departmental officers)
-          (authState.isAuthenticated && (permissionCount === 0 || user?.is_staff)) ||
-          // Special finance user override - email-based finance users should access Finance module
-          (item.name === 'Finance' && user?.email?.toLowerCase().includes('finance')) ||
-          // Special HR user override - email-based HR users should access HR module
-          (item.name === 'HR' && user?.email?.toLowerCase().includes('hr')) ||
-          // TEMPORARY DEBUG: Force HR access for testing - comprehensive override
-          (item.name === 'HR') ||
-          // Force all HR-related items regardless of specific permissions
-          (item.name?.includes('Employee Management')) ||
-          (item.name?.includes('Recruitment')) ||
-          (item.name?.includes('Performance Management')) ||
-          (item.name?.includes('Timesheet Management')) ||
-          (item.name?.includes('compensation')) ||
-          // If permissions are still loading but user is authenticated, be more permissive
-          (permissionsLoading && authState.isAuthenticated && user);
+      const permissionBasedAccess =
+        // SUPERUSER OVERRIDE: Admins get access to everything
+        (isAdmin || user?.is_superuser || user?.is_staff) ||
+        // No specific permissions required
+        (!item.permissions || item.permissions.length === 0) ||
+        // User has required permissions
+        hasPermission(item.permissions) ||
+        // Allow access if user is authenticated and has 0 permissions (common for departmental officers)
+        (authState.isAuthenticated && permissionCount === 0) ||
+        // Special finance user override - email-based finance users should access Finance module
+        (item.name === 'Finance' && user?.email?.toLowerCase().includes('finance')) ||
+        // Special HR user override - email-based HR users should access HR module
+        (item.name === 'HR' && user?.email?.toLowerCase().includes('hr')) ||
+        // TEMPORARY DEBUG: Force HR access for testing - comprehensive override
+        (item.name === 'HR') ||
+        // Force all HR-related items regardless of specific permissions
+        (item.name?.includes('Employee Management')) ||
+        (item.name?.includes('Recruitment')) ||
+        (item.name?.includes('Performance Management')) ||
+        (item.name?.includes('Timesheet Management')) ||
+        (item.name?.includes('compensation')) ||
+        // If permissions are still loading but user is authenticated, be more permissive
+        (permissionsLoading && authState.isAuthenticated && user);
 
       // Get user position for department hierarchy checks
       const userPosition = user?.position?.title || '';
@@ -281,7 +295,11 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
       // Special handling for Department Officers - if they can access their department hierarchy,
       // they should see the main functional sub-menus even if specific permissions are missing
       let adjustedPermissionAccess = permissionBasedAccess;
-      if (isChild && isInDepartmentHierarchy(parentDepartment, userPosition)) {
+
+      // SUPERUSER OVERRIDE: Admins get access to everything
+      if (isAdmin || user?.is_superuser || user?.is_staff) {
+        adjustedPermissionAccess = true;
+      } else if (isChild && isInDepartmentHierarchy(parentDepartment, userPosition)) {
         // For department hierarchy (including sub-departments), be more permissive for department officers
         const isDepartmentOfficer = ['Program Officer', 'Program Admin', 'HR Officer', 'HR Manager', 'Procurement Officer', 'Admin Officer', 'Finance Officer', 'Finance Manager'].includes(userPosition);
         if (isDepartmentOfficer) {
@@ -291,37 +309,40 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
 
       // Enhanced child menu access for departmental officers with their own department
       if (isChild && parentDepartment) {
-        // Check if this is the user's own department
-        const isOwnDepartment = (parentDepartment === 'C&G' && canAccessContractsGrantsFeatures) ||
-          (parentDepartment === 'Programs' && canAccessProgramsFeatures) ||
-          (parentDepartment === 'HR' && canAccessHRFeatures) ||
-          (parentDepartment === 'Finance' && canAccessFinanceFeatures) ||
-          (parentDepartment === 'Admin' && canAccessAdminFeatures) ||
-          (parentDepartment === 'Procurement Management' && canAccessProcurementFeatures);
+        // SUPERUSER OVERRIDE: Admins get access to everything (already handled above, but keeping for clarity)
+        if (!(isAdmin || user?.is_superuser || user?.is_staff)) {
+          // Check if this is the user's own department
+          const isOwnDepartment = (parentDepartment === 'C&G' && canAccessContractsGrantsFeatures) ||
+            (parentDepartment === 'Programs' && canAccessProgramsFeatures) ||
+            (parentDepartment === 'HR' && canAccessHRFeatures) ||
+            (parentDepartment === 'Finance' && canAccessFinanceFeatures) ||
+            (parentDepartment === 'Admin' && canAccessAdminFeatures) ||
+            (parentDepartment === 'Procurement Management' && canAccessProcurementFeatures);
 
-        // More permissive logic for departmental officers - remove permission count restriction
-        if (isOwnDepartment) {
-          adjustedPermissionAccess = true; // Allow all child items for department officers in their own department
-        }
+          // More permissive logic for departmental officers - remove permission count restriction
+          if (isOwnDepartment) {
+            adjustedPermissionAccess = true; // Allow all child items for department officers in their own department
+          }
 
-        // Special Finance department override - be even more permissive for Finance users
-        if (parentDepartment === 'Finance' && (canAccessFinanceFeatures || user?.email?.toLowerCase().includes('finance'))) {
-          adjustedPermissionAccess = true;
-        }
+          // Special Finance department override - be even more permissive for Finance users
+          if (parentDepartment === 'Finance' && (canAccessFinanceFeatures || user?.email?.toLowerCase().includes('finance'))) {
+            adjustedPermissionAccess = true;
+          }
 
-        // Special HR department override - be even more permissive for HR users and managers
-        const hrSubmenus = [
-          'Employee Management', 'Leave Management', 'Performance Management', 'Training & Development',
-          'Recruitment', 'Compensation & Benefits', 'Separation Management', 'Grievance Management',
-          'Timesheet Management', 'Compliance & Audit', 'Employee Relations', 'HR Reports'
-        ];
-        if ((parentDepartment === 'HR' || hrSubmenus.includes(parentDepartment)) && (canAccessHRFeatures || user?.email?.toLowerCase().includes('hr'))) {
-          adjustedPermissionAccess = true;
-        }
+          // Special HR department override - be even more permissive for HR users and managers
+          const hrSubmenus = [
+            'Employee Management', 'Leave Management', 'Performance Management', 'Training & Development',
+            'Recruitment', 'Compensation & Benefits', 'Separation Management', 'Grievance Management',
+            'Timesheet Management', 'Compliance & Audit', 'Employee Relations', 'HR Reports'
+          ];
+          if ((parentDepartment === 'HR' || hrSubmenus.includes(parentDepartment)) && (canAccessHRFeatures || user?.email?.toLowerCase().includes('hr'))) {
+            adjustedPermissionAccess = true;
+          }
 
-        // TEMPORARY DEBUG: Force HR child access for testing
-        if (parentDepartment === 'HR' || hrSubmenus.includes(parentDepartment)) {
-          adjustedPermissionAccess = true;
+          // TEMPORARY DEBUG: Force HR child access for testing
+          if (parentDepartment === 'HR' || hrSubmenus.includes(parentDepartment)) {
+            adjustedPermissionAccess = true;
+          }
         }
       }
 
