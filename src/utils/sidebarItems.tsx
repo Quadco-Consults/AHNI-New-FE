@@ -1484,6 +1484,10 @@ export const departmentalLinks: SidebarItem[] = [
 ];
 
 // ==================== GLOBAL HUB LINKS ====================
+// POLICY: ALL Global Hub items are universally accessible to ALL authenticated AHNI employees
+// regardless of department, role, permissions, or position level.
+// This includes both organizational items (Calendar, Directory, etc.) and departmental items
+// (Purchase Requests, Travel Expenses, etc.) - everyone can see and access everything in Global Hub.
 export const globalHubLinks: GlobalHubItem[] = [
   // ==================== UNIVERSAL ACCESS ITEMS ====================
   // These items are available to ALL authenticated users regardless of department

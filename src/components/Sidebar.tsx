@@ -103,19 +103,26 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
     if (features.admin) accessMap.push('Admin');
     if (features.procurement) accessMap.push('Procurement Management');
 
-    // Always allow access to universal features and Global Hub
-    accessMap.push('Communication');
-    accessMap.push('Organization');
-    accessMap.push('Programs & Planning');
+    // UNIVERSAL ACCESS - All authenticated AHNI employees get access to all Global Hub categories
+    // This includes both organizational and departmental Global Hub items
+    if (user && authState.isAuthenticated) {
+      accessMap.push('Global Hub');
+      accessMap.push('Communication');
+      accessMap.push('Organization');
+      accessMap.push('Programs & Planning');
+      accessMap.push('Procurement & Purchasing');
+      accessMap.push('Inventory Management');
+      accessMap.push('Fleet & Transport');
+      accessMap.push('Maintenance');
+      accessMap.push('Financial Services');
+      accessMap.push('Contracts & Reports');
+      accessMap.push('Staff Self-Service');
+      accessMap.push('Support');
+    }
 
     if (features.leave) accessMap.push('Leave Management');
     if (features.itemRequisition) accessMap.push('Item Requisition');
     if (features.travelExpense) accessMap.push('Travel Expense');
-
-    // If user has any authentication, ensure they can see Global Hub items
-    if (user && authState.isAuthenticated) {
-      accessMap.push('Global Hub');
-    }
 
     return accessMap;
   };
@@ -148,7 +155,22 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
       },
       'Finance Officer': {
         mainDepartment: 'Finance',
-        subDepartments: ['Budget Management', 'Expense Management', 'Financial Reporting', 'Audit', 'Accounts']
+        subDepartments: [
+          'Budget Management', 'Expense Management', 'Financial Reporting', 'Audit', 'Accounts',
+          'Financial Classifications', 'Chart of Accounts', 'Bank Accounts', 'Journal Entries',
+          'Financial Reports', 'Bank Reconciliation', 'Expense Tracking', 'Budget Reports', 'Petty Cash'
+        ]
+      },
+      'Finance Manager': {
+        mainDepartment: 'Finance',
+        subDepartments: [
+          'Budget Management', 'Expense Management', 'Financial Reporting', 'Audit', 'Accounts',
+          'Financial Classifications', 'Chart of Accounts', 'Bank Accounts', 'Journal Entries',
+          'Financial Reports', 'Bank Reconciliation', 'Integration Dashboard', 'Financial Analysis',
+          'QuickBooks Settings', 'QuickBooks Sync', 'Customer Management', 'Invoicing & Billing',
+          'Sales Orders', 'Accounts Receivable', 'Tax Management', 'Accounts Payable',
+          'Fixed Assets', 'Expense Tracking', 'Budget Reports', 'Petty Cash', 'Travel Reconciliation'
+        ]
       }
     };
 
@@ -186,22 +208,38 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
         const isNestedProgramsChild = (parentDepartment === 'Plans' || parentDepartment === 'Stakeholder Management' ||
           parentDepartment === 'Fund Request' || parentDepartment === 'Adhoc Management') && canAccessProgramsFeatures;
         const isNestedProcurementChild = (parentDepartment === 'Purchase Request' || parentDepartment === 'Vendor Management') && canAccessProcurementFeatures;
+        // Enhanced nested finance child check - includes ALL 22 finance submenu items
+        const financeSubmenus = [
+          'Financial Classifications', 'Chart of Accounts', 'Bank Accounts', 'Journal Entries',
+          'Financial Reports', 'Bank Reconciliation', 'Integration Dashboard', 'Financial Analysis',
+          'QuickBooks Settings', 'QuickBooks Sync', 'Customer Management', 'Invoicing & Billing',
+          'Sales Orders', 'Accounts Receivable', 'Tax Management', 'Accounts Payable',
+          'Fixed Assets', 'Expense Tracking', 'Budget Reports', 'Petty Cash', 'Travel Reconciliation'
+        ];
+        const isNestedFinanceChild = (financeSubmenus.includes(parentDepartment) || parentDepartment === 'Finance') && canAccessFinanceFeatures;
 
         departmentBasedAccess = allowedDepartments.length === 0 || directParentAllowed || departmentHierarchyAllowed ||
-          isNestedCGChild || isNestedProgramsChild || isNestedProcurementChild;
+          isNestedCGChild || isNestedProgramsChild || isNestedProcurementChild || isNestedFinanceChild;
       } else {
         // For top-level items, check if this department is allowed
         // Be more permissive if user is authenticated but has low permissions (common for departmental officers)
         departmentBasedAccess = allowedDepartments.length === 0 || allowedDepartments.includes(item.name) ||
-          (authState.isAuthenticated && (allowedDepartments.includes('Global Hub') || userDepartment));
+          (authState.isAuthenticated && (allowedDepartments.includes('Global Hub') || userDepartment)) ||
+          // Special finance user override - email-based finance users should access Finance department
+          (item.name === 'Finance' && user?.email?.toLowerCase().includes('finance'));
       }
 
       // Permission-based access - be more permissive for departmental officers with 0 permissions
+      // Also handle case when permissions are still loading
       const permissionBasedAccess = !item.permissions || item.permissions.length === 0
         ? true
         : hasPermission(item.permissions) ||
           // Allow access if user is authenticated and has 0 permissions (common for departmental officers)
-          (authState.isAuthenticated && (permissionCount === 0 || user?.is_staff));
+          (authState.isAuthenticated && (permissionCount === 0 || user?.is_staff)) ||
+          // Special finance user override - email-based finance users should access Finance module
+          (item.name === 'Finance' && user?.email?.toLowerCase().includes('finance')) ||
+          // If permissions are still loading but user is authenticated, be more permissive
+          (permissionsLoading && authState.isAuthenticated && user);
 
       // Get user position for department hierarchy checks
       const userPosition = user?.position?.title || '';
@@ -211,7 +249,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
       let adjustedPermissionAccess = permissionBasedAccess;
       if (isChild && isInDepartmentHierarchy(parentDepartment, userPosition)) {
         // For department hierarchy (including sub-departments), be more permissive for department officers
-        const isDepartmentOfficer = ['Program Officer', 'Program Admin', 'HR Officer', 'Procurement Officer', 'Admin Officer', 'Finance Officer'].includes(userPosition);
+        const isDepartmentOfficer = ['Program Officer', 'Program Admin', 'HR Officer', 'Procurement Officer', 'Admin Officer', 'Finance Officer', 'Finance Manager'].includes(userPosition);
         if (isDepartmentOfficer) {
           adjustedPermissionAccess = true; // Allow access to all department sub-menus and their children
         }
@@ -227,8 +265,14 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
           (parentDepartment === 'Admin' && canAccessAdminFeatures) ||
           (parentDepartment === 'Procurement Management' && canAccessProcurementFeatures);
 
-        if (isOwnDepartment && permissionCount === 0) {
+        // More permissive logic for departmental officers - remove permission count restriction
+        if (isOwnDepartment) {
           adjustedPermissionAccess = true; // Allow all child items for department officers in their own department
+        }
+
+        // Special Finance department override - be even more permissive for Finance users
+        if (parentDepartment === 'Finance' && (canAccessFinanceFeatures || user?.email?.toLowerCase().includes('finance'))) {
+          adjustedPermissionAccess = true;
         }
       }
 
@@ -239,7 +283,8 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
       if (process.env.NODE_ENV === 'development') {
         const isImportantItem = item.name.includes('Global') || item.name.includes('C&G') ||
           item.name === 'Communication' || item.name === 'Organization' ||
-          item.name === 'Programs' || item.name === 'C ANG G';
+          item.name === 'Programs' || item.name === 'C ANG G' ||
+          item.name === 'Finance'; // Add Finance to important items for debugging
 
         if (isImportantItem || !finalAccess || isChild) {
           console.log(`🔍 ENHANCED Department Check: "${item.name}"`, {
@@ -253,8 +298,13 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
           permissionBasedAccess: permissionBasedAccess,
           adjustedPermissionAccess: adjustedPermissionAccess,
           finalAccess: finalAccess,
-          departmentOfficerOverride: isChild && isInDepartmentHierarchy(parentDepartment, userPosition) && ['Program Officer', 'Program Admin', 'HR Officer', 'Procurement Officer', 'Admin Officer', 'Finance Officer'].includes(userPosition),
+          departmentOfficerOverride: isChild && isInDepartmentHierarchy(parentDepartment, userPosition) && ['Program Officer', 'Program Admin', 'HR Officer', 'Procurement Officer', 'Admin Officer', 'Finance Officer', 'Finance Manager'].includes(userPosition),
           departmentHierarchyCheck: isInDepartmentHierarchy(parentDepartment, userPosition),
+          // Finance-specific debugging
+          isFinanceItem: item.name === 'Finance',
+          userEmailContainsFinance: user?.email?.toLowerCase().includes('finance'),
+          canAccessFinanceFeatures: canAccessFinanceFeatures,
+          financeEmailOverride: item.name === 'Finance' && user?.email?.toLowerCase().includes('finance'),
           reason: !departmentBasedAccess
             ? `Role "${userPosition}" not allowed for ${isChild ? 'parent department' : 'department'} "${isChild ? parentDepartment : item.name}"`
             : !adjustedPermissionAccess
@@ -265,10 +315,26 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
       }
 
       return finalAccess;
-    }).map(item => ({
-      ...item,
-      children: item.children ? filterMenuItems(item.children, true, item.name) : undefined
-    })).filter(item => {
+    }).map(item => {
+      const filteredChildren = item.children ? filterMenuItems(item.children, true, item.name) : undefined;
+
+      // Debug logging for Finance menu children specifically
+      if (process.env.NODE_ENV === 'development' && item.name === 'Finance') {
+        console.log('🏦 FINANCE CHILDREN FILTERING DEBUG:', {
+          originalChildrenCount: item.children?.length || 0,
+          filteredChildrenCount: filteredChildren?.length || 0,
+          originalChildren: item.children?.map(c => c.name) || [],
+          filteredChildren: filteredChildren?.map(c => c.name) || [],
+          userEmail: user?.email,
+          canAccessFinanceFeatures: canAccessFinanceFeatures
+        });
+      }
+
+      return {
+        ...item,
+        children: filteredChildren
+      };
+    }).filter(item => {
       // Keep items that either have no children or have visible children
       return !item.children || item.children.length > 0;
     });
@@ -276,8 +342,39 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
 
   // UNIFIED FILTERING - Single permission system
   const filteredDepartmentalLinks = useMemo(() => {
-    // Wait for hydration and authentication
-    if (!isHydrated || permissionsLoading || !authState.isAuthenticated) {
+    // Enhanced debugging for authentication state
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔍 DEPARTMENTAL LINKS FILTERING:', {
+        isHydrated,
+        permissionsLoading,
+        isAuthenticated: authState.isAuthenticated,
+        hasUser: !!user,
+        userEmail: user?.email,
+        userPosition: user?.position?.name || user?.position?.title,
+        userDepartment: userDepartment,
+        canAccessFinanceFeatures: canAccessFinanceFeatures,
+        willShowDepartmentalLinks: isHydrated && !permissionsLoading && authState.isAuthenticated
+      });
+    }
+
+    // More permissive loading logic - if user is authenticated and hydrated,
+    // allow department links to show even if permissions are still loading
+    const hasBasicAuth = authState.isAuthenticated && !!user;
+    const canShowLinks = isHydrated && hasBasicAuth;
+
+    if (!canShowLinks) {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('❌ DEPARTMENTAL LINKS BLOCKED:', {
+          reason: !isHydrated ? 'Not hydrated' :
+                  !authState.isAuthenticated ? 'Not authenticated' :
+                  !user ? 'No user data' :
+                  'Unknown',
+          isHydrated,
+          permissionsLoading,
+          isAuthenticated: authState.isAuthenticated,
+          hasUser: !!user
+        });
+      }
       return [];
     }
 
@@ -316,7 +413,10 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
   ]);
 
   const filteredModuleLinks = useMemo(() => {
-    if (!isHydrated || permissionsLoading || !authState.isAuthenticated) {
+    const hasBasicAuth = authState.isAuthenticated && !!user;
+    const canShowLinks = isHydrated && hasBasicAuth;
+
+    if (!canShowLinks) {
       return [];
     }
 
@@ -336,7 +436,10 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
   }, [isHydrated, permissionsLoading, authState.isAuthenticated, moduleLinks, hasPermission, isAdmin]);
 
   const filteredGlobalHubItems = useMemo(() => {
-    if (!isHydrated || permissionsLoading || !authState.isAuthenticated) {
+    const hasBasicAuth = authState.isAuthenticated && !!user;
+    const canShowLinks = isHydrated && hasBasicAuth;
+
+    if (!canShowLinks) {
       return [];
     }
 
@@ -349,23 +452,20 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
     }));
 
     const filtered = mapped.filter(item => {
-      // UNIVERSAL ACCESS: Items with no permissions - always show to all authenticated users
-      if (!item.permissions) return true;
-
-      // ROLE-BASED ACCESS: Items with permissions - show based on actual role assignments
-      return hasPermission(item.permissions);
+      // UNIVERSAL GLOBAL HUB ACCESS: All Global Hub items are accessible to ALL AHNI employees
+      // regardless of department, role, or permissions
+      return true; // Show all Global Hub items to all authenticated AHNI employees
     });
 
     // Debug logging (development only)
     if (process.env.NODE_ENV === 'development') {
-      console.log('🌐 UNIVERSAL GLOBAL HUB - ERP User Lifecycle:', {
-        userAuthenticatedFlow: 'New User → Global Hub → Role Assignment → Departmental Menus',
+      console.log('🌐 UNIVERSAL GLOBAL HUB - All AHNI Employees:', {
+        policy: 'ALL Global Hub items accessible to ALL authenticated AHNI employees',
         originalCount: globalHubLinks.length,
-        universalItemsCount: mapped.filter(item => !item.permissions).length,
-        roleBasedItemsCount: filtered.length - mapped.filter(item => !item.permissions).length,
         totalVisibleItems: filtered.length,
-        userType: isAdmin ? 'Admin' : 'Regular User',
-        sampleUniversalItems: mapped.filter(item => !item.permissions).slice(0, 3).map(item => item.label)
+        accessLevel: 'Universal - No restrictions based on department or role',
+        userType: isAdmin ? 'Admin' : 'Regular Employee',
+        allItemsVisible: filtered.length === globalHubLinks.length
       });
     }
 
@@ -378,11 +478,13 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
   );
 
   const userHasGlobalHubAccess = useMemo(() => {
-    if (!isHydrated || permissionsLoading) return false;
+    const hasBasicAuth = authState.isAuthenticated && !!user;
+
+    if (!isHydrated) return false;
 
     // Global Hub access is universal for all authenticated users
-    return authState.isAuthenticated;
-  }, [isHydrated, permissionsLoading, authState.isAuthenticated]);
+    return hasBasicAuth;
+  }, [isHydrated, authState.isAuthenticated, user]);
 
   // Render nested sidebar items recursively
   const renderSidebarItem = (
