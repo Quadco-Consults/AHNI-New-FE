@@ -354,7 +354,8 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
         const isImportantItem = item.name.includes('Global') || item.name.includes('C&G') ||
           item.name === 'Communication' || item.name === 'Organization' ||
           item.name === 'Programs' || item.name === 'C ANG G' ||
-          item.name === 'Finance'; // Add Finance to important items for debugging
+          item.name === 'Finance' || item.name === 'Settings' ||
+          item.name === 'Access Management'; // Add Settings/Access Management to debug
 
         if (isImportantItem || !finalAccess || isChild) {
           console.log(`🔍 ENHANCED Department Check: "${item.name}"`, {
@@ -397,6 +398,22 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
           filteredChildren: filteredChildren?.map(c => c.name) || [],
           userEmail: user?.email,
           canAccessFinanceFeatures: canAccessFinanceFeatures
+        });
+      }
+
+      // Debug logging for Settings menu children specifically
+      if (process.env.NODE_ENV === 'development' && (item.name === 'Settings' || item.name === 'Access Management')) {
+        console.log(`⚙️ SETTINGS CHILDREN FILTERING DEBUG: "${item.name}"`, {
+          originalChildrenCount: item.children?.length || 0,
+          filteredChildrenCount: filteredChildren?.length || 0,
+          originalChildren: item.children?.map(c => c.name) || [],
+          filteredChildren: filteredChildren?.map(c => c.name) || [],
+          userEmail: user?.email,
+          isAdmin: isAdmin,
+          userIsSuperuser: user?.is_superuser,
+          userIsStaff: user?.is_staff,
+          willBeRemoved: item.children && filteredChildren?.length === 0,
+          itemPermissions: item.permissions || 'none'
         });
       }
 
@@ -498,7 +515,18 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
         originalCount: moduleLinks.length,
         filteredCount: filtered.length,
         isAdmin: isAdmin,
-        filteredItems: filtered.map(item => item.name)
+        filteredItems: filtered.map(item => item.name),
+        userEmail: user?.email,
+        userIsSuperuser: user?.is_superuser,
+        userIsStaff: user?.is_staff,
+        permissionCount: authState.permissions?.length || 0,
+        settingsMenuVisible: filtered.some(item => item.name === 'Settings'),
+        accessManagementPermissions: {
+          hasViewUser: hasPermission([{ module: "users", codenames: ["view_user"], requireAll: false }]),
+          hasChangeUser: hasPermission([{ module: "users", codenames: ["change_user"], requireAll: false }]),
+          hasViewRole: hasPermission([{ module: "authorization", codenames: ["view_role"], requireAll: false }]),
+          hasViewPermission: hasPermission([{ module: "authorization", codenames: ["view_permission"], requireAll: false }])
+        }
       });
     }
 
@@ -661,29 +689,57 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
     );
   };
 
-  // Render settings items (similar logic)
-  const renderSettingsItem = (item: SidebarItem, index: number) => {
+  // State for nested settings menu
+  const [selectedSettingsSubIndex, setSelectedSettingsSubIndex] = useState<null | number>(null);
+  const [showSettingsSubMenu, setShowSettingsSubMenu] = useState(false);
+
+  // Render settings items with support for deep nesting
+  const renderSettingsItem = (item: SidebarItem, index: number, level: number = 0, parentIndex?: number) => {
     const hasChildren = item.children && item.children.length > 0;
     const isActive = item.path && pathname?.startsWith(item.path);
+    const paddingLeft = level === 0 ? "px-2" : level === 1 ? "pl-14" : "pl-20";
+
+    // Handle state management for different levels
+    const isExpanded = level === 0
+      ? showSettingsMenu && selectedLinkIndex === index
+      : showSettingsSubMenu && selectedSettingsSubIndex === index;
+
+    const handleClick = () => {
+      if (hasChildren) {
+        if (level === 0) {
+          setShowSettingsMenu(!showSettingsMenu);
+          setSelectedLinkIndex(index);
+        } else {
+          setShowSettingsSubMenu(!showSettingsSubMenu);
+          setSelectedSettingsSubIndex(index);
+        }
+      }
+    };
 
     return (
       <div key={index} className="w-full">
         <div
-          onClick={() => {
-            if (hasChildren) {
-              setShowSettingsMenu(!showSettingsMenu);
-              setSelectedLinkIndex(index);
-            }
-          }}
+          onClick={handleClick}
           className={cn(
-            "hover:text-primary flex w-full items-center justify-between gap-3 px-2 py-2 text-sm font-bold hover:cursor-pointer",
+            "hover:text-primary flex w-full items-center justify-between gap-3 py-2 text-sm font-bold hover:cursor-pointer",
+            paddingLeft,
             isActive && "text-primary"
           )}
         >
           {item.path && !hasChildren ? (
             <Link href={item.path} className="flex w-full items-center justify-between gap-3">
               <div className="flex w-[85%] items-center gap-2">
-                <span>{item.icon}</span>
+                {level === 0 && <span>{item.icon}</span>}
+                {level > 0 && (
+                  <span
+                    className={cn(
+                      "aspect-square w-2 rounded-full border",
+                      isActive
+                        ? "bg-amber-400 border-amber-400"
+                        : "bg-black hover:bg-amber-400"
+                    )}
+                  ></span>
+                )}
                 <h4
                   className={cn(
                     "w-[100%] truncate font-medium",
@@ -697,7 +753,17 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
           ) : (
             <>
               <div className="flex w-[85%] items-center gap-2">
-                <span>{item.icon}</span>
+                {level === 0 && <span>{item.icon}</span>}
+                {level > 0 && (
+                  <span
+                    className={cn(
+                      "aspect-square w-2 rounded-full border",
+                      isActive
+                        ? "bg-amber-400 border-amber-400"
+                        : "bg-black hover:bg-amber-400"
+                    )}
+                  ></span>
+                )}
                 <h4
                   className={cn(
                     "w-[100%] truncate font-medium",
@@ -711,7 +777,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                 <ChevronDown
                   className={cn(
                     "h-5 w-5 -rotate-90 transition duration-200",
-                    showSettingsMenu && selectedLinkIndex === index && "rotate-0"
+                    isExpanded && "rotate-0"
                   )}
                   aria-hidden="true"
                 />
@@ -723,39 +789,15 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
         {hasChildren && (
           <motion.ul
             animate={
-              showSettingsMenu && selectedLinkIndex === index
+              isExpanded
                 ? { height: "fit-content" }
                 : { height: 0 }
             }
-            className="h-0 overflow-hidden list-none pl-14"
+            className="h-0 overflow-hidden list-none"
           >
-            {item.children!.map((child, childIndex) => (
-              <Link
-                key={childIndex}
-                href={child.path || "#"}
-                className={cn(
-                  "",
-                  child.path && pathname?.startsWith(child.path) && "text-amber-400"
-                )}
-              >
-                <li
-                  className={cn(
-                    "hover:text-amber-400 flex items-center justify-start gap-2 text-sm",
-                    child.path && pathname?.startsWith(child.path) && "text-amber-400"
-                  )}
-                >
-                  <span
-                    className={cn(
-                      "bg-black hover:bg-amber-400 aspect-square w-2 rounded-full border",
-                      child.path &&
-                        pathname?.startsWith(child.path) &&
-                        "bg-amber-400 border-amber-400 hover:bg-amber-400"
-                    )}
-                  ></span>
-                  <h6 className="py-2">{child.name}</h6>
-                </li>
-              </Link>
-            ))}
+            {item.children!.map((child, childIndex) =>
+              renderSettingsItem(child, childIndex, level + 1, index)
+            )}
           </motion.ul>
         )}
       </div>
@@ -920,7 +962,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
               </h4>
 
               {filteredModuleLinks.map((link, index) =>
-                renderSettingsItem(link, index)
+                renderSettingsItem(link, index, 0)
               )}
 
               {/* Audit Log - only show to users with admin permissions */}
