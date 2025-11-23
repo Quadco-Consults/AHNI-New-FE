@@ -43,20 +43,23 @@ export const useDepartmentFeatures = () => {
   const isAdminDepartment = userDepartment === 'ADMIN' || userDepartment === 'Administration';
   const isProcurementDepartment = userDepartment === 'PROCUREMENT' || userDepartment === 'Procurement';
 
-  // Temporary email-based detection for departmental officers
+  // Enhanced email and position-based detection for departmental officers and managers
   const userEmail = user?.email?.toLowerCase() || '';
   const isCGOfficer = userEmail.includes('cgofficer') || userEmail.includes('contract');
   const isProgramsOfficer = userEmail.includes('programs') || userEmail.includes('program');
-  const isHROfficer = userEmail.includes('hr') || userEmail.includes('human');
+  const isHROfficer = userEmail.includes('hr') || userEmail.includes('human') || userEmail.includes('hrmanager');
   const isFinanceOfficer = userEmail.includes('finance') || userEmail.includes('financemanager') || userEmail.includes('financeofficer');
   const isAdminOfficer = userEmail.includes('admin');
   const isProcurementOfficer = userEmail.includes('procurement');
 
-  // Enhanced position-based detection for finance roles
+  // Enhanced position-based detection for departmental roles
   const userPosition = user?.position?.name || user?.position?.title || '';
   const isFinancePosition = userPosition.toLowerCase().includes('finance');
+  const isHRPosition = userPosition.toLowerCase().includes('hr') ||
+                     userPosition.toLowerCase().includes('human resources') ||
+                     userPosition.toLowerCase().includes('human resource');
 
-  // Finance debug removed - issue resolved
+  // HR debug removed temporarily to fix scoping issue
 
   // Feature access checks - more permissive for departmental officers (memoized)
   const canAccessProgramsFeatures = useMemo(() =>
@@ -70,8 +73,8 @@ export const useDepartmentFeatures = () => {
   );
 
   const canAccessHRFeatures = useMemo(() =>
-    isHRDepartment || isHROfficer || user?.is_superuser || user?.is_staff,
-    [isHRDepartment, isHROfficer, user?.is_superuser, user?.is_staff]
+    isHRDepartment || isHROfficer || isHRPosition || user?.is_superuser || user?.is_staff,
+    [isHRDepartment, isHROfficer, isHRPosition, user?.is_superuser, user?.is_staff]
   );
 
   const canAccessFinanceFeatures = useMemo(() =>
@@ -88,6 +91,20 @@ export const useDepartmentFeatures = () => {
     isProcurementDepartment || isProcurementOfficer || user?.is_superuser || user?.is_staff,
     [isProcurementDepartment, isProcurementOfficer, user?.is_superuser, user?.is_staff]
   );
+
+  // Temporary HR debug for troubleshooting - placed after all feature access definitions
+  if (process.env.NODE_ENV === 'development' && userEmail.includes('hr') && userKey) {
+    console.log('🏢 HR Manager Debug:', {
+      email: userEmail,
+      isHROfficer,
+      position: userPosition,
+      isHRPosition,
+      department: userDepartment,
+      isHRDepartment,
+      canAccessHRFeatures,
+      hasHRPermissions: user?.permissions?.some((p: any) => p.module === 'hr') || false
+    });
+  }
 
   // Universal features (available to all departments)
   const canAccessLeaveManagement = true;
