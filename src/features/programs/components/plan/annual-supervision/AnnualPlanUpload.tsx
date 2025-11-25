@@ -15,6 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "components/ui/select";
+import FormSelect from "components/atoms/FormSelectField";
 import {
   Form,
   FormControl,
@@ -118,6 +119,55 @@ const AnnualPlanUpload = ({ onSuccess, onCancel, editMode = false, planId }: Ann
                 (usersData as any)?.data?.results ||
                 (Array.isArray((usersData as any)?.data) ? (usersData as any).data : []) ||
                 (Array.isArray(usersData) ? usersData : []);
+
+  // Convert users to dropdown options format
+  const userOptions = [
+    { label: "No reviewer assigned", value: "none" },
+    ...(isLoadingUsers ?
+       [{ label: "Loading users...", value: "loading" }] :
+       users.length > 0 ?
+       users.map((user: any) => ({
+         label: user.full_name ||
+                `${user.first_name || ''} ${user.last_name || ''}`.trim() ||
+                user.username ||
+                `User ${user.id}`,
+         value: user.id,
+       })) :
+       [{ label: "No users found", value: "no-data" }]
+    )
+  ];
+
+  const authorizerOptions = [
+    { label: "No authorizer assigned", value: "none" },
+    ...(isLoadingUsers ?
+       [{ label: "Loading users...", value: "loading" }] :
+       users.length > 0 ?
+       users.map((user: any) => ({
+         label: user.full_name ||
+                `${user.first_name || ''} ${user.last_name || ''}`.trim() ||
+                user.username ||
+                `User ${user.id}`,
+         value: user.id,
+       })) :
+       [{ label: "No users found", value: "no-data" }]
+    )
+  ];
+
+  const approverOptions = [
+    { label: "No approver assigned", value: "none" },
+    ...(isLoadingUsers ?
+       [{ label: "Loading users...", value: "loading" }] :
+       users.length > 0 ?
+       users.map((user: any) => ({
+         label: user.full_name ||
+                `${user.first_name || ''} ${user.last_name || ''}`.trim() ||
+                user.username ||
+                `User ${user.id}`,
+         value: user.id,
+       })) :
+       [{ label: "No users found", value: "no-data" }]
+    )
+  ];
 
   // Debug logging (can be removed in production)
   // console.log('🔍 DEBUG: Financial Years Data:', { count: financialYears.length, isLoading: isLoadingFinancialYears });
@@ -493,129 +543,36 @@ const AnnualPlanUpload = ({ onSuccess, onCancel, editMode = false, planId }: Ann
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {/* Reviewer Selection */}
-                    <FormField
-                      control={form.control}
+                    <FormSelect
                       name="reviewer_id"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Reviewer</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select reviewer" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="none">No reviewer assigned</SelectItem>
-                              {isLoadingUsers ? (
-                                <SelectItem value="loading" disabled>
-                                  Loading users...
-                                </SelectItem>
-                              ) : users.length > 0 ? (
-                                users.map((user: any) => (
-                                  <SelectItem key={user.id} value={user.id}>
-                                    {user.full_name || `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.username || `User ${user.id}`}
-                                    {user.designation && (
-                                      <span className="text-gray-500 text-xs ml-1">
-                                        ({user.designation})
-                                      </span>
-                                    )}
-                                  </SelectItem>
-                                ))
-                              ) : (
-                                <SelectItem value="no-data" disabled>
-                                  {usersData ? 'No users found' : 'Failed to load users. Please refresh the page.'}
-                                </SelectItem>
-                              )}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
+                      label="Reviewer"
+                      placeholder="Select reviewer"
+                      options={userOptions}
+                      searchPlaceholder="Search reviewers..."
+                      emptyMessage="No reviewers found."
+                      required={false}
                     />
 
                     {/* Authorizer Selection */}
-                    <FormField
-                      control={form.control}
+                    <FormSelect
                       name="authorizer_id"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Authorizer</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select authorizer" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="none">No authorizer assigned</SelectItem>
-                              {isLoadingUsers ? (
-                                <SelectItem value="loading" disabled>
-                                  Loading users...
-                                </SelectItem>
-                              ) : users.length > 0 ? (
-                                users.map((user: any) => (
-                                  <SelectItem key={user.id} value={user.id}>
-                                    {user.full_name || `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.username || `User ${user.id}`}
-                                    {user.designation && (
-                                      <span className="text-gray-500 text-xs ml-1">
-                                        ({user.designation})
-                                      </span>
-                                    )}
-                                  </SelectItem>
-                                ))
-                              ) : (
-                                <SelectItem value="no-data" disabled>
-                                  {usersData ? 'No users found' : 'Failed to load users. Please refresh the page.'}
-                                </SelectItem>
-                              )}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
+                      label="Authorizer"
+                      placeholder="Select authorizer"
+                      options={authorizerOptions}
+                      searchPlaceholder="Search authorizers..."
+                      emptyMessage="No authorizers found."
+                      required={false}
                     />
 
                     {/* Approver Selection */}
-                    <FormField
-                      control={form.control}
+                    <FormSelect
                       name="approver_id"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Approver</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select approver" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="none">No approver assigned</SelectItem>
-                              {isLoadingUsers ? (
-                                <SelectItem value="loading" disabled>
-                                  Loading users...
-                                </SelectItem>
-                              ) : users.length > 0 ? (
-                                users.map((user: any) => (
-                                  <SelectItem key={user.id} value={user.id}>
-                                    {user.full_name || `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.username || `User ${user.id}`}
-                                    {user.designation && (
-                                      <span className="text-gray-500 text-xs ml-1">
-                                        ({user.designation})
-                                      </span>
-                                    )}
-                                  </SelectItem>
-                                ))
-                              ) : (
-                                <SelectItem value="no-data" disabled>
-                                  {usersData ? 'No users found' : 'Failed to load users. Please refresh the page.'}
-                                </SelectItem>
-                              )}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
+                      label="Approver"
+                      placeholder="Select approver"
+                      options={approverOptions}
+                      searchPlaceholder="Search approvers..."
+                      emptyMessage="No approvers found."
+                      required={false}
                     />
                   </div>
                 </div>

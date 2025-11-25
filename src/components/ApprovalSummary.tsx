@@ -25,17 +25,17 @@ const ApprovalSummary: React.FC<ApprovalSummaryProps> = ({
     );
   }
 
-  const getStatusColor = (status: ApprovalInfo['status']) => {
+  const getStatusVariant = (status: ApprovalInfo['status']) => {
     switch (status) {
       case 'APPROVED':
-        return 'bg-green-100 text-green-800 border-green-200';
+        return 'approved' as const;
       case 'REJECTED':
-        return 'bg-red-100 text-red-800 border-red-200';
+        return 'rejected' as const;
       case 'UNDER_REVIEW':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
+        return 'underReview' as const;
       case 'PENDING':
       default:
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+        return 'pending' as const;
     }
   };
 
@@ -56,7 +56,7 @@ const ApprovalSummary: React.FC<ApprovalSummaryProps> = ({
 
   if (variant === 'minimal') {
     return (
-      <Badge className={getStatusColor(approval.status)}>
+      <Badge variant={getStatusVariant(approval.status)}>
         {approval.status.replace('_', ' ')}
       </Badge>
     );
@@ -65,7 +65,7 @@ const ApprovalSummary: React.FC<ApprovalSummaryProps> = ({
   if (variant === 'compact') {
     return (
       <div className={cn("flex items-center space-x-2", className)}>
-        <Badge className={getStatusColor(approval.status)}>
+        <Badge variant={getStatusVariant(approval.status)}>
           {approval.status.replace('_', ' ')}
         </Badge>
         <span className="text-sm text-gray-600">{approval.name}</span>
@@ -78,7 +78,7 @@ const ApprovalSummary: React.FC<ApprovalSummaryProps> = ({
     <Popover>
       <PopoverTrigger asChild>
         <Button variant="ghost" className={cn("p-0 h-auto", className)}>
-          <Badge className={cn(getStatusColor(approval.status), "cursor-pointer hover:opacity-80")}>
+          <Badge variant={getStatusVariant(approval.status)} className={cn("cursor-pointer hover:opacity-80")}>
             {approval.status.replace('_', ' ')}
             <InfoIcon className="w-3 h-3 ml-1" />
           </Badge>

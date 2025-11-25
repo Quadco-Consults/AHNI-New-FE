@@ -15,6 +15,8 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import _ from "lodash";
 import { Separator } from "components/ui/separator";
+import { Alert, AlertDescription } from "components/ui/alert";
+import { AlertTriangleIcon } from "lucide-react";
 
 import FormInput from "components/atoms/FormInput";
 import { useGetAllProjects } from "@/features/projects/controllers/projectController";
@@ -27,7 +29,17 @@ import {
   useGetAllLocationsManager,
   useGetLocationList,
 } from "@/features/modules/controllers/config/locationController";
-import { useGetAllUsers } from "@/features/auth/controllers/userController";
+import {
+  useGetAllUsers,
+  useGetReviewers,
+  useGetAuthorizers,
+  useGetApprovers
+} from "@/features/auth/controllers/userController";
+import {
+  filterUsersWithReviewPermission,
+  filterUsersWithAuthorizePermission,
+  filterUsersWithApprovePermission
+} from "@/utils/approvalFilters";
 import { useMemo, useEffect, useState } from "react";
 import {
   generateFundRequestIdentifierAuto,
@@ -146,16 +158,88 @@ const CreateFundRequest = () => {
     [location]
   );
 
-  const { data: user } = useGetAllUsers({ page: 1, size: 2000000, search: "" });
+  // API-first approach for permission-based filtering
+  const { data: reviewers } = useGetReviewers({ page: 1, size: 2000000, search: "" });
+  const { data: authorizers } = useGetAuthorizers({ page: 1, size: 2000000, search: "" });
+  const { data: approvers } = useGetApprovers({ page: 1, size: 2000000, search: "" });
+  const { data: allUsers } = useGetAllUsers({ page: 1, size: 2000000, search: "" }); // Fallback
 
-  const userOptions = useMemo(
-    () =>
-      user?.data.results.map(({ first_name, last_name, id }) => ({
-        label: `${first_name} ${last_name}`,
-        value: id,
-      })),
-    [user]
-  );
+  // Reviewer options (API-first with role-based fallback)
+  const reviewerOptions = useMemo(() => {
+    // Primary: Use API endpoint (check both .results and .data.results structure)
+    const reviewersList = reviewers?.results || reviewers?.data?.results || [];
+    if (reviewersList.length > 0) {
+      return reviewersList.map(user => ({
+        label: `${user.first_name} ${user.last_name}`,
+        value: user.id,
+      }));
+    }
+    // Fallback: Role-based filtering
+    const allUsersList = allUsers?.data?.results || [];
+    if (allUsersList.length > 0) {
+      return filterUsersWithReviewPermission(allUsersList).map(user => ({
+        label: `${user.first_name} ${user.last_name}`,
+        value: user.id,
+      }));
+    }
+    return [];
+  }, [reviewers, allUsers]);
+
+  // Authorizer options (API-first with role-based fallback)
+  const authorizerOptions = useMemo(() => {
+    // Primary: Use API endpoint (check both .results and .data.results structure)
+    const authorizersList = authorizers?.results || authorizers?.data?.results || [];
+    if (authorizersList.length > 0) {
+      return authorizersList.map(user => ({
+        label: `${user.first_name} ${user.last_name}`,
+        value: user.id,
+      }));
+    }
+    // Fallback: Role-based filtering
+    const allUsersList = allUsers?.data?.results || [];
+    if (allUsersList.length > 0) {
+      return filterUsersWithAuthorizePermission(allUsersList).map(user => ({
+        label: `${user.first_name} ${user.last_name}`,
+        value: user.id,
+      }));
+    }
+    return [];
+  }, [authorizers, allUsers]);
+
+  // Approver options (API-first with role-based fallback)
+  const approverOptions = useMemo(() => {
+    // Primary: Use API endpoint (check both .results and .data.results structure)
+    const approversList = approvers?.results || approvers?.data?.results || [];
+    if (approversList.length > 0) {
+      return approversList.map(user => ({
+        label: `${user.first_name} ${user.last_name}`,
+        value: user.id,
+      }));
+    }
+    // Fallback: Role-based filtering
+    const allUsersList = allUsers?.data?.results || [];
+    if (allUsersList.length > 0) {
+      return filterUsersWithApprovePermission(allUsersList).map(user => ({
+        label: `${user.first_name} ${user.last_name}`,
+        value: user.id,
+      }));
+    }
+    return [];
+  }, [approvers, allUsers]);
+
+  // Determine which filtering method is being used
+  const filteringNotice = useMemo(() => {
+    const hasApiData = (reviewers?.results?.length || reviewers?.data?.results?.length || 0) > 0 ||
+                      (authorizers?.results?.length || authorizers?.data?.results?.length || 0) > 0 ||
+                      (approvers?.results?.length || approvers?.data?.results?.length || 0) > 0;
+    return {
+      hasApiData,
+      method: hasApiData ? 'API-based' : 'Role-based',
+      totalReviewers: reviewerOptions.length,
+      totalAuthorizers: authorizerOptions.length,
+      totalApprovers: approverOptions.length
+    };
+  }, [reviewers, authorizers, approvers, reviewerOptions, authorizerOptions, approverOptions]);
 
   const { handleSubmit, watch, setValue } = form;
   const [isGeneratingUniqueCode, setIsGeneratingUniqueCode] = useState(false);
@@ -260,6 +344,16 @@ const CreateFundRequest = () => {
 
             <Separator />
 
+            {/* Permission filtering notice */}
+            {!filteringNotice.hasApiData && (
+              <Alert className="border-yellow-200 bg-yellow-50">
+                <AlertTriangleIcon className="h-4 w-4 text-yellow-600" />
+                <AlertDescription className="text-yellow-800">
+                  <strong>Permission Notice:</strong> Using role-based filtering for approval workflow. Showing only management-level staff (managers, directors, MD, super admin). Total: {filteringNotice.totalReviewers} reviewers, {filteringNotice.totalAuthorizers} authorizers, {filteringNotice.totalApprovers} approvers.
+                </AlertDescription>
+              </Alert>
+            )}
+
             <div className='grid grid-cols-1 gap-5 md:grid-cols-2'>
               <FormInput
                 label='Available Balance'
@@ -311,7 +405,7 @@ const CreateFundRequest = () => {
                 label='Location Reviewer'
                 name='location_reviewer'
                 required
-                options={userOptions}
+                options={reviewerOptions}
                 placeholder='Select Location Reviewer'
               />
 
@@ -319,7 +413,7 @@ const CreateFundRequest = () => {
                 label='Location Authorizer'
                 name='location_authorizer'
                 required
-                options={userOptions}
+                options={authorizerOptions}
                 placeholder='Select Location Authorizer'
               />
 
@@ -327,7 +421,7 @@ const CreateFundRequest = () => {
                 label='State Reviewer'
                 name='state_reviewer'
                 required
-                options={userOptions}
+                options={reviewerOptions}
                 placeholder='Select State Reviewer'
               />
 
@@ -335,7 +429,7 @@ const CreateFundRequest = () => {
                 label='State Authorizer'
                 name='state_authorizer'
                 required
-                options={userOptions}
+                options={authorizerOptions}
                 placeholder='Select State Authorizer'
               />
             </div>
@@ -345,7 +439,7 @@ const CreateFundRequest = () => {
                 label='HQ Reviewer'
                 name='hq_reviewer'
                 required
-                options={userOptions}
+                options={reviewerOptions}
                 placeholder='Select HQ Reviewer'
               />
 
@@ -353,7 +447,7 @@ const CreateFundRequest = () => {
                 label='HQ Authorizer'
                 name='hq_authorizer'
                 required
-                options={userOptions}
+                options={authorizerOptions}
                 placeholder='Select HQ Authorizer'
               />
 
@@ -361,7 +455,7 @@ const CreateFundRequest = () => {
                 label='HQ Approver'
                 name='hq_approver'
                 required
-                options={userOptions}
+                options={approverOptions}
                 placeholder='Select HQ Approver'
               />
             </div>

@@ -95,7 +95,7 @@ export const useGetAllAnnualPlans = (params: {
     status = "",
   } = params;
 
-  return useQuery<TPaginatedResponse<IAnnualSupervisionPlan>>({
+  return useQuery<TResponse<TPaginatedResponse<IAnnualSupervisionPlan>>>({
     queryKey: ["annual-supervision-plans", page, page_size, search, financial_year, status],
     queryFn: async () => {
       try {

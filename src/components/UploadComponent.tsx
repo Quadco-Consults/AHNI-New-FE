@@ -95,7 +95,7 @@ export default function UploadsComponent({
                             <p>{emptyDescription}</p>
 
                             <Button
-                                className="flex gap-2 py-6 bg-[#FFF2F2] text-red-500 dark:bg-primary dark:text-white mx-auto"
+                                className="flex gap-2 py-6 bg-alternate text-destructive dark:bg-primary dark:text-white mx-auto"
                                 type="button"
                                 onClick={onUploadClick}
                             >
@@ -118,7 +118,7 @@ export default function UploadsComponent({
                             ))}
 
                             <Button
-                                className="flex gap-2 py-6 bg-[#FFF2F2] text-red-500 dark:bg-primary dark:text-white"
+                                className="flex gap-2 py-6 bg-alternate text-destructive dark:bg-primary dark:text-white"
                                 type="button"
                                 onClick={onUploadClick}
                             >

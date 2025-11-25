@@ -73,13 +73,8 @@ const FormMultiSelect: FC<SelectProps> = ({
 
           return (
             <FormItem className='flex flex-col gap-0 mb-1.5'>
-              <FormLabel>
+              <FormLabel className={required ? 'required' : ''}>
                 {label}
-                {required && (
-                  <span className='text-red-500 ' title='required'>
-                    *
-                  </span>
-                )}
               </FormLabel>
               <Select onValueChange={handleSelect} value='' disabled={disabled}>
                 <FormControl>

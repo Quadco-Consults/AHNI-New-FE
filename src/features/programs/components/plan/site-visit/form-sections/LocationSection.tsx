@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "components/ui/card";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "components/ui/form";
 import { Input } from "components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
+import FormSelect from "components/atoms/FormSelectField";
 import { Textarea } from "components/ui/textarea";
 import { MapPinIcon } from "lucide-react";
 import { LoadingSpinner } from "components/Loading";
@@ -54,6 +55,29 @@ const LocationSection: React.FC<LocationSectionProps> = ({
     "Niger", "Ogun", "Ondo", "Osun", "Oyo", "Plateau", "Rivers", "Sokoto", "Taraba", "Yobe", "Zamfara"
   ];
 
+  // Create facility options for FormSelect with search
+  const facilityOptions = React.useMemo(() => {
+    const options = [
+      { label: "No Facility (General Location)", value: "no-facility" }
+    ];
+
+    if (facilities && facilities.length > 0) {
+      const facilityOpts = facilities.map((facility: any) => ({
+        label: `${facility.name} (${facility.state}${facility.lga ? ` • ${facility.lga}` : ''})`,
+        value: facility.id,
+      }));
+      options.push(...facilityOpts);
+    }
+
+    return options;
+  }, [facilities]);
+
+  // Create state options for FormSelect
+  const stateOptions = nigerianStates.map(state => ({
+    label: state,
+    value: state,
+  }));
+
   // Auto-populate state field when facility is selected (only for supportive supervision)
   React.useEffect(() => {
     if (facilityData && requiresFacility) {
@@ -91,41 +115,21 @@ const LocationSection: React.FC<LocationSectionProps> = ({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Facility (Optional)</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a facility if visit is facility-specific" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {isFacilitiesLoading ? (
-                      <div className="flex items-center justify-center p-4">
-                        <LoadingSpinner />
-                        <span className="ml-2 text-sm">Loading facilities...</span>
-                      </div>
-                    ) : facilities.length > 0 ? (
-                      [
-                        <SelectItem key="no-facility" value="no-facility">
-                          No Facility (General Location)
-                        </SelectItem>,
-                        ...facilities.map((facility: any) => (
-                          <SelectItem key={facility.id} value={facility.id}>
-                            <div className="flex flex-col items-start">
-                              <span className="font-medium">{facility.name}</span>
-                              <span className="text-xs text-gray-600">
-                                {facility.state} {facility.lga ? `• ${facility.lga}` : ''}
-                              </span>
-                            </div>
-                          </SelectItem>
-                        ))
-                      ]
-                    ) : (
-                      <SelectItem value="no-facilities" disabled>
-                        No facilities available
-                      </SelectItem>
-                    )}
-                  </SelectContent>
-                </Select>
+                {isFacilitiesLoading ? (
+                  <div className="flex items-center justify-center p-4 border rounded-md">
+                    <LoadingSpinner />
+                    <span className="ml-2 text-sm">Loading facilities...</span>
+                  </div>
+                ) : (
+                  <FormSelect
+                    name="facility"
+                    placeholder="Select a facility if visit is facility-specific"
+                    options={facilityOptions}
+                    searchPlaceholder="Search facilities by name, state, or LGA..."
+                    emptyMessage="No facilities found matching your search."
+                    onValueChange={field.onChange}
+                  />
+                )}
                 <FormMessage />
               </FormItem>
             )}
@@ -182,76 +186,21 @@ const LocationSection: React.FC<LocationSectionProps> = ({
           render={({ field }) => (
             <FormItem>
               <FormLabel className="required">Location/State</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select the state you're traveling to" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {isLocationsLoading ? (
-                    <div className="flex items-center justify-center p-4">
-                      <LoadingSpinner />
-                      <span className="ml-2 text-sm">Loading states...</span>
-                    </div>
-                  ) : (
-                    <>
-                      {/* Nigerian States */}
-                      <SelectItem value="Abia">Abia</SelectItem>
-                      <SelectItem value="Adamawa">Adamawa</SelectItem>
-                      <SelectItem value="Akwa Ibom">Akwa Ibom</SelectItem>
-                      <SelectItem value="Anambra">Anambra</SelectItem>
-                      <SelectItem value="Bauchi">Bauchi</SelectItem>
-                      <SelectItem value="Bayelsa">Bayelsa</SelectItem>
-                      <SelectItem value="Benue">Benue</SelectItem>
-                      <SelectItem value="Borno">Borno</SelectItem>
-                      <SelectItem value="Cross River">Cross River</SelectItem>
-                      <SelectItem value="Delta">Delta</SelectItem>
-                      <SelectItem value="Ebonyi">Ebonyi</SelectItem>
-                      <SelectItem value="Edo">Edo</SelectItem>
-                      <SelectItem value="Ekiti">Ekiti</SelectItem>
-                      <SelectItem value="Enugu">Enugu</SelectItem>
-                      <SelectItem value="FCT">Federal Capital Territory (FCT)</SelectItem>
-                      <SelectItem value="Gombe">Gombe</SelectItem>
-                      <SelectItem value="Imo">Imo</SelectItem>
-                      <SelectItem value="Jigawa">Jigawa</SelectItem>
-                      <SelectItem value="Kaduna">Kaduna</SelectItem>
-                      <SelectItem value="Kano">Kano</SelectItem>
-                      <SelectItem value="Katsina">Katsina</SelectItem>
-                      <SelectItem value="Kebbi">Kebbi</SelectItem>
-                      <SelectItem value="Kogi">Kogi</SelectItem>
-                      <SelectItem value="Kwara">Kwara</SelectItem>
-                      <SelectItem value="Lagos">Lagos</SelectItem>
-                      <SelectItem value="Nasarawa">Nasarawa</SelectItem>
-                      <SelectItem value="Niger">Niger</SelectItem>
-                      <SelectItem value="Ogun">Ogun</SelectItem>
-                      <SelectItem value="Ondo">Ondo</SelectItem>
-                      <SelectItem value="Osun">Osun</SelectItem>
-                      <SelectItem value="Oyo">Oyo</SelectItem>
-                      <SelectItem value="Plateau">Plateau</SelectItem>
-                      <SelectItem value="Rivers">Rivers</SelectItem>
-                      <SelectItem value="Sokoto">Sokoto</SelectItem>
-                      <SelectItem value="Taraba">Taraba</SelectItem>
-                      <SelectItem value="Yobe">Yobe</SelectItem>
-                      <SelectItem value="Zamfara">Zamfara</SelectItem>
-
-                      {/* Additional predefined locations if available */}
-                      {locations.length > 0 && (
-                        <>
-                          <SelectItem value="divider" disabled>
-                            ── Predefined Locations ──
-                          </SelectItem>
-                          {locations.map((location: any) => (
-                            <SelectItem key={location.id} value={location.name}>
-                              {location.name}
-                            </SelectItem>
-                          ))}
-                        </>
-                      )}
-                    </>
-                  )}
-                </SelectContent>
-              </Select>
+              {isLocationsLoading ? (
+                <div className="flex items-center justify-center p-4 border rounded-md">
+                  <LoadingSpinner />
+                  <span className="ml-2 text-sm">Loading states...</span>
+                </div>
+              ) : (
+                <FormSelect
+                  name="location"
+                  placeholder="Select the state you're traveling to"
+                  options={stateOptions}
+                  searchPlaceholder="Search Nigerian states..."
+                  emptyMessage="No states found matching your search."
+                  onValueChange={field.onChange}
+                />
+              )}
               <FormMessage />
             </FormItem>
           )}

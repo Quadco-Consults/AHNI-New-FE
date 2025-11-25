@@ -66,9 +66,9 @@ const FundRequestHeading = () => {
     }, [currentPath]);
 
     return (
-        <div className="space-y-5">
+        <div className="space-y-xl">
             <BreadcrumbCard list={breadcrumbs} />
-            <div className="grid justify-between w-2/3 grid-cols-3 px-4 py-2 gap-y-4">
+            <div className="grid justify-between w-2/3 grid-cols-3 px-lg py-sm gap-y-lg">
                 {steps.map((item, i) => {
                     return (
                         <div className="flex items-center" key={i}>

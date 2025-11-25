@@ -1,5 +1,5 @@
 import { Button } from "components/ui/button";
-import { Loader2 } from "lucide-react";
+import { LoadingSpinner } from "components/Loading";
 import { ComponentProps, FC, ReactNode } from "react";
 
 interface ButtonProps extends ComponentProps<typeof Button> {
@@ -17,10 +17,12 @@ const FormButton: FC<ButtonProps> = ({
   ...rest
 }) => {
   return (
-    <Button className="gap-x-1" {...rest}>
+    <Button className="gap-x-1" disabled={loading} {...rest}>
       {preffix ? preffix : undefined}
-      {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : undefined}
-      {loading ? <span className="mt-1">Please wait</span> : children}
+      {loading ? (
+        <LoadingSpinner size="sm" text="" className="mr-1" />
+      ) : undefined}
+      {loading ? <span>Please wait...</span> : children}
       {suffix ? suffix : undefined}
     </Button>
   );

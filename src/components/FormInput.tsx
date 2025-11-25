@@ -36,13 +36,8 @@ const FormInput: FC<InputProps> = ({ name, label, disabled, ...rest }) => {
         const { value, onChange } = field;
         return (
           <FormItem className='flex flex-col gap-0'>
-            <FormLabel className='mb-1.5'>
+            <FormLabel className={`mb-1.5 ${required ? 'required' : ''}`}>
               {label}
-              {required && (
-                <span className='text-red-500' title='required'>
-                  *
-                </span>
-              )}
             </FormLabel>
             <FormControl>
               <div className='relative'>
@@ -73,7 +68,7 @@ const FormInput: FC<InputProps> = ({ name, label, disabled, ...rest }) => {
                   }}
                   value={value || ""} // Ensure value is never undefined
                   className={cn(
-                    "font-medium bg-[#F9F9F9] placeholder:text-black/30",
+                    "font-medium bg-gray-100 dark:bg-background placeholder:text-black/30 dark:placeholder:text-muted-foreground",
                     rest.className
                   )}
                 />

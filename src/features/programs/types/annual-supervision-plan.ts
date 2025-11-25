@@ -64,6 +64,7 @@ export interface IAnnualSupervisionPlan {
   id: string;
   financial_year_id: string; // Link to system financial year
   financial_year_display?: string; // e.g., "2024-2025"
+  financial_year_name?: string; // e.g., "2025", "2025/2026"
   title: string;
   description?: string;
   status: AnnualPlanStatus;
