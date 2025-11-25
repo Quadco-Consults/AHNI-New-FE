@@ -111,9 +111,9 @@ export const useGetAllFundRequests = ({
       year,
       type,
     ],
-    retry: 2, // Reasonable retry count
-    staleTime: 0, // Always fetch fresh data to avoid cache issues
-    cacheTime: 0, // Don't cache to see backend fixes immediately
+    retry: 3, // Better retry count for network resilience
+    staleTime: 30000, // 30 seconds - reasonable for dashboard data
+    cacheTime: 300000, // 5 minutes cache for better UX
     queryFn: async () => {
       try {
         // Build params object, excluding undefined/empty values

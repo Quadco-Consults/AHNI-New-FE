@@ -26,6 +26,7 @@ import { useGetAllProjects, useGetProjectDisbursements, useGetProjectExpenditure
 import { useGetWorkforces } from "@/features/hr/controllers/workforceController";
 import { useGetTrialBalance, useGetIncomeStatement, useGetBalanceSheet } from "@/features/finance/controllers/reportsController";
 import { useGetAllFundRequests } from "@/features/programs/controllers/fundRequestController";
+import { formatNumberCurrency } from "@/utils/utls";
 
 // Department features and error handling
 import { useDepartmentFeatures } from "@/hooks/useDepartmentFeatures";
@@ -323,10 +324,14 @@ export default function Dashboard() {
 
     // Calculate funding source distribution
     const fundingGroups = projects.reduce((acc: any, project: any) => {
-      if (project.funding_sources && Array.isArray(project.funding_sources)) {
+      if (project.funding_sources && Array.isArray(project.funding_sources) && project.funding_sources.length > 0) {
         project.funding_sources.forEach((source: any) => {
-          const sourceName = source.name || 'Unknown';
-          acc[sourceName] = (acc[sourceName] || 0) + 1;
+          if (source && source.name) {
+            const sourceName = source.name.trim();
+            if (sourceName) {
+              acc[sourceName] = (acc[sourceName] || 0) + 1;
+            }
+          }
         });
       }
       return acc;
@@ -347,7 +352,16 @@ export default function Dashboard() {
 
   // Process real workforce data
   const realWorkforceAnalytics = useMemo(() => {
-    if (!workforceData?.data?.results) return null;
+    if (!workforceData?.data?.results) {
+      // Return empty analytics if no data, but don't return null
+      // This allows other parts of the dashboard to render
+      return {
+        totalEmployees: 0,
+        departmentGroups: {},
+        positionGroups: {},
+        averageTeamSize: 0
+      };
+    }
 
     const workforce = workforceData.data.results;
 
@@ -377,7 +391,18 @@ export default function Dashboard() {
 
   // Process real fund requests data
   const realFundRequestAnalytics = useMemo(() => {
-    if (!fundRequestsData?.data?.results) return null;
+    if (!fundRequestsData?.data?.results) {
+      // Return empty analytics if no data, but don't return null
+      // This allows other parts of the dashboard to render
+      return {
+        totalRequests: 0,
+        totalRequestedAmount: 0,
+        statusGroups: {},
+        projectGroups: {},
+        approvalRate: 0,
+        rejectionRate: 0
+      };
+    }
 
     const requests = fundRequestsData.data.results;
 
@@ -463,9 +488,9 @@ export default function Dashboard() {
     };
   }, [trialBalanceData, incomeStatementData]);
 
-  // Loading states
-  const isLoading = !isClient || isLoadingProjects || isLoadingWorkforce;
-  const hasError = projectsError || workforceError;
+  // Loading states - include fund requests loading
+  const isLoading = !isClient || isLoadingProjects || isLoadingWorkforce || isLoadingFundRequests;
+  const hasError = projectsError || workforceError || fundRequestsError;
 
   // Check if we have any real data to display
   const hasRealData = realProjectsAnalytics || realWorkforceAnalytics || realFundRequestAnalytics || realFinancialAnalytics;
@@ -496,13 +521,17 @@ export default function Dashboard() {
 
     // Funding source distribution
     if (realProjectsAnalytics?.fundingGroups) {
-      data.fundingChart = Object.entries(realProjectsAnalytics.fundingGroups)
-        .sort(([,a], [,b]) => (b as number) - (a as number))
-        .slice(0, 8) // Top 8 funding sources
-        .map(([source, count]) => ({
-          name: source,
-          projects: count as number
-        }));
+      const fundingEntries = Object.entries(realProjectsAnalytics.fundingGroups);
+      if (fundingEntries.length > 0) {
+        data.fundingChart = fundingEntries
+          .sort(([,a], [,b]) => (b as number) - (a as number))
+          .slice(0, 12) // Top 12 funding sources (increased from 8)
+          .map(([source, count]) => ({
+            name: source.length > 25 ? `${source.substring(0, 22)}...` : source,
+            fullName: source,
+            projects: count as number
+          }));
+      }
     }
 
     // Department distribution from workforce
@@ -678,7 +707,7 @@ export default function Dashboard() {
         )}
 
         {/* Workforce Analytics */}
-        {realWorkforceAnalytics && (
+        {realWorkforceAnalytics?.totalEmployees > 0 && (
           <Card className="p-6 hover:shadow-lg transition-shadow border-l-4 border-l-purple-500">
             <div className="flex items-center justify-between">
               <div>
@@ -830,7 +859,7 @@ export default function Dashboard() {
         )}
 
         {/* Funding Source Distribution */}
-        {chartData.fundingChart && chartData.fundingChart.length > 0 && (
+        {(chartData.fundingChart && chartData.fundingChart.length > 0) ? (
           <Card className="p-6">
             <div className="flex justify-between items-center mb-4">
               <div>
@@ -841,72 +870,163 @@ export default function Dashboard() {
                 {chartData.fundingChart.length} Sources
               </Badge>
             </div>
-            <div className="h-64">
+            <div className="h-80">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData.fundingChart} layout="horizontal" margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                <BarChart data={chartData.fundingChart} layout="horizontal" margin={{ top: 20, right: 30, left: 120, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
                   <XAxis type="number" tick={{ fontSize: 12 }} />
-                  <YAxis dataKey="name" type="category" tick={{ fontSize: 12 }} width={100} />
+                  <YAxis
+                    dataKey="name"
+                    type="category"
+                    tick={{ fontSize: 11 }}
+                    width={110}
+                    interval={0}
+                  />
                   <Tooltip
                     formatter={(value: any) => [`${value} projects`, 'Projects']}
-                    labelFormatter={(label: any) => `Source: ${label}`}
+                    labelFormatter={(label: any, payload: any) => {
+                      if (payload && payload.length > 0 && payload[0].payload.fullName) {
+                        return `Source: ${payload[0].payload.fullName}`;
+                      }
+                      return `Source: ${label}`;
+                    }}
+                    contentStyle={{
+                      backgroundColor: 'white',
+                      border: '1px solid #e2e8f0',
+                      borderRadius: '8px',
+                      fontSize: '12px'
+                    }}
                   />
-                  <Bar dataKey="projects" fill="#8884D8" />
+                  <Bar dataKey="projects" fill="#6366f1" radius={[0, 4, 4, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
           </Card>
-        )}
-
-        {/* Department Distribution */}
-        {chartData.departmentChart && chartData.departmentChart.length > 0 && (
+        ) : (
           <Card className="p-6">
             <div className="flex justify-between items-center mb-4">
               <div>
-                <h3 className="text-lg font-semibold">Workforce Distribution</h3>
-                <p className="text-sm text-gray-600">Employees by department</p>
+                <h3 className="text-lg font-semibold">Funding Sources</h3>
+                <p className="text-sm text-gray-600">Projects by funding organization</p>
               </div>
-              <Badge variant="outline" className="bg-orange-50 border-orange-200 text-orange-700">
-                {realWorkforceAnalytics?.totalEmployees} Employees
+              <Badge variant="outline" className="bg-gray-50 border-gray-200 text-gray-600">
+                0 Sources
               </Badge>
             </div>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={chartData.departmentChart}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({ name, percentage }) => `${name}: ${percentage}%`}
-                    outerRadius={80}
-                    fill="#82CA9D"
-                    dataKey="employees"
-                  >
-                    {chartData.departmentChart.map((entry: any, index: number) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[(index + 2) % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    formatter={(value: any, name: any) => [`${value} employees`, name]}
-                    labelFormatter={() => 'Department'}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="mt-4 grid grid-cols-1 gap-2">
-              {chartData.departmentChart.map((item: any, index: number) => (
-                <div key={index} className="flex items-center justify-between text-sm">
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[(index + 2) % COLORS.length] }}></div>
-                    <span>{item.name}</span>
-                  </div>
-                  <span className="font-medium">{item.employees} ({item.percentage}%)</span>
-                </div>
-              ))}
+            <div className="flex flex-col items-center justify-center h-64 text-gray-500">
+              <div className="w-16 h-16 mb-4 text-gray-300">
+                <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full">
+                  <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                </svg>
+              </div>
+              <p className="text-sm font-medium text-gray-600 mb-2">No funding sources found</p>
+              <p className="text-xs text-gray-500 text-center max-w-48">
+                Projects with funding sources will appear here once you have project data
+              </p>
             </div>
           </Card>
         )}
+
+        {/* Workforce Distribution */}
+        <Card className="p-6">
+          <div className="flex justify-between items-center mb-4">
+            <div>
+              <h3 className="text-lg font-semibold">Workforce Distribution</h3>
+              <p className="text-sm text-gray-600">
+                {isLoadingWorkforce ? "Loading workforce data..." :
+                 workforceError ? "Error loading workforce data" :
+                 !canAccessHRFeatures ? "Requires HR access" :
+                 "Employees by department"}
+              </p>
+            </div>
+            {realWorkforceAnalytics?.totalEmployees > 0 && (
+              <Badge variant="outline" className="bg-orange-50 border-orange-200 text-orange-700">
+                {realWorkforceAnalytics.totalEmployees} Employees
+              </Badge>
+            )}
+          </div>
+
+          {isLoadingWorkforce ? (
+            <div className="flex items-center justify-center h-64">
+              <div className="animate-spin rounded-full h-6 w-6 border-2 border-orange-600 border-t-transparent"></div>
+              <span className="ml-3 text-gray-600">Loading workforce data...</span>
+            </div>
+          ) : workforceError ? (
+            <div className="flex flex-col items-center justify-center h-64 text-gray-500">
+              <div className="w-12 h-12 mb-3 text-red-400">
+                <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                </svg>
+              </div>
+              <p className="text-sm font-medium text-red-600 mb-1">Failed to load workforce data</p>
+              <p className="text-xs text-gray-500 text-center max-w-64">
+                {workforceError?.message || "Please check your connection and try refreshing the page"}
+              </p>
+            </div>
+          ) : !canAccessHRFeatures ? (
+            <div className="flex flex-col items-center justify-center h-64 text-gray-500">
+              <div className="w-12 h-12 mb-3 text-amber-400">
+                <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
+              </div>
+              <p className="text-sm font-medium text-amber-600 mb-1">Access Required</p>
+              <p className="text-xs text-gray-500 text-center max-w-64">
+                You need HR department access to view workforce distribution
+              </p>
+            </div>
+          ) : !chartData.departmentChart || chartData.departmentChart.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-64 text-gray-500">
+              <div className="w-12 h-12 mb-3 text-gray-300">
+                <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full">
+                  <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                </svg>
+              </div>
+              <p className="text-sm font-medium text-gray-600 mb-1">No workforce data found</p>
+              <p className="text-xs text-gray-500 text-center max-w-48">
+                Employee data will appear here once staff records are added
+              </p>
+            </div>
+          ) : (
+            <>
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={chartData.departmentChart}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ name, percentage }) => `${name}: ${percentage}%`}
+                      outerRadius={80}
+                      fill="#82CA9D"
+                      dataKey="employees"
+                    >
+                      {chartData.departmentChart.map((entry: any, index: number) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[(index + 2) % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      formatter={(value: any, name: any) => [`${value} employees`, name]}
+                      labelFormatter={() => 'Department'}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="mt-4 grid grid-cols-1 gap-2">
+                {chartData.departmentChart.map((item: any, index: number) => (
+                  <div key={index} className="flex items-center justify-between text-sm">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full" style={{ backgroundColor: COLORS[(index + 2) % COLORS.length] }}></div>
+                      <span>{item.name}</span>
+                    </div>
+                    <span className="font-medium">{item.employees} ({item.percentage}%)</span>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </Card>
       </div>
 
       {/* Real Projects Data Table */}
@@ -986,18 +1106,67 @@ export default function Dashboard() {
       )}
 
       {/* Fund Requests Data Table */}
-      {fundRequestsData?.data?.results && fundRequestsData.data.results.length > 0 && (
-        <Card className="p-6">
-          <div className="flex justify-between items-center mb-6">
-            <div>
-              <h3 className="text-lg font-semibold">Recent Fund Requests</h3>
-              <p className="text-sm text-gray-600">Real fund request data from your system</p>
-            </div>
+      <Card className="p-6">
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <h3 className="text-lg font-semibold">Recent Fund Requests</h3>
+            <p className="text-sm text-gray-600">
+              {isLoadingFundRequests ? "Loading fund request data..." :
+               fundRequestsError ? "Error loading fund requests" :
+               !canAccessProgramsFeatures ? "Requires Programs access" :
+               "Fund request data from your system"}
+            </p>
+          </div>
+          {fundRequestsData?.data?.results?.length > 0 && (
             <Button size="sm" className="gap-2">
               <TrendingUp className="h-4 w-4" />
               View All Requests
             </Button>
+          )}
+        </div>
+
+        {isLoadingFundRequests ? (
+          <div className="flex items-center justify-center h-32">
+            <div className="animate-spin rounded-full h-6 w-6 border-2 border-blue-600 border-t-transparent"></div>
+            <span className="ml-3 text-gray-600">Loading fund requests...</span>
           </div>
+        ) : fundRequestsError ? (
+          <div className="flex flex-col items-center justify-center h-32 text-gray-500">
+            <div className="w-12 h-12 mb-3 text-red-400">
+              <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+              </svg>
+            </div>
+            <p className="text-sm font-medium text-red-600 mb-1">Failed to load fund requests</p>
+            <p className="text-xs text-gray-500 text-center max-w-64">
+              {fundRequestsError?.message || "Please check your connection and try refreshing the page"}
+            </p>
+          </div>
+        ) : !canAccessProgramsFeatures ? (
+          <div className="flex flex-col items-center justify-center h-32 text-gray-500">
+            <div className="w-12 h-12 mb-3 text-amber-400">
+              <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+              </svg>
+            </div>
+            <p className="text-sm font-medium text-amber-600 mb-1">Access Required</p>
+            <p className="text-xs text-gray-500 text-center max-w-64">
+              You need Programs department access to view fund requests
+            </p>
+          </div>
+        ) : !fundRequestsData?.data?.results || fundRequestsData.data.results.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-32 text-gray-500">
+            <div className="w-12 h-12 mb-3 text-gray-300">
+              <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full">
+                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+              </svg>
+            </div>
+            <p className="text-sm font-medium text-gray-600 mb-1">No fund requests found</p>
+            <p className="text-xs text-gray-500 text-center max-w-48">
+              Recent fund requests will appear here once they are created
+            </p>
+          </div>
+        ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
@@ -1010,19 +1179,41 @@ export default function Dashboard() {
                 </tr>
               </thead>
               <tbody>
-                {fundRequestsData.data.results.slice(0, 8).map((request: any, index: number) => (
+                {fundRequestsData.data.results.slice(0, 8).map((request: any, index: number) => {
+                  // Debug log in development
+                  if (process.env.NODE_ENV === 'development' && index === 0) {
+                    console.log('🔍 Fund Request Debug - First item:', {
+                      total_amount: request.total_amount,
+                      amount: request.amount,
+                      available_balance: request.available_balance,
+                      budget: request.budget,
+                      currency: request.currency,
+                      uuid_code: request.uuid_code,
+                      location_code: request.location_code,
+                      full_object: request
+                    });
+                  }
+
+                  return (
                   <tr key={request.id || index} className="border-b hover:bg-gray-50">
                     <td className="p-3">
                       <div>
-                        <div className="font-medium">{request.title || request.name || `Request ${index + 1}`}</div>
+                        <div className="font-medium">
+                          {request.uuid_code || request.location_code || `REQ-${request.id?.slice(-6) || String(index + 1).padStart(3, '0')}`}
+                        </div>
                         <div className="text-xs text-gray-500 max-w-[200px] truncate">
-                          {request.description || 'No description available'}
+                          {request.location_display || request.location_name ||
+                           (typeof request.location === 'object' && request.location?.name) ||
+                           request.title || request.name || 'No location specified'}
                         </div>
                       </div>
                     </td>
                     <td className="p-3">
                       <div className="font-medium">
-                        ₦{parseFloat(request.amount || 0).toLocaleString()}
+                        {formatNumberCurrency(
+                          request.total_amount || request.amount || request.available_balance || request.budget || 0,
+                          request.currency || "NGN"
+                        )}
                       </div>
                     </td>
                     <td className="p-3">
@@ -1039,15 +1230,18 @@ export default function Dashboard() {
                       {request.project?.name || request.project_name || 'Unassigned'}
                     </td>
                     <td className="p-3 text-gray-600">
-                      {request.created_at ? new Date(request.created_at).toLocaleDateString() : 'Unknown'}
+                      {request.created_datetime || request.created_at ?
+                        new Date(request.created_datetime || request.created_at).toLocaleDateString() :
+                        'Unknown'}
                     </td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </div>
-        </Card>
-      )}
+        )}
+      </Card>
 
       {/* Data Sources Information */}
       <Card className="p-6 bg-gradient-to-r from-blue-50 to-purple-50 border-none">
@@ -1066,7 +1260,7 @@ export default function Dashboard() {
                   ✓ Projects API ({realProjectsAnalytics.totalProjects} records)
                 </Badge>
               )}
-              {realWorkforceAnalytics && (
+              {realWorkforceAnalytics?.totalEmployees > 0 && (
                 <Badge variant="outline" className="bg-white">
                   ✓ Workforce API ({realWorkforceAnalytics.totalEmployees} records)
                 </Badge>

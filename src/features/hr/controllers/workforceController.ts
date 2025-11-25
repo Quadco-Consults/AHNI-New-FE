@@ -27,6 +27,9 @@ export const useGetWorkforces = ({
 }: TRequest & { enabled?: boolean }) => {
   return useQuery<TPaginatedResponse<WorkforceResults[]>>({
     queryKey: ["workforces", page, size, search],
+    retry: 3, // Better retry count for network resilience
+    staleTime: 30000, // 30 seconds - reasonable for dashboard data
+    cacheTime: 300000, // 5 minutes cache for better UX
     queryFn: async () => {
       try {
         const response = await AxiosWithToken.get(BASE_URL, {
