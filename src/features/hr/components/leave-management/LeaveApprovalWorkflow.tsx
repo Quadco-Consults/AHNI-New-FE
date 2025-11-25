@@ -17,6 +17,7 @@ import {
   AlertCircle
 } from "lucide-react";
 import { format } from "date-fns";
+import { toast } from "sonner";
 import { LeaveRequest, type LeaveApprovalWorkflow, LeaveApprovalStep } from "../../types/leave";
 import { leaveService } from "../../services/leaveService";
 
@@ -141,7 +142,7 @@ const LeaveApprovalWorkflow: React.FC<LeaveApprovalWorkflowProps> = ({
       setApprovalComments("");
     } catch (error) {
       console.error('Error approving leave:', error);
-      alert(error instanceof Error ? error.message : 'Failed to approve leave request');
+      toast.error(error instanceof Error ? error.message : 'Failed to approve leave request');
     } finally {
       setIsSubmitting(false);
     }
@@ -149,7 +150,7 @@ const LeaveApprovalWorkflow: React.FC<LeaveApprovalWorkflowProps> = ({
 
   const handleReject = async () => {
     if (!rejectionReason.trim()) {
-      alert('Please provide a reason for rejection');
+      toast.error('Please provide a reason for rejection');
       return;
     }
     
@@ -176,7 +177,7 @@ const LeaveApprovalWorkflow: React.FC<LeaveApprovalWorkflowProps> = ({
       setRejectionReason("");
     } catch (error) {
       console.error('Error rejecting leave:', error);
-      alert(error instanceof Error ? error.message : 'Failed to reject leave request');
+      toast.error(error instanceof Error ? error.message : 'Failed to reject leave request');
     } finally {
       setIsSubmitting(false);
     }

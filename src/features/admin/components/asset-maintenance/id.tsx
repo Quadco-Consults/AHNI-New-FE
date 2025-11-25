@@ -199,21 +199,21 @@ export default function AssetMaintenanceDetailsPage() {
                 <div className="flex items-start justify-between">
                   <div className="space-y-2">
                     <div className="flex items-center gap-3">
-                      <h1 className="text-2xl font-bold text-gray-900">
+                      <h1 className="text-heading-1">
                         Asset Maintenance Ticket
                       </h1>
                       {getStatusBadge(currentStatus || "")}
                     </div>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-body-sm text-gray-text">
                       Ticket ID: <span className="font-mono font-medium">{assetMaintenance.data.id?.substring(0, 8).toUpperCase()}</span>
                     </p>
                   </div>
                   <div className="text-right space-y-3">
                     <div>
-                      <p className="text-3xl font-bold text-gray-900">
+                      <p className="text-heading-1">
                         {formatCurrency(assetMaintenance.data.total_cost_estimate)}
                       </p>
-                      <p className="text-sm text-gray-600 mt-1">Total Cost Estimate</p>
+                      <p className="text-body-sm text-gray-text mt-1">Total Cost Estimate</p>
                     </div>
                     {/* Generate Maintenance Ticket Button - Only show when APPROVED */}
                     {currentStatus === "Approved" && (

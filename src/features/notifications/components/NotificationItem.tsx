@@ -44,25 +44,25 @@ export default function NotificationItem({
     const isUnread = !is_read || status === "Pending";
     const isExpired = expires_at ? new Date(expires_at) < new Date() : false;
 
-    // Priority colors and icons
+    // Priority configurations with standardized Badge variants
     const getPriorityConfig = (priority: NotificationPriority) => {
         const configs = {
-            urgent: { color: 'bg-red-500', icon: 'mdi:alert-circle', textColor: 'text-red-600' },
-            high: { color: 'bg-orange-500', icon: 'mdi:alert', textColor: 'text-orange-600' },
-            medium: { color: 'bg-blue-500', icon: 'mdi:information', textColor: 'text-blue-600' },
-            low: { color: 'bg-gray-500', icon: 'mdi:minus-circle', textColor: 'text-gray-600' }
+            urgent: { variant: 'urgent' as const, color: 'bg-destructive', icon: 'mdi:alert-circle', textColor: 'text-destructive' },
+            high: { variant: 'high' as const, color: 'bg-orange-500', icon: 'mdi:alert', textColor: 'text-orange-600' },
+            medium: { variant: 'medium' as const, color: 'bg-amber-500', icon: 'mdi:information', textColor: 'text-amber-600' },
+            low: { variant: 'low' as const, color: 'bg-blue-500', icon: 'mdi:minus-circle', textColor: 'text-gray-text' }
         };
         return configs[priority];
     };
 
-    // Category colors and icons
+    // Category configurations with standardized Badge variants
     const getCategoryConfig = (category: NotificationCategory) => {
         const configs = {
-            error: { color: 'bg-red-100 text-red-800 border-red-200', icon: 'mdi:alert-circle' },
-            warning: { color: 'bg-yellow-100 text-yellow-800 border-yellow-200', icon: 'mdi:alert' },
-            success: { color: 'bg-green-100 text-green-800 border-green-200', icon: 'mdi:check-circle' },
-            info: { color: 'bg-blue-100 text-blue-800 border-blue-200', icon: 'mdi:information' },
-            system: { color: 'bg-purple-100 text-purple-800 border-purple-200', icon: 'mdi:cog' }
+            error: { variant: 'error' as const, icon: 'mdi:alert-circle' },
+            warning: { variant: 'warning' as const, icon: 'mdi:alert' },
+            success: { variant: 'success' as const, icon: 'mdi:check-circle' },
+            info: { variant: 'info' as const, icon: 'mdi:information' },
+            system: { variant: 'system' as const, icon: 'mdi:cog' }
         };
         return configs[category];
     };
@@ -109,7 +109,7 @@ export default function NotificationItem({
     return (
         <li
             className={`flex items-start gap-3 justify-between ${
-                active ? "bg-[#FFF2F2]" : isUnread ? "bg-white" : "bg-gray-50"
+                active ? "bg-alternate" : isUnread ? "bg-background" : "bg-muted"
             } border-gray-200 border-solid border-[1px] px-4 py-3 rounded-lg border-l-8 ${
                 priority === 'urgent' ? "border-l-red-500" :
                 priority === 'high' ? "border-l-orange-500" :
@@ -148,17 +148,17 @@ export default function NotificationItem({
                         </h3>
                         
                         <div className="flex flex-col gap-1 ml-2 flex-shrink-0">
-                            <Badge variant="outline" className={`text-xs ${categoryConfig.color}`}>
+                            <Badge variant={categoryConfig.variant} className="text-xs">
                                 {category.toUpperCase()}
                             </Badge>
-                            <Badge variant="outline" className={`text-xs ${priorityConfig.textColor}`}>
+                            <Badge variant={priorityConfig.variant} className="text-xs">
                                 {priority.toUpperCase()}
                             </Badge>
                         </div>
                     </div>
                     
                     <p className={`${
-                        isUnread ? "text-black font-medium" : "text-[#475367]"
+                        isUnread ? "text-foreground font-medium" : "text-muted-foreground"
                     } text-sm line-clamp-2 mb-2`}>
                         {message}
                     </p>

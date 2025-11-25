@@ -7,7 +7,19 @@ import { Button } from "components/ui/button";
 import { Badge } from "components/ui/badge";
 import { Progress } from "components/ui/progress";
 import DataTable from "components/DataTable";
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line, Legend, AreaChart, Area, ComposedChart } from "recharts";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Legend
+} from "recharts";
 
 // Real data hooks - using working endpoints
 import { useGetAllProjects, useGetProjectDisbursements, useGetProjectExpenditures } from "@/features/projects/controllers/projectController";

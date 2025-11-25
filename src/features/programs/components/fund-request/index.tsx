@@ -36,7 +36,8 @@ interface ProjectWithFundRequests {
 const extractProjectData = (request: FundRequestPaginatedData) => {
   if (typeof request.project === 'object' && request.project !== null) {
     return {
-      id: request.project.id || request.project.project_id || '',
+      // Prioritize project_id (human-readable) over id (UUID)
+      id: request.project.project_id || request.project.id || '',
       title: request.project.title || 'N/A',
       startDate: request.project.start_date || 'N/A',
       endDate: request.project.end_date || 'N/A',

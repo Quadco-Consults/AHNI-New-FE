@@ -230,6 +230,83 @@ export const useDeactivateUser = (id: string) => {
   return { deactivateUser, data, isLoading, isSuccess, error };
 };
 
+// ===== APPROVAL-SPECIFIC USER HOOKS =====
+
+// Get Users with Review Permission
+export const useGetReviewers = ({
+  page = 1,
+  size = 2000000, // Get all reviewers by default
+  search = "",
+  enabled = true,
+}: TRequest & { enabled?: boolean } = {}) => {
+  return useQuery<TPaginatedResponse<IUser>>({
+    queryKey: ["reviewers", page, size, search],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get("users/reviewers/", {
+          params: { page, size, search },
+        });
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    enabled,
+    refetchOnWindowFocus: false,
+  });
+};
+
+// Get Users with Authorize Permission
+export const useGetAuthorizers = ({
+  page = 1,
+  size = 2000000, // Get all authorizers by default
+  search = "",
+  enabled = true,
+}: TRequest & { enabled?: boolean } = {}) => {
+  return useQuery<TPaginatedResponse<IUser>>({
+    queryKey: ["authorizers", page, size, search],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get("users/authorizers/", {
+          params: { page, size, search },
+        });
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    enabled,
+    refetchOnWindowFocus: false,
+  });
+};
+
+// Get Users with Approve Permission
+export const useGetApprovers = ({
+  page = 1,
+  size = 2000000, // Get all approvers by default
+  search = "",
+  enabled = true,
+}: TRequest & { enabled?: boolean } = {}) => {
+  return useQuery<TPaginatedResponse<IUser>>({
+    queryKey: ["approvers", page, size, search],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get("users/approvers/", {
+          params: { page, size, search },
+        });
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    enabled,
+    refetchOnWindowFocus: false,
+  });
+};
+
 // Legacy exports for backward compatibility
 export const useGetAllUsersQuery = useGetAllUsers;
 export const useGetSingleUserQuery = useGetSingleUser;
@@ -245,3 +322,8 @@ export const useDeactivateUserMutation = useDeactivateUser;
 export const useAddUserToRoleManager = useAddUserToRole;
 export const useGetSingleUserManager = useGetSingleUser;
 export const useGetAllUsersManager = useGetAllUsers;
+
+// Approval-specific exports
+export const useGetReviewersQuery = useGetReviewers;
+export const useGetAuthorizersQuery = useGetAuthorizers;
+export const useGetApproversQuery = useGetApprovers;

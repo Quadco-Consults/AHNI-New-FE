@@ -48,16 +48,16 @@ export const QuickPermissionTest: React.FC = () => {
   const accuracy = Math.round((passedTests / totalTests) * 100);
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">
+    <div className="p-xxl max-w-4xl mx-auto">
+      <h1 className="text-heading-1 mb-xxl">
         🧪 Quick Permission Test - Program Officer
       </h1>
 
       {/* Overall Status */}
-      <div className={`p-4 rounded-lg mb-6 ${
+      <div className={`p-lg rounded-lg mb-xxl ${
         accuracy === 100 ? 'bg-green-100 border border-green-400' : 'bg-red-100 border border-red-400'
       }`}>
-        <h2 className="text-xl font-semibold mb-2">
+        <h2 className="text-heading-2 mb-sm">
           {accuracy === 100 ? '✅ All Tests Passed!' : '❌ Some Tests Failed'}
         </h2>
         <p className="text-lg">

@@ -6,6 +6,20 @@ import { Card, CardContent, CardHeader, CardTitle } from "components/ui/card";
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "components/ui/form";
 import { Button } from "components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "components/ui/popover";
+import { Check, ChevronsUpDown } from "lucide-react";
 import { Input } from "components/ui/input";
 import { Textarea } from "components/ui/textarea";
 import { Badge } from "components/ui/badge";
@@ -29,6 +43,8 @@ const TeamMembersSection: React.FC<TeamMembersSectionProps> = ({
   const { control, watch, setValue, getValues } = useFormContext<TSiteVisitApplicationFormValues>();
   const teamMembers = watch("team_members") || [];
   const [showAddForm, setShowAddForm] = useState(false);
+  const [staffPopoverOpen, setStaffPopoverOpen] = useState(false);
+  const [rolePopoverOpen, setRolePopoverOpen] = useState(false);
   const [newMember, setNewMember] = useState({
     user: "",
     role: TeamMemberRole.SUPPORT_STAFF,
@@ -221,29 +237,60 @@ const TeamMembersSection: React.FC<TeamMembersSectionProps> = ({
               {/* Staff Selection */}
               <div>
                 <label className="text-sm font-medium mb-2 block">Select Staff Member *</label>
-                <Select
-                  value={newMember.user}
-                  onValueChange={(value) => setNewMember({...newMember, user: value})}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Choose a staff member" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {availableStaff.map((staff: any) => (
-                      <SelectItem key={staff.id} value={staff.id}>
-                        <div className="flex flex-col items-start">
-                          <span className="font-medium">
-                            {`${staff.first_name} ${staff.last_name}`}
-                          </span>
-                          <span className="text-xs text-gray-600">
-                            {staff.email}
-                            {staff.designation && ` • ${staff.designation}`}
-                          </span>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Popover open={staffPopoverOpen} onOpenChange={setStaffPopoverOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={staffPopoverOpen}
+                      className="w-full justify-between font-normal"
+                    >
+                      <span className="truncate">
+                        {newMember.user ?
+                          (() => {
+                            const staff = availableStaff.find(s => s.id === newMember.user);
+                            return staff ? `${staff.first_name} ${staff.last_name}` : 'Choose a staff member';
+                          })() :
+                          'Choose a staff member'
+                        }
+                      </span>
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+                    <Command>
+                      <CommandInput placeholder="Search staff members..." />
+                      <CommandList>
+                        <CommandEmpty>No staff members found.</CommandEmpty>
+                        <CommandGroup>
+                          {availableStaff.map((staff: any) => (
+                            <CommandItem
+                              key={staff.id}
+                              value={`${staff.first_name} ${staff.last_name} ${staff.email} ${staff.designation || ''}`}
+                              onSelect={() => {
+                                setNewMember({...newMember, user: staff.id});
+                                setStaffPopoverOpen(false);
+                              }}
+                            >
+                              <Check
+                                className={`mr-2 h-4 w-4 ${newMember.user === staff.id ? "opacity-100" : "opacity-0"}`}
+                              />
+                              <div className="flex flex-col items-start">
+                                <span className="font-medium">
+                                  {`${staff.first_name} ${staff.last_name}`}
+                                </span>
+                                <span className="text-xs text-gray-600">
+                                  {staff.email}
+                                  {staff.designation && ` • ${staff.designation}`}
+                                </span>
+                              </div>
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
 
               {/* Role Selection */}

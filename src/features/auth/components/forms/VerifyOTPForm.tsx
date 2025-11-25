@@ -63,8 +63,8 @@ export default function VerifyOTPForm() {
                 <img src="/imgs/logo.png" className="w-[130px] mx-auto" />
                 <Card className="max-w-[500px] flex flex-col items-center gap-y-14 mt-10 py-10">
                     <div className="text-center">
-                        <h1 className="text-2xl font-bold">Enter OTP</h1>
-                        <p className="text-[#8F8585] text-base font-normal">
+                        <h1 className="text-heading-1">Enter OTP</h1>
+                        <p className="text-gray-text text-body-base">
                             Enter the 6 digit code sent to you email address
                         </p>
                     </div>
@@ -86,10 +86,10 @@ export default function VerifyOTPForm() {
                     </div>
 
                     <div className="flex flex-col items-center">
-                        <p className="text-[10px] text-[#828282]">
+                        <p className="text-body-sm text-gray-text">
                             OTP will expire in
                         </p>
-                        <span className="text-[12px] text-[#828282] font-semibold ">
+                        <span className="text-body-sm text-gray-text font-semibold">
                             00:{countTimer < 10 && "0"}
                             {countTimer}
                         </span>

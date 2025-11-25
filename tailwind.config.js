@@ -33,6 +33,7 @@ module.exports = {
         },
         alternate: {
           DEFAULT: "#FFF2F2",
+          light: "#F9F9F9",
         },
         destructive: {
           DEFAULT: "hsl(var(--destructive))",
@@ -57,6 +58,12 @@ module.exports = {
         yellow: {
           darker: "#DEA004",
         },
+        gray: {
+          text: "#756D6D",
+          dark: "#4D4545",
+          overlay: "#0000001A",
+          border: "#CDD5E0",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -76,6 +83,24 @@ module.exports = {
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+      },
+      fontSize: {
+        'heading-1': ['2rem', { lineHeight: '2.5rem', fontWeight: '700', letterSpacing: '-0.025em' }], // 32px, bold
+        'heading-2': ['1.5rem', { lineHeight: '2rem', fontWeight: '600', letterSpacing: '-0.025em' }],   // 24px, semibold
+        'heading-3': ['1.25rem', { lineHeight: '1.75rem', fontWeight: '600', letterSpacing: '-0.025em' }], // 20px, semibold
+        'heading-4': ['1.125rem', { lineHeight: '1.5rem', fontWeight: '600', letterSpacing: '-0.025em' }], // 18px, semibold
+        'body-lg': ['1rem', { lineHeight: '1.5rem', fontWeight: '400' }],      // 16px, normal
+        'body-base': ['0.875rem', { lineHeight: '1.25rem', fontWeight: '400' }], // 14px, normal
+        'body-sm': ['0.75rem', { lineHeight: '1rem', fontWeight: '400' }],       // 12px, normal
+      },
+      spacing: {
+        'xs': '0.25rem',    // 4px
+        'sm': '0.5rem',     // 8px
+        'md': '1rem',       // 16px
+        'lg': '1.5rem',     // 24px
+        'xl': '2rem',       // 32px
+        'xxl': '3rem',      // 48px
+        'xxxl': '4rem',     // 64px
       },
       screens: {
         'print': {'raw': 'print'},

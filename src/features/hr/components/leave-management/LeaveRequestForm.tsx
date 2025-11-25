@@ -22,6 +22,7 @@ import { Button } from "components/ui/button";
 import { Card } from "components/ui/card";
 import { Badge } from "components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
+import FormSelect from "components/atoms/FormSelectField";
 import { Textarea } from "components/ui/textarea";
 import { Input } from "components/ui/input";
 import { Label } from "components/ui/label";
@@ -131,6 +132,12 @@ const EnhancedLeaveRequestForm = () => {
       }))
     : [];
 
+  // Create employee options for FormSelect with search
+  const employeeOptions = employees.map((employee) => ({
+    label: `${employee.name} (${employee.department} - ${employee.position})`,
+    value: employee.id,
+  }));
+
   console.log('Employees:', employees);
   if (employees.length > 0) {
     console.log('First employee:', JSON.stringify(employees[0], null, 2));
@@ -170,6 +177,7 @@ const EnhancedLeaveRequestForm = () => {
           }
         } catch (error) {
           console.error('Validation error:', error);
+          toast.error('Failed to validate leave request. Using fallback calculation.');
           // Fallback to client-side calculation
           const start = parseISO(fromDate);
           const end = parseISO(toDate);
@@ -214,7 +222,7 @@ const EnhancedLeaveRequestForm = () => {
         await leaveService.uploadAttachment(file);
       } catch (error) {
         console.error('File upload failed:', error);
-        alert(`Failed to upload ${file.name}. Please try again.`);
+        toast.error(`Failed to upload ${file.name}. Please try again.`);
         return;
       }
     }
@@ -289,9 +297,9 @@ const EnhancedLeaveRequestForm = () => {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
-          <AlertCircle className="w-8 h-8 text-red-600 mx-auto mb-2" />
-          <p className="text-red-600">Failed to load leave information</p>
-          <p className="text-sm text-gray-600">{errorMessage}</p>
+          <AlertCircle className="w-8 h-8 text-destructive mx-auto mb-2" />
+          <p className="text-destructive">Failed to load leave information</p>
+          <p className="text-body-sm text-gray-text">{errorMessage}</p>
         </div>
       </div>
     );
@@ -307,8 +315,8 @@ const EnhancedLeaveRequestForm = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Apply for Leave</h1>
-          <p className="text-gray-600">Submit a new leave request</p>
+          <h1 className="text-heading-1">Apply for Leave</h1>
+          <p className="text-gray-text">Submit a new leave request</p>
         </div>
         <Badge variant="outline" className="text-sm">
           <CalendarDays className="w-4 h-4 mr-1" />
@@ -323,7 +331,7 @@ const EnhancedLeaveRequestForm = () => {
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <FileText className="w-5 h-5" />
-                <h3 className="text-lg font-semibold">Leave Details</h3>
+                <h3 className="text-heading-3">Leave Details</h3>
               </div>
 
               <FormField
@@ -387,31 +395,31 @@ const EnhancedLeaveRequestForm = () => {
                       const available = typeof balance.available === 'number' ? balance.available : 0;
 
                       return (
-                        <div className="grid grid-cols-5 gap-4 text-sm">
+                        <div className="grid grid-cols-5 gap-4 text-body-sm">
                           <div>
-                            <div className="text-gray-600">Entitled</div>
+                            <div className="text-gray-text">Entitled</div>
                             <div className="font-semibold">{entitled} days</div>
                           </div>
                           <div>
-                            <div className="text-gray-600">Used</div>
-                            <div className="font-semibold text-red-600">{used} days</div>
+                            <div className="text-gray-text">Used</div>
+                            <div className="font-semibold text-destructive">{used} days</div>
                           </div>
                           <div>
-                            <div className="text-gray-600">Pending</div>
+                            <div className="text-gray-text">Pending</div>
                             <div className="font-semibold text-amber-600">{pending} days</div>
                           </div>
                           <div>
-                            <div className="text-gray-600">Scheduled</div>
+                            <div className="text-gray-text">Scheduled</div>
                             <div className="font-semibold text-blue-600">{scheduled} days</div>
                           </div>
                           <div>
-                            <div className="text-gray-600">Available</div>
+                            <div className="text-gray-text">Available</div>
                             <div className="font-semibold text-green-600">{available} days</div>
                           </div>
                         </div>
                       );
                     }
-                    return <p className="text-sm text-gray-600">No balance information available</p>;
+                    return <p className="text-body-sm text-gray-text">No balance information available</p>;
                   })()}
                 </div>
               )}
@@ -423,7 +431,7 @@ const EnhancedLeaveRequestForm = () => {
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <CalendarDays className="w-5 h-5" />
-                <h3 className="text-lg font-semibold">Duration & Dates</h3>
+                <h3 className="text-heading-3">Duration & Dates</h3>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -532,7 +540,7 @@ const EnhancedLeaveRequestForm = () => {
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <FileText className="w-5 h-5" />
-                <h3 className="text-lg font-semibold">Additional Information</h3>
+                <h3 className="text-heading-3">Additional Information</h3>
               </div>
 
               <FormField
@@ -602,7 +610,7 @@ const EnhancedLeaveRequestForm = () => {
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <User className="w-5 h-5" />
-                <h3 className="text-lg font-semibold">Work Coverage</h3>
+                <h3 className="text-heading-3">Work Coverage</h3>
               </div>
 
               <FormField
@@ -611,23 +619,14 @@ const EnhancedLeaveRequestForm = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Backup Person (Optional)</FormLabel>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select backup person" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {employees.map((employee) => (
-                          <SelectItem key={employee.id} value={employee.id}>
-                            <div>
-                              <div>{employee.name}</div>
-                              <div className="text-sm text-gray-500">{employee.department} - {employee.position}</div>
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <FormSelect
+                      name="backupPersonId"
+                      placeholder="Select backup person"
+                      options={employeeOptions}
+                      searchPlaceholder="Search employees by name, department, or position..."
+                      emptyMessage="No employees found matching your search."
+                      onValueChange={field.onChange}
+                    />
                     <FormMessage />
                   </FormItem>
                 )}
@@ -639,23 +638,15 @@ const EnhancedLeaveRequestForm = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Leave Approver *</FormLabel>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select who will approve this leave request" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {employees.map((employee) => (
-                          <SelectItem key={employee.id} value={employee.id}>
-                            <div>
-                              <div>{employee.name}</div>
-                              <div className="text-sm text-gray-500">{employee.department} - {employee.position}</div>
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <FormSelect
+                      name="approverId"
+                      placeholder="Select who will approve this leave request"
+                      options={employeeOptions}
+                      searchPlaceholder="Search approvers by name, department, or position..."
+                      emptyMessage="No approvers found matching your search."
+                      required={true}
+                      onValueChange={field.onChange}
+                    />
                     <FormMessage />
                   </FormItem>
                 )}
@@ -686,7 +677,7 @@ const EnhancedLeaveRequestForm = () => {
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <Upload className="w-5 h-5" />
-                <h3 className="text-lg font-semibold">Attachments</h3>
+                <h3 className="text-heading-3">Attachments</h3>
               </div>
 
               <div className="border-2 border-dashed border-gray-300 rounded-lg p-6">

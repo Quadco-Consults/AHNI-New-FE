@@ -128,12 +128,48 @@ export const useDeleteSupervisionPlan = (id: string) => {
   return { deleteSupervisionPlan, data, isLoading, isSuccess, error };
 };
 
+// Upload Supervision Plan
+export const useUploadSupervisionPlan = () => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    null,
+    Error,
+    { project: string; financial_year: string; file: File }
+  >({
+    endpoint: `${BASE_URL}sheet/upload/`,
+    queryKey: ["supervision-plans"],
+    isAuth: true,
+    method: "POST",
+    contentType: "multipart/form-data",
+  });
+
+  const uploadSupervisionPlan = async (details: {
+    project: string;
+    financial_year: string;
+    file: File;
+  }) => {
+    try {
+      // Create FormData for file upload
+      const formData = new FormData();
+      formData.append("project", details.project);
+      formData.append("financial_year", details.financial_year);
+      formData.append("file", details.file);
+
+      await callApi(formData as any);
+    } catch (error) {
+      console.error("Supervision plan upload error:", error);
+    }
+  };
+
+  return { uploadSupervisionPlan, data, isLoading, isSuccess, error };
+};
+
 // Legacy exports for backward compatibility
 export const useCreateSupervisionPlanMutation = useCreateSupervisionPlan;
 export const useGetAllSupervisionPlanQuery = useGetAllSupervisionPlan;
 export const useGetSingleSupervisionPlanQuery = useGetSingleSupervisionPlan;
 export const useModifySupervisionPlanMutation = useModifySupervisionPlan;
 export const useDeleteSupervisionPlanMutation = useDeleteSupervisionPlan;
+export const useUploadSupervisionPlanMutation = useUploadSupervisionPlan;
 
 // Missing named export
 export const useCreateSupervisionPlanController = useCreateSupervisionPlan;

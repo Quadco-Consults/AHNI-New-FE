@@ -441,13 +441,14 @@ export const annualSupervisionColumns: ColumnDef<IAnnualSupervisionPlan>[] = [
   },
   {
     header: "Financial Year",
-    id: "financial_year",
+    id: "financial_year_name",
+    accessorKey: "financial_year_name",
     size: 150,
     cell: ({ row }) => {
       const plan = row.original;
       return (
         <div className="text-sm">
-          {plan.financial_year_display || 'Not Set'}
+          {plan.financial_year_name || 'Not Set'}
         </div>
       );
     },
