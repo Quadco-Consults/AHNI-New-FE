@@ -237,7 +237,12 @@ class ChatService {
     let conversationId = '';
     let timestamp = new Date().toISOString();
 
-    if (backendResponse.response) {
+    // Handle nested data structure from Django backend
+    const dataObj = backendResponse.data || backendResponse;
+
+    if (dataObj.response) {
+      response = dataObj.response;
+    } else if (backendResponse.response) {
       response = backendResponse.response;
     } else if (backendResponse.message) {
       response = backendResponse.message;
@@ -248,8 +253,11 @@ class ChatService {
       response = 'Sorry, I encountered an issue generating a response.';
     }
 
-    // Extract session/conversation ID (backend returns session_id)
-    if (backendResponse.session_id) {
+    // Extract session/conversation ID (check both data object and root level)
+    if (dataObj.session_id) {
+      conversationId = dataObj.session_id;
+      console.log('📋 Extracted session_id from data:', conversationId);
+    } else if (backendResponse.session_id) {
       conversationId = backendResponse.session_id;
       console.log('📋 Extracted session_id from response:', conversationId);
     } else if (backendResponse.conversation_id) {
@@ -275,8 +283,14 @@ class ChatService {
       conversation_id: conversationId,
       timestamp,
       message_id: backendResponse.message_id || backendResponse.id,
-      response_type: backendResponse.response_type || 'text',
-      structured_data: backendResponse.structured_data,
+      response_type: dataObj.response_type || backendResponse.response_type || 'text',
+      structured_data: dataObj.suggested_actions ? {
+        type: 'suggestions',
+        suggestions: dataObj.suggested_actions,
+        confidence_score: dataObj.confidence_score,
+        data_sources: dataObj.data_sources,
+        ...backendResponse.structured_data
+      } : backendResponse.structured_data,
       transferred: backendResponse.transferred,
       transfer_status: backendResponse.transfer_status,
       session_id: conversationId // Use the same ID for both fields
