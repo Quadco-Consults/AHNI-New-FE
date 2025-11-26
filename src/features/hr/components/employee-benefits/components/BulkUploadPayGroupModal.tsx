@@ -5,7 +5,8 @@ import { toast } from "sonner";
 import Modal from "react-modal";
 import { Button } from "components/ui/button";
 import { Icon } from "@iconify/react";
-import * as XLSX from "xlsx";
+import { XLSX } from "@/utils/excelUtils";
+import readXlsxFile from 'read-excel-file';
 import { useCreatePayGroup } from "@/features/hr/controllers/payGroupController";
 import { useGetAllPositionsManager } from "@/features/modules/controllers/config/positionController";
 import { useGetAllGradesManager } from "@/features/modules/controllers/config/gradeController";
@@ -123,7 +124,7 @@ const BulkUploadPayGroupModal = (props: PropsType) => {
     reader.onload = (e) => {
       try {
         const data = new Uint8Array(e.target?.result as ArrayBuffer);
-        const workbook = XLSX.read(data, { type: "array" });
+        // TODO: Replace with readXlsxFile - const workbook = XLSX.read(data, { type: "array" });
         const sheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[sheetName];
         const jsonData = XLSX.utils.sheet_to_json(worksheet);

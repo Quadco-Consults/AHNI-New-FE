@@ -21,7 +21,8 @@ import { useState } from "react";
 import { Textarea } from "components/ui/textarea";
 import ProcurementPlanUploadModal from "./components/ProcurementPlanUploadModal";
 import { MdDownload } from "react-icons/md";
-import * as XLSX from "xlsx";
+import { XLSX } from "@/utils/excelUtils";
+import readXlsxFile from 'read-excel-file';
 import {
   Select,
   SelectContent,
