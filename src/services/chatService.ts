@@ -121,7 +121,7 @@ class ChatService {
 
   constructor() {
     // Use your Heroku backend URL
-    // Chat endpoints are at /api/v1/chat/sessions/ so we keep the /v1
+    // Chat endpoints: /api/v1/chat/sessions/ (list) and /api/v1/chat/sessions/chat/ (send)
     this.baseURL = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:8000/api/v1';
     this.timeout = 30000;
     // Only use mock service if explicitly enabled
@@ -418,7 +418,7 @@ class ChatService {
     // Use mock service in development or when backend is not available
     if (this.isDevelopment) {
       try {
-        const result = await this.makeRequest<any>('POST', 'chat/sessions/', payload);
+        const result = await this.makeRequest<any>('POST', 'chat/sessions/chat/', payload);
 
         console.log('✅ Backend response:', result);
 
@@ -437,7 +437,7 @@ class ChatService {
 
     // Try the Django backend endpoint first
     try {
-      const result = await this.makeRequest<any>('POST', 'chat/sessions/', payload);
+      const result = await this.makeRequest<any>('POST', 'chat/sessions/chat/', payload);
 
       console.log('✅ Backend response:', result);
 
@@ -449,9 +449,9 @@ class ChatService {
         console.error('🔐 Authentication required for chat service');
         throw new Error('Authentication required. Please log in to use chat.');
       }
-      console.log('Django endpoint failed, trying fallback...');
-      // Fallback to original endpoint structure
-      const fallbackResult = await this.makeRequest<any>('POST', 'chat/message/', request);
+      console.log('Main chat endpoint failed, trying fallback...');
+      // Fallback to conversations endpoint structure
+      const fallbackResult = await this.makeRequest<any>('POST', 'chat/conversations/', request);
       return this.transformApiResponse(fallbackResult);
     }
   }
@@ -467,7 +467,7 @@ class ChatService {
 
     if (this.isDevelopment) {
       try {
-        const response = await this.makeRequest<any>('POST', 'chat/sessions/', payload);
+        const response = await this.makeRequest<any>('POST', 'chat/sessions/chat/', payload);
         console.log('✅ New conversation response:', response);
         return {
           conversation_id: response.session_id || response.conversation_id,
@@ -481,7 +481,7 @@ class ChatService {
 
     // For Django backend, we can start with a simple message to create session
     try {
-      const response = await this.makeRequest<any>('POST', 'chat/sessions/', payload);
+      const response = await this.makeRequest<any>('POST', 'chat/sessions/chat/', payload);
       console.log('✅ New conversation response:', response);
       return {
         conversation_id: response.session_id || response.conversation_id,
@@ -587,7 +587,7 @@ class ChatService {
 
     try {
       // Try a simple endpoint to test connection
-      await this.makeRequest('POST', 'chat/sessions/', {
+      await this.makeRequest('POST', 'chat/sessions/chat/', {
         message: 'Connection test',
         context: {}
       });
