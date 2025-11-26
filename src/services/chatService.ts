@@ -449,10 +449,8 @@ class ChatService {
         console.error('🔐 Authentication required for chat service');
         throw new Error('Authentication required. Please log in to use chat.');
       }
-      console.log('Main chat endpoint failed, trying fallback...');
-      // Fallback to conversations endpoint structure
-      const fallbackResult = await this.makeRequest<any>('POST', 'chat/conversations/', request);
-      return this.transformApiResponse(fallbackResult);
+      // Re-throw authentication or network errors - no fallback for send message
+      throw error;
     }
   }
 
@@ -504,18 +502,12 @@ class ChatService {
     }
 
     try {
-      // Try the main chat sessions endpoint first
       const result = await this.makeRequest<any>('GET', 'chat/sessions/');
       return this.transformConversationsResponse(result);
     } catch (error) {
-      console.log('📝 Chat sessions list endpoint not available, using fallback');
-      try {
-        const fallbackResult = await this.makeRequest<any>('GET', 'chat/conversations/');
-        return this.transformConversationsResponse(fallbackResult);
-      } catch (fallbackError) {
-        console.log('⚠️ No conversation history endpoint available, returning empty list');
-        return [];
-      }
+      console.log('📝 Chat sessions endpoint failed, returning empty list');
+      // No fallback needed - backend only has /sessions/ endpoints
+      return [];
     }
   }
 
@@ -533,9 +525,8 @@ class ChatService {
     try {
       const result = await this.makeRequest<any>('GET', `chat/sessions/${conversationId}/`);
       return this.transformConversationResponse(result);
-    } catch (error) {
-      const fallbackResult = await this.makeRequest<any>('GET', `chat/conversations/${conversationId}/`);
-      return this.transformConversationResponse(fallbackResult);
+    } catch (error: any) {
+      throw new Error(`Failed to load conversation: ${error.message || 'Unknown error'}`);
     }
   }
 
@@ -549,11 +540,7 @@ class ChatService {
       }
     }
 
-    try {
-      return this.makeRequest<void>('DELETE', `chat/sessions/${conversationId}/`);
-    } catch (error) {
-      return this.makeRequest<void>('DELETE', `chat/conversations/${conversationId}/`);
-    }
+    return this.makeRequest<void>('DELETE', `chat/sessions/${conversationId}/`);
   }
 
   // Template methods
