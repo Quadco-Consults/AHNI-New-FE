@@ -47,7 +47,25 @@ export type TFormValuesSecond = z.infer<typeof SecuritySchema>;
 export default function Account() {
   // const dispatch = useAppDispatch();
 
-  const { data: profile, refetch: refetchProfile } = useGetUserProfile();
+  const { data: profile, refetch: refetchProfile, isLoading: isProfileLoading, error } = useGetUserProfile();
+
+  // Enhanced debugging for account data loading
+  console.log('🔍 Account Component - useGetUserProfile state:', {
+    profile,
+    isLoading: isProfileLoading,
+    error,
+    hasData: !!profile?.data,
+    fullProfile: profile,
+    errorDetails: error
+  });
+
+  // Check authentication state
+  console.log('🔍 Account Component - Authentication check:', {
+    hasToken: !!localStorage.getItem('token'),
+    tokenPreview: localStorage.getItem('token')?.substring(0, 20) + '...',
+    hasAccessToken: !!localStorage.getItem('access_token'),
+    accessTokenPreview: localStorage.getItem('access_token')?.substring(0, 20) + '...'
+  });
   const dispatch = useAppDispatch();
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -58,7 +76,7 @@ export default function Account() {
     size: 2000000,
   });
 
-  const { authChangePassword, isLoading } = useAuthChangePassword();
+  const { authChangePassword, isLoading: isPasswordChangeLoading } = useAuthChangePassword();
 
   const Profileform = useForm<TFormValues>({
     resolver: zodResolver(ProfileSchema),
@@ -94,31 +112,91 @@ export default function Account() {
   const [file, setFile] = useState<File>();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Manual API test for debugging
   useEffect(() => {
-    if (profile?.data) {
-      const roles = profile?.data?.roles || [];
+    const testDirectAPICall = async () => {
+      try {
+        const baseURL = process.env.NEXT_PUBLIC_BASE_URL || 'https://ahni-erp-029252c2fbb9.herokuapp.com/api/v1/';
+        const fullURL = `${baseURL}users/profile/`;
+
+        console.log('🧪 Manual API Test - Attempting direct call to:', fullURL);
+        console.log('🧪 Manual API Test - Using token:', localStorage.getItem('token')?.substring(0, 20) + '...');
+
+        const response = await fetch(fullURL, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        console.log('🧪 Manual API Test - Response status:', response.status);
+        console.log('🧪 Manual API Test - Response headers:', Object.fromEntries(response.headers.entries()));
+
+        const data = await response.json();
+        console.log('🧪 Manual API Test - Response data:', data);
+      } catch (err) {
+        console.error('🧪 Manual API Test - Error:', err);
+      }
+    };
+
+    if (typeof window !== 'undefined' && localStorage.getItem('token')) {
+      testDirectAPICall();
+    }
+  }, []);
+
+  useEffect(() => {
+    console.log('🔍 Account Component - Profile data:', profile);
+    console.log('🔍 Account Component - Profile loading:', !profile);
+    console.log('🔍 Account Component - Profile structure check:', {
+      hasProfile: !!profile,
+      hasProfileData: !!profile?.data,
+      profileKeys: profile ? Object.keys(profile) : [],
+      dataKeys: profile?.data ? Object.keys(profile.data) : []
+    });
+
+    // Check if we have profile data in the right structure
+    // The API returns data directly, not nested under profile.data
+    const profileData = profile;
+
+    if (profileData && typeof profileData === 'object' && profileData.id) {
+      console.log('📋 Raw profile data structure:', JSON.stringify(profileData, null, 2));
+      console.log('🔄 Form reset triggered - About to populate form with profile data');
+
+      const roles = profileData.roles || [];
       const roleValues = roles.map((role: any) => role.id || role);
 
-      Profileform.reset({
-        first_name: profile.data.first_name || "",
-        last_name: profile.data.last_name || "",
-        email: profile.data.email || "",
+      console.log('🔄 Form reset - Processed role values:', roleValues);
+
+      const formData = {
+        first_name: profileData.first_name || "",
+        last_name: profileData.last_name || "",
+        email: profileData.email || "",
         // @ts-ignore
-        username: profile.data.username || "",
+        username: profileData.username || profileData.employee_id || "",
         // @ts-ignore
         role: roleValues || [],
-        gender: profile.data.gender || "",
-        profile_picture: profile.data.profile_picture || "",
-        mobile_number: profile.data.mobile_number || "",
-        department: typeof profile.data.department === 'object' && profile.data.department !== null
-          ? profile.data.department.name || profile.data.department.title || ""
-          : profile.data.department || "",
-        position: typeof profile.data.position === 'object' && profile.data.position !== null
-          ? profile.data.position.name || profile.data.position.title || ""
-          : profile.data.position || "",
-        location: profile.data.location || "",
-        user_type: profile.data.user_type || "",
-      });
+        gender: profileData.gender || "",
+        profile_picture: profileData.profile_picture || "",
+        mobile_number: profileData.mobile_number || "",
+        department: typeof profileData.department === 'object' && profileData.department !== null
+          ? profileData.department.name || profileData.department.title || ""
+          : profileData.department || "",
+        position: typeof profileData.position === 'object' && profileData.position !== null
+          ? profileData.position.name || profileData.position.title || ""
+          : profileData.position || "",
+        location: typeof profileData.location === 'object' && profileData.location !== null
+          ? profileData.location.name || profileData.location.title || ""
+          : profileData.location || "",
+        user_type: profileData.user_type || "",
+      };
+
+      console.log('🔄 Form reset - Data about to be set:', formData);
+
+      Profileform.reset(formData);
+
+      console.log('✅ Form reset completed');
+    } else {
+      console.log('❌ No profile data available for form reset');
     }
   }, [profile, Profileform]);
 
@@ -230,8 +308,8 @@ export default function Account() {
               style={{
                 backgroundImage: file
                   ? `url(${URL.createObjectURL(file)})`
-                  : profile?.data?.profile_picture
-                  ? `url(${profile?.data?.profile_picture})`
+                  : profile?.profile_picture
+                  ? `url(${profile?.profile_picture})`
                   : "none",
                 backgroundSize: "cover",
                 backgroundPosition: "center",
@@ -418,9 +496,9 @@ export default function Account() {
 
                       <div className='flex justify-end gap-5 mt-16'>
                         <FormButton
-                          loading={isLoading}
+                          loading={isPasswordChangeLoading}
                           type='submit'
-                          disabled={isLoading}
+                          disabled={isPasswordChangeLoading}
                         >
                           Update Password
                         </FormButton>

@@ -11,6 +11,7 @@ import Suspense from "components/Suspense";
 import { cn } from "lib/utils";
 import { useState, useEffect } from "react";
 import { getAccessToken } from "utils/auth";
+import { useAuthInitialization } from "@/hooks/useAuthInitialization";
 
 export default function DashboardLayout({
     children,
@@ -20,12 +21,16 @@ export default function DashboardLayout({
     const [sidebarWidth, setSidebarWidth] = useState(false);
     const router = useRouter();
 
+    // Initialize authentication state properly
+    const { isInitialized, isAuthenticated } = useAuthInitialization();
+
     useEffect(() => {
-        const token = getAccessToken();
-        if (!token) {
+        // Wait for auth initialization before checking
+        if (isInitialized && !isAuthenticated) {
+            console.log('🔄 No authentication detected, redirecting to login');
             router.push("/auth/login");
         }
-    }, [router]);
+    }, [router, isInitialized, isAuthenticated]);
 
     return (
         <div className="flex">

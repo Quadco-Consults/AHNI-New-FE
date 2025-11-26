@@ -74,8 +74,8 @@ const Header = ({ sidebarWidth }: { sidebarWidth: boolean }) => {
           <PopoverTrigger asChild>
             <Avatar>
               <AvatarImage src={
-                typeof profile?.data?.profile_picture === 'string'
-                  ? profile.data.profile_picture
+                typeof profile?.profile_picture === 'string'
+                  ? profile.profile_picture
                   : avatarPng.src
               } />
 
@@ -85,17 +85,17 @@ const Header = ({ sidebarWidth }: { sidebarWidth: boolean }) => {
           <PopoverContent className='w-[250px] p-5 flex flex-col flex-shrink-0 gap-3 items-center'>
             <Avatar>
               <AvatarImage src={
-                typeof profile?.data?.profile_picture === 'string'
-                  ? profile.data.profile_picture
+                typeof profile?.profile_picture === 'string'
+                  ? profile.profile_picture
                   : avatarPng.src
               } />
               <AvatarFallback>AD</AvatarFallback>
             </Avatar>
             <div className='flex flex-col items-center'>
               <div className=''>
-                {profile?.data?.first_name} {profile?.data?.last_name}
+                {profile?.first_name} {profile?.last_name}
               </div>
-              <small className=''> {profile?.data?.email}</small>
+              <small className=''> {profile?.email}</small>
             </div>
             <Button
               onClick={() => {

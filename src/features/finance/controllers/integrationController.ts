@@ -32,15 +32,23 @@ export const useGetIntegrationStats = (period: number = 30) => {
     queryKey: ["integration-stats", period],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get(`/api/finance/integration-stats/?days=${period}`);
+        const response = await AxiosWithToken.get(`finance/integration-stats/?days=${period}`);
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
+
+        // Check for 404 - endpoint not implemented
+        if (axiosError.response?.status === 404) {
+          console.warn("Integration stats endpoint not found (404) - feature may not be implemented yet");
+          throw new Error("Integration statistics feature is currently being implemented. Please check back later.");
+        }
+
         throw new Error("Failed to fetch integration stats: " + (axiosError.response?.data as any)?.message);
       }
     },
     refetchInterval: 30000, // Refetch every 30 seconds
     refetchOnWindowFocus: true,
+    retry: false, // Don't retry on error to prevent infinite loading
   });
 };
 
@@ -59,7 +67,7 @@ export const useGetIntegrationActivity = (filters?: IntegrationFilters) => {
         if (filters?.page) params.append('page', filters.page.toString());
         if (filters?.page_size) params.append('page_size', filters.page_size.toString());
 
-        const response = await AxiosWithToken.get(`/api/finance/integration-activity/?${params.toString()}`);
+        const response = await AxiosWithToken.get(`finance/integration-activity/?${params.toString()}`);
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
@@ -77,7 +85,7 @@ export const useGetSyncStatus = () => {
     queryKey: ["sync-status"],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get("/api/finance/sync-status/");
+        const response = await AxiosWithToken.get("finance/sync-status/");
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
@@ -96,7 +104,7 @@ export const useGetFinancialAnalysis = (days: number = 30) => {
     queryKey: ["financial-analysis", days],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get(`/api/finance/analysis/?days=${days}`);
+        const response = await AxiosWithToken.get(`finance/analysis/?days=${days}`);
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
@@ -114,7 +122,7 @@ export const useGetDashboardWidgets = () => {
     queryKey: ["dashboard-widgets"],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get("/api/finance/dashboard-widgets/");
+        const response = await AxiosWithToken.get("finance/dashboard-widgets/");
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
@@ -137,7 +145,7 @@ export const useGetIntegrationAlerts = (resolved?: boolean) => {
         if (resolved !== undefined) params.append('resolved', resolved.toString());
         params.append('page_size', '50');
 
-        const response = await AxiosWithToken.get(`/api/finance/integration-alerts/?${params.toString()}`);
+        const response = await AxiosWithToken.get(`finance/integration-alerts/?${params.toString()}`);
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
@@ -156,7 +164,7 @@ export const useGetRecentTransactions = (limit: number = 10) => {
     queryKey: ["recent-transactions", limit],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get(`/api/finance/recent-transactions/?limit=${limit}`);
+        const response = await AxiosWithToken.get(`finance/recent-transactions/?limit=${limit}`);
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
@@ -175,7 +183,7 @@ export const useGetModuleStats = () => {
     queryKey: ["module-stats"],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get("/api/finance/module-stats/");
+        const response = await AxiosWithToken.get("finance/module-stats/");
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;

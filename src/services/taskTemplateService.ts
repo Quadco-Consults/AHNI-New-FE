@@ -3,6 +3,11 @@
 
 import { TaskTemplate, IntentPattern, UserContext } from '../types/chatTypes';
 import { createWorkPlanTemplate } from '../data/taskTemplates/workPlanCreation';
+import { createEmployeeTemplate } from '../data/taskTemplates/hr/createEmployee';
+import { submitLeaveRequestTemplate } from '../data/taskTemplates/hr/submitLeaveRequest';
+import { createFundRequestTemplate } from '../data/taskTemplates/programs/createFundRequest';
+import { planSiteVisitTemplate } from '../data/taskTemplates/programs/planSiteVisit';
+import { createPurchaseRequestTemplate } from '../data/taskTemplates/procurement/createPurchaseRequest';
 
 class TaskTemplateService {
   private templates: Map<string, TaskTemplate> = new Map();
@@ -14,12 +19,23 @@ class TaskTemplateService {
   }
 
   private loadTemplates() {
-    // Load initial template
-    this.templates.set('create_work_plan', createWorkPlanTemplate);
+    // Load priority templates - Foundation for 100+ template system
 
-    // TODO: Load all 100+ templates
-    // This would typically load from a database or API
-    // For now, we'll demonstrate with one template
+    // Programs Module Templates
+    this.templates.set('create_work_plan', createWorkPlanTemplate);
+    this.templates.set('create_fund_request', createFundRequestTemplate);
+    this.templates.set('plan_site_visit', planSiteVisitTemplate);
+
+    // HR Module Templates
+    this.templates.set('create_employee', createEmployeeTemplate);
+    this.templates.set('submit_leave_request', submitLeaveRequestTemplate);
+
+    // Procurement Module Templates
+    this.templates.set('create_purchase_request', createPurchaseRequestTemplate);
+
+    // TODO: Load remaining 94+ templates as they're created
+    // Future templates will follow the same pattern and structure
+    console.log(`📋 Loaded ${this.templates.size} task templates for AHNI ERP guidance`);
   }
 
   private loadIntentPatterns() {
@@ -55,9 +71,20 @@ class TaskTemplateService {
           'schedule site visit',
           'field trip planning',
           'supervision visit',
-          'monitoring visit'
+          'monitoring visit',
+          'site visit planning',
+          'field supervision',
+          'program monitoring',
+          'project site visit',
+          'supportive supervision',
+          'field assessment',
+          'location visit',
+          'outreach visit',
+          'community visit',
+          'stakeholder engagement visit',
+          'training visit'
         ],
-        entities: ['site_visit', 'field_visit', 'supervision'],
+        entities: ['site_visit', 'field_visit', 'supervision', 'monitoring', 'assessment', 'outreach'],
         confidence: 0.9,
         category: 'task_guidance',
         targetModule: 'programs'
@@ -65,7 +92,7 @@ class TaskTemplateService {
 
       // Fund Request Intent
       {
-        intent: 'request_funds',
+        intent: 'create_fund_request',
         patterns: [
           'how do i request funds',
           'request money',
@@ -73,9 +100,17 @@ class TaskTemplateService {
           'fund request',
           'need money for activity',
           'request funding',
-          'how to get funds'
+          'how to get funds',
+          'create fund request',
+          'apply for funds',
+          'funding request',
+          'budget request',
+          'request project funds',
+          'main request',
+          'supplementary request',
+          'activity funding'
         ],
-        entities: ['fund_request', 'budget', 'money'],
+        entities: ['fund_request', 'budget', 'money', 'funding', 'main', 'supplementary'],
         confidence: 0.9,
         category: 'task_guidance',
         targetModule: 'programs'
@@ -100,7 +135,7 @@ class TaskTemplateService {
 
       // Leave Request Intent
       {
-        intent: 'request_leave',
+        intent: 'submit_leave_request',
         patterns: [
           'how do i request leave',
           'apply for leave',
@@ -108,9 +143,20 @@ class TaskTemplateService {
           'vacation request',
           'sick leave',
           'annual leave',
-          'how to apply for leave'
+          'how to apply for leave',
+          'submit leave request',
+          'book time off',
+          'holiday request',
+          'personal leave',
+          'emergency leave',
+          'maternity leave',
+          'paternity leave',
+          'compassionate leave',
+          'study leave',
+          'unpaid leave',
+          'half day leave'
         ],
-        entities: ['leave', 'vacation', 'time_off'],
+        entities: ['leave', 'vacation', 'time_off', 'holiday', 'sick', 'personal', 'emergency'],
         confidence: 0.9,
         category: 'task_guidance',
         targetModule: 'hr'
@@ -125,9 +171,21 @@ class TaskTemplateService {
           'purchase request',
           'procurement request',
           'order supplies',
-          'request to buy'
+          'request to buy',
+          'create purchase request',
+          'buying approval',
+          'vendor selection',
+          'procurement process',
+          'order equipment',
+          'buy office supplies',
+          'request quotes',
+          'supplier selection',
+          'purchase approval',
+          'buying process',
+          'order materials',
+          'equipment request'
         ],
-        entities: ['purchase', 'procurement', 'buy'],
+        entities: ['purchase', 'procurement', 'buy', 'order', 'supplies', 'equipment', 'vendor', 'supplier'],
         confidence: 0.9,
         category: 'task_guidance',
         targetModule: 'procurement'
