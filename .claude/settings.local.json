@@ -16,7 +16,8 @@
       "Bash(git merge:*)",
       "Bash(npx eslint:*)",
       "Bash(xargs sed:*)",
-      "Bash(lsof:*)"
+      "Bash(lsof:*)",
+      "Bash(rm:*)"
     ],
     "deny": [],
     "ask": []
