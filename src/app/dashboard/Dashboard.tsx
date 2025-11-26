@@ -369,7 +369,20 @@ export default function Dashboard() {
 
     // Group by department (assuming a department field exists)
     const departmentGroups = workforce.reduce((acc: any, employee: any) => {
-      const dept = employee.department || 'Unknown';
+      // Handle department field - could be string, object, or null
+      let dept = 'Unknown';
+      if (employee.department) {
+        if (typeof employee.department === 'string') {
+          dept = employee.department;
+        } else if (typeof employee.department === 'object' && employee.department.name) {
+          dept = employee.department.name;
+        } else if (typeof employee.department === 'object' && employee.department.title) {
+          dept = employee.department.title;
+        } else {
+          dept = 'Unknown Department';
+        }
+      }
+
       acc[dept] = (acc[dept] || 0) + 1;
       return acc;
     }, {});

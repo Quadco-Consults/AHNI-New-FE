@@ -144,6 +144,10 @@ export const EnhancedMessageBubble = ({ message, className }: EnhancedMessageBub
   };
 
   const renderStructuredResponse = () => {
+    if (!message.content || typeof message.content !== 'string') {
+      return null;
+    }
+
     return (
       <Card className="mt-3 border-green-200">
         <CardContent className="p-4">
@@ -233,7 +237,11 @@ export const EnhancedMessageBubble = ({ message, className }: EnhancedMessageBub
     );
   };
 
-  const formatMessageContent = (content: string) => {
+  const formatMessageContent = (content: string | undefined | null) => {
+    if (!content || typeof content !== 'string') {
+      return null;
+    }
+
     return content.split('\n').map((line, index) => {
       if (line.startsWith('**') && line.endsWith('**')) {
         return (

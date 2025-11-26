@@ -88,6 +88,8 @@ export const useChatStore = create<ChatStore>()(
             conversation_id: currentConversationId || undefined,
           });
 
+          console.log('📨 Raw API response:', response);
+
           // Add bot response
           const botMessage: ChatMessage = {
             id: `bot-${Date.now()}`,
@@ -99,19 +101,37 @@ export const useChatStore = create<ChatStore>()(
             structuredData: response.structured_data,
           };
 
-          set((state) => ({
-            messages: [...state.messages, botMessage],
-            currentConversationId: response.conversation_id,
-            isTyping: false,
-          }));
+          console.log('🤖 Created bot message:', botMessage);
+
+          set((state) => {
+            const updatedMessages = [...state.messages, botMessage];
+            console.log('💬 All messages after update:', updatedMessages);
+
+            return {
+              messages: updatedMessages,
+              currentConversationId: response.conversation_id,
+              isTyping: false,
+            };
+          });
 
           // Refresh conversations list to include new messages
           await get().loadConversations();
 
         } catch (error: any) {
-          set({ 
-            error: error.message || 'Failed to send message',
-            isTyping: false 
+          console.error('❌ Chat send message error:', error);
+
+          let errorMessage = error.message || 'Failed to send message';
+
+          // Handle specific error types
+          if (error.message?.includes('Authentication required')) {
+            errorMessage = 'Please log in to use the chat feature.';
+          } else if (error.message?.includes('Network')) {
+            errorMessage = 'Connection error. Please check your internet connection.';
+          }
+
+          set({
+            error: errorMessage,
+            isTyping: false
           });
         } finally {
           set({ isLoading: false });
@@ -142,15 +162,20 @@ export const useChatStore = create<ChatStore>()(
       loadConversation: async (conversationId: string) => {
         try {
           set({ isLoading: true, error: null });
-          
+
+          console.log('🔄 Loading conversation:', conversationId);
           const conversation = await chatService.getConversation(conversationId);
-          
+          console.log('📑 Loaded conversation:', conversation);
+
           set({
             currentConversationId: conversationId,
             messages: conversation.messages,
           });
 
+          console.log('✅ Conversation loaded into store with messages:', conversation.messages);
+
         } catch (error: any) {
+          console.error('❌ Failed to load conversation:', error);
           set({ error: error.message || 'Failed to load conversation' });
         } finally {
           set({ isLoading: false });
