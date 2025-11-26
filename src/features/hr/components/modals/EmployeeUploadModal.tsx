@@ -10,7 +10,8 @@ import { closeDialog } from "store/ui";
 import { useRouter } from "next/navigation";
 import { HrRoutes } from "constants/RouterConstants";
 import { CheckCircle, AlertTriangle, FileSpreadsheet, Upload, Download } from "lucide-react";
-import * as XLSX from "xlsx";
+import { XLSX } from "@/utils/excelUtils";
+import readXlsxFile from 'read-excel-file';
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 
 interface EmployeeUploadModalProps {

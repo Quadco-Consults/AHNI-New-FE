@@ -5,7 +5,8 @@ import { toast } from "sonner";
 import Modal from "react-modal";
 import { Button } from "components/ui/button";
 import { Icon } from "@iconify/react";
-import * as XLSX from "xlsx";
+import { XLSX } from "@/utils/excelUtils";
+import readXlsxFile from 'read-excel-file';
 import { useCreateCompensationSpread } from "@/features/hr/controllers/hrCompensationSpreadController";
 
 type PropsType = {
@@ -107,32 +108,42 @@ const BulkUploadCompensationSpreadModal = (props: PropsType) => {
     toast.success("Template downloaded successfully!");
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const selectedFile = e.target.files[0];
       setFile(selectedFile);
-      parseExcelFile(selectedFile);
+      await parseExcelFile(selectedFile);
     }
   };
 
-  const parseExcelFile = (file: File) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const data = new Uint8Array(e.target?.result as ArrayBuffer);
-        const workbook = XLSX.read(data, { type: "array" });
-        const sheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[sheetName];
-        const jsonData = XLSX.utils.sheet_to_json(worksheet);
+  const parseExcelFile = async (file: File) => {
+    try {
+      const jsonData = await readXlsxFile(file);
 
-        setParsedData(jsonData);
-        toast.success(`File parsed successfully! ${jsonData.length} employee records found.`);
-      } catch (error) {
-        toast.error("Error parsing file. Please check the format.");
+      // Convert array of arrays to array of objects (header is first row)
+      if (jsonData.length === 0) {
+        toast.error("File is empty.");
         setFile(null);
+        return;
       }
-    };
-    reader.readAsArrayBuffer(file);
+
+      const headers = jsonData[0] as string[];
+      const dataRows = jsonData.slice(1);
+
+      const convertedData = dataRows.map(row => {
+        const obj: any = {};
+        headers.forEach((header, index) => {
+          obj[header] = row[index];
+        });
+        return obj;
+      });
+
+      setParsedData(convertedData);
+      toast.success(`File parsed successfully! ${convertedData.length} employee records found.`);
+    } catch (error) {
+      toast.error("Error parsing file. Please check the format.");
+      setFile(null);
+    }
   };
 
   const handleUpload = async () => {
