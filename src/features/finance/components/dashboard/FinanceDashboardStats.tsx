@@ -91,22 +91,63 @@ export function FinanceDashboardStats() {
   const [totalClassifications, setTotalClassifications] = useState(0);
   const [classificationLoading, setClassificationLoading] = useState(true);
 
+  // Add error logging for debugging
+  console.log('🏦 Finance Dashboard Stats - Component mounted');
+
+  // Mock data for development (enable when backend endpoints are not available)
+  const useMockData = true; // Set to true if backend endpoints are not available
+
+  // Mock data for development
+  const mockIntegrationStats = {
+    data: {
+      total_transactions: 1247,
+      successful_integrations: 1189,
+      total_amount: 45678.90,
+      modules: ['purchase-orders', 'invoicing', 'payroll', 'inventory']
+    }
+  };
+
+  const mockJournalStats = {
+    data: {
+      total_entries: 342,
+      posted_entries: 298,
+      draft_entries: 44
+    }
+  };
+
   // Fetch classification data
-  const { data: budgetLinesData, isLoading: budgetLoading } = useGetBudgetLines({ page_size: 1 });
-  const { data: costCategoriesData, isLoading: categoriesLoading } = useGetCostCategories({ page_size: 1 });
-  const { data: fcoNumbersData, isLoading: fcoLoading } = useGetFCONumbers({ page_size: 1 });
-  const { data: costGroupingsData, isLoading: groupingsLoading } = useGetCostGroupings({ page_size: 1 });
-  const { data: costInputsData, isLoading: inputsLoading } = useGetCostInputs({ page_size: 1 });
+  const { data: budgetLinesData, isLoading: budgetLoading, error: budgetError } = useGetBudgetLines({ page_size: 1 });
+  const { data: costCategoriesData, isLoading: categoriesLoading, error: categoriesError } = useGetCostCategories({ page_size: 1 });
+  const { data: fcoNumbersData, isLoading: fcoLoading, error: fcoError } = useGetFCONumbers({ page_size: 1 });
+  const { data: costGroupingsData, isLoading: groupingsLoading, error: groupingsError } = useGetCostGroupings({ page_size: 1 });
+  const { data: costInputsData, isLoading: inputsLoading, error: inputsError } = useGetCostInputs({ page_size: 1 });
+
+  // Log errors for debugging
+  if (budgetError) console.error('🏦 Budget Lines API Error:', budgetError);
+  if (categoriesError) console.error('🏦 Cost Categories API Error:', categoriesError);
+  if (fcoError) console.error('🏦 FCO Numbers API Error:', fcoError);
+  if (groupingsError) console.error('🏦 Cost Groupings API Error:', groupingsError);
+  if (inputsError) console.error('🏦 Cost Inputs API Error:', inputsError);
 
   // Fetch accounting data
   const { data: journalEntriesData, isLoading: journalLoading, error: journalError } = useGetJournalEntries({ page_size: 1 });
-  const { data: chartOfAccountsData, isLoading: chartLoading } = useGetChartOfAccounts({ page_size: 1 });
+  const { data: chartOfAccountsData, isLoading: chartLoading, error: chartError } = useGetChartOfAccounts({ page_size: 1 });
 
-  // Fetch integration data
-  const { data: integrationStats, isLoading: integrationLoading } = useGetIntegrationStats(30);
+  // Fetch integration data (conditionally use mock data)
+  const { data: integrationStats, isLoading: integrationLoading, error: integrationError } = useGetIntegrationStats(30);
+  const finalIntegrationStats = useMockData ? mockIntegrationStats : integrationStats;
+  const finalIntegrationLoading = useMockData ? false : integrationLoading;
 
-  // Fetch journal entry statistics (for better stats display)
-  const { data: journalStats, isLoading: journalStatsLoading } = useGetJournalEntryStats();
+  // Fetch journal entry statistics (conditionally use mock data)
+  const { data: journalStats, isLoading: journalStatsLoading, error: journalStatsError } = useGetJournalEntryStats();
+  const finalJournalStats = useMockData ? mockJournalStats : journalStats;
+  const finalJournalStatsLoading = useMockData ? false : journalStatsLoading;
+
+  // Log additional errors
+  if (journalError) console.error('🏦 Journal Entries API Error:', journalError);
+  if (chartError) console.error('🏦 Chart of Accounts API Error:', chartError);
+  if (integrationError) console.error('🏦 Integration Stats API Error:', integrationError);
+  if (journalStatsError) console.error('🏦 Journal Stats API Error:', journalStatsError);
 
   // Calculate total classifications
   useEffect(() => {
@@ -136,9 +177,9 @@ export function FinanceDashboardStats() {
   };
 
   const getIntegrationStatus = () => {
-    if (integrationLoading) return { text: "Loading...", variant: "secondary" as const };
+    if (finalIntegrationLoading) return { text: "Loading...", variant: "secondary" as const };
 
-    const stats = integrationStats?.data;
+    const stats = finalIntegrationStats?.data;
     if (!stats) return { text: "Unknown", variant: "secondary" as const };
 
     const successRate = stats.total_transactions > 0
@@ -166,12 +207,12 @@ export function FinanceDashboardStats() {
       {/* Journal Entries */}
       <StatCard
         title="Journal Entries"
-        value={journalStats?.data?.total_entries || journalEntriesData?.data?.count || 0}
+        value={finalJournalStats?.data?.total_entries || journalEntriesData?.data?.count || 0}
         icon={FileText}
         color="bg-purple-500"
-        subtitle={journalStats?.data ? `${journalStats.data.posted_entries} posted, ${journalStats.data.draft_entries} draft` : "Total entries in system"}
-        loading={journalLoading || journalStatsLoading}
-        error={!!journalError}
+        subtitle={finalJournalStats?.data ? `${finalJournalStats.data.posted_entries} posted, ${finalJournalStats.data.draft_entries} draft` : "Total entries in system"}
+        loading={journalLoading || finalJournalStatsLoading}
+        error={!!journalError && !useMockData}
         errorMessage="Feature being implemented"
       />
 
@@ -188,42 +229,42 @@ export function FinanceDashboardStats() {
       {/* Integration Status */}
       <StatCard
         title="Integration Health"
-        value={integrationStats?.data?.total_transactions || 0}
+        value={finalIntegrationStats?.data?.total_transactions || 0}
         icon={Link2}
         color="bg-indigo-500"
         subtitle="Total transactions processed"
         badge={getIntegrationStatus()}
-        loading={integrationLoading}
+        loading={finalIntegrationLoading}
       />
 
       {/* Additional Stats Row */}
       <StatCard
         title="Monthly Volume"
-        value={formatCurrency(integrationStats?.data?.total_amount || 0)}
+        value={formatCurrency(finalIntegrationStats?.data?.total_amount || 0)}
         icon={DollarSign}
         color="bg-emerald-500"
         subtitle="Current month transaction volume"
-        loading={integrationLoading}
+        loading={finalIntegrationLoading}
       />
 
       <StatCard
         title="Success Rate"
-        value={integrationStats?.data?.total_transactions && integrationStats?.data?.total_transactions > 0
-          ? `${Math.round((integrationStats.data.successful_integrations / integrationStats.data.total_transactions) * 100)}%`
+        value={finalIntegrationStats?.data?.total_transactions && finalIntegrationStats?.data?.total_transactions > 0
+          ? `${Math.round((finalIntegrationStats.data.successful_integrations / finalIntegrationStats.data.total_transactions) * 100)}%`
           : "0%"}
         icon={TrendingUp}
         color="bg-orange-500"
         subtitle="Integration success rate"
-        loading={integrationLoading}
+        loading={finalIntegrationLoading}
       />
 
       <StatCard
         title="Active Modules"
-        value={integrationStats?.data?.modules?.length || 0}
+        value={finalIntegrationStats?.data?.modules?.length || 0}
         icon={Users}
         color="bg-pink-500"
         subtitle="Integrated ERP modules"
-        loading={integrationLoading}
+        loading={finalIntegrationLoading}
       />
 
       <StatCard

@@ -14,9 +14,11 @@ import Link from "next/link"; import { useRouter } from "next/navigation";
 import { HrRoutes } from "constants/RouterConstants";
 import { Checkbox } from "@/components/ui/checkbox";
 import PencilIcon from "@/components/icons/PencilIcon";
+import EyeIcon from "@/components/icons/EyeIcon";
 import IconButton from "@/components/IconButton";
 import FilterIcon from "@/components/icons/FilterIcon";
 import { useGetWorkforceNeedAnalysis } from "@/features/hr/controllers/hrWorkforceNeedAnalysisController";
+import { useGetWorkforces } from "@/features/hr/controllers/workforceController";
 
 import Card from "@/components/Card";
 import {
@@ -68,11 +70,23 @@ const WFNA: React.FC = () => {
   const selectedLocation = watch("location");
   const selectedPosition = watch("position");
 
-  // Use the same controllers as the form component for consistency
+  // Get all locations (increased page size to fetch all locations)
   const { data: locations, isLoading: locationIsLoading } =
-    useGetLocationList({});
+    useGetLocationList({
+      page: 1,
+      size: 1000, // Increased size to get all locations
+      search: "",
+      enabled: true
+    });
+
+  // Get all positions (increased page size to fetch all positions)
   const { data: positions, isLoading: positionIsLoading } =
-    useGetPositionPaginate({});
+    useGetPositionPaginate({
+      page: 1,
+      size: 1000, // Increased size to get all positions
+      search: "",
+      enabled: true
+    });
 
   const { data, isLoading: loadingWorkforce, error } =
     useGetWorkforceNeedAnalysis({
@@ -80,19 +94,78 @@ const WFNA: React.FC = () => {
       ...(selectedPosition && { position: selectedPosition }),
     });
 
+  // Debug: Get actual employee data to see how MD user is stored
+  const { data: employeeData, isLoading: employeeLoading } = useGetWorkforces({
+    page: 1,
+    size: 100,
+    search: "",
+    enabled: true,
+  });
+
   // Debug logging
   React.useEffect(() => {
     console.log('=== WORKFORCE NEED ANALYSIS DEBUG ===');
     console.log('Selected Location:', selectedLocation);
     console.log('Selected Position:', selectedPosition);
     console.log('Full API Response:', data);
-    console.log('Results:', data?.data?.results);
+    console.log('Analysis Results:', data?.data?.results);
     console.log('Results Count:', data?.data?.results?.length);
     console.log('Pagination:', data?.data?.pagination);
     console.log('Loading:', loadingWorkforce);
     console.log('Error:', error);
+    console.log('API Endpoint:', 'hr/employees/workforce/need-analysis/');
     console.log('====================================');
   }, [data, loadingWorkforce, error, selectedLocation, selectedPosition]);
+
+  // Debug positions and locations fetching
+  React.useEffect(() => {
+    console.log('=== POSITIONS & LOCATIONS DEBUG ===');
+    console.log('Positions Data:', positions);
+    console.log('Positions Count:', positions?.data?.results?.length);
+    console.log('Positions Loading:', positionIsLoading);
+    console.log('Locations Data:', locations);
+    console.log('Locations Count:', locations?.data?.results?.length);
+    console.log('Locations Loading:', locationIsLoading);
+    console.log('===================================');
+  }, [positions, positionIsLoading, locations, locationIsLoading]);
+
+  // Debug employee data to see how MD user position is stored
+  React.useEffect(() => {
+    console.log('=== EMPLOYEE DATA DEBUG ===');
+    console.log('Employee Data:', employeeData);
+    console.log('Employee Count:', employeeData?.data?.results?.length);
+    console.log('Employee Loading:', employeeLoading);
+
+    // Find MD user specifically
+    const mdEmployees = employeeData?.data?.results?.filter((employee: any) => {
+      const position = employee.position;
+      const positionName = typeof position === 'object' ? position?.name : position;
+      const positionId = typeof position === 'object' ? position?.id : position;
+
+      // Check if position matches MD in any form
+      return positionName?.toLowerCase().includes('md') ||
+             positionName?.toLowerCase().includes('managing director') ||
+             positionId === selectedPosition;
+    });
+
+    console.log('MD Employees Found:', mdEmployees);
+    console.log('Selected Position ID:', selectedPosition);
+
+    // Log all employee positions for comparison
+    if (employeeData?.data?.results?.length > 0) {
+      console.log('All Employee Positions:');
+      employeeData.data.results.forEach((employee: any, index: number) => {
+        console.log(`Employee ${index + 1}:`, {
+          name: `${employee.first_name} ${employee.last_name}`,
+          position: employee.position,
+          positionType: typeof employee.position,
+          positionId: typeof employee.position === 'object' ? employee.position?.id : employee.position,
+          positionName: typeof employee.position === 'object' ? employee.position?.name : employee.position
+        });
+      });
+    }
+    console.log('==============================');
+  }, [employeeData, employeeLoading, selectedPosition]);
 
   const onSubmit: SubmitHandler<TFormValues> = (values) => {
     // Filter values are automatically applied through getValues() in the query
@@ -241,7 +314,19 @@ const WFNA: React.FC = () => {
 
   const ActionListAction = ({ data }: any) => {
     return (
-      <div className='flex center'>
+      <div className='flex center gap-1'>
+        <Link
+          href={`/dashboard/hr/workforce-need-analysis/${data.original.id}`}
+        >
+          <Button
+            className='flex items-center justify-center gap-2'
+            variant='ghost'
+            size='sm'
+            title='View Analysis'
+          >
+            <EyeIcon />
+          </Button>
+        </Link>
         <Link
           href={{
             pathname: HrRoutes.WORKFORCE_NEED_ANALYSIS_CREATE,
@@ -249,8 +334,10 @@ const WFNA: React.FC = () => {
           }}
         >
           <Button
-            className='w-full flex items-center justify-start gap-2'
+            className='flex items-center justify-center gap-2'
             variant='ghost'
+            size='sm'
+            title='Edit Analysis'
           >
             <PencilIcon />
           </Button>

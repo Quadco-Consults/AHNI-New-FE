@@ -37,6 +37,19 @@ AxiosWithToken.interceptors.request.use(
 
     const token = localStorage.getItem("token");
 
+    // Debug profile API calls specifically
+    if (config.url === 'users/profile/') {
+      console.log('🎯 PROFILE API CALL DEBUG:', {
+        url: config.url,
+        method: config.method,
+        hasToken: !!token,
+        tokenLength: token?.length || 0,
+        tokenPreview: token ? `${token.substring(0, 20)}...` : 'NO TOKEN',
+        willAddAuthHeader: !!token,
+        baseURL: config.baseURL
+      });
+    }
+
     // Enhanced token debugging for FormData requests
     if (config.data instanceof FormData) {
       console.log('🔍 TOKEN DEBUG for FormData:', {

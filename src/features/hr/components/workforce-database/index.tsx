@@ -55,6 +55,22 @@ const WorkforceDatabase = () => {
   console.log("  All employees:", employeeData?.data?.results);
   console.log("  User data:", userData);
 
+  // Enhanced API debugging
+  console.log("🔍 Enhanced API Debug:");
+  console.log("  Employee Loading:", getEmployeeLoading);
+  console.log("  User Loading:", getUserLoading);
+  console.log("  Has Token:", !!localStorage.getItem('token'));
+  console.log("  Token Preview:", localStorage.getItem('token')?.substring(0, 20) + '...');
+  console.log("  API Base URL:", process.env.NEXT_PUBLIC_BASE_URL);
+
+  // Check for API errors
+  if (!employeeData && !getEmployeeLoading) {
+    console.error("❌ Employee API failed to load data");
+  }
+  if (!userData && !getUserLoading) {
+    console.error("❌ User API failed to load data");
+  }
+
   // Filter users to only include AHNI_STAFF and ADMIN user types
   const filteredUsers = userData?.data?.results?.filter((user: any) => {
     // Include only AHNI_STAFF and ADMIN user types for workforce database
@@ -167,8 +183,18 @@ const WorkforceDatabase = () => {
     {
       header: "Position",
       accessorKey: "position",
-      accessorFn: (data) => data.designation?.name || data.position || "N/A",
       size: 100,
+      cell: ({ getValue, row }) => {
+        const data = row.original;
+        const position = data.designation?.name || data.position;
+
+        // Handle position object structure
+        if (typeof position === 'object' && position !== null) {
+          return String((position as any).name || (position as any).title || 'Unknown Position');
+        }
+
+        return String(position || 'N/A');
+      },
     },
     {
       header: "Employment Type",

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Debug Tool</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .debug-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        button { padding: 10px 15px; margin: 5px; background: #007bff; color: white; border: none; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+        .token-display { word-break: break-all; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <h1>AHNI API Debug Tool</h1>
+
+    <div class="debug-section info">
+        <h3>🔍 Authentication Status</h3>
+        <div id="auth-status">Checking...</div>
+    </div>
+
+    <div class="debug-section">
+        <h3>🧪 API Tests</h3>
+        <button onclick="testAuth()">Test Authentication</button>
+        <button onclick="testEmployees()">Test Employee API</button>
+        <button onclick="testUsers()">Test Users API</button>
+        <button onclick="testProfile()">Test Profile API</button>
+        <button onclick="clearStorage()">Clear All Storage</button>
+    </div>
+
+    <div class="debug-section">
+        <h3>📋 Test Results</h3>
+        <div id="test-results">Click buttons above to run tests...</div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://ahni-erp-029252c2fbb9.herokuapp.com/api/v1/';
+
+        function log(message, type = 'info') {
+            const results = document.getElementById('test-results');
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'error' ? 'error' : type === 'success' ? 'success' : 'info';
+            results.innerHTML += `<div class="${className}"><strong>[${timestamp}]</strong> ${message}</div>`;
+            results.scrollTop = results.scrollHeight;
+        }
+
+        function checkAuth() {
+            const token = localStorage.getItem('token');
+            const user = localStorage.getItem('user');
+            const persistState = localStorage.getItem('persist:ahni');
+
+            const authStatus = document.getElementById('auth-status');
+
+            if (token) {
+                authStatus.innerHTML = `
+                    <div class="success">
+                        ✅ <strong>Token Found</strong><br>
+                        Length: ${token.length} characters<br>
+                        Preview: <div class="token-display">${token.substring(0, 50)}...</div>
+                        ${user ? '✅ User data found' : '❌ No user data'}
+                        ${persistState ? '✅ Redux persist data found' : '❌ No redux persist data'}
+                    </div>
+                `;
+            } else {
+                authStatus.innerHTML = `
+                    <div class="error">
+                        ❌ <strong>No Token Found</strong><br>
+                        Please log in again at <a href="/auth/login">/auth/login</a>
+                    </div>
+                `;
+            }
+        }
+
+        async function makeRequest(endpoint, description) {
+            const token = localStorage.getItem('token');
+
+            if (!token) {
+                log(`❌ ${description}: No token available`, 'error');
+                return null;
+            }
+
+            try {
+                log(`🔄 Testing ${description}...`);
+
+                const response = await fetch(`${API_BASE}${endpoint}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const responseData = await response.text();
+                let parsedData;
+
+                try {
+                    parsedData = JSON.parse(responseData);
+                } catch {
+                    parsedData = responseData;
+                }
+
+                if (response.ok) {
+                    log(`✅ ${description}: SUCCESS (${response.status})<br><pre>${JSON.stringify(parsedData, null, 2)}</pre>`, 'success');
+                    return parsedData;
+                } else {
+                    log(`❌ ${description}: FAILED (${response.status})<br><pre>${JSON.stringify(parsedData, null, 2)}</pre>`, 'error');
+                    return null;
+                }
+            } catch (error) {
+                log(`❌ ${description}: NETWORK ERROR<br><pre>${error.message}</pre>`, 'error');
+                return null;
+            }
+        }
+
+        async function testAuth() {
+            log('🧪 Starting authentication test...');
+            await makeRequest('auth/verify-token/', 'Token Verification');
+        }
+
+        async function testEmployees() {
+            log('🧪 Starting employee API test...');
+            const result = await makeRequest('hr/employees/?page=1&size=5', 'Employee Onboarding Data');
+            if (result) {
+                log(`📊 Employee Summary: ${result.data?.count || 0} total employees found`);
+            }
+        }
+
+        async function testUsers() {
+            log('🧪 Starting users API test...');
+            const result = await makeRequest('auth/users/?page=1&size=5', 'User Management Data');
+            if (result) {
+                log(`📊 Users Summary: ${result.data?.count || 0} total users found`);
+            }
+        }
+
+        async function testProfile() {
+            log('🧪 Starting profile API test...');
+            await makeRequest('users/profile/', 'User Profile Data');
+        }
+
+        function clearStorage() {
+            const confirmClear = confirm('Are you sure you want to clear all localStorage? This will log you out.');
+            if (confirmClear) {
+                localStorage.clear();
+                sessionStorage.clear();
+                log('🗑️ All storage cleared. Please refresh and log in again.', 'info');
+                checkAuth();
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAuth();
+            log('🚀 API Debug Tool initialized. Click buttons to test endpoints.');
+
+            // Auto-refresh auth status every 10 seconds
+            setInterval(checkAuth, 10000);
+        });
+    </script>
+</body>
+</html>

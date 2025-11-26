@@ -19,8 +19,22 @@ export default function AccountPage() {
     
     useEffect(() => {
         const token = getAccessToken();
+
+        console.log('🔍 Account Page - Comprehensive authentication debug:', {
+            getAccessTokenResult: token,
+            tokenExists: !!token,
+            tokenLength: token?.length || 0,
+            tokenPreview: token ? token.substring(0, 20) + '...' : 'NO TOKEN',
+            localStorageToken: typeof window !== 'undefined' ? localStorage.getItem('token') : 'SSR',
+            localStorageAccessToken: typeof window !== 'undefined' ? localStorage.getItem('access_token') : 'SSR',
+            windowDefined: typeof window !== 'undefined'
+        });
+
         if (!token) {
+            console.log('❌ Account Page - No token found, redirecting to login');
             redirect("/auth/login");
+        } else {
+            console.log('✅ Account Page - Token found, loading account page');
         }
     }, []);
 
