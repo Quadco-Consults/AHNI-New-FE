@@ -31,7 +31,6 @@ import { formatNumberCurrency } from "@/utils/utls";
 // Department features and error handling
 import { useDepartmentFeatures } from "@/hooks/useDepartmentFeatures";
 import { handleApiError, createErrorContext } from "@/utils/errorHandlers";
-import FinanceUserDebug from "@/components/debug/FinanceUserDebug";
 import {
   CalendarDays,
   DollarSign,
@@ -1304,8 +1303,6 @@ export default function Dashboard() {
         AHNI Real Data Dashboard • Live ERP Analytics • Last refreshed: {new Date().toLocaleString()}
       </div>
 
-      {/* Finance User Debug Component - Only shows for finance users in development */}
-      <FinanceUserDebug />
     </div>
   );
 }

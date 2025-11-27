@@ -68,6 +68,17 @@ const useApiManager = <TData = unknown, TError = Error, TVariables = unknown>({
   const apiController = async (
     details: TVariables
   ): Promise<ApiResponse<TData>> => {
+    // Enhanced logging for login debugging
+    if (endpoint === "auth/login/") {
+      console.log('🔍 LOGIN DEBUG - Starting API call:', {
+        endpoint,
+        method,
+        isAuth,
+        details,
+        baseURL: axiosInstance.defaults.baseURL
+      });
+    }
+
     try {
       let response: AxiosResponse<ApiResponse<TData>>;
       // For FormData uploads, we need to explicitly remove the Content-Type header
@@ -102,7 +113,29 @@ const useApiManager = <TData = unknown, TError = Error, TVariables = unknown>({
           throw new Error(`Unsupported HTTP method: ${method}`);
       }
 
-      return response.data;
+      // Enhanced logging for login debugging
+      if (endpoint === "auth/login/") {
+        console.log('✅ LOGIN DEBUG - Successful API response:', {
+          status: response.status,
+          statusText: response.statusText,
+          responseData: response.data,
+          headers: response.headers
+        });
+      }
+
+      // Handle special case for login endpoint response format normalization
+      const responseData = response.data as any;
+
+      // For login success, the backend returns status: "success" instead of status: true
+      if (endpoint === "auth/login/" && responseData.status === "success") {
+        console.log('🔄 LOGIN DEBUG - Normalizing response format from "success" to true');
+        return {
+          ...responseData,
+          status: true // Normalize to boolean for consistent handling
+        } as ApiResponse<TData>;
+      }
+
+      return responseData;
     } catch (error) {
       const axiosError = error as AxiosError<ApiResponse>;
       console.error("API Error Details:", {
