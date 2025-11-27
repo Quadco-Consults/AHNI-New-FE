@@ -32,10 +32,16 @@ const AddTicketModal = () => {
     const userData = userProfile?.data || currentUser?.data;
 
     // Debug logging
-    console.log("User Profile Data:", userProfile);
-    console.log("Current User Data:", currentUser);
-    console.log("Using userData:", userData);
-    console.log("Department structure:", userData?.department);
+    console.log("🔍 User Profile Data:", userProfile);
+    console.log("🔍 Profile Loading:", isUserLoading);
+    console.log("🔍 Current User Data:", currentUser);
+    console.log("🔍 Current User Loading:", isCurrentUserLoading);
+    console.log("🔍 Using userData:", userData);
+    console.log("🔍 Department structure:", userData?.department);
+
+    // Log authentication state from localStorage
+    console.log("🔍 Local Storage Token:", localStorage.getItem('token')?.substring(0, 20) + '...');
+    console.log("🔍 Local Storage User:", JSON.parse(localStorage.getItem('user') || '{}'));
 
     const { createTicket, isLoading: isCreatingLoading } =
     useCreateTicket();
@@ -124,12 +130,39 @@ const AddTicketModal = () => {
                     onSubmit={handleSubmit(onSubmit)}
                     className="flex flex-col gap-6"
                 >
+                    {/* Debug information */}
+                    <div className="p-3 bg-gray-50 rounded-md border border-gray-200 text-xs">
+                        <p className="font-medium text-gray-700 mb-1">Debug Info:</p>
+                        <p>Profile Loading: {isUserLoading ? '⏳' : '✅'}</p>
+                        <p>Current User Loading: {isCurrentUserLoading ? '⏳' : '✅'}</p>
+                        <p>Has User Data: {userData ? '✅' : '❌'}</p>
+                        <p>Has Auth Token: {typeof localStorage !== 'undefined' && localStorage.getItem('token') ? '✅' : '❌'}</p>
+                        {userData && <p>Email: {userData.email}</p>}
+                        {userData && <p>Department: {typeof userData.department === 'object' ? userData.department?.name : userData.department}</p>}
+                    </div>
+
                     {userData && (
                         <div className="p-3 bg-blue-50 rounded-md border border-blue-200">
                             <p className="text-sm text-blue-700">
                                 <span className="font-medium">Note:</span> Your contact details (email, department, phone) are automatically populated from your profile.
                                 <br />
                                 <span className="text-xs">User: {userData.first_name} {userData.last_name} ({userData.email})</span>
+                            </p>
+                        </div>
+                    )}
+
+                    {!userData && (isUserLoading || isCurrentUserLoading) && (
+                        <div className="p-3 bg-yellow-50 rounded-md border border-yellow-200">
+                            <p className="text-sm text-yellow-700">
+                                <span className="font-medium">Loading user data...</span> Please wait while we fetch your profile information.
+                            </p>
+                        </div>
+                    )}
+
+                    {!userData && !isUserLoading && !isCurrentUserLoading && (
+                        <div className="p-3 bg-red-50 rounded-md border border-red-200">
+                            <p className="text-sm text-red-700">
+                                <span className="font-medium">Unable to load user data.</span> Please ensure you're logged in and try again.
                             </p>
                         </div>
                     )}
