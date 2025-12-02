@@ -17,8 +17,9 @@ export type TimesheetEntry = {
   project: string; // UUID reference to Project
   project_name?: string; // Read-only
 
-  // Hybrid Activity (either ActivityPlan OR custom text)
-  activity_plan?: string; // UUID reference to ActivityPlan (optional)
+  // Hybrid Activity (either WorkplanActivity OR custom text)
+  activity_plan?: string; // UUID reference to ActivityPlan (deprecated - use workplan_activity)
+  workplan_activity?: string; // UUID reference to WorkplanActivity (new field name)
   custom_activity?: string; // Custom text (optional)
   activity_name?: string; // Read-only (computed from activity_plan or custom_activity)
   activity_description?: string; // Read-only

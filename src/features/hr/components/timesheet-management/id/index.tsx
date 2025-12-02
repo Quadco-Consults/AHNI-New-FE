@@ -100,7 +100,13 @@ const TimesheetManagementFull = () => {
   // Initialize entries from backend data
   useEffect(() => {
     if (timesheet?.entries) {
-      setEntries(timesheet.entries);
+      // Transform backend data to ensure compatibility with both field names
+      const transformedEntries = timesheet.entries.map(entry => ({
+        ...entry,
+        // If backend returns workplan_activity, also set activity_plan for frontend compatibility
+        ...(entry.workplan_activity && !entry.activity_plan && { activity_plan: entry.workplan_activity }),
+      }));
+      setEntries(transformedEntries);
     }
   }, [timesheet]);
 
@@ -181,7 +187,7 @@ const TimesheetManagementFull = () => {
         toast.error(`Entry ${i + 1}: Please select a project`);
         return;
       }
-      if (!entry.activity_plan && !entry.custom_activity) {
+      if (!entry.activity_plan && !entry.workplan_activity && !entry.custom_activity) {
         toast.error(`Entry ${i + 1}: Please select or enter an activity`);
         return;
       }
@@ -212,7 +218,9 @@ const TimesheetManagementFull = () => {
           end_date: format(endDate, "yyyy-MM-dd"),
           entries: entries.map((entry) => ({
             project: entry.project,
-            ...(entry.activity_plan && { activity_plan: entry.activity_plan }),
+            // Use workplan_activity as the new field name for backend
+            ...(entry.activity_plan && { workplan_activity: entry.activity_plan }),
+            ...(entry.workplan_activity && { workplan_activity: entry.workplan_activity }),
             ...(entry.custom_activity && { custom_activity: entry.custom_activity }),
             date: entry.date,
             hours_worked: entry.hours_worked,
@@ -236,7 +244,9 @@ const TimesheetManagementFull = () => {
           entries: entries.map((entry) => ({
             ...(entry.id && { id: entry.id }),
             project: entry.project,
-            ...(entry.activity_plan && { activity_plan: entry.activity_plan }),
+            // Use workplan_activity as the new field name for backend
+            ...(entry.activity_plan && { workplan_activity: entry.activity_plan }),
+            ...(entry.workplan_activity && { workplan_activity: entry.workplan_activity }),
             ...(entry.custom_activity && { custom_activity: entry.custom_activity }),
             date: entry.date,
             hours_worked: entry.hours_worked,
@@ -363,11 +373,11 @@ const TimesheetManagementFull = () => {
   // Activity Type Toggle Component (Hybrid: ActivityPlan OR Custom)
   const ActivityTypeSelect = ({ value, onChange, rowIndex, entry }: any) => {
     // Determine activity type based on which field has a value or is defined
-    // Priority: if activity_plan exists (even if empty string) -> planned
+    // Priority: if activity_plan or workplan_activity exists (even if empty string) -> planned
     //           if custom_activity exists (even if empty string) -> custom
     //           default to custom for new entries
     const activityType =
-      entry?.activity_plan !== undefined ? "planned" :
+      (entry?.activity_plan !== undefined || entry?.workplan_activity !== undefined) ? "planned" :
       entry?.custom_activity !== undefined ? "custom" :
       "custom"; // default to custom for new entries
 
@@ -401,7 +411,7 @@ const TimesheetManagementFull = () => {
     const selectedProjectId = entry?.project; // This is now the project UUID
     // Match the same logic as ActivityTypeSelect
     const activityType =
-      entry?.activity_plan !== undefined ? "planned" :
+      (entry?.activity_plan !== undefined || entry?.workplan_activity !== undefined) ? "planned" :
       entry?.custom_activity !== undefined ? "custom" :
       "custom";
 
@@ -442,20 +452,7 @@ const TimesheetManagementFull = () => {
       }
     }, [selectedProjectId, queryClient, refetchActivities]);
 
-    if (activityType === "custom") {
-      // Custom text input
-      return (
-        <Input
-          placeholder="Enter custom activity name"
-          value={entry?.custom_activity || ""}
-          onChange={(e) => onChange(rowIndex, "custom_activity", e.target.value)}
-          className="min-w-[200px]"
-          disabled={!canEdit}
-        />
-      );
-    }
-
-    // Debug logging for ActivityPlan dropdown
+    // Debug logging for ActivityPlan dropdown (moved before return statements)
     console.log('🔍 ACTIVITYPLAN DROPDOWN DEBUG:', {
       selectedProjectId,
       activityType,
@@ -469,7 +466,7 @@ const TimesheetManagementFull = () => {
       context: 'timesheet_activity_dropdown'
     });
 
-    // Auto-refresh activities if we have stale data
+    // Auto-refresh activities if we have stale data (moved before return statements)
     if (selectedProjectId && activities.length > 0) {
       const hasStaleActivity = activities.some((a: any) => a.id === "879d94c8-2f03-4ede-b336-ea51f6ffe9cf");
       if (hasStaleActivity) {
@@ -480,11 +477,24 @@ const TimesheetManagementFull = () => {
       }
     }
 
+    if (activityType === "custom") {
+      // Custom text input
+      return (
+        <Input
+          placeholder="Enter custom activity name"
+          value={entry?.custom_activity || ""}
+          onChange={(e) => onChange(rowIndex, "custom_activity", e.target.value)}
+          className="min-w-[200px]"
+          disabled={!canEdit}
+        />
+      );
+    }
+
     // ActivityPlan dropdown with refresh functionality
     return (
       <div className="flex items-center gap-2">
         <Select
-          value={entry?.activity_plan || ""}
+          value={entry?.activity_plan || entry?.workplan_activity || ""}
           onValueChange={(val) => onChange(rowIndex, "activity_plan", val)}
           disabled={!selectedProjectId}
         >
@@ -609,7 +619,7 @@ const TimesheetManagementFull = () => {
       header: "Activity",
       cell: ({ row }) => (
         <ActivityInput
-          value={row.original.activity_plan || row.original.custom_activity}
+          value={row.original.activity_plan || row.original.workplan_activity || row.original.custom_activity}
           onChange={updateEntry}
           rowIndex={row.index}
           entry={row.original}
