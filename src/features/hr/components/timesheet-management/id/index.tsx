@@ -452,30 +452,37 @@ const TimesheetManagementFull = () => {
       }
     }, [selectedProjectId, queryClient, refetchActivities]);
 
-    // Debug logging for ActivityPlan dropdown (moved before return statements)
-    console.log('🔍 ACTIVITYPLAN DROPDOWN DEBUG:', {
-      selectedProjectId,
-      activityType,
-      isLoadingActivities,
-      activitiesCount: activities.length,
-      validActivityId: "9096f675-aa94-45c4-a725-00fc6db81679",
-      hasValidActivity: activities.some((a: any) => a.id === "9096f675-aa94-45c4-a725-00fc6db81679"),
-      staleActivityId: "879d94c8-2f03-4ede-b336-ea51f6ffe9cf",
-      hasStaleActivity: activities.some((a: any) => a.id === "879d94c8-2f03-4ede-b336-ea51f6ffe9cf"),
-      availableActivities: activities.map((a: any) => ({ id: a.id, code: a.activity_code, name: a.activity_name })),
-      context: 'timesheet_activity_dropdown'
-    });
+    // Use useEffect for debug logging to avoid side effects during render
+    useEffect(() => {
+      console.log('🔍 ACTIVITYPLAN DROPDOWN DEBUG:', {
+        selectedProjectId,
+        activityType,
+        isLoadingActivities,
+        activitiesCount: activities.length,
+        validActivityId: "9096f675-aa94-45c4-a725-00fc6db81679",
+        hasValidActivity: activities.some((a: any) => a.id === "9096f675-aa94-45c4-a725-00fc6db81679"),
+        staleActivityId: "879d94c8-2f03-4ede-b336-ea51f6ffe9cf",
+        hasStaleActivity: activities.some((a: any) => a.id === "879d94c8-2f03-4ede-b336-ea51f6ffe9cf"),
+        availableActivities: activities.map((a: any) => ({ id: a.id, code: a.activity_code, name: a.activity_name })),
+        context: 'timesheet_activity_dropdown'
+      });
+    }, [selectedProjectId, activityType, isLoadingActivities, activities]);
 
-    // Auto-refresh activities if we have stale data (moved before return statements)
-    if (selectedProjectId && activities.length > 0) {
-      const hasStaleActivity = activities.some((a: any) => a.id === "879d94c8-2f03-4ede-b336-ea51f6ffe9cf");
-      if (hasStaleActivity) {
-        console.log('🚨 STALE ACTIVITY DETECTED - Auto-refreshing cache...');
-        setTimeout(() => {
-          refreshActivityPlans();
-        }, 1000);
+    // Use useEffect for auto-refresh logic to avoid side effects during render
+    useEffect(() => {
+      if (selectedProjectId && activities.length > 0) {
+        const hasStaleActivity = activities.some((a: any) => a.id === "879d94c8-2f03-4ede-b336-ea51f6ffe9cf");
+        if (hasStaleActivity) {
+          console.log('🚨 STALE ACTIVITY DETECTED - Auto-refreshing cache...');
+          const timeoutId = setTimeout(() => {
+            refreshActivityPlans();
+          }, 1000);
+
+          // Cleanup timeout on unmount or dependency change
+          return () => clearTimeout(timeoutId);
+        }
       }
-    }
+    }, [selectedProjectId, activities, refreshActivityPlans]);
 
     if (activityType === "custom") {
       // Custom text input
@@ -485,7 +492,7 @@ const TimesheetManagementFull = () => {
           value={entry?.custom_activity || ""}
           onChange={(e) => onChange(rowIndex, "custom_activity", e.target.value)}
           className="min-w-[200px]"
-          disabled={!canEdit}
+          disabled={false}
         />
       );
     }
@@ -495,7 +502,7 @@ const TimesheetManagementFull = () => {
       <div className="flex items-center gap-2">
         <Select
           value={entry?.activity_plan || entry?.workplan_activity || ""}
-          onValueChange={(val) => onChange(rowIndex, "activity_plan", val)}
+          onValueChange={(val) => onChange(rowIndex, "workplan_activity", val)}
           disabled={!selectedProjectId}
         >
           <SelectTrigger className="w-full min-w-[200px]">
@@ -512,23 +519,14 @@ const TimesheetManagementFull = () => {
               </SelectItem>
             ) : activities.length === 0 ? (
               <SelectItem value="no-activities" disabled>
-                No activities found for this project - Try refreshing
+                No activities found for this project
               </SelectItem>
             ) : (
-              <>
-                {/* Show warning if stale activity detected */}
-                {activities.some((a: any) => a.id === "879d94c8-2f03-4ede-b336-ea51f6ffe9cf") && (
-                  <SelectItem value="stale-warning" disabled className="text-orange-600 font-semibold">
-                    ⚠️ Stale data detected - Please refresh activities
-                  </SelectItem>
-                )}
-                {activities.map((activity: any) => (
-                  <SelectItem key={activity.id} value={activity.id}>
-                    {activity.activity_code}: {activity.activity_name}
-                  </SelectItem>
-                ))}
-              </>
-            )
+              activities.map((activity: any) => (
+                <SelectItem key={activity.id} value={activity.id}>
+                  {activity.activity_code}: {activity.activity_name}
+                </SelectItem>
+              ))
             )}
           </SelectContent>
         </Select>
