@@ -39,23 +39,44 @@ const GoalsManagement: React.FC = () => {
 
       setCurrentUserId(userId);
 
-      // Check if user is admin/HR
+      // Check if user is admin/HR - Updated to include HR Manager group
       const isAdminUser = userRole === 'admin' ||
                           userRole === 'hr' ||
                           userRole === 'Admin' ||
                           userRole === 'HR' ||
+                          userRole === 'HR Manager' ||
                           email === 'admin@mail.com' ||
+                          email === 'hrmanager@ahni.test' ||
                           email?.includes('admin') ||
                           isSuperuser === true ||
                           (Array.isArray(userGroups) && (
                             userGroups.includes('HR') ||
+                            userGroups.includes('HR Manager') ||
                             userGroups.includes('Admin') ||
+                            userGroups.includes('Super Admin') ||
                             userGroups.includes('admin') ||
                             userGroups.includes('hr')
                           ));
 
       setIsAdmin(isAdminUser);
-      console.log("Goals List - User:", { userId, isAdminUser, email });
+      console.log("🔍 Goals List - Admin Detection:", {
+        userId,
+        isAdminUser,
+        email,
+        userRole,
+        userGroups,
+        isSuperuser,
+        matchedBy: {
+          roleMatch: userRole === 'HR Manager' || userRole === 'admin',
+          emailMatch: email === 'hrmanager@ahni.test' || email?.includes('admin'),
+          groupMatch: Array.isArray(userGroups) && (
+            userGroups.includes('HR Manager') ||
+            userGroups.includes('Admin') ||
+            userGroups.includes('Super Admin')
+          ),
+          superUserMatch: isSuperuser === true
+        }
+      });
     } catch (error) {
       console.error("Error parsing user data:", error);
     }
