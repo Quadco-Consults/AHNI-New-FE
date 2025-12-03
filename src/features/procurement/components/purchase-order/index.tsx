@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "c
 import { useState, useEffect } from "react";
 
 import { cn } from "lib/utils";
-import { CircleEllipsisIcon, RefreshCw } from 'lucide-react';
+import { CircleEllipsisIcon } from 'lucide-react';
 import { Icon } from "@iconify/react";
 import {
   DropdownMenu,

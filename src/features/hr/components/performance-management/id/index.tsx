@@ -4,7 +4,7 @@ import { Separator } from "components/ui/separator";
 import EvaluatorForm from "../components/EvaluatorForm";
 import ImprovedEvaluatorForm from "../components/ImprovedEvaluatorForm";
 import FormButton from "@/components/FormButton";
-import { FileIcon, CheckCircle, CheckCircle } from 'lucide-react';
+import { FileIcon, CheckCircle, CheckCircle2, FileDown } from 'lucide-react';
 import GoBack from "components/GoBack";
 import { useState, useEffect } from "react";
 import React from "react";
@@ -17,7 +17,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "components/ui/card";
 import { areAllEvaluationsComplete } from "@/features/hr/utils/performanceCalculations";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
-import { CheckCircle, FileDown, CheckCircle, CheckCircle } from 'lucide-react';
 import { Icon } from "@iconify/react";
 import { generatePerformanceAssessmentPDF, generateIndividualEvaluatorPDF } from "@/features/hr/utils/performanceAssessmentPDF";
 
