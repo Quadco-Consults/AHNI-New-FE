@@ -4,11 +4,11 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "NODE_OPTIONS=\"--max-old-space-size=8192\" next build",
     "start": "next start",
     "lint": "next lint",
-    "analyze": "ANALYZE=true next build",
-    "build:production": "NODE_ENV=production next build",
+    "analyze": "NODE_OPTIONS=\"--max-old-space-size=8192\" ANALYZE=true next build",
+    "build:production": "NODE_OPTIONS=\"--max-old-space-size=8192\" NODE_ENV=production next build",
     "dev:turbo": "next dev --turbo"
   },
   "dependencies": {
