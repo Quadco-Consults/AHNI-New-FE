@@ -145,7 +145,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
         mainDepartment: 'HR',
         subDepartments: [
           'Employee Management', 'Leave Management', 'Performance Management', 'Training & Development',
-          'Recruitment', 'Compensation & Benefits', 'Separation Management', 'Grievance Management',
+          'Recruitment', 'Employee compensation & benefits', 'Separation Management', 'Grievance Management',
           'Timesheet Management', 'Compliance & Audit', 'Employee Relations', 'HR Reports'
         ]
       },
@@ -153,7 +153,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
         mainDepartment: 'HR',
         subDepartments: [
           'Employee Management', 'Leave Management', 'Performance Management', 'Training & Development',
-          'Recruitment', 'Compensation & Benefits', 'Separation Management', 'Grievance Management',
+          'Recruitment', 'Employee compensation & benefits', 'Separation Management', 'Grievance Management',
           'Timesheet Management', 'Compliance & Audit', 'Employee Relations', 'HR Reports'
         ]
       },
@@ -237,7 +237,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
           // Enhanced nested HR child check - includes ALL HR sub-sections
           const hrSubmenus = [
             'Employee Management', 'Leave Management', 'Performance Management', 'Training & Development',
-            'Recruitment', 'Compensation & Benefits', 'Separation Management', 'Grievance Management',
+            'Recruitment', 'Employee compensation & benefits', 'Separation Management', 'Grievance Management',
             'Timesheet Management', 'Compliance & Audit', 'Employee Relations', 'HR Reports'
           ];
           const isNestedHRChild = (hrSubmenus.includes(parentDepartment) || parentDepartment === 'HR') && canAccessHRFeatures;

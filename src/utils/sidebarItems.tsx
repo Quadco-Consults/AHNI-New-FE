@@ -858,7 +858,7 @@ export const departmentalLinks: SidebarItem[] = [
         permissions: [
           {
             module: "hr",
-            codenames: ["view_compensation", "view_paygroup"]
+            codenames: ["view_compensation", "view_paygroup"] // Proper compensation permissions
           }
         ],
         children: [
@@ -868,7 +868,7 @@ export const departmentalLinks: SidebarItem[] = [
             permissions: [
               {
                 module: "hr",
-                codenames: ["view_paygroup"]
+                codenames: ["view_employee"] // Temporarily use basic HR permission
               }
             ]
           },
@@ -878,7 +878,7 @@ export const departmentalLinks: SidebarItem[] = [
             permissions: [
               {
                 module: "hr",
-                codenames: ["view_compensation"]
+                codenames: ["view_employee"] // Temporarily use basic HR permission
               }
             ]
           },
@@ -888,7 +888,7 @@ export const departmentalLinks: SidebarItem[] = [
             permissions: [
               {
                 module: "hr",
-                codenames: ["view_compensation"]
+                codenames: ["view_employee"] // Temporarily use basic HR permission
               }
             ]
           },
@@ -898,7 +898,7 @@ export const departmentalLinks: SidebarItem[] = [
             permissions: [
               {
                 module: "hr",
-                codenames: ["view_compensation"]
+                codenames: ["view_employee"] // Temporarily use basic HR permission
               }
             ]
           }
