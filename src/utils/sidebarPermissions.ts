@@ -22,6 +22,14 @@ import {
 function isSuperAdmin(userPermissions: any[], userRoles?: any[], user?: IUser): boolean {
   // Use our enhanced admin detection if user object is available
   if (user) {
+    // DIRECT admin flags check first
+    if (user.is_superuser || user.is_staff) {
+      console.log('✅ Direct admin flag detected:', {
+        is_superuser: user.is_superuser,
+        is_staff: user.is_staff
+      });
+      return true;
+    }
     return isUserAdmin(user);
   }
 
@@ -80,9 +88,9 @@ function isSuperAdmin(userPermissions: any[], userRoles?: any[], user?: IUser): 
   const hasAllModules = false; // Disable this check
 
   // Method 4: Check if user has a very high number of permissions (super admin pattern)
-  // Increased threshold to be more restrictive - Admin Officers typically have 5-15 permissions
-  // Super admins should have significantly more (50+ permissions across modules)
-  const hasHighPermissionCount = userPermissions.length >= 50; // More realistic threshold for super admin
+  // Lowered threshold temporarily to fix admin access issues
+  // Super admins should have significantly more permissions than regular users
+  const hasHighPermissionCount = userPermissions.length >= 20; // Lowered from 50 to 20 temporarily
 
   console.log('🔍 Super admin detection:', {
     hasAdminPermissions,
