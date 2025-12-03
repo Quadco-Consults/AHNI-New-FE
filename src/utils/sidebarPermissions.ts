@@ -150,6 +150,15 @@ export function hasPermission(
               uiPermissions.includes(UIPermissionCategory.APPROVE_REQUESTS)) {
             return true;
           }
+          // Enhanced HR permission checking for compensation
+          const hrPermissions = user?.permissions?.find(p => p.module === 'hr')?.permissions || [];
+          const hasSpecificHRPermission = codenames.some(code =>
+            hrPermissions.some(perm => perm.codename === code)
+          );
+          if (hasSpecificHRPermission) {
+            console.log('✅ HR specific permission granted for codenames:', codenames);
+            return true;
+          }
           break;
 
         case 'finance':
@@ -245,23 +254,36 @@ export function hasPermission(
       p => p.module === requirement.module
     );
 
-    if (!userModulePerms) return false;
+    if (!userModulePerms) {
+      console.log(`❌ No permissions found for module: ${requirement.module}`);
+      return false;
+    }
 
     // Extract codenames from user's permissions for this module
-    const userCodenames = userModulePerms.permissions.map(
+    const userCodenames = userModulePerms.permissions?.map(
       (p: any) => p.codename
-    );
+    ) || [];
+
+    console.log(`🔍 Checking ${requirement.module} module:`, {
+      requiredCodenames: requirement.codenames,
+      userCodenames: userCodenames,
+      requireAll: requirement.requireAll
+    });
 
     if (requirement.requireAll) {
       // AND logic - user must have ALL required codenames
-      return requirement.codenames.every(codename =>
+      const hasAll = requirement.codenames.every(codename =>
         userCodenames.includes(codename)
       );
+      console.log(`🔍 AND logic result for ${requirement.module}:`, hasAll);
+      return hasAll;
     } else {
       // OR logic - user must have at least ONE required codename (default)
-      return requirement.codenames.some(codename =>
+      const hasAny = requirement.codenames.some(codename =>
         userCodenames.includes(codename)
       );
+      console.log(`🔍 OR logic result for ${requirement.module}:`, hasAny);
+      return hasAny;
     }
   });
 
