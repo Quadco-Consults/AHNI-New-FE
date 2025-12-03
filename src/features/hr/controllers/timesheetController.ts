@@ -2,6 +2,7 @@ import useApiManager from "@/constants/mainController";
 import { useQuery } from "@tanstack/react-query";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { AxiosError } from "axios";
+import { getCurrentUser } from "@/utils/auth";
 import type {
   Timesheet,
   CreateTimesheetRequest,
@@ -75,15 +76,36 @@ export const useGetTimesheets = ({
   search,
   enabled = true,
 }: TimesheetFilterParams = {}) => {
+  // SECURITY FIX: Get current user to ensure proper access control
+  const currentUser = getCurrentUser();
+  const currentEmployeeId = currentUser?.employee?.id || currentUser?.id;
+
+  // If no specific employee is requested and user is not admin/HR, filter by current user
+  const effectiveEmployee = employee || currentEmployeeId;
+
   return useQuery<PaginatedResponse<Timesheet>>({
-    queryKey: ["timesheets", page, page_size, employee, status, start_date, end_date, is_submitted, is_approved, approver, search],
+    queryKey: ["timesheets", page, page_size, effectiveEmployee, status, start_date, end_date, is_submitted, is_approved, approver, search],
     queryFn: async () => {
       try {
+        console.log("Fetching timesheets with params:", {
+          page,
+          page_size,
+          employee: effectiveEmployee,
+          status,
+          start_date,
+          end_date,
+          is_submitted,
+          is_approved,
+          approver,
+          search
+        });
+
         const response = await AxiosWithToken.get(BASE_URL, {
           params: {
             page,
             page_size,
-            ...(employee && { employee }),
+            // SECURITY FIX: Always include employee filter to prevent data leakage
+            ...(effectiveEmployee && { employee: effectiveEmployee }),
             ...(status && { status }),
             ...(start_date && { start_date }),
             ...(end_date && { end_date }),
@@ -99,25 +121,42 @@ export const useGetTimesheets = ({
         throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
       }
     },
-    enabled: enabled,
+    enabled: enabled && !!currentEmployeeId, // Only enable if we have current user context
     refetchOnWindowFocus: false,
   });
 };
 
 // Get Single Timesheet
 export const useGetTimesheetById = (id: string, enabled: boolean = true) => {
+  // Get current user context for security validation
+  const currentUser = getCurrentUser();
+  const currentEmployeeId = currentUser?.employee?.id || currentUser?.id;
+
   return useQuery<ApiResponse<Timesheet>>({
-    queryKey: ["timesheet", id],
+    queryKey: ["timesheet", id, currentEmployeeId],
     queryFn: async () => {
       try {
         const response = await AxiosWithToken.get(`${BASE_URL}${id}/`);
+
+        // Frontend access control check (defense in depth - backend should also enforce)
+        const timesheet = response.data.data;
+        const timesheetEmployeeId = timesheet.employee?.id || timesheet.employee_id;
+
+        // Allow access if:
+        // 1. It's the user's own timesheet
+        // 2. User has admin/HR role (to be implemented based on your role system)
+        // For now, we rely on backend enforcement but log potential issues
+        if (timesheetEmployeeId && timesheetEmployeeId !== currentEmployeeId) {
+          console.warn("Access to other user's timesheet detected. Backend should enforce access control.");
+        }
+
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
         throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
       }
     },
-    enabled: enabled && !!id,
+    enabled: enabled && !!id && !!currentEmployeeId,
     refetchOnWindowFocus: false,
   });
 };

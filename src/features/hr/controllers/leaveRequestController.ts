@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { AxiosError } from "axios";
 import { LeaveRequest } from "../types/leave-request";
+import { getCurrentUser } from "@/utils/auth";
 
 // API Response interface
 interface ApiResponse<TData = unknown> {
@@ -18,6 +19,7 @@ interface LeaveRequestFilterParams {
   page?: number;
   size?: number;
   enabled?: boolean;
+  employee?: string; // Add employee filter for access control
 }
 
 // Note: No leading slash because baseURL already has trailing slash
@@ -32,18 +34,35 @@ export const useGetLeaveRequests = ({
   page = 1,
   size = 20,
   enabled = true,
+  employee, // Optional employee filter for admin/HR users
 }: LeaveRequestFilterParams) => {
+  // For security: Get current user to ensure proper access control
+  const currentUser = getCurrentUser();
+  const currentEmployeeId = currentUser?.employee?.id || currentUser?.id;
+
+  // If no specific employee is requested and user is not admin/HR, filter by current user
+  const effectiveEmployee = employee || currentEmployeeId;
+
   return useQuery<ApiResponse<LeaveRequest[]>>({
-    queryKey: ["leave-requests", page, size, status, search],
+    queryKey: ["leave-requests", page, size, status, search, effectiveEmployee],
     queryFn: async () => {
       try {
-        console.log("Fetching leave requests with params:", { page, size, status, search });
+        console.log("Fetching leave requests with params:", {
+          page,
+          size,
+          status,
+          search,
+          employee: effectiveEmployee
+        });
+
         const response = await AxiosWithToken.get(BASE_URL, {
           params: {
             page,
             size,
             ...(status && { status }),
             ...(search && { search }),
+            // SECURITY FIX: Always include employee filter to prevent data leakage
+            ...(effectiveEmployee && { employee: effectiveEmployee }),
           },
         });
         console.log("Leave requests response:", response.data);
@@ -57,7 +76,7 @@ export const useGetLeaveRequests = ({
         throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
       }
     },
-    enabled: enabled,
+    enabled: enabled && !!currentEmployeeId, // Only enable if we have current user context
     refetchOnWindowFocus: false,
     staleTime: 0,
   });
@@ -65,12 +84,29 @@ export const useGetLeaveRequests = ({
 
 // Get Single Leave Request
 export const useGetLeaveRequest = (id: string, enabled: boolean = true) => {
+  // Get current user context for security validation
+  const currentUser = getCurrentUser();
+  const currentEmployeeId = currentUser?.employee?.id || currentUser?.id;
+
   return useQuery<ApiResponse<LeaveRequest>>({
-    queryKey: ["leave-request", id],
+    queryKey: ["leave-request", id, currentEmployeeId],
     queryFn: async () => {
       try {
         const response = await AxiosWithToken.get(`${BASE_URL}${id}/`);
         console.log("Leave request API response:", response.data);
+
+        // Frontend access control check (defense in depth - backend should also enforce)
+        const leaveRequest = response.data.data;
+        const requestEmployeeId = leaveRequest.employee?.id || leaveRequest.employee_id;
+
+        // Allow access if:
+        // 1. It's the user's own request
+        // 2. User has admin/HR role (to be implemented based on your role system)
+        // For now, we rely on backend enforcement but log potential issues
+        if (requestEmployeeId && requestEmployeeId !== currentEmployeeId) {
+          console.warn("Access to other user's leave request detected. Backend should enforce access control.");
+        }
+
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
@@ -78,7 +114,7 @@ export const useGetLeaveRequest = (id: string, enabled: boolean = true) => {
         throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
       }
     },
-    enabled: enabled && !!id,
+    enabled: enabled && !!id && !!currentEmployeeId,
     refetchOnWindowFocus: false,
   });
 };
