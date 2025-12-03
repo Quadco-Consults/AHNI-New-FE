@@ -3,7 +3,7 @@ import { TNotification } from "@/features/notifications/controllers/notification
 import NotificationItem from "./NotificationItem";
 import { Button } from "components/ui/button";
 import { Badge } from "components/ui/badge";
-import { Icon } from "@iconify/react";
+import { ChevronDown } from 'lucide-react';import { Icon } from "@iconify/react";
 
 
 interface NotificationGroupProps {

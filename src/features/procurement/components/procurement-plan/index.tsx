@@ -20,7 +20,7 @@ import IconButton from "components/IconButton";
 import { Icon } from "@iconify/react";
 import { useLazyDownloadProcurementPlanTemplateQuery, useGetAllProcurementPlans, useDeleteProcurementPlan } from "../../controllers/procurementPlanController";
 import { toast } from "sonner";
-import { DownloadIcon, Trash2 } from "lucide-react";
+import { DownloadIcon, Trash2, X } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
 import { useGetAllFinancialYears } from "../../../modules/controllers/config/financialYearController";
 import {
@@ -170,7 +170,7 @@ export default function ProcurementPlan() {
               }}
               className="flex items-center gap-2"
             >
-              <Icon icon="ph:x" />
+              <X size={16} />
               Clear Filters
             </Button>
           )}

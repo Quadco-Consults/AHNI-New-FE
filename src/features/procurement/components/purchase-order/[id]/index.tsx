@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
 import { toWords } from "number-to-words";
+import { CheckCircle2, Download } from 'lucide-react';
 import { Icon } from "@iconify/react";
 
 const Order = () => {
@@ -142,7 +143,7 @@ const Order = () => {
       <div className='mb-4 flex items-center justify-between print:hidden'>
         <Link href='/dashboard/procurement/purchase-order'>
           <Button variant='outline' className='flex items-center gap-2'>
-            <Icon icon="solar:arrow-left-bold" fontSize={16} />
+            <ArrowLeft size={16} />
             Back to List
           </Button>
         </Link>
@@ -150,7 +151,7 @@ const Order = () => {
           onClick={handleDownloadPDF}
           className='flex items-center gap-2 bg-green-600 hover:bg-green-700'
         >
-          <Icon icon="solar:download-bold" fontSize={20} />
+          <Download size={16} />
           Download PDF
         </Button>
       </div>
@@ -204,7 +205,7 @@ const Order = () => {
           <div>
             <div className='bg-primary/10 border-l-4 border-primary p-4 rounded'>
               <h3 className='text-primary font-bold text-lg mb-3 flex items-center gap-2'>
-                <Icon icon="solar:user-bold" fontSize={20} />
+                <User size={16} />
                 VENDOR TO
               </h3>
               <div className='space-y-2'>
@@ -232,7 +233,7 @@ const Order = () => {
           <div>
             <div className='bg-gray-50 border border-gray-300 p-4 rounded'>
               <h3 className='text-gray-800 font-bold text-lg mb-3 flex items-center gap-2'>
-                <Icon icon="solar:document-text-bold" fontSize={20} />
+                <FileText size={16} />
                 ORDER DETAILS
               </h3>
               <div className='space-y-3'>
@@ -275,7 +276,7 @@ const Order = () => {
         {/* Items Table Section */}
         <div className='p-6'>
           <h3 className='text-xl font-bold text-gray-800 mb-4 flex items-center gap-2'>
-            <Icon icon="solar:list-bold" fontSize={24} />
+            <List size={16} />
             ORDER ITEMS
           </h3>
 
@@ -344,12 +345,12 @@ const Order = () => {
         <div className='p-6 bg-gray-50 border-t-2 border-gray-200'>
           <div className='flex justify-between items-center mb-3'>
             <h3 className='text-lg font-bold text-gray-800 flex items-center gap-2'>
-              <Icon icon="solar:document-text-bold" fontSize={20} />
+              <FileText size={16} />
               TERMS & CONDITIONS (Summary)
             </h3>
             <Link href={`/dashboard/procurement/purchase-order/${purchaseOrderId}/terms-and-conditions`} target='_blank'>
               <Button variant='outline' className='flex items-center gap-2 border-primary text-primary hover:bg-primary hover:text-white print:hidden'>
-                <Icon icon="solar:document-bold" fontSize={18} />
+                <File size={16} />
                 View Full Terms & Conditions
               </Button>
             </Link>
@@ -357,7 +358,7 @@ const Order = () => {
 
           <div className='bg-white border border-gray-300 rounded-lg p-5'>
             <p className='text-xs text-gray-600 italic mb-4 bg-blue-50 border-l-4 border-primary p-3 rounded'>
-              <Icon icon="solar:info-circle-bold" fontSize={16} className='inline mr-2' />
+              <Info size={16} />
               The following are key highlights. For complete legal terms, please click "View Full Terms & Conditions" above.
             </p>
 
@@ -414,7 +415,7 @@ const Order = () => {
         {/* Approval Signatures Section */}
         <div className='p-6 border-t-2 border-gray-200'>
           <h3 className='text-lg font-bold text-gray-800 mb-4 flex items-center gap-2'>
-            <Icon icon="solar:verified-check-bold" fontSize={24} />
+            <CheckCircle2 size={16} />
             APPROVAL SIGNATURES
           </h3>
 
@@ -441,7 +442,7 @@ const Order = () => {
                 </div>
                 {data?.data?.reviewed_by_detail?.name && (
                   <div className='bg-green-50 border border-green-300 rounded p-3 text-center'>
-                    <Icon icon="solar:verified-check-bold" fontSize={24} className='inline text-green-600 mb-1' />
+                    <CheckCircle2 size={16} />
                     <p className='text-xs font-semibold text-green-700'>Digitally Approved</p>
                   </div>
                 )}
@@ -470,7 +471,7 @@ const Order = () => {
                 </div>
                 {data?.data?.authorized_by_detail?.name && (
                   <div className='bg-green-50 border border-green-300 rounded p-3 text-center'>
-                    <Icon icon="solar:verified-check-bold" fontSize={24} className='inline text-green-600 mb-1' />
+                    <CheckCircle2 size={16} />
                     <p className='text-xs font-semibold text-green-700'>Digitally Approved</p>
                   </div>
                 )}
@@ -499,7 +500,7 @@ const Order = () => {
                 </div>
                 {data?.data?.approved_by_detail?.name && (
                   <div className='bg-green-50 border border-green-300 rounded p-3 text-center'>
-                    <Icon icon="solar:verified-check-bold" fontSize={24} className='inline text-green-600 mb-1' />
+                    <CheckCircle2 size={16} />
                     <p className='text-xs font-semibold text-green-700'>Digitally Approved</p>
                   </div>
                 )}

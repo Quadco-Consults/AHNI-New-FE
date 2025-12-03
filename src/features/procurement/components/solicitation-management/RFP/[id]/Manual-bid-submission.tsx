@@ -23,7 +23,7 @@ import { useGetSingleSolicitation } from "@/features/procurement/controllers/sol
 import { useGetAllSolicitationEvaluationCriteria } from "@/features/modules/controllers";
 
 import GoBack from "components/GoBack";
-import { Icon } from "@iconify/react";
+import { DollarSign } from 'lucide-react';import { Icon } from "@iconify/react";
 
 const ManualBidSubmission = () => {
   const { id } = useParams<{ id: string }>();

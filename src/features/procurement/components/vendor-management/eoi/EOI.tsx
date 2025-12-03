@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "components/ui/button";
-import { Plus, Edit } from "lucide-react";
+import { Plus, Edit, Search } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -12,7 +12,7 @@ import {
 } from "components/ui/dialog";
 import { Input } from "components/ui/input";
 import { DialogClose } from "@radix-ui/react-dialog";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Search } from 'lucide-react';
 import { useForm } from "react-hook-form";
 import {
   Form,
@@ -38,7 +38,7 @@ import FormTextArea from "components/atoms/FormTextArea";
 import FormInput from "components/atoms/FormInput";
 import React, { useMemo, useState } from "react";
 import { Label } from "components/ui/label";
-import { Upload as UploadFile } from "lucide-react";
+import { Upload as UploadFile, Search } from 'lucide-react';
 import { useGetAllCategoriesManager } from "@/features/modules/controllers/config/categoryController";
 import { Checkbox } from "components/ui/checkbox";
 import { CategoryResultsData } from "@/features/admin/types/config/category";

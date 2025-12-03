@@ -13,7 +13,7 @@ import GoBack from "components/GoBack";
 import { useParams } from "next/navigation";
 import VendorsEvaluaionAndPerformanceAPI from "@/features/procurement/controllers/vendorPerformanceEvaluationController";
 import { Button } from "components/ui/button";
-import { BsFiletypePdf } from "react-icons/bs";
+import { FileText } from "lucide-react";
 import Image from "next/image";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
@@ -158,7 +158,7 @@ const VendorPerformance = () => {
           <div className='flex justify-end action-buttons'>
             <Button variant='custom' className='mb-4 ml-auto' onClick={handleDownloadPDF}>
               <span>
-                <BsFiletypePdf size={25} />
+                <FileText size={25} />
               </span>
               Download
             </Button>

@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, Briefcase } from 'lucide-react';
 import eoiPng from "assets/imgs/eoi.png";
 import Card from "components/Card";
 import { Icon } from "@iconify/react";

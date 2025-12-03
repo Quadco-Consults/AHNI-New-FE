@@ -13,7 +13,7 @@ import {
 } from "components/ui/form";
 import { Input } from "components/ui/input";
 import { cn } from "lib/utils";
-import { FaRegEnvelope } from "react-icons/fa";
+import { Mail } from "lucide-react";
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   name: string;
@@ -87,7 +87,7 @@ const FormInput: FC<InputProps> = ({ name, label, disabled, ...rest }) => {
 
                 {rest.type === "email" && (
                   <div className='absolute transform -translate-y-1/2 cursor-pointer top-1/2 right-4'>
-                    <FaRegEnvelope className='text-primary' />
+                    <Mail className='text-primary' />
                   </div>
                 )}
               </div>

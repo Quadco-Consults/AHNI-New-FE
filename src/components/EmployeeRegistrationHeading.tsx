@@ -86,7 +86,7 @@ const EmployeeRegistrationHeading = () => {
             <BreadcrumbPage>HR</BreadcrumbPage>
           </BreadcrumbItem>
           <BreadcrumbSeparator>
-            <Icon icon="iconoir:slash" />
+            <X size={16} />
           </BreadcrumbSeparator>
           <BreadcrumbItem>
             <BreadcrumbLink href={RouteEnum.VENDOR_MANAGEMENT}>
@@ -94,7 +94,7 @@ const EmployeeRegistrationHeading = () => {
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator>
-            <Icon icon="iconoir:slash" />
+            <X size={16} />
           </BreadcrumbSeparator>
           <BreadcrumbItem>
             <BreadcrumbPage>Add New Employee</BreadcrumbPage>

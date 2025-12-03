@@ -1,3 +1,4 @@
+import { Edit, Trash2 } from 'lucide-react';
 import { Icon } from "@iconify/react";
 import { ColumnDef } from "@tanstack/react-table";
 import IconButton from "components/IconButton";
@@ -115,10 +116,10 @@ const ActionListAction = ({ data }: any) => {
   return (
     <div className="flex items-center gap-2">
       <IconButton className="bg-[#F9F9F9] hover:text-primary">
-        <Icon icon="solar:pen-bold-duotone" fontSize={15} />
+        <Edit size={16} />
       </IconButton>
       <IconButton className="bg-[#F9F9F9] hover:text-primary">
-        <Icon icon="ant-design:delete-twotone" fontSize={15} />
+        <Trash2 size={16} />
       </IconButton>
     </div>
   );

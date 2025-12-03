@@ -13,6 +13,7 @@ import { generatePath } from "utils/generatePath";
 import SearchBar from "components/atoms/SearchBar";
 import { Checkbox } from "components/ui/checkbox";
 import IconButton from "components/IconButton";
+import { Trash2 } from 'lucide-react';
 import { Icon } from "@iconify/react";
 import PayGroupModal from "./components/PayGroupModal";
 import {

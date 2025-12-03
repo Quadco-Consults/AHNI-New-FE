@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Icon } from "@iconify/react";
+import { ChevronDown } from 'lucide-react';import { Icon } from "@iconify/react";
 import Card from "components/Card";
 import { Badge } from "components/ui/badge";
 import { Input } from "components/ui/input";
@@ -121,7 +121,7 @@ const VendorScoringCard = ({ vendor, evaluation, onUpdate, disabled = false }: V
       {/* Technical Evaluation */}
       <div className="space-y-3 border rounded-lg p-4 bg-blue-50/30">
         <div className="flex items-center space-x-2">
-          <Icon icon="carbon:chemistry" className="text-blue-600 w-5 h-5" />
+          <Zap size={16} />
           <h4 className="font-semibold text-blue-800">Technical Evaluation</h4>
         </div>
 
@@ -172,7 +172,7 @@ const VendorScoringCard = ({ vendor, evaluation, onUpdate, disabled = false }: V
       {/* Price Evaluation */}
       <div className="space-y-3 border rounded-lg p-4 bg-green-50/30">
         <div className="flex items-center space-x-2">
-          <Icon icon="carbon:currency-dollar" className="text-green-600 w-5 h-5" />
+          <DollarSign size={16} />
           <h4 className="font-semibold text-green-800">Price Evaluation</h4>
         </div>
 
@@ -226,7 +226,7 @@ const VendorScoringCard = ({ vendor, evaluation, onUpdate, disabled = false }: V
           {/* Item Selections */}
           <div>
             <h5 className="font-semibold mb-3 flex items-center">
-              <Icon icon="carbon:list-checked" className="w-4 h-4 mr-2" />
+              <ClipboardCheck size={16} />
               Item Selections
             </h5>
             <div className="space-y-2 max-h-40 overflow-y-auto">

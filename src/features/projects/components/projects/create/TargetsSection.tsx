@@ -7,7 +7,7 @@ import { Card } from "components/ui/card";
 import FormInput from "components/atoms/FormInput";
 import FormSelect from "components/atoms/FormSelect";
 import FormTextArea from "components/atoms/FormTextArea";
-import { FaTimes, FaPlus } from "react-icons/fa";
+import { X, Plus } from "lucide-react";
 import { toast } from "sonner";
 
 export interface ProjectTarget {
@@ -139,7 +139,7 @@ export default function TargetsSection({ targets, onTargetsChange }: TargetsSect
               className="text-blue-600 border-blue-600"
               onClick={() => setIsAddingTarget(true)}
             >
-              <FaPlus className="mr-2" size={12} />
+              <Plus className="mr-2" size={12} />
               Add Target
             </Button>
           )}
@@ -210,7 +210,7 @@ export default function TargetsSection({ targets, onTargetsChange }: TargetsSect
                   className="text-red-500 hover:text-red-700"
                   onClick={() => handleRemoveTarget(target.id!)}
                 >
-                  <FaTimes size={14} />
+                  <X size={14} />
                 </Button>
               </div>
             </Card>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useParams } from "next/navigation";
+import { CheckCircle, Loader2 } from 'lucide-react';
 import { Icon } from "@iconify/react";
 import Card from "components/Card";
 import { Badge } from "components/ui/badge";
@@ -333,7 +334,7 @@ const MemberEvaluationDashboard = () => {
               >
                 {isSubmitting ? (
                   <>
-                    <Icon icon="eos-icons:loading" className="w-4 h-4 mr-2" />
+                    <Loader2 size={16} />
                     Saving...
                   </>
                 ) : (
@@ -348,7 +349,7 @@ const MemberEvaluationDashboard = () => {
               >
                 {isSubmitting ? (
                   <>
-                    <Icon icon="eos-icons:loading" className="w-4 h-4 mr-2" />
+                    <Loader2 size={16} />
                     Submitting...
                   </>
                 ) : (
@@ -412,7 +413,7 @@ const MemberEvaluationDashboard = () => {
       {/* Vendor Evaluation Cards */}
       <div className="space-y-6">
         <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-          <Icon icon="carbon:analytics" className="w-5 h-5 mr-2" />
+          <BarChart3 size={16} />
           Vendor Evaluations
         </h3>
 
@@ -487,7 +488,7 @@ const MemberEvaluationDashboard = () => {
           </div>
         ) : (
           <Card className="p-8 text-center">
-            <Icon icon="mdi:inbox-outline" className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <Inbox size={16} />
             <h3 className="text-lg font-semibold text-gray-700 mb-2">No Vendor Submissions</h3>
             <p className="text-gray-500 mb-4">
               No vendor bid submissions found for this CBA. Vendors need to submit their bids before evaluation can begin.
@@ -503,7 +504,7 @@ const MemberEvaluationDashboard = () => {
       {/* Overall Recommendation */}
       <Card className="p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-          <Icon icon="carbon:recommendation" className="w-5 h-5 mr-2" />
+          <Lightbulb size={16} />
           Overall Recommendation
         </h3>
 

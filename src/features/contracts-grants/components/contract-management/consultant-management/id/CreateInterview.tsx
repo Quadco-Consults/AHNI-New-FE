@@ -28,6 +28,7 @@ import {
 } from "components/ui/dialog";
 import { LoadingSpinner } from "components/Loading";
 import { Input } from "components/ui/input";
+import { Search } from 'lucide-react';
 import { Icon } from "@iconify/react";
 import { Checkbox } from "components/ui/checkbox";
 import { useGetAllUsers } from "@/features/auth/controllers/userController";

@@ -11,7 +11,7 @@ import VendorRegistationLayout from "./VendorRegistationLayout";
 import { useForm } from "react-hook-form";
 import FormInput from "components/atoms/FormInput";
 import FormSelect from "components/atoms/FormSelectField";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Search } from 'lucide-react';
 import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation";
 import FormButton from "@/components/FormButton";

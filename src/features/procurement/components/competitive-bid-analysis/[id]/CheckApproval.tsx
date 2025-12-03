@@ -16,7 +16,7 @@ import { useGetSolicitationSubmission } from "@/features/procurement/controllers
 import { toast } from "sonner";
 import logoPng from "@/assets/svgs/logo-bg.svg";
 import Image from "next/image";
-import { BsFiletypeCsv } from "react-icons/bs";
+import { FileSpreadsheet } from "lucide-react";
 
 const TableComponent = () => {
   console.log("🚀 CBA TableComponent is rendering!");
@@ -488,7 +488,7 @@ const TableComponent = () => {
         </p>
         <Button variant="custom">
           <span>
-            <BsFiletypeCsv size={25} />
+            <FileSpreadsheet size={25} />
           </span>
           Download
         </Button>

@@ -7,7 +7,7 @@ import AddSquareIcon from "@/components/icons/AddSquareIcon";
 import DataTable from "@/components/Table/DataTable";
 import React from "react";
 import { cn } from "lib/utils";
-import { Icon } from "@iconify/react";
+import { Filter } from 'lucide-react';import { Icon } from "@iconify/react";
 
 import { Button } from "@/components/ui/button";
 import Link from "next/link"; import { useRouter } from "next/navigation";
@@ -454,7 +454,7 @@ const WFNA: React.FC = () => {
         <Card className='w-full px-6 py-4'>
           <div className='flex items-center justify-between'>
             <div className='flex items-center gap-2'>
-              <Icon icon="mdi:filter" className="w-5 h-5 text-blue-600" />
+              <Filter size={16} />
               <p className='text-sm font-medium'>
                 Showing results for:
                 {selectedPosition && (
@@ -478,7 +478,7 @@ const WFNA: React.FC = () => {
               onClick={() => reset()}
               className='flex items-center gap-2'
             >
-              <Icon icon="mdi:close-circle" className="w-4 h-4" />
+              <XCircle size={16} />
               Clear Filters
             </Button>
           </div>

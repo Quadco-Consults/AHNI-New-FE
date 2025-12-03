@@ -197,7 +197,7 @@ export default function DataTable<TData>({
                         onClick={() => table.previousPage()}
                         disabled={!table.getCanPreviousPage()}
                     >
-                        <Icon icon="hugeicons:arrow-left-double" />
+                        <ChevronLeft size={16} />
                     </Button>
                     <span>
                         Page {table.getState().pagination.pageIndex + 1} of{" "}
@@ -209,6 +209,6 @@ export default function DataTable<TData>({
                         onClick={() => table.nextPage()}
                         disabled={!table.getCanNextPage()}
                     >
-                        <Icon icon="hugeicons:arrow-right-double" />
+                        <ChevronRight size={16} />
                     </Button>
                 </div> */

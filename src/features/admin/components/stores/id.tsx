@@ -817,7 +817,7 @@ export default function StoreDetailPage({ storeId }: StoreDetailPageProps) {
                   No Consumables Found
                 </h3>
                 <p className="text-sm text-gray-600 mb-4">
-                  This store doesn't have any consumables assigned yet.
+                  This store doesn&apos;t have any consumables assigned yet.
                 </p>
                 <Button
                   onClick={() => router.push(`${AdminRoutes.GRN}/create?store=${storeId}`)}

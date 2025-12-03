@@ -26,7 +26,6 @@ import {
   Calendar,
   DollarSign,
   MapPin,
-  Briefcase,
   FileText,
   AlertCircle,
   Edit,

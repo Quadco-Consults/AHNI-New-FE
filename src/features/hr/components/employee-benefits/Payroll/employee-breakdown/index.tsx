@@ -4,7 +4,7 @@ import React from "react";
 import { useParams, useRouter } from "next/navigation";
 import Card from "components/Card";
 import { Button } from "components/ui/button";
-import { Icon } from "@iconify/react";
+import { FileText } from 'lucide-react';import { Icon } from "@iconify/react";
 import GoBack from "components/GoBack";
 import Image from "next/image";
 
@@ -111,7 +111,7 @@ const EmployeePayrollBreakdown = () => {
               onClick={() => window.print()}
               className="flex items-center gap-2"
             >
-              <Icon icon="ph:printer-duotone" className="h-5 w-5" />
+              <FileText size={16} />
               Print Payslip
             </Button>
           </div>

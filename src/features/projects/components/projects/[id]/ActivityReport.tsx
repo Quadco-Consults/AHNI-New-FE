@@ -4,21 +4,21 @@ import { useState, useMemo } from "react";
 import { Button } from "components/ui/button";
 import Card from "components/Card";
 import {
-  FaDownload,
-  FaFileExcel,
-  FaFilePdf,
-  FaChartLine,
-  FaDollarSign,
-  FaBullseye,
-  FaUsers,
-  FaClock,
-  FaMoneyBillWave,
-  FaHandHoldingUsd,
-  FaReceipt,
-  FaArrowUp,
-  FaArrowDown,
-  FaExclamationTriangle
-} from "react-icons/fa";
+  Download,
+  FileSpreadsheet,
+  FileText,
+  TrendingUp,
+  DollarSign,
+  Target,
+  Users,
+  Clock,
+  Banknote,
+  HandCoins,
+  Receipt,
+  ArrowUp,
+  ArrowDown,
+  AlertTriangle
+} from "lucide-react";
 import { toast } from "sonner";
 import { IProjectSingleData } from "@/features/projects/types/project";
 import {
@@ -182,7 +182,7 @@ export default function ActivityReport(props: ActivityReportProps) {
       description: `Project "${title}" was successfully created`,
       date: created_datetime,
       user: 'System',
-      icon: FaBullseye,
+      icon: Target,
       color: 'bg-green-500'
     },
     {
@@ -192,7 +192,7 @@ export default function ActivityReport(props: ActivityReportProps) {
       description: `${projectStats.totalTargets} performance targets were set for the project`,
       date: created_datetime,
       user: 'Project Manager',
-      icon: FaChartLine,
+      icon: TrendingUp,
       color: 'bg-blue-500'
     },
     {
@@ -202,7 +202,7 @@ export default function ActivityReport(props: ActivityReportProps) {
       description: `Budget of ${currency} ${Number(budget).toLocaleString()} allocated to the project`,
       date: created_datetime,
       user: 'Finance Team',
-      icon: FaDollarSign,
+      icon: DollarSign,
       color: 'bg-yellow-500'
     },
     {
@@ -212,7 +212,7 @@ export default function ActivityReport(props: ActivityReportProps) {
       description: `${projectStats.totalManagers} project managers assigned`,
       date: created_datetime,
       user: 'HR Team',
-      icon: FaUsers,
+      icon: Users,
       color: 'bg-purple-500'
     }
   ], [title, created_datetime, projectStats.totalTargets, projectStats.totalManagers, currency, budget]);
@@ -276,7 +276,7 @@ export default function ActivityReport(props: ActivityReportProps) {
       <div className="space-y-6">
         <Card className="p-6">
           <div className="flex items-center justify-center h-32 text-red-500">
-            <FaExclamationTriangle className="mr-2" />
+            <AlertTriangle className="mr-2" />
             Error loading activity report: {reportError.message}
           </div>
         </Card>
@@ -299,7 +299,7 @@ export default function ActivityReport(props: ActivityReportProps) {
                 {projectStats.achievedTargets} of {projectStats.totalTargets} targets
               </p>
             </div>
-            <FaBullseye className="h-8 w-8 text-green-500" />
+            <Target className="h-8 w-8 text-green-500" />
           </div>
         </Card>
 
@@ -314,7 +314,7 @@ export default function ActivityReport(props: ActivityReportProps) {
                 {currency} {projectStats.budgetUtilized.toLocaleString()} used
               </p>
             </div>
-            <FaDollarSign className="h-8 w-8 text-blue-500" />
+            <DollarSign className="h-8 w-8 text-blue-500" />
           </div>
         </Card>
 
@@ -329,7 +329,7 @@ export default function ActivityReport(props: ActivityReportProps) {
                 days planned
               </p>
             </div>
-            <FaClock className="h-8 w-8 text-purple-500" />
+            <Clock className="h-8 w-8 text-purple-500" />
           </div>
         </Card>
 
@@ -344,7 +344,7 @@ export default function ActivityReport(props: ActivityReportProps) {
                 target populations
               </p>
             </div>
-            <FaUsers className="h-8 w-8 text-orange-500" />
+            <Users className="h-8 w-8 text-orange-500" />
           </div>
         </Card>
       </div>
@@ -362,7 +362,7 @@ export default function ActivityReport(props: ActivityReportProps) {
                 {projectStats.disbursementRate.toFixed(1)}% completed
               </p>
             </div>
-            <FaMoneyBillWave className="h-8 w-8 text-green-500" />
+            <Banknote className="h-8 w-8 text-green-500" />
           </div>
         </Card>
 
@@ -377,7 +377,7 @@ export default function ActivityReport(props: ActivityReportProps) {
                 {projectStats.fundRequestApprovalRate.toFixed(1)}% approved
               </p>
             </div>
-            <FaHandHoldingUsd className="h-8 w-8 text-blue-500" />
+            <HandCoins className="h-8 w-8 text-blue-500" />
           </div>
         </Card>
 
@@ -392,7 +392,7 @@ export default function ActivityReport(props: ActivityReportProps) {
                 {projectStats.expensePaymentRate.toFixed(1)}% paid
               </p>
             </div>
-            <FaReceipt className="h-8 w-8 text-red-500" />
+            <Receipt className="h-8 w-8 text-red-500" />
           </div>
         </Card>
 
@@ -408,8 +408,8 @@ export default function ActivityReport(props: ActivityReportProps) {
               </p>
             </div>
             {projectStats.cashFlow >= 0 ?
-              <FaArrowUp className="h-8 w-8 text-green-500" /> :
-              <FaArrowDown className="h-8 w-8 text-red-500" />
+              <ArrowUp className="h-8 w-8 text-green-500" /> :
+              <ArrowDown className="h-8 w-8 text-red-500" />
             }
           </div>
         </Card>
@@ -442,7 +442,7 @@ export default function ActivityReport(props: ActivityReportProps) {
             disabled={isGeneratingReport}
             className="flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 disabled:opacity-50"
           >
-            <FaFilePdf className="h-4 w-4" />
+            <FileText className="h-4 w-4" />
             {isGeneratingReport ? 'Generating...' : 'Download PDF Report'}
           </Button>
 
@@ -451,7 +451,7 @@ export default function ActivityReport(props: ActivityReportProps) {
             disabled={isGeneratingReport}
             className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 disabled:opacity-50"
           >
-            <FaFileExcel className="h-4 w-4" />
+            <FileSpreadsheet className="h-4 w-4" />
             {isGeneratingReport ? 'Generating...' : 'Download Excel Report'}
           </Button>
 
@@ -460,7 +460,7 @@ export default function ActivityReport(props: ActivityReportProps) {
             disabled={isGeneratingReport}
             className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
           >
-            <FaDownload className="h-4 w-4" />
+            <Download className="h-4 w-4" />
             {isGeneratingReport ? 'Generating...' : 'Download CSV Data'}
           </Button>
         </div>
@@ -547,7 +547,7 @@ export default function ActivityReport(props: ActivityReportProps) {
         {/* Disbursements Table */}
         <Card className="p-6">
           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-            <FaMoneyBillWave className="h-5 w-5 text-green-500" />
+            <Banknote className="h-5 w-5 text-green-500" />
             Recent Disbursements
           </h3>
           <div className="overflow-x-auto">
@@ -591,7 +591,7 @@ export default function ActivityReport(props: ActivityReportProps) {
         {/* Fund Requests Table */}
         <Card className="p-6">
           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-            <FaHandHoldingUsd className="h-5 w-5 text-blue-500" />
+            <HandCoins className="h-5 w-5 text-blue-500" />
             Fund Requests
           </h3>
           <div className="overflow-x-auto">
@@ -636,7 +636,7 @@ export default function ActivityReport(props: ActivityReportProps) {
       {/* Expenses Table */}
       <Card className="p-6">
         <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-          <FaReceipt className="h-5 w-5 text-red-500" />
+          <Receipt className="h-5 w-5 text-red-500" />
           Recent Expenses
         </h3>
         <div className="overflow-x-auto">
@@ -691,7 +691,7 @@ export default function ActivityReport(props: ActivityReportProps) {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="space-y-4">
             <h4 className="font-medium text-gray-900 flex items-center gap-2">
-              <FaMoneyBillWave className="h-4 w-4 text-green-500" />
+              <Banknote className="h-4 w-4 text-green-500" />
               Disbursement Overview
             </h4>
             <div className="space-y-2">
@@ -712,7 +712,7 @@ export default function ActivityReport(props: ActivityReportProps) {
 
           <div className="space-y-4">
             <h4 className="font-medium text-gray-900 flex items-center gap-2">
-              <FaHandHoldingUsd className="h-4 w-4 text-blue-500" />
+              <HandCoins className="h-4 w-4 text-blue-500" />
               Fund Requests
             </h4>
             <div className="space-y-2">
@@ -733,7 +733,7 @@ export default function ActivityReport(props: ActivityReportProps) {
 
           <div className="space-y-4">
             <h4 className="font-medium text-gray-900 flex items-center gap-2">
-              <FaReceipt className="h-4 w-4 text-red-500" />
+              <Receipt className="h-4 w-4 text-red-500" />
               Expense Tracking
             </h4>
             <div className="space-y-2">

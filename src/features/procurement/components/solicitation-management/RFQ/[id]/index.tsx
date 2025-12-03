@@ -3,7 +3,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "components/ui/button";
-import { Icon } from "@iconify/react";
+import { ClipboardCheck } from 'lucide-react';import { Icon } from "@iconify/react";
 import { LoadingSpinner } from "components/Loading";
 // import { SolicitationResultsData } from "definations/procurement-types/solicitation";
 import DetailsContent from "./tab-contents/Details-content";
@@ -97,7 +97,7 @@ const RFQDetails = () => {
             onClick={handleCreateEvaluation}
             className="bg-primary text-white hover:bg-primary/90"
           >
-            <Icon icon="heroicons:clipboard-document-check" className="mr-2" />
+            <ClipboardCheck size={16} />
             {existingCba ? "View Evaluation" : "Create Vendor Evaluation"}
           </Button>
         )}

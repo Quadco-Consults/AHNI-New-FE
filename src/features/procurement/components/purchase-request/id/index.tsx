@@ -16,7 +16,7 @@ import {
 } from "components/ui/table";
 
 import logoPng from "assets/imgs/logo.png";
-import { BsFiletypeDoc } from "react-icons/bs";
+import { FileText, Download } from 'lucide-react';
 import { Button } from "components/ui/button";
 import { Icon } from "@iconify/react";
 import { useRef } from "react";
@@ -143,7 +143,7 @@ const PurchaseRequesttDetails = () => {
           onClick={handleDownloadPDF}
           className='flex items-center gap-2 bg-green-600 hover:bg-green-700'
         >
-          <Icon icon="solar:download-bold" fontSize={20} />
+          <Download size={16} />
           Download PDF
         </Button>
       </div>
@@ -454,7 +454,7 @@ const PurchaseRequesttDetails = () => {
           <Link href={data.data.specification_document} target='_blank' title={"Specification Document"}>
             <div className='bg-gray-50 border border-gray-200 py-3 px-4 rounded flex items-center gap-3 cursor-pointer hover:bg-gray-100 transition-colors'>
               <div className='bg-gray-600 text-white p-2 rounded'>
-                <BsFiletypeDoc size={16} />
+                <FileText size={16} />
               </div>
               <div>
                 <h4 className='font-medium text-gray-800 text-sm'>Specification Document</h4>
@@ -465,7 +465,7 @@ const PurchaseRequesttDetails = () => {
         ) : (
           <div className='bg-gray-50 border border-gray-200 py-3 px-4 rounded flex items-center gap-3'>
             <div className='bg-gray-400 text-white p-2 rounded'>
-              <BsFiletypeDoc size={16} />
+              <FileText size={16} />
             </div>
             <div>
               <h4 className='font-medium text-gray-600 text-sm'>No Specification Document</h4>

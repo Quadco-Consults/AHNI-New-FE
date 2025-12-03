@@ -63,7 +63,7 @@ export default function Notifications() {
                         <BreadcrumbPage>Global Hub</BreadcrumbPage>
                     </BreadcrumbItem>
                     <BreadcrumbSeparator>
-                        <Icon icon="iconoir:slash" />
+                        <X size={16} />
                     </BreadcrumbSeparator>
                     <BreadcrumbItem>
                         <BreadcrumbPage>Support</BreadcrumbPage>

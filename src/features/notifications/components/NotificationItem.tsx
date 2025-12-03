@@ -10,6 +10,7 @@ import { TNotification, NotificationPriority, NotificationCategory } from "@/fea
 import { useMarkNotificationAsRead, useMarkNotificationAsUnread, useDeleteNotification } from "@/features/notifications/controllers/notificationController";
 import { useRouter } from "next/navigation";
 import { Badge } from "components/ui/badge";
+import { CheckCircle, AlertCircle } from 'lucide-react';
 import { Icon } from "@iconify/react";
 
 type PropsType = {

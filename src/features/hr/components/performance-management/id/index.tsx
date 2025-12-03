@@ -4,7 +4,7 @@ import { Separator } from "components/ui/separator";
 import EvaluatorForm from "../components/EvaluatorForm";
 import ImprovedEvaluatorForm from "../components/ImprovedEvaluatorForm";
 import FormButton from "@/components/FormButton";
-import { FileIcon } from "lucide-react";
+import { FileIcon, CheckCircle, CheckCircle } from 'lucide-react';
 import GoBack from "components/GoBack";
 import { useState, useEffect } from "react";
 import React from "react";
@@ -17,7 +17,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "components/ui/card";
 import { areAllEvaluationsComplete } from "@/features/hr/utils/performanceCalculations";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
-import { CheckCircle, FileDown } from "lucide-react";
+import { CheckCircle, FileDown, CheckCircle, CheckCircle } from 'lucide-react';
 import { Icon } from "@iconify/react";
 import { generatePerformanceAssessmentPDF, generateIndividualEvaluatorPDF } from "@/features/hr/utils/performanceAssessmentPDF";
 
@@ -447,7 +447,7 @@ const PerformanceDetails = () => {
               disabled={isSubmitting}
               className="bg-blue-600 hover:bg-blue-700 shadow-sm"
             >
-              <Icon icon="ph:paper-plane-tilt-duotone" fontSize={20} />
+              <Send size={16} />
               <p>{isSubmitting ? "Submitting..." : "Submit for Evaluation"}</p>
             </FormButton>
           )}
@@ -509,7 +509,7 @@ const PerformanceDetails = () => {
           <Card className="shadow-sm border-gray-200">
             <CardHeader className="bg-gray-50/50">
               <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                <Icon icon="ph:clipboard-text-duotone" fontSize={24} className="text-blue-600" />
+                <ClipboardList size={16} />
                 Appraisal Information
               </CardTitle>
             </CardHeader>
@@ -541,14 +541,14 @@ const PerformanceDetails = () => {
                 <div className='flex flex-col space-y-1'>
                   <label className='text-xs font-medium text-gray-500 uppercase tracking-wide'>Start Date</label>
                   <p className='text-sm text-gray-900 flex items-center gap-1'>
-                    <Icon icon="ph:calendar-duotone" fontSize={16} className="text-gray-400" />
+                    <Calendar size={16} />
                     {assessmentWithGoals.start_date || 'N/A'}
                   </p>
                 </div>
                 <div className='flex flex-col space-y-1'>
                   <label className='text-xs font-medium text-gray-500 uppercase tracking-wide'>End Date</label>
                   <p className='text-sm text-gray-900 flex items-center gap-1'>
-                    <Icon icon="ph:calendar-duotone" fontSize={16} className="text-gray-400" />
+                    <Calendar size={16} />
                     {assessmentWithGoals.end_date || 'N/A'}
                   </p>
                 </div>
@@ -557,7 +557,7 @@ const PerformanceDetails = () => {
                   {assessmentWithGoals.final_rating ? (
                     <div className="flex items-center gap-2">
                       <div className="flex items-center gap-1">
-                        <Icon icon="ph:star-fill" fontSize={18} className="text-yellow-500" />
+                        <Star size={16} />
                         <span className='text-lg font-semibold text-gray-900'>
                           {parseFloat(assessmentWithGoals.final_rating.toString()).toFixed(2)}
                         </span>
@@ -576,7 +576,7 @@ const PerformanceDetails = () => {
           <Card className="shadow-sm border-gray-200 mt-6">
             <CardHeader className="bg-gray-50/50">
               <CardTitle className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                <Icon icon="ph:user-circle-duotone" fontSize={24} className="text-green-600" />
+                <User size={16} />
                 Employee Information
               </CardTitle>
             </CardHeader>
@@ -592,7 +592,7 @@ const PerformanceDetails = () => {
                   <label className='text-xs font-medium text-gray-500 uppercase tracking-wide'>Email</label>
                   {assessmentWithGoals.employee_email ? (
                     <p className='text-sm text-gray-900 flex items-center gap-1'>
-                      <Icon icon="ph:envelope-duotone" fontSize={16} className="text-gray-400" />
+                      <Mail size={16} />
                       {assessmentWithGoals.employee_email}
                     </p>
                   ) : (
@@ -603,7 +603,7 @@ const PerformanceDetails = () => {
                   <label className='text-xs font-medium text-gray-500 uppercase tracking-wide'>Job Title</label>
                   {assessmentWithGoals.employee_job_title ? (
                     <p className='text-sm text-gray-900 flex items-center gap-1'>
-                      <Icon icon="ph:briefcase-duotone" fontSize={16} className="text-gray-400" />
+                      <Briefcase size={16} />
                       {assessmentWithGoals.employee_job_title}
                     </p>
                   ) : (
@@ -614,7 +614,7 @@ const PerformanceDetails = () => {
                   <label className='text-xs font-medium text-gray-500 uppercase tracking-wide'>Supervisor Name</label>
                   {assessmentWithGoals.supervisor_name ? (
                     <p className='text-sm text-gray-900 flex items-center gap-1'>
-                      <Icon icon="ph:user-focus-duotone" fontSize={16} className="text-gray-400" />
+                      <UserFocus size={16} />
                       {assessmentWithGoals.supervisor_name}
                     </p>
                   ) : (
@@ -628,7 +628,7 @@ const PerformanceDetails = () => {
           {/* Employee Goals Section */}
           <div className='mt-6'>
             <div className='flex items-center gap-2 mb-4'>
-              <Icon icon="ph:target-duotone" fontSize={24} className="text-orange-600" />
+              <Target size={16} />
               <h3 className='text-lg font-semibold text-gray-900'>Employee Goals</h3>
               {assessmentWithGoals.goals && assessmentWithGoals.goals.length > 0 && (
                 <Badge variant='secondary' className='ml-2'>
@@ -664,13 +664,13 @@ const PerformanceDetails = () => {
                             {goal.narratives && goal.narratives.length > 0 && (
                               <div className='mt-4 ml-8 bg-gray-50 rounded-lg p-3 border border-gray-100'>
                                 <p className='text-xs font-semibold text-gray-700 mb-2 uppercase tracking-wide flex items-center gap-1'>
-                                  <Icon icon="ph:list-checks-duotone" fontSize={14} />
+                                  <ClipboardCheck size={16} />
                                   Tasks ({goal.narratives.length})
                                 </p>
                                 <ul className='space-y-2'>
                                   {goal.narratives.map((narrative: any, idx: number) => (
                                     <li key={idx} className='flex items-start gap-2 text-sm'>
-                                      <Icon icon="ph:check-circle-duotone" fontSize={16} className='text-green-500 mt-0.5 flex-shrink-0' />
+                                      <CheckCircle size={16} />
                                       <span className='flex-1 text-gray-700'>{narrative.description}</span>
                                       <Badge variant='secondary' className='text-xs'>
                                         {parseFloat(narrative.weight?.toString() || '0').toFixed(0)}%
@@ -687,7 +687,7 @@ const PerformanceDetails = () => {
                             </Badge>
                             {goal.average_rating && (
                               <div className='flex items-center gap-1 bg-yellow-50 px-2 py-1 rounded border border-yellow-200'>
-                                <Icon icon="ph:star-fill" fontSize={14} className='text-yellow-500' />
+                                <Star size={16} />
                                 <span className='text-sm font-semibold text-gray-900'>
                                   {goal.average_rating.toFixed(2)}/5
                                 </span>
@@ -703,7 +703,7 @@ const PerformanceDetails = () => {
             ) : (
               <Card className='shadow-sm border-dashed border-gray-300'>
                 <CardContent className='py-12 text-center'>
-                  <Icon icon="ph:target-duotone" fontSize={48} className='text-gray-300 mx-auto mb-3' />
+                  <Target size={16} />
                   <p className='text-gray-500 text-sm'>No goals set for this assessment</p>
                 </CardContent>
               </Card>
@@ -713,7 +713,7 @@ const PerformanceDetails = () => {
           {/* Evaluators Section */}
           <div className='mt-6'>
             <div className='flex items-center gap-2 mb-4'>
-              <Icon icon="ph:users-three-duotone" fontSize={24} className="text-purple-600" />
+              <Users size={16} />
               <h3 className='text-lg font-semibold text-gray-900'>Evaluators</h3>
               {assessmentWithGoals.evaluators && assessmentWithGoals.evaluators.length > 0 && (
                 <Badge variant='secondary' className='ml-2'>
@@ -786,13 +786,13 @@ const PerformanceDetails = () => {
                           <div className='space-y-2 pt-2 border-t border-gray-100'>
                             {evaluatorEmail && (
                               <div className='flex items-center gap-2 text-sm'>
-                                <Icon icon="ph:envelope-duotone" fontSize={16} className='text-gray-400 flex-shrink-0' />
+                                <Mail size={16} />
                                 <p className='text-gray-700 truncate'>{evaluatorEmail}</p>
                               </div>
                             )}
                             {evaluator.submitted_at && (
                               <div className='flex items-center gap-2 text-sm'>
-                                <Icon icon="ph:calendar-check-duotone" fontSize={16} className='text-gray-400 flex-shrink-0' />
+                                <CalendarCheck size={16} />
                                 <div>
                                   <p className='text-xs text-gray-500'>Submitted</p>
                                   <p className='text-gray-700'>{new Date(evaluator.submitted_at).toLocaleDateString()}</p>
@@ -813,7 +813,7 @@ const PerformanceDetails = () => {
                                   }}
                                   className="flex-1 text-xs"
                                 >
-                                  <Icon icon="ph:eye-duotone" fontSize={14} className='mr-1' />
+                                  <Eye size={16} />
                                   View Details
                                 </Button>
                                 <Button
@@ -822,7 +822,7 @@ const PerformanceDetails = () => {
                                   onClick={() => handleGenerateIndividualPDF(evaluator)}
                                   className="flex-1 text-xs bg-blue-600 hover:bg-blue-700"
                                 >
-                                  <Icon icon="ph:file-pdf-duotone" fontSize={14} className='mr-1' />
+                                  <File size={16} />
                                   PDF Report
                                 </Button>
                               </div>
@@ -836,7 +836,7 @@ const PerformanceDetails = () => {
               ) : (
                 <Card className='shadow-sm border-dashed border-gray-300'>
                   <CardContent className='py-12 text-center'>
-                    <Icon icon="ph:users-three-duotone" fontSize={48} className='text-gray-300 mx-auto mb-3' />
+                    <Users size={16} />
                     <p className='text-gray-500 text-sm'>No evaluators assigned</p>
                   </CardContent>
                 </Card>

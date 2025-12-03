@@ -1,12 +1,10 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Card from "components/Card";
-import { cn } from "lib/utils";
 import { Button } from "components/ui/button";
 import { Badge } from "components/ui/badge";
 import { Progress } from "components/ui/progress";
-import DataTable from "components/DataTable";
 import {
   PieChart,
   Pie,
@@ -18,54 +16,36 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  Legend
 } from "recharts";
 
 // Real data hooks - using working endpoints
-import { useGetAllProjects, useGetProjectDisbursements, useGetProjectExpenditures } from "@/features/projects/controllers/projectController";
+import { useGetAllProjects } from "@/features/projects/controllers/projectController";
 import { useGetWorkforces } from "@/features/hr/controllers/workforceController";
-import { useGetTrialBalance, useGetIncomeStatement, useGetBalanceSheet } from "@/features/finance/controllers/reportsController";
+import { useGetTrialBalance, useGetIncomeStatement } from "@/features/finance/controllers/reportsController";
 import { useGetAllFundRequests } from "@/features/programs/controllers/fundRequestController";
 import { formatNumberCurrency } from "@/utils/utls";
 
 // Department features and error handling
 import { useDepartmentFeatures } from "@/hooks/useDepartmentFeatures";
-import { handleApiError, createErrorContext } from "@/utils/errorHandlers";
 import {
-  CalendarDays,
   DollarSign,
   Users,
   TrendingUp,
   AlertCircle,
-  CheckCircle,
   Clock,
-  ArrowUpRight,
-  ArrowDownRight,
   FileText,
   Settings,
-  Bell,
-  Plus,
   Eye,
   Download,
-  Filter,
-  Search,
   RotateCcw,
-  BarChart3,
-  PieChart as PieChartIcon,
-  Calendar,
-  Target,
-  Zap,
-  Award,
-  Globe,
-  MapPin,
-  MessageSquare as MessageSquareIcon
+  BarChart3
 } from "lucide-react";
 
 // Enhanced color palette for charts
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884D8", "#82CA9D", "#FFC658"];
 
 // Role-based permission system
-const USER_ROLES = {
+const _USER_ROLES = {
   ADMIN: 'admin',
   PROJECT_MANAGER: 'project_manager',
   REVIEWER: 'reviewer',
@@ -74,7 +54,7 @@ const USER_ROLES = {
   STAFF: 'staff'
 };
 
-const WORKFLOW_STATUS = {
+const _WORKFLOW_STATUS = {
   PENDING: 'pending',
   UNDER_REVIEW: 'under_review',
   APPROVED: 'approved',
@@ -120,7 +100,7 @@ const userNotifications = [
 
 
 // Sample metrics data
-const metricsData = [
+const _metricsData = [
   { name: "Jan", projects: 12, budget: 850000, completed: 8 },
   { name: "Feb", projects: 19, budget: 1200000, completed: 15 },
   { name: "Mar", projects: 15, budget: 980000, completed: 12 },
@@ -130,7 +110,7 @@ const metricsData = [
 ];
 
 // Project status distribution
-const statusData = [
+const _statusData = [
   { name: "Active", value: 45, color: "#00C49F" },
   { name: "In Progress", value: 30, color: "#0088FE" },
   { name: "Planning", value: 15, color: "#FFBB28" },
@@ -138,7 +118,7 @@ const statusData = [
 ];
 
 // Dashboard columns for data table
-const dashboardColumns = [
+const _dashboardColumns = [
   {
     accessorKey: "ref",
     header: "Project",
@@ -204,14 +184,14 @@ export default function Dashboard() {
 
   // Department features for conditional rendering
   const {
-    userDepartment,
-    hasEmployeeProfile,
-    getDepartmentDashboardWidgets,
-    getDepartmentTheme,
+    userDepartment: _userDepartment,
+    hasEmployeeProfile: _hasEmployeeProfile,
+    getDepartmentDashboardWidgets: _getDepartmentDashboardWidgets,
+    getDepartmentTheme: _getDepartmentTheme,
     canAccessProgramsFeatures,
     canAccessFinanceFeatures,
     canAccessHRFeatures,
-    canAccessProcurementFeatures,
+    canAccessProcurementFeatures: _canAccessProcurementFeatures,
   } = useDepartmentFeatures();
 
   // Client-side check
@@ -245,13 +225,13 @@ export default function Dashboard() {
   });
 
   // Financial reports - only load if user has finance access
-  const { data: trialBalanceData, isLoading: isLoadingTrialBalance } = useGetTrialBalance({
+  const { data: trialBalanceData, isLoading: _isLoadingTrialBalance } = useGetTrialBalance({
     date_from: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     date_to: new Date().toISOString().split('T')[0],
     enabled: isClient && canAccessFinanceFeatures
   });
 
-  const { data: incomeStatementData, isLoading: isLoadingIncomeStatement } = useGetIncomeStatement({
+  const { data: incomeStatementData, isLoading: _isLoadingIncomeStatement } = useGetIncomeStatement({
     date_from: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     date_to: new Date().toISOString().split('T')[0],
     enabled: isClient && canAccessFinanceFeatures
@@ -259,12 +239,12 @@ export default function Dashboard() {
 
   // State for interactivity and real-time features
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [selectedTimeRange, setSelectedTimeRange] = useState('6M');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedStatus, setSelectedStatus] = useState('All');
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [activeNotifications, setActiveNotifications] = useState(userNotifications);
-  const [selectedWorkflowFilter, setSelectedWorkflowFilter] = useState('assigned_to_me');
+  const [_selectedTimeRange, _setSelectedTimeRange] = useState('6M');
+  const [_searchTerm, _setSearchTerm] = useState('');
+  const [_selectedStatus, _setSelectedStatus] = useState('All');
+  const [_viewMode, _setViewMode] = useState<'grid' | 'list'>('grid');
+  const [_activeNotifications, _setActiveNotifications] = useState(userNotifications);
+  const [_selectedWorkflowFilter, _setSelectedWorkflowFilter] = useState('assigned_to_me');
 
   // Real-time clock update
   useEffect(() => {

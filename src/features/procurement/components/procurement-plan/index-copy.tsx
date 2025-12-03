@@ -20,7 +20,7 @@ import UploadIcon from "components/icons/UploadIcon";
 import { useState } from "react";
 import { Textarea } from "components/ui/textarea";
 import ProcurementPlanUploadModal from "./components/ProcurementPlanUploadModal";
-import { MdDownload } from "react-icons/md";
+import { Download } from "lucide-react";
 import { XLSX } from "@/utils/excelUtils";
 import readXlsxFile from 'read-excel-file';
 import {
@@ -212,7 +212,7 @@ export default function ProcurementPlan() {
                 variant='ghost'
                 onClick={handleDownloadSheet}
               >
-                <MdDownload size={20} className='text-blue-500' />
+                <Download size={20} className='text-blue-500' />
                 &nbsp; Download Procurement Plan
               </Button>
             </div>

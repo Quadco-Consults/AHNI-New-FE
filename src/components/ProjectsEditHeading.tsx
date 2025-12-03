@@ -75,7 +75,7 @@ const ProjectsEditHeading = () => {
             <BreadcrumbLink href={RouteEnum.PROJECTS}>Projects</BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator>
-            <Icon icon="iconoir:slash" />
+            <X size={16} />
           </BreadcrumbSeparator>
           <BreadcrumbItem>
             <BreadcrumbPage>Edit</BreadcrumbPage>

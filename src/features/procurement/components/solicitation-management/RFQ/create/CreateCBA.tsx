@@ -26,6 +26,7 @@ import { useForm } from "react-hook-form";
 
 import logoPng from "assets/imgs/logo.png";
 import { Input } from "components/ui/input";
+import { Search } from 'lucide-react';
 import { Icon } from "@iconify/react";
 import { LoadingSpinner } from "components/Loading";
 import { Checkbox } from "components/ui/checkbox";
@@ -378,7 +379,7 @@ const CreateCBA = () => {
       {isEditMode && (
         <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
           <div className="flex items-center gap-2">
-            <Icon icon="heroicons:pencil-square" className="text-amber-600" fontSize={20} />
+            <Edit size={16} />
             <p className="text-amber-800 text-sm">
               <strong>Edit Mode:</strong> You are editing an existing CBA. The form has been populated with the current data.
               {cbaId && <span className="ml-2 font-mono text-xs">CBA ID: {cbaId}</span>}
@@ -403,7 +404,7 @@ const CreateCBA = () => {
           {/* RFQ Items */}
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
             <div className="flex items-center gap-2 mb-4">
-              <Icon icon="heroicons:clipboard-document-list" className="text-blue-600" fontSize={20} />
+              <ClipboardList size={16} />
               <h3 className="text-lg font-semibold text-blue-900">
                 RFQ Items - {selectedRFQ.rfq_id}
               </h3>
@@ -448,7 +449,7 @@ const CreateCBA = () => {
           {/* Vendor Bid Submissions */}
           <div className="bg-green-50 border border-green-200 rounded-lg p-6">
             <div className="flex items-center gap-2 mb-4">
-              <Icon icon="heroicons:building-office" className="text-green-600" fontSize={20} />
+              <Building size={16} />
               <h3 className="text-lg font-semibold text-green-900">
                 Vendor Bid Submissions
               </h3>
@@ -495,7 +496,7 @@ const CreateCBA = () => {
                     </div>
                   ) : (
                     <div className="text-center py-4 text-green-600">
-                      <Icon icon="heroicons:inbox" className="mx-auto mb-2" fontSize={32} />
+                      <Inbox size={16} />
                       <p>No vendor submissions found for this RFQ</p>
                       <p className="text-xs text-green-500 mt-1">
                         Vendors can still submit bids after CBA is created
@@ -594,7 +595,7 @@ const CreateCBA = () => {
                     {/* Info Banner */}
                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mx-6">
                       <div className="flex items-center gap-2">
-                        <Icon icon="heroicons:information-circle" className="text-blue-600" fontSize={16} />
+                        <Info size={16} />
                         <p className="text-xs text-blue-800">
                           <strong>Note:</strong> Only internal AHNI staff members (AHNI_STAFF and ADMIN) are displayed.
                           Vendors and external consultants are automatically excluded from committee selection.
@@ -611,7 +612,7 @@ const CreateCBA = () => {
                           type="search"
                           className="h-6 border-none bg-none"
                         />
-                        <Icon icon="iconamoon:search-light" fontSize={25} />
+                        <Search size={16} />
                       </div>
                     </div>
 
@@ -636,7 +637,7 @@ const CreateCBA = () => {
                                 }}
                                 className="text-xs"
                               >
-                                <Icon icon="heroicons:check-circle" className="mr-1" fontSize={14} />
+                                <CheckCircle size={16} />
                                 Select All
                               </Button>
                               <Button
@@ -648,7 +649,7 @@ const CreateCBA = () => {
                                 }}
                                 className="text-xs"
                               >
-                                <Icon icon="heroicons:x-circle" className="mr-1" fontSize={14} />
+                                <XCircle size={16} />
                                 Clear All
                               </Button>
                             </div>

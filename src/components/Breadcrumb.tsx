@@ -32,7 +32,7 @@ export default function BreadcrumbCard({ list }: TProps) {
                                 </BreadcrumbItem>
                                 {item?.icon && (
                                     <BreadcrumbSeparator>
-                                        <Icon icon="iconoir:slash" />
+                                        <X size={16} />
                                     </BreadcrumbSeparator>
                                 )}
                             </Fragment>
