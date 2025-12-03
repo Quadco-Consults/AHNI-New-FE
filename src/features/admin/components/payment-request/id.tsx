@@ -490,7 +490,7 @@ export default function PaymentRequestDetails() {
                               {approval.comments && (
                                 <div className="mt-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
                                   <p className="text-sm text-gray-700 italic">
-                                    "{approval.comments}"
+                                    &quot;{approval.comments}&quot;
                                   </p>
                                 </div>
                               )}

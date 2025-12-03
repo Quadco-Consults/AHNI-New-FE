@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { Icon } from "@iconify/react";
+import { Info } from 'lucide-react';import { Icon } from "@iconify/react";
 import Card from "components/Card";
 import { Badge } from "components/ui/badge";
 import { Button } from "components/ui/button";
@@ -84,7 +84,7 @@ const RFPEvaluationSummary = ({
               size="sm"
               className="bg-blue-600 hover:bg-blue-700"
             >
-              <Icon icon="carbon:view" className="w-4 h-4 mr-1" />
+              <Eye size={16} />
               {evaluationStatus === "not_started" ? "Start Evaluation" : "Continue"}
             </Button>
           ) : null}
@@ -127,7 +127,7 @@ const RFPEvaluationSummary = ({
 
       {/* Status Message */}
       <div className="text-sm text-blue-800 bg-white bg-opacity-50 p-3 rounded">
-        <Icon icon="mdi:information-outline" className="w-4 h-4 inline mr-2" />
+        <Info size={16} />
         {getStatusMessage()}
       </div>
 

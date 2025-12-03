@@ -6,6 +6,7 @@ import { Loading } from "components/Loading";
 import { Button } from "components/ui/button";
 import { Badge } from "components/ui/badge";
 import Card from "components/Card";
+import { FileText } from 'lucide-react';
 import { Icon } from "@iconify/react";
 import CbaAPI from "@/features/procurement/controllers/cbaController";
 import { toast } from "sonner";
@@ -226,7 +227,7 @@ const AnalysisResults = ({ cbaId: propCbaId }: AnalysisResultsProps) => {
     return (
       <Card className="p-8">
         <div className="text-center py-12 bg-gradient-to-br from-yellow-50 to-amber-50 border-2 border-dashed border-yellow-300 rounded-xl">
-          <Icon icon="solar:document-bold-duotone" fontSize={56} className="mx-auto mb-4 text-yellow-500 opacity-50" />
+          <FileText size={16} />
           <p className="text-yellow-800 font-semibold text-lg">No Analysis Results Yet</p>
           <p className="text-yellow-600 text-sm mt-2">
             The bid analysis has not been submitted. Please perform the vendor analysis first.
@@ -241,7 +242,7 @@ const AnalysisResults = ({ cbaId: propCbaId }: AnalysisResultsProps) => {
     return (
       <Card className="p-8">
         <div className="text-center py-12">
-          <Icon icon="solar:danger-triangle-bold-duotone" fontSize={56} className="mx-auto mb-4 text-red-500" />
+          <AlertTriangle size={16} />
           <p className="text-red-700 font-semibold text-lg">Failed to load analysis results</p>
           <p className="text-gray-600 text-sm mt-2">{error.message}</p>
         </div>
@@ -254,7 +255,7 @@ const AnalysisResults = ({ cbaId: propCbaId }: AnalysisResultsProps) => {
     return (
       <Card className="p-8">
         <div className="text-center py-12 bg-gradient-to-br from-yellow-50 to-amber-50 border-2 border-dashed border-yellow-300 rounded-xl">
-          <Icon icon="solar:document-bold-duotone" fontSize={56} className="mx-auto mb-4 text-yellow-500 opacity-50" />
+          <FileText size={16} />
           <p className="text-yellow-800 font-semibold text-lg">No Analysis Results Yet</p>
           <p className="text-yellow-600 text-sm mt-2">
             The bid analysis has not been submitted. Please perform the vendor analysis first.
@@ -274,7 +275,7 @@ const AnalysisResults = ({ cbaId: propCbaId }: AnalysisResultsProps) => {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-green-600 rounded-xl flex items-center justify-center shadow-md">
-              <Icon icon="solar:clipboard-check-bold" fontSize={28} className="text-white" />
+              <ClipboardCheck size={16} />
             </div>
             <div>
               <h2 className="text-xl font-bold text-gray-900">Analysis Results</h2>
@@ -282,7 +283,7 @@ const AnalysisResults = ({ cbaId: propCbaId }: AnalysisResultsProps) => {
             </div>
           </div>
           <Badge className="bg-green-600 text-white px-4 py-2 text-base shadow-md">
-            <Icon icon="solar:check-circle-bold" className="mr-2" fontSize={18} />
+            <CheckCircle size={16} />
             Submitted
           </Badge>
         </div>
@@ -294,7 +295,7 @@ const AnalysisResults = ({ cbaId: propCbaId }: AnalysisResultsProps) => {
             disabled={isDownloading}
             className="bg-blue-600 hover:bg-blue-700 text-white flex-1"
           >
-            <Icon icon="solar:document-text-bold" className="mr-2" fontSize={18} />
+            <FileText size={16} />
             {isDownloading ? "Generating PDF..." : "Download PDF Report"}
           </Button>
           <Button
@@ -302,7 +303,7 @@ const AnalysisResults = ({ cbaId: propCbaId }: AnalysisResultsProps) => {
             variant="outline"
             className="border-blue-600 text-blue-600 hover:bg-blue-50"
           >
-            <Icon icon="solar:download-minimalistic-bold" className="mr-2" fontSize={18} />
+            <Download size={16} />
             Download JSON
           </Button>
         </div>
@@ -314,7 +315,7 @@ const AnalysisResults = ({ cbaId: propCbaId }: AnalysisResultsProps) => {
         <Card className="p-6">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-              <Icon icon="solar:document-bold-duotone" fontSize={22} className="text-blue-600" />
+              <FileText size={16} />
             </div>
             <h3 className="text-lg font-bold text-gray-900">Summary</h3>
           </div>
@@ -366,7 +367,7 @@ const AnalysisResults = ({ cbaId: propCbaId }: AnalysisResultsProps) => {
         <Card className="p-6">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-              <Icon icon="solar:notes-bold-duotone" fontSize={22} className="text-orange-600" />
+              <ClipboardList size={16} />
             </div>
             <h3 className="text-lg font-bold text-gray-900">Award Recommendation</h3>
           </div>
@@ -388,7 +389,7 @@ const AnalysisResults = ({ cbaId: propCbaId }: AnalysisResultsProps) => {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                <Icon icon="solar:checklist-bold-duotone" fontSize={22} className="text-purple-600" />
+                <ClipboardCheck size={16} />
               </div>
               <h3 className="text-lg font-bold text-gray-900">Selected Items</h3>
             </div>

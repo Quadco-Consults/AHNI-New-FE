@@ -365,22 +365,22 @@ const WorkforceNeedAnalysisView: React.FC<WorkforceNeedAnalysisViewProps> = ({ i
                 {enhancedAnalysis.shortage_excess_count < 0 ? (
                   <>
                     <li className="flex items-center gap-2">
-                      <Icon icon="mdi:account-plus" className="h-4 w-4 text-red-500" />
+                      <UserPlus size={16} />
                       Recruit {Math.abs(enhancedAnalysis.shortage_excess_count)} additional staff
                     </li>
                     <li className="flex items-center gap-2">
-                      <Icon icon="mdi:clock-fast" className="h-4 w-4 text-orange-500" />
+                      <Clock size={16} />
                       Review workload distribution
                     </li>
                   </>
                 ) : (
                   <>
                     <li className="flex items-center gap-2">
-                      <Icon icon="mdi:account-switch" className="h-4 w-4 text-blue-500" />
+                      <Users size={16} />
                       Redeploy {enhancedAnalysis.shortage_excess_count} staff to other departments
                     </li>
                     <li className="flex items-center gap-2">
-                      <Icon icon="mdi:trending-up" className="h-4 w-4 text-green-500" />
+                      <TrendingUp size={16} />
                       Expand service delivery
                     </li>
                   </>
@@ -436,19 +436,19 @@ const WorkforceNeedAnalysisView: React.FC<WorkforceNeedAnalysisViewProps> = ({ i
           <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
           <div className="space-y-3">
             <Button className="w-full justify-start" variant="outline">
-              <Icon icon="mdi:account-plus" className="h-4 w-4 mr-2" />
+              <UserPlus size={16} />
               Post Job Opening
             </Button>
             <Button className="w-full justify-start" variant="outline">
-              <Icon icon="mdi:account-switch" className="h-4 w-4 mr-2" />
+              <Users size={16} />
               Transfer Staff
             </Button>
             <Button className="w-full justify-start" variant="outline">
-              <Icon icon="mdi:calendar-clock" className="h-4 w-4 mr-2" />
+              <CalendarClock size={16} />
               Schedule Review
             </Button>
             <Button className="w-full justify-start" variant="outline">
-              <Icon icon="mdi:file-export" className="h-4 w-4 mr-2" />
+              <FileDown size={16} />
               Export Report
             </Button>
           </div>
@@ -458,13 +458,13 @@ const WorkforceNeedAnalysisView: React.FC<WorkforceNeedAnalysisViewProps> = ({ i
       {/* Simple Recommendations */}
       <Card className="p-6">
         <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-          <Icon icon="mdi:lightbulb-outline" className="h-5 w-5" />
+          <Lightbulb size={16} />
           Next Steps
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {enhancedAnalysis.recommendations.slice(0, 2).map((recommendation: string, index: number) => (
             <div key={index} className="flex items-start gap-3 p-4 bg-gray-50 rounded-lg border">
-              <Icon icon="mdi:check-circle-outline" className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+              <CheckCircle size={16} />
               <p className="text-sm text-gray-700">{recommendation}</p>
             </div>
           ))}
@@ -500,7 +500,7 @@ const WorkforceNeedAnalysisView: React.FC<WorkforceNeedAnalysisViewProps> = ({ i
             Export
           </Button>
           <Button variant="outline">
-            <Icon icon="mdi:pencil" className="h-4 w-4 mr-2" />
+            <Pencil size={16} />
             Edit
           </Button>
         </div>

@@ -8,6 +8,7 @@ import { LoadingSpinner } from "components/Loading";
 import { useParams } from "next/navigation";
 import { useGetSingleCloseOutPlan, useUpdateTaskStatus } from "@/features/contracts-grants/controllers/closeoutPlanController";
 import { Button } from "components/ui/button";
+import { Download } from 'lucide-react';
 import { Icon } from "@iconify/react";
 import { toast } from "sonner";
 import html2canvas from "html2canvas";
@@ -191,7 +192,7 @@ export default function CloseOutPlan() {
                     onClick={handleDownloadPDF}
                     className="flex items-center gap-2"
                 >
-                    <Icon icon="ph:download" />
+                    <Download size={16} />
                     Download PDF
                 </Button>
             </div>

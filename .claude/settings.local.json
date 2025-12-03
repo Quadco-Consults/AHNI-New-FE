@@ -17,7 +17,9 @@
       "Bash(npx eslint:*)",
       "Bash(xargs sed:*)",
       "Bash(lsof:*)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(chmod:*)",
+      "Bash(/Users/muhammadilu/AHNI-New-FE/migrate-remaining-icons.sh)"
     ],
     "deny": [],
     "ask": []

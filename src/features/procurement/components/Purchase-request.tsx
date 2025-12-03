@@ -3,7 +3,7 @@
 import { Checkbox } from "components/ui/checkbox";
 import Card from "components/Card";
 import { Button } from "components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, Edit, Trash2 } from 'lucide-react';
 import {
   Dialog,
   DialogContent,

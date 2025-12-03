@@ -3,7 +3,7 @@ import { useState, useMemo, useEffect } from "react";
 import logoSvg from "@/assets/svgs/logo-bg.svg";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, ArrowLeft, Menu } from 'lucide-react';
 import { Icon } from "@iconify/react";
 import { cn } from "lib/utils";
 import { motion } from "framer-motion";
@@ -882,7 +882,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
                 sidebarWidth && "right-3 rotate-180 duration-200"
               )}
             >
-              <Icon icon="ph:arrow-left-duotone" fontSize={15} />
+              <ArrowLeft size={16} />
             </IconButton>
           </div>
         </div>

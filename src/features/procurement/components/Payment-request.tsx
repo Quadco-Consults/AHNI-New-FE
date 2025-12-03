@@ -3,7 +3,7 @@
 import { Checkbox } from "components/ui/checkbox";
 import Card from "components/Card";
 import { Button } from "components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, Edit, Trash2 } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -385,10 +385,10 @@ const ActionListAction = ({ data }: any) => {
   return (
     <div className="flex items-center gap-2">
       <IconButton className="bg-[#F9F9F9] hover:text-primary">
-        <Icon icon="solar:pen-bold-duotone" fontSize={15} />
+        <Edit size={16} />
       </IconButton>
       <IconButton className="bg-[#F9F9F9] hover:text-primary">
-        <Icon icon="ant-design:delete-twotone" fontSize={15} />
+        <Trash2 size={16} />
       </IconButton>
     </div>
   );

@@ -5,7 +5,7 @@ import DataTable from "components/Table/DataTable";
 import { ColumnDef } from "@tanstack/react-table";
 import { useParams } from "next/navigation";
 import { Button } from "components/ui/button";
-import { BsFiletypeCsv, BsFiletypeDoc } from "react-icons/bs";
+import { FileSpreadsheet, FileText } from "lucide-react";
 import { useGetSingleGoodReceiveNoteQuery, useDownloadGoodReceiveNote } from "@/features/admin/controllers/goodReceiveNoteController";
 import { useGetSinglePurchaseOrder } from "@/features/procurement/controllers/purchaseOrderController";
 import { useGetPurchaseRequest } from "@/features/procurement/controllers/purchaseRequestController";
@@ -584,7 +584,7 @@ export default function GoodReceiveNoteDetails() {
             variant='outline'
             className='flex items-center gap-2 text-sm'
           >
-            <BsFiletypeDoc size={16} />
+            <FileText size={16} />
             Specification Document
           </Button>
         </Link>
@@ -595,7 +595,7 @@ export default function GoodReceiveNoteDetails() {
           onClick={() => handleDownload('pdf')}
           disabled={downloading}
         >
-          <BsFiletypeCsv size={16} />
+          <FileSpreadsheet size={16} />
           {downloading ? 'Downloading...' : 'Download GRN'}
         </Button>
       </div>

@@ -7,6 +7,7 @@ import GoBack from "components/GoBack";
 import { Button } from "components/ui/button";
 import { Textarea } from "components/ui/textarea";
 import { Badge } from "components/ui/badge";
+import { FileText } from 'lucide-react';
 import { Icon } from "@iconify/react";
 import CbaAPI from "@/features/procurement/controllers/cbaController";
 import { useGetSolicitationSubmission } from "@/features/procurement/controllers/vendorBidSubmissionsController";
@@ -278,7 +279,7 @@ const AnalysisResultsView = () => {
   if (!analysisData?.selected_bid_submission || !vendorData) {
     return (
       <div className="p-8 text-center">
-        <Icon icon="solar:document-bold-duotone" fontSize={56} className="mx-auto mb-4 text-yellow-500" />
+        <FileText size={16} />
         <p className="text-yellow-800 font-semibold text-lg">No Analysis Results Available</p>
         <p className="text-gray-600 text-sm mt-2">The analysis has not been submitted yet.</p>
         <Button onClick={() => router.back()} className="mt-4">
@@ -319,7 +320,7 @@ const AnalysisResultsView = () => {
               {cbaData?.data?.status || 'PENDING'}
             </Badge>
             <Button onClick={handleDownloadPDF} disabled={isDownloading} variant="outline">
-              <Icon icon="solar:download-minimalistic-bold" className="mr-2" fontSize={18} />
+              <Download size={16} />
               {isDownloading ? "Generating..." : "Download Report"}
             </Button>
           </div>
@@ -330,7 +331,7 @@ const AnalysisResultsView = () => {
       <div className="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-300 rounded-xl p-6">
         <div className="flex items-center gap-3 mb-4">
           <div className="w-12 h-12 bg-green-600 rounded-xl flex items-center justify-center shadow-md">
-            <Icon icon="solar:cup-star-bold" fontSize={28} className="text-white" />
+            <Award size={16} />
           </div>
           <div>
             <h3 className="text-lg font-bold text-gray-900">Awarded Vendor</h3>
@@ -378,7 +379,7 @@ const AnalysisResultsView = () => {
                 <td className="border border-gray-300 p-2 text-center">
                   {item.selected ? (
                     <Badge className="bg-green-600 text-white">
-                      <Icon icon="solar:check-circle-bold" className="mr-1" fontSize={14} />
+                      <CheckCircle size={16} />
                       Selected
                     </Badge>
                   ) : (
@@ -402,7 +403,7 @@ const AnalysisResultsView = () => {
       {analysisData.recommendation_note && (
         <div className="bg-orange-50 border border-orange-200 rounded-lg p-6">
           <h3 className="font-bold text-lg mb-3 flex items-center gap-2">
-            <Icon icon="solar:notes-bold-duotone" fontSize={22} className="text-orange-600" />
+            <ClipboardList size={16} />
             Award Recommendation
           </h3>
           <div className="bg-white rounded-lg p-4 border border-orange-200">
@@ -414,7 +415,7 @@ const AnalysisResultsView = () => {
       {/* Approval Workflow Section */}
       <div className="bg-purple-50 border border-purple-200 rounded-lg p-6">
         <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
-          <Icon icon="solar:shield-check-bold-duotone" fontSize={22} className="text-purple-600" />
+          <ShieldCheck size={16} />
           Approval Workflow
         </h3>
 
@@ -428,7 +429,7 @@ const AnalysisResultsView = () => {
                 currentStep.step === step ? "bg-purple-600 text-white ring-4 ring-purple-200" :
                 "bg-gray-200 text-gray-500"
               )}>
-                {currentStep.step > step ? <Icon icon="solar:check-circle-bold" fontSize={20} /> : step}
+                {currentStep.step > step ? <CheckCircle size={16} /> : step}
               </div>
               {step < 3 && (
                 <div className={cn(
@@ -445,7 +446,7 @@ const AnalysisResultsView = () => {
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
                 <Button className="bg-purple-600 hover:bg-purple-700 text-white flex-1">
-                  <Icon icon="solar:shield-check-bold" className="mr-2" fontSize={18} />
+                  <ShieldCheck size={16} />
                   {currentStep.role} Approval
                 </Button>
               </DialogTrigger>
@@ -473,7 +474,7 @@ const AnalysisResultsView = () => {
 
           {cbaData?.data?.status === "APPROVED" && (
             <Button onClick={handleCreatePO} className="bg-blue-600 hover:bg-blue-700 text-white flex-1">
-              <Icon icon="solar:document-add-bold" className="mr-2" fontSize={18} />
+              <FilePlus size={16} />
               Create Purchase Order
             </Button>
           )}

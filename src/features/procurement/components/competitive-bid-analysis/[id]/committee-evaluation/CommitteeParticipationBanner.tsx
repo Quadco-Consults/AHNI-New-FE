@@ -1,5 +1,6 @@
 "use client";
 
+import { CheckCircle, Loader2 } from 'lucide-react';
 import { Icon } from "@iconify/react";
 import Card from "components/Card";
 import { Badge } from "components/ui/badge";
@@ -34,7 +35,7 @@ const CommitteeParticipationBanner = ({
     return (
       <Card className="p-4 bg-gray-50 border-gray-200">
         <div className="flex items-center justify-center text-gray-500">
-          <Icon icon="eos-icons:loading" className="w-5 h-5 mr-2" />
+          <Loader2 size={16} />
           Loading committee participation status...
         </div>
       </Card>
@@ -50,7 +51,7 @@ const CommitteeParticipationBanner = ({
       <div className="flex items-center justify-between mb-4">
         <div>
           <h3 className="font-semibold text-lg text-gray-900 flex items-center">
-            <Icon icon="carbon:group" className="w-5 h-5 mr-2" />
+            <Users size={16} />
             Committee Evaluation Status
           </h3>
           <p className="text-sm text-gray-600 mt-1">
@@ -62,12 +63,12 @@ const CommitteeParticipationBanner = ({
           <Badge variant={allSubmitted ? "success" : "darkYellow"} className="text-sm">
             {allSubmitted ? (
               <>
-                <Icon icon="mdi:check-circle" className="w-4 h-4 mr-1" />
+                <CheckCircle size={16} />
                 All Members Submitted
               </>
             ) : (
               <>
-                <Icon icon="mdi:clock-outline" className="w-4 h-4 mr-1" />
+                <Clock size={16} />
                 Pending Submissions
               </>
             )}
@@ -75,7 +76,7 @@ const CommitteeParticipationBanner = ({
 
           {!allSubmitted && onSendReminders && (
             <Button size="sm" variant="outline" onClick={onSendReminders}>
-              <Icon icon="mdi:email-outline" className="w-4 h-4 mr-1" />
+              <Mail size={16} />
               Send Reminders
             </Button>
           )}
@@ -151,7 +152,7 @@ const CommitteeParticipationBanner = ({
       {!allSubmitted && (
         <div className="mt-4 p-3 bg-yellow-100 border border-yellow-200 rounded-lg">
           <div className="flex items-start space-x-2">
-            <Icon icon="mdi:information-outline" className="w-5 h-5 text-yellow-600 mt-0.5" />
+            <Info size={16} />
             <div className="text-sm text-yellow-800">
               <div className="font-semibold">Next Steps:</div>
               <div className="mt-1">
@@ -170,7 +171,7 @@ const CommitteeParticipationBanner = ({
       {allSubmitted && (
         <div className="mt-4 p-3 bg-green-100 border border-green-200 rounded-lg">
           <div className="flex items-center space-x-2">
-            <Icon icon="mdi:check-circle" className="w-5 h-5 text-green-600" />
+            <CheckCircle size={16} />
             <div className="text-sm text-green-800 font-semibold">
               All evaluations submitted! Consensus analysis is now available.
             </div>

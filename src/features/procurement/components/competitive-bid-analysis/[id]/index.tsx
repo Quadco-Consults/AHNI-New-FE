@@ -8,6 +8,7 @@ import BreadcrumbCard from "components/Breadcrumb";
 import CbaAPI from "@/features/procurement/controllers/cbaController";
 import Card from "components/Card";
 import { Badge } from "components/ui/badge";
+import { CheckCircle2, FileText } from 'lucide-react';
 import { Icon } from "@iconify/react";
 import { SolicitationItems } from "definations/procurement-types/solicitation";
 import GoBack from "components/GoBack";
@@ -194,7 +195,7 @@ const CompetitiveBidAnalysisDetail = () => {
                 <GoBack />
                 <Link href={generatePath(RouteEnum.PROCUREMENT_CBA_REPORT, { id: id as string })}>
                     <Button variant="outline" size="sm" className="gap-2">
-                        <Icon icon="solar:document-text-bold-duotone" fontSize={18} />
+                        <FileText size={18} />
                         Download Report
                     </Button>
                 </Link>
@@ -206,7 +207,7 @@ const CompetitiveBidAnalysisDetail = () => {
                     <div className="flex-1">
                         <div className="flex items-center gap-3 mb-3">
                             <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
-                                <Icon icon="solar:chart-square-bold-duotone" fontSize={28} className="text-white" />
+                                <BarChart3 size={16} />
                             </div>
                             <div>
                                 <h1 className="text-3xl font-bold">
@@ -228,20 +229,20 @@ const CompetitiveBidAnalysisDetail = () => {
 
                         <div className="flex flex-wrap items-center gap-4 mt-4">
                             <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg">
-                                <Icon icon="solar:document-text-bold-duotone" fontSize={18} />
+                                <FileText size={18} />
                                 <span className="text-sm">RFQ: {rfqData?.data?.rfq_id || 'N/A'}</span>
                             </div>
                             <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg">
-                                <Icon icon="solar:case-minimalistic-bold-duotone" fontSize={18} />
+                                <Briefcase size={16} />
                                 <span className="text-sm">{data?.data?.cba_type || 'Standard'}</span>
                             </div>
                             <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg">
-                                <Icon icon="solar:calendar-bold-duotone" fontSize={18} />
+                                <Calendar size={16} />
                                 <span className="text-sm">{data?.data?.cba_date ? new Date(data.data.cba_date).toLocaleDateString() : 'Date Not Set'}</span>
                             </div>
                             {data?.data?.lot && (
                                 <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg">
-                                    <Icon icon="solar:layers-minimalistic-bold-duotone" fontSize={18} />
+                                    <Layers size={16} />
                                     <span className="text-sm">Lot: {data.data.lot}</span>
                                 </div>
                             )}
@@ -257,7 +258,7 @@ const CompetitiveBidAnalysisDetail = () => {
                             data?.data?.status === "COMPLETED" && "bg-blue-500 text-white hover:bg-blue-600"
                         )}
                     >
-                        <Icon icon="solar:verified-check-bold" className="mr-2" fontSize={18} />
+                        <CheckCircle2 size={16} />
                         {data?.data?.status || 'DRAFT'}
                     </Badge>
                 </div>
@@ -265,7 +266,7 @@ const CompetitiveBidAnalysisDetail = () => {
                 {data?.data?.remarks && (
                     <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
                         <div className="flex items-start gap-2">
-                            <Icon icon="solar:notes-bold-duotone" fontSize={20} className="text-blue-200 mt-0.5" />
+                            <ClipboardList size={16} />
                             <div>
                                 <p className="text-xs text-blue-200 font-semibold mb-1">Remarks</p>
                                 <p className="text-sm text-white">{data.data.remarks}</p>
@@ -452,7 +453,7 @@ const CompetitiveBidAnalysisDetail = () => {
                 <Card className="p-6 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200 hover:shadow-lg transition-shadow">
                     <div className="flex items-start gap-4">
                         <div className="w-14 h-14 bg-green-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
-                            <Icon icon="solar:chart-square-bold" fontSize={28} className="text-white" />
+                            <BarChart3 size={16} />
                         </div>
                         <div className="flex-1">
                             <h3 className="text-lg font-bold text-gray-900 mb-2">Bid Analysis & Selection</h3>
@@ -463,7 +464,7 @@ const CompetitiveBidAnalysisDetail = () => {
                                 href={`/dashboard/procurement/competitive-bid-analysis/${id}/vendor-analysis?id=${typeof data?.data?.solicitation === 'object' ? (data?.data?.solicitation as any)?.id : data?.data?.solicitation}&cba=${id}`}
                             >
                                 <Button className="w-full bg-green-600 hover:bg-green-700 text-white shadow-md">
-                                    <Icon icon="solar:chart-square-bold" className="mr-2" fontSize={18} />
+                                    <BarChart3 size={16} />
                                     Perform Analysis
                                 </Button>
                             </Link>
@@ -475,7 +476,7 @@ const CompetitiveBidAnalysisDetail = () => {
                 <Card className="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200 hover:shadow-lg transition-shadow">
                     <div className="flex items-start gap-4">
                         <div className="w-14 h-14 bg-blue-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
-                            <Icon icon="solar:clipboard-check-bold" fontSize={28} className="text-white" />
+                            <ClipboardCheck size={16} />
                         </div>
                         <div className="flex-1">
                             <h3 className="text-lg font-bold text-gray-900 mb-2">View Analysis Results</h3>
@@ -486,7 +487,7 @@ const CompetitiveBidAnalysisDetail = () => {
                                 href={`/dashboard/procurement/competitive-bid-analysis/${id}/analysis-results?id=${typeof data?.data?.solicitation === 'object' ? (data?.data?.solicitation as any)?.id : data?.data?.solicitation}&cba=${id}`}
                             >
                                 <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white shadow-md">
-                                    <Icon icon="solar:eye-bold" className="mr-2" fontSize={18} />
+                                    <Eye size={16} />
                                     View Results
                                 </Button>
                             </Link>
@@ -498,7 +499,7 @@ const CompetitiveBidAnalysisDetail = () => {
                 <Card className="p-6 bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200 hover:shadow-lg transition-shadow">
                     <div className="flex items-start gap-4">
                         <div className="w-14 h-14 bg-purple-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
-                            <Icon icon="solar:shield-check-bold" fontSize={28} className="text-white" />
+                            <ShieldCheck size={16} />
                         </div>
                         <div className="flex-1">
                             <h3 className="text-lg font-bold text-gray-900 mb-2">Approval Workflow</h3>
@@ -516,7 +517,7 @@ const CompetitiveBidAnalysisDetail = () => {
                                             currentStep.step === step ? "bg-purple-600 text-white ring-4 ring-purple-200" :
                                             "bg-gray-200 text-gray-500"
                                         )}>
-                                            {currentStep.step > step ? <Icon icon="solar:check-circle-bold" fontSize={16} /> : step}
+                                            {currentStep.step > step ? <CheckCircle size={16} /> : step}
                                         </div>
                                         {step < 3 && (
                                             <div className={cn(
@@ -532,7 +533,7 @@ const CompetitiveBidAnalysisDetail = () => {
                                 <Dialog open={open} onOpenChange={setOpen}>
                                     <DialogTrigger asChild>
                                         <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white shadow-md">
-                                            <Icon icon="solar:shield-check-bold" className="mr-2" fontSize={18} />
+                                            <ShieldCheck size={16} />
                                             {currentStep.role} Approval
                                         </Button>
                                     </DialogTrigger>
@@ -585,7 +586,7 @@ const CompetitiveBidAnalysisDetail = () => {
                                 </Dialog>
                             ) : (
                                 <Button variant="outline" disabled className="w-full">
-                                    <Icon icon="solar:check-circle-bold" className="mr-2" fontSize={18} />
+                                    <CheckCircle size={16} />
                                     {currentStep.isComplete ? "All Approvals Complete" : "Awaiting Approval"}
                                 </Button>
                             )}
@@ -600,7 +601,7 @@ const CompetitiveBidAnalysisDetail = () => {
                     <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                                <Icon icon="solar:box-bold-duotone" fontSize={22} className="text-blue-600" />
+                                <Package size={16} />
                             </div>
                             <div>
                                 <h2 className="text-xl font-bold text-gray-900">RFQ Items</h2>
@@ -614,7 +615,7 @@ const CompetitiveBidAnalysisDetail = () => {
 
                     {(!rfqData?.data?.solicitation_items || rfqData?.data?.solicitation_items?.length === 0) ? (
                         <div className="py-12 bg-gradient-to-br from-yellow-50 to-amber-50 border-2 border-dashed border-yellow-300 rounded-xl text-center">
-                            <Icon icon="solar:box-bold-duotone" fontSize={56} className="mx-auto mb-4 text-yellow-500 opacity-50" />
+                            <Package size={16} />
                             <p className="text-yellow-800 font-semibold text-lg">No items found</p>
                             <p className="text-yellow-600 text-sm mt-1">The RFQ may not have items assigned yet.</p>
                         </div>
@@ -625,7 +626,7 @@ const CompetitiveBidAnalysisDetail = () => {
                                     <tr className="bg-gradient-to-r from-blue-50 to-indigo-50">
                                         <th className="border border-gray-200 px-4 py-3 text-left text-sm font-bold text-gray-700">
                                             <div className="flex items-center gap-2">
-                                                <Icon icon="solar:box-bold-duotone" fontSize={16} />
+                                                <Package size={16} />
                                                 Item Name
                                             </div>
                                         </th>
@@ -675,7 +676,7 @@ const CompetitiveBidAnalysisDetail = () => {
                     <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                                <Icon icon="solar:users-group-two-rounded-bold-duotone" fontSize={22} className="text-green-600" />
+                                <Users size={16} />
                             </div>
                             <div>
                                 <h2 className="text-xl font-bold text-gray-900">Vendor Submissions</h2>
@@ -689,7 +690,7 @@ const CompetitiveBidAnalysisDetail = () => {
 
                     {!submissionsData?.data?.data?.results || submissionsData.data.data.results.length === 0 ? (
                         <div className="py-12 bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-dashed border-blue-300 rounded-xl text-center">
-                            <Icon icon="solar:users-group-two-rounded-bold-duotone" fontSize={56} className="mx-auto mb-4 text-blue-500 opacity-50" />
+                            <Users size={16} />
                             <p className="text-blue-800 font-semibold text-lg">No vendor submissions yet</p>
                             <p className="text-blue-600 text-sm mt-1">Vendors haven't submitted their bids for this RFQ.</p>
                         </div>
@@ -703,7 +704,7 @@ const CompetitiveBidAnalysisDetail = () => {
                                     <div className="flex items-start justify-between mb-4">
                                         <div className="flex items-center gap-3">
                                             <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-md">
-                                                <Icon icon="solar:user-bold" fontSize={22} className="text-white" />
+                                                <User size={16} />
                                             </div>
                                             <div>
                                                 <h3 className="font-bold text-gray-900 text-base">
@@ -719,14 +720,14 @@ const CompetitiveBidAnalysisDetail = () => {
                                             </div>
                                         </div>
                                         <Badge className="bg-green-600 text-white border-0 shadow-sm">
-                                            <Icon icon="solar:check-circle-bold" className="mr-1" fontSize={12} />
+                                            <CheckCircle size={16} />
                                             Submitted
                                         </Badge>
                                     </div>
 
                                     <div className="space-y-3">
                                         <div className="flex items-center gap-2 text-sm bg-white rounded-lg p-2 border border-gray-100">
-                                            <Icon icon="solar:calendar-bold-duotone" fontSize={18} className="text-gray-400" />
+                                            <Calendar size={16} />
                                             <span className="text-gray-700 font-medium">
                                                 {submission?.submitted_date || submission?.submission_date || submission?.created_at || submission?.submitted_at
                                                     ? new Date(submission.submitted_date || submission.submission_date || submission.created_at || submission.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
@@ -734,7 +735,7 @@ const CompetitiveBidAnalysisDetail = () => {
                                             </span>
                                         </div>
                                         <div className="flex items-center gap-2 text-sm bg-white rounded-lg p-2 border border-gray-100">
-                                            <Icon icon="solar:document-bold-duotone" fontSize={18} className="text-gray-400" />
+                                            <FileText size={16} />
                                             <span className="text-gray-700 font-medium">
                                                 {submission?.items?.length ||
                                                  submission?.vendor_bid_items?.length ||
@@ -747,7 +748,7 @@ const CompetitiveBidAnalysisDetail = () => {
 
                                     <div className="mt-4 pt-3 border-t border-gray-200">
                                         <div className="flex items-center gap-2 text-xs text-gray-500 bg-amber-50 p-2 rounded-lg">
-                                            <Icon icon="solar:lock-password-bold-duotone" fontSize={16} className="text-amber-600" />
+                                            <Lock size={16} />
                                             <span className="font-medium text-amber-700">Pricing details confidential</span>
                                         </div>
                                     </div>
@@ -764,7 +765,7 @@ const CompetitiveBidAnalysisDetail = () => {
                 <Card className="p-6">
                     <div className="flex items-center gap-3 mb-6">
                         <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-                            <Icon icon="solar:user-id-bold-duotone" fontSize={22} className="text-orange-600" />
+                            <UserCheck size={16} />
                         </div>
                         <div>
                             <h2 className="text-xl font-bold text-gray-900">Assignee</h2>
@@ -774,7 +775,7 @@ const CompetitiveBidAnalysisDetail = () => {
 
                     {!data?.data?.assignee ? (
                         <div className="py-8 bg-gradient-to-br from-gray-50 to-slate-50 border-2 border-dashed border-gray-300 rounded-xl text-center">
-                            <Icon icon="solar:user-id-bold-duotone" fontSize={40} className="mx-auto mb-3 text-gray-400 opacity-50" />
+                            <UserCheck size={16} />
                             <p className="text-gray-600 font-medium">No assignee assigned</p>
                         </div>
                     ) : (
@@ -801,7 +802,7 @@ const CompetitiveBidAnalysisDetail = () => {
                     <div className="flex items-center justify-between mb-6">
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                                <Icon icon="solar:users-group-rounded-bold-duotone" fontSize={22} className="text-purple-600" />
+                                <Users size={16} />
                             </div>
                             <div>
                                 <h2 className="text-xl font-bold text-gray-900">Committee</h2>
@@ -815,7 +816,7 @@ const CompetitiveBidAnalysisDetail = () => {
 
                     {(!data?.data?.committee_members || data?.data?.committee_members?.length === 0) ? (
                         <div className="py-8 bg-gradient-to-br from-gray-50 to-slate-50 border-2 border-dashed border-gray-300 rounded-xl text-center">
-                            <Icon icon="solar:users-group-rounded-bold-duotone" fontSize={40} className="mx-auto mb-3 text-gray-400 opacity-50" />
+                            <Users size={16} />
                             <p className="text-gray-600 font-medium">No committee members assigned</p>
                         </div>
                     ) : (

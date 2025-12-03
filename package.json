@@ -9,7 +9,11 @@
     "lint": "next lint",
     "analyze": "NODE_OPTIONS=\"--max-old-space-size=8192\" ANALYZE=true next build",
     "build:production": "NODE_OPTIONS=\"--max-old-space-size=8192\" NODE_ENV=production next build",
-    "dev:turbo": "next dev --turbo"
+    "dev:turbo": "next dev --turbo",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build",
+    "storybook:build": "storybook build",
+    "storybook:start": "storybook dev -p 6006"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

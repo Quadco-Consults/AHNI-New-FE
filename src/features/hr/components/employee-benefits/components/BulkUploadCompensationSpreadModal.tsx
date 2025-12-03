@@ -4,6 +4,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import Modal from "react-modal";
 import { Button } from "components/ui/button";
+import { Download, CheckCircle, Loader2 } from 'lucide-react';
 import { Icon } from "@iconify/react";
 import { XLSX } from "@/utils/excelUtils";
 import readXlsxFile from 'read-excel-file';
@@ -217,7 +218,7 @@ const BulkUploadCompensationSpreadModal = (props: PropsType) => {
           {/* Download Template */}
           <div className="border border-dashed border-gray-300 rounded-lg p-6 bg-blue-50">
             <div className="flex items-start gap-3">
-              <Icon icon="ph:file-arrow-down-duotone" fontSize={32} className="text-blue-600" />
+              <FileDown size={16} />
               <div className="flex-1">
                 <h3 className="font-semibold text-sm mb-1">Step 1: Download Template</h3>
                 <p className="text-xs text-gray-600 mb-3">
@@ -228,7 +229,7 @@ const BulkUploadCompensationSpreadModal = (props: PropsType) => {
                   variant="outline"
                   className="flex items-center gap-2"
                 >
-                  <Icon icon="ph:download" fontSize={18} />
+                  <Download size={16} />
                   Download Template
                 </Button>
               </div>
@@ -238,7 +239,7 @@ const BulkUploadCompensationSpreadModal = (props: PropsType) => {
           {/* Upload File */}
           <div className="border border-dashed border-gray-300 rounded-lg p-6 bg-green-50">
             <div className="flex items-start gap-3">
-              <Icon icon="ph:file-arrow-up-duotone" fontSize={32} className="text-green-600" />
+              <FileUp size={16} />
               <div className="flex-1">
                 <h3 className="font-semibold text-sm mb-1">Step 2: Upload Filled Template</h3>
                 <p className="text-xs text-gray-600 mb-3">
@@ -254,14 +255,14 @@ const BulkUploadCompensationSpreadModal = (props: PropsType) => {
                 <label htmlFor="file-upload-spread">
                   <Button variant="outline" className="flex items-center gap-2" asChild>
                     <span>
-                      <Icon icon="ph:upload" fontSize={18} />
+                      <Upload size={16} />
                       Choose File
                     </span>
                   </Button>
                 </label>
                 {file && (
                   <div className="mt-2 flex items-center gap-2 text-sm text-green-600">
-                    <Icon icon="ph:check-circle" fontSize={18} />
+                    <CheckCircle size={16} />
                     <span>{file.name}</span>
                   </div>
                 )}
@@ -316,12 +317,12 @@ const BulkUploadCompensationSpreadModal = (props: PropsType) => {
           >
             {isUploading ? (
               <>
-                <Icon icon="ph:spinner" fontSize={18} className="animate-spin" />
+                <Loader2 size={16} />
                 Uploading...
               </>
             ) : (
               <>
-                <Icon icon="ph:upload" fontSize={18} />
+                <Upload size={16} />
                 Upload {parsedData.length} Employees
               </>
             )}

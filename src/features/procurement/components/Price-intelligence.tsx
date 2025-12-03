@@ -17,6 +17,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { CheckCircle, Search } from 'lucide-react';
 import { Icon } from "@iconify/react";
 
 const RatingCircle = ({ showInner }: { showInner?: boolean }) => {
@@ -141,7 +142,7 @@ const PriceIntelligence = () => {
       <div className='space-y-10'>
         <BreadcrumbCard list={breadcrumbs} />
         <div className="text-center py-12">
-          <Icon icon="ph:database-duotone" className="mx-auto h-12 w-12 text-gray-400" />
+          <Database size={16} />
           <h3 className="mt-2 text-sm font-medium text-gray-900">
             {pagination?.count > 0 ? 'No items on this page' : 'No price intelligence data available'}
           </h3>
@@ -196,7 +197,7 @@ const PriceIntelligence = () => {
               Search Items
             </label>
             <div className="relative">
-              <Icon icon="ph:magnifying-glass" className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Search size={16} />
               <Input
                 id="search"
                 type="text"
@@ -238,7 +239,7 @@ const PriceIntelligence = () => {
               }}
               className="whitespace-nowrap"
             >
-              <Icon icon="ph:x" className="w-4 h-4 mr-1" />
+              <X size={16} />
               Clear Filters
             </Button>
           )}
@@ -279,7 +280,7 @@ const PriceIntelligence = () => {
                   <h2 className='text-lg font-semibold'>
                     {price?.item_name || price?.name || 'Unknown Item'}
                   </h2>
-                  <Icon icon="ph:eye-duotone" className="text-blue-500 text-lg" />
+                  <Eye size={16} />
                 </div>
                 <p className='text-sm leading-6'>
                   {price?.item_description || price?.description || 'No description available'}
@@ -343,7 +344,7 @@ const PriceIntelligence = () => {
               onClick={() => setCurrentPage(currentPage - 1)}
               disabled={currentPage === 1}
             >
-              <Icon icon="ph:arrow-left" className="w-4 h-4 mr-1" />
+              <ArrowLeft size={16} />
               Previous
             </Button>
 
@@ -385,7 +386,7 @@ const PriceIntelligence = () => {
               disabled={currentPage === pagination.total_pages}
             >
               Next
-              <Icon icon="ph:arrow-right" className="w-4 h-4 ml-1" />
+              <ArrowRight size={16} />
             </Button>
           </div>
         </div>
@@ -396,7 +397,7 @@ const PriceIntelligence = () => {
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Icon icon="ph:info-duotone" className="text-blue-600" />
+              <Info size={16} />
               Item Details & Price History
             </DialogTitle>
           </DialogHeader>
@@ -448,7 +449,7 @@ const ItemDetailsContent = ({ itemData }: { itemData: any }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card className="p-4">
           <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-            <Icon icon="ph:package-duotone" className="text-blue-600" />
+            <Package size={16} />
             Item Information
           </h3>
           <div className="space-y-3">
@@ -528,7 +529,7 @@ const ItemDetailsContent = ({ itemData }: { itemData: any }) => {
 
         <Card className="p-4">
           <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-            <Icon icon="ph:chart-line-duotone" className="text-green-600" />
+            <LineChart size={16} />
             Price Summary
           </h3>
           <div className="space-y-4">
@@ -571,7 +572,7 @@ const ItemDetailsContent = ({ itemData }: { itemData: any }) => {
       {/* Price History & Sources */}
       <Card className="p-4">
         <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-          <Icon icon="ph:clock-countdown-duotone" className="text-purple-600" />
+          <Clock size={16} />
           Price History & Sources
         </h3>
 
@@ -681,15 +682,15 @@ const ItemDetailsContent = ({ itemData }: { itemData: any }) => {
                   <h4 className="font-medium mb-3">Price Trend Analysis</h4>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                     <div className="flex items-center gap-2">
-                      <Icon icon="ph:trend-up" className="text-red-500" />
+                      <TrendingUp size={16} />
                       <span>Highest: {formatCurrency(itemData?.max_price)}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Icon icon="ph:trend-down" className="text-green-500" />
+                      <TrendingDown size={16} />
                       <span>Lowest: {formatCurrency(itemData?.min_price)}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Icon icon="ph:chart-bar" className="text-blue-500" />
+                      <BarChart3 size={16} />
                       <span>Market Avg: {formatCurrency(itemData?.avg_price)}</span>
                     </div>
                   </div>
@@ -737,7 +738,7 @@ const ItemDetailsContent = ({ itemData }: { itemData: any }) => {
                       {/* Recent Price Changes */}
                       <div className="p-4 bg-white border rounded-lg">
                         <h5 className="font-medium mb-3 flex items-center gap-2">
-                          <Icon icon="ph:clock-countdown" className="text-purple-600" />
+                          <Clock size={16} />
                           Recent Price Changes
                         </h5>
                         <div className="space-y-3">
@@ -771,13 +772,13 @@ const ItemDetailsContent = ({ itemData }: { itemData: any }) => {
                       {/* Price Management Alerts */}
                       <div className="p-4 bg-white border rounded-lg">
                         <h5 className="font-medium mb-3 flex items-center gap-2">
-                          <Icon icon="ph:warning-circle" className="text-yellow-600" />
+                          <AlertCircle size={16} />
                           Price Management Alerts
                         </h5>
                         <div className="space-y-2">
                           {recentChangePercent > 10 && (
                             <div className="flex items-start gap-2 p-2 bg-red-50 rounded">
-                              <Icon icon="ph:warning" className="text-red-500 mt-0.5" width={16} height={16} />
+                              <AlertTriangle size={16} />
                               <div>
                                 <p className="text-sm font-medium text-red-800">High Price Increase</p>
                                 <p className="text-xs text-red-600">Recent price increased by {recentChangePercent.toFixed(1)}%</p>
@@ -786,7 +787,7 @@ const ItemDetailsContent = ({ itemData }: { itemData: any }) => {
                           )}
                           {priceVolatility > 20 && (
                             <div className="flex items-start gap-2 p-2 bg-yellow-50 rounded">
-                              <Icon icon="ph:chart-line" className="text-yellow-500 mt-0.5" width={16} height={16} />
+                              <LineChart size={16} />
                               <div>
                                 <p className="text-sm font-medium text-yellow-800">High Volatility</p>
                                 <p className="text-xs text-yellow-600">Price fluctuates significantly</p>
@@ -795,7 +796,7 @@ const ItemDetailsContent = ({ itemData }: { itemData: any }) => {
                           )}
                           {latestPrice.price > (itemData?.avg_price * 1.2) && (
                             <div className="flex items-start gap-2 p-2 bg-orange-50 rounded">
-                              <Icon icon="ph:trend-up" className="text-orange-500 mt-0.5" width={16} height={16} />
+                              <TrendingUp size={16} />
                               <div>
                                 <p className="text-sm font-medium text-orange-800">Above Market Average</p>
                                 <p className="text-xs text-orange-600">Current price is 20%+ above average</p>
@@ -804,7 +805,7 @@ const ItemDetailsContent = ({ itemData }: { itemData: any }) => {
                           )}
                           {recentChangePercent <= 5 && overallChangePercent <= 5 && priceVolatility <= 10 && (
                             <div className="flex items-start gap-2 p-2 bg-green-50 rounded">
-                              <Icon icon="ph:check-circle" className="text-green-500 mt-0.5" width={16} height={16} />
+                              <CheckCircle size={16} />
                               <div>
                                 <p className="text-sm font-medium text-green-800">Price Stable</p>
                                 <p className="text-xs text-green-600">No significant price changes detected</p>
@@ -820,7 +821,7 @@ const ItemDetailsContent = ({ itemData }: { itemData: any }) => {
             </div>
           ) : (
             <div className="text-center py-8 text-gray-500">
-              <Icon icon="ph:chart-line-down" className="mx-auto text-4xl mb-2" />
+              <TrendingDown size={16} />
               <p>No price history or sources available for this item</p>
             </div>
           );
@@ -830,7 +831,7 @@ const ItemDetailsContent = ({ itemData }: { itemData: any }) => {
       {/* Price Management Recommendations */}
       <Card className="p-4">
         <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-          <Icon icon="ph:lightbulb-duotone" className="text-yellow-600" />
+          <Lightbulb size={16} />
           Price Management Recommendations
         </h3>
         {(() => {
@@ -913,7 +914,7 @@ const ItemDetailsContent = ({ itemData }: { itemData: any }) => {
       {/* Additional Information */}
       <Card className="p-4">
         <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-          <Icon icon="ph:info-duotone" className="text-indigo-600" />
+          <Info size={16} />
           Additional Information
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -947,7 +948,7 @@ const ItemDetailsContent = ({ itemData }: { itemData: any }) => {
       {/* All Available Data Fields (Debug) */}
       <Card className="p-4 bg-gray-50">
         <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-          <Icon icon="ph:database-duotone" className="text-gray-600" />
+          <Database size={16} />
           All Available Data Fields
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">

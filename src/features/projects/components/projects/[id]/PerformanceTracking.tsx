@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Button } from "components/ui/button";
 import { Label } from "components/ui/label";
 import Card from "components/Card";
-import { FaPlus, FaEdit, FaSave, FaTimes } from "react-icons/fa";
+import { Plus, Edit, Save, X } from "lucide-react";
 import { toast } from "sonner";
 
 // Types for achievement tracking
@@ -299,12 +299,12 @@ export default function PerformanceTracking({ projectId, projectTargets = [] }: 
                               if (e.key === 'Escape') handleCancelEdit();
                             }}
                           />
-                          <FaSave
+                          <Save
                             className="text-green-600 cursor-pointer"
                             size={12}
                             onClick={handleSaveCell}
                           />
-                          <FaTimes
+                          <X
                             className="text-red-600 cursor-pointer"
                             size={12}
                             onClick={handleCancelEdit}
@@ -336,12 +336,12 @@ export default function PerformanceTracking({ projectId, projectTargets = [] }: 
                               if (e.key === 'Escape') handleCancelEdit();
                             }}
                           />
-                          <FaSave
+                          <Save
                             className="text-green-600 cursor-pointer"
                             size={12}
                             onClick={handleSaveCell}
                           />
-                          <FaTimes
+                          <X
                             className="text-red-600 cursor-pointer"
                             size={12}
                             onClick={handleCancelEdit}
@@ -373,12 +373,12 @@ export default function PerformanceTracking({ projectId, projectTargets = [] }: 
                               if (e.key === 'Escape') handleCancelEdit();
                             }}
                           />
-                          <FaSave
+                          <Save
                             className="text-green-600 cursor-pointer"
                             size={12}
                             onClick={handleSaveCell}
                           />
-                          <FaTimes
+                          <X
                             className="text-red-600 cursor-pointer"
                             size={12}
                             onClick={handleCancelEdit}
@@ -410,12 +410,12 @@ export default function PerformanceTracking({ projectId, projectTargets = [] }: 
                               if (e.key === 'Escape') handleCancelEdit();
                             }}
                           />
-                          <FaSave
+                          <Save
                             className="text-green-600 cursor-pointer"
                             size={12}
                             onClick={handleSaveCell}
                           />
-                          <FaTimes
+                          <X
                             className="text-red-600 cursor-pointer"
                             size={12}
                             onClick={handleCancelEdit}
@@ -461,12 +461,12 @@ export default function PerformanceTracking({ projectId, projectTargets = [] }: 
                               if (e.key === 'Escape') handleCancelEdit();
                             }}
                           />
-                          <FaSave
+                          <Save
                             className="text-green-600 cursor-pointer"
                             size={12}
                             onClick={handleSaveCell}
                           />
-                          <FaTimes
+                          <X
                             className="text-red-600 cursor-pointer"
                             size={12}
                             onClick={handleCancelEdit}
@@ -496,11 +496,11 @@ export default function PerformanceTracking({ projectId, projectTargets = [] }: 
               <span className="text-gray-600">Click any achievement cell to edit</span>
             </div>
             <div className="flex items-center gap-2">
-              <FaSave className="text-green-600" size={12} />
+              <Save className="text-green-600" size={12} />
               <span className="text-gray-600">Save changes</span>
             </div>
             <div className="flex items-center gap-2">
-              <FaTimes className="text-red-600" size={12} />
+              <X className="text-red-600" size={12} />
               <span className="text-gray-600">Cancel editing</span>
             </div>
           </div>

@@ -32,8 +32,8 @@ module.exports = {
           foreground: "hsl(var(--secondary-foreground))",
         },
         alternate: {
-          DEFAULT: "#FFF2F2",
-          light: "#F9F9F9",
+          DEFAULT: "hsl(var(--alternate))",
+          light: "hsl(var(--alternate-light))",
         },
         destructive: {
           DEFAULT: "hsl(var(--destructive))",
@@ -56,14 +56,26 @@ module.exports = {
           foreground: "hsl(var(--card-foreground))",
         },
         yellow: {
-          darker: "#DEA004",
+          darker: "hsl(var(--yellow-darker))",
         },
         gray: {
-          text: "#756D6D",
-          dark: "#4D4545",
-          overlay: "#0000001A",
-          border: "#CDD5E0",
+          text: "hsl(var(--gray-text))",
+          dark: "hsl(var(--gray-dark))",
+          overlay: "hsl(var(--gray-overlay))",
+          border: "hsl(var(--gray-border))",
         },
+        // Status colors using CSS variables
+        success: "hsl(var(--success))",
+        warning: "hsl(var(--warning))",
+        error: "hsl(var(--error))",
+        info: "hsl(var(--info))",
+        pending: "hsl(var(--pending))",
+        // Priority colors using CSS variables
+        urgent: "hsl(var(--urgent))",
+        high: "hsl(var(--high))",
+        medium: "hsl(var(--medium))",
+        low: "hsl(var(--low))",
+        system: "hsl(var(--system))",
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -94,13 +106,30 @@ module.exports = {
         'body-sm': ['0.75rem', { lineHeight: '1rem', fontWeight: '400' }],       // 12px, normal
       },
       spacing: {
-        'xs': '0.25rem',    // 4px
-        'sm': '0.5rem',     // 8px
-        'md': '1rem',       // 16px
-        'lg': '1.5rem',     // 24px
-        'xl': '2rem',       // 32px
-        'xxl': '3rem',      // 48px
-        'xxxl': '4rem',     // 64px
+        'xs': 'var(--spacing-xs)',     // 4px
+        'sm': 'var(--spacing-sm)',     // 8px
+        'md': 'var(--spacing-md)',     // 16px
+        'lg': 'var(--spacing-lg)',     // 24px
+        'xl': 'var(--spacing-xl)',     // 32px
+        'xxl': 'var(--spacing-xxl)',   // 48px
+        'xxxl': 'var(--spacing-xxxl)', // 64px
+      },
+      boxShadow: {
+        'sm': 'var(--shadow-sm)',
+        'DEFAULT': 'var(--shadow-md)',
+        'md': 'var(--shadow-md)',
+        'lg': 'var(--shadow-lg)',
+        'xl': 'var(--shadow-xl)',
+      },
+      zIndex: {
+        'dropdown': 'var(--z-dropdown)',
+        'sticky': 'var(--z-sticky)',
+        'fixed': 'var(--z-fixed)',
+        'modal-backdrop': 'var(--z-modal-backdrop)',
+        'modal': 'var(--z-modal)',
+        'popover': 'var(--z-popover)',
+        'tooltip': 'var(--z-tooltip)',
+        'toast': 'var(--z-toast)',
       },
       screens: {
         'print': {'raw': 'print'},

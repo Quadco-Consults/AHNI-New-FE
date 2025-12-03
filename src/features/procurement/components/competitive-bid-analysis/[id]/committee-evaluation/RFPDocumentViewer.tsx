@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Download, CheckCircle, File } from 'lucide-react';
 import { Icon } from "@iconify/react";
 import Card from "components/Card";
 import { Badge } from "components/ui/badge";
@@ -85,7 +86,7 @@ const RFPDocumentViewer = ({
             onClick={() => onEvaluate?.(submission.vendor.id)}
             className="bg-blue-600 hover:bg-blue-700"
           >
-            <Icon icon="carbon:analytics" className="w-4 h-4 mr-2" />
+            <BarChart3 size={16} />
             Evaluate Vendor
           </Button>
         )}
@@ -133,7 +134,7 @@ const RFPDocumentViewer = ({
                       size="sm"
                       onClick={() => viewDocument(doc)}
                     >
-                      <Icon icon="mdi:eye-outline" className="w-4 h-4 mr-1" />
+                      <Eye size={16} />
                       View
                     </Button>
                     <Button
@@ -141,7 +142,7 @@ const RFPDocumentViewer = ({
                       size="sm"
                       onClick={() => downloadDocument(doc)}
                     >
-                      <Icon icon="mdi:download" className="w-4 h-4 mr-1" />
+                      <Download size={16} />
                       Download
                     </Button>
                   </div>
@@ -150,7 +151,7 @@ const RFPDocumentViewer = ({
             </div>
           ) : (
             <div className="text-center py-8 text-gray-500">
-              <Icon icon="mdi:file-outline" className="w-12 h-12 mx-auto mb-2 text-gray-400" />
+              <File size={16} />
               No technical documents submitted
             </div>
           )}
@@ -184,7 +185,7 @@ const RFPDocumentViewer = ({
                       size="sm"
                       onClick={() => viewDocument(doc)}
                     >
-                      <Icon icon="mdi:eye-outline" className="w-4 h-4 mr-1" />
+                      <Eye size={16} />
                       View
                     </Button>
                     <Button
@@ -192,7 +193,7 @@ const RFPDocumentViewer = ({
                       size="sm"
                       onClick={() => downloadDocument(doc)}
                     >
-                      <Icon icon="mdi:download" className="w-4 h-4 mr-1" />
+                      <Download size={16} />
                       Download
                     </Button>
                   </div>
@@ -201,7 +202,7 @@ const RFPDocumentViewer = ({
             </div>
           ) : (
             <div className="text-center py-8 text-gray-500">
-              <Icon icon="mdi:file-outline" className="w-12 h-12 mx-auto mb-2 text-gray-400" />
+              <File size={16} />
               No commercial documents submitted
             </div>
           )}
@@ -224,7 +225,7 @@ const RFPDocumentViewer = ({
             </div>
           ) : (
             <div className="text-center py-8 text-gray-500">
-              <Icon icon="mdi:clipboard-text-outline" className="w-12 h-12 mx-auto mb-2 text-gray-400" />
+              <ClipboardList size={16} />
               No evaluation responses provided
             </div>
           )}
@@ -240,7 +241,7 @@ const RFPDocumentViewer = ({
 
           <div className="flex items-center space-x-2">
             <Badge variant="success" className="text-xs">
-              <Icon icon="mdi:check-circle" className="w-3 h-3 mr-1" />
+              <CheckCircle size={16} />
               Submitted
             </Badge>
 
@@ -252,7 +253,7 @@ const RFPDocumentViewer = ({
                 console.log("Download all documents for", submission.vendor.name);
               }}
             >
-              <Icon icon="mdi:download-multiple" className="w-4 h-4 mr-1" />
+              <Download size={16} />
               Download All
             </Button>
           </div>

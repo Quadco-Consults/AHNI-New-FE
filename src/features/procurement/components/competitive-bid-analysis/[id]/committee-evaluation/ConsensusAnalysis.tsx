@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { Icon } from "@iconify/react";
+import { LineChart } from 'lucide-react';import { Icon } from "@iconify/react";
 import Card from "components/Card";
 import { Badge } from "components/ui/badge";
 import { Button } from "components/ui/button";
@@ -33,7 +33,7 @@ const ConsensusAnalysis = ({ cbaId }: ConsensusAnalysisProps) => {
   if (!memberEvaluations || memberEvaluations.length === 0) {
     return (
       <Card className="p-8 text-center">
-        <Icon icon="mdi:account-group-outline" className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+        <Users size={16} />
         <h3 className="text-lg font-semibold text-gray-700 mb-2">No Member Evaluations Yet</h3>
         <p className="text-gray-500">Committee members need to submit their evaluations before consensus analysis can be performed.</p>
       </Card>
@@ -43,7 +43,7 @@ const ConsensusAnalysis = ({ cbaId }: ConsensusAnalysisProps) => {
   if (!consensusResults) {
     return (
       <Card className="p-8 text-center">
-        <Icon icon="mdi:chart-line" className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+        <LineChart size={16} />
         <h3 className="text-lg font-semibold text-gray-700 mb-2">Unable to Calculate Consensus</h3>
         <p className="text-gray-500">Please ensure all committee members have completed their evaluations.</p>
       </Card>

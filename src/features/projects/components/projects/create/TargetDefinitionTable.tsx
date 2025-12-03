@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Button } from "components/ui/button";
 import { Label } from "components/ui/label";
-import { FaTimes, FaPlus } from "react-icons/fa";
+import { X, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { ProjectTargetDefinition } from "@/features/projects/types/project";
 
@@ -87,7 +87,7 @@ export default function TargetDefinitionTable({ targets, onTargetsChange, viewMo
           className="text-blue-600 border-blue-600"
           onClick={handleAddTarget}
         >
-          <FaPlus className="mr-2" size={12} />
+          <Plus className="mr-2" size={12} />
           Add Target
         </Button>
       </div>
@@ -265,7 +265,7 @@ export default function TargetDefinitionTable({ targets, onTargetsChange, viewMo
                       className="text-red-500 hover:text-red-700"
                       onClick={() => handleRemoveTarget(target.id!)}
                     >
-                      <FaTimes size={14} />
+                      <X size={14} />
                     </Button>
                   </td>
                 </tr>

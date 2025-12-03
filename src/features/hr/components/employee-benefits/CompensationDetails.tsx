@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { Trash2 } from 'lucide-react';
 import { Icon } from "@iconify/react";
 import { Button } from "components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "components/ui/card";
@@ -48,7 +49,7 @@ const CompensationDetails: React.FC = () => {
             onClick={() => router.back()}
             className="hover:bg-gray-100"
           >
-            <Icon icon="ph:arrow-left" fontSize={20} />
+            <ArrowLeft size={16} />
           </Button>
           <div>
             <h1 className="text-2xl font-semibold">Compensation Details</h1>
@@ -63,7 +64,7 @@ const CompensationDetails: React.FC = () => {
             onClick={() => setIsEditModalOpen(true)}
             className="flex items-center gap-2"
           >
-            <Icon icon="ph:pencil-duotone" fontSize={18} />
+            <Pencil size={16} />
             Edit
           </Button>
           <Button
@@ -71,7 +72,7 @@ const CompensationDetails: React.FC = () => {
             onClick={() => setIsDeleteDialogOpen(true)}
             className="flex items-center gap-2 text-red-600 hover:text-red-700"
           >
-            <Icon icon="ant-design:delete-twotone" fontSize={18} />
+            <Trash2 size={16} />
             Delete
           </Button>
         </div>

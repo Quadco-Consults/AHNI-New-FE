@@ -34,7 +34,7 @@ import {
   useUpdateProject,
 } from "@/features/projects/controllers/projectController";
 import { skipToken } from "@reduxjs/toolkit/query/react";
-import { FaTimes } from "react-icons/fa";
+import { X } from "lucide-react";
 import FormSelect from "components/atoms/FormSelect";
 import { useGetAllBeneficiaries } from "@/features/modules/controllers/project/beneficiaryController";
 import { useGetAllFundingSources } from "@/features/modules/controllers/project/fundingSourceController";
@@ -579,7 +579,7 @@ export default function ProjectSummaryPage() {
                             dispatch(removeObjective(objective.objective))
                           }
                         >
-                          <FaTimes color='red' size={16} />
+                          <X color='red' size={16} />
                         </Button>
                       </div>
                     ))}
