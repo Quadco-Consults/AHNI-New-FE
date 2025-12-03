@@ -149,11 +149,22 @@ const AssignLeaveDashboard = () => {
     },
     {
       header: "Leave Type",
-      cell: ({ row }) => (
-        <div className="flex items-center gap-2">
-          <span className="font-medium">{row.original.leave_type?.name || 'N/A'}</span>
-        </div>
-      ),
+      cell: ({ row }) => {
+        const leaveType = row.original.leave_type;
+        const leaveTypeName = leaveType
+          ? (typeof leaveType.name === 'string'
+              ? leaveType.name
+              : typeof leaveType.name === 'object' && leaveType.name?.name
+              ? leaveType.name.name
+              : leaveType.leave_type_name || 'Unknown Leave Type')
+          : 'N/A';
+
+        return (
+          <div className="flex items-center gap-2">
+            <span className="font-medium">{leaveTypeName}</span>
+          </div>
+        );
+      },
     },
     {
       header: "Duration",

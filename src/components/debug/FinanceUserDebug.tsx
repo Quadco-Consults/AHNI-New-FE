@@ -57,7 +57,7 @@ export default function FinanceUserDebug() {
         <div>
           <strong>Department Info:</strong>
           <div className="ml-2">
-            ✓ Position: {user?.position?.name || user?.position?.title || 'Not set'}<br/>
+            ✓ Position: {typeof user?.position?.name === 'string' ? user.position.name : typeof user?.position?.title === 'string' ? user.position.title : typeof user?.position === 'object' && user?.position?.name?.name ? user.position.name.name : 'Not set'}<br/>
             ✓ Department: {userDepartment || 'Not set'}<br/>
             ✓ Can Access Finance: {canAccessFinanceFeatures ? '✅' : '❌'}<br/>
           </div>

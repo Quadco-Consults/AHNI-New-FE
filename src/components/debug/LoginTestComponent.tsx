@@ -69,8 +69,8 @@ export function LoginTestComponent() {
           <div>
             <h3 className="font-semibold text-gray-800 mb-2">🏢 Organizational Context</h3>
             <div className="space-y-1 text-sm">
-              <p><span className="font-medium">Department:</span> {user?.department?.name || 'Not assigned'} ({user?.department?.code})</p>
-              <p><span className="font-medium">Position:</span> {user?.position?.title || 'Not assigned'} ({user?.position?.level})</p>
+              <p><span className="font-medium">Department:</span> {user?.department?.name || 'Not assigned'} ({typeof user?.department?.code === 'string' ? user.department.code : typeof user?.department?.code === 'object' && user?.department?.code?.code ? user.department.code.code : 'N/A'})</p>
+              <p><span className="font-medium">Position:</span> {user?.position?.title || 'Not assigned'} ({typeof user?.position?.level === 'string' || typeof user?.position?.level === 'number' ? user.position.level : 'N/A'})</p>
               <p><span className="font-medium">Role:</span> {user?.role?.name || 'Not assigned'}</p>
               <p><span className="font-medium">Location:</span> {user?.location?.name || 'Not assigned'}</p>
               <p><span className="font-medium">Data Access Level:</span> {user?.data_access_level || 'Not set'}</p>

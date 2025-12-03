@@ -166,7 +166,13 @@ const EmployeePayrollBreakdown = () => {
               </div>
               <div>
                 <p className="text-xs text-gray-600 font-medium uppercase tracking-wide">Position</p>
-                <p className="text-sm font-semibold text-gray-900 mt-1">{employeeData.position}</p>
+                <p className="text-sm font-semibold text-gray-900 mt-1">{typeof employeeData.position === 'string'
+                  ? employeeData.position
+                  : typeof employeeData.position === 'object' && employeeData.position?.name
+                  ? employeeData.position.name
+                  : typeof employeeData.position === 'object' && employeeData.position?.title
+                  ? employeeData.position.title
+                  : 'N/A'}</p>
               </div>
               <div>
                 <p className="text-xs text-gray-600 font-medium uppercase tracking-wide">Payroll ID</p>

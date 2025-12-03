@@ -87,9 +87,9 @@ const PermissionsDebugPanel: React.FC = () => {
               <div className="text-sm text-gray-600 space-y-1">
                 <p><strong>Name:</strong> {enhancedUser.first_name} {enhancedUser.last_name}</p>
                 <p><strong>Email:</strong> {enhancedUser.email}</p>
-                <p><strong>Department:</strong> {enhancedUser.department?.name || 'N/A'}</p>
-                <p><strong>Position:</strong> {enhancedUser.position?.title || 'N/A'}</p>
-                <p><strong>Location:</strong> {enhancedUser.location?.name || 'N/A'}</p>
+                <p><strong>Department:</strong> {typeof enhancedUser.department?.name === 'string' ? enhancedUser.department.name : typeof enhancedUser.department === 'object' && enhancedUser.department?.name?.name ? enhancedUser.department.name.name : 'N/A'}</p>
+                <p><strong>Position:</strong> {typeof enhancedUser.position?.title === 'string' ? enhancedUser.position.title : typeof enhancedUser.position?.name === 'string' ? enhancedUser.position.name : typeof enhancedUser.position === 'object' && enhancedUser.position?.name?.title ? enhancedUser.position.name.title : 'N/A'}</p>
+                <p><strong>Location:</strong> {typeof enhancedUser.location?.name === 'string' ? enhancedUser.location.name : typeof enhancedUser.location === 'object' && enhancedUser.location?.name?.name ? enhancedUser.location.name.name : 'N/A'}</p>
                 <p><strong>Staff:</strong> {enhancedUser.is_staff ? '✅' : '❌'}</p>
                 <p><strong>Superuser:</strong> {enhancedUser.is_superuser ? '✅' : '❌'}</p>
               </div>
