@@ -168,19 +168,41 @@ const LeaveApprovalDashboard = () => {
     },
     {
       header: "Department",
-      cell: ({ row }) => (
-        <div className="text-sm">
-          {row.original.employee?.department || 'N/A'}
-        </div>
-      ),
+      cell: ({ row }) => {
+        const dept = row.original.employee?.department;
+        const deptText = dept
+          ? (typeof dept === 'string'
+              ? dept
+              : typeof dept === 'object' && dept?.name
+              ? dept.name
+              : 'Unknown Department')
+          : 'N/A';
+
+        return (
+          <div className="text-sm">
+            {deptText}
+          </div>
+        );
+      },
     },
     {
       header: "Position",
-      cell: ({ row }) => (
-        <div className="text-sm">
-          {row.original.employee?.position || row.original.employee?.job_title || 'N/A'}
-        </div>
-      ),
+      cell: ({ row }) => {
+        const position = row.original.employee?.position || row.original.employee?.job_title;
+        const positionText = position
+          ? (typeof position === 'string'
+              ? position
+              : typeof position === 'object' && position?.name
+              ? position.name
+              : 'Unknown Position')
+          : 'N/A';
+
+        return (
+          <div className="text-sm">
+            {positionText}
+          </div>
+        );
+      },
     },
     {
       header: "Location",

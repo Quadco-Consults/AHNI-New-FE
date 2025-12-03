@@ -78,11 +78,19 @@ export default function TeamMemberSelection() {
                   </p>
                   <p>
                     <span className="font-semibold">Department:</span>{" "}
-                    {member.department}
+                    {typeof member.department === 'string'
+                      ? member.department
+                      : typeof member.department === 'object' && member.department?.name
+                      ? member.department.name
+                      : 'N/A'}
                   </p>
                   <p>
                     <span className="font-semibold">Position:</span>{" "}
-                    {member.designation}
+                    {typeof member.designation === 'string'
+                      ? member.designation
+                      : typeof member.designation === 'object' && member.designation?.name
+                      ? member.designation.name
+                      : 'N/A'}
                   </p>
                   <p>
                     <span className="font-semibold">Tel:</span>{" "}

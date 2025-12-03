@@ -252,8 +252,15 @@ const LeaveDetailView: React.FC<LeaveDetailViewProps> = ({ id }) => {
         console.log("Matching workflow for this leave type:", matchingWorkflow);
 
         if (!matchingWorkflow) {
+          const leaveTypeName = leaveRequest?.leave_type
+            ? (typeof leaveRequest.leave_type.name === 'string'
+                ? leaveRequest.leave_type.name
+                : typeof leaveRequest.leave_type.name === 'object' && leaveRequest.leave_type.name?.name
+                ? leaveRequest.leave_type.name.name
+                : leaveRequest.leave_type.leave_type_name || 'Unknown Leave Type')
+            : 'Unknown';
           toast.error(
-            `No workflow found for leave type "${leaveRequest?.leave_type?.name}". Please create a workflow first.`,
+            `No workflow found for leave type "${leaveTypeName}". Please create a workflow first.`,
             { duration: 5000 }
           );
           setIsProcessing(false);
@@ -262,8 +269,15 @@ const LeaveDetailView: React.FC<LeaveDetailViewProps> = ({ id }) => {
 
         // Validation: Check if approvers exist
         if (!matchingWorkflow.approvers || matchingWorkflow.approvers.length === 0) {
+          const leaveTypeName = leaveRequest?.leave_type
+            ? (typeof leaveRequest.leave_type.name === 'string'
+                ? leaveRequest.leave_type.name
+                : typeof leaveRequest.leave_type.name === 'object' && leaveRequest.leave_type.name?.name
+                ? leaveRequest.leave_type.name.name
+                : leaveRequest.leave_type.leave_type_name || 'Unknown Leave Type')
+            : 'Unknown';
           toast.error(
-            `The workflow for "${leaveRequest?.leave_type?.name}" has no approvers configured. Please add approvers to the workflow.`,
+            `The workflow for "${leaveTypeName}" has no approvers configured. Please add approvers to the workflow.`,
             { duration: 5000 }
           );
           setIsProcessing(false);
@@ -404,7 +418,18 @@ const LeaveDetailView: React.FC<LeaveDetailViewProps> = ({ id }) => {
               </div>
               <div>
                 <p className="text-sm text-gray-600">Department</p>
-                <p className="font-medium">{leaveRequest.employee?.department || "N/A"}</p>
+                <p className="font-medium">
+                  {(() => {
+                    const dept = leaveRequest.employee?.department;
+                    return dept
+                      ? (typeof dept === 'string'
+                          ? dept
+                          : typeof dept === 'object' && dept?.name
+                          ? dept.name
+                          : 'Unknown Department')
+                      : 'N/A';
+                  })()}
+                </p>
               </div>
             </div>
           </Card>
@@ -418,7 +443,18 @@ const LeaveDetailView: React.FC<LeaveDetailViewProps> = ({ id }) => {
             <div className="grid grid-cols-2 gap-6">
               <div>
                 <p className="text-sm text-gray-600">Leave Type</p>
-                <p className="font-medium text-lg">{leaveRequest.leave_type?.name || "N/A"}</p>
+                <p className="font-medium text-lg">
+                  {(() => {
+                    const leaveType = leaveRequest.leave_type;
+                    return leaveType
+                      ? (typeof leaveType.name === 'string'
+                          ? leaveType.name
+                          : typeof leaveType.name === 'object' && leaveType.name?.name
+                          ? leaveType.name.name
+                          : leaveType.leave_type_name || 'Unknown Leave Type')
+                      : 'N/A';
+                  })()}
+                </p>
               </div>
               <div>
                 <p className="text-sm text-gray-600">Total Days</p>
@@ -698,7 +734,18 @@ const LeaveDetailView: React.FC<LeaveDetailViewProps> = ({ id }) => {
                 </div>
                 <div className="flex justify-between">
                   <span className="font-medium">Leave Type:</span>
-                  <span>{leaveRequest.leave_type?.name}</span>
+                  <span>
+                    {(() => {
+                      const leaveType = leaveRequest.leave_type;
+                      return leaveType
+                        ? (typeof leaveType.name === 'string'
+                            ? leaveType.name
+                            : typeof leaveType.name === 'object' && leaveType.name?.name
+                            ? leaveType.name.name
+                            : leaveType.leave_type_name || 'Unknown Leave Type')
+                        : 'N/A';
+                    })()}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="font-medium">Duration:</span>
@@ -758,7 +805,18 @@ const LeaveDetailView: React.FC<LeaveDetailViewProps> = ({ id }) => {
                 </div>
                 <div className="flex justify-between">
                   <span className="font-medium">Leave Type:</span>
-                  <span>{leaveRequest.leave_type?.name}</span>
+                  <span>
+                    {(() => {
+                      const leaveType = leaveRequest.leave_type;
+                      return leaveType
+                        ? (typeof leaveType.name === 'string'
+                            ? leaveType.name
+                            : typeof leaveType.name === 'object' && leaveType.name?.name
+                            ? leaveType.name.name
+                            : leaveType.leave_type_name || 'Unknown Leave Type')
+                        : 'N/A';
+                    })()}
+                  </span>
                 </div>
               </div>
             </div>

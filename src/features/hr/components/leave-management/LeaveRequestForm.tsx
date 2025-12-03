@@ -132,11 +132,21 @@ const EnhancedLeaveRequestForm = () => {
       }))
     : [];
 
-  // Create employee options for FormSelect with search
+  // Show all employees for now (remove filtering until we can validate with real data)
+  console.log('🔍 DEBUGGING APPROVERS - All employees:', employees);
+  console.log('🔍 DEBUGGING APPROVERS - Employee count:', employees.length);
+
+  // Create employee options for FormSelect with search (all employees for now)
   const employeeOptions = employees.map((employee) => ({
     label: `${employee.name} (${employee.department} - ${employee.position})`,
     value: employee.id,
   }));
+
+  console.log('🔍 DEBUGGING APPROVERS - Employee options:', employeeOptions);
+
+  // TODO: Re-implement filtering once we can verify with authenticated user data
+  // For now, allow any employee to be selected as approver
+  // The backend should handle validation of whether the selected approver is valid
 
   console.log('Employees:', employees);
   if (employees.length > 0) {

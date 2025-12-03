@@ -173,10 +173,20 @@ const EmployeeUploadProcessor = () => {
                         </p>
                         <div className="mt-1 flex flex-wrap gap-2">
                           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                            {upload.department}
+                            {typeof upload.department === 'string'
+                              ? upload.department
+                              : typeof upload.department === 'object' && upload.department?.name
+                              ? upload.department.name
+                              : 'N/A'}
                           </span>
                           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                            {upload.position}
+                            {typeof upload.position === 'string'
+                              ? upload.position
+                              : typeof upload.position === 'object' && upload.position?.name
+                              ? upload.position.name
+                              : typeof upload.position === 'object' && upload.position?.title
+                              ? upload.position.title
+                              : 'N/A'}
                           </span>
                         </div>
                         {upload.description && (

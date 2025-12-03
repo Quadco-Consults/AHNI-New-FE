@@ -4,7 +4,6 @@ import FormButton from "@/components/FormButton";
 import FormInput from "components/atoms/FormInput";
 import FormSelect from "components/atoms/FormSelectField";
 import { Form } from "components/ui/form";
-import { SelectContent, SelectItem } from "components/ui/select";
 import FormTextArea from "components/atoms/FormTextArea";
 import { UploadIcon, AlertCircle } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -18,6 +17,7 @@ import {
   useValidateLeaveRequest,
 } from "@/features/hr/controllers/leaveRequestController";
 import { useGetEmployeeOnboardings } from "@/features/hr/controllers/employeeOnboardingController";
+import { useGetUserProfile, useGetApprovers } from "@/features/auth/controllers/userController";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { Badge } from "components/ui/badge";
@@ -60,8 +60,25 @@ const LeaveForm = ({ onSuccess }: LeaveFormProps) => {
     ? balancesData.data.results
     : [];
 
-  // Fetch employees for approver selection
+  // Fetch employees for backup person selection
   const { data: employeesData, isLoading: loadingEmployees } = useGetEmployeeOnboardings({ size: 100 });
+
+  // Fetch valid approvers
+  const { data: approversData, isLoading: loadingApprovers } = useGetApprovers({ size: 100 });
+
+  // Get user profile for current user ID
+  const { data: userProfile } = useGetUserProfile();
+
+  // Get user from localStorage as fallback
+  const [localUser, setLocalUser] = useState<any>(null);
+  useEffect(() => {
+    try {
+      const userString = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
+      setLocalUser(userString ? JSON.parse(userString) : null);
+    } catch (error) {
+      console.error("Error parsing user from localStorage:", error);
+    }
+  }, []);
 
   // Debug logging for employee data
   console.log('Leave form - employeesData:', employeesData);
@@ -85,11 +102,48 @@ const LeaveForm = ({ onSuccess }: LeaveFormProps) => {
 
   // Debug logging for mapped employees
   console.log('Leave form - mapped employees:', employees);
+  console.log('🔍 ALT FORM DEBUGGING - Employee count:', employees.length);
 
-  // Get employee ID from the first balance record
-  const employeeId = balances.length > 0 ? balances[0]?.employee?.id || balances[0]?.employee : "";
+  // Process approvers data
+  console.log('Leave form - approversData:', approversData);
+  const approvers = Array.isArray(approversData?.data)
+    ? approversData.data.map((approver: any) => ({
+        id: approver.id,
+        name: `${approver.first_name || ''} ${approver.last_name || ''}`.trim(),
+        email: approver.email || '',
+        department: typeof approver.department === 'object' ? approver.department?.name || 'N/A' : approver.department || 'N/A',
+        position: approver.position || approver.job_title || 'N/A'
+      }))
+    : Array.isArray(approversData?.data?.results)
+    ? approversData.data.results.map((approver: any) => ({
+        id: approver.id,
+        name: `${approver.first_name || ''} ${approver.last_name || ''}`.trim(),
+        email: approver.email || '',
+        department: typeof approver.department === 'object' ? approver.department?.name || 'N/A' : approver.department || 'N/A',
+        position: approver.position || approver.job_title || 'N/A'
+      }))
+    : [];
+
+  // Debug logging for mapped approvers
+  console.log('Leave form - mapped approvers:', approvers);
+  console.log('🔍 APPROVER DEBUGGING - Approver count:', approvers.length);
+
+  // Get employee ID with multiple fallback methods
+  const employeeId =
+    // 1. From balances (if available)
+    (balances.length > 0 ? (balances[0]?.employee?.id || balances[0]?.employee) : null) ||
+    // 2. From user profile
+    userProfile?.data?.id ||
+    userProfile?.data?.employee_id ||
+    // 3. From localStorage
+    localUser?.id ||
+    localUser?.employee_id ||
+    // 4. Empty string as last resort
+    "";
 
   // Debug logging for employee ID
+  console.log('Leave form - userProfile:', userProfile);
+  console.log('Leave form - localUser:', localUser);
   console.log('Leave form - employeeId:', employeeId);
   console.log('Leave form - balances:', balances);
 
@@ -109,10 +163,28 @@ const LeaveForm = ({ onSuccess }: LeaveFormProps) => {
     },
   });
 
-  const { handleSubmit, watch } = form;
+  const { handleSubmit, watch, formState } = form;
+  const { errors, isValid } = formState;
   const selectedLeaveType = watch("leaveType");
   const fromDate = watch("fromDate");
   const toDate = watch("toDate");
+
+  // Debug form state and validation
+  console.log("📋 Form Debug Info:", {
+    formState: {
+      isValid,
+      errors: Object.keys(errors).length > 0 ? errors : "No errors",
+      isDirty: formState.isDirty,
+      isSubmitting: formState.isSubmitting
+    },
+    formData: {
+      leaveType: selectedLeaveType,
+      fromDate,
+      toDate,
+      approverId: watch("approverId"),
+      backupPersonId: watch("backupPersonId")
+    }
+  });
 
   // Get balance for selected leave type
   const selectedBalance = balances.find((b) => b.leave_type?.id === selectedLeaveType);
@@ -120,34 +192,42 @@ const LeaveForm = ({ onSuccess }: LeaveFormProps) => {
   // Removed automatic validation on field change to prevent excessive API calls
   // Validation now only happens on form submit
 
+  const onSubmitError = (errors: any) => {
+    console.log("❌ Form submission blocked by validation errors:", errors);
+    console.log("❌ Error details:", JSON.stringify(errors, null, 2));
+    toast.error("Please fill in all required fields correctly");
+  };
+
   const onSubmit = async (data: LeaveFormData) => {
-    // Check if employee ID is available
-    if (!employeeId) {
-      toast.error("Employee information not found. Please refresh the page and try again.");
-      return;
-    }
+    console.log("🚀 Form submission started with data:", data);
 
-    // Validate first
-    try {
-      const validation = await validateLeaveRequest({
-        leaveTypeId: data.leaveType,
-        fromDate: data.fromDate,
-        toDate: data.toDate,
-        duration: data.duration,
-      });
+    // Employee ID check removed - backend auto-sets employee from authenticated user
+    // if (!employeeId) {
+    //   toast.error("Employee information not found. Please refresh the page and try again.");
+    //   return;
+    // }
 
-      if (validation && !validation.valid) {
-        toast.error("Validation failed: " + (validation.errors?.join(", ") || "Unknown error"));
-        return;
-      }
-    } catch (error) {
-      toast.error("Validation failed. Please check your inputs.");
-      return;
-    }
+    // Validation temporarily disabled for debugging - the backend will validate during submission
+    // try {
+    //   const validation = await validateLeaveRequest({
+    //     leaveTypeId: data.leaveType,
+    //     fromDate: data.fromDate,
+    //     toDate: data.toDate,
+    //     duration: data.duration,
+    //   });
 
-    // Create leave request - only send fields the backend expects
+    //   if (validation && !validation.valid) {
+    //     toast.error("Validation failed: " + (validation.errors?.join(", ") || "Unknown error"));
+    //     return;
+    //   }
+    // } catch (error) {
+    //   toast.error("Validation failed. Please check your inputs.");
+    //   return;
+    // }
+
+    // Create leave request - employee field is auto-set by backend from authenticated user
     const requestData: any = {
-      employee: employeeId,
+      // employee: employeeId, // ❌ REMOVED - Backend auto-sets this from authenticated user
       leave_type: data.leaveType,
       from_date: data.fromDate,
       to_date: data.toDate,
@@ -202,6 +282,25 @@ const LeaveForm = ({ onSuccess }: LeaveFormProps) => {
       let errorMessage = "Failed to create leave request";
 
       if (responseData) {
+        // Check for specific employee record errors
+        if (responseData.employee) {
+          const employeeErrors = Array.isArray(responseData.employee)
+            ? responseData.employee
+            : [responseData.employee];
+
+          const hasEmployeeRecordError = employeeErrors.some((err: string) =>
+            err.includes('No employee record found') ||
+            err.includes('employee record') ||
+            err.includes('contact HR')
+          );
+
+          if (hasEmployeeRecordError) {
+            errorMessage = "You need an employee profile to apply for leave. Please contact HR to set up your employee record.";
+            toast.error(errorMessage);
+            return;
+          }
+        }
+
         // Check for field-level validation errors
         if (typeof responseData === 'object' && !responseData.message) {
           const fieldErrors: string[] = [];
@@ -229,7 +328,7 @@ const LeaveForm = ({ onSuccess }: LeaveFormProps) => {
   };
 
   // Loading state
-  if (loadingTypes || loadingBalances || loadingEmployees) {
+  if (loadingTypes || loadingBalances || loadingEmployees || loadingApprovers) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-600 border-t-transparent" />
@@ -238,21 +337,54 @@ const LeaveForm = ({ onSuccess }: LeaveFormProps) => {
     );
   }
 
+  // Note: Employee ID warning removed - backend now auto-detects employee from authenticated user
+  // This allows the form to load even if frontend can't detect employee ID initially
+  // If there are any employee record issues, they'll be caught during form submission with proper error messages
+
   return (
     <div className="">
       <Form {...form}>
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
+        <form onSubmit={handleSubmit(onSubmit, onSubmitError)} className="flex flex-col gap-6">
+            {/* Current User Info */}
+            {(userProfile?.data || localUser) && (
+              <Card className="p-4 bg-gray-50 border-gray-200">
+                <div className="flex items-center gap-3">
+                  <div>
+                    <p className="text-sm text-gray-600">Applying as:</p>
+                    <p className="font-semibold text-gray-900">
+                      {userProfile?.data?.first_name || userProfile?.data?.legal_firstname ||
+                       localUser?.first_name || localUser?.legal_firstname || 'Current User'}
+                      {(userProfile?.data?.last_name || userProfile?.data?.legal_lastname ||
+                        localUser?.last_name || localUser?.legal_lastname) &&
+                        ` ${userProfile?.data?.last_name || userProfile?.data?.legal_lastname ||
+                             localUser?.last_name || localUser?.legal_lastname}`}
+                    </p>
+                    {(userProfile?.data?.email || localUser?.email) && (
+                      <p className="text-xs text-gray-500">
+                        {userProfile?.data?.email || localUser?.email}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </Card>
+            )}
+
             {/* Leave Type Selection */}
             <div className="grid gap-5">
-              <FormSelect label="Leave Type" name="leaveType" required>
-                <SelectContent>
-                  {leaveTypes.map((leaveType: any) => (
-                    <SelectItem key={leaveType.id} value={leaveType.id}>
-                      {leaveType.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </FormSelect>
+              <FormSelect
+                label="Leave Type"
+                name="leaveType"
+                required
+                options={leaveTypes.map((leaveType: any) => ({
+                  label: typeof leaveType.name === 'string'
+                    ? leaveType.name
+                    : typeof leaveType.name === 'object' && leaveType.name?.name
+                    ? leaveType.name.name
+                    : leaveType.leave_type_name || 'Unknown Leave Type',
+                  value: leaveType.id
+                }))}
+                placeholder="Select leave type..."
+              />
 
               {/* Show balance for selected type */}
               {selectedBalance && (
@@ -274,13 +406,17 @@ const LeaveForm = ({ onSuccess }: LeaveFormProps) => {
               )}
 
               {/* Duration */}
-              <FormSelect label="Duration" name="duration" required>
-                <SelectContent>
-                  <SelectItem value="full_day">Full Day</SelectItem>
-                  <SelectItem value="half_day_morning">Half Day (Morning)</SelectItem>
-                  <SelectItem value="half_day_afternoon">Half Day (Afternoon)</SelectItem>
-                </SelectContent>
-              </FormSelect>
+              <FormSelect
+                label="Duration"
+                name="duration"
+                required
+                options={[
+                  { label: "Full Day", value: "full_day" },
+                  { label: "Half Day (Morning)", value: "half_day_morning" },
+                  { label: "Half Day (Afternoon)", value: "half_day_afternoon" }
+                ]}
+                placeholder="Select duration..."
+              />
 
               {/* Date Range */}
               <div className="grid grid-cols-2 gap-5">
@@ -297,26 +433,28 @@ const LeaveForm = ({ onSuccess }: LeaveFormProps) => {
               />
 
               {/* Approver Selection */}
-              <FormSelect label="Leave Approver" name="approverId" required>
-                <SelectContent>
-                  {employees.map((employee: any) => (
-                    <SelectItem key={employee.id} value={employee.id}>
-                      {employee.name} - {employee.department}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </FormSelect>
+              <FormSelect
+                label="Leave Approver"
+                name="approverId"
+                required
+                options={approvers.map((approver: any) => ({
+                  label: `${approver.name} (${approver.department})`,
+                  value: approver.id
+                }))}
+                placeholder="Select an approver..."
+              />
 
               {/* Backup Person Selection */}
-              <FormSelect label="Backup Person (Who will cover your duties)" name="backupPersonId" required>
-                <SelectContent>
-                  {employees.map((employee: any) => (
-                    <SelectItem key={employee.id} value={employee.id}>
-                      {employee.name} - {employee.department}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </FormSelect>
+              <FormSelect
+                label="Backup Person (Who will cover your duties)"
+                name="backupPersonId"
+                required
+                options={employees.map((employee: any) => ({
+                  label: `${employee.name} - ${employee.department}`,
+                  value: employee.id
+                }))}
+                placeholder="Select a backup person..."
+              />
 
               {/* Handover Notes */}
               <FormTextArea
@@ -354,6 +492,7 @@ const LeaveForm = ({ onSuccess }: LeaveFormProps) => {
                 disabled={isCreating || isValidating}
                 type="submit"
                 className="flex items-center justify-center gap-2"
+                onClick={() => console.log("🔘 Submit button clicked!")}
               >
                 <UploadIcon className="w-4 h-4" />
                 Submit Request

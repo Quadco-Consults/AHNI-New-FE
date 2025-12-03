@@ -20,6 +20,7 @@ import { format } from "date-fns";
 import { toast } from "sonner";
 import { LeaveRequest, type LeaveApprovalWorkflow, LeaveApprovalStep } from "../../types/leave";
 import { leaveService } from "../../services/leaveService";
+import { useAppSelector } from '@/store/hooks';
 
 interface LeaveApprovalWorkflowProps {
   leaveRequest: LeaveRequest;
@@ -47,8 +48,9 @@ const LeaveApprovalWorkflow: React.FC<LeaveApprovalWorkflowProps> = ({
   const [loading, setLoading] = useState(!workflow);
   const [error, setError] = useState<string | null>(null);
   
-  // Get current user ID - replace with actual auth logic
-  const currentUserId = "usr-001"; // This should come from your auth context
+  // Get current user ID from authentication
+  const authState = useAppSelector(state => state.auth);
+  const currentUserId = authState.user?.id;
   
   // Load workflow data if not provided
   useEffect(() => {
