@@ -4,7 +4,7 @@ import { Separator } from "components/ui/separator";
 import EvaluatorForm from "../components/EvaluatorForm";
 import ImprovedEvaluatorForm from "../components/ImprovedEvaluatorForm";
 import FormButton from "@/components/FormButton";
-import { FileIcon, CheckCircle, CheckCircle2, FileDown } from 'lucide-react';
+import { FileIcon, CheckCircle, CheckCircle2, FileDown, ClipboardList, Calendar, CalendarCheck, User, Target, Users } from 'lucide-react';
 import GoBack from "components/GoBack";
 import { useState, useEffect } from "react";
 import React from "react";

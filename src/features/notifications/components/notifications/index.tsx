@@ -10,6 +10,7 @@ import {
     BreadcrumbSeparator,
 } from "components/ui/breadcrumb";
 import { Icon } from "@iconify/react";
+import { X } from "lucide-react";
 import ArrowDownIcon from "components/icons/ArrowDownIcon";
 import { TNotification, NotificationFilters } from "@/features/notifications/controllers/notificationController";
 import { useGetNotifications, useMarkAllAsRead } from "@/features/notifications/controllers/notificationController";

@@ -56,21 +56,44 @@ export default function Account() {
     error,
     hasData: !!profile?.data,
     fullProfile: profile,
-    errorDetails: error
+    errorDetails: error,
+    errorMessage: error?.message,
+    errorStatus: (error as any)?.response?.status
   });
 
   // Check authentication state
-  console.log('🔍 Account Component - Authentication check:', {
-    hasToken: !!localStorage.getItem('token'),
-    tokenPreview: localStorage.getItem('token')?.substring(0, 20) + '...',
-    hasAccessToken: !!localStorage.getItem('access_token'),
-    accessTokenPreview: localStorage.getItem('access_token')?.substring(0, 20) + '...'
-  });
+  if (typeof window !== 'undefined') {
+    console.log('🔍 Account Component - Authentication check:', {
+      hasToken: !!localStorage.getItem('token'),
+      tokenPreview: localStorage.getItem('token')?.substring(0, 20) + '...',
+      hasAccessToken: !!localStorage.getItem('access_token'),
+      accessTokenPreview: localStorage.getItem('access_token')?.substring(0, 20) + '...',
+      currentURL: window.location.href,
+      authRequired: !localStorage.getItem('token') && !localStorage.getItem('access_token')
+    });
+
+    // If no tokens and we get a 401/403 error, redirect to login
+    if (!localStorage.getItem('token') && !localStorage.getItem('access_token')) {
+      console.log('❌ Account Component - No authentication tokens found, may need to login');
+    }
+  }
   const dispatch = useAppDispatch();
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  const { updateUser, isLoading: isUpdateLoading } = useUpdateUser(profile?.data?.id || "");
+  // Get user ID with debugging
+  const userId = ((profile?.data || profile) as any)?.id;
+  console.log('🔍 Account Component - User ID for updateUser hook:', {
+    userId,
+    hasProfile: !!profile,
+    profileData: profile?.data,
+    directProfile: profile,
+    rawUserId: userId
+  });
+
+  // Initialize the updateUser hook with a temporary ID, we'll validate before making calls
+  // The hook needs to be initialized but we won't use it unless we have a valid user ID
+  const { updateUser, isLoading: isUpdateLoading } = useUpdateUser(userId || "temp-user-id");
   const { data: role } = useGetAllRoles({
     page: 1,
     size: 2000000,
@@ -96,7 +119,7 @@ export default function Account() {
     },
   });
 
-  const roleOptions = role?.data?.results?.map(({ name, id }: any) => ({
+  const roleOptions = (role as any)?.data?.results?.map(({ name, id }: any) => ({
     label: name,
     value: id,
   })) || [];
@@ -112,36 +135,37 @@ export default function Account() {
   const [file, setFile] = useState<File>();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Manual API test for debugging
+  // Token validation for better user experience
   useEffect(() => {
-    const testDirectAPICall = async () => {
+    const validateToken = async () => {
       try {
-        const baseURL = process.env.NEXT_PUBLIC_BASE_URL || 'https://ahni-erp-029252c2fbb9.herokuapp.com/api/v1/';
-        const fullURL = `${baseURL}users/profile/`;
+        const token = localStorage.getItem('token');
+        if (!token) return;
 
-        console.log('🧪 Manual API Test - Attempting direct call to:', fullURL);
-        console.log('🧪 Manual API Test - Using token:', localStorage.getItem('token')?.substring(0, 20) + '...');
-
-        const response = await fetch(fullURL, {
+        // Validate token by testing the profile endpoint
+        const response = await fetch('https://ahni-erp-029252c2fbb9.herokuapp.com/api/v1/users/profile/', {
+          method: 'GET',
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
           }
         });
 
-        console.log('🧪 Manual API Test - Response status:', response.status);
-        console.log('🧪 Manual API Test - Response headers:', Object.fromEntries(response.headers.entries()));
+        if (!response.ok && response.status === 401) {
+          console.warn('Token expired, redirecting to login');
+          toast.error("Your session has expired. Please log in again to continue.");
 
-        const data = await response.json();
-        console.log('🧪 Manual API Test - Response data:', data);
+          setTimeout(() => {
+            window.location.href = '/auth/login';
+          }, 2000);
+        }
       } catch (err) {
-        console.error('🧪 Manual API Test - Error:', err);
+        console.error('Token validation error:', err);
       }
     };
 
-    if (typeof window !== 'undefined' && localStorage.getItem('token')) {
-      testDirectAPICall();
-    }
+    // Run token validation after component mounts
+    setTimeout(validateToken, 1000);
   }, []);
 
   useEffect(() => {
@@ -155,10 +179,10 @@ export default function Account() {
     });
 
     // Check if we have profile data in the right structure
-    // The API returns data directly, not nested under profile.data
-    const profileData = profile;
+    // Handle both cases: profile.data (wrapped) or profile (direct)
+    const profileData = (profile?.data || profile) as any;
 
-    if (profileData && typeof profileData === 'object' && profileData.id) {
+    if (profileData && typeof profileData === 'object' && (profileData as any).id) {
       console.log('📋 Raw profile data structure:', JSON.stringify(profileData, null, 2));
       console.log('🔄 Form reset triggered - About to populate form with profile data');
 
@@ -212,30 +236,55 @@ export default function Account() {
   };
 
   const onSubmitProfile = async (data: TFormValues) => {
+    console.log('🚨 FORM SUBMISSION STARTED!');
+    console.log('🔍 Form data received:', data);
+    console.log('🔍 Current file state:', file);
+
     // Dispatch update profile action or API call
 
     try {
-      if (!profile?.data?.id) {
+      const actualUserId = ((profile?.data || profile) as any)?.id;
+      console.log('🔍 Extracted user ID:', actualUserId);
+
+      if (!actualUserId) {
+        console.log('❌ No user ID found');
         toast.error("User ID is missing. Please refresh the page.");
         return;
       }
 
-      const formData = new FormData();
+      console.log('🔍 Form submission - Using user ID:', actualUserId);
+      console.log('🔍 Form submission - Hook was initialized with:', userId);
 
-      formData.append("first_name", data.first_name);
-      formData.append("last_name", data.last_name);
-      formData.append("email", data.email);
-      formData.append("gender", data.gender);
-      formData.append("mobile_number", data.mobile_number);
-      // Don't send disabled fields (department, position, location, user_type) as they are read-only
-      // and the backend expects UUIDs but returns display names
-      data.role.forEach((role) => formData.append("roles", role));
-
+      // Use FormData ONLY when uploading a file, otherwise use JSON like the manager profile
       if (file) {
-        formData.append("profile_picture", file);
-      }
+        console.log('📁 Profile picture detected - using FormData for file upload');
+        const formData = new FormData();
 
-      await updateUser(formData);
+        formData.append("first_name", data.first_name);
+        formData.append("last_name", data.last_name);
+        formData.append("email", data.email);
+        formData.append("gender", data.gender);
+        formData.append("mobile_number", data.mobile_number);
+        data.role.forEach((role) => formData.append("roles", role));
+        formData.append("profile_picture", file);
+
+        console.log('📤 Submitting FormData via updateUser hook...');
+        const result = await updateUser(formData);
+      } else {
+        console.log('📝 No profile picture - using JSON like manager profile');
+        const jsonData = {
+          first_name: data.first_name,
+          last_name: data.last_name,
+          email: data.email,
+          gender: data.gender,
+          mobile_number: data.mobile_number,
+          roles: data.role, // Note: roles not role for JSON
+        };
+
+        console.log('📤 Submitting JSON data via updateUser hook...');
+        const result = await updateUser(jsonData);
+      }
+      console.log('✅ Form submission completed:', result);
 
       // Manually invalidate and refetch the user profile to update the header avatar
       await queryClient.invalidateQueries({ queryKey: ["user-profile"] });
@@ -245,8 +294,16 @@ export default function Account() {
       setFile(undefined);
 
       toast.success("User Updated");
+      console.log('🎉 Profile update successful!');
     } catch (error: any) {
-      console.error("Profile update error:", error);
+      console.error("❌ Profile update error:", error);
+      console.error("❌ Error details:", {
+        message: error?.message,
+        data: error?.data,
+        response: error?.response,
+        stack: error?.stack,
+        name: error?.name
+      });
       toast.error(error?.message || error?.data?.message || "Something went wrong");
     }
   };
@@ -308,8 +365,8 @@ export default function Account() {
               style={{
                 backgroundImage: file
                   ? `url(${URL.createObjectURL(file)})`
-                  : profile?.profile_picture
-                  ? `url(${profile?.profile_picture})`
+                  : (profile as any)?.profile_picture
+                  ? `url(${(profile as any)?.profile_picture})`
                   : "none",
                 backgroundSize: "cover",
                 backgroundPosition: "center",

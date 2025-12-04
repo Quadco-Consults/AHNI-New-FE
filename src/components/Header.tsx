@@ -27,6 +27,17 @@ const Header = ({ sidebarWidth }: { sidebarWidth: boolean }) => {
 
   const { data: profile } = useGetUserProfile();
 
+  // Debug avatar data
+  console.log('🖼️ Header Avatar Debug:', {
+    hasProfile: !!profile,
+    profileStructure: profile ? Object.keys(profile) : [],
+    profilePicture: profile?.profile_picture,
+    profileDataPicture: profile?.data?.profile_picture,
+    actualPictureUrl: typeof profile?.profile_picture === 'string'
+      ? profile.profile_picture
+      : 'Using fallback avatar'
+  });
+
   const router = useRouter();
 
   const dispatch = useAppDispatch();
@@ -74,8 +85,8 @@ const Header = ({ sidebarWidth }: { sidebarWidth: boolean }) => {
           <PopoverTrigger asChild>
             <Avatar>
               <AvatarImage src={
-                typeof profile?.profile_picture === 'string'
-                  ? profile.profile_picture
+                typeof (profile?.data?.profile_picture || profile?.profile_picture) === 'string'
+                  ? (profile?.data?.profile_picture || profile?.profile_picture)
                   : avatarPng.src
               } />
 
@@ -85,8 +96,8 @@ const Header = ({ sidebarWidth }: { sidebarWidth: boolean }) => {
           <PopoverContent className='w-[250px] p-5 flex flex-col flex-shrink-0 gap-3 items-center'>
             <Avatar>
               <AvatarImage src={
-                typeof profile?.profile_picture === 'string'
-                  ? profile.profile_picture
+                typeof (profile?.data?.profile_picture || profile?.profile_picture) === 'string'
+                  ? (profile?.data?.profile_picture || profile?.profile_picture)
                   : avatarPng.src
               } />
               <AvatarFallback>AD</AvatarFallback>

@@ -11,7 +11,8 @@ import {
 } from "components/ui/breadcrumb";
 import { Separator } from "components/ui/separator";
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom"; 
+import { useRouter, usePathname } from "next/navigation";
+import { X } from "lucide-react"; 
 import LongArrowLeft from "components/icons/LongArrowLeft";
 import { RouteEnum } from "constants/RouterConstants";
 
@@ -39,7 +40,7 @@ const ProjectsEditHeading = () => {
       ? JSON.parse(savedSteps)
       : new Array(steps.length).fill(false);
   });
-  const { pathname } = useLocation();
+  const pathname = usePathname();
 
   const currentPath = pathname.split("/").at(-1);
 

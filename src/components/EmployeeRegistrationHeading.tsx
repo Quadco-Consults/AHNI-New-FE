@@ -5,6 +5,7 @@ import PendingIcon from "assets/svgs/PendingIcon";
 import { Separator } from "components/ui/separator";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import { X } from "lucide-react";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -56,7 +57,7 @@ const EmployeeRegistrationHeading = () => {
       ? JSON.parse(savedSteps)
       : new Array(steps.length).fill(false);
   });
-  const { pathname } = useLocation();
+  const pathname = usePathname();
 
   const currentPath = pathname.split("/").at(-1);
 
