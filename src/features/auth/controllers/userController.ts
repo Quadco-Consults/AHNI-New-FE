@@ -119,16 +119,21 @@ export const useCreateUser = () => {
 
 // Update User
 export const useUpdateUser = (id: string) => {
-  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
-    IUser,
-    Error,
-    TUpdateUserFormValues | FormData
-  >({
+  // Create API managers for both JSON and FormData uploads
+  const jsonApi = useApiManager<IUser, Error, TUpdateUserFormValues>({
     endpoint: `users/${id}/`,
     queryKey: ["users", "user", "user-profile"],
     isAuth: true,
     method: "PATCH",
-    contentType: "application/json", // Explicitly set content type for JSON data
+    contentType: "application/json",
+  });
+
+  const formDataApi = useApiManager<IUser, Error, FormData>({
+    endpoint: `users/${id}/`,
+    queryKey: ["users", "user", "user-profile"],
+    isAuth: true,
+    method: "PATCH",
+    contentType: null, // This allows multipart/form-data for file uploads
   });
 
   const updateUser = async (details: TUpdateUserFormValues | FormData) => {
@@ -139,20 +144,56 @@ export const useUpdateUser = (id: string) => {
         data: details instanceof FormData ? 'FormData (cannot stringify)' : JSON.stringify(details, null, 2)
       });
 
-      // Validate that we're not sending empty or malformed JSON
-      if (!(details instanceof FormData)) {
+      // Use appropriate API manager based on data type
+      if (details instanceof FormData) {
+        console.log("🔍 UpdateUser - Using FormData API for file upload");
+        console.log("🔍 FormData API state:", {
+          isLoading: formDataApi.isLoading,
+          isSuccess: formDataApi.isSuccess,
+          error: formDataApi.error
+        });
+
+        // Reset the mutation state if it's in error state
+        if (formDataApi.error) {
+          console.log("🔄 Resetting FormData API error state before new call");
+          formDataApi.mutation.reset();
+        }
+
+        await formDataApi.callApi(details);
+      } else {
+        // Validate that we're not sending empty or malformed JSON
         const jsonString = JSON.stringify(details);
         if (!jsonString || jsonString.trim() === '' || jsonString === 'null' || jsonString === 'undefined') {
           throw new Error('Invalid data: Cannot send empty or malformed JSON');
         }
-      }
+        console.log("🔍 UpdateUser - Using JSON API for profile update");
+        console.log("🔍 JSON API state:", {
+          isLoading: jsonApi.isLoading,
+          isSuccess: jsonApi.isSuccess,
+          error: jsonApi.error
+        });
+        console.log("🔍 About to call jsonApi.callApi with:", details);
 
-      await callApi(details);
+        // Reset the mutation state if it's in error state
+        if (jsonApi.error) {
+          console.log("🔄 Resetting JSON API error state before new call");
+          jsonApi.mutation.reset();
+        }
+
+        await jsonApi.callApi(details);
+        console.log("🔍 JSON API call completed");
+      }
     } catch (error) {
       console.error("User update error:", error);
       throw error;
     }
   };
+
+  // Return combined state from both APIs (prioritize FormData API when active)
+  const isLoading = formDataApi.isLoading || jsonApi.isLoading;
+  const isSuccess = formDataApi.isSuccess || jsonApi.isSuccess;
+  const error = formDataApi.error || jsonApi.error;
+  const data = formDataApi.data || jsonApi.data;
 
   return { updateUser, data, isLoading, isSuccess, error };
 };

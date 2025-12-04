@@ -11,7 +11,7 @@ import {
 } from "components/ui/breadcrumb";
 import { Icon } from "@iconify/react"; 
 import { useState } from "react";
-import { PlusIcon } from "lucide-react"; 
+import { PlusIcon, X } from "lucide-react"; 
 import DataTable from "components/Table/DataTable";
 import { supportColumn } from "@/features/support/components/support"; 
 import { useGetAllTickets } from "@/features/support/controllers/supportController";
