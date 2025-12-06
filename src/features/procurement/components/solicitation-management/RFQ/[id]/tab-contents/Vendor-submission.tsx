@@ -1,4 +1,5 @@
 /* eslint-disable react/prop-types */
+import { Search } from 'lucide-react';
 import { Icon } from "@iconify/react";
 import Card from "components/Card";
 import { Badge } from "components/ui/badge";
@@ -59,7 +60,7 @@ const VendorSubmission = (props?: any) => {
       <Card className="space-y-10">
         <div className="flex mt-1 justify-between items-center">
           <div className="border w-1/3 py-2 px-2 flex items-center rounded-lg">
-            <Icon icon="iconamoon:search-light" fontSize={25} />
+            <Search size={16} />
             <Input
               placeholder="Search Category"
               type="search"
@@ -311,7 +312,7 @@ const ActionListAction = ({ data, cbaData }: any) => {
     <div className="flex gap-2">
       <Link href={RouteEnum.VENDOR_MANAGEMENT_DETAILS.replace(":id", data?.id)}>
         <IconButton className="bg-[#F9F9F9] hover:text-primary">
-          <Icon icon="ph:eye-duotone" fontSize={15} />
+          <Eye size={16} />
         </IconButton>
       </Link>
       <Link href={evaluationUrl}>

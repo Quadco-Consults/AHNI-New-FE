@@ -12,7 +12,7 @@ const Card = ({
   return (
     <div
       className={cn(
-        "p-5 bg-white border shadow-sm rounded-2xl dark:bg-[hsl(15,13%,6%)]",
+        "p-6 bg-card text-card-foreground border shadow-sm rounded-lg",
         className
       )}
     >

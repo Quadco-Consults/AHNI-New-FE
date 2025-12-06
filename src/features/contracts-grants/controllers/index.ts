@@ -12,6 +12,7 @@ export * from "./obligationController";
 export * from "./subGrantController";
 export * from "./submissionUploadController";
 export * from "./submissionController";
+export * from "./disbursementController";
 
 // Default exports for convenience
 export { useGetAllGrants, useGetAllGrantsQuery } from "./grantController";
@@ -63,3 +64,7 @@ export {
   useGetAllSubGrantSubmissions,
   useGetAllSubGrantManualSubQuery,
 } from "./submissionController";
+export {
+  useGetAllDisbursements,
+  useGetAllDisbursementsQuery,
+} from "./disbursementController";

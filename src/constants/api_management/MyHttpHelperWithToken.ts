@@ -7,7 +7,8 @@ const baseURL = rawBaseURL.endsWith('/') ? rawBaseURL : `${rawBaseURL}/`;
 const AxiosWithToken = axios.create({
   baseURL: baseURL,
   headers: {
-    "Content-Type": "application/json",
+    // Don't set default Content-Type - let each request set its own
+    // FormData requests need multipart/form-data, JSON requests need application/json
   },
   timeout: 60000, // 60 seconds timeout
 });
@@ -19,15 +20,6 @@ AxiosWithToken.interceptors.request.use(
     // Remove leading slash from config.url to prevent double slashes
     if (config.url && config.url.startsWith('/')) {
       config.url = config.url.substring(1);
-    }
-
-    // Debug: Log the full request URL (only in development)
-    if (process.env.NODE_ENV === 'development') {
-      const url = `${config.baseURL || ''}${config.url || ''}`;
-      // Skip logging for frequent notification polls to reduce console noise
-      if (!url.includes('/notifications')) {
-        console.log('API Request:', config.method?.toUpperCase(), url);
-      }
     }
     if (config.data && config.url?.includes('create-committee')) {
       console.log('Committee Request Body:', JSON.stringify(config.data, null, 2));
@@ -45,6 +37,29 @@ AxiosWithToken.interceptors.request.use(
 
     const token = localStorage.getItem("token");
 
+    // Debug profile API calls specifically
+    if (config.url === 'users/profile/') {
+      console.log('🎯 PROFILE API CALL DEBUG:', {
+        url: config.url,
+        method: config.method,
+        hasToken: !!token,
+        tokenLength: token?.length || 0,
+        tokenPreview: token ? `${token.substring(0, 20)}...` : 'NO TOKEN',
+        willAddAuthHeader: !!token,
+        baseURL: config.baseURL
+      });
+    }
+
+    // Enhanced token debugging for FormData requests
+    if (config.data instanceof FormData) {
+      console.log('🔍 TOKEN DEBUG for FormData:', {
+        hasToken: !!token,
+        tokenLength: token?.length || 0,
+        tokenPreview: token ? `${token.substring(0, 20)}...` : 'NO TOKEN',
+        willAddAuthHeader: !!token
+      });
+    }
+
     if (!token && retryCount < 3) {
       console.log(`Token retry attempt ${retryCount + 1}`);
       await new Promise((resolve) => setTimeout(resolve, 100));
@@ -60,15 +75,104 @@ AxiosWithToken.interceptors.request.use(
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+
+      // Confirm auth header was set for FormData
+      if (config.data instanceof FormData) {
+        console.log('✅ Authorization header set for FormData request');
+      }
+    } else {
+      console.warn('⚠️ No token found - request will be unauthenticated');
     }
 
-    // ✅ FIX: Remove Content-Type header for FormData requests
-    // Let browser set the correct multipart/form-data with boundary
+    // ✅ FIX: Set appropriate Content-Type based on request data
     if (config.data instanceof FormData) {
+      console.log('🚨 INTERCEPTOR: PROCESSING FORMDATA REQUEST');
+
+      // For FormData, let browser set multipart/form-data with boundary
       delete config.headers['Content-Type'];
+
+      // === COMPREHENSIVE FORMDATA REQUEST ANALYSIS ===
+      console.log('📤 COMPLETE REQUEST ANALYSIS:', {
+        timestamp: new Date().toISOString(),
+        url: `${config.baseURL || ''}${config.url || ''}`,
+        method: config.method?.toUpperCase(),
+        timeout: config.timeout,
+        hasAuth: !!config.headers.Authorization,
+        authPreview: config.headers.Authorization ?
+          `${String(config.headers.Authorization).substring(0, 20)}...` : 'NO AUTH'
+      });
+
+      // Detailed FormData analysis
+      console.log('📋 FORMDATA ENTRIES BEING SENT:');
+      let totalFormDataSize = 0;
+      Array.from(config.data.entries()).forEach(([key, value]) => {
+        if (value instanceof File) {
+          totalFormDataSize += value.size;
+          console.log(`  📁 ${key}:`, {
+            fileName: value.name,
+            fileSize: value.size,
+            fileType: value.type,
+            lastModified: new Date(value.lastModified).toISOString(),
+            isValidFile: value.size > 0 && value.name.length > 0
+          });
+        } else {
+          totalFormDataSize += String(value).length;
+          console.log(`  📝 ${key}:`, {
+            value: value,
+            type: typeof value,
+            length: String(value).length,
+            isValid: value !== undefined && value !== null
+          });
+        }
+      });
+
+      console.log('📊 FORMDATA SUMMARY:', {
+        totalEntries: Array.from(config.data.entries()).length,
+        estimatedSize: totalFormDataSize,
+        hasFile: Array.from(config.data.entries()).some(([_, value]) => value instanceof File)
+      });
+
+      // Headers analysis
+      console.log('📤 REQUEST HEADERS:', {
+        authorization: config.headers.Authorization ? 'Present' : 'Missing',
+        contentType: config.headers['Content-Type'] || 'Not set (correct for FormData)',
+        userAgent: config.headers['User-Agent'] || 'Default',
+        allHeaders: Object.keys(config.headers).map(key =>
+          key.toLowerCase() === 'authorization' ?
+            `${key}: Bearer [REDACTED]` :
+            `${key}: ${config.headers[key]}`
+        )
+      });
+
+    } else if (config.data && !config.headers['Content-Type']) {
+      // Validate JSON data before setting content type
+      if (typeof config.data === 'object') {
+        try {
+          const jsonString = JSON.stringify(config.data);
+          if (!jsonString || jsonString.trim() === '' || jsonString === 'null' || jsonString === 'undefined') {
+            console.error('🚨 INTERCEPTOR: Empty or invalid JSON data detected:', config.data);
+            throw new Error('Invalid JSON format. The request body appears to contain only whitespace or invalid characters.');
+          }
+          console.log('✅ JSON validation passed for request to:', config.url);
+        } catch (error) {
+          console.error('🚨 INTERCEPTOR: JSON serialization failed:', error);
+          throw error;
+        }
+      }
+      // For JSON data, set application/json if not already set
+      config.headers['Content-Type'] = 'application/json';
     }
 
     retryCount = 0;
+
+    if (config.data instanceof FormData) {
+      console.log('🔥 INTERCEPTOR END - FormData request ready:', {
+        hasAuth: !!config.headers.Authorization,
+        hasContentType: !!config.headers['Content-Type'],
+        url: config.url
+      });
+    }
+
     return config;
   },
   (error) => Promise.reject(error)
@@ -76,11 +180,20 @@ AxiosWithToken.interceptors.request.use(
 
 AxiosWithToken.interceptors.response.use(
   (response) => {
-    // Handle successful responses here
+    // Enhanced logging for FormData responses (successful uploads)
+    if (response.config?.data instanceof FormData) {
+      console.log('✅ FORMDATA UPLOAD SUCCESS:', {
+        status: response.status,
+        url: response.config.url,
+        responseData: response.data
+      });
+    }
     return response;
   },
   async (error) => {
-    // Enhanced error logging
+    // Enhanced error logging with special handling for FormData errors
+    const isFormDataError = error.config?.data instanceof FormData;
+
     console.error('AxiosWithToken Response Error:', {
       code: error.code,
       message: error.message,
@@ -93,6 +206,23 @@ AxiosWithToken.interceptors.response.use(
         baseURL: error.config?.baseURL
       }
     });
+
+    // Special debugging for FormData upload errors
+    if (isFormDataError) {
+      console.error('❌ FORMDATA UPLOAD ERROR - Detailed Analysis:', {
+        requestUrl: `${error.config?.baseURL || ''}${error.config?.url || ''}`,
+        requestMethod: error.config?.method?.toUpperCase(),
+        requestHeaders: { ...error.config?.headers },
+        responseStatus: error.response?.status,
+        responseHeaders: error.response?.headers,
+        responseBody: error.response?.data,
+        requestBodyType: error.config?.data?.constructor?.name,
+        requestBodySize: error.config?.data instanceof FormData ?
+          'FormData (size not directly measurable)' :
+          JSON.stringify(error.config?.data || {}).length,
+        errorType: error.code || 'HTTP_ERROR'
+      });
+    }
 
     // Handle timeout errors with user-friendly message
     if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {

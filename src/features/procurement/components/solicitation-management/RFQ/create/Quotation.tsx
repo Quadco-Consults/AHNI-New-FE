@@ -58,7 +58,7 @@ import AddSquareIcon from "components/icons/AddSquareIcon";
 import FadedButton from "components/atoms/FadedButton";
 import DeleteIcon from "components/icons/DeleteIcon";
 import { motion } from "framer-motion";
-import { Upload as UploadFile } from "lucide-react";
+import { Upload as UploadFile, Search } from 'lucide-react';
 import { CategoryResultsData } from "@/features/admin/types/configs-types/category";
 import Image from "next/image";
 
@@ -609,7 +609,7 @@ const Quotation = () => {
                               type="search"
                               className="h-6 border-none bg-none"
                             />
-                            <Icon icon="iconamoon:search-light" fontSize={25} />
+                            <Search size={16} />
                           </div>
                         </div>
 

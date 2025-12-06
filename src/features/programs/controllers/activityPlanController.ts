@@ -66,6 +66,12 @@ export const useGetAllActivityPlans = ({
     },
     enabled: enabled,
     refetchOnWindowFocus: false,
+    // Improved caching strategy for timesheet activity plans
+    staleTime: 30000, // 30 seconds - consider data stale quickly
+    cacheTime: 300000, // 5 minutes - keep in cache but refetch when stale
+    // Retry failed requests with exponential backoff
+    retry: 2,
+    retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
 };
 

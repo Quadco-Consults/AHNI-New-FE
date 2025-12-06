@@ -95,7 +95,87 @@ export const useGetSingleProjectBudget = (id: string, enabled: boolean = true) =
   });
 };
 
-// ===== PROJECT OBLIGATIONS =====
+// ===== PROJECT DISBURSEMENTS =====
+// Note: This replaces the old obligations system - we now track disbursements instead
+
+export interface ProjectDisbursement {
+  id: string;
+  description: string;
+  amount: string;
+  grant: string;
+  project: string;
+  created_datetime: string;
+  work_plan_activity?: string;
+  work_plan_activity_details?: {
+    id: string;
+    activity_name: string;
+    budget_amount: number;
+  };
+  status: string;
+  disbursement_type: "FUND_REQUEST" | "DIRECT_PAYMENT" | "OTHER";
+  fund_request_id?: string; // Link to fund request if applicable
+}
+
+export interface ProjectDisbursementSummary {
+  total_disbursements: number;
+  total_fund_request_disbursements: number;
+  remaining_budget: number;
+  disbursement_percentage: number;
+}
+
+export const useGetProjectDisbursements = (filters?: {
+  grant?: string;
+  project?: string;
+  work_plan_activity?: string;
+  disbursement_type?: string;
+  search?: string;
+  page?: number;
+  page_size?: number;
+  ordering?: string;
+}) => {
+  return useQuery<FinanceApiResponse<PaginatedResponse<ProjectDisbursement>>>({
+    queryKey: ["project-disbursements", filters],
+    queryFn: async () => {
+      try {
+        const params = new URLSearchParams();
+        if (filters?.grant) params.append('grant', filters.grant);
+        if (filters?.project) params.append('project', filters.project);
+        if (filters?.work_plan_activity) params.append('work_plan_activity', filters.work_plan_activity);
+        if (filters?.disbursement_type) params.append('disbursement_type', filters.disbursement_type);
+        if (filters?.search) params.append('search', filters.search);
+        if (filters?.page) params.append('page', filters.page.toString());
+        if (filters?.page_size) params.append('page_size', filters.page_size.toString());
+        if (filters?.ordering) params.append('ordering', filters.ordering);
+
+        const response = await AxiosWithToken.get(`/api/v1/project-disbursements/?${params.toString()}`);
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Failed to fetch project disbursements: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    refetchOnWindowFocus: false,
+  });
+};
+
+export const useGetProjectDisbursementSummary = (projectId: string) => {
+  return useQuery<FinanceApiResponse<ProjectDisbursementSummary>>({
+    queryKey: ["project-disbursement-summary", projectId],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get(`/api/v1/project-disbursements/summary/?project=${projectId}`);
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Failed to fetch project disbursement summary: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    enabled: !!projectId,
+    refetchOnWindowFocus: false,
+  });
+};
+
+// ===== PROJECT OBLIGATIONS (LEGACY - DEPRECATED) =====
 
 export interface ProjectObligation {
   id: string;

@@ -19,7 +19,7 @@ const FuelTableDetail = () => {
             </div>
             <Card className="space-y-6">
                 <h4 className="font-semibold text-lg">
-                    AHNi HQ for Fuel Consumption Tracker for Project Vehicles in
+                    AHNI HQ for Fuel Consumption Tracker for Project Vehicles in
                     Abuja
                 </h4>
                 <p>Vendor: EMADEB ENERGY SERVICES LIMITED. </p>

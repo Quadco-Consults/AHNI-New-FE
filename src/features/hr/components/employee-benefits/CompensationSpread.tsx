@@ -2,6 +2,7 @@
 import React from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link"; import { useRouter } from "next/navigation";
+import { Trash2 } from 'lucide-react';
 import { Icon } from "@iconify/react";
 
 import { HrRoutes, RouteEnum } from "constants/RouterConstants";

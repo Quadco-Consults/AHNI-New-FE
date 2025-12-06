@@ -6,20 +6,13 @@ import { Button } from "components/ui/button";
 import { Card } from "components/ui/card";
 import { Badge } from "components/ui/badge";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "components/ui/select";
-import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
 } from "components/ui/tabs";
 import DataTable from "components/Table/DataTable";
-import { Eye, Clock, CheckCircle, XCircle, AlertCircle } from "lucide-react";
+import { Eye, Clock, CheckCircle, AlertCircle } from "lucide-react";
 import { useGetPendingApprovals } from "@/controllers/adhocRequisitionController";
 import { IAdhocRequisitionPaginatedData, RequisitionStatus } from "@/types/adhoc-requisition";
 import { format } from "date-fns";
@@ -35,7 +28,7 @@ export default function AdhocRequisitionApprovalsPage() {
     size: 20,
   });
 
-  const getStatusBadge = (status: RequisitionStatus) => {
+  const _getStatusBadge = (status: RequisitionStatus) => {
     const config = {
       DRAFT: { label: "Draft", className: "bg-gray-100 text-gray-800" },
       PENDING_APPROVAL: { label: "Pending", className: "bg-amber-100 text-amber-800" },

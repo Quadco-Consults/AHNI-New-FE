@@ -2,7 +2,7 @@
 
 import Card from "components/Card";
 import { Button } from "components/ui/button";
-import { EyeIcon, PlusIcon, EditIcon, GitBranch } from "lucide-react";
+import { EyeIcon, PlusIcon, EditIcon, GitBranch, RefreshCw } from 'lucide-react';
 import { Checkbox } from "components/ui/checkbox";
 
 import { Input } from "components/ui/input";
@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "c
 import { useState, useEffect } from "react";
 
 import { cn } from "lib/utils";
-import { CircleEllipsisIcon } from "lucide-react";
+import { CircleEllipsisIcon } from 'lucide-react';
 import { Icon } from "@iconify/react";
 import {
   DropdownMenu,
@@ -343,12 +343,12 @@ const ActionListAction = ({ data, onRefresh, isRefreshing }: any) => {
               >
                 {isLoadingLatestStatus ? (
                   <>
-                    <Icon icon="solar:restart-bold" className="animate-spin mr-2" fontSize={14} />
+                    <RefreshCw size={16} />
                     Refreshing...
                   </>
                 ) : (
                   <>
-                    <Icon icon="solar:restart-bold" className="mr-2" fontSize={14} />
+                    <RefreshCw size={16} />
                     Refresh Status
                   </>
                 )}

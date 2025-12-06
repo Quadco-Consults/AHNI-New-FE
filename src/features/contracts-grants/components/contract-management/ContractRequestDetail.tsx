@@ -12,13 +12,23 @@ import ContractRequestReview from "./ContractRequestReview";
 import WorkflowHistory from "./WorkflowHistory";
 import { useGetSingleContractRequest } from "@/features/contracts-grants/controllers/contractController";
 import { LoadingSpinner } from "components/Loading";
+import { usePermissions } from "@/hooks/usePermissions";
 
 export default function ContractRequestDetail() {
   const params = useParams();
   const router = useRouter();
   const [refreshKey, setRefreshKey] = useState(0);
-  
+
   const contractId = params.id as string;
+
+  // Get user permissions
+  const { canManageApprovals, user } = usePermissions();
+
+  console.log('🔒 CONTRACT REQUEST PERMISSIONS:', {
+    canManageApprovals,
+    userRole: user?.role,
+    context: 'contract_request_detail_permissions'
+  });
   
   // Get current user from localStorage or auth context
   const getCurrentUser = () => {
@@ -60,6 +70,15 @@ export default function ContractRequestDetail() {
   }
 
   console.log("ContractRequestDetail - Final contract request:", contractRequest);
+  console.log("ContractRequestDetail - Department structure:", {
+    department: contractRequest?.department,
+    created_by_department: contractRequest?.created_by?.department,
+  });
+  console.log("ContractRequestDetail - FCO structure:", {
+    fco: contractRequest?.fco,
+    fco_detail: contractRequest?.fco_detail,
+    allFields: Object.keys(contractRequest || {}).filter(key => key.toLowerCase().includes('fco'))
+  });
   console.log("ContractRequestDetail - Authorizer detail:", contractRequest?.authorizer_detail);
   console.log("ContractRequestDetail - Approver detail:", contractRequest?.approver_detail);
   console.log("ContractRequestDetail - Reviewer detail:", contractRequest?.current_reviewer_detail);
@@ -189,8 +208,12 @@ export default function ContractRequestDetail() {
       <Tabs defaultValue="details" className="space-y-6">
         <TabsList>
           <TabsTrigger value="details">Request Details</TabsTrigger>
-          <TabsTrigger value="workflow">Workflow & Review</TabsTrigger>
-          <TabsTrigger value="history">History</TabsTrigger>
+          {canManageApprovals && (
+            <>
+              <TabsTrigger value="workflow">Workflow & Review</TabsTrigger>
+              <TabsTrigger value="history">History</TabsTrigger>
+            </>
+          )}
           <TabsTrigger value="documents">Documents</TabsTrigger>
         </TabsList>
 
@@ -214,7 +237,7 @@ export default function ContractRequestDetail() {
                   </div>
                   <div>
                     <strong>Department:</strong>
-                    <p>{contractRequest.department?.name}</p>
+                    <p>{contractRequest.department?.name || contractRequest.created_by?.department?.name || "Not specified"}</p>
                   </div>
                   <div>
                     <strong>Location:</strong>
@@ -226,7 +249,7 @@ export default function ContractRequestDetail() {
                   </div>
                   <div>
                     <strong>FCO Number:</strong>
-                    <p>{contractRequest.fco || "Not specified"}</p>
+                    <p>{contractRequest.fco_detail?.name || contractRequest.fco_detail?.code || contractRequest.fco || "Not specified"}</p>
                   </div>
                 </div>
               </CardContent>
@@ -255,43 +278,63 @@ export default function ContractRequestDetail() {
               </CardContent>
             </Card>
 
-            {/* Workflow Assignments */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Workflow Assignments</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-3 gap-4">
-                  <div>
-                    <strong>Reviewer:</strong>
-                    <p>{contractRequest.current_reviewer ?
-                       (contractRequest.current_reviewer.full_name ||
-                        [contractRequest.current_reviewer.first_name, contractRequest.current_reviewer.last_name]
-                         .filter(name => name && name.trim())
-                         .join(" ")) || "Reviewer" :
-                       "Not assigned"}</p>
+            {/* Status Information - Different views for regular users vs managers */}
+            {!canManageApprovals ? (
+              /* Simple status view for regular users */
+              <Card>
+                <CardHeader>
+                  <CardTitle>Request Status</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-center py-4">
+                    <Badge className="text-lg px-4 py-2 mb-4">
+                      {contractRequest.status_display || contractRequest.status}
+                    </Badge>
+                    <p className="text-gray-600">
+                      Your contract request is currently being processed. You will be notified of any updates.
+                    </p>
                   </div>
-                  <div>
-                    <strong>Authorizer:</strong>
-                    <p>{contractRequest.authorizer_detail ?
-                       (contractRequest.authorizer_detail.full_name ||
-                        [contractRequest.authorizer_detail.first_name, contractRequest.authorizer_detail.last_name]
-                         .filter(name => name && name.trim())
-                         .join(" ")) || "Authorizer" :
-                       "Not assigned"}</p>
+                </CardContent>
+              </Card>
+            ) : (
+              /* Detailed workflow view for managers */
+              <Card>
+                <CardHeader>
+                  <CardTitle>Workflow Assignments</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <strong>Reviewer:</strong>
+                      <p>{contractRequest.current_reviewer ?
+                         (contractRequest.current_reviewer.full_name ||
+                          [contractRequest.current_reviewer.first_name, contractRequest.current_reviewer.last_name]
+                           .filter(name => name && name.trim())
+                           .join(" ")) || "Reviewer" :
+                         "Not assigned"}</p>
+                    </div>
+                    <div>
+                      <strong>Authorizer:</strong>
+                      <p>{contractRequest.authorizer_detail ?
+                         (contractRequest.authorizer_detail.full_name ||
+                          [contractRequest.authorizer_detail.first_name, contractRequest.authorizer_detail.last_name]
+                           .filter(name => name && name.trim())
+                           .join(" ")) || "Authorizer" :
+                         "Not assigned"}</p>
+                    </div>
+                    <div>
+                      <strong>Approver:</strong>
+                      <p>{contractRequest.approver_detail ?
+                         (contractRequest.approver_detail.full_name ||
+                          [contractRequest.approver_detail.first_name, contractRequest.approver_detail.last_name]
+                           .filter(name => name && name.trim())
+                           .join(" ")) || "Approver" :
+                         "Not assigned"}</p>
+                    </div>
                   </div>
-                  <div>
-                    <strong>Approver:</strong>
-                    <p>{contractRequest.approver_detail ?
-                       (contractRequest.approver_detail.full_name ||
-                        [contractRequest.approver_detail.first_name, contractRequest.approver_detail.last_name]
-                         .filter(name => name && name.trim())
-                         .join(" ")) || "Approver" :
-                       "Not assigned"}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Timestamps */}
             <Card>
@@ -330,21 +373,25 @@ export default function ContractRequestDetail() {
           </div>
         </TabsContent>
 
-        {/* Workflow & Review Tab */}
-        <TabsContent value="workflow">
-          <ContractRequestReview
-            contractRequest={contractRequest}
-            currentUser={currentUser}
-            onWorkflowUpdate={handleWorkflowUpdate}
-          />
-        </TabsContent>
+        {/* Workflow & Review Tab - Only for users with approval permissions */}
+        {canManageApprovals && (
+          <TabsContent value="workflow">
+            <ContractRequestReview
+              contractRequest={contractRequest}
+              currentUser={currentUser}
+              onWorkflowUpdate={handleWorkflowUpdate}
+            />
+          </TabsContent>
+        )}
 
-        {/* History Tab */}
-        <TabsContent value="history">
-          <WorkflowHistory 
-            contractRequest={contractRequest}
-          />
-        </TabsContent>
+        {/* History Tab - Only for users with approval permissions */}
+        {canManageApprovals && (
+          <TabsContent value="history">
+            <WorkflowHistory
+              contractRequest={contractRequest}
+            />
+          </TabsContent>
+        )}
 
         {/* Documents Tab */}
         <TabsContent value="documents">

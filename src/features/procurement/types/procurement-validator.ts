@@ -345,6 +345,7 @@ export const SolicitationSchema = z.object({
   purchase_request: z.string().min(1, "Field is required"),
 });
 
+// RFQ Submission Schema (for procurement items with pricing)
 export const SolicitationSubmissionSchema = z.object({
   solicitation: z.string().min(1, "Field is required"),
   vendor: z.string().min(1, "Field is required"),
@@ -377,6 +378,18 @@ export const SolicitationSubmissionSchema = z.object({
   currency: z.string().min(1, "Currency is required"),
   warranty: z.string().min(1, "Warranty is required"),
   brand_quoted: z.string().min(1, "Brand quoted is required"),
+});
+
+// RFP Submission Schema (for service proposals with document uploads)
+export const RFPSubmissionSchema = z.object({
+  solicitation: z.string().min(1, "Solicitation is required"),
+  vendor: z.string().min(1, "Vendor is required"),
+  evaluations: z.array(
+    z.object({
+      response: z.string().optional(),
+      evaluation_criteria: z.string().min(1, "Evaluation criteria is required"),
+    })
+  ).optional(),
 });
 
 export const CbaSchema = z.object({

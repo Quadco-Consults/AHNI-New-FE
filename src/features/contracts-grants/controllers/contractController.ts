@@ -39,6 +39,7 @@ interface ContractRequestFilterParams {
   size?: number;
   search?: string;
   status?: string;
+  created_by?: string;
   enabled?: boolean;
 }
 
@@ -53,10 +54,11 @@ export const useGetAllContractRequests = ({
   size = 20,
   search = "",
   status = "",
+  created_by = "",
   enabled = true,
 }: ContractRequestFilterParams) => {
   return useQuery<PaginatedResponse<IContractRequestPaginatedData>>({
-    queryKey: ["contractRequests", page, size, search, status],
+    queryKey: ["contractRequests", page, size, search, status, created_by],
     queryFn: async () => {
       try {
         const response = await AxiosWithToken.get(BASE_URL, {
@@ -65,6 +67,7 @@ export const useGetAllContractRequests = ({
             size,
             ...(search && { search }),
             ...(status && { status }),
+            ...(created_by && { created_by }),
           },
         });
         return response.data;

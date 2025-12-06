@@ -7,6 +7,7 @@ import {
     BreadcrumbSeparator,
 } from "components/ui/breadcrumb";
 import { Icon } from "@iconify/react";
+import { X } from "lucide-react";
 
 export interface TBreadcrumbList {
     name: string;
@@ -32,7 +33,7 @@ export default function BreadcrumbCard({ list }: TProps) {
                                 </BreadcrumbItem>
                                 {item?.icon && (
                                     <BreadcrumbSeparator>
-                                        <Icon icon="iconoir:slash" />
+                                        <X size={16} />
                                     </BreadcrumbSeparator>
                                 )}
                             </Fragment>

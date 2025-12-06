@@ -7,6 +7,76 @@ export type CommitteeMemberData = {
   designation: string;
 };
 
+// Committee Individual Evaluation Types
+export interface ICommitteeMemberEvaluation {
+  id: string;
+  cba_id: string;
+  member_id: string;
+  member_name: string;
+  member_designation: string;
+  vendor_evaluations: IVendorEvaluation[];
+  overall_recommendation: string;
+  status: 'pending' | 'submitted' | 'approved';
+  submitted_at?: Date;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface IVendorEvaluation {
+  vendor_id: string;
+  vendor_name: string;
+  technical_score: number; // 0-100
+  price_score: number; // 0-100
+  overall_score: number; // Calculated
+  technical_comments: string;
+  price_comments: string;
+  recommended: boolean;
+  item_selections: IItemSelection[];
+}
+
+export interface IItemSelection {
+  item_id: string;
+  selected: boolean;
+  justification?: string;
+}
+
+export interface IMemberParticipation {
+  cba_id: string;
+  total_members: number;
+  submitted_members: string[];
+  pending_members: string[];
+  members: Array<{
+    id: string;
+    name: string;
+    designation: string;
+    submitted: boolean;
+    submitted_at?: Date;
+  }>;
+}
+
+export interface IConsensusResults {
+  vendor_scores: IVendorConsensusScore[];
+  recommended_vendor: IVendorConsensusScore;
+  agreement_percentage: number;
+  consensus_reached: boolean;
+}
+
+export interface IVendorConsensusScore {
+  id: string;
+  name: string;
+  avg_technical_score: number;
+  avg_price_score: number;
+  consensus_score: number;
+  recommendation_rate: number;
+  member_scores: Array<{
+    member_id: string;
+    member_name: string;
+    technical: number;
+    price: number;
+    recommended: boolean;
+  }>;
+}
+
 export type AssigneeData = {
   user_id: string;
   name: string;

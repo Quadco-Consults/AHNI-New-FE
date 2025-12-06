@@ -114,7 +114,13 @@ const PayrollReport: React.FC<PayrollReportProps> = ({ data, onSave, onCancel })
                     <td className="px-4 py-3 text-sm">{index + 1}</td>
                     <td className="px-4 py-3 text-sm font-medium">{employee.employee_number}</td>
                     <td className="px-4 py-3 text-sm">{employee.employee_name}</td>
-                    <td className="px-4 py-3 text-sm">{employee.position}</td>
+                    <td className="px-4 py-3 text-sm">{typeof employee.position === 'string'
+                      ? employee.position
+                      : typeof employee.position === 'object' && employee.position?.name
+                      ? employee.position.name
+                      : typeof employee.position === 'object' && employee.position?.title
+                      ? employee.position.title
+                      : 'N/A'}</td>
                     <td className="px-4 py-3 text-sm text-right">{formatCurrency(employee.basic_salary)}</td>
                     <td className="px-4 py-3 text-sm text-right">{formatCurrency(totalAllowances)}</td>
                     <td className="px-4 py-3 text-sm text-right font-semibold text-green-700">{formatCurrency(employee.gross_salary)}</td>

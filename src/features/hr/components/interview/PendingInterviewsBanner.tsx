@@ -191,7 +191,11 @@ const PendingInterviewsBanner = ({
                     {interview.location && (
                       <div className="flex items-center gap-1">
                         <MapPin className="w-4 h-4" />
-                        <span>{interview.location}</span>
+                        <span>{typeof interview.location === 'string'
+                          ? interview.location
+                          : typeof interview.location === 'object' && interview.location?.name
+                          ? interview.location.name
+                          : 'N/A'}</span>
                       </div>
                     )}
 

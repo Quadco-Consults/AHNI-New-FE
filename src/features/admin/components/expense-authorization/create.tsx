@@ -41,6 +41,7 @@ import {
   getApproverOptions
 } from "@/utils/approvalFilters";
 import { filterAhniStaffOnly } from "@/utils/userFilters";
+import { usePermissions } from "@/hooks/usePermissions";
 
 const radioOptions = [
   { label: "Yes", value: true },
@@ -51,6 +52,12 @@ export default function CreateExpenseAuthorization() {
   // Get current logged-in user
   const { data: currentUserResponse } = useGetCurrentUser();
   const currentUser = currentUserResponse?.data;
+
+  // Get current user information for auto-population
+  const { user: permissionsUser } = usePermissions();
+
+  // Get user department for auto-population and display
+  const userDepartment = permissionsUser?.employee?.department || permissionsUser?.department;
 
   // Generate TA Number (format: TA-YYYYMMDD-XXXXXX)
   const generateTANumber = () => {
@@ -67,7 +74,7 @@ export default function CreateExpenseAuthorization() {
     defaultValues: {
       traveler_type: "SINGLE" as const,
       ta_number: generateTANumber(),
-      department: "",
+      department: userDepartment?.id || "", // Auto-populate user's department
       fco: "",
       is_managing_director_notified: false,
       is_travel_advances_dependent: false,
@@ -384,8 +391,21 @@ export default function CreateExpenseAuthorization() {
               />
             </div>
 
+            {/* Department Display Section */}
+            {userDepartment && (
+              <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <h3 className="text-lg font-bold text-blue-800 mb-2">Request Department</h3>
+                <p className="text-gray-700">
+                  <strong>Department:</strong> {userDepartment.name}
+                </p>
+                <p className="text-sm text-gray-600 mt-1">
+                  This expense authorization will be submitted for your department.
+                </p>
+              </div>
+            )}
+
             {/* Basic Information */}
-            <div className='grid grid-cols-1 gap-6 md:grid-cols-3'>
+            <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
               <FormInput
                 label='TA Number'
                 name='ta_number'
@@ -394,12 +414,11 @@ export default function CreateExpenseAuthorization() {
                 disabled
               />
 
-              <FormSelect
-                label='Department'
-                name='department'
-                placeholder='Select Department'
-                required
-                options={departmentOptions}
+              {/* Hidden department field - auto-populated */}
+              <input
+                type="hidden"
+                {...form.register('department')}
+                value={userDepartment?.id || ""}
               />
 
               <FormSelect

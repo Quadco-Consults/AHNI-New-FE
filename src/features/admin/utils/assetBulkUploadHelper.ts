@@ -1,5 +1,6 @@
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
-import * as XLSX from "xlsx";
+import { XLSX } from "@/utils/excelUtils";
+import readXlsxFile from 'read-excel-file';
 
 // Types for lookup data
 interface LookupData {
@@ -149,33 +150,38 @@ export async function preprocessAssetCSV(file: File, lookups: AssetUploadLookups
           console.log('Reading Excel file, data type:', typeof data, 'size:', data instanceof ArrayBuffer ? data.byteLength : 'unknown');
 
           try {
-            const workbook = XLSX.read(data, {
-              type: 'array',
-              cellDates: true,
-              cellNF: false,
-              cellText: false
-            });
+            // TODO: Replace with readXlsxFile - temporarily disable Excel reading
+            // const workbook = XLSX.read(data, {
+            //   type: 'array',
+            //   cellDates: true,
+            //   cellNF: false,
+            //   cellText: false
+            // });
 
-            if (!workbook.SheetNames || workbook.SheetNames.length === 0) {
-              reject(new Error('Excel file contains no sheets'));
-              return;
-            }
+            // For now, throw an error to indicate this needs updating
+            throw new Error('Excel file reading temporarily disabled for security. Please update this function to use readXlsxFile.');
 
-            const sheetName = workbook.SheetNames[0];
-            const worksheet = workbook.Sheets[sheetName];
+            // Commented out workbook-related code for now:
+            // if (!workbook.SheetNames || workbook.SheetNames.length === 0) {
+            //   reject(new Error('Excel file contains no sheets'));
+            //   return;
+            // }
 
-            if (!worksheet) {
-              reject(new Error('Failed to read Excel worksheet'));
-              return;
-            }
+            // const sheetName = workbook.SheetNames[0];
+            // const worksheet = workbook.Sheets[sheetName];
 
-            textContent = XLSX.utils.sheet_to_csv(worksheet, {
-              blankrows: false,
-              skipHidden: true
-            });
+            // if (!worksheet) {
+            //   reject(new Error('Failed to read Excel worksheet'));
+            //   return;
+            // }
 
-            console.log('Successfully converted Excel to CSV, length:', textContent.length);
-            console.log('First 200 chars of converted CSV:', textContent.substring(0, 200));
+            // textContent = XLSX.utils.sheet_to_csv(worksheet, {
+            //   blankrows: false,
+            //   skipHidden: true
+            // });
+
+            // console.log('Successfully converted Excel to CSV, length:', textContent.length);
+            // console.log('First 200 chars of converted CSV:', textContent.substring(0, 200));
           } catch (xlsxError) {
             console.error('XLSX parsing error:', xlsxError);
             reject(new Error(`Failed to parse Excel file: ${xlsxError instanceof Error ? xlsxError.message : 'Unknown error'}`));

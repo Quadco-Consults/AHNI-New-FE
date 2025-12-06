@@ -87,8 +87,8 @@ export const useGetSolicitationSubmission = (
   });
 };
 
-// Create Solicitation Submission
-export const useCreateSolicitationSubmission = () => {
+// Create Solicitation Submission (supports both JSON and FormData for file uploads)
+export const useCreateSolicitationSubmission = (isFileUpload: boolean = false) => {
   const { callApi, isLoading, isSuccess, error, data } = useApiManager<
     SolicitationResponse,
     Error,
@@ -98,6 +98,7 @@ export const useCreateSolicitationSubmission = () => {
     queryKey: ["solicitation-submissions"],
     isAuth: true,
     method: "POST",
+    contentType: isFileUpload ? null : "application/json", // null allows FormData to set its own content type
   });
 
   const createSolicitationSubmission = async (details: any) => {

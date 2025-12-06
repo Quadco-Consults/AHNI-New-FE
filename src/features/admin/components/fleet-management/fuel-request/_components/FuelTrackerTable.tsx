@@ -19,7 +19,7 @@ export default function FuelTrackerTable({
   data,
   vendorName = "Unknown Vendor",
   location = "Unknown Location",
-  projectTitle = "AHNi HQ for Fuel Consumption Tracker for Project Vehicles",
+  projectTitle = "AHNI HQ for Fuel Consumption Tracker for Project Vehicles",
   isLoading = false,
 }: FuelTrackerTableProps) {
   
@@ -174,7 +174,7 @@ export default function FuelTrackerTable({
               />
               <div className="text-center">
                 <h1 className="text-3xl font-bold tracking-wide">ACHIEVING HEALTH NIGERIA INITIATIVE</h1>
-                <p className="text-red-100 text-base mt-2 font-medium">(AHNi)</p>
+                <p className="text-red-100 text-base mt-2 font-medium">(AHNI)</p>
               </div>
             </div>
           </div>

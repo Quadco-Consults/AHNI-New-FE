@@ -1,94 +1,46 @@
 "use client";
 
 import { FC } from "react";
-import { useFormContext } from "react-hook-form";
-
+import SmartFormSelect from "./SmartFormSelect";
 import { useDisableNumberInputScroll } from "../hooks/useDisableNumberInputScroll";
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "components/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "components/ui/select";
 
-import { SelectHTMLAttributes } from "react";
-import { IOptions } from "definations/schema";
+// Support for legacy IOptions interface from definations/schema
+interface IOptions {
+  label: string;
+  value: string | number | boolean;
+}
 
-interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
+interface SelectProps {
   name: string;
   label?: string;
   placeholder?: string;
   required?: boolean;
   options?: IOptions[];
+  className?: string;
+  // Smart behavior configuration
+  searchThreshold?: number;
+  forceSearch?: boolean;
+  forceSelect?: boolean;
+  searchPlaceholder?: string;
+  emptyMessage?: string;
+  onValueChange?: (value: string) => void;
 }
-const FormSelect: FC<SelectProps> = ({
-  name,
-  label,
-  required,
-  placeholder,
-  options,
-  className,
-}) => {
-  const { control } = useFormContext();
 
+/**
+ * Enhanced FormSelect with Smart Search Capabilities
+ *
+ * Compatible with legacy IOptions interface and className wrapper
+ *
+ * 🎯 **Auto-Smart Behavior:**
+ * - Small lists (< 10 items): Regular dropdown
+ * - Large lists (≥ 10 items): Searchable combobox
+ *
+ * ✅ **100% Backward Compatible** with existing FormSelect usage
+ */
+const FormSelect: FC<SelectProps> = (props) => {
   useDisableNumberInputScroll();
 
-  return (
-    <div className={className}>
-      <FormField
-        control={control}
-        name={name}
-        render={({ field }) => {
-          const { value, onChange } = field;
-
-          return (
-            <FormItem className='flex flex-col gap-0 mb-1.5'>
-              <FormLabel className='mb-1'>
-                {label}
-                {required && (
-                  <span className='text-red-500 ' title='required'>
-                    *
-                  </span>
-                )}
-              </FormLabel>
-              <Select
-                onValueChange={onChange}
-                value={value}
-                defaultValue={value}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder={placeholder} />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {options?.filter((item) => item.value !== "" && item.value != null).map((item) => {
-                    return (
-                      <SelectItem
-                        value={item.value as string}
-                        key={item.value as string}
-                      >
-                        {item.label}
-                      </SelectItem>
-                    );
-                  })}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          );
-        }}
-      />
-    </div>
-  );
+  return <SmartFormSelect {...props} />;
 };
 
 export default FormSelect;

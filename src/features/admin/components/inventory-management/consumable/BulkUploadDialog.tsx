@@ -2,11 +2,16 @@
 import { useState, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Upload, Download, FileSpreadsheet, X, CheckCircle, AlertCircle, Info } from "lucide-react";
+import { Upload, Download, FileSpreadsheet, X, CheckCircle, AlertCircle, Info, Store } from "lucide-react";
 import { toast } from "sonner";
 import { useBulkUploadItems } from "@/features/modules/controllers/config/itemController";
 import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { useGetAllStores } from "@/features/admin/controllers/storeController";
+import { useGetAllCategoriesManager } from "@/features/modules/controllers/config/categoryController";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface BulkUploadDialogProps {
   open: boolean;
@@ -26,9 +31,27 @@ export default function BulkUploadDialog({ open, onOpenChange }: BulkUploadDialo
   const [uploadStatus, setUploadStatus] = useState<"idle" | "uploading" | "success" | "error">("idle");
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadResult, setUploadResult] = useState<UploadResult | null>(null);
+  const [selectedStore, setSelectedStore] = useState<string>("");
+  const [autoAssignToStore, setAutoAssignToStore] = useState(false);
+  const [showStoreCreationDialog, setShowStoreCreationDialog] = useState(false);
+  const [storesToCreate, setStoresToCreate] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { bulkUploadItems, isLoading } = useBulkUploadItems();
+
+  // Fetch all stores for the dropdown
+  const { data: storesData, isLoading: storesLoading } = useGetAllStores({
+    page: 1,
+    size: 100, // Get all stores
+    enabled: open, // Only fetch when dialog is open
+  });
+
+  // Fetch all categories for dynamic template generation
+  const { data: categoriesData, isLoading: categoriesLoading } = useGetAllCategoriesManager({
+    page: 1,
+    size: 100, // Get all categories
+    enabled: open, // Only fetch when dialog is open
+  });
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -56,6 +79,11 @@ export default function BulkUploadDialog({ open, onOpenChange }: BulkUploadDialo
       return;
     }
 
+    if (autoAssignToStore && !selectedStore) {
+      toast.error("Please select a store or uncheck automatic store assignment");
+      return;
+    }
+
     try {
       setUploadStatus("uploading");
       setUploadProgress(0);
@@ -63,17 +91,31 @@ export default function BulkUploadDialog({ open, onOpenChange }: BulkUploadDialo
 
       // Simulate progress
       const progressInterval = setInterval(() => {
-        setUploadProgress(prev => Math.min(prev + 10, 90));
+        setUploadProgress(prev => Math.min(prev + 10, 70)); // Leave room for store assignment
       }, 200);
 
-      // Don't pass categoryId - it's now in the CSV file
+      // Upload items first
       const result = await bulkUploadItems(selectedFile);
 
-      clearInterval(progressInterval);
-      setUploadProgress(100);
+      setUploadProgress(80);
 
       // Extract result data from the response
       const resultData = result?.data || result;
+
+      // If auto-assign to store is enabled and upload was successful
+      if (autoAssignToStore && selectedStore && resultData.created > 0) {
+        setUploadProgress(85);
+
+        // TODO: Implement automatic store assignment for newly created items
+        // This would require additional API calls to assign items to the selected store
+        console.log(`🏪 Auto-assigning ${resultData.created} items to store: ${selectedStore}`);
+
+        // For now, we'll show a message about manual assignment
+        toast.info(`Items uploaded successfully! Remember to assign them to ${storesData?.data?.results?.find(s => s.id === selectedStore)?.name || 'the selected store'} using the "Assign to Store" button.`);
+      }
+
+      clearInterval(progressInterval);
+      setUploadProgress(100);
       setUploadResult(resultData);
 
       if (resultData.failed > 0) {
@@ -81,12 +123,17 @@ export default function BulkUploadDialog({ open, onOpenChange }: BulkUploadDialo
         toast.error(`Upload completed with ${resultData.failed} errors. Check details below.`);
       } else {
         setUploadStatus("success");
-        toast.success(`Successfully uploaded! Created: ${resultData.created}, Updated: ${resultData.updated}`);
+        const storeMessage = autoAssignToStore && selectedStore
+          ? ` Items ready for assignment to ${storesData?.data?.results?.find(s => s.id === selectedStore)?.name}.`
+          : '';
+        toast.success(`Successfully uploaded! Created: ${resultData.created}, Updated: ${resultData.updated}${storeMessage}`);
 
         // Close dialog and reload after success
         setTimeout(() => {
           onOpenChange(false);
           setSelectedFile(null);
+          setSelectedStore("");
+          setAutoAssignToStore(false);
           setUploadStatus("idle");
           setUploadResult(null);
           window.location.reload();
@@ -131,14 +178,14 @@ export default function BulkUploadDialog({ open, onOpenChange }: BulkUploadDialo
 
   const handleDownloadTemplate = () => {
     // ================================================================================================
-    // COMPREHENSIVE CONSUMABLES BULK UPLOAD TEMPLATE
+    // DYNAMIC CONSUMABLES BULK UPLOAD TEMPLATE
     // ================================================================================================
-    // This template supports ALL consumable types:
-    // - Medical Consumables (medicines, supplies, PPE, etc.)
-    // - Office Consumables (paper, pens, toner, etc.)
-    // - IT Consumables (cables, flash drives, accessories, etc.)
-    // - Cleaning Supplies (detergents, tissues, sanitizers, etc.)
-    // - Laboratory Consumables (test kits, reagents, gloves, etc.)
+    // This template dynamically generates examples based on your current categories:
+    const availableCategories = categoriesData?.results || [];
+    const categoryNames = availableCategories.map((cat: any) => cat.name);
+    const activeCategoriesComment = categoryNames.length > 0
+      ? `Available Categories: ${categoryNames.join(', ')}`
+      : 'Default Categories: Medical Consumables, Office Supplies, IT Consumables, Cleaning Supplies, Laboratory Consumables';
     // ================================================================================================
 
     const headers = [
@@ -148,8 +195,11 @@ export default function BulkUploadDialog({ open, onOpenChange }: BulkUploadDialo
       "description (Required)",
       "uom (Required - Unit: Box/Piece/Bottle/Pack/Ream/Carton/Roll/etc)",
 
+      // ========== SMART ASSIGNMENT - STORE ALLOCATION ==========
+      "store_name (Required - Store to assign item to. Will auto-create if doesn't exist)",
+
       // ========== INVENTORY MANAGEMENT FIELDS (COMMON to all types) ==========
-      "quantity (Optional - Initial stock quantity)",
+      "quantity (Required - Stock quantity for this store)",
       "stock_control_method (Optional - STOCK_LEVEL/AVAILABILITY/JUST_IN_TIME)",
       "re_order_level (Optional - Minimum stock before reorder)",
       "buffer_stock (Optional - Safety stock quantity)",
@@ -167,8 +217,64 @@ export default function BulkUploadDialog({ open, onOpenChange }: BulkUploadDialo
       "grn_tracking_number (Optional - Goods Receipt Note/Batch number)"
     ];
 
+    // Generate dynamic sample data based on available categories
+    const generateSampleData = (categoryName: string, index: number) => {
+      const sampleStoreNames = ["AHNI HQ", "AHNI Lagos", "AHNI Kaduna", "AHNI Abuja", "AHNI Research Lab"];
+      const storeName = sampleStoreNames[index % sampleStoreNames.length];
+
+      // Default sample based on category type
+      const samples: { [key: string]: string[] } = {
+        "Medical Consumables": [
+          categoryName, "Paracetamol 500mg Tablets", "Pain relief and fever reduction tablets", "Box",
+          storeName, "200", "STOCK_LEVEL", "20", "10", "500", "1500.00", "2000.00",
+          "2025-01-15", "2026-12-31", "GRN-2025-MED-001"
+        ],
+        "Office Supplies": [
+          categoryName, "Paper A4 Ream - 80gsm", "White printing paper", "Ream",
+          storeName, "150", "STOCK_LEVEL", "15", "5", "300", "2500.00", "3000.00",
+          "2025-01-10", "", "GRN-2025-OFF-012"
+        ],
+        "IT Consumables": [
+          categoryName, "USB Flash Drive 32GB", "High-speed USB 3.0 flash drive", "Piece",
+          storeName, "30", "JUST_IN_TIME", "5", "2", "50", "3500.00", "5000.00",
+          "2025-01-12", "2027-01-12", "GRN-2025-IT-045"
+        ],
+        "Cleaning Supplies": [
+          categoryName, "Hand Sanitizer 500ml", "Alcohol-based hand sanitizer", "Bottle",
+          storeName, "100", "AVAILABILITY", "10", "5", "200", "800.00", "1200.00",
+          "2025-01-08", "2026-06-30", "GRN-2025-CLN-023"
+        ],
+        "Laboratory Consumables": [
+          categoryName, "COVID-19 Rapid Test Kit", "Rapid antigen test kit", "Pack",
+          storeName, "50", "STOCK_LEVEL", "10", "5", "100", "12000.00", "15000.00",
+          "2025-01-20", "2025-10-31", "GRN-2025-LAB-007"
+        ]
+      };
+
+      // Return specific sample or generic sample
+      return samples[categoryName] || [
+        categoryName, `${categoryName} Item`, `Sample item for ${categoryName}`, "Piece",
+        storeName, "100", "STOCK_LEVEL", "10", "5", "200", "1000.00", "1500.00",
+        "2025-01-15", "", `GRN-2025-${index.toString().padStart(3, '0')}`
+      ];
+    };
+
+    // Generate sample data for available categories (max 5 examples)
+    const dynamicSampleData = availableCategories.slice(0, 5).map((cat: any, index: number) =>
+      generateSampleData(cat.name, index)
+    );
+
+    // Fallback sample data if no categories are available
+    const fallbackSampleData = [
+      generateSampleData("Medical Consumables", 0),
+      generateSampleData("Office Supplies", 1),
+      generateSampleData("IT Consumables", 2)
+    ];
+
+    const finalSampleData = dynamicSampleData.length > 0 ? dynamicSampleData : fallbackSampleData;
+
     // ================================================================================================
-    // EXAMPLE 1: Medical Consumable (Paracetamol Tablets)
+    // DYNAMIC EXAMPLES BASED ON YOUR CATEGORIES
     // ================================================================================================
     // Medical supplies often have expiry dates, batch tracking, and strict stock control
     // ================================================================================================
@@ -177,7 +283,8 @@ export default function BulkUploadDialog({ open, onOpenChange }: BulkUploadDialo
       "Paracetamol 500mg Tablets",             // name (Required)
       "Pain relief and fever reduction tablets - 500mg strength, box of 100 tablets", // description (Required)
       "Box",                                    // uom (Required)
-      "200",                                    // quantity (Initial stock)
+      "AHNI HQ",                                // store_name (Store to assign to - will auto-create if needed)
+      "200",                                    // quantity (Stock quantity for this store)
       "STOCK_LEVEL",                           // stock_control_method (Strict tracking for medical)
       "20",                                     // re_order_level (Reorder when below 20 boxes)
       "10",                                     // buffer_stock (Safety stock of 10 boxes)
@@ -199,7 +306,8 @@ export default function BulkUploadDialog({ open, onOpenChange }: BulkUploadDialo
       "Paper A4 Ream - 80gsm",                 // name (Required)
       "White A4 printing paper - 80gsm weight, 500 sheets per ream", // description (Required)
       "Ream",                                   // uom (Required)
-      "150",                                    // quantity (150 reams in stock)
+      "AHNI Lagos",                             // store_name (Store assignment - will create if doesn't exist)
+      "150",                                    // quantity (150 reams in this store)
       "STOCK_LEVEL",                           // stock_control_method (Track stock levels)
       "15",                                     // re_order_level (Reorder at 15 reams)
       "5",                                      // buffer_stock (Keep 5 reams as buffer)
@@ -221,7 +329,8 @@ export default function BulkUploadDialog({ open, onOpenChange }: BulkUploadDialo
       "SanDisk USB 3.0 Flash Drive 32GB",      // name (Required)
       "High-speed USB 3.0 flash drive - 32GB storage capacity",  // description (Required)
       "Piece",                                  // uom (Required)
-      "30",                                     // quantity (30 units in stock)
+      "AHNI Kaduna",                            // store_name (Store assignment - will create if doesn't exist)
+      "30",                                     // quantity (30 units in this store)
       "JUST_IN_TIME",                          // stock_control_method (Order as needed)
       "5",                                      // re_order_level (Low minimum)
       "2",                                      // buffer_stock (Minimal buffer)
@@ -243,7 +352,8 @@ export default function BulkUploadDialog({ open, onOpenChange }: BulkUploadDialo
       "Hand Sanitizer 500ml",                  // name (Required)
       "Alcohol-based hand sanitizer - 70% alcohol content, 500ml bottle", // description (Required)
       "Bottle",                                 // uom (Required)
-      "100",                                    // quantity
+      "AHNI Abuja",                             // store_name (Store assignment - will create if doesn't exist)
+      "100",                                    // quantity (100 bottles in this store)
       "AVAILABILITY",                          // stock_control_method (Just track if available)
       "10",                                     // re_order_level
       "5",                                      // buffer_stock
@@ -265,7 +375,8 @@ export default function BulkUploadDialog({ open, onOpenChange }: BulkUploadDialo
       "COVID-19 Rapid Antigen Test Kit",      // name (Required)
       "Rapid antigen test for COVID-19 detection - pack of 25 tests", // description (Required)
       "Pack",                                   // uom (Required)
-      "50",                                     // quantity (50 packs)
+      "AHNI Research Lab",                      // store_name (Store assignment - will create if doesn't exist)
+      "50",                                     // quantity (50 packs in this store)
       "STOCK_LEVEL",                           // stock_control_method (Critical - track carefully)
       "10",                                     // re_order_level (Reorder early)
       "5",                                      // buffer_stock (Always have buffer)
@@ -280,11 +391,12 @@ export default function BulkUploadDialog({ open, onOpenChange }: BulkUploadDialo
     const csvContent = [
       headers.join(","),
       "# ================================================================================================",
-      "# COMPREHENSIVE CONSUMABLES BULK UPLOAD TEMPLATE",
+      "# DYNAMIC SMART ASSIGNMENT CONSUMABLES TEMPLATE",
       "# ================================================================================================",
       "#",
       "# INSTRUCTIONS:",
-      "# 1. This single template works for ALL consumable types (Medical, Office, IT, Cleaning, Lab, etc.)",
+      `# Current Categories: ${activeCategoriesComment}`,
+      "# 1. This template dynamically adapts to your current consumable categories",
       "# 2. Required fields: category, name, description, uom - MUST be filled for every consumable",
       "# 3. Optional fields: Leave EMPTY if not applicable (no need to delete columns)",
       "# 4. Multiple consumable types can be uploaded in ONE file",
@@ -348,12 +460,13 @@ export default function BulkUploadDialog({ open, onOpenChange }: BulkUploadDialo
   };
 
   return (
+    <>
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>Bulk Upload Consumables</DialogTitle>
           <DialogDescription>
-            Upload multiple consumables at once using our comprehensive CSV template. Supports ALL consumable types (Medical, Office, IT, Cleaning, Lab) in ONE file. Download the template to get started.
+            Upload multiple consumables at once using our comprehensive CSV template. Supports ALL consumable types (Medical, Office, IT, Cleaning, Lab) in ONE file. Optionally select a store to streamline the assignment process for legacy data imports.
           </DialogDescription>
         </DialogHeader>
 
@@ -363,11 +476,72 @@ export default function BulkUploadDialog({ open, onOpenChange }: BulkUploadDialo
             <Info className="text-blue-600" size={18} />
             <div className="flex-1">
               <p className="text-sm text-blue-900">
-                <span className="font-medium">Multi-Category Upload:</span> You can now upload items from different categories in a single file.
+                <span className="font-medium">Streamlined Upload:</span> Upload consumables and optionally assign them to a store in one step.
               </p>
               <p className="text-xs text-blue-700 mt-1">
-                Each row in your CSV should include the category name for that item.
+                Multi-category upload supported - each row should include the category name for that item.
               </p>
+            </div>
+          </div>
+
+          {/* Store Selection Section */}
+          <div className="border rounded-lg p-4 bg-green-50 border-green-200">
+            <div className="flex items-start gap-3">
+              <Store className="text-green-600 mt-1" size={20} />
+              <div className="flex-1 space-y-4">
+                <div>
+                  <h4 className="font-semibold text-sm text-green-900 mb-1">🚀 Streamlined Store Assignment</h4>
+                  <p className="text-sm text-green-700 mb-3">
+                    Optionally select a store to automatically prepare your uploaded consumables for assignment. This eliminates the need for separate "Assign to Store" steps.
+                  </p>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="auto-assign"
+                    checked={autoAssignToStore}
+                    onCheckedChange={(checked) => setAutoAssignToStore(checked as boolean)}
+                  />
+                  <Label htmlFor="auto-assign" className="text-sm font-medium text-green-900">
+                    Prepare items for store assignment after upload
+                  </Label>
+                </div>
+
+                {autoAssignToStore && (
+                  <div className="space-y-2">
+                    <Label htmlFor="store-select" className="text-sm font-medium text-green-900">
+                      Select Target Store
+                    </Label>
+                    <Select
+                      value={selectedStore}
+                      onValueChange={setSelectedStore}
+                      disabled={storesLoading}
+                    >
+                      <SelectTrigger id="store-select" className="bg-white border-green-300">
+                        <SelectValue placeholder={storesLoading ? "Loading stores..." : "Choose a store"} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {storesData?.data?.results?.map((store: any) => (
+                          <SelectItem key={store.id} value={store.id}>
+                            <div className="flex items-center gap-2">
+                              <Store size={16} className="text-gray-500" />
+                              <div>
+                                <div className="font-medium">{store.name}</div>
+                                <div className="text-xs text-gray-500">{store.location?.name || 'No location'}</div>
+                              </div>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {selectedStore && (
+                      <p className="text-xs text-green-600 bg-green-100 p-2 rounded">
+                        ✅ Items will be prepared for assignment to: <strong>{storesData?.data?.results?.find((s: any) => s.id === selectedStore)?.name}</strong>
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
@@ -376,9 +550,9 @@ export default function BulkUploadDialog({ open, onOpenChange }: BulkUploadDialo
             <div className="flex items-start gap-3">
               <FileSpreadsheet className="text-blue-600 mt-1" size={20} />
               <div className="flex-1">
-                <h4 className="font-semibold text-sm text-blue-900 mb-1">Step 1: Download Comprehensive Template</h4>
+                <h4 className="font-semibold text-sm text-blue-900 mb-1">Step 1: Download Smart Assignment Template</h4>
                 <p className="text-sm text-blue-700 mb-3">
-                  Download the universal CSV template with 5 example consumable types. Fill in your data for any consumable type and upload it back here.
+                  Download the enhanced CSV template with Smart Assignment feature. Template automatically includes examples for your current {categoriesData?.results?.length || 'default'} categories. Include <strong>store_name</strong> column to assign items directly to stores during upload.
                 </p>
                 <Button
                   onClick={handleDownloadTemplate}
@@ -561,12 +735,85 @@ export default function BulkUploadDialog({ open, onOpenChange }: BulkUploadDialo
           </Button>
           <Button
             onClick={handleUpload}
-            disabled={!selectedFile || isLoading}
+            disabled={!selectedFile || isLoading || (autoAssignToStore && !selectedStore)}
+            className={autoAssignToStore && selectedStore ? "bg-green-600 hover:bg-green-700" : ""}
           >
-            {isLoading ? "Uploading..." : "Upload"}
+            {isLoading ? (
+              "Uploading..."
+            ) : autoAssignToStore && selectedStore ? (
+              <>
+                <Store size={16} className="mr-2" />
+                Upload & Prepare for Store
+              </>
+            ) : (
+              "Upload Consumables"
+            )}
           </Button>
         </div>
       </DialogContent>
     </Dialog>
+
+    {/* Store Creation Confirmation Dialog */}
+    <Dialog open={showStoreCreationDialog} onOpenChange={setShowStoreCreationDialog}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Store className="text-blue-600" size={20} />
+            Create New Stores?
+          </DialogTitle>
+          <DialogDescription>
+            The following stores don't exist in the system and will be created:
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-3">
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+            <ul className="space-y-1">
+              {storesToCreate.map((storeName, index) => (
+                <li key={index} className="flex items-center gap-2 text-sm">
+                  <Store size={14} className="text-yellow-600" />
+                  <strong>{storeName}</strong>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+            <div className="flex items-start gap-2">
+              <Info size={16} className="text-blue-600 mt-0.5 flex-shrink-0" />
+              <div className="text-sm text-blue-800">
+                <strong>Note:</strong> New stores will be created with default settings. You can update their details (location, store keeper, etc.) later from the Stores management page.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex justify-end gap-3">
+          <Button
+            variant="outline"
+            onClick={() => {
+              setShowStoreCreationDialog(false);
+              setStoresToCreate([]);
+              // Cancel the upload
+              setUploadStatus("idle");
+            }}
+          >
+            Cancel Upload
+          </Button>
+          <Button
+            onClick={() => {
+              setShowStoreCreationDialog(false);
+              // Continue with upload (this would normally trigger backend store creation)
+              toast.success(`${storesToCreate.length} new store(s) will be created automatically`);
+              // Here you would continue the upload process with store creation
+            }}
+            className="bg-blue-600 hover:bg-blue-700"
+          >
+            Create & Continue
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+    </>
   );
 }

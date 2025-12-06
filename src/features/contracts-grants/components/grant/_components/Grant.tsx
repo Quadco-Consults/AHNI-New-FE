@@ -14,6 +14,7 @@ import { Checkbox } from "components/ui/checkbox";
 import { Badge } from "components/ui/badge";
 import { cn } from "lib/utils";
 import IconButton from "components/IconButton";
+import { Trash2 } from 'lucide-react';
 import { Icon } from "@iconify/react";
 import { grantsApi } from "@/features/contracts-grants/controllers/grantsController";
 

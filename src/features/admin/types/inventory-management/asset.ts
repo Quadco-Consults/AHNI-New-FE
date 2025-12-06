@@ -91,8 +91,8 @@ export const AssetSchema = z.object({
   location: z.string().optional().nullable(),
   estimated_life_span: z.string().optional().nullable(),
   classification: z.string().optional().nullable(),
-  usd_cost: z.string().optional().nullable(),
-  ngn_cost: z.string().optional().nullable(),
+  usd_cost: z.coerce.string().min(1, "Please enter USD cost"),
+  ngn_cost: z.coerce.string().min(1, "Please enter NGN cost"),
   unit: z.coerce.string().min(1, "Please enter unit"), // Accepts numbers from input type='number'
   implementer: z.string().optional().nullable(),
   insurance_duration: z.string().optional().nullable(),

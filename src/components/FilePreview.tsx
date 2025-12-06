@@ -4,34 +4,31 @@ import DeleteIcon from "components/icons/DeleteIcon";
 import { Button } from "components/ui/button";
 import { format } from "date-fns";
 import { useState } from "react";
-import { BsFiletypePng } from "react-icons/bs";
-import { BsFiletypeCsv } from "react-icons/bs";
-import { BsFiletypeDocx } from "react-icons/bs";
-import { BsFiletypeDoc } from "react-icons/bs";
-import { BsFiletypeXls } from "react-icons/bs";
-import { BsFiletypeXlsx } from "react-icons/bs";
-import { BsFiletypeJpg } from "react-icons/bs";
-import { BsFiletypeSvg } from "react-icons/bs";
-import { BsFiletypePdf } from "react-icons/bs";
+import {
+  Image,
+  FileSpreadsheet,
+  FileText,
+  FileImage
+} from "lucide-react";
 import { getFileExtension } from "utils/get-file-extension";
 import Link from "next/link";
 import ConfirmationDialog from "./ConfirmationDialog";
 // import ConfirmationDialog from "components/ConfirmationDialog";
 
 const FILE_TYPE_ICONS = {
-  png: BsFiletypePng,
+  png: Image,
 
-  jpeg: BsFiletypeJpg,
-  jpg: BsFiletypeJpg,
-  svg: BsFiletypeSvg,
+  jpeg: FileImage,
+  jpg: FileImage,
+  svg: FileImage,
 
-  pdf: BsFiletypePdf,
-  doc: BsFiletypeDoc,
-  docx: BsFiletypeDocx,
+  pdf: FileText,
+  doc: FileText,
+  docx: FileText,
 
-  csv: BsFiletypeCsv,
-  xls: BsFiletypeXls,
-  xlsx: BsFiletypeXlsx,
+  csv: FileSpreadsheet,
+  xls: FileSpreadsheet,
+  xlsx: FileSpreadsheet,
 };
 
 type TProps = {

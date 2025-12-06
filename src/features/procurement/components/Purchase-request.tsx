@@ -3,7 +3,7 @@
 import { Checkbox } from "components/ui/checkbox";
 import Card from "components/Card";
 import { Button } from "components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, Edit, Trash2 } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -383,7 +383,7 @@ const data: Data[] = [
   },
   {
     requisition: "Health Awareness Poster Design",
-    requested_project: "UnitedForHealth: AHNi-UNICEF Joint Initiative",
+    requested_project: "UnitedForHealth: AHNI-UNICEF Joint Initiative",
     status: "On Hold",
     unit: "Operations Department",
     isSelected: false,

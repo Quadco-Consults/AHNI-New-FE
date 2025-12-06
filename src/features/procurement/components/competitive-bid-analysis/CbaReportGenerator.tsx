@@ -4,7 +4,7 @@ import React from "react";
 import { Card } from "components/Card";
 import { Button } from "components/ui/button";
 import { Badge } from "components/ui/badge";
-import { Icon } from "@iconify/react";
+import { FileText } from 'lucide-react';import { Icon } from "@iconify/react";
 import { LoadingSpinner } from "components/Loading";
 import CbaAPI from "@/features/procurement/controllers/cbaController";
 import SignatureWorkflowAPI from "@/features/procurement/controllers/signatureWorkflowController";
@@ -55,11 +55,11 @@ const CbaReportGenerator: React.FC<CbaReportGeneratorProps> = ({ cbaId }) => {
           {generating ? "Generating..." : "Generate Report"}
         </Button>
         <Button variant="outline" onClick={handlePrintReport}>
-          <Icon icon="heroicons:printer" className="mr-2" />
+          <FileText size={16} />
           Print
         </Button>
         <Button variant="outline" onClick={handleExportPDF}>
-          <Icon icon="heroicons:document-arrow-down" className="mr-2" />
+          <FileDown size={16} />
           Export PDF
         </Button>
       </div>

@@ -2,6 +2,7 @@ import useApiManager from "@/constants/mainController";
 import { useQuery } from "@tanstack/react-query";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { AxiosError } from "axios";
+import { getCurrentUser } from "@/utils/auth";
 
 const BASE_URL = "hr/leave-balance/";
 
@@ -63,15 +64,30 @@ export const useGetAllLeaveBalances = ({
 };
 
 // Get leave balance by employee
-export const useGetEmployeeLeaveBalance = (employeeId: string, enabled: boolean = true) => {
+export const useGetEmployeeLeaveBalance = (employeeId?: string, enabled: boolean = true) => {
+  // SECURITY FIX: Get current user context
+  const currentUser = getCurrentUser();
+  const currentEmployeeId = currentUser?.employee?.id || currentUser?.id;
+
+  // SECURITY FIX: If no employee ID provided, use current user's ID
+  // If employee ID is provided, it should match current user (unless admin/HR)
+  const effectiveEmployeeId = employeeId || currentEmployeeId;
+
+  // Security warning if accessing other employee's data
+  if (employeeId && employeeId !== currentEmployeeId) {
+    console.warn("Attempting to access another employee's leave balance. Ensure proper authorization.");
+  }
+
   return useQuery<ApiResponse<LeaveBalance[]>>({
-    queryKey: ["employee-leave-balance", employeeId],
+    queryKey: ["employee-leave-balance", effectiveEmployeeId],
     queryFn: async () => {
       try {
-        // Try both employee_id and employee as query params (backend may use either)
+        console.log("Fetching leave balance for employee:", effectiveEmployeeId);
+
+        // SECURITY FIX: Always use effectiveEmployeeId to ensure access control
         const response = await AxiosWithToken.get(`${BASE_URL}`, {
           params: {
-            employee: employeeId,
+            employee: effectiveEmployeeId,
           }
         });
         return response.data;
@@ -81,14 +97,14 @@ export const useGetEmployeeLeaveBalance = (employeeId: string, enabled: boolean 
         throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
       }
     },
-    enabled: enabled && !!employeeId,
+    enabled: enabled && !!effectiveEmployeeId, // Only enable if we have a valid employee ID
     refetchOnWindowFocus: false,
   });
 };
 
 // Create/Assign Leave Balance
 export const useAssignLeaveBalance = () => {
-  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+  const { isLoading, isSuccess, error, data } = useApiManager<
     LeaveBalance,
     Error,
     {

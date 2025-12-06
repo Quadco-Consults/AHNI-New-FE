@@ -114,7 +114,8 @@ export interface IConsultancyStaffPaginatedData {
     date?: string; // Alternative date field
     interview_scores?: {
         relevant_experience?: number;
-        project_management?: number;
+        similar_work_experience?: number;
+        project_management_knowledge?: number;
         recent_experience?: number;
         comparable_projects?: number;
         communication_skills?: number;
@@ -314,7 +315,8 @@ export interface IConsultancyStaffSingleData {
     // Legacy single-interviewer fields (for backward compatibility)
     interview_scores?: {
         relevant_experience?: number;
-        project_management?: number;
+        similar_work_experience?: number;
+        project_management_knowledge?: number;
         recent_experience?: number;
         comparable_projects?: number;
         communication_skills?: number;
@@ -348,6 +350,16 @@ export interface IConsultancyStaffSingleData {
     completed_evaluations?: number;
     schedule_id?: string;
     schedule?: ConsultancyInterviewSchedule;
+    status: string;
+    type: string;
+    offer_accepted: boolean;
+    offer_acceptance_date: string | null;
+    acceptance_country?: string;
+    acceptance_city?: string;
+    acceptance_date?: string;
+    acceptance_confirmed_name?: string;
+    acceptance_ip_address?: string;
+    acceptance_timestamp?: string;
     created_by: string;
     updated_by: null;
 }

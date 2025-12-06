@@ -9,10 +9,8 @@ import PencilIcon from "components/icons/PencilIcon";
 import ConfirmationDialog from "components/ConfirmationDialog";
 import Link from "next/link";
 import { CG_ROUTES } from "constants/RouterConstants";
-import { IConsultancyReportPaginatedData } from "definations/c&g/contract-management/consultancy-report";
-import { useDeleteConsultancyReport } from "@/features/contracts-grants/controllers/consultancyReportController";
+import { useDeleteConsultancyApplicant } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
 import EyeIcon from "components/icons/EyeIcon";
-import { IAdhocStaffPaginatedData } from "@/features/programs/types/adhoc-staff";
 
 export const consultantDatabaseColumns: ColumnDef<any>[] =
   [
@@ -134,19 +132,24 @@ export const consultantDatabaseColumns: ColumnDef<any>[] =
 const TableMenu = (consultant: any) => {
   const [isDialogOpen, setDialogOpen] = useState(false);
 
-  const { deleteConsultancyReport, isLoading } =
-    useDeleteConsultancyReport();
+  const { deleteConsultancyApplicant, isLoading } =
+    useDeleteConsultancyApplicant(consultant.id);
 
   const handleDelete = async () => {
     try {
-      await deleteConsultancyReport(consultant.id)();
+      await deleteConsultancyApplicant();
       toast.success("Consultant Deleted");
     } catch (error: any) {
-      toast.error(error.data.message ?? "Something went wrong");
+      toast.error(error?.data?.message ?? "Something went wrong");
     }
   };
 
-  const consultantId = consultant.id;
+  // Get consultancy_id from the consultant data
+  // The field is 'consultants' and it's an array with the consultancy ID
+  const consultancyId = Array.isArray(consultant.consultants) && consultant.consultants.length > 0
+    ? consultant.consultants[0]
+    : null;
+  const applicantId = consultant.id;
 
   return (
     <div className='flex items-center gap-2'>
@@ -158,24 +161,45 @@ const TableMenu = (consultant: any) => {
             </Button>
           </PopoverTrigger>
           <PopoverContent className='w-fit'>
-            <Link href={`/dashboard/c-and-g/consultancy-database/${consultantId}/view`}>
+            <Link
+              href={CG_ROUTES.CONSULTANCY_DATABASE_VIEW.replace(':id', applicantId)}
+            >
               <Button
                 className='w-full flex items-center justify-start gap-2'
                 variant='ghost'
               >
                 <EyeIcon />
-                View Details
+                View Consultant Details
               </Button>
             </Link>
-            <Link href={`/dashboard/c-and-g/consultancy-database/${consultantId}/edit`}>
-              <Button
-                className='w-full flex items-center justify-start gap-2'
-                variant='ghost'
-              >
-                <PencilIcon />
-                Edit
-              </Button>
-            </Link>
+            {consultancyId && (
+              <>
+                <Link
+                  href={CG_ROUTES.CONSULTANCY_APPLICANT_DETAILS
+                    .replace(':id', consultancyId)
+                    .replace(':applicantId', applicantId)}
+                >
+                  <Button
+                    className='w-full flex items-center justify-start gap-2'
+                    variant='ghost'
+                  >
+                    <EyeIcon />
+                    View Application
+                  </Button>
+                </Link>
+                <Link
+                  href={CG_ROUTES.CREATE_CONSULTANCY_APPLICANT.replace(':id', consultancyId) + `?edit=${applicantId}`}
+                >
+                  <Button
+                    className='w-full flex items-center justify-start gap-2'
+                    variant='ghost'
+                  >
+                    <PencilIcon />
+                    Edit
+                  </Button>
+                </Link>
+              </>
+            )}
             <Button
               className='w-full flex items-center justify-start gap-2'
               variant='ghost'

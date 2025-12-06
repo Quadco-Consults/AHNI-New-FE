@@ -31,7 +31,7 @@ export default function ConsumableDetails() {
                 <div className='grid grid-cols-3 gap-8 mt-6'>
                   <div className='space-y-2'>
                     <h4 className='text-base font-semibold '>Quantity</h4>
-                    <p className='text-[#4D4545] text-sm'>
+                    <p className='text-gray-dark text-body-base'>
                       {consumable?.data.quantity || "N/A"}
                     </p>
                   </div>
@@ -40,7 +40,7 @@ export default function ConsumableDetails() {
                     <h4 className='text-base font-semibold '>
                       Stock Control Method
                     </h4>
-                    <p className='text-[#4D4545] text-sm'>
+                    <p className='text-gray-dark text-body-base'>
                       {typeof consumable?.data.stock_control_method === 'object' && consumable?.data.stock_control_method !== null
                         ? consumable.data.stock_control_method.name || "N/A"
                         : consumable?.data.stock_control_method || "N/A"}
@@ -49,14 +49,14 @@ export default function ConsumableDetails() {
 
                   <div className='space-y-2'>
                     <h4 className='text-base font-semibold '>Category</h4>
-                    <p className='text-[#4D4545] text-sm'>
+                    <p className='text-gray-dark text-body-base'>
                       {consumable?.data?.category?.name || "N/A"}
                     </p>
                   </div>
 
                   <div className='space-y-2'>
                     <h4 className='text-base font-semibold '>Expiry Date</h4>
-                    <p className='text-[#4D4545] text-sm'>
+                    <p className='text-gray-dark text-body-base'>
                       {consumable?.data.expiry_date || "N/A"}
                     </p>
                   </div>
@@ -65,35 +65,35 @@ export default function ConsumableDetails() {
                     <h4 className='text-base font-semibold '>
                       Previous Quantity
                     </h4>
-                    <p className='text-[#4D4545] text-sm'>
+                    <p className='text-gray-dark text-body-base'>
                       {consumable?.data.previous_quantity || "0"}
                     </p>
                   </div>
 
                   <div className='space-y-2'>
                     <h4 className='text-base font-semibold '>Re-order Level</h4>
-                    <p className='text-[#4D4545] text-sm'>
+                    <p className='text-gray-dark text-body-base'>
                       {consumable?.data.re_order_level || "N/A"}
                     </p>
                   </div>
 
                   <div className='space-y-2'>
                     <h4 className='text-base font-semibold '>Buffer Stock</h4>
-                    <p className='text-[#4D4545] text-sm'>
+                    <p className='text-gray-dark text-body-base'>
                       {consumable?.data.buffer_stock || "N/A"}
                     </p>
                   </div>
 
                   <div className='space-y-2'>
                     <h4 className='text-base font-semibold '>Max Stock</h4>
-                    <p className='text-[#4D4545] text-sm'>
+                    <p className='text-gray-dark text-body-base'>
                       {consumable?.data.max_stock || "N/A"}
                     </p>
                   </div>
 
                   <div className='space-y-2'>
                     <h4 className='text-base font-semibold '>Entry Date</h4>
-                    <p className='text-[#4D4545] text-sm'>
+                    <p className='text-gray-dark text-body-base'>
                       {consumable?.data.entry_date || "N/A"}
                     </p>
                   </div>
@@ -102,14 +102,14 @@ export default function ConsumableDetails() {
                     <h4 className='text-base font-semibold '>
                       Available Quantity
                     </h4>
-                    <p className='text-[#4D4545] text-sm'>
+                    <p className='text-gray-dark text-body-base'>
                       {consumable?.data.available_quantity || "N/A"}
                     </p>
                   </div> */}
 
                   <div className='space-y-2'>
                     <h4 className='text-base font-semibold '>Cost of Item</h4>
-                    <p className='text-[#4D4545] text-sm'>
+                    <p className='text-gray-dark text-body-base'>
                       {`${consumable?.data.item_cost || "N/A"}`}
                     </p>
                   </div>
@@ -118,14 +118,14 @@ export default function ConsumableDetails() {
                     <h4 className='text-base font-semibold '>
                       GRN Tracking Number
                     </h4>
-                    <p className='text-[#4D4545] text-sm'>
+                    <p className='text-gray-dark text-body-base'>
                       {consumable?.data.grn_tracking_number || "N/A"}
                     </p>
                   </div>
 
                   <div className='space-y-2'>
                     <h4 className='text-base font-semibold '>Vendor</h4>
-                    <p className='text-[#4D4545] text-sm'>
+                    <p className='text-gray-dark text-body-base'>
                       {typeof consumable?.data.most_recent_vendor === 'object' && consumable?.data.most_recent_vendor !== null
                         ? consumable.data.most_recent_vendor.name || "N/A"
                         : consumable?.data.most_recent_vendor || "N/A"}

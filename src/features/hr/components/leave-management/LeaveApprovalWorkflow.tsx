@@ -17,8 +17,10 @@ import {
   AlertCircle
 } from "lucide-react";
 import { format } from "date-fns";
+import { toast } from "sonner";
 import { LeaveRequest, type LeaveApprovalWorkflow, LeaveApprovalStep } from "../../types/leave";
 import { leaveService } from "../../services/leaveService";
+import { useAppSelector } from '@/store/hooks';
 
 interface LeaveApprovalWorkflowProps {
   leaveRequest: LeaveRequest;
@@ -46,8 +48,9 @@ const LeaveApprovalWorkflow: React.FC<LeaveApprovalWorkflowProps> = ({
   const [loading, setLoading] = useState(!workflow);
   const [error, setError] = useState<string | null>(null);
   
-  // Get current user ID - replace with actual auth logic
-  const currentUserId = "usr-001"; // This should come from your auth context
+  // Get current user ID from authentication
+  const authState = useAppSelector(state => state.auth);
+  const currentUserId = authState.user?.id;
   
   // Load workflow data if not provided
   useEffect(() => {
@@ -141,7 +144,7 @@ const LeaveApprovalWorkflow: React.FC<LeaveApprovalWorkflowProps> = ({
       setApprovalComments("");
     } catch (error) {
       console.error('Error approving leave:', error);
-      alert(error instanceof Error ? error.message : 'Failed to approve leave request');
+      toast.error(error instanceof Error ? error.message : 'Failed to approve leave request');
     } finally {
       setIsSubmitting(false);
     }
@@ -149,7 +152,7 @@ const LeaveApprovalWorkflow: React.FC<LeaveApprovalWorkflowProps> = ({
 
   const handleReject = async () => {
     if (!rejectionReason.trim()) {
-      alert('Please provide a reason for rejection');
+      toast.error('Please provide a reason for rejection');
       return;
     }
     
@@ -176,7 +179,7 @@ const LeaveApprovalWorkflow: React.FC<LeaveApprovalWorkflowProps> = ({
       setRejectionReason("");
     } catch (error) {
       console.error('Error rejecting leave:', error);
-      alert(error instanceof Error ? error.message : 'Failed to reject leave request');
+      toast.error(error instanceof Error ? error.message : 'Failed to reject leave request');
     } finally {
       setIsSubmitting(false);
     }

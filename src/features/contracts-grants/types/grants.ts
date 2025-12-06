@@ -121,3 +121,51 @@ export interface IObligationPaginatedData {
 }
 
 export interface IObligationSingleData {}
+
+// Disbursement types
+export const DisbursementSchema = z.object({
+  amount: z.coerce.number().min(0.01, "Please enter a valid amount greater than 0"),
+  description: z.string().min(1, "Please enter description"),
+  disbursement_date: z.string().min(1, "Please select disbursement date"),
+  disbursement_method: z.string().min(1, "Please select disbursement method").optional(),
+  reference_number: z.string().optional(),
+  project: z.string().min(1, "Project ID is required"),
+  grant: z.string().optional(),
+  obligation: z.string().optional(), // Link to obligation if applicable
+});
+
+export type TDisbursementFormData = z.infer<typeof DisbursementSchema>;
+
+export interface IDisbursementPaginatedData {
+  id: string;
+  created_datetime: string;
+  updated_datetime: string;
+  description: string;
+  amount: string;
+  disbursement_date: string;
+  disbursement_method?: string;
+  reference_number?: string;
+  created_by: null;
+  updated_by: null;
+  grant: string;
+  project: string;
+  obligation?: string;
+  obligation_details?: {
+    id: string;
+    description: string;
+    amount: string;
+    date: string;
+  };
+  project_financial_summary?: {
+    project_award_amount: number;
+    total_obligations: number;
+    total_disbursements: number;
+    remaining_to_obligate: number;
+    remaining_to_disburse: number;
+    over_disbursed: boolean;
+    over_disbursed_amount?: number;
+  };
+  remaining_obligation_amount?: number;
+}
+
+export interface IDisbursementSingleData {}

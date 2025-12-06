@@ -131,6 +131,60 @@ interface IApproval {
     is_executed: boolean;
 }
 
+// Reconciliation document interface
+export interface IReconciliationDocument {
+    id: string;
+    reconciliation_id: string;
+    document_type: "INVOICE" | "RECEIPT" | "BANK_STATEMENT" | "OTHER";
+    document_name: string;
+    document_url: string;
+    file_size: number;
+    uploaded_by: string;
+    uploaded_datetime: string;
+    description?: string;
+}
+
+// Reconciliation interface
+export interface ITravelReconciliation {
+    id: string;
+    travel_expense_id: string;
+    site_visit_id?: string;
+    budgeted_accommodation: number;
+    budgeted_meals: number;
+    budgeted_transport: number;
+    budgeted_per_diem: number;
+    budgeted_total: number;
+    actual_total: number;
+    difference: number;
+    reconciliation_type: "REIMBURSEMENT" | "RETIREMENT";
+    reconciliation_amount: number;
+    reconciliation_status: "PENDING" | "PROCESSED" | "COMPLETED";
+    reconciliation_date?: string;
+    notes?: string;
+    processed_by?: string;
+    processed_datetime?: string;
+    // Document tracking
+    supporting_documents?: IReconciliationDocument[];
+    reimbursement_invoice?: IReconciliationDocument;
+    retirement_receipt?: IReconciliationDocument;
+    requires_invoice: boolean;
+    requires_receipt: boolean;
+}
+
+// Reconciliation processing with documents
+export const ReconciliationProcessingSchema = z.object({
+    action: z.enum(["approve", "request_reimbursement", "request_retirement"]),
+    notes: z.string().optional(),
+    // Document uploads
+    reimbursement_invoice: z.any().optional(), // For reimbursements - invoice for payment
+    retirement_receipt: z.any().optional(), // For retirements - receipt of fund return
+    supporting_documents: z.array(z.any()).optional(), // Additional supporting documents
+    document_descriptions: z.array(z.string()).optional(), // Descriptions for each document
+});
+
+export type TReconciliationProcessingData = z.infer<typeof ReconciliationProcessingSchema>;
+
+// Enhanced TER data with reconciliation
 export interface ITravelExpenseSingleData {
     id: string;
     user?: {
@@ -158,4 +212,27 @@ export interface ITravelExpenseSingleData {
     updated_by: string | null;
     approved_by: string | null;
     rejected_by: string | null;
+    // Reconciliation data
+    reconciliation?: ITravelReconciliation;
+    // Site visit reference for budget comparison
+    site_visit_id?: string;
+    expense_authorization?: {
+        id: string;
+        ta_number: string;
+        budgeted_accommodation: number;
+        budgeted_meals: number;
+        budgeted_transport: number;
+        budgeted_per_diem: number;
+        budgeted_total: number;
+    };
 }
+
+// Employee TER submission schema
+export const EmployeeTERSchema = z.object({
+    site_visit_id: z.string().min(1, "Site visit is required"),
+    travel_purpose: z.string().min(1, "Travel purpose is required"),
+    activities: z.array(ActivitySchema).min(1, "At least one activity is required"),
+    document: z.any().optional(),
+});
+
+export type TEmployeeTERFormData = z.infer<typeof EmployeeTERSchema>;

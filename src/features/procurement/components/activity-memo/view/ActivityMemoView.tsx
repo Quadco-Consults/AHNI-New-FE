@@ -3,6 +3,7 @@
 import { useParams, useRouter } from "next/navigation";
 import Card from "components/Card";
 import { Button } from "components/ui/button";
+import { Edit, Download, AlertCircle, Loader2 } from 'lucide-react';
 import { Icon } from "@iconify/react";
 import { useGetActivityMemo } from "@/features/procurement/controllers/activityMemoController";
 import { format } from "date-fns";
@@ -34,7 +35,7 @@ const ActivityMemoView = () => {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <Icon icon="line-md:loading-loop" fontSize={48} className="mx-auto mb-4" />
+          <Loader2 size={16} />
           <p className="text-gray-600">Loading activity memo...</p>
         </div>
       </div>
@@ -46,7 +47,7 @@ const ActivityMemoView = () => {
       <div className="flex items-center justify-center min-h-screen">
         <Card className="max-w-md">
           <div className="p-6 text-center">
-            <Icon icon="mdi:alert-circle" fontSize={48} className="mx-auto mb-4 text-red-600" />
+            <AlertCircle size={16} />
             <h3 className="text-lg font-semibold mb-2">Error Loading Activity Memo</h3>
             <p className="text-gray-600 mb-4">{error.message}</p>
             <Button onClick={() => router.back()}>Go Back</Button>
@@ -61,7 +62,7 @@ const ActivityMemoView = () => {
       <div className="flex items-center justify-center min-h-screen">
         <Card className="max-w-md">
           <div className="p-6 text-center">
-            <Icon icon="mdi:file-document-alert-outline" fontSize={48} className="mx-auto mb-4 text-gray-400" />
+            <FileText size={16} />
             <h3 className="text-lg font-semibold mb-2">Activity Memo Not Found</h3>
             <p className="text-gray-600 mb-4">The requested activity memo could not be found.</p>
             <Button onClick={() => router.back()}>Go Back</Button>
@@ -88,7 +89,7 @@ const ActivityMemoView = () => {
           onClick={handleDownloadPDF}
           className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
         >
-          <Icon icon="solar:download-bold" fontSize={20} />
+          <Download size={16} />
           Download PDF
         </Button>
       </div>
@@ -178,7 +179,7 @@ const ActivityMemoView = () => {
               onClick={() => router.push(`/dashboard/procurement/activity-memo/${memoId}/edit`)}
               variant="outline"
             >
-              <Icon icon="solar:pen-bold-duotone" fontSize={18} className="mr-2" />
+              <Edit size={16} />
               Edit
             </Button>
           </div>
@@ -207,7 +208,7 @@ const ActivityMemoView = () => {
                   <span className="font-bold w-20 text-base">To:</span>
                   <div className="flex-1">
                     <div className="text-base">
-                      {memoData?.approved_by_details?.name || memoData?.approved_by || 'Approver'} (MD, AHNi)
+                      {memoData?.approved_by_details?.name || memoData?.approved_by || 'Approver'} (MD, AHNI)
                       <span className="ml-20 text-sm text-gray-600">
                         {memoData.requested_date ? format(new Date(memoData.requested_date), "PP") : new Date().toLocaleDateString()}
                       </span>
@@ -228,7 +229,7 @@ const ActivityMemoView = () => {
                     {memoData?.reviewed_by_details && memoData.reviewed_by_details.length > 0 ? (
                       memoData.reviewed_by_details.map((user: any, index: number) => (
                         <div key={index} className="text-base">
-                          {user.name || `${user.first_name} ${user.last_name}`} ({user.designation || 'Staff'}, AHNi)
+                          {user.name || `${user.first_name} ${user.last_name}`} ({user.designation || 'Staff'}, AHNI)
                           <span className="ml-8 text-sm text-gray-600">
                             {memoData.requested_date ? format(new Date(memoData.requested_date), "PP") : new Date().toLocaleDateString()}
                           </span>

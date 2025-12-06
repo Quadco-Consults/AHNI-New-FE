@@ -1,18 +1,6 @@
-"use client";
+export const dynamic = 'force-dynamic';
 
-import { Loading } from "@/components/Loading";
-import dynamic from "next/dynamic";
-
-const VerifyOTP = dynamic(
-  () =>
-    import("features/auth/components").then((mod) => ({
-      default: mod.VerifyOTP,
-    })),
-  {
-    ssr: false,
-    loading: () => <Loading />,
-  }
-);
+import VerifyOTP from "@/features/auth/components/VerifyOTP";
 
 export default function VerifyOTPPage() {
   return <VerifyOTP />;

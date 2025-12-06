@@ -31,15 +31,15 @@ const PdfContent = ({
     setNumPages(numPages);
   }
   return (
-    <div className='border space-y-4 rounded-2xl p-5 w-full overflow-hidden h-fit'>
-      <div className='flex items-center justify-between gap-2'>
-        <div className='flex items-center gap-2'>
+    <div className='border space-y-lg rounded-2xl p-xl w-full overflow-hidden h-fit'>
+      <div className='flex items-center justify-between gap-sm'>
+        <div className='flex items-center gap-sm'>
           <PdfIcon />
           <h2 className='line-clamp-1'>{pdf?.name}</h2>
         </div>
       </div>
       {pdf?.document?.endsWith("pdf") ? (
-        <div className='bg-[#0000001A] py-2 w-full h-56 rounded-2xl flex items-center justify-center overflow-hidden'>
+        <div className='bg-gray-overlay py-sm w-full h-56 rounded-2xl flex items-center justify-center overflow-hidden'>
           <Dialog>
             <DialogTrigger>
               <Document
@@ -52,7 +52,7 @@ const PdfContent = ({
             <DialogContent className='min-w-[60%]'>
               <DialogHeader>
                 <DialogTitle>{pdf.name}</DialogTitle>
-                <div className='flex pt-5 justify-center'>
+                <div className='flex pt-xl justify-center'>
                   <Document
                     file={pdf?.document ?? "https://pdfobject.com/pdf/sample.pdf"}
                     onLoadSuccess={onDocumentLoadSuccess}

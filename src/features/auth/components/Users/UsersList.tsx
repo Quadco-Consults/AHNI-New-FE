@@ -53,14 +53,14 @@ export default function UserTablePage() {
               </TabsTrigger>
               <TabsTrigger
                 className='rounded-none data-[state=active]:bg-transparent data-[state=active]:text-[#FF0000] data-[state=active]:border-b data-[state=active]:border-[#FF0000]'
-                value='AHNi'
+                value='AHNI'
                 onClick={() => {
                   setPage(1);
                   setSearchQuery("");
                   setTabParams("AHNI_STAFF");
                 }}
               >
-                AHNi users
+                AHNI users
               </TabsTrigger>
 
               <TabsTrigger
@@ -136,7 +136,7 @@ export default function UserTablePage() {
                 />
               </TableFilters>
             </TabsContent>
-            <TabsContent className='w-full py-10' value='AHNi'>
+            <TabsContent className='w-full py-10' value='AHNI'>
               <TableFilters
                 onSearchChange={(e) => setSearchQuery(e.target.value)}
               >

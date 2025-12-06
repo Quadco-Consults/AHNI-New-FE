@@ -11,6 +11,7 @@ import { Card } from "components/ui/card";
 import { Input } from "components/ui/input";
 import { Textarea } from "components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
+import FormSelect from "components/atoms/FormSelectField";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "components/ui/form";
 import GoBack from "components/GoBack";
 import { toast } from "sonner";
@@ -99,6 +100,14 @@ const WorkflowForm = () => {
 
     return mappedEmployees;
   }, [employeesData]);
+
+  // Create employee options for FormSelect with search
+  const employeeOptions = React.useMemo(() => {
+    return employees.map((employee) => ({
+      label: `${employee.employeeNumber} - ${employee.fullName} (${employee.department})`,
+      value: employee.id,
+    }));
+  }, [employees]);
 
   const form = useForm<FormData>({
     resolver: zodResolver(workflowSchema),
@@ -342,8 +351,13 @@ const WorkflowForm = () => {
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Approver *</FormLabel>
-                              <Select
-                                value={field.value}
+                              <FormSelect
+                                name={`approvers.${index}.approverId`}
+                                placeholder="Select an approver"
+                                options={employeeOptions}
+                                searchPlaceholder="Search employees by name, number, or department..."
+                                emptyMessage="No employees found matching your search."
+                                forceSearch={true} // Always enable search for 1000+ employees
                                 onValueChange={(value) => {
                                   field.onChange(value);
                                   // Also set the userId when employee is selected
@@ -352,26 +366,7 @@ const WorkflowForm = () => {
                                     form.setValue(`approvers.${index}.userId`, selectedEmployee.userId);
                                   }
                                 }}
-                              >
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Select an approver" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent className="max-h-[200px] overflow-y-auto">
-                                  {employees.length === 0 ? (
-                                    <div className="p-4 text-center text-sm text-gray-500">
-                                      No employees found
-                                    </div>
-                                  ) : (
-                                    employees.map((employee) => (
-                                      <SelectItem key={employee.id} value={employee.id}>
-                                        {employee.employeeNumber} - {employee.fullName} ({employee.department})
-                                      </SelectItem>
-                                    ))
-                                  )}
-                                </SelectContent>
-                              </Select>
+                              />
                               <FormMessage />
                             </FormItem>
                           )}

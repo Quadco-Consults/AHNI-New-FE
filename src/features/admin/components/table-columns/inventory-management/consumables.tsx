@@ -26,11 +26,23 @@ export const consumableColums: ColumnDef<TConsumablePaginatedData>[] = [
     accessorKey: `name`,
   },
   {
-    header: "Quantity",
-    id: "quantity",
-    accessorKey: "quantity",
+    header: "Total Quantity",
+    id: "total_quantity",
+    accessorKey: "total_quantity",
     cell: ({ row }) => {
-      return row.original.quantity || "N/A";
+      const totalQuantity = row.original.total_quantity || row.original.quantity || 0;
+      const storesCount = row.original.stores_count || 0;
+
+      if (storesCount === 0) {
+        return <span className="text-gray-400">Not distributed</span>;
+      }
+
+      return (
+        <div className="text-sm">
+          <div className="font-medium">{totalQuantity}</div>
+          <div className="text-xs text-gray-500">across {storesCount} store{storesCount !== 1 ? 's' : ''}</div>
+        </div>
+      );
     },
   },
   {
@@ -60,6 +72,44 @@ export const consumableColums: ColumnDef<TConsumablePaginatedData>[] = [
     accessorKey: "max_stock",
     cell: ({ row }) => {
       return row.original.max_stock || "N/A";
+    },
+  },
+  {
+    header: "Stores",
+    accessorKey: "store_stocks",
+    size: 200,
+    cell: ({ row }) => {
+      const storeStocks = row.original.store_stocks || [];
+
+      // Display stores where this consumable is available
+      if (storeStocks.length > 0) {
+        // Show first store name and count if multiple
+        const firstStore = storeStocks[0].store_detail?.name || "Unknown Store";
+        const totalStores = storeStocks.length;
+        const totalQuantity = storeStocks.reduce((sum: number, stock: any) => sum + (stock.available_quantity || 0), 0);
+
+        if (totalStores === 1) {
+          return (
+            <div className="text-sm">
+              <div className="font-medium">{firstStore}</div>
+              <div className="text-xs text-gray-500">Qty: {totalQuantity}</div>
+            </div>
+          );
+        } else {
+          return (
+            <div className="text-sm">
+              <div className="font-medium">{firstStore}</div>
+              <div className="text-xs text-gray-500">+{totalStores - 1} more stores</div>
+            </div>
+          );
+        }
+      }
+
+      return (
+        <span className="text-sm text-gray-400">
+          Not assigned to any store
+        </span>
+      );
     },
   },
   {

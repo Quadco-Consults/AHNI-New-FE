@@ -9,11 +9,23 @@ import { useAppDispatch } from "hooks/useStore";
 import { useState } from "react";
 import { Shield, Users, Key, Info } from "lucide-react";
 import { Card, CardContent } from "components/ui/card";
+import { usePermissions } from "@/hooks/usePermissions";
+import { useGetUserProfile } from "@/features/auth/controllers/userController";
+import { isUserAdmin } from "@/utils/positionRolePermissions";
 
 const Authorization = () => {
   const [tab, setTab] = useState("role");
+  const { data: userProfile, isLoading: isProfileLoading, error: profileError } = useGetUserProfile();
+  const { isAdmin } = usePermissions();
 
   const dispatch = useAppDispatch();
+
+  // Extract user data from API response - the response should be TResponse<IUser>
+  // So user data should be at userProfile?.data
+  let user = userProfile?.data;
+
+  // Enhanced admin check for role management access
+  const canManageRoles = user ? (isUserAdmin(user) || user.is_superuser === true || isAdmin) : false;
 
   return (
     <div className="space-y-6">
@@ -32,25 +44,40 @@ const Authorization = () => {
         </div>
 
         {tab === "role" && (
-          <Button
-            size="lg"
-            className="gap-2"
-            onClick={() =>
-              dispatch(
-                openDialog({
-                  type: DialogType.AddNewRoleModal,
-                  dialogProps: {
-                    header: "Add New Role",
-                    width: "max-w-md",
-                    height: "max-h-[700px]",
-                  },
-                })
-              )
-            }
-          >
-            <AddSquareIcon />
-            Add New Role
-          </Button>
+          <div className="flex flex-col items-end gap-2">
+            {!canManageRoles && (
+              <span className="text-xs text-red-500">
+                Role management requires admin permissions
+              </span>
+            )}
+            <Button
+              size="lg"
+              className="gap-2"
+              disabled={!canManageRoles}
+              onClick={() => {
+                if (!canManageRoles) {
+                  return;
+                }
+
+                try {
+                  const action = openDialog({
+                    type: DialogType.AddNewRoleModal,
+                    dialogProps: {
+                      header: "Add New Role",
+                      width: "max-w-md",
+                      height: "max-h-[700px]",
+                    },
+                  });
+                  dispatch(action);
+                } catch (error) {
+                  console.error('Error opening add role dialog:', error);
+                }
+              }}
+            >
+              <AddSquareIcon />
+              Add New Role
+            </Button>
+          </div>
         )}
       </div>
 
@@ -98,6 +125,7 @@ const Authorization = () => {
           </CardContent>
         </Card>
       </div>
+
 
       {/* Tabs Section */}
       <Tabs

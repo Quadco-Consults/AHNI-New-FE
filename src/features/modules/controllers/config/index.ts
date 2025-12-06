@@ -4,6 +4,7 @@ export * from './departmentController';
 export * from './financialYearController';
 export * from './itemController';
 export * from './locationController';
+export * from './stateController';
 export * from './positionController';
 export * from './assetClassificationController';
 export * from './gradeController';

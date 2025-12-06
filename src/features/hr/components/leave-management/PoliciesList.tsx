@@ -85,11 +85,22 @@ const PoliciesList = () => {
     },
     {
       header: "Leave Type",
-      cell: ({ row }) => (
-        <Badge variant="outline">
-          {row.original.leave_type?.name || 'N/A'}
-        </Badge>
-      ),
+      cell: ({ row }) => {
+        const leaveType = row.original.leave_type;
+        const leaveTypeName = leaveType
+          ? (typeof leaveType.name === 'string'
+              ? leaveType.name
+              : typeof leaveType.name === 'object' && leaveType.name?.name
+              ? leaveType.name.name
+              : leaveType.leave_type_name || 'Unknown Leave Type')
+          : 'N/A';
+
+        return (
+          <Badge variant="outline">
+            {leaveTypeName}
+          </Badge>
+        );
+      },
     },
     {
       header: "Notice Required",

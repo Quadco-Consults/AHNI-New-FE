@@ -191,3 +191,31 @@ export function filterUsersWithAnyApprovalPermission(users: IUser[]): IUser[] {
     return false;
   });
 }
+
+/**
+ * RECOMMENDED APPROACH: Use Backend API Endpoints
+ *
+ * Instead of using the client-side filtering functions above, consider using
+ * the dedicated backend endpoints which provide more efficient filtering:
+ *
+ * import {
+ *   useGetReviewers,
+ *   useGetAuthorizers,
+ *   useGetApprovers
+ * } from "@/features/auth/controllers/userController";
+ *
+ * These hooks call the following backend endpoints:
+ * - GET /api/users/reviewers/    - Users with review permissions only
+ * - GET /api/users/authorizers/  - Users with authorize permissions only
+ * - GET /api/users/approvers/    - Users with approve permissions only
+ *
+ * Benefits:
+ * - More efficient (server-side filtering)
+ * - Always up-to-date permissions
+ * - Reduced data transfer
+ * - Better performance for large user lists
+ *
+ * Example usage:
+ * const { data: reviewersData } = useGetReviewers();
+ * const reviewers = reviewersData?.data?.results || [];
+ */

@@ -488,10 +488,18 @@ export const useGetJournalEntryStats = () => {
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
+
+        // Check for 404 - endpoint not implemented
+        if (axiosError.response?.status === 404) {
+          console.warn("Journal entry stats endpoint not found (404) - feature may not be implemented yet");
+          throw new Error("Journal entry statistics feature is currently being implemented. Please check back later.");
+        }
+
         throw new Error("Failed to fetch journal entry statistics: " + (axiosError.response?.data as any)?.message);
       }
     },
     refetchOnWindowFocus: false,
+    retry: false, // Don't retry on error to prevent infinite loading
   });
 };
 

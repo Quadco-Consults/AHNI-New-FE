@@ -1,6 +1,8 @@
 import useApiManager from "@/constants/mainController";
 import { ILoginData, TLoginFormValues } from "../types/auth";
-import { setAccessToken, setRefreshToken, setCurrentUser } from "@/utils/auth";
+import { setAccessToken, setCurrentUser } from "@/utils/auth";
+import { useAppDispatch } from "@/store/hooks";
+import { setAuth } from "@/store/auth/authSlice";
 
 // Additional types for authenticated password change
 interface AuthChangePasswordRequest {
@@ -13,6 +15,8 @@ interface AuthChangePasswordRequest {
 
 // Login
 export const useLogin = () => {
+  const dispatch = useAppDispatch();
+
   const { callApi, isLoading, isSuccess, error, data } = useApiManager<
     ILoginData,
     Error,
@@ -27,19 +31,67 @@ export const useLogin = () => {
   const login = async (details: TLoginFormValues) => {
     try {
       const response = await callApi(details);
-      // Store token and user data using utilities
+
+      // Store in localStorage (for backward compatibility)
       if (response.data?.access_token) {
         setAccessToken(response.data.access_token);
 
-        // Store refresh token if available
-        if (response.data?.refresh_token) {
-          setRefreshToken(response.data.refresh_token);
-        }
-
         if (response.data?.user) {
-          setCurrentUser(response.data.user);
+          // Store complete user object with merged permissions and roles
+          const completeUserData = {
+            ...response.data.user,
+            // Ensure we have the employee structure for department-based features
+            employee: response.data.user?.employee || {
+              department: response.data.user?.department || null,
+              position: response.data.user?.position || null,
+              location: response.data.user?.location || null
+            },
+            // Include permissions and roles from both sources
+            permissions: response.data.permissions || response.data.user?.permissions || [],
+            roles: response.data.roles || response.data.user?.roles || []
+          };
+
+          console.log('💾 STORING USER DATA:', {
+            userId: completeUserData.id,
+            permissionsCount: completeUserData.permissions?.length || 0,
+            rolesCount: completeUserData.roles?.length || 0,
+            department: completeUserData.employee?.department?.name || completeUserData.department?.name || 'none'
+          });
+
+          setCurrentUser(completeUserData);
         }
       }
+
+      // IMPORTANT: Dispatch to Redux store
+      if (response.data) {
+        console.log('🚀 RAW LOGIN RESPONSE:', JSON.stringify(response.data, null, 2));
+        console.log('🔍 PERMISSIONS CHECK:', {
+          hasPermissions: !!response.data.permissions,
+          permissionsType: typeof response.data.permissions,
+          permissionsLength: response.data.permissions?.length || 0,
+          userPermissions: response.data.user?.permissions || 'none',
+          fullUser: response.data.user
+        });
+
+        dispatch(setAuth({
+          access_token: response.data.access_token,
+          refresh_token: response.data.refresh_token,
+          isAuthenticated: true,
+          loading: false,
+          user: {
+            ...response.data.user,
+            // Ensure we have the employee structure for department-based features
+            employee: response.data.user?.employee || {
+              department: response.data.user?.department || null,
+              position: response.data.user?.position || null,
+              location: response.data.user?.location || null
+            }
+          },
+          permissions: response.data.permissions || response.data.user?.permissions || [], // Try multiple locations
+          roles: response.data.roles || response.data.user?.roles || []
+        }));
+      }
+
       return response;
     } catch (error) {
       console.error("Login error:", error);

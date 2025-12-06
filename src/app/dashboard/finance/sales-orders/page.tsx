@@ -310,6 +310,7 @@ export default function SalesOrdersPage() {
   // Column definitions
   const columns = [
     {
+      id: "order_number",
       accessorKey: "order_number",
       header: "Order #",
       cell: ({ row }: any) => (
@@ -317,6 +318,7 @@ export default function SalesOrdersPage() {
       ),
     },
     {
+      id: "customer_name",
       accessorKey: "customer_name",
       header: "Customer",
       cell: ({ row }: any) => (
@@ -324,6 +326,7 @@ export default function SalesOrdersPage() {
       ),
     },
     {
+      id: "order_date",
       accessorKey: "order_date",
       header: "Order Date",
       cell: ({ row }: any) => (
@@ -333,6 +336,7 @@ export default function SalesOrdersPage() {
       ),
     },
     {
+      id: "delivery_date",
       accessorKey: "delivery_date",
       header: "Delivery Date",
       cell: ({ row }: any) => {
@@ -346,6 +350,7 @@ export default function SalesOrdersPage() {
       },
     },
     {
+      id: "total_amount",
       accessorKey: "total_amount",
       header: "Total Amount",
       cell: ({ row }: any) => (
@@ -355,6 +360,7 @@ export default function SalesOrdersPage() {
       ),
     },
     {
+      id: "status",
       accessorKey: "status",
       header: "Status",
       cell: ({ row }: any) => {
@@ -564,15 +570,12 @@ export default function SalesOrdersPage() {
         <DataTable
           columns={columns}
           data={salesOrders}
-          pageCount={Math.ceil(totalOrders / (filters.page_size || 10))}
-          pageIndex={(filters.page || 1) - 1}
-          pageSize={filters.page_size || 10}
-          onPaginationChange={(pagination) => {
-            setFilters(prev => ({
-              ...prev,
-              page: pagination.pageIndex + 1,
-              page_size: pagination.pageSize,
-            }));
+          pagination={{
+            total: totalOrders,
+            pageSize: filters.page_size || 10,
+            onChange: (page) => {
+              setFilters(prev => ({ ...prev, page }));
+            }
           }}
         />
       </Card>

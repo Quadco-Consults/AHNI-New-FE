@@ -5,6 +5,7 @@ import NotificationGroup from "./NotificationGroup";
 import { NotificationItemSkeleton } from "./NotificationSkeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
 import { Button } from "components/ui/button";
+import { AlertCircle } from 'lucide-react';
 import { Icon } from "@iconify/react";
 import { Badge } from "components/ui/badge";
 import useInfiniteScroll from "@/hooks/useInfiniteScroll";
@@ -110,7 +111,7 @@ export default function NotificationListInfinite({
     return (
       <div className="w-[35%] border-solid border-[1px] border-red-200 rounded-sm shadow-md p-4">
         <div className="text-center py-8">
-          <Icon icon="mdi:alert-circle" className="w-12 h-12 mx-auto mb-2 text-red-500" />
+          <AlertCircle size={16} />
           <h3 className="font-medium text-red-700 mb-2">Failed to load notifications</h3>
           <p className="text-sm text-red-600 mb-4">{error.message}</p>
           <Button 
@@ -169,7 +170,7 @@ export default function NotificationListInfinite({
           </div>
         ) : allNotifications.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
-            <Icon icon="mdi:notification-clear-all" className="w-12 h-12 mx-auto mb-2" />
+            <Bell size={16} />
             <p>No notifications found</p>
           </div>
         ) : (
@@ -219,7 +220,7 @@ export default function NotificationListInfinite({
             {/* End of list indicator */}
             {!hasNextPage && !isFetchingNextPage && allNotifications.length > 0 && (
               <div className="text-center py-4 text-gray-500 text-sm border-t border-gray-100 mt-4">
-                <Icon icon="mdi:check-all" className="w-5 h-5 mx-auto mb-1" />
+                <CheckCircle2 size={16} />
                 You've reached the end of your notifications
               </div>
             )}
@@ -233,7 +234,7 @@ export default function NotificationListInfinite({
                   onClick={() => fetchNextPage()}
                   disabled={isFetchingNextPage}
                 >
-                  <Icon icon="mdi:chevron-down" className="w-4 h-4 mr-1" />
+                  <ChevronDown size={16} />
                   Load More
                 </Button>
               </div>

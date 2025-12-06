@@ -137,7 +137,7 @@ const Attestation = () => {
                 <div className='border text-sm text-[#B3B7C1] px-2 py-6 rounded-xl bg-[#F9F9F9]'>
                   I hereby attest that, to the best of my knowledge and belief,
                   all information provided in this form are true and correct. I
-                  understand that AHNi may request additional information either
+                  understand that AHNI may request additional information either
                   from me or those listed herein to substantiate all the
                   statement, attachment(s) and/or listings made in this form and
                   shall use such to determine the company’s eligibility. We

@@ -12,7 +12,7 @@ import { HrRoutes, RouteEnum } from "constants/RouterConstants";
 import SearchBar from "components/atoms/SearchBar";
 import { Checkbox } from "components/ui/checkbox";
 import IconButton from "components/IconButton";
-import { Icon } from "@iconify/react";
+import { FileText } from 'lucide-react';import { Icon } from "@iconify/react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -127,7 +127,7 @@ const BreakDown: React.FC<BreakDownPropsWithPayroll> = ({ employees = [], payrol
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-              <Icon icon="ph:dots-three-vertical-bold" className="h-4 w-4" />
+              <MoreVertical size={16} />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
@@ -135,14 +135,14 @@ const BreakDown: React.FC<BreakDownPropsWithPayroll> = ({ employees = [], payrol
               onClick={() => handleViewBreakdown(row.original)}
               className="cursor-pointer"
             >
-              <Icon icon="ph:eye-duotone" className="mr-2 h-4 w-4" />
+              <Eye size={16} />
               View Breakdown
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => handleGeneratePayslip(row.original)}
               className="cursor-pointer"
             >
-              <Icon icon="ph:file-text-duotone" className="mr-2 h-4 w-4" />
+              <FileText size={16} />
               Generate Payslip
             </DropdownMenuItem>
           </DropdownMenuContent>

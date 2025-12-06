@@ -5,6 +5,7 @@ import React, { useState } from "react";
 import GrantDetailsCard from "./_components/GrantDetailsCard";
 import ExpenditureHistory from "./_components/ExpenditureHistory";
 import ModificationHistory from "./_components/ModificationHistory";
+import DisbursementHistory from "./_components/DisbursementHistory";
 import AddSquareIcon from "components/icons/AddSquareIcon";
 import { Button } from "components/ui/button";
 import { openDialog } from "store/ui";
@@ -25,8 +26,8 @@ const GrantDetails: React.FC = () => {
   const grantId =
     typeof id === "string" ? id : Array.isArray(id) ? id[0] : undefined;
 
-  const { data: projectData, isLoading } = useGetSingleProject(id ?? skipToken);
-  const { data: grantData } = useGetSingleGrant(grantId ?? skipToken);
+  const { data: projectData, isLoading: projectLoading, error: projectError } = useGetSingleProject(grantId ?? skipToken);
+  const { data: grantData, error: grantError } = useGetSingleGrant(grantId ?? skipToken);
 
   // Merge project and grant data, prioritizing grant data for grant-specific fields
   const data = grantData ? {
@@ -37,7 +38,25 @@ const GrantDetails: React.FC = () => {
     }
   } : projectData;
 
+  const isLoading = projectLoading;
+
   const dispatch = useAppDispatch();
+
+  // Show error state if both APIs fail
+  if (projectError && grantError) {
+    return (
+      <section className="space-y-5">
+        <BackNavigation />
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <h3 className="text-red-800 font-medium">Error Loading Grant Details</h3>
+          <p className="text-red-600 text-sm mt-1">
+            Unable to load grant information. Please check if the grant ID is correct.
+          </p>
+          <p className="text-red-600 text-sm">Grant ID: {grantId}</p>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="space-y-5">
@@ -46,7 +65,8 @@ const GrantDetails: React.FC = () => {
 
         {(tabValue === "expenditure" ||
           tabValue === "obligation" ||
-          tabValue === "modifications") &&
+          tabValue === "modifications" ||
+          tabValue === "disbursements") &&
           grantId && (
             <Button
               className="flex gap-2 py-6"
@@ -59,6 +79,8 @@ const GrantDetails: React.FC = () => {
                         ? DialogType.ExpenditureModal
                         : tabValue === "obligation"
                         ? DialogType.ADD_OBLIGATION_MODAL
+                        : tabValue === "disbursements"
+                        ? DialogType.ADD_DISBURSEMENT_MODAL
                         : DialogType.MODIFY_GRANT,
                     dialogProps: {
                       header:
@@ -66,9 +88,12 @@ const GrantDetails: React.FC = () => {
                           ? "Add Expenditure"
                           : tabValue === "obligation"
                           ? "Add Obligation"
+                          : tabValue === "disbursements"
+                          ? "Add Disbursement"
                           : "Add Modification",
                       width: "max-w-lg",
                       grantId: grantId,
+                      projectId: data?.data?.project_id,
                       data: { id: grantId, title: data?.data?.title },
                     },
                   })
@@ -80,6 +105,8 @@ const GrantDetails: React.FC = () => {
                 ? "Add Expenditure"
                 : tabValue === "obligation"
                 ? "Add Obligation"
+                : tabValue === "disbursements"
+                ? "Add Disbursement"
                 : "Add Modification"}
             </Button>
           )}
@@ -101,23 +128,29 @@ const GrantDetails: React.FC = () => {
 
             <TabsTrigger value="obligation">Obligations</TabsTrigger>
 
+            <TabsTrigger value="disbursements">Disbursements</TabsTrigger>
+
             <TabsTrigger value="modifications">Modifications</TabsTrigger>
           </TabsList>
 
           <TabsContent value="details">
-            {data && <GrantDetailsCard {...data?.data} />}
+            {data && <GrantDetailsCard {...data?.data as any} />}
           </TabsContent>
 
           <TabsContent value="expenditure">
-            {data && <ExpenditureHistory {...data?.data} />}
+            {data && <ExpenditureHistory {...data?.data as any} />}
           </TabsContent>
 
           <TabsContent value="obligation">
-            {data && <ObligationHistory {...data?.data} />}
+            {data && <ObligationHistory {...data?.data as any} />}
+          </TabsContent>
+
+          <TabsContent value="disbursements">
+            {data && <DisbursementHistory {...data?.data as any} />}
           </TabsContent>
 
           <TabsContent value="modifications">
-            <ModificationHistory />
+            <ModificationHistory modifications={(data?.data as any)?.modifications || []} />
           </TabsContent>
         </Tabs>
       )}

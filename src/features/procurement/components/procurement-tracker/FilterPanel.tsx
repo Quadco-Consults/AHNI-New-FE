@@ -4,6 +4,7 @@ import { Input } from "components/ui/input";
 import { Button } from "components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
 import { Checkbox } from "components/ui/checkbox";
+import { useEffect, useState } from "react";
 
 interface FilterPanelProps {
   filters: {
@@ -20,10 +21,29 @@ interface FilterPanelProps {
 }
 
 const FilterPanel = ({ filters, onFilterChange }: FilterPanelProps) => {
+  // Local state for search input to enable debouncing
+  const [searchInput, setSearchInput] = useState(filters.search);
+
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (searchInput !== filters.search) {
+        updateFilter('search', searchInput);
+      }
+    }, 500); // 500ms delay
+
+    return () => clearTimeout(timer);
+  }, [searchInput]);
+
+  // Update local search state when filters.search changes externally (e.g., clear filters)
+  useEffect(() => {
+    setSearchInput(filters.search);
+  }, [filters.search]);
+
   const updateFilter = (key: string, value: string | number) => {
     // Convert "all" back to empty string for API calls
     const apiValue = value === "all" ? "" : value;
-    
+
     onFilterChange({
       ...filters,
       [key]: apiValue,
@@ -91,8 +111,8 @@ const FilterPanel = ({ filters, onFilterChange }: FilterPanelProps) => {
           <label className='text-sm font-medium text-gray-700'>Search</label>
           <Input
             placeholder="PR reference or item name..."
-            value={filters.search}
-            onChange={(e) => updateFilter('search', e.target.value)}
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
             className="w-full"
           />
         </div>
@@ -206,13 +226,13 @@ const FilterPanel = ({ filters, onFilterChange }: FilterPanelProps) => {
       </div>
 
       {/* Active Filters Display */}
-      {(filters.search || filters.status || filters.item_type || filters.year || filters.service_status || filters.services_only === 'true') && (
+      {(searchInput || filters.status || filters.item_type || filters.year || filters.service_status || filters.services_only === 'true') && (
         <div className='mt-4 p-3 bg-blue-50 rounded-lg'>
           <p className='text-sm font-medium text-blue-800 mb-2'>Active Filters:</p>
           <div className='flex flex-wrap gap-2'>
-            {filters.search && (
+            {searchInput && (
               <span className='px-2 py-1 bg-blue-200 text-blue-800 rounded text-xs'>
-                Search: {filters.search}
+                Search: {searchInput}
               </span>
             )}
             {filters.status && (

@@ -4,6 +4,14 @@ import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { ItemData, ItemFormValues } from "../../types/config";
 import { FilterParams, TPaginatedResponse, TResponse, ApiResponse } from "../../types";
 
+// Extended filter params to support category name filtering
+interface ExtendedFilterParams extends FilterParams {
+  category__name?: string;
+  expand?: string;
+  enabled?: boolean;
+  _timestamp?: number; // For cache busting
+}
+
 // GET Operations (Queries)
 export const useGetAllItemsManager = ({
   page = 1,
@@ -12,20 +20,31 @@ export const useGetAllItemsManager = ({
   enabled = true,
   category,
   category__job_category,
+  category__name,
   expand,
-}: FilterParams & { enabled?: boolean; expand?: string } = {}) => {
+  _timestamp,
+}: ExtendedFilterParams = {}) => {
   return useQuery<ApiResponse<TPaginatedResponse<ItemData>>>({
-    queryKey: ["items", page, size, search, category, category__job_category, expand],
+    queryKey: ["items", page, size, search, category, category__job_category, category__name, expand, _timestamp],
     queryFn: async () => {
+      const params = {
+        page,
+        size,
+        search,
+        category,
+        category__job_category,
+        ...(category__name && { category__name }),
+        ...(expand && { expand }),
+      };
+
+      console.log("🔍 ITEMS API PARAMS DEBUG:", {
+        originalParams: { page, size, search, category, category__job_category, category__name, expand },
+        finalParams: params,
+        hasCategoryName: !!category__name,
+      });
+
       const response = await AxiosWithToken.get("config/items/", {
-        params: {
-          page,
-          size,
-          search,
-          category,
-          category__job_category,
-          ...(expand && { expand }),
-        },
+        params,
       });
       return response.data;
     },

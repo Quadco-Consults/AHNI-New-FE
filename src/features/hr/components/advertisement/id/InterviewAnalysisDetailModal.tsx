@@ -48,41 +48,70 @@ const InterviewAnalysisDetailModal = ({
   const interviewDetails = interviewData?.data;
   const scores = scoresData?.data || [];
 
+  // Debug logging for modal data
+  console.log("🔍 Modal Debug - Interview Details:", interviewDetails);
+  console.log("🔍 Modal Debug - Scores Data:", scores);
+  console.log("🔍 Modal Debug - Interview Prop:", interview);
+
   // Calculate average scores from all interviewers
   const calculateAverageScores = () => {
-    if (!scores || scores.length === 0) return null;
+    // Handle multi-scorer interviews
+    if (scores && scores.length > 0) {
+      const categories = [
+        { key: "appearance_rating", label: "Appearance/Corporate Poise" },
+        { key: "communication_rating", label: "Oral Communication" },
+        { key: "teamwork_rating", label: "Supervisory/Teamwork" },
+        { key: "ethics_rating", label: "Work Ethics" },
+        { key: "analytical_rating", label: "Analytical Thinking" },
+        { key: "knowledge_rating", label: "Knowledge of Issues" },
+        { key: "experience_rating", label: "Quality/Relevance of Experience" },
+      ];
 
-    const categories = [
-      { key: "appearance_rating", label: "Appearance/Corporate Poise" },
-      { key: "communication_rating", label: "Oral Communication" },
-      { key: "teamwork_rating", label: "Supervisory/Teamwork" },
-      { key: "ethics_rating", label: "Work Ethics" },
-      { key: "analytical_rating", label: "Analytical Thinking" },
-      { key: "knowledge_rating", label: "Knowledge of Issues" },
-      { key: "experience_rating", label: "Quality/Relevance of Experience" },
-    ];
+      const averages = categories.map((category) => {
+        const sum = scores.reduce(
+          (acc: number, score: any) => acc + (score[category.key] || 0),
+          0
+        );
+        const avg = sum / scores.length;
+        return {
+          label: category.label,
+          average: avg,
+          key: category.key,
+        };
+      });
 
-    const averages = categories.map((category) => {
-      const sum = scores.reduce(
-        (acc: number, score: any) => acc + (score[category.key] || 0),
-        0
-      );
-      const avg = sum / scores.length;
+      const totalAverage = averages.reduce((acc, item) => acc + item.average, 0);
+      const percentageScore = ((totalAverage / 35) * 100).toFixed(1);
+
       return {
-        label: category.label,
-        average: avg,
-        key: category.key,
+        categories: averages,
+        totalAverage: totalAverage.toFixed(2),
+        percentageScore,
       };
-    });
+    }
 
-    const totalAverage = averages.reduce((acc, item) => acc + item.average, 0);
-    const percentageScore = ((totalAverage / 35) * 100).toFixed(1);
+    // Handle legacy single-scorer interviews - use data from interview object or passed props
+    const interviewScore = interviewDetails || interview;
+    if (interviewScore && ((interviewScore as any).average_score || (interviewScore as any).percentage_score)) {
+      const scoreData = interviewScore as any;
+      const categories = [
+        { key: "appearance_rating", label: "Appearance/Corporate Poise", value: scoreData.appearance_rating || 0 },
+        { key: "communication_rating", label: "Oral Communication", value: scoreData.communication_rating || 0 },
+        { key: "teamwork_rating", label: "Supervisory/Teamwork", value: scoreData.teamwork_rating || 0 },
+        { key: "ethics_rating", label: "Work Ethics", value: scoreData.ethics_rating || 0 },
+        { key: "analytical_rating", label: "Analytical Thinking", value: scoreData.analytical_rating || 0 },
+        { key: "knowledge_rating", label: "Knowledge of Issues", value: scoreData.knowledge_rating || 0 },
+        { key: "experience_rating", label: "Quality/Relevance of Experience", value: scoreData.experience_rating || 0 },
+      ];
 
-    return {
-      categories: averages,
-      totalAverage: totalAverage.toFixed(2),
-      percentageScore,
-    };
+      return {
+        categories: categories.map(cat => ({ label: cat.label, average: cat.value, key: cat.key })),
+        totalAverage: scoreData.average_score || "0.00",
+        percentageScore: scoreData.percentage_score || "0.0",
+      };
+    }
+
+    return null;
   };
 
   const averageScores = calculateAverageScores();
@@ -132,9 +161,9 @@ const InterviewAnalysisDetailModal = ({
                 <div>
                   <p className="text-sm text-gray-600">Interview Date</p>
                   <p className="font-medium">
-                    {interview.date_of_interview || interviewDetails?.date_of_interview
+                    {(interview as any).date_of_interview || interviewDetails?.date_of_interview
                       ? formatDate(
-                          new Date(interview.date_of_interview || interviewDetails?.date_of_interview),
+                          new Date((interview as any).date_of_interview || interviewDetails?.date_of_interview || new Date()),
                           "dd MMM, yyyy"
                         )
                       : "N/A"}
@@ -220,13 +249,13 @@ const InterviewAnalysisDetailModal = ({
               <h3 className="text-lg font-semibold mb-4">
                 Interviewer Comments & Evaluations
               </h3>
-              {scores.length === 0 ? (
+              {scores.length === 0 && !averageScores ? (
                 <Card>
                   <p className="text-center text-gray-500 py-8">
                     No interview scores available yet
                   </p>
                 </Card>
-              ) : (
+              ) : scores.length > 0 ? (
                 <div className="space-y-6">
                   {scores.map((score: any, index: number) => (
                     <Card key={score.id} className="bg-white border-2">
@@ -311,6 +340,49 @@ const InterviewAnalysisDetailModal = ({
                     </Card>
                   ))}
                 </div>
+              ) : (
+                // Legacy single-scorer interview
+                <Card className="bg-white border-2">
+                  <div className="flex items-center justify-between mb-4 pb-4 border-b">
+                    <div>
+                      <h4 className="text-lg font-semibold">Single Interviewer Evaluation</h4>
+                      <p className="text-sm text-gray-600">Legacy interview format</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm text-gray-600">Score</p>
+                      <p className="text-3xl font-bold text-blue-600">
+                        {averageScores?.percentageScore || 0}%
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Score breakdown for legacy interview */}
+                  <div className="space-y-4">
+                    {averageScores?.categories.map((category, index) => (
+                      <CommentSection
+                        key={index}
+                        label={category.label}
+                        rating={category.average}
+                        comment={
+                          (interviewDetails as any || interview as any)?.[category.key + '_comments'] ||
+                          "No comments available"
+                        }
+                      />
+                    ))}
+                  </div>
+
+                  <Separator className="my-6" />
+
+                  {/* Overall recommendation for legacy */}
+                  <div className="space-y-3 bg-blue-50 p-4 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <p className="font-semibold text-lg">Overall Recommendation:</p>
+                    </div>
+                    <p className="text-sm text-gray-800 bg-white p-4 rounded border">
+                      {(interviewDetails as any || interview as any)?.recommendation || "No recommendation provided"}
+                    </p>
+                  </div>
+                </Card>
               )}
             </div>
           </div>

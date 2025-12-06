@@ -2,7 +2,7 @@
 
 import Card from "components/Card";
 import { Button } from "components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, Edit, Trash2, CheckCircle, AlertCircle } from 'lucide-react';
 import { Badge } from "components/ui/badge";
 import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "components/Table/DataTable";
@@ -15,6 +15,7 @@ import { format } from "date-fns";
 import { ActivityMemoApprovalAPI } from "@/features/procurement/controllers/activityMemoApprovalController";
 import { useGetUserProfile } from "@/features/auth/controllers/userController";
 import { toast } from "sonner";
+import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 
 interface ActivityMemoListProps {
   status: 'pending' | 'approved';
@@ -86,6 +87,27 @@ const ActivityMemoList = ({ status }: ActivityMemoListProps) => {
       refetch();
     } catch (error: any) {
       toast.error(`Failed to review: ${error.message || 'Unknown error'}`);
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
+  // Handle delete
+  const handleDelete = async (memoId: string | undefined) => {
+    if (!memoId) return;
+
+    // Confirm deletion
+    if (!window.confirm("Are you sure you want to delete this activity memo? This action cannot be undone.")) {
+      return;
+    }
+
+    setProcessingId(memoId);
+    try {
+      await AxiosWithToken.delete(`procurements/purchase-request-memo/${memoId}/`);
+      toast.success("Activity memo deleted successfully!");
+      refetch();
+    } catch (error: any) {
+      toast.error(`Failed to delete: ${error.response?.data?.message || error.message || 'Unknown error'}`);
     } finally {
       setProcessingId(null);
     }
@@ -182,7 +204,7 @@ const ActivityMemoList = ({ status }: ActivityMemoListProps) => {
                 className="rounded-lg px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
                 title="Review this memo"
               >
-                <Icon icon="mdi:checkbox-marked-circle-outline" fontSize={14} />
+                <CheckCircle size={16} />
                 {isProcessing ? 'Processing...' : 'Review'}
               </button>
             )}
@@ -195,7 +217,7 @@ const ActivityMemoList = ({ status }: ActivityMemoListProps) => {
                 className="rounded-lg px-3 py-2 bg-green-500 hover:bg-green-600 text-white text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
                 title="Approve this memo"
               >
-                <Icon icon="mdi:check-circle" fontSize={14} />
+                <CheckCircle size={16} />
                 {isProcessing ? 'Processing...' : 'Approve'}
               </button>
             )}
@@ -207,7 +229,7 @@ const ActivityMemoList = ({ status }: ActivityMemoListProps) => {
               className="rounded-lg px-2 py-2 bg-[#F9F9F9] hover:text-primary dark:text-black dark:hover:text-primary"
               title="View details"
             >
-              <Icon icon="solar:eye-bold-duotone" fontSize={15} />
+              <Eye size={16} />
             </button>
             <button
               onClick={() =>
@@ -216,11 +238,16 @@ const ActivityMemoList = ({ status }: ActivityMemoListProps) => {
               className="rounded-lg px-2 py-2 bg-[#F9F9F9] hover:text-primary dark:text-black dark:hover:text-primary"
               title="Edit"
             >
-              <Icon icon="solar:pen-bold-duotone" fontSize={15} />
+              <Edit size={16} />
             </button>
-            <IconButton className="bg-[#F9F9F9] hover:text-primary">
-              <Icon icon="ant-design:delete-twotone" fontSize={15} />
-            </IconButton>
+            <button
+              onClick={() => handleDelete(memo.id)}
+              disabled={isProcessing}
+              className="rounded-lg px-2 py-2 bg-[#F9F9F9] hover:text-red-600 dark:text-black dark:hover:text-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
+              title="Delete"
+            >
+              <Trash2 size={16} />
+            </button>
           </div>
         );
       },
@@ -254,7 +281,7 @@ const ActivityMemoList = ({ status }: ActivityMemoListProps) => {
         <Card>
           <div className="p-6 text-center">
             <div className="text-red-600 mb-2">
-              <Icon icon="mdi:alert-circle" fontSize={48} className="mx-auto" />
+              <AlertCircle size={16} />
             </div>
             <h3 className="text-lg font-semibold text-gray-800 mb-2">Error Loading Activity Memos</h3>
             <p className="text-gray-600">{error.message || "Failed to load activity memos"}</p>
@@ -283,7 +310,7 @@ const ActivityMemoList = ({ status }: ActivityMemoListProps) => {
         <Card>
           <div className="p-12 text-center">
             <div className="text-gray-400 mb-4">
-              <Icon icon="mdi:file-document-outline" fontSize={64} className="mx-auto" />
+              <FileText size={16} />
             </div>
             <h3 className="text-lg font-semibold text-gray-800 mb-2">
               No Activity Memos Found

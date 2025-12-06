@@ -20,6 +20,11 @@ export const AgreementSchema = z.object({
     facilitator_id: z.string().optional().transform(val => val && val.trim() !== "" ? val : undefined),
     adhoc_staff_id: z.string().optional().transform(val => val && val.trim() !== "" ? val : undefined),
     vendor_id: z.string().optional().transform(val => val && val.trim() !== "" ? val : undefined),
+
+    // Approval workflow roles (optional)
+    reviewer_id: z.string().optional().transform(val => val && val.trim() !== "" ? val : undefined),
+    authorizer_id: z.string().optional().transform(val => val && val.trim() !== "" ? val : undefined),
+    approver_id: z.string().optional().transform(val => val && val.trim() !== "" ? val : undefined),
 }).superRefine((data, ctx) => {
     const { type } = data;
     const serviceAgreementTypes = ["SLA", "SECURITY", "INSURANCE", "LEASE", "HMO", "TICKETING"];

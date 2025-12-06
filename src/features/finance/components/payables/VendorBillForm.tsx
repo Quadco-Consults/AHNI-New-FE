@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Button } from "components/ui/button";
 import { Input } from "components/ui/input";
 import { Label } from "components/ui/label";
@@ -35,6 +35,7 @@ import {
   AlertCircle,
   CheckCircle
 } from "lucide-react";
+import { useGetAllPaymentRequests } from "@/features/admin/controllers/paymentRequestController";
 
 // Types
 type BillStatus =
@@ -72,6 +73,7 @@ interface BillLineItem {
 }
 
 interface VendorBillFormData {
+  payment_request_id: string;
   vendor_id: string;
   bill_number: string;
   bill_date: string;
@@ -185,7 +187,33 @@ export default function VendorBillForm({
   bill,
   onSuccess
 }: VendorBillFormProps) {
+  // Fetch payment requests
+  const { data: paymentRequestsData } = useGetAllPaymentRequests({
+    page: 1,
+    size: 1000,
+    search: "",
+    enabled: true,
+  });
+
+  // Get payment request options
+  const paymentRequestOptions = useMemo(
+    () =>
+      paymentRequestsData?.data?.results?.map((pr: any) => ({
+        id: pr.id,
+        label: `${pr.payment_reason || 'Payment Request'} - ${pr.payment_date}`,
+        payment_type: pr.payment_type,
+        payment_reason: pr.payment_reason,
+        payment_date: pr.payment_date,
+        payment_items: pr.payment_items,
+        total_amount: pr.payment_items?.reduce((sum: number, item: any) =>
+          sum + parseFloat(item.amount_in_figures || 0), 0
+        ) || 0,
+      })) || [],
+    [paymentRequestsData]
+  );
+
   const [formData, setFormData] = useState<VendorBillFormData>({
+    payment_request_id: "",
     vendor_id: "",
     bill_number: "",
     bill_date: new Date().toISOString().split('T')[0],
@@ -219,6 +247,7 @@ export default function VendorBillForm({
       if (bill) {
         // Edit mode - populate with existing bill data
         setFormData({
+          payment_request_id: "",
           vendor_id: bill.vendor_id,
           bill_number: bill.bill_number,
           bill_date: bill.bill_date,
@@ -244,6 +273,7 @@ export default function VendorBillForm({
       } else {
         // Create mode
         setFormData({
+          payment_request_id: "",
           vendor_id: "",
           bill_number: "",
           bill_date: new Date().toISOString().split('T')[0],
@@ -357,19 +387,34 @@ export default function VendorBillForm({
     return `${symbol}${amount.toLocaleString()}`;
   };
 
-  const handleVendorChange = (vendorId: string) => {
-    const vendor = ahniVendors.find(v => v.id === vendorId);
-    setFormData(prev => ({
-      ...prev,
-      vendor_id: vendorId,
-      payment_terms: vendor?.terms || "NET_30"
-    }));
+  const handlePaymentRequestChange = (paymentRequestId: string) => {
+    const paymentRequest = paymentRequestOptions.find(pr => pr.id === paymentRequestId);
+    if (paymentRequest) {
+      // Auto-populate form from payment request
+      const firstPaymentItem = paymentRequest.payment_items?.[0] || {};
+
+      setFormData(prev => ({
+        ...prev,
+        payment_request_id: paymentRequestId,
+        description: paymentRequest.payment_reason || "",
+        bill_date: paymentRequest.payment_date || prev.bill_date,
+        reference_number: `PR-${paymentRequestId}`,
+        line_items: paymentRequest.payment_items?.map((item: any, index: number) => ({
+          id: String(index + 1),
+          description: `${item.payment_to || ''} - ${paymentRequest.payment_type || ''}`,
+          quantity: 1,
+          unit_price: parseFloat(item.amount_in_figures || 0),
+          amount: parseFloat(item.amount_in_figures || 0),
+          account_code: ""
+        })) || prev.line_items,
+      }));
+    }
   };
 
   const handleSubmit = async () => {
     // Validation
-    if (!formData.vendor_id) {
-      toast.error("Please select a vendor");
+    if (!formData.payment_request_id) {
+      toast.error("Please select a payment request");
       return;
     }
     if (!formData.bill_number.trim()) {
@@ -399,11 +444,11 @@ export default function VendorBillForm({
 
     try {
       // Here you would call your API to create/update the vendor bill
-      const vendor = ahniVendors.find(v => v.id === formData.vendor_id);
+      const paymentRequest = paymentRequestOptions.find(pr => pr.id === formData.payment_request_id);
       const action = bill ? "updated" : "created";
 
       toast.success(
-        `Vendor bill "${formData.bill_number}" ${action} successfully for ${vendor?.name} - Total: ${formatCurrency(total, formData.currency)}`
+        `Vendor bill "${formData.bill_number}" ${action} successfully for Payment Request - Total: ${formatCurrency(total, formData.currency)}`
       );
 
       onOpenChange(false);
@@ -413,7 +458,7 @@ export default function VendorBillForm({
     }
   };
 
-  const selectedVendor = ahniVendors.find(v => v.id === formData.vendor_id);
+  const selectedPaymentRequest = paymentRequestOptions.find(pr => pr.id === formData.payment_request_id);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -443,28 +488,30 @@ export default function VendorBillForm({
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="vendor_id">Vendor *</Label>
+                  <Label htmlFor="payment_request_id">Payment Request *</Label>
                   <Select
-                    value={formData.vendor_id}
-                    onValueChange={handleVendorChange}
+                    value={formData.payment_request_id}
+                    onValueChange={handlePaymentRequestChange}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select a vendor" />
+                      <SelectValue placeholder="Select a payment request" />
                     </SelectTrigger>
                     <SelectContent>
-                      {ahniVendors.map((vendor) => (
-                        <SelectItem key={vendor.id} value={vendor.id}>
+                      {paymentRequestOptions.map((pr) => (
+                        <SelectItem key={pr.id} value={pr.id}>
                           <div>
-                            <div className="font-medium">{vendor.name}</div>
-                            <div className="text-xs text-gray-600">{vendor.category} • {vendor.terms}</div>
+                            <div className="font-medium">{pr.label}</div>
+                            <div className="text-xs text-gray-600">
+                              {pr.payment_type} • Total: ₦{pr.total_amount.toLocaleString()}
+                            </div>
                           </div>
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
-                  {selectedVendor && (
-                    <p className="text-xs text-gray-600 mt-1">
-                      Contact: {selectedVendor.contact}
+                  {formData.payment_request_id && (
+                    <p className="text-xs text-green-600 mt-1">
+                      ✓ Payment request details auto-populated
                     </p>
                   )}
                 </div>
@@ -750,7 +797,7 @@ export default function VendorBillForm({
           </Card>
 
           {/* Bill Summary */}
-          {formData.vendor_id && formData.bill_number && total > 0 && (
+          {formData.payment_request_id && formData.bill_number && total > 0 && (
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
@@ -761,8 +808,12 @@ export default function VendorBillForm({
               <CardContent>
                 <div className="space-y-2">
                   <div className="flex justify-between">
-                    <span>Vendor:</span>
-                    <span className="font-medium">{selectedVendor?.name}</span>
+                    <span>Payment Request:</span>
+                    <span className="font-medium">{selectedPaymentRequest?.label}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Type:</span>
+                    <Badge>{selectedPaymentRequest?.payment_type}</Badge>
                   </div>
                   <div className="flex justify-between">
                     <span>Bill Number:</span>
@@ -804,7 +855,7 @@ export default function VendorBillForm({
             )}
             <Button
               onClick={handleSubmit}
-              disabled={!formData.vendor_id || !formData.bill_number.trim() || total <= 0}
+              disabled={!formData.payment_request_id || !formData.bill_number.trim() || total <= 0}
             >
               {bill ? 'Update Bill' : 'Create Bill'}
             </Button>

@@ -11,7 +11,7 @@ import VendorRegistationLayout from "./VendorRegistationLayout";
 import { useForm } from "react-hook-form";
 import FormInput from "components/atoms/FormInput";
 import FormSelect from "components/atoms/FormSelectField";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Search } from 'lucide-react';
 import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation";
 import FormButton from "@/components/FormButton";
@@ -45,6 +45,7 @@ import { Badge } from "components/ui/badge";
 import useQuery from "hooks/useQuery";
 import VendorsAPI from "@/features/procurement/controllers/vendorsController";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 // import { skipToken } from "@reduxjs/toolkit/query";
 
 const Registration = () => {
@@ -52,16 +53,19 @@ const Registration = () => {
   const vendorId = query.get("id");
   const eoiId = query.get("eoi_id"); // Capture EOI ID from URL if vendor is registering from an EOI
 
-  // Use the hook correctly - only call if vendorId exists to avoid 401 on public pages
+  const queryClient = useQueryClient();
+
+  // Use the hook correctly
   const {
     data: vendor,
     isLoading,
     error,
     // @ts-ignore
-  } = VendorsAPI.useGetVendor(vendorId, { enabled: !!vendorId });
+  } = VendorsAPI.useGetVendor(vendorId);
 
-  // Add the create vendor mutation hook
+  // Add the create and update vendor mutation hooks
   const { createVendor: createVendorMutation, isLoading: isCreatingVendor } = VendorsAPI.useCreateVendor();
+  const { updateVendor: updateVendorMutation, isLoading: isUpdatingVendor } = VendorsAPI.useUpdateVendor(vendorId || "");
 
   const currentVendor = useSelector((state: RootState) => state.vendors.currentVendor);
 
@@ -189,11 +193,24 @@ const Registration = () => {
 
   const onSubmit = async (data: z.infer<typeof VendorsRegistrationSchema>) => {
     console.log("Registration form submitted with data:", data);
+    console.log("Vendor ID from query:", vendorId);
+    console.log("Is this an update?", !!vendorId);
 
     try {
+      // Transform approved_categories_details to just IDs if they exist
+      let approvedCategoriesForApi = vendor?.data?.approved_categories_details;
+
+      // If approved_categories_details is an array of objects with cat_id, extract just the IDs
+      if (Array.isArray(approvedCategoriesForApi) && approvedCategoriesForApi.length > 0) {
+        // Check if items have cat_id property (they're objects)
+        if (approvedCategoriesForApi[0]?.cat_id) {
+          approvedCategoriesForApi = approvedCategoriesForApi.map((cat: any) => cat.cat_id);
+          console.log("Transformed approved_categories from objects to IDs:", approvedCategoriesForApi);
+        }
+      }
+
       const vendorData = {
         ...data,
-        approved_categories: vendor?.data?.approved_categories_details, // Include approved_categories to trigger pending status
         ...(eoiId && { eoi: eoiId }), // Include EOI ID if vendor is registering from an EOI
       };
 
@@ -204,38 +221,89 @@ const Registration = () => {
       dispatch(vendorsActions.addVendors(vendorData));
 
       let targetVendorId = vendorId;
+      let isUpdate = !!vendorId;
 
-      // If this is a new vendor registration (no existing vendorId), create the vendor now
-      if (!vendorId) {
-        console.log("Creating new vendor with data:", vendorData);
+      // If this is updating an existing vendor, use update API
+      if (vendorId) {
+        console.log("Updating existing vendor with ID:", vendorId);
+
+        // For updates, don't include approved_categories
+        // The backend will handle approved_categories separately through the approval workflow
+        const updateData: any = { ...vendorData };
+
+        // Explicitly remove approved_categories if it exists (shouldn't be in form data, but being safe)
+        delete updateData.approved_categories;
+        // Also remove approved_categories_details if it somehow got included
+        delete updateData.approved_categories_details;
+
+        console.log("Update data:", updateData);
 
         try {
-          // Call the vendor creation API and get the response
-          const vendorResponse = await createVendorMutation(vendorData);
-          console.log("Vendor creation response:", vendorResponse);
+          // Call the vendor update API
+          const vendorResponse = await updateVendorMutation(updateData);
+          console.log("Vendor update response:", vendorResponse);
 
-          // Get the created vendor ID - check multiple possible response structures
-          targetVendorId = vendorResponse?.data?.id || vendorResponse?.id;
+          toast.success("Vendor updated successfully!");
 
-          if (!targetVendorId) {
-            console.error("Failed to create vendor - no ID returned from response:", vendorResponse);
-            toast.error("Failed to create vendor - no ID returned. Please try again.");
-            return;
+          // Invalidate all vendor-related queries to refresh the data
+          await queryClient.invalidateQueries({
+            queryKey: ["vendors"],
+            exact: false,
+            refetchType: "active",
+          });
+
+          // Clear saved form data after successful update
+          if (typeof window !== 'undefined') {
+            sessionStorage.removeItem('vendorRegistrationForm');
           }
 
-          // Store the vendor data with ID in Redux
-          dispatch(vendorsActions.updateCurrentVendor({
-            ...vendorData,
-            id: targetVendorId
-          }));
-
-          console.log("Vendor created successfully with ID:", targetVendorId);
-          toast.success("Vendor created successfully!");
-        } catch (createError) {
-          console.error("Error creating vendor:", createError);
-          toast.error(`Failed to create vendor: ${(createError as any).message || 'Unknown error'}`);
+          // Redirect back to supplier database
+          router.push('/dashboard/procurement/supplier-database');
+          return; // Exit early after update
+        } catch (updateError) {
+          console.error("Error updating vendor:", updateError);
+          toast.error(`Failed to update vendor: ${(updateError as any).message || 'Unknown error'}`);
           return;
         }
+      }
+
+      // If this is a new vendor registration (no existing vendorId), create the vendor now
+      console.log("Creating new vendor with data:", vendorData);
+
+      // For new vendors, include approved_categories if they exist (triggers pending status)
+      const createData = {
+        ...vendorData,
+        ...(approvedCategoriesForApi && { approved_categories: approvedCategoriesForApi }),
+      };
+
+      console.log("Create data with approved_categories:", createData);
+
+      try {
+        // Call the vendor creation API and get the response
+        const vendorResponse = await createVendorMutation(createData);
+        console.log("Vendor creation response:", vendorResponse);
+
+        // Get the created vendor ID - check multiple possible response structures
+        targetVendorId = vendorResponse?.data?.id || vendorResponse?.id;
+
+        if (!targetVendorId) {
+          console.error("Failed to create vendor - no ID returned from response:", vendorResponse);
+          toast.error("Failed to create vendor - no ID returned. Please try again.");
+          return;
+        }
+
+        // Store the vendor data with ID in Redux
+        dispatch(vendorsActions.updateCurrentVendor({
+          ...vendorData,
+          id: targetVendorId
+        }));
+
+        console.log("Vendor created successfully with ID:", targetVendorId);
+        toast.success("Vendor created successfully!");
+      } catch (createError) {
+        console.error("Error creating vendor:", createError);
+        toast.error(`Failed to create vendor: ${(createError as any).message || 'Unknown error'}`);
+        return;
       }
 
       let path = pathname;
@@ -252,7 +320,7 @@ const Registration = () => {
       }
 
       router.push(path);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error in vendor registration:", error);
       toast.error(`Registration failed: ${error.message || 'Unknown error'}`);
       // Don't navigate if there's an error - let the user fix the issue
@@ -550,8 +618,13 @@ const Registration = () => {
                 {/* <Button className="bg-primary">
                   Proceed <ChevronRight size={14} />{" "}
                 </Button> */}
-                <FormButton type='submit' suffix={<ChevronRight size={14} />}>
-                  Proceed
+                <FormButton
+                  type='submit'
+                  suffix={<ChevronRight size={14} />}
+                  loading={isCreatingVendor || isUpdatingVendor}
+                  disabled={isCreatingVendor || isUpdatingVendor}
+                >
+                  {vendorId ? 'Update' : 'Proceed'}
                 </FormButton>
               </div>
             </form>

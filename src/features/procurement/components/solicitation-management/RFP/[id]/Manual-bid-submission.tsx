@@ -2,7 +2,8 @@
 
 /* eslint-disable react/prop-types */
 
-import { useNavigate, useParams } from "react-router-dom"; 
+import { useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { SelectContent, SelectItem } from "components/ui/select";
 import { Form } from "components/ui/form";
 import { useFieldArray, useForm } from "react-hook-form";
@@ -11,33 +12,36 @@ import FormSelect from "components/atoms/FormSelectField";
 import { LoadingSpinner } from "components/Loading";
 import { VendorsResultsData } from "definations/procurement-types/vendors";
 import FormInput from "components/atoms/FormInput";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
-import { SolicitationSubmissionSchema } from "definations/procurement-validator";
+import { RFPSubmissionSchema } from "@/features/procurement/types/procurement-validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import FormButton from "@/components/FormButton";
-import { useCreateSolicitationSubmission } from "@/features/procurement/controllers/vendor-bid-submissionsController";
+import { useCreateSolicitationSubmission } from "@/features/procurement/controllers/vendorBidSubmissionsController";
 import { useGetSingleSolicitation } from "@/features/procurement/controllers/solicitationController";
-import { useGetAllSolicitationEvaluationCriteria } from "@/features/modules/controllers/procurement/solicitation-evaluation-criteriaController";
+import { useGetAllSolicitationEvaluationCriteria } from "@/features/modules/controllers";
 
 import GoBack from "components/GoBack";
+import { DollarSign } from 'lucide-react';import { Icon } from "@iconify/react";
 
 const ManualBidSubmission = () => {
-  const { id } = useParams();
-  const solicitationId = Array.isArray(id) ? id[0] : id;
+  const { id } = useParams<{ id: string }>();
   const router = useRouter();
 
+  const [technicalFiles, setTechnicalFiles] = useState<FileList | null>(null);
+  const [commercialFiles, setCommercialFiles] = useState<FileList | null>(null);
+
   const { data: vendors, isLoading: vendorsIsLoading } =
-    VendorsAPI.useGetVendorList({
-      params: { status: "Approved" },
+    VendorsAPI.useGetVendors({
+      status: "Approved",
     });
 
   const { createSolicitationSubmission, isLoading: isCreateLoading } =
-    useCreateSolicitationSubmission();
+    useCreateSolicitationSubmission(true); // true indicates file upload
 
   const { data: singleSolicitation } = useGetSingleSolicitation(
-    solicitationId as string
+    id as string
   );
 
   const { data: solicitationCriteria } =
@@ -46,75 +50,90 @@ const ManualBidSubmission = () => {
       size: 2000000,
     });
 
-  //   const [
-  //     createSolicitationBidMutation,
-  //     { isLoading: solicitationBidIsLoading },
-  //   ] = SolicitationAPI.useCreateSolicitationBid();
-
-  const form = useForm<z.infer<typeof SolicitationSubmissionSchema>>({
-    resolver: zodResolver(SolicitationSubmissionSchema),
+  const form = useForm<z.infer<typeof RFPSubmissionSchema>>({
+    resolver: zodResolver(RFPSubmissionSchema),
     defaultValues: {
       solicitation: id,
       vendor: "",
-      bid_items: [],
+      evaluations: [],
     },
   });
 
   const { control, handleSubmit, setValue, watch } = form;
-
-  const { fields } = useFieldArray({
-    control,
-    name: "bid_items",
-  });
 
   const { fields: responseField } = useFieldArray({
     control,
     name: "evaluations",
   });
 
-  // const data = [];
-  const data = useMemo(() => {
-    return singleSolicitation?.data?.solicitation_items?.map((data) => ({
-      solicitation_item: data?.id,
-      quantity: data?.quantity || 0,
-      name: data?.item_detail?.name,
-      unit_price: "",
-    }));
-  }, [singleSolicitation]);
-
-  const dataVal = useMemo(() => {
-    return solicitationCriteria?.data?.results?.map((data) => ({
+  const evaluationData = useMemo(() => {
+    return solicitationCriteria?.results?.map((data) => ({
       response: "",
       evaluation_criteria: data?.id,
     }));
   }, [solicitationCriteria]);
 
   useEffect(() => {
-    if (data) {
-      setValue("bid_items", data);
+    if (evaluationData) {
+      setValue("evaluations", evaluationData);
     }
-  }, [data, setValue, singleSolicitation]);
+  }, [evaluationData, setValue]);
 
-  useEffect(() => {
-    if (dataVal) {
-      setValue("evaluations", dataVal);
-    }
-  }, [dataVal, setValue]);
-
-  const itemsWatchData = watch("bid_items");
-
-  const onSubmit = async (
-    data: z.infer<typeof SolicitationSubmissionSchema>
-  ) => {
+  const onSubmit = async (data: z.infer<typeof RFPSubmissionSchema>) => {
     try {
-      // @ts-ignore
-      await createSolicitationSubmission(data)();
+      console.log("🚀 Submitting RFP proposal data:", data);
 
-      toast.success("Successfully created.");
+      // Validate that vendor is selected
+      if (!data.vendor) {
+        toast.error("Please select a vendor");
+        return;
+      }
+
+      // Validate document uploads
+      if (!technicalFiles || technicalFiles.length === 0) {
+        toast.error("Please upload technical documents");
+        return;
+      }
+
+      if (!commercialFiles || commercialFiles.length === 0) {
+        toast.error("Please upload commercial documents");
+        return;
+      }
+
+      // Create FormData for file upload
+      const formData = new FormData();
+      formData.append("solicitation", data.solicitation);
+      formData.append("vendor", data.vendor);
+
+      // Append technical documents
+      Array.from(technicalFiles).forEach((file, index) => {
+        formData.append(`technical_documents`, file);
+      });
+
+      // Append commercial documents
+      Array.from(commercialFiles).forEach((file, index) => {
+        formData.append(`commercial_documents`, file);
+      });
+
+      // Append evaluations if any
+      if (data.evaluations && data.evaluations.length > 0) {
+        formData.append("evaluations", JSON.stringify(data.evaluations));
+      }
+
+      console.log("📦 FormData prepared with files:", {
+        technicalFilesCount: technicalFiles.length,
+        commercialFilesCount: commercialFiles.length,
+        vendor: data.vendor,
+        solicitation: data.solicitation,
+      });
+
+      await createSolicitationSubmission(formData);
+
+      toast.success("RFP proposal submitted successfully!");
       router.back();
     } catch (error) {
-      toast.error("Something went wrong");
-      console.log(error);
+      console.error("Error submitting proposal:", error);
+      toast.error("Failed to submit proposal. Please try again.");
     }
   };
 
@@ -122,8 +141,15 @@ const ManualBidSubmission = () => {
     <div className='space-y-10'>
       <GoBack />
       <div>
-        <h4 className='text-lg font-bold'>Manual Bid Submission Form</h4>
-        <h6>{singleSolicitation?.data?.title}</h6>
+        <h4 className='text-lg font-bold text-blue-600'>Service Proposal Submission Form</h4>
+        <div className='space-y-2'>
+          <h6 className='text-gray-700 font-medium'>{singleSolicitation?.data?.title}</h6>
+          <div className='flex gap-4 text-sm text-gray-500'>
+            <span><strong>RFP ID:</strong> {singleSolicitation?.data?.rfq_id}</span>
+            <span><strong>Status:</strong> {singleSolicitation?.data?.status}</span>
+            <span><strong>Type:</strong> Service Request</span>
+          </div>
+        </div>
       </div>
 
       <Form {...form}>
@@ -140,118 +166,195 @@ const ManualBidSubmission = () => {
             </SelectContent>
           </FormSelect>
 
-          <div className='space-y-1'>
-            <h4 className='text-base font-bold'>Items Quotation</h4>
-            <h6>Please provide your quotation for the following Items</h6>
-          </div>
+          {/* Technical Proposal Section */}
+          <div className='space-y-6 border-t pt-6'>
+            <div className='space-y-2'>
+              <h4 className='text-lg font-bold text-blue-600 flex items-center gap-2'>
+                <Icon icon='carbon:document-tasks' />
+                Technical Proposal
+              </h4>
+              <p className='text-gray-600'>Please upload your technical proposal documents.</p>
+            </div>
 
-          <div>
-            <table className='w-full border mt-10'>
-              <thead>
-                <tr className='text-amber-500 whitespace-nowrap border-b-2 text-sm font-semibold'>
-                  <th className='px-2 py-5 w-[50px]'>S/N</th>
-                  <th className='px-2 py-5 w-[300px]'>Items Description</th>
-                  <th className='px-2 py-5 w-[150px]'>Qty</th>
-                  <th className='px-2 py-5 w-[150px]'> Unit price</th>
-                  <th className='px-2 py-5 w-[150px]'>Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                {fields.map((field, index) => {
-                  console.log({
-                    field,
-                    quantity: Number(itemsWatchData[index]?.quantity),
-                    unit: Number(itemsWatchData[index]?.unit_price),
-                    itemsWatchData,
-                  });
-
-                  return (
-                    <tr key={index} className='w-full'>
-                      <td className='w-[50px] p-2 text-center '>
-                        <span className='p-2 px-4 text-xs bg-black text-white rounded'>
-                          {index + 1}.
-                        </span>
-                      </td>
-                      <td className=' p-2 text-center w-[400px]'>
-                        <div className='space-y-2'>
-                          <h2 className='font-semibold'>
-                            {/* {singleSolicitation?.data.items[index]?.item?.name} */}
-                            {/* @ts-ignore */}
-                            {field?.name}
-                          </h2>
-                          {/* @ts-ignore */}
-                          <h6>{field?.description} </h6>
+            <div className='space-y-4'>
+              <div className='border-2 border-dashed border-blue-300 rounded-lg p-8 text-center bg-blue-50/30'>
+                <Icon icon='carbon:document-add' className='mx-auto text-4xl text-blue-400 mb-3' />
+                <p className='text-gray-600 mb-2 font-medium'>Upload Technical Proposal Documents</p>
+                <p className='text-sm text-gray-500 mb-3'>Accepted formats: PDF, DOC, DOCX (Max 10MB per file)</p>
+                <input
+                  type='file'
+                  id='technical-documents'
+                  className='hidden'
+                  accept='.pdf,.doc,.docx'
+                  multiple
+                  onChange={(e) => {
+                    const files = e.target.files;
+                    if (files && files.length > 0) {
+                      setTechnicalFiles(files);
+                      toast.success(`${files.length} technical document(s) selected`);
+                    }
+                  }}
+                />
+                <label
+                  htmlFor='technical-documents'
+                  className='mt-3 px-6 py-2.5 bg-blue-600 text-white rounded-md hover:bg-blue-700 cursor-pointer inline-block transition-colors'
+                >
+                  <Icon icon='carbon:upload' className='inline mr-2' />
+                  Choose Files
+                </label>
+                {technicalFiles && technicalFiles.length > 0 && (
+                  <div className='mt-4 space-y-2'>
+                    <p className='text-sm font-medium text-blue-700'>
+                      {technicalFiles.length} file(s) selected:
+                    </p>
+                    <div className='max-h-32 overflow-y-auto space-y-1'>
+                      {Array.from(technicalFiles).map((file, index) => (
+                        <div key={index} className='text-xs text-gray-600 bg-white px-3 py-1 rounded border border-blue-200'>
+                          <Icon icon='carbon:document' className='inline mr-1' />
+                          {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
                         </div>
-                      </td>
-                      <td className='w-[100px] flex items-center p-2 text-center mx-auto'>
-                        <FormInput
-                          label=''
-                          name={`bid_items.[${index}].quantity`}
-                          type='number'
-                          className='w-full'
-                        />
-                      </td>
-                      <td className='w-[100px] p-2 text-center mx-auto'>
-                        <FormInput
-                          label=''
-                          type='number'
-                          name={`bid_items.[${index}].unit_price`}
-                          className='w-full'
-                        />
-                      </td>
-
-                      <td className='w-[100px] p-2 text-center'>
-                        <h6>
-                          ₦
-                          {Number(
-                            Number(itemsWatchData[index]?.quantity) *
-                              Number(itemsWatchData[index]?.unit_price)
-                          ).toLocaleString()}
-                        </h6>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-            <div className=''>
-              {/* Calculate total */}
-              <div className='flex items-center justify-center w-fit gap-20 px-5 py-3 border rounded-lg border-primary text-primary ml-auto mt-6'>
-                <h4>Total:</h4>
-                <span>
-                  ₦
-                  {itemsWatchData
-                    .reduce((acc, item) => {
-                      const quantity = Number(item?.quantity) || 0;
-                      const unitPrice = Number(item?.unit_price) || 0;
-                      return acc + quantity * unitPrice;
-                    }, 0)
-                    .toLocaleString()}
-                </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
-          <div className='grid grid-cols-3 gap-5'>
-            {responseField.map((field, index) => {
-              return (
-                <tr key={index} className='w-full'>
-                  <FormInput
-                    label={solicitationCriteria?.data.results[index]?.name}
-                    name={`evaluations.[${index}].response`}
-                    className='w-full'
-                  />
-                </tr>
-              );
-            })}
+
+          {/* Commercial Proposal Section */}
+          <div className='space-y-6 border-t pt-6'>
+            <div className='space-y-2'>
+              <h4 className='text-lg font-bold text-green-600 flex items-center gap-2'>
+                <Icon icon='carbon:currency-dollar' />
+                Commercial Proposal
+              </h4>
+              <p className='text-gray-600'>Please upload your commercial proposal documents.</p>
+            </div>
+
+            <div className='space-y-4'>
+              <div className='border-2 border-dashed border-green-300 rounded-lg p-8 text-center bg-green-50/30'>
+                <Icon icon='carbon:document-add' className='mx-auto text-4xl text-green-400 mb-3' />
+                <p className='text-gray-600 mb-2 font-medium'>Upload Commercial Proposal Documents</p>
+                <p className='text-sm text-gray-500 mb-3'>Accepted formats: PDF, DOC, DOCX (Max 10MB per file)</p>
+                <input
+                  type='file'
+                  id='commercial-documents'
+                  className='hidden'
+                  accept='.pdf,.doc,.docx'
+                  multiple
+                  onChange={(e) => {
+                    const files = e.target.files;
+                    if (files && files.length > 0) {
+                      setCommercialFiles(files);
+                      toast.success(`${files.length} commercial document(s) selected`);
+                    }
+                  }}
+                />
+                <label
+                  htmlFor='commercial-documents'
+                  className='mt-3 px-6 py-2.5 bg-green-600 text-white rounded-md hover:bg-green-700 cursor-pointer inline-block transition-colors'
+                >
+                  <Icon icon='carbon:upload' className='inline mr-2' />
+                  Choose Files
+                </label>
+                {commercialFiles && commercialFiles.length > 0 && (
+                  <div className='mt-4 space-y-2'>
+                    <p className='text-sm font-medium text-green-700'>
+                      {commercialFiles.length} file(s) selected:
+                    </p>
+                    <div className='max-h-32 overflow-y-auto space-y-1'>
+                      {Array.from(commercialFiles).map((file, index) => (
+                        <div key={index} className='text-xs text-gray-600 bg-white px-3 py-1 rounded border border-green-200'>
+                          <Icon icon='carbon:document' className='inline mr-1' />
+                          {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+          {/* Evaluation Criteria Section */}
+          {solicitationCriteria && solicitationCriteria.results && solicitationCriteria.results.length > 0 && (
+            <div className='space-y-6 border-t pt-6'>
+              <div className='space-y-2'>
+                <h4 className='text-lg font-bold text-purple-600 flex items-center gap-2'>
+                  <Icon icon='carbon:chart-evaluation' />
+                  Evaluation Criteria Responses
+                </h4>
+                <p className='text-gray-600'>Please provide responses to the following evaluation criteria.</p>
+              </div>
+
+              <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5'>
+                {responseField.map((_, index) => {
+                  return (
+                    <div key={index} className='w-full'>
+                      <FormInput
+                        label={solicitationCriteria?.results?.[index]?.name}
+                        name={`evaluations.[${index}].response`}
+                        className='w-full'
+                        placeholder='Enter your response'
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Submission Summary */}
+          <div className='border-t pt-6'>
+            <div className='bg-gray-50 border border-gray-200 rounded-lg p-6'>
+              <h5 className='font-semibold text-gray-800 mb-4 flex items-center gap-2'>
+                <Icon icon='carbon:summary' />
+                Submission Summary
+              </h5>
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-4 text-sm'>
+                <div>
+                  <span className='text-gray-600'>RFP ID:</span>
+                  <div className='font-semibold text-gray-800'>{singleSolicitation?.data?.rfq_id || 'N/A'}</div>
+                </div>
+                <div>
+                  <span className='text-gray-600'>Vendor:</span>
+                  <div className='font-semibold text-gray-800'>
+                    {watch('vendor')
+                      ? vendors?.data?.results?.find((v: VendorsResultsData) => String(v.id) === watch('vendor'))?.company_name
+                      : 'Not selected'}
+                  </div>
+                </div>
+                <div>
+                  <span className='text-gray-600'>Technical Documents:</span>
+                  <div className='font-semibold text-blue-700'>
+                    {technicalFiles ? `${technicalFiles.length} file(s)` : 'Not uploaded'}
+                  </div>
+                </div>
+                <div>
+                  <span className='text-gray-600'>Commercial Documents:</span>
+                  <div className='font-semibold text-green-700'>
+                    {commercialFiles ? `${commercialFiles.length} file(s)` : 'Not uploaded'}
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div className='flex justify-end'>
+          <div className='flex justify-end gap-3'>
+            <button
+              type='button'
+              onClick={() => router.back()}
+              className='px-6 py-2.5 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50'
+            >
+              Cancel
+            </button>
             <FormButton
               loading={isCreateLoading}
               disabled={isCreateLoading}
               type='submit'
+              className='px-6 py-2.5'
             >
-              Submit
+              <Icon icon='carbon:send' className='inline mr-2' />
+              Submit RFP Proposal
             </FormButton>
           </div>
         </form>

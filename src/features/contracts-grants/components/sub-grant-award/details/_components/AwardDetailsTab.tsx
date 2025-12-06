@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useMemo } from "react";
 import { useGetSingleSubGrant } from "@/features/contracts-grants/controllers/subGrantController";
+import { useGetAwardsBySubGrant } from "@/features/contracts-grants/controllers/subGrantAwardController";
 import { LoadingSpinner } from "components/Loading";
 import { formatNumberCurrency } from "utils/utls";
-import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 
 interface AwardDetailsTabProps {
   subGrantId: string;
@@ -12,39 +12,22 @@ interface AwardDetailsTabProps {
 
 const AwardDetailsTab: React.FC<AwardDetailsTabProps> = ({ subGrantId }) => {
   const { data, isLoading } = useGetSingleSubGrant(subGrantId, !!subGrantId);
-  const [awardData, setAwardData] = useState<any>(null);
-  const [isLoadingAward, setIsLoadingAward] = useState(false);
+  const { data: awardsData, isLoading: isLoadingAwards } = useGetAwardsBySubGrant(subGrantId, !!subGrantId);
 
   const subGrant = data?.data;
 
-  // Fetch award details for this sub-grant
-  useEffect(() => {
-    const fetchAwardDetails = async () => {
-      if (!subGrantId) return;
 
-      setIsLoadingAward(true);
-      try {
-        const response = await AxiosWithToken.get(
-          `/contract-grants/sub-grants/${subGrantId}/awards/`
-        );
+  // Get the top-ranked award from the awards data
+  const awardData = useMemo(() => {
+    if (!awardsData?.data) return null;
 
-        if (response.data?.data) {
-          const awards = response.data.data;
-          // Get the top-ranked award
-          const topAward = awards.find((a: any) => a.rank === 1) || awards[0];
-          setAwardData(topAward);
-        }
-      } catch (error) {
-        console.error("Error fetching award details:", error);
-      } finally {
-        setIsLoadingAward(false);
-      }
-    };
+    // useGetAwardsBySubGrant returns ApiResponse<SubGrantAward[]>, so data is directly an array
+    const awards = Array.isArray(awardsData.data) ? awardsData.data : [awardsData.data];
+    // Get the top-ranked award
+    return awards.find((a: any) => a.rank === 1) || awards[0] || null;
+  }, [awardsData]);
 
-    fetchAwardDetails();
-  }, [subGrantId]);
-
-  if (isLoading || isLoadingAward) {
+  if (isLoading || isLoadingAwards) {
     return <LoadingSpinner />;
   }
 
@@ -234,7 +217,12 @@ const AwardDetailsTab: React.FC<AwardDetailsTabProps> = ({ subGrantId }) => {
 
             <div>
               <label className="text-sm font-medium text-gray-600">Intervention Area</label>
-              <p className="text-base mt-1">{subGrant?.project?.intervention_area || "N/A"}</p>
+              <p className="text-base mt-1">
+                {subGrant?.project?.intervention_area?.description ||
+                 subGrant?.project?.intervention_area?.name ||
+                 subGrant?.project?.intervention_area ||
+                 "N/A"}
+              </p>
             </div>
           </div>
         </div>
