@@ -36,6 +36,7 @@ const AddLocations = () => {
     resolver: zodResolver(LocationSchema),
     defaultValues: {
       name: result?.name ?? "",
+      code: (result?.code || result?.unique_code) ?? "",
       address: result?.address ?? "",
       city: result?.city ?? "",
       state: result?.state ?? "",
@@ -83,6 +84,14 @@ const AddLocations = () => {
             name='name'
             required
             placeholder='Enter Name'
+          />
+
+          <FormInput
+            label='Code'
+            name='code'
+            required
+            placeholder='Enter Location Code (e.g., HQ, ASO, PHO-1)'
+            maxLength={10}
           />
 
           <FormTextArea

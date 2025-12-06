@@ -3,14 +3,14 @@
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Footer from "components/Footer";
 import Header from "components/Header";
 import Sidebar from "components/Sidebar";
 import Suspense from "components/Suspense";
 import { cn } from "lib/utils";
 import { useState, useEffect } from "react";
-import { getAccessToken } from "utils/auth";
+import { useAuthInitialization } from "@/hooks/useAuthInitialization";
 
 export default function DashboardLayout({
     children,
@@ -18,18 +18,18 @@ export default function DashboardLayout({
     children: React.ReactNode;
 }) {
     const [sidebarWidth, setSidebarWidth] = useState(false);
-    
-    useEffect(() => {
-        const token = getAccessToken();
-        console.log("🔐 Dashboard Layout - Token check:", !!token);
-        console.log("🔐 Dashboard Layout - Current path:", window.location.pathname);
+    const router = useRouter();
 
-        // Only redirect if we're actually in a dashboard route
-        if (!token && window.location.pathname.startsWith('/dashboard')) {
-            console.log("🚨 Redirecting to login from dashboard");
-            redirect("/auth/login");
+    // Initialize authentication state properly
+    const { isInitialized, isAuthenticated } = useAuthInitialization();
+
+    useEffect(() => {
+        // Wait for auth initialization before checking
+        if (isInitialized && !isAuthenticated) {
+            console.log('🔄 No authentication detected, redirecting to login');
+            router.push("/auth/login");
         }
-    }, []);
+    }, [router, isInitialized, isAuthenticated]);
 
     return (
         <div className="flex">

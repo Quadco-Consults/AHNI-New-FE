@@ -39,9 +39,17 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { usePermissions } from "@/hooks/usePermissions";
 
 export default function PaymentRequestDetails() {
   const { id } = useParams() as { id: string };
+  const { canManageApprovals } = usePermissions();
+
+  console.log('🔐 PAYMENT REQUEST PERMISSIONS:', {
+    canManageApprovals,
+    paymentRequestId: id,
+    context: 'payment_request_detail'
+  });
 
   const [pageNumber] = useState<number>(1);
 
@@ -409,8 +417,29 @@ export default function PaymentRequestDetails() {
                   </CardContent>
                 </Card>
 
-                {/* Approval History */}
-                {data.data.approvals?.length > 0 && (
+                {/* User-friendly status message for regular users */}
+                {!canManageApprovals && (
+                  <Card className="border-l-4 border-l-blue-500">
+                    <CardContent className="pt-6">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-blue-100 rounded-full">
+                          <CheckCircleIcon className="w-6 h-6 text-blue-600" />
+                        </div>
+                        <div>
+                          <p className="text-blue-700 font-medium">
+                            Payment Request Status: <strong>{data.data.status}</strong>
+                          </p>
+                          <p className="text-blue-600 text-sm mt-1">
+                            Your payment request has been submitted successfully. You will be notified when there are updates.
+                          </p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Approval History - Only visible to users with approval management permissions */}
+                {canManageApprovals && data.data.approvals?.length > 0 && (
                   <Card>
                     <CardHeader>
                       <h3 className="text-xl font-semibold text-gray-900">
@@ -461,7 +490,7 @@ export default function PaymentRequestDetails() {
                               {approval.comments && (
                                 <div className="mt-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
                                   <p className="text-sm text-gray-700 italic">
-                                    "{approval.comments}"
+                                    &quot;{approval.comments}&quot;
                                   </p>
                                 </div>
                               )}
@@ -473,8 +502,8 @@ export default function PaymentRequestDetails() {
                   </Card>
                 )}
 
-                {/* Approval Action Section */}
-                {getApprovalAction() && (
+                {/* Approval Action Section - Only visible to users with approval management permissions */}
+                {canManageApprovals && getApprovalAction() && (
                   <Card className="border-l-4 border-l-amber-500">
                     <CardHeader className="bg-amber-50">
                       <h3 className="text-xl font-semibold text-gray-900">

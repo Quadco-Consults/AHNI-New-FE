@@ -40,6 +40,37 @@ interface PaginatedResponse<T> {
 
 const BASE_URL = "programs/adhoc/applicants/";
 
+/**
+ * Transform backend API response to match frontend interface
+ * @description Maps backend field names to frontend expected field names
+ */
+const transformApplicantData = (apiData: any): IAdhocApplicant => {
+  // Handle advertisement field - can be either an object or a string ID
+  let advertisement = apiData.advertisement_details || apiData.advertisement;
+
+  // If advertisement is a string (ID), create an object with the title from advertisement_title
+  if (typeof advertisement === 'string' && apiData.advertisement_title) {
+    advertisement = {
+      id: advertisement,
+      advertisement_number: "",
+      position_title: apiData.advertisement_title,
+    };
+  }
+
+  return {
+    ...apiData,
+    // Map backend field names to frontend interface
+    sur_name: apiData.surname || apiData.sur_name || "",
+    email_address: apiData.email || apiData.email_address || "",
+    advertisement: advertisement,
+    residential_address: apiData.address || apiData.residential_address,
+    qualifications: apiData.qualification || apiData.qualifications || "",
+    total_experience_years: apiData.years_of_experience ?? apiData.total_experience_years ?? 0,
+    applied_at: apiData.application_date || apiData.applied_at || apiData.created_datetime,
+    alternative_phone: apiData.alternative_phone || "",
+  };
+};
+
 // ===== QUERY HOOKS =====
 
 /**
@@ -86,7 +117,17 @@ export const useGetAllAdhocApplicants = ({
             ...(date_to && { date_to }),
           },
         });
-        return response.data;
+
+        // Transform each applicant in the results
+        const transformedResults = response.data.data.results.map(transformApplicantData);
+
+        return {
+          ...response.data,
+          data: {
+            ...response.data.data,
+            results: transformedResults,
+          },
+        };
       } catch (error) {
         const axiosError = error as AxiosError;
         throw new Error(
@@ -113,7 +154,12 @@ export const useGetSingleAdhocApplicant = (
     queryFn: async () => {
       try {
         const response = await AxiosWithToken.get(`${BASE_URL}${id}/`);
-        return response.data;
+        const transformedData = transformApplicantData(response.data.data);
+
+        return {
+          ...response.data,
+          data: transformedData,
+        };
       } catch (error) {
         const axiosError = error as AxiosError;
         throw new Error(
@@ -157,7 +203,17 @@ export const useGetApplicantsByAdvertisement = (
             ...(status && { status }),
           },
         });
-        return response.data;
+
+        // Transform each applicant in the results
+        const transformedResults = response.data.data.results.map(transformApplicantData);
+
+        return {
+          ...response.data,
+          data: {
+            ...response.data.data,
+            results: transformedResults,
+          },
+        };
       } catch (error) {
         const axiosError = error as AxiosError;
         throw new Error(
@@ -197,7 +253,17 @@ export const useGetShortlistedApplicants = ({
             ...(advertisement_id && { advertisement_id }),
           },
         });
-        return response.data;
+
+        // Transform each applicant in the results
+        const transformedResults = response.data.data.results.map(transformApplicantData);
+
+        return {
+          ...response.data,
+          data: {
+            ...response.data.data,
+            results: transformedResults,
+          },
+        };
       } catch (error) {
         const axiosError = error as AxiosError;
         throw new Error(

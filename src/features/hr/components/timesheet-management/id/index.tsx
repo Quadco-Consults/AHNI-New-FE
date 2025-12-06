@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useParams } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
 import Card from "components/Card";
 import DataTable from "components/Table/DataTable";
@@ -36,6 +37,9 @@ const TimesheetManagementFull = () => {
   const params = useParams();
   const timesheetId = Array.isArray(params?.id) ? params.id[0] : (params?.id as string);
   const isCreateMode = !timesheetId || timesheetId === "create";
+
+  // Initialize query client for manual cache invalidation
+  const queryClient = useQueryClient();
 
   console.log("TimesheetManagementFull - params:", params, "timesheetId:", timesheetId);
   console.log("Timesheet page - timesheetId:", timesheetId, "isCreateMode:", isCreateMode);
@@ -96,7 +100,13 @@ const TimesheetManagementFull = () => {
   // Initialize entries from backend data
   useEffect(() => {
     if (timesheet?.entries) {
-      setEntries(timesheet.entries);
+      // Transform backend data to ensure compatibility with both field names
+      const transformedEntries = timesheet.entries.map(entry => ({
+        ...entry,
+        // If backend returns workplan_activity, also set activity_plan for frontend compatibility
+        ...(entry.workplan_activity && !entry.activity_plan && { activity_plan: entry.workplan_activity }),
+      }));
+      setEntries(transformedEntries);
     }
   }, [timesheet]);
 
@@ -177,7 +187,7 @@ const TimesheetManagementFull = () => {
         toast.error(`Entry ${i + 1}: Please select a project`);
         return;
       }
-      if (!entry.activity_plan && !entry.custom_activity) {
+      if (!entry.activity_plan && !entry.workplan_activity && !entry.custom_activity) {
         toast.error(`Entry ${i + 1}: Please select or enter an activity`);
         return;
       }
@@ -208,7 +218,9 @@ const TimesheetManagementFull = () => {
           end_date: format(endDate, "yyyy-MM-dd"),
           entries: entries.map((entry) => ({
             project: entry.project,
-            ...(entry.activity_plan && { activity_plan: entry.activity_plan }),
+            // Use workplan_activity as the new field name for backend
+            ...(entry.activity_plan && { workplan_activity: entry.activity_plan }),
+            ...(entry.workplan_activity && { workplan_activity: entry.workplan_activity }),
             ...(entry.custom_activity && { custom_activity: entry.custom_activity }),
             date: entry.date,
             hours_worked: entry.hours_worked,
@@ -232,7 +244,9 @@ const TimesheetManagementFull = () => {
           entries: entries.map((entry) => ({
             ...(entry.id && { id: entry.id }),
             project: entry.project,
-            ...(entry.activity_plan && { activity_plan: entry.activity_plan }),
+            // Use workplan_activity as the new field name for backend
+            ...(entry.activity_plan && { workplan_activity: entry.activity_plan }),
+            ...(entry.workplan_activity && { workplan_activity: entry.workplan_activity }),
             ...(entry.custom_activity && { custom_activity: entry.custom_activity }),
             date: entry.date,
             hours_worked: entry.hours_worked,
@@ -359,11 +373,11 @@ const TimesheetManagementFull = () => {
   // Activity Type Toggle Component (Hybrid: ActivityPlan OR Custom)
   const ActivityTypeSelect = ({ value, onChange, rowIndex, entry }: any) => {
     // Determine activity type based on which field has a value or is defined
-    // Priority: if activity_plan exists (even if empty string) -> planned
+    // Priority: if activity_plan or workplan_activity exists (even if empty string) -> planned
     //           if custom_activity exists (even if empty string) -> custom
     //           default to custom for new entries
     const activityType =
-      entry?.activity_plan !== undefined ? "planned" :
+      (entry?.activity_plan !== undefined || entry?.workplan_activity !== undefined) ? "planned" :
       entry?.custom_activity !== undefined ? "custom" :
       "custom"; // default to custom for new entries
 
@@ -397,12 +411,12 @@ const TimesheetManagementFull = () => {
     const selectedProjectId = entry?.project; // This is now the project UUID
     // Match the same logic as ActivityTypeSelect
     const activityType =
-      entry?.activity_plan !== undefined ? "planned" :
+      (entry?.activity_plan !== undefined || entry?.workplan_activity !== undefined) ? "planned" :
       entry?.custom_activity !== undefined ? "custom" :
       "custom";
 
     // For planned activities: fetch activities directly by project ID
-    const { data: activitiesData, isLoading: isLoadingActivities } = useGetAllActivityPlans({
+    const { data: activitiesData, isLoading: isLoadingActivities, refetch: refetchActivities } = useGetAllActivityPlans({
       project: selectedProjectId || "",
       page: 1,
       size: 100,
@@ -413,6 +427,63 @@ const TimesheetManagementFull = () => {
     // Response structure: {data: {results: [], pagination: {}}}
     const activities = activitiesData?.data?.results || [];
 
+    // Function to refresh ActivityPlan cache
+    const refreshActivityPlans = useCallback(async () => {
+      console.log('🔄 REFRESHING ActivityPlan Cache...', {
+        project: selectedProjectId,
+        context: 'timesheet_activity_refresh'
+      });
+
+      try {
+        // Method 1: Invalidate all activity-plans queries
+        await queryClient.invalidateQueries({
+          queryKey: ['activity-plans'],
+          exact: false
+        });
+
+        // Method 2: Refetch current query
+        await refetchActivities();
+
+        toast.success('Activities refreshed successfully');
+        console.log('✅ ActivityPlan cache refreshed');
+      } catch (error) {
+        console.error('❌ Failed to refresh ActivityPlan cache:', error);
+        toast.error('Failed to refresh activities');
+      }
+    }, [selectedProjectId, queryClient, refetchActivities]);
+
+    // Use useEffect for debug logging to avoid side effects during render
+    useEffect(() => {
+      console.log('🔍 ACTIVITYPLAN DROPDOWN DEBUG:', {
+        selectedProjectId,
+        activityType,
+        isLoadingActivities,
+        activitiesCount: activities.length,
+        validActivityId: "9096f675-aa94-45c4-a725-00fc6db81679",
+        hasValidActivity: activities.some((a: any) => a.id === "9096f675-aa94-45c4-a725-00fc6db81679"),
+        staleActivityId: "879d94c8-2f03-4ede-b336-ea51f6ffe9cf",
+        hasStaleActivity: activities.some((a: any) => a.id === "879d94c8-2f03-4ede-b336-ea51f6ffe9cf"),
+        availableActivities: activities.map((a: any) => ({ id: a.id, code: a.activity_code, name: a.activity_name })),
+        context: 'timesheet_activity_dropdown'
+      });
+    }, [selectedProjectId, activityType, isLoadingActivities, activities]);
+
+    // Use useEffect for auto-refresh logic to avoid side effects during render
+    useEffect(() => {
+      if (selectedProjectId && activities.length > 0) {
+        const hasStaleActivity = activities.some((a: any) => a.id === "879d94c8-2f03-4ede-b336-ea51f6ffe9cf");
+        if (hasStaleActivity) {
+          console.log('🚨 STALE ACTIVITY DETECTED - Auto-refreshing cache...');
+          const timeoutId = setTimeout(() => {
+            refreshActivityPlans();
+          }, 1000);
+
+          // Cleanup timeout on unmount or dependency change
+          return () => clearTimeout(timeoutId);
+        }
+      }
+    }, [selectedProjectId, activities, refreshActivityPlans]);
+
     if (activityType === "custom") {
       // Custom text input
       return (
@@ -421,43 +492,59 @@ const TimesheetManagementFull = () => {
           value={entry?.custom_activity || ""}
           onChange={(e) => onChange(rowIndex, "custom_activity", e.target.value)}
           className="min-w-[200px]"
-          disabled={!canEdit}
+          disabled={false}
         />
       );
     }
 
-    // ActivityPlan dropdown
+    // ActivityPlan dropdown with refresh functionality
     return (
-      <Select
-        value={entry?.activity_plan || ""}
-        onValueChange={(val) => onChange(rowIndex, "activity_plan", val)}
-        disabled={!selectedProjectId}
-      >
-        <SelectTrigger className="w-full min-w-[200px]">
-          <SelectValue placeholder={selectedProjectId ? "Select activity" : "Select project first"} />
-        </SelectTrigger>
-        <SelectContent className="z-50">
-          {!selectedProjectId ? (
-            <SelectItem value="no-project" disabled>
-              Please select a project first
-            </SelectItem>
-          ) : isLoadingActivities ? (
-            <SelectItem value="loading-activities" disabled>
-              Loading activities...
-            </SelectItem>
-          ) : activities.length === 0 ? (
-            <SelectItem value="no-activities" disabled>
-              No activities found for this project
-            </SelectItem>
-          ) : (
-            activities.map((activity: any) => (
-              <SelectItem key={activity.id} value={activity.id}>
-                {activity.activity_code}: {activity.activity_name}
+      <div className="flex items-center gap-2">
+        <Select
+          value={entry?.activity_plan || entry?.workplan_activity || ""}
+          onValueChange={(val) => onChange(rowIndex, "workplan_activity", val)}
+          disabled={!selectedProjectId}
+        >
+          <SelectTrigger className="w-full min-w-[200px]">
+            <SelectValue placeholder={selectedProjectId ? "Select activity" : "Select project first"} />
+          </SelectTrigger>
+          <SelectContent className="z-50">
+            {!selectedProjectId ? (
+              <SelectItem value="no-project" disabled>
+                Please select a project first
               </SelectItem>
-            ))
-          )}
-        </SelectContent>
-      </Select>
+            ) : isLoadingActivities ? (
+              <SelectItem value="loading-activities" disabled>
+                Loading activities...
+              </SelectItem>
+            ) : activities.length === 0 ? (
+              <SelectItem value="no-activities" disabled>
+                No activities found for this project
+              </SelectItem>
+            ) : (
+              activities.map((activity: any) => (
+                <SelectItem key={activity.id} value={activity.id}>
+                  {activity.activity_code}: {activity.activity_name}
+                </SelectItem>
+              ))
+            )}
+          </SelectContent>
+        </Select>
+
+        {/* Refresh Button for ActivityPlans */}
+        {selectedProjectId && activityType === "planned" && (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={refreshActivityPlans}
+            disabled={isLoadingActivities}
+            title="Refresh activity list"
+          >
+            {isLoadingActivities ? "⟳" : "↻"}
+          </Button>
+        )}
+      </div>
     );
   };
 
@@ -530,7 +617,7 @@ const TimesheetManagementFull = () => {
       header: "Activity",
       cell: ({ row }) => (
         <ActivityInput
-          value={row.original.activity_plan || row.original.custom_activity}
+          value={row.original.activity_plan || row.original.workplan_activity || row.original.custom_activity}
           onChange={updateEntry}
           rowIndex={row.index}
           entry={row.original}
@@ -644,6 +731,28 @@ const TimesheetManagementFull = () => {
         </Button>
         <Button variant="outline" onClick={() => setEntries([])} disabled={!canEdit} size="sm">
           Clear All
+        </Button>
+        {/* Global ActivityPlan Refresh Button */}
+        <Button
+          variant="outline"
+          onClick={async () => {
+            try {
+              console.log('🔄 GLOBAL ActivityPlan Cache Refresh...');
+              await queryClient.invalidateQueries({
+                queryKey: ['activity-plans'],
+                exact: false
+              });
+              toast.success('All activity data refreshed');
+              console.log('✅ Global ActivityPlan cache refreshed');
+            } catch (error) {
+              console.error('❌ Global refresh failed:', error);
+              toast.error('Failed to refresh activity data');
+            }
+          }}
+          size="sm"
+          title="Refresh all activity data"
+        >
+          ↻ Refresh Activities
         </Button>
         <Button
           variant="default"

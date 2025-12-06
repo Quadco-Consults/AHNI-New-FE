@@ -12,6 +12,7 @@ import { ChatMessage } from '@/services/chatService';
 import { useRouter } from 'next/navigation';
 import { TemplateCard } from './TemplateCard';
 import { ProcessFlowCard } from './ProcessFlowCard';
+import { TaskGuideCard } from './TaskGuideCard';
 
 interface EnhancedMessageBubbleProps {
   message: ChatMessage;
@@ -83,7 +84,29 @@ export const EnhancedMessageBubble = ({ message, className }: EnhancedMessageBub
     const { structuredData } = message;
     if (!structuredData) return null;
 
-    const progress = structuredData.currentStep ? 
+    // If we have a full template, use TaskGuideCard for rich guidance
+    if (structuredData.template) {
+      const userContext = {
+        role: structuredData.user_context?.role || 'Program Officer',
+        experienceLevel: structuredData.user_context?.experience_level || 'new'
+      };
+
+      return (
+        <div className="mt-3">
+          <TaskGuideCard
+            template={structuredData.template}
+            userContext={userContext}
+            onStartTask={() => {
+              console.log('Starting task:', structuredData.template.key);
+              // TODO: Navigate to actual task or track task initiation
+            }}
+          />
+        </div>
+      );
+    }
+
+    // Fallback to simple progress view for basic task guidance
+    const progress = structuredData.currentStep ?
       ((structuredData.currentStep - 1) / structuredData.steps) * 100 : 0;
 
     return (
@@ -96,7 +119,7 @@ export const EnhancedMessageBubble = ({ message, className }: EnhancedMessageBub
               <Badge variant="destructive" className="text-xs">Urgent</Badge>
             )}
           </div>
-          
+
           <div className="space-y-3">
             {structuredData.estimatedTime && (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -144,6 +167,10 @@ export const EnhancedMessageBubble = ({ message, className }: EnhancedMessageBub
   };
 
   const renderStructuredResponse = () => {
+    if (!message.content || typeof message.content !== 'string') {
+      return null;
+    }
+
     return (
       <Card className="mt-3 border-green-200">
         <CardContent className="p-4">
@@ -233,7 +260,11 @@ export const EnhancedMessageBubble = ({ message, className }: EnhancedMessageBub
     );
   };
 
-  const formatMessageContent = (content: string) => {
+  const formatMessageContent = (content: string | undefined | null) => {
+    if (!content || typeof content !== 'string') {
+      return null;
+    }
+
     return content.split('\n').map((line, index) => {
       if (line.startsWith('**') && line.endsWith('**')) {
         return (

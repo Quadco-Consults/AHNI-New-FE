@@ -708,8 +708,8 @@ export default function CreateAdhocRequisitionPage() {
                             </FormControl>
                             <SelectContent>
                               <SelectItem value="High School">High School</SelectItem>
-                              <SelectItem value="Bachelor's Degree">Bachelor's Degree</SelectItem>
-                              <SelectItem value="Master's Degree">Master's Degree</SelectItem>
+                              <SelectItem value="Bachelor's Degree">Bachelor&apos;s Degree</SelectItem>
+                              <SelectItem value="Master's Degree">Master&apos;s Degree</SelectItem>
                               <SelectItem value="PhD">PhD</SelectItem>
                               <SelectItem value="Professional Certification">Professional Certification</SelectItem>
                             </SelectContent>

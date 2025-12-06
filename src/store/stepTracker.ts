@@ -40,7 +40,7 @@ const initialState: StepsState = {
       path: HrRoutes.ONBOARDING_ADD_EMPLOYEE_ID_CARD,
     },
     {
-      label: "AHNi Salary account Details",
+      label: "AHNI Salary account Details",
       description: "Provide your salary account details",
       isCompleted: false,
       path: HrRoutes.ONBOARDING_ADD_EMPLOYEE_SALARY,

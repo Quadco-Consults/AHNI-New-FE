@@ -5,6 +5,7 @@ import Card from "components/Card";
 import { cn } from "lib/utils";
 import { Badge } from "components/ui/badge";
 import IconButton from "components/IconButton";
+import { Edit, Trash2 } from 'lucide-react';
 import { Icon } from "@iconify/react";
 import {
   Dialog,
@@ -156,7 +157,7 @@ const ActionListAction = ({ data }: any) => {
       <Dialog>
         <DialogTrigger>
           <div className="rounded-lg px-2 py-2 bg-[#F9F9F9] hover:text-primary dark:text-black dark:hover:text-primary">
-            <Icon icon="solar:pen-bold-duotone" fontSize={15} />
+            <Edit size={16} />
           </div>
         </DialogTrigger>
         <DialogContent className="max-w-4xl max-h-[650px]">
@@ -282,7 +283,7 @@ const ActionListAction = ({ data }: any) => {
         </DialogContent>
       </Dialog>
       <IconButton className="bg-[#F9F9F9] hover:text-primary">
-        <Icon icon="ant-design:delete-twotone" fontSize={15} />
+        <Trash2 size={16} />
       </IconButton>
     </div>
   );

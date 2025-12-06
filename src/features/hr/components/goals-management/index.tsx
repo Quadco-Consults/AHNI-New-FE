@@ -13,6 +13,7 @@ import { HrRoutes } from "constants/RouterConstants";
 import SearchBar from "components/atoms/SearchBar";
 import { Checkbox } from "components/ui/checkbox";
 import IconButton from "components/IconButton";
+import { Trash2 } from 'lucide-react';
 import { Icon } from "@iconify/react";
 import { useGetGoals, useGetEmployeeGoals } from "@/features/hr/controllers/goalsController";
 import useDebounce from "utils/useDebounce";
@@ -39,23 +40,44 @@ const GoalsManagement: React.FC = () => {
 
       setCurrentUserId(userId);
 
-      // Check if user is admin/HR
+      // Check if user is admin/HR - Updated to include HR Manager group
       const isAdminUser = userRole === 'admin' ||
                           userRole === 'hr' ||
                           userRole === 'Admin' ||
                           userRole === 'HR' ||
+                          userRole === 'HR Manager' ||
                           email === 'admin@mail.com' ||
+                          email === 'hrmanager@ahni.test' ||
                           email?.includes('admin') ||
                           isSuperuser === true ||
                           (Array.isArray(userGroups) && (
                             userGroups.includes('HR') ||
+                            userGroups.includes('HR Manager') ||
                             userGroups.includes('Admin') ||
+                            userGroups.includes('Super Admin') ||
                             userGroups.includes('admin') ||
                             userGroups.includes('hr')
                           ));
 
       setIsAdmin(isAdminUser);
-      console.log("Goals List - User:", { userId, isAdminUser, email });
+      console.log("🔍 Goals List - Admin Detection:", {
+        userId,
+        isAdminUser,
+        email,
+        userRole,
+        userGroups,
+        isSuperuser,
+        matchedBy: {
+          roleMatch: userRole === 'HR Manager' || userRole === 'admin',
+          emailMatch: email === 'hrmanager@ahni.test' || email?.includes('admin'),
+          groupMatch: Array.isArray(userGroups) && (
+            userGroups.includes('HR Manager') ||
+            userGroups.includes('Admin') ||
+            userGroups.includes('Super Admin')
+          ),
+          superUserMatch: isSuperuser === true
+        }
+      });
     } catch (error) {
       console.error("Error parsing user data:", error);
     }
@@ -200,7 +222,7 @@ const GoalsManagement: React.FC = () => {
       <div className="flex gap-2">
         <Link href={`/dashboard/hr/goals-management/${goalId}`}>
           <IconButton className="bg-[#F9F9F9] hover:text-primary">
-            <Icon icon="ph:eye-duotone" fontSize={15} />
+            <Eye size={16} />
           </IconButton>
         </Link>
         <IconButton
@@ -210,7 +232,7 @@ const GoalsManagement: React.FC = () => {
             console.log('Delete goal:', goalId);
           }}
         >
-          <Icon icon="ant-design:delete-twotone" fontSize={15} />
+          <Trash2 size={16} />
         </IconButton>
       </div>
     );

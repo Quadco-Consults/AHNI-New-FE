@@ -35,6 +35,7 @@ export const UpdateUserSchema = z.object({
   location: z.string().optional(),
   department: z.string().optional(),
   position: z.string().optional(),
+  designation: z.string().optional(), // Same as position
   user_type: z.string().optional(),
   roles: z.array(z.string().min(1, "Please select user roles")).optional(),
   is_active: z.boolean().optional(),
@@ -74,13 +75,25 @@ export interface IUser {
   designation: string;
   fullName: string;
   action: string;
-  department: string;
-  position: string;
+  // Updated to match backend response structure - these are objects, not strings
+  department?: {
+    id: string;
+    name: string;
+  };
+  position?: {
+    id: string;
+    name: string;
+  };
+  location?: {
+    id: string;
+    name: string;
+  };
   actions: string;
   is_active: boolean;
   profile_picture: string;
   user_type: string;
-  location: string;
   state: string;
   address: string;
+  is_superuser?: boolean;
+  is_staff?: boolean;
 }

@@ -20,6 +20,7 @@ import { Button } from "components/ui/button";
 import { Card } from "components/ui/card";
 import { Badge } from "components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
+import FormSelect from "components/atoms/FormSelectField";
 import { Textarea } from "components/ui/textarea";
 import { Input } from "components/ui/input";
 import { Label } from "components/ui/label";
@@ -66,7 +67,6 @@ interface AssignLeaveFormProps {
 const AssignLeaveForm = ({ onSuccess }: AssignLeaveFormProps = {}) => {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const [searchQuery, setSearchQuery] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Fetch data
@@ -113,20 +113,13 @@ const AssignLeaveForm = ({ onSuccess }: AssignLeaveFormProps = {}) => {
     });
   }, [employeesData]);
 
-  // Filter employees based on search
-  const filteredEmployees = React.useMemo(() => {
-    if (!searchQuery.trim()) return employees;
-
-    const query = searchQuery.toLowerCase();
-    return employees.filter(emp =>
-      emp.firstName.toLowerCase().includes(query) ||
-      emp.lastName.toLowerCase().includes(query) ||
-      emp.fullName.toLowerCase().includes(query) ||
-      emp.employeeId.toLowerCase().includes(query) ||
-      emp.department.toLowerCase().includes(query) ||
-      emp.email.toLowerCase().includes(query)
-    );
-  }, [employees, searchQuery]);
+  // Create employee options for FormSelect with search
+  const employeeOptions = React.useMemo(() => {
+    return employees.map((employee) => ({
+      label: `${employee.firstName} ${employee.lastName} (${employee.employeeId}) - ${employee.department}`,
+      value: employee.id,
+    }));
+  }, [employees]);
 
   const form = useForm<FormData>({
     resolver: zodResolver(assignLeaveSchema),
@@ -361,40 +354,21 @@ const AssignLeaveForm = ({ onSuccess }: AssignLeaveFormProps = {}) => {
                 <h3 className="text-lg font-semibold">Select Employee</h3>
               </div>
 
-              {/* Employee Search */}
-              <div className="space-y-2">
-                <Label>Search Employee</Label>
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                  <Input
-                    placeholder="Search by name, ID, or department..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-              </div>
-
               <FormField
                 control={form.control}
                 name="employeeId"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Employee *</FormLabel>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select an employee" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent className="max-h-[200px] overflow-y-auto">
-                        {filteredEmployees.map((employee) => (
-                          <SelectItem key={employee.id} value={employee.id}>
-                            {employee.firstName} {employee.lastName} ({employee.employeeId}) - {employee.department}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <FormSelect
+                      name="employeeId"
+                      placeholder="Select an employee"
+                      options={employeeOptions}
+                      searchPlaceholder="Search employees by name, ID, or department..."
+                      emptyMessage="No employees found matching your search."
+                      required={true}
+                      onValueChange={field.onChange}
+                    />
                     <FormMessage />
                   </FormItem>
                 )}

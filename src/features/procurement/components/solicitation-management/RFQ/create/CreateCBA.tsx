@@ -26,6 +26,7 @@ import { useForm } from "react-hook-form";
 
 import logoPng from "assets/imgs/logo.png";
 import { Input } from "components/ui/input";
+import { Search } from 'lucide-react';
 import { Icon } from "@iconify/react";
 import { LoadingSpinner } from "components/Loading";
 import { Checkbox } from "components/ui/checkbox";
@@ -49,9 +50,12 @@ import {
   useCreateCba,
   useGetAllSolicitations,
   useGetLotList,
+  useGetSingleCba,
+  useUpdateCba,
 } from "@/features/procurement/controllers";
 import { useGetAllUsers } from "@/features/auth/controllers";
 import { useGetSolicitationSubmission } from "@/features/procurement/controllers/vendorBidSubmissionsController";
+import { useGetPurchaseRequest } from "@/features/procurement/controllers/purchaseRequestController";
 import { useRouter, useSearchParams } from "next/navigation";
 import { CbaSchema } from "@/features/procurement/types/procurement-validator";
 import { LotsResultsData } from "@/features/procurement/types/lots";
@@ -63,9 +67,12 @@ const CreateCBA = () => {
   const rfqId = searchParams?.get("id");
   const eoiId = searchParams?.get("eoi_id");
   const solicitationId = searchParams?.get("solicitation_id");
-  // const name = searchParams.get("name");
+  const cbaId = searchParams?.get("cba_id");
+  const isEditMode = searchParams?.get("edit") === "true";
 
-  console.log({ rfqId, eoiId, solicitationId });
+  console.log("🔍 URL PARAMS:", { rfqId, eoiId, solicitationId, cbaId, isEditMode });
+  console.log("🔍 FULL URL:", window.location.href);
+  console.log("🔍 SEARCH PARAMS:", searchParams?.toString());
 
   const { data: rfqData, isLoading } = useGetAllSolicitations({
     // page,
@@ -103,14 +110,40 @@ const CreateCBA = () => {
   });
   const { createCba, isLoading: createCbaIsLoading } = useCreateCba();
 
+  // Fetch existing CBA data when in edit mode
+  const { data: existingCbaData, isLoading: cbaDataLoading } = useGetSingleCba(
+    cbaId || "",
+    isEditMode && !!cbaId
+  );
+
+  console.log("🔍 EDIT MODE STATUS:", { isEditMode, cbaId, cbaDataLoading });
+  console.log("🔍 EXISTING CBA DATA:", existingCbaData);
+
+  // Update CBA hook for edit mode
+  const { updateCba, isLoading: updateCbaIsLoading } = useUpdateCba(cbaId || "");
+
   // Get vendor bid submissions for this RFQ
+  // In edit mode, use the solicitation from existing CBA data
+  const effectiveRfqId = isEditMode && existingCbaData?.data?.solicitation
+    ? existingCbaData.data.solicitation as string
+    : rfqId || solicitationId || "";
+
   const { data: vendorSubmissions, isLoading: vendorSubmissionsLoading } = useGetSolicitationSubmission(
-    rfqId || solicitationId || "",
-    !!(rfqId || solicitationId)
+    effectiveRfqId,
+    !!effectiveRfqId
   );
 
   // Get selected RFQ details
-  const selectedRFQ = rfqData?.data?.results?.find(rfq => rfq.id === (rfqId || solicitationId));
+  const selectedRFQ = rfqData?.data?.results?.find(rfq => rfq.id === effectiveRfqId);
+
+  // Get purchase request ID from the selected RFQ
+  const purchaseRequestId = selectedRFQ?.purchase_request;
+
+  // Fetch purchase request data if we have an ID
+  const { data: purchaseRequestData } = useGetPurchaseRequest(
+    purchaseRequestId || "",
+    !!purchaseRequestId
+  );
 
   const form = useForm<z.infer<typeof CbaSchema> & {
     reviewer?: string;
@@ -119,7 +152,7 @@ const CreateCBA = () => {
   }>({
     resolver: zodResolver(CbaSchema),
     defaultValues: {
-      solicitation: solicitationId || rfqId!,
+      solicitation: "",
       lot: undefined,
       cba_type: "",
       cba_date: "",
@@ -130,13 +163,123 @@ const CreateCBA = () => {
       approver: "",
     },
   });
-  const { handleSubmit, watch } = form;
+  const { handleSubmit, watch, reset } = form;
 
+  // Populate form with existing CBA data when in edit mode (PRIORITY)
   useEffect(() => {
-    if (rfqId) {
+    if (isEditMode && existingCbaData?.data) {
+      const cbaData = existingCbaData.data;
+      console.log("🔧 RAW CBA DATA FROM API:", cbaData);
+
+      // Prepare the form data
+      const formData: any = {
+        solicitation: "",
+        cba_type: "",
+        cba_date: "",
+        assignee: "",
+        lot: undefined,
+        committee_members: [],
+        reviewer: "",
+        authoriser: "",
+        approver: "",
+      };
+
+      // Extract solicitation (always a string UUID)
+      if (cbaData.solicitation) {
+        formData.solicitation = typeof cbaData.solicitation === 'string'
+          ? cbaData.solicitation
+          : cbaData.solicitation?.id || "";
+        console.log("🔧 SOLICITATION:", formData.solicitation);
+      }
+
+      // Extract CBA type
+      if (cbaData.cba_type) {
+        formData.cba_type = cbaData.cba_type;
+        console.log("🔧 CBA TYPE:", formData.cba_type);
+      }
+
+      // Extract CBA date
+      if (cbaData.cba_date) {
+        formData.cba_date = cbaData.cba_date;
+        console.log("🔧 CBA DATE:", formData.cba_date);
+      }
+
+      // Extract assignee (it's an object with user_id and name)
+      if (cbaData.assignee) {
+        formData.assignee = typeof cbaData.assignee === 'string'
+          ? cbaData.assignee
+          : cbaData.assignee?.user_id || cbaData.assignee?.id || "";
+        console.log("🔧 ASSIGNEE:", formData.assignee, "from", cbaData.assignee);
+      }
+
+      // Extract lot
+      if (cbaData.lot) {
+        formData.lot = typeof cbaData.lot === 'string'
+          ? cbaData.lot
+          : cbaData.lot?.id || "";
+        console.log("🔧 LOT:", formData.lot);
+      }
+
+      // Extract committee member IDs
+      if (cbaData.committee_members && Array.isArray(cbaData.committee_members)) {
+        formData.committee_members = cbaData.committee_members.map((member: any) =>
+          typeof member === 'string' ? member : member?.id
+        ).filter(Boolean);
+        console.log("🔧 COMMITTEE MEMBERS:", formData.committee_members, "from", cbaData.committee_members);
+      }
+
+      // Extract approval workflow (check if it exists and has the fields)
+      if (cbaData.approval_workflow) {
+        console.log("🔧 RAW APPROVAL WORKFLOW:", cbaData.approval_workflow);
+
+        if (cbaData.approval_workflow.reviewer) {
+          formData.reviewer = typeof cbaData.approval_workflow.reviewer === 'string'
+            ? cbaData.approval_workflow.reviewer
+            : cbaData.approval_workflow.reviewer?.id || "";
+        }
+
+        if (cbaData.approval_workflow.authoriser) {
+          formData.authoriser = typeof cbaData.approval_workflow.authoriser === 'string'
+            ? cbaData.approval_workflow.authoriser
+            : cbaData.approval_workflow.authoriser?.id || "";
+        }
+
+        if (cbaData.approval_workflow.approver) {
+          formData.approver = typeof cbaData.approval_workflow.approver === 'string'
+            ? cbaData.approval_workflow.approver
+            : cbaData.approval_workflow.approver?.id || "";
+        }
+
+        console.log("🔧 EXTRACTED APPROVAL WORKFLOW:", {
+          reviewer: formData.reviewer,
+          authoriser: formData.authoriser,
+          approver: formData.approver
+        });
+      } else {
+        console.log("🔧 NO APPROVAL WORKFLOW IN CBA DATA");
+      }
+
+      console.log("🔧 FINAL FORM DATA TO RESET:", formData);
+      // Use reset to update all fields at once
+      reset(formData);
+    }
+  }, [isEditMode, existingCbaData, reset]);
+
+  // Set solicitation from URL params (only in create mode)
+  useEffect(() => {
+    if (!isEditMode && rfqId) {
+      console.log("🔧 Setting solicitation from URL:", rfqId);
       form.setValue("solicitation", rfqId);
     }
-  }, [rfqId, form]);
+  }, [isEditMode, rfqId, form]);
+
+  // Auto-populate assignee from purchase request (only in create mode)
+  useEffect(() => {
+    if (!isEditMode && purchaseRequestData?.data?.assigned_to) {
+      console.log("🔧 Auto-populating assignee from purchase request:", purchaseRequestData.data.assigned_to);
+      form.setValue("assignee", purchaseRequestData.data.assigned_to);
+    }
+  }, [isEditMode, purchaseRequestData, form]);
 
   // Filter to only show internal users (AHNI_STAFF and ADMIN) and exclude vendors/external users
   const internalUsers = users?.data?.results?.filter((user) =>
@@ -185,14 +328,26 @@ const CreateCBA = () => {
 
     console.log("🔍 DEBUG: CBA Payload being sent:", payload);
     console.log("🔍 DEBUG: Items in payload:", payload.items?.length || 0);
+    console.log("🔍 DEBUG: Is Edit Mode:", isEditMode);
 
     try {
-      const response = await createCba(payload);
-      console.log("🔍 DEBUG: CBA Create Response:", response);
-      toast.success("Successfully created CBA.");
+      let response;
+      if (isEditMode && cbaId) {
+        // Update existing CBA
+        response = await updateCba(payload);
+        console.log("🔍 DEBUG: CBA Update Response:", response);
+        toast.success("Successfully updated CBA.");
+      } else {
+        // Create new CBA
+        response = await createCba(payload);
+        console.log("🔍 DEBUG: CBA Create Response:", response);
+        toast.success("Successfully created CBA.");
+      }
 
       // Route to CBA details page if we have the CBA ID, otherwise go to CBA list
-      if (response?.id) {
+      if (isEditMode && cbaId) {
+        router.push(`/dashboard/procurement/competitive-bid-analysis/${cbaId}`);
+      } else if (response?.id) {
         router.push(`/dashboard/procurement/competitive-bid-analysis/${response.id}`);
       } else if (response?.data?.id) {
         router.push(`/dashboard/procurement/competitive-bid-analysis/${response.data.id}`);
@@ -201,14 +356,38 @@ const CreateCBA = () => {
         router.push(RouteEnum.COMPETITIVE_BID_ANALYSIS);
       }
     } catch (error) {
-      toast.error("Something went wrong");
+      toast.error(isEditMode ? "Failed to update CBA" : "Failed to create CBA");
       console.log(error);
     }
   };
 
+  // Show loading state while fetching CBA data in edit mode
+  if (isEditMode && cbaDataLoading) {
+    return (
+      <div className="bg-white p-4 h-full flex items-center justify-center">
+        <LoadingSpinner />
+        <p className="ml-2">Loading CBA data...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-white p-4 h-full">
-      <h4 className="font-semibold text-lg pb-5">Create CBA</h4>
+      <h4 className="font-semibold text-lg pb-5">{isEditMode ? "Edit CBA" : "Create CBA"}</h4>
+
+      {/* Edit Mode Banner */}
+      {isEditMode && (
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
+          <div className="flex items-center gap-2">
+            <Edit size={16} />
+            <p className="text-amber-800 text-sm">
+              <strong>Edit Mode:</strong> You are editing an existing CBA. The form has been populated with the current data.
+              {cbaId && <span className="ml-2 font-mono text-xs">CBA ID: {cbaId}</span>}
+            </p>
+          </div>
+        </div>
+      )}
+
       {eoiId && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
           <p className="text-blue-800 text-sm">
@@ -225,7 +404,7 @@ const CreateCBA = () => {
           {/* RFQ Items */}
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
             <div className="flex items-center gap-2 mb-4">
-              <Icon icon="heroicons:clipboard-document-list" className="text-blue-600" fontSize={20} />
+              <ClipboardList size={16} />
               <h3 className="text-lg font-semibold text-blue-900">
                 RFQ Items - {selectedRFQ.rfq_id}
               </h3>
@@ -270,7 +449,7 @@ const CreateCBA = () => {
           {/* Vendor Bid Submissions */}
           <div className="bg-green-50 border border-green-200 rounded-lg p-6">
             <div className="flex items-center gap-2 mb-4">
-              <Icon icon="heroicons:building-office" className="text-green-600" fontSize={20} />
+              <Building size={16} />
               <h3 className="text-lg font-semibold text-green-900">
                 Vendor Bid Submissions
               </h3>
@@ -317,7 +496,7 @@ const CreateCBA = () => {
                     </div>
                   ) : (
                     <div className="text-center py-4 text-green-600">
-                      <Icon icon="heroicons:inbox" className="mx-auto mb-2" fontSize={32} />
+                      <Inbox size={16} />
                       <p>No vendor submissions found for this RFQ</p>
                       <p className="text-xs text-green-500 mt-1">
                         Vendors can still submit bids after CBA is created
@@ -416,7 +595,7 @@ const CreateCBA = () => {
                     {/* Info Banner */}
                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mx-6">
                       <div className="flex items-center gap-2">
-                        <Icon icon="heroicons:information-circle" className="text-blue-600" fontSize={16} />
+                        <Info size={16} />
                         <p className="text-xs text-blue-800">
                           <strong>Note:</strong> Only internal AHNI staff members (AHNI_STAFF and ADMIN) are displayed.
                           Vendors and external consultants are automatically excluded from committee selection.
@@ -433,7 +612,7 @@ const CreateCBA = () => {
                           type="search"
                           className="h-6 border-none bg-none"
                         />
-                        <Icon icon="iconamoon:search-light" fontSize={25} />
+                        <Search size={16} />
                       </div>
                     </div>
 
@@ -458,7 +637,7 @@ const CreateCBA = () => {
                                 }}
                                 className="text-xs"
                               >
-                                <Icon icon="heroicons:check-circle" className="mr-1" fontSize={14} />
+                                <CheckCircle size={16} />
                                 Select All
                               </Button>
                               <Button
@@ -470,7 +649,7 @@ const CreateCBA = () => {
                                 }}
                                 className="text-xs"
                               >
-                                <Icon icon="heroicons:x-circle" className="mr-1" fontSize={14} />
+                                <XCircle size={16} />
                                 Clear All
                               </Button>
                             </div>
@@ -723,10 +902,10 @@ const CreateCBA = () => {
             </Button>
             <FormButton
               type="submit"
-              loading={createCbaIsLoading}
-              disabled={createCbaIsLoading}
+              loading={isEditMode ? updateCbaIsLoading : createCbaIsLoading}
+              disabled={isEditMode ? updateCbaIsLoading : createCbaIsLoading}
             >
-              Create CBA
+              {isEditMode ? "Update CBA" : "Create CBA"}
             </FormButton>
           </div>
         </form>

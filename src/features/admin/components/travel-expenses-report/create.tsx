@@ -71,7 +71,7 @@ export default function SimpleTravelExpenseReportPage() {
   const { data: expenseAuth, isLoading: isExpenseAuthLoading, error: expenseAuthError } = useGetAllExpenseAuthorizations({
     page: 1,
     size: 100, // Reduced from 1000 to avoid potential issues
-    status: "APPROVED" // Only show approved expense authorizations
+    status: "" // Show all statuses - user should be able to create TER for approved, pending, or submitted EAs
   });
   const { data: travelExpense, isLoading: isTravelExpenseLoading, error: travelExpenseError } = useGetSingleTravelExpense(id || "", !!id);
   const { createTravelExpense, isLoading: isCreateLoading } = useCreateTravelExpense();
@@ -160,7 +160,7 @@ export default function SimpleTravelExpenseReportPage() {
     // API actually returns data.results structure
     const authResults = (expenseAuth as any)?.data?.results || expenseAuth?.results;
     return authResults?.map((auth: any) => ({
-      label: auth.ta_number || `EA-${auth.id?.slice(0, 8)}`,
+      label: `${auth.ta_number || `EA-${auth.id?.slice(0, 8)}`} - ${auth.status || 'No Status'} - ${auth.staff_name || 'Unknown Staff'}`,
       value: auth.id,
     })) || [];
   }, [expenseAuth]);
@@ -525,6 +525,17 @@ export default function SimpleTravelExpenseReportPage() {
             </CardHeader>
 
             <CardContent className="space-y-6">
+              {/* Debug info for development */}
+              {process.env.NODE_ENV === 'development' && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+                  <p className="text-sm text-blue-800">
+                    <strong>Debug Info:</strong> Found {expenseAuthorizationOptions.length} Expense Authorizations (all statuses).
+                    {expenseAuthError && <span className="text-red-600"> Error: {String(expenseAuthError)}</span>}
+                    {isExpenseAuthLoading && <span className="text-yellow-600"> Loading...</span>}
+                  </p>
+                </div>
+              )}
+
               {/* Basic Information */}
               <div className="grid grid-cols-2 gap-6">
                 {!id && (

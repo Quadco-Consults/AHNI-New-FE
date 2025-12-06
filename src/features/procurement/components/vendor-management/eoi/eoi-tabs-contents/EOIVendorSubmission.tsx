@@ -19,7 +19,7 @@ const generatePath = (route: string, params?: Record<string, any>): string => {
 };
 import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "components/Table/DataTable";
-import { Plus } from "lucide-react";
+import { Plus, Trash2, Search } from 'lucide-react';
 import { useParams } from "next/navigation";
 import { useState, useMemo, useEffect } from "react";
 import VendorsAPI from "@/features/procurement/controllers/vendorsController";

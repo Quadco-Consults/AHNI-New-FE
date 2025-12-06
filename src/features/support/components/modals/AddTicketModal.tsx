@@ -17,7 +17,7 @@ import FormTextArea from "components/atoms/FormTextArea";
 import FormRadio from "components/atoms/FormRadio";
 import { SupportSchema } from "features/support/types/support/support";
 import { useCreateTicket } from "@/features/support/controllers/supportController";
-import { useGetUserProfile } from "@/features/auth/controllers/userController";
+import { useGetUserProfile, useGetCurrentUser } from "@/features/auth/controllers/userController";
 import { useEffect } from "react";
  
 
@@ -26,9 +26,22 @@ export type TFormValues = z.infer<typeof SupportSchema>;
 const AddTicketModal = () => {
     const dispatch = useAppDispatch();
     const { data: userProfile, isLoading: isUserLoading } = useGetUserProfile();
-    
+    const { data: currentUser, isLoading: isCurrentUserLoading } = useGetCurrentUser();
+
+    // Use either profile or current user data
+    const userData = userProfile?.data || currentUser?.data;
+
     // Debug logging
-    console.log("User Profile Data:", userProfile);
+    console.log("🔍 User Profile Data:", userProfile);
+    console.log("🔍 Profile Loading:", isUserLoading);
+    console.log("🔍 Current User Data:", currentUser);
+    console.log("🔍 Current User Loading:", isCurrentUserLoading);
+    console.log("🔍 Using userData:", userData);
+    console.log("🔍 Department structure:", userData?.department);
+
+    // Log authentication state from localStorage
+    console.log("🔍 Local Storage Token:", localStorage.getItem('token')?.substring(0, 20) + '...');
+    console.log("🔍 Local Storage User:", JSON.parse(localStorage.getItem('user') || '{}'));
 
     const { createTicket, isLoading: isCreatingLoading } =
     useCreateTicket();
@@ -47,23 +60,31 @@ const AddTicketModal = () => {
         },
     });
 
-    // Auto-populate user details when profile data is available
+    // Auto-populate user details when user data is available
     useEffect(() => {
-        if (userProfile?.data) {
-            const user = userProfile.data;
-            form.setValue("email", user.email || "");
-            
+        if (userData) {
+            form.setValue("email", userData.email || "");
+
             // Set phone number (mobile_number in profile)
-            if (user.mobile_number) {
-                form.setValue("phone_number", user.mobile_number);
+            if (userData.mobile_number) {
+                form.setValue("phone_number", userData.mobile_number);
             }
-            
-            // Set department if available
-            if (user.department) {
-                form.setValue("department", user.department);
+
+            // Set department if available - handle object structure
+            if (userData.department) {
+                // Department is an object with name and id properties
+                const deptName = typeof userData.department === 'object' && userData.department.name
+                    ? userData.department.name
+                    : (typeof userData.department === 'string' ? userData.department : "");
+
+                if (deptName) {
+                    form.setValue("department", deptName);
+                }
             }
+
+            console.log("Form values after setting:", form.getValues());
         }
-    }, [userProfile, form]);
+    }, [userData, form]);
 
     const { handleSubmit } = form;
 
@@ -86,10 +107,9 @@ const AddTicketModal = () => {
             formData.append("priority", priority);  
             formData.append("phone_number", phone_number || "");
             
-            // Add sender information from user profile
-            if (userProfile?.data) {
-                const user = userProfile.data;
-                const senderName = `${user.first_name || ""} ${user.last_name || ""}`.trim() || user.email || "Unknown User";
+            // Add sender information from user data
+            if (userData) {
+                const senderName = `${userData.first_name || ""} ${userData.last_name || ""}`.trim() || userData.email || "Unknown User";
                 formData.append("sender", senderName);
             } 
 
@@ -110,10 +130,39 @@ const AddTicketModal = () => {
                     onSubmit={handleSubmit(onSubmit)}
                     className="flex flex-col gap-6"
                 >
-                    {userProfile?.data && (
+                    {/* Debug information */}
+                    <div className="p-3 bg-gray-50 rounded-md border border-gray-200 text-xs">
+                        <p className="font-medium text-gray-700 mb-1">Debug Info:</p>
+                        <p>Profile Loading: {isUserLoading ? '⏳' : '✅'}</p>
+                        <p>Current User Loading: {isCurrentUserLoading ? '⏳' : '✅'}</p>
+                        <p>Has User Data: {userData ? '✅' : '❌'}</p>
+                        <p>Has Auth Token: {typeof localStorage !== 'undefined' && localStorage.getItem('token') ? '✅' : '❌'}</p>
+                        {userData && <p>Email: {userData.email}</p>}
+                        {userData && <p>Department: {typeof userData.department === 'object' ? userData.department?.name : userData.department}</p>}
+                    </div>
+
+                    {userData && (
                         <div className="p-3 bg-blue-50 rounded-md border border-blue-200">
                             <p className="text-sm text-blue-700">
                                 <span className="font-medium">Note:</span> Your contact details (email, department, phone) are automatically populated from your profile.
+                                <br />
+                                <span className="text-xs">User: {userData.first_name} {userData.last_name} ({userData.email})</span>
+                            </p>
+                        </div>
+                    )}
+
+                    {!userData && (isUserLoading || isCurrentUserLoading) && (
+                        <div className="p-3 bg-yellow-50 rounded-md border border-yellow-200">
+                            <p className="text-sm text-yellow-700">
+                                <span className="font-medium">Loading user data...</span> Please wait while we fetch your profile information.
+                            </p>
+                        </div>
+                    )}
+
+                    {!userData && !isUserLoading && !isCurrentUserLoading && (
+                        <div className="p-3 bg-red-50 rounded-md border border-red-200">
+                            <p className="text-sm text-red-700">
+                                <span className="font-medium">Unable to load user data.</span> Please ensure you're logged in and try again.
                             </p>
                         </div>
                     )}
@@ -127,10 +176,10 @@ const AddTicketModal = () => {
                     <FormInput
                         label="Department*"
                         name="department"
-                        required 
-                        placeholder={userProfile?.data?.department ? "Auto-populated from profile" : "Enter Department"}
-                        readOnly={!!(userProfile?.data?.department)}
-                        className={userProfile?.data?.department ? "bg-gray-50 cursor-not-allowed" : ""}
+                        required
+                        placeholder={userData?.department?.name ? "Auto-populated from profile" : "Enter Department"}
+                        readOnly={!!(userData?.department?.name)}
+                        className={userData?.department?.name ? "bg-gray-50 cursor-not-allowed" : ""}
                     />
                     <FormTextArea
                         label="Describe Issue"
@@ -144,16 +193,16 @@ const AddTicketModal = () => {
                         label="Email*"
                         name="email"
                         required 
-                        placeholder={userProfile?.data?.email ? "Auto-populated from profile" : "Enter Email"}
-                        readOnly={!!userProfile?.data?.email}
-                        className={userProfile?.data?.email ? "bg-gray-50 cursor-not-allowed" : ""}
+                        placeholder={userData?.email ? "Auto-populated from profile" : "Enter Email"}
+                        readOnly={!!userData?.email}
+                        className={userData?.email ? "bg-gray-50 cursor-not-allowed" : ""}
                     />
                     <FormInput
                         label="Phone Number (Optional)"
                         name="phone_number" 
-                        placeholder={userProfile?.data?.mobile_number ? "Auto-populated from profile" : "Enter phone number"}
-                        readOnly={!!(userProfile?.data?.mobile_number)}
-                        className={userProfile?.data?.mobile_number ? "bg-gray-50 cursor-not-allowed" : ""}
+                        placeholder={userData?.mobile_number ? "Auto-populated from profile" : "Enter phone number"}
+                        readOnly={!!(userData?.mobile_number)}
+                        className={userData?.mobile_number ? "bg-gray-50 cursor-not-allowed" : ""}
                     />
                     <FormRadio
                         label='Priority'

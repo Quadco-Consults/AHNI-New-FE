@@ -15,6 +15,8 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import _ from "lodash";
 import { Separator } from "components/ui/separator";
+import { Alert, AlertDescription } from "components/ui/alert";
+import { AlertTriangleIcon } from "lucide-react";
 
 import FormInput from "components/atoms/FormInput";
 import { useGetAllProjects } from "@/features/projects/controllers/projectController";
@@ -27,8 +29,22 @@ import {
   useGetAllLocationsManager,
   useGetLocationList,
 } from "@/features/modules/controllers/config/locationController";
-import { useGetAllUsers } from "@/features/auth/controllers/userController";
-import { useMemo, useEffect } from "react";
+import {
+  useGetAllUsers,
+  useGetReviewers,
+  useGetAuthorizers,
+  useGetApprovers
+} from "@/features/auth/controllers/userController";
+import {
+  filterUsersWithReviewPermission,
+  filterUsersWithAuthorizePermission,
+  filterUsersWithApprovePermission
+} from "@/utils/approvalFilters";
+import { useMemo, useEffect, useState } from "react";
+import {
+  generateFundRequestIdentifierAuto,
+  getLocationCode
+} from "@/utils/fundRequestIdentifier";
 
 const getYearOptions = () => {
   const currentYear = new Date().getFullYear();
@@ -142,45 +158,146 @@ const CreateFundRequest = () => {
     [location]
   );
 
-  const { data: user } = useGetAllUsers({ page: 1, size: 2000000, search: "" });
+  // API-first approach for permission-based filtering
+  const { data: reviewers } = useGetReviewers({ page: 1, size: 2000000, search: "" });
+  const { data: authorizers } = useGetAuthorizers({ page: 1, size: 2000000, search: "" });
+  const { data: approvers } = useGetApprovers({ page: 1, size: 2000000, search: "" });
+  const { data: allUsers } = useGetAllUsers({ page: 1, size: 2000000, search: "" }); // Fallback
 
-  const userOptions = useMemo(
-    () =>
-      user?.data.results.map(({ first_name, last_name, id }) => ({
-        label: `${first_name} ${last_name}`,
-        value: id,
-      })),
-    [user]
-  );
+  // Reviewer options (API-first with role-based fallback)
+  const reviewerOptions = useMemo(() => {
+    // Primary: Use API endpoint (check both .results and .data.results structure)
+    const reviewersList = reviewers?.results || reviewers?.data?.results || [];
+    if (reviewersList.length > 0) {
+      return reviewersList.map(user => ({
+        label: `${user.first_name} ${user.last_name}`,
+        value: user.id,
+      }));
+    }
+    // Fallback: Role-based filtering
+    const allUsersList = allUsers?.data?.results || [];
+    if (allUsersList.length > 0) {
+      return filterUsersWithReviewPermission(allUsersList).map(user => ({
+        label: `${user.first_name} ${user.last_name}`,
+        value: user.id,
+      }));
+    }
+    return [];
+  }, [reviewers, allUsers]);
+
+  // Authorizer options (API-first with role-based fallback)
+  const authorizerOptions = useMemo(() => {
+    // Primary: Use API endpoint (check both .results and .data.results structure)
+    const authorizersList = authorizers?.results || authorizers?.data?.results || [];
+    if (authorizersList.length > 0) {
+      return authorizersList.map(user => ({
+        label: `${user.first_name} ${user.last_name}`,
+        value: user.id,
+      }));
+    }
+    // Fallback: Role-based filtering
+    const allUsersList = allUsers?.data?.results || [];
+    if (allUsersList.length > 0) {
+      return filterUsersWithAuthorizePermission(allUsersList).map(user => ({
+        label: `${user.first_name} ${user.last_name}`,
+        value: user.id,
+      }));
+    }
+    return [];
+  }, [authorizers, allUsers]);
+
+  // Approver options (API-first with role-based fallback)
+  const approverOptions = useMemo(() => {
+    // Primary: Use API endpoint (check both .results and .data.results structure)
+    const approversList = approvers?.results || approvers?.data?.results || [];
+    if (approversList.length > 0) {
+      return approversList.map(user => ({
+        label: `${user.first_name} ${user.last_name}`,
+        value: user.id,
+      }));
+    }
+    // Fallback: Role-based filtering
+    const allUsersList = allUsers?.data?.results || [];
+    if (allUsersList.length > 0) {
+      return filterUsersWithApprovePermission(allUsersList).map(user => ({
+        label: `${user.first_name} ${user.last_name}`,
+        value: user.id,
+      }));
+    }
+    return [];
+  }, [approvers, allUsers]);
+
+  // Determine which filtering method is being used
+  const filteringNotice = useMemo(() => {
+    const hasApiData = (reviewers?.results?.length || reviewers?.data?.results?.length || 0) > 0 ||
+                      (authorizers?.results?.length || authorizers?.data?.results?.length || 0) > 0 ||
+                      (approvers?.results?.length || approvers?.data?.results?.length || 0) > 0;
+    return {
+      hasApiData,
+      method: hasApiData ? 'API-based' : 'Role-based',
+      totalReviewers: reviewerOptions.length,
+      totalAuthorizers: authorizerOptions.length,
+      totalApprovers: approverOptions.length
+    };
+  }, [reviewers, authorizers, approvers, reviewerOptions, authorizerOptions, approverOptions]);
 
   const { handleSubmit, watch, setValue } = form;
+  const [isGeneratingUniqueCode, setIsGeneratingUniqueCode] = useState(false);
 
   // Watch the location and project fields for changes
   const selectedLocationId = watch("location");
   const selectedProjectId = watch("project");
+  const selectedMonth = watch("month");
+  const selectedYear = watch("year");
 
-  // Auto-fill unique_code when location or project changes
+  // Auto-generate unique_code when location, project, month, or year changes
   useEffect(() => {
-    if (selectedLocationId && selectedProjectId && location?.data.results && project?.data.results) {
-      const selectedLocation = location.data.results.find(
-        (loc) => loc.id === selectedLocationId
-      );
-      const selectedProject = project.data.results.find(
-        (proj) => proj.id === selectedProjectId
-      );
-      
-      if (selectedLocation?.unique_code && selectedProject?.project_id) {
-        // Project ID from database (e.g., "advgfre")
-        // Location code (e.g., "-02") 
-        // Final format: Project ID + Location Code = "advgfre-02"
-        const compositeUniqueCode = `${selectedProject.project_id}${selectedLocation.unique_code}`;
-        setValue("uuid_code", compositeUniqueCode);
-      } else if (selectedLocation?.unique_code) {
-        // Fallback to location code only if project_id is not available
-        setValue("uuid_code", selectedLocation.unique_code);
+    const generateUniqueCode = async () => {
+      if (selectedLocationId && selectedProjectId && location?.data.results && project?.data.results) {
+        const selectedLocation = location.data.results.find(
+          (loc) => loc.id === selectedLocationId
+        );
+        const selectedProject = project.data.results.find(
+          (proj) => proj.id === selectedProjectId
+        );
+
+        if (selectedLocation && selectedProject?.project_id) {
+          setIsGeneratingUniqueCode(true);
+
+          try {
+            // Get year and month (with defaults)
+            const year = selectedYear ? parseInt(selectedYear) : new Date().getFullYear();
+            const month = selectedMonth ? selectedMonth : String(new Date().getMonth() + 1);
+
+            // Generate new format identifier
+            // Format: {PROJECT_ID}-{LOCATION_CODE}-{YEAR}-{MONTH}-{SEQUENCE}
+            const uniqueCode = await generateFundRequestIdentifierAuto(
+              selectedProject,
+              selectedLocation,
+              year,
+              parseInt(month)
+            );
+
+            setValue("uuid_code", uniqueCode);
+          } catch (error) {
+            console.error("Error generating unique code:", error);
+
+            // Fallback to simpler format if API call fails
+            const locationCode = getLocationCode(selectedLocation);
+            const year = selectedYear ? selectedYear.slice(-2) : String(new Date().getFullYear()).slice(-2);
+            const monthFormatted = selectedMonth ? String(parseInt(selectedMonth)).padStart(2, '0') : String(new Date().getMonth() + 1).padStart(2, '0');
+
+            const fallbackCode = `${selectedProject.project_id}-${locationCode}-${year}-${monthFormatted}-01`;
+            setValue("uuid_code", fallbackCode);
+          } finally {
+            setIsGeneratingUniqueCode(false);
+          }
+        }
       }
-    }
-  }, [selectedLocationId, selectedProjectId, location, project, setValue]);
+    };
+
+    generateUniqueCode();
+  }, [selectedLocationId, selectedProjectId, selectedMonth, selectedYear, location, project, setValue]);
 
   const onSubmit: SubmitHandler<TFundRequestFormValues> = async (data) => {
     if (typeof window !== 'undefined') {
@@ -227,6 +344,16 @@ const CreateFundRequest = () => {
 
             <Separator />
 
+            {/* Permission filtering notice */}
+            {!filteringNotice.hasApiData && (
+              <Alert className="border-yellow-200 bg-yellow-50">
+                <AlertTriangleIcon className="h-4 w-4 text-yellow-600" />
+                <AlertDescription className="text-yellow-800">
+                  <strong>Permission Notice:</strong> Using role-based filtering for approval workflow. Showing only management-level staff (managers, directors, MD, super admin). Total: {filteringNotice.totalReviewers} reviewers, {filteringNotice.totalAuthorizers} authorizers, {filteringNotice.totalApprovers} approvers.
+                </AlertDescription>
+              </Alert>
+            )}
+
             <div className='grid grid-cols-1 gap-5 md:grid-cols-2'>
               <FormInput
                 label='Available Balance'
@@ -270,7 +397,7 @@ const CreateFundRequest = () => {
                 label='Unique Identifier Code'
                 name='uuid_code'
                 required
-                placeholder='Auto-filled from project + location (e.g., advgfre-02)'
+                placeholder={isGeneratingUniqueCode ? 'Generating unique code...' : 'Auto-generated (e.g., ACE1-1001000-ASO-25-11-01)'}
                 disabled
               />
 
@@ -278,7 +405,7 @@ const CreateFundRequest = () => {
                 label='Location Reviewer'
                 name='location_reviewer'
                 required
-                options={userOptions}
+                options={reviewerOptions}
                 placeholder='Select Location Reviewer'
               />
 
@@ -286,7 +413,7 @@ const CreateFundRequest = () => {
                 label='Location Authorizer'
                 name='location_authorizer'
                 required
-                options={userOptions}
+                options={authorizerOptions}
                 placeholder='Select Location Authorizer'
               />
 
@@ -294,7 +421,7 @@ const CreateFundRequest = () => {
                 label='State Reviewer'
                 name='state_reviewer'
                 required
-                options={userOptions}
+                options={reviewerOptions}
                 placeholder='Select State Reviewer'
               />
 
@@ -302,7 +429,7 @@ const CreateFundRequest = () => {
                 label='State Authorizer'
                 name='state_authorizer'
                 required
-                options={userOptions}
+                options={authorizerOptions}
                 placeholder='Select State Authorizer'
               />
             </div>
@@ -312,7 +439,7 @@ const CreateFundRequest = () => {
                 label='HQ Reviewer'
                 name='hq_reviewer'
                 required
-                options={userOptions}
+                options={reviewerOptions}
                 placeholder='Select HQ Reviewer'
               />
 
@@ -320,7 +447,7 @@ const CreateFundRequest = () => {
                 label='HQ Authorizer'
                 name='hq_authorizer'
                 required
-                options={userOptions}
+                options={authorizerOptions}
                 placeholder='Select HQ Authorizer'
               />
 
@@ -328,7 +455,7 @@ const CreateFundRequest = () => {
                 label='HQ Approver'
                 name='hq_approver'
                 required
-                options={userOptions}
+                options={approverOptions}
                 placeholder='Select HQ Approver'
               />
             </div>

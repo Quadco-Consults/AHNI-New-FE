@@ -21,19 +21,10 @@ export default function AllRoles() {
 
   const dispatch = useAppDispatch();
 
-  // Debug logging
-  console.log('📊 RoleList Data:', {
-    role,
-    isLoading,
-    error,
-    hasData: !!role?.data,
-    hasResults: !!(role as any)?.data?.results,
-    resultsLength: (role as any)?.data?.results?.length
-  });
 
   const onRoleClick = (id: string, name: string, permission: string) => {
-    dispatch(
-      openDialog({
+    try {
+      const action = openDialog({
         type: DialogType.AddPermissionToRole,
         dialogProps: {
           ...largeDailogScreen,
@@ -41,8 +32,11 @@ export default function AllRoles() {
           name,
           permission: permission,
         },
-      })
-    );
+      });
+      dispatch(action);
+    } catch (error) {
+      console.error('Error opening permission dialog:', error);
+    }
   };
 
   const { deleteRole, isLoading: isDeleteLoading } = useDeleteRole(roleId);

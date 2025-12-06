@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "components/ui/button";
 import { Card } from "components/ui/card";
-import { Input } from "components/ui/input";
 import { Badge } from "components/ui/badge";
 import {
   Select,
@@ -14,7 +13,7 @@ import {
   SelectValue,
 } from "components/ui/select";
 import DataTable from "components/Table/DataTable";
-import { Plus, Search, Eye, Edit, Trash2, RefreshCw } from "lucide-react";
+import { Plus, Eye, Edit, Trash2, RefreshCw } from "lucide-react";
 import { useGetMyAdhocRequisitions, useDeleteAdhocRequisition } from "@/controllers/adhocRequisitionController";
 import { IAdhocRequisitionPaginatedData, RequisitionStatus } from "@/types/adhoc-requisition";
 import { ProgramRoutes } from "@/constants/RouterConstants";

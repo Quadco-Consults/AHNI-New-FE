@@ -1,0 +1,202 @@
+================================================================================
+                    TRAVEL RATE FIELD MAPPING ISSUE DIAGRAM
+================================================================================
+
+CURRENT SITUATION (BROKEN):
+
+Backend API Response          Frontend Type Definition        Display Component
+================================  ==============================  =======================
+
+{                             interface ITravelRate {         <AllTravelRates>
+  "id": "123",                  id: string;
+  "location": "Lagos",          location: string;
+  "state": "Lagos",             state: string;
+  "country": "Nigeria",         country: string;
+  
+  "lodging_rate": 50000,    →   accommodation_rate: ??? ❌    {formatCurrency(
+  ✓ Backend sends this          NOT accommodation_rate!       item?.accommodation_rate)}
+  
+  "meal_allowance": 15000,   →  meal_allowance: number;      ✓ Works
+                                                               
+  "transport_allowance": 5000→  transport_allowance: number;  ✓ Works
+  
+  "per_diem_rate": 25000,    →  per_diem_rate: number;       ✓ Works
+  
+  "currency": "NGN",         →  currency: string;            ✓ Works
+  
+  "effective_date": "...",   →  effective_date: string;      ✓ Works
+  
+  "is_active": true          →  is_active: boolean;          ✓ Works
+}                             }
+
+                                Result: item?.accommodation_rate = undefined
+                                → formatCurrency returns "NGN 0" ❌
+
+
+================================================================================
+                         DATA FLOW ANALYSIS - THE PROBLEM
+================================================================================
+
+INCOMING DATA (GET Request):
+API Response → NO TRANSFORMATION → TypeScript Interface → Component Render
+             (This is where data gets lost!)
+
+
+Step 1: Backend sends
+  { "lodging_rate": 50000, ... }
+
+Step 2: Frontend receives raw data
+  { "lodging_rate": 50000, ... }
+
+Step 3: TypeScript expects
+  { "accommodation_rate": 50000, ... }  ← MISMATCH!
+
+Step 4: When accessing item.accommodation_rate
+  undefined ← Property doesn't exist!
+
+Step 5: formatCurrency(undefined)
+  return "NGN 0" ← Shows zero instead of 50000!
+
+
+================================================================================
+                       OUTGOING DATA (CREATE/UPDATE)
+================================================================================
+
+OUTGOING DATA (POST/PUT Request):
+Frontend Form → TRANSFORMATION ✓ → Backend API
+              (This works correctly!)
+
+Step 1: Form has accommodation_rate
+  { "accommodation_rate": 50000, ... }
+
+Step 2: Controller transforms it
+  {
+    "lodging_rate": 50000,  ← Correct name for backend
+    // accommodation_rate removed
+  }
+
+Step 3: Backend receives correct field name
+  ✓ Saves as lodging_rate
+
+
+PROBLEM: Response data NOT transformed back!
+
+Step 4: Backend returns
+  { "lodging_rate": 50000, ... }
+
+Step 5: Frontend doesn't transform response
+  { "lodging_rate": 50000, ... }  ← Still not "accommodation_rate"!
+
+
+================================================================================
+                         WHERE MAPPINGS FAIL
+================================================================================
+
+File: AllTravelRates.tsx (Line 146)
+  {formatCurrency(item?.accommodation_rate, ...)}
+                           ↑
+                    undefined ❌
+
+
+File: AddTravelRate.tsx (Line 35)
+  accommodation_rate: data?.accommodation_rate ?? 0,
+                           ↑
+                     undefined, defaults to 0 ❌
+
+
+File: useTravelRates.ts (Line 68)
+  const lodging = (rate.accommodation_rate || 0) * numberOfNights;
+                        ↑
+                  undefined, defaults to 0 ❌
+
+
+File: travel-rate.ts (Line 27)
+  accommodation_rate: number;  ← Should be lodging_rate
+
+
+================================================================================
+                            SOLUTION FLOW
+================================================================================
+
+Option 3 (Recommended) - Response Transformation Layer:
+
+API Response → TRANSFORM → Normalized Data → Component
+              (Add this!)
+
+Step 1: Backend sends
+  { "lodging_rate": 50000, ... }
+
+Step 2: Transform in controller (NEW)
+  {
+    "lodging_rate": 50000,
+    "accommodation_rate": 50000  ← Added mapping!
+  }
+
+Step 3: Frontend interface receives
+  { "accommodation_rate": 50000, ... }
+
+Step 4: Component accesses
+  item?.accommodation_rate = 50000 ✓
+
+Step 5: formatCurrency(50000)
+  return "NGN 50,000" ✓ Shows correct value!
+
+
+================================================================================
+                      CASCADING IMPACT ANALYSIS
+================================================================================
+
+PRIMARY ISSUE:
+  accommodation_rate not mapped from backend's lodging_rate
+
+AFFECTED COMPONENTS:
+  ├─ AllTravelRates.tsx          ❌ Displays "NGN 0"
+  ├─ AddTravelRate.tsx           ❌ Form shows 0 when editing
+  ├─ useTravelRates.ts           ❌ Calculates lodging as 0
+  ├─ TravelFeesCalculator.tsx    ❌ May show wrong costs
+  └─ EAGenerationWorkflow.tsx    ❌ May calculate wrong EA amounts
+
+SECONDARY IMPACT:
+  All site visit EA generation will use incorrect lodging costs!
+
+
+================================================================================
+                     FIELD MAPPING VERIFICATION TABLE
+================================================================================
+
+Field Purpose     Backend Name          Frontend Type Expected    Status
+─────────────────────────────────────────────────────────────────────────────
+Lodging/Hotel     lodging_rate          accommodation_rate        ❌ MISMATCH
+Per Diem          per_diem_rate         per_diem_rate             ✓ Match
+Meals              meal_allowance        meal_allowance            ✓ Match
+Transport         transport_allowance    transport_allowance       ✓ Match
+Effective Date    effective_date        effective_date            ✓ Match
+Expiry Date       expiry_date           expiry_date               ✓ Match
+Status            is_active             is_active                 ✓ Match
+Currency          currency              currency                  ✓ Match
+
+
+================================================================================
+                    IMMEDIATE ACTION REQUIRED
+================================================================================
+
+1. CONFIRM: Ask backend what field name they use in API response
+   - Is it "lodging_rate" or "accommodation_rate"?
+   
+2. CHOOSE: One of three solutions:
+   a) Backend returns both field names
+   b) Frontend type matches backend exactly
+   c) Add transformation layer in controller (BEST)
+   
+3. IMPLEMENT: Make the change across all affected files
+   
+4. TEST: Verify travel rates display correctly in AllTravelRates component
+   - Should show actual NGN amounts, not "NGN 0"
+   - Should show accommodation costs correctly
+   
+5. REGRESSION TEST: Check:
+   - Adding travel rates
+   - Updating travel rates
+   - Travel fees calculator
+   - EA generation costs
+

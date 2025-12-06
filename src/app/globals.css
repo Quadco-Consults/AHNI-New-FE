@@ -2,8 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Custom form styles */
+@layer components {
+  .required::after {
+    content: " *";
+    color: rgb(239 68 68); /* red-500 */
+  }
+}
+
 @layer base {
   :root {
+    /* Base Colors */
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
 
@@ -13,7 +22,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 0 70% 55%;
+    --primary: 0 100% 50%;
     --primary-foreground: 210 40% 98%;
 
     --secondary: 0 60% 70%;
@@ -32,13 +41,90 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 222.2 84% 4.9%;
 
+    /* Extended Color Palette */
+    --yellow-darker: 45 95% 44%;  /* #DEA004 */
+    --gray-text: 20 5% 46%;       /* #756D6D */
+    --gray-dark: 20 8% 30%;       /* #4D4545 */
+    --gray-overlay: 0 0% 0% / 10%; /* #0000001A */
+    --gray-border: 210 18% 87%;   /* #CDD5E0 */
+    --alternate-light: 0 0% 97.6%; /* #F9F9F9 */
+    --alternate: 0 40% 98%;       /* #FFF2F2 */
+
+    /* Status Colors */
+    --success: 142 76% 36%;       /* Green for approved/success */
+    --warning: 38 92% 50%;        /* Yellow for warning */
+    --error: 0 84% 60%;           /* Red for error/rejected */
+    --info: 217 91% 60%;          /* Blue for info */
+    --pending: 25 95% 53%;        /* Orange for pending */
+
+    /* Priority Colors */
+    --urgent: 0 84% 60%;          /* Red for urgent */
+    --high: 25 95% 53%;           /* Orange for high */
+    --medium: 38 92% 50%;         /* Yellow for medium */
+    --low: 142 76% 36%;           /* Green for low */
+    --system: 217 91% 60%;        /* Blue for system */
+
+    /* Spacing Scale */
+    --spacing-xs: 0.25rem;        /* 4px */
+    --spacing-sm: 0.5rem;         /* 8px */
+    --spacing-md: 1rem;           /* 16px */
+    --spacing-lg: 1.5rem;         /* 24px */
+    --spacing-xl: 2rem;           /* 32px */
+    --spacing-xxl: 3rem;          /* 48px */
+    --spacing-xxxl: 4rem;         /* 64px */
+
+    /* Typography Scale */
+    --font-size-xs: 0.75rem;      /* 12px */
+    --font-size-sm: 0.875rem;     /* 14px */
+    --font-size-base: 1rem;       /* 16px */
+    --font-size-lg: 1.125rem;     /* 18px */
+    --font-size-xl: 1.25rem;      /* 20px */
+    --font-size-2xl: 1.5rem;      /* 24px */
+    --font-size-3xl: 2rem;        /* 32px */
+
+    /* Line Heights */
+    --line-height-tight: 1.25;
+    --line-height-normal: 1.5;
+    --line-height-relaxed: 1.75;
+
+    /* Border Radius */
     --radius: 0.5rem;
+    --radius-sm: calc(var(--radius) - 4px);
+    --radius-md: calc(var(--radius) - 2px);
+    --radius-lg: var(--radius);
+    --radius-xl: calc(var(--radius) + 4px);
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+
+    /* Z-Index Scale */
+    --z-dropdown: 1000;
+    --z-sticky: 1020;
+    --z-fixed: 1030;
+    --z-modal-backdrop: 1040;
+    --z-modal: 1050;
+    --z-popover: 1060;
+    --z-tooltip: 1070;
+    --z-toast: 1080;
+
+    /* Breakpoints (for reference in CSS) */
+    --breakpoint-sm: 640px;
+    --breakpoint-md: 768px;
+    --breakpoint-lg: 1024px;
+    --breakpoint-xl: 1280px;
+    --breakpoint-2xl: 1536px;
+
+    /* Font Family */
     font-family: "Inter", sans-serif;
     font-optical-sizing: auto;
     font-weight: 400;
   }
 
   .dark {
+    /* Base Colors */
     --background: 20 14.3% 4.1%;
     --foreground: 210 40% 98%;
 
@@ -48,8 +134,13 @@
     --popover: 20 14.3% 4.1%;
     --popover-foreground: 210 40% 98%;
 
+<<<<<<< HEAD
     --primary: 0 70% 55%;
     --primary-foreground: 210 40% 98%;
+=======
+    --primary: 0 100% 50%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+>>>>>>> origin/develop
 
     --secondary: 0 60% 70%;
     --secondary-foreground: 210 40% 98%;
@@ -66,6 +157,35 @@
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
+
+    /* Extended Color Palette - Dark Mode Adjustments */
+    --yellow-darker: 45 95% 64%;     /* Lighter for dark mode */
+    --gray-text: 210 4% 73%;         /* Lighter text on dark */
+    --gray-dark: 210 6% 85%;         /* Much lighter on dark */
+    --gray-overlay: 0 0% 100% / 10%; /* White overlay for dark */
+    --gray-border: 217.2 32.6% 25%;  /* Darker border for dark mode */
+    --alternate-light: 217.2 32.6% 8%; /* Dark alternate */
+    --alternate: 217.2 32.6% 12%;    /* Slightly lighter dark alternate */
+
+    /* Status Colors - Dark Mode Optimized */
+    --success: 142 76% 46%;          /* Slightly brighter green */
+    --warning: 38 92% 60%;           /* Brighter yellow */
+    --error: 0 84% 70%;              /* Brighter red */
+    --info: 217 91% 70%;             /* Brighter blue */
+    --pending: 25 95% 63%;           /* Brighter orange */
+
+    /* Priority Colors - Dark Mode Optimized */
+    --urgent: 0 84% 70%;             /* Brighter red */
+    --high: 25 95% 63%;              /* Brighter orange */
+    --medium: 38 92% 60%;            /* Brighter yellow */
+    --low: 142 76% 46%;              /* Brighter green */
+    --system: 217 91% 70%;           /* Brighter blue */
+
+    /* Shadows - Dark Mode */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.3);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.3), 0 8px 10px -6px rgb(0 0 0 / 0.3);
   }
 }
 

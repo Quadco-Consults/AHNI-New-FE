@@ -20,6 +20,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "components/ui/breadcrumb";
+import { Edit } from 'lucide-react';
 import { Icon } from "@iconify/react";
 import GoBack from "components/GoBack";
 
@@ -71,7 +72,7 @@ const PrequalificationDetails = () => {
             href={`/dashboard/procurement/vendor-management/vendor-registration?id=${id}`}
           >
             <Button variant="outline">
-              <Icon icon="solar:pen-bold-duotone" className="mr-2" fontSize={16} />
+              <Edit size={16} />
               Edit Vendor
             </Button>
           </Link>

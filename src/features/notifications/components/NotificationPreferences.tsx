@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Button } from "components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
 import Card from "components/Card";
+import { CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { Icon } from "@iconify/react";
 import { toast } from "sonner";
 
@@ -186,7 +187,7 @@ export default function NotificationPreferences() {
         {/* Delivery Methods */}
         <Card className="p-6">
           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-            <Icon icon="mdi:bell-outline" />
+            <Bell size={16} />
             Delivery Methods
           </h3>
           
@@ -260,7 +261,7 @@ export default function NotificationPreferences() {
         {/* Digest & Timing */}
         <Card className="p-6">
           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-            <Icon icon="mdi:clock-outline" />
+            <Clock size={16} />
             Timing & Frequency
           </h3>
           
@@ -331,7 +332,7 @@ export default function NotificationPreferences() {
         {/* Categories */}
         <Card className="p-6">
           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-            <Icon icon="mdi:tag-outline" />
+            <Tag size={16} />
             Categories
           </h3>
           
@@ -369,7 +370,7 @@ export default function NotificationPreferences() {
         {/* Priorities */}
         <Card className="p-6">
           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-            <Icon icon="mdi:flag-outline" />
+            <Flag size={16} />
             Priorities
           </h3>
           

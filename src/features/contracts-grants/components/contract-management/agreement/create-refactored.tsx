@@ -17,6 +17,7 @@ import { Button } from "components/ui/button";
 import {
     useCreateAgreement,
 } from "@/features/contracts-grants/controllers/agreementController";
+import { useGetAllUsers } from "@/features/auth/controllers/userController";
 import { useRouter } from "next/navigation";
 import { CG_ROUTES } from "constants/RouterConstants";
 import { useEffect, useMemo, useState } from "react";
@@ -25,7 +26,7 @@ import { useGetAllLocations } from "@/features/modules/controllers/config/locati
 import { useGetAllJobCategories } from "@/features/modules/controllers/config/jobCategoryController";
 import { useGetAllCategories } from "@/features/modules/controllers/config/categoryController";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
-import { CheckCircle2, Building2, Users, FileText, Calendar, DollarSign, MapPin, Upload, X } from "lucide-react";
+import { CheckCircle2, Building2, Users, FileText, Calendar, DollarSign, MapPin, Upload, X, UserCheck } from "lucide-react";
 import { Badge } from "components/ui/badge";
 
 const agreementTypeOptions = [
@@ -123,6 +124,7 @@ export default function CreateAgreementRefactored() {
     const { data: location } = useGetAllLocations({ page: 1, size: 2000000 });
     const { data: jobCategories } = useGetAllJobCategories({ enabled: true });
     const { data: categories } = useGetAllCategories({ page: 1, size: 1000, enabled: true });
+    const { data: usersData } = useGetAllUsers({ page: 1, size: 1000, enabled: true });
     const { createAgreement, isLoading: isCreateLoading, isSuccess, error: apiError, data: createData } = useCreateAgreement();
 
     // Handle API success - move to upload step instead of redirecting
@@ -166,6 +168,16 @@ export default function CreateAgreementRefactored() {
                 value: id,
             })) || [],
         [location]
+    );
+
+    // Users options for approval roles
+    const usersOptions = useMemo(
+        () =>
+            usersData?.data?.results?.map(({ first_name, last_name, id, designation }) => ({
+                label: `${first_name} ${last_name}${designation ? ` (${designation})` : ''}`,
+                value: id,
+            })) || [],
+        [usersData]
     );
 
     // Service Type Options - Define FIRST (used by filteredServiceOptions)
@@ -1087,6 +1099,66 @@ export default function CreateAgreementRefactored() {
                                             </div>
                                         </div>
 
+                                        {/* Approval Workflow Section */}
+                                        <div className="mt-8 pt-6 border-t border-gray-200">
+                                            <div className="flex items-center gap-2 mb-6">
+                                                <UserCheck className="w-5 h-5 text-green-600" />
+                                                <h3 className="text-lg font-semibold">Approval Workflow (Optional)</h3>
+                                                <Badge variant="secondary" className="text-xs">
+                                                    Governance
+                                                </Badge>
+                                            </div>
+                                            <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+                                                <p className="text-sm text-green-800 mb-2">
+                                                    <strong>Set up contract approval workflow</strong>
+                                                </p>
+                                                <p className="text-xs text-green-700">
+                                                    Select specific users who will review, authorize, and approve this contract. This establishes clear governance and accountability for contract approval.
+                                                </p>
+                                            </div>
+
+                                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                                                {/* Reviewer */}
+                                                <div>
+                                                    <FormSelect
+                                                        label="Reviewer"
+                                                        name="reviewer_id"
+                                                        placeholder="Select Reviewer"
+                                                        options={usersOptions}
+                                                    />
+                                                    <p className="text-xs text-gray-500 mt-1">
+                                                        User who will review contract details
+                                                    </p>
+                                                </div>
+
+                                                {/* Authorizer */}
+                                                <div>
+                                                    <FormSelect
+                                                        label="Authorizer"
+                                                        name="authorizer_id"
+                                                        placeholder="Select Authorizer"
+                                                        options={usersOptions}
+                                                    />
+                                                    <p className="text-xs text-gray-500 mt-1">
+                                                        User who will authorize the contract
+                                                    </p>
+                                                </div>
+
+                                                {/* Approver */}
+                                                <div>
+                                                    <FormSelect
+                                                        label="Final Approver"
+                                                        name="approver_id"
+                                                        placeholder="Select Approver"
+                                                        options={usersOptions}
+                                                    />
+                                                    <p className="text-xs text-gray-500 mt-1">
+                                                        User who will give final approval
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+
                                         <div className="flex justify-between pt-6 border-t">
                                             <Button
                                                 type="button"
@@ -1213,6 +1285,42 @@ export default function CreateAgreementRefactored() {
                                                     </p>
                                                 </div>
                                             </div>
+
+                                            {/* Approval Workflow Review */}
+                                            {(form.watch('reviewer_id') || form.watch('authorizer_id') || form.watch('approver_id')) && (
+                                                <div className="mt-6 pt-6 border-t border-gray-200">
+                                                    <div className="flex items-center gap-2 mb-4">
+                                                        <UserCheck className="w-5 h-5 text-green-600" />
+                                                        <h4 className="text-lg font-semibold text-gray-900">Approval Workflow</h4>
+                                                    </div>
+                                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                                        {form.watch('reviewer_id') && (
+                                                            <div>
+                                                                <label className="text-sm font-medium text-gray-700">Reviewer</label>
+                                                                <p className="mt-1 text-base text-gray-900">
+                                                                    {usersOptions.find(opt => opt.value === form.watch('reviewer_id'))?.label || 'N/A'}
+                                                                </p>
+                                                            </div>
+                                                        )}
+                                                        {form.watch('authorizer_id') && (
+                                                            <div>
+                                                                <label className="text-sm font-medium text-gray-700">Authorizer</label>
+                                                                <p className="mt-1 text-base text-gray-900">
+                                                                    {usersOptions.find(opt => opt.value === form.watch('authorizer_id'))?.label || 'N/A'}
+                                                                </p>
+                                                            </div>
+                                                        )}
+                                                        {form.watch('approver_id') && (
+                                                            <div>
+                                                                <label className="text-sm font-medium text-gray-700">Final Approver</label>
+                                                                <p className="mt-1 text-base text-gray-900">
+                                                                    {usersOptions.find(opt => opt.value === form.watch('approver_id'))?.label || 'N/A'}
+                                                                </p>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            )}
                                         </div>
 
                                         <div className="flex justify-between pt-6 border-t">

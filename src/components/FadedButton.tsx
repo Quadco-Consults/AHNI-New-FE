@@ -1,6 +1,6 @@
 import { Button } from "components/ui/button";
 import { cn } from "lib/utils";
-import { Loader2 } from "lucide-react";
+import { LoadingSpinner } from "components/Loading";
 import { ComponentProps, FC, ReactNode } from "react";
 
 interface ButtonProps extends ComponentProps<typeof Button> {
@@ -19,12 +19,12 @@ const FadedButton: FC<ButtonProps> = ({
     ...rest
 }) => {
     return (
-        <Button className={cn("gap-x-1 bg-[#FFF2F2]", className)} {...rest}>
+        <Button variant="custom" className={cn("gap-x-1", className)} disabled={loading} {...rest}>
             {preffix ? preffix : undefined}
             {loading ? (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                <LoadingSpinner size="sm" text="" className="mr-1" />
             ) : undefined}
-            {loading ? <span className="mt-1">Please wait</span> : children}
+            {loading ? <span>Please wait...</span> : children}
             {suffix ? suffix : undefined}
         </Button>
     );

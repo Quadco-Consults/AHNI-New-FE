@@ -10,6 +10,7 @@ import {
     BreadcrumbSeparator,
 } from "components/ui/breadcrumb";
 import { Icon } from "@iconify/react";
+import { X } from "lucide-react";
 import ArrowDownIcon from "components/icons/ArrowDownIcon";
 import { TNotification, NotificationFilters } from "@/features/notifications/controllers/notificationController";
 import { useGetNotifications, useMarkAllAsRead } from "@/features/notifications/controllers/notificationController";
@@ -146,7 +147,7 @@ export default function Notifications() {
                         <BreadcrumbPage>Global Hub</BreadcrumbPage>
                     </BreadcrumbItem>
                     <BreadcrumbSeparator>
-                        <Icon icon="iconoir:slash" />
+                        <X size={16} />
                     </BreadcrumbSeparator>
                     <BreadcrumbItem>
                         <BreadcrumbPage>Notifications</BreadcrumbPage>

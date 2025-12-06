@@ -37,7 +37,11 @@ export const supportColumn: ColumnDef<TSupportPaginatedData>[] = [
             const department = row.original.department;
             return (
                 <div className="px-2 py-1 bg-gray-100 rounded-md text-sm">
-                    {department || 'N/A'}
+                    {typeof department === 'string'
+                        ? department
+                        : typeof department === 'object' && department?.name
+                        ? department.name
+                        : 'N/A'}
                 </div>
             );
         },

@@ -177,7 +177,11 @@ const AssignEntitlementForm = () => {
                     <SelectContent>
                       {leaveTypes.map((type: any) => (
                         <SelectItem key={type.id} value={type.id}>
-                          {type.name}
+                          {typeof type.name === 'string'
+                            ? type.name
+                            : typeof type.name === 'object' && type.name?.name
+                            ? type.name.name
+                            : type.leave_type_name || 'Unknown Leave Type'}
                         </SelectItem>
                       ))}
                     </SelectContent>

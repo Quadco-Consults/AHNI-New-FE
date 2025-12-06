@@ -13,7 +13,7 @@ import {
 } from "components/ui/form";
 import { Input } from "components/ui/input";
 import { cn } from "lib/utils";
-import { FaRegEnvelope } from "react-icons/fa";
+import { Mail } from "lucide-react";
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   name: string;
@@ -36,13 +36,8 @@ const FormInput: FC<InputProps> = ({ name, label, disabled, ...rest }) => {
         const { value, onChange } = field;
         return (
           <FormItem className='flex flex-col gap-0'>
-            <FormLabel className='mb-1.5'>
+            <FormLabel className={`mb-1.5 ${required ? 'required' : ''}`}>
               {label}
-              {required && (
-                <span className='text-red-500' title='required'>
-                  *
-                </span>
-              )}
             </FormLabel>
             <FormControl>
               <div className='relative'>
@@ -59,15 +54,21 @@ const FormInput: FC<InputProps> = ({ name, label, disabled, ...rest }) => {
                   onChange={(e) => {
                     // Convert to number for number inputs
                     if (type === 'number') {
-                      const value = e.target.value === '' ? '' : parseFloat(e.target.value);
-                      onChange(value);
+                      const stringValue = e.target.value;
+                      if (stringValue === '' || stringValue === null || stringValue === undefined) {
+                        onChange(undefined); // Let validation handle empty values
+                      } else {
+                        const numericValue = parseFloat(stringValue);
+                        // Only set valid numbers, otherwise keep as undefined
+                        onChange(isNaN(numericValue) ? undefined : numericValue);
+                      }
                     } else {
                       onChange(e);
                     }
                   }}
                   value={value || ""} // Ensure value is never undefined
                   className={cn(
-                    "font-medium bg-[#F9F9F9] placeholder:text-black/30",
+                    "font-medium bg-gray-100 dark:bg-background placeholder:text-black/30 dark:placeholder:text-muted-foreground",
                     rest.className
                   )}
                 />
@@ -86,7 +87,7 @@ const FormInput: FC<InputProps> = ({ name, label, disabled, ...rest }) => {
 
                 {rest.type === "email" && (
                   <div className='absolute transform -translate-y-1/2 cursor-pointer top-1/2 right-4'>
-                    <FaRegEnvelope className='text-primary' />
+                    <Mail className='text-primary' />
                   </div>
                 )}
               </div>

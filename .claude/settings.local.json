@@ -15,7 +15,12 @@
       "Bash(npm run build:*)",
       "Bash(git merge:*)",
       "Bash(npx eslint:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(xargs sed:*)",
+      "Bash(lsof:*)",
+      "Bash(rm:*)",
+      "Bash(chmod:*)",
+      "Bash(/Users/muhammadilu/AHNI-New-FE/migrate-remaining-icons.sh)"
     ],
     "deny": [],
     "ask": []

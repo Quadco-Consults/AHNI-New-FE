@@ -116,25 +116,38 @@ export default function AllFundRequestPreview() {
       return first_name && last_name ? `${String(first_name)} ${String(last_name)}` : 'N/A';
     };
 
+    const getPosition = (userData: any) => {
+      if (!userData?.data?.position) return 'N/A';
+      const position = userData.data.position;
+
+      // If position is an object, try to get its name or title property
+      if (typeof position === 'object' && position !== null) {
+        return String(position.name || position.title || position.position || 'N/A');
+      }
+
+      // If position is a string, return it
+      return String(position);
+    };
+
     return {
       preparedBy: {
         name: getFullName(creatorData),
-        position: String(creatorData?.data?.position || 'N/A'),
+        position: getPosition(creatorData),
         date: formatDate(firstFundRequest.created_datetime)
       },
       reviewedBy: {
         name: getFullName(locationReviewerData),
-        position: String(locationReviewerData?.data?.position || 'N/A'),
+        position: getPosition(locationReviewerData),
         date: formatDate(firstFundRequest.updated_datetime)
       },
       authorizedBy: {
         name: getFullName(locationAuthorizerData),
-        position: String(locationAuthorizerData?.data?.position || 'N/A'),
+        position: getPosition(locationAuthorizerData),
         date: formatDate(firstFundRequest.updated_datetime)
       },
       approvedBy: {
         name: getFullName(hqApproverData),
-        position: String(hqApproverData?.data?.position || 'N/A'),
+        position: getPosition(hqApproverData),
         date: formatDate(firstFundRequest.updated_datetime)
       }
     };

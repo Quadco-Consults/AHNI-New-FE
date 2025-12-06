@@ -37,7 +37,7 @@ import { useGetAllActivityPlansQuery } from "@/features/programs/controllers/act
 import { useGetAllItemsQuery } from "@/features/modules/controllers/config/itemController";
 import VendorsAPI from "@/features/procurement/controllers/vendorController";
 import { useGetAllLocationsManager } from "@/features/modules/controllers/config/locationController";
-import { CATEGORY_IDS } from "@/constants/categories";
+// CATEGORY_IDS no longer needed since we use category__name for server-side filtering
 
 const NewVehicleRequest = () => {
   const form = useForm<TVehicleRequestFormValues>({
@@ -170,49 +170,61 @@ const NewVehicleRequest = () => {
   // Watch selected location for filtering assets
   const selectedLocation = form.watch("location");
 
-  // Fetch all vehicle assets using the items endpoint with vehicle category
-  const { data: asset } = useGetAllItemsQuery({
+  // Use direct vehicle category ID to fetch vehicles
+  const { data: asset, isLoading: isAssetsLoading, error: assetsError } = useGetAllItemsQuery({
     page: 1,
     size: 500,
-    search: "",
-    category: CATEGORY_IDS.VEHICLE, // b0983944-f926-4141-8e28-093960d75246
+    search: "", // Remove search filter to see all vehicles
+    category: "b0983944-f926-4141-8e28-093960d75246", // Direct vehicle category ID
     expand: "category,assignee,asset_type,project,donor,asset_condition,location,classification,implementer",
+  });
+
+  // Debug the vehicles query
+  console.log("🚗 VEHICLE ASSETS QUERY DEBUG (DIRECT CATEGORY):", {
+    categoryId: "b0983944-f926-4141-8e28-093960d75246",
+    searchTerm: "none - showing all vehicles",
+    isLoading: isAssetsLoading,
+    error: assetsError,
+    hasData: !!asset,
+    asset: asset,
+    totalAssets: asset?.data?.results?.length || 0,
+    statusCode: asset?.status,
+    message: asset?.message,
+    rawData: asset?.data,
+    allItemNames: asset?.data?.results?.map((item: any) => item.name),
+    sampleItems: asset?.data?.results?.slice(0, 5)?.map((item: any) => ({
+      name: item.name,
+      category: item.category?.name,
+      subcategory: item.subcategory?.name,
+      asset_type: item.asset_type?.name,
+      id: item.id
+    }))
   });
 
   const assetVehicleOptions = useMemo(
     () => {
       try {
-        const allAssets = asset?.data?.results || [];
+        const allVehicles = asset?.data?.results || [];
 
-        console.log("🚗 Vehicle Assets Debug:", {
-          totalAssets: allAssets.length,
+        console.log("🚗 Vehicle Assets Debug (Server-Filtered):", {
+          totalVehicles: allVehicles.length,
           selectedLocation,
-          sampleAsset: allAssets[0],
-          rawAssetData: asset,
+          sampleVehicle: allVehicles[0],
+          rawData: asset,
         });
 
-        // Filter assets by location if one is selected
-        // Category filtering is already handled by the API query
-        const filteredAssets = allAssets.filter((assetItem: any) => {
-          // If no location is selected, show all vehicles
-          if (!selectedLocation) return true;
+        // Server already filters for vehicles, so we only need to filter by location if selected
+        const filteredVehicles = selectedLocation
+          ? allVehicles.filter((vehicle: any) => {
+              // Filter by location - check if vehicle's location matches selected location
+              const locationMatch = vehicle.location?.id === selectedLocation || vehicle.location === selectedLocation;
+              return locationMatch;
+            })
+          : allVehicles; // Show all vehicles if no location is selected
 
-          // Filter by location - check if asset's location matches selected location
-          const locationMatch = assetItem.location?.id === selectedLocation || assetItem.location === selectedLocation;
+        console.log("✅ Location-filtered vehicles:", filteredVehicles.length);
 
-          console.log(`🔍 Vehicle "${assetItem.name}":`, {
-            hasLocation: !!assetItem.location,
-            locationId: assetItem.location?.id || assetItem.location,
-            selectedLocation,
-            locationMatch
-          });
-
-          return locationMatch;
-        });
-
-        console.log("✅ Filtered vehicle assets:", filteredAssets.length);
-
-        const options = filteredAssets.map(({ name, id, code, plate_number }: any) => ({
+        const options = filteredVehicles.map(({ name, id, code, plate_number }: any) => ({
           label: `${name}${plate_number ? ` (${plate_number})` : ''}${code ? ` - ${code}` : ''}`,
           value: id,
         }));
@@ -224,7 +236,7 @@ const NewVehicleRequest = () => {
 
         return options;
       } catch (error) {
-        console.error("Error filtering asset vehicles:", error);
+        console.error("Error processing vehicle options:", error);
         return [];
       }
     },

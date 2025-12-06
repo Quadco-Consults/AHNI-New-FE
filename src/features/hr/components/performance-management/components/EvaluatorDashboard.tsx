@@ -7,6 +7,7 @@ import { Button } from "components/ui/button";
 import { useRouter } from "next/navigation";
 import { useGetPerformanceAssesments } from "@/features/hr/controllers/hrPerformanceAssessmentController";
 import { PerformanceAssesment, EvaluatorType } from "@/features/hr/types/performance-assesment";
+import { CheckCircle, CheckCircle } from 'lucide-react';
 import { Icon } from "@iconify/react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
 
@@ -158,12 +159,12 @@ const EvaluatorDashboard: React.FC = () => {
           {/* Goals Count */}
           <div className="flex items-center gap-4 text-sm">
             <div className="flex items-center gap-1">
-              <Icon icon="ph:target-duotone" className="text-blue-600" />
+              <Target size={16} />
               <span>{assessment.employee_goals?.length || assessment.goals?.length || 0} Goals</span>
             </div>
             {myEvaluator?.submitted_at && (
               <div className="flex items-center gap-1 text-green-600">
-                <Icon icon="ph:check-circle-duotone" />
+                <CheckCircle size={16} />
                 <span>Submitted {new Date(myEvaluator.submitted_at).toLocaleDateString()}</span>
               </div>
             )}
@@ -178,7 +179,7 @@ const EvaluatorDashboard: React.FC = () => {
                 className="w-full"
                 onClick={() => router.push(`/dashboard/hr/performance-management/${assessment.id}`)}
               >
-                <Icon icon="ph:eye-duotone" className="mr-2" />
+                <Eye size={16} />
                 View Evaluation
               </Button>
             ) : (
@@ -187,7 +188,7 @@ const EvaluatorDashboard: React.FC = () => {
                 className="w-full"
                 onClick={() => router.push(`/dashboard/hr/performance-management/evaluate/${assessment.id}?evaluator=${currentUserId}`)}
               >
-                <Icon icon="ph:pencil-duotone" className="mr-2" />
+                <Pencil size={16} />
                 {myEvaluator?.status === 'in_progress' ? 'Continue Evaluation' : 'Start Evaluation'}
               </Button>
             )}
@@ -226,7 +227,7 @@ const EvaluatorDashboard: React.FC = () => {
                 <p className="text-3xl font-bold text-yellow-600">{pending.length}</p>
               </div>
               <div className="h-12 w-12 rounded-full bg-yellow-100 flex items-center justify-center">
-                <Icon icon="ph:clock-duotone" className="text-yellow-600 text-2xl" />
+                <Clock size={16} />
               </div>
             </div>
           </CardContent>
@@ -240,7 +241,7 @@ const EvaluatorDashboard: React.FC = () => {
                 <p className="text-3xl font-bold text-blue-600">{inProgress.length}</p>
               </div>
               <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
-                <Icon icon="ph:pencil-duotone" className="text-blue-600 text-2xl" />
+                <Pencil size={16} />
               </div>
             </div>
           </CardContent>
@@ -254,7 +255,7 @@ const EvaluatorDashboard: React.FC = () => {
                 <p className="text-3xl font-bold text-green-600">{completed.length}</p>
               </div>
               <div className="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center">
-                <Icon icon="ph:check-circle-duotone" className="text-green-600 text-2xl" />
+                <CheckCircle size={16} />
               </div>
             </div>
           </CardContent>
@@ -265,7 +266,7 @@ const EvaluatorDashboard: React.FC = () => {
       {myEvaluations.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center">
-            <Icon icon="ph:clipboard-text-duotone" className="text-6xl text-gray-400 mx-auto mb-4" />
+            <ClipboardList size={16} />
             <p className="text-gray-600">No evaluations assigned to you yet.</p>
           </CardContent>
         </Card>

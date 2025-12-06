@@ -47,18 +47,59 @@ export type TFormValuesSecond = z.infer<typeof SecuritySchema>;
 export default function Account() {
   // const dispatch = useAppDispatch();
 
-  const { data: profile, refetch: refetchProfile } = useGetUserProfile();
+  const { data: profile, refetch: refetchProfile, isLoading: isProfileLoading, error } = useGetUserProfile();
+
+  // Enhanced debugging for account data loading
+  console.log('🔍 Account Component - useGetUserProfile state:', {
+    profile,
+    isLoading: isProfileLoading,
+    error,
+    hasData: !!profile?.data,
+    fullProfile: profile,
+    errorDetails: error,
+    errorMessage: error?.message,
+    errorStatus: (error as any)?.response?.status
+  });
+
+  // Check authentication state
+  if (typeof window !== 'undefined') {
+    console.log('🔍 Account Component - Authentication check:', {
+      hasToken: !!localStorage.getItem('token'),
+      tokenPreview: localStorage.getItem('token')?.substring(0, 20) + '...',
+      hasAccessToken: !!localStorage.getItem('access_token'),
+      accessTokenPreview: localStorage.getItem('access_token')?.substring(0, 20) + '...',
+      currentURL: window.location.href,
+      authRequired: !localStorage.getItem('token') && !localStorage.getItem('access_token')
+    });
+
+    // If no tokens and we get a 401/403 error, redirect to login
+    if (!localStorage.getItem('token') && !localStorage.getItem('access_token')) {
+      console.log('❌ Account Component - No authentication tokens found, may need to login');
+    }
+  }
   const dispatch = useAppDispatch();
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  const { updateUser, isLoading: isUpdateLoading } = useUpdateUser(profile?.data?.id || "");
+  // Get user ID with debugging
+  const userId = ((profile?.data || profile) as any)?.id;
+  console.log('🔍 Account Component - User ID for updateUser hook:', {
+    userId,
+    hasProfile: !!profile,
+    profileData: profile?.data,
+    directProfile: profile,
+    rawUserId: userId
+  });
+
+  // Initialize the updateUser hook with a temporary ID, we'll validate before making calls
+  // The hook needs to be initialized but we won't use it unless we have a valid user ID
+  const { updateUser, isLoading: isUpdateLoading } = useUpdateUser(userId || "temp-user-id");
   const { data: role } = useGetAllRoles({
     page: 1,
     size: 2000000,
   });
 
-  const { authChangePassword, isLoading } = useAuthChangePassword();
+  const { authChangePassword, isLoading: isPasswordChangeLoading } = useAuthChangePassword();
 
   const Profileform = useForm<TFormValues>({
     resolver: zodResolver(ProfileSchema),
@@ -78,7 +119,7 @@ export default function Account() {
     },
   });
 
-  const roleOptions = role?.data?.results?.map(({ name, id }: any) => ({
+  const roleOptions = (role as any)?.data?.results?.map(({ name, id }: any) => ({
     label: name,
     value: id,
   })) || [];
@@ -94,31 +135,92 @@ export default function Account() {
   const [file, setFile] = useState<File>();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Token validation for better user experience
   useEffect(() => {
-    if (profile?.data) {
-      const roles = profile?.data?.roles || [];
+    const validateToken = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        // Validate token by testing the profile endpoint
+        const response = await fetch('https://ahni-erp-029252c2fbb9.herokuapp.com/api/v1/users/profile/', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok && response.status === 401) {
+          console.warn('Token expired, redirecting to login');
+          toast.error("Your session has expired. Please log in again to continue.");
+
+          setTimeout(() => {
+            window.location.href = '/auth/login';
+          }, 2000);
+        }
+      } catch (err) {
+        console.error('Token validation error:', err);
+      }
+    };
+
+    // Run token validation after component mounts
+    setTimeout(validateToken, 1000);
+  }, []);
+
+  useEffect(() => {
+    console.log('🔍 Account Component - Profile data:', profile);
+    console.log('🔍 Account Component - Profile loading:', !profile);
+    console.log('🔍 Account Component - Profile structure check:', {
+      hasProfile: !!profile,
+      hasProfileData: !!profile?.data,
+      profileKeys: profile ? Object.keys(profile) : [],
+      dataKeys: profile?.data ? Object.keys(profile.data) : []
+    });
+
+    // Check if we have profile data in the right structure
+    // Handle both cases: profile.data (wrapped) or profile (direct)
+    const profileData = (profile?.data || profile) as any;
+
+    if (profileData && typeof profileData === 'object' && (profileData as any).id) {
+      console.log('📋 Raw profile data structure:', JSON.stringify(profileData, null, 2));
+      console.log('🔄 Form reset triggered - About to populate form with profile data');
+
+      const roles = profileData.roles || [];
       const roleValues = roles.map((role: any) => role.id || role);
 
-      Profileform.reset({
-        first_name: profile.data.first_name || "",
-        last_name: profile.data.last_name || "",
-        email: profile.data.email || "",
+      console.log('🔄 Form reset - Processed role values:', roleValues);
+
+      const formData = {
+        first_name: profileData.first_name || "",
+        last_name: profileData.last_name || "",
+        email: profileData.email || "",
         // @ts-ignore
-        username: profile.data.username || "",
+        username: profileData.username || profileData.employee_id || "",
         // @ts-ignore
         role: roleValues || [],
-        gender: profile.data.gender || "",
-        profile_picture: profile.data.profile_picture || "",
-        mobile_number: profile.data.mobile_number || "",
-        department: typeof profile.data.department === 'object' && profile.data.department !== null
-          ? profile.data.department.name || profile.data.department.title || ""
-          : profile.data.department || "",
-        position: typeof profile.data.position === 'object' && profile.data.position !== null
-          ? profile.data.position.name || profile.data.position.title || ""
-          : profile.data.position || "",
-        location: profile.data.location || "",
-        user_type: profile.data.user_type || "",
-      });
+        gender: profileData.gender || "",
+        profile_picture: profileData.profile_picture || "",
+        mobile_number: profileData.mobile_number || "",
+        department: typeof profileData.department === 'object' && profileData.department !== null
+          ? profileData.department.name || profileData.department.title || ""
+          : profileData.department || "",
+        position: typeof profileData.position === 'object' && profileData.position !== null
+          ? profileData.position.name || profileData.position.title || ""
+          : profileData.position || "",
+        location: typeof profileData.location === 'object' && profileData.location !== null
+          ? profileData.location.name || profileData.location.title || ""
+          : profileData.location || "",
+        user_type: profileData.user_type || "",
+      };
+
+      console.log('🔄 Form reset - Data about to be set:', formData);
+
+      Profileform.reset(formData);
+
+      console.log('✅ Form reset completed');
+    } else {
+      console.log('❌ No profile data available for form reset');
     }
   }, [profile, Profileform]);
 
@@ -134,30 +236,55 @@ export default function Account() {
   };
 
   const onSubmitProfile = async (data: TFormValues) => {
+    console.log('🚨 FORM SUBMISSION STARTED!');
+    console.log('🔍 Form data received:', data);
+    console.log('🔍 Current file state:', file);
+
     // Dispatch update profile action or API call
 
     try {
-      if (!profile?.data?.id) {
+      const actualUserId = ((profile?.data || profile) as any)?.id;
+      console.log('🔍 Extracted user ID:', actualUserId);
+
+      if (!actualUserId) {
+        console.log('❌ No user ID found');
         toast.error("User ID is missing. Please refresh the page.");
         return;
       }
 
-      const formData = new FormData();
+      console.log('🔍 Form submission - Using user ID:', actualUserId);
+      console.log('🔍 Form submission - Hook was initialized with:', userId);
 
-      formData.append("first_name", data.first_name);
-      formData.append("last_name", data.last_name);
-      formData.append("email", data.email);
-      formData.append("gender", data.gender);
-      formData.append("mobile_number", data.mobile_number);
-      // Don't send disabled fields (department, position, location, user_type) as they are read-only
-      // and the backend expects UUIDs but returns display names
-      data.role.forEach((role) => formData.append("roles", role));
-
+      // Use FormData ONLY when uploading a file, otherwise use JSON like the manager profile
       if (file) {
-        formData.append("profile_picture", file);
-      }
+        console.log('📁 Profile picture detected - using FormData for file upload');
+        const formData = new FormData();
 
-      await updateUser(formData);
+        formData.append("first_name", data.first_name);
+        formData.append("last_name", data.last_name);
+        formData.append("email", data.email);
+        formData.append("gender", data.gender);
+        formData.append("mobile_number", data.mobile_number);
+        data.role.forEach((role) => formData.append("roles", role));
+        formData.append("profile_picture", file);
+
+        console.log('📤 Submitting FormData via updateUser hook...');
+        const result = await updateUser(formData);
+      } else {
+        console.log('📝 No profile picture - using JSON like manager profile');
+        const jsonData = {
+          first_name: data.first_name,
+          last_name: data.last_name,
+          email: data.email,
+          gender: data.gender,
+          mobile_number: data.mobile_number,
+          roles: data.role, // Note: roles not role for JSON
+        };
+
+        console.log('📤 Submitting JSON data via updateUser hook...');
+        const result = await updateUser(jsonData);
+      }
+      console.log('✅ Form submission completed:', result);
 
       // Manually invalidate and refetch the user profile to update the header avatar
       await queryClient.invalidateQueries({ queryKey: ["user-profile"] });
@@ -167,8 +294,16 @@ export default function Account() {
       setFile(undefined);
 
       toast.success("User Updated");
+      console.log('🎉 Profile update successful!');
     } catch (error: any) {
-      console.error("Profile update error:", error);
+      console.error("❌ Profile update error:", error);
+      console.error("❌ Error details:", {
+        message: error?.message,
+        data: error?.data,
+        response: error?.response,
+        stack: error?.stack,
+        name: error?.name
+      });
       toast.error(error?.message || error?.data?.message || "Something went wrong");
     }
   };
@@ -230,8 +365,8 @@ export default function Account() {
               style={{
                 backgroundImage: file
                   ? `url(${URL.createObjectURL(file)})`
-                  : profile?.data?.profile_picture
-                  ? `url(${profile?.data?.profile_picture})`
+                  : (profile as any)?.profile_picture
+                  ? `url(${(profile as any)?.profile_picture})`
                   : "none",
                 backgroundSize: "cover",
                 backgroundPosition: "center",
@@ -418,9 +553,9 @@ export default function Account() {
 
                       <div className='flex justify-end gap-5 mt-16'>
                         <FormButton
-                          loading={isLoading}
+                          loading={isPasswordChangeLoading}
                           type='submit'
-                          disabled={isLoading}
+                          disabled={isPasswordChangeLoading}
                         >
                           Update Password
                         </FormButton>

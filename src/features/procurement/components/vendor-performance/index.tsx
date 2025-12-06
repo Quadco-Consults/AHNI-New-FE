@@ -9,7 +9,7 @@ import { Badge } from "components/ui/badge";
 import { Checkbox } from "components/ui/checkbox";
 import { cn } from "lib/utils";
 import { Button } from "components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, Trash2, Search } from 'lucide-react';
 import { Input } from "components/ui/input";
 import Link from "next/link";
 import { RouteEnum } from "constants/RouterConstants";

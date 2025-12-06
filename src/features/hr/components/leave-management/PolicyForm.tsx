@@ -197,7 +197,11 @@ const PolicyForm = () => {
                       <SelectContent>
                         {leaveTypes.map((leaveType) => (
                           <SelectItem key={leaveType.id} value={leaveType.id}>
-                            {leaveType.name}
+                            {typeof leaveType.name === 'string'
+                              ? leaveType.name
+                              : typeof leaveType.name === 'object' && leaveType.name?.name
+                              ? leaveType.name.name
+                              : leaveType.leave_type_name || 'Unknown Leave Type'}
                           </SelectItem>
                         ))}
                       </SelectContent>

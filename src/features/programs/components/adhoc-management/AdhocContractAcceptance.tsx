@@ -78,7 +78,7 @@ export default function AdhocContractAcceptance() {
             {/* Header */}
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900">Adhoc Contract Acceptance Portal</h1>
+                    <h1 className="text-3xl font-bold text-gray-900">Adhoc Contract Portal</h1>
                     <p className="text-gray-600 mt-2">
                         Job adverts with issued contracts awaiting acceptance from adhoc staff
                     </p>

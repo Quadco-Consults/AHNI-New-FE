@@ -39,7 +39,7 @@ export default function PaymentRequestHome() {
                 Unable to Load Payment Requests
               </h3>
               <p className='text-red-600 mb-4'>
-                There's a server issue preventing payment requests from loading.
+                There&apos;s a server issue preventing payment requests from loading.
               </p>
               <div className='text-sm text-red-500 bg-red-100 p-3 rounded mb-4 text-left'>
                 <strong>Technical Details:</strong><br/>

@@ -15,7 +15,7 @@ import { useGetVendors, useDeleteVendor, useBulkUploadVendors } from "@/features
 import { VendorsResultsData } from "@/definations/procurement-types/vendors";
 import Link from "next/link";
 import { toast } from "sonner";
-import { Upload } from "lucide-react";
+import { Upload, Edit, Trash2 } from 'lucide-react';
 import VendorBulkUploadModal from "./vendor-management/VendorBulkUploadModal";
 import { VendorTemplateData } from "@/features/procurement/utils/vendorTemplateGenerator";
 

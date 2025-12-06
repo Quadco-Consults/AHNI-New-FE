@@ -1,4 +1,4 @@
-import { Icon } from "@iconify/react";
+import { Briefcase } from 'lucide-react';import { Icon } from "@iconify/react";
 import { ColumnDef } from "@tanstack/react-table";
 import Card from "components/Card";
 import DataTable from "components/Table/DataTable";

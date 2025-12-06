@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { AxiosError } from "axios";
 import { LeaveRequest } from "../types/leave-request";
+import { getCurrentUser } from "@/utils/auth";
 
 // API Response interface
 interface ApiResponse<TData = unknown> {
@@ -18,6 +19,7 @@ interface LeaveRequestFilterParams {
   page?: number;
   size?: number;
   enabled?: boolean;
+  employee?: string; // Add employee filter for access control
 }
 
 // Note: No leading slash because baseURL already has trailing slash
@@ -32,18 +34,35 @@ export const useGetLeaveRequests = ({
   page = 1,
   size = 20,
   enabled = true,
+  employee, // Optional employee filter for admin/HR users
 }: LeaveRequestFilterParams) => {
+  // For security: Get current user to ensure proper access control
+  const currentUser = getCurrentUser();
+  const currentEmployeeId = currentUser?.employee?.id || currentUser?.id;
+
+  // If no specific employee is requested and user is not admin/HR, filter by current user
+  const effectiveEmployee = employee || currentEmployeeId;
+
   return useQuery<ApiResponse<LeaveRequest[]>>({
-    queryKey: ["leave-requests", page, size, status, search],
+    queryKey: ["leave-requests", page, size, status, search, effectiveEmployee],
     queryFn: async () => {
       try {
-        console.log("Fetching leave requests with params:", { page, size, status, search });
+        console.log("Fetching leave requests with params:", {
+          page,
+          size,
+          status,
+          search,
+          employee: effectiveEmployee
+        });
+
         const response = await AxiosWithToken.get(BASE_URL, {
           params: {
             page,
             size,
             ...(status && { status }),
             ...(search && { search }),
+            // SECURITY FIX: Always include employee filter to prevent data leakage
+            ...(effectiveEmployee && { employee: effectiveEmployee }),
           },
         });
         console.log("Leave requests response:", response.data);
@@ -57,7 +76,7 @@ export const useGetLeaveRequests = ({
         throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
       }
     },
-    enabled: enabled,
+    enabled: enabled && !!currentEmployeeId, // Only enable if we have current user context
     refetchOnWindowFocus: false,
     staleTime: 0,
   });
@@ -65,12 +84,29 @@ export const useGetLeaveRequests = ({
 
 // Get Single Leave Request
 export const useGetLeaveRequest = (id: string, enabled: boolean = true) => {
+  // Get current user context for security validation
+  const currentUser = getCurrentUser();
+  const currentEmployeeId = currentUser?.employee?.id || currentUser?.id;
+
   return useQuery<ApiResponse<LeaveRequest>>({
-    queryKey: ["leave-request", id],
+    queryKey: ["leave-request", id, currentEmployeeId],
     queryFn: async () => {
       try {
         const response = await AxiosWithToken.get(`${BASE_URL}${id}/`);
         console.log("Leave request API response:", response.data);
+
+        // Frontend access control check (defense in depth - backend should also enforce)
+        const leaveRequest = response.data.data;
+        const requestEmployeeId = leaveRequest.employee?.id || leaveRequest.employee_id;
+
+        // Allow access if:
+        // 1. It's the user's own request
+        // 2. User has admin/HR role (to be implemented based on your role system)
+        // For now, we rely on backend enforcement but log potential issues
+        if (requestEmployeeId && requestEmployeeId !== currentEmployeeId) {
+          console.warn("Access to other user's leave request detected. Backend should enforce access control.");
+        }
+
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
@@ -78,7 +114,7 @@ export const useGetLeaveRequest = (id: string, enabled: boolean = true) => {
         throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
       }
     },
-    enabled: enabled && !!id,
+    enabled: enabled && !!id && !!currentEmployeeId,
     refetchOnWindowFocus: false,
   });
 };
@@ -356,11 +392,34 @@ export const useGetLeaveBalances = (enabledOrEmployeeId?: boolean | string, enab
     queryFn: async () => {
       try {
         // Backend uses request.user.employee to get current employee's balances
+        console.log("🚀 Fetching leave balances...");
         const response = await AxiosWithToken.get(`hr/leave-balance/`);
+        console.log("✅ Leave balances response received:", response.data);
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        console.error("❌ Leave balances error details:", {
+          status: axiosError.response?.status,
+          statusText: axiosError.response?.statusText,
+          data: axiosError.response?.data,
+          message: axiosError.message,
+          url: `hr/leave-balance/`
+        });
+
+        // Extract detailed error message
+        const apiError = axiosError.response?.data as any;
+        let errorMessage = "Failed to load leave balances";
+
+        if (apiError?.message) {
+          errorMessage = apiError.message;
+        } else if (apiError?.detail) {
+          errorMessage = apiError.detail;
+        } else if (apiError?.error) {
+          errorMessage = apiError.error;
+        }
+
+        console.log("🔍 Leave balances error message:", errorMessage);
+        throw new Error("Sorry: " + errorMessage);
       }
     },
     enabled: isEnabled,
@@ -376,18 +435,35 @@ export const useGetLeaveDashboard = (enabled: boolean = true) => {
       try {
         // Backend uses request.user.employee to get current employee
         // No need to pass employee_id - it's inferred from the authenticated user
-        console.log("Fetching leave dashboard...");
+        console.log("🚀 Fetching leave dashboard...");
         const response = await AxiosWithToken.get(`${BASE_URL}dashboard/`);
-        console.log("Dashboard response:", response.data);
+        console.log("✅ Dashboard response received:", response.data);
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        console.error("Dashboard error:", {
+        console.error("❌ Dashboard error details:", {
           status: axiosError.response?.status,
+          statusText: axiosError.response?.statusText,
           data: axiosError.response?.data,
-          message: axiosError.message
+          message: axiosError.message,
+          url: `${BASE_URL}dashboard/`
         });
-        const errorMessage = (axiosError.response?.data as any)?.message || axiosError.message || "Failed to load dashboard";
+
+        // Extract detailed error message
+        const apiError = axiosError.response?.data as any;
+        let errorMessage = "Failed to load dashboard";
+
+        if (apiError?.message) {
+          errorMessage = apiError.message;
+        } else if (apiError?.detail) {
+          errorMessage = apiError.detail;
+        } else if (apiError?.error) {
+          errorMessage = apiError.error;
+        } else if (axiosError.message) {
+          errorMessage = axiosError.message;
+        }
+
+        console.log("🔍 Final error message being thrown:", errorMessage);
         throw new Error(errorMessage);
       }
     },

@@ -1,4 +1,5 @@
 /* eslint-disable react/prop-types */
+import { Search } from 'lucide-react';
 import { Icon } from "@iconify/react";
 import Card from "components/Card";
 import { Badge } from "components/ui/badge";
@@ -14,16 +15,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { SolicitationSubmissionResultsData } from "definations/procurement-types/solicitation";
 import { useGetSolicitationSubmission } from "@/features/procurement/controllers/vendorBidSubmissionsController";
 import IconButton from "components/IconButton";
-
-const generatePath = (route: string, params?: Record<string, any>): string => {
-  let path = route;
-  if (params) {
-    Object.entries(params).forEach(([key, value]) => {
-      path = path.replace(`[${key}]`, String(value));
-    });
-  }
-  return path;
-};
+import { generatePath } from "@/utils/generatePath";
 
 const VendorSubmission = (props?: any) => {
   const params = useParams();

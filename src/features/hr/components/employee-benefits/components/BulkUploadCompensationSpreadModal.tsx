@@ -4,8 +4,10 @@ import { useState } from "react";
 import { toast } from "sonner";
 import Modal from "react-modal";
 import { Button } from "components/ui/button";
+import { Download, CheckCircle, Loader2 } from 'lucide-react';
 import { Icon } from "@iconify/react";
-import * as XLSX from "xlsx";
+import { XLSX } from "@/utils/excelUtils";
+import readXlsxFile from 'read-excel-file';
 import { useCreateCompensationSpread } from "@/features/hr/controllers/hrCompensationSpreadController";
 
 type PropsType = {
@@ -107,32 +109,42 @@ const BulkUploadCompensationSpreadModal = (props: PropsType) => {
     toast.success("Template downloaded successfully!");
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const selectedFile = e.target.files[0];
       setFile(selectedFile);
-      parseExcelFile(selectedFile);
+      await parseExcelFile(selectedFile);
     }
   };
 
-  const parseExcelFile = (file: File) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const data = new Uint8Array(e.target?.result as ArrayBuffer);
-        const workbook = XLSX.read(data, { type: "array" });
-        const sheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[sheetName];
-        const jsonData = XLSX.utils.sheet_to_json(worksheet);
+  const parseExcelFile = async (file: File) => {
+    try {
+      const jsonData = await readXlsxFile(file);
 
-        setParsedData(jsonData);
-        toast.success(`File parsed successfully! ${jsonData.length} employee records found.`);
-      } catch (error) {
-        toast.error("Error parsing file. Please check the format.");
+      // Convert array of arrays to array of objects (header is first row)
+      if (jsonData.length === 0) {
+        toast.error("File is empty.");
         setFile(null);
+        return;
       }
-    };
-    reader.readAsArrayBuffer(file);
+
+      const headers = jsonData[0] as string[];
+      const dataRows = jsonData.slice(1);
+
+      const convertedData = dataRows.map(row => {
+        const obj: any = {};
+        headers.forEach((header, index) => {
+          obj[header] = row[index];
+        });
+        return obj;
+      });
+
+      setParsedData(convertedData);
+      toast.success(`File parsed successfully! ${convertedData.length} employee records found.`);
+    } catch (error) {
+      toast.error("Error parsing file. Please check the format.");
+      setFile(null);
+    }
   };
 
   const handleUpload = async () => {
@@ -206,7 +218,7 @@ const BulkUploadCompensationSpreadModal = (props: PropsType) => {
           {/* Download Template */}
           <div className="border border-dashed border-gray-300 rounded-lg p-6 bg-blue-50">
             <div className="flex items-start gap-3">
-              <Icon icon="ph:file-arrow-down-duotone" fontSize={32} className="text-blue-600" />
+              <FileDown size={16} />
               <div className="flex-1">
                 <h3 className="font-semibold text-sm mb-1">Step 1: Download Template</h3>
                 <p className="text-xs text-gray-600 mb-3">
@@ -217,7 +229,7 @@ const BulkUploadCompensationSpreadModal = (props: PropsType) => {
                   variant="outline"
                   className="flex items-center gap-2"
                 >
-                  <Icon icon="ph:download" fontSize={18} />
+                  <Download size={16} />
                   Download Template
                 </Button>
               </div>
@@ -227,7 +239,7 @@ const BulkUploadCompensationSpreadModal = (props: PropsType) => {
           {/* Upload File */}
           <div className="border border-dashed border-gray-300 rounded-lg p-6 bg-green-50">
             <div className="flex items-start gap-3">
-              <Icon icon="ph:file-arrow-up-duotone" fontSize={32} className="text-green-600" />
+              <FileUp size={16} />
               <div className="flex-1">
                 <h3 className="font-semibold text-sm mb-1">Step 2: Upload Filled Template</h3>
                 <p className="text-xs text-gray-600 mb-3">
@@ -243,14 +255,14 @@ const BulkUploadCompensationSpreadModal = (props: PropsType) => {
                 <label htmlFor="file-upload-spread">
                   <Button variant="outline" className="flex items-center gap-2" asChild>
                     <span>
-                      <Icon icon="ph:upload" fontSize={18} />
+                      <Upload size={16} />
                       Choose File
                     </span>
                   </Button>
                 </label>
                 {file && (
                   <div className="mt-2 flex items-center gap-2 text-sm text-green-600">
-                    <Icon icon="ph:check-circle" fontSize={18} />
+                    <CheckCircle size={16} />
                     <span>{file.name}</span>
                   </div>
                 )}
@@ -305,12 +317,12 @@ const BulkUploadCompensationSpreadModal = (props: PropsType) => {
           >
             {isUploading ? (
               <>
-                <Icon icon="ph:spinner" fontSize={18} className="animate-spin" />
+                <Loader2 size={16} />
                 Uploading...
               </>
             ) : (
               <>
-                <Icon icon="ph:upload" fontSize={18} />
+                <Upload size={16} />
                 Upload {parsedData.length} Employees
               </>
             )}

@@ -41,8 +41,96 @@ export default function StoresHomePage() {
     size: 20,
   });
 
-  const stores = storesData?.data?.results || [];
+  const rawStores = storesData?.data?.results || [];
+
+  // Deduplicate stores by ID (keep the first occurrence of each unique ID)
+  const uniqueStoresMap = new Map();
+  rawStores.forEach((store: any) => {
+    if (!uniqueStoresMap.has(store.id)) {
+      uniqueStoresMap.set(store.id, store);
+    }
+  });
+
+  // If we have duplicate names but different IDs, prioritize store with inventory items
+  const storesByName = new Map();
+  Array.from(uniqueStoresMap.values()).forEach((store: any) => {
+    const existingStore = storesByName.get(store.name);
+    if (!existingStore) {
+      // First store with this name
+      storesByName.set(store.name, store);
+    } else {
+      // Choose store with inventory over empty store
+      const currentHasItems = store.available_items_count > 0 || store.total_stock_value > 0;
+      const existingHasItems = existingStore.available_items_count > 0 || existingStore.total_stock_value > 0;
+
+      if (currentHasItems && !existingHasItems) {
+        // Current store has items, existing doesn't - use current
+        console.log(`🔄 DEDUPLICATION: Replacing empty store "${existingStore.name}" (ID: ${existingStore.id}) with inventory store (ID: ${store.id})`);
+        storesByName.set(store.name, store);
+      } else if (!currentHasItems && existingHasItems) {
+        // Existing store has items, current doesn't - keep existing
+        console.log(`🔄 DEDUPLICATION: Keeping inventory store "${existingStore.name}" (ID: ${existingStore.id}) over empty store (ID: ${store.id})`);
+        // Do nothing - keep existing
+      } else if (currentHasItems && existingHasItems) {
+        // Both have items - use the one with more items
+        if (store.available_items_count > existingStore.available_items_count) {
+          console.log(`🔄 DEDUPLICATION: Using store with more items "${store.name}" (ID: ${store.id}, ${store.available_items_count} items) over (ID: ${existingStore.id}, ${existingStore.available_items_count} items)`);
+          storesByName.set(store.name, store);
+        }
+      } else {
+        // Neither has items - use the more recent one (original logic)
+        if (new Date(store.created_datetime) > new Date(existingStore.created_datetime)) {
+          console.log(`🔄 DEDUPLICATION: Using newer empty store "${store.name}" (ID: ${store.id}) over older empty store (ID: ${existingStore.id})`);
+          storesByName.set(store.name, store);
+        }
+      }
+    }
+  });
+
+  const stores = Array.from(storesByName.values());
   const pagination = storesData?.data?.paginator;
+
+  // Update pagination count to reflect deduplicated stores
+  const adjustedPagination = pagination ? {
+    ...pagination,
+    count: stores.length
+  } : pagination;
+
+  // Debug logging for duplicate stores
+  console.log("🔍 STORES DEBUG - Raw API response:", storesData);
+  console.log("🔍 STORES DEBUG - Raw stores count:", rawStores.length);
+  console.log("🔍 STORES DEBUG - Deduplicated stores count:", stores.length);
+  console.log("🔍 STORES DEBUG - Final stores array:", stores);
+  console.log("🔍 STORES DEBUG - Store names:", stores.map((store: any) => ({ id: store.id, name: store.name, code: store.code })));
+
+  // Check for duplicates in raw data
+  const rawStoreNames = rawStores.map((store: any) => store.name);
+  const rawDuplicateNames = rawStoreNames.filter((name: string, index: number) => rawStoreNames.indexOf(name) !== index);
+  if (rawDuplicateNames.length > 0) {
+    console.log("⚠️ RAW DUPLICATE STORE NAMES DETECTED:", rawDuplicateNames);
+
+    // Show all duplicate stores with their details
+    rawDuplicateNames.forEach((duplicateName: string) => {
+      const duplicateStores = rawStores.filter((store: any) => store.name === duplicateName);
+      console.log(`🔍 Raw stores with name "${duplicateName}":`, duplicateStores.map((store: any) => ({
+        id: store.id,
+        name: store.name,
+        code: store.code,
+        store_type: store.store_type,
+        is_active: store.is_active,
+        created_datetime: store.created_datetime
+      })));
+    });
+  }
+
+  // Check if deduplication worked
+  const finalStoreNames = stores.map((store: any) => store.name);
+  const finalDuplicateNames = finalStoreNames.filter((name: string, index: number) => finalStoreNames.indexOf(name) !== index);
+  if (finalDuplicateNames.length === 0) {
+    console.log("✅ DEDUPLICATION SUCCESSFUL - No duplicate names in final array");
+  } else {
+    console.log("❌ DEDUPLICATION FAILED - Still have duplicates:", finalDuplicateNames);
+  }
 
   // Delete mutation
   const { deleteStore, isLoading: isDeleting } = useDeleteStore(deleteId || "");
@@ -138,10 +226,10 @@ export default function StoresHomePage() {
             data={stores}
             isLoading={isLoading}
             pagination={
-              pagination
+              adjustedPagination
                 ? {
-                    total: pagination.count,
-                    pageSize: pagination.page_size,
+                    total: adjustedPagination.count,
+                    pageSize: adjustedPagination.page_size,
                     onChange: (page: number) => setPage(page),
                   }
                 : undefined

@@ -1280,8 +1280,13 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
                     control={control}
                     name='reviewed_by'
                     render={({ field }) => (
-                      <Select
-                        value={field.value}
+                      <FormSelect
+                        name='reviewed_by'
+                        placeholder="Select reviewer"
+                        options={usersOptions || []}
+                        searchPlaceholder="Search reviewers by name..."
+                        emptyMessage="No reviewers found matching your search."
+                        forceSearch={true} // Essential for 2M+ users
                         onValueChange={(value) => {
                           field.onChange(value);
                           // Auto-populate role when user is selected
@@ -1292,18 +1297,7 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
                             console.log("✅ Auto-set role_reviewed_by:", roleId);
                           }
                         }}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select reviewer" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {(users as any)?.data?.results?.map((user: any) => (
-                            <SelectItem key={user.id} value={String(user.id)}>
-                              {`${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Unnamed User'}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      />
                     )}
                   />
                 )}
@@ -1342,8 +1336,13 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
                     control={control}
                     name='authorised_by'
                     render={({ field }) => (
-                      <Select
-                        value={field.value}
+                      <FormSelect
+                        name='authorised_by'
+                        placeholder="Select authorizer"
+                        options={usersOptions || []}
+                        searchPlaceholder="Search authorizers by name..."
+                        emptyMessage="No authorizers found matching your search."
+                        forceSearch={true} // Essential for 2M+ users
                         onValueChange={(value) => {
                           field.onChange(value);
                           // Auto-populate role when user is selected
@@ -1354,18 +1353,7 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
                             console.log("✅ Auto-set role_authorised_by:", roleId);
                           }
                         }}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select authorizer" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {(users as any)?.data?.results?.map((user: any) => (
-                            <SelectItem key={user.id} value={String(user.id)}>
-                              {`${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Unnamed User'}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      />
                     )}
                   />
                 )}
@@ -1404,8 +1392,13 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
                     control={control}
                     name='approved_by'
                     render={({ field }) => (
-                      <Select
-                        value={field.value}
+                      <FormSelect
+                        name='approved_by'
+                        placeholder="Select approver"
+                        options={usersOptions || []}
+                        searchPlaceholder="Search approvers by name..."
+                        emptyMessage="No approvers found matching your search."
+                        forceSearch={true} // Essential for 2M+ users
                         onValueChange={(value) => {
                           field.onChange(value);
                           // Auto-populate role when user is selected
@@ -1416,18 +1409,7 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
                             console.log("✅ Auto-set role_approved_by:", roleId);
                           }
                         }}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select approver" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {(users as any)?.data?.results?.map((user: any) => (
-                            <SelectItem key={user.id} value={String(user.id)}>
-                              {`${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Unnamed User'}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      />
                     )}
                   />
                 )}

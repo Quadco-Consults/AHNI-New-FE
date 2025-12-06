@@ -26,7 +26,7 @@ import {
   useFieldArray,
   useForm,
 } from "react-hook-form";
-import { AiFillPlusCircle } from "react-icons/ai";
+import { PlusCircle } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import {
   useCreateConsultancyStaffMutation,
@@ -631,7 +631,7 @@ export default function NewConsultancyStaffForm({
               });
             }}
           >
-            <AiFillPlusCircle size={24} className='text-green-500' />
+            <PlusCircle size={24} className='text-green-500' />
             Add Referee
           </Button>
         </section>

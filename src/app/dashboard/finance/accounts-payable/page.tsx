@@ -318,6 +318,7 @@ export default function AccountsPayablePage() {
   // Bills columns
   const billsColumns = [
     {
+      id: "bill_number",
       accessorKey: "bill_number",
       header: "Bill #",
       cell: ({ row }: any) => (
@@ -325,6 +326,7 @@ export default function AccountsPayablePage() {
       ),
     },
     {
+      id: "vendor_name",
       accessorKey: "vendor_name",
       header: "Vendor",
       cell: ({ row }: any) => (
@@ -332,6 +334,7 @@ export default function AccountsPayablePage() {
       ),
     },
     {
+      id: "bill_date",
       accessorKey: "bill_date",
       header: "Bill Date",
       cell: ({ row }: any) => (
@@ -341,6 +344,7 @@ export default function AccountsPayablePage() {
       ),
     },
     {
+      id: "due_date",
       accessorKey: "due_date",
       header: "Due Date",
       cell: ({ row }: any) => {
@@ -354,6 +358,7 @@ export default function AccountsPayablePage() {
       },
     },
     {
+      id: "total_amount",
       accessorKey: "total_amount",
       header: "Amount",
       cell: ({ row }: any) => (
@@ -363,6 +368,7 @@ export default function AccountsPayablePage() {
       ),
     },
     {
+      id: "balance_due",
       accessorKey: "balance_due",
       header: "Balance Due",
       cell: ({ row }: any) => {
@@ -375,6 +381,7 @@ export default function AccountsPayablePage() {
       },
     },
     {
+      id: "status",
       accessorKey: "status",
       header: "Status",
       cell: ({ row }: any) => {
@@ -559,15 +566,12 @@ export default function AccountsPayablePage() {
             <DataTable
               columns={billsColumns}
               data={mockVendorBills}
-              pageCount={Math.ceil(mockVendorBills.length / (filters.page_size || 10))}
-              pageIndex={(filters.page || 1) - 1}
-              pageSize={filters.page_size || 10}
-              onPaginationChange={(pagination) => {
-                setFilters(prev => ({
-                  ...prev,
-                  page: pagination.pageIndex + 1,
-                  page_size: pagination.pageSize,
-                }));
+              pagination={{
+                total: mockVendorBills.length,
+                pageSize: filters.page_size || 10,
+                onChange: (page) => {
+                  setFilters(prev => ({ ...prev, page }));
+                }
               }}
             />
           </Card>

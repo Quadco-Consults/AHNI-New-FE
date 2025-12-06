@@ -213,12 +213,13 @@ export default function AcceptanceForm() {
                 // Determine the correct redirect path based on applicant type
                 // ADHOC_STAFF and ADHOC types go to adhoc-database
                 // CONSULTANT and FACILITATOR types go to consultancy-database
-                const isAdhocType = userType === "ADHOC_STAFF" || userType === "ADHOC";
+                const redirectUserType = applicant?.type || "ADHOC_STAFF";
+                const isAdhocType = redirectUserType === "ADHOC_STAFF" || redirectUserType === "ADHOC";
                 const redirectPath = isAdhocType
                     ? "/dashboard/programs/adhoc-database"
                     : "/dashboard/c-and-g/consultancy-database";
 
-                console.log(`✅ Redirecting to ${redirectPath} (User type: ${userType}, isAdhoc: ${isAdhocType})`);
+                console.log(`✅ Redirecting to ${redirectPath} (User type: ${redirectUserType}, isAdhoc: ${isAdhocType})`);
                 router.push(redirectPath);
             }, 2500);
 

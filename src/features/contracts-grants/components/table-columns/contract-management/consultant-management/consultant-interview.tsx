@@ -57,7 +57,7 @@ const createApplicantInterviewColumns = (): ColumnDef<IConsultancyStaffPaginated
             },
 
             {
-                header: "Worked with projects comparable to the AHNi (budget and complexity)",
+                header: "Worked with projects comparable to the AHNI (budget and complexity)",
                 cell: () => (
                     <FormSelect
                         name="comparable_projects"

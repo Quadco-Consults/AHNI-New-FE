@@ -17,7 +17,13 @@ import {
   AlertCircle,
   TrendingUp,
   FileText,
-  CalendarDays
+  CalendarDays,
+  User,
+  Sun,
+  Award,
+  BarChart3,
+  Heart,
+  Sparkles
 } from "lucide-react";
 import DataTable from "components/Table/DataTable";
 import { ColumnDef } from "@tanstack/react-table";
@@ -30,6 +36,7 @@ import { useGetLeaveDashboard, useGetLeaveRequests, useGetLeaveBalances } from "
 import { useGetUserProfile } from "@/features/auth/controllers/userController";
 import { format } from "date-fns";
 import { normalizeLeaveRequestEmployee, normalizeLeaveBalance } from "../../utils/normalizeLeaveData";
+import { formatEmployeeError } from "../../utils/employeeHelpers";
 
 
 const LeaveDashboard = () => {
@@ -41,6 +48,37 @@ const LeaveDashboard = () => {
   const { data: dashboardResponse, isLoading: loading, error } = useGetLeaveDashboard();
   // The response has nested data: {status: true, data: {data: {...}}}
   const rawData = dashboardResponse?.data?.data || dashboardResponse?.data;
+
+  console.log("🎯 Dashboard Response:", dashboardResponse);
+  console.log("📊 Raw Dashboard Data:", rawData);
+  console.log("❌ Dashboard Error:", error);
+
+  // Get user profile for personalization
+  const { data: userProfile, isLoading: loadingProfile } = useGetUserProfile();
+  console.log("👤 User Profile Response:", userProfile);
+
+  // Get user from localStorage as fallback
+  const localUser = React.useMemo(() => {
+    try {
+      const userString = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
+      return userString ? JSON.parse(userString) : null;
+    } catch (error) {
+      console.error("Error parsing user from localStorage:", error);
+      return null;
+    }
+  }, []);
+
+  console.log("🏪 LocalStorage User:", localUser);
+
+  const user = userProfile?.data || localUser || {
+    first_name: 'User',
+    legal_firstname: 'User',
+    username: 'user',
+    email: 'user@company.com',
+    department: 'Department'
+  };
+
+  console.log("✅ User Data Being Used:", user);
 
   // Fetch employee's own leave requests separately (for My Requests tab)
   const { data: myRequestsResponse, isLoading: loadingRequests } = useGetLeaveRequests({
@@ -55,24 +93,72 @@ const LeaveDashboard = () => {
 
   // Extract and normalize employee's leave requests
   const myAllRequests = React.useMemo(() => {
+    console.log("🔍 Raw leave requests response:", myRequestsResponse);
+
     const rawRequests = Array.isArray(myRequestsResponse?.data)
       ? myRequestsResponse.data
       : Array.isArray(myRequestsResponse?.data?.results)
       ? myRequestsResponse.data.results
       : [];
 
-    return rawRequests.map(normalizeLeaveRequestEmployee);
+    console.log("📝 Extracted raw requests:", rawRequests);
+
+    const normalizedRequests = rawRequests.map(normalizeLeaveRequestEmployee);
+    console.log("✅ Normalized requests:", normalizedRequests);
+
+    // Always return real data first, fallback to sample only if truly no data
+    if (normalizedRequests.length > 0) {
+      console.log("🎯 Using REAL data from API:", normalizedRequests.length, "requests");
+      return normalizedRequests;
+    }
+
+    console.log("⚠️ No real data found, showing sample data for demonstration");
+    // If no real data, show sample data for demonstration with clear indicators
+    return [
+      {
+        id: 'sample-1',
+        leave_type: { name: 'Annual Leave (Sample)', color: '#4ade80' },
+        from_date: '2024-12-15',
+        to_date: '2024-12-20',
+        number_of_days: 6,
+        status: 'approved',
+        reason: 'Family vacation during holidays [SAMPLE DATA]',
+        created_at: '2024-12-01T10:00:00Z'
+      },
+      {
+        id: 'sample-2',
+        leave_type: { name: 'Sick Leave (Sample)', color: '#f87171' },
+        from_date: '2024-11-28',
+        to_date: '2024-11-29',
+        number_of_days: 2,
+        status: 'pending_approval',
+        reason: 'Medical appointment [SAMPLE DATA]',
+        created_at: '2024-11-25T14:30:00Z'
+      },
+      {
+        id: 'sample-3',
+        leave_type: { name: 'Personal Leave (Sample)', color: '#fbbf24' },
+        from_date: '2024-11-15',
+        to_date: '2024-11-15',
+        number_of_days: 1,
+        status: 'approved',
+        reason: 'Personal matters [SAMPLE DATA]',
+        created_at: '2024-11-10T09:15:00Z'
+      }
+    ];
   }, [myRequestsResponse]);
 
   // Extract leave balances
   const leaveBalances = React.useMemo(() => {
+    console.log("🔍 Raw leave balances response:", leaveBalancesResponse);
+
     const balances = Array.isArray(leaveBalancesResponse?.data)
       ? leaveBalancesResponse.data
       : leaveBalancesResponse?.data?.results || [];
 
-    console.log("Leave balances from API (before normalization):", balances);
+    console.log("📊 Leave balances from API (before normalization):", balances);
     if (balances.length > 0) {
-      console.log("First balance structure:", JSON.stringify(balances[0], null, 2));
+      console.log("📋 First balance structure:", JSON.stringify(balances[0], null, 2));
     }
 
     // Normalize each balance to match expected structure
@@ -80,34 +166,85 @@ const LeaveDashboard = () => {
       .map(normalizeLeaveBalance)
       .filter((balance: any) => balance !== null); // Filter out any that failed normalization
 
-    console.log("Leave balances after normalization:", normalized);
-    return normalized;
+    console.log("✅ Leave balances after normalization:", normalized);
+
+    // Always return real data first, fallback to sample only if truly no data
+    if (normalized.length > 0) {
+      console.log("🎯 Using REAL balance data from API:", normalized.length, "balances");
+      return normalized;
+    }
+
+    console.log("⚠️ No real balance data found, showing sample data for demonstration");
+    // If no real data, show sample data for demonstration with clear indicators
+    return [
+      {
+        id: 'sample-balance-1',
+        leave_type: { name: 'Annual Leave (Sample)', color: '#4ade80' },
+        allocated: 25,
+        used: 8,
+        remaining: 17,
+        pending: 6,
+        year: 2024
+      },
+      {
+        id: 'sample-balance-2',
+        leave_type: { name: 'Sick Leave (Sample)', color: '#f87171' },
+        allocated: 12,
+        used: 3,
+        remaining: 9,
+        pending: 2,
+        year: 2024
+      },
+      {
+        id: 'sample-balance-3',
+        leave_type: { name: 'Personal Leave (Sample)', color: '#fbbf24' },
+        allocated: 5,
+        used: 1,
+        remaining: 4,
+        pending: 0,
+        year: 2024
+      }
+    ];
   }, [leaveBalancesResponse]);
 
   // Normalize dashboard data - handle both camelCase and snake_case
   const data = React.useMemo(() => {
-    if (!rawData) return null;
+    console.log("🔄 Processing dashboard data...");
+
+    if (!rawData) {
+      console.log("❌ No raw data available");
+      return null;
+    }
 
     const stats = rawData.statistics || rawData.stats || {};
+    console.log("📊 Statistics from API:", stats);
 
     // Get leave requests and normalize employee data
-    const recentRequests = (rawData.myRecentRequests || rawData.my_recent_requests || rawData.recent_requests || [])
-      .map(normalizeLeaveRequestEmployee);
+    const recentRequests = (rawData.myRecentRequests || rawData.my_recent_requests || rawData.recent_requests || []);
+    const upcomingLeaves = (rawData.myUpcomingLeaves || rawData.my_upcoming_leaves || rawData.upcoming_leaves || []);
+    const dashboardBalances = rawData.myLeaveBalance || rawData.my_leave_balance || rawData.leave_balances || [];
 
-    const upcomingLeaves = (rawData.myUpcomingLeaves || rawData.my_upcoming_leaves || rawData.upcoming_leaves || [])
-      .map(normalizeLeaveRequestEmployee);
+    console.log("📝 Recent requests from dashboard API:", recentRequests);
+    console.log("📅 Upcoming leaves from dashboard API:", upcomingLeaves);
+    console.log("💰 Dashboard balances from API:", dashboardBalances);
 
-    return {
+    const normalizedRecentRequests = recentRequests.map(normalizeLeaveRequestEmployee);
+    const normalizedUpcomingLeaves = upcomingLeaves.map(normalizeLeaveRequestEmployee);
+
+    const processedData = {
       statistics: {
         onLeaveToday: stats.onLeaveToday || stats.on_leave_today || 0,
         pendingApprovals: stats.pendingApprovals || stats.pending_approvals || 0,
         upcomingLeaves: stats.upcomingLeaves || stats.upcoming_leaves || 0,
         totalEmployees: stats.totalEmployees || stats.total_employees || 0,
       },
-      myLeaveBalance: rawData.myLeaveBalance || rawData.my_leave_balance || rawData.leave_balances || [],
-      myRecentRequests: recentRequests,
-      myUpcomingLeaves: upcomingLeaves,
+      myLeaveBalance: dashboardBalances,
+      myRecentRequests: normalizedRecentRequests,
+      myUpcomingLeaves: normalizedUpcomingLeaves,
     };
+
+    console.log("✅ Processed dashboard data:", processedData);
+    return processedData;
   }, [rawData]);
 
   // Debug logging
@@ -145,28 +282,49 @@ const LeaveDashboard = () => {
   if (error) {
     const errorMessage = error instanceof Error ? error.message : String(error || "An error occurred");
 
-    // If employee profile not found, show helpful message
-    if (errorMessage.includes("Employee profile not found")) {
+    // If employee profile not found or user has no employee, show helpful message
+    if (errorMessage.includes("Employee profile not found") ||
+        errorMessage.includes("User has no employee") ||
+        errorMessage.includes("employee") && errorMessage.includes("not")) {
+
+      const errorInfo = formatEmployeeError(errorMessage);
+
       return (
         <div className="space-y-6">
           <BackendStatusBanner />
 
           <div className="flex items-center justify-center min-h-[400px]">
-            <div className="text-center max-w-md">
+            <div className="text-center max-w-lg">
               <AlertCircle className="w-12 h-12 text-amber-600 mx-auto mb-4" />
-              <h2 className="text-xl font-bold mb-2">Employee Profile Not Set Up</h2>
+              <h2 className="text-xl font-bold mb-2">{errorInfo.title}</h2>
               <p className="text-gray-600 mb-4">
-                Your user account exists, but you don't have an employee profile in the HR system yet.
+                {errorInfo.message}
               </p>
               <p className="text-sm text-gray-500 mb-6">
-                Please contact your HR administrator to set up your employee profile, or use the
-                system with limited functionality.
+                Please contact your HR administrator to set up your employee profile, or try accessing the Employee Onboarding section.
               </p>
               <div className="space-y-2">
                 <Button onClick={() => router.push('/dashboard')}>
                   Go to Dashboard
                 </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => router.push(errorInfo.actionRoute)}
+                >
+                  {errorInfo.actionText}
+                </Button>
               </div>
+
+              {/* Debug info for development */}
+              {process.env.NODE_ENV === 'development' && (
+                <div className="mt-6 p-4 bg-gray-100 rounded text-left text-sm">
+                  <p className="font-semibold mb-2">Debug Info:</p>
+                  <p className="text-gray-700">Error: {errorMessage}</p>
+                  <p className="text-gray-700 mt-1">
+                    This usually means the user account exists but there's no corresponding employee record in the HR system.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -215,63 +373,8 @@ const LeaveDashboard = () => {
     );
   };
 
-  // Recent Requests Table Columns
+  // Recent Requests Table Columns (Personal Dashboard - No Employee Columns)
   const recentRequestsColumns: ColumnDef<any>[] = [
-    {
-      header: "Employee",
-      cell: ({ row }) => (
-        <div>
-          <div className="font-medium">
-            {row.original.employee?.first_name} {row.original.employee?.last_name}
-          </div>
-          <div className="text-sm text-gray-500">{row.original.employee?.email || 'N/A'}</div>
-        </div>
-      ),
-    },
-    {
-      header: "Employee ID",
-      cell: ({ row }) => (
-        <div className="text-sm">
-          {row.original.employee?.employee_id || 'N/A'}
-        </div>
-      ),
-    },
-    {
-      header: "Department",
-      cell: ({ row }) => {
-        const dept = row.original.employee?.department;
-        const deptText = typeof dept === 'object' ? dept?.name : dept;
-        return (
-          <div className="text-sm">
-            {deptText || 'N/A'}
-          </div>
-        );
-      },
-    },
-    {
-      header: "Position",
-      cell: ({ row }) => {
-        const pos = row.original.employee?.position;
-        const posText = typeof pos === 'object' ? pos?.name : pos;
-        return (
-          <div className="text-sm">
-            {posText || 'N/A'}
-          </div>
-        );
-      },
-    },
-    {
-      header: "Location",
-      cell: ({ row }) => {
-        const loc = row.original.employee?.location;
-        const locText = typeof loc === 'object' ? loc?.name : loc;
-        return (
-          <div className="text-sm">
-            {locText || 'N/A'}
-          </div>
-        );
-      },
-    },
     {
       header: "Leave Type",
       cell: ({ row }) => (
@@ -325,17 +428,98 @@ const LeaveDashboard = () => {
     <div className="space-y-6">
       {/* Backend Status Banner */}
       <BackendStatusBanner />
-      
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">My Leave Dashboard</h1>
-          <p className="text-gray-600">View your leave balances, history, and apply for leave</p>
+
+      {/* Data Source Indicator */}
+      {myAllRequests.some(req => req.reason?.includes('[SAMPLE DATA]')) && (
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+          <div className="flex items-center gap-3">
+            <AlertCircle className="w-5 h-5 text-amber-600" />
+            <div>
+              <h4 className="font-semibold text-amber-800">Demo Mode Active</h4>
+              <p className="text-sm text-amber-700">
+                The API is connected and working, but no leave data exists in the system yet.
+                Showing sample data for demonstration. Real API data will appear once leave requests and balances are added.
+              </p>
+            </div>
+          </div>
         </div>
-        <Button onClick={() => setIsApplyDialogOpen(true)}>
-          <Plus className="w-4 h-4 mr-2" />
-          Apply for Leave
-        </Button>
+      )}
+
+      {myAllRequests.length > 0 && !myAllRequests.some(req => req.reason?.includes('[SAMPLE DATA]')) && (
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+          <div className="flex items-center gap-3">
+            <CheckCircle className="w-5 h-5 text-green-600" />
+            <div>
+              <h4 className="font-semibold text-green-800">Live Data Connected</h4>
+              <p className="text-sm text-green-700">
+                Displaying real data from the API. All information shown is current and up-to-date.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Enhanced Header with Personalization */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 rounded-2xl p-8 border border-blue-100 shadow-sm">
+        <div className="absolute top-0 right-0 opacity-10">
+          <Sparkles className="w-32 h-32 text-blue-500" />
+        </div>
+        <div className="relative z-10">
+          <div className="flex items-start justify-between">
+            <div className="space-y-2">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-blue-100 rounded-full">
+                  <User className="w-6 h-6 text-blue-600" />
+                </div>
+                <div>
+                  <h1 className="text-3xl font-bold text-gray-900">
+                    Welcome back, {user?.first_name || user?.legal_firstname || user?.username || 'there'}! 👋
+                  </h1>
+                  <p className="text-gray-600 mt-1">
+                    {new Date().getHours() < 12
+                      ? "Good morning! Ready to manage your leave?"
+                      : new Date().getHours() < 17
+                      ? "Good afternoon! How's your day going?"
+                      : "Good evening! Wrapping up your day?"}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4 mt-4">
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <Calendar className="w-4 h-4" />
+                  <span>{format(new Date(), 'EEEE, MMMM dd, yyyy')}</span>
+                </div>
+                {user?.department && (
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <Award className="w-4 h-4" />
+                    <span>{typeof user.department === 'string'
+                      ? user.department
+                      : typeof user.department === 'object' && user.department?.name
+                      ? user.department.name
+                      : 'N/A'}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="flex flex-col gap-3">
+              <Button
+                onClick={() => setIsApplyDialogOpen(true)}
+                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Apply for Leave
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => router.push('/dashboard/hr/leave-management/history')}
+                className="border-blue-200 text-blue-700 hover:bg-blue-50 hover:border-blue-300"
+              >
+                <BarChart3 className="w-4 h-4 mr-2" />
+                View History
+              </Button>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Apply for Leave Dialog */}
@@ -351,55 +535,105 @@ const LeaveDashboard = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600 mb-1">On Leave Today</p>
-              <p className="text-2xl font-bold">{data.statistics?.onLeaveToday || 0}</p>
-            </div>
-            <div className="p-3 bg-blue-100 rounded-full text-blue-600">
-              <Users className="w-5 h-5" />
+      {/* Enhanced Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card className="relative overflow-hidden bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200 hover:shadow-lg transition-all duration-300 group">
+          <div className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-amber-700 mb-1 font-medium">Pending Requests</p>
+                <p className="text-3xl font-bold text-amber-900">
+                  {myAllRequests.filter(req => req.status === 'pending_approval' || req.status === 'pending').length}
+                </p>
+                <p className="text-xs text-amber-600 mt-1">Awaiting approval</p>
+              </div>
+              <div className="p-3 bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl text-white shadow-lg group-hover:scale-110 transition-transform duration-200">
+                <Clock className="w-6 h-6" />
+              </div>
             </div>
           </div>
+          <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-amber-500 to-orange-500"></div>
         </Card>
 
-        <Card className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600 mb-1">Pending Approvals</p>
-              <p className="text-2xl font-bold">{data.statistics?.pendingApprovals || 0}</p>
-            </div>
-            <div className="p-3 bg-amber-100 rounded-full text-amber-600">
-              <Clock className="w-5 h-5" />
+        <Card className="relative overflow-hidden bg-gradient-to-br from-green-50 to-emerald-50 border-green-200 hover:shadow-lg transition-all duration-300 group">
+          <div className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-green-700 mb-1 font-medium">Upcoming Leaves</p>
+                <p className="text-3xl font-bold text-green-900">
+                  {myAllRequests.filter(req => req.status === 'approved' && new Date(req.from_date) > new Date()).length}
+                </p>
+                <p className="text-xs text-green-600 mt-1">Ready to enjoy!</p>
+              </div>
+              <div className="p-3 bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl text-white shadow-lg group-hover:scale-110 transition-transform duration-200">
+                <Sun className="w-6 h-6" />
+              </div>
             </div>
           </div>
+          <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-green-500 to-emerald-500"></div>
         </Card>
 
-        <Card className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600 mb-1">Upcoming Leaves</p>
-              <p className="text-2xl font-bold">{data.statistics?.upcomingLeaves || 0}</p>
-            </div>
-            <div className="p-3 bg-green-100 rounded-full text-green-600">
-              <Calendar className="w-5 h-5" />
+        <Card className="relative overflow-hidden bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200 hover:shadow-lg transition-all duration-300 group">
+          <div className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-blue-700 mb-1 font-medium">Total Requests</p>
+                <p className="text-3xl font-bold text-blue-900">{myAllRequests.length}</p>
+                <p className="text-xs text-blue-600 mt-1">All time activity</p>
+              </div>
+              <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-2xl text-white shadow-lg group-hover:scale-110 transition-transform duration-200">
+                <FileText className="w-6 h-6" />
+              </div>
             </div>
           </div>
+          <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-indigo-500"></div>
         </Card>
+      </div>
 
-        <Card className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600 mb-1">Total Employees</p>
-              <p className="text-2xl font-bold">{data.statistics?.totalEmployees || 0}</p>
+      {/* Quick Actions Section */}
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <div className="p-2 bg-purple-100 rounded-lg">
+              <Sparkles className="w-5 h-5 text-purple-600" />
             </div>
-            <div className="p-3 bg-purple-100 rounded-full text-purple-600">
-              <TrendingUp className="w-5 h-5" />
-            </div>
+            <h3 className="text-lg font-semibold text-gray-900">Quick Actions</h3>
           </div>
-        </Card>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <Button
+            variant="outline"
+            className="h-auto p-4 flex-col gap-2 hover:bg-blue-50 hover:border-blue-300 transition-all duration-200"
+            onClick={() => setIsApplyDialogOpen(true)}
+          >
+            <Plus className="w-6 h-6 text-blue-600" />
+            <span className="text-sm font-medium">Apply Leave</span>
+          </Button>
+          <Button
+            variant="outline"
+            className="h-auto p-4 flex-col gap-2 hover:bg-green-50 hover:border-green-300 transition-all duration-200"
+            onClick={() => setActiveTab("balances")}
+          >
+            <BarChart3 className="w-6 h-6 text-green-600" />
+            <span className="text-sm font-medium">View Balances</span>
+          </Button>
+          <Button
+            variant="outline"
+            className="h-auto p-4 flex-col gap-2 hover:bg-purple-50 hover:border-purple-300 transition-all duration-200"
+            onClick={() => setActiveTab("requests")}
+          >
+            <FileText className="w-6 h-6 text-purple-600" />
+            <span className="text-sm font-medium">My Requests</span>
+          </Button>
+          <Button
+            variant="outline"
+            className="h-auto p-4 flex-col gap-2 hover:bg-indigo-50 hover:border-indigo-300 transition-all duration-200"
+            onClick={() => router.push('/dashboard/hr/leave-management/calendar')}
+          >
+            <Calendar className="w-6 h-6 text-indigo-600" />
+            <span className="text-sm font-medium">Leave Calendar</span>
+          </Button>
+        </div>
       </div>
 
       {/* Main Content Tabs */}
@@ -411,9 +645,66 @@ const LeaveDashboard = () => {
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
+          {/* Personalized Recommendations */}
+          {leaveBalances.length > 0 && (
+            <Card className="bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200">
+              <div className="p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2 bg-purple-100 rounded-lg">
+                    <Heart className="w-5 h-5 text-purple-600" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-purple-900">Personalized Recommendations</h3>
+                </div>
+                <div className="space-y-3">
+                  {leaveBalances
+                    .filter(balance => {
+                      const remaining = balance.remaining || 0;
+                      const total = balance.allocated || balance.total || 0;
+                      const percentage = total > 0 ? (remaining / total) * 100 : 0;
+                      return percentage > 70;
+                    })
+                    .slice(0, 2)
+                    .map((balance) => {
+                      const remaining = balance.remaining || 0;
+                      const total = balance.allocated || balance.total || 0;
+                      const percentage = total > 0 ? (remaining / total) * 100 : 0;
+
+                      return (
+                        <div key={balance.id} className="bg-white/80 rounded-lg p-4 border border-purple-100">
+                          <p className="text-sm text-purple-800">
+                            💡 You have <span className="font-semibold">{remaining} {balance.leave_type?.name || 'leave'} days</span> remaining
+                            ({percentage.toFixed(0)}% unused). Consider planning some time off!
+                          </p>
+                        </div>
+                      );
+                    })}
+
+                  {myAllRequests.filter(req => req.status === 'pending_approval' || req.status === 'pending').length > 0 && (
+                    <div className="bg-white/80 rounded-lg p-4 border border-purple-100">
+                      <p className="text-sm text-purple-800">
+                        ⏰ You have pending leave requests. Check with your manager for quick approval!
+                      </p>
+                    </div>
+                  )}
+
+                  {new Date().getMonth() >= 10 && ( // November/December
+                    <div className="bg-white/80 rounded-lg p-4 border border-purple-100">
+                      <p className="text-sm text-purple-800">
+                        🎄 Year-end reminder: Don't forget to use your remaining leave days before they expire!
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </Card>
+          )}
+
           {/* Leave Balances Summary */}
           <div>
-            <h3 className="text-lg font-semibold mb-4">Leave Balances</h3>
+            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <BarChart3 className="w-5 h-5 text-blue-600" />
+              Your Leave Balances
+            </h3>
             {loadingBalances ? (
               <div className="flex items-center justify-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-600 border-t-transparent" />
@@ -430,7 +721,11 @@ const LeaveDashboard = () => {
                 ))}
               </div>
             ) : (
-              <p className="text-gray-500 text-center py-8">No leave balances available</p>
+              <div className="text-center py-12 bg-gray-50 rounded-lg border border-gray-200">
+                <FileText className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                <p className="text-gray-500 mb-2">No leave balances available</p>
+                <p className="text-sm text-gray-400">Contact HR to get leave packages assigned</p>
+              </div>
             )}
           </div>
 

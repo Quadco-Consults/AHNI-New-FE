@@ -30,23 +30,37 @@ export interface TConsumablePaginatedData {
   id: string;
   name: string;
   description: string;
-  category: string;
+  category: TCategoryData;
+  category_detail?: TCategoryData; // Enhanced API includes category details
   created_datetime: string;
   updated_datetime: string;
-  quantity: number;
-  stock_control_method: string;
-  expiry_date: string;
-  previous_quantity: number;
-  re_order_level: number;
-  buffer_stock: number;
-  max_stock: number;
-  entry_date: string;
-  available_quantity: number;
-  item_cost: string;
-  grn_tracking_number: null;
+
+  // Legacy fields (for backward compatibility - will be deprecated in Phase 2)
+  quantity?: number;
+  stock_control_method?: string;
+  expiry_date?: string;
+  previous_quantity?: number;
+  re_order_level?: number;
+  buffer_stock?: number;
+  max_stock?: number;
+  entry_date?: string;
+  available_quantity?: number;
+  item_cost?: string;
+  grn_tracking_number?: null;
+
   created_by: string;
   updated_by: null;
   item: TItemData;
+
+  // Enhanced API fields - store-based inventory tracking
+  store_stocks?: TItemStoreStockData[]; // Store stock information for the item
+  total_quantity_across_stores?: number; // Sum of all store quantities
+  total_available_across_stores?: number; // Sum of all store available quantities
+  stores_count?: number; // Number of stores with this item
+
+  // Master Catalog properties (calculated from store_stocks) - for backward compatibility
+  total_quantity?: number; // Alias for total_quantity_across_stores
+  total_available?: number; // Alias for total_available_across_stores
 }
 
 export interface TConsumableSingleData {
@@ -54,6 +68,7 @@ export interface TConsumableSingleData {
   name: string;
   description: string;
   category: TCategoryData;
+  category_detail?: TCategoryData; // Enhanced API includes category details
   created_datetime: string;
   updated_datetime: string;
 
@@ -70,11 +85,15 @@ export interface TConsumableSingleData {
   item_cost?: string;
   grn_tracking_number?: string;
 
-  // Phase 2: Store-based inventory tracking
+  // Enhanced API fields - store-based inventory tracking
   store_stocks?: TItemStoreStockData[]; // Per-store stock levels
-  total_quantity?: number; // Sum of all store quantities
-  total_available?: number; // Sum of all store available quantities
+  total_quantity_across_stores?: number; // Sum of all store quantities
+  total_available_across_stores?: number; // Sum of all store available quantities
   stores_count?: number; // Number of stores with this item
+
+  // Master Catalog properties (calculated from store_stocks) - for backward compatibility
+  total_quantity?: number; // Alias for total_quantity_across_stores
+  total_available?: number; // Alias for total_available_across_stores
 
   created_by: string;
   updated_by: null | string;

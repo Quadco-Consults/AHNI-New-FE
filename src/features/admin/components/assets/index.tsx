@@ -85,7 +85,7 @@ export default function AssetHomePage() {
       <AssetBulkUploadDialog
         open={bulkUploadOpen}
         onOpenChange={setBulkUploadOpen}
-        categoryId="17ca9ee7-603a-43a9-91e8-979652a8231c"
+        categoryId="17ca9ee7-603a-43a9-91e8-979652a8231c" // Assets category is correct for bulk upload
       />
     </div>
   );

@@ -4,6 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useGetActivityMemo, useUpdateActivityMemo } from "@/features/procurement/controllers/activityMemoController";
 import { toast } from "sonner";
 import Card from "components/Card";
+import { AlertCircle, Loader2 } from 'lucide-react';
 import { Icon } from "@iconify/react";
 import { Button } from "components/ui/button";
 import CreateActivityMemoForm from "../create/CreateActivityMemoForm";
@@ -19,7 +20,7 @@ const EditActivityMemoForm = () => {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <Icon icon="line-md:loading-loop" fontSize={48} className="mx-auto mb-4" />
+          <Loader2 size={16} />
           <p className="text-gray-600">Loading activity memo...</p>
         </div>
       </div>
@@ -31,7 +32,7 @@ const EditActivityMemoForm = () => {
       <div className="flex items-center justify-center min-h-screen">
         <Card className="max-w-md">
           <div className="p-6 text-center">
-            <Icon icon="mdi:alert-circle" fontSize={48} className="mx-auto mb-4 text-red-600" />
+            <AlertCircle size={16} />
             <h3 className="text-lg font-semibold mb-2">Error Loading Activity Memo</h3>
             <p className="text-gray-600 mb-4">{error?.message || "Activity memo not found"}</p>
             <Button onClick={() => router.back()}>Go Back</Button>
@@ -52,7 +53,7 @@ const EditActivityMemoForm = () => {
           <div className="p-6">
             <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
               <div className="flex items-start gap-3">
-                <Icon icon="mdi:alert-circle" className="text-red-600 text-xl mt-0.5" />
+                <AlertCircle size={16} />
                 <div>
                   <h4 className="font-semibold text-red-800 mb-1">Cannot Edit Activity Memo</h4>
                   <p className="text-sm text-red-700">
@@ -79,7 +80,7 @@ const EditActivityMemoForm = () => {
                 onClick={() => router.push(`/dashboard/procurement/activity-memo/${memoId}`)}
                 variant="outline"
               >
-                <Icon icon="mdi:eye" className="mr-2" fontSize={18} />
+                <Eye size={16} />
                 View Details
               </Button>
               <Button

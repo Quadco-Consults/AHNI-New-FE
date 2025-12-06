@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import FormInput from "@/components/FormInput";
 import FormSelect from "components/FormSelectField";
 import { Checkbox } from "components/ui/checkbox";
+import { Loader2 } from 'lucide-react';
 import { Icon } from "@iconify/react";
 import {
   useGetEmployeesForPayroll,
@@ -299,7 +300,7 @@ const PayrollCreate: React.FC = () => {
 
             {loadingEmployees ? (
               <div className="flex items-center justify-center py-8">
-                <Icon icon="lucide:loader-2" className="animate-spin" />
+                <Loader2 size={16} />
                 <span className="ml-2">Loading employees...</span>
               </div>
             ) : employees.length === 0 ? (
@@ -382,7 +383,7 @@ const PayrollCreate: React.FC = () => {
                 onClick={handleCalculatePreview}
                 disabled={calculatingPreview || selectedEmployees.length === 0}
               >
-                {calculatingPreview && <Icon icon="lucide:loader-2" className="animate-spin mr-2" />}
+                {calculatingPreview && <Loader2 size={16} />}
                 Calculate Preview
               </Button>
 
@@ -391,7 +392,7 @@ const PayrollCreate: React.FC = () => {
                 disabled={generating || selectedEmployees.length === 0}
                 className="flex-1 max-w-xs"
               >
-                {generating && <Icon icon="lucide:loader-2" className="animate-spin mr-2" />}
+                {generating && <Loader2 size={16} />}
                 Generate Payroll
               </Button>
             </div>

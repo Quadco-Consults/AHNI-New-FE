@@ -443,7 +443,7 @@ const ManualBidSubmission = () => {
                 </SelectContent>
               </FormSelect>
 
-              <FormSelect name="previous_experience" label="Previous work experience with AHNi?" required>
+              <FormSelect name="previous_experience" label="Previous work experience with AHNI?" required>
                 <SelectContent>
                   <SelectItem value="Yes">Yes</SelectItem>
                   <SelectItem value="No">No</SelectItem>

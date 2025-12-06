@@ -9,20 +9,41 @@ import {
 } from "../types/evaluation-category";
 import { z } from "zod";
 
-const BASE_URL = "/programs/evaluation-categories/";
+const BASE_URL = "programs/supervision-evaluation-category/";
 
 // ===== EVALUATION CATEGORIES HOOKS =====
 
 // Get All Evaluation Categories
 export const useGetEvaluationCategories = (enabled: boolean = true) => {
   return useQuery<EvaluationCategoryData[]>({
-    queryKey: ["evaluation-categories"],
+    queryKey: ["supervision-evaluation-categories"],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get(BASE_URL);
-        return response.data;
+        const response = await AxiosWithToken.get(BASE_URL, {
+          params: {
+            page: 1,
+            size: 2000000,
+            search: ""
+          }
+        });
+        console.log("📊 Categories API Response:", response.data);
+
+        // Handle different possible response structures
+        if (response.data?.data?.results) {
+          return response.data.data.results;
+        } else if (response.data?.results) {
+          return response.data.results;
+        } else if (Array.isArray(response.data)) {
+          return response.data;
+        } else if (response.data?.data && Array.isArray(response.data.data)) {
+          return response.data.data;
+        } else {
+          console.warn("Unexpected categories response structure:", response.data);
+          return [];
+        }
       } catch (error) {
         const axiosError = error as AxiosError;
+        console.error("Categories API Error:", axiosError.response?.data);
         throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
       }
     },
@@ -38,9 +59,17 @@ export const useGetEvaluationCategory = (id: string, enabled: boolean = true) =>
     queryFn: async () => {
       try {
         const response = await AxiosWithToken.get(`${BASE_URL}${id}/`);
-        return response.data;
+        console.log("📊 Single Category API Response:", response.data);
+
+        // Handle different possible response structures
+        if (response.data?.data) {
+          return response.data.data;
+        } else {
+          return response.data;
+        }
       } catch (error) {
         const axiosError = error as AxiosError;
+        console.error("Single Category API Error:", axiosError.response?.data);
         throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
       }
     },
@@ -55,10 +84,33 @@ export const useGetEvaluationCategoryCriteria = (id: string, enabled: boolean = 
     queryKey: ["evaluation-category-criteria", id],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get(`${BASE_URL}criteria/${id}/`);
-        return response.data;
+        // Use the correct criteria endpoint with category filter
+        const response = await AxiosWithToken.get("programs/supervision-evaluation-criteria/", {
+          params: {
+            page: 1,
+            size: 20,
+            search: "",
+            evaluation_category: id  // Use evaluation_category as shown in network logs
+          }
+        });
+        console.log(`📊 Criteria API Response for category ${id}:`, response.data);
+
+        // Handle different possible response structures
+        if (response.data?.data?.results) {
+          return response.data.data.results;
+        } else if (response.data?.results) {
+          return response.data.results;
+        } else if (Array.isArray(response.data)) {
+          return response.data;
+        } else if (response.data?.data && Array.isArray(response.data.data)) {
+          return response.data.data;
+        } else {
+          console.warn(`Unexpected criteria response structure for category ${id}:`, response.data);
+          return response.data;
+        }
       } catch (error) {
         const axiosError = error as AxiosError;
+        console.error(`Criteria API Error for category ${id}:`, axiosError.response?.data);
         throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
       }
     },

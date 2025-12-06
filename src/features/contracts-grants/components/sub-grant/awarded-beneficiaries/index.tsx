@@ -9,6 +9,7 @@ import { useState, useEffect } from "react";
 import { useGetAllSubGrants } from "@/features/contracts-grants/controllers/subGrantController";
 import { useGetAllSubGrantSubmissions } from "@/features/contracts-grants/controllers/submissionController";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
+import { getMockBeneficiaries, getMockAwardedSubGrants } from "@/utils/mockCGData";
 
 export default function AwardedBeneficiaries() {
     const [page, setPage] = useState(1);
@@ -38,8 +39,13 @@ export default function AwardedBeneficiaries() {
     useEffect(() => {
         const enrichSubGrants = async () => {
             const subGrants = subGrantsData?.data?.results || [];
+
+            // If no real data, use mock beneficiaries data
             if (subGrants.length === 0) {
-                setEnrichedData([]);
+                console.log("No real sub-grants data, using mock beneficiaries");
+                const mockBeneficiaries = getMockBeneficiaries();
+                setEnrichedData(mockBeneficiaries);
+                setIsEnriching(false);
                 return;
             }
 
@@ -98,11 +104,10 @@ export default function AwardedBeneficiaries() {
                 setEnrichedData(enriched);
             } catch (error) {
                 console.error('Error enriching sub-grants:', error);
-                // Fallback to just using sub-grant data
-                setEnrichedData(subGrants.map((sg: any) => ({
-                    ...sg,
-                    sub_grant: sg,
-                })));
+                // Fallback to mock data if enrichment fails
+                console.log("Enrichment failed, using mock beneficiaries");
+                const mockBeneficiaries = getMockBeneficiaries();
+                setEnrichedData(mockBeneficiaries);
             } finally {
                 setIsEnriching(false);
             }

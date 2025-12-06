@@ -121,23 +121,47 @@ class ChatService {
 
   constructor() {
     // Use your Heroku backend URL
-    // Chat endpoints are at /api/v1/chat/sessions/chat/ so we keep the /v1
+    // Chat endpoints: /api/v1/chat/sessions/ (list) and /api/v1/chat/sessions/chat/ (send)
     this.baseURL = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:8000/api/v1';
     this.timeout = 30000;
-    this.isDevelopment = process.env.NODE_ENV === 'development' || process.env.NEXT_PUBLIC_USE_MOCK_CHAT === 'true';
+    // Only use mock service if explicitly enabled
+    this.isDevelopment = process.env.NEXT_PUBLIC_USE_MOCK_CHAT === 'true';
+
+    // Log configuration only in development
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔧 Chat Service Configuration:', {
+        baseURL: this.baseURL,
+        isDevelopment: this.isDevelopment,
+        useMockChat: process.env.NEXT_PUBLIC_USE_MOCK_CHAT,
+        nodeEnv: process.env.NODE_ENV
+      });
+    }
 
     // Normalize trailing slash
     if (!this.baseURL.endsWith('/')) {
       this.baseURL = `${this.baseURL}/`;
     }
 
-    console.log('Chat API Base URL:', this.baseURL);
-    console.log('Using mock chat service:', this.isDevelopment);
+    // Chat service initialized
+  }
+
+  private isValidUUID(str: string | null | undefined): boolean {
+    if (!str || typeof str !== 'string' || str.trim() === '') {
+      return false;
+    }
+    const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    return uuidPattern.test(str);
   }
 
   private getAuthHeaders() {
     const token = getAccessToken();
-    return token ? { Authorization: `Bearer ${token}` } : {};
+    if (token) {
+      console.log('🔑 Using auth token for chat request (length:', token.length, ')');
+      return { Authorization: `Bearer ${token}` };
+    } else {
+      console.warn('⚠️ No auth token found in localStorage');
+      return {};
+    }
   }
 
   private async makeRequest<T>(
@@ -166,34 +190,260 @@ class ChatService {
 
   private handleApiError(error: any): Error {
     if (axios.isAxiosError(error)) {
-      const message = error.response?.data?.message || error.message || 'Chat service error';
       const status = error.response?.status;
-      
+      const responseData = error.response?.data;
+
+      // Log the full error for debugging
+      console.error('🚨 Chat API Error:', {
+        status,
+        data: responseData,
+        url: error.config?.url,
+        method: error.config?.method,
+        requestData: error.config?.data,
+      });
+
+      if (status === 400 && responseData) {
+        // Handle validation errors specifically
+        if (responseData.session_id) {
+          throw new Error(`Invalid session ID: ${responseData.session_id.join(', ')}`);
+        }
+        if (responseData.message) {
+          throw new Error(`Validation error: ${responseData.message.join ? responseData.message.join(', ') : responseData.message}`);
+        }
+        throw new Error(`Validation error: ${JSON.stringify(responseData)}`);
+      }
+
       if (status === 401) {
         throw new Error('Authentication required. Please log in.');
       } else if (status === 429) {
         throw new Error('Too many requests. Please wait a moment.');
-      } else if (status >= 500) {
+      } else if (status && status >= 500) {
         throw new Error('Server error. Please try again later.');
       }
-      
+
+      const message = responseData?.message || error.message || 'Chat service error';
       throw new Error(message);
     }
-    
+
     throw new Error('Network error. Please check your connection.');
   }
 
+  private transformApiResponse(backendResponse: any): SendMessageResponse {
+    // Handle different backend response formats
+    console.log('🔄 Transforming backend response:', backendResponse);
+
+    // Extract the AI response content
+    let response = '';
+    let conversationId = '';
+    let timestamp = new Date().toISOString();
+
+    // Handle nested data structure from Django backend
+    const dataObj = backendResponse.data || backendResponse;
+
+    if (dataObj.response) {
+      response = dataObj.response;
+    } else if (backendResponse.response) {
+      response = backendResponse.response;
+    } else if (backendResponse.message) {
+      response = backendResponse.message;
+    } else if (backendResponse.content) {
+      response = backendResponse.content;
+    } else {
+      console.warn('⚠️ No response content found in backend response');
+      response = 'Sorry, I encountered an issue generating a response.';
+    }
+
+    // Extract session/conversation ID (check both data object and root level)
+    if (dataObj.session_id) {
+      conversationId = dataObj.session_id;
+      console.log('📋 Extracted session_id from data:', conversationId);
+    } else if (backendResponse.session_id) {
+      conversationId = backendResponse.session_id;
+      console.log('📋 Extracted session_id from response:', conversationId);
+    } else if (backendResponse.conversation_id) {
+      conversationId = backendResponse.conversation_id;
+      console.log('📋 Extracted conversation_id from response:', conversationId);
+    } else if (backendResponse.id) {
+      conversationId = backendResponse.id;
+      console.log('📋 Extracted id from response:', conversationId);
+    } else {
+      console.warn('⚠️ No session/conversation ID found in backend response');
+    }
+
+    if (backendResponse.timestamp) {
+      timestamp = backendResponse.timestamp;
+    } else if (backendResponse.created_at) {
+      timestamp = backendResponse.created_at;
+    } else if (backendResponse.created_datetime) {
+      timestamp = backendResponse.created_datetime;
+    }
+
+    const transformedResponse: SendMessageResponse = {
+      response,
+      conversation_id: conversationId,
+      timestamp,
+      message_id: backendResponse.message_id || backendResponse.id,
+      response_type: dataObj.response_type || backendResponse.response_type || 'text',
+      structured_data: dataObj.suggested_actions ? {
+        type: 'suggestions',
+        suggestions: dataObj.suggested_actions,
+        confidence_score: dataObj.confidence_score,
+        data_sources: dataObj.data_sources,
+        ...backendResponse.structured_data
+      } : backendResponse.structured_data,
+      transferred: backendResponse.transferred,
+      transfer_status: backendResponse.transfer_status,
+      session_id: conversationId // Use the same ID for both fields
+    };
+
+    // Validate the session ID we're returning
+    if (conversationId && this.isValidUUID(conversationId)) {
+      console.log('✅ Returning valid session ID:', conversationId);
+    } else if (conversationId) {
+      console.warn('⚠️ Backend returned invalid session ID format:', conversationId);
+    } else {
+      console.warn('⚠️ No session ID returned from backend');
+    }
+
+    console.log('✅ Transformed response:', transformedResponse);
+    return transformedResponse;
+  }
+
+  private transformMessage(backendMessage: any): ChatMessage {
+    // Handle different backend message formats
+    console.log('🔄 Transforming message:', backendMessage);
+
+    // Map backend roles to frontend senders
+    let sender: 'user' | 'bot' | 'admin' = 'bot';
+    if (backendMessage.role === 'user' || backendMessage.sender === 'user') {
+      sender = 'user';
+    } else if (backendMessage.role === 'assistant' || backendMessage.sender === 'bot') {
+      sender = 'bot';
+    } else if (backendMessage.role === 'admin' || backendMessage.sender === 'admin') {
+      sender = 'admin';
+    }
+
+    // Extract content
+    let content = '';
+    if (backendMessage.content) {
+      content = backendMessage.content;
+    } else if (backendMessage.message) {
+      content = backendMessage.message;
+    } else if (backendMessage.text) {
+      content = backendMessage.text;
+    }
+
+    // Extract timestamp
+    let timestamp = new Date().toISOString();
+    if (backendMessage.created_datetime) {
+      timestamp = backendMessage.created_datetime;
+    } else if (backendMessage.timestamp) {
+      timestamp = backendMessage.timestamp;
+    } else if (backendMessage.created_at) {
+      timestamp = backendMessage.created_at;
+    }
+
+    const transformedMessage: ChatMessage = {
+      id: backendMessage.id || `msg-${Date.now()}-${Math.random()}`,
+      content,
+      sender,
+      timestamp,
+      conversationId: backendMessage.conversation_id || backendMessage.session_id,
+      responseType: backendMessage.response_type || 'text',
+      structuredData: backendMessage.structured_data,
+      role: sender, // Also set role for backward compatibility
+      adminName: backendMessage.admin_name,
+      metadata: backendMessage.metadata
+    };
+
+    console.log('✅ Transformed message:', transformedMessage);
+    return transformedMessage;
+  }
+
+  private transformConversationResponse(backendConversation: any): ChatConversation {
+    console.log('🔄 Transforming conversation:', backendConversation);
+
+    // Transform messages if they exist
+    const messages = (backendConversation.messages || []).map((msg: any) =>
+      this.transformMessage(msg)
+    );
+
+    const transformedConversation: ChatConversation = {
+      id: backendConversation.id || backendConversation.session_id,
+      messages,
+      created_at: backendConversation.created_at || backendConversation.created_datetime || new Date().toISOString(),
+      updated_at: backendConversation.updated_at || backendConversation.updated_datetime || new Date().toISOString(),
+      status: backendConversation.status,
+      assigned_admin: backendConversation.assigned_admin,
+      transferred_at: backendConversation.transferred_at,
+      transfer_reason: backendConversation.transfer_reason
+    };
+
+    console.log('✅ Transformed conversation:', transformedConversation);
+    return transformedConversation;
+  }
+
+  private transformConversationsResponse(backendResponse: any): ChatConversation[] {
+    console.log('🔄 Transforming conversations response:', backendResponse);
+
+    // Handle different response formats
+    let conversations = [];
+    if (Array.isArray(backendResponse)) {
+      conversations = backendResponse;
+    } else if (backendResponse.results) {
+      conversations = backendResponse.results;
+    } else if (backendResponse.data) {
+      conversations = backendResponse.data;
+    } else if (backendResponse.conversations) {
+      conversations = backendResponse.conversations;
+    } else {
+      console.warn('⚠️ Unexpected conversations response format');
+      return [];
+    }
+
+    const transformedConversations = conversations.map((conv: any) =>
+      this.transformConversationResponse(conv)
+    );
+
+    console.log('✅ Transformed conversations:', transformedConversations);
+    return transformedConversations;
+  }
+
   async sendMessage(request: SendMessageRequest): Promise<SendMessageResponse> {
+    // Prepare payload - only include session_id if it's a valid UUID
+    const payload: any = {
+      message: request.message,
+      context: {}
+    };
+
+    // Only include session_id if we have a valid UUID
+    if (this.isValidUUID(request.conversation_id)) {
+      payload.session_id = request.conversation_id;
+      console.log('✅ Using existing session ID:', request.conversation_id);
+    } else {
+      console.log('🆕 Starting new chat session (no valid session_id provided)');
+      if (request.conversation_id) {
+        console.log('⚠️ Invalid session ID format rejected:', request.conversation_id);
+      }
+    }
+
+    console.log('📤 Sending payload to backend:', payload);
+
     // Use mock service in development or when backend is not available
     if (this.isDevelopment) {
       try {
-        const result = await this.makeRequest<SendMessageResponse>('POST', 'chat/sessions/chat/', {
-          message: request.message,
-          session_id: request.conversation_id || null,
-          context: {}
-        });
-        return result;
+        const result = await this.makeRequest<any>('POST', 'chat/sessions/chat/', payload);
+
+        console.log('✅ Backend response:', result);
+
+        // Transform backend response to frontend format
+        return this.transformApiResponse(result);
       } catch (error) {
+        // Check if it's an authentication error
+        if (axios.isAxiosError(error) && error.response?.status === 401) {
+          console.error('🔐 Authentication required for chat service');
+          throw new Error('Authentication required. Please log in to use chat.');
+        }
         console.warn('Backend not available, using mock service');
         return mockChatService.sendMessage(request);
       }
@@ -201,26 +451,36 @@ class ChatService {
 
     // Try the Django backend endpoint first
     try {
-      return this.makeRequest<SendMessageResponse>('POST', 'chat/sessions/chat/', {
-        message: request.message,
-        session_id: request.conversation_id || null,
-        context: {}
-      });
+      const result = await this.makeRequest<any>('POST', 'chat/sessions/chat/', payload);
+
+      console.log('✅ Backend response:', result);
+
+      // Transform backend response to frontend format
+      return this.transformApiResponse(result);
     } catch (error) {
-      console.log('Django endpoint failed, trying fallback...');
-      // Fallback to original endpoint structure
-      return this.makeRequest<SendMessageResponse>('POST', 'chat/message/', request);
+      // Check if it's an authentication error
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+        console.error('🔐 Authentication required for chat service');
+        throw new Error('Authentication required. Please log in to use chat.');
+      }
+      // Re-throw authentication or network errors - no fallback for send message
+      throw error;
     }
   }
 
   async createConversation(): Promise<CreateConversationResponse> {
+    // Payload without session_id for new conversations
+    const payload = {
+      message: 'Hello',
+      context: {}
+    };
+
+    console.log('🆕 Creating new conversation with payload:', payload);
+
     if (this.isDevelopment) {
       try {
-        const response = await this.makeRequest<any>('POST', 'chat/sessions/chat/', {
-          message: 'Hello',
-          session_id: null,
-          context: {}
-        });
+        const response = await this.makeRequest<any>('POST', 'chat/sessions/chat/', payload);
+        console.log('✅ New conversation response:', response);
         return {
           conversation_id: response.session_id || response.conversation_id,
           created_at: new Date().toISOString()
@@ -233,11 +493,8 @@ class ChatService {
 
     // For Django backend, we can start with a simple message to create session
     try {
-      const response = await this.makeRequest<any>('POST', 'chat/sessions/chat/', {
-        message: 'Hello',
-        session_id: null,
-        context: {}
-      });
+      const response = await this.makeRequest<any>('POST', 'chat/sessions/chat/', payload);
+      console.log('✅ New conversation response:', response);
       return {
         conversation_id: response.session_id || response.conversation_id,
         created_at: new Date().toISOString()
@@ -250,7 +507,8 @@ class ChatService {
   async getConversations(): Promise<ChatConversation[]> {
     if (this.isDevelopment) {
       try {
-        return this.makeRequest<ChatConversation[]>('GET', 'chat/sessions/');
+        const result = await this.makeRequest<any>('GET', 'chat/sessions/');
+        return this.transformConversationsResponse(result);
       } catch (error) {
         console.warn('Backend not available, using mock service');
         return mockChatService.getConversations();
@@ -258,17 +516,20 @@ class ChatService {
     }
 
     try {
-      return this.makeRequest<ChatConversation[]>('GET', 'chat/sessions/');
+      const result = await this.makeRequest<any>('GET', 'chat/sessions/');
+      return this.transformConversationsResponse(result);
     } catch (error) {
-      console.log('Django sessions endpoint failed, trying fallback...');
-      return this.makeRequest<ChatConversation[]>('GET', 'chat/conversations/');
+      console.log('📝 Chat sessions endpoint failed, returning empty list');
+      // No fallback needed - backend only has /sessions/ endpoints
+      return [];
     }
   }
 
   async getConversation(conversationId: string): Promise<ChatConversation> {
     if (this.isDevelopment) {
       try {
-        return this.makeRequest<ChatConversation>('GET', `chat/sessions/${conversationId}/`);
+        const result = await this.makeRequest<any>('GET', `chat/sessions/${conversationId}/`);
+        return this.transformConversationResponse(result);
       } catch (error) {
         console.warn('Backend not available, using mock service');
         return mockChatService.getConversation(conversationId);
@@ -276,9 +537,10 @@ class ChatService {
     }
 
     try {
-      return this.makeRequest<ChatConversation>('GET', `chat/sessions/${conversationId}/`);
-    } catch (error) {
-      return this.makeRequest<ChatConversation>('GET', `chat/conversations/${conversationId}/`);
+      const result = await this.makeRequest<any>('GET', `chat/sessions/${conversationId}/`);
+      return this.transformConversationResponse(result);
+    } catch (error: any) {
+      throw new Error(`Failed to load conversation: ${error.message || 'Unknown error'}`);
     }
   }
 
@@ -292,11 +554,7 @@ class ChatService {
       }
     }
 
-    try {
-      return this.makeRequest<void>('DELETE', `chat/sessions/${conversationId}/`);
-    } catch (error) {
-      return this.makeRequest<void>('DELETE', `chat/conversations/${conversationId}/`);
-    }
+    return this.makeRequest<void>('DELETE', `chat/sessions/${conversationId}/`);
   }
 
   // Template methods
@@ -322,6 +580,39 @@ class ChatService {
 
   async getProcess(processKey: string): Promise<ProcessFlow> {
     return this.makeRequest<ProcessFlow>('GET', `chat/sessions/processes/${processKey}/`);
+  }
+
+  // Test connection method for debugging
+  async testConnection(): Promise<{ status: string; authenticated: boolean; backend: string }> {
+    const token = getAccessToken();
+
+    try {
+      // Try a simple endpoint to test connection
+      await this.makeRequest('POST', 'chat/sessions/chat/', {
+        message: 'Connection test',
+        context: {}
+      });
+
+      return {
+        status: 'success',
+        authenticated: true,
+        backend: this.baseURL
+      };
+    } catch (error: any) {
+      if (error.message?.includes('Authentication required')) {
+        return {
+          status: 'auth_required',
+          authenticated: false,
+          backend: this.baseURL
+        };
+      }
+
+      return {
+        status: 'error',
+        authenticated: !!token,
+        backend: this.baseURL
+      };
+    }
   }
 }
 

@@ -1,11 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Card from "@/components/Card";
 import { LoadingSpinner } from "@/components/Loading";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useGetAllPriceIntelligence, useGetSinglePriceIntelligence } from "@/features/procurement/controllers/priceIntelligenceController";
+import { useGetAllCategoriesManager } from "@/features/modules/controllers/config/categoryController";
 import BreadcrumbCard from "@/components/Breadcrumb";
 import {
   Dialog,
@@ -14,6 +17,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { CheckCircle, Search } from 'lucide-react';
 import { Icon } from "@iconify/react";
 
 const RatingCircle = ({ showInner }: { showInner?: boolean }) => {
@@ -31,8 +35,52 @@ const PriceIntelligence = () => {
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Get price intelligence data
-  const { data, isLoading, error } = useGetAllPriceIntelligence({ page: 1, size: 20 });
+  // State for pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
+
+  // State for search and filtering
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
+
+  // Fetch categories from API
+  const { data: categoriesData } = useGetAllCategoriesManager({
+    page: 1,
+    size: 1000, // Get all categories
+    search: "",
+  });
+
+  // Debounce search term
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+      setCurrentPage(1); // Reset to page 1 when search changes
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  // Get price intelligence data with pagination and filters
+  const { data, isLoading, error } = useGetAllPriceIntelligence({
+    page: currentPage,
+    size: pageSize,
+    search: debouncedSearchTerm,
+    category: categoryFilter
+  });
+
+  // Reset to page 1 when search/filter changes
+  const handleSearchChange = (value: string) => {
+    setSearchTerm(value);
+    // Page reset is handled by debounce effect
+  };
+
+  const handleCategoryChange = (value: string) => {
+    // Convert "all" to empty string for API
+    const apiValue = value === "all" ? "" : value;
+    setCategoryFilter(apiValue);
+    setCurrentPage(1);
+  };
 
   // Get single item details when modal is open
   const { data: itemDetailsData, isLoading: isItemLoading, error: itemDetailsError } = useGetSinglePriceIntelligence(
@@ -65,7 +113,20 @@ const PriceIntelligence = () => {
 
   // Extract data safely
   const items = data?.data?.results || [];
+  const pagination = data?.data?.pagination;
 
+  // Debug information in development
+  if (process.env.NODE_ENV === 'development' && data) {
+    console.log('🔍 Price Intelligence API Response:', {
+      totalItems: pagination?.count || 0,
+      currentPage: pagination?.page || 1,
+      pageSize: pagination?.page_size || 0,
+      totalPages: pagination?.total_pages || 0,
+      resultsCount: items.length,
+      hasNextPage: !!pagination?.next,
+      fullPagination: pagination
+    });
+  }
 
   // Handle item click to open modal
   const handleItemClick = (itemId: string) => {
@@ -80,7 +141,46 @@ const PriceIntelligence = () => {
     return (
       <div className='space-y-10'>
         <BreadcrumbCard list={breadcrumbs} />
-        <div className="text-gray-500 p-4">No price intelligence data available.</div>
+        <div className="text-center py-12">
+          <Database size={16} />
+          <h3 className="mt-2 text-sm font-medium text-gray-900">
+            {pagination?.count > 0 ? 'No items on this page' : 'No price intelligence data available'}
+          </h3>
+          <p className="mt-1 text-sm text-gray-500">
+            {pagination?.count > 0
+              ? `Found ${pagination.count} total items across ${pagination.total_pages} pages, but none on page ${pagination.page}.`
+              : 'Price intelligence data will appear here once items have purchase history.'
+            }
+          </p>
+          {process.env.NODE_ENV === 'development' && pagination && (
+            <details className="mt-4 text-left max-w-md mx-auto">
+              <summary className="cursor-pointer text-xs text-blue-600">Debug Info</summary>
+              <pre className="text-xs bg-gray-100 p-2 rounded mt-2 overflow-auto">
+                {JSON.stringify(pagination, null, 2)}
+              </pre>
+            </details>
+          )}
+          <div className="mt-4 space-x-2">
+            <Button
+              variant="outline"
+              onClick={() => window.location.reload()}
+            >
+              Refresh Data
+            </Button>
+            {pagination?.count > 0 && pagination?.next && (
+              <Button
+                variant="default"
+                onClick={() => {
+                  // For now, just reload - we can add proper pagination later
+                  console.log('Next page available:', pagination.next);
+                  window.location.reload();
+                }}
+              >
+                Try Next Page
+              </Button>
+            )}
+          </div>
+        </div>
       </div>
     );
   }
@@ -88,6 +188,80 @@ const PriceIntelligence = () => {
   return (
     <div className='space-y-10'>
       <BreadcrumbCard list={breadcrumbs} />
+
+      {/* Search and Filter Controls */}
+      <div className="bg-white p-6 rounded-lg border">
+        <div className="flex flex-col md:flex-row gap-4 items-end">
+          <div className="flex-1">
+            <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-2">
+              Search Items
+            </label>
+            <div className="relative">
+              <Search size={16} />
+              <Input
+                id="search"
+                type="text"
+                placeholder="Search by item name, description..."
+                value={searchTerm}
+                onChange={(e) => handleSearchChange(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+          </div>
+
+          <div className="w-full md:w-64">
+            <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
+              Category
+            </label>
+            <Select value={categoryFilter || "all"} onValueChange={handleCategoryChange}>
+              <SelectTrigger>
+                <SelectValue placeholder="All Categories" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                {categoriesData?.data?.results?.map((category: any) => (
+                  <SelectItem key={category.id} value={category.id}>
+                    {category.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {(searchTerm || categoryFilter) && (
+            <Button
+              variant="outline"
+              onClick={() => {
+                setSearchTerm("");
+                setDebouncedSearchTerm("");
+                setCategoryFilter("");
+                setCurrentPage(1);
+              }}
+              className="whitespace-nowrap"
+            >
+              <X size={16} />
+              Clear Filters
+            </Button>
+          )}
+        </div>
+
+        {/* Results Summary */}
+        {(searchTerm || categoryFilter) && pagination && (
+          <div className="mt-4 pt-4 border-t">
+            <p className="text-sm text-gray-600">
+              {searchTerm && (
+                <span>Searching for "<strong>{searchTerm}</strong>" </span>
+              )}
+              {categoryFilter && (
+                <span>in category "<strong>{
+                  categoriesData?.data?.results?.find((cat: any) => cat.id === categoryFilter)?.name || categoryFilter
+                }</strong>" </span>
+              )}
+              • Found {pagination.count} result{pagination.count !== 1 ? 's' : ''}
+            </p>
+          </div>
+        )}
+      </div>
 
       <div className='grid grid-cols-2 gap-6'>
         {items.map((price: any) => (
@@ -106,7 +280,7 @@ const PriceIntelligence = () => {
                   <h2 className='text-lg font-semibold'>
                     {price?.item_name || price?.name || 'Unknown Item'}
                   </h2>
-                  <Icon icon="ph:eye-duotone" className="text-blue-500 text-lg" />
+                  <Eye size={16} />
                 </div>
                 <p className='text-sm leading-6'>
                   {price?.item_description || price?.description || 'No description available'}
@@ -156,12 +330,74 @@ const PriceIntelligence = () => {
         ))}
       </div>
 
+      {/* Pagination Controls */}
+      {pagination && pagination.total_pages > 1 && (
+        <div className="flex items-center justify-between border-t pt-6">
+          <div className="text-sm text-gray-700">
+            Showing page {pagination.page} of {pagination.total_pages}
+            ({pagination.count} total items)
+          </div>
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              <ArrowLeft size={16} />
+              Previous
+            </Button>
+
+            {/* Page numbers */}
+            <div className="flex space-x-1">
+              {Array.from({ length: Math.min(pagination.total_pages, 5) }, (_, i) => {
+                const pageNum = i + 1;
+                return (
+                  <Button
+                    key={pageNum}
+                    variant={currentPage === pageNum ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setCurrentPage(pageNum)}
+                    className="w-8 h-8 p-0"
+                  >
+                    {pageNum}
+                  </Button>
+                );
+              })}
+              {pagination.total_pages > 5 && (
+                <>
+                  <span className="px-2">...</span>
+                  <Button
+                    variant={currentPage === pagination.total_pages ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setCurrentPage(pagination.total_pages)}
+                    className="w-8 h-8 p-0"
+                  >
+                    {pagination.total_pages}
+                  </Button>
+                </>
+              )}
+            </div>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(currentPage + 1)}
+              disabled={currentPage === pagination.total_pages}
+            >
+              Next
+              <ArrowRight size={16} />
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Item Details Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Icon icon="ph:info-duotone" className="text-blue-600" />
+              <Info size={16} />
               Item Details & Price History
             </DialogTitle>
           </DialogHeader>
@@ -213,7 +449,7 @@ const ItemDetailsContent = ({ itemData }: { itemData: any }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card className="p-4">
           <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-            <Icon icon="ph:package-duotone" className="text-blue-600" />
+            <Package size={16} />
             Item Information
           </h3>
           <div className="space-y-3">
@@ -293,7 +529,7 @@ const ItemDetailsContent = ({ itemData }: { itemData: any }) => {
 
         <Card className="p-4">
           <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-            <Icon icon="ph:chart-line-duotone" className="text-green-600" />
+            <LineChart size={16} />
             Price Summary
           </h3>
           <div className="space-y-4">
@@ -336,7 +572,7 @@ const ItemDetailsContent = ({ itemData }: { itemData: any }) => {
       {/* Price History & Sources */}
       <Card className="p-4">
         <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-          <Icon icon="ph:clock-countdown-duotone" className="text-purple-600" />
+          <Clock size={16} />
           Price History & Sources
         </h3>
 
@@ -446,15 +682,15 @@ const ItemDetailsContent = ({ itemData }: { itemData: any }) => {
                   <h4 className="font-medium mb-3">Price Trend Analysis</h4>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                     <div className="flex items-center gap-2">
-                      <Icon icon="ph:trend-up" className="text-red-500" />
+                      <TrendingUp size={16} />
                       <span>Highest: {formatCurrency(itemData?.max_price)}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Icon icon="ph:trend-down" className="text-green-500" />
+                      <TrendingDown size={16} />
                       <span>Lowest: {formatCurrency(itemData?.min_price)}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Icon icon="ph:chart-bar" className="text-blue-500" />
+                      <BarChart3 size={16} />
                       <span>Market Avg: {formatCurrency(itemData?.avg_price)}</span>
                     </div>
                   </div>
@@ -502,7 +738,7 @@ const ItemDetailsContent = ({ itemData }: { itemData: any }) => {
                       {/* Recent Price Changes */}
                       <div className="p-4 bg-white border rounded-lg">
                         <h5 className="font-medium mb-3 flex items-center gap-2">
-                          <Icon icon="ph:clock-countdown" className="text-purple-600" />
+                          <Clock size={16} />
                           Recent Price Changes
                         </h5>
                         <div className="space-y-3">
@@ -536,13 +772,13 @@ const ItemDetailsContent = ({ itemData }: { itemData: any }) => {
                       {/* Price Management Alerts */}
                       <div className="p-4 bg-white border rounded-lg">
                         <h5 className="font-medium mb-3 flex items-center gap-2">
-                          <Icon icon="ph:warning-circle" className="text-yellow-600" />
+                          <AlertCircle size={16} />
                           Price Management Alerts
                         </h5>
                         <div className="space-y-2">
                           {recentChangePercent > 10 && (
                             <div className="flex items-start gap-2 p-2 bg-red-50 rounded">
-                              <Icon icon="ph:warning" className="text-red-500 mt-0.5" width={16} height={16} />
+                              <AlertTriangle size={16} />
                               <div>
                                 <p className="text-sm font-medium text-red-800">High Price Increase</p>
                                 <p className="text-xs text-red-600">Recent price increased by {recentChangePercent.toFixed(1)}%</p>
@@ -551,7 +787,7 @@ const ItemDetailsContent = ({ itemData }: { itemData: any }) => {
                           )}
                           {priceVolatility > 20 && (
                             <div className="flex items-start gap-2 p-2 bg-yellow-50 rounded">
-                              <Icon icon="ph:chart-line" className="text-yellow-500 mt-0.5" width={16} height={16} />
+                              <LineChart size={16} />
                               <div>
                                 <p className="text-sm font-medium text-yellow-800">High Volatility</p>
                                 <p className="text-xs text-yellow-600">Price fluctuates significantly</p>
@@ -560,7 +796,7 @@ const ItemDetailsContent = ({ itemData }: { itemData: any }) => {
                           )}
                           {latestPrice.price > (itemData?.avg_price * 1.2) && (
                             <div className="flex items-start gap-2 p-2 bg-orange-50 rounded">
-                              <Icon icon="ph:trend-up" className="text-orange-500 mt-0.5" width={16} height={16} />
+                              <TrendingUp size={16} />
                               <div>
                                 <p className="text-sm font-medium text-orange-800">Above Market Average</p>
                                 <p className="text-xs text-orange-600">Current price is 20%+ above average</p>
@@ -569,7 +805,7 @@ const ItemDetailsContent = ({ itemData }: { itemData: any }) => {
                           )}
                           {recentChangePercent <= 5 && overallChangePercent <= 5 && priceVolatility <= 10 && (
                             <div className="flex items-start gap-2 p-2 bg-green-50 rounded">
-                              <Icon icon="ph:check-circle" className="text-green-500 mt-0.5" width={16} height={16} />
+                              <CheckCircle size={16} />
                               <div>
                                 <p className="text-sm font-medium text-green-800">Price Stable</p>
                                 <p className="text-xs text-green-600">No significant price changes detected</p>
@@ -585,7 +821,7 @@ const ItemDetailsContent = ({ itemData }: { itemData: any }) => {
             </div>
           ) : (
             <div className="text-center py-8 text-gray-500">
-              <Icon icon="ph:chart-line-down" className="mx-auto text-4xl mb-2" />
+              <TrendingDown size={16} />
               <p>No price history or sources available for this item</p>
             </div>
           );
@@ -595,7 +831,7 @@ const ItemDetailsContent = ({ itemData }: { itemData: any }) => {
       {/* Price Management Recommendations */}
       <Card className="p-4">
         <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-          <Icon icon="ph:lightbulb-duotone" className="text-yellow-600" />
+          <Lightbulb size={16} />
           Price Management Recommendations
         </h3>
         {(() => {
@@ -678,7 +914,7 @@ const ItemDetailsContent = ({ itemData }: { itemData: any }) => {
       {/* Additional Information */}
       <Card className="p-4">
         <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-          <Icon icon="ph:info-duotone" className="text-indigo-600" />
+          <Info size={16} />
           Additional Information
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -712,7 +948,7 @@ const ItemDetailsContent = ({ itemData }: { itemData: any }) => {
       {/* All Available Data Fields (Debug) */}
       <Card className="p-4 bg-gray-50">
         <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-          <Icon icon="ph:database-duotone" className="text-gray-600" />
+          <Database size={16} />
           All Available Data Fields
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">

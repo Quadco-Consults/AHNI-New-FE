@@ -232,6 +232,10 @@ export default function CreateConsumablePage() {
       category: data?.category,
     };
 
+    // Debug logging to see what data is being sent
+    console.log("🚀 Creating consumable with data:", createConsumableData);
+    console.log("📂 Category ID being used:", data?.category);
+
     try {
       if (consumableId) {
         await editItem(editConsumableData);
@@ -239,6 +243,7 @@ export default function CreateConsumablePage() {
       } else {
         await createItem(createConsumableData);
         toast.success("Consumable Created");
+        console.log("✅ Consumable created successfully");
       }
       router.push(AdminRoutes.INDEX_CONSUMABLE);
     } catch (error: any) {

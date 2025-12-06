@@ -1,4 +1,4 @@
-import { Icon } from "@iconify/react";
+import { Briefcase } from 'lucide-react';import { Icon } from "@iconify/react";
 import Card from "components/Card";
 import { Badge } from "components/ui/badge";
 import { Label } from "components/ui/label";

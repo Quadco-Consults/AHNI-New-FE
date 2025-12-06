@@ -19,7 +19,7 @@ const AssetsItem = ({
     return (
         <div className={className}>
             <h4 className="text-base font-semibold ">{heading}</h4>
-            <p className={cn("text-[#4D4545] text-sm", className2)}>{desc}</p>
+            <p className={cn("text-gray-dark text-body-base", className2)}>{desc}</p>
         </div>
     );
 };

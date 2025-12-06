@@ -33,6 +33,12 @@ import { useGetVendor } from "@/features/procurement/controllers/vendorsControll
 import { numberToWords } from "@/utils/numberToWords";
 import { useGetAllAdhocApplicants } from "@/features/programs/controllers/adhocApplicantController";
 import { useGetChartOfAccounts } from "@/features/finance/controllers/accountingController";
+import {
+  getReviewerOptions,
+  getAuthorizerOptions,
+  getApproverOptions
+} from "@/utils/approvalFilters";
+import { filterAhniStaffOnly } from "@/utils/userFilters";
 
 export default function CreatePaymentRequest() {
   const form = useForm<TPaymentRequestFormData>({
@@ -98,13 +104,26 @@ export default function CreatePaymentRequest() {
     search: "",
   });
 
-  const userOptions = useMemo(
-    () =>
-      user?.data?.results?.map((userItem: any) => ({
-        label: `${userItem.first_name} ${userItem.last_name}`,
-        value: userItem.id,
-      })),
-    [user]
+  // Filter for AHNI staff only (exclude vendors, consultants, external users)
+  const ahniStaff = useMemo(
+    () => filterAhniStaffOnly(user?.data?.results || []),
+    [user?.data?.results]
+  );
+
+  // Filtered options for approval workflow - only users with appropriate permissions
+  const reviewerOptions = useMemo(
+    () => getReviewerOptions(ahniStaff),
+    [ahniStaff]
+  );
+
+  const authorizerOptions = useMemo(
+    () => getAuthorizerOptions(ahniStaff),
+    [ahniStaff]
+  );
+
+  const approverOptions = useMemo(
+    () => getApproverOptions(ahniStaff),
+    [ahniStaff]
   );
 
   const paymentType = form.watch("payment_type") || "";
@@ -122,18 +141,26 @@ export default function CreatePaymentRequest() {
     page: 1,
     size: 1000,
     search: "",
-    status: "SELECTED", // Only get selected/hired facilitators
+    status: "APPROVED", // Backend uses APPROVED for selected/hired facilitators
     enabled: paymentType === "FACILITATOR",
   });
 
-  // Get hired adhoc staff from adhoc applicants with HIRED status
+  // Get adhoc staff from adhoc database (APPROVED status + offer_accepted)
   const { data: adhocStaffData } = useGetAllAdhocApplicants({
     page: 1,
     size: 1000,
     search: "",
-    status: "HIRED", // Only get hired adhoc staff
+    status: "APPROVED", // Match adhoc database filter
     enabled: paymentType === "ADHOC_STAFF",
   });
+
+  // Filter adhoc staff for those who accepted contracts (client-side filter like adhoc database)
+  const adhocStaffFiltered = useMemo(() => {
+    const allApplicants = adhocStaffData?.data?.results || [];
+    return allApplicants.filter((applicant: any) =>
+      applicant.status === "APPROVED" && applicant.offer_accepted === true
+    );
+  }, [adhocStaffData]);
 
   const consultantOptions = useMemo(
     () =>
@@ -171,15 +198,15 @@ export default function CreatePaymentRequest() {
 
   const adhocOptions = useMemo(
     () => {
-      // Use adhoc applicants data structure
-      const adhocStaff = adhocStaffData?.data?.results;
+      // Use filtered adhoc staff (APPROVED + offer_accepted)
+      const adhocStaff = adhocStaffFiltered;
 
-      if (!adhocStaff) {
+      if (!adhocStaff || adhocStaff.length === 0) {
         return [];
       }
 
       if (paymentType === "ADHOC_STAFF") {
-        console.log("Adhoc staff from applicants:", adhocStaff.length);
+        console.log("Adhoc staff from database:", adhocStaff.length);
       }
 
       const options = adhocStaff.map((staff: any) => ({
@@ -194,7 +221,7 @@ export default function CreatePaymentRequest() {
 
       return options;
     },
-    [adhocStaffData, paymentType]
+    [adhocStaffFiltered, paymentType]
   );
 
   // Get selected purchase order details
@@ -213,7 +240,7 @@ export default function CreatePaymentRequest() {
 
   // Get chart of accounts for expense account mapping
   const { data: chartOfAccountsData } = useGetChartOfAccounts({
-    account_type: "EXPENSE",
+    account_type: "EXPENSES",
     is_active: true,
   });
 
@@ -381,18 +408,22 @@ export default function CreatePaymentRequest() {
       if (vendor.bank_name) {
         form.setValue("payment_items.0.bank_name", vendor.bank_name);
       }
+      if (vendor.account_number) {
+        form.setValue("payment_items.0.account_number", vendor.account_number);
+      }
 
       // Contact details
       if (vendor.email) {
         form.setValue("payment_items.0.email", vendor.email);
       }
-      if (vendor.phone_number) {
-        form.setValue("payment_items.0.phone_number", vendor.phone_number);
+      if (vendor.phone_number || vendor.phone) {
+        form.setValue("payment_items.0.phone_number", vendor.phone_number || vendor.phone);
       }
 
-      // Address details
-      if (vendor.company_address) {
-        form.setValue("payment_items.0.address", vendor.company_address);
+      // Address details - check multiple possible field names
+      const vendorAddress = vendor.company_address || vendor.address || vendor.physical_address;
+      if (vendorAddress) {
+        form.setValue("payment_items.0.address", vendorAddress);
       }
 
       // Tax identification
@@ -796,47 +827,6 @@ export default function CreatePaymentRequest() {
                           </div>
                         )}
                       </div>
-
-                      {/* Chart of Accounts Integration Section */}
-                      <div className='mt-6'>
-                        <h5 className='font-medium text-gray-900 mb-3 flex items-center'>
-                          📊 Accounting Information
-                          <span className='text-xs text-gray-500 ml-2 font-normal'>
-                            (For automatic journal entry creation)
-                          </span>
-                        </h5>
-                        <div className='grid grid-cols-2 gap-4 bg-blue-50 p-4 rounded-lg'>
-                          <div>
-                            <FormSelect
-                              label='Expense Account'
-                              name={`payment_items.${index}.expense_account`}
-                              placeholder='Select Expense Account'
-                              options={expenseAccountOptions}
-                            />
-                            <p className='text-xs text-blue-600 mt-1'>
-                              💡 Auto-suggested based on payment type. Select appropriate expense account for journal entry.
-                            </p>
-                          </div>
-
-                          <FormInput
-                            label='Department'
-                            name={`payment_items.${index}.department`}
-                            placeholder='Enter Department'
-                          />
-
-                          <FormInput
-                            label='Project'
-                            name={`payment_items.${index}.project`}
-                            placeholder='Enter Project'
-                          />
-
-                          <FormInput
-                            label='Cost Center'
-                            name={`payment_items.${index}.cost_center`}
-                            placeholder='Enter Cost Center'
-                          />
-                        </div>
-                      </div>
                     </CardContent>
                   </Card>
                 ))}
@@ -873,7 +863,7 @@ export default function CreatePaymentRequest() {
                   name='reviewer'
                   placeholder='Select Reviewer'
                   required
-                  options={userOptions}
+                  options={reviewerOptions}
                 />
 
                 <FormSelect
@@ -881,7 +871,7 @@ export default function CreatePaymentRequest() {
                   name='authorizer'
                   placeholder='Select Authorizer'
                   required
-                  options={userOptions}
+                  options={authorizerOptions}
                 />
 
                 <FormSelect
@@ -889,7 +879,7 @@ export default function CreatePaymentRequest() {
                   name='approver'
                   placeholder='Select Approver'
                   required
-                  options={userOptions}
+                  options={approverOptions}
                 />
               </div>
 

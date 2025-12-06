@@ -1,13 +1,15 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
     useGetSingleAgreement,
     useSubmitAgreement,
     useCreateContractModification,
     useGetAgreementDocuments,
     useUploadContractDocument,
+    useApproveAgreement,
+    useRejectAgreement,
 } from "@/features/contracts-grants/controllers/agreementController";
 import { Button } from "components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "components/ui/card";
@@ -17,7 +19,7 @@ import { Label } from "components/ui/label";
 import { Input } from "components/ui/input";
 import { Textarea } from "components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
-import { ArrowLeft, FileText, Plus, Download, Eye, RefreshCw, CheckCircle, AlertCircle, Building2, Calendar, DollarSign, MapPin, User, Phone, Mail } from "lucide-react";
+import { ArrowLeft, FileText, Plus, Download, Eye, RefreshCw, CheckCircle, AlertCircle, Building2, Calendar, DollarSign, MapPin, User, Phone, Mail, ThumbsUp, ThumbsDown, Clock, Circle } from "lucide-react";
 import { CG_ROUTES } from "constants/RouterConstants";
 import { toast } from "sonner";
 import { IContractDocument } from "@/features/contracts-grants/types/contract-management/agreement";
@@ -41,14 +43,122 @@ export default function AgreementView() {
     const [uploadRemarks, setUploadRemarks] = useState("");
     const [uploadTitle, setUploadTitle] = useState("");
 
+    // Approval/Rejection state
+    const [isApprovalDialogOpen, setIsApprovalDialogOpen] = useState(false);
+    const [isRejectionDialogOpen, setIsRejectionDialogOpen] = useState(false);
+    const [rejectionReason, setRejectionReason] = useState("");
+    const [currentApprovalAction, setCurrentApprovalAction] = useState<'review' | 'authorize' | 'approve' | null>(null);
+
     const { data, isLoading, isError, error, refetch } = useGetSingleAgreement(agreementId);
-    const { data: documentsData, isLoading: documentsLoading, isError: documentsError, error: documentsErrorMessage, refetch: refetchDocuments } = useGetAgreementDocuments(agreementId);
+    const { data: documentsData, isLoading: documentsLoading, isError: documentsError, error: documentsErrorMessage, refetch: refetchDocuments } = useGetAgreementDocuments(agreementId, !!agreementId);
     const { submitAgreement, isLoading: isSubmitting, isSuccess: submitSuccess } = useSubmitAgreement(agreementId);
     const { createModification, isLoading: isCreatingModification, isSuccess: modificationSuccess } = useCreateContractModification(agreementId);
     const { uploadDocument, isLoading: isUploadingDocument, isSuccess: uploadSuccess } = useUploadContractDocument(agreementId);
 
+    // Approval/Rejection hooks
+    const { approveAgreement, isLoading: isApproving, isSuccess: approvalSuccess } = useApproveAgreement(agreementId);
+    const { rejectAgreement, isLoading: isRejecting, isSuccess: rejectionSuccess } = useRejectAgreement(agreementId);
+
     const agreement = data?.data;
-    const documents = documentsData?.data || [];
+
+    // Get documents from multiple sources with fallback handling
+    let documents: any[] = [];
+    let documentsSource = 'none';
+
+    // Try multiple data extraction methods
+    // Priority 1: Check embedded agreement documents first (only if not empty)
+    if (agreement?.agreement_documents && Array.isArray(agreement.agreement_documents) && agreement.agreement_documents.length > 0) {
+        documents = agreement.agreement_documents;
+        documentsSource = 'agreement_documents';
+        console.log('✅ Using embedded agreement documents:', documents.length, 'documents');
+    }
+    // Priority 2: Check documents API response
+    else if (documentsData?.data) {
+        // Cast to any to handle various API response structures
+        const apiData = documentsData.data as any;
+
+        if (Array.isArray(apiData)) {
+            documents = apiData;
+            documentsSource = 'documents_api_direct';
+        } else if (Array.isArray(apiData?.data)) {
+            documents = apiData.data;
+            documentsSource = 'documents_api_nested';
+        } else if (Array.isArray(apiData?.results)) {
+            documents = apiData.results;
+            documentsSource = 'documents_api_paginated';
+        } else if (Array.isArray(apiData?.documents)) {
+            // Handle {status: 'success', data: {documents: [...]}} structure
+            documents = apiData.documents;
+            documentsSource = 'documents_api_documents_field';
+            console.log('✅ Using API documents field:', documents.length, 'documents');
+        } else if (apiData && typeof apiData === 'object') {
+            // Try to find any array property in the data object
+            try {
+                const dataKeys = Object.keys(apiData);
+                console.log('🔍 Searching API data keys for arrays:', dataKeys);
+
+                for (const key of dataKeys) {
+                    const value = apiData[key];
+                    if (Array.isArray(value)) {
+                        documents = value;
+                        documentsSource = `documents_api_${key}_field`;
+                        console.log(`✅ Found documents in API response[${key}]:`, value.length, 'documents');
+                        break;
+                    }
+                }
+
+                if (documents.length === 0) {
+                    console.log('❌ No arrays found in API response data:', apiData);
+                }
+            } catch (error) {
+                console.error('Error parsing documents data:', error);
+                documents = [];
+                documentsSource = 'error_fallback';
+            }
+        }
+    }
+
+    // Debug documents source
+    console.log('📄 Documents Source Debug:', {
+        agreementId,
+        agreementDocuments: agreement?.agreement_documents,
+        agreementDocumentsLength: agreement?.agreement_documents?.length || 0,
+        documentsApiData: documentsData?.data,
+        documentsApiDataType: typeof documentsData?.data,
+        documentsApiDataKeys: documentsData?.data ? Object.keys(documentsData.data) : [],
+        documentsApiFullResponse: documentsData,
+        documentsLoading,
+        documentsError,
+        documentsErrorMessage: documentsErrorMessage?.message,
+        finalDocuments: documents,
+        finalDocumentsLength: documents?.length || 0,
+        usingSource: documentsSource,
+        // Debug each possible extraction path
+        extractionPaths: {
+            'documentsData.data exists': !!documentsData?.data,
+            'documentsData.data type': typeof documentsData?.data,
+            'documentsData.data is array': Array.isArray(documentsData?.data),
+            'Has nested data': !!(documentsData?.data as any)?.data,
+            'Has results': !!(documentsData?.data as any)?.results,
+            'Has documents field': !!(documentsData?.data as any)?.documents,
+        }
+    });
+
+    // Additional debugging for API response structure
+    if (documentsData?.data && typeof documentsData.data === 'object') {
+        console.log('🔍 DETAILED API RESPONSE STRUCTURE:', {
+            fullResponse: documentsData,
+            dataObject: documentsData.data,
+            dataKeys: Object.keys(documentsData.data),
+            dataValues: Object.entries(documentsData.data).map(([key, value]) => ({
+                key,
+                type: typeof value,
+                isArray: Array.isArray(value),
+                length: Array.isArray(value) ? value.length : 'N/A',
+                sample: Array.isArray(value) && value.length > 0 ? value[0] : value
+            }))
+        });
+    }
 
     // Debug logging
     useEffect(() => {
@@ -73,6 +183,36 @@ export default function AgreementView() {
                 contract_cost: agreement?.contract_cost,
             }
         });
+
+        // Force refetch documents if not loaded
+        if (agreementId && !documentsLoading && !documentsData && refetchDocuments) {
+            console.log('🔄 Force refetching documents for agreement:', agreementId);
+            refetchDocuments();
+        }
+
+        // Manual test of documents API if refetch doesn't work
+        if (agreementId && !documentsLoading && (!documentsData || documents.length === 0)) {
+            console.log('🔍 Manual Documents API Test for agreement:', agreementId);
+            // Import AxiosWithToken and test the endpoint manually
+            import('@/constants/api_management/MyHttpHelperWithToken').then(({ default: AxiosWithToken }) => {
+                AxiosWithToken.get(`/contract-grants/agreements/${agreementId}/documents/`, {
+                    params: { include_inactive: true }
+                })
+                .then(response => {
+                    console.log('🎯 Manual Documents API Success:', response.data);
+                    console.log('🎯 Manual API Response Structure:', {
+                        hasData: !!response.data?.data,
+                        dataType: typeof response.data?.data,
+                        dataIsArray: Array.isArray(response.data?.data),
+                        dataLength: Array.isArray(response.data?.data) ? response.data.data.length : 'N/A',
+                        fullResponse: response.data
+                    });
+                })
+                .catch(error => {
+                    console.error('❌ Manual Documents API Error:', error.response?.data || error.message);
+                });
+            });
+        }
     }, [agreementId, agreement, documentsLoading, documentsError, documentsErrorMessage, documentsData, documents]);
 
     useEffect(() => {
@@ -102,6 +242,24 @@ export default function AgreementView() {
         }
     }, [uploadSuccess]);
 
+    useEffect(() => {
+        if (approvalSuccess) {
+            toast.success("Agreement approved successfully!");
+            setIsApprovalDialogOpen(false);
+            refetch();
+        }
+    }, [approvalSuccess]);
+
+
+    useEffect(() => {
+        if (rejectionSuccess) {
+            toast.success("Agreement rejected successfully");
+            setIsRejectionDialogOpen(false);
+            setRejectionReason("");
+            refetch();
+        }
+    }, [rejectionSuccess]);
+
     const resetModificationForm = () => {
         setModificationType('EXTENSION');
         setModificationDescription("");
@@ -124,6 +282,28 @@ export default function AgreementView() {
             return;
         }
         await submitAgreement();
+    };
+
+    const handleApproveAgreement = async () => {
+        try {
+            await approveAgreement();
+        } catch (error: any) {
+            toast.error(error?.message || "Failed to approve agreement");
+        }
+    };
+
+
+    const handleRejectAgreement = async () => {
+        if (!rejectionReason.trim()) {
+            toast.error("Please provide a reason for rejection");
+            return;
+        }
+
+        try {
+            await rejectAgreement(rejectionReason);
+        } catch (error: any) {
+            toast.error(error?.message || "Failed to reject agreement");
+        }
     };
 
     const handleUploadDocument = async () => {
@@ -242,9 +422,44 @@ export default function AgreementView() {
         }
     };
 
+    // Multi-level Approval Logic
+    // Note: Since backend approval_stage is undefined, we'll simulate the workflow
+    // The backend likely handles multi-level approval internally via approve_agreement endpoint
+    const getApprovalStage = () => {
+        const status = agreement?.status;
+        const approvalStage = agreement?.approval_stage;
+        const approvalStatus = agreement?.approval_status;
+
+        console.log('🔍 Approval Stage Debug:', {
+            status,
+            approvalStage,
+            approvalStatus,
+            hasReviewerId: !!agreement?.reviewer_id,
+            hasAuthorizerId: !!agreement?.authorizer_id,
+            hasApproverId: !!agreement?.approver_id,
+        });
+
+        if (status === 'DRAFT') return 'draft';
+        if (status === 'SUBMITTED') {
+            // Since backend doesn't provide approval_stage, we'll default to first stage
+            // The backend will handle the actual workflow logic when approve_agreement is called
+            return 'pending_review';
+        }
+        if (status === 'ACTIVE') return 'approved';
+        if (status === 'REJECTED') return 'rejected';
+
+        return 'unknown';
+    };
+
+    const approvalStage = getApprovalStage();
+
     const canEdit = agreement?.status === 'DRAFT' || !agreement?.status;
     const canSubmit = canEdit && documents && documents.length > 0;
     const isActive = agreement?.status === 'ACTIVE';
+    const isSubmitted = agreement?.status === 'SUBMITTED';
+
+    // Determine available actions based on approval stage
+    const canReject = isSubmitted;
 
     if (isLoading) {
         return (
@@ -370,9 +585,180 @@ export default function AgreementView() {
                                     Submit for Approval
                                 </Button>
                             )}
+                            {/* Simplified Approval Actions - Backend handles multi-level workflow internally */}
+                            {isSubmitted && (
+                                <>
+                                    <Button
+                                        onClick={() => setIsApprovalDialogOpen(true)}
+                                        disabled={isApproving}
+                                        className="bg-green-600 hover:bg-green-700 text-white"
+                                        size="sm"
+                                    >
+                                        <ThumbsUp className="mr-2 h-4 w-4" />
+                                        {isApproving ? 'Processing...' : 'Approve Agreement'}
+                                    </Button>
+                                    <Button
+                                        onClick={() => setIsRejectionDialogOpen(true)}
+                                        disabled={isRejecting}
+                                        variant="destructive"
+                                        size="sm"
+                                    >
+                                        <ThumbsDown className="mr-2 h-4 w-4" />
+                                        {isRejecting ? 'Rejecting...' : 'Reject Agreement'}
+                                    </Button>
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>
+
+                {/* Approval Workflow Status */}
+                {isSubmitted && (
+                    <Card className="border-gray-200 shadow-sm mb-6">
+                        <CardHeader className="border-b border-gray-100 bg-gray-50">
+                            <div className="flex items-center gap-2">
+                                <CheckCircle className="h-5 w-5 text-blue-600" />
+                                <CardTitle className="text-lg">Approval Workflow Progress</CardTitle>
+                            </div>
+                        </CardHeader>
+                        <CardContent className="p-6">
+                            <div className="flex items-center justify-between">
+                                {/* Stage 1: Review */}
+                                <div className="flex flex-col items-center flex-1">
+                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 ${
+                                        approvalStage === 'pending_review'
+                                            ? 'bg-blue-100 border-blue-500 text-blue-700'
+                                            : approvalStage === 'pending_authorization' || approvalStage === 'pending_approval' || agreement?.status === 'ACTIVE'
+                                            ? 'bg-green-100 border-green-500 text-green-700'
+                                            : 'bg-gray-100 border-gray-300 text-gray-500'
+                                    }`}>
+                                        {approvalStage === 'pending_review' ? (
+                                            <Clock className="h-5 w-5" />
+                                        ) : (approvalStage === 'pending_authorization' || approvalStage === 'pending_approval' || agreement?.status === 'ACTIVE') ? (
+                                            <CheckCircle className="h-5 w-5" />
+                                        ) : (
+                                            <Circle className="h-5 w-5" />
+                                        )}
+                                    </div>
+                                    <div className="mt-2 text-center">
+                                        <p className="text-sm font-medium text-gray-900">Review</p>
+                                        <p className="text-xs text-gray-500">First Stage</p>
+                                        {approvalStage === 'pending_review' && (
+                                            <span className="inline-block mt-1 px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+                                                Current
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Connection Line 1 */}
+                                <div className={`h-px flex-1 mx-4 ${
+                                    approvalStage === 'pending_authorization' || approvalStage === 'pending_approval' || agreement?.status === 'ACTIVE'
+                                        ? 'bg-green-500' : 'bg-gray-300'
+                                }`}></div>
+
+                                {/* Stage 2: Authorization */}
+                                <div className="flex flex-col items-center flex-1">
+                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 ${
+                                        approvalStage === 'pending_authorization'
+                                            ? 'bg-orange-100 border-orange-500 text-orange-700'
+                                            : approvalStage === 'pending_approval' || agreement?.status === 'ACTIVE'
+                                            ? 'bg-green-100 border-green-500 text-green-700'
+                                            : 'bg-gray-100 border-gray-300 text-gray-500'
+                                    }`}>
+                                        {approvalStage === 'pending_authorization' ? (
+                                            <Clock className="h-5 w-5" />
+                                        ) : (approvalStage === 'pending_approval' || agreement?.status === 'ACTIVE') ? (
+                                            <CheckCircle className="h-5 w-5" />
+                                        ) : (
+                                            <Circle className="h-5 w-5" />
+                                        )}
+                                    </div>
+                                    <div className="mt-2 text-center">
+                                        <p className="text-sm font-medium text-gray-900">Authorization</p>
+                                        <p className="text-xs text-gray-500">Second Stage</p>
+                                        {approvalStage === 'pending_authorization' && (
+                                            <span className="inline-block mt-1 px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded-full">
+                                                Current
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Connection Line 2 */}
+                                <div className={`h-px flex-1 mx-4 ${
+                                    approvalStage === 'pending_approval' || agreement?.status === 'ACTIVE'
+                                        ? 'bg-green-500' : 'bg-gray-300'
+                                }`}></div>
+
+                                {/* Stage 3: Final Approval */}
+                                <div className="flex flex-col items-center flex-1">
+                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 ${
+                                        approvalStage === 'pending_approval'
+                                            ? 'bg-green-100 border-green-500 text-green-700'
+                                            : agreement?.status === 'ACTIVE'
+                                            ? 'bg-green-100 border-green-500 text-green-700'
+                                            : 'bg-gray-100 border-gray-300 text-gray-500'
+                                    }`}>
+                                        {approvalStage === 'pending_approval' ? (
+                                            <Clock className="h-5 w-5" />
+                                        ) : agreement?.status === 'ACTIVE' ? (
+                                            <CheckCircle className="h-5 w-5" />
+                                        ) : (
+                                            <Circle className="h-5 w-5" />
+                                        )}
+                                    </div>
+                                    <div className="mt-2 text-center">
+                                        <p className="text-sm font-medium text-gray-900">Final Approval</p>
+                                        <p className="text-xs text-gray-500">Final Stage</p>
+                                        {approvalStage === 'pending_approval' && (
+                                            <span className="inline-block mt-1 px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
+                                                Current
+                                            </span>
+                                        )}
+                                        {agreement?.status === 'ACTIVE' && (
+                                            <span className="inline-block mt-1 px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
+                                                Completed
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Current Action Indicator */}
+                            <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <p className="text-sm font-medium text-gray-900">
+                                            Current Status: <span className="text-blue-600">
+                                                {approvalStage === 'pending_review' && 'Pending Approval'}
+                                                {approvalStage === 'pending_authorization' && 'Pending Authorization'}
+                                                {approvalStage === 'pending_approval' && 'Pending Final Approval'}
+                                                {agreement?.status === 'ACTIVE' && 'Approved & Active'}
+                                            </span>
+                                        </p>
+                                        <p className="text-xs text-gray-600 mt-1">
+                                            {approvalStage === 'pending_review' && 'Agreement is awaiting approval from authorized personnel'}
+                                            {approvalStage === 'pending_authorization' && 'Waiting for authorizer to authorize the agreement'}
+                                            {approvalStage === 'pending_approval' && 'Waiting for final approver to approve the agreement'}
+                                            {agreement?.status === 'ACTIVE' && 'Agreement has been fully approved and is now active'}
+                                        </p>
+                                        <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded">
+                                            <p className="text-xs text-blue-700">
+                                                <strong>Note:</strong> The approval workflow is managed by the backend system.
+                                                Use the "Approve Agreement" button to progress through the approval stages.
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="text-xs text-gray-500">Agreement ID</p>
+                                        <p className="text-sm font-mono font-medium text-gray-900">{agreement.id}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+                )}
 
                 {/* Main Content Grid */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -550,6 +936,54 @@ export default function AgreementView() {
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-2">
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => {
+                                                    console.log('🔄 Manual refresh triggered');
+                                                    refetchDocuments();
+                                                }}
+                                                className="h-8 text-xs hover:bg-green-100 hover:text-green-700 hover:border-green-300"
+                                            >
+                                                <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
+                                                Refresh
+                                            </Button>
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => {
+                                                    console.log('🔍 Debug: Checking all recent agreements for documents...');
+                                                    import('@/constants/api_management/MyHttpHelperWithToken').then(({ default: AxiosWithToken }) => {
+                                                        AxiosWithToken.get('/contract-grants/agreements/')
+                                                        .then(response => {
+                                                            const agreements = response.data?.data?.results || [];
+                                                            const agreementSummary = agreements.slice(0, 5).map((a: any) => ({
+                                                                id: a.id,
+                                                                type: a.service_type_display,
+                                                                status: a.status,
+                                                                documents: a.agreement_documents?.length || 0,
+                                                                created: a.created_datetime,
+                                                                hasDocuments: !!(a.agreement_documents && a.agreement_documents.length > 0)
+                                                            }));
+
+                                                            console.log('📋 Recent agreements summary:');
+                                                            agreementSummary.forEach((ag, i) => {
+                                                                console.log(`  ${i+1}. ${ag.hasDocuments ? '📄' : '📋'} ${ag.id} (${ag.type}) - ${ag.documents} docs - ${ag.status}`);
+                                                            });
+
+                                                            const withDocs = agreementSummary.filter(a => a.hasDocuments);
+                                                            if (withDocs.length > 0) {
+                                                                console.log('🎯 Agreements WITH documents:', withDocs);
+                                                            } else {
+                                                                console.log('❌ No agreements found with documents in recent 5');
+                                                            }
+                                                        });
+                                                    });
+                                                }}
+                                                className="h-8 text-xs hover:bg-blue-100 hover:text-blue-700 hover:border-blue-300"
+                                            >
+                                                🔍 Debug
+                                            </Button>
                                             {canEdit && (
                                                 <Button
                                                     variant="outline"
@@ -1111,6 +1545,97 @@ export default function AgreementView() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+
+            {/* Approval Confirmation Dialog */}
+            <Dialog open={isApprovalDialogOpen} onOpenChange={setIsApprovalDialogOpen}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                            <ThumbsUp className="h-5 w-5 text-green-600" />
+                            Approve Agreement
+                        </DialogTitle>
+                    </DialogHeader>
+                    <div className="py-4">
+                        <p className="text-sm text-gray-600">
+                            Are you sure you want to approve this agreement? Once approved, the agreement will become active and will be in effect immediately.
+                        </p>
+                        <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded">
+                            <p className="text-sm font-medium text-green-800">This action will:</p>
+                            <ul className="text-xs text-green-700 mt-1 list-disc list-inside">
+                                <li>Change status from "Submitted" to "Active"</li>
+                                <li>Make the agreement effective immediately</li>
+                                <li>Enable contract tracking and monitoring</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setIsApprovalDialogOpen(false)}>
+                            Cancel
+                        </Button>
+                        <Button
+                            onClick={handleApproveAgreement}
+                            disabled={isApproving}
+                            className="bg-green-600 hover:bg-green-700"
+                        >
+                            {isApproving ? "Approving..." : "Approve Agreement"}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Rejection Dialog */}
+            <Dialog open={isRejectionDialogOpen} onOpenChange={setIsRejectionDialogOpen}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                            <ThumbsDown className="h-5 w-5 text-red-600" />
+                            Reject Agreement
+                        </DialogTitle>
+                    </DialogHeader>
+                    <div className="py-4 space-y-4">
+                        <p className="text-sm text-gray-600">
+                            Please provide a reason for rejecting this agreement. This information will be shared with the submitter.
+                        </p>
+
+                        <div>
+                            <Label>Rejection Reason *</Label>
+                            <Textarea
+                                value={rejectionReason}
+                                onChange={(e) => setRejectionReason(e.target.value)}
+                                placeholder="Please explain why this agreement is being rejected..."
+                                rows={4}
+                                className="mt-1"
+                                required
+                            />
+                        </div>
+
+                        <div className="p-3 bg-red-50 border border-red-200 rounded">
+                            <p className="text-sm font-medium text-red-800">This action will:</p>
+                            <ul className="text-xs text-red-700 mt-1 list-disc list-inside">
+                                <li>Change status from "Submitted" to "Rejected"</li>
+                                <li>Return the agreement to the submitter for revision</li>
+                                <li>Require resubmission after addressing feedback</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => {
+                            setIsRejectionDialogOpen(false);
+                            setRejectionReason("");
+                        }}>
+                            Cancel
+                        </Button>
+                        <Button
+                            onClick={handleRejectAgreement}
+                            disabled={isRejecting || !rejectionReason.trim()}
+                            variant="destructive"
+                        >
+                            {isRejecting ? "Rejecting..." : "Reject Agreement"}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
         </div>
     );
 }

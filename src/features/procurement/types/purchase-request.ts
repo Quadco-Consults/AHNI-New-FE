@@ -102,6 +102,7 @@ export type PurchaseRequestResultsData = {
   authorized_date?: string;
   approved_date?: string;
   specification_document?: string;
+  assigned_to?: string;
 };
 
 export interface PurchaseRequestData {

@@ -58,6 +58,12 @@ const InterviewTable = () => {
   const allInterviews = (data?.data as any)?.results || [];
   const allApplications = (applicationsData?.data as any)?.results || [];
 
+  // Debug logging (can be removed in production)
+  // console.log("🔍 InterviewTable Debug:");
+  // console.log("📋 All interviews:", allInterviews);
+  // console.log("📋 All applications:", allApplications);
+  // console.log("📊 Total interviews count:", allInterviews.length);
+
   // Create a map of email -> applicationId for quick lookup
   const emailToApplicationId = new Map();
   allApplications.forEach((app: any) => {
@@ -71,7 +77,20 @@ const InterviewTable = () => {
     // Check for multi-scorer interviews
     const hasScores = (interview.scores && interview.scores.length > 0) ||
                      (interview.interviewer_scores && interview.interviewer_scores.length > 0) ||
-                     (interview.completed_evaluations && interview.completed_evaluations > 0);
+                     (interview.completed_evaluations && interview.total_interviewers &&
+                      interview.completed_evaluations >= interview.total_interviewers);
+
+    // Debug committee evaluation status
+    if (interview.completed_evaluations || interview.total_interviewers) {
+      console.log("🎯 Committee Evaluation Status:");
+      console.log("📊 Interview ID:", interview.id);
+      console.log("📈 Completed Evaluations:", interview.completed_evaluations);
+      console.log("👥 Total Interviewers:", interview.total_interviewers);
+      console.log("✅ Fully Complete:", interview.completed_evaluations >= interview.total_interviewers);
+      console.log("🔍 Has Scores (before fix):", interview.completed_evaluations > 0);
+      console.log("🔍 Has Scores (after fix):", hasScores);
+      console.log("---");
+    }
 
     // Check for legacy single-scorer interviews
     const hasComments = interview.appearance_comments ||
@@ -90,7 +109,8 @@ const InterviewTable = () => {
   const scheduledInterviews = allInterviews.filter((interview: any) => {
     const hasScores = (interview.scores && interview.scores.length > 0) ||
                      (interview.interviewer_scores && interview.interviewer_scores.length > 0) ||
-                     (interview.completed_evaluations && interview.completed_evaluations > 0);
+                     (interview.completed_evaluations && interview.total_interviewers &&
+                      interview.completed_evaluations >= interview.total_interviewers);
 
     const hasComments = interview.appearance_comments ||
                        interview.communication_comments ||
@@ -264,11 +284,39 @@ const InterviewTable = () => {
           isLoading={false}
         />
       ) : (
-        <div className="text-center py-8 border rounded-md">
-          <p className="text-gray-500 mb-2">No completed interviews yet</p>
-          <p className="text-sm text-gray-400">
-            Interviews will appear here after they have been conducted and evaluated
-          </p>
+        <div className="space-y-6">
+          <div className="text-center py-8 border rounded-md">
+            <p className="text-gray-500 mb-2">No completed interview evaluations yet</p>
+            <p className="text-sm text-gray-400">
+              Interviews will appear here after they have been conducted and scored
+            </p>
+          </div>
+
+          {/* Show scheduled interviews if any exist */}
+          {scheduledInterviews.length > 0 && (
+            <div className="space-y-4">
+              <h4 className="text-lg font-medium">SCHEDULED INTERVIEWS - PENDING EVALUATION</h4>
+              <div className="border rounded-md">
+                {scheduledInterviews.map((interview: any, index: number) => (
+                  <div key={interview.id || index} className="p-4 border-b last:border-b-0 bg-yellow-50">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <p className="font-medium">{interview.candidate_name || "Candidate"}</p>
+                        <p className="text-sm text-gray-600">
+                          Interview scheduled - Awaiting evaluation
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="bg-yellow-100 text-yellow-800">
+                          Pending Evaluation
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 

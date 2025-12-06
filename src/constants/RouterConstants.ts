@@ -375,6 +375,11 @@ export const RouteEnum = {
   PROGRAM_SUPPORTIVE_SUPERVISION_CHECKLIST:
     "/dashboard/programs/plan/supportive-supervision-plan/create/checklist",
 
+  // Site Visit routes
+  PROGRAM_SITE_VISIT: "/dashboard/programs/plan/site-visit",
+  PROGRAM_SITE_VISIT_CREATE: "/dashboard/programs/plan/site-visit/create",
+  PROGRAM_SITE_VISIT_DETAILS: "/dashboard/programs/plan/site-visit/:id",
+
   PROGRAM_FUND_REQUEST: "/dashboard/programs/fund-request",
   PROGRAM_FUND_REQUEST_DETAILS: "/dashboard/programs/fund-request/:id/",
   PROGRAM_FUND_REQUEST_SINGLE_VIEW: "/dashboard/programs/fund-request/view/:id",
@@ -540,6 +545,7 @@ export const CG_ROUTES = {
   AWARDED_BENEFICIARIES: "/dashboard/c-and-g/awarded-beneficiaries",
 
   CONSULTANCY_DATABASE: "/dashboard/c-and-g/consultancy-database",
+  CONSULTANCY_DATABASE_VIEW: "/dashboard/c-and-g/consultancy-database/:id/view",
 
   CONTRACT_REQUEST: "/dashboard/c-and-g/contract-request/",
   CREATE_CONTRACT_REQUEST:
@@ -673,4 +679,47 @@ export enum ProgramRoutes {
   ADHOC_REQUISITION_DETAIL = "/dashboard/adhoc-requisition/:id",
   MY_ADHOC_REQUISITIONS = "/dashboard/adhoc-requisition/my-requisitions",
   ADHOC_REQUISITION_APPROVALS = "/dashboard/adhoc-requisition/approvals",
+}
+
+// FINANCE MODULE ROUTES
+export const FINANCE_ROUTES = {
+  // Core Finance
+  FINANCE_OVERVIEW: "/dashboard/finance",
+
+  // Classifications
+  CLASSIFICATIONS: "/dashboard/finance/classifications",
+
+  // Accounting
+  CHART_OF_ACCOUNTS: "/dashboard/finance/chart-of-accounts",
+  JOURNAL_ENTRIES: "/dashboard/finance/journal-entries",
+  BANK_ACCOUNTS: "/dashboard/finance/bank-accounts",
+  BANK_RECONCILIATION: "/dashboard/finance/bank-reconciliation",
+
+  // Financial Reports
+  FINANCIAL_REPORTS: "/dashboard/finance/financial-reports",
+  REPORTS: "/dashboard/finance/reports",
+  BUDGET_REPORTS: "/dashboard/finance/budget-reports",
+  ANALYSIS: "/dashboard/finance/analysis",
+
+  // Invoicing & Sales
+  INVOICES: "/dashboard/finance/invoices",
+  CUSTOMERS: "/dashboard/finance/customers",
+  SALES_ORDERS: "/dashboard/finance/sales-orders",
+  ACCOUNTS_RECEIVABLE: "/dashboard/finance/accounts-receivable",
+
+  // Expenses & Payables
+  ACCOUNTS_PAYABLE: "/dashboard/finance/accounts-payable",
+  EXPENSES: "/dashboard/finance/expenses",
+  EXPENSE_TRACKING: "/dashboard/finance/expense-tracking",
+  PETTY_CASH: "/dashboard/finance/petty-cash",
+
+  // Tax & Assets
+  TAX_MANAGEMENT: "/dashboard/finance/tax-management",
+  FIXED_ASSETS: "/dashboard/finance/fixed-assets",
+
+  // Integration
+  INTEGRATION_DASHBOARD: "/dashboard/finance/integration-dashboard",
+  QUICKBOOKS_SETTINGS: "/dashboard/finance/quickbooks-settings",
+  QUICKBOOKS_SYNC: "/dashboard/finance/quickbooks/sync",
+  QUICKBOOKS_CONFIG: "/dashboard/finance/quickbooks/settings",
 }

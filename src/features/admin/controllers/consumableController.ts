@@ -10,10 +10,59 @@ import {
 import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
 
 const BASE_URL = "/admins/inventory/consumables/";
+const ENHANCED_CONSUMABLES_URL = "/config/items/consumables/";
 
 // ===== CONSUMABLE HOOKS =====
 
-// Get All Consumables
+// Enhanced consumables query with store-aware filtering and expansion
+export interface EnhancedConsumablesRequest extends TRequest {
+  expand?: string; // Expand related fields
+  category?: string; // Filter by category ID
+  location?: string; // Filter by location ID (HQ users only)
+  stock_status?: "OUT_OF_STOCK" | "CRITICAL" | "LOW" | "OK"; // Filter by stock status
+  enabled?: boolean;
+}
+
+// Get All Enhanced Consumables (with store_stocks expansion)
+export const useGetAllEnhancedConsumables = ({
+  page = 1,
+  size = 20,
+  search = "",
+  expand = "store_stocks",
+  category = "",
+  location = "",
+  stock_status = "",
+  enabled = true,
+}: EnhancedConsumablesRequest) => {
+  return useQuery<TPaginatedResponse<TConsumablePaginatedData>>({
+    queryKey: ["enhanced-consumables", page, size, search, expand, category, location, stock_status],
+    queryFn: async () => {
+      try {
+        const params: Record<string, any> = {
+          page,
+          size,
+          search,
+          expand,
+        };
+
+        // Add optional filters
+        if (category) params.category = category;
+        if (location) params.location = location;
+        if (stock_status) params.stock_status = stock_status;
+
+        const response = await AxiosWithToken.get(ENHANCED_CONSUMABLES_URL, { params });
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    enabled: enabled,
+    refetchOnWindowFocus: false,
+  });
+};
+
+// Get All Consumables (Original - for backward compatibility)
 export const useGetAllConsumables = ({
   page = 1,
   size = 20,
@@ -153,6 +202,7 @@ export const useDeleteConsumable = (id: string) => {
 
 // Legacy exports for backward compatibility
 export const useGetAllConsumablesQuery = useGetAllConsumables;
+export const useGetAllEnhancedConsumablesQuery = useGetAllEnhancedConsumables;
 export const useGetSingleConsumableQuery = useGetSingleConsumable;
 export const useGetAllConsumableStockCardsQuery = useGetAllConsumableStockCards;
 export const useCreateConsumableMutation = useCreateConsumable;

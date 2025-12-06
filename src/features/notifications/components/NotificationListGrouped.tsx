@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { TNotification } from "@/features/notifications/controllers/notificationController";
 import NotificationGroup from "./NotificationGroup";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
-import { Icon } from "@iconify/react";
+import { Bell } from "lucide-react";
 
 interface NotificationListGroupedProps {
   notifications: TNotification[];
@@ -155,7 +155,7 @@ export default function NotificationListGrouped({
         
         {Object.keys(groupedNotifications).length === 0 && (
           <div className="text-center py-8 text-gray-500">
-            <Icon icon="mdi:notification-clear-all" className="w-12 h-12 mx-auto mb-2" />
+            <Bell className="w-12 h-12 mx-auto mb-2" />
             <p>No notifications found</p>
           </div>
         )}
