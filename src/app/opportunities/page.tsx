@@ -144,6 +144,37 @@ export default function OpportunitiesPage() {
     setExpandedCard(expandedCard === id ? null : id);
   };
 
+  // Helper function to determine opportunity detail route
+  const getDetailRoute = (opportunity: any) => {
+    // Map opportunity types to their detail routes
+    // Handle both backend types and transformed frontend types
+    const type = opportunity.type || opportunity.opportunity_type;
+
+    switch (type) {
+      case 'Full Time':
+      case 'Job':
+      case 'HR_JOB':
+      case 'JOB':
+        return `/jobs/${opportunity.id}`;
+      case 'Consultant':
+      case 'CONSULTANT':
+        return `/consultant-jobs/${opportunity.id}`;
+      case 'Facilitator':
+      case 'FACILITATOR':
+        return `/facilitator-jobs/${opportunity.id}`;
+      case 'Adhoc':
+      case 'ADHOC':
+        return `/adhoc-jobs/${opportunity.id}`;
+      case 'RFQ':
+        return `/rfq/${opportunity.id}`;
+      case 'RFP':
+        return `/rfp/${opportunity.id}`;
+      case 'EOI':
+      default:
+        return `/eoi/${opportunity.id}`;
+    }
+  };
+
   const isLoading = eoiLoading || unifiedLoading;
 
   return (
@@ -373,7 +404,11 @@ export default function OpportunitiesPage() {
             ) : (
               <div className="space-y-6">
                 {filteredOpportunities.map((opportunity) => (
-                  <Card key={opportunity.id} className="hover:shadow-lg transition-shadow">
+                  <Card
+                    key={opportunity.id}
+                    className="hover:shadow-lg transition-shadow cursor-pointer"
+                    onClick={() => router.push(getDetailRoute(opportunity))}
+                  >
                     <CardContent className="p-6">
                       <div className="flex items-start justify-between mb-4">
                         <div className="flex-1">
@@ -462,7 +497,10 @@ export default function OpportunitiesPage() {
                       <div className="flex items-center justify-between mt-4">
                         <Button
                           variant="ghost"
-                          onClick={() => toggleCard(opportunity.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleCard(opportunity.id);
+                          }}
                           className="text-primary hover:text-primary/80"
                         >
                           {expandedCard === opportunity.id ? "View Less" : "Read More"}
@@ -470,24 +508,26 @@ export default function OpportunitiesPage() {
 
                         <div className="flex items-center gap-2">
                           <Button
-                            variant="outline"
+                            variant="default"
                             size="sm"
-                            onClick={() => window.open(`mailto:${opportunity.applicationEmail}?subject=Application for ${opportunity.title}`, '_blank')}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              router.push(getDetailRoute(opportunity));
+                            }}
                           >
-                            <Mail className="h-4 w-4 mr-1" />
-                            Apply Now
+                            <ExternalLink className="h-4 w-4 mr-1" />
+                            View Details
                           </Button>
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => navigator.share?.({
-                              title: opportunity.title,
-                              text: opportunity.description,
-                              url: window.location.href
-                            }) || navigator.clipboard.writeText(window.location.href)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              window.open(`mailto:${opportunity.applicationEmail}?subject=Application for ${opportunity.title}`, '_blank');
+                            }}
                           >
-                            <ExternalLink className="h-4 w-4 mr-1" />
-                            Share
+                            <Mail className="h-4 w-4 mr-1" />
+                            Apply Now
                           </Button>
                         </div>
                       </div>
