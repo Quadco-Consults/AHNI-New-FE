@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import VendorVendorAxiosWithToken from "@/constants/api_management/VendorHttpHelper";
+import VendorAxiosWithToken from "@/constants/api_management/VendorHttpHelper";
 import {
   PurchaseOrder,
   GoodsReceivedNote,
