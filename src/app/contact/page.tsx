@@ -43,7 +43,7 @@ export default function ContactPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Handle form submission - could integrate with email service
-    const mailtoLink = `mailto:info@ahnigeria.org?subject=${encodeURIComponent(formData.subject)}&body=${encodeURIComponent(`Name: ${formData.name}\nEmail: ${formData.email}\nType: ${formData.type}\n\nMessage:\n${formData.message}`)}`;
+    const mailtoLink = `mailto:AHNiOperations@ahnigeria.org?subject=${encodeURIComponent(formData.subject)}&body=${encodeURIComponent(`Name: ${formData.name}\nEmail: ${formData.email}\nType: ${formData.type}\n\nMessage:\n${formData.message}`)}`;
     window.open(mailtoLink, '_blank');
   };
 
@@ -51,21 +51,21 @@ export default function ContactPage() {
     {
       icon: <Mail className="h-8 w-8" />,
       title: "Email",
-      primary: "info@ahnigeria.org",
+      primary: "AHNiOperations@ahnigeria.org",
       secondary: "careers@ahnigeria.org",
-      description: "General inquiries and career opportunities"
+      description: "Operations and career opportunities"
     },
     {
       icon: <Phone className="h-8 w-8" />,
       title: "Phone",
-      primary: "+234 (0) 123 456 7890",
-      secondary: "Mon - Fri: 8:00 AM - 5:00 PM",
+      primary: "+234.94615555",
+      secondary: "8:00am – 5:30pm Mon – Thu, 8:00am – 2:00pm Friday",
       description: "Direct contact during business hours"
     },
     {
       icon: <MapPin className="h-8 w-8" />,
       title: "Address",
-      primary: "Lagos, Nigeria",
+      primary: "No. 30 Anthony Enahoro Street, Utako District, Abuja, Nigeria",
       secondary: "CAC/NO/33391",
       description: "Our headquarters location"
     }
@@ -76,31 +76,31 @@ export default function ContactPage() {
       value: "general",
       label: "General Inquiry",
       icon: <MessageSquare className="h-5 w-5" />,
-      description: "General questions about AHNI"
+      description: "General questions about AHNi"
     },
     {
       value: "partnership",
       label: "Partnership",
       icon: <HeartHandshake className="h-5 w-5" />,
-      description: "Collaboration opportunities"
+      description: "Health technical assistance and collaboration opportunities"
     },
     {
       value: "career",
       label: "Career",
       icon: <Users className="h-5 w-5" />,
-      description: "Job opportunities and applications"
+      description: "Job opportunities in health programming and applications"
     },
     {
       value: "vendor",
       label: "Vendor/Supplier",
       icon: <Building className="h-5 w-5" />,
-      description: "Procurement and vendor inquiries"
+      description: "Procurement and vendor inquiries for health programs"
     },
     {
       value: "technical",
       label: "Technical Support",
       icon: <Globe className="h-5 w-5" />,
-      description: "System and technical issues"
+      description: "System and portal technical issues"
     }
   ];
 
@@ -123,8 +123,8 @@ export default function ContactPage() {
                 className="h-10 w-auto"
               />
               <div>
-                <h1 className="font-bold text-xl text-foreground tracking-tight">AHNI Portal</h1>
-                <p className="text-sm text-muted-foreground font-medium">Achieving Health Initiatives Nigeria</p>
+                <h1 className="font-bold text-xl text-foreground tracking-tight">AHNi Portal</h1>
+                <p className="text-sm text-muted-foreground font-medium">Achieving Health Nigeria initiative</p>
               </div>
             </div>
 
@@ -443,7 +443,8 @@ export default function ContactPage() {
                       <Clock className="h-6 w-6 text-primary mt-1" />
                       <div>
                         <h4 className="font-medium text-foreground">Business Hours</h4>
-                        <p className="text-sm text-muted-foreground">Monday - Friday: 8:00 AM - 5:00 PM</p>
+                        <p className="text-sm text-muted-foreground">Monday - Thursday: 8:00 AM - 5:30 PM</p>
+                        <p className="text-sm text-muted-foreground">Friday: 8:00 AM - 2:00 PM</p>
                         <p className="text-sm text-muted-foreground">Saturday - Sunday: Closed</p>
                       </div>
                     </div>
@@ -501,11 +502,11 @@ export default function ContactPage() {
                   height={32}
                   className="h-8 w-auto"
                 />
-                <span className="font-semibold">AHNI</span>
+                <span className="font-semibold">AHNi</span>
               </div>
               <p className="text-muted-foreground text-sm leading-relaxed">
-                Empowering healthcare organizations across Nigeria through innovative solutions,
-                strategic partnerships, and community engagement for sustainable development.
+                Providing health technical assistance to Nigeria's public health sector through
+                inclusive and innovative community-led programming since 2009.
               </p>
             </div>
 
@@ -513,7 +514,7 @@ export default function ContactPage() {
               <h3 className="font-semibold mb-4">Quick Links</h3>
               <ul className="space-y-2 text-muted-foreground text-sm">
                 <li><button onClick={() => router.push('/opportunities')} className="hover:text-primary transition-colors">Current Opportunities</button></li>
-                <li><button onClick={() => router.push('/about')} className="hover:text-primary transition-colors">About AHNI</button></li>
+                <li><button onClick={() => router.push('/about')} className="hover:text-primary transition-colors">About AHNi</button></li>
                 <li><button onClick={() => router.push('/focus-areas')} className="hover:text-primary transition-colors">Focus Areas</button></li>
                 <li><button onClick={() => router.push('/contact')} className="hover:text-primary transition-colors">Contact</button></li>
               </ul>
@@ -557,7 +558,7 @@ export default function ContactPage() {
           </div>
 
           <div className="border-t border-muted mt-8 pt-8 text-center text-muted-foreground text-sm">
-            <p>&copy; 2024 Achieving Health Initiatives Nigeria (AHNI). All rights reserved. CAC/NO/33391</p>
+            <p>&copy; 2024 Achieving Health Nigeria initiative (AHNi). All rights reserved. CAC/NO/33391</p>
           </div>
         </div>
       </footer>

@@ -25,55 +25,58 @@ export default function AboutPage() {
 
       {/* Navigation Header */}
       <header className="bg-white/95 backdrop-blur-sm border-b border-border/50 sticky top-0 z-50 shadow-sm">
-        <div className="w-full px-6 lg:px-12 py-3">
+        <div className="w-full px-6 lg:px-12 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <Image
-                src="/imgs/logo.png"
-                alt="AHNI Logo"
-                width={40}
-                height={40}
-                className="h-10 w-auto"
-              />
-              <div>
-                <h1 className="font-bold text-xl text-foreground tracking-tight">AHNI Portal</h1>
-                <p className="text-sm text-muted-foreground font-medium">Achieving Health Initiatives Nigeria</p>
+              <div className="flex items-center space-x-3">
+                <Image
+                  src="/imgs/logo.png"
+                  alt="AHNI Logo"
+                  width={45}
+                  height={45}
+                  className="h-11 w-auto"
+                  style={{ width: 'auto', height: '44px' }}
+                />
+                <div className="hidden md:block">
+                  <h1 className="font-bold text-2xl text-foreground tracking-tight">AHNi Portal</h1>
+                  <p className="text-base text-muted-foreground font-medium">Achieving Health Nigeria initiative</p>
+                </div>
               </div>
             </div>
 
-            <nav className="hidden md:flex items-center space-x-1">
+            <nav className="hidden lg:flex items-center space-x-2">
               <Button
                 variant="ghost"
                 onClick={() => router.push('/')}
-                className="text-foreground/70 hover:text-primary hover:bg-primary/5 transition-all font-semibold px-4 py-2"
+                className="text-foreground/80 hover:text-primary hover:bg-primary/10 transition-all font-semibold text-lg px-6 py-3 h-auto"
               >
                 Home
               </Button>
               <Button
                 variant="ghost"
                 onClick={() => router.push('/opportunities')}
-                className="text-foreground/70 hover:text-primary hover:bg-primary/5 transition-all font-semibold px-4 py-2"
+                className="text-foreground/80 hover:text-primary hover:bg-primary/10 transition-all font-semibold text-lg px-6 py-3 h-auto"
               >
                 Opportunities
               </Button>
               <Button
                 variant="ghost"
                 onClick={() => router.push('/about')}
-                className="text-primary bg-primary/10 font-semibold px-4 py-2"
+                className="text-primary bg-primary/10 font-semibold text-lg px-6 py-3 h-auto"
               >
                 About
               </Button>
               <Button
                 variant="ghost"
                 onClick={() => router.push('/focus-areas')}
-                className="text-foreground/70 hover:text-primary hover:bg-primary/5 transition-all font-semibold px-4 py-2"
+                className="text-foreground/80 hover:text-primary hover:bg-primary/10 transition-all font-semibold text-lg px-6 py-3 h-auto"
               >
                 Focus Areas
               </Button>
               <Button
                 variant="ghost"
                 onClick={() => router.push('/contact')}
-                className="text-foreground/70 hover:text-primary hover:bg-primary/5 transition-all font-semibold px-4 py-2"
+                className="text-foreground/80 hover:text-primary hover:bg-primary/10 transition-all font-semibold text-lg px-6 py-3 h-auto"
               >
                 Contact
               </Button>
@@ -83,17 +86,17 @@ export default function AboutPage() {
               <Button
                 variant="outline"
                 onClick={() => router.push('/vendor-portal/login')}
-                className="flex items-center space-x-2 border-primary/60 text-primary hover:border-primary hover:bg-primary hover:text-primary-foreground font-semibold transition-all shadow-sm hover:shadow-md"
+                className="flex items-center space-x-2 border-primary/60 text-primary hover:border-primary hover:bg-primary hover:text-primary-foreground font-semibold transition-all shadow-sm hover:shadow-md text-base px-5 py-3 h-auto"
               >
-                <Users className="h-4 w-4" />
+                <Users className="h-5 w-5" />
                 <span className="hidden sm:inline">Vendor Portal</span>
                 <span className="sm:hidden">Vendor</span>
               </Button>
               <Button
                 onClick={() => router.push('/auth/login')}
-                className="flex items-center space-x-2 font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg transition-all"
+                className="flex items-center space-x-2 font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg transition-all text-base px-5 py-3 h-auto"
               >
-                <Users className="h-4 w-4" />
+                <Shield className="h-5 w-5" />
                 <span className="hidden sm:inline">Staff Portal</span>
                 <span className="sm:hidden">Staff</span>
               </Button>
