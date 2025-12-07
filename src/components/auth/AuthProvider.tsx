@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, ReactNode } from "react";
+import { useEffect, ReactNode, useRef } from "react";
 import { useAppDispatch } from "@/store/hooks";
 import { setAuth } from "@/store/auth/authSlice";
 import { getAccessToken, getCurrentUser } from "@/utils/auth";
@@ -20,9 +20,17 @@ interface AuthProviderProps {
  */
 export default function AuthProvider({ children }: AuthProviderProps) {
   const dispatch = useAppDispatch();
+  const hasInitialized = useRef(false);
 
   useEffect(() => {
+    // Prevent multiple auth state restorations
+    if (hasInitialized.current) {
+      console.log('🚫 Auth restoration already performed, skipping...');
+      return;
+    }
+
     const restoreAuthState = () => {
+      hasInitialized.current = true;
       const token = getAccessToken();
       const user = getCurrentUser();
 

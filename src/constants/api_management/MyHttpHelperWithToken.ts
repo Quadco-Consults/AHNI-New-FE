@@ -235,8 +235,104 @@ AxiosWithToken.interceptors.response.use(
     }
 
     if (error.response && error.response.status === 401) {
-      console.warn('Unauthorized access - redirecting to login');
-      window.location.href = "/auth/login";
+      console.warn('Unauthorized access detected');
+
+      const originalRequest = error.config;
+
+      // Check if we're on a public route or vendor portal - don't redirect these to staff login
+      const publicRoutes = [
+        '/eoi',
+        '/rfq',
+        '/rfp',
+        '/vendor-portal',
+        '/opportunities',
+        '/jobs',
+        '/consultant-jobs',
+        '/facilitator-jobs',
+        '/adhoc-jobs',
+        '/about',
+        '/contact',
+        '/focus-areas'
+      ];
+      const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
+      const isPublicRoute = publicRoutes.some(route => currentPath.startsWith(route));
+
+      console.log('🔍 401 Error - Current path:', currentPath);
+      console.log('🔍 401 Error - Is public route:', isPublicRoute);
+      console.log('🔍 401 Error - Public routes:', publicRoutes);
+
+      // Only attempt token refresh for protected routes and if not already retried
+      if (!isPublicRoute && !originalRequest._retry) {
+        originalRequest._retry = true;
+
+        const refreshToken = localStorage.getItem('refresh_token');
+
+        if (refreshToken) {
+          try {
+            console.log('🔄 Attempting token refresh...');
+
+            // Call the new refresh endpoint
+            const refreshResponse = await axios.post(`${baseURL}auth/token/refresh/`, {
+              refresh: refreshToken
+            }, {
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            });
+
+            console.log('✅ Token refresh successful');
+
+            // Update stored tokens
+            const newAccessToken = refreshResponse.data.data.access;
+            const newRefreshToken = refreshResponse.data.data.refresh;
+
+            localStorage.setItem('token', newAccessToken);
+            localStorage.setItem('refresh_token', newRefreshToken);
+
+            // Update authorization header for the original request
+            originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+
+            // Retry the original request
+            return AxiosWithToken(originalRequest);
+
+          } catch (refreshError) {
+            // Refresh failed - redirect to login
+            console.warn('❌ Token refresh failed, redirecting to login');
+            console.error('Refresh error:', refreshError);
+
+            localStorage.removeItem('token');
+            localStorage.removeItem('refresh_token');
+            localStorage.removeItem('user');
+
+            // Redirect to appropriate login based on current context
+            if (currentPath.startsWith('/vendor-portal')) {
+              console.log('🏪 Vendor context detected - redirecting to vendor login');
+              window.location.href = "/vendor-portal/login";
+            } else {
+              console.log('🏢 Staff context - redirecting to staff login');
+              window.location.href = "/auth/login";
+            }
+            return Promise.reject(refreshError);
+          }
+        } else {
+          // No refresh token - redirect to login
+          console.warn('❌ No refresh token available, redirecting to login');
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+
+          // Redirect to appropriate login based on current context
+          if (currentPath.startsWith('/vendor-portal')) {
+            console.log('🏪 Vendor context detected - redirecting to vendor login');
+            window.location.href = "/vendor-portal/login";
+          } else {
+            console.log('🏢 Staff context - redirecting to staff login');
+            window.location.href = "/auth/login";
+          }
+        }
+      } else if (isPublicRoute) {
+        console.warn('401 on public route - not redirecting to login');
+      }
+
       return Promise.reject(error);
     }
 

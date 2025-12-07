@@ -7,7 +7,9 @@ export const EOISchema = z.object({
   financial_year: z.string().min(1, "Field is required"),
   categories: z.array(z.string()),
   eoi_number: z.string().min(1, "Field is required"),
-  type: z.string().min(1, "Field is required"),
+  type: z.enum(['NEW_VENDOR', 'OPEN_TENDER', 'PROCUREMENT_WITH_REGISTRATION'], {
+    required_error: "EOI type is required",
+  }),
   solicitation: z.string().optional(),
 });
 
