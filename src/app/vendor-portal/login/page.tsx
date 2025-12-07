@@ -155,6 +155,16 @@ export default function VendorLoginPage() {
                       )}
                     />
 
+                    {/* Demo Credentials */}
+                    <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                      <h4 className="text-sm font-medium text-blue-900 mb-2">Demo Access</h4>
+                      <p className="text-xs text-blue-800 mb-2">Use these test credentials:</p>
+                      <div className="text-xs text-blue-800 space-y-1">
+                        <div><strong>Email:</strong> test@vendor.com</div>
+                        <div><strong>Password:</strong> test123</div>
+                      </div>
+                    </div>
+
                     {/* Help Links */}
                     <div className="text-center">
                       <div className="text-sm text-gray-600">

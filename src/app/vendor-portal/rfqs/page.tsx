@@ -17,14 +17,33 @@ import {
   Filter,
   ArrowRight
 } from "lucide-react";
-import { useVendorAvailableRFQs } from "@/features/vendor-portal/controllers/vendorDashboardController";
+import { useVendorAvailableRFQs, useVendorCategories, useRFQSummary } from "@/features/vendor-portal/controllers/vendorDashboardController";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
+import { Checkbox } from "components/ui/checkbox";
 import { LoadingSpinner } from "components/Loading";
 
 export default function VendorRFQsPage() {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
-  const { data: availableRFQs, isLoading, error } = useVendorAvailableRFQs();
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [tenderType, setTenderType] = useState<string>("");
+  const [closingSoon, setClosingSoon] = useState(false);
+
+  // Build filter parameters for the API
+  const filterParams = {
+    search: searchTerm || undefined,
+    category: selectedCategory || undefined,
+    tender_type: tenderType || undefined,
+    closing_soon: closingSoon || undefined,
+  };
+
+  // API calls with filtering parameters
+  const { data: rfqData, isLoading, error } = useVendorAvailableRFQs(filterParams);
+  const { data: categories, isLoading: categoriesLoading } = useVendorCategories();
+  const { data: summary } = useRFQSummary();
+
+  const availableRFQs = rfqData?.results || [];
+  const rfqSummary = rfqData?.summary;
 
   if (isLoading) {
     return (
@@ -46,12 +65,8 @@ export default function VendorRFQsPage() {
     );
   }
 
-  const filteredRFQs = availableRFQs?.filter((rfq: any) => {
-    const matchesSearch = rfq.rfq_title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         rfq.categories?.some((cat: string) => cat.toLowerCase().includes(searchTerm.toLowerCase()));
-    const matchesStatus = statusFilter === "all" || rfq.rfq_status === statusFilter;
-    return matchesSearch && matchesStatus;
-  }) || [];
+  // No need for client-side filtering since it's handled by the API
+  const filteredRFQs = availableRFQs;
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -108,30 +123,86 @@ export default function VendorRFQsPage() {
       {/* Search and Filters */}
       <Card>
         <CardContent className="pt-6">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <div className="flex-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                <Input
-                  placeholder="Search RFQs by title or category..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-9"
+          <div className="space-y-4">
+            {/* Search Bar */}
+            <div className="relative">
+              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+              <Input
+                placeholder="Search RFQs by title, RFQ ID, or description..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-9"
+              />
+            </div>
+
+            {/* Filter Controls */}
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="sm:w-60">
+                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Filter by Category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">All Categories</SelectItem>
+                    {!categoriesLoading && categories?.map((category: any) => (
+                      <SelectItem key={category.id} value={category.id}>
+                        {category.name} ({category.rfq_count})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="sm:w-60">
+                <Select value={tenderType} onValueChange={setTenderType}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Filter by Tender Type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">All Tender Types</SelectItem>
+                    <SelectItem value="National Open Tender">National Open Tender</SelectItem>
+                    <SelectItem value="Restricted Tender">Restricted Tender</SelectItem>
+                    <SelectItem value="Direct Procurement">Direct Procurement</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="closing-soon"
+                  checked={closingSoon}
+                  onCheckedChange={setClosingSoon}
                 />
+                <label
+                  htmlFor="closing-soon"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  Closing Soon (7 days)
+                </label>
               </div>
             </div>
-            <div className="sm:w-48">
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="all">All Status</option>
-                <option value="OPEN">Open</option>
-                <option value="CLOSING_SOON">Closing Soon</option>
-                <option value="CLOSED">Closed</option>
-              </select>
-            </div>
+
+            {/* Summary Stats */}
+            {rfqSummary && (
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-lg">
+                <div className="text-center">
+                  <div className="text-lg font-semibold text-blue-600">{rfqSummary.total_available || rfqData?.count || 0}</div>
+                  <div className="text-xs text-gray-600">Total Available</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-lg font-semibold text-orange-600">{rfqSummary.closing_soon || 0}</div>
+                  <div className="text-xs text-gray-600">Closing Soon</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-lg font-semibold text-green-600">{rfqSummary.new_rfqs || 0}</div>
+                  <div className="text-xs text-gray-600">New This Week</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-lg font-semibold text-purple-600">{rfqSummary.submitted_bids || 0}</div>
+                  <div className="text-xs text-gray-600">Submitted Bids</div>
+                </div>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>

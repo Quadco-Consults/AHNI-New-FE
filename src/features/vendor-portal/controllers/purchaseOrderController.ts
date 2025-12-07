@@ -13,31 +13,31 @@ import {
   GRNStatus
 } from "../types/purchase-orders";
 
-// Purchase Order and GRN endpoints
+// Purchase Order and GRN endpoints - Updated to match new API structure
 const PO_GRN_ENDPOINTS = {
   // Purchase Orders
-  VENDOR_POS: "/procurements/vendor/purchase-orders/",
-  PO_DETAILS: "/procurements/vendor/purchase-orders/:poId/",
-  ACKNOWLEDGE_PO: "/procurements/vendor/purchase-orders/:poId/acknowledge/",
-  UPDATE_DELIVERY: "/procurements/vendor/purchase-orders/:poId/delivery-update/",
+  VENDOR_POS: "/vendor/purchase-orders/",
+  PO_DETAILS: "/vendor/purchase-orders/:poId/",
+  ACKNOWLEDGE_PO: "/vendor/purchase-orders/:poId/acknowledge/",
+  UPDATE_DELIVERY: "/vendor/purchase-orders/:poId/delivery-update/",
 
   // GRNs
-  VENDOR_GRNS: "/procurements/vendor/goods-received-notes/",
-  GRN_DETAILS: "/procurements/vendor/goods-received-notes/:grnId/",
-  RESPOND_TO_GRN: "/procurements/vendor/goods-received-notes/:grnId/respond/",
+  VENDOR_GRNS: "/vendor/goods-received-notes/",
+  GRN_DETAILS: "/vendor/goods-received-notes/:grnId/",
+  RESPOND_TO_GRN: "/vendor/goods-received-notes/:grnId/respond/",
 
   // Notifications
-  PO_NOTIFICATIONS: "/procurements/vendor/po-notifications/",
-  GRN_NOTIFICATIONS: "/procurements/vendor/grn-notifications/",
-  MARK_NOTIFICATION_READ: "/procurements/vendor/notifications/:notificationId/read/",
+  PO_NOTIFICATIONS: "/vendor/notifications/",
+  GRN_NOTIFICATIONS: "/vendor/notifications/",
+  MARK_NOTIFICATION_READ: "/vendor/notifications/:notificationId/read/",
 
-  // Analytics
-  ORDER_SUMMARY: "/procurements/vendor/order-summary/",
-  DELIVERY_PERFORMANCE: "/procurements/vendor/delivery-performance/",
+  // Analytics - Use dashboard endpoints for now until specific endpoints are available
+  ORDER_SUMMARY: "/vendor/dashboard/",
+  DELIVERY_PERFORMANCE: "/vendor/dashboard/",
 
   // Documents
-  UPLOAD_DELIVERY_PROOF: "/procurements/vendor/purchase-orders/:poId/delivery-proof/",
-  DOWNLOAD_DOCUMENT: "/procurements/vendor/documents/:documentId/",
+  UPLOAD_DELIVERY_PROOF: "/vendor/purchase-orders/:poId/delivery-proof/",
+  DOWNLOAD_DOCUMENT: "/vendor/documents/:documentId/",
 };
 
 // Get vendor's purchase orders
@@ -45,6 +45,49 @@ export const useVendorPurchaseOrders = (status?: POStatus) => {
   return useQuery({
     queryKey: ['vendor-purchase-orders', status],
     queryFn: async (): Promise<PurchaseOrder[]> => {
+      // Check for mock token in development mode
+      if (process.env.NODE_ENV === 'development') {
+        const token = localStorage.getItem('vendor_access_token');
+        if (token?.startsWith('mock_access_token_')) {
+          // Return mock purchase orders data
+          const mockPOs: PurchaseOrder[] = [
+            {
+              id: 'po_1',
+              po_number: 'PO-2024-001',
+              status: 'IN_PROGRESS',
+              total_amount: 45000,
+              delivery_date: '2024-12-20T00:00:00Z',
+              created_date: '2024-12-01T10:00:00Z',
+              items: []
+            },
+            {
+              id: 'po_2',
+              po_number: 'PO-2024-002',
+              status: 'DELIVERED',
+              total_amount: 25000,
+              delivery_date: '2024-12-15T00:00:00Z',
+              created_date: '2024-11-25T10:00:00Z',
+              items: []
+            },
+            {
+              id: 'po_3',
+              po_number: 'PO-2024-003',
+              status: 'PENDING',
+              total_amount: 75000,
+              delivery_date: '2024-12-30T00:00:00Z',
+              created_date: '2024-12-05T10:00:00Z',
+              items: []
+            }
+          ];
+
+          // Filter by status if provided
+          if (status) {
+            return mockPOs.filter(po => po.status === status);
+          }
+          return mockPOs;
+        }
+      }
+
       const params = status ? { status } : {};
       const response = await AxiosWithToken.get(PO_GRN_ENDPOINTS.VENDOR_POS, { params });
       return response.data.data || response.data;
@@ -112,6 +155,38 @@ export const useVendorGRNs = (status?: GRNStatus) => {
   return useQuery({
     queryKey: ['vendor-grns', status],
     queryFn: async (): Promise<GoodsReceivedNote[]> => {
+      // Check for mock token in development mode
+      if (process.env.NODE_ENV === 'development') {
+        const token = localStorage.getItem('vendor_access_token');
+        if (token?.startsWith('mock_access_token_')) {
+          // Return mock GRN data
+          const mockGRNs: GoodsReceivedNote[] = [
+            {
+              id: 'grn_1',
+              grn_number: 'GRN-2024-001',
+              po_number: 'PO-2024-001',
+              status: 'RECEIVED',
+              received_date: '2024-12-10T10:00:00Z',
+              quality_rating: 4.5
+            },
+            {
+              id: 'grn_2',
+              grn_number: 'GRN-2024-002',
+              po_number: 'PO-2024-002',
+              status: 'INSPECTED',
+              received_date: '2024-12-08T14:00:00Z',
+              quality_rating: 4.8
+            }
+          ];
+
+          // Filter by status if provided
+          if (status) {
+            return mockGRNs.filter(grn => grn.status === status);
+          }
+          return mockGRNs;
+        }
+      }
+
       const params = status ? { status } : {};
       const response = await AxiosWithToken.get(PO_GRN_ENDPOINTS.VENDOR_GRNS, { params });
       return response.data.data || response.data;
@@ -228,6 +303,25 @@ export const useVendorOrderSummary = () => {
   return useQuery({
     queryKey: ['vendor-order-summary'],
     queryFn: async (): Promise<VendorOrderSummary> => {
+      // Check for mock token in development mode
+      if (process.env.NODE_ENV === 'development') {
+        const token = localStorage.getItem('vendor_access_token');
+        if (token?.startsWith('mock_access_token_')) {
+          // Return mock order summary data
+          const mockSummary: VendorOrderSummary = {
+            active_pos: 5,
+            total_value: 145000,
+            pending_deliveries: 2,
+            overdue_deliveries: 1,
+            completed_deliveries: 12,
+            average_delivery_rating: 4.2,
+            total_orders: 15,
+            on_time_delivery_rate: 85
+          };
+          return mockSummary;
+        }
+      }
+
       const response = await AxiosWithToken.get(PO_GRN_ENDPOINTS.ORDER_SUMMARY);
       return response.data.data || response.data;
     },

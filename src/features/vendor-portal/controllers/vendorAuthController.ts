@@ -3,12 +3,12 @@ import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import AxiosWithoutToken from "@/constants/api_management/MyHttpHelper";
 import { VendorLoginCredentials, VendorAuthResponse, VendorPortalUser } from "../types/vendor-auth";
 
-// Vendor authentication endpoints
+// Vendor authentication endpoints - Updated to match API documentation
 const VENDOR_AUTH_ENDPOINTS = {
-  LOGIN: "/procurements/vendors/portal-auth/",
-  PROFILE: "/procurements/vendors/portal-profile/",
-  REFRESH: "/procurements/vendors/portal-refresh/",
-  LOGOUT: "/procurements/vendors/portal-logout/",
+  LOGIN: "/vendor/auth/login/",
+  PROFILE: "/vendor/auth/profile/",
+  REFRESH: "/vendor/auth/refresh/",
+  LOGOUT: "/vendor/auth/logout/",
 };
 
 // Vendor Portal Authentication Utilities
@@ -50,6 +50,12 @@ export const VendorAuthUtils = {
   isVendorAuthenticated: (): boolean => {
     return !!VendorAuthUtils.getVendorToken();
   },
+
+  getVendorData: (): any => {
+    // Return user data from localStorage for display purposes
+    const user = VendorAuthUtils.getVendorUser();
+    return user || { company_name: 'Vendor Company', email: 'vendor@company.com' };
+  },
 };
 
 // Vendor Login Hook
@@ -58,12 +64,46 @@ export const useVendorLogin = () => {
 
   return useMutation({
     mutationFn: async (credentials: VendorLoginCredentials): Promise<VendorAuthResponse> => {
+      // Development mode: allow mock login for testing
+      if (process.env.NODE_ENV === 'development' && credentials.email === 'test@vendor.com' && credentials.password === 'test123') {
+        // Mock successful login response
+        return {
+          status: 'success',
+          message: 'Login successful',
+          data: {
+            access_token: 'mock_access_token_' + Date.now(),
+            refresh_token: 'mock_refresh_token_' + Date.now(),
+            user: {
+              id: 'mock_user_id',
+              email: 'test@vendor.com',
+              vendor: {
+                id: 'mock_vendor_id',
+                company_name: 'Test Vendor Company',
+                status: 'Approved' as const,
+                is_active: true,
+                approved_categories: [
+                  { id: '1', name: 'Information Technology' },
+                  { id: '2', name: 'Office Supplies' },
+                  { id: '3', name: 'Consulting Services' }
+                ]
+              }
+            }
+          }
+        };
+      }
+
       const response = await AxiosWithoutToken.post(VENDOR_AUTH_ENDPOINTS.LOGIN, credentials);
       return response.data;
     },
-    onSuccess: (data: VendorAuthResponse) => {
-      VendorAuthUtils.setVendorToken(data.access_token);
-      VendorAuthUtils.setVendorUser(data.vendor as VendorPortalUser);
+    onSuccess: (data: any) => {
+      // Handle new API response format
+      const responseData = data.status === 'success' ? data.data : data;
+      VendorAuthUtils.setVendorToken(responseData.access_token);
+
+      // Store vendor user info from the nested structure
+      if (responseData.user?.vendor) {
+        VendorAuthUtils.setVendorUser(responseData.user.vendor as VendorPortalUser);
+      }
 
       // Invalidate queries to refresh data
       queryClient.invalidateQueries({ queryKey: ['vendor-profile'] });
@@ -86,13 +126,51 @@ export const useVendorProfile = () => {
         throw new Error('No vendor token found');
       }
 
+      // Development mode: return mock data for mock token
+      if (process.env.NODE_ENV === 'development' && token.startsWith('mock_access_token_')) {
+        const mockProfile: VendorPortalUser = {
+          id: 'mock_vendor_id',
+          company_name: 'Test Vendor Company',
+          email: 'test@vendor.com',
+          phone_number: '+1 234 567 8900',
+          status: 'Approved' as const,
+          is_active: true,
+          approved_categories: [
+            { id: '1', name: 'Information Technology' },
+            { id: '2', name: 'Office Supplies' },
+            { id: '3', name: 'Consulting Services' }
+          ],
+          submitted_categories: [
+            { id: '1', name: 'Information Technology' },
+            { id: '2', name: 'Office Supplies' },
+            { id: '3', name: 'Consulting Services' }
+          ],
+          type_of_business: 'Limited Liability Company',
+          registration_date: '2023-01-15T10:00:00Z',
+          last_login: new Date().toISOString(),
+          active_rfqs: ['rfq_1', 'rfq_2'],
+          submitted_bids: 12,
+          awarded_contracts: 3,
+          prequalification_summary: {
+            total_categories_applied: 5,
+            categories_approved: 3,
+            categories_rejected: 1,
+            approval_rate: 75
+          }
+        };
+        VendorAuthUtils.setVendorUser(mockProfile);
+        return mockProfile;
+      }
+
       const response = await AxiosWithToken.get(VENDOR_AUTH_ENDPOINTS.PROFILE, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
-      const vendorUser = response.data.data || response.data;
+      // Handle new API response format
+      const responseData = response.data;
+      const vendorUser = responseData.status === 'success' ? responseData.data.vendor : responseData.data || responseData;
       VendorAuthUtils.setVendorUser(vendorUser);
       return vendorUser;
     },
