@@ -39,10 +39,17 @@ export default function VendorDashboardPage() {
   const { data: recentGRNs, isLoading: recentGRNsLoading } = useVendorGRNs();
 
   useEffect(() => {
-    // Redirect if not authenticated
-    if (!VendorAuthUtils.isVendorAuthenticated()) {
-      router.push('/vendor-portal/login');
-    }
+    // Small delay to allow token storage after login before checking auth
+    const checkAuth = setTimeout(() => {
+      if (!VendorAuthUtils.isVendorAuthenticated()) {
+        console.log('🔒 Dashboard: No vendor token found, redirecting to login');
+        router.push('/vendor-portal/login');
+      } else {
+        console.log('✅ Dashboard: Vendor authenticated, proceeding to load dashboard');
+      }
+    }, 200);
+
+    return () => clearTimeout(checkAuth);
   }, [router]);
 
   if (profileLoading) {

@@ -239,8 +239,8 @@ AxiosWithToken.interceptors.response.use(
 
       const originalRequest = error.config;
 
-      // Check if we're on a public route - don't redirect these to login
-      const publicRoutes = ['/eoi', '/rfq', '/rfp', '/vendor-portal/login'];
+      // Check if we're on a public route or vendor portal - don't redirect these to staff login
+      const publicRoutes = ['/eoi', '/rfq', '/rfp', '/vendor-portal'];
       const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
       const isPublicRoute = publicRoutes.some(route => currentPath.startsWith(route));
 
@@ -291,7 +291,14 @@ AxiosWithToken.interceptors.response.use(
             localStorage.removeItem('refresh_token');
             localStorage.removeItem('user');
 
-            window.location.href = "/auth/login";
+            // Redirect to appropriate login based on current context
+            if (currentPath.startsWith('/vendor-portal')) {
+              console.log('🏪 Vendor context detected - redirecting to vendor login');
+              window.location.href = "/vendor-portal/login";
+            } else {
+              console.log('🏢 Staff context - redirecting to staff login');
+              window.location.href = "/auth/login";
+            }
             return Promise.reject(refreshError);
           }
         } else {
@@ -299,7 +306,15 @@ AxiosWithToken.interceptors.response.use(
           console.warn('❌ No refresh token available, redirecting to login');
           localStorage.removeItem('token');
           localStorage.removeItem('user');
-          window.location.href = "/auth/login";
+
+          // Redirect to appropriate login based on current context
+          if (currentPath.startsWith('/vendor-portal')) {
+            console.log('🏪 Vendor context detected - redirecting to vendor login');
+            window.location.href = "/vendor-portal/login";
+          } else {
+            console.log('🏢 Staff context - redirecting to staff login');
+            window.location.href = "/auth/login";
+          }
         }
       } else if (isPublicRoute) {
         console.warn('401 on public route - not redirecting to login');

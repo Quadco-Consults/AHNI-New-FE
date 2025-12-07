@@ -7,9 +7,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "components/ui/button";
 import { Input } from "components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "components/ui/form";
 import { Alert, AlertDescription } from "components/ui/alert";
+import { Checkbox } from "components/ui/checkbox";
+import FormButton from "components/FormButton";
+import FormInput from "components/FormInput";
 import { Eye, EyeOff, Building2, Mail, Lock } from "lucide-react";
 import { useVendorLogin, VendorAuthUtils } from "@/features/vendor-portal/controllers/vendorAuthController";
 import { LoadingSpinner } from "components/Loading";
@@ -26,6 +28,7 @@ export default function VendorLoginPage() {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
+  const [rememberMe, setRememberMe] = useState(false);
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -49,9 +52,15 @@ export default function VendorLoginPage() {
 
     login(data, {
       onSuccess: () => {
-        router.push('/vendor-portal/dashboard');
+        console.log('🎯 Frontend: Login successful, initiating redirect...');
+        // Force immediate redirect to vendor dashboard
+        setTimeout(() => {
+          console.log('🚀 Frontend: Executing redirect to vendor dashboard');
+          router.push('/vendor-portal/dashboard');
+        }, 100); // Small delay to ensure token storage completes
       },
       onError: (error: any) => {
+        console.error('❌ Frontend: Login error occurred:', error);
         const errorMessage = error?.response?.data?.message ||
                            error?.response?.data?.error ||
                            error?.message ||
@@ -62,160 +71,135 @@ export default function VendorLoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div className="flex flex-1 h-screen">
       <div className="flex bg-[#FEF2F2] w-full">
-        <div className="w-full flex flex-1 flex-col py-8 px-4 lg:px-8">
-          {/* Header with AHNI Logo and Title */}
-          <div className="text-center mb-8">
-            <Image
-              src="/imgs/logo.png"
-              alt="AHNI Logo"
-              width={130}
-              height={60}
-              className="mx-auto mb-4"
-            />
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">AHNI</h1>
-            <h2 className="text-xl font-semibold text-gray-700">Vendor Portal</h2>
-          </div>
+        {/* Left Panel - Login Form */}
+        <div className="w-full flex flex-1 items-center justify-center px-8">
+          <div className="w-full max-w-md">
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)}>
+                <img src="/imgs/logo.png" className="w-[130px] mx-auto" />
+                <div className="flex flex-col items-center gap-y-14 mt-10 py-10">
+                  {/* Header */}
+                  <div>
+                    <h1 className="text-2xl font-bold text-center">Vendor Portal Login</h1>
+                    <p className="text-center text-[#667185] mt-1">
+                      Enter your credentials to access your account
+                    </p>
+                  </div>
 
-          {/* Form Container */}
-          <div className="flex-1 flex items-center justify-center">
-            <div className="w-full max-w-md">
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)}>
-                  <Card className="w-full flex flex-col items-center gap-y-8 py-8 px-6">
-                    <div>
-                      <h3 className="text-xl font-bold text-center">Sign in to your account</h3>
-                      <p className="text-center text-[#667185] mt-1">
-                        Enter your credentials to access the vendor portal
-                      </p>
-                    </div>
-
+                  {/* Error Alert */}
                   {loginError && (
-                    <Alert variant="destructive" className="mb-4 w-full">
+                    <Alert variant="destructive" className="w-full">
                       <AlertDescription>{loginError}</AlertDescription>
                     </Alert>
                   )}
 
-                  <div className="space-y-6 w-full">
-                    <FormField
-                      control={form.control}
+                  {/* Form Fields */}
+                  <div className="space-y-8 self-stretch">
+                    <FormInput
+                      label="Email Address"
+                      placeholder="Enter email"
+                      required
+                      type="email"
                       name="email"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Email Address</FormLabel>
-                          <FormControl>
-                            <div className="relative">
-                              <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                              <Input
-                                {...field}
-                                type="email"
-                                placeholder="Enter your email address"
-                                className="pl-10 border-primary"
-                                disabled={isPending}
-                              />
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
+                      className="border-primary"
                     />
 
-                    <FormField
-                      control={form.control}
-                      name="password"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Password</FormLabel>
-                          <FormControl>
-                            <div className="relative">
-                              <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                              <Input
-                                {...field}
-                                type={showPassword ? "text" : "password"}
-                                placeholder="Enter your password"
-                                className="pl-10 pr-10 border-primary"
-                                disabled={isPending}
-                              />
-                              <button
-                                type="button"
-                                className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
-                                onClick={() => setShowPassword(!showPassword)}
-                              >
-                                {showPassword ? (
-                                  <EyeOff className="h-5 w-5" />
-                                ) : (
-                                  <Eye className="h-5 w-5" />
-                                )}
-                              </button>
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    {/* Demo Credentials */}
-                    <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                      <h4 className="text-sm font-medium text-blue-900 mb-2">Demo Access</h4>
-                      <p className="text-xs text-blue-800 mb-2">Use these test credentials:</p>
-                      <div className="text-xs text-blue-800 space-y-1">
-                        <div><strong>Email:</strong> test@vendor.com</div>
-                        <div><strong>Password:</strong> test123</div>
+                    <div>
+                      <div className="flex flex-col gap-1">
+                        <FormInput
+                          label="Password"
+                          placeholder="Enter password"
+                          required
+                          type="password"
+                          name="password"
+                          className="border-primary"
+                        />
                       </div>
-                    </div>
 
-                    {/* Help Links */}
-                    <div className="text-center">
-                      <div className="text-sm text-gray-600">
-                        Don't have an account?{" "}
-                        <a
-                          href="/eoi"
-                          className="font-medium text-primary hover:text-primary/80"
+                      <div className="mt-3 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Checkbox
+                            className="border-gray-500"
+                            checked={rememberMe}
+                            onCheckedChange={setRememberMe}
+                          />
+                          <label className="font-semibold">
+                            Remember me
+                          </label>
+                        </div>
+                        <button
+                          type="button"
+                          className="font-medium text-primary text-sm hover:underline"
+                          onClick={() => {/* Add forgot password logic */}}
                         >
-                          Register through EOI
-                        </a>
-                      </div>
-                      <div className="mt-2 text-sm text-gray-600">
-                        Need help?{" "}
-                        <a
-                          href="mailto:procurement@ahni.org"
-                          className="font-medium text-primary hover:text-primary/80"
-                        >
-                          Contact Support
-                        </a>
+                          Forgot Password?
+                        </button>
                       </div>
                     </div>
                   </div>
 
-                  <div className="w-full">
-                    <Button
-                      type="submit"
+                  {/* Login Button */}
+                  <div className="w-full self-stretch">
+                    <FormButton
+                      loading={isPending}
                       className="w-full rounded-full"
                       size="lg"
-                      disabled={isPending}
                     >
-                      {isPending ? (
-                        <>
-                          <LoadingSpinner />
-                          <span className="ml-2">Signing in...</span>
-                        </>
-                      ) : (
-                        "Login"
-                      )}
-                    </Button>
+                      Login
+                    </FormButton>
                   </div>
-                </Card>
-                </form>
-              </Form>
-            </div>
+
+                  {/* Test Credentials - Compact Developer Section */}
+                  <div className="w-full self-stretch pt-4">
+                    <details className="group">
+                      <summary className="flex cursor-pointer items-center justify-center gap-2 text-xs text-gray-400 hover:text-gray-600">
+                        <span>Test Accounts</span>
+                        <svg className="h-3 w-3 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </summary>
+                      <div className="mt-3 space-y-2">
+                        <div className="rounded bg-blue-50 p-2 text-xs">
+                          <div className="font-medium text-blue-900">Demo Account:</div>
+                          <div className="font-mono text-blue-700">test@vendor.com / test123</div>
+                          <div className="text-blue-600 mt-1">✓ Full mock data available</div>
+                        </div>
+                        <div className="rounded bg-amber-50 p-2 text-xs border border-amber-200">
+                          <div className="font-medium text-amber-900">Live Backend Access:</div>
+                          <div className="text-amber-700 mt-1">
+                            <div>• Backend API is fully operational</div>
+                            <div>• Test vendor accounts need to be created</div>
+                            <div>• Contact: procurement@ahni.org</div>
+                          </div>
+                        </div>
+                      </div>
+                    </details>
+                  </div>
+
+                  {/* Help Links */}
+                  <div className="text-center text-xs text-gray-400 mt-4">
+                    Don't have an account?{" "}
+                    <a
+                      href="/eoi"
+                      className="font-medium text-primary hover:underline"
+                    >
+                      Register through EOI
+                    </a>
+                  </div>
+                </div>
+              </form>
+            </Form>
           </div>
         </div>
-        <div className="hidden md:flex md:flex-1 md:items-center md:justify-center bg-[url('/img/login.jpeg')] bg-[#161630B2] bg-blend-overlay bg-cover bg-center">
-          <div className="font-bold text-xl text-white text-center px-8">
-            Providing solutions that are essential to the <br />
-            advancement of human development in communities we{" "}
-            <br /> serve
+
+        {/* Right Panel - Background Image with Overlay */}
+        <div className="hidden md:flex md:flex-1 md:items-center md:justify-center bg-[url('/img/login.jpeg')] bg-[#161630B2] bg-blend-overlay bg-opacity-100">
+          <div className="font-bold text-xl text-white text-center">
+            Empowering vendors and suppliers to <br />
+            build stronger communities through <br />
+            innovative partnerships
           </div>
         </div>
       </div>

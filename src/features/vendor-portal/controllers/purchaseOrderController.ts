@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
+import VendorVendorAxiosWithToken from "@/constants/api_management/VendorHttpHelper";
 import {
   PurchaseOrder,
   GoodsReceivedNote,
@@ -13,27 +13,27 @@ import {
   GRNStatus
 } from "../types/purchase-orders";
 
-// Purchase Order and GRN endpoints - Updated to match new API structure
+// Purchase Order and GRN endpoints - Updated to match backend implementation
 const PO_GRN_ENDPOINTS = {
   // Purchase Orders
-  VENDOR_POS: "/vendor/purchase-orders/",
-  PO_DETAILS: "/vendor/purchase-orders/:poId/",
-  ACKNOWLEDGE_PO: "/vendor/purchase-orders/:poId/acknowledge/",
-  UPDATE_DELIVERY: "/vendor/purchase-orders/:poId/delivery-update/",
+  VENDOR_POS: "/procurements/vendor/purchase-orders/",
+  PO_DETAILS: "/procurements/vendor/purchase-orders/:poId/",
+  ACKNOWLEDGE_PO: "/procurements/vendor/purchase-orders/:poId/acknowledge/",
+  UPDATE_DELIVERY: "/procurements/vendor/purchase-orders/:poId/delivery-update/",
 
-  // GRNs
-  VENDOR_GRNS: "/vendor/goods-received-notes/",
-  GRN_DETAILS: "/vendor/goods-received-notes/:grnId/",
-  RESPOND_TO_GRN: "/vendor/goods-received-notes/:grnId/respond/",
+  // GRNs (Note: Backend uses different path for GRNs)
+  VENDOR_GRNS: "/procurements/vendor/goods-received-notes/",
+  GRN_DETAILS: "/procurements/vendor/goods-received-notes/:grnId/",
+  RESPOND_TO_GRN: "/procurements/vendor/goods-received-notes/:grnId/respond/",
 
   // Notifications
-  PO_NOTIFICATIONS: "/vendor/notifications/",
+  PO_NOTIFICATIONS: "/procurements/vendor/notifications/",
   GRN_NOTIFICATIONS: "/vendor/notifications/",
   MARK_NOTIFICATION_READ: "/vendor/notifications/:notificationId/read/",
 
-  // Analytics - Use dashboard endpoints for now until specific endpoints are available
-  ORDER_SUMMARY: "/vendor/dashboard/",
-  DELIVERY_PERFORMANCE: "/vendor/dashboard/",
+  // Analytics - Use backend order summary endpoint
+  ORDER_SUMMARY: "/procurements/vendor/order-summary/",
+  DELIVERY_PERFORMANCE: "/procurements/vendor/dashboard/",
 
   // Documents
   UPLOAD_DELIVERY_PROOF: "/vendor/purchase-orders/:poId/delivery-proof/",
@@ -89,7 +89,7 @@ export const useVendorPurchaseOrders = (status?: POStatus) => {
       }
 
       const params = status ? { status } : {};
-      const response = await AxiosWithToken.get(PO_GRN_ENDPOINTS.VENDOR_POS, { params });
+      const response = await VendorAxiosWithToken.get(PO_GRN_ENDPOINTS.VENDOR_POS, { params });
       return response.data.data || response.data;
     },
     staleTime: 1000 * 60 * 2, // 2 minutes
@@ -102,7 +102,7 @@ export const usePurchaseOrderDetails = (poId: string) => {
     queryKey: ['purchase-order-details', poId],
     queryFn: async (): Promise<PurchaseOrder> => {
       const endpoint = PO_GRN_ENDPOINTS.PO_DETAILS.replace(':poId', poId);
-      const response = await AxiosWithToken.get(endpoint);
+      const response = await VendorAxiosWithToken.get(endpoint);
       return response.data.data || response.data;
     },
     enabled: !!poId,
@@ -117,7 +117,7 @@ export const useAcknowledgePurchaseOrder = () => {
   return useMutation({
     mutationFn: async (acknowledgment: POAcknowledgment): Promise<PurchaseOrder> => {
       const endpoint = PO_GRN_ENDPOINTS.ACKNOWLEDGE_PO.replace(':poId', acknowledgment.po_id);
-      const response = await AxiosWithToken.post(endpoint, acknowledgment);
+      const response = await VendorAxiosWithToken.post(endpoint, acknowledgment);
       return response.data.data || response.data;
     },
     onSuccess: (data, variables) => {
@@ -139,7 +139,7 @@ export const useUpdateDeliveryStatus = () => {
   return useMutation({
     mutationFn: async (update: DeliveryUpdate): Promise<PurchaseOrder> => {
       const endpoint = PO_GRN_ENDPOINTS.UPDATE_DELIVERY.replace(':poId', update.po_id);
-      const response = await AxiosWithToken.patch(endpoint, update);
+      const response = await VendorAxiosWithToken.patch(endpoint, update);
       return response.data.data || response.data;
     },
     onSuccess: (data, variables) => {
@@ -188,7 +188,7 @@ export const useVendorGRNs = (status?: GRNStatus) => {
       }
 
       const params = status ? { status } : {};
-      const response = await AxiosWithToken.get(PO_GRN_ENDPOINTS.VENDOR_GRNS, { params });
+      const response = await VendorAxiosWithToken.get(PO_GRN_ENDPOINTS.VENDOR_GRNS, { params });
       return response.data.data || response.data;
     },
     staleTime: 1000 * 60 * 2, // 2 minutes
@@ -201,7 +201,7 @@ export const useGRNDetails = (grnId: string) => {
     queryKey: ['grn-details', grnId],
     queryFn: async (): Promise<GoodsReceivedNote> => {
       const endpoint = PO_GRN_ENDPOINTS.GRN_DETAILS.replace(':grnId', grnId);
-      const response = await AxiosWithToken.get(endpoint);
+      const response = await VendorAxiosWithToken.get(endpoint);
       return response.data.data || response.data;
     },
     enabled: !!grnId,
@@ -243,7 +243,7 @@ export const useRespondToGRN = () => {
         }
       }
 
-      const response = await AxiosWithToken.post(endpoint, formData, {
+      const response = await VendorAxiosWithToken.post(endpoint, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -263,7 +263,7 @@ export const usePONotifications = () => {
   return useQuery({
     queryKey: ['po-notifications'],
     queryFn: async (): Promise<PONotification[]> => {
-      const response = await AxiosWithToken.get(PO_GRN_ENDPOINTS.PO_NOTIFICATIONS);
+      const response = await VendorAxiosWithToken.get(PO_GRN_ENDPOINTS.PO_NOTIFICATIONS);
       return response.data.data || response.data;
     },
     staleTime: 1000 * 60 * 1, // 1 minute
@@ -275,7 +275,7 @@ export const useGRNNotifications = () => {
   return useQuery({
     queryKey: ['grn-notifications'],
     queryFn: async (): Promise<GRNNotification[]> => {
-      const response = await AxiosWithToken.get(PO_GRN_ENDPOINTS.GRN_NOTIFICATIONS);
+      const response = await VendorAxiosWithToken.get(PO_GRN_ENDPOINTS.GRN_NOTIFICATIONS);
       return response.data.data || response.data;
     },
     staleTime: 1000 * 60 * 1, // 1 minute
@@ -289,7 +289,7 @@ export const useMarkNotificationRead = () => {
   return useMutation({
     mutationFn: async (notificationId: string): Promise<void> => {
       const endpoint = PO_GRN_ENDPOINTS.MARK_NOTIFICATION_READ.replace(':notificationId', notificationId);
-      await AxiosWithToken.patch(endpoint);
+      await VendorAxiosWithToken.patch(endpoint);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['po-notifications'] });
@@ -322,7 +322,7 @@ export const useVendorOrderSummary = () => {
         }
       }
 
-      const response = await AxiosWithToken.get(PO_GRN_ENDPOINTS.ORDER_SUMMARY);
+      const response = await VendorAxiosWithToken.get(PO_GRN_ENDPOINTS.ORDER_SUMMARY);
       return response.data.data || response.data;
     },
     staleTime: 1000 * 60 * 5, // 5 minutes
@@ -334,7 +334,7 @@ export const useDeliveryPerformanceMetrics = () => {
   return useQuery({
     queryKey: ['delivery-performance-metrics'],
     queryFn: async (): Promise<DeliveryPerformanceMetrics> => {
-      const response = await AxiosWithToken.get(PO_GRN_ENDPOINTS.DELIVERY_PERFORMANCE);
+      const response = await VendorAxiosWithToken.get(PO_GRN_ENDPOINTS.DELIVERY_PERFORMANCE);
       return response.data.data || response.data;
     },
     staleTime: 1000 * 60 * 10, // 10 minutes
@@ -364,7 +364,7 @@ export const useUploadDeliveryProof = () => {
         formData.append(`delivery_proof_${index}`, file);
       });
 
-      const response = await AxiosWithToken.post(endpoint, formData, {
+      const response = await VendorAxiosWithToken.post(endpoint, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

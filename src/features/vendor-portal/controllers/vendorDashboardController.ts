@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
+import VendorVendorAxiosWithToken from "@/constants/api_management/VendorHttpHelper";
 import { VendorAuthUtils } from "./vendorAuthController";
 import { VendorPortalStats, VendorRFQAccess, VendorCategory } from "../types/vendor-auth";
 
@@ -88,13 +88,13 @@ interface DashboardOverview {
   }>;
 }
 
-// Vendor dashboard endpoints - Updated to match API documentation
+// Vendor dashboard endpoints - Updated to match backend implementation
 const VENDOR_DASHBOARD_ENDPOINTS = {
-  DASHBOARD: "/vendor/dashboard/",
-  STATS: "/vendor/dashboard/quick-stats/",
-  AVAILABLE_RFQS: "/vendor/available-rfqs/",
-  SUBMISSIONS: "/vendor/bid-submissions/",
-  NOTIFICATIONS: "/vendor/notifications/",
+  DASHBOARD: "/procurements/vendor/dashboard/",
+  STATS: "/procurements/vendor/dashboard/quick-stats/",
+  AVAILABLE_RFQS: "/procurements/vendor/available-rfqs/",
+  SUBMISSIONS: "/procurements/vendor/bid-submissions/",
+  NOTIFICATIONS: "/procurements/vendor/notifications/",
 };
 
 // Vendor Dashboard Overview Hook - New comprehensive dashboard API
@@ -107,7 +107,7 @@ export const useVendorDashboardOverview = () => {
         throw new Error('No vendor token found');
       }
 
-      const response = await AxiosWithToken.get(VENDOR_DASHBOARD_ENDPOINTS.DASHBOARD, {
+      const response = await VendorAxiosWithToken.get(VENDOR_DASHBOARD_ENDPOINTS.DASHBOARD, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -153,7 +153,7 @@ export const useVendorDashboardStats = () => {
         return mockStats;
       }
 
-      const response = await AxiosWithToken.get(VENDOR_DASHBOARD_ENDPOINTS.STATS, {
+      const response = await VendorAxiosWithToken.get(VENDOR_DASHBOARD_ENDPOINTS.STATS, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -301,7 +301,7 @@ export const useVendorAvailableRFQs = (params?: {
 
       const url = `${VENDOR_DASHBOARD_ENDPOINTS.AVAILABLE_RFQS}${queryParams.toString() ? `?${queryParams}` : ''}`;
 
-      const response = await AxiosWithToken.get(url, {
+      const response = await VendorAxiosWithToken.get(url, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -334,7 +334,7 @@ export const useVendorSubmissions = () => {
         throw new Error('No vendor token found');
       }
 
-      const response = await AxiosWithToken.get(VENDOR_DASHBOARD_ENDPOINTS.SUBMISSIONS, {
+      const response = await VendorAxiosWithToken.get(VENDOR_DASHBOARD_ENDPOINTS.SUBMISSIONS, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -365,7 +365,7 @@ export const useVendorNotifications = () => {
         throw new Error('No vendor token found');
       }
 
-      const response = await AxiosWithToken.get(VENDOR_DASHBOARD_ENDPOINTS.NOTIFICATIONS, {
+      const response = await VendorAxiosWithToken.get(VENDOR_DASHBOARD_ENDPOINTS.NOTIFICATIONS, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -396,7 +396,7 @@ export const useVendorCategories = () => {
         throw new Error('No vendor token found');
       }
 
-      const response = await AxiosWithToken.get(`${VENDOR_DASHBOARD_ENDPOINTS.AVAILABLE_RFQS}/categories/`, {
+      const response = await VendorAxiosWithToken.get(`${VENDOR_DASHBOARD_ENDPOINTS.AVAILABLE_RFQS}/categories/`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -426,7 +426,7 @@ export const useRFQSummary = () => {
         throw new Error('No vendor token found');
       }
 
-      const response = await AxiosWithToken.get(`${VENDOR_DASHBOARD_ENDPOINTS.AVAILABLE_RFQS}/summary/`, {
+      const response = await VendorAxiosWithToken.get(`${VENDOR_DASHBOARD_ENDPOINTS.AVAILABLE_RFQS}/summary/`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -456,7 +456,7 @@ export const useVendorRFQDetails = (rfqId: string) => {
         throw new Error('No vendor token found');
       }
 
-      const response = await AxiosWithToken.get(`${VENDOR_DASHBOARD_ENDPOINTS.AVAILABLE_RFQS}/${rfqId}/`, {
+      const response = await VendorAxiosWithToken.get(`${VENDOR_DASHBOARD_ENDPOINTS.AVAILABLE_RFQS}/${rfqId}/`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -487,7 +487,7 @@ export const useMarkNotificationRead = () => {
         throw new Error('No vendor token found');
       }
 
-      const response = await AxiosWithToken.patch(
+      const response = await VendorAxiosWithToken.patch(
         `/procurements/vendors/notifications/${notificationId}/mark-read/`,
         {},
         {

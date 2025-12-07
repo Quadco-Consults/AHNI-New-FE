@@ -27,19 +27,16 @@ import Image from "next/image";
 
 export default function LandingPage() {
   const router = useRouter();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch public EOI data
+  // Fetch public EOI data with optimized settings
   const { data: eoiData, isLoading: eoiLoading, error: eoiError } = usePublicEOIs();
 
+  // Check authentication for navigation button display
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   useEffect(() => {
     const token = getAccessToken();
     setIsAuthenticated(!!token);
-    // Set loading to false immediately to allow page to render
-    // EOI section will handle its own loading state
-    setIsLoading(false);
   }, []);
 
   // Note: Removed auto-redirect to allow all users to see the landing page
@@ -83,8 +80,30 @@ export default function LandingPage() {
     setCurrentSlide((prev) => (prev - 1 + carouselSlides.length) % carouselSlides.length);
   };
 
-  // Static opportunities (diverse opportunity types)
+  // Public opportunities (all types for public viewing)
   const staticOpportunities = [
+    // Job Adverts for Employees
+    {
+      title: "Senior Health Program Manager",
+      type: "Job Advert",
+      deadline: "2024-12-20",
+      status: "Active",
+      category: "Full-time Employment",
+      location: "Abuja Headquarters",
+      description: "Lead and manage health programs across multiple states. Requires Masters in Public Health and 5+ years experience",
+      isEOI: false
+    },
+    {
+      title: "Community Health Officer",
+      type: "Job Advert",
+      deadline: "2024-12-22",
+      status: "Active",
+      category: "Field Position",
+      location: "Lagos, Kano, Rivers",
+      description: "Field-based community health officer position. Bachelor's degree in Health Sciences required",
+      isEOI: false
+    },
+    // Facilitator Adverts
     {
       title: "Community Health Facilitator Training",
       type: "Facilitator Advert",
@@ -96,6 +115,17 @@ export default function LandingPage() {
       isEOI: false
     },
     {
+      title: "Youth Leadership Development Facilitator",
+      type: "Facilitator Advert",
+      deadline: "2024-12-28",
+      status: "Active",
+      category: "Youth Development",
+      location: "Multiple States",
+      description: "Facilitate youth leadership development workshops and mentorship programs",
+      isEOI: false
+    },
+    // Consultant Adverts
+    {
       title: "Health Research Consultant",
       type: "Consultant Advert",
       deadline: "2024-12-18",
@@ -105,6 +135,17 @@ export default function LandingPage() {
       description: "Independent consultant for health policy research and strategic planning",
       isEOI: false
     },
+    {
+      title: "Digital Health Strategy Consultant",
+      type: "Consultant Advert",
+      deadline: "2025-01-10",
+      status: "Active",
+      category: "Technology & Innovation",
+      location: "Remote/Hybrid",
+      description: "Develop comprehensive digital health transformation strategy for Nigeria",
+      isEOI: false
+    },
+    // Adhoc Adverts
     {
       title: "Emergency Response Support",
       type: "Adhoc Advert",
@@ -116,6 +157,17 @@ export default function LandingPage() {
       isEOI: false
     },
     {
+      title: "Health Data Collection - Seasonal",
+      type: "Adhoc Advert",
+      deadline: "2024-12-12",
+      status: "Active",
+      category: "Data Collection",
+      location: "Rural Communities",
+      description: "Short-term data collection for health survey across rural communities",
+      isEOI: false
+    },
+    // Subgrant Adverts
+    {
       title: "Community Health Innovation Grant",
       type: "Subgrant Advert",
       deadline: "2024-12-30",
@@ -123,6 +175,16 @@ export default function LandingPage() {
       category: "Grant Funding",
       location: "National",
       description: "Funding opportunity for innovative community health projects",
+      isEOI: false
+    },
+    {
+      title: "Women's Health Empowerment Grant",
+      type: "Subgrant Advert",
+      deadline: "2025-01-15",
+      status: "Active",
+      category: "Women's Health",
+      location: "Focus States",
+      description: "Grant funding for women's health empowerment and reproductive health programs",
       isEOI: false
     }
   ];
@@ -144,7 +206,7 @@ export default function LandingPage() {
       daysRemaining: EOIUtils.getDaysRemaining(eoi.closing_date),
       urgency: EOIUtils.getUrgencyLevel(EOIUtils.getDaysRemaining(eoi.closing_date))
     })) || [])
-  ].slice(0, 6); // Limit to 6 total opportunities
+  ].slice(0, 9); // Show up to 9 opportunities to display variety
 
   // Focus areas matching AHNI website
   const focusAreas = [
@@ -165,28 +227,8 @@ export default function LandingPage() {
     }
   ];
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading AHNI Portal...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Don't render the landing page for authenticated users - let the redirect happen
-  if (isAuthenticated) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-gray-600">Redirecting to dashboard...</p>
-        </div>
-      </div>
-    );
-  }
+  // Note: Removed loading checks and authenticated user redirects
+  // Landing page should be accessible to all users
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
@@ -366,7 +408,7 @@ export default function LandingPage() {
           <div className="text-center mb-12">
             <h2 className="text-4xl font-light text-foreground mb-4">Current Opportunities</h2>
             <p className="text-lg text-muted-foreground font-light">
-              Join us in creating sustainable impact - explore EOIs, RFQs, consultant, facilitator, adhoc, and subgrant opportunities
+              Join us in creating sustainable impact - explore job opportunities, EOIs, RFQs, consultant, facilitator, adhoc, and subgrant opportunities
             </p>
           </div>
 

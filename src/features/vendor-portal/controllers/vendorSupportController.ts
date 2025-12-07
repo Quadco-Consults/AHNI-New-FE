@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
+import VendorVendorAxiosWithToken from "@/constants/api_management/VendorHttpHelper";
 import { VendorAuthUtils } from "./vendorAuthController";
 
 // Support ticket interfaces
@@ -138,7 +138,7 @@ export const useSupportTickets = (params?: {
 
       const url = `${VENDOR_SUPPORT_ENDPOINTS.TICKETS}${queryParams.toString() ? `?${queryParams}` : ''}`;
 
-      const response = await AxiosWithToken.get(url, {
+      const response = await VendorAxiosWithToken.get(url, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -186,7 +186,7 @@ export const useSupportTicketDetails = (ticketId: string) => {
         throw new Error('No vendor token found');
       }
 
-      const response = await AxiosWithToken.get(`${VENDOR_SUPPORT_ENDPOINTS.TICKETS}${ticketId}/`, {
+      const response = await VendorAxiosWithToken.get(`${VENDOR_SUPPORT_ENDPOINTS.TICKETS}${ticketId}/`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -231,7 +231,7 @@ export const useCreateSupportTicket = () => {
         });
       }
 
-      const response = await AxiosWithToken.post(VENDOR_SUPPORT_ENDPOINTS.CREATE_TICKET, formData, {
+      const response = await VendorAxiosWithToken.post(VENDOR_SUPPORT_ENDPOINTS.CREATE_TICKET, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data',
@@ -275,7 +275,7 @@ export const useRespondToTicket = () => {
         });
       }
 
-      const response = await AxiosWithToken.post(VENDOR_SUPPORT_ENDPOINTS.TICKET_RESPONSE, formData, {
+      const response = await VendorAxiosWithToken.post(VENDOR_SUPPORT_ENDPOINTS.TICKET_RESPONSE, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data',
@@ -323,7 +323,7 @@ export const useKnowledgeBaseArticles = (params?: {
 
       const url = `${VENDOR_SUPPORT_ENDPOINTS.KNOWLEDGE_BASE}${queryParams.toString() ? `?${queryParams}` : ''}`;
 
-      const response = await AxiosWithToken.get(url);
+      const response = await VendorAxiosWithToken.get(url);
 
       return response.data;
     },
@@ -339,7 +339,7 @@ export const useKnowledgeBaseCategories = () => {
   return useQuery({
     queryKey: ['knowledge-base-categories'],
     queryFn: async (): Promise<KnowledgeBaseCategory[]> => {
-      const response = await AxiosWithToken.get(VENDOR_SUPPORT_ENDPOINTS.KB_CATEGORIES);
+      const response = await VendorAxiosWithToken.get(VENDOR_SUPPORT_ENDPOINTS.KB_CATEGORIES);
       return response.data;
     },
     staleTime: 1000 * 60 * 30, // 30 minutes
@@ -354,7 +354,7 @@ export const useKnowledgeBaseArticle = (articleId: string) => {
   return useQuery({
     queryKey: ['knowledge-base-article', articleId],
     queryFn: async (): Promise<KnowledgeBaseArticle> => {
-      const response = await AxiosWithToken.get(`${VENDOR_SUPPORT_ENDPOINTS.KNOWLEDGE_BASE}${articleId}/`);
+      const response = await VendorAxiosWithToken.get(`${VENDOR_SUPPORT_ENDPOINTS.KNOWLEDGE_BASE}${articleId}/`);
       return response.data;
     },
     enabled: !!articleId,
@@ -369,7 +369,7 @@ export const useKnowledgeBaseArticle = (articleId: string) => {
 export const useSubmitContactForm = () => {
   return useMutation({
     mutationFn: async (contactData: ContactForm) => {
-      const response = await AxiosWithToken.post(VENDOR_SUPPORT_ENDPOINTS.CONTACT_FORM, contactData);
+      const response = await VendorAxiosWithToken.post(VENDOR_SUPPORT_ENDPOINTS.CONTACT_FORM, contactData);
       return response.data;
     },
     onError: (error: any) => {
@@ -384,7 +384,7 @@ export const useVoteOnArticle = () => {
 
   return useMutation({
     mutationFn: async ({ articleId, vote }: { articleId: string; vote: 'helpful' | 'not_helpful' }) => {
-      const response = await AxiosWithToken.post(`${VENDOR_SUPPORT_ENDPOINTS.KNOWLEDGE_BASE}${articleId}/vote/`, {
+      const response = await VendorAxiosWithToken.post(`${VENDOR_SUPPORT_ENDPOINTS.KNOWLEDGE_BASE}${articleId}/vote/`, {
         vote
       });
       return response.data;

@@ -1,5 +1,5 @@
 // Utility to check if a vendor exists in the system
-import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
+import VendorVendorAxiosWithToken from "@/constants/api_management/VendorHttpHelper";
 
 export class VendorLookupUtil {
   // Check if vendor exists by email
@@ -10,7 +10,7 @@ export class VendorLookupUtil {
   }> {
     try {
       // Try to get vendor list and search for the email
-      const response = await AxiosWithToken.get('/procurements/vendors/', {
+      const response = await VendorAxiosWithToken.get('/procurements/vendors/', {
         params: {
           search: email,
           page_size: 100 // Get more results

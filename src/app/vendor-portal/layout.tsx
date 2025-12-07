@@ -32,13 +32,17 @@ export default function VendorPortalLayout({ children }: VendorPortalLayoutProps
       return;
     }
 
-    // Check if vendor is authenticated
+    // Check if vendor is authenticated with a small delay to allow token storage after login
     const checkAuth = () => {
-      if (!VendorAuthUtils.isVendorAuthenticated()) {
-        router.push("/vendor-portal/login");
-      } else {
-        setIsAuthLoading(false);
-      }
+      setTimeout(() => {
+        if (!VendorAuthUtils.isVendorAuthenticated()) {
+          console.log('🔒 Layout: No vendor token found, redirecting to login');
+          router.push("/vendor-portal/login");
+        } else {
+          console.log('✅ Layout: Vendor authenticated, allowing access');
+          setIsAuthLoading(false);
+        }
+      }, 150); // Small delay to allow login success callback to store token
     };
 
     checkAuth();
