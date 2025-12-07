@@ -5,19 +5,33 @@ import storage from "redux-persist/lib/storage"; // Use localStorage instead of 
 
 const createNoopStorage = () => {
   return {
-    getItem(_key: any) {
+    getItem() {
       return Promise.resolve(null);
     },
-    setItem(_key: any, value: any) {
-      return Promise.resolve(value);
+    setItem() {
+      return Promise.resolve();
     },
-    removeItem(_key: any) {
+    removeItem() {
       return Promise.resolve();
     },
   };
 };
 
-const persistStorage = typeof window !== "undefined" ? storage : createNoopStorage();
+// Silently suppress redux-persist storage warnings during SSR
+if (typeof window === "undefined") {
+  const originalConsoleWarn = console.warn;
+  console.warn = (...args: any[]) => {
+    const message = args[0];
+    if (typeof message === "string" && message.includes("redux-persist failed to create sync storage")) {
+      return; // Silently ignore redux-persist SSR warnings
+    }
+    originalConsoleWarn.apply(console, args);
+  };
+}
+
+// Check if we're in a browser environment
+const isClient = typeof window !== "undefined";
+const persistStorage = isClient ? storage : createNoopStorage();
 import auth from "./auth/authSlice";
 import ui from "./ui";
 import consortiumPartnerReducer from "./formData/project-values";
@@ -34,6 +48,11 @@ import steps from "./stepTracker";
 const persistConfig = {
   storage: persistStorage,
   key: "ahni",
+  version: 1,
+  migrate: (state: any) => {
+    // Handle any state migration if needed
+    return Promise.resolve(state);
+  },
   blacklist: [
     "objectives",
     "partnerLocation",
@@ -41,6 +60,9 @@ const persistConfig = {
     "consortiumPartner",
     "teamMember",
   ],
+  // Only persist if we're in the client
+  serialize: isClient ? true : false,
+  deserialize: isClient ? true : false,
 };
 
 export const rootStore = combineReducers({

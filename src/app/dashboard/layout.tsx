@@ -10,7 +10,6 @@ import Sidebar from "components/Sidebar";
 import Suspense from "components/Suspense";
 import { cn } from "lib/utils";
 import { useState, useEffect } from "react";
-import { getAccessToken } from "utils/auth";
 import { useAuthInitialization } from "@/hooks/useAuthInitialization";
 
 export default function DashboardLayout({
