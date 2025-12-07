@@ -214,22 +214,76 @@ export const useVendorProfile = () => {
         return vendorUser;
       } catch (error: any) {
         console.error('❌ Vendor profile API error:', error);
-        // For real backend accounts, if profile API fails, create fallback profile from stored user data
+
+        const status = error?.response?.status;
+        const errorData = error?.response?.data;
+
+        // Handle 403 permission errors - create fallback profile from login data
+        if (status === 403) {
+          console.warn('🔒 Profile API permission denied - using fallback profile from login data');
+
+          // Get user data from login response if available
+          const storedUser = VendorAuthUtils.getVendorUser();
+          if (storedUser) {
+            console.log('✅ Using stored vendor profile as fallback for 403 error');
+            return storedUser;
+          }
+
+          // Create minimal profile from error context if no stored data
+          const fallbackProfile: VendorPortalUser = {
+            id: 'fallback_vendor_id',
+            company_name: 'Vendor Company',
+            email: 'vendor@company.com',
+            phone_number: '',
+            status: 'Pending' as const,
+            is_active: true,
+            approved_categories: [],
+            submitted_categories: [],
+            type_of_business: 'Company',
+            registration_date: new Date().toISOString(),
+            last_login: new Date().toISOString(),
+            active_rfqs: [],
+            submitted_bids: 0,
+            awarded_contracts: 0,
+            prequalification_summary: {
+              total_categories_applied: 0,
+              categories_approved: 0,
+              categories_rejected: 0,
+              approval_rate: 0
+            }
+          };
+
+          console.log('⚠️ Using minimal fallback profile due to permission error');
+          VendorAuthUtils.setVendorUser(fallbackProfile);
+          return fallbackProfile;
+        }
+
+        // For other errors, try stored user data
         const storedUser = VendorAuthUtils.getVendorUser();
-        if (storedUser && error?.response?.status !== 401) {
+        if (storedUser && status !== 401) {
           console.log('🔄 Using stored vendor profile as fallback');
           return storedUser;
         }
+
         throw error;
       }
     },
     enabled: VendorAuthUtils.isVendorAuthenticated(),
     staleTime: 1000 * 60 * 5, // 5 minutes
     retry: (failureCount, error: any) => {
-      if (error?.response?.status === 401) {
+      const status = error?.response?.status;
+
+      // Don't retry on authentication or permission errors
+      if (status === 401) {
         VendorAuthUtils.removeVendorToken();
         return false;
       }
+
+      // Don't retry on permission errors - use fallback instead
+      if (status === 403) {
+        return false;
+      }
+
       return failureCount < 3;
     },
   });

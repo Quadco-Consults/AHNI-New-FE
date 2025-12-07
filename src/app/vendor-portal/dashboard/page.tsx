@@ -62,11 +62,21 @@ export default function VendorDashboardPage() {
   }
 
   if (profileError || !vendorProfile) {
+    const isPermissionError = profileError?.response?.status === 403;
+
     return (
-      <Alert variant="destructive">
+      <Alert variant={isPermissionError ? "default" : "destructive"} className={isPermissionError ? "border-orange-200 bg-orange-50" : ""}>
         <AlertCircle className="h-4 w-4" />
         <AlertDescription>
-          Failed to load vendor profile. Please try refreshing the page.
+          {isPermissionError ? (
+            <>
+              <strong>Limited Access:</strong> Your vendor account has limited profile access.
+              You can still browse RFQs and manage orders, but some profile features may be restricted.
+              Contact support at procurement@ahni.org if you need full access.
+            </>
+          ) : (
+            "Failed to load vendor profile. Please try refreshing the page or contact support if the issue persists."
+          )}
         </AlertDescription>
       </Alert>
     );
