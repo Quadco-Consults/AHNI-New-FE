@@ -99,13 +99,21 @@ VendorAxiosWithToken.interceptors.response.use(
       error.message = 'Network error - Unable to connect to the server. Please check your connection and try again.';
     }
 
-    if (error.response && error.response.status === 401) {
-      console.warn('🔒 Vendor unauthorized access detected');
+    // Handle authentication and permission errors
+    if (error.response && [401, 403].includes(error.response.status)) {
+      console.warn(`🔒 Vendor access error (${error.response.status}):`, error.response.data);
 
       const originalRequest = error.config;
       const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
 
-      console.log('🔍 Vendor 401 Error - Current path:', currentPath);
+      console.log(`🔍 Vendor ${error.response.status} Error - Current path:`, currentPath);
+
+      // Handle 403 permission errors differently than 401 auth errors
+      if (error.response.status === 403) {
+        console.warn('🚫 Permission denied - vendor may need additional authorization or account approval');
+        // Don't redirect for permission errors, let the component handle it
+        return Promise.reject(error);
+      }
 
       // For vendor portal routes, handle vendor-specific auth failure
       if (currentPath.startsWith('/vendor-portal') && !originalRequest._retry) {
