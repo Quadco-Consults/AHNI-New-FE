@@ -19,7 +19,8 @@ import {
   ArrowLeft,
   ExternalLink,
   Clock,
-  AlertCircle
+  AlertCircle,
+  ArrowRight
 } from "lucide-react";
 import Image from "next/image";
 import { useGetPublicEois } from "@/features/procurement/controllers/eoiController";
@@ -178,10 +179,14 @@ export default function OpportunitiesPage() {
   const isLoading = eoiLoading || unifiedLoading;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 relative overflow-x-hidden">
+      {/* Side decorative elements */}
+      <div className="fixed left-0 top-1/4 w-32 h-64 bg-gradient-to-r from-primary/10 to-transparent rounded-r-full blur-sm -translate-x-16"></div>
+      <div className="fixed right-0 top-1/3 w-32 h-48 bg-gradient-to-l from-secondary/10 to-transparent rounded-l-full blur-sm translate-x-16"></div>
+      <div className="fixed left-0 bottom-1/4 w-24 h-40 bg-gradient-to-r from-muted/20 to-transparent rounded-r-full blur-sm -translate-x-12"></div>
       {/* Navigation Header */}
-      <header className="bg-white border-b border-border sticky top-0 z-50 shadow-lg">
-        <div className="container mx-auto px-4 py-4">
+      <header className="bg-white/95 backdrop-blur-sm border-b border-border/50 sticky top-0 z-50 shadow-sm">
+        <div className="w-full px-6 lg:px-12 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <Image
@@ -192,44 +197,44 @@ export default function OpportunitiesPage() {
                 className="h-10 w-auto"
               />
               <div>
-                <h1 className="font-bold text-xl text-foreground">AHNI</h1>
-                <p className="text-sm text-muted-foreground">Achieving Health Initiatives Nigeria</p>
+                <h1 className="font-bold text-xl text-foreground tracking-tight">AHNI Portal</h1>
+                <p className="text-sm text-muted-foreground font-medium">Achieving Health Initiatives Nigeria</p>
               </div>
             </div>
 
-            <nav className="hidden md:flex items-center space-x-6">
+            <nav className="hidden md:flex items-center space-x-1">
               <Button
                 variant="ghost"
                 onClick={() => router.push('/')}
-                className="text-foreground/80 hover:text-primary transition-colors font-medium"
+                className="text-foreground/70 hover:text-primary hover:bg-primary/5 transition-all font-semibold px-4 py-2"
               >
                 Home
               </Button>
               <Button
                 variant="ghost"
                 onClick={() => router.push('/opportunities')}
-                className="text-primary font-medium"
+                className="text-primary bg-primary/10 font-semibold px-4 py-2"
               >
                 Opportunities
               </Button>
               <Button
                 variant="ghost"
                 onClick={() => router.push('/about')}
-                className="text-foreground/80 hover:text-primary transition-colors font-medium"
+                className="text-foreground/70 hover:text-primary hover:bg-primary/5 transition-all font-semibold px-4 py-2"
               >
                 About
               </Button>
               <Button
                 variant="ghost"
                 onClick={() => router.push('/focus-areas')}
-                className="text-foreground/80 hover:text-primary transition-colors font-medium"
+                className="text-foreground/70 hover:text-primary hover:bg-primary/5 transition-all font-semibold px-4 py-2"
               >
                 Focus Areas
               </Button>
               <Button
                 variant="ghost"
                 onClick={() => router.push('/contact')}
-                className="text-foreground/80 hover:text-primary transition-colors font-medium"
+                className="text-foreground/70 hover:text-primary hover:bg-primary/5 transition-all font-semibold px-4 py-2"
               >
                 Contact
               </Button>
@@ -238,16 +243,20 @@ export default function OpportunitiesPage() {
             <div className="flex items-center space-x-3">
               <Button
                 variant="outline"
-                onClick={() => router.push('/auth/login')}
-                className="font-medium"
+                onClick={() => router.push('/vendor-portal/login')}
+                className="flex items-center space-x-2 border-primary/60 text-primary hover:border-primary hover:bg-primary hover:text-primary-foreground font-semibold transition-all shadow-sm hover:shadow-md"
               >
-                Staff Portal
+                <Users className="h-4 w-4" />
+                <span className="hidden sm:inline">Vendor Portal</span>
+                <span className="sm:hidden">Vendor</span>
               </Button>
               <Button
-                onClick={() => router.push('/vendor-portal/login')}
-                className="font-medium"
+                onClick={() => router.push('/auth/login')}
+                className="flex items-center space-x-2 font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg transition-all"
               >
-                Vendor Portal
+                <Users className="h-4 w-4" />
+                <span className="hidden sm:inline">Staff Portal</span>
+                <span className="sm:hidden">Staff</span>
               </Button>
             </div>
           </div>
@@ -257,11 +266,11 @@ export default function OpportunitiesPage() {
       {/* Main Content */}
       <main>
         {/* Back Button */}
-        <div className="container mx-auto px-4 py-6">
+        <div className="w-full px-6 lg:px-12 py-6">
           <Button
             variant="ghost"
             onClick={() => router.back()}
-            className="flex items-center gap-2 mb-8"
+            className="flex items-center gap-2 mb-8 font-semibold"
           >
             <ArrowLeft className="h-4 w-4" />
             Back
@@ -269,17 +278,17 @@ export default function OpportunitiesPage() {
         </div>
 
         {/* Header Section */}
-        <section className="py-12 px-4">
-          <div className="container mx-auto">
-            <div className="text-center max-w-4xl mx-auto">
-              <h1 className="text-4xl font-bold text-foreground mb-4">Career Opportunities</h1>
-              <p className="text-lg text-muted-foreground font-light leading-relaxed">
+        <section className="py-16 px-6 lg:px-12 bg-gradient-to-br from-primary via-primary/95 to-primary text-primary-foreground">
+          <div className="w-full max-w-none">
+            <div className="text-center max-w-6xl mx-auto">
+              <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight tracking-tight">Career Opportunities</h1>
+              <p className="text-xl md:text-2xl font-medium leading-relaxed mb-8 max-w-5xl mx-auto">
                 Join us in creating sustainable impact across Nigeria's healthcare landscape.
                 Explore current openings for employment, consulting, procurement, and partnership opportunities.
               </p>
-              <div className="mt-6 text-sm text-muted-foreground">
+              <div className="text-lg text-primary-foreground/90 font-medium">
                 <p className="flex items-center justify-center gap-2">
-                  <MapPin className="h-4 w-4" />
+                  <MapPin className="h-5 w-5" />
                   No. 30 Anthony Enahoro Street, Utako District, Abuja, Nigeria
                 </p>
               </div>
@@ -287,93 +296,289 @@ export default function OpportunitiesPage() {
           </div>
         </section>
 
+        {/* Opportunity Types Cards */}
+        <section className="py-16 px-6 lg:px-12 bg-background relative overflow-hidden">
+          {/* Background decorative elements */}
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5"></div>
+          <div className="absolute top-0 left-0 w-96 h-96 bg-primary/10 rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl"></div>
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-secondary/10 rounded-full translate-x-1/2 translate-y-1/2 blur-3xl"></div>
+
+          <div className="w-full relative">
+            <div className="text-center mb-12 max-w-6xl mx-auto">
+              <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6 tracking-tight">Opportunity Categories</h2>
+              <p className="text-xl text-muted-foreground font-medium">
+                Discover various ways to contribute to Nigeria's healthcare development through our diverse opportunity types.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 lg:gap-8 max-w-none mx-auto px-4">
+              {/* Consultant Opportunities */}
+              <Card className="hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 cursor-pointer group border-2 border-border hover:border-primary/20 bg-white">
+                <CardHeader className="text-center pb-3">
+                  <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-all duration-300 shadow-lg">
+                    <Users className="h-10 w-10 text-white" />
+                  </div>
+                  <CardTitle className="text-xl font-bold group-hover:text-primary transition-colors tracking-tight">
+                    Consultant Positions
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="text-center">
+                  <CardDescription className="text-base leading-relaxed mb-6 font-medium">
+                    Expert advisory roles for healthcare professionals with specialized knowledge and experience in various domains.
+                  </CardDescription>
+                  <Button
+                    variant="outline"
+                    size="default"
+                    className="group-hover:bg-blue-500 group-hover:text-white transition-all font-semibold shadow-sm hover:shadow-md w-full"
+                    onClick={() => {
+                      setCategoryFilter("Contract & Consulting");
+                      setJobTypeFilter("Consultant");
+                    }}
+                  >
+                    View Consultant Jobs
+                    <ArrowRight className="h-4 w-4 ml-2" />
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Job Advertisements */}
+              <Card className="hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 cursor-pointer group border-2 border-border hover:border-primary/20 bg-white">
+                <CardHeader className="text-center pb-3">
+                  <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-all duration-300 shadow-lg">
+                    <Building2 className="h-10 w-10 text-white" />
+                  </div>
+                  <CardTitle className="text-xl font-bold group-hover:text-primary transition-colors tracking-tight">
+                    Job Advertisements
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="text-center">
+                  <CardDescription className="text-base leading-relaxed mb-6 font-medium">
+                    Full-time employment opportunities across various departments including program management, admin, and field operations.
+                  </CardDescription>
+                  <Button
+                    variant="outline"
+                    size="default"
+                    className="group-hover:bg-green-500 group-hover:text-white transition-all font-semibold shadow-sm hover:shadow-md w-full"
+                    onClick={() => {
+                      setCategoryFilter("Employment");
+                      setJobTypeFilter("Full Time");
+                    }}
+                  >
+                    View Job Openings
+                    <ArrowRight className="h-4 w-4 ml-2" />
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Adhoc Opportunities */}
+              <Card className="hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 cursor-pointer group border-2 border-border hover:border-primary/20 bg-white">
+                <CardHeader className="text-center pb-3">
+                  <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-all duration-300 shadow-lg">
+                    <Clock className="h-10 w-10 text-white" />
+                  </div>
+                  <CardTitle className="text-xl font-bold group-hover:text-primary transition-colors tracking-tight">
+                    Adhoc Assignments
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="text-center">
+                  <CardDescription className="text-base leading-relaxed mb-6 font-medium">
+                    Short-term project-based opportunities for specific tasks, research assignments, and temporary support roles.
+                  </CardDescription>
+                  <Button
+                    variant="outline"
+                    size="default"
+                    className="group-hover:bg-purple-500 group-hover:text-white transition-all font-semibold shadow-sm hover:shadow-md w-full"
+                    onClick={() => {
+                      setCategoryFilter("Contract & Consulting");
+                      setJobTypeFilter("Adhoc");
+                    }}
+                  >
+                    View Adhoc Work
+                    <ArrowRight className="h-4 w-4 ml-2" />
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* EOI Opportunities */}
+              <Card className="hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 cursor-pointer group border-2 border-border hover:border-primary/20 bg-white">
+                <CardHeader className="text-center pb-3">
+                  <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-all duration-300 shadow-lg">
+                    <FileText className="h-10 w-10 text-white" />
+                  </div>
+                  <CardTitle className="text-xl font-bold group-hover:text-primary transition-colors tracking-tight">
+                    Expression of Interest
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="text-center">
+                  <CardDescription className="text-base leading-relaxed mb-6 font-medium">
+                    Partnership opportunities, procurement processes, and vendor engagement for organizations and service providers.
+                  </CardDescription>
+                  <Button
+                    variant="outline"
+                    size="default"
+                    className="group-hover:bg-orange-500 group-hover:text-white transition-all font-semibold shadow-sm hover:shadow-md w-full"
+                    onClick={() => {
+                      setCategoryFilter("Procurement & EOI");
+                      setJobTypeFilter("EOI");
+                    }}
+                  >
+                    View EOI Opportunities
+                    <ArrowRight className="h-4 w-4 ml-2" />
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </section>
+
         {/* Filters Section */}
-        <section className="py-8 px-4 bg-muted/20">
-          <div className="container mx-auto max-w-6xl">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Filter className="h-5 w-5" />
+        <section className="py-12 px-6 lg:px-12 bg-gradient-to-br from-muted/30 via-muted/20 to-muted/30 relative">
+          <div className="w-full">
+            <div className="max-w-none mx-auto">
+            <Card className="shadow-lg border-2 border-border hover:border-primary/20 transition-all">
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-2 text-2xl font-bold tracking-tight">
+                  <Filter className="h-6 w-6 text-primary" />
                   Find Your Opportunity
                 </CardTitle>
-                <CardDescription>
-                  Filter and search through our current openings
+                <CardDescription className="text-lg font-medium">
+                  Filter and search through our current openings to find the perfect match
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                   {/* Keywords Search */}
                   <div className="relative">
-                    <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <Search className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
                     <Input
-                      placeholder="Keywords..."
+                      placeholder="Search keywords, titles, skills..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-9"
+                      className="pl-10 h-12 text-base font-medium border-2 border-border focus:border-primary"
                     />
                   </div>
 
                   {/* Category Filter */}
                   <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Category" />
+                    <SelectTrigger className="h-12 text-base font-medium border-2 border-border focus:border-primary">
+                      <SelectValue placeholder="Select Category" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">All Categories</SelectItem>
-                      <SelectItem value="Employment">Employment</SelectItem>
-                      <SelectItem value="Contract & Consulting">Contract & Consulting</SelectItem>
-                      <SelectItem value="Procurement & EOI">Procurement & EOI</SelectItem>
+                      <SelectItem value="all" className="font-medium">All Categories</SelectItem>
+                      <SelectItem value="Employment" className="font-medium">Employment</SelectItem>
+                      <SelectItem value="Contract & Consulting" className="font-medium">Contract & Consulting</SelectItem>
+                      <SelectItem value="Procurement & EOI" className="font-medium">Procurement & EOI</SelectItem>
                     </SelectContent>
                   </Select>
 
                   {/* Job Type Filter */}
                   <Select value={jobTypeFilter} onValueChange={setJobTypeFilter}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Job Type" />
+                    <SelectTrigger className="h-12 text-base font-medium border-2 border-border focus:border-primary">
+                      <SelectValue placeholder="Select Type" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">All Types</SelectItem>
-                      <SelectItem value="Full Time">Full Time</SelectItem>
-                      <SelectItem value="Contract">Contract</SelectItem>
-                      <SelectItem value="Consultant">Consultant</SelectItem>
-                      <SelectItem value="Facilitator">Facilitator</SelectItem>
-                      <SelectItem value="Adhoc">Adhoc</SelectItem>
-                      <SelectItem value="EOI">EOI</SelectItem>
-                      <SelectItem value="RFQ">RFQ</SelectItem>
+                      <SelectItem value="all" className="font-medium">All Types</SelectItem>
+                      <SelectItem value="Full Time" className="font-medium">Full Time Jobs</SelectItem>
+                      <SelectItem value="Consultant" className="font-medium">Consultant Roles</SelectItem>
+                      <SelectItem value="Facilitator" className="font-medium">Facilitator Positions</SelectItem>
+                      <SelectItem value="Adhoc" className="font-medium">Adhoc Assignments</SelectItem>
+                      <SelectItem value="EOI" className="font-medium">Expression of Interest</SelectItem>
+                      <SelectItem value="RFQ" className="font-medium">Request for Quote</SelectItem>
                     </SelectContent>
                   </Select>
 
                   {/* Location Filter */}
                   <Select value={locationFilter} onValueChange={setLocationFilter}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Location" />
+                    <SelectTrigger className="h-12 text-base font-medium border-2 border-border focus:border-primary">
+                      <SelectValue placeholder="Select Location" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">All Locations</SelectItem>
-                      <SelectItem value="Abuja">Abuja</SelectItem>
-                      <SelectItem value="Lagos">Lagos</SelectItem>
-                      <SelectItem value="Kano">Kano</SelectItem>
-                      <SelectItem value="Nigeria">Nigeria</SelectItem>
-                      <SelectItem value="Remote">Remote</SelectItem>
+                      <SelectItem value="all" className="font-medium">All Locations</SelectItem>
+                      <SelectItem value="Abuja" className="font-medium">Abuja, FCT</SelectItem>
+                      <SelectItem value="Lagos" className="font-medium">Lagos State</SelectItem>
+                      <SelectItem value="Kano" className="font-medium">Kano State</SelectItem>
+                      <SelectItem value="Nigeria" className="font-medium">Nigeria (Multiple)</SelectItem>
+                      <SelectItem value="Remote" className="font-medium">Remote Work</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
+
+                {/* Active Filters Display */}
+                {(searchTerm || categoryFilter !== "all" || jobTypeFilter !== "all" || locationFilter !== "all") && (
+                  <div className="mt-6 p-4 bg-primary/5 border border-primary/20 rounded-lg">
+                    <div className="flex flex-wrap items-center gap-2 mb-3">
+                      <span className="text-sm font-semibold text-foreground">Active Filters:</span>
+                      {searchTerm && (
+                        <Badge variant="secondary" className="font-medium">
+                          Search: "{searchTerm}"
+                        </Badge>
+                      )}
+                      {categoryFilter !== "all" && (
+                        <Badge variant="secondary" className="font-medium">
+                          Category: {categoryFilter}
+                        </Badge>
+                      )}
+                      {jobTypeFilter !== "all" && (
+                        <Badge variant="secondary" className="font-medium">
+                          Type: {jobTypeFilter}
+                        </Badge>
+                      )}
+                      {locationFilter !== "all" && (
+                        <Badge variant="secondary" className="font-medium">
+                          Location: {locationFilter}
+                        </Badge>
+                      )}
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setSearchTerm("");
+                        setCategoryFilter("all");
+                        setJobTypeFilter("all");
+                        setLocationFilter("all");
+                      }}
+                      className="text-primary hover:bg-primary hover:text-white font-semibold"
+                    >
+                      Clear All Filters
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
+            </div>
           </div>
         </section>
 
         {/* Results Section */}
-        <section className="py-12 px-4">
-          <div className="container mx-auto max-w-6xl">
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl font-semibold">
-                {isLoading ? "Loading..." : `${filteredOpportunities.length} Opportunities Found`}
-              </h2>
-              <div className="text-sm text-muted-foreground">
-                Updated regularly • Equal opportunity employer
-              </div>
-            </div>
+        <section className="py-16 px-6 lg:px-12 bg-background relative">
+          {/* Background pattern */}
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-muted/10 to-transparent"></div>
+          {/* Dot pattern */}
+          <div className="absolute inset-0 opacity-20" style={{
+            backgroundImage: `radial-gradient(circle at 1px 1px, rgba(0,0,0,0.1) 1px, transparent 0)`,
+            backgroundSize: '20px 20px'
+          }}></div>
+          <div className="w-full relative">
+            <div className="flex gap-8 max-w-none">
+              {/* Main Content */}
+              <div className="flex-1">
+                <div className="flex flex-col md:flex-row md:items-center justify-between mb-12">
+                  <div>
+                    <h2 className="text-3xl font-bold text-foreground mb-2 tracking-tight">
+                      {isLoading ? "Loading..." : `${filteredOpportunities.length} Opportunities Found`}
+                    </h2>
+                    <p className="text-lg text-muted-foreground font-medium">
+                      Updated regularly • Equal opportunity employer • Zero tolerance for sexual abuse
+                    </p>
+                  </div>
+                  <div className="mt-4 md:mt-0 flex items-center gap-3">
+                    <Badge variant="outline" className="font-semibold text-primary border-primary/50">
+                      <Clock className="h-3 w-3 mr-1" />
+                      Live Opportunities
+                    </Badge>
+                  </div>
+                </div>
 
             {isLoading ? (
               <div className="flex items-center justify-center py-16">
@@ -402,40 +607,53 @@ export default function OpportunitiesPage() {
                 </CardContent>
               </Card>
             ) : (
-              <div className="space-y-6">
+              <div className="space-y-8">
                 {filteredOpportunities.map((opportunity) => (
                   <Card
                     key={opportunity.id}
-                    className="hover:shadow-lg transition-shadow cursor-pointer"
+                    className="hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 cursor-pointer border-2 border-border hover:border-primary/20 bg-white"
                     onClick={() => router.push(getDetailRoute(opportunity))}
                   >
-                    <CardContent className="p-6">
-                      <div className="flex items-start justify-between mb-4">
+                    <CardContent className="p-8">
+                      <div className="flex items-start justify-between mb-6">
                         <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
-                            <Building2 className="h-5 w-5 text-primary" />
-                            <Badge variant="secondary" className="text-xs">
-                              {opportunity.project}
-                            </Badge>
-                            <Badge variant="outline" className="text-xs">
-                              {opportunity.type}
-                            </Badge>
+                          <div className="flex items-center gap-3 mb-4">
+                            <div className="p-2 rounded-full bg-primary/10">
+                              <Building2 className="h-5 w-5 text-primary" />
+                            </div>
+                            <div className="flex flex-wrap items-center gap-2">
+                              <Badge variant="secondary" className="font-semibold text-sm px-3 py-1">
+                                {opportunity.project}
+                              </Badge>
+                              <Badge
+                                variant="outline"
+                                className={`font-semibold text-sm px-3 py-1 ${
+                                  opportunity.type === 'Consultant' ? 'border-blue-500 text-blue-700 bg-blue-50' :
+                                  opportunity.type === 'Full Time' ? 'border-green-500 text-green-700 bg-green-50' :
+                                  opportunity.type === 'Adhoc' ? 'border-purple-500 text-purple-700 bg-purple-50' :
+                                  opportunity.type === 'EOI' ? 'border-orange-500 text-orange-700 bg-orange-50' :
+                                  'border-gray-500 text-gray-700 bg-gray-50'
+                                }`}
+                              >
+                                {opportunity.type}
+                              </Badge>
+                            </div>
                           </div>
 
-                          <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                          <h3 className="text-2xl font-bold text-foreground mb-4 leading-tight">
                             {opportunity.title}
                           </h3>
 
-                          <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-3">
-                            <span className="flex items-center gap-1">
+                          <div className="flex flex-wrap items-center gap-6 text-base text-muted-foreground mb-4">
+                            <span className="flex items-center gap-2 font-medium">
                               <MapPin className="h-4 w-4" />
                               {opportunity.location}
                             </span>
-                            <span className="flex items-center gap-1">
+                            <span className="flex items-center gap-2 font-medium">
                               <Calendar className="h-4 w-4" />
                               Posted {getTimeAgo(opportunity.postedDate)}
                             </span>
-                            <span className="flex items-center gap-1">
+                            <span className="flex items-center gap-2 font-medium">
                               <Clock className="h-4 w-4" />
                               {formatDate(opportunity.deadline)}
                             </span>
@@ -443,8 +661,8 @@ export default function OpportunitiesPage() {
                         </div>
                       </div>
 
-                      <div className="mb-4">
-                        <p className="text-gray-700 line-clamp-3">
+                      <div className="mb-6">
+                        <p className="text-foreground/80 line-clamp-3 text-lg leading-relaxed">
                           {opportunity.description}
                         </p>
                       </div>
@@ -494,39 +712,40 @@ export default function OpportunitiesPage() {
                         </div>
                       )}
 
-                      <div className="flex items-center justify-between mt-4">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-6 gap-4">
                         <Button
                           variant="ghost"
                           onClick={(e) => {
                             e.stopPropagation();
                             toggleCard(opportunity.id);
                           }}
-                          className="text-primary hover:text-primary/80"
+                          className="text-primary hover:text-primary/80 font-semibold hover:bg-primary/5 px-4 py-2"
                         >
-                          {expandedCard === opportunity.id ? "View Less" : "Read More"}
+                          {expandedCard === opportunity.id ? "View Less" : "Read More Details"}
                         </Button>
 
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-3">
                           <Button
-                            variant="default"
-                            size="sm"
+                            variant="outline"
+                            size="default"
                             onClick={(e) => {
                               e.stopPropagation();
                               router.push(getDetailRoute(opportunity));
                             }}
+                            className="font-semibold border-2 border-primary/60 text-primary hover:border-primary hover:bg-primary hover:text-white transition-all shadow-sm hover:shadow-md"
                           >
-                            <ExternalLink className="h-4 w-4 mr-1" />
+                            <ExternalLink className="h-4 w-4 mr-2" />
                             View Details
                           </Button>
                           <Button
-                            variant="outline"
-                            size="sm"
+                            size="default"
                             onClick={(e) => {
                               e.stopPropagation();
                               window.open(`mailto:${opportunity.applicationEmail}?subject=Application for ${opportunity.title}`, '_blank');
                             }}
+                            className="font-semibold bg-primary hover:bg-primary/90 text-white shadow-md hover:shadow-lg transition-all"
                           >
-                            <Mail className="h-4 w-4 mr-1" />
+                            <Mail className="h-4 w-4 mr-2" />
                             Apply Now
                           </Button>
                         </div>
@@ -536,32 +755,152 @@ export default function OpportunitiesPage() {
                 ))}
               </div>
             )}
+              </div>
+
+              {/* Sidebar with Quick Info */}
+              <div className="hidden lg:block w-72 xl:w-80 flex-shrink-0">
+                <div className="sticky top-24 space-y-6">
+                  {/* Quick Stats */}
+                  <Card className="border-2 border-border bg-white/80 backdrop-blur-sm">
+                    <CardHeader>
+                      <CardTitle className="text-lg font-bold flex items-center gap-2">
+                        <FileText className="h-5 w-5 text-primary" />
+                        Quick Stats
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="flex justify-between items-center">
+                        <span className="text-muted-foreground">Total Opportunities</span>
+                        <Badge variant="secondary" className="font-bold">
+                          {allOpportunities.length}
+                        </Badge>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-muted-foreground">Full-Time Jobs</span>
+                        <Badge variant="outline" className="font-bold">
+                          {allOpportunities.filter(o => o.type === 'Full Time').length}
+                        </Badge>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-muted-foreground">Consultant Roles</span>
+                        <Badge variant="outline" className="font-bold">
+                          {allOpportunities.filter(o => o.type === 'Consultant').length}
+                        </Badge>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-muted-foreground">Adhoc Work</span>
+                        <Badge variant="outline" className="font-bold">
+                          {allOpportunities.filter(o => o.type === 'Adhoc').length}
+                        </Badge>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-muted-foreground">EOI Opportunities</span>
+                        <Badge variant="outline" className="font-bold">
+                          {allOpportunities.filter(o => o.type === 'EOI').length}
+                        </Badge>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Application Tips */}
+                  <Card className="border-2 border-border bg-white/80 backdrop-blur-sm">
+                    <CardHeader>
+                      <CardTitle className="text-lg font-bold flex items-center gap-2">
+                        <AlertCircle className="h-5 w-5 text-primary" />
+                        Application Tips
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="space-y-3 text-sm">
+                        <div className="flex gap-3">
+                          <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                          <div>
+                            <strong>Tailor your application</strong> to each specific role and requirements
+                          </div>
+                        </div>
+                        <div className="flex gap-3">
+                          <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                          <div>
+                            <strong>Submit documents</strong> as a single MS Word file when possible
+                          </div>
+                        </div>
+                        <div className="flex gap-3">
+                          <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                          <div>
+                            <strong>Include position title</strong> in your email subject line
+                          </div>
+                        </div>
+                        <div className="flex gap-3">
+                          <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                          <div>
+                            <strong>Apply early</strong> - we review applications on a rolling basis
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Contact Info */}
+                  <Card className="border-2 border-border bg-white/80 backdrop-blur-sm">
+                    <CardHeader>
+                      <CardTitle className="text-lg font-bold flex items-center gap-2">
+                        <Mail className="h-5 w-5 text-primary" />
+                        Need Help?
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="text-sm space-y-3">
+                        <div>
+                          <strong className="text-foreground">General Inquiries</strong>
+                          <p className="text-muted-foreground">careers@ahnigeria.org</p>
+                        </div>
+                        <div>
+                          <strong className="text-foreground">Technical Support</strong>
+                          <p className="text-muted-foreground">support@ahnigeria.org</p>
+                        </div>
+                        <div>
+                          <strong className="text-foreground">Partnership Opportunities</strong>
+                          <p className="text-muted-foreground">partnerships@ahnigeria.org</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
         {/* Footer CTA */}
-        <section className="py-16 px-4 bg-primary text-white">
+        <section className="py-20 px-4 bg-gradient-to-br from-primary via-primary/95 to-primary text-white">
           <div className="container mx-auto text-center">
-            <h2 className="text-3xl font-light mb-4">Don't See What You're Looking For?</h2>
-            <p className="text-xl mb-8 font-light max-w-2xl mx-auto">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 tracking-tight">Don't See What You're Looking For?</h2>
+            <p className="text-xl md:text-2xl mb-10 font-medium max-w-3xl mx-auto leading-relaxed">
               We're always looking for talented individuals to join our mission of improving healthcare across Nigeria.
+              Your expertise could be exactly what we need for our next breakthrough.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-6 justify-center">
               <Button
                 size="lg"
                 variant="secondary"
                 onClick={() => router.push('/contact')}
+                className="font-bold text-lg px-8 py-4 bg-white text-primary hover:bg-white/90 shadow-lg hover:shadow-xl transition-all"
               >
                 Contact Our HR Team
+                <ArrowRight className="h-5 w-5 ml-2" />
               </Button>
               <Button
                 size="lg"
                 variant="outline"
-                className="border-white text-white hover:bg-white hover:text-primary"
+                className="font-bold text-lg px-8 py-4 border-2 border-white text-white hover:bg-white hover:text-primary shadow-lg hover:shadow-xl transition-all"
                 onClick={() => window.open('mailto:careers@ahnigeria.org', '_blank')}
               >
+                <Mail className="h-5 w-5 mr-2" />
                 Send Your CV
               </Button>
+            </div>
+            <div className="mt-8 text-lg text-white/90 font-medium">
+              <p>careers@ahnigeria.org • Equal Opportunity Employer</p>
             </div>
           </div>
         </section>

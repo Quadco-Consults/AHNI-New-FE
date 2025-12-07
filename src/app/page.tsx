@@ -106,8 +106,8 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       {/* Navigation Header */}
-      <header className="bg-white border-b border-border sticky top-0 z-50 shadow-lg">
-        <div className="container mx-auto px-4 py-4">
+      <header className="bg-white/95 backdrop-blur-sm border-b border-border/50 sticky top-0 z-50 shadow-sm">
+        <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-3">
@@ -120,38 +120,38 @@ export default function HomePage() {
                   style={{ width: 'auto', height: '40px' }}
                 />
                 <div className="hidden md:block">
-                  <h1 className="font-semibold text-lg text-foreground">AHNI Portal</h1>
-                  <p className="text-sm text-muted-foreground">Achieving Health Initiatives Nigeria</p>
+                  <h1 className="font-bold text-xl text-foreground tracking-tight">AHNI Portal</h1>
+                  <p className="text-sm text-muted-foreground font-medium">Achieving Health Initiatives Nigeria</p>
                 </div>
               </div>
             </div>
 
-            <nav className="hidden md:flex items-center space-x-6">
+            <nav className="hidden md:flex items-center space-x-1">
               <Button
                 variant="ghost"
                 onClick={() => router.push('/opportunities')}
-                className="text-foreground/80 hover:text-primary transition-colors font-medium"
+                className="text-foreground/70 hover:text-primary hover:bg-primary/5 transition-all font-semibold px-4 py-2"
               >
                 Opportunities
               </Button>
               <Button
                 variant="ghost"
                 onClick={() => router.push('/about')}
-                className="text-foreground/80 hover:text-primary transition-colors font-medium"
+                className="text-foreground/70 hover:text-primary hover:bg-primary/5 transition-all font-semibold px-4 py-2"
               >
                 About
               </Button>
               <Button
                 variant="ghost"
                 onClick={() => router.push('/focus-areas')}
-                className="text-foreground/80 hover:text-primary transition-colors font-medium"
+                className="text-foreground/70 hover:text-primary hover:bg-primary/5 transition-all font-semibold px-4 py-2"
               >
                 Focus Areas
               </Button>
               <Button
                 variant="ghost"
                 onClick={() => router.push('/contact')}
-                className="text-foreground/80 hover:text-primary transition-colors font-medium"
+                className="text-foreground/70 hover:text-primary hover:bg-primary/5 transition-all font-semibold px-4 py-2"
               >
                 Contact
               </Button>
@@ -161,7 +161,7 @@ export default function HomePage() {
               <Button
                 variant="outline"
                 onClick={() => router.push('/vendor-portal/login')}
-                className="flex items-center space-x-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground font-medium"
+                className="flex items-center space-x-2 border-primary/60 text-primary hover:border-primary hover:bg-primary hover:text-primary-foreground font-semibold transition-all shadow-sm hover:shadow-md"
               >
                 <Users className="h-4 w-4" />
                 <span className="hidden sm:inline">Vendor Portal</span>
@@ -169,7 +169,7 @@ export default function HomePage() {
               </Button>
               <Button
                 onClick={() => router.push('/auth/login')}
-                className="flex items-center space-x-2 font-medium"
+                className="flex items-center space-x-2 font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg transition-all"
               >
                 <Shield className="h-4 w-4" />
                 <span className="hidden sm:inline">Staff Portal</span>
@@ -203,15 +203,15 @@ export default function HomePage() {
               </div>
 
               {/* Content Below Image */}
-              <div className="bg-gradient-to-r from-primary via-primary to-primary text-primary-foreground py-12 px-4">
+              <div className="bg-gradient-to-r from-primary via-primary/95 to-primary text-primary-foreground py-16 px-4">
                 <div className="container mx-auto text-center max-w-4xl">
-                  <h1 className="text-3xl md:text-5xl font-light mb-4 leading-tight">
+                  <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight tracking-tight">
                     {slide.title}
                   </h1>
-                  <h2 className="text-xl md:text-2xl text-secondary mb-6 font-normal">
+                  <h2 className="text-xl md:text-3xl text-primary-foreground/90 mb-8 font-semibold">
                     {slide.subtitle}
                   </h2>
-                  <p className="text-base md:text-lg text-primary-foreground/90 font-light leading-relaxed max-w-2xl mx-auto">
+                  <p className="text-lg md:text-xl text-primary-foreground/80 font-medium leading-relaxed max-w-3xl mx-auto">
                     {slide.description}
                   </p>
                 </div>
@@ -251,37 +251,41 @@ export default function HomePage() {
       </section>
 
       {/* Quick Navigation Menu */}
-      <section className="py-16 px-4 bg-background">
+      <section className="py-20 px-4 bg-background">
         <div className="container mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-light text-foreground mb-4">Welcome to AHNI Portal</h2>
-            <p className="text-lg text-muted-foreground font-light max-w-2xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6 tracking-tight">Welcome to AHNI Portal</h2>
+            <p className="text-xl md:text-2xl text-muted-foreground font-medium max-w-3xl mx-auto leading-relaxed">
               Your gateway to healthcare opportunities, partnerships, and information about Achieving Health Initiatives Nigeria
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
             {menuItems.map((item, index) => (
               <Card
                 key={index}
-                className="hover:shadow-xl transition-all duration-300 cursor-pointer group"
+                className="hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 cursor-pointer group border-2 border-border hover:border-primary/20 bg-white"
                 onClick={() => router.push(item.route)}
               >
-                <CardHeader className="text-center pb-2">
-                  <div className={`rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 ${item.color} group-hover:scale-110 transition-transform`}>
+                <CardHeader className="text-center pb-3">
+                  <div className={`rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6 ${item.color} group-hover:scale-110 transition-all duration-300 shadow-lg`}>
                     {item.icon}
                   </div>
-                  <CardTitle className="text-xl font-medium group-hover:text-primary transition-colors">
+                  <CardTitle className="text-xl font-bold group-hover:text-primary transition-colors tracking-tight">
                     {item.title}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="text-center">
-                  <CardDescription className="text-sm leading-relaxed mb-4">
+                  <CardDescription className="text-base leading-relaxed mb-6 font-medium">
                     {item.description}
                   </CardDescription>
-                  <Button variant="outline" size="sm" className="group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                  <Button
+                    variant="outline"
+                    size="default"
+                    className="group-hover:bg-primary group-hover:text-primary-foreground transition-all font-semibold shadow-sm hover:shadow-md w-full"
+                  >
                     Explore
-                    <ArrowRight className="h-4 w-4 ml-1" />
+                    <ArrowRight className="h-4 w-4 ml-2" />
                   </Button>
                 </CardContent>
               </Card>
@@ -291,72 +295,72 @@ export default function HomePage() {
       </section>
 
       {/* Mission Statement */}
-      <section className="py-16 px-4 bg-muted/30">
+      <section className="py-20 px-4 bg-gradient-to-br from-muted/40 via-muted/20 to-muted/40">
         <div className="container mx-auto">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-3xl font-light text-foreground mb-6">Our Mission</h2>
-            <p className="text-xl text-muted-foreground font-light leading-relaxed mb-8">
+          <div className="max-w-5xl mx-auto text-center">
+            <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-8 tracking-tight">Our Mission</h2>
+            <p className="text-2xl md:text-3xl text-muted-foreground font-semibold leading-relaxed mb-10 max-w-4xl mx-auto">
               We enable socio-economic development in Nigeria by supporting health and research,
               with improved quality of life for people, especially vulnerable groups.
             </p>
             <Button
               size="lg"
               onClick={() => router.push('/about')}
-              className="font-medium"
+              className="font-bold text-lg px-8 py-4 shadow-lg hover:shadow-xl transition-all bg-primary hover:bg-primary/90"
             >
               Learn More About AHNI
-              <ArrowRight className="h-4 w-4 ml-2" />
+              <ArrowRight className="h-5 w-5 ml-2" />
             </Button>
           </div>
         </div>
       </section>
 
       {/* Quick Contact */}
-      <section className="py-16 px-4 bg-background">
+      <section className="py-20 px-4 bg-background">
         <div className="container mx-auto">
-          <div className="max-w-3xl mx-auto">
-            <div className="text-center mb-8">
-              <h2 className="text-3xl font-light text-foreground mb-4">Get In Touch</h2>
-              <p className="text-lg text-muted-foreground font-light">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6 tracking-tight">Get In Touch</h2>
+              <p className="text-xl md:text-2xl text-muted-foreground font-medium">
                 Ready to partner with us or explore opportunities?
               </p>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-6 text-center">
-              <div className="flex flex-col items-center">
-                <div className="bg-primary/10 rounded-full w-12 h-12 flex items-center justify-center mb-3">
-                  <Mail className="h-6 w-6 text-primary" />
+            <div className="grid md:grid-cols-3 gap-8 text-center mb-12">
+              <div className="flex flex-col items-center p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transition-all">
+                <div className="bg-gradient-to-br from-primary to-primary/80 rounded-full w-16 h-16 flex items-center justify-center mb-4 shadow-md">
+                  <Mail className="h-8 w-8 text-white" />
                 </div>
-                <h3 className="font-medium mb-1">Email</h3>
-                <p className="text-sm text-muted-foreground">info@ahnigeria.org</p>
+                <h3 className="font-bold text-lg mb-2">Email</h3>
+                <p className="text-muted-foreground font-semibold">info@ahnigeria.org</p>
               </div>
 
-              <div className="flex flex-col items-center">
-                <div className="bg-primary/10 rounded-full w-12 h-12 flex items-center justify-center mb-3">
-                  <Phone className="h-6 w-6 text-primary" />
+              <div className="flex flex-col items-center p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transition-all">
+                <div className="bg-gradient-to-br from-primary to-primary/80 rounded-full w-16 h-16 flex items-center justify-center mb-4 shadow-md">
+                  <Phone className="h-8 w-8 text-white" />
                 </div>
-                <h3 className="font-medium mb-1">Phone</h3>
-                <p className="text-sm text-muted-foreground">+234 (0) 123 456 7890</p>
+                <h3 className="font-bold text-lg mb-2">Phone</h3>
+                <p className="text-muted-foreground font-semibold">+234 (0) 123 456 7890</p>
               </div>
 
-              <div className="flex flex-col items-center">
-                <div className="bg-primary/10 rounded-full w-12 h-12 flex items-center justify-center mb-3">
-                  <MapPin className="h-6 w-6 text-primary" />
+              <div className="flex flex-col items-center p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transition-all">
+                <div className="bg-gradient-to-br from-primary to-primary/80 rounded-full w-16 h-16 flex items-center justify-center mb-4 shadow-md">
+                  <MapPin className="h-8 w-8 text-white" />
                 </div>
-                <h3 className="font-medium mb-1">Location</h3>
-                <p className="text-sm text-muted-foreground">Lagos, Nigeria</p>
+                <h3 className="font-bold text-lg mb-2">Location</h3>
+                <p className="text-muted-foreground font-semibold">Lagos, Nigeria</p>
               </div>
             </div>
 
-            <div className="text-center mt-8">
+            <div className="text-center">
               <Button
                 size="lg"
                 variant="outline"
                 onClick={() => router.push('/contact')}
-                className="font-medium"
+                className="font-bold text-lg px-8 py-4 border-2 border-primary text-primary hover:bg-primary hover:text-white shadow-lg hover:shadow-xl transition-all"
               >
                 Contact Us
-                <ArrowRight className="h-4 w-4 ml-2" />
+                <ArrowRight className="h-5 w-5 ml-2" />
               </Button>
             </div>
           </div>
@@ -364,41 +368,55 @@ export default function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-white text-foreground py-8 px-4 border-t border-border">
+      <footer className="bg-gradient-to-br from-foreground via-foreground/95 to-foreground text-white py-12 px-4">
         <div className="container mx-auto">
-          <div className="flex flex-col md:flex-row items-center justify-between">
-            <div className="flex items-center space-x-3 mb-4 md:mb-0">
+          <div className="flex flex-col md:flex-row items-center justify-between mb-8">
+            <div className="flex items-center space-x-3 mb-6 md:mb-0">
               <Image
                 src="/imgs/logo.png"
                 alt="AHNI Logo"
-                width={32}
-                height={32}
-                className="h-8 w-auto"
+                width={40}
+                height={40}
+                className="h-10 w-auto"
               />
               <div>
-                <span className="font-semibold">AHNI Portal</span>
-                <p className="text-xs text-muted-foreground">Achieving Health Initiatives Nigeria</p>
+                <span className="font-bold text-xl text-white">AHNI Portal</span>
+                <p className="text-white/80 font-medium">Achieving Health Initiatives Nigeria</p>
               </div>
             </div>
 
-            <div className="flex items-center space-x-6 text-sm text-muted-foreground">
-              <button onClick={() => router.push('/opportunities')} className="hover:text-primary transition-colors">
+            <div className="flex items-center space-x-8 text-white/80">
+              <button
+                onClick={() => router.push('/opportunities')}
+                className="hover:text-white transition-colors font-semibold hover:underline"
+              >
                 Opportunities
               </button>
-              <button onClick={() => router.push('/about')} className="hover:text-primary transition-colors">
+              <button
+                onClick={() => router.push('/about')}
+                className="hover:text-white transition-colors font-semibold hover:underline"
+              >
                 About
               </button>
-              <button onClick={() => router.push('/contact')} className="hover:text-primary transition-colors">
+              <button
+                onClick={() => router.push('/contact')}
+                className="hover:text-white transition-colors font-semibold hover:underline"
+              >
                 Contact
               </button>
-              <a href="https://ahnigeria.org" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
+              <a
+                href="https://ahnigeria.org"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-white transition-colors font-semibold hover:underline"
+              >
                 Main Website
               </a>
             </div>
           </div>
 
-          <div className="border-t border-muted mt-6 pt-6 text-center text-muted-foreground text-xs">
-            <p>&copy; 2024 Achieving Health Initiatives Nigeria (AHNI). All rights reserved. CAC/NO/33391</p>
+          <div className="border-t border-white/20 pt-6 text-center text-white/70">
+            <p className="font-medium">&copy; 2024 Achieving Health Initiatives Nigeria (AHNI). All rights reserved. CAC/NO/33391</p>
           </div>
         </div>
       </footer>
