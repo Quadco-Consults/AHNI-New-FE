@@ -14,6 +14,7 @@ import {
   Search,
   Filter,
   ArrowRight,
+  ArrowLeft,
   Building2,
   Users,
   Eye,
@@ -68,9 +69,40 @@ export default function PublicOpportunitiesPage() {
     enabled: true // Re-enabled to test if 500 error is resolved
   });
 
-  // Combine unified opportunities with procurement opportunities
-  const jobOpportunities = unifiedData?.opportunities || [];
+  // Prioritize public procurement opportunities (these should work for everyone)
   const procurementOpportunities = eoiData?.data?.results || [];
+
+  // Get unified opportunities (these might only work for authenticated users)
+  const jobOpportunities = unifiedData?.opportunities || [];
+
+  // Fallback mock data if APIs are not returning data (for debugging)
+  const mockData = [
+    {
+      id: "mock-1",
+      title: "Mock EOI - Healthcare Equipment Supply",
+      description: "Expression of Interest for medical equipment supply to health facilities",
+      status: "active",
+      opportunity_type: "EOI",
+      type: "EOI",
+      publication_date: new Date().toISOString(),
+      closing_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+    },
+    {
+      id: "mock-2",
+      title: "Mock RFQ - Office Supplies Procurement",
+      description: "Request for Quotation for office supplies and equipment",
+      status: "active",
+      opportunity_type: "RFQ",
+      type: "RFQ",
+      publication_date: new Date().toISOString(),
+      closing_date: new Date(Date.now() + 21 * 24 * 60 * 60 * 1000).toISOString(),
+    }
+  ];
+
+  // Check if we have real data - prioritize public procurement opportunities
+  const hasRealData = procurementOpportunities.length > 0 || jobOpportunities.length > 0;
+  const displayProcurementOpportunities = procurementOpportunities;
+  const displayJobOpportunities = hasRealData ? jobOpportunities : [];
 
   // Real procurement opportunities will come from API
 
@@ -85,18 +117,48 @@ export default function PublicOpportunitiesPage() {
   console.log("Procurement opportunities:", procurementOpportunities.length);
   console.log("EOI Error:", eoiError);
   console.log("Unified Error:", error);
+  console.log("EOI Data raw:", eoiData);
+  console.log("Unified Data raw:", unifiedData);
 
-  // Filter opportunities client-side for special filters
-  const allOpportunities = [...jobOpportunities, ...procurementOpportunities];
+  // Helper function to determine opportunity type
+  const getOpportunityType = (opportunity: any) => {
+    // Use the new opportunity_type field, with fallback logic for compatibility
+    if (opportunity.opportunity_type) {
+      return opportunity.opportunity_type;
+    }
+
+    // Fallback logic for older data
+    if (opportunity.request_type === 'REQUEST FOR QUOTATION' ||
+        opportunity.rfq_id ||
+        opportunity.solicitation_items) {
+      return 'RFQ';
+    }
+    return 'EOI';
+  };
+
+  // Combine all opportunities, prioritizing public data
+  const allOpportunities = [...displayProcurementOpportunities, ...displayJobOpportunities];
+
+  // If no real data is available, use mock data
+  const finalOpportunities = allOpportunities.length > 0 ? allOpportunities : mockData;
+
   const opportunities = useMemo(() => {
     if (typeFilter === "procurement") {
-      return allOpportunities.filter(op =>
+      return finalOpportunities.filter(op =>
         ["EOI", "RFQ", "RFP"].includes(getOpportunityType(op))
       );
     }
-    return allOpportunities;
-  }, [allOpportunities, typeFilter]);
+    return finalOpportunities;
+  }, [finalOpportunities, typeFilter]);
   const totalPages = eoiData?.data?.number_of_pages || 1;
+
+  // Debug final data
+  console.log("All opportunities (real):", allOpportunities.length);
+  console.log("Final opportunities (with fallback):", finalOpportunities.length);
+  console.log("Final filtered opportunities:", opportunities.length);
+  console.log("Type filter:", typeFilter);
+  console.log("Final opportunities sample:", opportunities.slice(0, 3));
+  console.log("Using mock data?", finalOpportunities === mockData);
 
   // Helper function to determine opportunity type and route using new backend field
   const getDetailRoute = (opportunity: any) => {
@@ -120,20 +182,6 @@ export default function PublicOpportunitiesPage() {
     }
   };
 
-  const getOpportunityType = (opportunity: any) => {
-    // Use the new opportunity_type field, with fallback logic for compatibility
-    if (opportunity.opportunity_type) {
-      return opportunity.opportunity_type;
-    }
-
-    // Fallback logic for older data
-    if (opportunity.request_type === 'REQUEST FOR QUOTATION' ||
-        opportunity.rfq_id ||
-        opportunity.solicitation_items) {
-      return 'RFQ';
-    }
-    return 'EOI';
-  };
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -267,6 +315,18 @@ export default function PublicOpportunitiesPage() {
             )}
           </div>
         </div>
+      </div>
+
+      {/* Back Button */}
+      <div className="container mx-auto px-4 py-6">
+        <Button
+          variant="ghost"
+          onClick={() => router.back()}
+          className="flex items-center gap-2 mb-8"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back
+        </Button>
       </div>
 
       {/* Filters */}

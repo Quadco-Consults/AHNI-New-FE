@@ -59,7 +59,9 @@ export default function VendorGRNPage() {
     );
   }
 
-  const filteredGRNs = allGRNs?.filter((grn) => {
+  // Ensure allGRNs is an array
+  const grnsArray = Array.isArray(allGRNs) ? allGRNs : (allGRNs?.results || []);
+  const filteredGRNs = grnsArray.filter((grn) => {
     const matchesSearch = grn.grn_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          grn.po_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          grn.delivery_location.name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -117,15 +119,15 @@ export default function VendorGRNPage() {
     );
   };
 
-  const pendingGRNs = allGRNs?.filter(grn => ['PENDING', 'PARTIALLY_RECEIVED'].includes(grn.status)) || [];
-  const receivedGRNs = allGRNs?.filter(grn => ['RECEIVED', 'INSPECTED', 'ACCEPTED'].includes(grn.status)) || [];
-  const issuesGRNs = allGRNs?.filter(grn => ['REJECTED', 'RETURNED'].includes(grn.status)) || [];
+  const pendingGRNs = grnsArray.filter(grn => ['PENDING', 'PARTIALLY_RECEIVED'].includes(grn.status));
+  const receivedGRNs = grnsArray.filter(grn => ['RECEIVED', 'INSPECTED', 'ACCEPTED'].includes(grn.status));
+  const issuesGRNs = grnsArray.filter(grn => ['REJECTED', 'RETURNED'].includes(grn.status));
 
   // Calculate summary stats
-  const totalValue = allGRNs?.reduce((sum, grn) => sum + grn.value_received, 0) || 0;
-  const acceptedValue = allGRNs?.reduce((sum, grn) => sum + grn.value_accepted, 0) || 0;
-  const averageRating = allGRNs?.length ?
-    allGRNs.reduce((sum, grn) => sum + (grn.quality_rating || 0), 0) / allGRNs.filter(grn => grn.quality_rating).length : 0;
+  const totalValue = grnsArray.reduce((sum, grn) => sum + grn.value_received, 0);
+  const acceptedValue = grnsArray.reduce((sum, grn) => sum + grn.value_accepted, 0);
+  const averageRating = grnsArray.length ?
+    grnsArray.reduce((sum, grn) => sum + (grn.quality_rating || 0), 0) / grnsArray.filter(grn => grn.quality_rating).length : 0;
 
   return (
     <div className="space-y-6">

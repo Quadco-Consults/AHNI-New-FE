@@ -51,10 +51,11 @@ export default function ActivePurchaseOrdersPage() {
     );
   }
 
-  // Filter for active orders only
-  const activeOrders = orders?.filter((order: any) =>
+  // Ensure orders is an array and filter for active orders only
+  const ordersArray = Array.isArray(orders) ? orders : (orders?.results || []);
+  const activeOrders = ordersArray.filter((order: any) =>
     ['CONFIRMED', 'IN_PROGRESS', 'PARTIALLY_DELIVERED'].includes(order.status)
-  ) || [];
+  );
 
   // Apply search and status filters
   const filteredOrders = activeOrders.filter((order: any) => {

@@ -47,7 +47,9 @@ export default function VendorSubmissionsPage() {
     );
   }
 
-  const filteredSubmissions = submissions?.filter((submission: any) => {
+  // Ensure submissions is an array
+  const submissionsArray = Array.isArray(submissions) ? submissions : (submissions?.results || []);
+  const filteredSubmissions = submissionsArray.filter((submission: any) => {
     const matchesSearch = submission.rfq_title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          submission.submission_reference?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === "all" || submission.status === statusFilter;

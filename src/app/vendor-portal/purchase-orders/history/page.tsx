@@ -55,9 +55,9 @@ export default function PurchaseOrderHistoryPage() {
     );
   }
 
-  // Apply filters and search
-  const filteredOrders = (orders || [])
-    .filter((order: any) => {
+  // Ensure orders is an array and apply filters and search
+  const ordersArray = Array.isArray(orders) ? orders : (orders?.results || []);
+  const filteredOrders = ordersArray.filter((order: any) => {
       // Search filter
       const matchesSearch = searchTerm === "" ||
         order.po_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
