@@ -256,9 +256,9 @@ export default function VendorRFQDetailsPage() {
                 <div>
                   <h4 className="font-semibold text-gray-900 mb-3">Categories</h4>
                   <div className="flex flex-wrap gap-2">
-                    {rfqDetails.categories?.map((category: string, index: number) => (
+                    {rfqDetails.categories?.map((category: any, index: number) => (
                       <Badge key={index} variant="outline" className="text-xs">
-                        {category}
+                        {typeof category === 'string' ? category : category.name}
                       </Badge>
                     ))}
                   </div>
