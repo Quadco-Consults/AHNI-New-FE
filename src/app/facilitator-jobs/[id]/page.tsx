@@ -30,7 +30,7 @@ import FormButton from "@/components/FormButton";
 import { Label } from "components/ui/label";
 import { countries } from "constants/countries";
 import { toast } from "sonner";
-import { PlusCircle, Upload } from "lucide-react";
+import { PlusCircle, Upload, Trash2 } from "lucide-react";
 
 // Application form schema (same as consultant application)
 const ApplicationFormSchema = z.object({
@@ -291,6 +291,281 @@ export default function FacilitatorJobDetailsPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormInput label="Start Date" name="start_duration_date" type="date" required />
                 <FormInput label="End Date" name="end_duration_date" type="date" required />
+              </div>
+            </section>
+
+            {/* Education */}
+            <section className="space-y-4">
+              <h3 className="text-lg font-semibold">Education</h3>
+              {educationFields.map((field, index) => (
+                <div key={field.id} className="p-4 border border-gray-200 rounded-lg space-y-4">
+                  <div className="flex justify-between items-center">
+                    <h4 className="font-medium">Education #{index + 1}</h4>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => removeEducation(index)}
+                      disabled={educationFields.length === 1}
+                      className="flex items-center gap-2"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      Remove
+                    </Button>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormInput label="Institution Name" name={`education.${index}.name`} required />
+                    <FormInput label="Location" name={`education.${index}.location`} required />
+                    <FormInput label="Major/Subject" name={`education.${index}.major`} required />
+                    <FormInput label="Degree" name={`education.${index}.degree`} required />
+                    <FormInput label="Date" name={`education.${index}.date`} type="date" required />
+                  </div>
+                </div>
+              ))}
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => appendEducation({ name: "", location: "", major: "", degree: "", date: "" })}
+                className="flex items-center gap-2"
+              >
+                <PlusCircle className="h-4 w-4" />
+                Add Education
+              </Button>
+            </section>
+
+            {/* Language Proficiency */}
+            <section className="space-y-4">
+              <h3 className="text-lg font-semibold">Language Proficiency</h3>
+              {languageFields.map((field, index) => (
+                <div key={field.id} className="p-4 border border-gray-200 rounded-lg space-y-4">
+                  <div className="flex justify-between items-center">
+                    <h4 className="font-medium">Language #{index + 1}</h4>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => removeLanguage(index)}
+                      disabled={languageFields.length === 1}
+                      className="flex items-center gap-2"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      Remove
+                    </Button>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <FormInput label="Language" name={`language_proficiency.${index}.language`} required />
+                    <FormSelect
+                      label="Speaking Proficiency"
+                      name={`language_proficiency.${index}.proficiency_speaking`}
+                      options={[
+                        { label: "Basic", value: "Basic" },
+                        { label: "Intermediate", value: "Intermediate" },
+                        { label: "Advanced", value: "Advanced" },
+                        { label: "Native", value: "Native" },
+                      ]}
+                      required
+                    />
+                    <FormSelect
+                      label="Reading Proficiency"
+                      name={`language_proficiency.${index}.proficiency_reading`}
+                      options={[
+                        { label: "Basic", value: "Basic" },
+                        { label: "Intermediate", value: "Intermediate" },
+                        { label: "Advanced", value: "Advanced" },
+                        { label: "Native", value: "Native" },
+                      ]}
+                      required
+                    />
+                  </div>
+                </div>
+              ))}
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => appendLanguage({ language: "", proficiency_speaking: "", proficiency_reading: "" })}
+                className="flex items-center gap-2"
+              >
+                <PlusCircle className="h-4 w-4" />
+                Add Language
+              </Button>
+            </section>
+
+            {/* Employment History */}
+            <section className="space-y-4">
+              <h3 className="text-lg font-semibold">Employment History</h3>
+              {employmentFields.map((field, index) => (
+                <div key={field.id} className="p-4 border border-gray-200 rounded-lg space-y-4">
+                  <div className="flex justify-between items-center">
+                    <h4 className="font-medium">Employment #{index + 1}</h4>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => removeEmployment(index)}
+                      disabled={employmentFields.length === 1}
+                      className="flex items-center gap-2"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      Remove
+                    </Button>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormInput label="Position Title" name={`employment_history.${index}.position_title`} required />
+                    <FormInput label="Employer Name" name={`employment_history.${index}.employer_name`} required />
+                    <FormInput label="Employer Telephone" name={`employment_history.${index}.employer_telephone`} required />
+                    <FormInput label="From Date" name={`employment_history.${index}.from`} type="date" required />
+                    <FormInput label="To Date" name={`employment_history.${index}.to`} type="date" required />
+                  </div>
+                </div>
+              ))}
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => appendEmployment({ position_title: "", employer_name: "", employer_telephone: "", from: "", to: "" })}
+                className="flex items-center gap-2"
+              >
+                <PlusCircle className="h-4 w-4" />
+                Add Employment
+              </Button>
+            </section>
+
+            {/* Special Consultant Services */}
+            <section className="space-y-4">
+              <h3 className="text-lg font-semibold">Special Consultant Services</h3>
+              {serviceFields.map((field, index) => (
+                <div key={field.id} className="p-4 border border-gray-200 rounded-lg space-y-4">
+                  <div className="flex justify-between items-center">
+                    <h4 className="font-medium">Service #{index + 1}</h4>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => removeService(index)}
+                      disabled={serviceFields.length === 1}
+                      className="flex items-center gap-2"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      Remove
+                    </Button>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormInput label="Services Performed" name={`special_consultant_services.${index}.services_performed`} required />
+                    <FormInput label="Employer Name" name={`special_consultant_services.${index}.employer_name`} required />
+                    <FormInput label="Employer Telephone" name={`special_consultant_services.${index}.employer_telephone`} required />
+                    <FormInput label="From Date" name={`special_consultant_services.${index}.from`} type="date" required />
+                    <FormInput label="To Date" name={`special_consultant_services.${index}.to`} type="date" required />
+                  </div>
+                </div>
+              ))}
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => appendService({ services_performed: "", employer_name: "", employer_telephone: "", from: "", to: "" })}
+                className="flex items-center gap-2"
+              >
+                <PlusCircle className="h-4 w-4" />
+                Add Service
+              </Button>
+            </section>
+
+            {/* Referees */}
+            <section className="space-y-4">
+              <h3 className="text-lg font-semibold">Referees</h3>
+              {refereeFields.map((field, index) => (
+                <div key={field.id} className="p-4 border border-gray-200 rounded-lg space-y-4">
+                  <div className="flex justify-between items-center">
+                    <h4 className="font-medium">Referee #{index + 1}</h4>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => removeReferee(index)}
+                      disabled={refereeFields.length === 1}
+                      className="flex items-center gap-2"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      Remove
+                    </Button>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <FormInput label="Full Name" name={`referees.${index}.name`} required />
+                    <FormInput label="Email" name={`referees.${index}.email`} type="email" required />
+                    <FormInput label="Phone Number" name={`referees.${index}.phone_number`} type="tel" required />
+                  </div>
+                </div>
+              ))}
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => appendReferee({ name: "", email: "", phone_number: "" })}
+                className="flex items-center gap-2"
+              >
+                <PlusCircle className="h-4 w-4" />
+                Add Referee
+              </Button>
+            </section>
+
+            {/* File Uploads */}
+            <section className="space-y-4">
+              <h3 className="text-lg font-semibold">Documents</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label className="font-medium">Upload Resume *</Label>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="cursor-pointer flex items-center gap-2"
+                      onClick={() => {
+                        const input = document.querySelector('input[data-file-type="resume"]') as HTMLInputElement;
+                        input?.click();
+                      }}
+                    >
+                      <Upload className="h-4 w-4" />
+                      Choose File
+                    </Button>
+                    <input
+                      type="file"
+                      className="hidden"
+                      data-file-type="resume"
+                      accept=".pdf,.doc,.docx"
+                      onChange={handleFileChange('resume')}
+                    />
+                    <span className="text-sm text-gray-600">
+                      {files.resume ? files.resume.name : "No file chosen"}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="font-medium">Upload Cover Letter *</Label>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="cursor-pointer flex items-center gap-2"
+                      onClick={() => {
+                        const input = document.querySelector('input[data-file-type="coverLetter"]') as HTMLInputElement;
+                        input?.click();
+                      }}
+                    >
+                      <Upload className="h-4 w-4" />
+                      Choose File
+                    </Button>
+                    <input
+                      type="file"
+                      className="hidden"
+                      data-file-type="coverLetter"
+                      accept=".pdf,.doc,.docx"
+                      onChange={handleFileChange('coverLetter')}
+                    />
+                    <span className="text-sm text-gray-600">
+                      {files.coverLetter ? files.coverLetter.name : "No file chosen"}
+                    </span>
+                  </div>
+                </div>
               </div>
             </section>
 
