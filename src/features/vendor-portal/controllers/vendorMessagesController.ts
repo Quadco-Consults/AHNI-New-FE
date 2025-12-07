@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
+import VendorVendorAxiosWithToken from "@/constants/api_management/VendorHttpHelper";
 import { VendorAuthUtils } from "./vendorAuthController";
 
 // Message interfaces
@@ -92,7 +92,7 @@ export const useVendorMessages = (params?: {
 
       const url = `${VENDOR_MESSAGES_ENDPOINTS.MESSAGES}${queryParams.toString() ? `?${queryParams}` : ''}`;
 
-      const response = await AxiosWithToken.get(url, {
+      const response = await VendorAxiosWithToken.get(url, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -122,7 +122,7 @@ export const useVendorMessageDetails = (messageId: string) => {
         throw new Error('No vendor token found');
       }
 
-      const response = await AxiosWithToken.get(`${VENDOR_MESSAGES_ENDPOINTS.MESSAGES}${messageId}/`, {
+      const response = await VendorAxiosWithToken.get(`${VENDOR_MESSAGES_ENDPOINTS.MESSAGES}${messageId}/`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -176,7 +176,7 @@ export const useSendMessage = () => {
         });
       }
 
-      const response = await AxiosWithToken.post(VENDOR_MESSAGES_ENDPOINTS.SEND, formData, {
+      const response = await VendorAxiosWithToken.post(VENDOR_MESSAGES_ENDPOINTS.SEND, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data',
@@ -220,7 +220,7 @@ export const useReplyToMessage = () => {
         });
       }
 
-      const response = await AxiosWithToken.post(VENDOR_MESSAGES_ENDPOINTS.REPLY, formData, {
+      const response = await VendorAxiosWithToken.post(VENDOR_MESSAGES_ENDPOINTS.REPLY, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data',
@@ -253,7 +253,7 @@ export const useMarkMessageRead = () => {
         throw new Error('No vendor token found');
       }
 
-      const response = await AxiosWithToken.patch(
+      const response = await VendorAxiosWithToken.patch(
         `${VENDOR_MESSAGES_ENDPOINTS.MARK_READ}${messageId}/`,
         {},
         {
@@ -289,7 +289,7 @@ export const useArchiveMessage = () => {
         throw new Error('No vendor token found');
       }
 
-      const response = await AxiosWithToken.patch(
+      const response = await VendorAxiosWithToken.patch(
         `${VENDOR_MESSAGES_ENDPOINTS.ARCHIVE}${messageId}/`,
         {},
         {
@@ -324,7 +324,7 @@ export const useStarMessage = () => {
         throw new Error('No vendor token found');
       }
 
-      const response = await AxiosWithToken.patch(
+      const response = await VendorAxiosWithToken.patch(
         `${VENDOR_MESSAGES_ENDPOINTS.STAR}${messageId}/`,
         {},
         {
@@ -359,7 +359,7 @@ export const useDeleteMessage = () => {
         throw new Error('No vendor token found');
       }
 
-      const response = await AxiosWithToken.delete(`${VENDOR_MESSAGES_ENDPOINTS.DELETE}${messageId}/`, {
+      const response = await VendorAxiosWithToken.delete(`${VENDOR_MESSAGES_ENDPOINTS.DELETE}${messageId}/`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

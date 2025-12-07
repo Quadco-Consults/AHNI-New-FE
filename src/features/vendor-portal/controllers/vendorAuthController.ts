@@ -1,14 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
+import VendorAxiosWithToken from "@/constants/api_management/VendorHttpHelper";
 import AxiosWithoutToken from "@/constants/api_management/MyHttpHelper";
 import { VendorLoginCredentials, VendorAuthResponse, VendorPortalUser } from "../types/vendor-auth";
 
-// Vendor authentication endpoints - Updated to match API documentation
+// Vendor authentication endpoints - Updated to match backend implementation
 const VENDOR_AUTH_ENDPOINTS = {
-  LOGIN: "/vendor/auth/login/",
-  PROFILE: "/vendor/auth/profile/",
-  REFRESH: "/vendor/auth/refresh/",
-  LOGOUT: "/vendor/auth/logout/",
+  LOGIN: "/procurements/vendor/auth/login/",
+  PROFILE: "/procurements/vendor/auth/profile/",
+  REFRESH: "/procurements/vendor/auth/refresh/",
+  LOGOUT: "/procurements/vendor/auth/logout/",
 };
 
 // Vendor Portal Authentication Utilities
@@ -64,12 +64,12 @@ export const useVendorLogin = () => {
 
   return useMutation({
     mutationFn: async (credentials: VendorLoginCredentials): Promise<VendorAuthResponse> => {
-      // Development mode: allow mock login for testing
+      // Development mode: allow mock login for demo purposes only
       if (process.env.NODE_ENV === 'development' && credentials.email === 'test@vendor.com' && credentials.password === 'test123') {
-        // Mock successful login response
+        // Mock successful login response for demo/testing
         return {
           status: 'success',
-          message: 'Login successful',
+          message: 'Login successful (Mock)',
           data: {
             access_token: 'mock_access_token_' + Date.now(),
             refresh_token: 'mock_refresh_token_' + Date.now(),
@@ -78,7 +78,7 @@ export const useVendorLogin = () => {
               email: 'test@vendor.com',
               vendor: {
                 id: 'mock_vendor_id',
-                company_name: 'Test Vendor Company',
+                company_name: 'Test Vendor Company (Demo)',
                 status: 'Approved' as const,
                 is_active: true,
                 approved_categories: [
@@ -92,22 +92,48 @@ export const useVendorLogin = () => {
         };
       }
 
-      const response = await AxiosWithoutToken.post(VENDOR_AUTH_ENDPOINTS.LOGIN, credentials);
-      return response.data;
+      // All other credentials use real API
+      try {
+        const response = await AxiosWithoutToken.post(VENDOR_AUTH_ENDPOINTS.LOGIN, credentials);
+        return response.data;
+      } catch (error: any) {
+        // If backend credentials are invalid, provide helpful error message
+        if (error?.response?.status === 401) {
+          throw new Error('Invalid credentials. For live backend access, please contact procurement@ahni.org for valid vendor credentials.');
+        }
+        throw error;
+      }
     },
     onSuccess: (data: any) => {
+      console.log('🎉 Vendor Login Success - Raw Data:', data);
+
       // Handle new API response format
       const responseData = data.status === 'success' ? data.data : data;
+
+      console.log('🔧 Processing vendor auth data:', {
+        hasAccessToken: !!responseData.access_token,
+        hasVendorData: !!responseData.user?.vendor,
+        vendorData: responseData.user?.vendor,
+        fullResponseData: responseData
+      });
+
+      // Store token
       VendorAuthUtils.setVendorToken(responseData.access_token);
+      console.log('✅ Vendor token stored:', !!VendorAuthUtils.getVendorToken());
 
       // Store vendor user info from the nested structure
       if (responseData.user?.vendor) {
         VendorAuthUtils.setVendorUser(responseData.user.vendor as VendorPortalUser);
+        console.log('✅ Vendor user data stored:', VendorAuthUtils.getVendorUser());
+      } else {
+        console.log('⚠️ No vendor data found in response');
       }
 
       // Invalidate queries to refresh data
       queryClient.invalidateQueries({ queryKey: ['vendor-profile'] });
       queryClient.invalidateQueries({ queryKey: ['vendor-rfqs'] });
+
+      console.log('🚀 Vendor login setup complete - ready for redirect to /vendor-portal/dashboard');
     },
     onError: (error: any) => {
       console.error('Vendor login error:', error);
@@ -126,8 +152,15 @@ export const useVendorProfile = () => {
         throw new Error('No vendor token found');
       }
 
+      console.log('🔍 Vendor Profile Debug:', {
+        tokenExists: !!token,
+        tokenPrefix: token?.substring(0, 20) + '...',
+        nodeEnv: process.env.NODE_ENV
+      });
+
       // Development mode: return mock data for mock token
       if (process.env.NODE_ENV === 'development' && token.startsWith('mock_access_token_')) {
+        console.log('✅ Using mock vendor profile for demo account');
         const mockProfile: VendorPortalUser = {
           id: 'mock_vendor_id',
           company_name: 'Test Vendor Company',
@@ -162,17 +195,33 @@ export const useVendorProfile = () => {
         return mockProfile;
       }
 
-      const response = await AxiosWithToken.get(VENDOR_AUTH_ENDPOINTS.PROFILE, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      try {
+        console.log('🌐 Calling real backend for vendor profile...');
+        const response = await VendorAxiosWithToken.get(VENDOR_AUTH_ENDPOINTS.PROFILE);
 
-      // Handle new API response format
-      const responseData = response.data;
-      const vendorUser = responseData.status === 'success' ? responseData.data.vendor : responseData.data || responseData;
-      VendorAuthUtils.setVendorUser(vendorUser);
-      return vendorUser;
+        console.log('📡 Profile API Response:', response.data);
+
+        // Handle new API response format
+        const responseData = response.data;
+        const vendorUser = responseData.status === 'success' ? responseData.data.vendor : responseData.data || responseData;
+
+        if (!vendorUser) {
+          throw new Error('No vendor data found in response');
+        }
+
+        VendorAuthUtils.setVendorUser(vendorUser);
+        console.log('✅ Vendor profile loaded successfully:', vendorUser);
+        return vendorUser;
+      } catch (error: any) {
+        console.error('❌ Vendor profile API error:', error);
+        // For real backend accounts, if profile API fails, create fallback profile from stored user data
+        const storedUser = VendorAuthUtils.getVendorUser();
+        if (storedUser && error?.response?.status !== 401) {
+          console.log('🔄 Using stored vendor profile as fallback');
+          return storedUser;
+        }
+        throw error;
+      }
     },
     enabled: VendorAuthUtils.isVendorAuthenticated(),
     staleTime: 1000 * 60 * 5, // 5 minutes
@@ -195,11 +244,7 @@ export const useVendorLogout = () => {
       const token = VendorAuthUtils.getVendorToken();
       if (token) {
         try {
-          await AxiosWithToken.post(VENDOR_AUTH_ENDPOINTS.LOGOUT, {}, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
+          await VendorAxiosWithToken.post(VENDOR_AUTH_ENDPOINTS.LOGOUT, {});
         } catch (error) {
           console.warn('Logout API call failed, proceeding with local cleanup:', error);
         }
@@ -218,12 +263,7 @@ export const useVendorRFQEligibility = (rfqId: string) => {
   return useQuery({
     queryKey: ['vendor-rfq-eligibility', rfqId],
     queryFn: async () => {
-      const token = VendorAuthUtils.getVendorToken();
-      const response = await AxiosWithToken.get(`/procurements/rfq/${rfqId}/vendor-eligibility/`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await VendorAxiosWithToken.get(`/procurements/rfq/${rfqId}/vendor-eligibility/`);
       return response.data;
     },
     enabled: !!rfqId && VendorAuthUtils.isVendorAuthenticated(),
