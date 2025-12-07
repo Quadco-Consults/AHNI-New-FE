@@ -12,7 +12,7 @@ import { Alert, AlertDescription } from "components/ui/alert";
 import { Checkbox } from "components/ui/checkbox";
 import FormButton from "components/FormButton";
 import FormInput from "components/FormInput";
-import { Eye, EyeOff, Building2, Mail, Lock, AlertCircle } from "lucide-react";
+import { Eye, EyeOff, Building2, Mail, Lock, AlertCircle, Home } from "lucide-react";
 import { useVendorLogin, VendorAuthUtils } from "@/features/vendor-portal/controllers/vendorAuthController";
 import { LoadingSpinner } from "components/Loading";
 import Image from "next/image";
@@ -91,6 +91,20 @@ export default function VendorLoginPage() {
         {/* Left Panel - Login Form */}
         <div className="w-full flex flex-1 items-center justify-center px-8">
           <div className="w-full max-w-md">
+            {/* Home Button */}
+            <div className="mb-6">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => router.push('/')}
+                className="flex items-center gap-2 text-gray-600 hover:text-primary border-gray-300 hover:border-primary"
+              >
+                <Home className="h-4 w-4" />
+                Home
+              </Button>
+            </div>
+
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)}>
                 <img src="/imgs/logo.png" className="w-[130px] mx-auto" />
