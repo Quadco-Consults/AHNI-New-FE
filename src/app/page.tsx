@@ -4,14 +4,11 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import {
   Building2,
   Users,
   Shield,
-  Clock,
   ArrowRight,
-  Globe,
   Phone,
   Mail,
   MapPin,
@@ -19,18 +16,15 @@ import {
   UserPlus,
   ChevronLeft,
   ChevronRight,
-  BarChart3
+  Heart,
+  Globe
 } from "lucide-react";
 import { getAccessToken } from "utils/auth";
-import { usePublicEOIs, EOIUtils } from "@/features/vendor-portal/controllers/publicEOIController";
 import Image from "next/image";
 
-export default function LandingPage() {
+export default function HomePage() {
   const router = useRouter();
   const [currentSlide, setCurrentSlide] = useState(0);
-
-  // Fetch public EOI data with optimized settings
-  const { data: eoiData, isLoading: eoiLoading, error: eoiError } = usePublicEOIs();
 
   // Check authentication for navigation button display
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -39,10 +33,7 @@ export default function LandingPage() {
     setIsAuthenticated(!!token);
   }, []);
 
-  // Note: Removed auto-redirect to allow all users to see the landing page
-  // Users can manually navigate to their respective dashboards using the navigation buttons
-
-  // Carousel data - AHNI focused content
+  // Hero carousel data - AHNI focused content
   const carouselSlides = [
     {
       image: "/img/healthcare-safety.jpg",
@@ -80,155 +71,37 @@ export default function LandingPage() {
     setCurrentSlide((prev) => (prev - 1 + carouselSlides.length) % carouselSlides.length);
   };
 
-  // Public opportunities (all types for public viewing)
-  const staticOpportunities = [
-    // Job Adverts for Employees
+  // Quick access menu items
+  const menuItems = [
     {
-      title: "Senior Health Program Manager",
-      type: "Job Advert",
-      deadline: "2024-12-20",
-      status: "Active",
-      category: "Full-time Employment",
-      location: "Abuja Headquarters",
-      description: "Lead and manage health programs across multiple states. Requires Masters in Public Health and 5+ years experience",
-      isEOI: false
+      title: "Current Opportunities",
+      description: "Explore jobs, RFQs, EOIs, consultant, facilitator, adhoc, and subgrant opportunities",
+      icon: <FileText className="h-8 w-8" />,
+      color: "bg-blue-100 text-blue-600",
+      route: "/opportunities"
     },
     {
-      title: "Community Health Officer",
-      type: "Job Advert",
-      deadline: "2024-12-22",
-      status: "Active",
-      category: "Field Position",
-      location: "Lagos, Kano, Rivers",
-      description: "Field-based community health officer position. Bachelor's degree in Health Sciences required",
-      isEOI: false
-    },
-    // Facilitator Adverts
-    {
-      title: "Community Health Facilitator Training",
-      type: "Facilitator Advert",
-      deadline: "2024-12-15",
-      status: "Active",
-      category: "Health Facilitation",
-      location: "Lagos State",
-      description: "Lead community health training sessions and capacity building programs",
-      isEOI: false
+      title: "About AHNI",
+      description: "Learn about our mission, vision, and commitment to healthcare excellence",
+      icon: <Heart className="h-8 w-8" />,
+      color: "bg-green-100 text-green-600",
+      route: "/about"
     },
     {
-      title: "Youth Leadership Development Facilitator",
-      type: "Facilitator Advert",
-      deadline: "2024-12-28",
-      status: "Active",
-      category: "Youth Development",
-      location: "Multiple States",
-      description: "Facilitate youth leadership development workshops and mentorship programs",
-      isEOI: false
-    },
-    // Consultant Adverts
-    {
-      title: "Health Research Consultant",
-      type: "Consultant Advert",
-      deadline: "2024-12-18",
-      status: "Active",
-      category: "Research & Analysis",
-      location: "Abuja, Nigeria",
-      description: "Independent consultant for health policy research and strategic planning",
-      isEOI: false
+      title: "Focus Areas",
+      description: "Discover our key areas of impact and strategic initiatives",
+      icon: <Globe className="h-8 w-8" />,
+      color: "bg-purple-100 text-purple-600",
+      route: "/focus-areas"
     },
     {
-      title: "Digital Health Strategy Consultant",
-      type: "Consultant Advert",
-      deadline: "2025-01-10",
-      status: "Active",
-      category: "Technology & Innovation",
-      location: "Remote/Hybrid",
-      description: "Develop comprehensive digital health transformation strategy for Nigeria",
-      isEOI: false
-    },
-    // Adhoc Adverts
-    {
-      title: "Emergency Response Support",
-      type: "Adhoc Advert",
-      deadline: "2024-12-25",
-      status: "Active",
-      category: "Emergency Support",
-      location: "Multiple States",
-      description: "Urgent support for emergency health response initiatives",
-      isEOI: false
-    },
-    {
-      title: "Health Data Collection - Seasonal",
-      type: "Adhoc Advert",
-      deadline: "2024-12-12",
-      status: "Active",
-      category: "Data Collection",
-      location: "Rural Communities",
-      description: "Short-term data collection for health survey across rural communities",
-      isEOI: false
-    },
-    // Subgrant Adverts
-    {
-      title: "Community Health Innovation Grant",
-      type: "Subgrant Advert",
-      deadline: "2024-12-30",
-      status: "Active",
-      category: "Grant Funding",
-      location: "National",
-      description: "Funding opportunity for innovative community health projects",
-      isEOI: false
-    },
-    {
-      title: "Women's Health Empowerment Grant",
-      type: "Subgrant Advert",
-      deadline: "2025-01-15",
-      status: "Active",
-      category: "Women's Health",
-      location: "Focus States",
-      description: "Grant funding for women's health empowerment and reproductive health programs",
-      isEOI: false
+      title: "Contact Us",
+      description: "Get in touch with our team for partnerships and support",
+      icon: <Mail className="h-8 w-8" />,
+      color: "bg-orange-100 text-orange-600",
+      route: "/contact"
     }
   ];
-
-  // Combine static opportunities with real EOI data
-  const currentOpportunities = [
-    ...staticOpportunities,
-    ...(eoiData?.results?.map(eoi => ({
-      id: eoi.id,
-      title: eoi.name,
-      type: "Expression of Interest",
-      deadline: EOIUtils.formatDate(eoi.closing_date),
-      status: eoi.status,
-      category: eoi.categories?.map(cat => cat.name).join(", ") || "Vendor Opportunity",
-      location: "National",
-      description: eoi.description,
-      isEOI: true,
-      eoiData: eoi,
-      daysRemaining: EOIUtils.getDaysRemaining(eoi.closing_date),
-      urgency: EOIUtils.getUrgencyLevel(EOIUtils.getDaysRemaining(eoi.closing_date))
-    })) || [])
-  ].slice(0, 9); // Show up to 9 opportunities to display variety
-
-  // Focus areas matching AHNI website
-  const focusAreas = [
-    {
-      title: "Health System Strengthening",
-      description: "Building robust healthcare infrastructure and capacity",
-      icon: <Building2 className="h-8 w-8" />
-    },
-    {
-      title: "Reproductive Health",
-      description: "Improving maternal and child health outcomes",
-      icon: <Users className="h-8 w-8" />
-    },
-    {
-      title: "Education & Training",
-      description: "Capacity building and knowledge transfer programs",
-      icon: <FileText className="h-8 w-8" />
-    }
-  ];
-
-  // Note: Removed loading checks and authenticated user redirects
-  // Landing page should be accessible to all users
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
@@ -377,352 +250,112 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Mission Section */}
-      <section className="py-16 px-4 bg-muted/30 relative overflow-hidden">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-5">
-          <Image
-            src="/img/login.jpeg"
-            alt="AHNI Background"
-            fill
-            className="object-cover"
-          />
-        </div>
-
-        <div className="container mx-auto relative">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            {/* Text Content */}
-            <div className="text-center lg:text-left">
-              <h2 className="text-4xl font-light text-foreground mb-6">Our Mission</h2>
-              <p className="text-xl text-muted-foreground font-light leading-relaxed mb-8">
-                We enable socio-economic development in Nigeria by supporting health and research,
-                with improved quality of life for people, especially vulnerable groups.
-              </p>
-              <p className="text-lg text-muted-foreground/80 font-light leading-relaxed">
-                Through innovative healthcare solutions and strategic partnerships, we strengthen
-                healthcare systems and drive evidence-based policies for sustainable development.
-              </p>
-            </div>
-
-            {/* Image */}
-            <div className="relative h-[400px] rounded-lg overflow-hidden shadow-xl">
-              <Image
-                src="/img/login.jpeg"
-                alt="AHNI Team and Mission"
-                fill
-                className="object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent"></div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Current Opportunities Section - Summary with link to full page */}
+      {/* Quick Navigation Menu */}
       <section className="py-16 px-4 bg-background">
         <div className="container mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-light text-foreground mb-4">Current Opportunities</h2>
-            <p className="text-lg text-muted-foreground font-light">
-              Join us in creating sustainable impact - explore job opportunities, EOIs, RFQs, consultant, facilitator, adhoc, and subgrant opportunities
+            <h2 className="text-4xl font-light text-foreground mb-4">Welcome to AHNI Portal</h2>
+            <p className="text-lg text-muted-foreground font-light max-w-2xl mx-auto">
+              Your gateway to healthcare opportunities, partnerships, and information about Achieving Health Initiatives Nigeria
             </p>
           </div>
 
-          {eoiLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-              <span className="ml-3 text-muted-foreground">Loading opportunities...</span>
-            </div>
-          ) : eoiError ? (
-            <div className="flex items-center justify-center py-12">
-              <div className="text-center">
-                <p className="text-muted-foreground mb-4">Unable to load opportunities at the moment.</p>
-                <p className="text-sm text-muted-foreground">Showing static opportunities below.</p>
-              </div>
-            </div>
-          ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
-              {currentOpportunities.map((opportunity: any, index) => (
-                <Card key={opportunity.id || index} className="hover:shadow-xl transition-all duration-300 border-l-4 border-l-primary">
-                  <CardHeader>
-                    <div className="flex items-center justify-between mb-2">
-                      <Badge
-                        variant="secondary"
-                        className={`text-xs ${EOIUtils.getOpportunityTypeColor(opportunity.type)}`}
-                      >
-                        {opportunity.type}
-                      </Badge>
-                      <div className="flex items-center gap-2">
-                        <Badge
-                          variant={EOIUtils.getStatusBadgeVariant(opportunity.status)}
-                          className="text-xs"
-                        >
-                          {opportunity.status}
-                        </Badge>
-                        {opportunity.isEOI && opportunity.daysRemaining <= 7 && (
-                          <Badge
-                            variant="outline"
-                            className={`text-xs ${EOIUtils.getUrgencyColor(opportunity.urgency)}`}
-                          >
-                            {opportunity.daysRemaining} days left
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-                    <CardTitle className="text-lg font-medium leading-tight">{opportunity.title}</CardTitle>
-                    <CardDescription className="font-light text-sm">
-                      {opportunity.category} • {opportunity.location}
-                    </CardDescription>
-                    <p className="text-sm text-muted-foreground mt-2 line-clamp-3">{opportunity.description}</p>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                        <Clock className="h-4 w-4 text-primary" />
-                        <span className="font-light">Deadline: {opportunity.deadline}</span>
-                      </div>
-                      <Button
-                        size="sm"
-                        onClick={() => {
-                          if (opportunity.isEOI) {
-                            // Create a public EOI details page or redirect to vendor portal
-                            router.push(`/eoi/${opportunity.id}`);
-                          } else {
-                            // Handle different opportunity types appropriately
-                            switch(opportunity.type) {
-                              case "RFQ":
-                                router.push('/vendor-portal/login'); // RFQs require vendor portal access
-                                break;
-                              case "Consultant Advert":
-                                window.open('mailto:consultants@ahnigeria.org?subject=Consultant Application', '_blank');
-                                break;
-                              case "Facilitator Advert":
-                                window.open('mailto:facilitators@ahnigeria.org?subject=Facilitator Application', '_blank');
-                                break;
-                              case "Adhoc Advert":
-                                window.open('mailto:opportunities@ahnigeria.org?subject=Adhoc Opportunity Application', '_blank');
-                                break;
-                              case "Subgrant Advert":
-                                window.open('mailto:grants@ahnigeria.org?subject=Subgrant Application', '_blank');
-                                break;
-                              default:
-                                window.open('mailto:info@ahnigeria.org?subject=Opportunity Application', '_blank');
-                            }
-                          }
-                        }}
-                        className="font-medium text-sm"
-                      >
-{opportunity.isEOI ? 'View Details' : EOIUtils.getApplicationMethod(opportunity.type).buttonText}
-                        <ArrowRight className="h-4 w-4 ml-1" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-
-          <div className="text-center mt-12">
-            <Button
-              size="lg"
-              onClick={() => router.push('/opportunities')}
-              className="mb-8 font-medium"
-            >
-              View All Opportunities
-              <ArrowRight className="h-4 w-4 ml-2" />
-            </Button>
-          </div>
-
-          <div className="text-center mt-8">
-            <div className="grid md:grid-cols-2 gap-4 max-w-lg mx-auto mb-8">
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={() => router.push('/vendor-portal/login')}
-                className="flex items-center space-x-2"
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+            {menuItems.map((item, index) => (
+              <Card
+                key={index}
+                className="hover:shadow-xl transition-all duration-300 cursor-pointer group"
+                onClick={() => router.push(item.route)}
               >
-                <Building2 className="h-5 w-5" />
-                <span>EOI & RFQ Portal</span>
-              </Button>
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={() => router.push('/auth/login')}
-                className="flex items-center space-x-2"
-              >
-                <UserPlus className="h-5 w-5" />
-                <span>Staff Portal</span>
-              </Button>
-            </div>
-
-            <div className="text-sm text-muted-foreground space-y-2 max-w-md mx-auto">
-              <p><strong>For Applications:</strong></p>
-              <div className="flex flex-wrap justify-center gap-2 text-xs">
-                <span className="px-2 py-1 bg-purple-100 text-purple-800 rounded">Consultants: consultants@ahnigeria.org</span>
-                <span className="px-2 py-1 bg-orange-100 text-orange-800 rounded">Facilitators: facilitators@ahnigeria.org</span>
-                <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded">Subgrants: grants@ahnigeria.org</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Focus Areas Section - Summary */}
-      <section className="py-16 px-4 bg-muted/20">
-        <div className="container mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-light text-foreground mb-4">Our Focus Areas</h2>
-            <p className="text-lg text-muted-foreground font-light">
-              Strategic areas where we create sustainable impact across Nigeria
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {focusAreas.map((area, index) => (
-              <Card key={index} className="text-center hover:shadow-lg transition-all duration-300">
-                <CardHeader>
-                  <div className="bg-primary/10 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 text-primary">
-                    {area.icon}
+                <CardHeader className="text-center pb-2">
+                  <div className={`rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4 ${item.color} group-hover:scale-110 transition-transform`}>
+                    {item.icon}
                   </div>
-                  <CardTitle className="text-xl font-light">{area.title}</CardTitle>
-                  <CardDescription className="font-light text-center">
-                    {area.description}
-                  </CardDescription>
+                  <CardTitle className="text-xl font-medium group-hover:text-primary transition-colors">
+                    {item.title}
+                  </CardTitle>
                 </CardHeader>
+                <CardContent className="text-center">
+                  <CardDescription className="text-sm leading-relaxed mb-4">
+                    {item.description}
+                  </CardDescription>
+                  <Button variant="outline" size="sm" className="group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                    Explore
+                    <ArrowRight className="h-4 w-4 ml-1" />
+                  </Button>
+                </CardContent>
               </Card>
             ))}
           </div>
+        </div>
+      </section>
 
-          <div className="text-center mt-12">
+      {/* Mission Statement */}
+      <section className="py-16 px-4 bg-muted/30">
+        <div className="container mx-auto">
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="text-3xl font-light text-foreground mb-6">Our Mission</h2>
+            <p className="text-xl text-muted-foreground font-light leading-relaxed mb-8">
+              We enable socio-economic development in Nigeria by supporting health and research,
+              with improved quality of life for people, especially vulnerable groups.
+            </p>
             <Button
               size="lg"
-              variant="outline"
-              onClick={() => router.push('/focus-areas')}
+              onClick={() => router.push('/about')}
               className="font-medium"
             >
-              Learn More About Our Work
+              Learn More About AHNI
               <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
           </div>
         </div>
       </section>
 
-      {/* About Section - Summary */}
-      <section className="py-20 px-4 bg-gradient-to-br from-muted/20 via-background to-accent/10">
+      {/* Quick Contact */}
+      <section className="py-16 px-4 bg-background">
         <div className="container mx-auto">
-          <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-4xl font-light text-foreground mb-6">About AHNI</h2>
-            <p className="text-lg text-muted-foreground mb-8 leading-relaxed font-light">
-              Achieving Health Initiatives Nigeria (AHNI) is dedicated to advancing healthcare delivery
-              across Nigeria through innovative solutions and community engagement. We work to strengthen
-              healthcare systems and improve health outcomes for communities nationwide.
-            </p>
+          <div className="max-w-3xl mx-auto">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-light text-foreground mb-4">Get In Touch</h2>
+              <p className="text-lg text-muted-foreground font-light">
+                Ready to partner with us or explore opportunities?
+              </p>
+            </div>
 
-            <div className="bg-white rounded-lg p-8 shadow-lg mb-12">
-              <div className="grid md:grid-cols-2 gap-8 text-left">
-                <div>
-                  <h3 className="text-xl font-semibold mb-4 text-primary">Our Vision</h3>
-                  <p className="text-muted-foreground font-light leading-relaxed">
-                    A healthy and safe society where everyone thrives, with equitable access to
-                    quality healthcare and opportunities for sustainable development.
-                  </p>
+            <div className="grid md:grid-cols-3 gap-6 text-center">
+              <div className="flex flex-col items-center">
+                <div className="bg-primary/10 rounded-full w-12 h-12 flex items-center justify-center mb-3">
+                  <Mail className="h-6 w-6 text-primary" />
                 </div>
-                <div>
-                  <h3 className="text-xl font-semibold mb-4 text-primary">Our Mission</h3>
-                  <p className="text-muted-foreground font-light leading-relaxed">
-                    To enable socio-economic development through health system strengthening,
-                    research, and evidence-based interventions that improve quality of life.
-                  </p>
+                <h3 className="font-medium mb-1">Email</h3>
+                <p className="text-sm text-muted-foreground">info@ahnigeria.org</p>
+              </div>
+
+              <div className="flex flex-col items-center">
+                <div className="bg-primary/10 rounded-full w-12 h-12 flex items-center justify-center mb-3">
+                  <Phone className="h-6 w-6 text-primary" />
                 </div>
+                <h3 className="font-medium mb-1">Phone</h3>
+                <p className="text-sm text-muted-foreground">+234 (0) 123 456 7890</p>
+              </div>
+
+              <div className="flex flex-col items-center">
+                <div className="bg-primary/10 rounded-full w-12 h-12 flex items-center justify-center mb-3">
+                  <MapPin className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="font-medium mb-1">Location</h3>
+                <p className="text-sm text-muted-foreground">Lagos, Nigeria</p>
               </div>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-8 mt-12">
-              <div className="text-center">
-                <div className="bg-primary/10 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6 shadow-lg">
-                  <Globe className="h-10 w-10 text-primary" />
-                </div>
-                <h3 className="font-light text-xl mb-3 text-foreground">Community Impact</h3>
-                <p className="text-muted-foreground font-light">Strengthening healthcare delivery in communities across Nigeria</p>
-              </div>
-
-              <div className="text-center">
-                <div className="bg-secondary/20 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6 shadow-lg">
-                  <Shield className="h-10 w-10 text-secondary" />
-                </div>
-                <h3 className="font-light text-xl mb-3 text-foreground">Innovation</h3>
-                <p className="text-muted-foreground font-light">Advancing modern healthcare solutions and best practices</p>
-              </div>
-
-              <div className="text-center">
-                <div className="bg-primary/10 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6 shadow-lg">
-                  <BarChart3 className="h-10 w-10 text-primary" />
-                </div>
-                <h3 className="font-light text-xl mb-3 text-foreground">Sustainable Development</h3>
-                <p className="text-muted-foreground font-light">Creating lasting positive change in healthcare outcomes</p>
-              </div>
-            </div>
-
-            <div className="text-center mt-12">
-              <Button
-                size="lg"
-                onClick={() => router.push('/about')}
-                className="font-medium"
-              >
-                Learn More About AHNI
-                <ArrowRight className="h-4 w-4 ml-2" />
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Contact Section - Summary */}
-      <section className="py-20 px-4 bg-background">
-        <div className="container mx-auto">
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="text-4xl font-light text-foreground mb-4">Contact Us</h2>
-              <p className="text-lg text-muted-foreground font-light">Get in touch with our team for partnerships, opportunities, or support</p>
-            </div>
-
-            <div className="grid md:grid-cols-3 gap-8">
-              <div className="text-center">
-                <div className="bg-primary/10 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-6 shadow-lg">
-                  <Mail className="h-8 w-8 text-primary" />
-                </div>
-                <h3 className="font-light text-lg mb-3 text-foreground">Email</h3>
-                <p className="text-muted-foreground font-light">info@ahnigeria.org</p>
-                <p className="text-muted-foreground font-light text-sm">careers@ahnigeria.org</p>
-              </div>
-
-              <div className="text-center">
-                <div className="bg-secondary/20 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-6 shadow-lg">
-                  <Phone className="h-8 w-8 text-secondary" />
-                </div>
-                <h3 className="font-light text-lg mb-3 text-foreground">Phone</h3>
-                <p className="text-muted-foreground font-light">+234 (0) 123 456 7890</p>
-                <p className="text-muted-foreground font-light text-sm">Mon - Fri: 8:00 AM - 5:00 PM</p>
-              </div>
-
-              <div className="text-center">
-                <div className="bg-primary/10 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-6 shadow-lg">
-                  <MapPin className="h-8 w-8 text-primary" />
-                </div>
-                <h3 className="font-light text-lg mb-3 text-foreground">Address</h3>
-                <p className="text-muted-foreground font-light">Lagos, Nigeria</p>
-                <p className="text-muted-foreground font-light text-sm">CAC/NO/33391</p>
-              </div>
-            </div>
-
-            <div className="text-center mt-12">
+            <div className="text-center mt-8">
               <Button
                 size="lg"
                 variant="outline"
                 onClick={() => router.push('/contact')}
                 className="font-medium"
               >
-                Get In Touch
+                Contact Us
                 <ArrowRight className="h-4 w-4 ml-2" />
               </Button>
             </div>
@@ -731,74 +364,40 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-white text-foreground py-12 px-4 border-t border-border">
+      <footer className="bg-white text-foreground py-8 px-4 border-t border-border">
         <div className="container mx-auto">
-          <div className="grid md:grid-cols-4 gap-8">
-            <div>
-              <div className="flex items-center space-x-2 mb-4">
-                <Image
-                  src="/imgs/logo.png"
-                  alt="AHNI Logo"
-                  width={32}
-                  height={32}
-                  className="h-8 w-auto"
-                />
-                <span className="font-semibold">AHNI</span>
+          <div className="flex flex-col md:flex-row items-center justify-between">
+            <div className="flex items-center space-x-3 mb-4 md:mb-0">
+              <Image
+                src="/imgs/logo.png"
+                alt="AHNI Logo"
+                width={32}
+                height={32}
+                className="h-8 w-auto"
+              />
+              <div>
+                <span className="font-semibold">AHNI Portal</span>
+                <p className="text-xs text-muted-foreground">Achieving Health Initiatives Nigeria</p>
               </div>
-              <p className="text-muted-foreground text-sm leading-relaxed">
-                Empowering healthcare organizations across Nigeria through innovative solutions,
-                strategic partnerships, and community engagement for sustainable development.
-              </p>
             </div>
 
-            <div>
-              <h3 className="font-semibold mb-4">Quick Links</h3>
-              <ul className="space-y-2 text-muted-foreground text-sm">
-                <li><button onClick={() => router.push('/opportunities')} className="hover:text-primary transition-colors">Current Opportunities</button></li>
-                <li><button onClick={() => router.push('/about')} className="hover:text-primary transition-colors">About AHNI</button></li>
-                <li><button onClick={() => router.push('/focus-areas')} className="hover:text-primary transition-colors">Focus Areas</button></li>
-                <li><button onClick={() => router.push('/contact')} className="hover:text-primary transition-colors">Contact</button></li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="font-semibold mb-4">Portals</h3>
-              <ul className="space-y-2 text-muted-foreground text-sm">
-                <li>
-                  <button onClick={() => router.push('/auth/login')} className="hover:text-primary transition-colors">
-                    Staff Portal
-                  </button>
-                </li>
-                <li>
-                  <button onClick={() => router.push('/vendor-portal/login')} className="hover:text-primary transition-colors">
-                    Vendor Portal
-                  </button>
-                </li>
-                <li>
-                  <button onClick={() => router.push('/opportunities')} className="hover:text-primary transition-colors">
-                    Job Opportunities
-                  </button>
-                </li>
-                <li>
-                  <a href="https://ahnigeria.org" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
-                    Main Website
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="font-semibold mb-4">Support</h3>
-              <ul className="space-y-2 text-muted-foreground text-sm">
-                <li><a href="mailto:support@ahnigeria.org" className="hover:text-primary transition-colors">Technical Support</a></li>
-                <li><a href="mailto:vendor@ahnigeria.org" className="hover:text-primary transition-colors">Vendor Support</a></li>
-                <li><a href="mailto:careers@ahnigeria.org" className="hover:text-primary transition-colors">Career Support</a></li>
-                <li><a href="https://ahnigeria.org" className="hover:text-primary transition-colors">Documentation</a></li>
-              </ul>
+            <div className="flex items-center space-x-6 text-sm text-muted-foreground">
+              <button onClick={() => router.push('/opportunities')} className="hover:text-primary transition-colors">
+                Opportunities
+              </button>
+              <button onClick={() => router.push('/about')} className="hover:text-primary transition-colors">
+                About
+              </button>
+              <button onClick={() => router.push('/contact')} className="hover:text-primary transition-colors">
+                Contact
+              </button>
+              <a href="https://ahnigeria.org" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
+                Main Website
+              </a>
             </div>
           </div>
 
-          <div className="border-t border-muted mt-8 pt-8 text-center text-muted-foreground text-sm">
+          <div className="border-t border-muted mt-6 pt-6 text-center text-muted-foreground text-xs">
             <p>&copy; 2024 Achieving Health Initiatives Nigeria (AHNI). All rights reserved. CAC/NO/33391</p>
           </div>
         </div>
