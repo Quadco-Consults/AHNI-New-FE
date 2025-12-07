@@ -32,8 +32,8 @@ export default function VendorRFQsPage() {
   // Build filter parameters for the API
   const filterParams = {
     search: searchTerm || undefined,
-    category: selectedCategory || undefined,
-    tender_type: tenderType || undefined,
+    category: (selectedCategory && selectedCategory !== 'all') ? selectedCategory : undefined,
+    tender_type: (tenderType && tenderType !== 'all') ? tenderType : undefined,
     closing_soon: closingSoon || undefined,
   };
 
@@ -45,6 +45,17 @@ export default function VendorRFQsPage() {
   const availableRFQs = rfqData?.results || [];
   const rfqSummary = rfqData?.summary;
 
+  // Debug logging for development
+  if (process.env.NODE_ENV === 'development') {
+    console.log('🔍 RFQ Page Debug:', {
+      rfqData,
+      availableRFQs,
+      rfqSummary,
+      isLoading,
+      error
+    });
+  }
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-96">
@@ -55,11 +66,17 @@ export default function VendorRFQsPage() {
   }
 
   if (error) {
+    console.error('❌ RFQ Page Error:', error);
     return (
       <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
         <AlertDescription>
           Failed to load RFQs. Please try refreshing the page.
+          {process.env.NODE_ENV === 'development' && (
+            <div className="mt-2 text-xs">
+              Debug: {error?.message || 'Unknown error'}
+            </div>
+          )}
         </AlertDescription>
       </Alert>
     );
@@ -143,9 +160,9 @@ export default function VendorRFQsPage() {
                     <SelectValue placeholder="Filter by Category" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Categories</SelectItem>
+                    <SelectItem value="all">All Categories</SelectItem>
                     {!categoriesLoading && categories?.map((category: any) => (
-                      <SelectItem key={category.id} value={category.id}>
+                      <SelectItem key={category.id} value={category.id.toString()}>
                         {category.name} ({category.rfq_count})
                       </SelectItem>
                     ))}
@@ -159,7 +176,7 @@ export default function VendorRFQsPage() {
                     <SelectValue placeholder="Filter by Tender Type" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Tender Types</SelectItem>
+                    <SelectItem value="all">All Tender Types</SelectItem>
                     <SelectItem value="National Open Tender">National Open Tender</SelectItem>
                     <SelectItem value="Restricted Tender">Restricted Tender</SelectItem>
                     <SelectItem value="Direct Procurement">Direct Procurement</SelectItem>
@@ -230,7 +247,7 @@ export default function VendorRFQsPage() {
                       <div className="flex items-start gap-4">
                         <div className="flex-1">
                           <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                            {rfq.rfq_title}
+                            {rfq.title || rfq.rfq_title}
                           </h3>
 
                           <div className="flex flex-wrap items-center gap-4 mb-3 text-sm text-gray-600">
@@ -253,19 +270,22 @@ export default function VendorRFQsPage() {
                           </div>
 
                           <div className="flex items-center gap-4">
-                            <Badge variant={getStatusBadgeVariant(rfq.rfq_status)}>
-                              {rfq.rfq_status}
+                            <Badge variant={getStatusBadgeVariant(rfq.status || rfq.rfq_status)}>
+                              {rfq.status || rfq.rfq_status}
                             </Badge>
-                            <Badge variant={getEligibilityBadgeVariant(rfq.eligibility_status)}>
-                              {rfq.eligibility_status === 'ELIGIBLE' ? 'Eligible to Bid' :
-                               rfq.eligibility_status === 'NOT_ELIGIBLE' ? 'Not Eligible' : 'Under Review'}
+                            <Badge variant={getEligibilityBadgeVariant(rfq.vendor_eligible ? 'ELIGIBLE' : (rfq.eligibility_status || 'NOT_ELIGIBLE'))}>
+                              {rfq.vendor_eligible ? 'Eligible to Bid' :
+                               (rfq.eligibility_status === 'ELIGIBLE' ? 'Eligible to Bid' :
+                                rfq.eligibility_status === 'NOT_ELIGIBLE' ? 'Not Eligible' : 'Under Review')}
                             </Badge>
-                            {rfq.submission_status && (
+                            {(rfq.submission_status || rfq.has_submitted_bid) && (
                               <Badge variant="secondary">
-                                {rfq.submission_status === 'NOT_STARTED' ? 'Not Started' :
+                                {rfq.has_submitted_bid ? 'Submitted' :
+                                 rfq.submission_status === 'NOT_STARTED' ? 'Not Started' :
                                  rfq.submission_status === 'DRAFT' ? 'Draft Saved' :
                                  rfq.submission_status === 'SUBMITTED' ? 'Submitted' :
-                                 rfq.submission_status === 'EVALUATED' ? 'Evaluated' : rfq.submission_status}
+                                 rfq.submission_status === 'EVALUATED' ? 'Evaluated' :
+                                 (rfq.submission_status || 'Not Started')}
                               </Badge>
                             )}
                           </div>
@@ -280,15 +300,15 @@ export default function VendorRFQsPage() {
                           )}
 
                           <Button
-                            onClick={() => router.push(`/vendor-portal/rfqs/${rfq.rfq_id}`)}
-                            variant={rfq.eligibility_status === 'ELIGIBLE' && !isClosed ? "default" : "outline"}
-                            disabled={isClosed || rfq.eligibility_status === 'NOT_ELIGIBLE'}
+                            onClick={() => router.push(`/vendor-portal/rfqs/${rfq.id || rfq.rfq_id}`)}
+                            variant={(rfq.vendor_eligible || rfq.eligibility_status === 'ELIGIBLE') && !isClosed ? "default" : "outline"}
+                            disabled={isClosed || (!rfq.vendor_eligible && rfq.eligibility_status === 'NOT_ELIGIBLE')}
                             className="whitespace-nowrap"
                           >
-                            {rfq.submission_status === 'SUBMITTED' ? 'View Submission' :
+                            {rfq.has_submitted_bid || rfq.submission_status === 'SUBMITTED' ? 'View Submission' :
                              rfq.submission_status === 'DRAFT' ? 'Continue Bid' :
                              isClosed ? 'View Details' :
-                             rfq.eligibility_status === 'ELIGIBLE' ? 'Submit Bid' : 'View Details'}
+                             (rfq.vendor_eligible || rfq.eligibility_status === 'ELIGIBLE') ? 'Submit Bid' : 'View Details'}
                             <ArrowRight className="ml-2 h-4 w-4" />
                           </Button>
                         </div>
@@ -305,16 +325,18 @@ export default function VendorRFQsPage() {
               <FileText className="h-16 w-16 mx-auto mb-4 text-gray-300" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">No RFQs Found</h3>
               <p className="text-gray-500 mb-4">
-                {searchTerm || statusFilter !== "all"
+                {searchTerm || (selectedCategory && selectedCategory !== 'all') || (tenderType && tenderType !== 'all') || closingSoon
                   ? "Try adjusting your search criteria or filters"
                   : "There are no RFQs available at the moment"}
               </p>
-              {(searchTerm || statusFilter !== "all") && (
+              {(searchTerm || (selectedCategory && selectedCategory !== 'all') || (tenderType && tenderType !== 'all') || closingSoon) && (
                 <Button
                   variant="outline"
                   onClick={() => {
                     setSearchTerm("");
-                    setStatusFilter("all");
+                    setSelectedCategory("");
+                    setTenderType("");
+                    setClosingSoon(false);
                   }}
                 >
                   Clear Filters

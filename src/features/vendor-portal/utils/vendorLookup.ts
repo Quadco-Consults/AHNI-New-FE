@@ -1,5 +1,5 @@
 // Utility to check if a vendor exists in the system
-import VendorVendorAxiosWithToken from "@/constants/api_management/VendorHttpHelper";
+import VendorAxiosWithToken from "@/constants/api_management/VendorHttpHelper";
 
 export class VendorLookupUtil {
   // Check if vendor exists by email
