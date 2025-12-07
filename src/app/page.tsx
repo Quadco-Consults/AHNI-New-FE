@@ -17,7 +17,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Heart,
-  Globe
+  Globe,
+  Home
 } from "lucide-react";
 import { getAccessToken } from "utils/auth";
 import Image from "next/image";
@@ -38,20 +39,20 @@ export default function HomePage() {
     {
       image: "/img/healthcare-safety.jpg",
       title: "Healthcare Excellence",
-      subtitle: "Empowering Health Systems Across Nigeria",
-      description: "Leading healthcare initiatives with comprehensive safety protocols and community engagement programs to improve quality of life for vulnerable populations"
+      subtitle: "A Healthy and Safe Society Where Everyone Thrives",
+      description: "Providing health technical assistance to Nigeria's public health sector through inclusive and innovative community-led programming since 2009"
     },
     {
       image: "/img/leadership-conference.jpg",
       title: "Strategic Partnerships",
-      subtitle: "Building Sustainable Development",
-      description: "Bringing together healthcare leaders, policymakers, and stakeholders to strengthen Nigeria's healthcare infrastructure through innovative solutions"
+      subtitle: "Partnering for Impact",
+      description: "Working alongside government agencies and international partners like USAID, CDC, Global Fund, UNICEF, and FCDO to combat HIV/AIDS, TB, and malaria"
     },
     {
       image: "/img/education.jpg",
-      title: "Research & Development",
-      subtitle: "Evidence-Based Solutions",
-      description: "Supporting health research and development initiatives to create evidence-based policies that drive sustainable socio-economic development"
+      title: "Community-Led Solutions",
+      subtitle: "Empowering Communities Across Nigeria",
+      description: "Supporting socio-economic advancement through health and research initiatives with operations spanning five geopolitical zones from our Abuja headquarters"
     }
   ];
 
@@ -81,22 +82,22 @@ export default function HomePage() {
       route: "/opportunities"
     },
     {
-      title: "About AHNI",
-      description: "Learn about our mission, vision, and commitment to healthcare excellence",
+      title: "About AHNi",
+      description: "Learn about our mission, vision, core values, and 13+ years of community-led health programming",
       icon: <Heart className="h-8 w-8" />,
       color: "bg-green-100 text-green-600",
       route: "/about"
     },
     {
       title: "Focus Areas",
-      description: "Discover our key areas of impact and strategic initiatives",
+      description: "HIV/AIDS, TB, Malaria, Reproductive Health, Health Systems Strengthening across Nigeria",
       icon: <Globe className="h-8 w-8" />,
       color: "bg-purple-100 text-purple-600",
       route: "/focus-areas"
     },
     {
       title: "Contact Us",
-      description: "Get in touch with our team for partnerships and support",
+      description: "Get in touch with our Abuja headquarters for partnerships and technical assistance",
       icon: <Mail className="h-8 w-8" />,
       color: "bg-orange-100 text-orange-600",
       route: "/contact"
@@ -107,51 +108,51 @@ export default function HomePage() {
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       {/* Navigation Header */}
       <header className="bg-white/95 backdrop-blur-sm border-b border-border/50 sticky top-0 z-50 shadow-sm">
-        <div className="container mx-auto px-4 py-3">
+        <div className="w-full px-6 lg:px-12 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-3">
                 <Image
                   src="/imgs/logo.png"
                   alt="AHNI Logo"
-                  width={40}
-                  height={40}
-                  className="h-10 w-auto"
-                  style={{ width: 'auto', height: '40px' }}
+                  width={45}
+                  height={45}
+                  className="h-11 w-auto"
+                  style={{ width: 'auto', height: '44px' }}
                 />
                 <div className="hidden md:block">
-                  <h1 className="font-bold text-xl text-foreground tracking-tight">AHNI Portal</h1>
-                  <p className="text-sm text-muted-foreground font-medium">Achieving Health Initiatives Nigeria</p>
+                  <h1 className="font-bold text-2xl text-foreground tracking-tight">AHNi Portal</h1>
+                  <p className="text-base text-muted-foreground font-medium">Achieving Health Nigeria initiative</p>
                 </div>
               </div>
             </div>
 
-            <nav className="hidden md:flex items-center space-x-1">
+            <nav className="hidden lg:flex items-center space-x-2">
               <Button
                 variant="ghost"
                 onClick={() => router.push('/opportunities')}
-                className="text-foreground/70 hover:text-primary hover:bg-primary/5 transition-all font-semibold px-4 py-2"
+                className="text-foreground/80 hover:text-primary hover:bg-primary/10 transition-all font-semibold text-lg px-6 py-3 h-auto"
               >
                 Opportunities
               </Button>
               <Button
                 variant="ghost"
                 onClick={() => router.push('/about')}
-                className="text-foreground/70 hover:text-primary hover:bg-primary/5 transition-all font-semibold px-4 py-2"
+                className="text-foreground/80 hover:text-primary hover:bg-primary/10 transition-all font-semibold text-lg px-6 py-3 h-auto"
               >
                 About
               </Button>
               <Button
                 variant="ghost"
                 onClick={() => router.push('/focus-areas')}
-                className="text-foreground/70 hover:text-primary hover:bg-primary/5 transition-all font-semibold px-4 py-2"
+                className="text-foreground/80 hover:text-primary hover:bg-primary/10 transition-all font-semibold text-lg px-6 py-3 h-auto"
               >
                 Focus Areas
               </Button>
               <Button
                 variant="ghost"
                 onClick={() => router.push('/contact')}
-                className="text-foreground/70 hover:text-primary hover:bg-primary/5 transition-all font-semibold px-4 py-2"
+                className="text-foreground/80 hover:text-primary hover:bg-primary/10 transition-all font-semibold text-lg px-6 py-3 h-auto"
               >
                 Contact
               </Button>
@@ -161,17 +162,17 @@ export default function HomePage() {
               <Button
                 variant="outline"
                 onClick={() => router.push('/vendor-portal/login')}
-                className="flex items-center space-x-2 border-primary/60 text-primary hover:border-primary hover:bg-primary hover:text-primary-foreground font-semibold transition-all shadow-sm hover:shadow-md"
+                className="flex items-center space-x-2 border-primary/60 text-primary hover:border-primary hover:bg-primary hover:text-primary-foreground font-semibold transition-all shadow-sm hover:shadow-md text-base px-5 py-3 h-auto"
               >
-                <Users className="h-4 w-4" />
+                <Users className="h-5 w-5" />
                 <span className="hidden sm:inline">Vendor Portal</span>
                 <span className="sm:hidden">Vendor</span>
               </Button>
               <Button
                 onClick={() => router.push('/auth/login')}
-                className="flex items-center space-x-2 font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg transition-all"
+                className="flex items-center space-x-2 font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg transition-all text-base px-5 py-3 h-auto"
               >
-                <Shield className="h-4 w-4" />
+                <Shield className="h-5 w-5" />
                 <span className="hidden sm:inline">Staff Portal</span>
                 <span className="sm:hidden">Staff</span>
               </Button>
@@ -204,14 +205,14 @@ export default function HomePage() {
 
                 {/* Content Overlay */}
                 <div className="absolute inset-0 flex items-center justify-center z-10">
-                  <div className="container mx-auto text-center max-w-4xl px-4">
-                    <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight tracking-tight text-white">
+                  <div className="w-full text-center max-w-6xl px-6 lg:px-12">
+                    <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold mb-8 leading-tight tracking-tight text-white">
                       {slide.title}
                     </h1>
-                    <h2 className="text-xl md:text-3xl text-white/90 mb-8 font-semibold">
+                    <h2 className="text-2xl md:text-4xl lg:text-5xl text-white/95 mb-10 font-semibold leading-tight">
                       {slide.subtitle}
                     </h2>
-                    <p className="text-lg md:text-xl text-white/80 font-medium leading-relaxed max-w-3xl mx-auto">
+                    <p className="text-xl md:text-2xl lg:text-3xl text-white/85 font-medium leading-relaxed max-w-5xl mx-auto">
                       {slide.description}
                     </p>
                   </div>
@@ -252,41 +253,41 @@ export default function HomePage() {
       </section>
 
       {/* Quick Navigation Menu */}
-      <section className="py-20 px-4 bg-background">
-        <div className="container mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6 tracking-tight">Welcome to AHNI Portal</h2>
-            <p className="text-xl md:text-2xl text-muted-foreground font-medium max-w-3xl mx-auto leading-relaxed">
-              Your gateway to healthcare opportunities, partnerships, and information about Achieving Health Initiatives Nigeria
+      <section className="py-24 px-6 lg:px-12 bg-background">
+        <div className="w-full max-w-none">
+          <div className="text-center mb-20">
+            <h2 className="text-5xl md:text-6xl lg:text-7xl font-bold text-foreground mb-8 tracking-tight">Welcome to AHNi Portal</h2>
+            <p className="text-2xl md:text-3xl lg:text-4xl text-muted-foreground font-medium max-w-5xl mx-auto leading-relaxed">
+              Your gateway to healthcare opportunities, partnerships, and information about Achieving Health Nigeria initiative
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-10 max-w-8xl mx-auto">
             {menuItems.map((item, index) => (
               <Card
                 key={index}
                 className="hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 cursor-pointer group border-2 border-border hover:border-primary/20 bg-white"
                 onClick={() => router.push(item.route)}
               >
-                <CardHeader className="text-center pb-3">
-                  <div className={`rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6 ${item.color} group-hover:scale-110 transition-all duration-300 shadow-lg`}>
+                <CardHeader className="text-center pb-4">
+                  <div className={`rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-8 ${item.color} group-hover:scale-110 transition-all duration-300 shadow-lg`}>
                     {item.icon}
                   </div>
-                  <CardTitle className="text-xl font-bold group-hover:text-primary transition-colors tracking-tight">
+                  <CardTitle className="text-2xl font-bold group-hover:text-primary transition-colors tracking-tight">
                     {item.title}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="text-center">
-                  <CardDescription className="text-base leading-relaxed mb-6 font-medium">
+                  <CardDescription className="text-lg leading-relaxed mb-8 font-medium">
                     {item.description}
                   </CardDescription>
                   <Button
                     variant="outline"
-                    size="default"
-                    className="group-hover:bg-primary group-hover:text-primary-foreground transition-all font-semibold shadow-sm hover:shadow-md w-full"
+                    size="lg"
+                    className="group-hover:bg-primary group-hover:text-primary-foreground transition-all font-semibold shadow-sm hover:shadow-md w-full text-base py-3"
                   >
                     Explore
-                    <ArrowRight className="h-4 w-4 ml-2" />
+                    <ArrowRight className="h-5 w-5 ml-2" />
                   </Button>
                 </CardContent>
               </Card>
@@ -296,60 +297,206 @@ export default function HomePage() {
       </section>
 
       {/* Mission Statement */}
-      <section className="py-20 px-4 bg-gradient-to-br from-muted/40 via-muted/20 to-muted/40">
-        <div className="container mx-auto">
-          <div className="max-w-5xl mx-auto text-center">
-            <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-8 tracking-tight">Our Mission</h2>
-            <p className="text-2xl md:text-3xl text-muted-foreground font-semibold leading-relaxed mb-10 max-w-4xl mx-auto">
-              We enable socio-economic development in Nigeria by supporting health and research,
-              with improved quality of life for people, especially vulnerable groups.
+      <section className="py-24 px-6 lg:px-12 bg-gradient-to-br from-muted/40 via-muted/20 to-muted/40">
+        <div className="w-full max-w-none">
+          <div className="max-w-6xl mx-auto text-center">
+            <h2 className="text-5xl md:text-6xl lg:text-7xl font-bold text-foreground mb-12 tracking-tight">Our Mission</h2>
+            <p className="text-3xl md:text-4xl lg:text-5xl text-muted-foreground font-semibold leading-relaxed mb-12 max-w-5xl mx-auto">
+              Improved quality of life for people, especially vulnerable groups, through inclusive and innovative community-led programming.
             </p>
             <Button
               size="lg"
               onClick={() => router.push('/about')}
-              className="font-bold text-lg px-8 py-4 shadow-lg hover:shadow-xl transition-all bg-primary hover:bg-primary/90"
+              className="font-bold text-xl px-10 py-5 shadow-lg hover:shadow-xl transition-all bg-primary hover:bg-primary/90 h-auto"
             >
-              Learn More About AHNI
-              <ArrowRight className="h-5 w-5 ml-2" />
+              Learn More About AHNi
+              <ArrowRight className="h-6 w-6 ml-3" />
             </Button>
           </div>
         </div>
       </section>
 
-      {/* Quick Contact */}
-      <section className="py-20 px-4 bg-background">
-        <div className="container mx-auto">
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6 tracking-tight">Get In Touch</h2>
+      {/* Partners & Funders */}
+      <section className="py-24 px-6 lg:px-12 bg-white">
+        <div className="w-full max-w-none">
+          <div className="max-w-6xl mx-auto text-center">
+            <h2 className="text-5xl md:text-6xl lg:text-7xl font-bold text-foreground mb-8 tracking-tight">Our Partners</h2>
+            <p className="text-2xl md:text-3xl lg:text-4xl text-muted-foreground font-medium max-w-5xl mx-auto leading-relaxed mb-16">
+              Working alongside government agencies and international partners to strengthen Nigeria's healthcare systems
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 items-center justify-center mb-8">
+              {/* Government of Nigeria */}
+              <div className="flex items-center justify-center p-6 bg-gray-50 rounded-lg hover:shadow-lg transition-all">
+                <div className="text-center">
+                  <div className="relative w-20 h-20 mx-auto mb-3">
+                    <Image
+                      src="/img/GOVT OF NIGERIA.jpeg"
+                      alt="Government of Nigeria Logo"
+                      fill
+                      className="object-contain"
+                    />
+                  </div>
+                  <p className="font-semibold text-lg text-gray-800">Government of Nigeria</p>
+                </div>
+              </div>
+
+              {/* The Global Fund */}
+              <div className="flex items-center justify-center p-6 bg-gray-50 rounded-lg hover:shadow-lg transition-all">
+                <div className="text-center">
+                  <div className="relative w-20 h-20 mx-auto mb-3">
+                    <Image
+                      src="/img/GF AIDS AND TB.jpg"
+                      alt="The Global Fund Logo"
+                      fill
+                      className="object-contain"
+                    />
+                  </div>
+                  <p className="font-semibold text-lg text-gray-800">The Global Fund</p>
+                  <p className="text-sm text-gray-600">AIDS, TB & Malaria</p>
+                </div>
+              </div>
+
+              {/* USAID */}
+              <div className="flex items-center justify-center p-6 bg-gray-50 rounded-lg hover:shadow-lg transition-all">
+                <div className="text-center">
+                  <div className="relative w-20 h-20 mx-auto mb-3">
+                    <Image
+                      src="/img/idBZNTby4A_1765148566781.svg"
+                      alt="USAID Logo"
+                      fill
+                      className="object-contain"
+                    />
+                  </div>
+                  <p className="font-semibold text-lg text-gray-800">USAID</p>
+                  <p className="text-sm text-gray-600">From the American People</p>
+                </div>
+              </div>
+
+              {/* UK Aid */}
+              <div className="flex items-center justify-center p-6 bg-gray-50 rounded-lg hover:shadow-lg transition-all">
+                <div className="text-center">
+                  <div className="relative w-20 h-20 mx-auto mb-3">
+                    <Image
+                      src="/img/ukaid2.png.jpeg"
+                      alt="UK Aid Logo"
+                      fill
+                      className="object-contain"
+                    />
+                  </div>
+                  <p className="font-semibold text-lg text-gray-800">UK Aid</p>
+                  <p className="text-sm text-gray-600">From the British People</p>
+                </div>
+              </div>
+
+              {/* UNICEF */}
+              <div className="flex items-center justify-center p-6 bg-gray-50 rounded-lg hover:shadow-lg transition-all">
+                <div className="text-center">
+                  <div className="relative w-20 h-20 mx-auto mb-3">
+                    <Image
+                      src="/img/Logo_of_UNICEF.svg.png"
+                      alt="UNICEF Logo"
+                      fill
+                      className="object-contain"
+                    />
+                  </div>
+                  <p className="font-semibold text-lg text-gray-800">UNICEF</p>
+                  <p className="text-sm text-gray-600">UN Children's Fund</p>
+                </div>
+              </div>
+
+              {/* FHI360 */}
+              <div className="flex items-center justify-center p-6 bg-gray-50 rounded-lg hover:shadow-lg transition-all">
+                <div className="text-center">
+                  <div className="relative w-20 h-20 mx-auto mb-3">
+                    <Image
+                      src="/img/id7T80qjOv_1765148519754.png"
+                      alt="FHI360 Logo"
+                      fill
+                      className="object-contain"
+                    />
+                  </div>
+                  <p className="font-semibold text-lg text-gray-800">FHI360</p>
+                  <p className="text-sm text-gray-600">Science of Improving Lives</p>
+                </div>
+              </div>
+
+              {/* UNFPA */}
+              <div className="flex items-center justify-center p-6 bg-gray-50 rounded-lg hover:shadow-lg transition-all">
+                <div className="text-center">
+                  <div className="relative w-20 h-20 mx-auto mb-3">
+                    <Image
+                      src="/img/UNFPA_logo.svg.png"
+                      alt="UNFPA Logo"
+                      fill
+                      className="object-contain"
+                    />
+                  </div>
+                  <p className="font-semibold text-lg text-gray-800">UNFPA</p>
+                  <p className="text-sm text-gray-600">UN Population Fund</p>
+                </div>
+              </div>
+
+              {/* UNHCR */}
+              <div className="flex items-center justify-center p-6 bg-gray-50 rounded-lg hover:shadow-lg transition-all">
+                <div className="text-center">
+                  <div className="relative w-20 h-20 mx-auto mb-3">
+                    <Image
+                      src="/img/UNHCR.svg.png"
+                      alt="UNHCR Logo"
+                      fill
+                      className="object-contain"
+                    />
+                  </div>
+                  <p className="font-semibold text-lg text-gray-800">UNHCR</p>
+                  <p className="text-sm text-gray-600">UN Refugee Agency</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="text-center mt-16">
               <p className="text-xl md:text-2xl text-muted-foreground font-medium">
+                Plus additional partners including CDC, FCDO, TAConnect, and other international development organizations
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Quick Contact */}
+      <section className="py-24 px-6 lg:px-12 bg-background">
+        <div className="w-full max-w-none">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="text-5xl md:text-6xl lg:text-7xl font-bold text-foreground mb-8 tracking-tight">Get In Touch</h2>
+              <p className="text-2xl md:text-3xl lg:text-4xl text-muted-foreground font-medium">
                 Ready to partner with us or explore opportunities?
               </p>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-8 text-center mb-12">
-              <div className="flex flex-col items-center p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transition-all">
-                <div className="bg-gradient-to-br from-primary to-primary/80 rounded-full w-16 h-16 flex items-center justify-center mb-4 shadow-md">
-                  <Mail className="h-8 w-8 text-white" />
+            <div className="grid md:grid-cols-3 gap-10 text-center mb-16">
+              <div className="flex flex-col items-center p-8 bg-white rounded-xl shadow-lg hover:shadow-xl transition-all">
+                <div className="bg-gradient-to-br from-primary to-primary/80 rounded-full w-20 h-20 flex items-center justify-center mb-6 shadow-md">
+                  <Mail className="h-10 w-10 text-white" />
                 </div>
-                <h3 className="font-bold text-lg mb-2">Email</h3>
-                <p className="text-muted-foreground font-semibold">info@ahnigeria.org</p>
+                <h3 className="font-bold text-2xl mb-3">Email</h3>
+                <p className="text-muted-foreground font-semibold text-lg">AHNiOperations@ahnigeria.org</p>
               </div>
 
-              <div className="flex flex-col items-center p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transition-all">
-                <div className="bg-gradient-to-br from-primary to-primary/80 rounded-full w-16 h-16 flex items-center justify-center mb-4 shadow-md">
-                  <Phone className="h-8 w-8 text-white" />
+              <div className="flex flex-col items-center p-8 bg-white rounded-xl shadow-lg hover:shadow-xl transition-all">
+                <div className="bg-gradient-to-br from-primary to-primary/80 rounded-full w-20 h-20 flex items-center justify-center mb-6 shadow-md">
+                  <Phone className="h-10 w-10 text-white" />
                 </div>
-                <h3 className="font-bold text-lg mb-2">Phone</h3>
-                <p className="text-muted-foreground font-semibold">+234 (0) 123 456 7890</p>
+                <h3 className="font-bold text-2xl mb-3">Phone</h3>
+                <p className="text-muted-foreground font-semibold text-lg">+234.94615555</p>
               </div>
 
-              <div className="flex flex-col items-center p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transition-all">
-                <div className="bg-gradient-to-br from-primary to-primary/80 rounded-full w-16 h-16 flex items-center justify-center mb-4 shadow-md">
-                  <MapPin className="h-8 w-8 text-white" />
+              <div className="flex flex-col items-center p-8 bg-white rounded-xl shadow-lg hover:shadow-xl transition-all">
+                <div className="bg-gradient-to-br from-primary to-primary/80 rounded-full w-20 h-20 flex items-center justify-center mb-6 shadow-md">
+                  <MapPin className="h-10 w-10 text-white" />
                 </div>
-                <h3 className="font-bold text-lg mb-2">Location</h3>
-                <p className="text-muted-foreground font-semibold">Lagos, Nigeria</p>
+                <h3 className="font-bold text-2xl mb-3">Location</h3>
+                <p className="text-muted-foreground font-semibold text-lg">No. 30 Anthony Enahoro Street, Utako District, Abuja, Nigeria</p>
               </div>
             </div>
 
@@ -358,10 +505,10 @@ export default function HomePage() {
                 size="lg"
                 variant="outline"
                 onClick={() => router.push('/contact')}
-                className="font-bold text-lg px-8 py-4 border-2 border-primary text-primary hover:bg-primary hover:text-white shadow-lg hover:shadow-xl transition-all"
+                className="font-bold text-xl px-10 py-5 border-2 border-primary text-primary hover:bg-primary hover:text-white shadow-lg hover:shadow-xl transition-all h-auto"
               >
                 Contact Us
-                <ArrowRight className="h-5 w-5 ml-2" />
+                <ArrowRight className="h-6 w-6 ml-3" />
               </Button>
             </div>
           </div>
@@ -369,39 +516,39 @@ export default function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gradient-to-br from-foreground via-foreground/95 to-foreground text-white py-12 px-4">
-        <div className="container mx-auto">
-          <div className="flex flex-col md:flex-row items-center justify-between mb-8">
-            <div className="flex items-center space-x-3 mb-6 md:mb-0">
+      <footer className="bg-gradient-to-br from-foreground via-foreground/95 to-foreground text-white py-16 px-6 lg:px-12">
+        <div className="w-full max-w-none">
+          <div className="flex flex-col md:flex-row items-center justify-between mb-12">
+            <div className="flex items-center space-x-4 mb-8 md:mb-0">
               <Image
                 src="/imgs/logo.png"
                 alt="AHNI Logo"
-                width={40}
-                height={40}
-                className="h-10 w-auto"
+                width={48}
+                height={48}
+                className="h-12 w-auto"
               />
               <div>
-                <span className="font-bold text-xl text-white">AHNI Portal</span>
-                <p className="text-white/80 font-medium">Achieving Health Initiatives Nigeria</p>
+                <span className="font-bold text-2xl text-white">AHNi Portal</span>
+                <p className="text-white/80 font-medium text-lg">Achieving Health Nigeria initiative</p>
               </div>
             </div>
 
-            <div className="flex items-center space-x-8 text-white/80">
+            <div className="flex items-center space-x-10 text-white/80">
               <button
                 onClick={() => router.push('/opportunities')}
-                className="hover:text-white transition-colors font-semibold hover:underline"
+                className="hover:text-white transition-colors font-semibold hover:underline text-lg"
               >
                 Opportunities
               </button>
               <button
                 onClick={() => router.push('/about')}
-                className="hover:text-white transition-colors font-semibold hover:underline"
+                className="hover:text-white transition-colors font-semibold hover:underline text-lg"
               >
                 About
               </button>
               <button
                 onClick={() => router.push('/contact')}
-                className="hover:text-white transition-colors font-semibold hover:underline"
+                className="hover:text-white transition-colors font-semibold hover:underline text-lg"
               >
                 Contact
               </button>
@@ -409,15 +556,15 @@ export default function HomePage() {
                 href="https://ahnigeria.org"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-white transition-colors font-semibold hover:underline"
+                className="hover:text-white transition-colors font-semibold hover:underline text-lg"
               >
                 Main Website
               </a>
             </div>
           </div>
 
-          <div className="border-t border-white/20 pt-6 text-center text-white/70">
-            <p className="font-medium">&copy; 2024 Achieving Health Initiatives Nigeria (AHNI). All rights reserved. CAC/NO/33391</p>
+          <div className="border-t border-white/20 pt-8 text-center text-white/70">
+            <p className="font-medium text-lg">&copy; 2024 Achieving Health Nigeria initiative (AHNi). All rights reserved. CAC/NO/33391</p>
           </div>
         </div>
       </footer>

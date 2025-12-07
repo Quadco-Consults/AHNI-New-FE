@@ -22,7 +22,9 @@
       "Bash(chmod:*)",
       "Bash(/Users/muhammadilu/AHNI-New-FE/migrate-remaining-icons.sh)",
       "Bash(pkill:*)",
-      "Bash(yarn dev)"
+      "Bash(yarn dev)",
+      "WebSearch",
+      "Bash(npm start)"
     ],
     "deny": [],
     "ask": []
