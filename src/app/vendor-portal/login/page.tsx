@@ -12,7 +12,7 @@ import { Alert, AlertDescription } from "components/ui/alert";
 import { Checkbox } from "components/ui/checkbox";
 import FormButton from "components/FormButton";
 import FormInput from "components/FormInput";
-import { Eye, EyeOff, Building2, Mail, Lock } from "lucide-react";
+import { Eye, EyeOff, Building2, Mail, Lock, AlertCircle } from "lucide-react";
 import { useVendorLogin, VendorAuthUtils } from "@/features/vendor-portal/controllers/vendorAuthController";
 import { LoadingSpinner } from "components/Loading";
 import Image from "next/image";
@@ -29,13 +29,28 @@ export default function VendorLoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
   const [rememberMe, setRememberMe] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   // Redirect if already authenticated
   useEffect(() => {
     if (VendorAuthUtils.isVendorAuthenticated()) {
-      router.push('/vendor-portal/dashboard');
+      setIsRedirecting(true);
+      // Add a small delay to allow user to see the login page and potentially clear session
+      const timer = setTimeout(() => {
+        router.push('/vendor-portal/dashboard');
+      }, 3000); // 3 second delay
+
+      return () => clearTimeout(timer);
     }
   }, [router]);
+
+  const handleClearSession = () => {
+    VendorAuthUtils.removeVendorToken();
+    localStorage.removeItem('vendor_user');
+    setIsRedirecting(false);
+    setLoginError(null);
+    window.location.reload(); // Reload to reset the state
+  };
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -87,6 +102,27 @@ export default function VendorLoginPage() {
                       Enter your credentials to access your account
                     </p>
                   </div>
+
+                  {/* Auto-redirect Warning */}
+                  {isRedirecting && (
+                    <Alert className="w-full border-orange-200 bg-orange-50">
+                      <AlertCircle className="h-4 w-4 text-orange-600" />
+                      <AlertDescription className="text-orange-800">
+                        <div className="flex items-center justify-between">
+                          <span>Already logged in. Redirecting to dashboard...</span>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={handleClearSession}
+                            className="ml-2 border-orange-300 text-orange-700 hover:bg-orange-100"
+                          >
+                            Clear Session
+                          </Button>
+                        </div>
+                      </AlertDescription>
+                    </Alert>
+                  )}
 
                   {/* Error Alert */}
                   {loginError && (

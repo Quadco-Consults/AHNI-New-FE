@@ -41,10 +41,12 @@ export default function VendorPurchaseOrdersPage() {
     });
   };
 
-  const filteredOrders = purchaseOrders?.filter(order =>
-    order.po_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  // Ensure purchaseOrders is an array and filter
+  const ordersArray = Array.isArray(purchaseOrders) ? purchaseOrders : (purchaseOrders?.results || []);
+  const filteredOrders = ordersArray.filter((order: any) =>
+    order.po_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     searchTerm === ""
-  ) || [];
+  );
 
   if (isLoading) {
     return (

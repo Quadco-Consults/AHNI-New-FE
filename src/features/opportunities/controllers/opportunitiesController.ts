@@ -151,7 +151,7 @@ export function useGetAllOpportunities(filters: OpportunityFilters = {}) {
   console.log("🔐 Authentication Status:", authenticated ? "Authenticated" : "Not Authenticated");
   console.log("🔐 Current Page Path:", typeof window !== 'undefined' ? window.location.pathname : 'SSR');
 
-  // Get data from all sources (only if authenticated)
+  // Get data from all sources (enabled for all users, but public endpoints should be used for non-authenticated users)
   const {
     data: hrJobsData,
     isLoading: hrLoading,
@@ -160,7 +160,7 @@ export function useGetAllOpportunities(filters: OpportunityFilters = {}) {
     page: filters.page || 1,
     size: filters.size || 20,
     search: filters.search || "",
-    enabled: authenticated, // Only enabled if authenticated
+    enabled: true, // Always enabled - let the hook handle authentication internally
   });
 
   // Get consultant data with proper parameters
@@ -172,7 +172,7 @@ export function useGetAllOpportunities(filters: OpportunityFilters = {}) {
     page: filters.page || 1,
     size: filters.size || 20,
     search: filters.search || "",
-    enabled: authenticated, // Only enabled if authenticated
+    enabled: true, // Always enabled - let the hook handle authentication internally
   });
 
   const {
@@ -184,7 +184,7 @@ export function useGetAllOpportunities(filters: OpportunityFilters = {}) {
     size: filters.size || 20,
     search: filters.search || "",
     status: filters.status?.[0],
-    enabled: authenticated, // Only enabled if authenticated
+    enabled: true, // Always enabled - let the hook handle authentication internally
   });
 
   const {
@@ -192,7 +192,7 @@ export function useGetAllOpportunities(filters: OpportunityFilters = {}) {
     isLoading: facilitatorLoading,
     error: facilitatorError,
   } = useGetAllFacilitators({
-    enabled: authenticated, // Only enabled if authenticated
+    enabled: true, // Always enabled - let the hook handle authentication internally
   });
 
   return useQuery({

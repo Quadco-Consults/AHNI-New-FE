@@ -59,10 +59,11 @@ export default function DeliveryManagementPage() {
     );
   }
 
-  // Filter orders that need delivery updates
-  const deliveryOrders = orders?.filter((order: any) =>
+  // Ensure orders is an array and filter orders that need delivery updates
+  const ordersArray = Array.isArray(orders) ? orders : (orders?.results || []);
+  const deliveryOrders = ordersArray.filter((order: any) =>
     ['CONFIRMED', 'IN_PROGRESS', 'PARTIALLY_DELIVERED'].includes(order.status)
-  ) || [];
+  );
 
   const filteredOrders = deliveryOrders.filter((order: any) =>
     searchTerm === "" ||

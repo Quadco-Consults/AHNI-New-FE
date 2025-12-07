@@ -254,18 +254,34 @@ export default function LandingPage() {
             </div>
 
             <nav className="hidden md:flex items-center space-x-6">
-              <a href="#opportunities" className="text-foreground/80 hover:text-primary transition-colors font-medium">
+              <Button
+                variant="ghost"
+                onClick={() => router.push('/opportunities')}
+                className="text-foreground/80 hover:text-primary transition-colors font-medium"
+              >
                 Opportunities
-              </a>
-              <a href="#about" className="text-foreground/80 hover:text-primary transition-colors font-medium">
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => router.push('/about')}
+                className="text-foreground/80 hover:text-primary transition-colors font-medium"
+              >
                 About
-              </a>
-              <a href="#focus-areas" className="text-foreground/80 hover:text-primary transition-colors font-medium">
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => router.push('/focus-areas')}
+                className="text-foreground/80 hover:text-primary transition-colors font-medium"
+              >
                 Focus Areas
-              </a>
-              <a href="#contact" className="text-foreground/80 hover:text-primary transition-colors font-medium">
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => router.push('/contact')}
+                className="text-foreground/80 hover:text-primary transition-colors font-medium"
+              >
                 Contact
-              </a>
+              </Button>
             </nav>
 
             <div className="flex items-center space-x-3">
@@ -402,8 +418,8 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Current Opportunities Section - Public Advertisements */}
-      <section id="opportunities" className="py-16 px-4 bg-background">
+      {/* Current Opportunities Section - Summary with link to full page */}
+      <section className="py-16 px-4 bg-background">
         <div className="container mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-light text-foreground mb-4">Current Opportunities</h2>
@@ -507,6 +523,17 @@ export default function LandingPage() {
           )}
 
           <div className="text-center mt-12">
+            <Button
+              size="lg"
+              onClick={() => router.push('/opportunities')}
+              className="mb-8 font-medium"
+            >
+              View All Opportunities
+              <ArrowRight className="h-4 w-4 ml-2" />
+            </Button>
+          </div>
+
+          <div className="text-center mt-8">
             <div className="grid md:grid-cols-2 gap-4 max-w-lg mx-auto mb-8">
               <Button
                 variant="outline"
@@ -540,8 +567,8 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Focus Areas Section */}
-      <section id="focus-areas" className="py-16 px-4 bg-muted/20">
+      {/* Focus Areas Section - Summary */}
+      <section className="py-16 px-4 bg-muted/20">
         <div className="container mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-light text-foreground mb-4">Our Focus Areas</h2>
@@ -565,11 +592,23 @@ export default function LandingPage() {
               </Card>
             ))}
           </div>
+
+          <div className="text-center mt-12">
+            <Button
+              size="lg"
+              variant="outline"
+              onClick={() => router.push('/focus-areas')}
+              className="font-medium"
+            >
+              Learn More About Our Work
+              <ArrowRight className="h-4 w-4 ml-2" />
+            </Button>
+          </div>
         </div>
       </section>
 
-      {/* About Section */}
-      <section id="about" className="py-20 px-4 bg-gradient-to-br from-muted/20 via-background to-accent/10">
+      {/* About Section - Summary */}
+      <section className="py-20 px-4 bg-gradient-to-br from-muted/20 via-background to-accent/10">
         <div className="container mx-auto">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-4xl font-light text-foreground mb-6">About AHNI</h2>
@@ -623,12 +662,23 @@ export default function LandingPage() {
                 <p className="text-muted-foreground font-light">Creating lasting positive change in healthcare outcomes</p>
               </div>
             </div>
+
+            <div className="text-center mt-12">
+              <Button
+                size="lg"
+                onClick={() => router.push('/about')}
+                className="font-medium"
+              >
+                Learn More About AHNI
+                <ArrowRight className="h-4 w-4 ml-2" />
+              </Button>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Contact Section */}
-      <section id="contact" className="py-20 px-4 bg-background">
+      {/* Contact Section - Summary */}
+      <section className="py-20 px-4 bg-background">
         <div className="container mx-auto">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-12">
@@ -664,6 +714,18 @@ export default function LandingPage() {
                 <p className="text-muted-foreground font-light text-sm">CAC/NO/33391</p>
               </div>
             </div>
+
+            <div className="text-center mt-12">
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={() => router.push('/contact')}
+                className="font-medium"
+              >
+                Get In Touch
+                <ArrowRight className="h-4 w-4 ml-2" />
+              </Button>
+            </div>
           </div>
         </div>
       </section>
@@ -692,10 +754,10 @@ export default function LandingPage() {
             <div>
               <h3 className="font-semibold mb-4">Quick Links</h3>
               <ul className="space-y-2 text-muted-foreground text-sm">
-                <li><a href="#opportunities" className="hover:text-primary transition-colors">Current Opportunities</a></li>
-                <li><a href="#about" className="hover:text-primary transition-colors">About AHNI</a></li>
-                <li><a href="#focus-areas" className="hover:text-primary transition-colors">Focus Areas</a></li>
-                <li><a href="#contact" className="hover:text-primary transition-colors">Contact</a></li>
+                <li><button onClick={() => router.push('/opportunities')} className="hover:text-primary transition-colors">Current Opportunities</button></li>
+                <li><button onClick={() => router.push('/about')} className="hover:text-primary transition-colors">About AHNI</button></li>
+                <li><button onClick={() => router.push('/focus-areas')} className="hover:text-primary transition-colors">Focus Areas</button></li>
+                <li><button onClick={() => router.push('/contact')} className="hover:text-primary transition-colors">Contact</button></li>
               </ul>
             </div>
 
@@ -713,9 +775,9 @@ export default function LandingPage() {
                   </button>
                 </li>
                 <li>
-                  <a href="#opportunities" className="hover:text-primary transition-colors">
+                  <button onClick={() => router.push('/opportunities')} className="hover:text-primary transition-colors">
                     Job Opportunities
-                  </a>
+                  </button>
                 </li>
                 <li>
                   <a href="https://ahnigeria.org" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
