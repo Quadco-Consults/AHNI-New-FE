@@ -282,7 +282,7 @@ export default function VendorProfilePage() {
                 <div className="flex flex-wrap gap-2">
                   {vendorProfile.approved_categories.map((category, index) => (
                     <Badge key={index} variant="default" className="text-xs">
-                      {category}
+                      {typeof category === 'string' ? category : category.name}
                     </Badge>
                   ))}
                 </div>
@@ -305,7 +305,7 @@ export default function VendorProfilePage() {
                 <div className="flex flex-wrap gap-2">
                   {vendorProfile.submitted_categories.map((category, index) => (
                     <Badge key={index} variant="outline" className="text-xs">
-                      {category}
+                      {typeof category === 'string' ? category : category.name}
                     </Badge>
                   ))}
                 </div>

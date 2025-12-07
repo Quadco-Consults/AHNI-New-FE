@@ -245,9 +245,9 @@ export default function VendorRFQsPage() {
                           </div>
 
                           <div className="flex flex-wrap gap-2 mb-4">
-                            {rfq.categories?.map((category: string, index: number) => (
+                            {rfq.eoi?.categories?.map((category: any, index: number) => (
                               <Badge key={index} variant="outline" className="text-xs">
-                                {category}
+                                {typeof category === 'string' ? category : category.name}
                               </Badge>
                             ))}
                           </div>
