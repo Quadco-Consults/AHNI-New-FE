@@ -5,7 +5,7 @@ import { useState } from "react";
 import Registration from "@/features/procurement/components/vendor-management/vendor-registration/Registration";
 import { useGetPublicOpportunity } from "@/features/procurement/controllers/solicitationController";
 import { LoadingSpinner } from "components/Loading";
-import { UICard as UICard, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "components/ui/button";
 import { Badge } from "components/ui/badge";
 import { Alert, AlertDescription } from "components/ui/alert";
@@ -39,12 +39,12 @@ export default function PublicRFPPage() {
   if (error || !data?.data) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <UICard>
+        <Card>
           <CardContent className="p-8 text-center">
             <h2 className="text-xl font-semibold text-foreground mb-2">RFP Not Found</h2>
             <p className="text-muted-foreground">The Request for Proposal you're looking for could not be found or may have expired.</p>
           </CardContent>
-        </UICard>
+        </Card>
       </div>
     );
   }
@@ -102,7 +102,7 @@ export default function PublicRFPPage() {
       <div className="container mx-auto px-4 py-6">
 
         {/* RFP Information */}
-        <UICard className="mb-6">
+        <Card className="mb-6">
           <CardHeader className="pb-4">
             <CardTitle className="text-xl font-semibold">Proposal Details</CardTitle>
           </CardHeader>
@@ -154,11 +154,11 @@ export default function PublicRFPPage() {
                 </Alert>
             )}
           </CardContent>
-        </UICard>
+        </Card>
 
         {/* Documents if available */}
         {rfpData.documents && rfpData.documents.length > 0 && (
-          <UICard className="mb-8">
+          <Card className="mb-8">
             <CardHeader>
               <CardTitle className="text-2xl font-bold text-gray-900">Related Documents</CardTitle>
             </CardHeader>
@@ -183,12 +183,12 @@ export default function PublicRFPPage() {
                 ))}
               </div>
             </CardContent>
-          </UICard>
+          </Card>
         )}
 
         {/* Document Download if single document */}
         {rfpData.document && !rfpData.documents && (
-          <UICard className="mb-8">
+          <Card className="mb-8">
             <CardHeader>
               <CardTitle className="text-2xl font-bold text-gray-900">RFP Document</CardTitle>
             </CardHeader>
@@ -212,7 +212,7 @@ export default function PublicRFPPage() {
                 </Button>
               </div>
             </CardContent>
-          </UICard>
+          </Card>
         )}
       </div>
     </div>
@@ -241,12 +241,12 @@ export default function PublicRFPPage() {
         <RFPDetailsSection />
         <div className="bg-gray-50 py-8">
           <div className="container mx-auto px-4 max-w-4xl text-center">
-            <UICard>
+            <Card>
               <CardContent className="p-8 text-center">
                 <h2 className="text-xl font-semibold text-gray-800 mb-2">Submission Period Closed</h2>
                 <p className="text-gray-600">This Request for Proposal is no longer accepting submissions.</p>
               </CardContent>
-            </UICard>
+            </Card>
           </div>
         </div>
       </>
@@ -265,7 +265,7 @@ export default function PublicRFPPage() {
               <h2 className="text-2xl font-bold text-gray-900 text-center mb-8">Choose Your Participation Path</h2>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* New Vendor Path */}
-                <UICard className="p-8 hover:shadow-lg transition-shadow border-2 hover:border-purple-200">
+                <Card className="p-8 hover:shadow-lg transition-shadow border-2 hover:border-purple-200">
                   <div className="text-center">
                     <div className="bg-green-100 p-4 rounded-full w-20 h-20 mx-auto mb-6 flex items-center justify-center">
                       <UserPlus className="h-10 w-10 text-green-600" />
@@ -299,10 +299,10 @@ export default function PublicRFPPage() {
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   </div>
-                </UICard>
+                </Card>
 
                 {/* Existing Vendor Path */}
-                <UICard className="p-8 hover:shadow-lg transition-shadow border-2 hover:border-purple-200">
+                <Card className="p-8 hover:shadow-lg transition-shadow border-2 hover:border-purple-200">
                   <div className="text-center">
                     <div className="bg-purple-100 p-4 rounded-full w-20 h-20 mx-auto mb-6 flex items-center justify-center">
                       <Briefcase className="h-10 w-10 text-purple-600" />
@@ -341,7 +341,7 @@ export default function PublicRFPPage() {
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   </div>
-                </UICard>
+                </Card>
               </div>
             </div>
 

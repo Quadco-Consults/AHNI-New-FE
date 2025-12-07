@@ -240,7 +240,20 @@ AxiosWithToken.interceptors.response.use(
       const originalRequest = error.config;
 
       // Check if we're on a public route or vendor portal - don't redirect these to staff login
-      const publicRoutes = ['/eoi', '/rfq', '/rfp', '/vendor-portal'];
+      const publicRoutes = [
+        '/eoi',
+        '/rfq',
+        '/rfp',
+        '/vendor-portal',
+        '/opportunities',
+        '/jobs',
+        '/consultant-jobs',
+        '/facilitator-jobs',
+        '/adhoc-jobs',
+        '/about',
+        '/contact',
+        '/focus-areas'
+      ];
       const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
       const isPublicRoute = publicRoutes.some(route => currentPath.startsWith(route));
 
