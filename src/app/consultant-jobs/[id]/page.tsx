@@ -24,13 +24,12 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import FormInput from "components/atoms/FormInput";
-import FormTextArea from "components/atoms/FormTextArea";
 import FormSelect from "components/atoms/FormSelect";
 import FormButton from "@/components/FormButton";
 import { Label } from "components/ui/label";
 import { countries } from "constants/countries";
 import { toast } from "sonner";
-import { PlusCircle, Upload } from "lucide-react";
+import { PlusCircle, Upload, Trash2 } from "lucide-react";
 
 // Application form schema
 const ApplicationFormSchema = z.object({
@@ -313,7 +312,9 @@ export default function ConsultantJobDetailsPage() {
                       size="sm"
                       onClick={() => removeEducation(index)}
                       disabled={educationFields.length === 1}
+                      className="flex items-center gap-2"
                     >
+                      <Trash2 className="h-4 w-4" />
                       Remove
                     </Button>
                   </div>
@@ -325,7 +326,7 @@ export default function ConsultantJobDetailsPage() {
                 onClick={() => appendEducation({ name: "", location: "", major: "", degree: "", date: "" })}
                 className="flex items-center gap-2"
               >
-                <PlusCircle size={16} />
+                <PlusCircle className="h-4 w-4" />
                 Add Education
               </Button>
             </section>
@@ -345,7 +346,9 @@ export default function ConsultantJobDetailsPage() {
                       size="sm"
                       onClick={() => removeLanguage(index)}
                       disabled={languageFields.length === 1}
+                      className="flex items-center gap-2"
                     >
+                      <Trash2 className="h-4 w-4" />
                       Remove
                     </Button>
                   </div>
@@ -357,7 +360,7 @@ export default function ConsultantJobDetailsPage() {
                 onClick={() => appendLanguage({ language: "", proficiency_speaking: "", proficiency_reading: "" })}
                 className="flex items-center gap-2"
               >
-                <PlusCircle size={16} />
+                <PlusCircle className="h-4 w-4" />
                 Add Language
               </Button>
             </section>
@@ -379,7 +382,9 @@ export default function ConsultantJobDetailsPage() {
                       size="sm"
                       onClick={() => removeEmployment(index)}
                       disabled={employmentFields.length === 1}
+                      className="flex items-center gap-2"
                     >
+                      <Trash2 className="h-4 w-4" />
                       Remove
                     </Button>
                   </div>
@@ -391,7 +396,7 @@ export default function ConsultantJobDetailsPage() {
                 onClick={() => appendEmployment({ position_title: "", employer_name: "", employer_telephone: "", from: "", to: "" })}
                 className="flex items-center gap-2"
               >
-                <PlusCircle size={16} />
+                <PlusCircle className="h-4 w-4" />
                 Add Employment
               </Button>
             </section>
@@ -412,7 +417,9 @@ export default function ConsultantJobDetailsPage() {
                       variant="outline"
                       size="sm"
                       onClick={() => removeService(index)}
+                      className="flex items-center gap-2"
                     >
+                      <Trash2 className="h-4 w-4" />
                       Remove
                     </Button>
                   </div>
@@ -424,7 +431,7 @@ export default function ConsultantJobDetailsPage() {
                 onClick={() => appendService({ services_performed: "", employer_name: "", employer_telephone: "", from: "", to: "" })}
                 className="flex items-center gap-2"
               >
-                <PlusCircle size={16} />
+                <PlusCircle className="h-4 w-4" />
                 Add Consultant Service
               </Button>
             </section>
@@ -444,7 +451,9 @@ export default function ConsultantJobDetailsPage() {
                       size="sm"
                       onClick={() => removeReferee(index)}
                       disabled={refereeFields.length === 1}
+                      className="flex items-center gap-2"
                     >
+                      <Trash2 className="h-4 w-4" />
                       Remove
                     </Button>
                   </div>
@@ -456,7 +465,7 @@ export default function ConsultantJobDetailsPage() {
                 onClick={() => appendReferee({ name: "", email: "", phone_number: "" })}
                 className="flex items-center gap-2"
               >
-                <PlusCircle size={16} />
+                <PlusCircle className="h-4 w-4" />
                 Add Referee
               </Button>
             </section>
@@ -468,16 +477,26 @@ export default function ConsultantJobDetailsPage() {
                 <div className="space-y-2">
                   <Label className="font-medium">Upload Resume *</Label>
                   <div className="flex items-center gap-2">
-                    <label className="cursor-pointer border border-gray-300 rounded px-4 py-2 hover:bg-gray-50">
-                      <Upload size={16} className="inline mr-2" />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="cursor-pointer flex items-center gap-2"
+                      onClick={() => {
+                        const input = document.querySelector('input[data-file-type="resume"]') as HTMLInputElement;
+                        input?.click();
+                      }}
+                    >
+                      <Upload className="h-4 w-4" />
                       Choose File
-                      <input
-                        type="file"
-                        className="hidden"
-                        accept=".pdf,.doc,.docx"
-                        onChange={handleFileChange('resume')}
-                      />
-                    </label>
+                    </Button>
+                    <input
+                      type="file"
+                      className="hidden"
+                      data-file-type="resume"
+                      accept=".pdf,.doc,.docx"
+                      onChange={handleFileChange('resume')}
+                    />
                     <span className="text-sm text-gray-600">
                       {files.resume ? files.resume.name : "No file chosen"}
                     </span>
@@ -487,16 +506,26 @@ export default function ConsultantJobDetailsPage() {
                 <div className="space-y-2">
                   <Label className="font-medium">Upload Cover Letter *</Label>
                   <div className="flex items-center gap-2">
-                    <label className="cursor-pointer border border-gray-300 rounded px-4 py-2 hover:bg-gray-50">
-                      <Upload size={16} className="inline mr-2" />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="cursor-pointer flex items-center gap-2"
+                      onClick={() => {
+                        const input = document.querySelector('input[data-file-type="coverLetter"]') as HTMLInputElement;
+                        input?.click();
+                      }}
+                    >
+                      <Upload className="h-4 w-4" />
                       Choose File
-                      <input
-                        type="file"
-                        className="hidden"
-                        accept=".pdf,.doc,.docx"
-                        onChange={handleFileChange('coverLetter')}
-                      />
-                    </label>
+                    </Button>
+                    <input
+                      type="file"
+                      className="hidden"
+                      data-file-type="coverLetter"
+                      accept=".pdf,.doc,.docx"
+                      onChange={handleFileChange('coverLetter')}
+                    />
                     <span className="text-sm text-gray-600">
                       {files.coverLetter ? files.coverLetter.name : "No file chosen"}
                     </span>
