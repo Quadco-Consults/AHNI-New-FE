@@ -190,8 +190,8 @@ export default function HomePage() {
                 index === currentSlide ? 'opacity-100' : 'opacity-0 absolute inset-0'
               }`}
             >
-              {/* Image on Top */}
-              <div className="w-full h-[50vh] relative">
+              {/* Full Height Image with Content Overlay */}
+              <div className="w-full h-[70vh] relative">
                 <Image
                   src={slide.image}
                   alt={slide.title}
@@ -199,21 +199,22 @@ export default function HomePage() {
                   className="object-cover"
                   priority={index === 0}
                 />
-                <div className="absolute inset-0 bg-black/30"></div>
-              </div>
+                {/* Dark overlay for better text readability */}
+                <div className="absolute inset-0 bg-black/60"></div>
 
-              {/* Content Below Image */}
-              <div className="bg-gradient-to-r from-primary via-primary/95 to-primary text-primary-foreground py-16 px-4">
-                <div className="container mx-auto text-center max-w-4xl">
-                  <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight tracking-tight">
-                    {slide.title}
-                  </h1>
-                  <h2 className="text-xl md:text-3xl text-primary-foreground/90 mb-8 font-semibold">
-                    {slide.subtitle}
-                  </h2>
-                  <p className="text-lg md:text-xl text-primary-foreground/80 font-medium leading-relaxed max-w-3xl mx-auto">
-                    {slide.description}
-                  </p>
+                {/* Content Overlay */}
+                <div className="absolute inset-0 flex items-center justify-center z-10">
+                  <div className="container mx-auto text-center max-w-4xl px-4">
+                    <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight tracking-tight text-white">
+                      {slide.title}
+                    </h1>
+                    <h2 className="text-xl md:text-3xl text-white/90 mb-8 font-semibold">
+                      {slide.subtitle}
+                    </h2>
+                    <p className="text-lg md:text-xl text-white/80 font-medium leading-relaxed max-w-3xl mx-auto">
+                      {slide.description}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -222,13 +223,13 @@ export default function HomePage() {
           {/* Navigation Arrows */}
           <button
             onClick={prevSlide}
-            className="absolute left-4 top-1/4 -translate-y-1/2 z-20 bg-white/80 hover:bg-white rounded-full p-3 transition-all shadow-lg"
+            className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-white/80 hover:bg-white rounded-full p-3 transition-all shadow-lg"
           >
             <ChevronLeft className="h-6 w-6 text-primary" />
           </button>
           <button
             onClick={nextSlide}
-            className="absolute right-4 top-1/4 -translate-y-1/2 z-20 bg-white/80 hover:bg-white rounded-full p-3 transition-all shadow-lg"
+            className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-white/80 hover:bg-white rounded-full p-3 transition-all shadow-lg"
           >
             <ChevronRight className="h-6 w-6 text-primary" />
           </button>

@@ -278,15 +278,28 @@ export default function OpportunitiesPage() {
         </div>
 
         {/* Header Section */}
-        <section className="py-16 px-6 lg:px-12 bg-gradient-to-br from-primary via-primary/95 to-primary text-primary-foreground">
-          <div className="w-full max-w-none">
+        <section className="py-16 px-6 lg:px-12 relative overflow-hidden">
+          {/* Background Image */}
+          <div className="absolute inset-0">
+            <Image
+              src="/img/education.jpg"
+              alt="Healthcare Education"
+              fill
+              className="object-cover object-center"
+              priority
+            />
+            {/* Dark overlay for better text readability */}
+            <div className="absolute inset-0 bg-black/60"></div>
+          </div>
+
+          <div className="w-full max-w-none relative z-10">
             <div className="text-center max-w-6xl mx-auto">
-              <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight tracking-tight">Career Opportunities</h1>
-              <p className="text-xl md:text-2xl font-medium leading-relaxed mb-8 max-w-5xl mx-auto">
+              <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight tracking-tight text-white">Career Opportunities</h1>
+              <p className="text-xl md:text-2xl font-medium leading-relaxed mb-8 max-w-5xl mx-auto text-white/90">
                 Join us in creating sustainable impact across Nigeria's healthcare landscape.
                 Explore current openings for employment, consulting, procurement, and partnership opportunities.
               </p>
-              <div className="text-lg text-primary-foreground/90 font-medium">
+              <div className="text-lg text-white/90 font-medium">
                 <p className="flex items-center justify-center gap-2">
                   <MapPin className="h-5 w-5" />
                   No. 30 Anthony Enahoro Street, Utako District, Abuja, Nigeria
@@ -872,10 +885,23 @@ export default function OpportunitiesPage() {
         </section>
 
         {/* Footer CTA */}
-        <section className="py-20 px-4 bg-gradient-to-br from-primary via-primary/95 to-primary text-white">
-          <div className="container mx-auto text-center">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 tracking-tight">Don't See What You're Looking For?</h2>
-            <p className="text-xl md:text-2xl mb-10 font-medium max-w-3xl mx-auto leading-relaxed">
+        <section className="py-20 px-4 relative overflow-hidden">
+          {/* Background Image */}
+          <div className="absolute inset-0">
+            <Image
+              src="/img/education.jpg"
+              alt="Healthcare Education"
+              fill
+              className="object-cover object-center"
+              priority
+            />
+            {/* Dark overlay for better text readability */}
+            <div className="absolute inset-0 bg-black/60"></div>
+          </div>
+
+          <div className="container mx-auto text-center relative z-10">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 tracking-tight text-white">Don't See What You're Looking For?</h2>
+            <p className="text-xl md:text-2xl mb-10 font-medium max-w-3xl mx-auto leading-relaxed text-white/90">
               We're always looking for talented individuals to join our mission of improving healthcare across Nigeria.
               Your expertise could be exactly what we need for our next breakthrough.
             </p>
