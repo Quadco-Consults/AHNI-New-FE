@@ -3,16 +3,29 @@ export interface VendorLoginCredentials {
   password: string;
 }
 
+export interface VendorCategory {
+  id: string;
+  name: string;
+  description?: string;
+}
+
 export interface VendorAuthResponse {
-  access_token: string;
-  refresh_token: string;
-  vendor: {
-    id: string;
-    company_name: string;
-    email: string;
-    status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'SUSPENDED';
-    approved_categories: string[];
-    registration_date: string;
+  status: string;
+  message: string;
+  data: {
+    access_token: string;
+    refresh_token: string;
+    user: {
+      id: string;
+      email: string;
+      vendor: {
+        id: string;
+        company_name: string;
+        status: 'Pending' | 'Approved' | 'Rejected' | 'Suspended';
+        is_active: boolean;
+        approved_categories: VendorCategory[];
+      };
+    };
   };
 }
 
@@ -20,16 +33,23 @@ export interface VendorPortalUser {
   id: string;
   company_name: string;
   email: string;
-  phone_number: string;
-  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'SUSPENDED';
-  approved_categories: string[];
-  submitted_categories: string[];
-  type_of_business: string;
+  phone_number?: string;
+  status: 'Pending' | 'Approved' | 'Rejected' | 'Suspended';
+  is_active: boolean;
+  approved_categories: VendorCategory[];
+  submitted_categories?: VendorCategory[];
+  type_of_business?: string;
   registration_date: string;
-  last_login: string;
-  active_rfqs: string[];
+  last_login?: string;
+  active_rfqs?: string[];
   submitted_bids: number;
   awarded_contracts: number;
+  prequalification_summary?: {
+    total_categories_applied: number;
+    categories_approved: number;
+    categories_rejected: number;
+    approval_rate: number;
+  };
 }
 
 export interface VendorRFQAccess {

@@ -21,7 +21,7 @@ import {
   AlertTriangle
 } from "lucide-react";
 import { VendorAuthUtils, useVendorProfile } from "@/features/vendor-portal/controllers/vendorAuthController";
-import { useVendorDashboardStats, useVendorAvailableRFQs } from "@/features/vendor-portal/controllers/vendorDashboardController";
+import { useVendorDashboardStats, useVendorAvailableRFQs, useVendorDashboardOverview } from "@/features/vendor-portal/controllers/vendorDashboardController";
 import { useVendorOrderSummary, useVendorPurchaseOrders, useVendorGRNs, POGRNUtils } from "@/features/vendor-portal/controllers/purchaseOrderController";
 import VendorNotifications from "@/features/vendor-portal/components/VendorNotifications";
 import { LoadingSpinner } from "components/Loading";
@@ -30,7 +30,8 @@ export default function VendorDashboardPage() {
   const router = useRouter();
   const { data: vendorProfile, isLoading: profileLoading, error: profileError } = useVendorProfile();
   const { data: dashboardStats, isLoading: statsLoading } = useVendorDashboardStats();
-  const { data: availableRFQs, isLoading: rfqsLoading } = useVendorAvailableRFQs();
+  const { data: rfqsData, isLoading: rfqsLoading } = useVendorAvailableRFQs();
+  const availableRFQs = rfqsData?.results || [];
 
   // PO and GRN data
   const { data: orderSummary, isLoading: orderSummaryLoading } = useVendorOrderSummary();
@@ -65,7 +66,8 @@ export default function VendorDashboardPage() {
   }
 
   const getStatusBadgeVariant = (status: string) => {
-    switch (status) {
+    const statusUpper = status.toUpperCase();
+    switch (statusUpper) {
       case 'APPROVED':
         return 'default';
       case 'PENDING':
@@ -105,17 +107,17 @@ export default function VendorDashboardPage() {
       </div>
 
       {/* Status Alert for non-approved vendors */}
-      {vendorProfile.status !== 'APPROVED' && (
-        <Alert className={vendorProfile.status === 'REJECTED' ? "border-red-200 bg-red-50" : "border-yellow-200 bg-yellow-50"}>
+      {vendorProfile.status.toUpperCase() !== 'APPROVED' && (
+        <Alert className={vendorProfile.status.toUpperCase() === 'REJECTED' ? "border-red-200 bg-red-50" : "border-yellow-200 bg-yellow-50"}>
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            {vendorProfile.status === 'PENDING' && (
+            {vendorProfile.status.toUpperCase() === 'PENDING' && (
               "Your vendor registration is under review. You'll be notified once approved to access RFQs."
             )}
-            {vendorProfile.status === 'REJECTED' && (
+            {vendorProfile.status.toUpperCase() === 'REJECTED' && (
               "Your vendor registration was not approved. Contact support for more information."
             )}
-            {vendorProfile.status === 'SUSPENDED' && (
+            {vendorProfile.status.toUpperCase() === 'SUSPENDED' && (
               "Your vendor account is currently suspended. Contact support to resolve this issue."
             )}
           </AlertDescription>
@@ -235,36 +237,68 @@ export default function VendorDashboardPage() {
               ) : availableRFQs && availableRFQs.length > 0 ? (
                 <div className="space-y-4">
                   {availableRFQs.slice(0, 3).map((rfq: any) => (
-                    <div key={rfq.rfq_id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                    <div
+                      key={rfq.rfq_id || rfq.id}
+                      className="border rounded-lg p-4 hover:bg-gray-50 transition-colors cursor-pointer"
+                      onClick={() => router.push(`/vendor-portal/rfqs/${rfq.id}`)}
+                    >
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
-                          <h4 className="font-medium text-gray-900 mb-1">
-                            {rfq.rfq_title}
-                          </h4>
+                          <div className="flex items-center gap-2 mb-1">
+                            <h4 className="font-medium text-gray-900">
+                              {rfq.title || rfq.rfq_title}
+                            </h4>
+                            {rfq.is_new && (
+                              <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-800">
+                                New
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+                            {rfq.background}
+                          </p>
                           <div className="flex items-center gap-4 text-sm text-gray-600">
                             <span className="flex items-center gap-1">
                               <Calendar className="h-3 w-3" />
                               Closes: {formatDate(rfq.closing_date)}
                             </span>
-                            <Badge variant="outline" className="text-xs">
-                              {rfq.rfq_status}
-                            </Badge>
+                            <span className={`text-xs px-2 py-1 rounded ${
+                              rfq.days_remaining <= 3 ? 'bg-red-100 text-red-800' :
+                              rfq.days_remaining <= 7 ? 'bg-orange-100 text-orange-800' :
+                              'bg-green-100 text-green-800'
+                            }`}>
+                              {rfq.days_remaining} days left
+                            </span>
                           </div>
                           <div className="flex flex-wrap gap-1 mt-2">
-                            {rfq.categories?.slice(0, 3).map((category: string, index: number) => (
+                            {rfq.eoi?.categories?.slice(0, 3).map((category: any, index: number) => (
                               <Badge key={index} variant="secondary" className="text-xs">
-                                {category}
+                                {typeof category === 'string' ? category : category.name}
                               </Badge>
                             ))}
                           </div>
+                          {rfq.items_count && (
+                            <div className="text-xs text-gray-500 mt-1">
+                              {rfq.items_count} items • {rfq.tender_type}
+                            </div>
+                          )}
                         </div>
-                        <div className="ml-4">
+                        <div className="ml-4 flex flex-col gap-2 items-end">
                           <Badge
-                            variant={rfq.eligibility_status === 'ELIGIBLE' ? 'default' : 'secondary'}
+                            variant={rfq.vendor_eligible ? 'default' : 'secondary'}
                             className="text-xs"
                           >
-                            {rfq.eligibility_status === 'ELIGIBLE' ? 'Eligible' : 'Under Review'}
+                            {rfq.vendor_eligible ? 'Eligible' : 'Review Needed'}
                           </Badge>
+                          {rfq.has_submitted_bid ? (
+                            <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700">
+                              Bid Submitted
+                            </Badge>
+                          ) : rfq.can_submit_bid ? (
+                            <Badge variant="default" className="text-xs bg-green-50 text-green-700">
+                              Can Bid
+                            </Badge>
+                          ) : null}
                         </div>
                       </div>
                     </div>
@@ -621,7 +655,7 @@ export default function VendorDashboardPage() {
                 <div className="flex flex-wrap gap-2">
                   {vendorProfile.approved_categories.map((category, index) => (
                     <Badge key={index} variant="default" className="text-xs">
-                      {category}
+                      {typeof category === 'string' ? category : category.name}
                     </Badge>
                   ))}
                 </div>
