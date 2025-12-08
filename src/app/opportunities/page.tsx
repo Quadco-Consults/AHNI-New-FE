@@ -216,7 +216,7 @@ export default function OpportunitiesPage() {
               <Button
                 variant="ghost"
                 onClick={() => router.push('/opportunities')}
-                className="text-primary bg-primary/10 font-semibold text-lg px-6 py-3 h-auto border-primary/20"
+                className="text-primary bg-primary/10 font-semibold text-lg px-6 py-3 h-auto"
               >
                 Opportunities
               </Button>
