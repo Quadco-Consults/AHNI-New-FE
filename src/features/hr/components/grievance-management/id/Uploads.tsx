@@ -28,7 +28,7 @@ import AddSquareIcon from "components/icons/AddSquareIcon";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useAppDispatch } from "hooks/useStore";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { DocumentGrievianceManagementSchema, GrievianceManagementDocument } from "@/features/hr/types/grieviance-management/";
+import { DocumentGrievianceManagementSchema, GrievianceManagementDocument } from "@/features/hr/types/grieviance-management";
 import UploadDocumentDialog from "@/components/modals/dialog/UploadDocumentDialog";
 import moment from "moment";
 import ConfirmationDialog from "components/ConfirmationDialog";

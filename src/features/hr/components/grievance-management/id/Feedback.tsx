@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import WriteDialog from "@/components/modals/dialog/WriteDialog";
 import Card from "components/Card";
 import { Button } from "components/ui/button";
-import { FeedbackGrievianceManagementSchema } from "@/features/hr/types/grieviance-management/";
+import { FeedbackGrievianceManagementSchema } from "@/features/hr/types/grieviance-management";
 import { VendorsResultsData } from "definations/procurement-types/vendors";
 import { useAppDispatch } from "hooks/useStore";
 

@@ -5,7 +5,7 @@ import WriteDialog from "@/components/modals/dialog/WriteDialog";
 import Card from "components/Card";
 import { Button } from "components/ui/button";
 import { Badge } from "components/ui/badge";
-import { FindingsGrievianceManagementSchema, ResolutionGrievianceManagementSchema } from "@/features/hr/types/grieviance-management/";
+import { FindingsGrievianceManagementSchema, ResolutionGrievianceManagementSchema } from "@/features/hr/types/grieviance-management";
 import { VendorsResultsData } from "definations/procurement-types/vendors";
 import { useAppDispatch } from "hooks/useStore";
 

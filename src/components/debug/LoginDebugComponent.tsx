@@ -105,8 +105,8 @@ export function LoginDebugComponent() {
         <h4 className="font-semibold">API Endpoint Info:</h4>
         <p><strong>Endpoint:</strong> https://ahni-erp-029252c2fbb9.herokuapp.com/api/v1/auth/login/</p>
         <p><strong>Method:</strong> POST</p>
-        <p><strong>Expected Success Format:</strong> HTTP 200 with {"{"}"status": "success", "data": {"{"}"access_token": "...", "user": {"{"}"..."}"}""{"}"}</p>
-        <p><strong>Expected Error Format:</strong> HTTP 401 with {"{"}"status": false, "message": "Invalid email or password"{"}"}</p>
+        <p><strong>Expected Success Format:</strong> HTTP 200 with {`{"status": "success", "data": {"access_token": "...", "user": {...}}}`}</p>
+        <p><strong>Expected Error Format:</strong> HTTP 401 with {`{"status": false, "message": "Invalid email or password"}`}</p>
       </div>
     </div>
   );
