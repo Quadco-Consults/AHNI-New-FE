@@ -17,7 +17,25 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Search } from 'lucide-react';
+import {
+  CheckCircle,
+  Search,
+  Eye,
+  Database,
+  X,
+  ArrowLeft,
+  ArrowRight,
+  Info,
+  Package,
+  LineChart,
+  Clock,
+  TrendingUp,
+  TrendingDown,
+  BarChart3,
+  AlertCircle,
+  AlertTriangle,
+  Lightbulb
+} from 'lucide-react';
 import { Icon } from "@iconify/react";
 
 const RatingCircle = ({ showInner }: { showInner?: boolean }) => {
