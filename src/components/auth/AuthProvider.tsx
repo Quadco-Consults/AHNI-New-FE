@@ -43,9 +43,30 @@ export default function AuthProvider({ children }: AuthProviderProps) {
         userDepartment: user?.employee?.department?.name || user?.department?.name || 'none'
       });
 
-      // Only restore if we have both token and user data
+      // Only restore if we have both token and user data AND they match
+      // Validate token isn't expired or stale
       if (token && user) {
-        console.log('✅ Restoring authentication state from localStorage');
+        try {
+          // Basic JWT token validation - check if it's not expired
+          const tokenPayload = JSON.parse(atob(token.split('.')[1]));
+          const isTokenExpired = tokenPayload.exp * 1000 < Date.now();
+
+          if (isTokenExpired) {
+            console.warn('⚠️ Token expired, clearing stale auth data');
+            localStorage.removeItem('token');
+            localStorage.removeItem('refresh_token');
+            localStorage.removeItem('user');
+            return;
+          }
+
+          console.log('✅ Restoring authentication state from localStorage');
+        } catch (error) {
+          console.warn('⚠️ Invalid token format, clearing auth data:', error);
+          localStorage.removeItem('token');
+          localStorage.removeItem('refresh_token');
+          localStorage.removeItem('user');
+          return;
+        }
 
         dispatch(setAuth({
           access_token: token,
