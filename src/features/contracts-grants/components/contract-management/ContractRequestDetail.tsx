@@ -41,12 +41,8 @@ export default function ContractRequestDetail() {
       console.error('Error parsing user data:', error);
     }
 
-    // Fallback mock user for development
-    return {
-      id: "5ff6e971-4ccc-4fde-8249-cad64b78e304", // Using the admin user ID from the API data
-      name: "Johnnn Doex",
-      email: "admin@mail.com"
-    };
+    // Return null if no user data found
+    return null;
   };
 
   const currentUser = getCurrentUser();

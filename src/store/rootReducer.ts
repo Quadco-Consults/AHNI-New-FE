@@ -54,6 +54,7 @@ const persistConfig = {
     return Promise.resolve(state);
   },
   blacklist: [
+    "auth", // Prevent auth state persistence to avoid stale user data
     "objectives",
     "partnerLocation",
     "stakeholder",
