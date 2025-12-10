@@ -24,6 +24,10 @@ export const removeAccessToken = (): void => {
   localStorage.removeItem('token');
   localStorage.removeItem('refresh_token');
   localStorage.removeItem('user');
+  // Also clear vendor tokens to prevent cross-user data contamination
+  localStorage.removeItem('vendor_access_token');
+  localStorage.removeItem('vendor_refresh_token');
+  localStorage.removeItem('vendor_user');
 };
 
 export const isAuthenticated = (): boolean => {

@@ -48,16 +48,22 @@ const Header = ({ sidebarWidth }: { sidebarWidth: boolean }) => {
     // Clear Redux state
     dispatch(logOut());
 
-    // Clear all localStorage tokens and user data
+    // Clear ALL localStorage tokens and user data (including vendor tokens)
     localStorage.removeItem('token');
     localStorage.removeItem('refresh_token');
     localStorage.removeItem('user');
+    localStorage.removeItem('vendor_access_token');
+    localStorage.removeItem('vendor_refresh_token');
+    localStorage.removeItem('vendor_user');
 
-    // Clear persisted Redux state (use localStorage not sessionStorage)
+    // Clear persisted Redux state
     localStorage.removeItem("persist:ahni");
 
     // Clear TanStack Query cache to prevent stale user data
     queryClient.clear();
+
+    // Invalidate all queries to force fresh fetch on next login
+    queryClient.invalidateQueries();
 
     router.push(AuthRoutes.LOGIN);
   };
