@@ -46,8 +46,6 @@ const GoalsManagement: React.FC = () => {
                           userRole === 'Admin' ||
                           userRole === 'HR' ||
                           userRole === 'HR Manager' ||
-                          email === 'admin@mail.com' ||
-                          email === 'hrmanager@ahni.test' ||
                           email?.includes('admin') ||
                           isSuperuser === true ||
                           (Array.isArray(userGroups) && (

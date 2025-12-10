@@ -18,6 +18,7 @@ import { useAppDispatch } from "hooks/useStore";
 import { logOut } from "store/auth/authSlice";
 import { getPageTitleFromPath } from "utils/utls";
 import { useGetUserProfile } from "features/auth/controllers/userController";
+import { useQueryClient } from "@tanstack/react-query";
 import NotificationDropdown from "./NotificationDropdown";
 
 const Header = ({ sidebarWidth }: { sidebarWidth: boolean }) => {
@@ -39,13 +40,26 @@ const Header = ({ sidebarWidth }: { sidebarWidth: boolean }) => {
   });
 
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const dispatch = useAppDispatch();
 
   const logoutHandler = () => {
+    // Clear Redux state
     dispatch(logOut());
+
+    // Clear all localStorage tokens and user data
+    localStorage.removeItem('token');
+    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('user');
+
+    // Clear persisted Redux state (use localStorage not sessionStorage)
+    localStorage.removeItem("persist:ahni");
+
+    // Clear TanStack Query cache to prevent stale user data
+    queryClient.clear();
+
     router.push(AuthRoutes.LOGIN);
-    sessionStorage.removeItem("persist:ahni");
   };
 
   return (

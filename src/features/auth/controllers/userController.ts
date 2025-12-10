@@ -75,8 +75,11 @@ export const useGetSingleUser = (id: string, enabled: boolean = true) => {
 
 // Get User Profile
 export const useGetUserProfile = (enabled: boolean = true) => {
+  // Use token as unique identifier to prevent cross-user cache pollution
+  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+
   return useQuery<TResponse<IUser>>({
-    queryKey: ["user-profile"],
+    queryKey: ["user-profile", token], // Make query key user-specific
     queryFn: async () => {
       try {
         const response = await AxiosWithToken.get("users/profile/");
@@ -86,7 +89,7 @@ export const useGetUserProfile = (enabled: boolean = true) => {
         throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
       }
     },
-    enabled: enabled,
+    enabled: enabled && !!token, // Only enable if we have a token
     refetchOnWindowFocus: false,
   });
 };

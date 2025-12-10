@@ -45,14 +45,8 @@ export default function ContractRequest() {
         console.error('Error parsing user data:', error);
       }
 
-      // Fallback mock user for development
-      return {
-        id: "5ff6e971-4ccc-4fde-8249-cad64b78e304",
-        name: "Johnnn Doex",
-        email: "admin@mail.com",
-        first_name: "Johnnn",
-        last_name: "Doex"
-      };
+      // Return null if no user data found
+      return null;
     };
 
     setClientUser(getCurrentUser());

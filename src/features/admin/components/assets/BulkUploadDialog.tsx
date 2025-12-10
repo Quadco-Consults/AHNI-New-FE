@@ -363,7 +363,7 @@ export default function AssetBulkUploadDialog({ open, onOpenChange }: BulkUpload
       sampleAssetType,  // asset_type - Real name from your system
       "",  // project
       sampleDonor,  // donor - Real name from your system
-      "admin@mail.com",  // assignee - Use employee email
+      "employee@example.com",  // assignee - Use employee email
       sampleImplementer,  // implementer - Real partner name from your system
       sampleLocation,  // location - Real location name from your system
       "Abuja",  // state
@@ -400,7 +400,7 @@ export default function AssetBulkUploadDialog({ open, onOpenChange }: BulkUpload
       sampleAssetType,  // asset_type
       "",  // project
       sampleDonor,  // donor
-      "admin@mail.com",  // assignee
+      "employee@example.com",  // assignee
       sampleImplementer,  // implementer
       sampleLocation,  // location
       "Lagos",  // state
@@ -803,7 +803,7 @@ export default function AssetBulkUploadDialog({ open, onOpenChange }: BulkUpload
               <li><strong className="text-purple-600">🚗 Vehicle fields:</strong> 18 vehicle-specific fields available (plate, VIN, odometer, insurance, maintenance, etc.) - ONLY fill these for vehicles</li>
               <li><strong className="text-purple-600">💻 IT/Lab fields:</strong> Serial Number field available - ONLY fill for IT/Lab equipment</li>
               <li><strong className="text-green-600">✨ Name-based Fields:</strong> Use friendly names for Asset Type, Project, Donor, Location, Classification, Asset Condition - automatically converted to system IDs</li>
-              <li><strong>Assignee field:</strong> Use email address (e.g., admin@mail.com) - will be matched to employee</li>
+              <li><strong>Assignee field:</strong> Use email address (e.g., employee@example.com) - will be matched to employee</li>
               <li><strong>Asset codes:</strong> Should be unique if provided</li>
               <li><strong>Mixed upload:</strong> Upload multiple asset types in ONE file (vehicles + laptops + furniture all together!)</li>
               <li><strong>Sample data:</strong> Templates include 2-3 examples showing different asset types - modify or delete and add your own</li>
