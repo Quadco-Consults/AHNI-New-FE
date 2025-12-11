@@ -13,9 +13,18 @@ export default function ViewConsumable() {
   const searchParams = useSearchParams();
   const tab = searchParams?.get('tab') || 'details';
 
-  const { data: stockCard } = useGetAllConsumableStockCardsQuery(
+  const { data: stockCard, isLoading: stockCardLoading, error: stockCardError } = useGetAllConsumableStockCardsQuery(
     id || "", !!id
   );
+
+  // Debug the stock card data fetching
+  console.log("🔍 CONSUMABLE STOCK CARD FETCH DEBUG:", {
+    id,
+    stockCard,
+    stockCardLoading,
+    stockCardError,
+    dataStructure: stockCard ? Object.keys(stockCard) : null,
+  });
 
   return (
     <div>
@@ -32,7 +41,11 @@ export default function ViewConsumable() {
           <ConsumableDetails />
         </TabsContent>
         <TabsContent value='stock'>
-          <ConsumableStockCard stockCard={stockCard} />
+          <ConsumableStockCard
+            stockCard={stockCard}
+            loading={stockCardLoading}
+            error={stockCardError}
+          />
         </TabsContent>
         <TabsContent value='requisitions'>
           <ConsumableRequisitions consumableId={id as string} />

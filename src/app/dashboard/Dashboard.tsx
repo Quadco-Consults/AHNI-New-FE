@@ -37,8 +37,7 @@ import {
   Settings,
   Eye,
   Download,
-  RotateCcw,
-  BarChart3
+  RotateCcw
 } from "lucide-react";
 
 // Enhanced color palette for charts
@@ -598,7 +597,7 @@ export default function Dashboard() {
       <div className="space-y-6 p-6">
         <div className="flex justify-center items-center min-h-[400px]">
           <div className="text-center">
-            <BarChart3 className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+            <BarChart className="h-12 w-12 text-gray-400 mx-auto mb-4" />
             <h2 className="text-lg font-semibold text-gray-900 mb-2">No Data Available</h2>
             <p className="text-gray-600 mb-4">No real data found from your ERP system endpoints.</p>
             <Button onClick={() => window.location.reload()} className="gap-2">
@@ -783,8 +782,8 @@ export default function Dashboard() {
                 {realProjectsAnalytics?.totalProjects} Projects
               </Badge>
             </div>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
+            <div className="h-64 w-full">
+              <ResponsiveContainer width="100%" height="100%" minHeight={256}>
                 <PieChart>
                   <Pie
                     data={chartData.projectStatusChart}
@@ -833,8 +832,8 @@ export default function Dashboard() {
                 {chartData.locationChart.length} Locations
               </Badge>
             </div>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
+            <div className="h-64 w-full">
+              <ResponsiveContainer width="100%" height="100%" minHeight={256}>
                 <BarChart data={chartData.locationChart} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
                   <XAxis dataKey="name" tick={{ fontSize: 12 }} />
@@ -862,8 +861,8 @@ export default function Dashboard() {
                 {chartData.fundingChart.length} Sources
               </Badge>
             </div>
-            <div className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
+            <div className="h-80 w-full">
+              <ResponsiveContainer width="100%" height="100%" minHeight={320}>
                 <BarChart data={chartData.fundingChart} layout="horizontal" margin={{ top: 20, right: 30, left: 120, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
                   <XAxis type="number" tick={{ fontSize: 12 }} />
@@ -981,8 +980,8 @@ export default function Dashboard() {
             </div>
           ) : (
             <>
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
+              <div className="h-64 w-full">
+                <ResponsiveContainer width="100%" height="100%" minHeight={256}>
                   <PieChart>
                     <Pie
                       data={chartData.departmentChart}
@@ -1239,7 +1238,7 @@ export default function Dashboard() {
       <Card className="p-6 bg-gradient-to-r from-blue-50 to-purple-50 border-none">
         <div className="flex items-center gap-4">
           <div className="h-12 w-12 bg-gradient-to-br from-blue-100 to-purple-200 rounded-xl flex items-center justify-center">
-            <BarChart3 className="h-6 w-6 text-blue-600" />
+            <BarChart className="h-6 w-6 text-blue-600" />
           </div>
           <div className="flex-1">
             <h3 className="text-lg font-semibold text-gray-900">Real Data Dashboard</h3>

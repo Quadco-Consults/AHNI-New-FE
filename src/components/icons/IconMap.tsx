@@ -50,7 +50,7 @@ import {
   DollarSign,
   TrendingUp,
   TrendingDown,
-  BarChart3,
+  BarChart,
   PieChart,
 
   // Communication
@@ -119,7 +119,7 @@ export const IconMap = {
   currency: DollarSign,
   growth: TrendingUp,
   decline: TrendingDown,
-  chart: BarChart3,
+  chart: BarChart,
   pie: PieChart,
 
   // Communication
@@ -209,7 +209,7 @@ export {
   DollarSign,
   TrendingUp,
   TrendingDown,
-  BarChart3,
+  BarChart,
   PieChart,
   Mail,
   Phone,

@@ -16,7 +16,7 @@ import {
   CheckCircle,
   ArrowLeft,
   Download,
-  BarChart3,
+  BarChart,
   PieChart,
   MapPin,
   Briefcase,
@@ -310,7 +310,7 @@ const WorkforceNeedAnalysisView: React.FC<WorkforceNeedAnalysisViewProps> = ({ i
               enhancedAnalysis.workload_analysis.current_ratio < 0.8 ? "bg-red-500" :
               enhancedAnalysis.workload_analysis.current_ratio > 1.2 ? "bg-blue-500" : "bg-green-500"
             )}>
-              <BarChart3 className="h-5 w-5 text-white" />
+              <BarChart className="h-5 w-5 text-white" />
             </div>
             <div>
               <p className="text-sm text-gray-600">Workload Status</p>

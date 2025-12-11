@@ -11,7 +11,7 @@ import {
   AlertCircle,
   CheckCircle,
   Clock,
-  BarChart3,
+  BarChart,
   DollarSign,
   Truck,
   FileCheck
@@ -113,7 +113,7 @@ const Overview = () => {
         { name: "Supplier Database", link: "/dashboard/procurement/supplier-database", icon: Users },
         { name: "Vendor Prequalification", link: "/dashboard/procurement/vendor-management/prequalification", icon: ClipboardList },
         { name: "EOI Management", link: "/dashboard/procurement/vendor-management/eoi", icon: FileText },
-        { name: "Vendor Performance", link: "/dashboard/procurement/vendor-performance", icon: BarChart3 }
+        { name: "Vendor Performance", link: "/dashboard/procurement/vendor-performance", icon: BarChart }
       ]
     },
     {
@@ -121,7 +121,7 @@ const Overview = () => {
       items: [
         { name: "Procurement Plan", link: "/dashboard/procurement/procurement-plan", icon: ClipboardList },
         { name: "Price Intelligence", link: "/dashboard/procurement/price-intelligence", icon: DollarSign },
-        { name: "Competitive Bid Analysis", link: "/dashboard/procurement/competitive-bid-analysis", icon: BarChart3 },
+        { name: "Competitive Bid Analysis", link: "/dashboard/procurement/competitive-bid-analysis", icon: BarChart },
         { name: "Procurement Reports", link: "/dashboard/procurement/procurement-report", icon: FileText }
       ]
     }
@@ -267,7 +267,7 @@ const Overview = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <BarChart3 className="h-5 w-5 text-blue-500" />
+              <BarChart className="h-5 w-5 text-blue-500" />
               Quick Stats
             </CardTitle>
             <CardDescription>At a glance overview</CardDescription>

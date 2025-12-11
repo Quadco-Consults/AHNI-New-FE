@@ -75,8 +75,23 @@ const useApiManager = <TData = unknown, TError = Error, TVariables = unknown>({
         method,
         isAuth,
         details,
-        baseURL: axiosInstance.defaults.baseURL
+        baseURL: axiosInstance.defaults.baseURL,
+        detailsType: typeof details,
+        detailsConstructor: details?.constructor?.name
       });
+
+      // Deep type checking for login data
+      if (details && typeof details === 'object') {
+        Object.entries(details).forEach(([key, value]) => {
+          console.log(`🔍 LOGIN FIELD DEBUG - ${key}:`, {
+            type: typeof value,
+            value: value,
+            constructor: value?.constructor?.name,
+            isString: typeof value === 'string',
+            isEmpty: value === '' || value === null || value === undefined
+          });
+        });
+      }
     }
 
     try {
@@ -94,6 +109,11 @@ const useApiManager = <TData = unknown, TError = Error, TVariables = unknown>({
 
       switch (method.toUpperCase()) {
         case "POST":
+          // For login, log the exact JSON being sent
+          if (endpoint === "auth/login/") {
+            console.log('🔍 LOGIN DEBUG - JSON being sent:', JSON.stringify(details, null, 2));
+            console.log('🔍 LOGIN DEBUG - Config:', config);
+          }
           response = await axiosInstance.post(endpoint, details, config);
           break;
         case "PUT":

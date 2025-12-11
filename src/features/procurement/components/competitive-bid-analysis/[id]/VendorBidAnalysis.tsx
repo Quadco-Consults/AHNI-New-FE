@@ -104,7 +104,7 @@ const VendorBidAnalysis = () => {
       submissionData,
       submissionResults: (submissionData as any)?.data?.data?.results || (submissionData as any)?.data?.results,
       submissionCount: ((submissionData as any)?.data?.data?.results || (submissionData as any)?.data?.results || []).length,
-      apiEndpoint: `/api/v1/procurements/manaul-bid/by-solicitation/${solicitationId}/`,
+      apiEndpoint: `/api/v1/procurements/manual-bid/by-solicitation/${solicitationId}/`,
       submissionError: submissionError?.message,
       allBidError: allBidError?.message,
     });

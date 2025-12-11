@@ -16,7 +16,7 @@ import {
 import {
   Download,
   FileText,
-  BarChart3,
+  BarChart,
   Calendar,
   Filter,
   TrendingUp,
@@ -247,7 +247,7 @@ export default function FinancialReportsPage() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card className="p-4">
           <div className="flex items-center space-x-2">
-            <BarChart3 className="text-blue-500" size={20} />
+            <BarChart className="text-blue-500" size={20} />
             <div>
               <p className="text-sm text-gray-600">Trial Balance</p>
               <p className="text-lg font-semibold">

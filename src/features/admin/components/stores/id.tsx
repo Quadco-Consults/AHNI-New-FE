@@ -35,7 +35,15 @@ interface StoreDetailPageProps {
 export default function StoreDetailPage({ storeId }: StoreDetailPageProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("overview");
-  const { data: storeData, isLoading } = useGetSingleStore(storeId);
+  const { data: storeData, isLoading, error: storeError } = useGetSingleStore(storeId);
+
+  // Debug store data fetch specifically for store ID 41
+  console.log("🔍 STORE DATA DEBUG - Store ID:", storeId);
+  console.log("🔍 Store Data Response:", storeData);
+  console.log("🔍 Store Data Loading:", isLoading);
+  console.log("🔍 Store Data Error:", storeError);
+  console.log("🔍 Store Data Path Check:", storeData?.data);
+  console.log("🔍 Store Data Success Check:", !!storeData?.data);
 
   // Enhanced debugging to identify duplicate store issue
   const { data: allItemsData, isLoading: inventoryLoading, error: inventoryError } = useQuery({

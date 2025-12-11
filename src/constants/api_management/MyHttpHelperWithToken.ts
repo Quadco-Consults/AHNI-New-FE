@@ -204,7 +204,13 @@ AxiosWithToken.interceptors.response.use(
         url: error.config?.url,
         method: error.config?.method,
         baseURL: error.config?.baseURL
-      }
+      },
+      // Additional debugging info
+      errorType: error.name,
+      stack: error.stack,
+      hasResponse: !!error.response,
+      hasRequest: !!error.request,
+      fullError: JSON.stringify(error, Object.getOwnPropertyNames(error))
     });
 
     // Special debugging for FormData upload errors

@@ -30,6 +30,36 @@ export default function LoginForm() {
   const { handleSubmit } = form;
 
   const onSubmit: SubmitHandler<TLoginFormValues> = async (data) => {
+    // Debug: Log form data before submission
+    console.log('🔍 FORM SUBMISSION DEBUG:', {
+      data,
+      types: {
+        email: typeof data.email,
+        password: typeof data.password
+      },
+      values: {
+        email: data.email,
+        passwordLength: data.password?.length
+      }
+    });
+
+    // Validate data types
+    if (typeof data.email !== 'string') {
+      console.error('❌ Email is not a string:', {
+        type: typeof data.email,
+        value: data.email,
+        constructor: (data.email as any)?.constructor?.name
+      });
+    }
+
+    if (typeof data.password !== 'string') {
+      console.error('❌ Password is not a string:', {
+        type: typeof data.password,
+        value: data.password,
+        constructor: (data.password as any)?.constructor?.name
+      });
+    }
+
     await login(data);
   };
 

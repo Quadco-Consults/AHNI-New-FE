@@ -24,7 +24,10 @@
       "Bash(pkill:*)",
       "Bash(yarn dev)",
       "WebSearch",
-      "Bash(npm start)"
+      "Bash(npm start)",
+      "Bash(sed:*)",
+      "Bash(find:*)",
+      "Bash(xargs -I {} sh -c 'echo \"\"\"\"=== {} ===\"\"\"\" && grep -n \"\"\"\"import.*from.*lucide-react\"\"\"\" \"\"\"\"{}\"\"\"\" && echo && grep -o \"\"\"\"\\<[A-Z][a-zA-Z0-9]*\\>\"\"\"\" \"\"\"\"{}\"\"\"\" | grep -E \"\"\"\"^[A-Z][a-zA-Z]*[0-9]*$\"\"\"\" | sort -u | head -10')"
     ],
     "deny": [],
     "ask": []

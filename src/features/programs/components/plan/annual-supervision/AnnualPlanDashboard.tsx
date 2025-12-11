@@ -19,7 +19,7 @@ import {
   Eye,
   Download,
   Upload,
-  BarChart3,
+  BarChart,
   AlertTriangle,
   FileText,
   Settings,
@@ -687,7 +687,7 @@ const AnnualPlanDashboard = ({ onCreateNew, onViewDetails, onUpload, onExport }:
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <BarChart3 className="h-5 w-5" />
+                <BarChart className="h-5 w-5" />
                 Quick Stats
               </CardTitle>
             </CardHeader>
@@ -819,7 +819,7 @@ const AnnualPlanDashboard = ({ onCreateNew, onViewDetails, onUpload, onExport }:
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <BarChart3 className="h-5 w-5" />
+                <BarChart className="h-5 w-5" />
                 Quarterly Progress
               </CardTitle>
             </CardHeader>

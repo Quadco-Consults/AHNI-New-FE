@@ -3,7 +3,8 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "components/ui/button";
-import { ClipboardCheck } from 'lucide-react';import { Icon } from "@iconify/react";
+import { ClipboardCheck } from 'lucide-react';
+import { Icon } from "@iconify/react";
 import { LoadingSpinner } from "components/Loading";
 // import { SolicitationResultsData } from "definations/procurement-types/solicitation";
 import DetailsContent from "./tab-contents/Details-content";

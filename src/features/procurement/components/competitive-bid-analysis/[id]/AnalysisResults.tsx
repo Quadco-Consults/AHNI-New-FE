@@ -6,12 +6,12 @@ import { Loading } from "components/Loading";
 import { Button } from "components/ui/button";
 import { Badge } from "components/ui/badge";
 import Card from "components/Card";
-import { FileText } from 'lucide-react';
+import { FileText, AlertTriangle, ClipboardCheck, CheckCircle, Download } from 'lucide-react';
 import { Icon } from "@iconify/react";
 import CbaAPI from "@/features/procurement/controllers/cbaController";
 import { toast } from "sonner";
 import { jsPDF } from "jspdf";
-import { autoTable } from "jspdf-autotable";
+import "jspdf-autotable";
 
 interface AnalysisResultsProps {
   cbaId?: string;
@@ -96,7 +96,7 @@ const AnalysisResults = ({ cbaId: propCbaId }: AnalysisResultsProps) => {
         ["Submitted At", result?.submitted_at ? new Date(result.submitted_at).toLocaleString() : "N/A"],
       ];
 
-      autoTable(doc, {
+      (doc as any).autoTable({
         startY: yPosition,
         head: [],
         body: summaryData,
@@ -147,7 +147,7 @@ const AnalysisResults = ({ cbaId: propCbaId }: AnalysisResultsProps) => {
           item.slice(0, 40) + (item.length > 40 ? "..." : ""),
         ]);
 
-        autoTable(doc, {
+        (doc as any).autoTable({
           startY: yPosition,
           head: [["#", "Item ID"]],
           body: itemsData,
@@ -222,47 +222,9 @@ const AnalysisResults = ({ cbaId: propCbaId }: AnalysisResultsProps) => {
 
   if (isLoading) return <Loading />;
 
-  // Handle case where analysis results don't exist yet (not an error, just no data)
-  if (!analysisData?.data && !error) {
-    return (
-      <Card className="p-8">
-        <div className="text-center py-12 bg-gradient-to-br from-yellow-50 to-amber-50 border-2 border-dashed border-yellow-300 rounded-xl">
-          <FileText size={16} />
-          <p className="text-yellow-800 font-semibold text-lg">No Analysis Results Yet</p>
-          <p className="text-yellow-600 text-sm mt-2">
-            The bid analysis has not been submitted. Please perform the vendor analysis first.
-          </p>
-        </div>
-      </Card>
-    );
-  }
-
-  // Only show error if there's an actual error AND it's not a "no data" scenario
-  if (error && !error.message.includes("undefined")) {
-    return (
-      <Card className="p-8">
-        <div className="text-center py-12">
-          <AlertTriangle size={16} />
-          <p className="text-red-700 font-semibold text-lg">Failed to load analysis results</p>
-          <p className="text-gray-600 text-sm mt-2">{error.message}</p>
-        </div>
-      </Card>
-    );
-  }
-
-  // If we still don't have data at this point, show the "no results" message
-  if (!analysisData?.data) {
-    return (
-      <Card className="p-8">
-        <div className="text-center py-12 bg-gradient-to-br from-yellow-50 to-amber-50 border-2 border-dashed border-yellow-300 rounded-xl">
-          <FileText size={16} />
-          <p className="text-yellow-800 font-semibold text-lg">No Analysis Results Yet</p>
-          <p className="text-yellow-600 text-sm mt-2">
-            The bid analysis has not been submitted. Please perform the vendor analysis first.
-          </p>
-        </div>
-      </Card>
-    );
+  // Don't render anything if there's no data or if there are errors
+  if (!analysisData?.data || error) {
+    return null;
   }
 
   const result = analysisData.data;

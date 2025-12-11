@@ -26,7 +26,7 @@ import { useForm } from "react-hook-form";
 
 import logoPng from "assets/imgs/logo.png";
 import { Input } from "components/ui/input";
-import { Search } from 'lucide-react';
+import { Search, Info, Edit, ClipboardList, Building, Inbox, CheckCircle, XCircle } from 'lucide-react';
 import { Icon } from "@iconify/react";
 import { LoadingSpinner } from "components/Loading";
 import { Checkbox } from "components/ui/checkbox";
@@ -271,7 +271,7 @@ const CreateCBA = () => {
       console.log("🔧 Setting solicitation from URL:", rfqId);
       form.setValue("solicitation", rfqId);
     }
-  }, [isEditMode, rfqId, form]);
+  }, [isEditMode, rfqId]);
 
   // Auto-populate assignee from purchase request (only in create mode)
   useEffect(() => {

@@ -30,7 +30,24 @@ export const useLogin = () => {
 
   const login = async (details: TLoginFormValues) => {
     try {
-      const response = await callApi(details);
+      // Safety net: Ensure data types are strings to prevent "Expected a string value" error
+      const sanitizedDetails = {
+        email: String(details.email || '').trim(),
+        password: String(details.password || '')
+      };
+
+      console.log('🔍 LOGIN SAFETY CHECK:', {
+        original: details,
+        sanitized: sanitizedDetails,
+        types: {
+          originalEmail: typeof details.email,
+          originalPassword: typeof details.password,
+          sanitizedEmail: typeof sanitizedDetails.email,
+          sanitizedPassword: typeof sanitizedDetails.password
+        }
+      });
+
+      const response = await callApi(sanitizedDetails);
 
       // Store in localStorage (for backward compatibility)
       if (response.data?.access_token) {
@@ -42,9 +59,9 @@ export const useLogin = () => {
             ...response.data.user,
             // Ensure we have the employee structure for department-based features
             employee: response.data.user?.employee || {
-              department: response.data.user?.department || null,
-              position: response.data.user?.position || null,
-              location: response.data.user?.location || null
+              department: response.data.user?.department || undefined,
+              position: response.data.user?.position || undefined,
+              location: response.data.user?.location || undefined
             },
             // Include permissions and roles from both sources
             permissions: response.data.permissions || response.data.user?.permissions || [],
@@ -82,9 +99,9 @@ export const useLogin = () => {
             ...response.data.user,
             // Ensure we have the employee structure for department-based features
             employee: response.data.user?.employee || {
-              department: response.data.user?.department || null,
-              position: response.data.user?.position || null,
-              location: response.data.user?.location || null
+              department: response.data.user?.department || undefined,
+              position: response.data.user?.position || undefined,
+              location: response.data.user?.location || undefined
             }
           },
           permissions: response.data.permissions || response.data.user?.permissions || [], // Try multiple locations

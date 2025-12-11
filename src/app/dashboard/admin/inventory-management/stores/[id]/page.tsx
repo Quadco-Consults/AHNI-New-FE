@@ -1,9 +1,10 @@
 import StoreDetailPage from "@/features/admin/components/stores/id";
 
-export default function StoreDetailRoutePage({
+export default async function StoreDetailRoutePage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  return <StoreDetailPage storeId={params.id} />;
+  const { id } = await params;
+  return <StoreDetailPage storeId={id} />;
 }

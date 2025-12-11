@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle, Loader2 } from 'lucide-react';
+import { CheckCircle, Loader2, Users, Clock, Info, Mail } from 'lucide-react';
 import { Icon } from "@iconify/react";
 import Card from "components/Card";
 import { Badge } from "components/ui/badge";

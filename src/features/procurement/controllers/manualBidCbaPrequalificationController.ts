@@ -12,7 +12,7 @@ import {
 import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
 
 const BASE_URL = "procurements/manual-bid-cba-prequalification/"; // FIXED SPELLING
-const SOLICITATION_URL = "/procurements/manaul-bid/by-solicitation/"; // Note: Backend has typo "manaul" instead of "manual"
+const SOLICITATION_URL = "/procurements/manual-bid/by-solicitation/"; // Updated to correct spelling after backend fix
 
 // ===== MANUAL BID CBA PREQUALIFICATION HOOKS =====
 
@@ -134,7 +134,7 @@ export const useCreateVendorBidAnalysis = () => {
     z.infer<typeof ManualBidCbaPrequalificationSchema>
   >({
     endpoint:
-      "/procurements/manaul-bid-cba-prequalification/8171e801-1185-4981-af1a-b67d20226c5f/",
+      "/procurements/manual-bid-cba-prequalification/8171e801-1185-4981-af1a-b67d20226c5f/",
     queryKey: ["manual-bid-cba-prequalifications"],
     isAuth: true,
     method: "POST",

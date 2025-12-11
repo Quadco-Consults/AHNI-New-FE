@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import {
   Globe,
   Shield,
-  BarChart3,
+  BarChart,
   ArrowLeft,
   Building2,
   Users,
@@ -209,7 +209,7 @@ export default function AboutPage() {
 
                 <div className="text-center group">
                   <div className="bg-gradient-to-br from-primary to-primary/80 rounded-full w-32 h-32 flex items-center justify-center mx-auto mb-8 shadow-2xl group-hover:scale-110 transition-all duration-300">
-                    <BarChart3 className="h-16 w-16 text-white" />
+                    <BarChart className="h-16 w-16 text-white" />
                   </div>
                   <h3 className="font-bold text-3xl mb-6 text-foreground tracking-tight">Sustainable Development</h3>
                   <p className="text-muted-foreground font-medium leading-relaxed text-lg">

@@ -106,20 +106,42 @@ export const useGetSingleConsumable = (id: string, enabled: boolean = true) => {
   });
 };
 
-// Get All Consumable Stock Cards
+// Get All Consumable Stock Cards (Transaction History Only)
 export const useGetAllConsumableStockCards = (id: string, enabled: boolean = true) => {
   return useQuery<TResponse<any>>({
     queryKey: ["consumable-stock-cards", id],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get(`/config/items/${id}/stock-cards/`, {
-          params: {
-            expand: 'item_detail,created_by,updated_by,store,purchase_order'
-          }
+        // Get stock movements (transaction history) - this is what a stock card should show
+        const params = {
+          item: id,
+          expand: 'item_detail,created_by,updated_by,store,purchase_order',
+          ordering: '-created_datetime' // Show latest transactions first
+        };
+
+        console.log("🔍 Stock Movements API Request:", {
+          endpoint: '/stock-movements/',
+          params,
+          itemId: id
         });
+
+        const response = await AxiosWithToken.get(`/stock-movements/`, { params });
+
+        console.log("🔍 Stock Movements API Response:", {
+          status: response.status,
+          dataStructure: response.data,
+          resultsCount: response.data?.data?.data?.results?.length || response.data?.data?.results?.length || 0
+        });
+
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
+        console.error("Stock movements API error:", {
+          error,
+          message: (axiosError.response?.data as any)?.message,
+          status: axiosError.response?.status,
+          endpoint: `/stock-movements/?item=${id}`
+        });
         throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
       }
     },

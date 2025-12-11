@@ -31,7 +31,7 @@ import {
   Clock,
   TrendingUp,
   TrendingDown,
-  BarChart3,
+  BarChart,
   AlertCircle,
   AlertTriangle,
   Lightbulb
@@ -708,7 +708,7 @@ const ItemDetailsContent = ({ itemData }: { itemData: any }) => {
                       <span>Lowest: {formatCurrency(itemData?.min_price)}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <BarChart3 size={16} />
+                      <BarChart size={16} />
                       <span>Market Avg: {formatCurrency(itemData?.avg_price)}</span>
                     </div>
                   </div>

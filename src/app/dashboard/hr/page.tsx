@@ -11,7 +11,7 @@ import {
   AlertCircle,
   CheckCircle,
   Clock,
-  BarChart3,
+  BarChart,
   Briefcase,
   Award,
   DollarSign,
@@ -286,7 +286,7 @@ export default function HROverviewPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <BarChart3 className="h-5 w-5 text-blue-500" />
+              <BarChart className="h-5 w-5 text-blue-500" />
               Quick Stats
             </CardTitle>
             <CardDescription>At a glance overview</CardDescription>

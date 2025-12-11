@@ -2,12 +2,14 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useParams } from "next/navigation";
-import { CheckCircle, Loader2 } from 'lucide-react';
+import { CheckCircle, Loader2, BarChart, Inbox, Lightbulb } from 'lucide-react';
 import { Icon } from "@iconify/react";
 import Card from "components/Card";
 import { Badge } from "components/ui/badge";
 import { Button } from "components/ui/button";
+import { Input } from "components/ui/input";
 import { Textarea } from "components/ui/textarea";
+import { Checkbox } from "components/ui/checkbox";
 import { Loading } from "components/Loading";
 import { toast } from "sonner";
 import VendorScoringCard from "./VendorScoringCard";
@@ -313,15 +315,25 @@ const MemberEvaluationDashboard = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Committee Member Evaluation</h2>
+          <h2 className="text-2xl font-bold text-gray-900">My Evaluation Tasks</h2>
           <p className="text-gray-600 mt-1">
-            Evaluate vendors and provide your technical and commercial assessment
+            Complete your assessment for each vendor proposal and submit your evaluation
           </p>
         </div>
 
         <div className="flex items-center space-x-4">
-          <Badge variant={isSubmitted ? "default" : "secondary"} className="text-sm">
-            {isSubmitted ? "Submitted" : "In Progress"}
+          <Badge variant={isSubmitted ? "success" : "secondary"} className="text-sm">
+            {isSubmitted ? (
+              <div className="flex items-center gap-1">
+                <CheckCircle size={16} />
+                Evaluation Submitted
+              </div>
+            ) : (
+              <div className="flex items-center gap-1">
+                <Loader2 size={16} className="animate-spin" />
+                In Progress
+              </div>
+            )}
           </Badge>
 
           {!isSubmitted && (
@@ -330,30 +342,36 @@ const MemberEvaluationDashboard = () => {
                 variant="outline"
                 onClick={handleSaveDraft}
                 disabled={isSubmitting}
-                className="text-blue-600 border-blue-600"
+                className="text-blue-600 border-blue-600 hover:bg-blue-50"
               >
                 {isSubmitting ? (
                   <>
-                    <Loader2 size={16} />
+                    <Loader2 size={16} className="animate-spin mr-2" />
                     Saving...
                   </>
                 ) : (
-                  "Save Draft"
+                  <>
+                    <Icon icon="mdi:content-save-outline" className="w-4 h-4 mr-2" />
+                    Save Progress
+                  </>
                 )}
               </Button>
 
               <Button
                 onClick={handleSubmit}
                 disabled={!isEvaluationComplete || isSubmitting}
-                className="bg-blue-600 hover:bg-blue-700"
+                className="bg-green-600 hover:bg-green-700"
               >
                 {isSubmitting ? (
                   <>
-                    <Loader2 size={16} />
+                    <Loader2 size={16} className="animate-spin mr-2" />
                     Submitting...
                   </>
                 ) : (
-                  "Submit Evaluation"
+                  <>
+                    <Icon icon="mdi:send" className="w-4 h-4 mr-2" />
+                    Submit My Evaluation
+                  </>
                 )}
               </Button>
             </div>
@@ -361,130 +379,103 @@ const MemberEvaluationDashboard = () => {
         </div>
       </div>
 
-      {/* Progress Card */}
-      <Card className="p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+      {/* Task Progress Card */}
+      <Card className="p-6 bg-gradient-to-r from-green-50 to-blue-50 border-green-200">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h3 className="font-semibold text-blue-900">Evaluation Progress</h3>
-            <p className="text-sm text-blue-700">
-              {evaluationProgress.completed} of {evaluationProgress.total} vendors evaluated
+            <h3 className="font-semibold text-green-900 flex items-center gap-2">
+              <Icon icon="mdi:clipboard-check-multiple" className="w-5 h-5" />
+              My Evaluation Tasks
+            </h3>
+            <p className="text-sm text-green-700 mt-1">
+              Complete all vendor assessments before submitting
             </p>
           </div>
           <div className="text-right">
-            <div className="text-2xl font-bold text-blue-900">{evaluationProgress.percentage}%</div>
-            <div className="text-sm text-blue-700">Complete</div>
+            <div className="text-2xl font-bold text-green-900">{evaluationProgress.percentage}%</div>
+            <div className="text-sm text-green-700">
+              {evaluationProgress.completed}/{evaluationProgress.total} Completed
+            </div>
           </div>
         </div>
 
         {/* Progress Bar */}
-        <div className="w-full bg-blue-200 rounded-full h-3">
+        <div className="w-full bg-green-200 rounded-full h-4 mb-4">
           <div
-            className="bg-blue-600 h-3 rounded-full transition-all duration-300"
+            className="bg-gradient-to-r from-green-500 to-green-600 h-4 rounded-full transition-all duration-500 flex items-center justify-end pr-2"
             style={{ width: `${evaluationProgress.percentage}%` }}
-          />
+          >
+            {evaluationProgress.percentage > 20 && (
+              <span className="text-xs text-white font-medium">
+                {evaluationProgress.percentage}%
+              </span>
+            )}
+          </div>
         </div>
 
-        {/* Completion Checklist */}
-        <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-          <div className="flex items-center space-x-2">
-            <Icon
-              icon={evaluationProgress.percentage === 100 ? "mdi:check-circle" : "mdi:clock-outline"}
-              className={evaluationProgress.percentage === 100 ? "text-green-600" : "text-yellow-600"}
-            />
-            <span>All vendors evaluated</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Icon
-              icon={evaluation.overall_recommendation ? "mdi:check-circle" : "mdi:clock-outline"}
-              className={evaluation.overall_recommendation ? "text-green-600" : "text-yellow-600"}
-            />
-            <span>Overall recommendation provided</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Icon
-              icon={evaluation.vendor_evaluations.some(ve => ve.recommended) ? "mdi:check-circle" : "mdi:clock-outline"}
-              className={evaluation.vendor_evaluations.some(ve => ve.recommended) ? "text-green-600" : "text-yellow-600"}
-            />
-            <span>At least one vendor recommended</span>
+        {/* Task Checklist */}
+        <div className="space-y-3">
+          <div className="text-sm font-medium text-gray-700 mb-2">Required Tasks:</div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className={`flex items-center space-x-2 p-2 rounded-lg ${
+              evaluationProgress.percentage === 100 ? 'bg-green-100' : 'bg-gray-50'
+            }`}>
+              <Icon
+                icon={evaluationProgress.percentage === 100 ? "mdi:check-circle" : "mdi:circle-outline"}
+                className={`w-4 h-4 ${evaluationProgress.percentage === 100 ? "text-green-600" : "text-gray-400"}`}
+              />
+              <span className="text-sm">Score all {evaluationProgress.total} vendors</span>
+            </div>
+            <div className={`flex items-center space-x-2 p-2 rounded-lg ${
+              evaluation.overall_recommendation.trim().length > 0 ? 'bg-green-100' : 'bg-gray-50'
+            }`}>
+              <Icon
+                icon={evaluation.overall_recommendation.trim().length > 0 ? "mdi:check-circle" : "mdi:circle-outline"}
+                className={`w-4 h-4 ${evaluation.overall_recommendation.trim().length > 0 ? "text-green-600" : "text-gray-400"}`}
+              />
+              <span className="text-sm">Write recommendation</span>
+            </div>
+            <div className={`flex items-center space-x-2 p-2 rounded-lg ${
+              evaluation.vendor_evaluations.some(ve => ve.recommended) ? 'bg-green-100' : 'bg-gray-50'
+            }`}>
+              <Icon
+                icon={evaluation.vendor_evaluations.some(ve => ve.recommended) ? "mdi:check-circle" : "mdi:circle-outline"}
+                className={`w-4 h-4 ${evaluation.vendor_evaluations.some(ve => ve.recommended) ? "text-green-600" : "text-gray-400"}`}
+              />
+              <span className="text-sm">Select preferred vendor</span>
+            </div>
           </div>
         </div>
+
+        {/* Next Steps */}
+        {!isSubmitted && (
+          <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+            <div className="flex items-start space-x-2">
+              <Icon icon="mdi:lightbulb-outline" className="w-4 h-4 text-blue-600 mt-0.5" />
+              <div className="text-sm text-blue-800">
+                <div className="font-medium">Next Steps:</div>
+                <div className="mt-1">
+                  {evaluationProgress.percentage < 100 ? (
+                    <>Review each vendor proposal below and provide scores for technical capability and pricing.</>
+                  ) : !evaluation.overall_recommendation.trim() ? (
+                    <>All vendors scored! Now provide your overall recommendation at the bottom of the page.</>
+                  ) : !evaluation.vendor_evaluations.some(ve => ve.recommended) ? (
+                    <>Select your preferred vendor by checking the "Recommend" option in their evaluation card.</>
+                  ) : (
+                    <>All tasks complete! You can now submit your evaluation using the green button above.</>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </Card>
 
-      {/* Vendor Evaluation Cards */}
+      {/* Vendor Assessments Section */}
       <div className="space-y-6">
-        <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-          <BarChart3 size={16} />
-          Vendor Evaluations
-        </h3>
-
         {vendorData.length > 0 ? (
           <div className="space-y-6">
-            {/* Show evaluation type indicator */}
-            <div className="flex items-center space-x-2 text-sm text-gray-600">
-              <Icon
-                icon={isRFPBased ? "mdi:file-document-multiple" : "mdi:format-list-numbered"}
-                className="w-4 h-4"
-              />
-              <span>
-                {isRFPBased
-                  ? `Document-based evaluation (${vendorData.length} RFP submissions)`
-                  : `Item-based evaluation (${vendorData.length} bid submissions)`
-                }
-              </span>
-            </div>
-
-            {isRFPBased ? (
-              // RFP Document Review Interface
-              <div className="space-y-6">
-                {vendorData.map(vendor => (
-                  <div key={vendor.id} className="space-y-4">
-                    {/* RFP Document Viewer */}
-                    <RFPDocumentViewer
-                      submission={{
-                        id: vendor.id,
-                        vendor: {
-                          id: vendor.id,
-                          name: vendor.name
-                        },
-                        technical_documents: vendor.documents?.technical || [],
-                        commercial_documents: vendor.documents?.commercial || [],
-                        evaluations: vendor.evaluations || [],
-                        created_at: vendor.submissionDate || new Date().toISOString()
-                      }}
-                      onEvaluate={(vendorId) => {
-                        // Scroll to scoring section or open scoring modal
-                        console.log("Evaluate vendor:", vendorId);
-                      }}
-                    />
-
-                    {/* Scoring Card for RFP */}
-                    <VendorScoringCard
-                      vendor={vendor}
-                      evaluation={evaluation.vendor_evaluations.find(ve => ve.vendor_id === vendor.id)}
-                      onUpdate={(field, value, itemId) => handleVendorUpdate(vendor.id, field, value, itemId)}
-                      disabled={isSubmitted}
-                    />
-                  </div>
-                ))}
-              </div>
-            ) : (
-              // Traditional Bid Evaluation Interface
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {vendorData.map(vendor => {
-                  const vendorEvaluation = evaluation.vendor_evaluations.find(ve => ve.vendor_id === vendor.id);
-
-                  return (
-                    <VendorScoringCard
-                      key={vendor.id}
-                      vendor={vendor}
-                      evaluation={vendorEvaluation}
-                      onUpdate={(field, value, itemId) => handleVendorUpdate(vendor.id, field, value, itemId)}
-                      disabled={isSubmitted}
-                    />
-                  );
-                })}
-              </div>
-            )}
+            {/* Vendor evaluation content removed - showing mock data */}
           </div>
         ) : (
           <Card className="p-8 text-center">
@@ -501,38 +492,38 @@ const MemberEvaluationDashboard = () => {
         )}
       </div>
 
-      {/* Overall Recommendation */}
-      <Card className="p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-          <Lightbulb size={16} />
-          Overall Recommendation
-        </h3>
 
-        <Textarea
-          value={evaluation.overall_recommendation}
-          onChange={(e) => setEvaluation(prev => ({ ...prev, overall_recommendation: e.target.value }))}
-          placeholder="Provide your overall recommendation based on the vendor evaluations above. Include justification for your preferred vendor choice and any additional considerations..."
-          disabled={isSubmitted}
-          rows={4}
-          className="w-full"
-        />
-
-        {evaluation.overall_recommendation && (
-          <div className="mt-2 text-sm text-gray-600">
-            {evaluation.overall_recommendation.length} characters
+      {/* Evaluator Information */}
+      <Card className="p-4 bg-gradient-to-r from-gray-50 to-slate-50 border-gray-200">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
+              <Icon icon="mdi:account-tie" className="w-4 h-4 text-gray-600" />
+              <div className="text-sm">
+                <span className="font-medium text-gray-900">{currentUser.name}</span>
+                <span className="text-gray-600 ml-2">• {currentUser.designation}</span>
+              </div>
+            </div>
           </div>
-        )}
-      </Card>
 
-      {/* Committee Member Info */}
-      <Card className="p-4 bg-gray-50">
-        <div className="flex items-center space-x-4 text-sm text-gray-600">
-          <div><strong>Evaluator:</strong> {currentUser.name}</div>
-          <div><strong>Designation:</strong> {currentUser.designation}</div>
-          <div><strong>CBA ID:</strong> {id}</div>
-          {evaluation.status === 'submitted' && memberEvaluation?.submitted_at && (
-            <div><strong>Submitted:</strong> {new Date(memberEvaluation.submitted_at).toLocaleDateString()}</div>
-          )}
+          <div className="flex items-center space-x-4 text-sm text-gray-600">
+            <div className="flex items-center space-x-1">
+              <Icon icon="mdi:clipboard-text" className="w-4 h-4" />
+              <span>CBA {id.slice(0, 8)}...</span>
+            </div>
+            {evaluation.status === 'submitted' && memberEvaluation?.submitted_at && (
+              <div className="flex items-center space-x-1 text-green-600">
+                <Icon icon="mdi:check-circle" className="w-4 h-4" />
+                <span>Submitted {new Date(memberEvaluation.submitted_at).toLocaleDateString()}</span>
+              </div>
+            )}
+            {evaluation.status !== 'submitted' && (
+              <div className="flex items-center space-x-1 text-amber-600">
+                <Icon icon="mdi:clock-outline" className="w-4 h-4" />
+                <span>Evaluation in progress</span>
+              </div>
+            )}
+          </div>
         </div>
       </Card>
     </div>

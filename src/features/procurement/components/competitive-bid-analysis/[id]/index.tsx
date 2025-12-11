@@ -8,7 +8,7 @@ import BreadcrumbCard from "components/Breadcrumb";
 import CbaAPI from "@/features/procurement/controllers/cbaController";
 import Card from "components/Card";
 import { Badge } from "components/ui/badge";
-import { CheckCircle2, FileText } from 'lucide-react';
+import { CheckCircle2, FileText, BarChart, Briefcase, CalendarDays, Layers, ClipboardList, ClipboardCheck, Eye, ShieldCheck, CheckCircle, Package, Users, User, UserCheck, Lock } from 'lucide-react';
 import { Icon } from "@iconify/react";
 import { SolicitationItems } from "definations/procurement-types/solicitation";
 import GoBack from "components/GoBack";
@@ -53,6 +53,16 @@ const generatePath = (route: string, params?: Record<string, any>): string => {
     });
   }
   return path;
+};
+
+const getStatusVariant = (status: string) => {
+  switch (status) {
+    case 'APPROVED': return 'default';
+    case 'REJECTED': return 'destructive';
+    case 'PENDING': return 'secondary';
+    case 'COMPLETED': return 'outline';
+    default: return 'secondary';
+  }
 };
 
 const CompetitiveBidAnalysisDetail = () => {
@@ -188,130 +198,231 @@ const CompetitiveBidAnalysisDetail = () => {
     ];
 
     return (
-        <div className="space-y-6 pb-8">
-            <BreadcrumbCard list={breadcrumbs} />
-
-            <div className="flex items-center justify-between">
-                <GoBack />
-                <Link href={generatePath(RouteEnum.PROCUREMENT_CBA_REPORT, { id: id as string })}>
-                    <Button variant="outline" size="sm" className="gap-2">
-                        <FileText size={18} />
-                        Download Report
-                    </Button>
-                </Link>
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+            {/* Navigation Header */}
+            <div className="bg-white shadow-sm border-b sticky top-0 z-50">
+                <div className="max-w-7xl mx-auto px-4 py-4">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-4">
+                            <GoBack />
+                            <div className="h-8 w-px bg-gray-300" />
+                            <div>
+                                <h1 className="text-xl font-bold text-gray-900">Competitive Bid Analysis</h1>
+                                <p className="text-sm text-gray-500">Analysis ID: {(id as string).slice(0, 13)}...</p>
+                            </div>
+                        </div>
+                        <div className="flex items-center space-x-3">
+                            <Badge variant={getStatusVariant(data?.data?.status) as any} className="px-4 py-2 text-sm font-medium">
+                                {data?.data?.status || 'PENDING'}
+                            </Badge>
+                            <Link href={generatePath(RouteEnum.PROCUREMENT_CBA_REPORT, { id: id as string })}>
+                                <Button variant="outline" className="gap-2 hover:bg-blue-50">
+                                    <FileText size={18} />
+                                    Download Report
+                                </Button>
+                            </Link>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            {/* Hero Header Section */}
-            <div className="bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 rounded-xl p-8 text-white shadow-lg">
-                <div className="flex justify-between items-start mb-6">
-                    <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-3">
-                            <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
-                                <BarChart3 size={16} />
-                            </div>
-                            <div>
-                                <h1 className="text-3xl font-bold">
-                                    {isCommitteeCBA
-                                        ? 'Committee-Based CBA Analysis'
-                                        : (data?.data?.title || 'Competitive Bid Analysis')
-                                    }
-                                </h1>
-                                <p className="text-blue-100 text-sm mt-1">
-                                    Analysis ID: {(id as string).slice(0, 8)}...
-                                    {isCommitteeCBA && (
-                                        <span className="ml-2 bg-white/20 px-2 py-1 rounded text-xs">
-                                            Committee Evaluation
-                                        </span>
-                                    )}
-                                </p>
+            {/* Main Content */}
+            <div className="max-w-7xl mx-auto px-4 py-6 space-y-8">
+
+                {/* Project Overview Cards */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    {/* Main CBA Info */}
+                    <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 border-b">
+                            <div className="flex items-start justify-between">
+                                <div className="flex items-center space-x-4">
+                                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                        <BarChart size={24} className="text-blue-600" />
+                                    </div>
+                                    <div>
+                                        <h2 className="text-2xl font-bold text-gray-900">
+                                            {isCommitteeCBA ? 'Committee-Based Analysis' : (data?.data?.title || 'Competitive Bid Analysis')}
+                                        </h2>
+                                        <p className="text-gray-600 text-sm mt-1">
+                                            {isCommitteeCBA && 'Collaborative committee evaluation process'}
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        <div className="flex flex-wrap items-center gap-4 mt-4">
-                            <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg">
-                                <FileText size={18} />
-                                <span className="text-sm">RFQ: {rfqData?.data?.rfq_id || 'N/A'}</span>
-                            </div>
-                            <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg">
-                                <Briefcase size={16} />
-                                <span className="text-sm">{data?.data?.cba_type || 'Standard'}</span>
-                            </div>
-                            <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg">
-                                <Calendar size={16} />
-                                <span className="text-sm">{data?.data?.cba_date ? new Date(data.data.cba_date).toLocaleDateString() : 'Date Not Set'}</span>
-                            </div>
-                            {data?.data?.lot && (
-                                <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-lg">
-                                    <Layers size={16} />
-                                    <span className="text-sm">Lot: {data.data.lot}</span>
+                        <div className="p-6 space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-3">
+                                    <div className="flex items-center justify-between py-2 border-b border-gray-100">
+                                        <span className="text-sm font-medium text-gray-600">RFQ ID</span>
+                                        <span className="text-sm text-gray-900 font-mono">{rfqData?.data?.rfq_id || 'N/A'}</span>
+                                    </div>
+                                    <div className="flex items-center justify-between py-2 border-b border-gray-100">
+                                        <span className="text-sm font-medium text-gray-600">CBA Type</span>
+                                        <span className="text-sm text-gray-900">{data?.data?.cba_type || 'Standard'}</span>
+                                    </div>
+                                    <div className="flex items-center justify-between py-2">
+                                        <span className="text-sm font-medium text-gray-600">Analysis Date</span>
+                                        <span className="text-sm text-gray-900">
+                                            {data?.data?.cba_date ? new Date(data.data.cba_date).toLocaleDateString() : 'Not Set'}
+                                        </span>
+                                    </div>
                                 </div>
-                            )}
+                                <div className="space-y-3">
+                                    <div className="flex items-center justify-between py-2 border-b border-gray-100">
+                                        <span className="text-sm font-medium text-gray-600">Items Count</span>
+                                        <span className="text-sm text-gray-900 font-semibold">
+                                            {rfqData?.data?.solicitation_items?.length || 0}
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center justify-between py-2 border-b border-gray-100">
+                                        <span className="text-sm font-medium text-gray-600">Submissions</span>
+                                        <span className="text-sm text-gray-900 font-semibold">
+                                            {submissionsData?.data?.data?.results?.length || 0}
+                                        </span>
+                                    </div>
+                                    {data?.data?.lot && (
+                                        <div className="flex items-center justify-between py-2">
+                                            <span className="text-sm font-medium text-gray-600">Lot</span>
+                                            <span className="text-sm text-gray-900">{data.data.lot}</span>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <Badge
-                        className={cn(
-                            "px-4 py-2 text-base font-semibold shadow-lg",
-                            data?.data?.status === "APPROVED" && "bg-green-500 text-white hover:bg-green-600",
-                            data?.data?.status === "REJECTED" && "bg-red-500 text-white hover:bg-red-600",
-                            data?.data?.status === "PENDING" && "bg-amber-500 text-white hover:bg-amber-600",
-                            data?.data?.status === "COMPLETED" && "bg-blue-500 text-white hover:bg-blue-600"
+                    {/* Quick Stats Sidebar */}
+                    <div className="space-y-4">
+                        {isCommitteeCBA && memberParticipation && (
+                            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                    <Users size={20} className="mr-2 text-blue-600" />
+                                    Committee Progress
+                                </h3>
+                                <div className="space-y-4">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-sm text-gray-600">Completion Rate</span>
+                                        <span className="text-lg font-bold text-green-600">
+                                            {Math.round(((memberParticipation?.submitted_members?.length || 0) / (memberParticipation?.total_members || 1)) * 100)}%
+                                        </span>
+                                    </div>
+                                    <div className="w-full bg-gray-200 rounded-full h-2">
+                                        <div
+                                            className="bg-green-500 h-2 rounded-full transition-all duration-300"
+                                            style={{
+                                                width: `${Math.round(((memberParticipation?.submitted_members?.length || 0) / (memberParticipation?.total_members || 1)) * 100)}%`
+                                            }}
+                                        ></div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-3 mt-4">
+                                        <div className="text-center p-3 bg-green-50 rounded-lg">
+                                            <div className="text-xl font-bold text-green-600">
+                                                {memberParticipation?.submitted_members?.length || 0}
+                                            </div>
+                                            <div className="text-xs text-gray-600">Submitted</div>
+                                        </div>
+                                        <div className="text-center p-3 bg-yellow-50 rounded-lg">
+                                            <div className="text-xl font-bold text-yellow-600">
+                                                {memberParticipation?.pending_members?.length || 0}
+                                            </div>
+                                            <div className="text-xs text-gray-600">Pending</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         )}
-                    >
-                        <CheckCircle2 size={16} />
-                        {data?.data?.status || 'DRAFT'}
-                    </Badge>
+
+                        {/* Status Card */}
+                        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                <CheckCircle2 size={20} className="mr-2 text-blue-600" />
+                                Current Status
+                            </h3>
+                            <div className="space-y-4">
+                                <div className="text-center">
+                                    <Badge variant={getStatusVariant(data?.data?.status) as any} className="px-4 py-2 text-sm">
+                                        {data?.data?.status || 'PENDING'}
+                                    </Badge>
+                                </div>
+                                <div className="text-xs text-gray-500 text-center">
+                                    Last updated: {data?.data?.updated_at ? new Date(data.data.updated_at).toLocaleDateString() : 'N/A'}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                {data?.data?.remarks && (
-                    <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20">
-                        <div className="flex items-start gap-2">
-                            <ClipboardList size={16} />
-                            <div>
-                                <p className="text-xs text-blue-200 font-semibold mb-1">Remarks</p>
-                                <p className="text-sm text-white">{data.data.remarks}</p>
-                            </div>
-                        </div>
-                    </div>
-                )}
-            </div>
 
-            {/* Committee Participation Banner - Only for Committee CBAs */}
-            {isCommitteeCBA && (
-                <CommitteeParticipationBanner
-                    memberParticipation={memberParticipation}
-                    allSubmitted={allMembersSubmitted}
-                    onSendReminders={handleSendReminders}
-                />
-            )}
 
             {/* Committee Evaluation Tabs - Only for Committee CBAs */}
             {isCommitteeCBA && (
                 <Tabs defaultValue={isCommitteeMember ? "my-evaluation" : "committee-overview"} className="space-y-6">
                     <TabsList className="grid w-full grid-cols-4">
                         {isCommitteeMember && (
-                            <TabsTrigger value="my-evaluation">My Evaluation</TabsTrigger>
+                            <TabsTrigger value="my-evaluation">
+                                <div className="flex items-center gap-2">
+                                    <ClipboardCheck size={16} />
+                                    My Tasks
+                                </div>
+                            </TabsTrigger>
                         )}
-                        <TabsTrigger value="committee-overview">Committee Overview</TabsTrigger>
+                        <TabsTrigger value="committee-overview">
+                            <div className="flex items-center gap-2">
+                                <Users size={16} />
+                                Team Status
+                            </div>
+                        </TabsTrigger>
                         <TabsTrigger
                             value="consensus-analysis"
                             disabled={!allMembersSubmitted}
                             className="disabled:opacity-50"
                         >
-                            Consensus Analysis
+                            <div className="flex items-center gap-2">
+                                <BarChart size={16} />
+                                Analysis
+                            </div>
                         </TabsTrigger>
                         <TabsTrigger
                             value="final-results"
                             disabled={!allMembersSubmitted}
                             className="disabled:opacity-50"
                         >
-                            Final Results
+                            <div className="flex items-center gap-2">
+                                <CheckCircle size={16} />
+                                Results
+                            </div>
                         </TabsTrigger>
                     </TabsList>
 
                     {/* Individual Member Evaluation Tab */}
                     {isCommitteeMember && (
                         <TabsContent value="my-evaluation" className="space-y-6">
+                            {/* Header Card for Committee Member */}
+                            <Card className="p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-2 bg-blue-100 rounded-lg">
+                                            <User className="text-blue-600" size={24} />
+                                        </div>
+                                        <div>
+                                            <h3 className="text-lg font-semibold text-gray-900">
+                                                Your Committee Evaluation Tasks
+                                            </h3>
+                                            <p className="text-sm text-gray-600 mt-1">
+                                                Review vendors and provide your evaluation for: <span className="font-medium">{data?.data?.solicitation_title}</span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <Badge variant="outline" className="text-blue-700 border-blue-300">
+                                            Committee Member
+                                        </Badge>
+                                    </div>
+                                </div>
+                            </Card>
+
                             <MemberEvaluationDashboard />
                         </TabsContent>
                     )}
@@ -447,403 +558,98 @@ const CompetitiveBidAnalysisDetail = () => {
                 </Tabs>
             )}
 
-            {/* Quick Actions Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Bid Analysis Action */}
-                <Card className="p-6 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200 hover:shadow-lg transition-shadow">
-                    <div className="flex items-start gap-4">
-                        <div className="w-14 h-14 bg-green-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
-                            <BarChart3 size={16} />
-                        </div>
-                        <div className="flex-1">
-                            <h3 className="text-lg font-bold text-gray-900 mb-2">Bid Analysis & Selection</h3>
-                            <p className="text-sm text-gray-600 mb-4">
-                                Compare vendor quotes, evaluate bids, and select winning proposals
-                            </p>
-                            <Link
-                                href={`/dashboard/procurement/competitive-bid-analysis/${id}/vendor-analysis?id=${typeof data?.data?.solicitation === 'object' ? (data?.data?.solicitation as any)?.id : data?.data?.solicitation}&cba=${id}`}
-                            >
-                                <Button className="w-full bg-green-600 hover:bg-green-700 text-white shadow-md">
-                                    <BarChart3 size={16} />
-                                    Perform Analysis
-                                </Button>
-                            </Link>
-                        </div>
-                    </div>
-                </Card>
 
-                {/* View Analysis Results */}
-                <Card className="p-6 bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200 hover:shadow-lg transition-shadow">
-                    <div className="flex items-start gap-4">
-                        <div className="w-14 h-14 bg-blue-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
-                            <ClipboardCheck size={16} />
-                        </div>
-                        <div className="flex-1">
-                            <h3 className="text-lg font-bold text-gray-900 mb-2">View Analysis Results</h3>
-                            <p className="text-sm text-gray-600 mb-4">
-                                Review submitted analysis results and award details
-                            </p>
-                            <Link
-                                href={`/dashboard/procurement/competitive-bid-analysis/${id}/analysis-results?id=${typeof data?.data?.solicitation === 'object' ? (data?.data?.solicitation as any)?.id : data?.data?.solicitation}&cba=${id}`}
-                            >
-                                <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white shadow-md">
-                                    <Eye size={16} />
-                                    View Results
-                                </Button>
-                            </Link>
-                        </div>
-                    </div>
-                </Card>
-
-                {/* Approval Workflow Action */}
-                <Card className="p-6 bg-gradient-to-br from-purple-50 to-violet-50 border-purple-200 hover:shadow-lg transition-shadow">
-                    <div className="flex items-start gap-4">
-                        <div className="w-14 h-14 bg-purple-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
-                            <ShieldCheck size={16} />
-                        </div>
-                        <div className="flex-1">
-                            <h3 className="text-lg font-bold text-gray-900 mb-2">Approval Workflow</h3>
-                            <p className="text-sm text-gray-600 mb-2">
-                                3-step approval process
-                            </p>
-
-                            {/* Mini Progress Indicator */}
-                            <div className="flex items-center gap-2 mb-4">
-                                {[1, 2, 3].map((step) => (
-                                    <div key={step} className="flex items-center">
-                                        <div className={cn(
-                                            "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all",
-                                            currentStep.step > step ? "bg-green-500 text-white" :
-                                            currentStep.step === step ? "bg-purple-600 text-white ring-4 ring-purple-200" :
-                                            "bg-gray-200 text-gray-500"
-                                        )}>
-                                            {currentStep.step > step ? <CheckCircle size={16} /> : step}
-                                        </div>
-                                        {step < 3 && (
-                                            <div className={cn(
-                                                "w-6 h-0.5 transition-all",
-                                                currentStep.step > step ? "bg-green-500" : "bg-gray-200"
-                                            )} />
-                                        )}
+                {/* RFQ Items Section */}
+                {solicitationId && (
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                        <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-6 border-b">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center space-x-4">
+                                    <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                                        <Package size={24} className="text-purple-600" />
                                     </div>
-                                ))}
+                                    <div>
+                                        <h3 className="text-xl font-bold text-gray-900">RFQ Items Breakdown</h3>
+                                        <p className="text-gray-600 text-sm mt-1">
+                                            Detailed procurement items from RFQ: {rfqData?.data?.rfq_id || 'N/A'}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center space-x-3">
+                                    <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-300 px-4 py-2">
+                                        {rfqData?.data?.solicitation_items?.length || 0} Items
+                                    </Badge>
+                                </div>
                             </div>
-
-                            {data?.data?.status === "PENDING" && !currentStep.isComplete ? (
-                                <Dialog open={open} onOpenChange={setOpen}>
-                                    <DialogTrigger asChild>
-                                        <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white shadow-md">
-                                            <ShieldCheck size={16} />
-                                            {currentStep.role} Approval
-                                        </Button>
-                                    </DialogTrigger>
-                                    <DialogContent className="max-w-xl">
-                                        <DialogHeader>
-                                            <DialogTitle className="text-2xl font-semibold mb-5">
-                                                CBA {currentStep.role} Approval
-                                            </DialogTitle>
-                                            <div className="text-sm text-gray-600 mb-4">
-                                                Step {currentStep.step} of 3: {currentStep.role} Review
-                                            </div>
-                                        </DialogHeader>
-                                        <Form {...form}>
-                                            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-                                                <FormSelect
-                                                    name="status"
-                                                    label="Decision"
-                                                    placeholder="Select approval decision"
-                                                    required
-                                                >
-                                                    <SelectContent>
-                                                        <SelectItem value="APPROVED">
-                                                            ✅ {currentStep.step === 3 ? 'Approve & Generate Purchase Orders' : `Approve & Forward to ${currentStep.step === 1 ? 'Authoriser' : 'Approver'}`}
-                                                        </SelectItem>
-                                                        <SelectItem value="REJECTED">
-                                                            ❌ Reject & Request CBA Redo
-                                                        </SelectItem>
-                                                    </SelectContent>
-                                                </FormSelect>
-
-                                                <FormTextArea
-                                                    name="remarks"
-                                                    label={`${currentStep.role} Remarks`}
-                                                    placeholder={`Enter ${currentStep.role.toLowerCase()} comments and justification`}
-                                                    rows={4}
-                                                />
-
-                                                <div className="flex justify-end">
-                                                    <FormButton
-                                                        loading={createApprovalCbaIsLoading}
-                                                        disabled={createApprovalCbaIsLoading}
-                                                        type="submit"
-                                                    >
-                                                        Submit Decision
-                                                    </FormButton>
-                                                </div>
-                                            </form>
-                                        </Form>
-                                    </DialogContent>
-                                </Dialog>
-                            ) : (
-                                <Button variant="outline" disabled className="w-full">
-                                    <CheckCircle size={16} />
-                                    {currentStep.isComplete ? "All Approvals Complete" : "Awaiting Approval"}
-                                </Button>
-                            )}
                         </div>
-                    </div>
-                </Card>
-            </div>
 
-            {/* RFQ Items Section */}
-            {solicitationId && (
-                <Card className="p-6">
-                    <div className="flex items-center justify-between mb-6">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                        {(!rfqData?.data?.solicitation_items || rfqData?.data?.solicitation_items?.length === 0) ? (
+                            <div className="py-12 bg-gradient-to-br from-yellow-50 to-amber-50 border-2 border-dashed border-yellow-300 rounded-xl text-center">
                                 <Package size={16} />
+                                <p className="text-yellow-800 font-semibold text-lg">No items found</p>
+                                <p className="text-yellow-600 text-sm mt-1">The RFQ may not have items assigned yet.</p>
                             </div>
-                            <div>
-                                <h2 className="text-xl font-bold text-gray-900">RFQ Items</h2>
-                                <p className="text-sm text-gray-500">Items from RFQ: {rfqData?.data?.rfq_id || 'N/A'}</p>
-                            </div>
-                        </div>
-                        <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-300 px-3 py-1">
-                            {rfqData?.data?.solicitation_items?.length || 0} Items
-                        </Badge>
-                    </div>
-
-                    {(!rfqData?.data?.solicitation_items || rfqData?.data?.solicitation_items?.length === 0) ? (
-                        <div className="py-12 bg-gradient-to-br from-yellow-50 to-amber-50 border-2 border-dashed border-yellow-300 rounded-xl text-center">
-                            <Package size={16} />
-                            <p className="text-yellow-800 font-semibold text-lg">No items found</p>
-                            <p className="text-yellow-600 text-sm mt-1">The RFQ may not have items assigned yet.</p>
-                        </div>
-                    ) : (
-                        <div className="overflow-x-auto">
-                            <table className="w-full border-collapse bg-white">
-                                <thead>
-                                    <tr className="bg-gradient-to-r from-blue-50 to-indigo-50">
-                                        <th className="border border-gray-200 px-4 py-3 text-left text-sm font-bold text-gray-700">
-                                            <div className="flex items-center gap-2">
-                                                <Package size={16} />
-                                                Item Name
-                                            </div>
-                                        </th>
-                                        <th className="border border-gray-200 px-4 py-3 text-left text-sm font-bold text-gray-700">Description</th>
-                                        <th className="border border-gray-200 px-4 py-3 text-center text-sm font-bold text-gray-700">Quantity</th>
-                                        <th className="border border-gray-200 px-4 py-3 text-center text-sm font-bold text-gray-700">UOM</th>
-                                        <th className="border border-gray-200 px-4 py-3 text-center text-sm font-bold text-gray-700">Lot</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {rfqData.data.solicitation_items.map((item: any, index: number) => (
-                                        <tr key={index} className="hover:bg-blue-50 transition-colors">
-                                            <td className="border border-gray-200 px-4 py-3 text-sm font-semibold text-gray-900">
-                                                {item?.item?.name || item?.description || 'N/A'}
-                                            </td>
-                                            <td className="border border-gray-200 px-4 py-3 text-sm text-gray-600">
-                                                {item?.description || 'No description'}
-                                            </td>
-                                            <td className="border border-gray-200 px-4 py-3 text-sm text-center font-semibold">
-                                                {item?.quantity || 0}
-                                            </td>
-                                            <td className="border border-gray-200 px-4 py-3 text-sm text-center">
-                                                <Badge variant="outline" className="bg-gray-50">
-                                                    {item?.item?.uom || 'N/A'}
-                                                </Badge>
-                                            </td>
-                                            <td className="border border-gray-200 px-4 py-3 text-sm text-center">
-                                                <Badge className="bg-blue-100 text-blue-700 border-0">
-                                                    {item?.lot || 'N/A'}
-                                                </Badge>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    )}
-                </Card>
-            )}
-
-            {/* Analysis Results Section */}
-            <AnalysisResults cbaId={id as string} />
-
-            {/* Vendor Submissions Section */}
-            {solicitationId && (
-                <Card className="p-6">
-                    <div className="flex items-center justify-between mb-6">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                                <Users size={16} />
-                            </div>
-                            <div>
-                                <h2 className="text-xl font-bold text-gray-900">Vendor Submissions</h2>
-                                <p className="text-sm text-gray-500">Competing bids for this RFQ</p>
-                            </div>
-                        </div>
-                        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-300 px-3 py-1">
-                            {submissionsData?.data?.data?.results?.length || 0} Vendors
-                        </Badge>
-                    </div>
-
-                    {!submissionsData?.data?.data?.results || submissionsData.data.data.results.length === 0 ? (
-                        <div className="py-12 bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-dashed border-blue-300 rounded-xl text-center">
-                            <Users size={16} />
-                            <p className="text-blue-800 font-semibold text-lg">No vendor submissions yet</p>
-                            <p className="text-blue-600 text-sm mt-1">Vendors haven't submitted their bids for this RFQ.</p>
-                        </div>
-                    ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {submissionsData.data.data.results.map((submission: any, index: number) => (
-                                <div
-                                    key={index}
-                                    className="border-2 border-gray-200 rounded-xl p-5 bg-gradient-to-br from-white to-green-50 hover:shadow-xl hover:border-green-300 transition-all"
-                                >
-                                    <div className="flex items-start justify-between mb-4">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-md">
-                                                <User size={16} />
-                                            </div>
-                                            <div>
-                                                <h3 className="font-bold text-gray-900 text-base">
-                                                    {submission?.vendor?.name ||
-                                                     submission?.vendor?.business_name ||
-                                                     submission?.vendor?.company_name ||
-                                                     submission?.vendor_name ||
-                                                     'Unknown Vendor'}
-                                                </h3>
-                                                <p className="text-xs text-gray-500 mt-0.5">
-                                                    ID: {(submission?.vendor?.id || submission?.vendor_id || 'N/A').toString().slice(0, 8)}...
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <Badge className="bg-green-600 text-white border-0 shadow-sm">
-                                            <CheckCircle size={16} />
-                                            Submitted
-                                        </Badge>
-                                    </div>
-
-                                    <div className="space-y-3">
-                                        <div className="flex items-center gap-2 text-sm bg-white rounded-lg p-2 border border-gray-100">
-                                            <Calendar size={16} />
-                                            <span className="text-gray-700 font-medium">
-                                                {submission?.submitted_date || submission?.submission_date || submission?.created_at || submission?.submitted_at
-                                                    ? new Date(submission.submitted_date || submission.submission_date || submission.created_at || submission.submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-                                                    : 'Date N/A'}
-                                            </span>
-                                        </div>
-                                        <div className="flex items-center gap-2 text-sm bg-white rounded-lg p-2 border border-gray-100">
-                                            <FileText size={16} />
-                                            <span className="text-gray-700 font-medium">
-                                                {submission?.items?.length ||
-                                                 submission?.vendor_bid_items?.length ||
-                                                 submission?.bid_items?.length ||
-                                                 submission?.submission_items?.length ||
-                                                 0} item(s) quoted
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    <div className="mt-4 pt-3 border-t border-gray-200">
-                                        <div className="flex items-center gap-2 text-xs text-gray-500 bg-amber-50 p-2 rounded-lg">
-                                            <Lock size={16} />
-                                            <span className="font-medium text-amber-700">Pricing details confidential</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </Card>
-            )}
-
-            {/* Team Section */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Assignee */}
-                <Card className="p-6">
-                    <div className="flex items-center gap-3 mb-6">
-                        <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-                            <UserCheck size={16} />
-                        </div>
-                        <div>
-                            <h2 className="text-xl font-bold text-gray-900">Assignee</h2>
-                            <p className="text-sm text-gray-500">Responsible person</p>
-                        </div>
-                    </div>
-
-                    {!data?.data?.assignee ? (
-                        <div className="py-8 bg-gradient-to-br from-gray-50 to-slate-50 border-2 border-dashed border-gray-300 rounded-xl text-center">
-                            <UserCheck size={16} />
-                            <p className="text-gray-600 font-medium">No assignee assigned</p>
-                        </div>
-                    ) : (
-                        <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-5 border border-orange-200">
-                            <div className="flex items-center gap-4 mb-4">
-                                <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-500 rounded-xl flex items-center justify-center shadow-md">
-                                    <span className="text-2xl font-bold text-white">
-                                        {data.data.assignee.name?.split(' ')[0]?.[0]}{data.data.assignee.name?.split(' ')[1]?.[0] || ''}
-                                    </span>
-                                </div>
-                                <div>
-                                    <h3 className="text-lg font-bold text-gray-900">
-                                        {data.data.assignee.name || 'N/A'}
-                                    </h3>
-                                    <p className="text-sm text-gray-600">Assignee</p>
+                        ) : (
+                            <div className="p-6">
+                                <div className="overflow-hidden bg-white rounded-lg border border-gray-200">
+                                    <table className="w-full">
+                                        <thead>
+                                            <tr className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
+                                                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">
+                                                    <div className="flex items-center gap-2">
+                                                        <Package size={16} className="text-gray-600" />
+                                                        Item Name
+                                                    </div>
+                                                </th>
+                                                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-900">Description</th>
+                                                <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900">Quantity</th>
+                                                <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900">Unit</th>
+                                                <th className="px-6 py-4 text-center text-sm font-semibold text-gray-900">Lot</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {rfqData.data.solicitation_items.map((item: any, index: number) => (
+                                                <tr key={index} className="border-b border-gray-100 hover:bg-gray-50 transition-colors duration-200">
+                                                    <td className="px-6 py-4">
+                                                        <div className="flex flex-col">
+                                                            <span className="text-sm font-semibold text-gray-900">
+                                                                {item?.item?.name || item?.description || 'Unnamed Item'}
+                                                            </span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-6 py-4">
+                                                        <span className="text-sm text-gray-600 line-clamp-2">
+                                                            {item?.description || 'No description available'}
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-6 py-4 text-center">
+                                                        <span className="inline-flex items-center justify-center w-16 h-8 bg-blue-50 text-blue-700 text-sm font-semibold rounded-full">
+                                                            {item?.quantity || 0}
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-6 py-4 text-center">
+                                                        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                                                            {item?.item?.uom || item?.item_detail?.uom || item?.uom || 'N/A'}
+                                                        </Badge>
+                                                    </td>
+                                                    <td className="px-6 py-4 text-center">
+                                                        <Badge className="bg-purple-100 text-purple-700 border-0">
+                                                            {item?.lot_detail?.name || item?.lot || item?.lot_number || 'N/A'}
+                                                        </Badge>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
-                        </div>
-                    )}
-                </Card>
-
-                {/* Committee Members */}
-                <Card className="p-6">
-                    <div className="flex items-center justify-between mb-6">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                                <Users size={16} />
-                            </div>
-                            <div>
-                                <h2 className="text-xl font-bold text-gray-900">Committee</h2>
-                                <p className="text-sm text-gray-500">Evaluation team</p>
-                            </div>
-                        </div>
-                        <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-300 px-3 py-1">
-                            {data?.data?.committee_members?.length || 0} Members
-                        </Badge>
+                        )}
                     </div>
+                )}
 
-                    {(!data?.data?.committee_members || data?.data?.committee_members?.length === 0) ? (
-                        <div className="py-8 bg-gradient-to-br from-gray-50 to-slate-50 border-2 border-dashed border-gray-300 rounded-xl text-center">
-                            <Users size={16} />
-                            <p className="text-gray-600 font-medium">No committee members assigned</p>
-                        </div>
-                    ) : (
-                        <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2">
-                            {data.data.committee_members.map((member: CommitteeMemberData) => (
-                                <div
-                                    key={member.id}
-                                    className="bg-gradient-to-br from-purple-50 to-violet-50 rounded-lg p-4 border border-purple-200 hover:shadow-md transition-shadow"
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg flex items-center justify-center shadow-sm">
-                                            <span className="text-lg font-bold text-white">
-                                                {member.first_name?.[0]}{member.last_name?.[0]}
-                                            </span>
-                                        </div>
-                                        <div>
-                                            <h4 className="font-bold text-gray-900">
-                                                {member.first_name} {member.last_name}
-                                            </h4>
-                                            <p className="text-sm text-gray-600">{member.designation || 'N/A'}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </Card>
+                {/* Analysis Results Section */}
+                <AnalysisResults cbaId={id as string} />
+
             </div>
         </div>
     );

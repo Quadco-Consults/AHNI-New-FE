@@ -230,50 +230,172 @@ const TableAction = ({ id, name }: TConsumablePaginatedData) => {
   );
 };
 
-export const stockColumns: ColumnDef<{}>[] = [
+// Stock Movement Columns (Transaction History)
+export const stockMovementColumns: ColumnDef<any>[] = [
   {
     header: "Date",
-    accessorKey: "updated_datetime",
-    // @ts-ignore
-    accessorFn: ({ updated_datetime }) =>
-      formatDate(updated_datetime, "dd-MMM-yyyy"),
+    accessorKey: "created_datetime",
+    size: 120,
+    cell: ({ row }) => {
+      return (
+        <div className="text-sm">
+          {formatDate(row.original.created_datetime || row.original.movement_date, "dd-MMM-yyyy")}
+        </div>
+      );
+    },
+  },
+  {
+    header: "Store",
+    accessorKey: "store_detail",
+    size: 150,
+    cell: ({ row }) => {
+      const storeDetail = row.original.store_detail;
+      const storeName = storeDetail?.name || row.original.store_name || 'Store Not Specified';
+      const storeCode = storeDetail?.code || row.original.store_code;
+      return (
+        <div className="text-sm">
+          <div className="font-medium">{storeName}</div>
+          {storeCode && <div className="text-xs text-gray-500">{storeCode}</div>}
+        </div>
+      );
+    },
   },
   {
     header: "Description",
-    accessorKey: "description",
-  },
-  {
-    header: "Unit Cost",
-    accessorKey: "item_detail.uom",
-  },
-  {
-    header: "Quantity Received",
-    accessorKey: "quantity_received",
+    accessorKey: "movementTypeDisplay",
     size: 200,
+    cell: ({ row }) => {
+      const description = row.original.movementTypeDisplay || row.original.movement_type || 'Stock Movement';
+      return <span className="text-sm">{description}</span>;
+    },
   },
   {
-    header: "Quantity Issued",
-    accessorKey: "qty_issued",
+    header: "In",
+    accessorKey: "quantity",
+    size: 80,
+    cell: ({ row }) => {
+      const quantity = row.original.quantity || 0;
+      const movementType = row.original.movement_type;
+      const isInflow = movementType === 'RECEIVE' || movementType === 'ADJUSTMENT_ADD' || quantity > 0;
+      const quantityIn = isInflow ? Math.abs(quantity) : 0;
+
+      return (
+        <span className={`text-sm font-medium ${quantityIn > 0 ? 'text-green-600' : 'text-gray-400'}`}>
+          {quantityIn > 0 ? quantityIn : '-'}
+        </span>
+      );
+    },
+  },
+  {
+    header: "Out",
+    accessorKey: "quantity",
+    size: 80,
+    cell: ({ row }) => {
+      const quantity = row.original.quantity || 0;
+      const movementType = row.original.movement_type;
+      const isOutflow = movementType === 'ISSUE' || movementType === 'ADJUSTMENT_SUBTRACT' || quantity < 0;
+      const quantityOut = isOutflow ? Math.abs(quantity) : 0;
+
+      return (
+        <span className={`text-sm font-medium ${quantityOut > 0 ? 'text-red-600' : 'text-gray-400'}`}>
+          {quantityOut > 0 ? quantityOut : '-'}
+        </span>
+      );
+    },
   },
   {
     header: "Balance",
-    accessorKey: "balance",
+    accessorKey: "balance_after",
+    size: 100,
+    cell: ({ row }) => {
+      const balance = row.original.balance_after || row.original.running_balance || row.original.balance_before || 0;
+      return (
+        <span className="text-sm font-semibold text-blue-600">
+          {balance}
+        </span>
+      );
+    },
   },
   {
-    header: "Status",
-    accessorKey: "status",
-    cell: ({ getValue }) => {
+    header: "Reference",
+    accessorKey: "reference_number",
+    size: 120,
+    cell: ({ row }) => {
+      const reference = row.original.reference_number || row.original.reference || row.original.transaction_id || '-';
+      return <span className="text-sm font-mono text-gray-600">{reference}</span>;
+    },
+  },
+];
+
+// Stock Level Columns (Current Stock when no movements exist)
+export const stockLevelColumns: ColumnDef<any>[] = [
+  {
+    header: "Store",
+    accessorKey: "storeName",
+    size: 150,
+    cell: ({ row }) => {
+      const storeName = row.original.storeName;
+      const storeCode = row.original.storeCode;
+      return (
+        <div className="text-sm">
+          <div className="font-medium">{storeName}</div>
+          <div className="text-xs text-gray-500">{storeCode}</div>
+        </div>
+      );
+    },
+  },
+  {
+    header: "Total Quantity",
+    accessorKey: "quantity",
+    cell: ({ row }) => {
+      return <span className="font-medium">{row.original.quantity || 0}</span>;
+    },
+  },
+  {
+    header: "Available",
+    accessorKey: "available_quantity",
+    cell: ({ row }) => {
+      return <span className="text-green-600">{row.original.available_quantity || 0}</span>;
+    },
+  },
+  {
+    header: "Reserved",
+    accessorKey: "reserved_quantity",
+    cell: ({ row }) => {
+      return <span className="text-orange-600">{row.original.reserved_quantity || 0}</span>;
+    },
+  },
+  {
+    header: "Reorder Level",
+    accessorKey: "re_order_level",
+    cell: ({ row }) => {
+      return <span>{row.original.re_order_level || 0}</span>;
+    },
+  },
+  {
+    header: "Stock Status",
+    accessorKey: "stockStatus",
+    cell: ({ row }) => {
+      const status = row.original.stockStatus;
+      const color = row.original.stockStatusColor;
       return (
         <Badge
-          variant={
-            getValue<string>()?.toLowerCase() === "untreated"
-              ? "secondary"
-              : "success"
-          }
+          variant={status === "OK" ? "success" : status === "LOW" ? "warning" : "destructive"}
+          className={`bg-${color}-100 text-${color}-800`}
         >
-          {getValue<string>()}
+          {status}
         </Badge>
       );
     },
   },
+  {
+    header: "Last Updated",
+    accessorKey: "updated_datetime",
+    cell: ({ row }) => {
+      return formatDate(row.original.updated_datetime, "dd-MMM-yyyy");
+    },
+  },
 ];
+
+// Dynamic export based on data type
+export const stockColumns = stockMovementColumns; // Default export for backward compatibility

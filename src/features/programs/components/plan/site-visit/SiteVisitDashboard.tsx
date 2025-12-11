@@ -7,7 +7,7 @@ import { Button } from "components/ui/button";
 import { Badge } from "components/ui/badge";
 import { LoadingSpinner } from "components/Loading";
 import {
-  BarChart3,
+  BarChart,
   TrendingUp,
   Users,
   Calendar,
@@ -134,7 +134,7 @@ const SiteVisitDashboard = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Site Visits</CardTitle>
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
+            <BarChart className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.total}</div>
@@ -199,7 +199,7 @@ const SiteVisitDashboard = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <BarChart3 className="h-5 w-5" />
+              <BarChart className="h-5 w-5" />
               Status Breakdown
             </CardTitle>
           </CardHeader>
