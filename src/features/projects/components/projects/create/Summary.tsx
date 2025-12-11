@@ -191,6 +191,7 @@ export default function ProjectSummaryPage() {
         partners,
         currency,
         intervention_area,
+        targets,
         // eslint-disable-next-line no-unsafe-optional-chaining
       } = project?.data;
 
@@ -226,8 +227,13 @@ export default function ProjectSummaryPage() {
       });
 
       dispatch(addPartner(partners));
+
+      // Load existing targets if available
+      if (targets && targets.length > 0) {
+        setProjectTargets(targets);
+      }
     }
-  }, [project, partner, dispatch, reset]);
+  }, [project, partner, dispatch, reset, setProjectTargets]);
 
   const pathname = usePathname();
 
@@ -421,6 +427,7 @@ export default function ProjectSummaryPage() {
                 <TargetsToggleView
                   isEditable={true}
                   onTargetsChange={setProjectTargets}
+                  initialTargets={projectTargets}
                 />
 
                 {/* Visual separator after Step 1 */}

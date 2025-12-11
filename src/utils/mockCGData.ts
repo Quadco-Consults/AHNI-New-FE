@@ -536,33 +536,7 @@ export const mockObligations: MockObligation[] = [
   },
 
   // Obligations for sub-grant "c7fbdbb9-373f-44ca-b395-cf21e4cdb9dd" (Healthcare Access Enhancement)
-  {
-    id: "obl-4",
-    sub_grant: "c7fbdbb9-373f-44ca-b395-cf21e4cdb9dd",
-    amount: "150000",
-    description: "Medical equipment purchase",
-    created_datetime: "2024-02-05T11:00:00Z",
-    status: "ACTIVE",
-    obligation_number: "OBL-2024-004"
-  },
-  {
-    id: "obl-5",
-    sub_grant: "c7fbdbb9-373f-44ca-b395-cf21e4cdb9dd",
-    amount: "100000",
-    description: "Healthcare worker training",
-    created_datetime: "2024-02-20T13:45:00Z",
-    status: "ACTIVE",
-    obligation_number: "OBL-2024-005"
-  },
-  {
-    id: "obl-6",
-    sub_grant: "c7fbdbb9-373f-44ca-b395-cf21e4cdb9dd",
-    amount: "70000",
-    description: "Community outreach program",
-    created_datetime: "2024-03-10T16:20:00Z",
-    status: "PENDING",
-    obligation_number: "OBL-2024-006"
-  },
+  // *** DUMMY DATA REMOVED - Real obligations will be created through the API ***
 
   // Obligations for sub-grant "550e8400-e29b-41d4-a716-446655440004" (Rural Infrastructure Grant)
   {
@@ -793,45 +767,8 @@ export const mockModifications: MockModification[] = [
     status: "APPROVED"
   },
 
-  // Modifications for sub-grant "550e8400-e29b-41d4-a716-446655440003" (Healthcare Access Enhancement)
-  {
-    id: "mod-3",
-    sub_grant: "c7fbdbb9-373f-44ca-b395-cf21e4cdb9dd",
-    title: "Scope Change - MOD-003",
-    amount: "25000",
-    description: "Addition of mobile health unit to project scope",
-    date: "2024-02-20",
-    created_datetime: "2024-02-20T11:45:00Z",
-    modification_number: "MOD-003",
-    modification_type: "SCOPE_CHANGE",
-    reason: "Community assessment revealed need for mobile health services in remote areas",
-    amount_usd: "25000",
-    amount_ngn: "38750000",
-    effective_date: "2024-02-20",
-    approval_date: "2024-02-18",
-    notes: "Scope expansion approved to increase impact in underserved communities",
-    approved_by: "admin-001",
-    status: "APPROVED"
-  },
-  {
-    id: "mod-4",
-    sub_grant: "c7fbdbb9-373f-44ca-b395-cf21e4cdb9dd",
-    title: "Funding Decrease - MOD-004",
-    amount: "-10000",
-    description: "Reduction due to equipment cost savings",
-    date: "2024-03-10",
-    created_datetime: "2024-03-10T09:15:00Z",
-    modification_number: "MOD-004",
-    modification_type: "FUNDING_DECREASE",
-    reason: "Achieved cost savings through bulk procurement of medical equipment",
-    amount_usd: "-10000",
-    amount_ngn: "-15500000",
-    effective_date: "2024-03-10",
-    approval_date: "2024-03-08",
-    notes: "Funds redirected to enhance training component of the project",
-    approved_by: "admin-003",
-    status: "APPROVED"
-  },
+  // Modifications for sub-grant "c7fbdbb9-373f-44ca-b395-cf21e4cdb9dd" (Healthcare Access Enhancement)
+  // *** MOCK MODIFICATION DATA REMOVED - Real modifications will be created through the API ***
 
   // Modifications for sub-grant "550e8400-e29b-41d4-a716-446655440004" (Rural Infrastructure Grant)
   {

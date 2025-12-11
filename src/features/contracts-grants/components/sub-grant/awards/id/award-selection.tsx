@@ -62,10 +62,10 @@ export default function AwardSelection({ submissionId: propSubmissionId }: Award
 
     // Pre-fill with sub-grant amount
     useEffect(() => {
-        if (subGrantData?.data) {
+        if (subGrantData?.data && !form.getValues("award_amount")) {
             form.setValue("award_amount", subGrantData.data.amount_usd || "");
         }
-    }, [subGrantData, form]);
+    }, [subGrantData?.data?.amount_usd, form.setValue, form.getValues]);
 
     const onSubmit = async (data: AwardFormData) => {
         try {

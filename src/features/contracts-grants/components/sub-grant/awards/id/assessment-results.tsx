@@ -79,7 +79,7 @@ export default function AssessmentResults() {
 
                         return (
                             <Card
-                                key={item.submission.id}
+                                key={`${item.submission.id}-${item.assessment?.id || item.rank}`}
                                 className={`p-6 ${
                                     isTopRanked
                                         ? "border-2 border-green-500 bg-green-50"

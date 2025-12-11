@@ -7,6 +7,7 @@ import DataTable from "components/Table/DataTable";
 import TableFilters from "components/Table/TableFilters";
 import { useState, useMemo } from "react";
 import { useGetAllSubGrants } from "@/features/contracts-grants/controllers/subGrantController";
+import { ISubGrantPaginatedData } from "@/features/contracts-grants/types/contract-management/sub-grant/sub-grant";
 
 export default function SubGrantAwards() {
   const [page, setPage] = useState(1);
@@ -20,14 +21,21 @@ export default function SubGrantAwards() {
     page,
     size: 10,
     search: debouncedSearchQuery,
+    status: "AWARDED", // Only fetch awarded sub-grants
   });
 
   // Mock data for awarded sub-grants when real data is empty
-  const mockAwardedData = [
+  const mockAwardedData: ISubGrantPaginatedData[] = [
     {
       id: "1",
       grant_ref_no: "GRT-2024-001",
-      project: "Community Development Initiative",
+      project: {
+        id: "proj-1",
+        project_id: "PROJ-2024-001",
+        title: "Community Development Initiative",
+        funding_sources: [{ id: "fs-1", name: "World Bank" }],
+        intervention_area: { id: "ia-1", code: "Community Development" }
+      } as any,
       sub_grant_administrator: "John Doe",
       technical_staff: "Jane Smith",
       status: "AWARDED",
@@ -46,12 +54,20 @@ export default function SubGrantAwards() {
       assessment_date: "2024-01-12",
       created_by: "admin",
       updated_by: "admin",
-      grant: "grant-1"
+      grant: "grant-1",
+      evaluation_applicants: [],
+      locations: []
     },
     {
       id: "2",
       grant_ref_no: "GRT-2024-003",
-      project: "Healthcare Access Program",
+      project: {
+        id: "proj-2",
+        project_id: "PROJ-2024-002",
+        title: "Healthcare Access Program",
+        funding_sources: [{ id: "fs-2", name: "USAID" }],
+        intervention_area: { id: "ia-2", code: "Healthcare Access" }
+      } as any,
       sub_grant_administrator: "Dr. Sarah Wilson",
       technical_staff: "Mike Johnson",
       status: "AWARDED",
@@ -70,12 +86,20 @@ export default function SubGrantAwards() {
       assessment_date: "2024-02-03",
       created_by: "admin",
       updated_by: "admin",
-      grant: "grant-3"
+      grant: "grant-3",
+      evaluation_applicants: [],
+      locations: []
     },
     {
       id: "4",
       grant_ref_no: "GRT-2024-004",
-      project: "Rural Infrastructure Development",
+      project: {
+        id: "proj-3",
+        project_id: "PROJ-2024-003",
+        title: "Rural Infrastructure Development",
+        funding_sources: [{ id: "fs-3", name: "European Union" }],
+        intervention_area: { id: "ia-3", code: "Infrastructure Development" }
+      } as any,
       sub_grant_administrator: "Ahmed Hassan",
       technical_staff: "Lucy Chen",
       status: "AWARDED",
@@ -94,7 +118,9 @@ export default function SubGrantAwards() {
       assessment_date: "2024-02-10",
       created_by: "admin",
       updated_by: "admin",
-      grant: "grant-4"
+      grant: "grant-4",
+      evaluation_applicants: [],
+      locations: []
     }
   ];
 
@@ -105,8 +131,18 @@ export default function SubGrantAwards() {
       (subGrant: any) => subGrant.status === "AWARDED"
     );
 
-    // If no real awarded sub-grants, use mock data
-    return awardedReal.length > 0 ? awardedReal : mockAwardedData;
+    // Check if project expansion worked (project or parent_project should be object)
+    const hasExpandedProjects = awardedReal.length > 0 && (
+      (typeof awardedReal[0]?.project === 'object' && awardedReal[0]?.project?.project_id) ||
+      (typeof awardedReal[0]?.parent_project === 'object' && awardedReal[0]?.parent_project?.grant_id)
+    );
+
+    // If no real data OR projects not expanded properly, use mock data
+    if (awardedReal.length === 0 || !hasExpandedProjects) {
+      return mockAwardedData;
+    }
+
+    return awardedReal;
   }, [data]);
 
   return (

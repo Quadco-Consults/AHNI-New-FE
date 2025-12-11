@@ -16,16 +16,23 @@ import {
     TSubGrantSubmissionFormData,
 } from "@/features/contracts-grants/types/contract-management/sub-grant/sub-grant";
 import { useGetAllPartners } from "@/features/modules/controllers/project/partnerController";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import {
     useCreateSubGrantManualSub,
     useGetSingleSubGrantManualSub,
     useModifySubGrantManualSub,
+    useGetAllSubGrantSubmissions,
 } from "@/features/contracts-grants/controllers/submissionController";
 import { skipToken } from "@reduxjs/toolkit/query";
 
 export default function CreateSubGrantSubDetails() {
+    const [duplicateWarning, setDuplicateWarning] = useState<{
+        type: 'partner' | 'organization' | 'email' | null;
+        message: string;
+        existingSubmission?: any;
+    }>({ type: null, message: "", existingSubmission: null });
+
     const form = useForm<TSubGrantSubmissionFormData>({
         resolver: zodResolver(SubGrantSubmissionSchema),
         defaultValues: {
@@ -63,6 +70,13 @@ export default function CreateSubGrantSubDetails() {
         size: 2000000,
     });
 
+    // Get existing submissions for this sub-grant to check for duplicates
+    const { data: existingSubmissions } = useGetAllSubGrantSubmissions({
+        sub_grant: actualSubGrantId,
+        size: 1000, // Get all submissions for this sub-grant
+        enabled: !!actualSubGrantId,
+    });
+
     const partnerOptions = useMemo(
         () =>
             partner?.data.results.map(({ name, id }) => ({
@@ -72,11 +86,78 @@ export default function CreateSubGrantSubDetails() {
         [partner]
     );
 
+    // Function to check for duplicate submissions
+    const checkForDuplicates = (partnerId: string, organizationName: string, email: string) => {
+        if (!existingSubmissions?.data?.results) return;
+
+        const submissions = existingSubmissions.data.results;
+
+        // Skip duplicate check if we're editing an existing submission
+        if (submissionId) return;
+
+        // Check for duplicate partner
+        const duplicatePartner = submissions.find(sub =>
+            sub.partner === partnerId || (typeof sub.partner === 'object' && sub.partner.id === partnerId)
+        );
+
+        if (duplicatePartner) {
+            setDuplicateWarning({
+                type: 'partner',
+                message: `This partner has already submitted for this sub-grant. Submission ID: ${duplicatePartner.id}`,
+                existingSubmission: duplicatePartner
+            });
+            return;
+        }
+
+        // Check for duplicate organization name
+        const duplicateOrg = submissions.find(sub =>
+            sub.organisation_name?.toLowerCase() === organizationName?.toLowerCase()
+        );
+
+        if (duplicateOrg && organizationName) {
+            setDuplicateWarning({
+                type: 'organization',
+                message: `An organization with this name "${organizationName}" has already submitted. Submission ID: ${duplicateOrg.id}`,
+                existingSubmission: duplicateOrg
+            });
+            return;
+        }
+
+        // Check for duplicate email
+        const duplicateEmail = submissions.find(sub =>
+            sub.email?.toLowerCase() === email?.toLowerCase()
+        );
+
+        if (duplicateEmail && email) {
+            setDuplicateWarning({
+                type: 'email',
+                message: `This email "${email}" has already been used in another submission. Submission ID: ${duplicateEmail.id}`,
+                existingSubmission: duplicateEmail
+            });
+            return;
+        }
+
+        // Clear warning if no duplicates found
+        setDuplicateWarning({ type: null, message: "", existingSubmission: null });
+    };
+
     const { createSubGrantSubmission, isLoading: isCreateLoading } =
         useCreateSubGrantManualSub();
 
     const { updateSubGrantSubmission, isLoading: isModifyLoading } =
         useModifySubGrantManualSub(submissionId || "");
+
+    // Watch form fields for real-time duplicate checking
+    const watchedPartner = form.watch("partner");
+    const watchedOrgName = form.watch("organisation_name");
+    const watchedEmail = form.watch("email");
+
+    // Trigger duplicate check when relevant fields change
+    useEffect(() => {
+        if (watchedPartner || watchedOrgName || watchedEmail) {
+            checkForDuplicates(watchedPartner, watchedOrgName, watchedEmail);
+        }
+    }, [watchedPartner, watchedOrgName, watchedEmail, existingSubmissions]);
 
     const onSubmit: SubmitHandler<TSubGrantSubmissionFormData> = async (
         data
@@ -85,6 +166,12 @@ export default function CreateSubGrantSubDetails() {
             // Validate that we have a sub_grant ID
             if (!actualSubGrantId) {
                 toast.error("Sub-grant ID is required. Please access this form from a sub-grant page.");
+                return;
+            }
+
+            // Prevent submission if there are duplicates (unless editing existing)
+            if (duplicateWarning.type && !submissionId) {
+                toast.error(`Cannot submit: ${duplicateWarning.message}`);
                 return;
             }
 
@@ -250,6 +337,46 @@ export default function CreateSubGrantSubDetails() {
                             />
                         </div>
 
+                        {/* Duplicate Warning Display */}
+                        {duplicateWarning.type && (
+                            <div className="mt-6 p-4 border border-red-300 bg-red-50 rounded-lg">
+                                <div className="flex items-start">
+                                    <div className="flex-shrink-0">
+                                        <svg
+                                            className="h-5 w-5 text-red-400"
+                                            fill="currentColor"
+                                            viewBox="0 0 20 20"
+                                        >
+                                            <path
+                                                fillRule="evenodd"
+                                                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                                                clipRule="evenodd"
+                                            />
+                                        </svg>
+                                    </div>
+                                    <div className="ml-3">
+                                        <h3 className="text-sm font-medium text-red-800">
+                                            Duplicate Submission Detected
+                                        </h3>
+                                        <div className="mt-1 text-sm text-red-700">
+                                            <p>{duplicateWarning.message}</p>
+                                            {duplicateWarning.existingSubmission && (
+                                                <p className="mt-1">
+                                                    <strong>Existing submission details:</strong>
+                                                    <br />
+                                                    Organization: {duplicateWarning.existingSubmission.organisation_name}
+                                                    <br />
+                                                    Email: {duplicateWarning.existingSubmission.email}
+                                                    <br />
+                                                    Created: {new Date(duplicateWarning.existingSubmission.created_datetime).toLocaleDateString()}
+                                                </p>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
                         <div className="flex items-center justify-end gap-x-5 mt-8">
                             <FormButton
                                 variant="outline"
@@ -264,8 +391,9 @@ export default function CreateSubGrantSubDetails() {
                                 type="submit"
                                 size="lg"
                                 loading={isCreateLoading || isModifyLoading}
+                                disabled={duplicateWarning.type !== null && !submissionId}
                             >
-                                Next
+                                {duplicateWarning.type && !submissionId ? "Cannot Submit - Duplicate Found" : "Next"}
                             </FormButton>
                         </div>
                     </form>

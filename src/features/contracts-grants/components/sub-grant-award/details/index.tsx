@@ -51,8 +51,7 @@ const SubGrantAwardDetails = () => {
 
                 {(tabValue === "expenditure" ||
                     tabValue === "obligation" ||
-                    tabValue === "modifications" ||
-                    tabValue === "disbursements") &&
+                    tabValue === "modifications") &&
                     subGrantId && (
                         <Button
                             className="flex gap-2 py-6"
@@ -66,7 +65,7 @@ const SubGrantAwardDetails = () => {
                                                 : tabValue === "obligation"
                                                 ? DialogType.ADD_OBLIGATION_MODAL
                                                 : tabValue === "disbursements"
-                                                ? DialogType.DisbursementModal
+                                                ? DialogType.ADD_DISBURSEMENT_MODAL
                                                 : DialogType.MODIFY_GRANT,
                                         dialogProps: {
                                             header:
@@ -79,6 +78,7 @@ const SubGrantAwardDetails = () => {
                                                     : "Add Modification",
                                             width: "max-w-lg",
                                             subGrantId: subGrantId,
+                                            isSubGrant: tabValue === "disbursements" ? true : undefined,
                                             data: {
                                                 id: subGrantId,
                                                 title: subGrant?.project?.title || "N/A",
