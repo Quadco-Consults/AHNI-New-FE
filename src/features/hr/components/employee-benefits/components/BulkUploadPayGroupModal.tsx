@@ -4,7 +4,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import Modal from "react-modal";
 import { Button } from "components/ui/button";
-import { Download, CheckCircle, Loader2 } from 'lucide-react';
+import { Download, CheckCircle, Loader2, FileDown, FileUp, Upload } from 'lucide-react';
 import { Icon } from "@iconify/react";
 import { XLSX } from "@/utils/excelUtils";
 import readXlsxFile from 'read-excel-file';
@@ -247,7 +247,7 @@ const BulkUploadPayGroupModal = (props: PropsType) => {
   };
 
   return (
-    <Modal isOpen={props.isOpen} onRequestClose={props.onCancel} style={customStyles}>
+    <Modal isOpen={props.isOpen} onRequestClose={props.onCancel} style={customStyles} ariaHideApp={false}>
       <div className="px-3">
         <h2 className="text-lg font-bold mb-6">Bulk Upload Pay Groups</h2>
 

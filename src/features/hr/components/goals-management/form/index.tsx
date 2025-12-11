@@ -407,7 +407,7 @@ const CreateGoal = () => {
                 {/* Narrative fields */}
                 <div className="space-y-3 max-h-96 overflow-y-auto">
                   {fields.map((field, index) => (
-                    <div key={field.id} className="border rounded-lg p-3 space-y-2">
+                    <div key={field.id || `narrative-${index}`} className="border rounded-lg p-3 space-y-2">
                       <div className="flex justify-between items-center">
                         <span className="text-sm font-medium text-gray-600">Task {index + 1}</span>
                         {fields.length > 1 && (

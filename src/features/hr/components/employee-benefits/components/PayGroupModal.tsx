@@ -123,6 +123,7 @@ const PayGroupModal = (props: PropsType) => {
       isOpen={props.isOpen}
       onRequestClose={props.onCancel}
       style={customStyles}
+      ariaHideApp={false}
     >
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)}>
