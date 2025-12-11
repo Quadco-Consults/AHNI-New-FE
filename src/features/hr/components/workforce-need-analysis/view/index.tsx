@@ -20,6 +20,12 @@ import {
   PieChart,
   MapPin,
   Briefcase,
+  UserPlus,
+  Clock,
+  CalendarClock,
+  FileDown,
+  Lightbulb,
+  Pencil,
 } from "lucide-react";
 import { useGetWorkforceNeedAnalysis } from "@/features/hr/controllers/hrWorkforceNeedAnalysisController";
 

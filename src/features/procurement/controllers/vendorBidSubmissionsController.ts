@@ -55,7 +55,8 @@ export const useGetSolicitationSubmission = (
 
             return response.data;
           } catch (error) {
-            console.log(`⚠️ Endpoint ${i + 1} failed:`, error);
+            const axiosError = error as AxiosError;
+            console.log(`⚠️ Endpoint ${i + 1} failed (${axiosError.response?.status}):`, possibleEndpoints[i]);
             if (i === possibleEndpoints.length - 1) {
               // This is the last endpoint, throw the error
               throw error;

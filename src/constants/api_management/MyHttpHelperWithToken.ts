@@ -194,24 +194,34 @@ AxiosWithToken.interceptors.response.use(
     // Enhanced error logging with special handling for FormData errors
     const isFormDataError = error.config?.data instanceof FormData;
 
-    console.error('AxiosWithToken Response Error:', {
-      code: error.code,
-      message: error.message,
-      status: error.response?.status,
-      statusText: error.response?.statusText,
-      data: error.response?.data,
-      config: {
-        url: error.config?.url,
-        method: error.config?.method,
-        baseURL: error.config?.baseURL
-      },
-      // Additional debugging info
-      errorType: error.name,
-      stack: error.stack,
-      hasResponse: !!error.response,
-      hasRequest: !!error.request,
-      fullError: JSON.stringify(error, Object.getOwnPropertyNames(error))
-    });
+    // Only log detailed errors for critical failures (5xx) or authentication (401/403)
+    // Skip verbose logging for 404s and other client errors that might be expected
+    const status = error.response?.status;
+    const isExpectedError = status === 404 || status === 405 || (status && status < 500);
+
+    if (!isExpectedError || status === 401 || status === 403) {
+      console.error('AxiosWithToken Response Error:', {
+        code: error.code,
+        message: error.message,
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        config: {
+          url: error.config?.url,
+          method: error.config?.method,
+          baseURL: error.config?.baseURL
+        },
+        // Additional debugging info
+        errorType: error.name,
+        stack: error.stack,
+        hasResponse: !!error.response,
+        hasRequest: !!error.request,
+        fullError: JSON.stringify(error, Object.getOwnPropertyNames(error))
+      });
+    } else {
+      // Minimal logging for expected errors like 404s
+      console.warn(`API Request failed (${status}): ${error.config?.method?.toUpperCase()} ${error.config?.url}`);
+    }
 
     // Special debugging for FormData upload errors
     if (isFormDataError) {

@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
 import { toWords } from "number-to-words";
-import { CheckCircle2, Download } from 'lucide-react';
+import { CheckCircle2, Download, ArrowLeft, User, FileText, List, File, Info } from 'lucide-react';
 import { Icon } from "@iconify/react";
 
 const Order = () => {
