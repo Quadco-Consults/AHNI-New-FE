@@ -952,6 +952,16 @@ export const departmentalLinks: SidebarItem[] = [
                 codenames: ["view_timesheet"]
               }
             ]
+          },
+          {
+            name: "Reports",
+            path: "/dashboard/hr/timesheet-management/reports",
+            permissions: [
+              {
+                module: "hr",
+                codenames: ["view_timesheet"]
+              }
+            ]
           }
         ]
       },
