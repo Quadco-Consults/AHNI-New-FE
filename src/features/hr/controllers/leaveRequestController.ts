@@ -69,10 +69,18 @@ export const useGetLeaveRequests = ({
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        console.error("Leave requests error:", {
-          status: axiosError.response?.status,
-          data: axiosError.response?.data,
-        });
+        const status = axiosError.response?.status;
+
+        // Only log detailed errors for unexpected failures
+        if (status === 401 || status === 403 || status === 500 || !status) {
+          console.error("Leave requests error:", {
+            status: axiosError.response?.status,
+            data: axiosError.response?.data,
+          });
+        } else {
+          console.warn(`Leave requests API failed (${status}): ${axiosError.response?.statusText || 'Unknown error'}`);
+        }
+
         throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
       }
     },
