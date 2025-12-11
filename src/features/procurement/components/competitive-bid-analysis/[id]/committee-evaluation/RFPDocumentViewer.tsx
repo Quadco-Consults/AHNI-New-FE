@@ -86,7 +86,7 @@ const RFPDocumentViewer = ({
             onClick={() => onEvaluate?.(submission.vendor.id)}
             className="bg-blue-600 hover:bg-blue-700"
           >
-            <BarChart3 size={16} />
+            <BarChart size={16} />
             Evaluate Vendor
           </Button>
         )}

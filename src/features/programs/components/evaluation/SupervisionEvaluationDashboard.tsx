@@ -37,7 +37,7 @@ import {
   AlertCircleIcon,
   CheckCircleIcon,
   ClockIcon,
-  BarChart3Icon,
+  BarChartIcon,
   MapPinIcon,
   UsersIcon,
 } from "lucide-react";
@@ -174,7 +174,7 @@ export default function SupervisionEvaluationDashboard({
                     {dashboardData.data.overview.total_evaluations}
                   </p>
                 </div>
-                <BarChart3Icon className="h-8 w-8 text-blue-600" />
+                <BarChartIcon className="h-8 w-8 text-blue-600" />
               </div>
             </CardContent>
           </Card>

@@ -24,7 +24,7 @@ import {
   Users,
   FileText,
   ClipboardList,
-  BarChart3
+  BarChart
 } from "lucide-react";
 import { formatDate } from "utils/date";
 import { TSiteVisitPaginatedData, SiteVisitTypeLabels, SiteVisitType } from "@/features/programs/types/site-visit";
@@ -338,7 +338,7 @@ export const createSiteVisitEvaluationColumns = ({
                   </DropdownMenuItem>
                   {siteVisit.evaluationStatus === 'COMPLETED' && (
                     <DropdownMenuItem onClick={handleViewReport}>
-                      <BarChart3 className="mr-2 h-4 w-4" />
+                      <BarChart className="mr-2 h-4 w-4" />
                       View Report
                     </DropdownMenuItem>
                   )}

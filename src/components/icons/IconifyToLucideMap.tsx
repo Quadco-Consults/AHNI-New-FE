@@ -30,7 +30,7 @@ import {
   Mail, Bell, BellOff, Inbox, Send, Phone,
 
   // Charts & Analytics
-  TrendingUp, TrendingDown, BarChart3, LineChart, PieChart, Target,
+  TrendingUp, TrendingDown, BarChart, LineChart, PieChart, Target,
 
   // Business & Finance
   DollarSign, CreditCard, Receipt, Briefcase, Package, ShoppingCart,
@@ -71,8 +71,8 @@ export const IconifyToLucideMap = {
   'solar:user-bold': User,
   'solar:restart-bold': RefreshCw,
   'solar:clipboard-check-bold': ClipboardCheck,
-  'solar:chart-square-bold': BarChart3,
-  'solar:chart-square-bold-duotone': BarChart3,
+  'solar:chart-square-bold': BarChart,
+  'solar:chart-square-bold-duotone': BarChart,
   'solar:calendar-bold-duotone': Calendar,
   'solar:lock-password-bold-duotone': Lock,
   'solar:list-bold': List,
@@ -130,7 +130,7 @@ export const IconifyToLucideMap = {
   'ph:chart-line-duotone': LineChart,
   'ph:chart-line-down': TrendingDown,
   'ph:chart-line': LineChart,
-  'ph:chart-bar': BarChart3,
+  'ph:chart-bar': BarChart,
   'ph:briefcase-duotone': Briefcase,
 
   // Material Design Icons - Medium Usage
@@ -182,7 +182,7 @@ export const IconifyToLucideMap = {
   'heroicons:building-office': Building,
 
   // Carbon Icons - Lower Usage
-  'carbon:analytics': BarChart3,
+  'carbon:analytics': BarChart,
   'carbon:view': Eye,
   'carbon:recommendation': Lightbulb,
   'carbon:list-checked': ClipboardCheck,

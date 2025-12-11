@@ -2,7 +2,7 @@ import Link from "next/link";
 import Card from "components/Card";
 import { Button } from "components/ui/button";
 import {
-  BarChart3,
+  BarChart,
   Database,
   FileText,
   Settings,
@@ -48,7 +48,7 @@ export default function FinancePage() {
       title: "Financial Reports",
       description: "Generate trial balance, income statement, and other reports",
       href: "/dashboard/finance/reports",
-      icon: BarChart3,
+      icon: BarChart,
       color: "bg-orange-500",
     },
     {

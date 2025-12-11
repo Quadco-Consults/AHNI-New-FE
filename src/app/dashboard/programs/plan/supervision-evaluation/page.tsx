@@ -6,7 +6,7 @@ import BreadcrumbCard from "components/Breadcrumb";
 import { Button } from "components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
-import { Plus, FileDown, BarChart3, Filter, ClipboardList, Target, TrendingUp } from "lucide-react";
+import { Plus, FileDown, BarChart, Filter, ClipboardList, Target, TrendingUp } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -348,7 +348,7 @@ const SupervisionEvaluationPage = () => {
               onClick={handleGenerateReport}
               className="flex items-center gap-2"
             >
-              <BarChart3 size={16} />
+              <BarChart size={16} />
               Generate Report
             </Button>
 
@@ -443,7 +443,7 @@ const SupervisionEvaluationPage = () => {
                   <p className="text-sm font-medium text-gray-600">Completed</p>
                   <p className="text-2xl font-bold text-green-600">{stats.completedEvaluations}</p>
                 </div>
-                <BarChart3 className="h-8 w-8 text-green-500" />
+                <BarChart className="h-8 w-8 text-green-500" />
               </div>
             </CardContent>
           </Card>
@@ -469,7 +469,7 @@ const SupervisionEvaluationPage = () => {
               Site Visits Needing Evaluation
             </TabsTrigger>
             <TabsTrigger value="evaluations" className="flex items-center gap-2">
-              <BarChart3 className="h-4 w-4" />
+              <BarChart className="h-4 w-4" />
               All Evaluations
             </TabsTrigger>
           </TabsList>

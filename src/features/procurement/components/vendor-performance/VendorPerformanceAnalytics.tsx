@@ -11,7 +11,7 @@ import {
   TrendingDown,
   Award,
   AlertTriangle,
-  BarChart3,
+  BarChart,
   PieChart,
   Calendar,
 } from "lucide-react";
@@ -292,7 +292,7 @@ const VendorPerformanceAnalytics = () => {
               <p className="text-sm text-gray-500">Average Score</p>
               <p className="text-2xl font-bold">{overallStats.avgScore} / 25</p>
             </div>
-            <BarChart3 className="text-purple-500" size={32} />
+            <BarChart className="text-purple-500" size={32} />
           </div>
         </Card>
 

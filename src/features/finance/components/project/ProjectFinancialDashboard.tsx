@@ -16,7 +16,7 @@ import {
   CheckCircle,
   FileText,
   Calendar,
-  BarChart3,
+  BarChart,
   Activity,
   RefreshCw,
 } from "lucide-react";

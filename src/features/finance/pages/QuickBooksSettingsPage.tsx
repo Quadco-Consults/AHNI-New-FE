@@ -10,7 +10,7 @@ import {
   CheckCircle,
   Download,
   Upload,
-  BarChart3,
+  BarChart,
   FileText,
   Users,
   Building2
@@ -124,7 +124,7 @@ export default function QuickBooksSettingsPage() {
               <div className="space-y-4">
                 <div className="flex items-center space-x-3">
                   <div className="p-2 bg-blue-100 rounded-lg">
-                    <BarChart3 className="w-6 h-6 text-blue-600" />
+                    <BarChart className="w-6 h-6 text-blue-600" />
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold">Chart of Accounts</h3>
@@ -260,7 +260,7 @@ export default function QuickBooksSettingsPage() {
               <div className="space-y-4">
                 <div className="flex items-center space-x-3">
                   <div className="p-2 bg-red-100 rounded-lg">
-                    <BarChart3 className="w-6 h-6 text-red-600" />
+                    <BarChart className="w-6 h-6 text-red-600" />
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold">Budget Integration</h3>
@@ -395,7 +395,7 @@ export default function QuickBooksSettingsPage() {
               </div>
               <div className="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
                 <div className="text-center">
-                  <BarChart3 className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                  <BarChart className="w-12 h-12 text-gray-400 mx-auto mb-2" />
                   <p className="text-gray-600">Sync performance chart would be displayed here</p>
                   <p className="text-sm text-gray-500">Integration with charting library needed</p>
                 </div>

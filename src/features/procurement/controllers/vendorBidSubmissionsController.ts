@@ -9,7 +9,7 @@ import {
 } from "../types/solicitation";
 import { TResponse } from "definations/index";
 
-const BASE_URL = "procurements/manaul-bid/"; // Note: Backend has typo "manaul" instead of "manual"
+const BASE_URL = "procurements/manual-bid/"; // Updated to correct spelling after backend fix
 
 // ===== VENDOR BID SUBMISSIONS HOOKS =====
 
@@ -22,7 +22,7 @@ export const useGetSolicitationSubmission = (
     queryKey: ["solicitation-submission", solicitationId],
     queryFn: async () => {
       try {
-        // Try the correct backend endpoints (note: backend has typo "manaul")
+        // Try the correct backend endpoints (backend typo fixed, now using "manual")
         const possibleEndpoints = [
           `${BASE_URL}by-solicitation/${solicitationId}/`, // Primary endpoint for filtering by solicitation
           `${BASE_URL}`, // Get all submissions and filter client-side
@@ -121,7 +121,10 @@ export const useGetVendorBidSubmissions = (params?: {
   search?: string;
   enabled?: boolean;
 }) => {
-  const { page = 1, size = 20, search = "", enabled = true } = params || {};
+  const { page = 1, size = 20, search: rawSearch = "", enabled = true } = params || {};
+
+  // Ensure search is always a string, not a function
+  const search = typeof rawSearch === 'string' ? rawSearch : "";
 
   return useQuery<TResponse<SolicitationSubmissionData>>({
     queryKey: ["vendor-bid-submissions", page, size, search],

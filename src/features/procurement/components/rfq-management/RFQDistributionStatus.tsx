@@ -17,7 +17,7 @@ import {
   RefreshCw,
   Download,
   Eye,
-  BarChart3,
+  BarChart,
   TrendingUp,
   Globe
 } from "lucide-react";
@@ -321,7 +321,7 @@ const RFQDistributionStatus: React.FC<RFQDistributionStatusProps> = ({ rfq_id })
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <BarChart3 className="h-5 w-5" />
+                <BarChart className="h-5 w-5" />
                 Distribution Analytics
               </CardTitle>
               <CardDescription>

@@ -1,6 +1,6 @@
 import Card from "components/Card";
 import { Button } from "components/ui/button";
-import { BarChart3, Download } from "lucide-react";
+import { BarChart, Download } from "lucide-react";
 
 export default function FinancialReportsPage() {
   return (
@@ -23,7 +23,7 @@ export default function FinancialReportsPage() {
       <Card className="p-12 text-center">
         <div className="max-w-md mx-auto space-y-4">
           <div className="mx-auto w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center">
-            <BarChart3 className="text-orange-600" size={32} />
+            <BarChart className="text-orange-600" size={32} />
           </div>
           <h3 className="text-xl font-semibold">Financial Reports Coming Soon</h3>
           <p className="text-gray-600">

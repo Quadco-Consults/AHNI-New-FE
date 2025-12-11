@@ -202,6 +202,8 @@ export const RouteEnum = {
     "/dashboard/procurement/competitive-bid-analysis",
   PROCUREMENT_CBA_DETAILS:
     "/dashboard/procurement/competitive-bid-analysis/:id",
+  PROCUREMENT_CBA_DETAILS_FULL:
+    "/dashboard/procurement/competitive-bid-analysis/:id/details",
   PROCUREMENT_CBA_CHECK_APPROVAL:
     "/dashboard/procurement/competitive-bid-analysis/:id/check-approval",
   PROCUREMENT_CBA_START:

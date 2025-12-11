@@ -2,7 +2,7 @@
 
 import Card from "components/Card";
 import { Button } from "components/ui/button";
-import { Plus, Edit, Trash2, CheckCircle, AlertCircle } from 'lucide-react';
+import { Plus, Edit, Trash2, CheckCircle, AlertCircle, Eye, FileText } from 'lucide-react';
 import { Badge } from "components/ui/badge";
 import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "components/Table/DataTable";

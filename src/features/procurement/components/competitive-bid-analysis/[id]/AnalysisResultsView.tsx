@@ -7,7 +7,7 @@ import GoBack from "components/GoBack";
 import { Button } from "components/ui/button";
 import { Textarea } from "components/ui/textarea";
 import { Badge } from "components/ui/badge";
-import { FileText } from 'lucide-react';
+import { FileText, Download, Award, CheckCircle, ClipboardList, ShieldCheck, FilePlus } from 'lucide-react';
 import { Icon } from "@iconify/react";
 import CbaAPI from "@/features/procurement/controllers/cbaController";
 import { useGetSolicitationSubmission } from "@/features/procurement/controllers/vendorBidSubmissionsController";
@@ -15,7 +15,7 @@ import SignatureWorkflowAPI from "@/features/procurement/controllers/signatureWo
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { jsPDF } from "jspdf";
-import { autoTable } from "jspdf-autotable";
+import "jspdf-autotable";
 import {
   Dialog,
   DialogContent,
@@ -231,7 +231,7 @@ const AnalysisResultsView = () => {
         `₦${item.total.toLocaleString()}`
       ]);
 
-      autoTable(doc, {
+      (doc as any).autoTable({
         startY: yPosition,
         head: [["S/N", "Item Description", "Qty", "Brand", "Unit Price", "Total"]],
         body: tableData,

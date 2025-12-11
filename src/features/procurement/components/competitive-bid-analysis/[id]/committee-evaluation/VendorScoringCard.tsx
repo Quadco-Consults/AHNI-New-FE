@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown } from 'lucide-react';import { Icon } from "@iconify/react";
+import { ChevronDown, Zap, DollarSign, ClipboardCheck } from 'lucide-react';
+import { Icon } from "@iconify/react";
 import Card from "components/Card";
 import { Badge } from "components/ui/badge";
 import { Input } from "components/ui/input";

@@ -20,7 +20,7 @@ import {
   TrendingUp,
   TrendingDown,
   DollarSign,
-  BarChart3,
+  BarChart,
   PieChart
 } from "lucide-react";
 import { toast } from "sonner";
@@ -355,7 +355,7 @@ export default function FinancialReportsPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Net Income</CardTitle>
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
+            <BarChart className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className={`text-2xl font-bold ${netIncome >= 0 ? 'text-green-600' : 'text-red-600'}`}>
@@ -381,7 +381,7 @@ export default function FinancialReportsPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
-                <BarChart3 className="w-5 h-5" />
+                <BarChart className="w-5 h-5" />
                 <span>Profit & Loss Statement</span>
                 <Badge variant="outline">{reportPeriod}</Badge>
               </CardTitle>

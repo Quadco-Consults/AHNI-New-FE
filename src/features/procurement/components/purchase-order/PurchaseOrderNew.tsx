@@ -1490,51 +1490,6 @@ const PurchaseOrderNew = () => {
           )}
 
           <div className="flex items-center justify-end mt-6 gap-4">
-            {/* Debug Button - Remove after testing */}
-            <Button
-              type="button"
-              variant="outline"
-              onClick={async () => {
-                const values = form.getValues();
-                console.log("🔍 DEBUG: Current form values:", values);
-                console.log("🔍 DEBUG: Form errors:", form.formState.errors);
-                console.log("🔍 DEBUG: Item errors:", form.formState.errors.items);
-                console.log("🔍 DEBUG: First item data:", values.items?.[0]);
-                console.log("🔍 DEBUG: All items data:", values.items);
-                console.log("🔍 DEBUG: Approval workflow fields:");
-                console.log("  - reviewed_by:", values.reviewed_by || "❌ MISSING");
-                console.log("  - authorized_by:", values.authorized_by || "❌ MISSING");
-                console.log("  - approved_by:", values.approved_by || "❌ MISSING");
-                console.log("  - agreed_by:", values.agreed_by || "Not set (optional)");
-                console.log("🔍 DEBUG: Is form valid:", form.formState.isValid);
-                console.log("🔍 DEBUG: vendorValue:", vendorValue);
-                console.log("🔍 DEBUG: purchaseValue:", purchaseValue);
-                console.log("🔍 DEBUG: requestValue (department):", requestValue);
-
-                // Try validating the form
-                console.log("🔍 DEBUG: Triggering validation...");
-                const isValid = await form.trigger();
-                console.log("🔍 DEBUG: After trigger - Is valid:", isValid);
-                console.log("🔍 DEBUG: After trigger - Errors:", form.formState.errors);
-              }}
-            >
-              Debug Form
-            </Button>
-
-            {/* Force Submit Button - Remove after testing */}
-            <Button
-              type="button"
-              variant="destructive"
-              onClick={async () => {
-                console.log("🔥 FORCE SUBMIT: Bypassing form validation");
-                const values = form.getValues();
-                await onSubmit(values as any);
-              }}
-            >
-              Force Submit
-            </Button>
-
-            {/* <Link href={generatePath(RouteEnum.PURCHASE_ORDER)}> */}
             <FormButton
               loading={creatingOrder}
               disabled={creatingOrder}
@@ -1544,7 +1499,6 @@ const PurchaseOrderNew = () => {
               Submit
               <LongArrowRight />
             </FormButton>
-            {/* </Link> */}
           </div>
         </form>
       </Form>

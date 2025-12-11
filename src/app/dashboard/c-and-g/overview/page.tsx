@@ -9,7 +9,7 @@ import {
   Award,
   UserCheck,
   ClipboardList,
-  BarChart3,
+  BarChart,
   AlertCircle,
   CheckCircle,
   Clock,
@@ -130,7 +130,7 @@ export default function CandGOverviewPage() {
         { name: "Pre-Award Assessment", link: "/dashboard/c-and-g/sub-grant/preaward-assessment", icon: ClipboardList },
         { name: "Awarded Beneficiaries", link: "/dashboard/c-and-g/awarded-beneficiaries", icon: UserCheck },
         { name: "Closeout Plans", link: "/dashboard/c-and-g/close-out-plan", icon: CheckCircle },
-        { name: "View Reports", link: "/dashboard/c-and-g/reports", icon: BarChart3 }
+        { name: "View Reports", link: "/dashboard/c-and-g/reports", icon: BarChart }
       ]
     }
   ];
@@ -283,7 +283,7 @@ export default function CandGOverviewPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <BarChart3 className="h-5 w-5 text-blue-500" />
+              <BarChart className="h-5 w-5 text-blue-500" />
               Quick Stats
             </CardTitle>
             <CardDescription>At a glance overview</CardDescription>

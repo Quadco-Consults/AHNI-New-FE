@@ -338,9 +338,11 @@ export const useGetCbaAnalysisResults = (cbaId: string, enabled: boolean = true)
         const axiosError = error as AxiosError;
         console.error("❌ CBA Analysis Results API Error:", axiosError);
 
-        // If it's a 404 or no results, return null instead of throwing
+        // If it's a 404, 405, or no results, return null instead of throwing
         if (axiosError.response?.status === 404 ||
+            axiosError.response?.status === 405 ||
             (axiosError.response?.data as any)?.message?.includes("not found")) {
+          console.log("🔄 CBA Analysis endpoint not ready, returning empty result");
           return { data: null };
         }
 

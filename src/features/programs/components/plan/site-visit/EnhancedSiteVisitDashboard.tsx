@@ -20,7 +20,7 @@ import {
   Cell,
 } from "recharts";
 import {
-  BarChart3Icon,
+  BarChartIcon,
   TrendingUpIcon,
   UsersIcon,
   CalendarIcon,
@@ -184,7 +184,7 @@ export default function EnhancedSiteVisitDashboard() {
                       {siteVisitStats?.totalVisits || 0}
                     </p>
                   </div>
-                  <BarChart3Icon className="h-8 w-8 text-blue-600" />
+                  <BarChartIcon className="h-8 w-8 text-blue-600" />
                 </div>
               </CardContent>
             </Card>

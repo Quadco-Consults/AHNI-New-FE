@@ -20,11 +20,24 @@ const CBA_SIGNATURE_WORKFLOW_BASE_URL = "procurements/cba-signature-workflow/";
 // Current user hook using actual auth system
 export const useCurrentUser = () => {
   const user = getCurrentUser();
+
+  // Return null if no user data exists
+  if (!user) {
+    return {
+      id: "",
+      name: "Unknown User",
+      designation: "Staff Member",
+      email: "",
+      role: ""
+    };
+  }
+
   return {
     id: user?.id || user?.user_id || "",
     name: user?.name || `${user?.first_name || ""} ${user?.last_name || ""}`.trim() || "Unknown User",
     designation: user?.designation || user?.role || "Staff Member",
-    email: user?.email || ""
+    email: user?.email || "",
+    role: user?.role || user?.designation || ""
   };
 };
 
@@ -43,8 +56,8 @@ export const useGetMemberEvaluation = (cbaId: string, memberId: string) => {
         return evaluations.find((evaluation: any) => evaluation.member_id === memberId) || null;
       } catch (error) {
         const axiosError = error as AxiosError;
-        if (axiosError.response?.status === 404) {
-          return null; // No evaluation found yet
+        if (axiosError.response?.status === 404 || axiosError.response?.status === 405) {
+          return null; // No evaluation found yet or method not allowed
         }
         throw new Error("Failed to fetch member evaluation: " + (axiosError.response?.data as any)?.message);
       }
@@ -66,6 +79,9 @@ export const useGetAllMemberEvaluations = (cbaId: string) => {
         return response.data?.results || [];
       } catch (error) {
         const axiosError = error as AxiosError;
+        if (axiosError.response?.status === 405) {
+          return []; // Method not allowed, return empty array
+        }
         throw new Error("Failed to fetch all member evaluations: " + (axiosError.response?.data as any)?.message);
       }
     },
@@ -131,6 +147,16 @@ export const useGetMemberParticipation = (cbaId: string) => {
         };
       } catch (error) {
         const axiosError = error as AxiosError;
+        if (axiosError.response?.status === 405) {
+          // Method not allowed, return empty result that matches IMemberParticipation interface
+          return {
+            cba_id: cbaId,
+            total_members: 0,
+            submitted_members: [],
+            pending_members: [],
+            members: []
+          };
+        }
         throw new Error("Failed to fetch member participation: " + (axiosError.response?.data as any)?.message);
       }
     },

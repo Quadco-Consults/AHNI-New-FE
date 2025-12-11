@@ -22,9 +22,11 @@ import { useGetAllCbas } from "@/features/procurement/controllers/cbaController"
 import { CbaResultsData } from "@/features/procurement/types/cba";
 import PrinterIcon from "components/icons/PrinterIcon";
 import SendIcon from "components/icons/SendIcon";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Loading } from "components/Loading";
 import { Plus } from "lucide-react";
+import { Icon } from "@iconify/react";
+import { useCurrentUser } from "@/features/procurement/controllers/committeeEvaluationController";
 
 const generatePath = (route: string, params?: Record<string, any>): string => {
   let path = route;
@@ -182,7 +184,71 @@ const columns: ColumnDef<CbaResultsData>[] = [
   },
 ];
 
+// Role-based permission system
+const getUserRole = (user: any) => {
+  const designation = user?.designation?.toLowerCase() || '';
+  const role = user?.role?.toLowerCase() || '';
+  const email = user?.email?.toLowerCase() || '';
+
+  // Check for admin email patterns first
+  if (email.includes('admin@') || email === 'admin@mail.com') {
+    return 'ADMIN';
+  }
+
+  // Administrative roles (MD and Admin have full access)
+  if (designation.includes('admin') || role.includes('admin') ||
+      designation.includes('managing director') || designation.includes('md') ||
+      role.includes('managing director') || role.includes('md') ||
+      designation.includes('director') || role.includes('director') ||
+      designation.includes('administrator') || role.includes('administrator')) {
+    return 'ADMIN';
+  }
+
+  // Procurement roles
+  if (designation.includes('procurement') || role.includes('procurement') ||
+      designation.includes('officer') || role.includes('officer') ||
+      designation.includes('manager') || role.includes('manager')) {
+    return 'PROCUREMENT_STAFF';
+  }
+
+  // Default fallback - All AHNI staff can potentially be committee members
+  return 'STAFF';
+};
+
 const ActionListAction = ({ data }: any) => {
+  const currentUser = useCurrentUser();
+
+  const userRole = useMemo(() => {
+    // Ensure currentUser has valid data before determining role
+    if (!currentUser?.id) return 'STAFF';
+    return getUserRole(currentUser);
+  }, [currentUser]);
+
+  // Check if user is a committee member for this specific CBA
+  const isCommitteeMemberForCBA = useMemo(() => {
+    // Ensure both currentUser and committee_members exist
+    if (!currentUser?.id || !data?.committee_members || !Array.isArray(data.committee_members)) {
+      return false;
+    }
+
+    // More robust committee member check
+    return data.committee_members.some((member: any) => {
+      const memberId = member.id || member.user_id || member.member_id;
+      const currentUserId = currentUser.id || (currentUser as any).user_id;
+      return memberId === currentUserId;
+    });
+  }, [data?.committee_members, currentUser]);
+
+  // Determine which actions to show based on role and committee membership
+  const showEditAction = userRole === 'ADMIN' || userRole === 'PROCUREMENT_STAFF';
+  const showDeleteAction = userRole === 'ADMIN' || userRole === 'PROCUREMENT_STAFF';
+  const showPurchaseOrderAction = userRole === 'ADMIN' || userRole === 'PROCUREMENT_STAFF';
+
+  // Committee members (anyone assigned to this CBA) can conduct evaluations
+  // Procurement staff and admins can always conduct/check CBAs
+  // If no role is determined, show basic conduct action as fallback
+  const showConductAction = isCommitteeMemberForCBA || userRole === 'ADMIN' || userRole === 'PROCUREMENT_STAFF' || userRole === 'STAFF';
+
   return (
     <div className='flex items-center gap-2'>
       <>
@@ -194,7 +260,7 @@ const ActionListAction = ({ data }: any) => {
           </PopoverTrigger>
           <PopoverContent className=' w-fit'>
             <div className='flex flex-col items-start justify-between gap-1'>
-              {/* View CBA Details */}
+              {/* View CBA Details - Everyone can view */}
               <Link
                 className='w-full'
                 href={generatePath(RouteEnum.PROCUREMENT_CBA_DETAILS, {
@@ -210,51 +276,81 @@ const ActionListAction = ({ data }: any) => {
                 </Button>
               </Link>
 
-              {/* Edit CBA - Using RFQ Create CBA route for editing */}
+              {/* View Details - Everyone can view detailed information */}
               <Link
                 className='w-full'
-                href={`/dashboard/procurement/solicitation-management/rfq/create/create-cba?cba_id=${data?.id}&edit=true`}
+                href={generatePath(RouteEnum.PROCUREMENT_CBA_DETAILS_FULL, {
+                  id: data?.id,
+                })}
               >
                 <Button
                   className='w-full flex items-center justify-start gap-2'
                   variant='ghost'
                 >
-                  <EditIcon />
-                  Edit
+                  <Icon icon="mdi:file-document-multiple" className="w-4 h-4" />
+                  View Details
                 </Button>
               </Link>
 
-              {/* Check CBA / Perform Analysis */}
-              <Link
-                className='w-full'
-                href={`/dashboard/procurement/competitive-bid-analysis/${data?.id}/vendor-analysis?id=${data?.solicitation?.id}&cba=${data?.id}`}
-              >
+              {/* Conduct CBA / Check CBA - Committee members and procurement staff */}
+              {showConductAction && (
+                <Link
+                  className='w-full'
+                  href={`/dashboard/procurement/competitive-bid-analysis/${data?.id}/vendor-analysis?id=${data?.solicitation?.id}&cba=${data?.id}`}
+                >
+                  <Button
+                    className='w-full flex items-center justify-start gap-2'
+                    variant='ghost'
+                  >
+                    <SendIcon />
+                    {/* Fixed: Always show Conduct CBA for consistency */}
+                    Conduct CBA
+                  </Button>
+                </Link>
+              )}
+
+              {/* Edit CBA - Only procurement staff and admin */}
+              {showEditAction && (
+                <Link
+                  className='w-full'
+                  href={`/dashboard/procurement/solicitation-management/rfq/create/create-cba?cba_id=${data?.id}&edit=true`}
+                >
+                  <Button
+                    className='w-full flex items-center justify-start gap-2'
+                    variant='ghost'
+                  >
+                    <EditIcon />
+                    Edit
+                  </Button>
+                </Link>
+              )}
+
+              {/* Generate Purchase Order - Only procurement staff and admin */}
+              {showPurchaseOrderAction && (
+                <Link
+                  className='w-full'
+                  href={`/dashboard/procurement/purchase-order/create?cba_id=${data?.id}&solicitation_id=${data?.solicitation?.id}`}
+                >
+                  <Button
+                    className='w-full flex items-center justify-start gap-2'
+                    variant='ghost'
+                  >
+                    <PrinterIcon />
+                    Generate PO
+                  </Button>
+                </Link>
+              )}
+
+              {/* Delete CBA - Only procurement staff and admin */}
+              {showDeleteAction && (
                 <Button
                   className='w-full flex items-center justify-start gap-2'
                   variant='ghost'
                 >
-                  <SendIcon />
-                  Check CBA
+                  <DeleteIcon />
+                  Delete
                 </Button>
-              </Link>
-
-              {/* Get Purchase Order */}
-              <Button
-                className='w-full flex items-center justify-start gap-2'
-                variant='ghost'
-              >
-                <PrinterIcon />
-                Get Purchase Order
-              </Button>
-
-              {/* Delete CBA */}
-              <Button
-                className='w-full flex items-center justify-start gap-2'
-                variant='ghost'
-              >
-                <DeleteIcon />
-                Delete
-              </Button>
+              )}
             </div>
           </PopoverContent>
         </Popover>

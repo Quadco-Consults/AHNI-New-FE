@@ -6,7 +6,7 @@ import { Badge } from "components/ui/badge";
 import {
   Database,
   FileText,
-  BarChart3,
+  BarChart,
   Link2,
   TrendingUp,
   Users,

@@ -171,7 +171,10 @@ const TPS = () => {
         evaluator: {
           name: currentUser ? `${currentUser.first_name || ''} ${currentUser.last_name || ''}`.trim() || currentUser.username : "Procurement Officer",
           id: currentUser?.id || null,
-          role: currentUser?.role || "Procurement Officer"
+          role: currentUser?.role ?
+            (typeof currentUser.role === 'string' ? currentUser.role :
+             (currentUser.role.title || "Procurement Officer")) :
+            "Procurement Officer"
         },
         stage: "TECHNICAL",
         criteria_results: evaluationResults,
@@ -402,10 +405,22 @@ const getCurrentUserEvaluationData = (currentUser: any) => {
 
   // If we have current user data, use it
   if (currentUser) {
+    // Handle role being an object or string
+    let designation = 'Evaluator';
+    if (currentUser.role) {
+      if (typeof currentUser.role === 'string') {
+        designation = currentUser.role;
+      } else if (typeof currentUser.role === 'object' && currentUser.role.title) {
+        designation = currentUser.role.title;
+      }
+    } else if (currentUser.position) {
+      designation = typeof currentUser.position === 'string' ? currentUser.position : 'Evaluator';
+    }
+
     return [
       {
         name: `${currentUser.first_name || ''} ${currentUser.last_name || ''}`.trim() || currentUser.username || 'Current User',
-        designation: currentUser.role || currentUser.position || 'Evaluator',
+        designation: designation,
         signature: "____________________",
         date: today
       }

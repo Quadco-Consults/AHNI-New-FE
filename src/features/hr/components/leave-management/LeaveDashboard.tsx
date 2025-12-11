@@ -21,7 +21,7 @@ import {
   User,
   Sun,
   Award,
-  BarChart3,
+  BarChart,
   Heart,
   Sparkles
 } from "lucide-react";
@@ -514,7 +514,7 @@ const LeaveDashboard = () => {
                 onClick={() => router.push('/dashboard/hr/leave-management/history')}
                 className="border-blue-200 text-blue-700 hover:bg-blue-50 hover:border-blue-300"
               >
-                <BarChart3 className="w-4 h-4 mr-2" />
+                <BarChart className="w-4 h-4 mr-2" />
                 View History
               </Button>
             </div>
@@ -614,7 +614,7 @@ const LeaveDashboard = () => {
             className="h-auto p-4 flex-col gap-2 hover:bg-green-50 hover:border-green-300 transition-all duration-200"
             onClick={() => setActiveTab("balances")}
           >
-            <BarChart3 className="w-6 h-6 text-green-600" />
+            <BarChart className="w-6 h-6 text-green-600" />
             <span className="text-sm font-medium">View Balances</span>
           </Button>
           <Button
@@ -702,7 +702,7 @@ const LeaveDashboard = () => {
           {/* Leave Balances Summary */}
           <div>
             <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <BarChart3 className="w-5 h-5 text-blue-600" />
+              <BarChart className="w-5 h-5 text-blue-600" />
               Your Leave Balances
             </h3>
             {loadingBalances ? (

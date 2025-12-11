@@ -11,7 +11,7 @@ import {
   FileText,
   ShoppingCart,
   ClipboardList,
-  BarChart3,
+  BarChart,
   Settings,
   User,
   Bell,
@@ -43,7 +43,7 @@ const vendorMenuItems: VendorSidebarItem[] = [
   {
     name: "Dashboard",
     href: "/vendor-portal/dashboard",
-    icon: <BarChart3 className="w-5 h-5" />,
+    icon: <BarChart className="w-5 h-5" />,
   },
   {
     name: "Available RFQs",
