@@ -16,7 +16,10 @@ import {
   Filter,
   RefreshCw,
   PieChart,
-  ArrowLeft
+  ArrowLeft,
+  ChevronDown,
+  ChevronRight,
+  Eye
 } from "lucide-react";
 import DataTable from "components/Table/DataTable";
 import { ColumnDef } from "@tanstack/react-table";
@@ -120,6 +123,8 @@ const TimesheetReports = () => {
   const [isExporting, setIsExporting] = useState(false);
   const [customDateFrom, setCustomDateFrom] = useState('');
   const [customDateTo, setCustomDateTo] = useState('');
+  const [expandedEmployees, setExpandedEmployees] = useState<Set<string>>(new Set());
+  const [detailViewMode, setDetailViewMode] = useState<'weekly' | 'monthly'>('weekly');
 
   // API hooks for real data
   const { data: timesheetsData, isLoading: timesheetsLoading, refetch } = useGetTimesheets({
@@ -138,60 +143,173 @@ const TimesheetReports = () => {
   const projects = (projectsData as any)?.data?.results || [];
   const employees = employeesData?.data?.results || [];
 
-  // Project Summary Columns
-  const projectColumns: ColumnDef<ProjectSummaryReport>[] = [
+  // Helper functions for expandable rows
+  const toggleEmployeeExpansion = (employeeId: string) => {
+    const newExpanded = new Set(expandedEmployees);
+    if (newExpanded.has(employeeId)) {
+      newExpanded.delete(employeeId);
+    } else {
+      newExpanded.add(employeeId);
+    }
+    setExpandedEmployees(newExpanded);
+  };
+
+  const getEmployeeWeeklyData = (employeeTimesheets: any[]) => {
+    const weeklyMap = new Map();
+
+    employeeTimesheets.forEach(timesheet => {
+      const startDate = new Date(timesheet.start_date);
+      const weekKey = `${startDate.getFullYear()}-W${Math.ceil((startDate.getDate()) / 7)}`;
+      const weekLabel = `Week of ${startDate.toLocaleDateString()}`;
+
+      if (!weeklyMap.has(weekKey)) {
+        weeklyMap.set(weekKey, {
+          period: weekLabel,
+          totalHours: 0,
+          projects: new Set(),
+          entries: []
+        });
+      }
+
+      const week = weeklyMap.get(weekKey);
+      week.totalHours += parseFloat(timesheet.total_hours) || 0;
+
+      timesheet.entries?.forEach((entry: any) => {
+        week.projects.add(entry.project_name || 'Unknown Project');
+        week.entries.push(entry);
+      });
+    });
+
+    return Array.from(weeklyMap.values()).map(week => ({
+      ...week,
+      projectCount: week.projects.size,
+      projects: Array.from(week.projects)
+    }));
+  };
+
+  const getEmployeeMonthlyData = (employeeTimesheets: any[]) => {
+    const monthlyMap = new Map();
+
+    employeeTimesheets.forEach(timesheet => {
+      const startDate = new Date(timesheet.start_date);
+      const monthKey = `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, '0')}`;
+      const monthLabel = startDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
+
+      if (!monthlyMap.has(monthKey)) {
+        monthlyMap.set(monthKey, {
+          period: monthLabel,
+          totalHours: 0,
+          projects: new Set(),
+          entries: []
+        });
+      }
+
+      const month = monthlyMap.get(monthKey);
+      month.totalHours += parseFloat(timesheet.total_hours) || 0;
+
+      timesheet.entries?.forEach((entry: any) => {
+        month.projects.add(entry.project_name || 'Unknown Project');
+        month.entries.push(entry);
+      });
+    });
+
+    return Array.from(monthlyMap.values()).map(month => ({
+      ...month,
+      projectCount: month.projects.size,
+      projects: Array.from(month.projects)
+    }));
+  };
+
+  // Staff Summary Columns (renamed from Project Summary)
+  const staffColumns: ColumnDef<any>[] = [
     {
-      header: "Project",
+      header: "",
+      id: "expander",
+      size: 50,
+      cell: ({ row }) => {
+        const isExpanded = expandedEmployees.has(row.original.employeeId);
+        return (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => toggleEmployeeExpansion(row.original.employeeId)}
+            className="p-1 h-6 w-6"
+          >
+            {isExpanded ? (
+              <ChevronDown className="h-4 w-4" />
+            ) : (
+              <ChevronRight className="h-4 w-4" />
+            )}
+          </Button>
+        );
+      },
+    },
+    {
+      header: "Employee",
       cell: ({ row }) => (
         <div>
-          <div className="font-medium">{row.original.projectName}</div>
-          <div className="text-sm text-gray-500">{row.original.projectId}</div>
+          <div className="font-medium">{row.original.employeeName}</div>
+          <div className="text-sm text-gray-500">{row.original.department}</div>
         </div>
       ),
     },
     {
       header: "Total Hours",
       accessorKey: "totalHours",
-      cell: ({ row }) => <div className="font-medium">{row.original.totalHours}h</div>,
+      cell: ({ row }) => <div className="font-medium">{row.original.totalHours.toFixed(1)}h</div>,
     },
     {
-      header: "Team Size", 
-      accessorKey: "employeeCount",
+      header: "Projects",
       cell: ({ row }) => (
-        <div className="flex items-center gap-1">
-          <Users className="w-4 h-4 text-gray-400" />
-          {row.original.employeeCount}
+        <div className="space-y-1">
+          {row.original.projectNames?.slice(0, 2).map((project: string, idx: number) => (
+            <div key={idx} className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+              <span className="text-sm">{project}</span>
+            </div>
+          ))}
+          {row.original.projectNames?.length > 2 && (
+            <div className="text-xs text-gray-500">
+              +{row.original.projectNames.length - 2} more projects
+            </div>
+          )}
         </div>
       ),
     },
     {
-      header: "Avg Hours/Week",
-      accessorKey: "avgHoursPerWeek",
-      cell: ({ row }) => <div>{row.original.avgHoursPerWeek}h</div>,
-    },
-    {
-      header: "Status",
+      header: "Utilization",
       cell: ({ row }) => {
-        const statusConfig = {
-          'on-track': { variant: 'default' as const, label: 'On Track', className: 'bg-green-100 text-green-800' },
-          'behind': { variant: 'destructive' as const, label: 'Behind', className: '' },
-          'ahead': { variant: 'default' as const, label: 'Ahead', className: 'bg-blue-100 text-blue-800' },
-        };
-        const config = statusConfig[row.original.status];
+        const util = row.original.utilization;
+        const color = util > 100 ? 'text-red-600' : util < 80 ? 'text-amber-600' : 'text-green-600';
         return (
-          <Badge variant={config.variant} className={config.className}>
-            {config.label}
-          </Badge>
+          <div className={`font-medium ${color}`}>
+            {util}%
+          </div>
         );
       },
     },
     {
-      header: "Last Updated",
-      accessorKey: "lastUpdated",
+      header: "Timesheets",
+      accessorKey: "timesheetCount",
       cell: ({ row }) => (
-        <div className="text-sm text-gray-600">
-          {new Date(row.original.lastUpdated).toLocaleDateString("en-US")}
+        <div className="flex items-center gap-1">
+          <FileText className="w-4 h-4 text-gray-400" />
+          {row.original.timesheetCount}
         </div>
+      ),
+    },
+    {
+      header: "Actions",
+      cell: ({ row }) => (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => toggleEmployeeExpansion(row.original.employeeId)}
+          className="flex items-center gap-1"
+        >
+          <Eye className="w-4 h-4" />
+          View Details
+        </Button>
       ),
     }
   ];
@@ -255,7 +373,7 @@ const TimesheetReports = () => {
 
     switch (activeReport) {
       case 'project-summary':
-        return getProjectSummaryData(filteredTimesheets);
+        return getStaffSummaryData(filteredTimesheets);
       case 'employee-utilization':
         return getEmployeeUtilizationData(filteredTimesheets);
       case 'detailed-timesheet':
@@ -267,41 +385,52 @@ const TimesheetReports = () => {
     }
   };
 
-  const getProjectSummaryData = (timesheets: any[]) => {
-    const projectMap = new Map();
+  const getStaffSummaryData = (timesheets: any[]) => {
+    const staffMap = new Map();
 
     timesheets.forEach(timesheet => {
+      const employeeId = timesheet.employee;
+      const employeeName = `${timesheet.employee_detail?.legal_firstname || ''} ${timesheet.employee_detail?.legal_lastname || ''}`.trim() || 'Unknown Employee';
+      const department = timesheet.employee_detail?.designation?.name || 'Unknown Department';
+      const totalHours = parseFloat(timesheet.total_hours) || 0;
+
+      if (!staffMap.has(employeeId)) {
+        staffMap.set(employeeId, {
+          employeeId,
+          employeeName,
+          department,
+          totalHours: 0,
+          projects: new Set(),
+          projectNames: new Set(),
+          timesheets: [],
+          timesheetCount: 0
+        });
+      }
+
+      const staff = staffMap.get(employeeId);
+      staff.totalHours += totalHours;
+      staff.timesheetCount += 1;
+      staff.timesheets.push(timesheet);
+
       timesheet.entries?.forEach((entry: any) => {
-        const projectId = entry.project;
-        const projectName = entry.project_name || projects.find(p => p.id === projectId)?.title || 'Unknown Project';
-        const hours = parseFloat(entry.hours_worked) || 0;
-
-        if (!projectMap.has(projectId)) {
-          projectMap.set(projectId, {
-            projectName,
-            projectId,
-            totalHours: 0,
-            employeeCount: new Set(),
-            entries: []
-          });
-        }
-
-        const project = projectMap.get(projectId);
-        project.totalHours += hours;
-        project.employeeCount.add(timesheet.employee);
-        project.entries.push(entry);
+        staff.projects.add(entry.project);
+        const projectName = entry.project_name || projects.find(p => p.id === entry.project)?.title || 'Unknown Project';
+        staff.projectNames.add(projectName);
       });
     });
 
-    return Array.from(projectMap.values()).map(project => ({
-      projectName: project.projectName,
-      projectId: project.projectId,
-      totalHours: project.totalHours,
-      employeeCount: project.employeeCount.size,
-      avgHoursPerWeek: project.totalHours / Math.max(1, project.employeeCount.size),
-      status: project.totalHours > 160 ? 'ahead' : project.totalHours < 80 ? 'behind' : 'on-track',
-      lastUpdated: new Date().toISOString().split('T')[0]
-    }));
+    return Array.from(staffMap.values()).map(staff => ({
+      employeeId: staff.employeeId,
+      employeeName: staff.employeeName,
+      department: staff.department,
+      totalHours: staff.totalHours,
+      projectCount: staff.projects.size,
+      projectNames: Array.from(staff.projectNames),
+      utilization: Math.round((staff.totalHours / 160) * 100), // Assuming 160 hours per month
+      timesheetCount: staff.timesheetCount,
+      timesheets: staff.timesheets,
+      status: staff.totalHours > 160 ? 'ahead' : staff.totalHours < 80 ? 'behind' : 'on-track'
+    })).sort((a, b) => b.totalHours - a.totalHours); // Sort by total hours descending
   };
 
   const getEmployeeUtilizationData = (timesheets: any[]) => {
@@ -607,7 +736,7 @@ const TimesheetReports = () => {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="project-summary">Project Summary</SelectItem>
+                  <SelectItem value="project-summary">Staff Timesheet Summary</SelectItem>
                   <SelectItem value="employee-utilization">Employee Utilization</SelectItem>
                   <SelectItem value="detailed-timesheet">Detailed Timesheet</SelectItem>
                   <SelectItem value="attendance-report">Attendance Report</SelectItem>
@@ -736,16 +865,30 @@ const TimesheetReports = () => {
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-lg font-semibold">
-                {activeReport === 'project-summary' ? 'Project Summary Report' : 'Employee Utilization Report'}
+                {activeReport === 'project-summary' ? 'Staff Timesheet Summary' : 'Employee Utilization Report'}
               </h3>
               <p className="text-sm text-gray-600">
-                {activeReport === 'project-summary' 
-                  ? 'Hours breakdown by project with team metrics' 
+                {activeReport === 'project-summary'
+                  ? 'Staff-centered view with expandable timesheet details by week/month'
                   : 'Employee productivity and utilization metrics'
                 }
               </p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
+              {activeReport === 'project-summary' && (
+                <div className="flex items-center gap-2 border rounded-lg p-1">
+                  <label className="text-sm text-gray-600">Detail View:</label>
+                  <Select value={detailViewMode} onValueChange={(value: any) => setDetailViewMode(value)}>
+                    <SelectTrigger className="w-32 h-8">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="weekly">Weekly</SelectItem>
+                      <SelectItem value="monthly">Monthly</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
               <BarChart className="w-5 h-5 text-blue-600" />
               <Calendar className="w-5 h-5 text-gray-400" />
             </div>
@@ -758,11 +901,77 @@ const TimesheetReports = () => {
           switch (activeReport) {
             case 'project-summary':
               return (
-                <DataTable
-                  data={reportData}
-                  columns={projectColumns}
-                  isLoading={timesheetsLoading || isExporting}
-                />
+                <div className="space-y-4">
+                  <DataTable
+                    data={reportData}
+                    columns={staffColumns}
+                    isLoading={timesheetsLoading || isExporting}
+                  />
+
+                  {/* Expandable Detail Views */}
+                  {reportData.filter((staff: any) => expandedEmployees.has(staff.employeeId)).map((staff: any) => {
+                    const detailData = detailViewMode === 'weekly'
+                      ? getEmployeeWeeklyData(staff.timesheets)
+                      : getEmployeeMonthlyData(staff.timesheets);
+
+                    return (
+                      <Card key={`details-${staff.employeeId}`} className="ml-8 border-l-4 border-blue-500">
+                        <div className="p-4">
+                          <div className="flex items-center justify-between mb-4">
+                            <div>
+                              <h4 className="font-semibold text-lg">{staff.employeeName} - {detailViewMode === 'weekly' ? 'Weekly' : 'Monthly'} Breakdown</h4>
+                              <p className="text-sm text-gray-600">{staff.department} • {staff.totalHours.toFixed(1)} total hours</p>
+                            </div>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => toggleEmployeeExpansion(staff.employeeId)}
+                            >
+                              <ChevronDown className="w-4 h-4" />
+                              Collapse
+                            </Button>
+                          </div>
+
+                          <div className="space-y-3">
+                            {detailData.map((period: any, index: number) => (
+                              <div key={index} className="border rounded-lg p-4 bg-gray-50">
+                                <div className="flex items-center justify-between mb-2">
+                                  <div className="font-medium">{period.period}</div>
+                                  <div className="font-semibold text-blue-600">{period.totalHours.toFixed(1)}h</div>
+                                </div>
+
+                                <div className="text-sm text-gray-600 mb-2">
+                                  <span className="font-medium">{period.projectCount} projects:</span> {period.projects.join(', ')}
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 text-xs">
+                                  {period.entries.slice(0, 6).map((entry: any, entryIndex: number) => (
+                                    <div key={entryIndex} className="bg-white p-2 rounded border">
+                                      <div className="font-medium truncate">{entry.project_name || 'Unknown Project'}</div>
+                                      <div className="text-gray-500">{entry.date} • {parseFloat(entry.hours_worked || 0).toFixed(1)}h</div>
+                                      <div className="text-gray-400 truncate">{entry.custom_activity || entry.activity_name || 'No activity'}</div>
+                                    </div>
+                                  ))}
+                                  {period.entries.length > 6 && (
+                                    <div className="bg-white p-2 rounded border flex items-center justify-center text-gray-500">
+                                      +{period.entries.length - 6} more entries
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+
+                            {detailData.length === 0 && (
+                              <div className="text-center text-gray-500 py-4">
+                                No timesheet data found for this employee
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </Card>
+                    );
+                  })}
+                </div>
               );
             case 'employee-utilization':
               return (
