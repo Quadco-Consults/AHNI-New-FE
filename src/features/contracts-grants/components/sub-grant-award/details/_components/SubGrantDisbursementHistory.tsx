@@ -94,10 +94,13 @@ const DisbursementTableMenu = (data: DisbursementData & { subGrantId: string }) 
   const handleEdit = () => {
     dispatch(
       openDialog({
-        type: DialogType.DisbursementModal,
+        type: DialogType.ADD_DISBURSEMENT_MODAL,
         dialogProps: {
           header: "Edit Disbursement",
-          data: data,
+          width: "max-w-lg",
+          subGrantId: subGrantId,
+          isSubGrant: true,
+          disbursement: data,
         },
       })
     );
@@ -166,6 +169,7 @@ interface SubGrantDisbursementHistoryProps {
 
 const SubGrantDisbursementHistory: React.FC<SubGrantDisbursementHistoryProps> = ({ subGrantId }) => {
   const [page, setPage] = useState(1);
+  const dispatch = useAppDispatch();
 
   const { data, isFetching, error } = useGetAllSubGrantDisbursements({
     subGrantId: subGrantId,
@@ -178,6 +182,24 @@ const SubGrantDisbursementHistory: React.FC<SubGrantDisbursementHistoryProps> = 
     <section className="w-full flex flex-col space-y-[1.25rem]">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold">Disbursement History</h3>
+        <Button
+          onClick={() => {
+            dispatch(
+              openDialog({
+                type: DialogType.ADD_DISBURSEMENT_MODAL,
+                dialogProps: {
+                  header: "Add Disbursement",
+                  width: "max-w-lg",
+                  subGrantId: subGrantId,
+                  isSubGrant: true,
+                },
+              })
+            );
+          }}
+          className="flex gap-2 py-2"
+        >
+          Add Disbursement
+        </Button>
       </div>
 
       <div className="w-full bg-white border rounded-lg p-2">

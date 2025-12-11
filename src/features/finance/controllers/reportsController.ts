@@ -211,7 +211,7 @@ export const useGetTrialBalance = (filters?: ReportFilters) => {
         if (filters?.date_to) params.append('date_to', filters.date_to);
         if (filters?.account_type) params.append('account_type', filters.account_type);
 
-        const response = await AxiosWithToken.get(`/api/finance/reports/trial-balance/?${params.toString()}`);
+        const response = await AxiosWithToken.get(`/finance/reports/trial-balance/?${params.toString()}`);
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
@@ -235,7 +235,7 @@ export const useGetIncomeStatement = (filters?: ReportFilters) => {
         if (filters?.department) params.append('department', filters.department);
         if (filters?.project) params.append('project', filters.project);
 
-        const response = await AxiosWithToken.get(`/api/finance/reports/income-statement/?${params.toString()}`);
+        const response = await AxiosWithToken.get(`/finance/reports/income-statement/?${params.toString()}`);
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
@@ -257,7 +257,7 @@ export const useGetBalanceSheet = (filters?: ReportFilters) => {
         if (filters?.date_to) params.append('as_of_date', filters.date_to);
         if (filters?.department) params.append('department', filters.department);
 
-        const response = await AxiosWithToken.get(`/api/finance/reports/balance-sheet/?${params.toString()}`);
+        const response = await AxiosWithToken.get(`/finance/reports/balance-sheet/?${params.toString()}`);
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
@@ -279,7 +279,7 @@ export const useGetCashFlowStatement = (filters?: ReportFilters) => {
         if (filters?.date_from) params.append('date_from', filters.date_from);
         if (filters?.date_to) params.append('date_to', filters.date_to);
 
-        const response = await AxiosWithToken.get(`/api/finance/reports/cash-flow-statement/?${params.toString()}`);
+        const response = await AxiosWithToken.get(`/finance/reports/cash-flow-statement/?${params.toString()}`);
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
@@ -301,7 +301,7 @@ export const useGetGeneralLedger = (accountId: string, filters?: ReportFilters) 
         if (filters?.date_from) params.append('date_from', filters.date_from);
         if (filters?.date_to) params.append('date_to', filters.date_to);
 
-        const response = await AxiosWithToken.get(`/api/finance/reports/general-ledger/${accountId}/?${params.toString()}`);
+        const response = await AxiosWithToken.get(`/finance/reports/general-ledger/${accountId}/?${params.toString()}`);
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;

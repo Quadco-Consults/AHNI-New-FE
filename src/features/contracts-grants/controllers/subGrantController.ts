@@ -65,7 +65,7 @@ export const useGetAllSubGrants = ({
             size,
             ...(search && { search }),
             ...(status && { status }),
-            expand: 'locations,business_unit',
+            expand: 'project,project.funding_sources,project.intervention_area,locations,business_unit',
           },
         });
 
@@ -140,6 +140,23 @@ export const useGetSingleSubGrant = (id: string, enabled: boolean = true) => {
               id: mockSubGrant.grant,
               title: mockSubGrant.project,
               description: mockSubGrant.title,
+              project_id: `PROJ-${String(Math.floor(Math.random() * 1000)).padStart(3, '0')}`,
+              intervention_area: {
+                id: `ia-${mockSubGrant.id}`,
+                code: mockSubGrant.business_unit === "Community Development" ? "Community Development"
+                  : mockSubGrant.business_unit === "Education" ? "Education Support"
+                  : mockSubGrant.business_unit === "Healthcare" ? "Health System Strengthening"
+                  : "General Development"
+              },
+              funding_sources: [
+                {
+                  id: `fs-${mockSubGrant.id}`,
+                  name: mockSubGrant.business_unit === "Community Development" ? "World Bank"
+                    : mockSubGrant.business_unit === "Education" ? "USAID"
+                    : mockSubGrant.business_unit === "Healthcare" ? "Gates Foundation"
+                    : "International Donor"
+                }
+              ]
             },
             grant: {
               id: mockSubGrant.grant,

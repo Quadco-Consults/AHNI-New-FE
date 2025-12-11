@@ -223,17 +223,18 @@ export default function Dashboard() {
     refetchOnWindowFocus: false
   });
 
-  // Financial reports - only load if user has finance access
+  // Financial reports - disabled temporarily due to missing API endpoints
+  // TODO: Enable when /api/finance/reports/trial-balance/ and /api/finance/reports/income-statement/ are available
   const { data: trialBalanceData, isLoading: _isLoadingTrialBalance } = useGetTrialBalance({
     date_from: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     date_to: new Date().toISOString().split('T')[0],
-    enabled: isClient && canAccessFinanceFeatures
+    enabled: false // Temporarily disabled - API endpoints return 404
   });
 
   const { data: incomeStatementData, isLoading: _isLoadingIncomeStatement } = useGetIncomeStatement({
     date_from: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     date_to: new Date().toISOString().split('T')[0],
-    enabled: isClient && canAccessFinanceFeatures
+    enabled: false // Temporarily disabled - API endpoints return 404
   });
 
   // State for interactivity and real-time features
@@ -431,52 +432,57 @@ export default function Dashboard() {
     };
   }, [fundRequestsData]);
 
-  // Process financial reports data
+  // Process financial reports data - currently disabled due to API availability
   const realFinancialAnalytics = useMemo(() => {
-    const trialBalance = trialBalanceData?.data || [];
-    const incomeStatement = incomeStatementData?.data || null;
+    // APIs temporarily disabled - return null to hide financial metrics
+    // TODO: Enable when finance report APIs are available
+    return null;
 
-    let totalAssets = 0;
-    let totalLiabilities = 0;
-    let totalEquity = 0;
-    let totalRevenue = 0;
-    let totalExpenses = 0;
-
-    // Process trial balance for financial position
-    if (Array.isArray(trialBalance)) {
-      trialBalance.forEach((account: any) => {
-        const balance = parseFloat(account.net_balance) || 0;
-        const accountType = account.account_type?.toLowerCase() || '';
-
-        if (accountType.includes('asset')) {
-          totalAssets += balance;
-        } else if (accountType.includes('liability')) {
-          totalLiabilities += balance;
-        } else if (accountType.includes('equity')) {
-          totalEquity += balance;
-        }
-      });
-    }
-
-    // Process income statement
-    if (incomeStatement) {
-      totalRevenue = incomeStatement.income?.total_income || 0;
-      totalExpenses = incomeStatement.expenses?.total_expenses || 0;
-    }
-
-    const netIncome = totalRevenue - totalExpenses;
-    const profitMargin = totalRevenue > 0 ? (netIncome / totalRevenue) * 100 : 0;
-
-    return {
-      totalAssets,
-      totalLiabilities,
-      totalEquity,
-      totalRevenue,
-      totalExpenses,
-      netIncome,
-      profitMargin,
-      debtToEquity: totalEquity > 0 ? totalLiabilities / totalEquity : 0
-    };
+    // Original implementation (commented out):
+    // const trialBalance = trialBalanceData?.data || [];
+    // const incomeStatement = incomeStatementData?.data || null;
+    //
+    // let totalAssets = 0;
+    // let totalLiabilities = 0;
+    // let totalEquity = 0;
+    // let totalRevenue = 0;
+    // let totalExpenses = 0;
+    //
+    // // Process trial balance for financial position
+    // if (Array.isArray(trialBalance)) {
+    //   trialBalance.forEach((account: any) => {
+    //     const balance = parseFloat(account.net_balance) || 0;
+    //     const accountType = account.account_type?.toLowerCase() || '';
+    //
+    //     if (accountType.includes('asset')) {
+    //       totalAssets += balance;
+    //     } else if (accountType.includes('liability')) {
+    //       totalLiabilities += balance;
+    //     } else if (accountType.includes('equity')) {
+    //       totalEquity += balance;
+    //     }
+    //   });
+    // }
+    //
+    // // Process income statement
+    // if (incomeStatement) {
+    //   totalRevenue = incomeStatement.income?.total_income || 0;
+    //   totalExpenses = incomeStatement.expenses?.total_expenses || 0;
+    // }
+    //
+    // const netIncome = totalRevenue - totalExpenses;
+    // const profitMargin = totalRevenue > 0 ? (netIncome / totalRevenue) * 100 : 0;
+    //
+    // return {
+    //   totalAssets,
+    //   totalLiabilities,
+    //   totalEquity,
+    //   totalRevenue,
+    //   totalExpenses,
+    //   netIncome,
+    //   profitMargin,
+    //   debtToEquity: totalEquity > 0 ? totalLiabilities / totalEquity : 0
+    // };
   }, [trialBalanceData, incomeStatementData]);
 
   // Loading states - include fund requests loading
@@ -782,8 +788,8 @@ export default function Dashboard() {
                 {realProjectsAnalytics?.totalProjects} Projects
               </Badge>
             </div>
-            <div className="h-64 w-full">
-              <ResponsiveContainer width="100%" height="100%" minHeight={256}>
+            <div className="h-64 w-full min-h-[256px]" style={{ minHeight: '256px', height: '256px' }}>
+              <ResponsiveContainer width="100%" height={256}>
                 <PieChart>
                   <Pie
                     data={chartData.projectStatusChart}
@@ -832,8 +838,8 @@ export default function Dashboard() {
                 {chartData.locationChart.length} Locations
               </Badge>
             </div>
-            <div className="h-64 w-full">
-              <ResponsiveContainer width="100%" height="100%" minHeight={256}>
+            <div className="h-64 w-full min-h-[256px]" style={{ minHeight: '256px', height: '256px' }}>
+              <ResponsiveContainer width="100%" height={256}>
                 <BarChart data={chartData.locationChart} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
                   <XAxis dataKey="name" tick={{ fontSize: 12 }} />
@@ -861,8 +867,8 @@ export default function Dashboard() {
                 {chartData.fundingChart.length} Sources
               </Badge>
             </div>
-            <div className="h-80 w-full">
-              <ResponsiveContainer width="100%" height="100%" minHeight={320}>
+            <div className="h-80 w-full min-h-[320px]" style={{ minHeight: '320px', height: '320px' }}>
+              <ResponsiveContainer width="100%" height={320}>
                 <BarChart data={chartData.fundingChart} layout="horizontal" margin={{ top: 20, right: 30, left: 120, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
                   <XAxis type="number" tick={{ fontSize: 12 }} />
@@ -980,8 +986,8 @@ export default function Dashboard() {
             </div>
           ) : (
             <>
-              <div className="h-64 w-full">
-                <ResponsiveContainer width="100%" height="100%" minHeight={256}>
+              <div className="h-64 w-full min-h-[256px]" style={{ minHeight: '256px', height: '256px' }}>
+                <ResponsiveContainer width="100%" height={256}>
                   <PieChart>
                     <Pie
                       data={chartData.departmentChart}
@@ -1261,9 +1267,10 @@ export default function Dashboard() {
                   ✓ Fund Requests API ({realFundRequestAnalytics.totalRequests} records)
                 </Badge>
               )}
-              {realFinancialAnalytics && (
+              {/* Financial Reports API temporarily disabled */}
+              {false && (
                 <Badge variant="outline" className="bg-white">
-                  ✓ Financial Reports API
+                  ✓ Financial Reports API (Disabled - API endpoints unavailable)
                 </Badge>
               )}
             </div>

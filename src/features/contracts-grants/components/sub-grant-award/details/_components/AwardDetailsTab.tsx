@@ -218,9 +218,8 @@ const AwardDetailsTab: React.FC<AwardDetailsTabProps> = ({ subGrantId }) => {
             <div>
               <label className="text-sm font-medium text-gray-600">Intervention Area</label>
               <p className="text-base mt-1">
-                {subGrant?.project?.intervention_area?.description ||
-                 subGrant?.project?.intervention_area?.name ||
-                 subGrant?.project?.intervention_area ||
+                {subGrant?.project?.intervention_area?.code ||
+                 subGrant?.project?.intervention_area?.id ||
                  "N/A"}
               </p>
             </div>

@@ -3,6 +3,7 @@ import { IGrantSingleData } from "../../grants";
 import { TPartnerData } from "definations/modules/project/partners";
 import { IUser } from "definations/auth/user";
 import { TLocationData } from "definations/modules/config/location";
+import { IProjectSingleData } from "@/features/projects/types/project";
 
 export const SubGrantSchema = z.object({
     project: z.string().min(1, "Please select project"),
@@ -31,7 +32,7 @@ export type TSubGrantFormData = z.infer<typeof SubGrantSchema>;
 export interface ISubGrantPaginatedData {
     id: string;
     grant_ref_no: string;
-    project: string;
+    project: string | IProjectSingleData;
     sub_grant_administrator: string;
     technical_staff: string;
     evaluation_applicants: string[];

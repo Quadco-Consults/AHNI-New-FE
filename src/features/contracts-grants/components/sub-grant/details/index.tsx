@@ -8,6 +8,7 @@ import SubGrantAwardDetails from "./SubGrantAwardDetails";
 import SubGrantSubmissionDetails from "./submission";
 import ShortlistedSubmissionsList from "./shortlisted";
 import AssessmentResults from "./assessment-results";
+import AwardedPartnersView from "./awarded-partners";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
@@ -235,6 +236,10 @@ const SubGrantDetails = () => {
                         <TabsTrigger value="shortlisted">Shortlisted Sub-Grantees</TabsTrigger>
 
                         <TabsTrigger value="assessment-results">Assessment Results</TabsTrigger>
+
+                        {subGrantStatus === "AWARDED" && (
+                            <TabsTrigger value="awarded-partners">Awarded Partners</TabsTrigger>
+                        )}
                     </TabsList>
 
                     <TabsContent value="details">
@@ -252,6 +257,12 @@ const SubGrantDetails = () => {
                     <TabsContent value="assessment-results">
                         <AssessmentResults />
                     </TabsContent>
+
+                    {subGrantStatus === "AWARDED" && (
+                        <TabsContent value="awarded-partners">
+                            <AwardedPartnersView subGrantId={id} />
+                        </TabsContent>
+                    )}
                 </Tabs>
             )}
         </section>

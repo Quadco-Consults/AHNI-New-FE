@@ -101,13 +101,14 @@ export default function SubGrantSubmissionDetailWithTabs() {
         <div className="w-full flex flex-col gap-y-6 p-6">
             {/* Header with Back Button */}
             <div className="flex items-center gap-4">
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => router.back()}
-                >
-                    <ArrowLeft size={20} />
-                </Button>
+                <Link href="/dashboard/c-and-g/sub-grant/awards/submission">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                    >
+                        <ArrowLeft size={20} />
+                    </Button>
+                </Link>
                 <div className="flex-1">
                     <h1 className="text-2xl font-bold text-gray-800">Sub-Grant Application Review</h1>
                     <p className="text-gray-600 mt-1">

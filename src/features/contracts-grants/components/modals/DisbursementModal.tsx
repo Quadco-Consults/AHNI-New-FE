@@ -15,7 +15,12 @@ import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { closeDialog } from "store/ui";
-import { useCreateDisbursement, useUpdateDisbursement } from "../../controllers/disbursementController";
+import {
+  useCreateDisbursement,
+  useUpdateDisbursement,
+  useCreateSubGrantDisbursement,
+  useUpdateSubGrantDisbursement
+} from "../../controllers/disbursementController";
 import { queryClient } from "constants/mainController";
 
 
@@ -27,6 +32,8 @@ export default function DisbursementModal() {
 
   const grantId = dialogProps?.grantId as string;
   const projectId = dialogProps?.projectId as string;
+  const subGrantId = dialogProps?.subGrantId as string;
+  const isSubGrant = dialogProps?.isSubGrant as boolean;
 
   const form = useForm<TDisbursementFormData>({
     resolver: zodResolver(DisbursementSchema),
@@ -36,7 +43,7 @@ export default function DisbursementModal() {
       disbursement_date: disbursement?.disbursement_date ?? "",
       disbursement_method: disbursement?.disbursement_method ?? "",
       reference_number: disbursement?.reference_number ?? "",
-      project: projectId ?? disbursement?.project ?? "",
+      project: isSubGrant ? subGrantId : (projectId ?? disbursement?.project ?? ""),
       grant: grantId ?? disbursement?.grant ?? "",
       obligation: disbursement?.obligation ?? "",
     },
@@ -44,11 +51,18 @@ export default function DisbursementModal() {
 
   const dispatch = useAppDispatch();
 
+  // Use appropriate hooks based on context
   const { createDisbursement, isLoading: isCreateLoading } =
     useCreateDisbursement(grantId || "");
 
+  const { createSubGrantDisbursement, isLoading: isCreateSubGrantLoading } =
+    useCreateSubGrantDisbursement(subGrantId || "");
+
   const { updateDisbursement, isLoading: isUpdateLoading } =
     useUpdateDisbursement(grantId || "", disbursement?.id || "");
+
+  const { updateSubGrantDisbursement, isLoading: isUpdateSubGrantLoading } =
+    useUpdateSubGrantDisbursement(subGrantId || "", disbursement?.id || "");
 
   const disbursementMethods = [
     { label: "Bank Transfer", value: "bank_transfer" },
@@ -59,24 +73,37 @@ export default function DisbursementModal() {
   ];
 
   const onSubmit: SubmitHandler<TDisbursementFormData> = async (data) => {
-    if (!grantId) {
-      toast.error("Grant ID is required");
+    // Validation: Check that we have either grantId or subGrantId
+    if (!grantId && !subGrantId) {
+      toast.error(isSubGrant ? "Sub-Grant ID is required" : "Grant ID is required");
       return;
     }
 
     try {
       if (disbursement?.id) {
         // Update existing disbursement
-        await updateDisbursement(data);
+        if (isSubGrant) {
+          await updateSubGrantDisbursement(data);
+        } else {
+          await updateDisbursement(data);
+        }
         toast.success("Disbursement Updated");
       } else {
         // Create new disbursement
-        await createDisbursement(data);
+        if (isSubGrant) {
+          await createSubGrantDisbursement(data);
+        } else {
+          await createDisbursement(data);
+        }
         toast.success("Disbursement Created");
       }
 
-      // Refresh disbursements list
-      queryClient.invalidateQueries({ queryKey: ["disbursements", grantId] });
+      // Refresh disbursements list - use appropriate query key
+      if (isSubGrant) {
+        queryClient.invalidateQueries({ queryKey: ["subGrantDisbursements", subGrantId] });
+      } else {
+        queryClient.invalidateQueries({ queryKey: ["disbursements", grantId] });
+      }
 
       dispatch(closeDialog());
     } catch (error: any) {
@@ -126,7 +153,12 @@ export default function DisbursementModal() {
         <div className="flex justify-end">
           <FormButton
             size="lg"
-            loading={isCreateLoading || isUpdateLoading}
+            loading={
+              isCreateLoading ||
+              isUpdateLoading ||
+              isCreateSubGrantLoading ||
+              isUpdateSubGrantLoading
+            }
           >
             {disbursement?.id ? "Update" : "Create"} Disbursement
           </FormButton>

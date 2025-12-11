@@ -17,19 +17,34 @@ export const BaseDialog: FC<PageProps> = ({ children }) => {
         dispatch(closeDialog());
     };
 
+    // Filter out custom props that shouldn't be passed to DOM elements
+    const {
+        header,
+        description,
+        width,
+        className,
+        grantId,
+        projectId,
+        subGrantId,
+        isSubGrant,
+        data,
+        disbursement,
+        ...domSafeProps
+    } = dialogProps || {};
+
     return (
         <Dialog open={isOpen} onOpenChange={handleClose}>
             <DialogContent
-                className={dialogProps?.width || dialogProps?.className || "max-w-lg"}
-                aria-describedby={dialogProps?.description ? "dialog-description" : undefined}
-                {...(dialogProps || {})}
+                className={width || className || "max-w-lg"}
+                aria-describedby={description ? "dialog-description" : undefined}
+                {...domSafeProps}
             >
-                {dialogProps?.header ? (
+                {header ? (
                     <DialogHeader>
-                        <DialogTitle>{dialogProps.header}</DialogTitle>
-                        {dialogProps?.description && (
+                        <DialogTitle>{header}</DialogTitle>
+                        {description && (
                             <DialogDescription id="dialog-description">
-                                {dialogProps.description}
+                                {description}
                             </DialogDescription>
                         )}
                     </DialogHeader>

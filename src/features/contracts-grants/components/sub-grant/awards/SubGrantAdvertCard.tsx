@@ -21,6 +21,7 @@ import Link from "next/link";
 import { useDeleteSubGrant } from "@/features/contracts-grants/controllers/subGrantController";
 import { toast } from "sonner";
 import { useGetAllLocations } from "@/features/modules/controllers/config/locationController";
+import { useGetSingleDepartment } from "@/features/modules/controllers/config/departmentController";
 
 export default function SubgrantAdvertCard({
     id,
@@ -48,6 +49,12 @@ export default function SubgrantAdvertCard({
         size: 2000,
         enabled: true
     });
+
+    // Get business unit name when business_unit is an ID
+    const { data: departmentData } = useGetSingleDepartment(
+        typeof business_unit === 'string' ? business_unit : '',
+        !!business_unit && typeof business_unit === 'string'
+    );
 
     const handleDelete = async () => {
         try {
@@ -99,9 +106,20 @@ export default function SubgrantAdvertCard({
         if (typeof business_unit === 'object' && business_unit.name) {
             return business_unit.name;
         }
-        // If it's a string (ID), return as is (will be just the ID, but better than nothing)
-        return typeof business_unit === 'string' ? business_unit : null;
-    }, [business_unit]);
+        // If it's a string (ID), use the fetched department name
+        if (typeof business_unit === 'string' && departmentData?.data?.name) {
+            return departmentData.data.name;
+        }
+        // Fallback to the raw value but hide UUIDs
+        if (typeof business_unit === 'string') {
+            // Hide UUID-like strings (contains dashes and is long)
+            if (business_unit.includes('-') && business_unit.length > 20) {
+                return 'Business Unit';
+            }
+            return business_unit;
+        }
+        return null;
+    }, [business_unit, departmentData]);
 
     return (
         <div className="w-[49.5%]">
@@ -112,7 +130,7 @@ export default function SubgrantAdvertCard({
                             className={`bg-[#8C6400] text-[.625rem] py-1 px-[.625rem] w-fit rounded-full text-white text-sm`}
                         >
                             <span className="font-medium">Date Posted: </span>
-                            {format(created_datetime, "MMM dd, yyy")}
+                            {format(new Date(created_datetime), "MMM dd, yyyy")}
                         </p>
                         {status && (
                             <p
@@ -159,12 +177,12 @@ export default function SubgrantAdvertCard({
                         )}
                         <DetailsTag
                             icon={<DataCalenderSvg />}
-                            label={`Ends: ${format(end_date, "MMM dd, yyy")}`}
+                            label={`Ends: ${format(new Date(end_date), "MMM dd, yyyy")}`}
                         />
                         {submission_end_date && (
                             <DetailsTag
                                 icon={<DataCalenderSvg />}
-                                label={`Submission: ${format(submission_end_date, "MMM dd, yyy")}`}
+                                label={`Submission: ${format(new Date(submission_end_date), "MMM dd, yyyy")}`}
                             />
                         )}
                         {businessUnitName && (

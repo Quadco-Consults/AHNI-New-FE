@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "components/ui/button";
 import { Label } from "components/ui/label";
 import TargetDefinitionTable, { ProjectTargetDefinition } from "./TargetDefinitionTable";
@@ -10,11 +10,19 @@ type ViewMode = 'simple' | 'quarterly';
 interface TargetsToggleViewProps {
   isEditable?: boolean;
   onTargetsChange?: (targets: ProjectTargetDefinition[]) => void;
+  initialTargets?: ProjectTargetDefinition[];
 }
 
-export default function TargetsToggleView({ isEditable = true, onTargetsChange }: TargetsToggleViewProps) {
+export default function TargetsToggleView({ isEditable = true, onTargetsChange, initialTargets }: TargetsToggleViewProps) {
   const [viewMode, setViewMode] = useState<ViewMode>('simple');
   const [projectTargets, setProjectTargets] = useState<ProjectTargetDefinition[]>([]);
+
+  // Populate targets when initialTargets is provided (for editing existing projects)
+  useEffect(() => {
+    if (initialTargets && initialTargets.length > 0) {
+      setProjectTargets(initialTargets);
+    }
+  }, [initialTargets]);
 
   const handleTargetsChange = (targets: ProjectTargetDefinition[]) => {
     setProjectTargets(targets);
