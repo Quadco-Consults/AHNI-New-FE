@@ -4,7 +4,7 @@ import { Separator } from "components/ui/separator";
 import EvaluatorForm from "../components/EvaluatorForm";
 import ImprovedEvaluatorForm from "../components/ImprovedEvaluatorForm";
 import FormButton from "@/components/FormButton";
-import { FileIcon, CheckCircle, CheckCircle2, FileDown, ClipboardList, Calendar, CalendarCheck, User, Target, Users } from 'lucide-react';
+import { FileIcon, CheckCircle, CheckCircle2, FileDown, ClipboardList, Calendar, CalendarCheck, User, Target, Users, Send, Star, Mail, Briefcase, UserCheck, ClipboardCheck, Eye, File } from 'lucide-react';
 import GoBack from "components/GoBack";
 import { useState, useEffect } from "react";
 import React from "react";
@@ -613,7 +613,7 @@ const PerformanceDetails = () => {
                   <label className='text-xs font-medium text-gray-500 uppercase tracking-wide'>Supervisor Name</label>
                   {assessmentWithGoals.supervisor_name ? (
                     <p className='text-sm text-gray-900 flex items-center gap-1'>
-                      <UserFocus size={16} />
+                      <UserCheck size={16} />
                       {assessmentWithGoals.supervisor_name}
                     </p>
                   ) : (

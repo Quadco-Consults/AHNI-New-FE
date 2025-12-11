@@ -29,8 +29,14 @@ const LeaveBalanceCard: React.FC<LeaveBalanceCardProps> = ({
     return null; // Don't render if balance is invalid
   }
 
-  const utilizationPercentage = (balance.used / balance.entitled) * 100;
-  const pendingPercentage = (balance.pending / balance.entitled) * 100;
+  // Support both normalized field names and various API formats
+  const entitled = balance.entitled || balance.allocated || 0;
+  const used = balance.used || 0;
+  const available = balance.available || balance.remaining || (entitled - used - balance.pending || 0);
+  const pending = balance.pending || 0;
+
+  const utilizationPercentage = entitled > 0 ? (used / entitled) * 100 : 0;
+  const pendingPercentage = entitled > 0 ? (pending / entitled) * 100 : 0;
 
   return (
     <Card className={`p-6 ${className}`}>
@@ -53,11 +59,11 @@ const LeaveBalanceCard: React.FC<LeaveBalanceCardProps> = ({
       {/* Main Balance Display */}
       <div className="grid grid-cols-2 gap-4 mb-6">
         <div className="text-center">
-          <div className="text-3xl font-bold text-green-600">{balance.available}</div>
+          <div className="text-3xl font-bold text-green-600">{available}</div>
           <div className="text-sm text-gray-600">Available</div>
         </div>
         <div className="text-center">
-          <div className="text-3xl font-bold text-gray-900">{balance.entitled}</div>
+          <div className="text-3xl font-bold text-gray-900">{entitled}</div>
           <div className="text-sm text-gray-600">Entitled</div>
         </div>
       </div>
@@ -85,32 +91,32 @@ const LeaveBalanceCard: React.FC<LeaveBalanceCardProps> = ({
             <div className="flex flex-col items-center">
               <div className="flex items-center gap-1 mb-1">
                 <CalendarX className="w-4 h-4 text-red-500" />
-                <span className="text-sm font-medium text-red-600">{balance.used}</span>
+                <span className="text-sm font-medium text-red-600">{used}</span>
               </div>
               <span className="text-xs text-gray-600">Used</span>
             </div>
-            
+
             <div className="flex flex-col items-center">
               <div className="flex items-center gap-1 mb-1">
                 <Clock className="w-4 h-4 text-amber-500" />
-                <span className="text-sm font-medium text-amber-600">{balance.pending}</span>
+                <span className="text-sm font-medium text-amber-600">{pending}</span>
               </div>
               <span className="text-xs text-gray-600">Pending</span>
             </div>
-            
+
             <div className="flex flex-col items-center">
               <div className="flex items-center gap-1 mb-1">
                 <Calendar className="w-4 h-4 text-blue-500" />
-                <span className="text-sm font-medium text-blue-600">{balance.scheduled}</span>
+                <span className="text-sm font-medium text-blue-600">{balance.scheduled || 0}</span>
               </div>
               <span className="text-xs text-gray-600">Scheduled</span>
             </div>
-            
-            {balance.carriedForward > 0 && (
+
+            {(balance.carriedForward || 0) > 0 && (
               <div className="flex flex-col items-center">
                 <div className="flex items-center gap-1 mb-1">
                   <TrendingUp className="w-4 h-4 text-purple-500" />
-                  <span className="text-sm font-medium text-purple-600">{balance.carriedForward}</span>
+                  <span className="text-sm font-medium text-purple-600">{balance.carriedForward || 0}</span>
                 </div>
                 <span className="text-xs text-gray-600">Carried Forward</span>
               </div>
@@ -141,16 +147,16 @@ const LeaveBalanceCard: React.FC<LeaveBalanceCardProps> = ({
           )}
 
           {/* Warning Messages */}
-          {balance.available < 5 && balance.available > 0 && (
+          {available < 5 && available > 0 && (
             <div className="mt-3 p-2 bg-amber-50 border border-amber-200 rounded text-xs text-amber-800">
               <div className="flex items-center gap-1">
                 <Info className="w-3 h-3" />
-                <span>Low balance: Only {balance.available} days remaining</span>
+                <span>Low balance: Only {available} days remaining</span>
               </div>
             </div>
           )}
-          
-          {balance.available <= 0 && (
+
+          {available <= 0 && (
             <div className="mt-3 p-2 bg-red-50 border border-red-200 rounded text-xs text-red-800">
               <div className="flex items-center gap-1">
                 <CalendarX className="w-3 h-3" />

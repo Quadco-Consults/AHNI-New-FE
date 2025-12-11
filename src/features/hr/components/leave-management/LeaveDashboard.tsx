@@ -148,7 +148,7 @@ const LeaveDashboard = () => {
     ];
   }, [myRequestsResponse]);
 
-  // Extract leave balances
+  // Extract leave balances with deduplication
   const leaveBalances = React.useMemo(() => {
     console.log("🔍 Raw leave balances response:", leaveBalancesResponse);
 
@@ -166,12 +166,25 @@ const LeaveDashboard = () => {
       .map(normalizeLeaveBalance)
       .filter((balance: any) => balance !== null); // Filter out any that failed normalization
 
-    console.log("✅ Leave balances after normalization:", normalized);
+    // Deduplicate by leave type ID and year to prevent duplicate entries
+    const deduplicatedMap = new Map();
+    normalized.forEach((balance: any) => {
+      const key = `${balance.leaveTypeId || balance.leaveType?.id}-${balance.year}`;
+      if (!deduplicatedMap.has(key)) {
+        deduplicatedMap.set(key, balance);
+      } else {
+        console.warn("🚨 Duplicate leave balance detected and removed:", balance);
+      }
+    });
+
+    const deduplicated = Array.from(deduplicatedMap.values());
+    console.log("✅ Leave balances after normalization and deduplication:", deduplicated);
+    console.log("📊 Removed duplicates:", normalized.length - deduplicated.length);
 
     // Always return real data first, fallback to sample only if truly no data
-    if (normalized.length > 0) {
-      console.log("🎯 Using REAL balance data from API:", normalized.length, "balances");
-      return normalized;
+    if (deduplicated.length > 0) {
+      console.log("🎯 Using REAL balance data from API:", deduplicated.length, "balances");
+      return deduplicated;
     }
 
     console.log("⚠️ No real balance data found, showing sample data for demonstration");
@@ -179,28 +192,31 @@ const LeaveDashboard = () => {
     return [
       {
         id: 'sample-balance-1',
-        leave_type: { name: 'Annual Leave (Sample)', color: '#4ade80' },
-        allocated: 25,
+        leaveTypeId: 'sample-1',
+        leaveType: { id: 'sample-1', name: 'Annual Leave (Sample)', color: '#4ade80' },
+        entitled: 25,
         used: 8,
-        remaining: 17,
+        available: 17,
         pending: 6,
         year: 2024
       },
       {
         id: 'sample-balance-2',
-        leave_type: { name: 'Sick Leave (Sample)', color: '#f87171' },
-        allocated: 12,
+        leaveTypeId: 'sample-2',
+        leaveType: { id: 'sample-2', name: 'Sick Leave (Sample)', color: '#f87171' },
+        entitled: 12,
         used: 3,
-        remaining: 9,
+        available: 9,
         pending: 2,
         year: 2024
       },
       {
         id: 'sample-balance-3',
-        leave_type: { name: 'Personal Leave (Sample)', color: '#fbbf24' },
-        allocated: 5,
+        leaveTypeId: 'sample-3',
+        leaveType: { id: 'sample-3', name: 'Personal Leave (Sample)', color: '#fbbf24' },
+        entitled: 5,
         used: 1,
-        remaining: 4,
+        available: 4,
         pending: 0,
         year: 2024
       }
@@ -658,21 +674,21 @@ const LeaveDashboard = () => {
                 <div className="space-y-3">
                   {leaveBalances
                     .filter(balance => {
-                      const remaining = balance.remaining || 0;
-                      const total = balance.allocated || balance.total || 0;
+                      const remaining = balance.available || balance.remaining || 0;
+                      const total = balance.entitled || balance.allocated || 0;
                       const percentage = total > 0 ? (remaining / total) * 100 : 0;
                       return percentage > 70;
                     })
                     .slice(0, 2)
                     .map((balance) => {
-                      const remaining = balance.remaining || 0;
-                      const total = balance.allocated || balance.total || 0;
+                      const remaining = balance.available || balance.remaining || 0;
+                      const total = balance.entitled || balance.allocated || 0;
                       const percentage = total > 0 ? (remaining / total) * 100 : 0;
 
                       return (
                         <div key={balance.id} className="bg-white/80 rounded-lg p-4 border border-purple-100">
                           <p className="text-sm text-purple-800">
-                            💡 You have <span className="font-semibold">{remaining} {balance.leave_type?.name || 'leave'} days</span> remaining
+                            💡 You have <span className="font-semibold">{remaining} {balance.leaveType?.name || 'leave'} days</span> remaining
                             ({percentage.toFixed(0)}% unused). Consider planning some time off!
                           </p>
                         </div>

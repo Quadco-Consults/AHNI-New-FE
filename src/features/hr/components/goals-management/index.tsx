@@ -13,7 +13,7 @@ import { HrRoutes } from "constants/RouterConstants";
 import SearchBar from "components/atoms/SearchBar";
 import { Checkbox } from "components/ui/checkbox";
 import IconButton from "components/IconButton";
-import { Trash2 } from 'lucide-react';
+import { Trash2, Eye } from 'lucide-react';
 import { Icon } from "@iconify/react";
 import { useGetGoals, useGetEmployeeGoals } from "@/features/hr/controllers/goalsController";
 import useDebounce from "utils/useDebounce";

@@ -29,12 +29,14 @@ import {
 import { useGetEmployeeOnboardings } from "@/features/hr/controllers/employeeOnboardingController";
 import { toast } from "sonner";
 import Modal from "react-modal";
-import { CalendarIcon, Trash2, Copy, Plus } from "lucide-react";
+import { CalendarIcon, Trash2, Copy, Plus, ArrowLeft } from "lucide-react";
 import { format } from "date-fns";
+import { useRouter } from "next/navigation";
 import type { TimesheetEntry } from "@/features/hr/types/timesheet";
 
 const TimesheetManagementFull = () => {
   const params = useParams();
+  const router = useRouter();
   const timesheetId = Array.isArray(params?.id) ? params.id[0] : (params?.id as string);
   const isCreateMode = !timesheetId || timesheetId === "create";
 
@@ -75,6 +77,17 @@ const TimesheetManagementFull = () => {
   );
   const timesheet = timesheetData?.data;
 
+  // Debug timesheet data loading
+  useEffect(() => {
+    console.log("Timesheet API response:", {
+      timesheetData,
+      timesheet,
+      entries: timesheet?.entries,
+      entriesLength: timesheet?.entries?.length,
+      isLoading: isLoadingTimesheet
+    });
+  }, [timesheetData, timesheet, isLoadingTimesheet]);
+
   // Local state for entries
   const [entries, setEntries] = useState<TimesheetEntry[]>([]);
   const [selectedApprover, setSelectedApprover] = useState<string>("");
@@ -100,12 +113,27 @@ const TimesheetManagementFull = () => {
   // Initialize entries from backend data
   useEffect(() => {
     if (timesheet?.entries) {
+      console.log("Loading entries from backend:", timesheet.entries);
+
       // Transform backend data to ensure compatibility with both field names
-      const transformedEntries = timesheet.entries.map(entry => ({
-        ...entry,
-        // If backend returns workplan_activity, also set activity_plan for frontend compatibility
-        ...(entry.workplan_activity && !entry.activity_plan && { activity_plan: entry.workplan_activity }),
-      }));
+      const transformedEntries = timesheet.entries.map(entry => {
+        const transformed = {
+          ...entry,
+          // If backend returns workplan_activity, also set activity_plan for frontend compatibility
+          ...(entry.workplan_activity && !entry.activity_plan && { activity_plan: entry.workplan_activity }),
+        };
+
+        console.log("Transformed entry:", {
+          original: entry,
+          transformed: transformed,
+          hasId: !!entry.id,
+          entryId: entry.id
+        });
+
+        return transformed;
+      });
+
+      console.log("All transformed entries:", transformedEntries);
       setEntries(transformedEntries);
     }
   }, [timesheet]);
@@ -239,9 +267,9 @@ const TimesheetManagementFull = () => {
         return; // Exit early to prevent any further execution
       } else {
         console.log("Updating existing timesheet");
-        // Update existing timesheet
-        await updateTimesheet({
-          entries: entries.map((entry) => ({
+
+        const mappedEntries = entries.map((entry) => {
+          const mappedEntry = {
             ...(entry.id && { id: entry.id }),
             project: entry.project,
             // Use workplan_activity as the new field name for backend
@@ -251,7 +279,23 @@ const TimesheetManagementFull = () => {
             date: entry.date,
             hours_worked: entry.hours_worked,
             description: entry.description || "",
-          })),
+          };
+
+          console.log("Mapping entry for update:", {
+            original: entry,
+            mapped: mappedEntry,
+            hasId: !!entry.id,
+            entryId: entry.id
+          });
+
+          return mappedEntry;
+        });
+
+        console.log("All mapped entries for update:", mappedEntries);
+
+        // Update existing timesheet
+        await updateTimesheet({
+          entries: mappedEntries,
         });
         toast.success("Timesheet updated successfully");
         refetch();
@@ -315,8 +359,12 @@ const TimesheetManagementFull = () => {
 
     // Submit
     try {
-      console.log("Submitting timesheet with approver:", selectedApprover);
-      await submitTimesheet(selectedApprover || undefined);
+      console.log("Submitting timesheet. Selected approver:", selectedApprover);
+
+      // Since approver is already assigned on the backend, don't send approver_id
+      // This prevents the "approver does not exist" error
+      await submitTimesheet(undefined);
+
       toast.success("Timesheet submitted for approval");
       refetch();
     } catch (error: any) {
@@ -325,7 +373,7 @@ const TimesheetManagementFull = () => {
 
       // If approver error, suggest submitting without approver
       if (errorMessage.includes("approver")) {
-        toast.error(errorMessage + " - Try submitting without selecting an approver.");
+        toast.error(errorMessage + " - Using backend assigned approver.");
       } else {
         toast.error(errorMessage);
       }
@@ -372,13 +420,13 @@ const TimesheetManagementFull = () => {
 
   // Activity Type Toggle Component (Hybrid: ActivityPlan OR Custom)
   const ActivityTypeSelect = ({ value, onChange, rowIndex, entry }: any) => {
-    // Determine activity type based on which field has a value or is defined
-    // Priority: if activity_plan or workplan_activity exists (even if empty string) -> planned
-    //           if custom_activity exists (even if empty string) -> custom
+    // Determine activity type based on which field has a value
+    // Priority: if activity_plan or workplan_activity has actual value -> planned
+    //           if custom_activity has actual value -> custom
     //           default to custom for new entries
     const activityType =
-      (entry?.activity_plan !== undefined || entry?.workplan_activity !== undefined) ? "planned" :
-      entry?.custom_activity !== undefined ? "custom" :
+      (entry?.activity_plan || entry?.workplan_activity) ? "planned" :
+      entry?.custom_activity ? "custom" :
       "custom"; // default to custom for new entries
 
     const handleTypeChange = (type: string) => {
@@ -411,8 +459,8 @@ const TimesheetManagementFull = () => {
     const selectedProjectId = entry?.project; // This is now the project UUID
     // Match the same logic as ActivityTypeSelect
     const activityType =
-      (entry?.activity_plan !== undefined || entry?.workplan_activity !== undefined) ? "planned" :
-      entry?.custom_activity !== undefined ? "custom" :
+      (entry?.activity_plan || entry?.workplan_activity) ? "planned" :
+      entry?.custom_activity ? "custom" :
       "custom";
 
     // For planned activities: fetch activities directly by project ID
@@ -599,40 +647,98 @@ const TimesheetManagementFull = () => {
     );
   };
 
+  // Display Components for Read-Only View
+  const ProjectDisplay = ({ entry }: { entry: TimesheetEntry }) => {
+    const { data: projectsData } = useGetAllProjects({ page: 1, size: 1000 });
+    const allProjects = (projectsData as any)?.data?.results || [];
+    const project = allProjects.find((p: any) => p.id === entry.project);
+    const projectName = project?.project_name || project?.title || project?.project_id || entry.project_name || "Unknown Project";
+
+    return <span className="text-sm">{projectName}</span>;
+  };
+
+  const ActivityDisplay = ({ entry }: { entry: TimesheetEntry }) => {
+    // Show computed activity_name if available, otherwise construct display name
+    if (entry.activity_name) {
+      return <span className="text-sm">{entry.activity_name}</span>;
+    }
+
+    // For custom activities
+    if (entry.custom_activity) {
+      return <span className="text-sm text-blue-600">Custom: {entry.custom_activity}</span>;
+    }
+
+    // For workplan activities - try to fetch the name
+    if (entry.workplan_activity || entry.activity_plan) {
+      const activityId = entry.workplan_activity || entry.activity_plan;
+      const { data: activitiesData } = useGetAllActivityPlans({
+        page: 1,
+        size: 1000,
+        enabled: !!activityId
+      });
+      const activities = activitiesData?.data?.results || [];
+      const activity = activities.find((a: any) => a.id === activityId);
+
+      if (activity) {
+        return <span className="text-sm text-green-600">{activity.activity_code}: {activity.activity_name}</span>;
+      }
+
+      return <span className="text-sm text-gray-500">Workplan Activity: {activityId}</span>;
+    }
+
+    return <span className="text-sm text-gray-400">No activity selected</span>;
+  };
+
   // Table columns (memoized to prevent re-creation on every render)
   const columns: ColumnDef<TimesheetEntry>[] = useMemo(() => [
     {
       header: "Project",
-      cell: ({ row }) => (
+      cell: ({ row }) => canEdit ? (
         <ProjectSelect value={row.original.project} onChange={updateEntry} rowIndex={row.index} />
+      ) : (
+        <ProjectDisplay entry={row.original} />
       ),
     },
     {
       header: "Activity Type",
-      cell: ({ row }) => (
-        <ActivityTypeSelect value="" onChange={updateEntry} rowIndex={row.index} entry={row.original} />
-      ),
+      cell: ({ row }) => {
+        if (!canEdit) {
+          const activityType = (row.original.activity_plan || row.original.workplan_activity)
+            ? "From Workplan"
+            : row.original.custom_activity
+            ? "Custom Activity"
+            : "Not Set";
+          return <span className="text-sm text-gray-600">{activityType}</span>;
+        }
+        return <ActivityTypeSelect value="" onChange={updateEntry} rowIndex={row.index} entry={row.original} />;
+      },
     },
     {
       header: "Activity",
-      cell: ({ row }) => (
+      cell: ({ row }) => canEdit ? (
         <ActivityInput
           value={row.original.activity_plan || row.original.workplan_activity || row.original.custom_activity}
           onChange={updateEntry}
           rowIndex={row.index}
           entry={row.original}
         />
+      ) : (
+        <ActivityDisplay entry={row.original} />
       ),
     },
     {
       header: "Date",
-      cell: ({ row }) => (
+      cell: ({ row }) => canEdit ? (
         <DatePicker value={row.original.date} onChange={updateEntry} rowIndex={row.index} />
+      ) : (
+        <span className="text-sm">
+          {row.original.date ? format(new Date(row.original.date), "MMM dd, yyyy") : "No date"}
+        </span>
       ),
     },
     {
       header: "Hours",
-      cell: ({ row }) => (
+      cell: ({ row }) => canEdit ? (
         <Input
           type="number"
           min="0.01"
@@ -641,32 +747,38 @@ const TimesheetManagementFull = () => {
           value={row.original.hours_worked || 0}
           onChange={(e) => updateEntry(row.index, "hours_worked", parseFloat(e.target.value) || 0)}
           className="w-24"
-          disabled={!canEdit}
         />
+      ) : (
+        <span className="text-sm font-medium">
+          {(parseFloat(row.original.hours_worked) || 0).toFixed(2)}h
+        </span>
       ),
     },
     {
       header: "Description",
-      cell: ({ row }) => (
+      cell: ({ row }) => canEdit ? (
         <Textarea
           placeholder="Enter description"
           value={row.original.description || ""}
           onChange={(e) => updateEntry(row.index, "description", e.target.value)}
           className="min-w-[300px] min-h-[60px] resize-y"
           rows={2}
-          disabled={!canEdit}
         />
+      ) : (
+        <span className="text-sm max-w-[300px] block">
+          {row.original.description || "No description"}
+        </span>
       ),
     },
     {
       header: "Actions",
-      cell: ({ row }) => (
+      cell: ({ row }) => canEdit ? (
         <div className="flex gap-2">
           <Button
             variant="outline"
             size="sm"
             onClick={() => copyEntry(row.index)}
-            disabled={timesheetStatus !== "draft" && timesheetStatus !== "rejected"}
+            title="Copy entry"
           >
             <Copy className="h-4 w-4" />
           </Button>
@@ -674,11 +786,13 @@ const TimesheetManagementFull = () => {
             variant="destructive"
             size="sm"
             onClick={() => removeEntry(row.index)}
-            disabled={timesheetStatus !== "draft" && timesheetStatus !== "rejected"}
+            title="Delete entry"
           >
             <Trash2 className="h-4 w-4" />
           </Button>
         </div>
+      ) : (
+        <span className="text-xs text-gray-400">Read-only</span>
       ),
     },
   ], [timesheetStatus, canEdit, updateEntry, copyEntry, removeEntry]);
@@ -695,13 +809,22 @@ const TimesheetManagementFull = () => {
   return (
     <div className="space-y-4 p-4">
       <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold">Timesheet Management</h2>
-          {timesheet && (
-            <p className="text-sm text-gray-600">
-              Period: {timesheet.start_date} to {timesheet.end_date}
-            </p>
-          )}
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            onClick={() => router.back()}
+            className="hover:bg-gray-100"
+          >
+            <ArrowLeft size={16} />
+          </Button>
+          <div>
+            <h2 className="text-2xl font-bold">Timesheet Management</h2>
+            {timesheet && (
+              <p className="text-sm text-gray-600">
+                Period: {timesheet.start_date} to {timesheet.end_date}
+              </p>
+            )}
+          </div>
         </div>
         <div className="flex items-center gap-4">
           <div className="text-right">
