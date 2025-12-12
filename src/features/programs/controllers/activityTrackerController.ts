@@ -16,14 +16,23 @@ export const useGetAllActivityTrackers = ({
   size = 20,
   search = "",
   status = "",
+  work_plan__id = "",
   enabled = true,
-}: TRequest & { enabled?: boolean }) => {
+}: TRequest & {
+  status?: string;
+  work_plan__id?: string;
+  enabled?: boolean
+}) => {
   return useQuery<TPaginatedResponse<TWorkPlanTrackerData>>({
-    queryKey: ["activity-trackers", page, size, search, status],
+    queryKey: ["activity-trackers", page, size, search, status, work_plan__id],
     queryFn: async () => {
       try {
+        const params: any = { page, size, search };
+        if (status) params.status = status;
+        if (work_plan__id) params.work_plan__id = work_plan__id;
+
         const response = await AxiosWithToken.get("/programs/plans/works/trackers/", {
-          params: { page, size, search, status },
+          params,
         });
         return response.data;
       } catch (error) {
@@ -50,6 +59,26 @@ export const useGetSingleActivityTracker = (id: string, enabled: boolean = true)
       }
     },
     enabled: enabled && !!id,
+    refetchOnWindowFocus: false,
+  });
+};
+
+// Get Activity Tracker by Activity ID
+export const useGetActivityTrackerByActivityId = (activityId: string, enabled: boolean = true) => {
+  return useQuery<TPaginatedResponse<TWorkPlanTrackerData>>({
+    queryKey: ["activity-tracker-by-activity", activityId],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get("/programs/plans/works/trackers/", {
+          params: { work_plan_activity: activityId },
+        });
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    enabled: enabled && !!activityId,
     refetchOnWindowFocus: false,
   });
 };
@@ -100,6 +129,30 @@ export const useUpdateActivityTracker = (id: string) => {
   };
 
   return { updateActivityTracker, data, isLoading, isSuccess, error };
+};
+
+// Patch Activity Tracker (for partial updates)
+export const usePatchActivityTracker = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    TWorkPlanTrackerData,
+    Error,
+    Partial<TWorkPlanTrackerFormValues>
+  >({
+    endpoint: `/programs/plans/works/trackers/${id}/`,
+    queryKey: ["activity-trackers", "activity-tracker"],
+    isAuth: true,
+    method: "PATCH",
+  });
+
+  const patchActivityTracker = async (details: Partial<TWorkPlanTrackerFormValues>) => {
+    try {
+      await callApi(details);
+    } catch (error) {
+      console.error("Activity tracker patch error:", error);
+    }
+  };
+
+  return { patchActivityTracker, data, isLoading, isSuccess, error };
 };
 
 // Patch Work Plan Tracker Status

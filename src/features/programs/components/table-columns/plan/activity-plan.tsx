@@ -25,6 +25,24 @@ export const getActivityPlanDetailsColumns = (
   workPlanId: string
 ): ColumnDef<TActivityPlanData>[] => [
   {
+    header: "Activity Type",
+    accessorKey: "activity_type",
+    size: 120,
+    cell: ({ row }) => {
+      const activityType = row.original.activity_type || "PLANNED";
+      return (
+        <Badge
+          className={`${
+            activityType === "UNPLANNED" ? "bg-orange-500" : "bg-blue-500"
+          }`}
+        >
+          {activityType}
+        </Badge>
+      );
+    },
+  },
+
+  {
     header: "Objective",
     accessorKey: "objectives_sub_objectives",
     size: 200,

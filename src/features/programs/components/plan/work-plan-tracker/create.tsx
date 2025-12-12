@@ -11,11 +11,17 @@ import { RouteEnum } from "constants/RouterConstants";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useRouter, useSearchParams, useParams } from "next/navigation";
 import { toast } from "sonner";
-import { 
+import {
   useGetSingleWorkPlanActivity,
-  useUpdateWorkPlanActivity 
+  useUpdateWorkPlanActivity
 } from "@/features/programs/controllers/workPlanController";
-import { useEffect } from "react";
+import {
+  useGetActivityTrackerByActivityId,
+  usePatchActivityTracker,
+  useCreateActivityTracker,
+  useGetSingleActivityTracker
+} from "@/features/programs/controllers/activityTrackerController";
+import { useEffect, useState } from "react";
 import BreadcrumbCard, { TBreadcrumbList } from "components/Breadcrumb";
 import {
   TWorkPlanTrackerFormValues,
@@ -32,109 +38,139 @@ const breadcrumbs: TBreadcrumbList[] = [
 export default function CreateActivityTracker() {
   const searchParams = useSearchParams();
   const params = useParams();
-  const activityId = searchParams.get("id");
+  const paramId = searchParams.get("id"); // Could be activityId or trackerId
   const workPlanId = searchParams.get("plan") || (params.id as string);
 
-  const { updateWorkPlanActivity, isLoading } =
-    useUpdateWorkPlanActivity(workPlanId, activityId || "");
+  // Current USD/NGN exchange rate (you can fetch this from an API or use a default)
+  const [usdRate, setUsdRate] = useState(1600); // Default rate, can be updated
+  const [trackerId, setTrackerId] = useState<string | null>(null);
+  const [activityId, setActivityId] = useState<string | null>(null);
+  const [isEditMode, setIsEditMode] = useState(false);
 
   const router = useRouter();
 
-  // Use the new hook to get work plan activity
+  // Try to get single tracker data with the paramId - if it succeeds, we're in edit mode
+  const { data: singleTrackerData } = useGetSingleActivityTracker(paramId || "", !!paramId);
+
+  // Effect to determine if we're in edit mode and set the appropriate IDs
+  useEffect(() => {
+    if (paramId) {
+      // If we can successfully fetch tracker data with this ID, we're in edit mode
+      if (singleTrackerData?.data) {
+        setIsEditMode(true);
+        setTrackerId(paramId);
+        setActivityId(singleTrackerData.data.work_plan_activity);
+      } else if (singleTrackerData !== undefined) {
+        // Only set create mode if the query has completed and returned undefined/null
+        setIsEditMode(false);
+        setActivityId(paramId);
+        setTrackerId(null);
+      }
+    }
+  }, [paramId, singleTrackerData]);
+
+  // Get work plan activity for basic info
   const { data: workPlanActivity } = useGetSingleWorkPlanActivity(
     workPlanId,
     activityId || "",
     !!(workPlanId && activityId)
   );
 
-  //   // Keep the old hook as fallback if needed
-  //   const { data: workPlanTracker } = useGetSingleActivityTracker(
-  //     activityId ?? skipToken
-  //   );
+  // Get existing tracker for this activity
+  const { data: trackerData } = useGetActivityTrackerByActivityId(
+    activityId || "",
+    !!(activityId)
+  );
 
-  //   console.log({ workPlanActivity, workPlanTracker, activityId, workPlanId });
+  // Hooks for tracker operations
+  const { createActivityTracker, isLoading: isCreating } = useCreateActivityTracker();
+  const { patchActivityTracker, isLoading: isPatching } = usePatchActivityTracker(trackerId || "");
+
+  // Legacy hook for activity updates (if needed)
+  const { updateWorkPlanActivity } = useUpdateWorkPlanActivity(workPlanId, activityId || "");
+
+  const isLoading = isCreating || isPatching;
+
 
   const form = useForm<TWorkPlanTrackerFormValues>({
     resolver: zodResolver(WorkPlanTrackerSchema),
     defaultValues: {
-      output_description: "",
-      achieved_output: "",
-      achievement_percentage: "",
+      description_of_output: "",
+      achieved_results: "",
       amount_expended_ngn: "",
-      amount_expended_usd: "",
-      implementation_usd_rate: "",
-      expenditure_usd_rate: "",
       expenditure_ngn_rate: "",
-      variance_ngn: "",
-      variance_usd: "",
-      percentage_variance_ngn: "",
-      percentage_variance_usd: "",
-      efficiency_output_expenditure_ratio: "",
-      efficiency_output_expenditure_level: "",
+      expenditure_usd_rate: "",
       comments: "",
     },
   });
 
+  // Effect to set tracker ID when tracker data is loaded (for create mode)
   useEffect(() => {
-    // Prioritize workPlanActivity data, fallback to workPlanTracker
-    const activityData = workPlanActivity?.data?.data;
-    console.log("camp", { activityData });
-
-    if (activityData && activityData.activity_trackers?.length > 0) {
-      console.log({ ds: "hejhnn" });
-
-      // Get the latest activity tracker data
-      const latestTracker = activityData.activity_trackers[0];
-
-      // Use description_of_output from main activity data and other fields from tracker
-      const { description_of_output: output_description } = activityData;
-
-      const {
-        achieved_output_number: achieved_output,
-        auto_calculated_achievement_percentage,
-        amount_expended_ngn,
-        amount_expended_usd,
-        implementation_usd_rate,
-        expenditure_usd_rate: expenditure_usd_rate,
-        expenditure_ngn_rate,
-        variance_ngn,
-        variance_usd,
-        percentage_variance_ngn,
-        percentage_variance_usd,
-        efficiency_output_expenditure_ratio,
-        efficiency_output_expenditure_level,
-        comments,
-      } = latestTracker;
-
-      console.log({ latestTracker });
-
-      form.reset({
-        output_description: String(output_description || ""),
-        achieved_output: String(achieved_output || ""),
-        achievement_percentage: String(
-          auto_calculated_achievement_percentage || ""
-        ),
-        amount_expended_ngn: String(amount_expended_ngn || ""),
-        amount_expended_usd: String(amount_expended_usd || ""),
-        implementation_usd_rate: String(implementation_usd_rate || ""),
-        expenditure_usd_rate: String(expenditure_usd_rate || ""),
-        expenditure_ngn_rate: String(expenditure_ngn_rate || ""),
-        variance_ngn: String(variance_ngn || ""),
-        variance_usd: String(variance_usd || ""),
-        percentage_variance_ngn: String(percentage_variance_ngn || ""),
-        percentage_variance_usd: String(percentage_variance_usd || ""),
-        efficiency_output_expenditure_ratio: String(
-          efficiency_output_expenditure_ratio || ""
-        ),
-        efficiency_output_expenditure_level: String(
-          efficiency_output_expenditure_level || ""
-        ),
-        comments: String(comments || ""),
-      });
+    if (!isEditMode && trackerData?.data?.results?.length > 0) {
+      const existingTracker = trackerData.data.results[0];
+      setTrackerId(existingTracker.id);
     }
-  }, [workPlanActivity, form]);
+  }, [trackerData, isEditMode]);
 
-  const { handleSubmit } = form;
+  // Effect to populate form with existing data
+  useEffect(() => {
+    const activityData = workPlanActivity?.data?.data;
+    // In edit mode, use single tracker data; in create mode, use tracker data by activity
+    const existingTracker = isEditMode
+      ? singleTrackerData?.data
+      : trackerData?.data?.results?.[0];
+
+    // Populate form with activity description
+    if (activityData) {
+      const { description_of_output } = activityData;
+
+      // If we have existing tracker data, use that
+      if (existingTracker) {
+        form.reset({
+          description_of_output: String(existingTracker.description_of_output || description_of_output || ""),
+          achieved_results: String(existingTracker.achieved_results || existingTracker.achieved_output || ""),
+          amount_expended_ngn: String(existingTracker.amount_expended_ngn || ""),
+          expenditure_ngn_rate: String(existingTracker.expenditure_ngn_rate || ""),
+          expenditure_usd_rate: String(existingTracker.expenditure_usd_rate || ""),
+          comments: String(existingTracker.comments || ""),
+        });
+
+        // Set exchange rate if available
+        if (existingTracker.implementation_usd_rate) {
+          setUsdRate(parseFloat(existingTracker.implementation_usd_rate) || 1600);
+        }
+      } else {
+        // If no tracker exists yet, just populate basic info
+        form.reset({
+          description_of_output: String(description_of_output || ""),
+          achieved_results: "",
+          amount_expended_ngn: "",
+          expenditure_ngn_rate: "",
+          expenditure_usd_rate: "",
+          comments: "",
+        });
+      }
+    }
+  }, [workPlanActivity, trackerData, singleTrackerData, isEditMode, form.reset]);
+
+  const { handleSubmit, watch } = form;
+
+  // Watch NGN amount to auto-calculate USD equivalent
+  const amountNgn = watch("amount_expended_ngn");
+
+  // Calculate USD amount automatically
+  const amountUsd = amountNgn ? (parseFloat(amountNgn) / usdRate).toFixed(2) : "";
+
+  // Display component for showing auto-calculated USD
+  const AutoCalculatedField = ({ label, value }: { label: string; value: string }) => (
+    <div className="space-y-2">
+      <label className="text-sm font-medium text-gray-700">{label}</label>
+      <div className="px-3 py-2 border border-gray-300 bg-gray-50 rounded-md text-gray-600">
+        ${value || "0.00"} USD (Auto-calculated)
+      </div>
+      <p className="text-xs text-gray-500">Rate: ₦{usdRate.toLocaleString()} per $1 USD</p>
+    </div>
+  );
 
   const goBack = () => {
     router.back();
@@ -142,9 +178,41 @@ export default function CreateActivityTracker() {
 
   const onSubmit: SubmitHandler<TWorkPlanTrackerFormValues> = async (data) => {
     try {
-      await updateWorkPlanActivity(data);
-      toast.success("Activity Tracker Updated");
-      router.push(RouteEnum.PROGRAM_ACTIVITY_TRACKER);
+      // Split data between activity and tracker fields
+      const activityData = {
+        description_of_output: data.description_of_output,
+      };
+
+      const trackerData = {
+        achieved_output: data.achieved_results, // Map form field to correct API field
+        amount_expended_ngn: data.amount_expended_ngn,
+        amount_expended_usd: amountUsd,
+        implementation_usd_rate: usdRate.toString(),
+        expenditure_ngn_rate: data.expenditure_ngn_rate,
+        expenditure_usd_rate: data.expenditure_usd_rate,
+        comments: data.comments,
+        work_plan_activity: activityId, // Required for creating new tracker
+      };
+
+
+
+      if (trackerId) {
+        // Update existing tracker
+        await patchActivityTracker(trackerData);
+        toast.success("Activity Tracker Updated");
+      } else {
+        // Create new tracker
+        await createActivityTracker(trackerData as any);
+        toast.success("Activity Tracker Created");
+      }
+
+      // Optionally update activity description if needed
+      if (activityData.description_of_output) {
+        await updateWorkPlanActivity(activityData);
+      }
+
+      // Redirect back to the specific work plan tracker details page
+      router.push(`/dashboard/programs/plan/activity-tracker/${workPlanId}`);
     } catch (error: any) {
       toast.error(error?.data?.message ?? "Something went wrong");
     }
@@ -172,25 +240,18 @@ export default function CreateActivityTracker() {
 
             <FormTextArea
               label='Description of Output'
-              name='output_description'
+              name='description_of_output'
               placeholder='Enter Output Description'
               required
             />
 
             <FormTextArea
-              label='Achieved Output'
-              name='achieved_output'
-              placeholder='Enter Achieved Output'
+              label='Achieved Results'
+              name='achieved_results'
+              placeholder='Enter Achieved Results'
               required
             />
 
-            <FormInput
-              type='number'
-              label='Percentage of Achievement'
-              name='achievement_percentage'
-              required
-              placeholder='Enter Percentage of Achievement'
-            />
 
             <div className='bg-red-100 py-5 px-2.5 rounded-md'>
               <h2 className='text-lg font-bold text-red-500'>
@@ -206,21 +267,27 @@ export default function CreateActivityTracker() {
               required
             />
 
-            <FormInput
-              type='number'
-              label='Amount Expended USD'
-              name='amount_expended_usd'
-              placeholder='Enter Amount Expended USD'
-              required
+            <AutoCalculatedField
+              label="Amount Expended (USD)"
+              value={amountUsd}
             />
 
-            <FormInput
-              type='number'
-              label='Implementation USD Rate'
-              name='implementation_usd_rate'
-              placeholder='Enter Implementation USD Rate'
-              required
-            />
+            {/* Exchange Rate Input */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">
+                Current USD Exchange Rate (NGN per USD)
+              </label>
+              <input
+                type="number"
+                value={usdRate}
+                onChange={(e) => setUsdRate(parseFloat(e.target.value) || 1600)}
+                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Enter current USD rate"
+              />
+              <p className="text-xs text-gray-500">
+                This will be used to calculate the USD equivalent automatically
+              </p>
+            </div>
 
             <FormInput
               type='number'
@@ -238,51 +305,6 @@ export default function CreateActivityTracker() {
               required
             />
 
-            <FormInput
-              type='number'
-              label='Variance NGN'
-              name='variance_ngn'
-              placeholder='Enter Variance NGN '
-            />
-
-            <FormInput
-              type='number'
-              label='Variance USD'
-              name='variance_usd'
-              placeholder='Enter Variance USD '
-            />
-
-            <FormInput
-              type='number'
-              label='Percentage Variance NGN'
-              name='percentage_variance_ngn'
-              placeholder='Enter Percentage Variance NGN'
-              required
-            />
-
-            <FormInput
-              type='number'
-              label='Percentage Variance USD'
-              name='percentage_variance_usd'
-              placeholder='Enter Percentage Variance USD'
-              required
-            />
-
-            <FormInput
-              type='number'
-              label='Efficiency Output vs Efficiency Ratio'
-              name='efficiency_output_expenditure_ratio'
-              placeholder='Enter Efficiency Output vs Efficiency Ratio'
-              required
-            />
-
-            <FormInput
-              type='number'
-              label='Efficiency Output vs Efficiency Level'
-              name='efficiency_output_expenditure_level'
-              placeholder='Enter Efficiency Output vs Efficiency Level'
-              required
-            />
 
             <FormInput
               label='Comments'

@@ -57,10 +57,11 @@ export const useGetAllWorkPlan = ({
   size = 20,
   search = "",
   project_title = "",
+  financial_year = "",
   enabled = true,
-}: TRequest & { project_title?: string; enabled?: boolean }) => {
+}: TRequest & { project_title?: string; financial_year?: string; enabled?: boolean }) => {
   return useQuery<TPaginatedResponse<TWorkPlanPaginatedResponse>>({
-    queryKey: ["work-plans", page, size, search, project_title],
+    queryKey: ["work-plans", page, size, search, project_title, financial_year],
     queryFn: async () => {
       try {
         const response = await AxiosWithToken.get(BASE_URL, {
@@ -69,6 +70,7 @@ export const useGetAllWorkPlan = ({
             size,
             search,
             ...(project_title && { project_title }),
+            ...(financial_year && { financial_year }),
           },
         });
         return response.data;

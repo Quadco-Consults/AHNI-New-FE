@@ -25,51 +25,59 @@ export const getWorkPlanTrackerDetailsColumns = (
     header: "Activity Code/ Number",
     accessorKey: "activity_number",
     size: 200,
+    cell: ({ row }) => row.original.activity_number || "N/A",
   },
 
   {
     header: "Budget Line",
-    accessorKey: "budget_line.name",
+    accessorKey: "budget_line",
     size: 200,
+    cell: ({ row }) => row.original.budget_line || "N/A",
   },
 
   {
     header: "Objectives/IR/Sub-Objectives",
     accessorKey: "objectives_sub_objectives",
     size: 200,
+    cell: ({ row }) => row.original.objectives_sub_objectives || "N/A",
   },
 
   {
     header: "Activities Plans for the Month",
     accessorKey: "activity",
     size: 300,
+    cell: ({ row }) => row.original.activity || "N/A",
   },
 
   {
     header: "Location",
     accessorKey: "location",
     size: 150,
+    cell: ({ row }) => row.original.location || "N/A",
   },
 
   {
     header: "Lead Dept",
     accessorKey: "lead_dept",
     size: 150,
+    cell: ({ row }) => row.original.lead_dept || "N/A",
   },
 
   {
     header: "Lead Partner",
     accessorKey: "lead_person",
     size: 150,
+    cell: ({ row }) => row.original.lead_person || "N/A",
   },
 
   {
     header: "Frq. of Activity",
-    accessorKey: "",
+    accessorKey: "gant_chart",
     size: 150,
     cell: ({ row }) => {
-      // @ts-ignore
-      const { gant_chart } = row.original;
+      const gant_chart = row.original.gant_chart;
+      if (!gant_chart) return "N/A";
+
       const totalFrequency = Object.values(gant_chart).reduce(
         (sum: number, value) => sum + (Number(value) || 0),
         0
@@ -100,8 +108,9 @@ export const getWorkPlanTrackerDetailsColumns = (
     accessorKey: "planned_output",
     size: 300,
     cell: ({ row }) => {
-      // @ts-ignore
-      const { gant_chart } = row.original;
+      const gant_chart = row.original.gant_chart;
+      if (!gant_chart) return "N/A";
+
       const totalFrequency = Object.values(gant_chart).reduce(
         (sum, value) => sum + (Number(value) || 0),
         0
@@ -115,39 +124,91 @@ export const getWorkPlanTrackerDetailsColumns = (
     header: "Description of Output",
     accessorKey: "description_of_output",
     size: 300,
+    cell: ({ row }) => {
+      const data = row.original;
+      // Try multiple possible field paths for description
+      return data.description_of_output ||
+             data.work_plan_activity_data?.description_of_output ||
+             data.work_plan_activity?.description_of_output ||
+             data.activity?.description_of_output ||
+             data.output_description ||
+             "N/A";
+    },
   },
 
   {
-    header: "Achieved Output",
+    header: "Achieved Results",
     accessorKey: "achieved_output",
     size: 300,
+    cell: ({ row }) => {
+      const data = row.original;
+      // Try multiple possible field paths for achieved results
+      return data.achieved_output ||
+             data.achieved_results ||
+             data.achieved_output_number ||
+             "N/A";
+    },
   },
 
   {
     header: "% Achievement",
-    accessorFn: (data) => `${data.achievement_percentage ?? 0}%`,
+    accessorKey: "achievement_percentage",
     size: 150,
+    cell: ({ row }) => {
+      const data = row.original;
+
+      // Calculate percentage - ALWAYS use frontend calculation to ensure correct logic
+      let percentage = 0;
+
+      // Always calculate manually using gant_chart for consistency
+      {
+        // Calculate manually from achieved vs planned
+        // Try achieved_output_number first (numeric), then achieved_output (text)
+        const achievedNum = parseFloat(data.achieved_output_number || data.achieved_output || data.achieved_results || "0");
+
+        // ALWAYS use gant_chart total as planned output (this matches what the table shows)
+        let plannedNum = 0;
+        if (data.gant_chart) {
+          plannedNum = Object.values(data.gant_chart).reduce(
+            (sum, value) => sum + (Number(value) || 0),
+            0
+          );
+        }
+
+        // Only fallback to planned_output_number if gant_chart is not available
+        if (plannedNum === 0) {
+          plannedNum = parseFloat(data.planned_output_number || data.planned_output || "1");
+        }
+
+        if (plannedNum > 0) {
+          percentage = Math.round((achievedNum / plannedNum) * 100);
+        }
+      }
+
+      return `${percentage}%`;
+    },
   },
 
   {
     header: "Cost Input",
-    accessorKey: "cost_input.name",
+    accessorKey: "cost_input",
     size: 200,
+    cell: ({ row }) => row.original.cost_input || "N/A",
   },
 
   {
     header: "Cost Grouping",
-    accessorKey: "cost_grouping.name",
-
+    accessorKey: "cost_grouping",
     size: 200,
+    cell: ({ row }) => row.original.cost_grouping || "N/A",
   },
 
   {
     header: "Status",
     accessorKey: "status",
     size: 150,
-    cell: ({ getValue }) => {
-      const status = getValue();
+    cell: ({ row }) => {
+      const status = row.original.status || "PENDING";
 
       return (
         <Badge
@@ -155,7 +216,7 @@ export const getWorkPlanTrackerDetailsColumns = (
             status === "PENDING" ? "bg-yellow-500" : "bg-green-500"
           }`}
         >
-          {getValue() as string}
+          {status}
         </Badge>
       );
     },
@@ -164,23 +225,27 @@ export const getWorkPlanTrackerDetailsColumns = (
   {
     header: "Total NGN",
     accessorKey: "total_amount_ngn",
-    accessorFn: (data) => formatNumberCurrency(data.total_amount_ngn, "NGN"),
     size: 150,
+    cell: ({ row }) => {
+      const amount = row.original.total_amount_ngn || 0;
+      return formatNumberCurrency(amount, "NGN");
+    },
   },
 
   {
     header: "Total USD",
     accessorKey: "total_amount_usd",
-    accessorFn: (data) => formatNumberCurrency(data.total_amount_usd, "USD"),
-
     size: 150,
+    cell: ({ row }) => {
+      const amount = row.original.total_amount_usd || 0;
+      return formatNumberCurrency(amount, "USD");
+    },
   },
 
   {
     header: "Amount Expended (NGN)",
     accessorKey: "amount_expended_ngn",
     accessorFn: (data) => formatNumberCurrency(data.amount_expended_ngn, "NGN"),
-
     size: 150,
   },
 
@@ -188,75 +253,82 @@ export const getWorkPlanTrackerDetailsColumns = (
     header: "Amount Expended (USD)",
     accessorKey: "amount_expended_usd",
     accessorFn: (data) => formatNumberCurrency(data.amount_expended_usd, "USD"),
-
     size: 150,
   },
 
   {
     header: "Implementation USD Rate",
     accessorKey: "implementation_usd_rate",
-    accessorFn: (data) =>
-      formatNumberCurrency(data.implementation_usd_rate, "USD"),
-
+    accessorFn: (data) => formatNumberCurrency(data.implementation_usd_rate, "USD"),
     size: 150,
   },
 
   {
     header: "Expenditure Rate (NGN)",
     accessorKey: "expenditure_ngn_rate",
-    accessorFn: (data) =>
-      formatNumberCurrency(data.expenditure_ngn_rate, "NGN"),
-
+    accessorFn: (data) => formatNumberCurrency(data.expenditure_ngn_rate, "NGN"),
     size: 150,
   },
 
   {
     header: "Expenditure Rate (USD)",
     accessorKey: "expenditure_usd_rate",
-    accessorFn: (data) =>
-      formatNumberCurrency(data.expenditure_usd_rate, "USD"),
-
+    accessorFn: (data) => formatNumberCurrency(data.expenditure_usd_rate, "USD"),
     size: 150,
   },
 
   {
     header: "Variance (NGN)",
-    accessorFn: (data) => formatNumberCurrency(data.variance_ngn, "NGN"),
-
-    accessorKey: "variance_ngn",
+    accessorKey: "auto_calculated_variance_ngn",
     size: 150,
+    cell: ({ row }) => {
+      const variance = row.original.auto_calculated_variance_ngn || row.original.variance_ngn || 0;
+      return formatNumberCurrency(variance, "NGN");
+    },
   },
 
   {
     header: "Variance (USD)",
-    accessorKey: "variance_usd",
-    accessorFn: (data) => formatNumberCurrency(data.variance_usd, "USD"),
-
+    accessorKey: "auto_calculated_variance_usd",
     size: 150,
+    cell: ({ row }) => {
+      const variance = row.original.auto_calculated_variance_usd || row.original.variance_usd || 0;
+      return formatNumberCurrency(variance, "USD");
+    },
   },
 
   {
     header: "% of Variance (NGN)",
-    accessorFn: (data) => `${data.percentage_variance_ngn ?? 0}%`,
+    accessorKey: "auto_calculated_percentage_variance_ngn",
     size: 150,
+    cell: ({ row }) => {
+      const percentage = row.original.auto_calculated_percentage_variance_ngn || row.original.percentage_variance_ngn || 0;
+      return `${percentage}%`;
+    },
   },
 
   {
-    header: "% ofVariance (USD)",
-    accessorFn: (data) => `${data.percentage_variance_usd ?? 0}%`,
+    header: "% of Variance (USD)",
+    accessorKey: "auto_calculated_percentage_variance_usd",
     size: 150,
+    cell: ({ row }) => {
+      const percentage = row.original.auto_calculated_percentage_variance_usd || row.original.percentage_variance_usd || 0;
+      return `${percentage}%`;
+    },
   },
 
   {
     header: "Efficiency Output vs Expenditure (Ratio)",
-    accessorKey: "efficiency_output_expenditure_ratio",
+    accessorKey: "efficiency_ratio",
     size: 150,
+    cell: ({ row }) => row.original.efficiency_ratio || row.original.efficiency_output_expenditure_ratio || "N/A",
   },
 
   {
     header: "Efficiency Output vs Expenditure (Level)",
-    accessorKey: "efficiency_output_expenditure_level",
+    accessorKey: "efficiency_level_text",
     size: 150,
+    cell: ({ row }) => row.original.efficiency_level_text || row.original.efficiency_output_expenditure_level || "N/A",
   },
 
   {

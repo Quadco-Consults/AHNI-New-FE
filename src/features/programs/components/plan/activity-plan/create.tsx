@@ -15,6 +15,7 @@ import {
     useCreateActivityPlan,
     useEditActivityPlan,
     useGetSingleActivityPlan,
+    useCreateUnplannedActivity,
 } from "@/features/programs/controllers/activityPlanController";
 import { useEffect, useMemo } from "react";
 import {
@@ -56,6 +57,9 @@ export default function CreateActivityPlan() {
     const query = useQuery();
     const id = query.get("id");
     const planId = query.get("plan");
+    const activityType = query.get("type"); // "unplanned" for unplanned activities
+
+    const isUnplanned = activityType === "unplanned";
 
     const { data: activityPlan } = useGetSingleActivityPlan(
         id || "", { enabled: !!id }
@@ -71,10 +75,15 @@ export default function CreateActivityPlan() {
     const { createActivityPlan, isLoading: isCreateLoading } =
         useCreateActivityPlan();
 
+    const { createUnplannedActivity, isLoading: isCreateUnplannedLoading } =
+        useCreateUnplannedActivity();
+
     const { editActivityPlan, isLoading: isUpdateLoading } =
         useEditActivityPlan(id || "");
 
     const router = useRouter();
+
+    const isLoading = isCreateLoading || isCreateUnplannedLoading || isUpdateLoading;
 
     const form = useForm<TActivityPlanFormValues>({
         resolver: zodResolver(ActivityPlanSchema),
@@ -92,6 +101,10 @@ export default function CreateActivityPlan() {
             follow_up_action: "",
             comments: "",
             project: "",
+            // Additional fields for unplanned activities
+            objectives_sub_objectives: "",
+            budget_line: "",
+            expected_results: "",
         },
     });
 
@@ -179,13 +192,30 @@ export default function CreateActivityPlan() {
                 submitData.end_date = endDate.toISOString().split('T')[0];
             }
 
-            // Add work plan ID and project if creating/editing from work plan
-            if (workPlanId) {
+            // Handle unplanned activities
+            if (isUnplanned) {
+                // For unplanned activities, don't link to work_plan_activity
                 submitData.work_plan = workPlanId;
-                // Ensure project is set from work plan if not in form data
-                if (!submitData.project && workPlan?.data?.project?.id) {
-                    submitData.project = workPlan.data.project.id;
+                submitData.work_plan_activity = null; // Explicitly set to null for unplanned activities
+                submitData.activity_type = "UNPLANNED";
+
+                // Generate activity identifier for unplanned activities if not provided
+                if (!submitData.activity_code) {
+                    submitData.work_plan_activity_identifier = `UNPLANNED-${Date.now()}`;
+                } else {
+                    submitData.work_plan_activity_identifier = submitData.activity_code;
                 }
+            } else {
+                // Add work plan ID and project if creating/editing from work plan
+                if (workPlanId) {
+                    submitData.work_plan = workPlanId;
+                    submitData.activity_type = "PLANNED";
+                }
+            }
+
+            // Ensure project is set from work plan if not in form data
+            if (workPlanId && !submitData.project && workPlan?.data?.project?.id) {
+                submitData.project = workPlan.data.project.id;
             }
 
             // Remove old field names before submitting
@@ -197,10 +227,15 @@ export default function CreateActivityPlan() {
 
             if (id) {
                 await editActivityPlan(submitData);
-                toast.success("Activity Plan Updated");
+                toast.success(`${isUnplanned ? 'Unplanned ' : ''}Activity Plan Updated`);
             } else {
-                await createActivityPlan(submitData);
-                toast.success("Activity Plan Created");
+                if (isUnplanned) {
+                    await createUnplannedActivity(submitData);
+                    toast.success('Unplanned Activity Created');
+                } else {
+                    await createActivityPlan(submitData);
+                    toast.success('Activity Plan Created');
+                }
             }
 
             // Navigate back to the work plan activities if came from there
@@ -228,6 +263,19 @@ export default function CreateActivityPlan() {
             <Form {...form}>
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <Card className="space-y-10 p-10">
+                        {/* Activity Type Header */}
+                        <div className={`py-5 px-2.5 rounded-md ${isUnplanned ? 'bg-orange-100' : 'bg-blue-100'}`}>
+                            <h2 className={`text-lg font-bold ${isUnplanned ? 'text-orange-600' : 'text-blue-600'}`}>
+                                {isUnplanned ? 'Create Unplanned Activity' : 'Create Planned Activity'}
+                            </h2>
+                            <p className="text-sm text-gray-600 mt-1">
+                                {isUnplanned
+                                    ? 'This activity is not part of the original work plan and will be marked as unplanned.'
+                                    : 'This activity is linked to the work plan.'
+                                }
+                            </p>
+                        </div>
+
                         {!workPlanId && (
                             <FormSelect
                                 label="Project"
@@ -238,11 +286,30 @@ export default function CreateActivityPlan() {
                             />
                         )}
 
+                        {/* Additional fields for unplanned activities */}
+                        {isUnplanned && (
+                            <>
+                                <FormInput
+                                    label="Objectives/Sub-Objectives"
+                                    name="objectives_sub_objectives"
+                                    placeholder="Enter Objectives or Sub-Objectives"
+                                    required
+                                />
+
+                                <FormInput
+                                    label="Budget Line"
+                                    name="budget_line"
+                                    placeholder="Enter Budget Line"
+                                    required
+                                />
+                            </>
+                        )}
+
                         <FormInput
                             label="Activity Code"
                             name="activity_code"
-                            placeholder="Enter Activity Code"
-                            required
+                            placeholder={isUnplanned ? "Enter Activity Code (optional - auto-generated if empty)" : "Enter Activity Code"}
+                            required={!isUnplanned}
                         />
 
                         <FormInput
@@ -321,14 +388,23 @@ export default function CreateActivityPlan() {
                             required
                         />
 
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium">
-                                Expected Result (from Work Plan)
-                            </label>
-                            <div className="min-h-[100px] p-3 border rounded-md bg-gray-50 text-gray-700">
-                                {expectedResult || "No expected result defined in work plan"}
+                        {isUnplanned ? (
+                            <FormInput
+                                label="Expected Results"
+                                name="expected_results"
+                                placeholder="Enter Expected Results"
+                                required
+                            />
+                        ) : (
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium">
+                                    Expected Result (from Work Plan)
+                                </label>
+                                <div className="min-h-[100px] p-3 border rounded-md bg-gray-50 text-gray-700">
+                                    {expectedResult || "No expected result defined in work plan"}
+                                </div>
                             </div>
-                        </div>
+                        )}
 
                         <FormTextArea
                             label="Comments"
@@ -348,8 +424,8 @@ export default function CreateActivityPlan() {
                         </FormButton>
 
                         <FormButton
-                            loading={isCreateLoading || isUpdateLoading}
-                            disabled={isCreateLoading || isUpdateLoading}
+                            loading={isLoading}
+                            disabled={isLoading}
                         >
                             {id ? "Update" : "Create"}
                         </FormButton>
