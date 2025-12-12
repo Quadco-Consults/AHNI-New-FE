@@ -70,10 +70,14 @@ export interface IScopeOfWorkData {
 }
 export interface IConsultantPaginatedData {
   id: string;
-  scope_of_work: IScopeOfWorkData;
+  type?: "CONSULTANT" | "ADHOC" | "FACILITATOR";
+  locations: string[]; // API returns array of strings, not location objects
+  total_working_days_calculated?: number;
+  days_worked_calculated?: number;
+  days_remaining_calculated?: number;
+  contract_status_calculated?: string;
   advertisement_document: string;
-  supervisor: string;
-  locations: TLocationData[];
+  supervisor?: string;
   created_datetime: string;
   updated_datetime: string;
   title: string;
@@ -83,20 +87,21 @@ export interface IConsultantPaginatedData {
   end_date: string;
   consultants_number: number;
   status: string;
-  extra_info: string;
-  background: string;
-  evaluation_comments: string;
+  extra_info?: string;
+  background: string; // API returns background as string, not scope_of_work object
+  evaluation_comments?: string;
   created_by: string;
-  updated_by: null;
+  updated_by?: string | null;
+  applicants?: string[]; // List of applicant IDs
 }
 
 export interface IConsultantSingleData {
   id: string;
   type?: "CONSULTANT" | "ADHOC" | "FACILITATOR";
-  scope_of_work: IScopeOfWorkData;
+  scope_of_work?: IScopeOfWorkData; // Make optional since API may not always include this
   advertisement_document: string;
-  supervisor: IUser;
-  locations: TLocationData[];
+  supervisor: IUser | string; // Can be User object or string
+  locations: string[] | TLocationData[]; // Can be either format
   created_datetime: string;
   title: string;
   grade_level: string;
@@ -105,11 +110,17 @@ export interface IConsultantSingleData {
   end_date: string;
   consultants_number: number;
   status: string;
-  extra_info: string;
-  background: string;
-  evaluation_comments: string;
+  extra_info?: string;
+  background: string; // Always present as string
+  evaluation_comments?: string;
   created_by: string;
-  updated_by: null;
+  updated_by?: string | null;
+  updated_datetime?: string;
+  total_working_days_calculated?: number;
+  days_worked_calculated?: number;
+  days_remaining_calculated?: number;
+  contract_status_calculated?: string;
+  applicants?: string[];
   requisition?: {
     id: string;
     requisition_number: string;
