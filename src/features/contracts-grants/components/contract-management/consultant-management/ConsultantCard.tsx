@@ -34,6 +34,8 @@ export default function ConsultantCard({
     evaluation_comments,
     created_datetime,
     status,
+    grade_level,
+    supervisor,
 }: IConsultantPaginatedData) {
     const advertType = useJobAdvertType();
 
@@ -128,16 +130,16 @@ export default function ConsultantCard({
                         />
                         <DetailsTag
                             icon={<LocationSvg />}
-                            label={locations && Array.isArray(locations) && locations.length > 0 
-                                ? locations.map(location => location.name || location.city || "Unknown").join(", ")
+                            label={locations && Array.isArray(locations) && locations.length > 0
+                                ? locations.join(", ")
                                 : "No location specified"
                             }
                         />
-                        <DetailsTag icon={<SuiteCase />} label="Internal" />
+                        <DetailsTag icon={<SuiteCase />} label={grade_level || "Grade Level TBD"} />
 
                         <DetailsTag
                             icon={<PersonClusterSvg />}
-                            label="Cluster Leads"
+                            label={supervisor || "Supervisor TBD"}
                         />
                     </div>
                 </div>
@@ -147,7 +149,7 @@ export default function ConsultantCard({
                         <div className="bg-white w-fit">
                             <Link href={advertDetailsPath.replace(':id', id)}>
                                 <Button className="bg-white text-primary z-[99] border border-[#00000012]">
-                                    Tap to View
+                                    View Details & Applications
                                 </Button>
                             </Link>
                         </div>

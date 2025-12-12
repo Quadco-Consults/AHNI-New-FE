@@ -28,30 +28,11 @@ export default function Consultancy() {
   console.log('Consultant Management Data:', {
     advertType,
     typeParam: advertType.toUpperCase(),
-    data,
-    isFetching,
-    error,
-    results: data?.data?.results,
-    resultsLength: data?.data?.results?.length,
-    paginator: data?.data?.paginator,
-    apiStatus: data ? 'SUCCESS' : error ? 'ERROR' : isFetching ? 'LOADING' : 'UNKNOWN'
+    apiStatus: data ? 'SUCCESS' : error ? 'ERROR' : isFetching ? 'LOADING' : 'UNKNOWN',
+    resultsCount: data?.data?.results?.length || 0,
+    hasResults: !!data?.data?.results?.length,
+    error: error?.message
   });
-
-  // Log additional debugging info
-  if (error) {
-    console.error('API Error Details:', error.message || error);
-  }
-
-  if (data) {
-    console.log('API Response Structure:', {
-      hasData: !!data,
-      hasDataProp: !!data?.data,
-      hasResults: !!data?.data?.results,
-      resultsType: typeof data?.data?.results,
-      resultsLength: data?.data?.results?.length,
-      totalData: data
-    });
-  }
 
   const path =
     advertType === "adhoc"
@@ -100,19 +81,13 @@ export default function Consultancy() {
       ) : (
         <div className="text-center py-8 text-gray-500">
           <p>No {advertType} consultants found.</p>
-          <p className="text-sm text-gray-600 mb-4">Showing sample data to demonstrate functionality:</p>
-          <div className='w-full flex flex-wrap justify-between items-start gap-y-[1rem]'>
-            {getMockConsultants().data.results.map((consultant) => (
-              <ConsultancyCard key={consultant.id} {...consultant} />
-            ))}
-          </div>
         </div>
       )}
 
-      {data?.data?.paginator && (
+      {data?.data?.pagination && (
         <Pagination
-          total={data.data.paginator.count}
-          itemsPerPage={data.data.paginator.page_size}
+          total={data.data.pagination.count}
+          itemsPerPage={data.data.pagination.page_size}
           onChange={(page) => setPage(page)}
         />
       )}

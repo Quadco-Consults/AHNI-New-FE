@@ -241,12 +241,73 @@ export default function ContractRequestDetail() {
                   </div>
                   <div>
                     <strong>Number of Consultants:</strong>
-                    <p>{contractRequest.consultants_count}</p>
+                    <p>{contractRequest.consultants_count || 1} consultant{(contractRequest.consultants_count || 1) !== 1 ? 's' : ''}</p>
                   </div>
                   <div>
-                    <strong>FCO Number:</strong>
-                    <p>{contractRequest.fco_detail?.name || contractRequest.fco_detail?.code || contractRequest.fco || "Not specified"}</p>
+                    <strong>Service Type:</strong>
+                    <p>{contractRequest.service_type || "Consultancy Service"}</p>
                   </div>
+                  <div>
+                    <strong>FCO Reference:</strong>
+                    <p>{contractRequest.fco_detail?.name || contractRequest.fco_detail?.code || contractRequest.fco || "FCO not specified"}</p>
+                  </div>
+                  <div>
+                    <strong>Award Amount:</strong>
+                    <p>{contractRequest.award_amount ? `$${parseFloat(contractRequest.award_amount).toLocaleString()}` : "Amount to be determined"}</p>
+                  </div>
+                  <div>
+                    <strong>Reference Number:</strong>
+                    <p>{contractRequest.reference_number || contractRequest.award_reference_number || "To be assigned"}</p>
+                  </div>
+                  <div>
+                    <strong>Status:</strong>
+                    <p>{contractRequest.status_display || contractRequest.status}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Financial Information */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Financial Information</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <strong>Total Obligation Amount:</strong>
+                    <p>${contractRequest.total_obligation_amount ? parseFloat(contractRequest.total_obligation_amount).toLocaleString() : '0'}</p>
+                  </div>
+                  <div>
+                    <strong>Total Expenditure Amount:</strong>
+                    <p>${contractRequest.total_expenditure_amount ? parseFloat(contractRequest.total_expenditure_amount).toLocaleString() : '0'}</p>
+                  </div>
+                  <div>
+                    <strong>Current Month Obligation:</strong>
+                    <p>${contractRequest.current_month_obligation_amount ? parseFloat(contractRequest.current_month_obligation_amount).toLocaleString() : '0'}</p>
+                  </div>
+                  <div>
+                    <strong>Current Month Expenditure:</strong>
+                    <p>${contractRequest.current_month_expenditure_amount ? parseFloat(contractRequest.current_month_expenditure_amount).toLocaleString() : '0'}</p>
+                  </div>
+                  {contractRequest.funding_sources && contractRequest.funding_sources.length > 0 && (
+                    <div className="col-span-2">
+                      <strong>Funding Sources:</strong>
+                      <p className="mt-2 text-gray-700">{contractRequest.funding_sources.map(source => source.name).join(', ')}</p>
+                    </div>
+                  )}
+                  {contractRequest.burn_rate && (
+                    <div>
+                      <strong>Burn Rate:</strong>
+                      <p>${parseFloat(contractRequest.burn_rate).toLocaleString()}</p>
+                    </div>
+                  )}
+                  {contractRequest.money_months_remaining && (
+                    <div>
+                      <strong>Months Remaining:</strong>
+                      <p>{contractRequest.money_months_remaining} months</p>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -260,15 +321,19 @@ export default function ContractRequestDetail() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <strong>Email:</strong>
-                    <p>{contractRequest.email}</p>
+                    <p>{contractRequest.email || "Email not provided"}</p>
                   </div>
                   <div>
                     <strong>Phone Number:</strong>
-                    <p>{contractRequest.phone_number}</p>
+                    <p>{contractRequest.phone_number || "Phone not provided"}</p>
                   </div>
                   <div>
                     <strong>Technical Monitor:</strong>
-                    <p>{contractRequest.technical_monitor || "Not assigned"}</p>
+                    <p>{contractRequest.technical_monitor || contractRequest.project_manager || "Not assigned"}</p>
+                  </div>
+                  <div>
+                    <strong>Department Contact:</strong>
+                    <p>{contractRequest.department_contact || contractRequest.created_by?.email || "Department contact not specified"}</p>
                   </div>
                 </div>
               </CardContent>

@@ -20,7 +20,7 @@ interface PaginatedResponse<T> {
   status: boolean;
   message: string;
   data: {
-    paginator: {
+    pagination: {
       count: number;
       page: number;
       page_size: number;
@@ -155,10 +155,21 @@ export const useGetSingleConsultantManagement = (
     queryKey: ["consultantManagement", id],
     queryFn: async () => {
       try {
+        console.log(`🔍 Fetching single consultant: ${id}`);
         const response = await AxiosWithToken.get(`${BASE_URL}${id}/`);
+        console.log('🔍 Single consultant API response:', {
+          status: response.status,
+          data: response.data,
+          locations: response.data?.data?.locations,
+          locationsType: typeof response.data?.data?.locations,
+          locationsArray: Array.isArray(response.data?.data?.locations),
+          locationsFirst: response.data?.data?.locations?.[0],
+          firstLocationType: typeof response.data?.data?.locations?.[0]
+        });
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
+        console.error(`🔍 Single consultant API error for ${id}:`, error);
         throw new Error(
           "Sorry: " + (axiosError.response?.data as any)?.message
         );

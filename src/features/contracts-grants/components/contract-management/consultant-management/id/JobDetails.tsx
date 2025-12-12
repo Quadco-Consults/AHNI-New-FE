@@ -21,6 +21,10 @@ export default function JobDetails({
   advertisement_document,
   created_datetime,
   scope_of_work,
+  status,
+  grade_level,
+  supervisor,
+  background,
 }: IConsultantSingleData) {
   //   return;
   return (
@@ -30,31 +34,71 @@ export default function JobDetails({
       <div className='flex flex-wrap items-center justify-start gap-x-[.625rem] gap-y-[1rem] w-1/2'>
         <DetailsTag
           icon={<PeoplePositionsSvg />}
-          label={`${consultants_number} people`}
+          label={`${consultants_number || 1} ${(consultants_number || 1) === 1 ? 'person' : 'people'}`}
         />
         <DetailsTag
           icon={<ClockTimingSvg />}
-          label={`${duration} months with possibility of extension`}
+          label={`${duration || 'TBD'} ${duration && duration === 1 ? 'month' : 'months'} with possibility of extension`}
         />
         <DetailsTag
           icon={<DataCalenderSvg />}
-          label={end_date && isValid(new Date(end_date)) ? format(new Date(end_date), "MMM dd, yyyy") : "Date not available"}
+          label={end_date && isValid(new Date(end_date)) ? format(new Date(end_date), "MMM dd, yyyy") : "End date TBD"}
         />
 
         <DetailsTag
           icon={<LocationSvg />}
-          label={locations && Array.isArray(locations) && locations.length > 0 
-            ? locations.map((item) => item.name || item.city || "Unknown").join(", ")
-            : "No location specified"
-          }
+          label={(() => {
+            if (locations && Array.isArray(locations) && locations.length > 0) {
+              // Handle both string arrays and object arrays
+              return locations.map(location => {
+                if (typeof location === 'string') {
+                  return location;
+                } else if (typeof location === 'object' && location) {
+                  return location.name || location.city || "Unknown Location";
+                }
+                return "Unknown Location";
+              }).join(", ");
+            }
+            return "Location TBD";
+          })()}
         />
-        <DetailsTag icon={<SuiteCase />} label='Internal' />
+        <DetailsTag
+          icon={<SuiteCase />}
+          label={(() => {
+            // Check if grade_level looks like an ID (UUID format)
+            if (grade_level && grade_level.includes('-') && grade_level.length > 30) {
+              return status || 'Position Level TBD';
+            }
+            return grade_level || status || 'Position Level TBD';
+          })()}
+        />
 
-        <DetailsTag icon={<PersonClusterSvg />} label='Cluster Leads' />
+        <DetailsTag
+          icon={<PersonClusterSvg />}
+          label={(() => {
+            // Handle supervisor data more robustly
+            if (supervisor) {
+              if (typeof supervisor === 'object' && supervisor.full_name) {
+                return supervisor.full_name;
+              }
+              if (typeof supervisor === 'object' && (supervisor.first_name || supervisor.last_name)) {
+                return [supervisor.first_name, supervisor.last_name].filter(Boolean).join(' ');
+              }
+              if (typeof supervisor === 'string') {
+                // Check if it's a UUID (raw ID)
+                if (supervisor.includes('-') && supervisor.length > 30) {
+                  return 'Supervisor TBD';
+                }
+                return supervisor;
+              }
+            }
+            return 'Supervisor TBD';
+          })()}
+        />
       </div>
       <DescriptionCard
         label='Background'
-        description={scope_of_work?.background}
+        description={scope_of_work?.background || background}
       />
 
       <div className='w-1/4'>

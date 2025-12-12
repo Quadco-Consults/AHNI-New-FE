@@ -77,13 +77,36 @@ export interface MockGrant {
 export interface MockConsultant {
   id: string;
   title: string;
-  consultant_type: string;
-  department: string;
-  status: string;
-  budget: string;
-  start_date: string;
+  consultants_number: number;
+  duration: number;
   end_date: string;
+  locations: { id: string; name: string; city: string; }[];
+  evaluation_comments: string;
   created_datetime: string;
+  status: string;
+  commencement_date: string;
+  grade_level: string;
+  supervisor: string;
+  advertisement_document: string;
+  extra_info: string;
+  background: string;
+  created_by: string;
+  updated_by: null;
+  updated_datetime: string;
+  scope_of_work: {
+    id: string;
+    description: string;
+    background: string;
+    objectives: string;
+    advertisement_document: string;
+    scope_of_work_document: string;
+    created_datetime: string;
+    updated_datetime: string;
+    location: string;
+    fee_rate: number;
+    payment_frequency: string;
+    deliverables: { deliverable: string; number_of_days: number; }[];
+  };
 }
 
 export interface MockObligation {
@@ -472,35 +495,124 @@ export const mockConsultants: MockConsultant[] = [
   {
     id: "cons-1",
     title: "IT Infrastructure Consultant",
-    consultant_type: "Technical",
-    department: "IT",
+    consultants_number: 1,
+    duration: 3,
+    end_date: "2025-03-30",
+    locations: [
+      { id: "loc-1", name: "Lagos Office", city: "Lagos" },
+      { id: "loc-2", name: "Abuja Branch", city: "Abuja" }
+    ],
+    evaluation_comments: "Strong technical background with expertise in infrastructure modernization. Proven track record in enterprise system implementations and cloud migrations.",
+    created_datetime: "2024-01-10T10:00:00Z",
     status: "ACTIVE",
-    budget: "25000",
-    start_date: "2024-01-15",
-    end_date: "2024-04-15",
-    created_datetime: "2024-01-10T10:00:00Z"
+    commencement_date: "2024-12-30",
+    grade_level: "Senior Level",
+    supervisor: "John Doe",
+    advertisement_document: "https://example.com/docs/it-consultant-ad.pdf",
+    extra_info: "Must have experience with cloud platforms and enterprise architecture",
+    background: "Technology consulting with focus on infrastructure development",
+    created_by: "admin-1",
+    updated_by: null,
+    updated_datetime: "2024-01-10T10:00:00Z",
+    scope_of_work: {
+      id: "sow-1",
+      description: "Modernize IT infrastructure and implement cloud-based solutions",
+      background: "Current infrastructure needs modernization to support growth",
+      objectives: "Implement scalable, secure, and efficient IT infrastructure",
+      advertisement_document: "https://example.com/docs/it-consultant-ad.pdf",
+      scope_of_work_document: "https://example.com/docs/it-consultant-sow.pdf",
+      created_datetime: "2024-01-10T10:00:00Z",
+      updated_datetime: "2024-01-10T10:00:00Z",
+      location: "Remote/On-site",
+      fee_rate: 150,
+      payment_frequency: "Monthly",
+      deliverables: [
+        { deliverable: "Infrastructure Assessment Report", number_of_days: 30 },
+        { deliverable: "Cloud Migration Plan", number_of_days: 45 },
+        { deliverable: "Implementation & Testing", number_of_days: 60 }
+      ]
+    }
   },
   {
     id: "cons-2",
     title: "Financial Management Advisor",
-    consultant_type: "Advisory",
-    department: "Finance",
+    consultants_number: 1,
+    duration: 5,
+    end_date: "2025-05-30",
+    locations: [
+      { id: "loc-3", name: "Corporate Headquarters", city: "Lagos" }
+    ],
+    evaluation_comments: "Experienced financial advisor with comprehensive knowledge of non-profit financial management, budgeting, and compliance requirements.",
+    created_datetime: "2024-01-25T11:30:00Z",
     status: "ACTIVE",
-    budget: "30000",
-    start_date: "2024-02-01",
-    end_date: "2024-06-30",
-    created_datetime: "2024-01-25T11:30:00Z"
+    commencement_date: "2024-12-30",
+    grade_level: "Expert Level",
+    supervisor: "Jane Smith",
+    advertisement_document: "https://example.com/docs/finance-advisor-ad.pdf",
+    extra_info: "CPA or equivalent certification required",
+    background: "Financial advisory services for development organizations",
+    created_by: "admin-2",
+    updated_by: null,
+    updated_datetime: "2024-01-25T11:30:00Z",
+    scope_of_work: {
+      id: "sow-2",
+      description: "Provide strategic financial management and compliance oversight",
+      background: "Need for enhanced financial controls and reporting systems",
+      objectives: "Strengthen financial management practices and ensure regulatory compliance",
+      advertisement_document: "https://example.com/docs/finance-advisor-ad.pdf",
+      scope_of_work_document: "https://example.com/docs/finance-advisor-sow.pdf",
+      created_datetime: "2024-01-25T11:30:00Z",
+      updated_datetime: "2024-01-25T11:30:00Z",
+      location: "On-site",
+      fee_rate: 180,
+      payment_frequency: "Monthly",
+      deliverables: [
+        { deliverable: "Financial Systems Review", number_of_days: 30 },
+        { deliverable: "Policy Development", number_of_days: 45 },
+        { deliverable: "Staff Training Program", number_of_days: 30 }
+      ]
+    }
   },
   {
     id: "cons-3",
     title: "Program Evaluation Specialist",
-    consultant_type: "Evaluation",
-    department: "Programs",
-    status: "COMPLETED",
-    budget: "18000",
-    start_date: "2024-01-01",
-    end_date: "2024-01-31",
-    created_datetime: "2023-12-20T15:45:00Z"
+    consultants_number: 2,
+    duration: 4,
+    end_date: "2025-04-30",
+    locations: [
+      { id: "loc-4", name: "Field Office", city: "Kano" },
+      { id: "loc-5", name: "Regional Hub", city: "Port Harcourt" }
+    ],
+    evaluation_comments: "Highly qualified evaluation specialist with extensive experience in program assessment and impact measurement for development initiatives.",
+    created_datetime: "2023-12-20T15:45:00Z",
+    status: "ACTIVE",
+    commencement_date: "2024-12-30",
+    grade_level: "Senior Level",
+    supervisor: "Michael Johnson",
+    advertisement_document: "https://example.com/docs/evaluation-specialist-ad.pdf",
+    extra_info: "Experience with mixed-methods evaluation approaches required",
+    background: "Program evaluation and monitoring for international development",
+    created_by: "admin-3",
+    updated_by: null,
+    updated_datetime: "2023-12-20T15:45:00Z",
+    scope_of_work: {
+      id: "sow-3",
+      description: "Conduct comprehensive evaluation of program effectiveness and impact",
+      background: "Mid-term evaluation needed to assess program performance",
+      objectives: "Evaluate program outcomes and provide recommendations for improvement",
+      advertisement_document: "https://example.com/docs/evaluation-specialist-ad.pdf",
+      scope_of_work_document: "https://example.com/docs/evaluation-specialist-sow.pdf",
+      created_datetime: "2023-12-20T15:45:00Z",
+      updated_datetime: "2023-12-20T15:45:00Z",
+      location: "Multi-location",
+      fee_rate: 140,
+      payment_frequency: "Monthly",
+      deliverables: [
+        { deliverable: "Evaluation Framework", number_of_days: 20 },
+        { deliverable: "Data Collection & Analysis", number_of_days: 60 },
+        { deliverable: "Final Evaluation Report", number_of_days: 30 }
+      ]
+    }
   }
 ];
 

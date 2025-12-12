@@ -116,12 +116,39 @@ export const useGetAllAwards = ({
         const axiosError = error as AxiosError;
         console.log(`🎭 Awards API failed, using mock data (sub_grant: ${sub_grant || 'all'})`);
 
+        // Enhanced error logging for debugging
+        if (axiosError?.response) {
+          console.log('📊 Awards API error details:', {
+            status: axiosError.response.status,
+            statusText: axiosError.response.statusText,
+            data: axiosError.response.data,
+            url: axiosError.config?.url,
+            method: axiosError.config?.method
+          });
+        } else {
+          console.log('📊 Awards API error (no response):', {
+            message: axiosError?.message,
+            code: axiosError?.code,
+            url: axiosError?.config?.url
+          });
+        }
+
         // If API fails, use mock data
         return sub_grant ? getMockAwardsForSubGrant(sub_grant) : getMockAwardsForSubGrant("") as any;
       }
     },
     enabled: enabled,
     refetchOnWindowFocus: false,
+    retry: (failureCount, error) => {
+      // Don't retry if it's a deliberate 404 or authentication error
+      const axiosError = error as AxiosError;
+      if (axiosError?.response?.status === 404 || axiosError?.response?.status === 401) {
+        return false;
+      }
+      // Retry up to 2 times for other errors
+      return failureCount < 2;
+    },
+    retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
   });
 };
 
@@ -136,11 +163,39 @@ export const useGetSingleAward = (id: string, enabled: boolean = true) => {
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
+
+        // Enhanced error logging for debugging
+        if (axiosError?.response) {
+          console.log('📊 Single award error details:', {
+            status: axiosError.response.status,
+            statusText: axiosError.response.statusText,
+            data: axiosError.response.data,
+            url: axiosError.config?.url,
+            method: axiosError.config?.method
+          });
+        } else {
+          console.log('📊 Single award error (no response):', {
+            message: axiosError?.message,
+            code: axiosError?.code,
+            url: axiosError?.config?.url
+          });
+        }
+
         throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
       }
     },
     enabled: enabled && !!id,
     refetchOnWindowFocus: false,
+    retry: (failureCount, error) => {
+      // Don't retry if it's a deliberate 404 or authentication error
+      const axiosError = error as AxiosError;
+      if (axiosError?.response?.status === 404 || axiosError?.response?.status === 401) {
+        return false;
+      }
+      // Retry up to 2 times for other errors
+      return failureCount < 2;
+    },
+    retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
   });
 };
 
@@ -269,7 +324,25 @@ export const useGetAwardsBySubGrant = (
 
         throw new Error("No data from new endpoint, falling back");
       } catch (newEndpointError) {
-        console.log(`🔄 New endpoint failed, trying fallback: /contract-grants/sub-grant-awards/`);
+        const axiosError = newEndpointError as AxiosError;
+        console.log(`🔄 New endpoint failed (${axiosError?.response?.status || 'unknown error'}), trying fallback: /contract-grants/sub-grant-awards/`);
+
+        // Enhanced error logging for debugging
+        if (axiosError?.response) {
+          console.log('📊 New endpoint error details:', {
+            status: axiosError.response.status,
+            statusText: axiosError.response.statusText,
+            data: axiosError.response.data,
+            url: axiosError.config?.url,
+            method: axiosError.config?.method
+          });
+        } else {
+          console.log('📊 New endpoint error (no response):', {
+            message: axiosError?.message,
+            code: axiosError?.code,
+            url: axiosError?.config?.url
+          });
+        }
 
         try {
           const response = await AxiosWithToken.get(BASE_URL, {
@@ -282,10 +355,28 @@ export const useGetAwardsBySubGrant = (
             return getMockAwardsForSubGrant(subGrantId) as any;
           }
 
+          console.log(`✅ Successfully used fallback awards endpoint for sub-grant: ${subGrantId}`);
           return response.data;
         } catch (fallbackError) {
-          const axiosError = fallbackError as AxiosError;
+          const fallbackAxiosError = fallbackError as AxiosError;
           console.log(`🎭 Both awards endpoints failed, using mock data for sub-grant: ${subGrantId}`);
+
+          // Enhanced error logging for fallback error
+          if (fallbackAxiosError?.response) {
+            console.log('📊 Fallback endpoint error details:', {
+              status: fallbackAxiosError.response.status,
+              statusText: fallbackAxiosError.response.statusText,
+              data: fallbackAxiosError.response.data,
+              url: fallbackAxiosError.config?.url,
+              method: fallbackAxiosError.config?.method
+            });
+          } else {
+            console.log('📊 Fallback endpoint error (no response):', {
+              message: fallbackAxiosError?.message,
+              code: fallbackAxiosError?.code,
+              url: fallbackAxiosError?.config?.url
+            });
+          }
 
           // If both APIs fail, use mock data
           return getMockAwardsForSubGrant(subGrantId) as any;
@@ -294,6 +385,16 @@ export const useGetAwardsBySubGrant = (
     },
     enabled: enabled && !!subGrantId,
     refetchOnWindowFocus: false,
+    retry: (failureCount, error) => {
+      // Don't retry if it's a deliberate 404 or authentication error
+      const axiosError = error as AxiosError;
+      if (axiosError?.response?.status === 404 || axiosError?.response?.status === 401) {
+        return false;
+      }
+      // Retry up to 2 times for other errors
+      return failureCount < 2;
+    },
+    retryDelay: attemptIndex => Math.min(1000 * 2 ** attemptIndex, 30000), // Exponential backoff
   });
 };
 
