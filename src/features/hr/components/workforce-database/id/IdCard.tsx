@@ -1,4 +1,3 @@
-import avatar from "assets/imgs/avartar.png";
 import DescriptionCard from "components/DescriptionCard";
 import { Button } from "components/ui/button";
 import PrinterIcon from "components/icons/PrinterIcon";
@@ -26,7 +25,30 @@ const IdCard = ({ info }: { info: EmployeeOnboarding }) => {
     <div className='space-y-10'>
       <div className='card-wrapper space-y-6'>
         <div className='flex items-center gap-x-4'>
-          <img src={data?.passport_file || data?.passport_url || '/default-avatar.png'} alt='avatar' width={100} />
+          {(data?.passport_file || data?.passport_url) ? (
+            <img
+              src={data?.passport_file || data?.passport_url}
+              alt='avatar'
+              width={100}
+              height={100}
+              className="object-cover rounded-lg"
+              onError={(e) => {
+                console.error('Avatar image failed to load:', data?.passport_file || data?.passport_url);
+                e.currentTarget.style.display = 'none';
+                const parent = e.currentTarget.parentElement!;
+                if (!parent.querySelector('.avatar-fallback')) {
+                  const fallback = document.createElement('div');
+                  fallback.className = 'avatar-fallback w-[100px] h-[100px] bg-gray-200 rounded-lg flex items-center justify-center text-gray-500 text-sm';
+                  fallback.textContent = 'No Image';
+                  parent.insertBefore(fallback, e.currentTarget);
+                }
+              }}
+            />
+          ) : (
+            <div className="w-[100px] h-[100px] bg-gray-200 rounded-lg flex items-center justify-center text-gray-500 text-sm">
+              No Image
+            </div>
+          )}
           <h4 className='font-semibold'>
             {data?.legal_firstname} {data?.legal_lastname}
           </h4>
@@ -53,7 +75,30 @@ const IdCard = ({ info }: { info: EmployeeOnboarding }) => {
             <div className='space-y-2'>
               <p className='font-bold'>Employee Signature</p>
 
-              <img src={data?.signature_file || data?.signature_url || '/default-signature.png'} alt='signature' width={100} />
+              {(data?.signature_file || data?.signature_url) ? (
+                <img
+                  src={data?.signature_file || data?.signature_url}
+                  alt='signature'
+                  width={100}
+                  height={50}
+                  className="object-cover border rounded"
+                  onError={(e) => {
+                    console.error('Signature image failed to load:', data?.signature_file || data?.signature_url);
+                    e.currentTarget.style.display = 'none';
+                    const parent = e.currentTarget.parentElement!;
+                    if (!parent.querySelector('.signature-fallback')) {
+                      const fallback = document.createElement('div');
+                      fallback.className = 'signature-fallback w-[100px] h-[50px] bg-gray-200 border rounded flex items-center justify-center text-gray-500 text-xs';
+                      fallback.textContent = 'No Signature';
+                      parent.appendChild(fallback);
+                    }
+                  }}
+                />
+              ) : (
+                <div className="w-[100px] h-[50px] bg-gray-200 border rounded flex items-center justify-center text-gray-500 text-xs">
+                  No Signature
+                </div>
+              )}
             </div>
           </div>
 
