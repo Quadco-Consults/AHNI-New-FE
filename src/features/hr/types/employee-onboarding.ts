@@ -104,6 +104,18 @@ export interface EmployeeOnboarding {
   department: string;
   project: string;
   group_membership: number[];
+
+  // Additional fields for workforce database display
+  position?: string;
+  designation?: {
+    name: string;
+    title?: string;
+  };
+  location?: {
+    email: string;
+  };
+  user_type?: string;
+  is_from_user_table?: boolean;
 }
 export interface EmployeeOnboardingQualifications {
   certificate_name: "string";

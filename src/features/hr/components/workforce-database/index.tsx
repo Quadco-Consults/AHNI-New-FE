@@ -15,8 +15,30 @@ import { Button } from "components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "components/ui/dialog";
 import { HrRoutes } from "constants/RouterConstants";
-import { EmployeeOnboarding } from "definations/hr-types/employee-onboarding";
-// import { WorkforceResults } from "definations/hr-types/workforce";
+import { EmployeeOnboarding } from "@/features/hr/types/employee-onboarding";
+
+// Extended type for workforce database that includes additional fields
+type WorkforceEmployee = EmployeeOnboarding & {
+  position?: string;
+  designation?: {
+    name: string;
+    title?: string;
+  };
+  location?: {
+    email: string;
+  };
+  user_type?: string;
+  is_from_user_table?: boolean;
+  user?: {
+    id: string;
+    email: string;
+    employee_id: string;
+    staff_id: string;
+    full_name: string;
+    department?: any;
+  };
+  staff_id?: string;
+};
 import Link from "next/link";
 import {
   useGetEmployeeOnboardings,
@@ -72,15 +94,15 @@ const WorkforceDatabase = () => {
   }
 
   // Filter users to only include AHNI_STAFF and ADMIN user types
-  const filteredUsers = userData?.data?.results?.filter((user: any) => {
+  const filteredUsers = userData?.results?.filter((user: any) => {
     // Include only AHNI_STAFF and ADMIN user types for workforce database
     return user.user_type === "AHNI_STAFF" || user.user_type === "ADMIN";
   }) || [];
 
   console.log("📊 User Stats:");
-  console.log("  All users:", userData?.data?.results?.length || 0);
+  console.log("  All users:", userData?.results?.length || 0);
   console.log("  Filtered AHNI staff and admin:", filteredUsers.length);
-  console.log("  Excluded other user types:", (userData?.data?.results?.length || 0) - filteredUsers.length);
+  console.log("  Excluded other user types:", (userData?.results?.length || 0) - filteredUsers.length);
 
   // Get employee IDs to avoid duplicates
   const onboardedEmployeeIds = new Set(
@@ -88,22 +110,54 @@ const WorkforceDatabase = () => {
   );
 
   // Combine employee onboarding data with filtered user data, avoiding duplicates
-  const combinedData = [
-    ...(employeeData?.data?.results || []),
+  const combinedData: WorkforceEmployee[] = [
+    ...(employeeData?.data?.results || []).map((emp: any) => ({
+      ...emp,
+      position: emp.position || emp.department, // Use department as fallback for position
+      designation: emp.designation || { name: emp.department || emp.position || 'N/A' },
+      location: emp.location || { email: emp.email },
+      user: emp.user, // Pass through the user object
+      staff_id: emp.user?.staff_id || emp.staff_id, // Set staff_id from user object
+    })),
     ...filteredUsers
       .filter((user: any) => !onboardedEmployeeIds.has(user.id)) // Exclude users who already have onboarding records
-      .map((user: any) => ({
+      .map((user: any): WorkforceEmployee => ({
         id: user.id,
         legal_firstname: user.first_name,
         legal_lastname: user.last_name,
         email: user.email,
         employment_type: "Staff",
-        position: user.position,
-        serial_id_code: `AHNI-${user.id.slice(0, 8)}`, // Generate staff ID for users
-        designation: { name: user.position },
+        position: user.position || 'N/A',
+        serial_id_code: user.employee_id || `AHNI-${user.id.slice(0, 8)}`, // Use employee_id or generate staff ID for users
+        designation: { name: user.position || 'Staff' },
         location: { email: user.email },
         user_type: user.user_type,
-        is_from_user_table: true // Flag to identify source
+        is_from_user_table: true, // Flag to identify source
+        user: user, // Pass through the user object
+        staff_id: user.staff_id, // Set staff_id from user
+        // Required fields from EmployeeOnboarding
+        passport_url: '',
+        signature_url: '',
+        beneficiaries: [],
+        emergency_contacts: [],
+        system_authorization: {} as any,
+        bank_accounts: {} as any,
+        pfas: {} as any,
+        qualifications: {} as any,
+        created_datetime: user.created_at || '',
+        updated_datetime: user.updated_at || '',
+        legal_middlename: '',
+        phone_number: user.phone || '',
+        other_number: '',
+        date_of_birth: '',
+        date_of_hire: user.created_at || '',
+        ssnumber: '',
+        marital_status: '',
+        own_computer: true,
+        require_email_access: true,
+        department: user.department || 'N/A',
+        project: '',
+        group_membership: [],
       }))
   ];
 
@@ -114,7 +168,7 @@ const WorkforceDatabase = () => {
     const searchLower = searchTerm.toLowerCase();
     const fullName = `${item.legal_firstname || ""} ${item.legal_lastname || ""}`.toLowerCase();
     const email = (item.location?.email || item.email || "").toLowerCase();
-    const staffId = (item.serial_id_code || "").toLowerCase();
+    const staffId = (item.user?.staff_id || item.staff_id || item.serial_id_code || "").toLowerCase();
     const position = String(item.designation?.name || item.position || "").toLowerCase();
 
     return fullName.includes(searchLower) ||
@@ -167,11 +221,11 @@ const WorkforceDatabase = () => {
     // In a real implementation, you would refetch the data here
   };
 
-  const columns: ColumnDef<EmployeeOnboarding>[] = [
+  const columns: ColumnDef<WorkforceEmployee>[] = [
     {
       header: "Staff ID",
       id: "staff_id",
-      accessorKey: "serial_id_code",
+      accessorFn: (data) => data.user?.staff_id || data.staff_id || data.serial_id_code || 'N/A',
       size: 150,
     },
     {
@@ -184,7 +238,7 @@ const WorkforceDatabase = () => {
       header: "Position",
       accessorKey: "position",
       size: 100,
-      cell: ({ getValue, row }) => {
+      cell: ({ row }) => {
         const data = row.original;
         const position = data.designation?.name || data.position;
 
@@ -215,7 +269,7 @@ const WorkforceDatabase = () => {
     },
   ];
 
-  const ActionList = ({ data }: { data: Row<EmployeeOnboarding> }) => {
+  const ActionList = ({ data }: { data: Row<WorkforceEmployee> }) => {
     // console.log("Workforce", data.original);
 
     return (
