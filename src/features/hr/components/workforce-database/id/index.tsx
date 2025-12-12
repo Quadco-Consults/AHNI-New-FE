@@ -13,7 +13,7 @@ import { useParams } from "next/navigation";
 import { LoadingSpinner } from "components/Loading";
 import { useGetEmployeeOnboarding } from "@/features/hr/controllers/employeeOnboardingController";
 import { useGetSingleUser } from "@/features/auth/controllers/userController";
-import { EmployeeOnboarding } from "definations/hr-types/employee-onboarding";
+import { EmployeeOnboarding } from "@/features/hr/types/employee-onboarding";
 
 const WorkforceDetail = () => {
   const { id } = useParams();
@@ -40,10 +40,22 @@ const WorkforceDetail = () => {
   const isLoading = employeeLoading || userLoading;
   const error = employeeError && userError ? userError : null;
 
-  console.log("Employee data:", employeeData);
-  console.log("User data:", userData);
-  console.log("Combined data:", data);
-  console.log("ID from params:", id);
+  console.log("🔍 WorkforceDetail Debug:");
+  console.log("  ID from params:", id);
+  console.log("  Employee data:", employeeData);
+  console.log("  Employee loading:", employeeLoading);
+  console.log("  Employee error:", employeeError);
+  console.log("  User data:", userData);
+  console.log("  User loading:", userLoading);
+  console.log("  User error:", userError);
+  console.log("  Combined data:", data);
+
+  if (employeeError) {
+    console.error("❌ Employee onboarding API error:", employeeError);
+  }
+  if (userError) {
+    console.error("❌ User API error:", userError);
+  }
 
   const TABS = [
     {

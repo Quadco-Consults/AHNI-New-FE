@@ -15,7 +15,7 @@ import {
 } from "components/ui/dialog";
 
 import PdfIcon from "components/icons/PdfIcon";
-import { EmployeeOnboarding } from "definations/hr-types/employee-onboarding";
+import { EmployeeOnboarding } from "@/features/hr/types/employee-onboarding";
 import { useGetEmployeeOnboardingQualificationsList } from "@/features/hr/controllers/hrEmployeeOnboardingQualificationsController";
 import { useGetEmployeeOnboarding } from "@/features/hr/controllers/employeeOnboardingController";
 import { useGetJobApplication } from "@/features/hr/controllers/hrJobApplicationsController";
@@ -86,7 +86,7 @@ const StaffInformation = ({ info }: { info: EmployeeOnboarding }) => {
   });
 
   // Use job title from the advertisement if available, otherwise fallback to existing data
-  const displayDesignation = advertisement?.data?.title || data?.designation?.name || data?.position || "N/A";
+  const displayDesignation = advertisement?.data?.title || data?.position?.name || data?.designation?.name || data?.position || "N/A";
 
   if (!data && !info) {
     return <div className="p-4">No employee information available</div>;
@@ -110,7 +110,7 @@ const StaffInformation = ({ info }: { info: EmployeeOnboarding }) => {
       <div className='grid grid-cols-1 gap-8 md:grid-cols-2'>
         <DescriptionCard
           label='Phone Number'
-          description={data?.phone_number}
+          description={data?.phone_number || data?.user?.phone || "---"}
         />
         <DescriptionCard
           label='Mobile/Other'
