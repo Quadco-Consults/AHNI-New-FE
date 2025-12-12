@@ -1,20 +1,11 @@
 import { z } from "zod";
 
 export const WorkPlanTrackerSchema = z.object({
-    output_description: z.string().nullable().optional(),
-    achieved_output: z.string().nullable().optional(),
-    achievement_percentage: z.string().nullable().optional(),
-    amount_expended_ngn: z.string().nullable().optional(),
-    amount_expended_usd: z.string().nullable().optional(),
-    implementation_usd_rate: z.string().nullable().optional(),
-    expenditure_usd_rate: z.string().nullable().optional(),
-    expenditure_ngn_rate: z.string().nullable().optional(),
-    variance_ngn: z.string().nullable().optional(),
-    variance_usd: z.string().nullable().optional(),
-    percentage_variance_ngn: z.string().nullable().optional(),
-    percentage_variance_usd: z.string().nullable().optional(),
-    efficiency_output_expenditure_ratio: z.string().nullable().optional(),
-    efficiency_output_expenditure_level: z.string().nullable().optional(),
+    description_of_output: z.string().nullable().optional(), // Correct backend field
+    achieved_results: z.string().nullable().optional(), // Correct backend field for ActivityPlanFromWorkPlan
+    amount_expended_ngn: z.union([z.string(), z.number()]).transform(val => String(val)).nullable().optional(),
+    expenditure_usd_rate: z.union([z.string(), z.number()]).transform(val => String(val)).nullable().optional(),
+    expenditure_ngn_rate: z.union([z.string(), z.number()]).transform(val => String(val)).nullable().optional(),
     comments: z.string().nullable().optional(),
 });
 

@@ -88,9 +88,9 @@ function isSuperAdmin(userPermissions: any[], userRoles?: any[], user?: IUser): 
   const hasAllModules = false; // Disable this check
 
   // Method 4: Check if user has a very high number of permissions (super admin pattern)
-  // Lowered threshold temporarily to fix admin access issues
+  // Restored threshold to original value to prevent regular users from getting admin access
   // Super admins should have significantly more permissions than regular users
-  const hasHighPermissionCount = userPermissions.length >= 20; // Lowered from 50 to 20 temporarily
+  const hasHighPermissionCount = userPermissions.length >= 50; // Restored from 20 back to 50
 
   console.log('🔍 Super admin detection:', {
     hasAdminPermissions,

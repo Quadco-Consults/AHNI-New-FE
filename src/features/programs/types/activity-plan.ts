@@ -15,6 +15,12 @@ export const ActivityPlanSchema = z.object({
     comments: z.string().optional().nullable(),
     project: z.string().optional(),
 
+    // Additional fields for unplanned activities
+    objectives_sub_objectives: z.string().optional(),
+    budget_line: z.string().optional(),
+    expected_results: z.string().optional(),
+    activity_type: z.enum(["PLANNED", "UNPLANNED"]).optional(),
+
     // Keep old field names for backward compatibility
     is_resources_requied: z.string().optional(),
     is_memo_required: z.string().optional(),
@@ -50,9 +56,13 @@ export interface TActivityPlanData {
     memo_approved: boolean;
     status: string;
     work_plan: string;
-    work_plan_activity: string;
+    work_plan_activity: string | null; // Can be null for unplanned activities
     project: string | null;
     approved_by: string | null;
+
+    // Activity type classification
+    activity_type: "PLANNED" | "UNPLANNED";
+
     // Additional fields that may exist
     ir?: string;
     activity_code?: string;
@@ -73,4 +83,8 @@ export interface TActivityPlanData {
     planned_output?: string;
     location?: string;
     lead_dept?: string;
+
+    // Additional fields for unplanned activities
+    work_plan_activity_id?: string | null; // Used in merged data
+    has_plan?: boolean; // Used in merged data
 }

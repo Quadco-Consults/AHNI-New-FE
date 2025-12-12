@@ -210,7 +210,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
 
       if (isChild && parentDepartment) {
         // SUPERUSER OVERRIDE: Admins get access to everything
-        if (isAdmin || user?.is_superuser || user?.is_staff) {
+        if (isAdmin || user?.is_superuser) {
           departmentBasedAccess = true;
         } else {
           // For child items, check if parent department is allowed OR if we're in department hierarchy
@@ -247,7 +247,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
         }
       } else {
         // SUPERUSER OVERRIDE: Admins get access to everything
-        if (isAdmin || user?.is_superuser || user?.is_staff) {
+        if (isAdmin || user?.is_superuser) {
           departmentBasedAccess = true;
         } else {
           // For top-level items, check if this department is allowed
@@ -267,25 +267,24 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
       // Also handle case when permissions are still loading
       const permissionBasedAccess =
         // SUPERUSER OVERRIDE: Admins get access to everything
-        (isAdmin || user?.is_superuser || user?.is_staff) ||
+        (isAdmin || user?.is_superuser) ||
         // No specific permissions required
         (!item.permissions || item.permissions.length === 0) ||
         // User has required permissions
         hasPermission(item.permissions) ||
-        // Allow access if user is authenticated and has 0 permissions (common for departmental officers)
-        (authState.isAuthenticated && permissionCount === 0) ||
+        // REMOVED: Zero permissions should not grant full access
+        // (authState.isAuthenticated && permissionCount === 0) ||
         // Special finance user override - email-based finance users should access Finance module
         (item.name === 'Finance' && user?.email?.toLowerCase().includes('finance')) ||
         // Special HR user override - email-based HR users should access HR module
         (item.name === 'HR' && user?.email?.toLowerCase().includes('hr')) ||
-        // TEMPORARY DEBUG: Force HR access for testing - comprehensive override
-        (item.name === 'HR') ||
-        // Force all HR-related items regardless of specific permissions
-        (item.name?.includes('Employee Management')) ||
-        (item.name?.includes('Recruitment')) ||
-        (item.name?.includes('Performance Management')) ||
-        (item.name?.includes('Timesheet Management')) ||
-        (item.name?.includes('compensation')) ||
+        // REMOVED: These forced HR overrides granted access to all users
+        // (item.name === 'HR') ||
+        // (item.name?.includes('Employee Management')) ||
+        // (item.name?.includes('Recruitment')) ||
+        // (item.name?.includes('Performance Management')) ||
+        // (item.name?.includes('Timesheet Management')) ||
+        // (item.name?.includes('compensation')) ||
         // If permissions are still loading but user is authenticated, be more permissive
         (permissionsLoading && authState.isAuthenticated && user);
 
@@ -310,7 +309,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
       // Enhanced child menu access for departmental officers with their own department
       if (isChild && parentDepartment) {
         // SUPERUSER OVERRIDE: Admins get access to everything (already handled above, but keeping for clarity)
-        if (!(isAdmin || user?.is_superuser || user?.is_staff)) {
+        if (!(isAdmin || user?.is_superuser)) {
           // Check if this is the user's own department
           const isOwnDepartment = (parentDepartment === 'C&G' && canAccessContractsGrantsFeatures) ||
             (parentDepartment === 'Programs' && canAccessProgramsFeatures) ||
@@ -465,15 +464,48 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
       return [];
     }
 
-    const filtered = filterMenuItems(departmentalLinks);
+    // First filter by department - users should only see their own department unless admin
+    const departmentFiltered = departmentalLinks.filter(item => {
+      // Admins can see all departments
+      if (isAdmin || user?.is_superuser) {
+        return true;
+      }
+
+      // Map user's department to departmental sections
+      const userDept = userDepartment?.toUpperCase() || user?.department?.name?.toUpperCase();
+
+      // Department mapping
+      const departmentMapping = {
+        'PROGRAMS': ['Programs'],
+        'PROCUREMENT': ['Procurement Management'],
+        'HR': ['HR'],
+        'HUMAN RESOURCES': ['HR'],
+        'FINANCE': ['Finance'],
+        'CONTRACT & GRANTS': ['C&G'],
+        'CONTRACTS & GRANTS': ['C&G'],
+        'ADMIN': ['Admin'],
+        'ADMINISTRATION': ['Admin']
+      };
+
+      const allowedDepartments = departmentMapping[userDept] || [];
+
+      // Allow if item matches user's department
+      return allowedDepartments.includes(item.name);
+    });
+
+    // Then apply permission filtering
+    const filtered = filterMenuItems(departmentFiltered);
 
     // Debug logging (development only) - Check departmental filtering
     if (process.env.NODE_ENV === 'development') {
       console.log('🏢 DEPARTMENTAL FILTERING Debug:', {
         userType: isAdmin ? 'Admin' : 'Regular User',
         userPosition: user?.position?.title,
+        userDepartment: userDepartment,
+        backendDepartment: user?.department?.name,
         originalDepartments: departmentalLinks.map(item => item.name),
-        filteredDepartments: filtered.map(item => item.name),
+        departmentFilteredDepartments: departmentFiltered.map(item => item.name),
+        finalFilteredDepartments: filtered.map(item => item.name),
         departmentAccessRule: 'Department Officers should see only their assigned department menu',
         detailedResults: filtered.map(item => ({
           name: item.name,
@@ -551,14 +583,14 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
 
     const filtered = mapped.filter(item => {
       // UNIVERSAL GLOBAL HUB ACCESS: All Global Hub items are accessible to ALL AHNI employees
-      // regardless of department, role, or permissions
+      // regardless of department, role, or permissions for cross-departmental requests
       return true; // Show all Global Hub items to all authenticated AHNI employees
     });
 
     // Debug logging (development only)
     if (process.env.NODE_ENV === 'development') {
       console.log('🌐 UNIVERSAL GLOBAL HUB - All AHNI Employees:', {
-        policy: 'ALL Global Hub items accessible to ALL authenticated AHNI employees',
+        policy: 'ALL Global Hub items accessible to ALL authenticated AHNI employees for cross-departmental requests',
         originalCount: globalHubLinks.length,
         totalVisibleItems: filtered.length,
         accessLevel: 'Universal - No restrictions based on department or role',

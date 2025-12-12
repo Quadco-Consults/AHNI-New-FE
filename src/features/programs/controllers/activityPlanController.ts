@@ -2,6 +2,7 @@ import useApiManager from "@/constants/mainController";
 import { useQuery } from "@tanstack/react-query";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { AxiosError } from "axios";
+import { useState } from "react";
 import {
   TActivityPlanData,
   TActivityPlanFormValues,
@@ -160,37 +161,127 @@ export const useCreateActivityPlan = () => {
   return { createActivityPlan, data, isLoading, isSuccess, error };
 };
 
+// Create Unplanned Activity
+export const useCreateUnplannedActivity = () => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    TActivityPlanData,
+    Error,
+    TActivityPlanFormValues
+  >({
+    endpoint: "programs/plans/activities/create-unplanned/",
+    queryKey: ["activity-plans", "unplanned-activities"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const createUnplannedActivity = async (details: TActivityPlanFormValues) => {
+    try {
+      await callApi(details);
+    } catch (error) {
+      console.error("Unplanned activity create error:", error);
+    }
+  };
+
+  return { createUnplannedActivity, data, isLoading, isSuccess, error };
+};
+
 // Upload Activity Plan
 export const useUploadActivityPlan = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [data, setData] = useState(null);
+
+  const uploadActivityPlan = async (details: {
+    project: string;
+    file: File;
+    financialYear: string;
+    workPlanId?: string;
+    activityType?: string;
+  }) => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      setIsSuccess(false);
+
+      // Create FormData for file upload
+      const formData = new FormData();
+      formData.append("project", details.project);
+      formData.append("financial_year", details.financialYear);  // ← REQUIRED FIELD ADDED!
+      formData.append("file", details.file);
+
+      // Add optional parameters
+      if (details.workPlanId) {
+        formData.append("work_plan", details.workPlanId);
+      }
+      if (details.activityType) {
+        formData.append("activity_type", details.activityType);
+      }
+
+      console.log("📤 Uploading activity plan with FormData:");
+      console.log("- Project:", details.project);
+      console.log("- Financial Year:", details.financialYear);  // ← ADD THIS LOG
+      console.log("- File:", details.file.name, details.file.size, "bytes");
+      console.log("- Work Plan ID:", details.workPlanId || "Not provided");
+      console.log("- Activity Type:", details.activityType || "Not specified");
+
+      // Use direct AxiosWithToken call instead of useApiManager
+      const response = await AxiosWithToken.post(
+        "/programs/plans/activity/sheet/upload/",
+        formData,
+        {
+          headers: {
+            // Don't set Content-Type manually - let browser set it with boundary
+          },
+        }
+      );
+
+      console.log("✅ Upload successful:", response.data);
+      setData(response.data);
+      setIsSuccess(true);
+      return response.data;
+
+    } catch (error: any) {
+      console.error("❌ Activity plan upload error:", error);
+      console.error("Error details:", {
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        message: error.message
+      });
+      setError(error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return { uploadActivityPlan, data, isLoading, isSuccess, error };
+};
+
+// Bulk Upload Unplanned Activities
+export const useBulkUploadUnplannedActivities = () => {
   const { callApi, isLoading, isSuccess, error, data } = useApiManager<
     null,
     Error,
-    { project: string; file: File }
+    FormData
   >({
-    endpoint: "programs/plans/activity/sheet/upload/",
-    queryKey: ["activity-plans"],
+    endpoint: "programs/unplanned-activities/bulk-create/",
+    queryKey: ["activity-plans", "unplanned-activities"],
     isAuth: true,
     method: "POST",
     contentType: null, // For FormData
   });
 
-  const uploadActivityPlan = async (details: {
-    project: string;
-    file: File;
-  }) => {
+  const bulkUploadUnplannedActivities = async (formData: FormData) => {
     try {
-      // Create FormData for file upload
-      const formData = new FormData();
-      formData.append("project", details.project);
-      formData.append("file", details.file);
-
       await callApi(formData as any);
     } catch (error) {
-      console.error("Activity plan upload error:", error);
+      console.error("Unplanned activities bulk upload error:", error);
     }
   };
 
-  return { uploadActivityPlan, data, isLoading, isSuccess, error };
+  return { bulkUploadUnplannedActivities, data, isLoading, isSuccess, error };
 };
 
 // Edit Activity Plan
