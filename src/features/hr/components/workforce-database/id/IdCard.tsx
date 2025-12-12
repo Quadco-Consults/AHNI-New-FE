@@ -2,11 +2,25 @@ import avatar from "assets/imgs/avartar.png";
 import DescriptionCard from "components/DescriptionCard";
 import { Button } from "components/ui/button";
 import PrinterIcon from "components/icons/PrinterIcon";
-import { EmployeeOnboarding } from "definations/hr-types/employee-onboarding";
+import { EmployeeOnboarding } from "@/features/hr/types/employee-onboarding";
 
 const IdCard = ({ info }: { info: EmployeeOnboarding }) => {
-  const { data } = info;
-  console.log(data);
+  const data = info?.data || info;
+
+  console.log("🔍 IdCard Debug:");
+  console.log("  Raw info prop:", info);
+  console.log("  Extracted data:", data);
+  console.log("  Position access attempts:");
+  console.log("    data?.position?.name:", data?.position?.name);
+  console.log("    data?.designation?.name:", data?.designation?.name);
+  console.log("    data?.position:", data?.position);
+  console.log("  Employee Number access attempts:");
+  console.log("    data?.user?.staff_id:", data?.user?.staff_id);
+  console.log("    data?.serial_id_code:", data?.serial_id_code);
+  console.log("  Email access attempts:");
+  console.log("    data?.email:", data?.email);
+  console.log("    data?.user?.email:", data?.user?.email);
+  console.log("    data?.location?.email:", data?.location?.email);
 
   return (
     <div className='space-y-10'>
@@ -22,18 +36,18 @@ const IdCard = ({ info }: { info: EmployeeOnboarding }) => {
           <div className='space-y-6'>
             <DescriptionCard
               label='Position Title'
-              description={data?.designation?.name || data?.position || "N/A"}
+              description={data?.position?.name || data?.designation?.name || data?.position || "N/A"}
             />
             <DescriptionCard
               label='Phone Number'
-              description={data?.phone_number}
+              description={data?.phone_number || data?.user?.phone || "---"}
             />
           </div>
 
           <div className='space-y-6'>
             <DescriptionCard
               label='Employee Number'
-              description={data?.other_number}
+              description={data?.user?.staff_id || data?.serial_id_code || data?.other_number || "---"}
             />
 
             <div className='space-y-2'>
@@ -46,9 +60,9 @@ const IdCard = ({ info }: { info: EmployeeOnboarding }) => {
           <div className='space-y-6'>
             <DescriptionCard
               label='Email Address'
-              description='jamesseptimus@ahnigeria.org'
+              description={data?.email || data?.user?.email || data?.location?.email || "---"}
             />
-            <DescriptionCard label='Date' description={data?.date_of_birth} />
+            <DescriptionCard label='Date' description={data?.date_of_hire || data?.date_of_birth || "---"} />
           </div>
         </div>
 
