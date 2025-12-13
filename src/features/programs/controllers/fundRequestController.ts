@@ -11,7 +11,7 @@ import {
   TFundRequestWithActivitiesFormValues,
   TFundRequestBackendPayload,
   transformFormDataToBackendPayload,
-} from "definations/program-validator";
+} from "definitions/program-validator";
 import { handleApiError, createErrorContext } from "@/utils/errorHandlers";
 
 // API Response interfaces
@@ -212,16 +212,47 @@ export const useCreateFundRequest = () => {
     method: "POST",
   });
 
-  const createFundRequest = async (details: TFundRequestFormValues & { activities: any[] }) => {
+  const createFundRequest = async (
+    details: TFundRequestFormValues & { activities: any[] },
+    costCategories?: Array<{ id: string; name: string }>
+  ) => {
     try {
+      console.log("createFundRequest called with:");
+      console.log("- details:", details);
+      console.log("- costCategories:", costCategories);
+
       // Transform form data to backend payload format
-      const backendPayload = transformFormDataToBackendPayload(details);
+      const backendPayload = transformFormDataToBackendPayload(details, costCategories);
       console.log("Transformed payload for backend:", backendPayload);
 
       const res = await callApi(backendPayload);
       return res;
-    } catch (error) {
+    } catch (error: any) {
       console.error("Fund request create error:", error);
+
+      // Handle validation errors from transformation
+      if (error.message && !error.response) {
+        // This is likely a validation error from transformFormDataToBackendPayload
+        throw new Error(`Validation Error: ${error.message}`);
+      }
+
+      // Handle API errors with better messages
+      if (error.response?.data?.message) {
+        throw new Error(error.response.data.message);
+      }
+
+      if (error.response?.status === 400) {
+        throw new Error("Invalid data provided. Please check all fields and try again.");
+      }
+
+      if (error.response?.status === 403) {
+        throw new Error("You don't have permission to create fund requests.");
+      }
+
+      if (error.response?.status === 500) {
+        throw new Error("Server error occurred. Please try again later or contact support.");
+      }
+
       throw error;
     }
   };
@@ -243,11 +274,12 @@ export const useUpdateFundRequest = (id: string) => {
   });
 
   const updateFundRequest = async (
-    details: TFundRequestWithActivitiesFormValues
+    details: TFundRequestWithActivitiesFormValues,
+    costCategories?: Array<{ id: string; name: string }>
   ) => {
     try {
       // Transform form data to backend payload format
-      const backendPayload = transformFormDataToBackendPayload(details);
+      const backendPayload = transformFormDataToBackendPayload(details, costCategories);
       console.log("Transformed update payload for backend:", backendPayload);
 
       await callApi(backendPayload);
@@ -282,7 +314,8 @@ export const usePatchFundRequest = (id: string) => {
   });
 
   const patchFundRequest = async (
-    details: Partial<TFundRequestWithActivitiesFormValues>
+    details: Partial<TFundRequestWithActivitiesFormValues>,
+    costCategories?: Array<{ id: string; name: string }>
   ) => {
     try {
       // For partial updates, only transform if we have the full data structure
@@ -290,7 +323,7 @@ export const usePatchFundRequest = (id: string) => {
 
       if (details.activities) {
         // Full transformation needed when activities are involved
-        payload = transformFormDataToBackendPayload(details as TFundRequestWithActivitiesFormValues);
+        payload = transformFormDataToBackendPayload(details as TFundRequestWithActivitiesFormValues, costCategories);
       } else {
         // Simple field updates can be passed through
         payload = details as Partial<TFundRequestBackendPayload>;

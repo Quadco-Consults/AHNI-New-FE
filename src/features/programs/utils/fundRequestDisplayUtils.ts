@@ -9,6 +9,8 @@ import {
   FundRequestStatusLabels,
   transformBackendResponseToDisplayData,
 } from "definations/program-validator";
+import { IExchangeRate } from "@/features/admin/types/config/exchange-rate";
+import { validateCrossCurrencyAmounts, convertCurrency, formatCurrencyAmount } from "@/utils/currencyConverter";
 
 /**
  * Format currency amount with proper locale formatting
@@ -165,14 +167,20 @@ export const transformFundRequestForTable = (fundRequest: any) => {
 
 /**
  * Validate fund request data before submission
- * This function checks both form validation and project disbursement limits
+ * This function checks both form validation and project disbursement limits with cross-currency support
  */
 export const validateFundRequestData = (
   data: any,
   projectDisbursementSummary?: {
     total_disbursements: number;
     remaining_budget: number;
-  }
+    budget_currency?: string; // Currency of the project budget
+  },
+  availableBalance?: {
+    amount: number;
+    currency: string; // Currency of available balance (e.g., USD)
+  },
+  exchangeRates?: IExchangeRate[]
 ): { isValid: boolean; errors: string[] } => {
   const errors: string[] = [];
 
@@ -187,11 +195,9 @@ export const validateFundRequestData = (
   if (!data.location) errors.push("Location is required");
   if (!data.uuid_code) errors.push("Unique identifier is required");
 
-  // Approval workflow validation
+  // Approval workflow validation (removed state reviewer/authorizer - not in backend model)
   if (!data.location_reviewer) errors.push("Location reviewer is required");
   if (!data.location_authorizer) errors.push("Location authorizer is required");
-  if (!data.state_reviewer) errors.push("State reviewer is required");
-  if (!data.state_authorizer) errors.push("State authorizer is required");
   if (!data.hq_reviewer) errors.push("HQ reviewer is required");
   if (!data.hq_authorizer) errors.push("HQ authorizer is required");
   if (!data.hq_approver) errors.push("HQ approver is required");
@@ -219,30 +225,59 @@ export const validateFundRequestData = (
     });
   }
 
-  // Business logic validation - Check project disbursements
+  // Business logic validation - Check project disbursements with cross-currency support
   const newDisbursementAmount = calculateActivitiesTotal(data.activities);
 
   if (projectDisbursementSummary) {
+    const projectCurrency = projectDisbursementSummary.budget_currency || data.currency;
+
+    // Convert new disbursement to project currency if needed
+    let convertedDisbursementAmount = newDisbursementAmount;
+    let conversionInfo = "";
+
+    if (exchangeRates && data.currency !== projectCurrency) {
+      const conversion = convertCurrency(newDisbursementAmount, data.currency, projectCurrency, exchangeRates);
+      convertedDisbursementAmount = conversion.convertedAmount;
+      if (conversion.exchangeRate) {
+        conversionInfo = ` (converted from ${formatCurrency(newDisbursementAmount, data.currency)} @ rate ${conversion.exchangeRate})`;
+      }
+    }
+
     // Check against existing disbursements + new request
-    const totalAfterNewRequest = projectDisbursementSummary.total_disbursements + newDisbursementAmount;
+    const totalAfterNewRequest = projectDisbursementSummary.total_disbursements + convertedDisbursementAmount;
     const projectBudget = projectDisbursementSummary.total_disbursements + projectDisbursementSummary.remaining_budget;
 
     if (totalAfterNewRequest > projectBudget) {
       errors.push(
         `This fund request would exceed the project budget. ` +
-        `Current disbursements: ${formatCurrency(projectDisbursementSummary.total_disbursements, data.currency)}, ` +
-        `New request: ${formatCurrency(newDisbursementAmount, data.currency)}, ` +
-        `Total would be: ${formatCurrency(totalAfterNewRequest, data.currency)}, ` +
-        `but project budget is: ${formatCurrency(projectBudget, data.currency)}`
+        `Current disbursements: ${formatCurrency(projectDisbursementSummary.total_disbursements, projectCurrency)}, ` +
+        `New request: ${formatCurrency(convertedDisbursementAmount, projectCurrency)}${conversionInfo}, ` +
+        `Total would be: ${formatCurrency(totalAfterNewRequest, projectCurrency)}, ` +
+        `but project budget is: ${formatCurrency(projectBudget, projectCurrency)}`
       );
     }
 
     // Also check if new request exceeds remaining budget
-    if (newDisbursementAmount > projectDisbursementSummary.remaining_budget) {
+    if (convertedDisbursementAmount > projectDisbursementSummary.remaining_budget) {
       errors.push(
-        `Fund request amount (${formatCurrency(newDisbursementAmount, data.currency)}) ` +
-        `exceeds remaining project budget (${formatCurrency(projectDisbursementSummary.remaining_budget, data.currency)})`
+        `Fund request amount (${formatCurrency(convertedDisbursementAmount, projectCurrency)}${conversionInfo}) ` +
+        `exceeds remaining project budget (${formatCurrency(projectDisbursementSummary.remaining_budget, projectCurrency)})`
       );
+    }
+  }
+
+  // Cross-currency validation against available balance
+  if (availableBalance && exchangeRates) {
+    const validation = validateCrossCurrencyAmounts(
+      newDisbursementAmount,
+      data.currency,
+      availableBalance.amount,
+      availableBalance.currency,
+      exchangeRates
+    );
+
+    if (!validation.isValid && validation.message) {
+      errors.push(validation.message);
     }
   }
   // Note: We removed the fallback validation that compared disbursement amount against

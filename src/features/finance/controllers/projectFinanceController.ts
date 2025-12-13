@@ -163,7 +163,7 @@ export const useGetProjectDisbursementSummary = (projectId: string) => {
     queryKey: ["project-disbursement-summary", projectId],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get(`/api/v1/project-disbursements/summary/?project=${projectId}`);
+        const response = await AxiosWithToken.get(`/project-disbursements/summary/?project=${projectId}`);
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;

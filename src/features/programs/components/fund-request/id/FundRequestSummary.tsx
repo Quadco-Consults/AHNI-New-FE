@@ -33,7 +33,7 @@ export default function FundRequestSummary() {
         size: 1,
     });
 
-    const projectFromSearch = projectsBySearch?.results?.[0];
+    const projectFromSearch = projectsBySearch?.data?.results?.[0];
     const actualProject = project || (projectFromSearch ? { data: projectFromSearch } : null);
     const actualProjectId = actualProject?.data?.id;
 
@@ -46,9 +46,16 @@ export default function FundRequestSummary() {
     const { data: fundRequest, isLoading } = useGetAllFundRequests(fundRequestParams);
 
     // Debug: Log fund request data to check if activities are included
-    console.log('Fund Request Data:', fundRequest?.data?.results);
-    console.log('Sample Fund Request:', fundRequest?.data?.results?.[0]);
-    console.log('Sample Activities:', fundRequest?.data?.results?.[0]?.activities);
+    console.log('DEBUG: FundRequestSummary - decodedId:', decodedId);
+    console.log('DEBUG: FundRequestSummary - isUUID:', isUUID);
+    console.log('DEBUG: FundRequestSummary - project:', project);
+    console.log('DEBUG: FundRequestSummary - projectsBySearch:', projectsBySearch);
+    console.log('DEBUG: FundRequestSummary - actualProjectId:', actualProjectId);
+    console.log('DEBUG: FundRequestSummary - fundRequestParams:', fundRequestParams);
+    console.log('DEBUG: FundRequestSummary - fundRequest:', fundRequest);
+    console.log('DEBUG: Fund Request Data:', fundRequest?.data?.results);
+    console.log('DEBUG: Sample Fund Request:', fundRequest?.data?.results?.[0]);
+    console.log('DEBUG: Sample Activities:', fundRequest?.data?.results?.[0]?.activities);
 
     return (
         <Card>

@@ -135,8 +135,7 @@ export interface TFundRequestResponseDataLegacy {
     reviewer: string | null;
     location_reviewer: string | null;
     location_authorizer: string | null;
-    state_reviewer: string | null;
-    state_authorizer: string | null;
+    // Removed state_reviewer and state_authorizer - not in backend model
     hq_reviewer: string | null;
     hq_authorizer: string | null;
     hq_approver: string | null;

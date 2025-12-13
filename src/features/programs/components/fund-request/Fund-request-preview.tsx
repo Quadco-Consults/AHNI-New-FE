@@ -53,11 +53,9 @@ export default function Summary() {
     programFundRequest.location
   );
 
-  // Fetch all approvers
+  // Fetch all approvers (removed state_reviewer and state_authorizer - not in backend model)
   const { data: locationReviewer } = useGetSingleUser(programFundRequest?.location_reviewer);
   const { data: locationAuthorizer } = useGetSingleUser(programFundRequest?.location_authorizer);
-  const { data: stateReviewer } = useGetSingleUser(programFundRequest?.state_reviewer);
-  const { data: stateAuthorizer } = useGetSingleUser(programFundRequest?.state_authorizer);
   const { data: hqReviewer } = useGetSingleUser(programFundRequest?.hq_reviewer);
   const { data: hqAuthorizer } = useGetSingleUser(programFundRequest?.hq_authorizer);
   const { data: hqApprover } = useGetSingleUser(programFundRequest?.hq_approver);
@@ -100,7 +98,22 @@ export default function Summary() {
       }
 
       // The createFundRequest function now handles the transformation internally
-      const res = await createFundRequest(programFundRequest);
+      const categories = ((costCategories as any)?.data?.results || (costCategories as any)?.results || []);
+      console.log("Raw cost categories response:", costCategories);
+      console.log("Extracted categories:", categories);
+      console.log("Program fund request before transformation:", programFundRequest);
+
+      // Fallback category mapping if API fetch failed
+      const fallbackCategories = [
+        { id: "27d47188-300e-426c-a66f-96595edf7614", name: "TEST CATEGORY" },
+        { id: "5c976aa2-bd63-4b17-9c6d-6c32c501f9d0", name: "mby" }
+      ];
+
+      const categoriesToUse = categories && categories.length > 0 ? categories : fallbackCategories;
+      console.log("Final categories to use for transformation:", categoriesToUse);
+      console.log("Will call createFundRequest with categories:", categoriesToUse);
+
+      const res = await createFundRequest(programFundRequest, categoriesToUse);
 
       console.log("Fund request submission response:", { res });
 
@@ -113,6 +126,8 @@ export default function Summary() {
       }
     } catch (error: any) {
       console.error("Fund request submission error:", error);
+      console.error("Error response data:", error.response?.data);
+      console.error("Error status:", error.response?.status);
 
       const errorMessage =
         error.response?.data?.message ||
@@ -311,24 +326,7 @@ export default function Summary() {
             </div>
           </div>
 
-          {/* State Level */}
-          <div className='border-l-4 border-green-500 pl-4 space-y-3'>
-            <h4 className='font-semibold text-green-700'>State Level Approvals</h4>
-            <div className='grid grid-cols-2 gap-5'>
-              <div className='space-y-2'>
-                <p className='text-sm font-medium text-gray-600'>State Reviewer</p>
-                <p className='text-sm text-gray-900'>
-                  {FundRequestDisplayUtils.getUserDisplayName(stateReviewer)}
-                </p>
-              </div>
-              <div className='space-y-2'>
-                <p className='text-sm font-medium text-gray-600'>State Authorizer</p>
-                <p className='text-sm text-gray-900'>
-                  {FundRequestDisplayUtils.getUserDisplayName(stateAuthorizer)}
-                </p>
-              </div>
-            </div>
-          </div>
+          {/* State Level Approvals removed - not in backend model */}
 
           {/* HQ Level */}
           <div className='border-l-4 border-purple-500 pl-4 space-y-3'>

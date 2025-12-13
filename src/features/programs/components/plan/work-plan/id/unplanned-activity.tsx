@@ -143,33 +143,167 @@ export default function UnplannedActivity({ workPlanId, workPlanData }: PropsTyp
 
     console.log('Final filtered unplanned activities:', unplannedOnly);
 
-    const transformedActivities: TUnplannedActivity[] = unplannedOnly.map((activityPlan: any) => ({
-      id: activityPlan.id,
-      activity_number: activityPlan.work_plan_activity_identifier || "UNPLANNED",
-      budget_line: { name: activityPlan.budget_line || "N/A" },
-      objectives_sub_objectives: activityPlan.objectives_sub_objectives || "Unplanned Activity",
-      activity: activityPlan.activity_description || activityPlan.activity_name,
-      activity_justification: activityPlan.justification || "Unplanned activity added outside work plan",
-      lead_dept: activityPlan.lead_dept || "",
-      lead_person: activityPlan.responsible_person || "",
-      location: activityPlan.location || "",
-      expected_result: activityPlan.expected_results || "",
-      indicator: activityPlan.indicator || "",
-      mov: activityPlan.mov || "",
-      unit_cost_ngn: null, // Unplanned activities typically don't have detailed costing initially
-      total_amount_ngn: "0",
-      total_amount_usd: "0",
-      cost_category: { name: activityPlan.cost_category || "" },
-      cost_grouping: { name: activityPlan.cost_grouping || "" },
-      cost_input: { name: activityPlan.cost_input || "" },
-      intervention_area: { name: activityPlan.intervention_area || "" },
-      comments: activityPlan.comments || "",
-      gant_chart: {}, // Empty initially for unplanned activities
-      budget_chart: {}, // Empty initially for unplanned activities
-      activity_type: "UNPLANNED" as const,
-      canEdit: true,
-      original_data: activityPlan,
-    }));
+    const transformedActivities: TUnplannedActivity[] = unplannedOnly.map((activityPlan: any) => {
+      // Debug each activity transformation - show ALL available fields
+      console.log('=== FULL ACTIVITY PLAN DATA ===');
+      console.log('Activity ID:', activityPlan.id);
+      console.log('All available keys:', Object.keys(activityPlan));
+      console.log('Full activity plan:', activityPlan);
+      console.log('=== SPECIFIC FIELD VALUES ===');
+      console.log('responsible_person:', activityPlan.responsible_person);
+      console.log('lead_person:', activityPlan.lead_person);
+      console.log('activity_description:', activityPlan.activity_description);
+      console.log('expected_results:', activityPlan.expected_results);
+      console.log('monthly_costs (RAW):', activityPlan.monthly_costs);
+      console.log('monthly_costs type:', typeof activityPlan.monthly_costs);
+      console.log('================================');
+
+      // Convert monthly_costs object to gant_chart and budget_chart
+      const ganttChart: Record<TMonth, number> = {};
+      const budgetChart: Record<TMonth, number> = {};
+
+      console.log('=== GANTT CHART PROCESSING ===');
+      console.log('Activity ID:', activityPlan.id);
+      console.log('monthly_costs exists?', !!activityPlan.monthly_costs);
+      console.log('monthly_costs value:', activityPlan.monthly_costs);
+
+      if (activityPlan.monthly_costs) {
+        months.forEach(month => {
+          const frequency = activityPlan.monthly_costs[month] || 0;
+          console.log(`Processing ${month}: ${frequency}`);
+          ganttChart[month as TMonth] = frequency;
+
+          // Calculate budget for each month (frequency * unit_cost)
+          const unitCost = activityPlan.unit_cost_ngn || 0;
+          budgetChart[month as TMonth] = frequency * unitCost;
+        });
+      } else {
+        console.log('❌ monthly_costs is null/undefined - using empty gantt chart');
+      }
+
+      console.log('Final ganttChart:', ganttChart);
+      console.log('Final budgetChart:', budgetChart);
+      console.log('Gantt chart has values?', Object.values(ganttChart).some(val => val > 0));
+      console.log('==============================');
+
+      return {
+        id: activityPlan.id,
+        // Try multiple possible field names for activity number
+        activity_number: activityPlan.work_plan_activity_identifier || activityPlan.activity_identifier || activityPlan.activity_code || activityPlan.linked_workplan_activity || "UNPLANNED",
+
+        // Budget line mapping - try different possible field structures
+        budget_line: {
+          name: activityPlan.budget_line ||
+                (activityPlan.budget_line_item && activityPlan.budget_line_item.name) ||
+                (typeof activityPlan.budget_line === 'object' ? activityPlan.budget_line.name : activityPlan.budget_line) ||
+                "N/A"
+        },
+
+        // Objectives mapping
+        objectives_sub_objectives: activityPlan.objectives_sub_objectives ||
+                                  activityPlan.objective ||
+                                  activityPlan.sub_objective ||
+                                  "Unplanned Activity",
+
+        // Activity description - try multiple fields
+        activity: activityPlan.activity_description ||
+                 activityPlan.activity_name ||
+                 activityPlan.activity ||
+                 activityPlan.description ||
+                 "",
+
+        // Activity justification
+        activity_justification: activityPlan.justification ||
+                               activityPlan.activity_justification ||
+                               "Unplanned activity added outside work plan",
+
+        // Lead department - try multiple fields
+        lead_dept: activityPlan.lead_dept ||
+                  activityPlan.department ||
+                  activityPlan.lead_department ||
+                  (activityPlan.department_obj && activityPlan.department_obj.name) ||
+                  "",
+
+        // Lead person mapping
+        lead_person: activityPlan.responsible_person ||
+                    activityPlan.lead_person ||
+                    (activityPlan.responsible_person_obj && activityPlan.responsible_person_obj.name) ||
+                    "",
+
+        // Location mapping
+        location: activityPlan.location ||
+                 (activityPlan.location_obj && activityPlan.location_obj.name) ||
+                 activityPlan.activity_location ||
+                 "",
+
+        // Expected results
+        expected_result: activityPlan.expected_results ||
+                        activityPlan.expected_result ||
+                        activityPlan.expected_outcome ||
+                        "",
+
+        // Indicator mapping
+        indicator: activityPlan.indicator ||
+                  activityPlan.indicators ||
+                  activityPlan.performance_indicator ||
+                  "",
+
+        // MoV mapping
+        mov: activityPlan.mov ||
+             activityPlan.means_of_verification ||
+             activityPlan.verification_method ||
+             "",
+
+        // Financial fields
+        unit_cost_ngn: activityPlan.unit_cost_ngn || activityPlan.unit_cost || null,
+        total_amount_ngn: (activityPlan.total_cost_ngn || activityPlan.total_amount_ngn || activityPlan.total_cost || 0).toString(),
+        total_amount_usd: (activityPlan.total_cost_usd || activityPlan.total_amount_usd || 0).toString(),
+
+        // Cost category - handle both string and object formats with null safety
+        cost_category: {
+          name: activityPlan.cost_category ||
+                (activityPlan.cost_category_obj && activityPlan.cost_category_obj.name) ||
+                (typeof activityPlan.cost_category === 'object' && activityPlan.cost_category && activityPlan.cost_category.name) ||
+                ""
+        },
+
+        // Cost grouping - handle both string and object formats with null safety
+        cost_grouping: {
+          name: activityPlan.cost_grouping ||
+                (activityPlan.cost_grouping_obj && activityPlan.cost_grouping_obj.name) ||
+                (typeof activityPlan.cost_grouping === 'object' && activityPlan.cost_grouping && activityPlan.cost_grouping.name) ||
+                ""
+        },
+
+        // Cost input - handle both string and object formats with null safety
+        cost_input: {
+          name: activityPlan.cost_input ||
+                (activityPlan.cost_input_obj && activityPlan.cost_input_obj.name) ||
+                (typeof activityPlan.cost_input === 'object' && activityPlan.cost_input && activityPlan.cost_input.name) ||
+                ""
+        },
+
+        // Intervention area - handle both string and object formats with null safety
+        intervention_area: {
+          name: activityPlan.intervention_area ||
+                (activityPlan.intervention_area_obj && activityPlan.intervention_area_obj.name) ||
+                (typeof activityPlan.intervention_area === 'object' && activityPlan.intervention_area && activityPlan.intervention_area.name) ||
+                ""
+        },
+
+        // Comments
+        comments: activityPlan.comments ||
+                 activityPlan.remarks ||
+                 activityPlan.notes ||
+                 "",
+
+        gant_chart: ganttChart,
+        budget_chart: budgetChart,
+        activity_type: "UNPLANNED" as const,
+        canEdit: true,
+        original_data: activityPlan,
+      };
+    });
 
     return transformedActivities;
   }, [activityPlans]);
@@ -183,7 +317,13 @@ export default function UnplannedActivity({ workPlanId, workPlanData }: PropsTyp
           width: "max-w-4xl",
           activityData: activity.original_data,
           workPlanId,
-          onSuccess: () => refetch(),
+          onSuccess: () => {
+            console.log('=== EDIT SUCCESS CALLBACK ===');
+            console.log('Triggering table refetch...');
+            refetch();
+            console.log('Refetch triggered');
+            console.log('==============================');
+          },
         },
       })
     );

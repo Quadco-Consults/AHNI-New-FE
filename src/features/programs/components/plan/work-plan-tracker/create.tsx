@@ -27,6 +27,7 @@ import {
   TWorkPlanTrackerFormValues,
   WorkPlanTrackerSchema,
 } from "features/programs/types/activity-tracker";
+import { formatNumberCurrency } from "utils/utls";
 
 const breadcrumbs: TBreadcrumbList[] = [
   { name: "Programs", icon: true },
@@ -166,9 +167,9 @@ export default function CreateActivityTracker() {
     <div className="space-y-2">
       <label className="text-sm font-medium text-gray-700">{label}</label>
       <div className="px-3 py-2 border border-gray-300 bg-gray-50 rounded-md text-gray-600">
-        ${value || "0.00"} USD (Auto-calculated)
+{formatNumberCurrency(parseFloat(value || "0"), "USD")} (Auto-calculated)
       </div>
-      <p className="text-xs text-gray-500">Rate: ₦{usdRate.toLocaleString()} per $1 USD</p>
+      <p className="text-xs text-gray-500">Rate: {formatNumberCurrency(usdRate, "NGN")} per {formatNumberCurrency(1, "USD")}</p>
     </div>
   );
 

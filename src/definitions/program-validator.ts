@@ -24,11 +24,9 @@ export interface TFundRequestBackendPayload {
   location: string;
   uuid_code: string;
 
-  // Approval workflow
+  // Approval workflow (removed state_reviewer and state_authorizer - not in backend model)
   location_reviewer: string;
   location_authorizer: string;
-  state_reviewer: string;
-  state_authorizer: string;
   hq_reviewer: string;
   hq_authorizer: string;
   hq_approver: string;
@@ -43,12 +41,12 @@ export interface TFundRequestBackendPayload {
 
 export interface TFundRequestActivityBackendPayload {
   activity_description: string;
-  quantity: string | number;
-  unit_cost: string | number;
-  frequency: string | number;
+  quantity: string; // Backend expects string
+  unit_cost: string; // Backend expects string
+  frequency: string; // Backend expects string
   comment: string;
-  category: string; // Cost category ID
-  amount?: string | number; // Calculated field
+  category: string; // Cost category ID (UUID)
+  amount: string; // Calculated field as string
 }
 
 // Response types from backend
@@ -151,29 +149,108 @@ export const FundRequestStatusLabels: Record<FundRequestStatus, string> = {
 
 // Data transformation utilities
 export const transformFormDataToBackendPayload = (
-  formData: TFundRequestFormValues & { activities: any[] }
+  formData: TFundRequestFormValues & { activities: any[] },
+  costCategories?: Array<{ id: string; name: string }>
 ): TFundRequestBackendPayload => {
+  // Validate essential form data
+  if (!formData) {
+    throw new Error("Fund request form data is required");
+  }
+
+  if (!formData.activities || formData.activities.length === 0) {
+    throw new Error("At least one activity is required to submit a fund request");
+  }
+
+  // Validate required fields (removed state_reviewer and state_authorizer as they don't exist in backend)
+  const requiredFields = [
+    'project', 'month', 'year', 'currency', 'available_balance',
+    'financial_year', 'type', 'location', 'uuid_code'
+  ];
+
+  for (const field of requiredFields) {
+    if (!formData[field as keyof typeof formData]) {
+      throw new Error(`Required field "${field}" is missing`);
+    }
+  }
+
+  // Build category mapping for name-to-UUID conversion
+  const categoryMap = new Map<string, string>();
+  if (costCategories) {
+    console.log("Building category map from:", costCategories);
+    costCategories.forEach(cat => {
+      categoryMap.set(cat.name.toLowerCase(), cat.id);
+      categoryMap.set(cat.name, cat.id);
+    });
+    console.log("Category map built:", Object.fromEntries(categoryMap));
+  } else {
+    console.warn("No cost categories provided for transformation");
+  }
+
   // Calculate amounts for activities
-  const activitiesWithAmount = formData.activities.map((activity) => {
-    const unitCost = Number(activity.unit_cost || 0);
-    const quantity = Number(activity.quantity || 0);
-    const frequency = Number(activity.frequency || 0);
+  const activitiesWithAmount = formData.activities.map((activity: any, index: number) => {
+    // Validate required activity fields
+    if (!activity.activity_description || activity.activity_description.trim() === '') {
+      throw new Error(`Activity ${index + 1} is missing a description`);
+    }
+    if (!activity.category || activity.category.trim() === '') {
+      throw new Error(`Activity ${index + 1} "${activity.activity_description}" is missing a cost category`);
+    }
+
+    // Ensure numeric conversion with validation
+    const unitCost = typeof activity.unit_cost === 'number' ? activity.unit_cost : parseFloat(activity.unit_cost) || 0;
+    const quantity = typeof activity.quantity === 'number' ? activity.quantity : parseInt(activity.quantity) || 0;
+    const frequency = typeof activity.frequency === 'number' ? activity.frequency : parseInt(activity.frequency) || 0;
+
+    // Validate that all values are positive numbers with descriptive errors
+    if (unitCost < 0) {
+      throw new Error(`Invalid unit cost: ${unitCost}. Unit cost cannot be negative for activity "${activity.activity_description}"`);
+    }
+    if (quantity <= 0) {
+      throw new Error(`Invalid quantity: ${quantity}. Quantity must be greater than 0 for activity "${activity.activity_description}"`);
+    }
+    if (frequency <= 0) {
+      throw new Error(`Invalid frequency: ${frequency}. Frequency must be greater than 0 for activity "${activity.activity_description}"`);
+    }
+
     const amount = unitCost * quantity * frequency;
+
+    // Convert category name to UUID if needed
+    let categoryValue = activity.category;
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+    console.log(`Processing activity category: "${categoryValue}"`);
+
+    // If it's not a UUID, try to convert it to one
+    if (!uuidRegex.test(categoryValue)) {
+      console.log(`"${categoryValue}" is not a UUID, attempting conversion...`);
+      const categoryId = categoryMap.get(categoryValue) || categoryMap.get(categoryValue.toLowerCase());
+      if (categoryId) {
+        console.log(`Successfully converted "${categoryValue}" to UUID: ${categoryId}`);
+        categoryValue = categoryId;
+      } else {
+        console.warn(`Could not find category ID for: "${categoryValue}". Available categories:`, Array.from(categoryMap.keys()));
+        // Throw error to prevent invalid submission
+        throw new Error(`Invalid category "${categoryValue}". Category must exist in the system before submission.`);
+      }
+    } else {
+      console.log(`"${categoryValue}" is already a valid UUID`);
+    }
 
     return {
       activity_description: activity.activity_description,
-      quantity: activity.quantity,
-      unit_cost: activity.unit_cost,
-      frequency: activity.frequency,
+      quantity: quantity.toString(), // Ensure string format for backend
+      unit_cost: unitCost.toString(), // Ensure string format for backend
+      frequency: frequency.toString(), // Ensure string format for backend
       comment: activity.comment,
-      category: activity.category,
+      category: categoryValue,
       amount: amount.toString(),
     };
   });
 
-  // Calculate total disbursement amount
-  const totalDisbursementAmount = activitiesWithAmount.reduce((total, activity) => {
-    return total + Number(activity.amount || 0);
+  // Calculate total disbursement amount using the calculated numeric amount
+  const totalDisbursementAmount = activitiesWithAmount.reduce((total: number, activity: any) => {
+    const activityAmount = parseFloat(activity.amount) || 0;
+    return total + activityAmount;
   }, 0);
 
   return {
@@ -188,8 +265,7 @@ export const transformFormDataToBackendPayload = (
     uuid_code: formData.uuid_code,
     location_reviewer: formData.location_reviewer,
     location_authorizer: formData.location_authorizer,
-    state_reviewer: formData.state_reviewer,
-    state_authorizer: formData.state_authorizer,
+    // Removed state_reviewer and state_authorizer - they don't exist in backend model
     hq_reviewer: formData.hq_reviewer,
     hq_authorizer: formData.hq_authorizer,
     hq_approver: formData.hq_approver,
