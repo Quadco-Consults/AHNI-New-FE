@@ -13,13 +13,13 @@ import { useAppDispatch, useAppSelector } from "hooks/useStore";
 import { FormEvent, useState, useEffect } from "react";
 import { toast } from "sonner";
 import { closeDialog } from "store/ui";
-import { useGetAllDepartments } from "@/features/modules/controllers/config/departmentController";
-import { useGetAllLocations } from "@/features/modules/controllers/config/locationController";
+import { useGetAllDepartments } from "@/features/admin/controllers/departmentController";
+import { useGetAllLocations } from "@/features/admin/controllers/locationController";
 import { useGetAllUsers } from "@/features/auth/controllers/userController";
-import { useGetAllCostCategories } from "@/features/modules/controllers/finance/costCategoryController";
-import { useGetAllCostGroupingsQuery } from "@/features/modules/controllers/finance/costGroupingController";
-import { useGetAllCostInputs } from "@/features/modules/controllers/finance/costInputController";
-import { useGetAllInterventionAreas } from "@/features/modules/controllers/program/interventionAreaController";
+import { useGetAllCostCategories } from "@/features/admin/controllers/costCategoryController";
+import { useGetAllCostGroupings } from "@/features/admin/controllers/costGroupingController";
+import { useGetAllCostInputs } from "@/features/admin/controllers/costInputController";
+import { useGetAllInterventionAreas } from "@/features/programs/controllers/interventionAreaController";
 import { useEditActivityPlan } from "@/features/programs/controllers/activityPlanController";
 
 const months = ["Oct", "Nov", "Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep"];
@@ -39,7 +39,7 @@ export default function EditUnplannedActivityModal() {
     const { data: locations } = useGetAllLocations({ size: 100 });
     const { data: users } = useGetAllUsers({ size: 100 });
     const { data: costCategories } = useGetAllCostCategories({ size: 100 });
-    const { data: costGroupings } = useGetAllCostGroupingsQuery({ size: 100 });
+    const { data: costGroupings } = useGetAllCostGroupings({ size: 100 });
     const { data: costInputs } = useGetAllCostInputs({ size: 100 });
     const { data: interventionAreas } = useGetAllInterventionAreas({ size: 100 });
 
