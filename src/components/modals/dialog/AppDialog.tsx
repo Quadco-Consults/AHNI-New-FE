@@ -107,6 +107,7 @@ const modalComponentMap: Record<string, () => Promise<{default: React.ComponentT
   [DialogType.ADD_PRE_AWARD_QUESTION_MODAL]: () => import("@/features/contracts-grants/components/AddPreAwardQuestion"),
   [DialogType.MODIFY_GRANT]: () => import("@/features/contracts-grants/components/table-columns/grant/addModification"),
   [DialogType.ACTIVITY_PLAN_STATUS_MODAL]: () => import("@/features/programs/components/modals/ActivityPlanStatusModal"),
+  [DialogType.EDIT_UNPLANNED_ACTIVITY_MODAL]: () => import("@/features/programs/components/modals/EditUnplannedActivityModal"),
   [DialogType.PREFERRED_CONSULTANT_MODAL]: () => import("@/features/contracts-grants/components/modals/PreferredConsultantModal"),
   [DialogType.DOCUMENT_UPLOADS]: () => import("@/features/common/components/modals/DocumentUploadModal"),
   [DialogType.CREATE_INTERVIEW]: () => import("@/features/hr/components/modals/CreateInterviewModal"),

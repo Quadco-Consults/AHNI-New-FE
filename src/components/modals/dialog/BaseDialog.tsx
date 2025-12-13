@@ -31,6 +31,7 @@ export const BaseDialog: FC<PageProps> = ({ children }) => {
         disbursement,
         workPlanId,
         activityType,
+        financialYearId,
         ...domSafeProps
     } = dialogProps || {};
 

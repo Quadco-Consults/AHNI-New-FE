@@ -12,6 +12,7 @@ import { getWorkPlanTrackerDetailsColumns } from "@/features/programs/components
 import { useParams } from "next/navigation";
 import { LoadingSpinner } from "components/Loading";
 import { useGetSingleWorkPlan } from "@/features/programs/controllers/workPlanController";
+import { useDebounce } from "ahooks";
 
 const breadcrumbs: TBreadcrumbList[] = [
   { name: "Programs", icon: true },
@@ -25,11 +26,16 @@ export default function ActivityTracker() {
   const [searchController, setSearchController] = useState("");
   const { id } = useParams();
 
-  // Directly fetch tracker data for this work plan (this is the correct approach!)
+  const debouncedSearchQuery = useDebounce(searchController, {
+    wait: 1000,
+  });
+
+  // Fetch all tracker data for this work plan (no pagination since we'll handle it client-side)
   const { data: trackersData, isLoading } = useGetAllActivityTrackers({
     page: 1,
-    size: 1000, // Get all trackers for this work plan
+    size: 1000, // Get all trackers to merge with activities
     work_plan__id: id as string, // Filter by work plan ID
+    search: debouncedSearchQuery,
     enabled: !!id,
   });
 
@@ -42,16 +48,20 @@ export default function ActivityTracker() {
     const trackers = trackersData?.data?.results || [];
     const activities = workPlanData?.data?.activities || [];
 
-    if (!trackers.length) return [];
+    console.log("🔍 Debug tracker merging:");
+    console.log("📊 Trackers found:", trackers.length);
+    console.log("🏗️ Activities found:", activities.length);
+    console.log("🔗 Sample tracker:", trackers[0]);
+    console.log("📋 Sample activity:", activities[0]);
 
-    // Create a map of activity ID to activity data
+    // Create a map of activity ID to activity data for faster lookup
     const activitiesMap = new Map();
     activities.forEach(activity => {
       activitiesMap.set(activity.id, activity);
     });
 
-    // Enrich each tracker with its corresponding activity data
-    return trackers.map(tracker => {
+    // Find trackers that are linked to work plan activities
+    const linkedTrackers = trackers.filter(tracker => tracker.work_plan_activity).map(tracker => {
       const activityData = activitiesMap.get(tracker.work_plan_activity);
 
       if (activityData) {
@@ -101,7 +111,68 @@ export default function ActivityTracker() {
         })
       );
     });
+
+    // Find activities that don't have trackers and create default trackers for them
+    const linkedActivityIds = new Set(
+      trackers.filter(tracker => tracker.work_plan_activity)
+        .map(tracker => tracker.work_plan_activity)
+    );
+
+    const unlinkedActivities = activities.filter(activity => !linkedActivityIds.has(activity.id));
+
+    console.log("🔗 Linked activities count:", linkedActivityIds.size);
+    console.log("📋 Unlinked activities count:", unlinkedActivities.length);
+    console.log("📋 Unlinked activities:", unlinkedActivities.map(a => a.activity_number));
+
+    const defaultTrackersForUnlinkedActivities = unlinkedActivities.map(activity => ({
+      id: `default-tracker-${activity.id}`, // Temporary ID for display
+      work_plan_activity: activity.id,
+      activity_number: activity.activity_number,
+      budget_line: activity.budget_line?.name || activity.budget_line || "N/A",
+      objectives_sub_objectives: activity.objectives_sub_objectives,
+      activity: activity.activity,
+      location: activity.location,
+      lead_dept: activity.lead_dept,
+      lead_person: activity.lead_person,
+      gant_chart: activity.gant_chart,
+      planned_output: activity.planned_output,
+      description_of_output: activity.description_of_output,
+      cost_input: activity.cost_input?.name || activity.cost_input || "N/A",
+      cost_grouping: activity.cost_grouping?.name || activity.cost_grouping || "N/A",
+      status: "NOT_DONE", // Default tracker status
+      total_amount_ngn: activity.total_amount_ngn,
+      total_amount_usd: activity.total_amount_usd,
+      // Default tracker fields (empty/zero values)
+      achieved_results: null,
+      percentage_achievement: 0,
+      amount_expended_ngn: 0,
+      amount_expended_usd: 0,
+      comments: null,
+      // Mark as default tracker for potential different handling
+      isDefaultTracker: true,
+    }));
+
+    // Combine linked trackers with default trackers for unlinked activities
+    const allTrackers = [...linkedTrackers, ...defaultTrackersForUnlinkedActivities];
+
+    console.log("🎯 Final trackers count:", allTrackers.length);
+    console.log("🎯 Sample final tracker:", allTrackers[0]);
+
+    return allTrackers;
   }, [trackersData, workPlanData]);
+
+  // Client-side pagination
+  const pageSize = 20;
+  const totalItems = enrichedTrackers?.length || 0;
+  const totalPages = Math.ceil(totalItems / pageSize);
+
+  const paginatedTrackers = useMemo(() => {
+    if (!enrichedTrackers) return [];
+
+    const startIndex = (page - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    return enrichedTrackers.slice(startIndex, endIndex);
+  }, [enrichedTrackers, page, pageSize]);
 
   if (isLoading) return <LoadingSpinner />;
 
@@ -117,14 +188,20 @@ export default function ActivityTracker() {
           onSearchChange={(e) => setSearchController(e.target.value)}
         >
           <DataTable
-            data={enrichedTrackers || []}
+            data={paginatedTrackers}
             columns={getWorkPlanTrackerDetailsColumns(id as string)}
             isLoading={isLoading}
-            pagination={{
-              total: trackersData?.data?.pagination?.count ?? 0,
-              pageSize: trackersData?.data?.pagination?.page_size ?? 0,
-              onChange: (page: number) => setPage(page),
-            }}
+            pagination={
+              // Only show pagination if we have more items than can fit on one page
+              totalPages > 1
+                ? {
+                    total: totalItems,
+                    pageSize: pageSize,
+                    current: page,
+                    onChange: (page: number) => setPage(page),
+                  }
+                : undefined
+            }
           />
         </TableFilters>
       </Card>
