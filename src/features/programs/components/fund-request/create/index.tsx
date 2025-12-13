@@ -336,9 +336,6 @@ const CreateFundRequest = () => {
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)}>
           <Card className='space-y-10 py-5'>
-            <div style={{backgroundColor: '#FF0000', color: 'white', padding: '15px', textAlign: 'center', fontSize: '20px', fontWeight: 'bold', margin: '10px 0'}}>
-              🔧 CLAUDE FIX APPLIED - STATE REVIEWER/AUTHORIZER FIELDS REMOVED
-            </div>
             <FormSelect
               name='project'
               label='Project Name'
