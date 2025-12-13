@@ -96,8 +96,7 @@ const EditFundRequest = () => {
       location: "",
       location_reviewer: "",
       location_authorizer: "",
-      state_reviewer: "",
-      state_authorizer: "",
+      // Removed state_reviewer and state_authorizer - not in backend model
       hq_reviewer: "",
       hq_authorizer: "",
       hq_approver: "",
@@ -256,8 +255,7 @@ const EditFundRequest = () => {
         location: data.location?.id || "",
         location_reviewer: data.location_reviewer || "",
         location_authorizer: data.location_authorizer || "",
-        state_reviewer: data.state_reviewer || "",
-        state_authorizer: data.state_authorizer || "",
+        // Removed state_reviewer and state_authorizer - not in backend model
         hq_reviewer: data.hq_reviewer || "",
         hq_authorizer: data.hq_authorizer || "",
         hq_approver: data.hq_approver || "",
@@ -419,26 +417,7 @@ const EditFundRequest = () => {
 
             <Separator />
 
-            <h3 className='font-semibold text-lg'>State Level Approvals</h3>
-            <div className='grid grid-cols-1 gap-5 md:grid-cols-2'>
-              <FormSelect
-                label='State Reviewer'
-                name='state_reviewer'
-                required
-                options={userOptions}
-                placeholder='Select State Reviewer'
-              />
-
-              <FormSelect
-                label='State Authorizer'
-                name='state_authorizer'
-                required
-                options={userOptions}
-                placeholder='Select State Authorizer'
-              />
-            </div>
-
-            <Separator />
+            {/* State Level Approvals removed - not in backend model */}
 
             <h3 className='font-semibold text-lg'>HQ Level Approvals</h3>
             <div className='grid grid-cols-1 gap-5 md:grid-cols-2'>

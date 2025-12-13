@@ -1,4 +1,0 @@
-category,name,description,uom,quantity,stock_control_method,expiry_date,re_order_level,buffer_stock,max_stock,entry_date,item_cost,price
-Office Supplies,Paper A4 Ream,White A4 printing paper,Ream,100,STOCK_LEVEL,2025-12-31,10,5,200,2025-01-15,2500.00,2500.00
-Invalid Category,Test Item,This should fail,Box,50,AVAILABILITY,2026-06-30,15,10,100,2025-01-20,1200.00,1500.00
-Medical Supplies,Bandages,Sterile bandages,Pack,150,AVAILABILITY,2025-09-15,25,20,300,2025-01-12,1500.00,2000.00

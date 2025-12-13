@@ -44,12 +44,27 @@ const FundSummary: React.FC = () => {
     size: 2000000,
   });
 
-  const costCategoryOptions = ((costCategory as any)?.data?.results || (costCategory as any)?.results || []).map(
+  // Fallback categories if API fails
+  const fallbackCategories = [
+    { id: "27d47188-300e-426c-a66f-96595edf7614", name: "TEST CATEGORY" },
+    { id: "5c976aa2-bd63-4b17-9c6d-6c32c501f9d0", name: "mby" }
+  ];
+
+  const categoriesData = (costCategory as any)?.data?.results || (costCategory as any)?.results || [];
+  const categoriesToUse = categoriesData.length > 0 ? categoriesData : fallbackCategories;
+
+  const costCategoryOptions = categoriesToUse.map(
     ({ name, id }: any) => ({
       label: name,
       value: id,
     })
   );
+
+  // Debug logging
+  console.log("Cost category raw data:", costCategory);
+  console.log("Categories data extracted:", categoriesData);
+  console.log("Using fallback?", categoriesData.length === 0);
+  console.log("Final cost category options:", costCategoryOptions);
 
   const { handleSubmit } = form;
 
@@ -156,9 +171,9 @@ const FundSummary: React.FC = () => {
                           const currentActivity = form.getValues(`activities.${index}`);
                           append({
                             activity_description: currentActivity.activity_description,
-                            quantity: currentActivity.quantity,
-                            unit_cost: currentActivity.unit_cost,
-                            frequency: currentActivity.frequency,
+                            quantity: Number(currentActivity.quantity) || 1,
+                            unit_cost: Number(currentActivity.unit_cost) || 0,
+                            frequency: Number(currentActivity.frequency) || 1,
                             comment: currentActivity.comment,
                             category: currentActivity.category,
                           });
@@ -203,9 +218,9 @@ const FundSummary: React.FC = () => {
 
                 return {
                   activity_description: activity.activity_description,
-                  quantity: activity.quantity,
-                  unit_cost: activity.unit_cost,
-                  frequency: activity.frequency,
+                  quantity: Number(activity.quantity) || 1, // Convert to number for form handling
+                  unit_cost: Number(activity.unit_cost) || 0, // Convert to number for form handling
+                  frequency: Number(activity.frequency) || 1, // Convert to number for form handling
                   comment: activity.comment,
                   category: String(categoryId), // Now using category ID instead of name
                 };
@@ -227,9 +242,9 @@ const FundSummary: React.FC = () => {
               for (let i = 0; i < count; i++) {
                 append({
                   activity_description: "",
-                  quantity: "",
-                  unit_cost: "",
-                  frequency: "",
+                  quantity: 1, // Default to 1 for numeric validation
+                  unit_cost: 0, // Default to 0 for numeric validation
+                  frequency: 1, // Default to 1 for numeric validation
                   comment: "",
                   category: "",
                 });
@@ -252,9 +267,9 @@ const FundSummary: React.FC = () => {
             onClick={() =>
               append({
                 activity_description: "",
-                quantity: "",
-                unit_cost: "",
-                frequency: "",
+                quantity: 1, // Default to 1 for numeric validation
+                unit_cost: 0, // Default to 0 for numeric validation
+                frequency: 1, // Default to 1 for numeric validation
                 comment: "",
                 category: "",
               })

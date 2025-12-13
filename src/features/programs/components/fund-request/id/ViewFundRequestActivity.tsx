@@ -131,39 +131,7 @@ export default function ViewFundRequestActivity() {
       });
     }
 
-    // State Reviewer
-    if (data.state_reviewer) {
-      const stateReviewerDetails = getUserDetails(data.state_reviewer);
-      const isStateReviewed = ["STATE_REVIEWED", "STATE_AUTHORIZED", "HQ_REVIEWED", "HQ_AUTHORIZED", "HQ_APPROVED"].includes(data.status);
-      const isLocationAuthorized = ["LOCATION_AUTHORIZED", "STATE_REVIEWED", "STATE_AUTHORIZED", "HQ_REVIEWED", "HQ_AUTHORIZED", "HQ_APPROVED"].includes(data.status);
-      approvals.push({
-        id: "state_reviewer",
-        name: stateReviewerDetails ? `${stateReviewerDetails.first_name} ${stateReviewerDetails.last_name}` : "State Reviewer",
-        position: "State Level Review",
-        status: isStateReviewed ? "APPROVED" : data.status === "REJECTED" ? "REJECTED" : !isLocationAuthorized ? "UNDER_REVIEW" : "PENDING",
-        level: "State Review",
-        email: stateReviewerDetails?.email,
-        signDate: isStateReviewed ? data.updated_datetime : null,
-        comments: isStateReviewed ? "Fund request reviewed at state level" : !isLocationAuthorized ? "Waiting for location authorization" : "Awaiting state review"
-      });
-    }
-
-    // State Authorizer
-    if (data.state_authorizer) {
-      const stateAuthorizerDetails = getUserDetails(data.state_authorizer);
-      const isStateAuthorized = ["STATE_AUTHORIZED", "HQ_REVIEWED", "HQ_AUTHORIZED", "HQ_APPROVED"].includes(data.status);
-      const isStateReviewed = ["STATE_REVIEWED", "STATE_AUTHORIZED", "HQ_REVIEWED", "HQ_AUTHORIZED", "HQ_APPROVED"].includes(data.status);
-      approvals.push({
-        id: "state_authorizer",
-        name: stateAuthorizerDetails ? `${stateAuthorizerDetails.first_name} ${stateAuthorizerDetails.last_name}` : "State Authorizer",
-        position: "State Level Authorization",
-        status: isStateAuthorized ? "APPROVED" : data.status === "REJECTED" ? "REJECTED" : !isStateReviewed ? "UNDER_REVIEW" : "PENDING",
-        level: "State Authorization",
-        email: stateAuthorizerDetails?.email,
-        comments: isStateAuthorized ? "Fund request authorized at state level" : !isStateReviewed ? "Waiting for state review" : "Awaiting state authorization",
-        signDate: isStateAuthorized ? data.updated_datetime : null
-      });
-    }
+    // State Reviewer and State Authorizer removed - not in backend model
 
     // HQ Reviewer
     if (data.hq_reviewer) {

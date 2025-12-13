@@ -44,3 +44,38 @@ documentation_archive/
 # Development and analysis files
 backend_implementation/
 docs/
+
+# Environment files
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Build and cache files
+next-env.d.ts
+lint_results.txt
+tsconfig.tsbuildinfo
+
+# Debug and test artifacts
+debug-*.html
+debug-*.js
+debug_*.html
+debug_*.js
+test-*.html
+test-*.js
+test_*.html
+test_*.js
+*debug-tool*
+
+# Template and test data files
+*.csv
+*.xlsx
+!public/templates/*.csv
+!public/templates/*.xlsx
+
+# IDE files
+.claude/
+
+# Backup files
+*.backup
+*.bak

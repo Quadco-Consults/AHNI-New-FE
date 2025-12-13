@@ -1,33 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(curl:*)",
-      "Bash(git checkout:*)",
-      "Bash(npm run dev:*)",
-      "Bash(git add:*)",
-      "Bash(git commit -m \"$(cat <<''EOF''\nIntegrate performance appraisal system with backend API\n\n- Updated type definitions to match backend response structure\n- Added evaluation_category and competency fields to evaluator form\n- Integrated create/update/list endpoints for performance assessments\n- Fixed data extraction from paginated API responses\n- Updated evaluation form to submit correct data structure\n- Added real-time data display in performance management list\n- Configured form to redirect after successful creation\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
-      "Bash(git push:*)",
-      "Bash(git commit:*)",
-      "Bash(git config:*)",
-      "Bash(git branch:*)",
-      "Bash(git fetch:*)",
-      "Bash(git pull:*)",
-      "Bash(npm run build:*)",
-      "Bash(git merge:*)",
-      "Bash(npx eslint:*)",
-      "Bash(npx tsc:*)",
-      "Bash(xargs sed:*)",
-      "Bash(lsof:*)",
       "Bash(rm:*)",
-      "Bash(chmod:*)",
-      "Bash(/Users/muhammadilu/AHNI-New-FE/migrate-remaining-icons.sh)",
-      "Bash(pkill:*)",
-      "Bash(yarn dev)",
-      "WebSearch",
-      "Bash(npm start)",
-      "Bash(sed:*)",
-      "Bash(find:*)",
-      "Bash(xargs -I {} sh -c 'echo \"\"\"\"=== {} ===\"\"\"\" && grep -n \"\"\"\"import.*from.*lucide-react\"\"\"\" \"\"\"\"{}\"\"\"\" && echo && grep -o \"\"\"\"\\<[A-Z][a-zA-Z0-9]*\\>\"\"\"\" \"\"\"\"{}\"\"\"\" | grep -E \"\"\"\"^[A-Z][a-zA-Z]*[0-9]*$\"\"\"\" | sort -u | head -10')"
+      "Bash(rmdir:*)",
+      "Bash(npm run dev:*)"
     ],
     "deny": [],
     "ask": []

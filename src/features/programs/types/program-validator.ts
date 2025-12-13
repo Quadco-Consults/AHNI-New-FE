@@ -224,8 +224,7 @@ export const FundRequestSchema = z.object({
   location: z.string().min(1, "Field is required"),
   location_reviewer: z.string().min(1, "Field is required"),
   location_authorizer: z.string().min(1, "Field is required"),
-  state_reviewer: z.string().min(1, "Field is required"),
-  state_authorizer: z.string().min(1, "Field is required"),
+  // Removed state_reviewer and state_authorizer - not in backend model
   hq_reviewer: z.string().min(1, "Field is required"),
   hq_authorizer: z.string().min(1, "Field is required"),
   hq_approver: z.string().min(1, "Field is required"),
@@ -238,11 +237,24 @@ export const FundRequestActivitySchema = z.object({
   activities: z.array(
     z.object({
       activity_description: z.string().min(1, "Field Required"),
-      quantity: z.string().min(1, "Field Required"),
-      unit_cost: z.string().min(1, "Field Required"),
-      frequency: z.string().min(1, "Field Required"),
+      quantity: z.union([z.string(), z.number()]).pipe(
+        z.coerce.number().min(1, "Quantity must be at least 1")
+      ),
+      unit_cost: z.union([z.string(), z.number()]).pipe(
+        z.coerce.number().min(0, "Unit cost cannot be negative")
+      ),
+      frequency: z.union([z.string(), z.number()]).pipe(
+        z.coerce.number().min(1, "Frequency must be at least 1")
+      ),
       comment: z.string().min(1, "Field Required"),
-      category: z.string().min(1, "Field Required"),
+      category: z.string().min(1, "Field Required")
+        .refine((value) => {
+          // Accept both UUID format and category names
+          const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+          return uuidRegex.test(value) || value.length > 0;
+        }, {
+          message: "Please select a valid category",
+        }),
     })
   ),
 });
@@ -256,11 +268,24 @@ export const FundRequestWithActivitiesSchema = z.object({
   activities: z.array(
     z.object({
       activity_description: z.string().min(1, "Field Required"),
-      quantity: z.string().min(1, "Field Required"),
-      unit_cost: z.string().min(1, "Field Required"),
-      frequency: z.string().min(1, "Field Required"),
+      quantity: z.union([z.string(), z.number()]).pipe(
+        z.coerce.number().min(1, "Quantity must be at least 1")
+      ),
+      unit_cost: z.union([z.string(), z.number()]).pipe(
+        z.coerce.number().min(0, "Unit cost cannot be negative")
+      ),
+      frequency: z.union([z.string(), z.number()]).pipe(
+        z.coerce.number().min(1, "Frequency must be at least 1")
+      ),
       comment: z.string().min(1, "Field Required"),
-      category: z.string().min(1, "Field Required"),
+      category: z.string().min(1, "Field Required")
+        .refine((value) => {
+          // Accept both UUID format and category names
+          const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+          return uuidRegex.test(value) || value.length > 0;
+        }, {
+          message: "Please select a valid category",
+        }),
     })
   ),
 });
@@ -276,9 +301,9 @@ export interface TFundRequestActivity {
   created_datetime: string;
   updated_datetime: string;
   activity_description: string;
-  unit_cost: string;
+  unit_cost: string | number;
   quantity: number;
-  frequency: 2;
+  frequency: number;
   comment: string;
   fund_request: string;
 }

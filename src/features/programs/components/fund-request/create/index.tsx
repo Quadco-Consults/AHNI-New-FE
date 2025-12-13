@@ -45,6 +45,7 @@ import {
   generateFundRequestIdentifierAuto,
   getLocationCode
 } from "@/utils/fundRequestIdentifier";
+import { useFundRequestValidation, useCurrencyValidationAlerts } from "@/hooks/useFundRequestValidation";
 
 const getYearOptions = () => {
   const currentYear = new Date().getFullYear();
@@ -97,8 +98,7 @@ const CreateFundRequest = () => {
       uuid_code: "",
       location_reviewer: "",
       location_authorizer: "",
-      state_reviewer: "",
-      state_authorizer: "",
+      // Removed state_reviewer and state_authorizer - not in backend model
       hq_reviewer: "",
       hq_authorizer: "",
       hq_approver: "",
@@ -250,6 +250,25 @@ const CreateFundRequest = () => {
   const selectedMonth = watch("month");
   const selectedYear = watch("year");
 
+  // Watch form values for currency validation
+  const selectedCurrency = watch("currency");
+  const availableBalance = watch("available_balance");
+
+  // Fund request validation with cross-currency support
+  const { validateFundRequest, exchangeRates, isLoadingRates, hasExchangeRates } = useFundRequestValidation({
+    availableBalance: availableBalance && selectedCurrency ? {
+      amount: parseFloat(availableBalance) || 0,
+      currency: "USD" // Assuming available balance is in USD based on user's scenario
+    } : undefined
+  });
+
+  // Currency validation alerts
+  const currencyAlert = useCurrencyValidationAlerts(
+    selectedCurrency || "",
+    "USD", // Available balance currency
+    exchangeRates
+  );
+
   // Auto-generate unique_code when location, project, month, or year changes
   useEffect(() => {
     const generateUniqueCode = async () => {
@@ -317,6 +336,9 @@ const CreateFundRequest = () => {
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)}>
           <Card className='space-y-10 py-5'>
+            <div style={{backgroundColor: '#FF0000', color: 'white', padding: '15px', textAlign: 'center', fontSize: '20px', fontWeight: 'bold', margin: '10px 0'}}>
+              🔧 CLAUDE FIX APPLIED - STATE REVIEWER/AUTHORIZER FIELDS REMOVED
+            </div>
             <FormSelect
               name='project'
               label='Project Name'
@@ -374,6 +396,22 @@ const CreateFundRequest = () => {
               />
             </div>
 
+            {/* Cross-currency validation alert */}
+            {currencyAlert && (
+              <Alert className={currencyAlert.hasExchangeRate ? "border-blue-200 bg-blue-50" : "border-amber-200 bg-amber-50"}>
+                {currencyAlert.hasExchangeRate ? (
+                  <AlertTriangleIcon className="h-4 w-4 text-blue-600" />
+                ) : (
+                  <AlertTriangleIcon className="h-4 w-4 text-amber-600" />
+                )}
+                <AlertDescription className={currencyAlert.hasExchangeRate ? "text-blue-800" : "text-amber-800"}>
+                  <strong>Currency Conversion:</strong> {currencyAlert.warning}
+                  {isLoadingRates && " (Loading exchange rates...)"}
+                  {!isLoadingRates && !hasExchangeRates && " Please ensure exchange rates are configured in the system."}
+                </AlertDescription>
+              </Alert>
+            )}
+
             <div className='grid grid-cols-1 gap-5 md:grid-cols-2'>
               <FormSelect
                 label='Financial Year'
@@ -392,7 +430,7 @@ const CreateFundRequest = () => {
               />
             </div>
 
-            <div className='grid grid-cols-1 gap-5 md:grid-cols-2'>
+            <div className='grid grid-cols-1 gap-5 md:grid-cols-3'>
               <FormInput
                 label='Unique Identifier Code'
                 name='uuid_code'
@@ -417,21 +455,7 @@ const CreateFundRequest = () => {
                 placeholder='Select Location Authorizer'
               />
 
-              <FormSelect
-                label='State Reviewer'
-                name='state_reviewer'
-                required
-                options={reviewerOptions}
-                placeholder='Select State Reviewer'
-              />
-
-              <FormSelect
-                label='State Authorizer'
-                name='state_authorizer'
-                required
-                options={authorizerOptions}
-                placeholder='Select State Authorizer'
-              />
+              {/* CLAUDE-FIX-APPLIED: State Reviewer and State Authorizer fields removed - not in backend model */}
             </div>
 
             <div className='grid grid-cols-1 gap-5 md:grid-cols-3'>

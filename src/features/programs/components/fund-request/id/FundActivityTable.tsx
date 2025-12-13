@@ -7,6 +7,7 @@ import {
     TableHeader,
     TableRow,
 } from "components/ui/table";
+import { formatNumberCurrency } from "utils/utls";
 
 type TProps = {
     data: TFundRequestActivity[];
@@ -117,12 +118,11 @@ export default function FundActivityTable({
                                                 {activity_description}
                                             </TableCell>
                                             <TableCell>
-                                                {currencySybmol}
-                                                {unit_cost}
+                                                {formatNumberCurrency(unit_cost, currency)}
                                             </TableCell>
                                             <TableCell>{quantity}</TableCell>
                                             <TableCell>{frequency}</TableCell>
-                                            <TableCell>₦{amount}</TableCell>
+                                            <TableCell>{formatNumberCurrency(amount, currency)}</TableCell>
                                             <TableCell>{comment}</TableCell>
                                         </TableRow>
                                     )
@@ -144,8 +144,7 @@ export default function FundActivityTable({
                             Subtotal
                         </TableCell>
                         <TableCell>
-                            {currencySybmol}
-                            {subtotal}
+                            {formatNumberCurrency(subtotal, currency)}
                         </TableCell>
                         <TableCell></TableCell>
                         <TableCell></TableCell>
@@ -160,8 +159,7 @@ export default function FundActivityTable({
                             Less Cash Balance
                         </TableCell>
                         <TableCell>
-                            {currencySybmol}
-                            {availableBalance}
+                            {formatNumberCurrency(availableBalance, currency)}
                         </TableCell>
                         <TableCell></TableCell>
                         <TableCell></TableCell>
@@ -176,9 +174,10 @@ export default function FundActivityTable({
                             Amount Required
                         </TableCell>
                         <TableCell>
-                            {currencySybmol}
-                            {/* @ts-ignore */}
-                            {subtotal - availableBalance}
+                            {formatNumberCurrency(
+                                (Number(subtotal) - Number(availableBalance)),
+                                currency
+                            )}
                         </TableCell>
                         <TableCell></TableCell>
                         <TableCell></TableCell>

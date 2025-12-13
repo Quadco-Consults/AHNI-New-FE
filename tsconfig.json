@@ -31,12 +31,6 @@
       "components/*": [
         "src/components/*"
       ],
-      "atoms/*": [
-        "src/components/*"
-      ],
-      "components/atoms/*": [
-        "src/components/*"
-      ],
       "assets/*": [
         "src/assets/*"
       ],
@@ -58,8 +52,8 @@
       "apis/*": [
         "src/apis/*"
       ],
-      "definations/*": [
-        "src/definations/*"
+      "definitions/*": [
+        "src/definitions/*"
       ],
       "features/*": [
         "src/features/*"

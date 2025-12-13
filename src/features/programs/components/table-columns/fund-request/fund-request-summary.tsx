@@ -38,7 +38,6 @@ export const fundRequestSummaryColumns: ColumnDef<FundRequestPaginatedData>[] =
       header: "Fund Request For This Period",
       id: "amount",
       accessorFn: (data) => {
-        const currencySymbol = data.currency === "NGN" ? "₦" : "$";
 
         // If total_amount is 0 or null, calculate from activities
         let totalAmount = Number(data.total_amount || 0);
@@ -54,7 +53,9 @@ export const fundRequestSummaryColumns: ColumnDef<FundRequestPaginatedData>[] =
           }, 0);
         }
 
-        return `${formatNumberCurrency(totalAmount, currencySymbol)}`;
+        // Pass the currency code instead of symbol for proper formatting
+        const currencyCode = data.currency || "USD";
+        return `${formatNumberCurrency(totalAmount, currencyCode)}`;
       },
       footer(props) {
         const data = props.table
@@ -85,7 +86,11 @@ export const fundRequestSummaryColumns: ColumnDef<FundRequestPaginatedData>[] =
             0
           );
 
-        return <span>{formatNumberCurrency(sum, "$")}</span>;
+        // Determine the currency code based on the first fund request's currency
+        const firstFundRequest = data[0];
+        const currencyCode = firstFundRequest?.currency || "USD";
+
+        return <span>{formatNumberCurrency(sum, currencyCode)}</span>;
       },
       size: 200,
     },

@@ -10,6 +10,7 @@ import { getActivityPlanDetailsColumns } from "@/features/programs/components/ta
 import { useParams } from "next/navigation";
 import { useGetAllActivityPlans } from "@/features/programs/controllers/activityPlanController";
 import { useGetSingleWorkPlan } from "@/features/programs/controllers/workPlanController";
+import { useGetAllActivityTrackers } from "@/features/programs/controllers/activityTrackerController";
 import { skipToken } from "@reduxjs/toolkit/query";
 import { LoadingSpinner } from "components/Loading";
 import { Button } from "components/ui/button";
@@ -56,6 +57,13 @@ export default function UnplannedActivities() {
     // Note: Removing is_unplanned filter to test if API call triggers
   });
 
+  // Also fetch WorkPlanTracker data to get metadata fields
+  const { data: activityTrackers, isFetching: trackersLoading } = useGetAllActivityTrackers({
+    page: 1,
+    size: 100,
+    work_plan: id as string,
+  });
+
   // Process unplanned activities (filter for is_unplanned: true on frontend)
   const unplannedData = useMemo(() => {
     if (!activityPlans?.data?.results) {
@@ -65,41 +73,122 @@ export default function UnplannedActivities() {
     // Filter for only unplanned activities
     const unplannedOnly = activityPlans.data.results.filter((plan: any) => plan.is_unplanned === true);
 
-    // Map unplanned activities
-    const unplannedActivities = unplannedOnly.map((plan: any) => ({
-      // For unplanned activities, the plan IS the activity
-      id: plan.id,
-      work_plan_activity_id: null,
-      objectives_sub_objectives: plan.objectives_sub_objectives || "Unplanned Activity",
-      work_plan_activity_identifier: plan.work_plan_activity_identifier || "UNPLANNED",
-      activity_code: plan.work_plan_activity_identifier || "UNPLANNED",
-      budget_line: plan.budget_line || "N/A",
-      activity_description: plan.activity_description || plan.activity_name || "N/A",
-      month: calculateMonthFromDates(plan.start_date, plan.end_date),
-      responsible_person: plan.responsible_person || "N/A",
-      expected_results: plan.expected_results || "N/A",
+    // Create a lookup map for ActivityTracker data by work_plan_activity_id
+    const trackerLookup = new Map();
+    if (activityTrackers?.data?.results) {
+      activityTrackers.data.results.forEach((tracker: any) => {
+        if (tracker.work_plan_activity && tracker.work_plan_activity.id) {
+          trackerLookup.set(tracker.work_plan_activity.id, tracker);
+        }
+      });
+    }
 
-      // Activity plan fields
-      start_date: plan.start_date,
-      end_date: plan.end_date,
-      resources_required: plan.resources_required,
-      memo_approved: plan.memo_approved || false,
-      ea_required: plan.ea_required || false,
-      status: plan.status,
-      achieved_results: plan.achieved_results,
-      follow_up_actions: plan.follow_up_actions,
-      comments: plan.comments,
-      driver_vehicle: plan.driver_vehicle,
+    console.log('🔍 ActivityTracker lookup map:', trackerLookup);
+    console.log('📊 Available trackers:', activityTrackers?.data?.results?.length || 0);
 
-      // Metadata
-      work_plan: id as string,
-      work_plan_activity: null,
-      has_plan: true,
-      activity_type: "UNPLANNED",
-    }));
+    // Map unplanned activities with comprehensive field mapping
+    const unplannedActivities = unplannedOnly.map((plan: any) => {
+      console.log('🔄 Processing unplanned activity:', plan.id);
+      console.log('Available fields:', Object.keys(plan));
+      console.log('Specific field values:');
+      console.log('  - indicator:', plan.indicator);
+      console.log('  - performance_indicator:', plan.performance_indicator);
+      console.log('  - mov:', plan.mov);
+      console.log('  - means_of_verification:', plan.means_of_verification);
+      console.log('  - cost_category:', plan.cost_category);
+      console.log('  - cost_grouping:', plan.cost_grouping);
+      console.log('  - cost_input:', plan.cost_input);
+      console.log('  - intervention_area:', plan.intervention_area);
+
+      // Check if there's tracker data for this activity
+      const tracker = plan.work_plan_activity ? trackerLookup.get(plan.work_plan_activity) : null;
+      console.log('📍 Tracker found for activity:', !!tracker);
+      if (tracker) {
+        console.log('📋 Tracker metadata fields:');
+        console.log('  - indicator:', tracker.indicator);
+        console.log('  - mov:', tracker.mov);
+        console.log('  - cost_category_name:', tracker.cost_category_name);
+        console.log('  - cost_grouping_name:', tracker.cost_grouping_name);
+        console.log('  - cost_input_name:', tracker.cost_input_name);
+        console.log('  - intervention_area_name:', tracker.intervention_area_name);
+      }
+
+      console.log('Full plan data:', plan);
+
+      return {
+        // For unplanned activities, the plan IS the activity
+        id: plan.id,
+        work_plan_activity_id: null,
+        objectives_sub_objectives: plan.objectives_sub_objectives || "Unplanned Activity",
+        work_plan_activity_identifier: plan.work_plan_activity_identifier || "UNPLANNED",
+        activity_code: plan.work_plan_activity_identifier || "UNPLANNED",
+        budget_line: plan.budget_line || "N/A",
+        activity_description: plan.activity_description || plan.activity_name || "N/A",
+        month: calculateMonthFromDates(plan.start_date, plan.end_date),
+        responsible_person: plan.responsible_person || "N/A",
+        expected_results: plan.expected_results || plan.expected_output || "N/A",
+
+        // Add the missing fields - prioritize tracker data, then fallback to plan data
+        indicator: (tracker && tracker.indicator && tracker.indicator !== null && tracker.indicator !== "") ? tracker.indicator :
+                   (plan.indicator && plan.indicator !== null && plan.indicator !== "") ? plan.indicator :
+                   (plan.performance_indicator && plan.performance_indicator !== null && plan.performance_indicator !== "") ? plan.performance_indicator :
+                   (plan.indicators && plan.indicators !== null && plan.indicators !== "") ? plan.indicators :
+                   (plan.key_performance_indicator && plan.key_performance_indicator !== null && plan.key_performance_indicator !== "") ? plan.key_performance_indicator :
+                   "Not set",
+
+        mov: (tracker && tracker.mov && tracker.mov !== null && tracker.mov !== "") ? tracker.mov :
+             (plan.mov && plan.mov !== null && plan.mov !== "") ? plan.mov :
+             (plan.means_of_verification && plan.means_of_verification !== null && plan.means_of_verification !== "") ? plan.means_of_verification :
+             (plan.verification_method && plan.verification_method !== null && plan.verification_method !== "") ? plan.verification_method :
+             (plan.verification_means && plan.verification_means !== null && plan.verification_means !== "") ? plan.verification_means :
+             "Not set",
+
+        cost_category: (tracker && tracker.cost_category_name && tracker.cost_category_name !== null && tracker.cost_category_name !== "") ? tracker.cost_category_name :
+                       (plan.cost_category && plan.cost_category !== null && plan.cost_category !== "") ? plan.cost_category :
+                       (plan.cost_category_obj && plan.cost_category_obj.name && plan.cost_category_obj.name !== "") ? plan.cost_category_obj.name :
+                       (typeof plan.cost_category === 'object' && plan.cost_category && plan.cost_category.name && plan.cost_category.name !== "") ? plan.cost_category.name :
+                       "Not set",
+
+        cost_grouping: (tracker && tracker.cost_grouping_name && tracker.cost_grouping_name !== null && tracker.cost_grouping_name !== "") ? tracker.cost_grouping_name :
+                       (plan.cost_grouping && plan.cost_grouping !== null && plan.cost_grouping !== "") ? plan.cost_grouping :
+                       (plan.cost_grouping_obj && plan.cost_grouping_obj.name && plan.cost_grouping_obj.name !== "") ? plan.cost_grouping_obj.name :
+                       (typeof plan.cost_grouping === 'object' && plan.cost_grouping && plan.cost_grouping.name && plan.cost_grouping.name !== "") ? plan.cost_grouping.name :
+                       "Not set",
+
+        cost_input: (tracker && tracker.cost_input_name && tracker.cost_input_name !== null && tracker.cost_input_name !== "") ? tracker.cost_input_name :
+                    (plan.cost_input && plan.cost_input !== null && plan.cost_input !== "") ? plan.cost_input :
+                    (plan.cost_input_obj && plan.cost_input_obj.name && plan.cost_input_obj.name !== "") ? plan.cost_input_obj.name :
+                    (typeof plan.cost_input === 'object' && plan.cost_input && plan.cost_input.name && plan.cost_input.name !== "") ? plan.cost_input.name :
+                    "Not set",
+
+        intervention_area: (tracker && tracker.intervention_area_name && tracker.intervention_area_name !== null && tracker.intervention_area_name !== "") ? tracker.intervention_area_name :
+                           (plan.intervention_area && plan.intervention_area !== null && plan.intervention_area !== "") ? plan.intervention_area :
+                           (plan.intervention_area_obj && plan.intervention_area_obj.name && plan.intervention_area_obj.name !== "") ? plan.intervention_area_obj.name :
+                           (typeof plan.intervention_area === 'object' && plan.intervention_area && plan.intervention_area.name && plan.intervention_area.name !== "") ? plan.intervention_area.name :
+                           "Not set",
+
+        // Activity plan fields
+        start_date: plan.start_date,
+        end_date: plan.end_date,
+        resources_required: plan.resources_required,
+        memo_approved: plan.memo_approved || false,
+        ea_required: plan.ea_required || false,
+        status: plan.status,
+        achieved_results: plan.achieved_results,
+        follow_up_actions: plan.follow_up_actions,
+        comments: plan.comments,
+        driver_vehicle: plan.driver_vehicle,
+
+        // Metadata
+        work_plan: id as string,
+        work_plan_activity: null,
+        has_plan: true,
+        activity_type: "UNPLANNED",
+      };
+    });
 
     return unplannedActivities;
-  }, [activityPlans, id]);
+  }, [activityPlans, activityTrackers, id]);
 
   // Download template functionality
   const [isDownloading, setIsDownloading] = useState(false);
@@ -244,7 +333,7 @@ export default function UnplannedActivities() {
           <DataTable
             data={unplannedData}
             columns={getActivityPlanDetailsColumns(id as string)}
-            isLoading={isFetching || workPlanLoading}
+            isLoading={isFetching || workPlanLoading || trackersLoading}
             pagination={{
               onChange: (page: number) => setPage(page),
             }}
