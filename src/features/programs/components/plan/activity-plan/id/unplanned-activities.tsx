@@ -30,10 +30,11 @@ const breadcrumbs: TBreadcrumbList[] = [
   { name: "Programs", icon: true },
   { name: "Plans", icon: true },
   { name: "Activity Plan", icon: true },
-  { name: "Activity Plan Details", icon: false },
+  { name: "Activity Types", icon: true },
+  { name: "Unplanned Activities", icon: false },
 ];
 
-export default function ActivityPlanDetail() {
+export default function UnplannedActivities() {
   const [page, setPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const { id } = useParams();
@@ -43,74 +44,29 @@ export default function ActivityPlanDetail() {
     wait: 1000,
   });
 
-  // Fetch work plan with activities
+  // Fetch work plan for context
   const { data: workPlan, isLoading: workPlanLoading } = useGetSingleWorkPlan(id ?? skipToken);
 
-  // Fetch activity plans for this work plan (both planned and unplanned)
+  // Fetch activity plans for this specific work plan, then filter for unplanned on frontend
   const { data: activityPlans, isFetching } = useGetAllActivityPlans({
     page,
     size: 100,
     search: debouncedSearchQuery,
-    work_plan: id as string,
+    work_plan: id as string, // Filter by this specific work plan
+    // Note: Removing is_unplanned filter to test if API call triggers
   });
 
-  // Merge work plan activities with activity plans AND add unplanned activities
-  const mergedData = useMemo(() => {
+  // Process unplanned activities (filter for is_unplanned: true on frontend)
+  const unplannedData = useMemo(() => {
     if (!activityPlans?.data?.results) {
       return [];
     }
 
-    const plans = activityPlans.data.results;
-    const workPlanActivities = workPlan?.data?.activities || [];
+    // Filter for only unplanned activities
+    const unplannedOnly = activityPlans.data.results.filter((plan: any) => plan.is_unplanned === true);
 
-    // Separate planned and unplanned activities
-    const plannedPlans = plans.filter(plan => plan.work_plan_activity);
-    const unplannedPlans = plans.filter(plan => !plan.work_plan_activity);
-
-    // Create a map of planned activity plans by work_plan_activity ID
-    const plansByActivityId = new Map(
-      plannedPlans.map(plan => [plan.work_plan_activity, plan])
-    );
-
-    // Merge each work plan activity with its corresponding activity plan (PLANNED activities)
-    const plannedActivities = workPlanActivities.map(activity => {
-      const plan = plansByActivityId.get(activity.id);
-
-      return {
-        // Work plan activity fields (read-only)
-        id: plan?.id || activity.id,
-        work_plan_activity_id: activity.id,
-        objectives_sub_objectives: activity.objectives_sub_objectives,
-        work_plan_activity_identifier: activity.activity_number,
-        activity_code: activity.activity_number,
-        budget_line: activity.budget_line?.name || activity.budget_line,
-        activity_description: activity.activity || activity.activity_justification,
-        month: calculateMonthFromDates(plan?.start_date, plan?.end_date),
-        responsible_person: activity.lead_person,
-        expected_results: activity.expected_result, // From work plan activity
-
-        // Activity plan fields (editable)
-        start_date: plan?.start_date || null,
-        end_date: plan?.end_date || null,
-        resources_required: plan?.resources_required || null,
-        memo_approved: plan?.memo_approved || false,
-        ea_required: plan?.ea_required || false,
-        status: plan?.status || "NOT_DONE",
-        achieved_results: plan?.achieved_results || null,
-        follow_up_actions: plan?.follow_up_actions || null,
-        comments: plan?.comments || null,
-        driver_vehicle: plan?.driver_vehicle || null,
-
-        // Metadata
-        work_plan: id as string,
-        work_plan_activity: activity.id,
-        has_plan: !!plan,
-        activity_type: "PLANNED",
-      };
-    });
-
-    // Add unplanned activities (these come directly from activity plans without work plan activities)
-    const unplannedActivities = unplannedPlans.map(plan => ({
+    // Map unplanned activities
+    const unplannedActivities = unplannedOnly.map((plan: any) => ({
       // For unplanned activities, the plan IS the activity
       id: plan.id,
       work_plan_activity_id: null,
@@ -118,7 +74,7 @@ export default function ActivityPlanDetail() {
       work_plan_activity_identifier: plan.work_plan_activity_identifier || "UNPLANNED",
       activity_code: plan.work_plan_activity_identifier || "UNPLANNED",
       budget_line: plan.budget_line || "N/A",
-      activity_description: plan.activity_description,
+      activity_description: plan.activity_description || plan.activity_name || "N/A",
       month: calculateMonthFromDates(plan.start_date, plan.end_date),
       responsible_person: plan.responsible_person || "N/A",
       expected_results: plan.expected_results || "N/A",
@@ -142,9 +98,8 @@ export default function ActivityPlanDetail() {
       activity_type: "UNPLANNED",
     }));
 
-    // Combine planned and unplanned activities
-    return [...plannedActivities, ...unplannedActivities];
-  }, [workPlan, activityPlans, id]);
+    return unplannedActivities;
+  }, [activityPlans, id]);
 
   // Download template functionality
   const [isDownloading, setIsDownloading] = useState(false);
@@ -186,12 +141,41 @@ export default function ActivityPlanDetail() {
     <div className='space-y-5'>
       <BreadcrumbCard list={breadcrumbs} />
 
+      {/* Work Plan Context Info */}
+      {workPlan?.data && (
+        <Card className="p-4">
+          <div className="flex justify-between items-center">
+            <div className="space-y-1">
+              <h3 className="font-semibold">Unplanned Activities for:</h3>
+              <div className="flex gap-6 text-sm text-gray-600">
+                <span><strong>Project:</strong> {workPlan.data.project?.title}</span>
+                <span><strong>Financial Year:</strong> {workPlan.data.financial_year?.year}</span>
+              </div>
+            </div>
+            <Link href={`/dashboard/programs/plan/activity/${id}`}>
+              <Button variant="outline">← Back to Activity Types</Button>
+            </Link>
+          </div>
+        </Card>
+      )}
+
+      {/* Info Banner for Unplanned Activities */}
+      <Card className="p-4 bg-orange-50 border-l-4 border-orange-500">
+        <div className="space-y-2">
+          <h4 className="font-medium text-orange-800">Unplanned Activities</h4>
+          <p className="text-sm text-orange-700">
+            These activities were added outside of the original work plan and may require additional approval.
+            Activities with justification are automatically marked as unplanned during upload.
+          </p>
+        </div>
+      </Card>
+
       {/* Action Buttons */}
       <div className="flex justify-end gap-3">
         <Popover>
           <PopoverTrigger asChild>
-            <Button className='flex gap-2 py-6'>
-              Add Activities
+            <Button className='flex gap-2 py-6 bg-orange-600 hover:bg-orange-700'>
+              Add Unplanned Activities
               <ArrowDownIcon />
             </Button>
           </PopoverTrigger>
@@ -219,15 +203,15 @@ export default function ActivityPlanDetail() {
                 variant='ghost'
                 type='button'
                 onClick={() => {
-                  console.log("Opening upload modal with DialogType:", DialogType.ActivityUpload);
+                  console.log("Opening upload modal for unplanned activities");
                   dispatch(
                     openDialog({
                       type: DialogType.ActivityUpload,
                       dialogProps: {
-                        header: "Upload Activities (Smart Detection)",
+                        header: "Upload Unplanned Activities",
                         width: "max-w-2xl",
                         workPlanId: id,
-                        activityType: "MIXED",
+                        activityType: "UNPLANNED",
                         projectId: workPlan?.data?.project?.id,
                         financialYearId: workPlan?.data?.financial_year?.id,
                       },
@@ -258,7 +242,7 @@ export default function ActivityPlanDetail() {
           onSearchChange={(e) => setSearchQuery(e.target.value)}
         >
           <DataTable
-            data={mergedData}
+            data={unplannedData}
             columns={getActivityPlanDetailsColumns(id as string)}
             isLoading={isFetching || workPlanLoading}
             pagination={{

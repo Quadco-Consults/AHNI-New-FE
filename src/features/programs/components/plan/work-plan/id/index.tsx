@@ -3,6 +3,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
 import { useParams } from "next/navigation";
 import Summary from "./Summary";
 import Activity from "./activity";
+import UnplannedActivity from "./unplanned-activity";
 import { useGetSingleWorkPlan } from "@/features/programs/controllers/workPlanController";
 import BreadcrumbCard, { TBreadcrumbList } from "components/Breadcrumb";
 import { LoadingSpinner } from "components/Loading";
@@ -37,12 +38,16 @@ export default function WorkPlanDetail() {
         <TabsList>
           <TabsTrigger value='summary'>Summary</TabsTrigger>
           <TabsTrigger value='activity-report'>Activity/Report</TabsTrigger>
+          <TabsTrigger value='unplanned-activities'>Unplanned Activities</TabsTrigger>
         </TabsList>
         <TabsContent value='summary'>
           <Summary data={data.data} />
         </TabsContent>
         <TabsContent value='activity-report'>
-          <Activity activities={activities} />
+          <Activity activities={activities} workPlanId={id as string} />
+        </TabsContent>
+        <TabsContent value='unplanned-activities'>
+          <UnplannedActivity workPlanId={id as string} workPlanData={data.data} />
         </TabsContent>
       </Tabs>
     </div>
