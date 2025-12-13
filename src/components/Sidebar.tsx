@@ -471,27 +471,126 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
         return true;
       }
 
-      // Map user's department to departmental sections
-      const userDept = userDepartment?.toUpperCase() || user?.department?.name?.toUpperCase();
+      // Map user's department to departmental sections (case-insensitive)
+      const userDept = (userDepartment || user?.department?.name || '').toLowerCase();
+      const userPos = (user?.position?.title || user?.position?.name || '').toLowerCase();
 
-      // Department mapping
-      const departmentMapping = {
-        'PROGRAMS': ['Programs'],
-        'PROCUREMENT': ['Procurement Management'],
-        'HR': ['HR'],
-        'HUMAN RESOURCES': ['HR'],
-        'FINANCE': ['Finance'],
-        'CONTRACT & GRANTS': ['C&G'],
-        'CONTRACTS & GRANTS': ['C&G'],
-        'ADMIN': ['Admin'],
-        'ADMINISTRATION': ['Admin']
+      // Debug logging for department filtering
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🔍 DEPARTMENT FILTER DEBUG:', {
+          itemName: item.name,
+          userDept,
+          userPos,
+          userDepartmentRaw: userDepartment,
+          userDepartmentFromUser: user?.department?.name,
+          userPositionTitle: user?.position?.title,
+          userPositionName: user?.position?.name,
+          fullUser: user
+        });
+      }
+
+      // Department mapping (lowercase keys)
+      const departmentMapping: Record<string, string[]> = {
+        'programs': ['Programs'],
+        'procurement': ['Procurement Management'],
+        'hr': ['HR'],
+        'human resources': ['HR'],
+        'finance': ['Finance'],
+        'contract & grants': ['C&G'],
+        'contracts & grants': ['C&G'],
+        'contracts and grants': ['C&G'],
+        'c ang g': ['C&G'],
+        'c&g': ['C&G'],
+        'admin': ['Admin'],
+        'administration': ['Admin']
       };
 
-      const allowedDepartments = departmentMapping[userDept] || [];
+      // Position-based mapping (for officers)
+      const positionMapping: Record<string, string[]> = {
+        'admin officer': ['Admin'],
+        'admin manager': ['Admin'],
+        'administrative officer': ['Admin'],
+        'program officer': ['Programs'],
+        'programs officer': ['Programs'],
+        'hr officer': ['HR'],
+        'hr manager': ['HR'],
+        'human resources officer': ['HR'],
+        'finance officer': ['Finance'],
+        'finance manager': ['Finance'],
+        'procurement officer': ['Procurement Management'],
+        'procurement manager': ['Procurement Management'],
+        'c&g officer': ['C&G'],
+        'contracts officer': ['C&G'],
+        'grants officer': ['C&G']
+      };
+
+      // Check department mapping
+      let allowedDepartments = departmentMapping[userDept] || [];
+
+      // Also check position mapping if department didn't match
+      if (allowedDepartments.length === 0) {
+        allowedDepartments = positionMapping[userPos] || [];
+      }
+
+      // Fallback: check if position contains department keywords
+      if (allowedDepartments.length === 0) {
+        if (userPos.includes('admin') && !userPos.includes('superadmin')) {
+          allowedDepartments = ['Admin'];
+        } else if (userPos.includes('program')) {
+          allowedDepartments = ['Programs'];
+        } else if (userPos.includes('hr') || userPos.includes('human resource')) {
+          allowedDepartments = ['HR'];
+        } else if (userPos.includes('finance')) {
+          allowedDepartments = ['Finance'];
+        } else if (userPos.includes('procurement')) {
+          allowedDepartments = ['Procurement Management'];
+        } else if (userPos.includes('contract') || userPos.includes('grant')) {
+          allowedDepartments = ['C&G'];
+        }
+      }
+
+      // Final fallback: check email for department keywords
+      if (allowedDepartments.length === 0) {
+        const userEmail = (user?.email || '').toLowerCase();
+        if (userEmail.includes('admin') && !userEmail.includes('superadmin')) {
+          allowedDepartments = ['Admin'];
+        } else if (userEmail.includes('program')) {
+          allowedDepartments = ['Programs'];
+        } else if (userEmail.includes('hr') || userEmail.includes('human')) {
+          allowedDepartments = ['HR'];
+        } else if (userEmail.includes('finance')) {
+          allowedDepartments = ['Finance'];
+        } else if (userEmail.includes('procurement')) {
+          allowedDepartments = ['Procurement Management'];
+        } else if (userEmail.includes('contract') || userEmail.includes('grant') || userEmail.includes('c&g') || userEmail.includes('cg')) {
+          allowedDepartments = ['C&G'];
+        }
+      }
 
       // Allow if item matches user's department
-      return allowedDepartments.includes(item.name);
+      const isAllowed = allowedDepartments.includes(item.name);
+
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`🔍 DEPARTMENT FILTER RESULT for "${item.name}":`, {
+          allowedDepartments,
+          isAllowed
+        });
+      }
+
+      return isAllowed;
     });
+
+    // Debug: Log what passed the department filter
+    if (process.env.NODE_ENV === 'development') {
+      console.log('📋 DEPARTMENT FILTERED RESULT:', {
+        originalCount: departmentalLinks.length,
+        filteredCount: departmentFiltered.length,
+        filteredItems: departmentFiltered.map(item => item.name),
+        canAccessAdminFeatures,
+        userDepartment,
+        userPosition: user?.position?.title || user?.position?.name
+      });
+    }
 
     // Then apply permission filtering
     const filtered = filterMenuItems(departmentFiltered);

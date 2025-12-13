@@ -107,6 +107,38 @@ export default function SupervisionEvaluationForm({
     });
   }, [siteVisitsData]);
 
+  // Normalize categories data to handle different response structures
+  const normalizedCategories = React.useMemo((): { id: string; name: string; description?: string }[] => {
+    // If categoriesData is already an array, use it directly
+    if (Array.isArray(categoriesData)) {
+      console.log("✅ Categories data is already an array with", categoriesData.length, "items");
+      return categoriesData;
+    }
+
+    // Handle nested response structures
+    if (categoriesData) {
+      // Pattern 1: { data: { results: [...] } }
+      if ((categoriesData as any)?.data?.results && Array.isArray((categoriesData as any).data.results)) {
+        console.log("✅ Extracting categories from data.data.results");
+        return (categoriesData as any).data.results;
+      }
+      // Pattern 2: { results: [...] }
+      if ((categoriesData as any)?.results && Array.isArray((categoriesData as any).results)) {
+        console.log("✅ Extracting categories from data.results");
+        return (categoriesData as any).results;
+      }
+      // Pattern 3: { data: [...] }
+      if ((categoriesData as any)?.data && Array.isArray((categoriesData as any).data)) {
+        console.log("✅ Extracting categories from data.data array");
+        return (categoriesData as any).data;
+      }
+
+      console.warn("⚠️ Could not extract categories array from:", categoriesData);
+    }
+
+    return [];
+  }, [categoriesData]);
+
   // Debug site visits and categories loading
   useEffect(() => {
     console.log("🔍 Site visits raw data:", siteVisitsData);
@@ -133,6 +165,7 @@ export default function SupervisionEvaluationForm({
       dataType: typeof categoriesData,
       dataLength: Array.isArray(categoriesData) ? categoriesData.length : 'not array',
       rawData: categoriesData,
+      normalizedLength: normalizedCategories.length,
       error: categoriesError
     });
 
@@ -145,7 +178,7 @@ export default function SupervisionEvaluationForm({
         actualData: categoriesData
       });
     }
-  }, [categoriesData, categoriesError, isLoadingCategories]);
+  }, [categoriesData, categoriesError, isLoadingCategories, normalizedCategories]);
 
   // Load criteria when categories are selected using direct API calls with correct auth
   useEffect(() => {
@@ -251,8 +284,8 @@ export default function SupervisionEvaluationForm({
       form.setValue("evaluation_date", evaluationDate);
 
       // Auto-suggest evaluation categories based on supervision type
-      if (categoriesData && Array.isArray(categoriesData) && selectedCategories.length === 0) {
-        const suggestedCategories = getSuggestedCategoriesForSupervision(selectedSiteVisit.visit_type_display, categoriesData);
+      if (normalizedCategories && normalizedCategories.length > 0 && selectedCategories.length === 0) {
+        const suggestedCategories = getSuggestedCategoriesForSupervision(selectedSiteVisit.visit_type_display, normalizedCategories);
         if (suggestedCategories.length > 0) {
           setSelectedCategories(suggestedCategories.map(cat => cat.id));
           form.setValue("selected_categories", suggestedCategories.map(cat => cat.id));
@@ -267,7 +300,7 @@ export default function SupervisionEvaluationForm({
         suggested_categories: selectedCategories.length
       });
     }
-  }, [form.watch("site_visit_id"), filteredSiteVisits, form]);
+  }, [form.watch("site_visit_id"), filteredSiteVisits, form, normalizedCategories]);
 
   // Handle category selection
   const handleCategoryToggle = (categoryId: string, categoryName: string) => {
@@ -703,14 +736,14 @@ export default function SupervisionEvaluationForm({
                     Retry
                   </Button>
                 </div>
-              ) : !categoriesData || categoriesData.length === 0 ? (
+              ) : normalizedCategories.length === 0 ? (
                 <div className="text-center py-4 text-gray-500">
                   <p className="text-sm">No evaluation categories available</p>
                   <p className="text-xs mt-1">Please contact your administrator to set up evaluation categories</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {categoriesData.map((category) => (
+                  {normalizedCategories.map((category) => (
                     <div key={category.id} className="flex items-center space-x-2">
                       <Checkbox
                         id={`category-${category.id}`}
@@ -740,7 +773,7 @@ export default function SupervisionEvaluationForm({
                   <h4 className="font-medium text-gray-900 mb-3">Select Evaluation Criteria</h4>
                   <div className="space-y-6">
                     {selectedCategories.map((categoryId) => {
-                      const category = categoriesData?.find(c => c.id === categoryId);
+                      const category = normalizedCategories?.find(c => c.id === categoryId);
                       const categoryCriteria = criteriaByCategory[categoryId] || [];
 
                       return (
@@ -803,7 +836,7 @@ export default function SupervisionEvaluationForm({
                   <h4 className="font-medium text-gray-900 mb-3">Selected Categories</h4>
                   <div className="flex flex-wrap gap-2">
                     {selectedCategories.map((categoryId) => {
-                      const category = categoriesData?.find(c => c.id === categoryId);
+                      const category = normalizedCategories?.find(c => c.id === categoryId);
                       return (
                         <Badge key={categoryId} variant="secondary">
                           {category?.name}

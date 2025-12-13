@@ -27,24 +27,46 @@ export const useGetEvaluationCategories = (enabled: boolean = true) => {
           }
         });
         console.log("📊 Categories API Response:", response.data);
+        console.log("📊 Categories API Response Structure:", {
+          hasData: !!response.data,
+          hasNestedData: !!response.data?.data,
+          hasResults: !!response.data?.results,
+          hasNestedResults: !!response.data?.data?.results,
+          isArray: Array.isArray(response.data),
+          keys: response.data ? Object.keys(response.data) : []
+        });
 
         // Handle different possible response structures
-        if (response.data?.data?.results) {
+        // Pattern 1: { data: { results: [...] } } - Most common in this codebase
+        if (response.data?.data?.results && Array.isArray(response.data.data.results)) {
+          console.log("✅ Using pattern: data.data.results");
           return response.data.data.results;
-        } else if (response.data?.results) {
+        }
+        // Pattern 2: { results: [...] }
+        else if (response.data?.results && Array.isArray(response.data.results)) {
+          console.log("✅ Using pattern: data.results");
           return response.data.results;
-        } else if (Array.isArray(response.data)) {
+        }
+        // Pattern 3: Direct array
+        else if (Array.isArray(response.data)) {
+          console.log("✅ Using pattern: direct array");
           return response.data;
-        } else if (response.data?.data && Array.isArray(response.data.data)) {
+        }
+        // Pattern 4: { data: [...] }
+        else if (response.data?.data && Array.isArray(response.data.data)) {
+          console.log("✅ Using pattern: data.data array");
           return response.data.data;
-        } else {
-          console.warn("Unexpected categories response structure:", response.data);
+        }
+        else {
+          console.warn("⚠️ Unexpected categories response structure:", response.data);
+          console.warn("⚠️ Response type:", typeof response.data);
           return [];
         }
       } catch (error) {
         const axiosError = error as AxiosError;
-        console.error("Categories API Error:", axiosError.response?.data);
-        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+        console.error("❌ Categories API Error:", axiosError.response?.data);
+        console.error("❌ Categories API Status:", axiosError.response?.status);
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message || "Failed to load categories");
       }
     },
     enabled: enabled,

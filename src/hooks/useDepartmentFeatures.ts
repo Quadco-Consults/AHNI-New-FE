@@ -33,15 +33,15 @@ export const useDepartmentFeatures = () => {
     debugLoggedRef.current = true;
   }
 
-  // Department checks - be more flexible with department name matching
-  const isProgramsDepartment = userDepartment === 'PROGRAMS' || userDepartment === 'Programs';
-  const isContractsGrantsDepartment = userDepartment === 'C ANG G' || userDepartment === 'C&G' ||
-    userDepartment === 'CONTRACTS AND GRANTS' || userDepartment === 'Contracts and Grants' ||
-    userDepartment?.toLowerCase().includes('contract');
-  const isHRDepartment = userDepartment === 'HR' || userDepartment === 'Human Resources';
-  const isFinanceDepartment = userDepartment === 'FINANCE' || userDepartment === 'Finance';
-  const isAdminDepartment = userDepartment === 'ADMIN' || userDepartment === 'Administration';
-  const isProcurementDepartment = userDepartment === 'PROCUREMENT' || userDepartment === 'Procurement';
+  // Department checks - be more flexible with department name matching (case-insensitive)
+  const userDepartmentLower = userDepartment?.toLowerCase() || '';
+  const isProgramsDepartment = userDepartmentLower === 'programs';
+  const isContractsGrantsDepartment = userDepartmentLower === 'c ang g' || userDepartmentLower === 'c&g' ||
+    userDepartmentLower === 'contracts and grants' || userDepartmentLower.includes('contract');
+  const isHRDepartment = userDepartmentLower === 'hr' || userDepartmentLower === 'human resources';
+  const isFinanceDepartment = userDepartmentLower === 'finance';
+  const isAdminDepartment = userDepartmentLower === 'admin' || userDepartmentLower === 'administration';
+  const isProcurementDepartment = userDepartmentLower === 'procurement';
 
   // Enhanced email and position-based detection for departmental officers and managers
   const userEmail = user?.email?.toLowerCase() || '';
@@ -54,17 +54,21 @@ export const useDepartmentFeatures = () => {
 
   // Enhanced position-based detection for departmental roles
   const userPosition = user?.position?.name || user?.position?.title || '';
-  const isFinancePosition = userPosition.toLowerCase().includes('finance');
-  const isHRPosition = userPosition.toLowerCase().includes('hr') ||
-                     userPosition.toLowerCase().includes('human resources') ||
-                     userPosition.toLowerCase().includes('human resource');
+  const userPositionLower = userPosition.toLowerCase();
+  const isFinancePosition = userPositionLower.includes('finance');
+  const isHRPosition = userPositionLower.includes('hr') ||
+                     userPositionLower.includes('human resources') ||
+                     userPositionLower.includes('human resource');
+  const isAdminPosition = userPositionLower.includes('admin') && !userPositionLower.includes('superadmin');
+  const isProcurementPosition = userPositionLower.includes('procurement');
+  const isProgramsPosition = userPositionLower.includes('program');
 
   // HR debug removed temporarily to fix scoping issue
 
   // Feature access checks - more permissive for departmental officers (memoized)
   const canAccessProgramsFeatures = useMemo(() =>
-    isProgramsDepartment || isProgramsOfficer || user?.is_superuser || user?.is_staff,
-    [isProgramsDepartment, isProgramsOfficer, user?.is_superuser, user?.is_staff]
+    isProgramsDepartment || isProgramsOfficer || isProgramsPosition || user?.is_superuser || user?.is_staff,
+    [isProgramsDepartment, isProgramsOfficer, isProgramsPosition, user?.is_superuser, user?.is_staff]
   );
 
   const canAccessContractsGrantsFeatures = useMemo(() =>
@@ -83,13 +87,13 @@ export const useDepartmentFeatures = () => {
   );
 
   const canAccessAdminFeatures = useMemo(() =>
-    isAdminDepartment || isAdminOfficer || user?.is_superuser || user?.is_staff,
-    [isAdminDepartment, isAdminOfficer, user?.is_superuser, user?.is_staff]
+    isAdminDepartment || isAdminOfficer || isAdminPosition || user?.is_superuser || user?.is_staff,
+    [isAdminDepartment, isAdminOfficer, isAdminPosition, user?.is_superuser, user?.is_staff]
   );
 
   const canAccessProcurementFeatures = useMemo(() =>
-    isProcurementDepartment || isProcurementOfficer || user?.is_superuser || user?.is_staff,
-    [isProcurementDepartment, isProcurementOfficer, user?.is_superuser, user?.is_staff]
+    isProcurementDepartment || isProcurementOfficer || isProcurementPosition || user?.is_superuser || user?.is_staff,
+    [isProcurementDepartment, isProcurementOfficer, isProcurementPosition, user?.is_superuser, user?.is_staff]
   );
 
   // Temporary HR debug for troubleshooting - placed after all feature access definitions
