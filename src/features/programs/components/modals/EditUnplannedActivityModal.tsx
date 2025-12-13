@@ -17,7 +17,7 @@ import { useGetAllDepartments } from "@/features/modules/controllers/config/depa
 import { useGetAllLocations } from "@/features/modules/controllers/config/locationController";
 import { useGetAllUsers } from "@/features/auth/controllers/userController";
 import { useGetAllCostCategories } from "@/features/modules/controllers/finance/costCategoryController";
-import { useGetAllCostGroupings } from "@/features/modules/controllers/finance/costGroupingController";
+import { useGetAllCostGroupingsQuery } from "@/features/modules/controllers/finance/costGroupingController";
 import { useGetAllCostInputs } from "@/features/modules/controllers/finance/costInputController";
 import { useGetAllInterventionAreas } from "@/features/modules/controllers/program/interventionAreaController";
 import { useEditActivityPlan } from "@/features/programs/controllers/activityPlanController";
@@ -39,7 +39,7 @@ export default function EditUnplannedActivityModal() {
     const { data: locations } = useGetAllLocations({ size: 100 });
     const { data: users } = useGetAllUsers({ size: 100 });
     const { data: costCategories } = useGetAllCostCategories({ size: 100 });
-    const { data: costGroupings } = useGetAllCostGroupings({ size: 100 });
+    const { data: costGroupings } = useGetAllCostGroupingsQuery({ size: 100 });
     const { data: costInputs } = useGetAllCostInputs({ size: 100 });
     const { data: interventionAreas } = useGetAllInterventionAreas({ size: 100 });
 
