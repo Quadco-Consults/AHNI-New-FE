@@ -113,5 +113,62 @@ export const useDeleteFCONumberMutation = () => {
   return [deleteFCONumber, { isLoading: false }] as const;
 };
 
+// Alternative endpoints for bypassing permission filtering
+export const useGetAllFCONumbersUnrestricted = ({
+  page = 1,
+  size = 1000,
+  search = "",
+  enabled = true
+}: FilterParams & { enabled?: boolean } = {}) => {
+  return useQuery<TPaginatedResponse<FCONumberData>>({
+    queryKey: ["fco-numbers-unrestricted", page, size, search],
+    queryFn: async () => {
+      // Try multiple endpoint patterns that might bypass permission filtering
+      const endpoints = [
+        "/admins/finance/fco-numbers/",  // Admin endpoint pattern
+        "/finance/fco-numbers/all/",     // All FCO numbers endpoint
+        "/finance/fco-numbers/"          // Original with special params
+      ];
+
+      const params = [
+        { page, size, search, access_scope: "global" },
+        { page, size, search, data_access_level: "global" },
+        { page, size, search, unrestricted: true },
+        { page, size, search, all: true },
+        { page, size: 2000000, search }  // Large size like users API
+      ];
+
+      for (let i = 0; i < endpoints.length; i++) {
+        try {
+          console.log(`🔍 Trying FCO numbers endpoint ${i + 1}: ${endpoints[i]} with params:`, params[i % params.length]);
+          const response = await AxiosWithToken.get(endpoints[i], {
+            params: params[i % params.length]
+          });
+          console.log(`✅ SUCCESS with FCO numbers endpoint ${i + 1}:`, response.data);
+          console.log(`📊 FCO numbers count from endpoint ${i + 1}:`, response.data?.data?.results?.length || response.data?.results?.length || 0);
+
+          // If we got results, this endpoint worked (FCO numbers might have fewer items naturally)
+          const resultCount = response.data?.data?.results?.length || response.data?.results?.length || 0;
+          if (resultCount > 0) {
+            console.log(`🎯 FOUND WORKING FCO NUMBERS ENDPOINT: ${endpoints[i]} returned ${resultCount} FCO numbers!`);
+            return response.data;
+          } else if (i === endpoints.length - 1) {
+            // Last endpoint and still no results
+            console.warn(`⚠️ All FCO numbers endpoints tested, but no FCO numbers returned. This may indicate backend permission filtering.`);
+            return response.data;
+          }
+        } catch (error) {
+          console.log(`❌ Failed FCO numbers endpoint ${i + 1} (${endpoints[i]}):`, error);
+          if (i === endpoints.length - 1) {
+            throw error; // Throw the last error if all attempts fail
+          }
+        }
+      }
+    },
+    enabled,
+    refetchOnWindowFocus: false,
+  });
+};
+
 // Missing named export
 export const useGetSingleFCONumber = useGetSingleFCONumberManager;

@@ -8,7 +8,7 @@ import FormTextArea from "components/atoms/FormTextArea";
 import { UploadIcon, AlertCircle } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import {
@@ -17,7 +17,9 @@ import {
   useValidateLeaveRequest,
 } from "@/features/hr/controllers/leaveRequestController";
 import { useGetEmployeeOnboardings } from "@/features/hr/controllers/employeeOnboardingController";
-import { useGetUserProfile, useGetApprovers } from "@/features/auth/controllers/userController";
+import { useGetUserProfile, useGetAllUsers } from "@/features/auth/controllers/userController";
+import { getApproverOptions } from "@/utils/approvalFilters";
+import { filterAhniStaffOnly } from "@/utils/userFilters";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { Badge } from "components/ui/badge";
@@ -63,8 +65,11 @@ const LeaveForm = ({ onSuccess }: LeaveFormProps) => {
   // Fetch employees for backup person selection
   const { data: employeesData, isLoading: loadingEmployees } = useGetEmployeeOnboardings({ size: 100 });
 
-  // Fetch valid approvers
-  const { data: approversData, isLoading: loadingApprovers } = useGetApprovers({ size: 100 });
+  // Get all users for approver filtering (same pattern as other working forms)
+  const { data: allUsersData, isLoading: loadingApprovers } = useGetAllUsers({
+    page: 1,
+    size: 2000000
+  });
 
   // Get user profile for current user ID
   const { data: userProfile } = useGetUserProfile();
@@ -81,7 +86,7 @@ const LeaveForm = ({ onSuccess }: LeaveFormProps) => {
   }, []);
 
   // Debug logging for employee data
-  console.log('Leave form - employeesData:', employeesData);
+  // console.log('Leave form - employeesData:', employeesData);
   const employees = Array.isArray(employeesData?.data)
     ? employeesData.data.map((emp: any) => ({
         id: emp.id,
@@ -101,51 +106,69 @@ const LeaveForm = ({ onSuccess }: LeaveFormProps) => {
     : [];
 
   // Debug logging for mapped employees
-  console.log('Leave form - mapped employees:', employees);
-  console.log('🔍 ALT FORM DEBUGGING - Employee count:', employees.length);
+  // console.log('Leave form - mapped employees:', employees);
+  // console.log('🔍 ALT FORM DEBUGGING - Employee count:', employees.length);
 
-  // Process approvers data
-  console.log('Leave form - approversData:', approversData);
-  const approvers = Array.isArray(approversData?.data)
-    ? approversData.data.map((approver: any) => ({
-        id: approver.id,
-        name: `${approver.first_name || ''} ${approver.last_name || ''}`.trim(),
-        email: approver.email || '',
-        department: typeof approver.department === 'object' ? approver.department?.name || 'N/A' : approver.department || 'N/A',
-        position: approver.position || approver.job_title || 'N/A'
-      }))
-    : Array.isArray(approversData?.data?.results)
-    ? approversData.data.results.map((approver: any) => ({
-        id: approver.id,
-        name: `${approver.first_name || ''} ${approver.last_name || ''}`.trim(),
-        email: approver.email || '',
-        department: typeof approver.department === 'object' ? approver.department?.name || 'N/A' : approver.department || 'N/A',
-        position: approver.position || approver.job_title || 'N/A'
-      }))
-    : [];
+  // Filter for AHNI staff only (exclude vendors, consultants, external users)
+  const ahniStaffForApprovers = useMemo(
+    () => filterAhniStaffOnly(allUsersData?.data?.results || []),
+    [allUsersData?.data?.results]
+  );
 
-  // Debug logging for mapped approvers
-  console.log('Leave form - mapped approvers:', approvers);
-  console.log('🔍 APPROVER DEBUGGING - Approver count:', approvers.length);
+  // Get approver options using the same pattern as other working forms
+  const approverOptions = useMemo(() => {
+    const options = getApproverOptions(ahniStaffForApprovers);
 
-  // Get employee ID with multiple fallback methods
+    // Debug approver data once when data changes
+    console.log('🔍 APPROVER DEBUG - Leave Management:', {
+      allUsersCount: allUsersData?.data?.results?.length || 0,
+      ahniStaffCount: ahniStaffForApprovers.length,
+      approverOptionsCount: options.length,
+      approverOptions: options,
+      loadingApprovers
+    });
+
+    // TEMPORARY FIX: If no users with permissions found, show all AHNI staff
+    if (options.length === 0) {
+      console.warn('⚠️ No users with approve permission found. Showing all AHNI staff as fallback.');
+      return ahniStaffForApprovers.map((userData) => ({
+        label: userData.full_name ||
+               [userData.first_name, userData.last_name]
+                 .filter(name => name && name.trim())
+                 .join(" ") ||
+               userData.email || "User",
+        value: userData.id,
+      }));
+    }
+
+    return options;
+  }, [ahniStaffForApprovers, loadingApprovers, allUsersData]);
+
+  // Get employee UUID with multiple fallback methods (prioritize employee_uuid from backend fix)
   const employeeId =
-    // 1. From balances (if available)
+    // 1. From user profile - NEW: Use employee_uuid first (backend fix)
+    userProfile?.data?.employee_uuid ||
+    // 2. From balances (if available)
     (balances.length > 0 ? (balances[0]?.employee?.id || balances[0]?.employee) : null) ||
-    // 2. From user profile
-    userProfile?.data?.id ||
+    // 3. From user profile - fallback to old fields
     userProfile?.data?.employee_id ||
-    // 3. From localStorage
-    localUser?.id ||
+    userProfile?.data?.id ||
+    // 4. From localStorage - fallback
+    localUser?.employee_uuid ||
     localUser?.employee_id ||
-    // 4. Empty string as last resort
+    localUser?.id ||
+    // 5. Empty string as last resort
     "";
 
-  // Debug logging for employee ID
-  console.log('Leave form - userProfile:', userProfile);
-  console.log('Leave form - localUser:', localUser);
-  console.log('Leave form - employeeId:', employeeId);
-  console.log('Leave form - balances:', balances);
+  // Debug logging for employee ID - TEMPORARY for testing backend fix
+  console.log('🔍 LEAVE FORM EMPLOYEE ID DEBUG:', {
+    userProfile: userProfile?.data,
+    employeeId,
+    employee_uuid: userProfile?.data?.employee_uuid,
+    employee_id: userProfile?.data?.employee_id,
+    user_id: userProfile?.data?.id,
+    context: 'leave_form_employee_resolution'
+  });
 
   // Mutations
   const { validateLeaveRequest, isLoading: isValidating } = useValidateLeaveRequest();
@@ -170,21 +193,21 @@ const LeaveForm = ({ onSuccess }: LeaveFormProps) => {
   const toDate = watch("toDate");
 
   // Debug form state and validation
-  console.log("📋 Form Debug Info:", {
-    formState: {
-      isValid,
-      errors: Object.keys(errors).length > 0 ? errors : "No errors",
-      isDirty: formState.isDirty,
-      isSubmitting: formState.isSubmitting
-    },
-    formData: {
-      leaveType: selectedLeaveType,
-      fromDate,
-      toDate,
-      approverId: watch("approverId"),
-      backupPersonId: watch("backupPersonId")
-    }
-  });
+  // console.log("📋 Form Debug Info:", {
+  //   formState: {
+  //     isValid,
+  //     errors: Object.keys(errors).length > 0 ? errors : "No errors",
+  //     isDirty: formState.isDirty,
+  //     isSubmitting: formState.isSubmitting
+  //   },
+  //   formData: {
+  //     leaveType: selectedLeaveType,
+  //     fromDate,
+  //     toDate,
+  //     approverId: watch("approverId"),
+  //     backupPersonId: watch("backupPersonId")
+  //   }
+  // });
 
   // Get balance for selected leave type
   const selectedBalance = balances.find((b) => b.leave_type?.id === selectedLeaveType);
@@ -437,10 +460,7 @@ const LeaveForm = ({ onSuccess }: LeaveFormProps) => {
                 label="Leave Approver"
                 name="approverId"
                 required
-                options={approvers.map((approver: any) => ({
-                  label: `${approver.name} (${approver.department})`,
-                  value: approver.id
-                }))}
+                options={approverOptions}
                 placeholder="Select an approver..."
               />
 
@@ -492,7 +512,7 @@ const LeaveForm = ({ onSuccess }: LeaveFormProps) => {
                 disabled={isCreating || isValidating}
                 type="submit"
                 className="flex items-center justify-center gap-2"
-                onClick={() => console.log("🔘 Submit button clicked!")}
+                onClick={() => {/* Submit button clicked */}}
               >
                 <UploadIcon className="w-4 h-4" />
                 Submit Request

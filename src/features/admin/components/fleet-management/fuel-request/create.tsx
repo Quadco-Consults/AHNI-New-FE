@@ -90,7 +90,7 @@ export default function CreateFuelConsumption() {
         return employee_id || (employee && employee.id);
       });
 
-      console.log('Filtered users with employees:', usersWithEmployees.length);
+      // console.log('Filtered users with employees:', usersWithEmployees.length);
 
       return usersWithEmployees.map((user: any) => {
         const { first_name, last_name, employee_id, employee_serial_id, employee, id } = user;
@@ -130,18 +130,26 @@ export default function CreateFuelConsumption() {
     [location]
   );
 
-  const { data: vendor } = useGetVendors({
+  // First try without category filter to see what vendors exist
+  const { data: allVendors } = useGetVendors({
     page: 1,
     size: PAGINATION_DEFAULTS.DROPDOWN_SIZE,
-    approved_categories: CATEGORY_IDS.FUEL_SUPPLIERS,
+  });
+
+  // Use all approved vendors for now (category filtering not working as expected)
+  const { data: vendor, error: vendorError, isLoading: vendorLoading } = useGetVendors({
+    page: 1,
+    size: PAGINATION_DEFAULTS.DROPDOWN_SIZE,
+    status: "Approved", // Only show approved vendors
   });
 
   const vendorOptions = useMemo(
-    () =>
-      standardizeApiResponse(vendor)?.map(({ company_name, id }: any) => ({
+    () => {
+      return standardizeApiResponse(vendor)?.map(({ company_name, id }: any) => ({
         label: company_name || 'Unknown Vendor',
         value: id,
-      })) || [],
+      })) || [];
+    },
     [vendor]
   );
 
@@ -228,7 +236,13 @@ export default function CreateFuelConsumption() {
 
   useEffect(() => {
     if (price && quantity) {
-      form.setValue("amount", String(Number(price) * Number(quantity)));
+      const calculatedAmount = String(Number(price) * Number(quantity));
+      const currentAmount = form.getValues("amount");
+
+      // Only update if the calculated amount is different from current amount
+      if (currentAmount !== calculatedAmount) {
+        form.setValue("amount", calculatedAmount);
+      }
     }
   }, [price, quantity, form]);
 

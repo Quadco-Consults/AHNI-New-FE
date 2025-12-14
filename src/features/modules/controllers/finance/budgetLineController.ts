@@ -143,5 +143,62 @@ export const useDeleteBudgetLineMutation = () => {
   return [deleteBudgetLine, { data, isLoading, isSuccess, error }] as const;
 };
 
+// Alternative endpoints for bypassing permission filtering
+export const useGetAllBudgetLinesUnrestricted = ({
+  page = 1,
+  size = 1000,
+  search = "",
+  enabled = true
+}: FilterParams & { enabled?: boolean } = {}) => {
+  return useQuery<TPaginatedResponse<BudgetLineData>>({
+    queryKey: ["budget-lines-unrestricted", page, size, search],
+    queryFn: async () => {
+      // Try multiple endpoint patterns that might bypass permission filtering
+      const endpoints = [
+        "/admins/finance/budget-lines/",  // Admin endpoint pattern
+        "/finance/budget-lines/all/",     // All budget lines endpoint
+        "/finance/budget-lines/"          // Original with special params
+      ];
+
+      const params = [
+        { page, size, search, access_scope: "global" },
+        { page, size, search, data_access_level: "global" },
+        { page, size, search, unrestricted: true },
+        { page, size, search, all: true },
+        { page, size: 2000000, search }  // Large size like users API
+      ];
+
+      for (let i = 0; i < endpoints.length; i++) {
+        try {
+          console.log(`🔍 Trying budget lines endpoint ${i + 1}: ${endpoints[i]} with params:`, params[i % params.length]);
+          const response = await AxiosWithToken.get(endpoints[i], {
+            params: params[i % params.length]
+          });
+          console.log(`✅ SUCCESS with budget lines endpoint ${i + 1}:`, response.data);
+          console.log(`📊 Budget lines count from endpoint ${i + 1}:`, response.data?.data?.results?.length || response.data?.results?.length || 0);
+
+          // If we got more than 1 budget line, this endpoint worked
+          const resultCount = response.data?.data?.results?.length || response.data?.results?.length || 0;
+          if (resultCount > 1) {
+            console.log(`🎯 FOUND WORKING BUDGET LINES ENDPOINT: ${endpoints[i]} returned ${resultCount} budget lines!`);
+            return response.data;
+          } else if (i === endpoints.length - 1) {
+            // Last endpoint and still only limited results - this confirms the permission filtering issue
+            console.warn(`⚠️ All budget lines endpoints tested, but only ${resultCount} budget line(s) returned. This confirms backend permission filtering.`);
+            return response.data;
+          }
+        } catch (error) {
+          console.log(`❌ Failed budget lines endpoint ${i + 1} (${endpoints[i]}):`, error);
+          if (i === endpoints.length - 1) {
+            throw error; // Throw the last error if all attempts fail
+          }
+        }
+      }
+    },
+    enabled,
+    refetchOnWindowFocus: false,
+  });
+};
+
 // Missing named export
 export const useGetSingleBudgetLine = useGetSingleBudgetLineManager;

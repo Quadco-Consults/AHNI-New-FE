@@ -44,13 +44,14 @@ export default function CreateContractRequest() {
     !!id // Only fetch if there's an ID
   );
 
-  console.log('🔍 EDIT CONTRACT REQUEST DATA:', {
-    id,
-    isEdit: !!id,
-    existingData: existingContractRequest?.data,
-    isLoading: isLoadingContractRequest,
-    context: 'contract_request_edit_mode'
-  });
+  // Debug console.log commented to prevent render loops
+  // console.log('🔍 EDIT CONTRACT REQUEST DATA:', {
+  //   id,
+  //   isEdit: !!id,
+  //   existingData: existingContractRequest?.data,
+  //   isLoading: isLoadingContractRequest,
+  //   context: 'contract_request_edit_mode'
+  // });
 
   const form = useForm<TContractRequestFormData>({
     resolver: zodResolver(ContractRequestSchema),
@@ -104,13 +105,13 @@ export default function CreateContractRequest() {
     size: 2000000,
   });
 
-  // Debug FCO data loading
-  console.log('🔍 FCO DEBUG - Contract Request:', {
-    fcoData: fco,
-    fcoResults: fco?.data?.results,
-    fcoCount: fco?.data?.results?.length || 0,
-    context: 'contract_request_form'
-  });
+  // Debug FCO data loading - commented to prevent render loops
+  // console.log('🔍 FCO DEBUG - Contract Request:', {
+  //   fcoData: fco,
+  //   fcoResults: fco?.data?.results,
+  //   fcoCount: fco?.data?.results?.length || 0,
+  //   context: 'contract_request_form'
+  // });
 
   const fcoOptions = useMemo(
     () => {
@@ -119,11 +120,12 @@ export default function CreateContractRequest() {
         value: id,
       })) || [];
 
-      console.log('📋 FCO OPTIONS CREATED:', {
-        optionsCount: options.length,
-        options: options.slice(0, 3), // Show first 3 options for debugging
-        allOptions: options
-      });
+      // Debug console.log commented to prevent render loops
+      // console.log('📋 FCO OPTIONS CREATED:', {
+      //   optionsCount: options.length,
+      //   options: options.slice(0, 3), // Show first 3 options for debugging
+      //   allOptions: options
+      // });
 
       return options;
     },
@@ -161,7 +163,8 @@ export default function CreateContractRequest() {
 
     // TEMPORARY FIX: If no users with permissions found, show all AHNI staff
     if (filtered.length === 0) {
-      console.warn('⚠️ No users with review permission found. Showing all AHNI staff as fallback.');
+      // Debug console.warn commented to prevent render loops
+      // console.warn('⚠️ No users with review permission found. Showing all AHNI staff as fallback.');
       return ahniStaff.map((userData) => ({
         label: userData.full_name ||
                [userData.first_name, userData.last_name]
@@ -180,7 +183,8 @@ export default function CreateContractRequest() {
 
     // TEMPORARY FIX: If no users with permissions found, show all AHNI staff
     if (filtered.length === 0) {
-      console.warn('⚠️ No users with authorize permission found. Showing all AHNI staff as fallback.');
+      // Debug console.warn commented to prevent render loops
+      // console.warn('⚠️ No users with authorize permission found. Showing all AHNI staff as fallback.');
       return ahniStaff.map((userData) => ({
         label: userData.full_name ||
                [userData.first_name, userData.last_name]
@@ -199,7 +203,8 @@ export default function CreateContractRequest() {
 
     // TEMPORARY FIX: If no users with permissions found, show all AHNI staff
     if (filtered.length === 0) {
-      console.warn('⚠️ No users with approve permission found. Showing all AHNI staff as fallback.');
+      // Debug console.warn commented to prevent render loops
+      // console.warn('⚠️ No users with approve permission found. Showing all AHNI staff as fallback.');
       return ahniStaff.map((userData) => ({
         label: userData.full_name ||
                [userData.first_name, userData.last_name]
@@ -222,53 +227,62 @@ export default function CreateContractRequest() {
       const selectedUser = ahniStaff.find(user => user.id === selectedTechnicalMonitor);
 
       if (selectedUser) {
-        console.log('🔄 AUTO-POPULATING Technical Monitor Details:', {
-          selectedUserId: selectedTechnicalMonitor,
-          selectedUserName: selectedUser.first_name + ' ' + selectedUser.last_name,
-          email: selectedUser.email,
-          rawUserData: selectedUser,
-          mobile_number: selectedUser.mobile_number,
-          phone_number: selectedUser.phone_number,
-          phone: selectedUser.phone,
-          mobile: selectedUser.mobile,
-          context: 'contract_request_technical_monitor'
-        });
+        // Debug console.logs commented to prevent render loops
+        // console.log('🔄 AUTO-POPULATING Technical Monitor Details:', {
+        //   selectedUserId: selectedTechnicalMonitor,
+        //   selectedUserName: selectedUser.first_name + ' ' + selectedUser.last_name,
+        //   email: selectedUser.email,
+        //   rawUserData: selectedUser,
+        //   mobile_number: selectedUser.mobile_number,
+        //   phone_number: selectedUser.phone_number,
+        //   phone: selectedUser.phone,
+        //   mobile: selectedUser.mobile,
+        //   context: 'contract_request_technical_monitor'
+        // });
 
         // Auto-populate email
         if (selectedUser.email) {
-          console.log('📧 Setting email:', selectedUser.email);
-          form.setValue('email', selectedUser.email, { shouldValidate: false });
+          const currentEmail = form.getValues('email');
+          if (currentEmail !== selectedUser.email) {
+            // console.log('📧 Setting email:', selectedUser.email);
+            form.setValue('email', selectedUser.email, { shouldValidate: false });
+          }
         }
 
         // Auto-populate mobile number (prioritize mobile_number field, then fallback to other variations)
         const mobileNumber = selectedUser.mobile_number || selectedUser.phone_number || selectedUser.phone || selectedUser.mobile;
-        console.log('📱 Mobile number analysis:', {
-          mobile_number: selectedUser.mobile_number,
-          phone_number: selectedUser.phone_number,
-          phone: selectedUser.phone,
-          mobile: selectedUser.mobile,
-          finalValue: mobileNumber
-        });
+        // console.log('📱 Mobile number analysis:', {
+        //   mobile_number: selectedUser.mobile_number,
+        //   phone_number: selectedUser.phone_number,
+        //   phone: selectedUser.phone,
+        //   mobile: selectedUser.mobile,
+        //   finalValue: mobileNumber
+        // });
 
         if (mobileNumber) {
-          console.log('📱 Setting mobile number:', mobileNumber);
-          form.setValue('phone_number', mobileNumber.toString(), { shouldValidate: false });
+          const currentPhoneNumber = form.getValues('phone_number');
+          const mobileNumberString = mobileNumber.toString();
+          if (currentPhoneNumber !== mobileNumberString) {
+            // console.log('📱 Setting mobile number:', mobileNumber);
+            form.setValue('phone_number', mobileNumberString, { shouldValidate: false });
+          }
         } else {
-          console.warn('⚠️ No mobile number found for user');
+          // console.warn('⚠️ No mobile number found for user');
         }
       }
     }
-  }, [selectedTechnicalMonitor, ahniStaff, form]);
+  }, [selectedTechnicalMonitor, ahniStaff]);
 
   // Populate form with existing data when editing
   useEffect(() => {
     if (existingContractRequest?.data && !isLoadingContractRequest) {
       const contractData = existingContractRequest.data;
 
-      console.log('🔄 POPULATING FORM WITH EXISTING DATA:', {
-        contractData,
-        context: 'contract_request_edit_populate'
-      });
+      // Debug console.log commented to prevent render loops
+      // console.log('🔄 POPULATING FORM WITH EXISTING DATA:', {
+      //   contractData,
+      //   context: 'contract_request_edit_populate'
+      // });
 
       // Populate form fields with existing data
       form.setValue("title", contractData.title || "");
@@ -285,7 +299,7 @@ export default function CreateContractRequest() {
       form.setValue("authorizer", contractData.authorizer || "");
       form.setValue("approver", contractData.approver || "");
     }
-  }, [existingContractRequest, isLoadingContractRequest, form]);
+  }, [existingContractRequest, isLoadingContractRequest]);
 
   const { createContractRequest, isLoading: isCreateLoading } =
     useCreateContractRequest();

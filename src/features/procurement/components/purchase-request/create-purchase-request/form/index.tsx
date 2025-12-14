@@ -25,6 +25,10 @@ import { useGetAllUsers, useGetUserProfile } from "@/features/auth/controllers/u
 import { useGetDepartmentPaginate } from "@/features/modules/controllers/config/departmentController";
 import { useGetAllItems } from "@/features/modules/controllers/config/itemController";
 import { useGetLocationList } from "@/features/modules/controllers/config/locationController";
+import {
+  useGetDepartmentsDropdown,
+  useGetLocationsDropdown
+} from "@/features/modules/controllers/config/allConfigController";
 import { useGetAllFCONumbers } from "@/features/modules/controllers/finance/fcoNumberController";
 import { useGetAllPartners } from "@/features/projects/controllers/projectController";
 import { useCreatePurchaseRequest } from "@/features/procurement/controllers/purchaseRequestController";
@@ -38,40 +42,42 @@ import { RootState } from "store/index";
 const CreatePurchaseRequestForm = ({ expenses }) => {
   const searchParams = useSearchParams();
   const request = searchParams.get("request");
-  console.log("Purchase request form - request parameter:", request);
+  // Debug console.log commented to prevent render loops
+  // console.log("Purchase request form - request parameter:", request);
 
   // Get activity memo data from Redux store
   const activityMemoData = useSelector((state: RootState) => state.activity.activity);
-  console.log("📊 Activity memo data from Redux:", activityMemoData);
-  console.log("📊 Number of entries in Redux:", activityMemoData?.length);
-  if (activityMemoData?.length > 0) {
-    const latestEntry = activityMemoData[activityMemoData.length - 1];
-    console.log("📊 Latest entry:", latestEntry);
-    console.log("📊 Latest entry expenses:", latestEntry?.expenses);
-    console.log("📊 Latest entry FCO (fconumber):", latestEntry?.fconumber);
-    console.log("📊 FCO Array check:", Array.isArray(latestEntry?.fconumber));
-    console.log("📊 FCO Length:", latestEntry?.fconumber?.length);
-    console.log("📊 FCO Content:", latestEntry?.fconumber);
-    console.log("📊 All keys in latest entry:", Object.keys(latestEntry || {}));
-  }
+  // Debug console.log commented to prevent render loops
+  // console.log("📊 Activity memo data from Redux:", activityMemoData);
+  // console.log("📊 Number of entries in Redux:", activityMemoData?.length);
+  // if (activityMemoData?.length > 0) {
+  //   const latestEntry = activityMemoData[activityMemoData.length - 1];
+  //   console.log("📊 Latest entry:", latestEntry);
+  //   console.log("📊 Latest entry expenses:", latestEntry?.expenses);
+  //   console.log("📊 Latest entry FCO (fconumber):", latestEntry?.fconumber);
+  //   console.log("📊 FCO Array check:", Array.isArray(latestEntry?.fconumber));
+  //   console.log("📊 FCO Length:", latestEntry?.fconumber?.length);
+  //   console.log("📊 FCO Content:", latestEntry?.fconumber);
+  //   console.log("📊 All keys in latest entry:", Object.keys(latestEntry || {}));
+  // }
 
   // Get the memo ID from Redux if not in URL
   const memoIdFromRedux = activityMemoData.length > 0 ? activityMemoData[activityMemoData.length - 1]?.createdMemoId : null;
   const finalMemoId = request || memoIdFromRedux;
-  console.log("Final memo ID to use:", finalMemoId);
+  // console.log("Final memo ID to use:", finalMemoId);
 
   // If Redux is empty but we have a memo ID, try to fetch from API
   const shouldFetchApi = !!finalMemoId && activityMemoData.length === 0;
-  console.log("🔧 API fetch decision:", {
-    finalMemoId,
-    activityMemoDataLength: activityMemoData.length,
-    shouldFetchApi
-  });
+  // console.log("🔧 API fetch decision:", {
+  //   finalMemoId,
+  //   activityMemoDataLength: activityMemoData.length,
+  //   shouldFetchApi
+  // });
 
   const { data: apiMemoData, isLoading: apiMemoLoading, error: apiMemoError } = useGetActivityMemo(finalMemoId as string, shouldFetchApi);
-  console.log("🌐 API memo data:", apiMemoData);
-  console.log("🌐 API memo loading:", apiMemoLoading);
-  console.log("🌐 API memo error:", apiMemoError);
+  // console.log("🌐 API memo data:", apiMemoData);
+  // console.log("🌐 API memo loading:", apiMemoLoading);
+  // console.log("🌐 API memo error:", apiMemoError);
 
   // Alert user about port issue if they're on wrong port
   useEffect(() => {
@@ -112,7 +118,6 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
     size: 2000000,
   });
 
-
   const { data: users } = useGetAllUsers({
     page: 1,
     size: 2000000,
@@ -121,6 +126,34 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
   const { data: currentUserProfile } = useGetUserProfile();
 
   const { data: locations } = useGetLocationList({});
+
+  // Get ALL AHNI departments and locations (unrestricted)
+  const {
+    data: allDepartments,
+    isLoading: allDepartmentsLoading,
+    error: allDepartmentsError
+  } = useGetDepartmentsDropdown();
+
+  const {
+    data: allLocations,
+    isLoading: allLocationsLoading,
+    error: allLocationsError
+  } = useGetLocationsDropdown();
+
+  // Debug logging for departments and locations comparison
+  React.useEffect(() => {
+    console.log("📊 DEPARTMENTS COMPARISON:");
+    console.log("📊 User-specific departments:", departments);
+    console.log("📊 All AHNI departments:", allDepartments);
+    console.log("📊 User dept count:", departments?.data?.results?.length || 0);
+    console.log("📊 All dept count:", allDepartments?.length || 0);
+
+    console.log("📊 LOCATIONS COMPARISON:");
+    console.log("📊 User-specific locations:", locations);
+    console.log("📊 All AHNI locations:", allLocations);
+    console.log("📊 User locations count:", locations?.data?.results?.length || 0);
+    console.log("📊 All locations count:", allLocations?.length || 0);
+  }, [departments, allDepartments, locations, allLocations]);
 
   const [, setFile] = useState<File | null>(null);
 
@@ -217,14 +250,15 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
 
   // Debug: Watch form values to see what's actually in the form
   const formValues = watch();
-  console.log("🏠 Current form values:", formValues);
-  console.log("🏠 Form items:", formValues?.items);
-  if (formValues?.items && formValues.items.length > 0) {
-    formValues.items.forEach((item: any, index: number) => {
-      // Debug: Form item validation
-      const isValidItem = item?.item && item?.quantity && item?.unit_cost;
-    });
-  }
+  // Debug console.log commented to prevent render loops
+  // console.log("🏠 Current form values:", formValues);
+  // console.log("🏠 Form items:", formValues?.items);
+  // if (formValues?.items && formValues.items.length > 0) {
+  //   formValues.items.forEach((item: any, index: number) => {
+  //     // Debug: Form item validation
+  //     const isValidItem = item?.item && item?.quantity && item?.unit_cost;
+  //   });
+  // }
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -240,11 +274,12 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
   ) || [];
 
   // Users options for display purposes (to show names instead of IDs)
-  console.log("👥 Users data for display:", (users as any)?.data?.results?.length || 0, "users loaded");
-  console.log("👥 Users options created:", usersOptions.length, "options");
-  if (usersOptions.length > 0) {
-    console.log("👥 Sample user option:", usersOptions[0]);
-  }
+  // Debug console.log commented to prevent render loops
+  // console.log("👥 Users data for display:", (users as any)?.data?.results?.length || 0, "users loaded");
+  // console.log("👥 Users options created:", usersOptions.length, "options");
+  // if (usersOptions.length > 0) {
+  //   console.log("👥 Sample user option:", usersOptions[0]);
+  // }
 
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -398,7 +433,8 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
   const expensesData = useMemo(() => {
     // If expenses prop is provided (editing existing request), use it
     if (expenses && expenses.length > 0) {
-      console.log("Using expenses from props:", expenses);
+      // Debug console.log commented to prevent render loops
+      // console.log("Using expenses from props:", expenses);
       return expenses.map((exp: any) => ({
         quantity: exp?.quantity,
         unit_cost: exp?.unit_cost,
@@ -413,11 +449,11 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
     if (finalMemoId && activityMemoData && activityMemoData.length > 0) {
       // Find the latest activity memo data (most recently added)
       const latestActivityMemo = activityMemoData[activityMemoData.length - 1];
-      console.log("Using activity memo data from Redux:", latestActivityMemo);
+      // console.log("Using activity memo data from Redux:", latestActivityMemo);
 
       if (latestActivityMemo?.expenses && latestActivityMemo.expenses.length > 0) {
-        console.log("🔄 Processing expenses from Redux:", latestActivityMemo.expenses);
-        console.log("🔄 FCO numbers from Redux:", latestActivityMemo?.fconumber);
+        // console.log("🔄 Processing expenses from Redux:", latestActivityMemo.expenses);
+        // console.log("🔄 FCO numbers from Redux:", latestActivityMemo?.fconumber);
 
         const mappedExpenses = latestActivityMemo.expenses.map((exp: any, index: number) => {
           const mappedItem = {
@@ -431,18 +467,18 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
           return mappedItem;
         });
 
-        console.log("🔄 Final mapped expenses from Redux:", mappedExpenses);
+        // console.log("🔄 Final mapped expenses from Redux:", mappedExpenses);
         return mappedExpenses;
       }
     }
 
     // If Redux is empty but we have API data as fallback
     if (finalMemoId && apiMemoData?.data) {
-      console.log("📡 Using activity memo data from API as fallback:", apiMemoData.data);
+      // console.log("📡 Using activity memo data from API as fallback:", apiMemoData.data);
 
       if (apiMemoData.data.expenses && apiMemoData.data.expenses.length > 0) {
-        console.log("🔄 Processing expenses from API:", apiMemoData.data.expenses);
-        console.log("🔄 FCO numbers from API:", apiMemoData.data?.fconumber);
+        // console.log("🔄 Processing expenses from API:", apiMemoData.data.expenses);
+        // console.log("🔄 FCO numbers from API:", apiMemoData.data?.fconumber);
 
         const mappedExpenses = apiMemoData.data.expenses.map((exp: any, index: number) => {
           const mappedItem = {
@@ -456,12 +492,12 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
           return mappedItem;
         });
 
-        console.log("🔄 Final mapped expenses from API:", mappedExpenses);
+        // console.log("🔄 Final mapped expenses from API:", mappedExpenses);
         return mappedExpenses;
       }
     }
 
-    console.log("No expenses data found from Redux or API, returning empty array");
+    // console.log("No expenses data found from Redux or API, returning empty array");
     return [];
   }, [expenses, request, activityMemoData, finalMemoId, apiMemoData]);
 
@@ -482,31 +518,32 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
 
   // Helper function to extract position/role ID from object or string
   const extractRoleId = (roleField: any): string => {
-    console.log("🔍 Extracting role ID from:", roleField, "Type:", typeof roleField);
+    // Debug console.log commented to prevent render loops
+    // console.log("🔍 Extracting role ID from:", roleField, "Type:", typeof roleField);
 
     if (typeof roleField === 'string' && roleField.trim()) {
-      console.log("✅ Found string role ID:", roleField);
+      // console.log("✅ Found string role ID:", roleField);
       return roleField;
     } else if (typeof roleField === 'object' && roleField) {
       if (roleField?.id) {
-        console.log("✅ Found object role ID:", roleField.id);
+        // console.log("✅ Found object role ID:", roleField.id);
         return roleField.id;
       } else if (roleField?.value) {
-        console.log("✅ Found object role value:", roleField.value);
+        // console.log("✅ Found object role value:", roleField.value);
         return roleField.value;
       } else if (roleField?.name) {
-        console.log("✅ Found object role name:", roleField.name);
+        // console.log("✅ Found object role name:", roleField.name);
         return roleField.name;
       } else if (roleField?.role_id) {
-        console.log("✅ Found object role_id:", roleField.role_id);
+        // console.log("✅ Found object role_id:", roleField.role_id);
         return roleField.role_id;
       } else if (roleField?.position_id) {
-        console.log("✅ Found object position_id:", roleField.position_id);
+        // console.log("✅ Found object position_id:", roleField.position_id);
         return roleField.position_id;
       }
-      console.log("⚠️ Role object found but no recognizable ID field:", Object.keys(roleField));
+      // console.log("⚠️ Role object found but no recognizable ID field:", Object.keys(roleField));
     }
-    console.log("❌ No valid role ID found");
+    // console.log("❌ No valid role ID found");
     return '';
   };
 
@@ -702,7 +739,7 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
 
       toast.success("Approval workflow loaded from activity memo");
     }
-  }, [activityMemoData, apiMemoData, setValue, users, watch]);
+  }, [activityMemoData, apiMemoData, setValue, users]);
 
   useEffect(() => {
     if (expensesData && expensesData.length > 0) {
@@ -778,7 +815,7 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
       console.warn("No expenses data found for memo ID:", finalMemoId);
       toast.warning("No items found from activity memo. You may need to add items manually.");
     }
-  }, [expensesData, setValue, finalMemoId, watch, fields.length, append, remove]);
+  }, [expensesData, setValue, finalMemoId, fields.length, append, remove]);
 
   return (
     <div className='pt-5'>
@@ -847,30 +884,50 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
                   required
                 >
                   <SelectContent>
-                    {departmentsIsLoading ? (
+                    {(departmentsIsLoading || allDepartmentsLoading) ? (
                       <LoadingSpinner />
-                    ) : (
-                      (departments as any)?.data?.results?.map(
-                        (department: any) => (
-                          <SelectItem key={department?.id} value={String(department?.id)}>
-                            {String(department?.name || department?.id || 'Unknown Department')}
-                          </SelectItem>
-                        )
-                      )
-                    )}
+                    ) : (() => {
+                      // Use comprehensive config if it has more departments, otherwise fallback to user-specific
+                      const useComprehensive = allDepartments && allDepartments.length > 0 &&
+                        (!departments?.data?.results || allDepartments.length >= departments.data.results.length);
+
+                      const departmentsList = useComprehensive
+                        ? allDepartments
+                        : departments?.data?.results || [];
+
+                      // Debug console.log commented to prevent render loops
+                      // console.log(`🏢 Using ${useComprehensive ? 'COMPREHENSIVE' : 'USER-SPECIFIC'} departments (${departmentsList.length} total)`);
+
+                      return departmentsList.map((department: any) => (
+                        <SelectItem key={department?.id} value={String(department?.id)}>
+                          {String(department?.name || department?.id || 'Unknown Department')}
+                        </SelectItem>
+                      ));
+                    })()}
                   </SelectContent>
                 </FormSelect>
                 <FormSelect label='Deliver To' name='deliver_to' required>
                   <SelectContent>
-                    {partnersIsLoading ? (
+                    {(partnersIsLoading || allLocationsLoading) ? (
                       <LoadingSpinner />
-                    ) : (
-                      (locations as any)?.data?.results?.map((location: any) => (
+                    ) : (() => {
+                      // Use comprehensive config if it has more locations, otherwise fallback to user-specific
+                      const useComprehensive = allLocations && allLocations.length > 0 &&
+                        (!locations?.data?.results || allLocations.length >= locations.data.results.length);
+
+                      const locationsList = useComprehensive
+                        ? allLocations
+                        : locations?.data?.results || [];
+
+                      // Debug console.log commented to prevent render loops
+                      // console.log(`📍 Using ${useComprehensive ? 'COMPREHENSIVE' : 'USER-SPECIFIC'} locations (${locationsList.length} total)`);
+
+                      return locationsList.map((location: any) => (
                         <SelectItem key={location?.id} value={String(location?.id)}>
                           {String(location?.name || location?.id || 'Unknown Location')}
                         </SelectItem>
-                      ))
-                    )}
+                      ));
+                    })()}
                   </SelectContent>
                 </FormSelect>
               </div>

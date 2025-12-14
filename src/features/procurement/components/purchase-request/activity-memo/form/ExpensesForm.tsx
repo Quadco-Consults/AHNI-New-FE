@@ -40,10 +40,10 @@ const ExpensesForm = ({
     size: 2000000,
   });
 
-  // Debug logging
-  console.log("Items API response:", item);
-  console.log("Items loading:", itemsLoading);
-  console.log("Items error:", itemsError);
+  // Debug console.log commented to prevent render loops
+  // console.log("Items API response:", item);
+  // console.log("Items loading:", itemsLoading);
+  // console.log("Items error:", itemsError);
 
   // Map consumables data to options - try multiple data structure patterns
   const itemsOptions = item?.data?.results?.map(({ name, id, uom }) => ({
@@ -74,16 +74,17 @@ const ExpensesForm = ({
       const unitCost = parseFloat(expense?.unit_cost || 0);
       const totalCost = quantity * unitCost;
 
-      console.log(`💰 Expense ${index} calculation:`, {
-        quantity,
-        unitCost,
-        totalCost,
-        currentTotal: expense?.total_cost
-      });
+      // Debug console.log commented to prevent render loops
+      // console.log(`💰 Expense ${index} calculation:`, {
+      //   quantity,
+      //   unitCost,
+      //   totalCost,
+      //   currentTotal: expense?.total_cost
+      // });
 
       // Only update if the total cost has changed to avoid infinite loops
       if (expense?.total_cost !== totalCost) {
-        console.log(`📝 Updating total cost for expense ${index}:`, totalCost);
+        // console.log(`📝 Updating total cost for expense ${index}:`, totalCost);
         setValue(`expenses.${index}.total_cost`, totalCost || 0);
       }
     });
@@ -97,7 +98,7 @@ const ExpensesForm = ({
         // Note: Total cost is calculated in useEffect above
 
         return (
-          <div key={field.id} className='grid grid-cols-2 gap-5 mt-5'>
+          <div key={`expense-${field.id}-${index}`} className='grid grid-cols-2 gap-5 mt-5'>
             <FormField
               control={control}
               name={`expenses.${index}.item`}

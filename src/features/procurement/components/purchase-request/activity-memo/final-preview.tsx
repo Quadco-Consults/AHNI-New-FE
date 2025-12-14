@@ -20,13 +20,8 @@ import { useRouter } from "next/navigation";
 import logoPng from "assets/imgs/logo.png";
 import GoBack from "components/GoBack";
 import { useGetActivityMemo } from "@/features/procurement/controllers/activityMemoController";
-import { useGetSingleBudgetLine } from "@/features/modules/controllers/finance/budgetLineController";
-import { useGetSingleCostCategory } from "@/features/modules/controllers/finance/costCategoryController";
-import { useGetSingleCostInput } from "@/features/modules/controllers/finance/costInputController";
-import { useGetSingleActivityPlan } from "@/features/programs/controllers/activityPlanController";
+import { useGetAllConfigDropdown } from "@/features/modules/controllers/config/allConfigController";
 import { useSearchParams } from "next/navigation";
-import { useGetSingleFCONumber } from "@/features/modules/controllers/finance/fcoNumberController";
-import { useGetSingleInterventionArea } from "@/features/modules/controllers/program/interventionAreaController";
 import { skipToken } from "@reduxjs/toolkit/query";
 
 const Preview = () => {
@@ -36,7 +31,8 @@ const Preview = () => {
   const request = searchParams.get("request");
   const created = searchParams.get("created");
 
-  console.log("Final preview - URL params:", { id, request, created });
+  // Debug console.log commented to prevent render loops
+  // console.log("Final preview - URL params:", { id, request, created });
 
   // State to handle hydration mismatch
   const [isClient, setIsClient] = useState(false);
@@ -56,11 +52,13 @@ const Preview = () => {
     }
   }, [activityMemoData]);
 
-  console.log("Redux memo data for fallback:", reduxMemoData);
+  // Debug console.log commented to prevent render loops
+  // console.log("Redux memo data for fallback:", reduxMemoData);
 
   // Get effective memo ID (from URL or Redux)
   const effectiveMemoId = id || reduxMemoData?.createdMemoId;
-  console.log("Effective memo ID:", effectiveMemoId);
+  // Debug console.log commented to prevent render loops
+  // console.log("Effective memo ID:", effectiveMemoId);
 
   // Auto-redirect to correct URL if we have Redux data but missing URL params
   useEffect(() => {
@@ -75,32 +73,250 @@ const Preview = () => {
   // Extract data from nested structure - try both direct and data property (before conditional returns)
   const apiData = requestsDetails?.data || requestsDetails;
 
-  // Call all hooks at the top level, before any conditional returns
-  const { data: budgetLine } = useGetSingleBudgetLine(
-    apiData?.budget_line?.[0] ?? skipToken
-  );
+  // Get initial memo data for hook parameters (before hook calls)
+  const initialMemoData = (requestsDetails?.data || requestsDetails || reduxMemoData || {}) as any;
 
-  const { data: costCategory } = useGetSingleCostCategory(
-    apiData?.cost_categories?.[0] ?? skipToken
-  );
+  // Use comprehensive config endpoint instead of individual calls
+  const { data: allConfigData, isLoading: configLoading, error: configError } = useGetAllConfigDropdown();
 
-  const { data: costInput } = useGetSingleCostInput(
-    apiData?.cost_input?.[0] ?? skipToken
-  );
+  // Helper functions to find specific config items by ID
+  const findBudgetLine = (id: string) => {
+    return allConfigData?.data?.budget_lines?.find((item: any) => item.id === id);
+  };
 
-  const { data: activityPlan } = useGetSingleActivityPlan(
-    apiData?.activity ?? skipToken
-  );
+  const findCostCategory = (id: string) => {
+    return allConfigData?.data?.cost_categories?.find((item: any) => item.id === id);
+  };
 
-  const { data: fcoNumber } = useGetSingleFCONumber(
-    apiData?.fconumber?.[0] ?? skipToken
-  );
+  const findCostInput = (id: string) => {
+    return allConfigData?.data?.cost_inputs?.find((item: any) => item.id === id);
+  };
 
-  const { data: interventionArea } = useGetSingleInterventionArea(
-    apiData?.intervention_areas?.[0] ?? skipToken
-  );
+  const findFCONumber = (id: string) => {
+    return allConfigData?.data?.fco_numbers?.find((item: any) => item.id === id);
+  };
 
-  // Debug logging
+  const findInterventionArea = (id: string) => {
+    return allConfigData?.data?.intervention_areas?.find((item: any) => item.id === id);
+  };
+
+  const findFundingSource = (id: string) => {
+    return allConfigData?.data?.funding_sources?.find((item: any) => item.id === id);
+  };
+
+  // Get the configuration items based on the memo data
+  const budgetLineId = apiData?.budget_line?.[0] || initialMemoData?.budget_line?.[0];
+  const costCategoryId = apiData?.cost_categories?.[0] || initialMemoData?.cost_categories?.[0];
+  const costInputId = apiData?.cost_input?.[0] || initialMemoData?.cost_input?.[0];
+  const fcoNumberId = apiData?.fconumber?.[0] || initialMemoData?.fconumber?.[0];
+  const interventionAreaId = apiData?.intervention_areas?.[0] || initialMemoData?.intervention_areas?.[0];
+
+  // Handle funding source - it can be an array or a string
+  const fundingSourceData = apiData?.funding_source || initialMemoData?.funding_source;
+  const fundingSourceId = Array.isArray(fundingSourceData) ? fundingSourceData[0] : fundingSourceData;
+
+  // Budget Line - use comprehensive config first, then enhance with API data for missing fields
+  let budgetLine = findBudgetLine(budgetLineId);
+
+  // If budget line found but missing module_name, try to get it from API response
+  if (budgetLine && !budgetLine.module_name && (requestsDetails?.budget_line_details || apiData?.budget_line_details)) {
+    const budgetLineDetails = requestsDetails?.budget_line_details || apiData?.budget_line_details;
+    if (Array.isArray(budgetLineDetails) && budgetLineDetails.length > 0) {
+      budgetLine = { ...budgetLine, ...budgetLineDetails[0] };
+    } else if (budgetLineDetails && typeof budgetLineDetails === 'object') {
+      budgetLine = { ...budgetLine, ...budgetLineDetails };
+    }
+  }
+  const costCategory = findCostCategory(costCategoryId);
+  const costInput = findCostInput(costInputId);
+  // FCO Number - use comprehensive config first, then fallback to API data
+  let fcoNumber = findFCONumber(fcoNumberId);
+
+  // If not found in comprehensive config, try getting from the API response directly
+  // Activity Memo uses fconumber_details (ManyToMany relationship)
+  if (!fcoNumber && (requestsDetails?.fconumber_details || apiData?.fconumber_details)) {
+    const fcoDetails = requestsDetails?.fconumber_details || apiData?.fconumber_details;
+    if (Array.isArray(fcoDetails) && fcoDetails.length > 0) {
+      fcoNumber = fcoDetails[0]; // Take first FCO number
+    } else if (fcoDetails && typeof fcoDetails === 'object') {
+      fcoNumber = fcoDetails;
+    }
+  }
+
+  // Helper function to get FCO display value
+  const getFCODisplay = () => {
+    if (fcoNumber) {
+      return fcoNumber.module_name || fcoNumber.name || fcoNumber.module_code || fcoNumber.code || fcoNumber.number;
+    }
+
+    // If still no FCO found, check if fconumber_details has multiple FCOs
+    const fcoDetails = requestsDetails?.fconumber_details || apiData?.fconumber_details;
+    if (Array.isArray(fcoDetails) && fcoDetails.length > 0) {
+      return fcoDetails.map(fco => fco.module_name || fco.name || fco.module_code || fco.code || fco.number).filter(Boolean).join(', ');
+    }
+
+    return null;
+  };
+  const interventionArea = findInterventionArea(interventionAreaId);
+  const fundingSource = findFundingSource(fundingSourceId);
+
+  // Helper function for Through section - handles Activity Memo (arrays) vs Purchase Request (objects)
+  const getThroughSection = () => {
+    const throughList = [];
+
+    // Debug console.log commented to prevent render loops
+    // console.log("🔍 ENHANCED THROUGH SECTION DEBUG:");
+    // console.log("Full requestsDetails object:", requestsDetails);
+    // console.log("All keys in requestsDetails:", requestsDetails ? Object.keys(requestsDetails) : 'No requestsDetails');
+    // console.log("Direct array check - reviewed_by_details:", requestsDetails?.reviewed_by_details);
+    // console.log("Direct array check - authorised_by_details:", requestsDetails?.authorised_by_details);
+    // console.log("Direct object check - reviewed_by_detail:", requestsDetails?.reviewed_by_detail);
+    // console.log("Direct object check - authorised_by_detail:", requestsDetails?.authorised_by_detail);
+
+    // Also check in nested data structure
+    const nestedData = requestsDetails?.data;
+    // console.log("Nested data structure:", nestedData);
+    // if (nestedData) {
+    //   console.log("Nested data keys:", Object.keys(nestedData));
+    //   console.log("Nested reviewed_by_details:", nestedData.reviewed_by_details);
+    //   console.log("Nested authorised_by_details:", nestedData.authorised_by_details);
+    //   console.log("Nested reviewed_by_detail:", nestedData.reviewed_by_detail);
+    //   console.log("Nested authorised_by_detail:", nestedData.authorised_by_detail);
+    // }
+
+    // Check if this is Activity Memo (has array fields) or Purchase Request (has object fields)
+    const isActivityMemo = Array.isArray(requestsDetails?.reviewed_by_details) || Array.isArray(requestsDetails?.data?.reviewed_by_details);
+
+    // console.log("🎯 Determined isActivityMemo:", isActivityMemo);
+
+    if (isActivityMemo) {
+      // Activity Memo - Multiple reviewers/authorizers (ManyToMany)
+      // console.log("📋 Processing as Activity Memo (arrays expected)");
+
+      // Add reviewers (multiple) - check both direct and nested paths
+      const reviewersArray = requestsDetails?.reviewed_by_details || requestsDetails?.data?.reviewed_by_details;
+      // console.log("Reviewers array found:", reviewersArray);
+
+      if (reviewersArray && reviewersArray.length > 0) {
+        const reviewers = reviewersArray.map((user: any) => {
+          const userName = user.name || `${user.first_name || ''} ${user.last_name || ''}`.trim();
+          // console.log("Processing reviewer:", user, "-> Name:", userName);
+          return `${userName} (Reviewer)`;
+        });
+        // console.log("Formatted reviewers:", reviewers);
+        throughList.push(...reviewers);
+      }
+
+      // Add authorizers (multiple) - check both direct and nested paths
+      const authorizersArray = requestsDetails?.authorised_by_details || requestsDetails?.data?.authorised_by_details;
+      // console.log("Authorizers array found:", authorizersArray);
+
+      if (authorizersArray && authorizersArray.length > 0) {
+        const authorizers = authorizersArray.map((user: any) => {
+          const userName = user.name || `${user.first_name || ''} ${user.last_name || ''}`.trim();
+          // console.log("Processing authorizer:", user, "-> Name:", userName);
+          return `${userName} (Authorizer)`;
+        });
+        // console.log("Formatted authorizers:", authorizers);
+        throughList.push(...authorizers);
+      }
+    } else {
+      // Purchase Request - Single reviewer/authorizer (ForeignKey)
+      // console.log("📋 Processing as Purchase Request (objects expected)");
+
+      const reviewerObject = requestsDetails?.reviewed_by_detail || requestsDetails?.data?.reviewed_by_detail;
+      // console.log("Reviewer object found:", reviewerObject);
+
+      if (reviewerObject) {
+        const reviewerName = reviewerObject.name || `${reviewerObject.first_name || ''} ${reviewerObject.last_name || ''}`.trim();
+        // console.log("Formatted reviewer name:", reviewerName);
+        throughList.push(`${reviewerName} (Reviewer)`);
+      }
+
+      const authorizerObject = requestsDetails?.authorised_by_detail || requestsDetails?.data?.authorised_by_detail;
+      // console.log("Authorizer object found:", authorizerObject);
+
+      if (authorizerObject) {
+        const authorizerName = authorizerObject.name || `${authorizerObject.first_name || ''} ${authorizerObject.last_name || ''}`.trim();
+        // console.log("Formatted authorizer name:", authorizerName);
+        throughList.push(`${authorizerName} (Authorizer)`);
+      }
+    }
+
+    const result = {
+      throughList,
+      isActivityMemo,
+      hasAnyThrough: throughList.length > 0
+    };
+
+    // console.log("🎯 Final getThroughSection result:", result);
+    return result;
+  };
+
+  // Helper function to get reviewer for signature section
+  const getReviewerForSignature = () => {
+    // Debug console.log commented to prevent render loops
+    // console.log("🔍 REVIEWER FOR SIGNATURE DEBUG:");
+
+    // Check if this is Activity Memo (has array fields) or Purchase Request (has object fields)
+    const isActivityMemo = Array.isArray(requestsDetails?.reviewed_by_details) || Array.isArray(requestsDetails?.data?.reviewed_by_details);
+
+    // console.log("Signature reviewer - isActivityMemo:", isActivityMemo);
+
+    if (isActivityMemo) {
+      // Activity Memo - Multiple reviewers (take first one for signature)
+      const reviewersArray = requestsDetails?.reviewed_by_details || requestsDetails?.data?.reviewed_by_details;
+      // console.log("Signature reviewer - reviewers array:", reviewersArray);
+
+      if (reviewersArray && reviewersArray.length > 0) {
+        const reviewer = reviewersArray[0];
+        const reviewerName = reviewer.name || `${reviewer.first_name || ''} ${reviewer.last_name || ''}`.trim();
+        // console.log("Signature reviewer - first reviewer object:", reviewer);
+        // console.log("Signature reviewer - formatted name:", reviewerName);
+        return reviewerName;
+      }
+    } else {
+      // Purchase Request - Single reviewer
+      const reviewerObject = requestsDetails?.reviewed_by_detail || requestsDetails?.data?.reviewed_by_detail;
+      // console.log("Signature reviewer - reviewer object:", reviewerObject);
+
+      if (reviewerObject) {
+        const reviewerName = reviewerObject.name ||
+               `${reviewerObject.first_name || ''} ${reviewerObject.last_name || ''}`.trim();
+        // console.log("Signature reviewer - formatted name:", reviewerName);
+        return reviewerName;
+      }
+    }
+
+    // Fallback if no reviewer is found
+    // console.log("Signature reviewer - using fallback");
+    return 'Please select reviewer in form';
+  };
+
+  // Helper function to get duration/period display
+  const getDurationDisplay = () => {
+    // Check various possible duration fields
+    if (memoData?.duration) return memoData.duration;
+    if (memoData?.period) return memoData.period;
+    if (memoData?.activity_period) return memoData.activity_period;
+
+    // Try to construct from start/end dates
+    if (memoData?.start_date && memoData?.end_date) {
+      return `${memoData.start_date} to ${memoData.end_date}`;
+    }
+
+    // Fallback to requested date if available
+    if (memoData?.requested_date) {
+      const year = new Date(memoData.requested_date).getFullYear();
+      return `Activity period for ${year}`;
+    }
+
+    // Final fallback
+    return "Activity duration not specified";
+  };
+
+  /*
+  // Debug logging - COMMENTED OUT TO PREVENT RENDER LOOPS
   console.log("=== FINAL PREVIEW DEBUG ===");
   console.log("URL ID:", id);
   console.log("Request param:", request);
@@ -115,6 +331,7 @@ const Preview = () => {
   console.log("through_details:", requestsDetails?.through_details);
   console.log("reviewed_by_details:", requestsDetails?.reviewed_by_details);
   console.log("created_by_details:", requestsDetails?.created_by_details);
+  */
 
   // Show loading or error states (after all hooks are called)
   if (requestsLoading) {
@@ -144,6 +361,8 @@ const Preview = () => {
   // More robust data extraction
   const memoData = (requestsDetails?.data || requestsDetails || reduxMemoData || {}) as any;
 
+  /*
+  // MASSIVE DEBUG BLOCK - COMMENTED OUT TO PREVENT RENDER LOOPS
   console.log("=== DATA LOADING DEBUG ===");
   console.log("Expenses data to display:", expensesData);
   console.log("API data structure:", requestsDetails);
@@ -153,6 +372,82 @@ const Preview = () => {
   console.log("ID from URL:", id);
   console.log("API loading:", requestsLoading);
   console.log("API error:", requestsError);
+  console.log("=== COMPREHENSIVE CONFIG DEBUG ===");
+  console.log("All Config Data:", allConfigData);
+  console.log("Config Loading:", configLoading);
+  console.log("Config Error:", configError);
+  console.log("=== FOUND CONFIG ITEMS ===");
+  console.log("Found Budget Line:", budgetLine);
+  console.log("Budget Line module_name:", budgetLine?.module_name);
+  console.log("Budget Line Details from API:", requestsDetails?.budget_line_details);
+  console.log("Found Cost Category:", costCategory);
+  console.log("Found Cost Input:", costInput);
+  console.log("🔍 FCO DEBUGGING - Final Preview:");
+  console.log("Found FCO Number object:", fcoNumber);
+  console.log("FCO Number Details from Activity Memo API:", requestsDetails?.fconumber_details);
+  console.log("FCO Number Details from Purchase Request API:", apiData?.fconumber_details);
+  console.log("FCO Display Value:", getFCODisplay());
+  console.log("FCO Number properties:", fcoNumber ? Object.keys(fcoNumber) : 'Not found');
+  console.log("FCO Number ID being searched:", fcoNumberId);
+  console.log("Comprehensive config FCO numbers available:", allConfigData?.data?.fco_numbers?.length || 0);
+
+  // Enhanced FCO debugging
+  if (requestsDetails?.fconumber_details) {
+    console.log("Activity Memo FCO Details Structure:");
+    requestsDetails.fconumber_details.forEach((fco: any, idx: number) => {
+      console.log(`  FCO ${idx}:`, {
+        module_id: fco.module_id,
+        module_name: fco.module_name,
+        module_code: fco.module_code,
+        name: fco.name,
+        code: fco.code,
+        allProps: Object.keys(fco)
+      });
+    });
+  }
+  console.log("Found Intervention Area:", interventionArea);
+  console.log("Found Funding Source:", fundingSource);
+  console.log("=== THROUGH SECTION DEBUG ===");
+  const throughDebug = getThroughSection();
+  console.log("Through Section Analysis:", throughDebug);
+  console.log("Is Activity Memo (arrays):", throughDebug.isActivityMemo);
+  console.log("Has any through data:", throughDebug.hasAnyThrough);
+  console.log("Through list:", throughDebug.throughList);
+  console.log("=== ACTIVITY MEMO FIELDS DEBUG ===");
+  console.log("reviewed_by_details (array):", requestsDetails?.reviewed_by_details);
+  console.log("authorised_by_details (array):", requestsDetails?.authorised_by_details);
+  console.log("=== PURCHASE REQUEST FIELDS DEBUG ===");
+  console.log("reviewed_by_detail (object):", requestsDetails?.reviewed_by_detail);
+  console.log("authorised_by_detail (object):", requestsDetails?.authorised_by_detail);
+  console.log("=== DURATION/PERIOD DEBUG ===");
+  console.log("Available fields for duration:", {
+    duration: memoData?.duration,
+    period: memoData?.period,
+    activity_period: memoData?.activity_period,
+    start_date: memoData?.start_date,
+    end_date: memoData?.end_date,
+    requested_date: memoData?.requested_date,
+    activity_detail: memoData?.activity_detail,
+  });
+  console.log("Final duration display:", getDurationDisplay());
+  console.log("=== SIGNATURE SECTION DEBUG ===");
+  console.log("Reviewer for signature:", getReviewerForSignature());
+  console.log("=== MEMO DATA IDs ===");
+  console.log("Budget Line ID:", budgetLineId);
+  console.log("Cost Category ID:", costCategoryId);
+  console.log("Cost Input ID:", costInputId);
+  console.log("FCO Number ID:", fcoNumberId);
+  console.log("Intervention Area ID:", interventionAreaId);
+  console.log("Funding Source Raw:", fundingSourceData);
+  console.log("Funding Source ID (processed):", fundingSourceId);
+  console.log("=== AVAILABLE CONFIG DATA COUNTS ===");
+  console.log("Budget Lines available:", allConfigData?.data?.budget_lines?.length || 0);
+  console.log("Cost Categories available:", allConfigData?.data?.cost_categories?.length || 0);
+  console.log("Cost Inputs available:", allConfigData?.data?.cost_inputs?.length || 0);
+  console.log("FCO Numbers available:", allConfigData?.data?.fco_numbers?.length || 0);
+  console.log("Intervention Areas available:", allConfigData?.data?.intervention_areas?.length || 0);
+  console.log("Funding Sources available:", allConfigData?.data?.funding_sources?.length || 0);
+  */
 
   // @ts-ignore
   const grandTotal = expensesData.reduce(
@@ -161,7 +456,8 @@ const Preview = () => {
     0
   );
 
-  console.log({ expense: expensesData });
+  // Debug console.log commented to prevent render loops
+  // console.log({ expense: expensesData });
 
   return (
     <div className='bg-white p-6 max-w-7xl mx-auto print:p-0 print:max-w-full'>
@@ -263,7 +559,7 @@ const Preview = () => {
                     {requestsDetails?.approved_by_details?.name ? (
                       <div className='text-lg leading-relaxed print:text-base'>{requestsDetails.approved_by_details.name} (MD, AHNI)</div>
                     ) : (
-                      <div className='text-lg leading-relaxed print:text-base'>Dr. Umar Adamu (MD, AHNI)</div>
+                      <div className='text-lg leading-relaxed print:text-base text-gray-500 italic'>Please select recipient in form</div>
                     )}
 
                     {/* Display any additional recipients */}
@@ -279,19 +575,23 @@ const Preview = () => {
                 <div className='flex gap-2'>
                   <span className='font-bold min-w-[100px] text-lg print:text-base'>Through:</span>
                   <div className='flex-1 space-y-2'>
-                    {/* Display selected "through" users (Authoriser) */}
-                    {requestsDetails?.through_details?.length > 0 ? (
-                      requestsDetails.through_details.map((user: any, index: number) => (
-                        <div key={index} className='text-lg leading-relaxed print:text-base'>
-                          {user.name || `${user.first_name} ${user.last_name}`} ({user.designation || 'Staff'}, AHNI, Abuja)
-                        </div>
-                      ))
-                    ) : (
-                      <>
-                        <div className='text-lg leading-relaxed print:text-base'>Charles Ibezim (Director of Finance, AHNI, Abuja)</div>
-                        <div className='text-lg leading-relaxed print:text-base'>Tine Woji (Project Lead, Global Fund, Abuja)</div>
-                      </>
-                    )}
+                    {(() => {
+                      const throughSection = getThroughSection();
+
+                      if (throughSection.hasAnyThrough) {
+                        return throughSection.throughList.map((throughText: string, index: number) => (
+                          <div key={`through-${index}`} className='text-lg leading-relaxed print:text-base'>
+                            {throughText}
+                          </div>
+                        ));
+                      } else {
+                        return (
+                          <div className='text-lg leading-relaxed print:text-base text-gray-500 italic'>
+                            Please select reviewers and authorizing personnel in form
+                          </div>
+                        );
+                      }
+                    })()}
                   </div>
                 </div>
 
@@ -303,7 +603,7 @@ const Preview = () => {
                       {requestsDetails?.created_by_details?.name ||
                        (memoData?.created_by?.first_name && memoData?.created_by?.last_name
                          ? `${memoData.created_by.first_name} ${memoData.created_by.last_name}`
-                         : 'Dr Onyeka Ugwu')} (STA, CCF, AHNI)
+                         : <span className="text-gray-500 italic">Creator information unavailable</span>)} (STA, CCF, AHNI)
                     </div>
                   </div>
                 </div>
@@ -312,15 +612,15 @@ const Preview = () => {
               {/* Budget Information */}
               <div className='grid grid-cols-2 gap-10 mb-8 mt-8 text-base print:gap-8 print:mb-6 print:mt-6 print:text-sm'>
                 <div className='space-y-2'>
-                  <div><span className='font-semibold'>Budget Line #:</span> {budgetLine?.data?.name || memoData?.budget_line?.[0] || "916"}</div>
-                  <div><span className='font-semibold'>Module:</span> {budgetLine?.data?.module_name || memoData?.module || "Program management"}</div>
-                  <div><span className='font-semibold'>Intervention:</span> {interventionArea?.data?.name || memoData?.intervention_area || "Grant management"}</div>
-                  <div><span className='font-semibold'>Cost Grouping #:</span> {costCategory?.data?.code || memoData?.cost_categories?.[0] || "11.0"}</div>
+                  <div><span className='font-semibold'>Budget Line #:</span> {budgetLine?.name || <span className="text-gray-500 italic">Budget line not specified</span>}</div>
+                  <div><span className='font-semibold'>Module:</span> {budgetLine?.module_name || <span className="text-gray-500 italic">Module not specified</span>}</div>
+                  <div><span className='font-semibold'>Intervention:</span> {interventionArea?.name || interventionArea?.description || <span className="text-gray-500 italic">Please select intervention area</span>}</div>
+                  <div><span className='font-semibold'>Cost Grouping #:</span> {costCategory?.code || costCategory?.name || <span className="text-gray-500 italic">Cost category not specified</span>}</div>
                 </div>
                 <div className='space-y-2'>
-                  <div><span className='font-semibold'>FCO#:</span> {fcoNumber?.data?.module_code || memoData?.fconumber?.[0] || "N-THRIP"}</div>
-                  <div><span className='font-semibold'>Cost Input #:</span> {costInput?.data?.name || memoData?.cost_input?.[0] || "11.1"}</div>
-                  <div><span className='font-semibold'>Funding Source:</span> {memoData?.funding_source || "Global Fund"}</div>
+                  <div><span className='font-semibold'>FCO#:</span> {getFCODisplay() || <span className="text-gray-500 italic">FCO number not specified</span>}</div>
+                  <div><span className='font-semibold'>Cost Input #:</span> {costInput?.name || <span className="text-gray-500 italic">Cost input not specified</span>}</div>
+                  <div><span className='font-semibold'>Funding Source:</span> {fundingSource?.name || <span className="text-gray-500 italic">Funding source not specified</span>}</div>
                 </div>
               </div>
 
@@ -393,11 +693,11 @@ const Preview = () => {
                   </tr>
                   <tr className='border-b border-black'>
                     <td className='border-r border-black p-5 bg-blue-100 font-semibold print:p-3'>Duration:</td>
-                    <td className='p-5 print:p-3'>Q3 (July - September 2024)</td>
+                    <td className='p-5 print:p-3'>{getDurationDisplay()}</td>
                   </tr>
                   <tr className='border-b border-black'>
                     <td className='border-r border-black p-5 bg-blue-100 font-semibold print:p-3'>FCO #:</td>
-                    <td className='p-5 print:p-3'>{memoData?.fconumber?.[0] || "N-THRIP"}</td>
+                    <td className='p-5 print:p-3'>{getFCODisplay() || <span className="text-gray-500 italic">FCO number not specified</span>}</td>
                   </tr>
                 </tbody>
               </table>
@@ -406,16 +706,16 @@ const Preview = () => {
               <table className='w-full border-collapse text-base print:text-sm'>
                 <tbody>
                   <tr className='border-b border-black'>
-                    <td className='border-r border-black p-4 bg-blue-100 font-semibold w-1/2 print:p-3'>Module: {budgetLine?.data?.module_name || memoData?.module || "Program management"}</td>
-                    <td className='p-4 bg-blue-100 font-semibold print:p-3'>Intervention: {interventionArea?.data?.name || memoData?.intervention_area || "Grant management"}</td>
+                    <td className='border-r border-black p-4 bg-blue-100 font-semibold w-1/2 print:p-3'>Module: {budgetLine?.module_name || <span className="text-gray-500 italic font-normal">Module not specified</span>}</td>
+                    <td className='p-4 bg-blue-100 font-semibold print:p-3'>Intervention: {interventionArea?.name || interventionArea?.description || <span className="text-gray-500 italic font-normal">Please select intervention area</span>}</td>
                   </tr>
                   <tr className='border-b border-black'>
-                    <td className='border-r border-black p-4 bg-blue-100 font-semibold print:p-3'>Budget Line #: {budgetLine?.data?.name || memoData?.budget_line?.[0] || "916"}</td>
-                    <td className='p-4 bg-blue-100 font-semibold print:p-3'>Cost Grouping #: {costCategory?.data?.code || memoData?.cost_categories?.[0] || "11"}</td>
+                    <td className='border-r border-black p-4 bg-blue-100 font-semibold print:p-3'>Budget Line #: {budgetLine?.name || <span className="text-gray-500 italic font-normal">Budget line not specified</span>}</td>
+                    <td className='p-4 bg-blue-100 font-semibold print:p-3'>Cost Grouping #: {costCategory?.code || costCategory?.name || <span className="text-gray-500 italic font-normal">Cost category not specified</span>}</td>
                   </tr>
                   <tr className='border-b border-black'>
-                    <td className='border-r border-black p-4 bg-blue-100 font-semibold print:p-3'>Cost Input #: {costInput?.data?.name || memoData?.cost_input?.[0] || "11.1"}</td>
-                    <td className='p-4 bg-blue-100 font-semibold print:p-3'>Funding Source: {memoData?.funding_source || "Global Fund"}</td>
+                    <td className='border-r border-black p-4 bg-blue-100 font-semibold print:p-3'>Cost Input #: {costInput?.name || <span className="text-gray-500 italic font-normal">Cost input not specified</span>}</td>
+                    <td className='p-4 bg-blue-100 font-semibold print:p-3'>Funding Source: {fundingSource?.name || <span className="text-gray-500 italic font-normal">Funding source not specified</span>}</td>
                   </tr>
                 </tbody>
               </table>
@@ -504,19 +804,14 @@ const Preview = () => {
                     </td>
                     <td className='border-r border-black p-6 align-top' style={{width: '33.33%'}}>
                       <div className='mb-3'>
-                        <span className='font-bold text-base'>Reviewed by: {
-                          requestsDetails?.copy_details?.[0]?.name ||
-                          (requestsDetails?.copy_details?.[0]?.first_name && requestsDetails?.copy_details?.[0]?.last_name
-                            ? `${requestsDetails.copy_details[0].first_name} ${requestsDetails.copy_details[0].last_name}`
-                            : 'Reviewer')
-                        }</span>
+                        <span className='font-bold text-base'>Reviewed by: {getReviewerForSignature()}</span>
                       </div>
                       <div className='mb-3'>
                         <span className='font-bold text-base'>Sign:</span>
                         <div className='h-16 mt-3'></div>
                       </div>
                       <div>
-                        <span className='font-bold text-base'>Date: {new Date().toLocaleDateString()}</span>
+                        <span className='font-bold text-base'>Date: {memoData?.requested_date || new Date().toLocaleDateString()}</span>
                       </div>
                     </td>
                     <td className='p-6 align-top' style={{width: '33.33%'}}>
@@ -533,7 +828,7 @@ const Preview = () => {
                         <div className='h-16 mt-3'></div>
                       </div>
                       <div>
-                        <span className='font-bold text-base'>Date: {new Date().toLocaleDateString()}</span>
+                        <span className='font-bold text-base'>Date: {memoData?.requested_date || new Date().toLocaleDateString()}</span>
                       </div>
                     </td>
                   </tr>

@@ -2,7 +2,7 @@
 
 import React, { forwardRef, useMemo, useState } from "react";
 import { useFormContext } from "react-hook-form";
-import { Check, ChevronsUpDown, ChevronDown } from "lucide-react";
+import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "lib/utils";
 
 // UI Components
@@ -80,8 +80,7 @@ const SmartFormSelect = forwardRef<HTMLButtonElement, SmartFormSelectProps>(
       searchThreshold = 10, // Auto-enable search when 10+ options
       forceSearch = false,
       forceSelect = false,
-      className,
-      ...props
+      className
     },
     ref
   ) => {
@@ -110,7 +109,7 @@ const SmartFormSelect = forwardRef<HTMLButtonElement, SmartFormSelectProps>(
         control={control}
         name={name}
         render={({ field }) => {
-          const { value, onChange, ...rest } = field;
+          const { value, onChange } = field;
 
           // Common form structure with optional className wrapper
           const formWrapper = (children: React.ReactNode) => {
@@ -139,7 +138,7 @@ const SmartFormSelect = forwardRef<HTMLButtonElement, SmartFormSelectProps>(
             );
           };
 
-          // Handle value change
+          // Create a stable function that doesn't rely on refs
           const handleValueChange = (newValue: string) => {
             onChange(newValue);
             if (externalOnValueChange) {
@@ -215,8 +214,6 @@ const SmartFormSelect = forwardRef<HTMLButtonElement, SmartFormSelectProps>(
               onValueChange={handleValueChange}
               value={value || ""}
               disabled={disabled}
-              {...rest}
-              {...props}
             >
               <FormControl>
                 <SelectTrigger ref={ref} disabled={disabled}>

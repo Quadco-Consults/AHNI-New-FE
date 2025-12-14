@@ -40,6 +40,7 @@ import {
   filterUsersWithAuthorizePermission,
   filterUsersWithApprovePermission
 } from "@/utils/approvalFilters";
+import { filterAhniStaffOnly } from "@/utils/userFilters";
 import { useMemo, useEffect, useState } from "react";
 import {
   generateFundRequestIdentifierAuto,
@@ -167,14 +168,18 @@ const CreateFundRequest = () => {
   // Reviewer options (API-first with role-based fallback)
   const reviewerOptions = useMemo(() => {
     // Primary: Use API endpoint (check both .results and .data.results structure)
-    const reviewersList = reviewers?.results || reviewers?.data?.results || [];
+    let reviewersList = reviewers?.results || reviewers?.data?.results || [];
     if (reviewersList.length > 0) {
-      return reviewersList.map(user => ({
-        label: `${user.first_name} ${user.last_name}`,
-        value: user.id,
-      }));
+      // SECURITY FIX: Filter out vendors and non-AHNI staff
+      reviewersList = filterAhniStaffOnly(reviewersList);
+      if (reviewersList.length > 0) {
+        return reviewersList.map(user => ({
+          label: `${user.first_name} ${user.last_name}`,
+          value: user.id,
+        }));
+      }
     }
-    // Fallback: Role-based filtering
+    // Fallback: Role-based filtering (already includes user type filtering)
     const allUsersList = allUsers?.data?.results || [];
     if (allUsersList.length > 0) {
       return filterUsersWithReviewPermission(allUsersList).map(user => ({
@@ -188,14 +193,18 @@ const CreateFundRequest = () => {
   // Authorizer options (API-first with role-based fallback)
   const authorizerOptions = useMemo(() => {
     // Primary: Use API endpoint (check both .results and .data.results structure)
-    const authorizersList = authorizers?.results || authorizers?.data?.results || [];
+    let authorizersList = authorizers?.results || authorizers?.data?.results || [];
     if (authorizersList.length > 0) {
-      return authorizersList.map(user => ({
-        label: `${user.first_name} ${user.last_name}`,
-        value: user.id,
-      }));
+      // SECURITY FIX: Filter out vendors and non-AHNI staff
+      authorizersList = filterAhniStaffOnly(authorizersList);
+      if (authorizersList.length > 0) {
+        return authorizersList.map(user => ({
+          label: `${user.first_name} ${user.last_name}`,
+          value: user.id,
+        }));
+      }
     }
-    // Fallback: Role-based filtering
+    // Fallback: Role-based filtering (already includes user type filtering)
     const allUsersList = allUsers?.data?.results || [];
     if (allUsersList.length > 0) {
       return filterUsersWithAuthorizePermission(allUsersList).map(user => ({
@@ -209,14 +218,18 @@ const CreateFundRequest = () => {
   // Approver options (API-first with role-based fallback)
   const approverOptions = useMemo(() => {
     // Primary: Use API endpoint (check both .results and .data.results structure)
-    const approversList = approvers?.results || approvers?.data?.results || [];
+    let approversList = approvers?.results || approvers?.data?.results || [];
     if (approversList.length > 0) {
-      return approversList.map(user => ({
-        label: `${user.first_name} ${user.last_name}`,
-        value: user.id,
-      }));
+      // SECURITY FIX: Filter out vendors and non-AHNI staff
+      approversList = filterAhniStaffOnly(approversList);
+      if (approversList.length > 0) {
+        return approversList.map(user => ({
+          label: `${user.first_name} ${user.last_name}`,
+          value: user.id,
+        }));
+      }
     }
-    // Fallback: Role-based filtering
+    // Fallback: Role-based filtering (already includes user type filtering)
     const allUsersList = allUsers?.data?.results || [];
     if (allUsersList.length > 0) {
       return filterUsersWithApprovePermission(allUsersList).map(user => ({

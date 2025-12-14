@@ -31,14 +31,15 @@ import { useCreateAdhocRequisition } from "@/controllers/adhocRequisitionControl
 import { AdhocRequisitionSchema, TAdhocRequisitionFormData } from "@/types/adhoc-requisition";
 import { ProgramRoutes } from "@/constants/RouterConstants";
 import { cn } from "lib/utils";
-import { useGetPositionPaginate } from "@/features/modules/controllers/config/positionController";
-import { useGetDepartmentPaginate } from "@/features/modules/controllers/config/departmentController";
+import { useGetPositionPaginate, useGetAllPositionsUnrestricted } from "@/features/modules/controllers/config/positionController";
+import { useGetDepartmentPaginate, useGetAllDepartmentsUnrestricted } from "@/features/modules/controllers/config/departmentController";
 import { useGetLocationList } from "@/features/modules/controllers/config/locationController";
 import { useGetAllUsers } from "@/features/auth/controllers/userController";
 import { useGetAllProjects } from "@/features/projects/controllers/projectController";
 import { useGetAllFCONumbersQuery } from "@/features/modules/controllers/finance/fcoNumberController";
 import { useGetAllBudgetLinesQuery } from "@/features/modules/controllers/finance/budgetLineController";
 import { useMemo } from "react";
+import { mergeFallbackPositions, mergeFallbackDepartments } from "@/utils/adhocStaffFallbackData";
 
 const STEPS = [
   { id: 1, name: "Basic Information", description: "Position details and requirements" },
@@ -53,33 +54,121 @@ export default function CreateAdhocRequisitionPage() {
   const [currentStep, setCurrentStep] = useState(1);
   const { mutate: createRequisition, isPending } = useCreateAdhocRequisition();
 
-  // Fetch real data for dropdowns
-  const { data: positionsData, isLoading: positionsLoading } = useGetPositionPaginate({ page: 1, size: 1000, search: "" });
-  const { data: departmentsData, isLoading: departmentsLoading } = useGetDepartmentPaginate({ page: 1, size: 1000, search: "" });
+  // Fetch real data for dropdowns - try unrestricted APIs first
+  const { data: positionsData, isLoading: positionsLoading, error: positionsError } = useGetAllPositionsUnrestricted({ page: 1, size: 1000, search: "" });
+  const { data: departmentsData, isLoading: departmentsLoading, error: departmentsError } = useGetAllDepartmentsUnrestricted({ page: 1, size: 1000, search: "" });
+
+  // Fallback to regular APIs if unrestricted fails
+  const { data: positionsFallback, isLoading: positionsFallbackLoading, error: positionsFallbackError } = useGetPositionPaginate({
+    page: 1, size: 1000, search: "",
+    enabled: !positionsData && !!positionsError
+  });
+  const { data: departmentsFallback, isLoading: departmentsFallbackLoading, error: departmentsFallbackError } = useGetDepartmentPaginate({
+    page: 1, size: 1000, search: "",
+    enabled: !departmentsData && !!departmentsError
+  });
+
+  // Debug: Log loading states and errors
+  console.log('Positions Loading:', positionsLoading, 'Error:', positionsError);
+  console.log('Departments Loading:', departmentsLoading, 'Error:', departmentsError);
   const { data: locationsData, isLoading: locationsLoading } = useGetLocationList({ page: 1, size: 1000, search: "" });
   const { data: usersData, isLoading: usersLoading } = useGetAllUsers({ page: 1, size: 1000, search: "" });
   const { data: projectsData, isLoading: projectsLoading } = useGetAllProjects({ page: 1, size: 1000, search: "" });
   const { data: fcoData, isLoading: fcoLoading } = useGetAllFCONumbersQuery({ page: 1, size: 1000, search: "" });
   const { data: budgetLinesData, isLoading: budgetLinesLoading } = useGetAllBudgetLinesQuery({ page: 1, size: 1000, search: "" });
 
-  // Transform data for dropdowns - handle both nested and flat response structures
+  // Transform data for dropdowns - handle both unrestricted and fallback data
   const positions = useMemo(() => {
-    const results = (positionsData as any)?.data?.data?.results || (positionsData as any)?.data?.results || [];
-    return results.map((p: any) => ({ id: p.id, name: p.name || p.title }));
-  }, [positionsData]);
+    const data = positionsData || positionsFallback;
+    if (!data) return [];
+
+    console.log('🔍 POSITIONS DATA SOURCE:', positionsData ? 'UNRESTRICTED API' : 'FALLBACK API');
+    console.log('Positions API Response:', data);
+    console.log('Positions Pagination Info:', {
+      total: (data as any)?.data?.count,
+      pages: (data as any)?.data?.total_pages,
+      currentPage: (data as any)?.data?.current_page,
+      hasNext: (data as any)?.data?.has_next,
+      hasPrev: (data as any)?.data?.has_previous
+    });
+
+    // Handle different response structures
+    let results: any[] = [];
+    if ((data as any)?.data?.results) {
+      results = (data as any).data.results;
+    } else if ((data as any)?.results) {
+      results = (data as any).results;
+    }
+
+    console.log('Positions Results:', results);
+    console.log('Positions Results Length:', results.length);
+    console.log('Sample Position:', results[0]);
+
+    const apiPositions = results.map((p: any) => ({ id: p.id, name: p.name || p.title }));
+
+    // Apply fallback data merge for adhoc staff requisitions
+    const mergedPositions = mergeFallbackPositions(apiPositions);
+    console.log(`📋 Final positions count: ${mergedPositions.length} (${apiPositions.length} from API + ${mergedPositions.length - apiPositions.length} fallback)`);
+
+    return mergedPositions;
+  }, [positionsData, positionsFallback]);
 
   const departments = useMemo(() => {
-    const results = (departmentsData as any)?.data?.data?.results || (departmentsData as any)?.data?.results || [];
-    return results.map((d: any) => ({ id: d.id, name: d.name }));
-  }, [departmentsData]);
+    const data = departmentsData || departmentsFallback;
+    if (!data) return [];
+
+    console.log('🔍 DEPARTMENTS DATA SOURCE:', departmentsData ? 'UNRESTRICTED API' : 'FALLBACK API');
+    console.log('Departments API Response:', data);
+    console.log('Departments Pagination Info:', {
+      total: (data as any)?.data?.count,
+      pages: (data as any)?.data?.total_pages,
+      currentPage: (data as any)?.data?.current_page,
+      hasNext: (data as any)?.data?.has_next,
+      hasPrev: (data as any)?.data?.has_previous
+    });
+
+    // Handle different response structures
+    let results: any[] = [];
+    if ((data as any)?.data?.results) {
+      results = (data as any).data.results;
+    } else if ((data as any)?.results) {
+      results = (data as any).results;
+    }
+
+    console.log('Departments Results:', results);
+    console.log('Departments Results Length:', results.length);
+    console.log('Sample Department:', results[0]);
+
+    const apiDepartments = results.map((d: any) => ({ id: d.id, name: d.name }));
+
+    // Apply fallback data merge for adhoc staff requisitions
+    const mergedDepartments = mergeFallbackDepartments(apiDepartments);
+    console.log(`🏢 Final departments count: ${mergedDepartments.length} (${apiDepartments.length} from API + ${mergedDepartments.length - apiDepartments.length} fallback)`);
+
+    return mergedDepartments;
+  }, [departmentsData, departmentsFallback]);
 
   const locations = useMemo(() => {
-    const results = (locationsData as any)?.data?.data?.results || (locationsData as any)?.data?.results || [];
+    if (!locationsData) return [];
+    // Debug: Log the actual structure
+    console.log('Locations API Response:', locationsData);
+
+    // Based on the console log, the structure is: {status, message, data: {results: [], ...}}
+    const results = (locationsData as any)?.data?.results || [];
+
+    console.log('Locations Results:', results);
     return results.map((l: any) => ({ id: l.id, name: l.name || l.city }));
   }, [locationsData]);
 
   const users = useMemo(() => {
-    const results = (usersData as any)?.data?.data?.results || (usersData as any)?.data?.results || [];
+    if (!usersData) return [];
+    // Debug: Log the actual structure
+    console.log('Users API Response:', usersData);
+
+    // Based on the console log, the structure is: {status, message, data: {results: [], ...}}
+    const results = (usersData as any)?.data?.results || [];
+
+    console.log('Users Results:', results);
     return results.map((u: any) => ({
       id: u.id,
       name: `${u.first_name} ${u.last_name}`,
@@ -241,7 +330,7 @@ export default function CreateAdhocRequisitionPage() {
                               >
                                 {field.value
                                   ? positions.find((pos: any) => pos.name === field.value)?.name
-                                  : positionsLoading ? "Loading positions..." : "Select position"}
+                                  : positionsLoading ? "Loading positions..." : `Select position (${positions.length} available)`}
                                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                               </Button>
                             </FormControl>
@@ -296,7 +385,7 @@ export default function CreateAdhocRequisitionPage() {
                               >
                                 {field.value
                                   ? departments.find((dept: any) => dept.id === field.value)?.name
-                                  : departmentsLoading ? "Loading departments..." : "Select department"}
+                                  : departmentsLoading ? "Loading departments..." : `Select department (${departments.length} available)`}
                                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                               </Button>
                             </FormControl>

@@ -99,7 +99,6 @@ const NewVehicleRequest = () => {
     [activity]
   );
 
-  console.log({ activity, activityOptions, selectedProject });
 
   // Fetch all users and filter to AHNI staff on frontend
   const { data: user, isLoading: isUsersLoading, error: usersError } = useGetAllUsersQuery({
@@ -107,43 +106,46 @@ const NewVehicleRequest = () => {
     size: 2000000,
   });
 
-  console.log("👤 Users Query Debug:", {
-    user,
-    isLoading: isUsersLoading,
-    error: usersError,
-    hasData: !!user,
-    hasResults: !!user?.results,
-    hasDataResults: !!(user as any)?.data?.results,
-    resultsLength: user?.results?.length || 0,
-    dataResultsLength: (user as any)?.data?.results?.length || 0,
-  });
+  // Debug logging moved to useEffect to prevent render loops
+  // console.log("👤 Users Query Debug:", {
+  //   user,
+  //   isLoading: isUsersLoading,
+  //   error: usersError,
+  //   hasData: !!user,
+  //   hasResults: !!user?.results,
+  //   hasDataResults: !!(user as any)?.data?.results,
+  //   resultsLength: user?.results?.length || 0,
+  //   dataResultsLength: (user as any)?.data?.results?.length || 0,
+  // });
 
   // Fetch current user profile for auto-populating location
   const { data: currentUserProfile, isLoading: isProfileLoading } = useGetUserProfile();
 
-  console.log("🔍 Vehicle Request - Current User Profile:", {
-    currentUserProfile,
-    isProfileLoading,
-    location: currentUserProfile?.data?.location,
-    hasLocation: !!currentUserProfile?.data?.location,
-    allProfileData: currentUserProfile?.data
-  });
+  // console.log("🔍 Vehicle Request - Current User Profile:", {
+  //   currentUserProfile,
+  //   isProfileLoading,
+  //   location: currentUserProfile?.data?.location,
+  //   hasLocation: !!currentUserProfile?.data?.location,
+  //   allProfileData: currentUserProfile?.data
+  // });
 
   const userOptions = useMemo(
     () => {
       const allUsers = (user as any)?.data?.results || user?.results || [];
-      console.log("👤 Supervisor Filter Debug:", {
-        totalUsers: allUsers.length,
-        sampleUserTypes: allUsers.slice(0, 5).map((u: any) => ({ name: `${u.first_name} ${u.last_name}`, user_type: u.user_type }))
-      });
+      // Debug console.log moved to prevent render loops
+      // console.log("👤 Supervisor Filter Debug:", {
+      //   totalUsers: allUsers.length,
+      //   sampleUserTypes: allUsers.slice(0, 5).map((u: any) => ({ name: `${u.first_name} ${u.last_name}`, user_type: u.user_type }))
+      // });
 
       // Use the same filter as TeamMemberSelection for consistency
       const ahniUsers = filterAhniStaffOnly(allUsers);
 
-      console.log("👤 After filtering:", {
-        filteredCount: ahniUsers.length,
-        sampleFiltered: ahniUsers.slice(0, 3).map((u: any) => ({ name: `${u.first_name} ${u.last_name}`, user_type: u.user_type }))
-      });
+      // Debug console.log moved to prevent render loops
+      // console.log("👤 After filtering:", {
+      //   filteredCount: ahniUsers.length,
+      //   sampleFiltered: ahniUsers.slice(0, 3).map((u: any) => ({ name: `${u.first_name} ${u.last_name}`, user_type: u.user_type }))
+      // });
 
       return ahniUsers.map(({ first_name, last_name, id }: any) => ({
         label: `${first_name} ${last_name}`,
@@ -180,38 +182,39 @@ const NewVehicleRequest = () => {
   });
 
   // Debug the vehicles query
-  console.log("🚗 VEHICLE ASSETS QUERY DEBUG (DIRECT CATEGORY):", {
-    categoryId: "b0983944-f926-4141-8e28-093960d75246",
-    searchTerm: "none - showing all vehicles",
-    isLoading: isAssetsLoading,
-    error: assetsError,
-    hasData: !!asset,
-    asset: asset,
-    totalAssets: asset?.data?.results?.length || 0,
-    statusCode: asset?.status,
-    message: asset?.message,
-    rawData: asset?.data,
-    allItemNames: asset?.data?.results?.map((item: any) => item.name),
-    sampleItems: asset?.data?.results?.slice(0, 5)?.map((item: any) => ({
-      name: item.name,
-      category: item.category?.name,
-      subcategory: item.subcategory?.name,
-      asset_type: item.asset_type?.name,
-      id: item.id
-    }))
-  });
+  // console.log("🚗 VEHICLE ASSETS QUERY DEBUG (DIRECT CATEGORY):", {
+  //   categoryId: "b0983944-f926-4141-8e28-093960d75246",
+  //   searchTerm: "none - showing all vehicles",
+  //   isLoading: isAssetsLoading,
+  //   error: assetsError,
+  //   hasData: !!asset,
+  //   asset: asset,
+  //   totalAssets: asset?.data?.results?.length || 0,
+  //   statusCode: asset?.status,
+  //   message: asset?.message,
+  //   rawData: asset?.data,
+  //   allItemNames: asset?.data?.results?.map((item: any) => item.name),
+  //   sampleItems: asset?.data?.results?.slice(0, 5)?.map((item: any) => ({
+  //     name: item.name,
+  //     category: item.category?.name,
+  //     subcategory: item.subcategory?.name,
+  //     asset_type: item.asset_type?.name,
+  //     id: item.id
+  //   }))
+  // });
 
   const assetVehicleOptions = useMemo(
     () => {
       try {
         const allVehicles = asset?.data?.results || [];
 
-        console.log("🚗 Vehicle Assets Debug (Server-Filtered):", {
-          totalVehicles: allVehicles.length,
-          selectedLocation,
-          sampleVehicle: allVehicles[0],
-          rawData: asset,
-        });
+        // Debug console.log moved to prevent render loops
+        // console.log("🚗 Vehicle Assets Debug (Server-Filtered):", {
+        //   totalVehicles: allVehicles.length,
+        //   selectedLocation,
+        //   sampleVehicle: allVehicles[0],
+        //   rawData: asset,
+        // });
 
         // Server already filters for vehicles, so we only need to filter by location if selected
         const filteredVehicles = selectedLocation
@@ -222,17 +225,19 @@ const NewVehicleRequest = () => {
             })
           : allVehicles; // Show all vehicles if no location is selected
 
-        console.log("✅ Location-filtered vehicles:", filteredVehicles.length);
+        // Debug console.log moved to prevent render loops
+        // console.log("✅ Location-filtered vehicles:", filteredVehicles.length);
 
         const options = filteredVehicles.map(({ name, id, code, plate_number }: any) => ({
           label: `${name}${plate_number ? ` (${plate_number})` : ''}${code ? ` - ${code}` : ''}`,
           value: id,
         }));
 
-        console.log("🚙 Vehicle dropdown options:", options.length, "vehicles");
-        options.forEach((opt, idx) => {
-          console.log(`  ${idx + 1}. ${opt.label} (ID: ${opt.value})`);
-        });
+        // Debug console.log moved to prevent render loops
+        // console.log("🚙 Vehicle dropdown options:", options.length, "vehicles");
+        // options.forEach((opt, idx) => {
+        //   console.log(`  ${idx + 1}. ${opt.label} (ID: ${opt.value})`);
+        // });
 
         return options;
       } catch (error) {
@@ -264,7 +269,6 @@ const NewVehicleRequest = () => {
 
   const { editVehicleRequest, isLoading: isEditLoading } =
     useEditVehicleRequestMutation(id);
-  console.log(form.getValues());
 
   const onSubmit: SubmitHandler<TVehicleRequestFormValues> = async (data) => {
     console.log("📝 Form submission data:", data);
@@ -324,21 +328,21 @@ const NewVehicleRequest = () => {
       "travel_team_members",
       teamMembers.map(({ id }) => id)
     );
-  }, [teamMembers, form]);
+  }, [teamMembers]);
 
   // Auto-populate location from logged-in user's profile
   useEffect(() => {
     const currentLocation = form.getValues("location");
 
-    console.log("🔍 Location Auto-fill Check:", {
-      hasProfile: !!currentUserProfile?.data,
-      location: currentUserProfile?.data?.location,
-      locationOptions: locationOptions,
-      locationOptionsLength: locationOptions?.length,
-      isEditing: !!id,
-      currentFormValue: currentLocation,
-      alreadySet: !!currentLocation
-    });
+    // console.log("🔍 Location Auto-fill Check:", {
+    //   hasProfile: !!currentUserProfile?.data,
+    //   location: currentUserProfile?.data?.location,
+    //   locationOptions: locationOptions,
+    //   locationOptionsLength: locationOptions?.length,
+    //   isEditing: !!id,
+    //   currentFormValue: currentLocation,
+    //   alreadySet: !!currentLocation
+    // });
 
     // Only set if not editing, not already set, and have necessary data
     if (!id && !currentLocation && currentUserProfile?.data?.location && locationOptions && locationOptions.length > 0) {
@@ -355,7 +359,7 @@ const NewVehicleRequest = () => {
       );
 
       if (matchingLocation) {
-        console.log("✅ Auto-populating location with ID:", matchingLocation.value, "Label:", matchingLocation.label);
+        // console.log("✅ Auto-populating location with ID:", matchingLocation.value, "Label:", matchingLocation.label);
         // Use a timeout to ensure form is fully initialized
         setTimeout(() => {
           form.setValue("location", matchingLocation.value, {
@@ -365,11 +369,11 @@ const NewVehicleRequest = () => {
           });
         }, 100);
       } else {
-        console.warn("⚠️ Could not find matching location option for:", locationValue);
-        console.log("Available location options:", locationOptions);
+        // console.warn("⚠️ Could not find matching location option for:", locationValue);
+        // console.log("Available location options:", locationOptions);
       }
     }
-  }, [currentUserProfile, locationOptions, form, id]);
+  }, [currentUserProfile, locationOptions, id]);
 
   // Reset activity field when project changes
   useEffect(() => {
@@ -377,7 +381,7 @@ const NewVehicleRequest = () => {
       // Only reset if creating a new request (not editing)
       form.setValue("activity", "");
     }
-  }, [selectedProject, form, id]);
+  }, [selectedProject, id]);
 
   const { data: vehicleRequest } = useGetSingleVehicleRequestQuery(
     id || "",
@@ -435,8 +439,8 @@ const NewVehicleRequest = () => {
 
       dispatch(addTeamMembers(formattedTeamMembers));
     }
-  }, [vehicleRequest, form, dispatch]);
-  console.log({ activityOptions });
+  }, [vehicleRequest, dispatch]);
+  // console.log({ activityOptions });
 
   return (
     <div>

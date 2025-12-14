@@ -38,13 +38,10 @@ export const useGetLeaveRequests = ({
 }: LeaveRequestFilterParams) => {
   // For security: Get current user to ensure proper access control
   const currentUser = getCurrentUser();
-  const currentEmployeeId = currentUser?.employee?.id || currentUser?.id;
-
-  // If no specific employee is requested and user is not admin/HR, filter by current user
-  const effectiveEmployee = employee || currentEmployeeId;
+  const currentEmployeeId = currentUser?.employee_uuid || currentUser?.employee?.id || currentUser?.id;
 
   return useQuery<ApiResponse<LeaveRequest[]>>({
-    queryKey: ["leave-requests", page, size, status, search, effectiveEmployee],
+    queryKey: ["leave-requests", page, size, status, search, employee],
     queryFn: async () => {
       try {
         console.log("Fetching leave requests with params:", {
@@ -52,7 +49,7 @@ export const useGetLeaveRequests = ({
           size,
           status,
           search,
-          employee: effectiveEmployee
+          employee: employee || 'auto-determined by backend'
         });
 
         const response = await AxiosWithToken.get(BASE_URL, {
@@ -61,8 +58,9 @@ export const useGetLeaveRequests = ({
             size,
             ...(status && { status }),
             ...(search && { search }),
-            // SECURITY FIX: Always include employee filter to prevent data leakage
-            ...(effectiveEmployee && { employee: effectiveEmployee }),
+            // Only include employee parameter if explicitly requested (for admin/HR users)
+            // Backend should handle user context automatically for regular users
+            ...(employee && { employee: employee }),
           },
         });
         console.log("Leave requests response:", response.data);
@@ -94,7 +92,7 @@ export const useGetLeaveRequests = ({
 export const useGetLeaveRequest = (id: string, enabled: boolean = true) => {
   // Get current user context for security validation
   const currentUser = getCurrentUser();
-  const currentEmployeeId = currentUser?.employee?.id || currentUser?.id;
+  const currentEmployeeId = currentUser?.employee_uuid || currentUser?.employee?.id || currentUser?.id;
 
   return useQuery<ApiResponse<LeaveRequest>>({
     queryKey: ["leave-request", id, currentEmployeeId],

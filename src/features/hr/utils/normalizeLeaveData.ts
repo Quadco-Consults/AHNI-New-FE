@@ -116,7 +116,7 @@ export const normalizeLeaveBalance = (balance: any) => {
   return {
     id: balance.id || '',
     employeeId: balance.employee || balance.employee_id || balance.employeeId || '',
-    leaveTypeId: leaveTypeData.id || balance.leave_package || balance.leave_type_id || '',
+    leaveTypeId: leaveTypeData.id || balance.leave_package?.id || balance.leave_type_id || '',
     leaveType: leaveType,
     year: balance.year || new Date().getFullYear(),
     entitled: balance.entitled_days ?? balance.entitled ?? 0,

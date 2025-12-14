@@ -17,6 +17,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import FormTextArea from "components/atoms/FormTextArea";
 import { LoadingSpinner } from "components/Loading";
 import { useGetAllFundRequests } from "@/features/programs/controllers/fundRequestController";
+import { useUserApprovalPermissions } from "hooks/useUserApprovalPermissions";
 
 interface ProjectBatchApprovalProps {
   projectId: string;
@@ -28,6 +29,9 @@ const ProjectBatchApproval: React.FC<ProjectBatchApprovalProps> = ({
   const [activeAction, setActiveAction] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const form = useForm();
+
+  // Get user approval permissions
+  const { can_review, can_authorize, can_approve, canOverrideApproval, is_super_admin } = useUserApprovalPermissions();
 
   const { data: fundRequests, isLoading } = useGetAllFundRequests({
     project: projectId || "",
@@ -290,24 +294,27 @@ const ProjectBatchApproval: React.FC<ProjectBatchApprovalProps> = ({
   };
 
   const canPerformAction = (actionType: string): boolean => {
-    // This should be replaced with actual permission logic based on user role
-    const isHQUser = true; // Mock permission check
+    // Check if user has any approval permissions or super admin override
+    const hasApprovalPermissions = can_review || can_authorize || can_approve || canOverrideApproval;
 
-    if (!isHQUser) return false;
+    if (!hasApprovalPermissions) return false;
 
     switch (actionType) {
       case "hq_review":
         // Can review when all locations are authorized (LOCATION_AUTHORIZED status)
-        return (
+        // Must have review permission or super admin override
+        return (can_review || canOverrideApproval) && (
           batchStatus === "LOCATION_AUTHORIZED" ||
           batchStatus === "PENDING_HQ_REVIEW"
         );
       case "hq_authorize":
         // Can authorize after HQ review is complete
-        return batchStatus === "HQ_REVIEWED";
+        // Must have authorize permission or super admin override
+        return (can_authorize || canOverrideApproval) && (batchStatus === "HQ_REVIEWED");
       case "hq_approve":
         // Can do final approval after HQ authorization
-        return batchStatus === "HQ_AUTHORIZED";
+        // Must have approve permission or super admin override
+        return (can_approve || canOverrideApproval) && (batchStatus === "HQ_AUTHORIZED");
       case "reject":
         // Can reject at any stage before final approval
         return [
@@ -343,19 +350,19 @@ const ProjectBatchApproval: React.FC<ProjectBatchApprovalProps> = ({
   const actionButtons = [
     {
       key: "hq_review",
-      label: "HQ Review Project",
+      label: (can_review ? "HQ Review Project" : (canOverrideApproval ? "Override: HQ Review Project" : "HQ Review Project")),
       actionType: "hq_review",
       variant: "default" as const,
     },
     {
       key: "hq_authorize",
-      label: "HQ Authorize Project",
+      label: (can_authorize ? "HQ Authorize Project" : (canOverrideApproval ? "Override: HQ Authorize Project" : "HQ Authorize Project")),
       actionType: "hq_authorize",
       variant: "default" as const,
     },
     {
       key: "hq_approve",
-      label: "HQ Approve Project",
+      label: (can_approve ? "HQ Approve Project" : (canOverrideApproval ? "Override: HQ Approve Project" : "HQ Approve Project")),
       actionType: "hq_approve",
       variant: "default" as const,
     },

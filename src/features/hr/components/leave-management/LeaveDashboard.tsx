@@ -156,30 +156,57 @@ const LeaveDashboard = () => {
       ? leaveBalancesResponse.data
       : leaveBalancesResponse?.data?.results || [];
 
-    console.log("📊 Leave balances from API (before normalization):", balances);
-    if (balances.length > 0) {
-      console.log("📋 First balance structure:", JSON.stringify(balances[0], null, 2));
-    }
+    console.log(`📊 Leave balances from API: ${balances.length} items received`);
 
     // Normalize each balance to match expected structure
     const normalized = balances
       .map(normalizeLeaveBalance)
       .filter((balance: any) => balance !== null); // Filter out any that failed normalization
 
-    // Deduplicate by leave type ID and year to prevent duplicate entries
+    // AGGRESSIVE DEDUPLICATION: Use simple string-based keys for leave type name + year
     const deduplicatedMap = new Map();
-    normalized.forEach((balance: any) => {
-      const key = `${balance.leaveTypeId || balance.leaveType?.id}-${balance.year}`;
+    let duplicateCount = 0;
+
+    console.log(`🔍 Starting deduplication of ${normalized.length} normalized balances...`);
+
+    normalized.forEach((balance: any, index: number) => {
+      const leaveTypeName = balance.leaveType?.name || 'Unknown';
+      const year = balance.year || new Date().getFullYear();
+
+      // Simple key: just leave type name + year (no employee since it's personal dashboard)
+      const key = `${leaveTypeName}-${year}`;
+
+      // Debug first few entries
+      if (index < 5) {
+        console.log(`🔑 Balance ${index}:`, {
+          key,
+          leaveTypeName,
+          year,
+          available: balance.available,
+          id: balance.id
+        });
+      }
+
       if (!deduplicatedMap.has(key)) {
         deduplicatedMap.set(key, balance);
+        console.log(`✅ Added new balance: ${key}`);
       } else {
-        console.warn("🚨 Duplicate leave balance detected and removed:", balance);
+        duplicateCount++;
+        console.log(`🚨 DUPLICATE DETECTED: ${key} (duplicate #${duplicateCount})`);
+
+        // Keep the balance with higher available amount
+        const existing = deduplicatedMap.get(key);
+        if (balance.available > existing.available) {
+          deduplicatedMap.set(key, balance);
+          console.log(`🔄 Replaced with better balance (${balance.available} > ${existing.available})`);
+        }
       }
     });
 
     const deduplicated = Array.from(deduplicatedMap.values());
-    console.log("✅ Leave balances after normalization and deduplication:", deduplicated);
-    console.log("📊 Removed duplicates:", normalized.length - deduplicated.length);
+    console.log(`✅ DEDUPLICATION COMPLETE: ${normalized.length} → ${deduplicated.length} balances`);
+    console.log(`📊 Removed ${duplicateCount} duplicates`);
+    console.log('🎯 Final unique keys:', Array.from(deduplicatedMap.keys()));
 
     // Always return real data first, fallback to sample only if truly no data
     if (deduplicated.length > 0) {
@@ -446,7 +473,7 @@ const LeaveDashboard = () => {
       <BackendStatusBanner />
 
       {/* Data Source Indicator */}
-      {myAllRequests.some(req => req.reason?.includes('[SAMPLE DATA]')) && (
+      {myAllRequests.some((req: any) => req.reason?.includes('[SAMPLE DATA]')) && (
         <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
           <div className="flex items-center gap-3">
             <AlertCircle className="w-5 h-5 text-amber-600" />
@@ -461,7 +488,7 @@ const LeaveDashboard = () => {
         </div>
       )}
 
-      {myAllRequests.length > 0 && !myAllRequests.some(req => req.reason?.includes('[SAMPLE DATA]')) && (
+      {myAllRequests.length > 0 && !myAllRequests.some((req: any) => req.reason?.includes('[SAMPLE DATA]')) && (
         <div className="bg-green-50 border border-green-200 rounded-lg p-4">
           <div className="flex items-center gap-3">
             <CheckCircle className="w-5 h-5 text-green-600" />
@@ -559,7 +586,7 @@ const LeaveDashboard = () => {
               <div>
                 <p className="text-sm text-amber-700 mb-1 font-medium">Pending Requests</p>
                 <p className="text-3xl font-bold text-amber-900">
-                  {myAllRequests.filter(req => req.status === 'pending_approval' || req.status === 'pending').length}
+                  {myAllRequests.filter((req: any) => req.status === 'pending_approval' || req.status === 'pending').length}
                 </p>
                 <p className="text-xs text-amber-600 mt-1">Awaiting approval</p>
               </div>
@@ -577,7 +604,7 @@ const LeaveDashboard = () => {
               <div>
                 <p className="text-sm text-green-700 mb-1 font-medium">Upcoming Leaves</p>
                 <p className="text-3xl font-bold text-green-900">
-                  {myAllRequests.filter(req => req.status === 'approved' && new Date(req.from_date) > new Date()).length}
+                  {myAllRequests.filter((req: any) => req.status === 'approved' && new Date(req.from_date) > new Date()).length}
                 </p>
                 <p className="text-xs text-green-600 mt-1">Ready to enjoy!</p>
               </div>
@@ -695,7 +722,7 @@ const LeaveDashboard = () => {
                       );
                     })}
 
-                  {myAllRequests.filter(req => req.status === 'pending_approval' || req.status === 'pending').length > 0 && (
+                  {myAllRequests.filter((req: any) => req.status === 'pending_approval' || req.status === 'pending').length > 0 && (
                     <div className="bg-white/80 rounded-lg p-4 border border-purple-100">
                       <p className="text-sm text-purple-800">
                         ⏰ You have pending leave requests. Check with your manager for quick approval!

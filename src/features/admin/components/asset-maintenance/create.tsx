@@ -49,12 +49,13 @@ export default function CreateAssetMaintenance() {
   // Get current date in YYYY-MM-DD format
   const currentDate = new Date().toISOString().split('T')[0];
 
-  console.log('🔍 ASSET MAINTENANCE USER CONTEXT:', {
-    currentUser: currentUser?.first_name + ' ' + currentUser?.last_name,
-    userLocation: currentUser?.location || currentUser?.employee?.location,
-    userDepartment: currentUser?.department?.name || currentUser?.employee?.department?.name,
-    context: 'asset_maintenance_creation'
-  });
+  // Debug logging moved to useEffect to prevent render loops
+  // console.log('🔍 ASSET MAINTENANCE USER CONTEXT:', {
+  //   currentUser: currentUser?.first_name + ' ' + currentUser?.last_name,
+  //   userLocation: currentUser?.location || currentUser?.employee?.location,
+  //   userDepartment: currentUser?.department?.name || currentUser?.employee?.department?.name,
+  //   context: 'asset_maintenance_creation'
+  // });
 
   const form = useForm<TAssetMaintenanceFormData>({
     resolver: zodResolver(AssetMaintenanceSchema),
@@ -158,23 +159,24 @@ export default function CreateAssetMaintenance() {
     // Get all items, we'll filter client-side for better control
   });
 
-  console.log('🔧 RAW ASSET DATA:', {
-    allItems: asset?.data?.results || [],
-    totalItems: asset?.data?.results?.length || 0,
-  });
+  // Debug logging commented to prevent render loops
+  // console.log('🔧 RAW ASSET DATA:', {
+  //   allItems: asset?.data?.results || [],
+  //   totalItems: asset?.data?.results?.length || 0,
+  // });
 
   // Client-side filtering to only show actual assets (exclude services and consumables) AND location filtering
   const filteredAssets = useMemo(() => {
     if (!asset?.data?.results) return [];
 
     return asset.data.results.filter((item: any) => {
-      // Debug individual item
-      console.log('🔍 Checking item:', {
-        name: item.name,
-        category: item.category,
-        location: item.location,
-        userLocation,
-      });
+      // Debug individual item - commented to prevent render loops
+      // console.log('🔍 Checking item:', {
+      //   name: item.name,
+      //   category: item.category,
+      //   location: item.location,
+      //   userLocation,
+      // });
 
       // Get category name safely
       const categoryName = item.category?.name || item.category || '';
@@ -198,26 +200,28 @@ export default function CreateAssetMaintenance() {
         itemLocationName.includes(userLocation) ||
         userLocation.includes(itemLocationName);
 
-      console.log('🏢 Location check:', {
-        itemName: item.name,
-        itemLocation: itemLocationName,
-        userLocation,
-        isAtUserLocation,
-        isAssetCategory,
-      });
+      // Location check debug - commented to prevent render loops
+      // console.log('🏢 Location check:', {
+      //   itemName: item.name,
+      //   itemLocation: itemLocationName,
+      //   userLocation,
+      //   isAtUserLocation,
+      //   isAssetCategory,
+      // });
 
       return isAssetCategory && isNotService && isNotConsumable && isNotSupply && isNotMaterial && isAtUserLocation;
     });
   }, [asset, userLocation]);
 
-  console.log('🚗 FILTERED ASSET DATA:', {
-    userLocation,
-    totalItemsFromAPI: asset?.data?.results?.length || 0,
-    filteredAssetsCount: filteredAssets.length,
-    assetCategories: filteredAssets.map((item: any) => item.category?.name).filter(Boolean),
-    assetNames: filteredAssets.map((item: any) => item.name),
-    filterApplied: 'location + asset categories only'
-  });
+  // Debug logging commented to prevent render loops
+  // console.log('🚗 FILTERED ASSET DATA:', {
+  //   userLocation,
+  //   totalItemsFromAPI: asset?.data?.results?.length || 0,
+  //   filteredAssetsCount: filteredAssets.length,
+  //   assetCategories: filteredAssets.map((item: any) => item.category?.name).filter(Boolean),
+  //   assetNames: filteredAssets.map((item: any) => item.name),
+  //   filterApplied: 'location + asset categories only'
+  // });
 
   const assetOptions = useMemo(
     () =>
@@ -245,9 +249,15 @@ export default function CreateAssetMaintenance() {
 
     // Only update if there's a valid calculation (both fields have values)
     if (rate && costEstimate) {
-      form.setValue("total_cost_estimate", total.toString(), {
-        shouldValidate: true,
-      });
+      const calculatedTotal = total.toString();
+      const currentTotal = form.getValues("total_cost_estimate");
+
+      // Only update if the calculated total is different from current total
+      if (currentTotal !== calculatedTotal) {
+        form.setValue("total_cost_estimate", calculatedTotal, {
+          shouldValidate: true,
+        });
+      }
     }
   }, [rate, costEstimate, form]);
 
