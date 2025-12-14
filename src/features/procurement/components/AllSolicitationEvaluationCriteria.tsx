@@ -3,7 +3,7 @@ import { toast } from "sonner";
 import { useAppDispatch } from "hooks/useStore";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
-import TableAction from "components/atoms/TableAction";
+import TableAction from "components/TableAction";
 import { LoadingSpinner } from "components/Loading";
 import { useState } from "react";
 import {
@@ -82,7 +82,7 @@ export default function AllSolicitationEvaluationCriteria() {
           <LoadingSpinner />
         ) : (
           <div>
-            {solicitationCriteria?.data?.results.map((item) => (
+            {solicitationCriteria?.results.map((item: any) => (
               <div
                 key={item.id}
                 className="flex justify-between mt-6 text-[#756D6D] font-normal text-xs"
@@ -103,8 +103,8 @@ export default function AllSolicitationEvaluationCriteria() {
         )}
 
         <Pagination
-          total={solicitationCriteria?.data.pagination.count ?? 0}
-          itemsPerPage={solicitationCriteria?.data.pagination.page_size ?? 0}
+          total={solicitationCriteria?.pagination.count ?? 0}
+          itemsPerPage={solicitationCriteria?.pagination.page_size ?? 0}
           onChange={(page: number) => setPage(page)}
         />
       </div>

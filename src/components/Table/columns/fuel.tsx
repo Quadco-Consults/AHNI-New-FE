@@ -3,7 +3,7 @@ export default function Test() {
 }
 
 // import { ColumnDef, Row } from "@tanstack/react-table";
-// import TableAction from "components/atoms/TableAction";
+// import TableAction from "components/TableAction";
 // import DeleteIcon from "components/icons/DeleteIcon";
 // import EyeIcon from "components/icons/EyeIcon";
 // import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";

@@ -8,7 +8,7 @@ import { Icon } from "@iconify/react";
 import { HrRoutes, RouteEnum } from "constants/RouterConstants";
 
 import DataTable from "components/Table/DataTable";
-import SearchBar from "components/atoms/SearchBar";
+import SearchBar from "components/SearchBar";
 import AddSquareIcon from "components/icons/AddSquareIcon";
 import FilterIcon2 from "assets/svgs/FilterIcon2";
 import { Button } from "components/ui/button";
