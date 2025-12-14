@@ -9,7 +9,7 @@ import FilterIcon2 from "assets/svgs/FilterIcon2";
 import { Button } from "components/ui/button";
 import { useRouter } from "next/navigation";
 
-import SearchBar from "components/atoms/SearchBar";
+import SearchBar from "components/SearchBar";
 import { Checkbox } from "components/ui/checkbox";
 
 import PayGroupModal from "./components/PayGroupModal";

@@ -12,7 +12,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useGetJobAdvertisements } from "@/features/hr/controllers/jobAdvertisementController";
 import useDebounce from "utils/useDebounce";
-import SearchBar from "components/atoms/SearchBar";
+import SearchBar from "components/SearchBar";
 
 const Advertisement = () => {
   const [searchTerm, setSearchTerm] = useState("");

@@ -9,7 +9,7 @@ import FilterIcon2 from "assets/svgs/FilterIcon2";
 import { Button } from "components/ui/button";
 import Link from "next/link"; import { useRouter } from "next/navigation";
 import { HrRoutes, RouteEnum } from "constants/RouterConstants";
-import SearchBar from "components/atoms/SearchBar";
+import SearchBar from "components/SearchBar";
 import { Checkbox } from "components/ui/checkbox";
 import IconButton from "components/IconButton";
 import { FileText } from 'lucide-react';import { Icon } from "@iconify/react";

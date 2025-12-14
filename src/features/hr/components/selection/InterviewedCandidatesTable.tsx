@@ -15,7 +15,7 @@ import { useAllInterviewedCandidates } from "@/features/hr/controllers/useAllInt
 import { Loading } from "components/Loading";
 import { CheckCheckIcon } from "lucide-react";
 import { toast } from "sonner";
-import SearchBar from "components/atoms/SearchBar";
+import SearchBar from "components/SearchBar";
 import { useState } from "react";
 import { usePatchJobApplicationAccepted, usePatchJobApplicationPreferred, useUpdateJobApplicationToInterviewed, usePatchJobApplicationShortlisted } from "@/features/hr/controllers/hrJobApplicationsController";
 import { useQueryClient } from "@tanstack/react-query";

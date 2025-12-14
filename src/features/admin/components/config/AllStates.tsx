@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "components/ui/button";
-import TableAction from "components/atoms/TableAction";
+import TableAction from "components/TableAction";
 import Pagination from "components/Pagination";
 import { DialogType } from "@/constants/dailogs";
 import { useAppDispatch } from "hooks/useStore";

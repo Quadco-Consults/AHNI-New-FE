@@ -50,7 +50,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "components/ui/select";
-import SearchBar from "components/atoms/SearchBar";
+import SearchBar from "components/SearchBar";
 import { openDialog } from "store/ui";
 import { DialogType, mediumDailogScreen } from "constants/dailogs";
 import { useAppDispatch } from "hooks/useStore";

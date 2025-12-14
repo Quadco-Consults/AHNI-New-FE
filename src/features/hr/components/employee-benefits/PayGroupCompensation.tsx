@@ -5,7 +5,7 @@ import React, { useState } from "react";
 import FilterIcon2 from "assets/svgs/FilterIcon2";
 import { Button } from "components/ui/button";
 import Link from "next/link";
-import SearchBar from "components/atoms/SearchBar";
+import SearchBar from "components/SearchBar";
 import { Checkbox } from "components/ui/checkbox";
 import IconButton from "components/IconButton";
 import { Trash2 } from 'lucide-react';
