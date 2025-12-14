@@ -13,6 +13,7 @@ import {
   useApproveFundRequest,
   useFundRequestActions,
 } from "@/features/programs/controllers/fundRequestController";
+import { useUserApprovalPermissions } from "hooks/useUserApprovalPermissions";
 
 interface WorkflowStep {
   id: string;
@@ -55,6 +56,9 @@ const FundRequestWorkflowStatus: React.FC<FundRequestWorkflowStatusProps> = ({
   const [activeAction, setActiveAction] = useState<string | null>(null);
   const form = useForm();
 
+  // Get super admin approval permissions
+  const { canOverrideApproval, is_super_admin } = useUserApprovalPermissions();
+
   // API hooks
   const { reviewFundRequest, isLoading: isReviewing } =
     useReviewFundRequest(fundRequestId);
@@ -87,8 +91,8 @@ const FundRequestWorkflowStatus: React.FC<FundRequestWorkflowStatusProps> = ({
       title: "Location Review",
       status: getStepStatus("PENDING"),
       description: "Review by location office",
-      canAction: canLocationReview && currentStatus === "PENDING",
-      actionLabel: "Location Review",
+      canAction: (canLocationReview && currentStatus === "PENDING") || (canOverrideApproval && currentStatus === "PENDING"),
+      actionLabel: (canLocationReview && currentStatus === "PENDING") ? "Location Review" : (canOverrideApproval ? "Override: Location Review" : "Location Review"),
       actionType: "LOCATION_REVIEWED",
     },
     {
@@ -96,8 +100,8 @@ const FundRequestWorkflowStatus: React.FC<FundRequestWorkflowStatusProps> = ({
       title: "Location Authorization",
       status: getStepStatus("LOCATION_REVIEWED"),
       description: "Authorization from location office",
-      canAction: canLocationAuthorize && currentStatus === "LOCATION_REVIEWED",
-      actionLabel: "Location Authorize",
+      canAction: (canLocationAuthorize && currentStatus === "LOCATION_REVIEWED") || (canOverrideApproval && currentStatus === "LOCATION_REVIEWED"),
+      actionLabel: (canLocationAuthorize && currentStatus === "LOCATION_REVIEWED") ? "Location Authorize" : (canOverrideApproval ? "Override: Location Authorize" : "Location Authorize"),
       actionType: "LOCATION_AUTHORIZED",
     },
     {
@@ -105,8 +109,8 @@ const FundRequestWorkflowStatus: React.FC<FundRequestWorkflowStatusProps> = ({
       title: "State Review",
       status: getStepStatus("LOCATION_AUTHORIZED"),
       description: "Review by state office",
-      canAction: canStateReview && currentStatus === "LOCATION_AUTHORIZED",
-      actionLabel: "State Review",
+      canAction: (canStateReview && currentStatus === "LOCATION_AUTHORIZED") || (canOverrideApproval && currentStatus === "LOCATION_AUTHORIZED"),
+      actionLabel: (canStateReview && currentStatus === "LOCATION_AUTHORIZED") ? "State Review" : (canOverrideApproval ? "Override: State Review" : "State Review"),
       actionType: "STATE_REVIEWED",
     },
     {
@@ -114,8 +118,8 @@ const FundRequestWorkflowStatus: React.FC<FundRequestWorkflowStatusProps> = ({
       title: "State Authorization",
       status: getStepStatus("STATE_REVIEWED"),
       description: "Authorization from state office",
-      canAction: canStateAuthorize && currentStatus === "STATE_REVIEWED",
-      actionLabel: "State Authorize",
+      canAction: (canStateAuthorize && currentStatus === "STATE_REVIEWED") || (canOverrideApproval && currentStatus === "STATE_REVIEWED"),
+      actionLabel: (canStateAuthorize && currentStatus === "STATE_REVIEWED") ? "State Authorize" : (canOverrideApproval ? "Override: State Authorize" : "State Authorize"),
       actionType: "STATE_AUTHORIZED",
     },
     {

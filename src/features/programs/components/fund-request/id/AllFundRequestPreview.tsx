@@ -8,7 +8,7 @@ import DataTable from "components/Table/DataTable";
 import { FundRequestPaginatedData } from "@/features/programs/types/fund-request";
 import { useParams } from "next/navigation";
 import { useGetAllFundRequests } from "@/features/programs/controllers/fundRequestController";
-import { useGetSingleProject } from "@/features/projects/controllers/projectController";
+import { useGetSingleProject, useGetAllProjects } from "@/features/projects/controllers/projectController";
 import { useGetSingleUser } from "@/features/auth/controllers";
 import { useMemo } from "react";
 import { skipToken } from "@tanstack/react-query";
@@ -29,8 +29,6 @@ export default function AllFundRequestPreview() {
   const projectId = Array.isArray(id) ? id[0] : String(id || '');
   const decodedId = decodeURIComponent(projectId);
 
-  console.log('Project ID:', decodedId, 'Type:', typeof decodedId);
-
   // Helper function to check if string is a valid UUID
   const isValidUUID = (str: string) => {
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -39,23 +37,47 @@ export default function AllFundRequestPreview() {
 
   const isUUID = isValidUUID(decodedId);
 
-  // Fetch project only if ID is a valid UUID
-  const { data: project } = useGetSingleProject(
+  // If it's a UUID, fetch project directly
+  const { data: projectById } = useGetSingleProject(
     decodedId,
     isUUID
   );
 
-  // Use project UUID if we have it, otherwise fallback to search parameter
-  const fundRequestParams = project?.data?.id
-    ? { project: project.data.id, size: 1000, enabled: true }
+  // If it's not a UUID, search projects by project_id
+  const { data: projectsBySearch } = useGetAllProjects({
+    page: 1,
+    size: 10,
+    search: decodedId,
+    enabled: !isUUID && !!decodedId
+  });
+
+  // Determine which project to use
+  const project = isUUID
+    ? projectById
+    : projectsBySearch?.data?.results?.find(p => p.project_id === decodedId);
+
+  // Use project UUID if we have it
+  const projectUUID = project?.id || (isUUID ? decodedId : null);
+
+  const fundRequestParams = projectUUID
+    ? { project: projectUUID, size: 1000, enabled: true }
     : { search: decodedId, size: 1000, enabled: !!decodedId };
 
   const { data: fundRequest, isLoading } = useGetAllFundRequests(fundRequestParams);
 
   const fundRequestLength = fundRequest?.data?.results?.length || 0;
 
+  // Helper function to get currency symbol
+  const getCurrencySymbol = (fundReq: any) => {
+    return fundReq?.currency_display?.symbol || fundReq?.currency || '$';
+  };
+
+  // Get the primary currency from the first fund request
+  const primaryCurrency = fundRequest?.data?.results?.[0] ?
+    getCurrencySymbol(fundRequest.data.results[0]) : '$';
+
   const totalFundRequest = fundRequest?.data?.results
-    ?.map((fundReq: any) => fundReq?.total_amount || 0)
+    ?.map((fundReq: any) => fundReq?.total_disbursement_amount || 0)
     ?.reduce(
       (accumulator, value) =>
         Number(accumulator || 0) + Number(value || 0),
@@ -92,9 +114,9 @@ export default function AllFundRequestPreview() {
     hqApproverId && typeof hqApproverId === 'string' ? hqApproverId : skipToken
   );
 
-  // Generate signature information
+  // Generate signature information from approval_workflow data
   const signatureInfo = useMemo(() => {
-    if (!firstFundRequest) return null;
+    if (!firstFundRequest?.approval_workflow) return null;
 
     const formatDate = (dateString?: string) => {
       if (!dateString) return 'N/A';
@@ -110,48 +132,35 @@ export default function AllFundRequestPreview() {
       }
     };
 
-    const getFullName = (userData: any) => {
-      if (!userData?.data) return 'N/A';
-      const { first_name, last_name } = userData.data;
-      return first_name && last_name ? `${String(first_name)} ${String(last_name)}` : 'N/A';
-    };
-
-    const getPosition = (userData: any) => {
-      if (!userData?.data?.position) return 'N/A';
-      const position = userData.data.position;
-
-      // If position is an object, try to get its name or title property
-      if (typeof position === 'object' && position !== null) {
-        return String(position.name || position.title || position.position || 'N/A');
-      }
-
-      // If position is a string, return it
-      return String(position);
-    };
+    // Find specific workflow steps
+    const locationReview = firstFundRequest.approval_workflow.find(step => step.step === 'location_review');
+    const locationAuth = firstFundRequest.approval_workflow.find(step => step.step === 'location_authorization');
+    const hqReview = firstFundRequest.approval_workflow.find(step => step.step === 'hq_review');
+    const hqApproval = firstFundRequest.approval_workflow.find(step => step.step === 'hq_approval');
 
     return {
       preparedBy: {
-        name: getFullName(creatorData),
-        position: getPosition(creatorData),
+        name: firstFundRequest.created_by_details?.name || 'N/A',
+        position: 'Program Officer', // From API data
         date: formatDate(firstFundRequest.created_datetime)
       },
       reviewedBy: {
-        name: getFullName(locationReviewerData),
-        position: getPosition(locationReviewerData),
-        date: formatDate(firstFundRequest.updated_datetime)
+        name: locationReview?.approver_details?.name || firstFundRequest.location_reviewer_detail?.name || 'N/A',
+        position: 'Location Reviewer',
+        date: formatDate(locationReview?.date)
       },
       authorizedBy: {
-        name: getFullName(locationAuthorizerData),
-        position: getPosition(locationAuthorizerData),
-        date: formatDate(firstFundRequest.updated_datetime)
+        name: locationAuth?.approver_details?.name || firstFundRequest.location_authorizer_detail?.name || 'N/A',
+        position: 'Location Authorizer',
+        date: formatDate(locationAuth?.date)
       },
       approvedBy: {
-        name: getFullName(hqApproverData),
-        position: getPosition(hqApproverData),
-        date: formatDate(firstFundRequest.updated_datetime)
+        name: hqApproval?.approver_details?.name || firstFundRequest.hq_approver_detail?.name || 'N/A',
+        position: 'HQ Approver',
+        date: formatDate(hqApproval?.date)
       }
     };
-  }, [firstFundRequest, creatorData, locationReviewerData, locationAuthorizerData, hqApproverData]);
+  }, [firstFundRequest]);
 
   // Download functionality
   const handlePrint = () => {
@@ -183,10 +192,10 @@ export default function AllFundRequestPreview() {
   };
 
   const handleDownloadReport = () => {
-    if (!fundRequest?.data?.results || !project?.data) return;
+    if (!fundRequest?.data?.results || !project) return;
 
-    const projectTitle = project.data.title || 'Project';
-    const projectId = project.data.project_id || 'Unknown';
+    const projectTitle = project.title || 'Project';
+    const projectId = project.project_id || 'Unknown';
     const fileName = `fund-request-summary-${projectId.replace(/\s+/g, '-').toLowerCase()}-${new Date().toISOString().split('T')[0]}.txt`;
 
     const content = `
@@ -195,8 +204,8 @@ FUND REQUEST SUMMARY
 
 Project Title: ${projectTitle}
 Project ID: ${projectId}
-Project Start Date: ${project.data.start_date || 'N/A'}
-Project End Date: ${project.data.end_date || 'N/A'}
+Project Start Date: ${project.start_date || 'N/A'}
+Project End Date: ${project.end_date || 'N/A'}
 Generated on: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}
 
 =====================================
@@ -259,9 +268,9 @@ ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}
   };
 
   const handleDownloadPDF = () => {
-    if (!fundRequest?.data?.results || !project?.data) return;
+    if (!fundRequest?.data?.results || !project) return;
 
-    const projectTitle = project.data.title || 'Project';
+    const projectTitle = project.title || 'Project';
 
     // Create a new window for PDF generation
     const printWindow = window.open('', '_blank');
@@ -309,15 +318,15 @@ ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}
           </div>
           <div class="info-item">
             <h3>Project ID:</h3>
-            <p>${project.data.project_id || 'N/A'}</p>
+            <p>${project.project_id || 'N/A'}</p>
           </div>
           <div class="info-item">
             <h3>Project Start Date:</h3>
-            <p>${project.data.start_date || 'N/A'}</p>
+            <p>${project.start_date || 'N/A'}</p>
           </div>
           <div class="info-item">
             <h3>Project End Date:</h3>
-            <p>${project.data.end_date || 'N/A'}</p>
+            <p>${project.end_date || 'N/A'}</p>
           </div>
         </div>
 
@@ -447,206 +456,240 @@ ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}
   return (
     <>
       <BackNavigation />
-      <Card className='py-16 print-content'>
-        <div className='flex flex-col items-center'>
-          <img src={(logoPng as any).src || logoPng} alt='logo' width={150} />
-          <h4 className='mt-5 text-lg font-bold'>
-            Achieving Health Nigeria Initiative (AHNI)
-          </h4>
-
-          <h4 className='text-red-500 font-bold mt-2'>FUND REQUEST SUMMARY</h4>
+      <Card className='py-12 print-content'>
+        <div className='flex flex-col items-center mb-8'>
+          <div className='relative mb-6'>
+            <img src={(logoPng as any).src || logoPng} alt='logo' width={120} className='drop-shadow-md' />
+          </div>
+          <div className='text-center space-y-4'>
+            <h1 className='text-2xl font-bold text-gray-800 tracking-wide'>
+              Achieving Health Nigeria Initiative (AHNI)
+            </h1>
+            <div className='flex items-center justify-center gap-2'>
+              <div className='h-px bg-red-300 w-12'></div>
+              <h2 className='text-red-600 font-bold text-xl tracking-wider uppercase'>
+                Fund Request Summary
+              </h2>
+              <div className='h-px bg-red-300 w-12'></div>
+            </div>
+          </div>
 
           {/* Download Buttons */}
-          <div className='flex gap-4 mt-6 no-print'>
-            <Button onClick={handleDownloadPDF} variant="outline" className="flex items-center gap-2">
+          <div className='flex flex-wrap justify-center gap-4 mt-10 no-print'>
+            <Button onClick={handleDownloadPDF} variant="outline" className="flex items-center gap-2 hover:bg-blue-50 hover:border-blue-300 transition-all duration-200 px-6 py-2 rounded-lg">
               <FileText className="w-4 h-4" />
               Print/Save as PDF
             </Button>
-            <Button onClick={handleDownloadReport} variant="outline" className="flex items-center gap-2">
+            <Button onClick={handleDownloadReport} variant="outline" className="flex items-center gap-2 hover:bg-green-50 hover:border-green-300 transition-all duration-200 px-6 py-2 rounded-lg">
               <Download className="w-4 h-4" />
               Download Report
             </Button>
-            <Button onClick={handlePrint} variant="outline" className="flex items-center gap-2">
+            <Button onClick={handlePrint} variant="outline" className="flex items-center gap-2 hover:bg-purple-50 hover:border-purple-300 transition-all duration-200 px-6 py-2 rounded-lg">
               <Printer className="w-4 h-4" />
               Print Page
             </Button>
           </div>
         </div>
 
-        <div className='border-[#DEA004] border-solid border-[2px] rounded-lg p-5 grid grid-cols-2 gap-8 mt-10'>
-          <div className='space-y-3'>
-            <h3 className='font-semibold'>Award/Project Title:</h3>
-
-            <p className='font-semibold text-[#DEA004] text-xl'>
-              {project?.data?.title || 'Project Title'}
+        <div className='border-[#DEA004] border-solid border-[2px] rounded-lg p-6 grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8 bg-gradient-to-br from-amber-50 to-orange-50'>
+          <div className='space-y-2'>
+            <h3 className='font-semibold text-gray-700 text-sm uppercase tracking-wide'>Award/Project Title:</h3>
+            <p className='font-bold text-[#DEA004] text-xl leading-tight'>
+              {project?.title || 'Project Title'}
             </p>
           </div>
 
-          <div className='space-y-3'>
-            <h3 className='font-semibold'>Project ID</h3>
-
-            <p className='text-sm text-gray-500'>{project?.data?.project_id || 'N/A'}</p>
+          <div className='space-y-2'>
+            <h3 className='font-semibold text-gray-700 text-sm uppercase tracking-wide'>Project ID:</h3>
+            <p className='text-lg font-medium text-gray-800'>{project?.project_id || 'N/A'}</p>
           </div>
 
-          <div className='space-y-3'>
-            <h3 className='font-semibold'>Project Start Date:</h3>
-
-            <p className='text-sm text-gray-500'>{project?.data?.start_date || 'N/A'}</p>
+          <div className='space-y-2'>
+            <h3 className='font-semibold text-gray-700 text-sm uppercase tracking-wide'>Project Start Date:</h3>
+            <p className='text-lg font-medium text-gray-800'>{project?.start_date || 'N/A'}</p>
           </div>
 
-          <div className='space-y-3'>
-            <h3 className='font-semibold'>Project End Date:</h3>
-
-            <p className='text-sm text-gray-500'>{project?.data?.end_date || 'N/A'}</p>
+          <div className='space-y-2'>
+            <h3 className='font-semibold text-gray-700 text-sm uppercase tracking-wide'>Project End Date:</h3>
+            <p className='text-lg font-medium text-gray-800'>{project?.end_date || 'N/A'}</p>
           </div>
         </div>
 
-        <div className='my-5'>
-          <DataTable
-            columns={columns}
-            data={fundRequest?.data?.results || []}
-            isLoading={isLoading}
-            footer={true}
-          />
+        <div className='my-8 space-y-6'>
+          {/* Fund Request Table */}
+          <div className='bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden'>
+            <div className='px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50'>
+              <h3 className='text-lg font-semibold text-gray-800 flex items-center gap-2'>
+                <div className='w-1 h-6 bg-blue-500 rounded-full'></div>
+                Fund Request Details
+              </h3>
+              <p className='text-sm text-gray-600 mt-1'>Detailed breakdown of fund requests by location</p>
+            </div>
+            <div className='p-6'>
+              <DataTable
+                columns={getColumns(primaryCurrency)}
+                data={fundRequest?.data?.results || []}
+                isLoading={isLoading}
+                footer={true}
+              />
+            </div>
+          </div>
 
-          <div className='my-5'>
-            <ShadTable>
-              <TableBody>
-                <TableRow>
-                  <TableCell
-                    style={{
-                      minWidth: 90,
-                      maxWidth: 90,
-                    }}
-                  >
-                    {/* @ts-ignore */}
-                    {(fundRequestLength + 1).toFixed(2)}
-                  </TableCell>
-                  <TableCell className='font-medium'>
-                    TOTAL FUND REQUEST
-                  </TableCell>
-                  <TableCell>${totalFundRequest ?? "N/A"}</TableCell>
-                  <TableCell
-                    rowSpan={3}
-                    className='text-center text-red-400 font-medium'
-                  >
-                    General Comment and Recommendation
-                  </TableCell>
-                </TableRow>
+          {/* Summary Table */}
+          <div className='bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden'>
+            <div className='px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-green-50 to-emerald-50'>
+              <h3 className='text-lg font-semibold text-gray-800 flex items-center gap-2'>
+                <div className='w-1 h-6 bg-green-500 rounded-full'></div>
+                Financial Summary
+              </h3>
+              <p className='text-sm text-gray-600 mt-1'>Comprehensive financial calculations and balances</p>
+            </div>
+            <div className='p-6'>
+              <ShadTable>
+                <TableBody>
+                  <TableRow className='hover:bg-gray-50'>
+                    <TableCell className='font-medium text-gray-600 w-24'>
+                      {(fundRequestLength + 1).toFixed(2)}
+                    </TableCell>
+                    <TableCell className='font-semibold text-gray-800'>
+                      TOTAL FUND REQUEST
+                    </TableCell>
+                    <TableCell className='font-bold text-green-600 text-lg'>
+                      {primaryCurrency}{totalFundRequest.toLocaleString()}
+                    </TableCell>
+                    <TableCell
+                      rowSpan={3}
+                      className='text-center text-red-500 font-medium border-l-2 border-red-200 bg-red-50 px-6 py-8'
+                    >
+                      <div className='text-sm'>
+                        General Comment and<br />Recommendation
+                      </div>
+                    </TableCell>
+                  </TableRow>
 
-                <TableRow>
-                  <TableCell
-                    style={{
-                      minWidth: 90,
-                      maxWidth: 90,
-                    }}
-                  >
-                    {/* @ts-ignore */}
-                    {(fundRequestLength + 2).toFixed(2)}
-                  </TableCell>
-                  <TableCell className='font-medium'>BALANCE ON HAND</TableCell>
-                  <TableCell>${availableBalance ?? "N/A"}</TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell
-                    style={{
-                      minWidth: 90,
-                      maxWidth: 90,
-                    }}
-                  >
-                    {/* @ts-ignore */}
-                    {(fundRequestLength + 3).toFixed(2)}
-                  </TableCell>
-                  <TableCell className='font-medium'>
-                    AMOUNT DUE TO ACE HEAD OFFICE
-                  </TableCell>
-                  <TableCell>
-                    {/* @ts-ignore */}${totalFundRequest - availableBalance}
-                  </TableCell>
-                </TableRow>
-              </TableBody>
-            </ShadTable>
+                  <TableRow className='hover:bg-gray-50'>
+                    <TableCell className='font-medium text-gray-600 w-24'>
+                      {(fundRequestLength + 2).toFixed(2)}
+                    </TableCell>
+                    <TableCell className='font-semibold text-gray-800'>BALANCE ON HAND</TableCell>
+                    <TableCell className='font-bold text-blue-600 text-lg'>
+                      {primaryCurrency}{availableBalance.toLocaleString()}
+                    </TableCell>
+                  </TableRow>
+
+                  <TableRow className='hover:bg-gray-50 border-b-2 border-gray-300'>
+                    <TableCell className='font-medium text-gray-600 w-24'>
+                      {(fundRequestLength + 3).toFixed(2)}
+                    </TableCell>
+                    <TableCell className='font-semibold text-gray-800'>
+                      AMOUNT DUE TO ACE HEAD OFFICE
+                    </TableCell>
+                    <TableCell className='font-bold text-orange-600 text-lg'>
+                      {primaryCurrency}{(totalFundRequest - availableBalance).toLocaleString()}
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </ShadTable>
+            </div>
           </div>
         </div>
 
-        <div className='grid grid-cols-2 gap-5 mt-5'>
-          <div className='p-5 border-solid border-gray-200 border-[1px] rounded-lg flex flex-col gap-3'>
-            <div>
-              <h3 className='font-bold'>Sign:</h3>
-              <div className='h-8 border-b border-gray-300 mt-2'></div>
+        {/* Approval Signatures Section */}
+        <div className='mt-8'>
+          <div className='bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden'>
+            <div className='px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-purple-50 to-pink-50'>
+              <h3 className='text-lg font-semibold text-gray-800 flex items-center gap-2'>
+                <div className='w-1 h-6 bg-purple-500 rounded-full'></div>
+                Approval Signatures
+              </h3>
+              <p className='text-sm text-gray-600 mt-1'>Required signatures for fund request approval workflow</p>
             </div>
+            <div className='p-6'>
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+                {/* Prepared By */}
+                <div className='bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-lg p-5 space-y-4'>
+                  <div className='space-y-2'>
+                    <h4 className='text-sm font-semibold text-blue-800 uppercase tracking-wide'>Signature:</h4>
+                    <div className='h-12 border-b-2 border-blue-300 bg-white rounded'></div>
+                  </div>
+                  <div className='space-y-3'>
+                    <div className='flex justify-between items-start'>
+                      <span className='text-sm font-medium text-blue-700'>Prepared by:</span>
+                      <div className='text-right'>
+                        <p className='font-semibold text-sm text-gray-800'>{signatureInfo?.preparedBy?.name || 'N/A'}</p>
+                        <p className='text-xs text-gray-600 italic'>{signatureInfo?.preparedBy?.position || 'N/A'}</p>
+                      </div>
+                    </div>
+                    <div className='flex justify-between items-center'>
+                      <span className='text-sm font-medium text-blue-700'>Date:</span>
+                      <span className='font-semibold text-sm text-gray-800'>{signatureInfo?.preparedBy?.date || 'N/A'}</span>
+                    </div>
+                  </div>
+                </div>
 
-            <div className='flex items-center justify-between'>
-              <h3 className='font-bold'>Prepared by:</h3>
-              <div className='text-right'>
-                <p className='font-semibold text-sm'>{signatureInfo?.preparedBy?.name || 'N/A'}</p>
-                <p className='text-xs text-gray-600'>{signatureInfo?.preparedBy?.position || 'N/A'}</p>
+                {/* Reviewed By */}
+                <div className='bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-lg p-5 space-y-4'>
+                  <div className='space-y-2'>
+                    <h4 className='text-sm font-semibold text-green-800 uppercase tracking-wide'>Signature:</h4>
+                    <div className='h-12 border-b-2 border-green-300 bg-white rounded'></div>
+                  </div>
+                  <div className='space-y-3'>
+                    <div className='flex justify-between items-start'>
+                      <span className='text-sm font-medium text-green-700'>Reviewed by:</span>
+                      <div className='text-right'>
+                        <p className='font-semibold text-sm text-gray-800'>{signatureInfo?.reviewedBy?.name || 'N/A'}</p>
+                        <p className='text-xs text-gray-600 italic'>{signatureInfo?.reviewedBy?.position || 'N/A'}</p>
+                      </div>
+                    </div>
+                    <div className='flex justify-between items-center'>
+                      <span className='text-sm font-medium text-green-700'>Date:</span>
+                      <span className='font-semibold text-sm text-gray-800'>{signatureInfo?.reviewedBy?.date || 'N/A'}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Authorized By */}
+                <div className='bg-gradient-to-br from-orange-50 to-orange-100 border border-orange-200 rounded-lg p-5 space-y-4'>
+                  <div className='space-y-2'>
+                    <h4 className='text-sm font-semibold text-orange-800 uppercase tracking-wide'>Signature:</h4>
+                    <div className='h-12 border-b-2 border-orange-300 bg-white rounded'></div>
+                  </div>
+                  <div className='space-y-3'>
+                    <div className='flex justify-between items-start'>
+                      <span className='text-sm font-medium text-orange-700'>Authorized by:</span>
+                      <div className='text-right'>
+                        <p className='font-semibold text-sm text-gray-800'>{signatureInfo?.authorizedBy?.name || 'N/A'}</p>
+                        <p className='text-xs text-gray-600 italic'>{signatureInfo?.authorizedBy?.position || 'N/A'}</p>
+                      </div>
+                    </div>
+                    <div className='flex justify-between items-center'>
+                      <span className='text-sm font-medium text-orange-700'>Date:</span>
+                      <span className='font-semibold text-sm text-gray-800'>{signatureInfo?.authorizedBy?.date || 'N/A'}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Approved By */}
+                <div className='bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 rounded-lg p-5 space-y-4'>
+                  <div className='space-y-2'>
+                    <h4 className='text-sm font-semibold text-purple-800 uppercase tracking-wide'>Signature:</h4>
+                    <div className='h-12 border-b-2 border-purple-300 bg-white rounded'></div>
+                  </div>
+                  <div className='space-y-3'>
+                    <div className='flex justify-between items-start'>
+                      <span className='text-sm font-medium text-purple-700'>Approved by:</span>
+                      <div className='text-right'>
+                        <p className='font-semibold text-sm text-gray-800'>{signatureInfo?.approvedBy?.name || 'N/A'}</p>
+                        <p className='text-xs text-gray-600 italic'>{signatureInfo?.approvedBy?.position || 'N/A'}</p>
+                      </div>
+                    </div>
+                    <div className='flex justify-between items-center'>
+                      <span className='text-sm font-medium text-purple-700'>Date:</span>
+                      <span className='font-semibold text-sm text-gray-800'>{signatureInfo?.approvedBy?.date || 'N/A'}</span>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
-
-            <div className='flex items-center justify-between'>
-              <h3 className='font-bold'>Date:</h3>
-              <p className='font-semibold text-sm'>{signatureInfo?.preparedBy?.date || 'N/A'}</p>
-            </div>
-          </div>
-
-          <div className='p-5 border-solid border-gray-200 border-[1px] rounded-lg flex flex-col gap-3'>
-            <div>
-              <h3 className='font-bold'>Sign:</h3>
-              <div className='h-8 border-b border-gray-300 mt-2'></div>
-            </div>
-
-            <div className='flex items-center justify-between'>
-              <h3 className='font-bold'>Reviewed by:</h3>
-              <div className='text-right'>
-                <p className='font-semibold text-sm'>{signatureInfo?.reviewedBy?.name || 'N/A'}</p>
-                <p className='text-xs text-gray-600'>{signatureInfo?.reviewedBy?.position || 'N/A'}</p>
-              </div>
-            </div>
-
-            <div className='flex items-center justify-between'>
-              <h3 className='font-bold'>Date:</h3>
-              <p className='font-semibold text-sm'>{signatureInfo?.reviewedBy?.date || 'N/A'}</p>
-            </div>
-          </div>
-
-          <div className='p-5 border-solid border-gray-200 border-[1px] rounded-lg flex flex-col gap-3'>
-            <div>
-              <h3 className='font-bold'>Sign:</h3>
-              <div className='h-8 border-b border-gray-300 mt-2'></div>
-            </div>
-
-            <div className='flex items-center justify-between'>
-              <h3 className='font-bold'>Authorized by:</h3>
-              <div className='text-right'>
-                <p className='font-semibold text-sm'>{signatureInfo?.authorizedBy?.name || 'N/A'}</p>
-                <p className='text-xs text-gray-600'>{signatureInfo?.authorizedBy?.position || 'N/A'}</p>
-              </div>
-            </div>
-
-            <div className='flex items-center justify-between'>
-              <h3 className='font-bold'>Date:</h3>
-              <p className='font-semibold text-sm'>{signatureInfo?.authorizedBy?.date || 'N/A'}</p>
-            </div>
-          </div>
-
-          <div className='p-5 border-solid border-gray-200 border-[1px] rounded-lg flex flex-col gap-3'>
-            <div>
-              <h3 className='font-bold'>Sign:</h3>
-              <div className='h-8 border-b border-gray-300 mt-2'></div>
-            </div>
-
-            <div className='flex items-center justify-between'>
-              <h3 className='font-bold'>Approved by:</h3>
-              <div className='text-right'>
-                <p className='font-semibold text-sm'>{signatureInfo?.approvedBy?.name || 'N/A'}</p>
-                <p className='text-xs text-gray-600'>{signatureInfo?.approvedBy?.position || 'N/A'}</p>
-              </div>
-            </div>
-
-            <div className='flex items-center justify-between'>
-              <h3 className='font-bold'>Date:</h3>
-              <p className='font-semibold text-sm'>{signatureInfo?.approvedBy?.date || 'N/A'}</p>
             </div>
           </div>
         </div>
@@ -656,7 +699,7 @@ ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}
 }
 
 
-const columns: ColumnDef<FundRequestPaginatedData>[] = [
+const getColumns = (currency: string): ColumnDef<FundRequestPaginatedData>[] => [
   {
     header: "S/N",
     accessorFn: (_, index) => `${(index + 1).toFixed(2)}`,
@@ -681,21 +724,24 @@ const columns: ColumnDef<FundRequestPaginatedData>[] = [
   {
     header: "Fund Request For This Period",
     id: "amount",
-    accessorFn: (data) => `$${data?.total_amount || 0}`,
+    accessorFn: (data) => {
+      const amount = data?.total_disbursement_amount || 0;
+      return `${currency}${Number(amount).toLocaleString()}`;
+    },
     footer(props) {
       const data = props.table
         .getRowModel()
         .flatRows.map((row) => row.original);
 
       const sum = data
-        .map((data: any) => data?.total_amount || 0)
+        .map((data: any) => data?.total_disbursement_amount || 0)
         .reduce(
           (accumulator, value) =>
             (Number(accumulator || 0) + Number(value || 0)),
           0
         );
 
-      return <span>${sum || 0}</span>;
+      return <span>{currency}{sum.toLocaleString()}</span>;
     },
     size: 200,
   },

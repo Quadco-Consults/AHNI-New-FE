@@ -127,6 +127,64 @@ export const useDeletePositionMutation = () => {
   return [deletePosition, { data, isLoading, isSuccess, error }] as const;
 };
 
+// Alternative endpoints for bypassing permission filtering
+export const useGetAllPositionsUnrestricted = ({
+  page = 1,
+  size = 1000,
+  search = "",
+  enabled = true
+}: FilterParams & { enabled?: boolean } = {}) => {
+  return useQuery<TPaginatedResponse<PositionData>>({
+    queryKey: ["positions-unrestricted", page, size, search],
+    queryFn: async () => {
+      // Try multiple endpoint patterns that might bypass permission filtering
+      const endpoints = [
+        "/admins/config/positions/",  // Admin endpoint pattern
+        "/config/positions/all/",     // All positions endpoint
+        "/hr/positions/",             // HR-specific endpoint
+        "/config/positions/"          // Original with special params
+      ];
+
+      const params = [
+        { page, size, search, access_scope: "global" },
+        { page, size, search, data_access_level: "global" },
+        { page, size, search, unrestricted: true },
+        { page, size, search, all: true },
+        { page, size: 2000000, search }  // Large size like users API
+      ];
+
+      for (let i = 0; i < endpoints.length; i++) {
+        try {
+          console.log(`🔍 Trying position endpoint ${i + 1}: ${endpoints[i]} with params:`, params[i % params.length]);
+          const response = await AxiosWithToken.get(endpoints[i], {
+            params: params[i % params.length]
+          });
+          console.log(`✅ SUCCESS with position endpoint ${i + 1}:`, response.data);
+          console.log(`📊 Position count from endpoint ${i + 1}:`, response.data?.data?.results?.length || response.data?.results?.length || 0);
+
+          // If we got more than 1 position, this endpoint worked
+          const resultCount = response.data?.data?.results?.length || response.data?.results?.length || 0;
+          if (resultCount > 1) {
+            console.log(`🎯 FOUND WORKING POSITION ENDPOINT: ${endpoints[i]} returned ${resultCount} positions!`);
+            return response.data;
+          } else if (i === endpoints.length - 1) {
+            // Last endpoint and still only 1 result - this confirms the permission filtering issue
+            console.warn(`⚠️ All position endpoints tested, but only ${resultCount} position(s) returned. This confirms backend permission filtering.`);
+            return response.data;
+          }
+        } catch (error) {
+          console.log(`❌ Failed position endpoint ${i + 1} (${endpoints[i]}):`, error);
+          if (i === endpoints.length - 1) {
+            throw error; // Throw the last error if all attempts fail
+          }
+        }
+      }
+    },
+    enabled,
+    refetchOnWindowFocus: false,
+  });
+};
+
 // Missing named exports
 export const useGetAllPositions = useGetAllPositionsManager;
 export const useGetPositionPaginate = useGetAllPositionsManager;

@@ -36,13 +36,33 @@ const ActivityMemoList = ({ status }: ActivityMemoListProps) => {
   // Get current user
   const { data: currentUser } = useGetUserProfile();
 
-  // Filter results based on tab selection
+  // Filter results based on tab selection and current user
   const filteredMemos = status === 'approved'
-    ? (data?.data?.results || []).filter(memo => memo.status === 'APPROVED') // Show only APPROVED memos
-    : (data?.data?.results || []).filter(memo =>
-        // For 'pending' tab, show only DRAFT and SUBMITTED memos
-        memo.status === 'DRAFT' || memo.status === 'SUBMITTED'
-      );
+    ? (data?.data?.results || []).filter(memo => {
+        // Debug logging commented to prevent render loops
+        // console.log('📝 Activity Memo Debug (Approved):', {
+        //   memoId: memo.id,
+        //   memoStatus: memo.status,
+        //   memoCreatedBy: memo.created_by,
+        //   currentUserId: currentUser?.data?.id,
+        //   statusMatch: memo.status === 'APPROVED',
+        //   userMatch: memo.created_by === currentUser?.data?.id
+        // });
+        return memo.status === 'APPROVED' && memo.created_by === currentUser?.data?.id;
+      }) // Show only APPROVED memos created by current user
+    : (data?.data?.results || []).filter(memo => {
+        // Debug logging commented to prevent render loops
+        // console.log('📝 Activity Memo Debug (Pending):', {
+        //   memoId: memo.id,
+        //   memoStatus: memo.status,
+        //   memoCreatedBy: memo.created_by,
+        //   currentUserId: currentUser?.data?.id,
+        //   statusMatch: memo.status === 'DRAFT' || memo.status === 'SUBMITTED',
+        //   userMatch: memo.created_by === currentUser?.data?.id
+        // });
+        // For 'pending' tab, show only DRAFT and SUBMITTED memos created by current user
+        return (memo.status === 'DRAFT' || memo.status === 'SUBMITTED') && memo.created_by === currentUser?.data?.id;
+      });
 
   // Helper function to check if user can approve
   const canUserApprove = (memo: any) => {

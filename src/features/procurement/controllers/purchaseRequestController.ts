@@ -43,7 +43,7 @@ interface PurchaseRequestFilterParams {
   enabled?: boolean;
 }
 
-const BASE_URL = "procurements/purchase-request/";
+const BASE_URL = "procurements/purchase-request-memo/";
 
 // ===== PURCHASE REQUEST HOOKS =====
 
@@ -106,13 +106,7 @@ export const useGetPurchaseRequest = (id: string, enabled: boolean = true) => {
     queryKey: ["purchase-request", id],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get(`${BASE_URL}${id}/`, {
-          params: {
-            expand: 'requested_by,reviewed_by,authorized_by,approved_by',
-            include_user_details: true,
-            populate: 'users'
-          }
-        });
+        const response = await AxiosWithToken.get(`${BASE_URL}${id}/`);
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;

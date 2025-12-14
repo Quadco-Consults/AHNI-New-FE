@@ -29,13 +29,7 @@ import {
   useGetAllUsers,
   useGetUserProfile,
 } from "@/features/auth/controllers/userController";
-import { useGetAllBudgetLines } from "@/features/modules/controllers/finance/budgetLineController";
-import { useGetAllCostCategories } from "@/features/modules/controllers/finance/costCategoryController";
-import { useGetAllCostInputs } from "@/features/modules/controllers/finance/costInputController";
-import { useGetAllFCONumbers } from "@/features/modules/controllers/finance/fcoNumberController";
-import { useGetAllInterventionAreas } from "@/features/modules/controllers/program/interventionAreaController";
-
-import { useGetAllFundingSources } from "@/features/modules/controllers/project/fundingSourceController";
+// NOTE: All old finance controller imports removed - using comprehensive backend endpoint
 
 import { activityActions } from "store/formData/activity-memo";
 import { z } from "zod";
@@ -47,6 +41,26 @@ import { Button } from "components/ui/button";
 import { openDialog } from "store/ui";
 import { DialogType } from "constants/dailogs";
 import { toast } from "sonner";
+import {
+  mergeFallbackBudgetLines,
+  mergeFallbackCostCategories,
+  mergeFallbackCostInputs,
+  mergeFallbackFCONumbers,
+  mergeFallbackFundingSources,
+  mergeFallbackInterventionAreas,
+  type FallbackFinanceItem
+} from "@/utils/financeConfigFallbackData";
+import { useBypassedFinanceConfig } from "@/hooks/useBypassedFinanceConfig";
+import {
+  useGetAllConfigDropdown,
+  useGetBudgetLinesDropdown,
+  useGetCostCategoriesDropdown,
+  useGetCostInputsDropdown,
+  useGetFCONumbersDropdown,
+  useGetFundingSourcesDropdown,
+  useGetInterventionAreasDropdown
+} from "@/features/modules/controllers/config/allConfigController";
+import { useGetAllFCONumbersUnrestricted } from "@/features/modules/controllers/finance/fcoNumberController";
 
 const CreateActivityMemo = () => {
   const dispatch = useDispatch();
@@ -55,32 +69,33 @@ const CreateActivityMemo = () => {
 
   const { createActivityMemo, isLoading: isCreating, data: createData, response: createResponse, isSuccess: isCreateSuccess } = useCreateActivityMemo();
 
-  // Debug hook values (only when relevant)
-  if (isCreateSuccess || isCreating) {
-    console.log("🔄 Hook status:", { isCreating, isCreateSuccess, hasCreateData: !!createData, hasCreateResponse: !!createResponse, isSubmitting });
-  }
+  // Debug console.log commented to prevent render loops
+  // if (isCreateSuccess || isCreating) {
+  //   console.log("🔄 Hook status:", { isCreating, isCreateSuccess, hasCreateData: !!createData, hasCreateResponse: !!createResponse, isSubmitting });
+  // }
 
   // Handle successful creation and navigation
   useEffect(() => {
-    console.log("=== NAVIGATION USEEFFECT DEBUG ===");
-    console.log("isCreateSuccess:", isCreateSuccess);
-    console.log("createResponse:", createResponse);
-    console.log("createData:", createData);
-    console.log("isSubmitting:", isSubmitting);
-    console.log("Full response object:", JSON.stringify(createResponse, null, 2));
-    console.log("Full data object:", JSON.stringify(createData, null, 2));
+    // Debug console.log commented to prevent render loops
+    // console.log("=== NAVIGATION USEEFFECT DEBUG ===");
+    // console.log("isCreateSuccess:", isCreateSuccess);
+    // console.log("createResponse:", createResponse);
+    // console.log("createData:", createData);
+    // console.log("isSubmitting:", isSubmitting);
+    // console.log("Full response object:", JSON.stringify(createResponse, null, 2));
+    // console.log("Full data object:", JSON.stringify(createData, null, 2));
 
     if (isCreateSuccess && createResponse && !isSubmitting) {
-      console.log("✅ Activity memo created successfully!");
-      console.log("Full createResponse:", createResponse);
+      // console.log("✅ Activity memo created successfully!");
+      // console.log("Full createResponse:", createResponse);
 
       // Extract memo ID from response - try multiple possible locations
       const memoId = createResponse?.data?.id || createData?.id || createResponse?.id;
-      console.log("Extracted memo ID:", memoId);
-      console.log("Memo ID type:", typeof memoId);
+      // console.log("Extracted memo ID:", memoId);
+      // console.log("Memo ID type:", typeof memoId);
 
       if (memoId) {
-        console.log("📝 Updating Redux with memo ID:", memoId);
+        // console.log("📝 Updating Redux with memo ID:", memoId);
         // Update the latest activity in Redux with the memo ID
         const currentActivity = store.getState().activity.activity;
         const latestActivityIndex = currentActivity.length - 1;
@@ -96,33 +111,29 @@ const CreateActivityMemo = () => {
             data: updatedActivity
           }));
 
-          console.log("✅ Updated Redux with memo ID:", memoId);
+          // console.log("✅ Updated Redux with memo ID:", memoId);
         }
 
         // Navigate directly to final preview
-        console.log("🧭 Navigating to final preview with ID:", memoId);
+        // console.log("🧭 Navigating to final preview with ID:", memoId);
         const finalUrl = `${RouteEnum.FINAL_PREVIEW}?id=${memoId}&created=true`;
-        console.log("Final URL:", finalUrl);
+        // console.log("Final URL:", finalUrl);
         router.push(finalUrl);
       } else {
-        console.warn("❌ No memo ID found in response, falling back to sample preview");
-        console.log("Available response keys:", Object.keys(createResponse || {}));
-        console.log("Available data keys:", Object.keys(createData || {}));
+        // console.warn("❌ No memo ID found in response, falling back to sample preview");
+        // console.log("Available response keys:", Object.keys(createResponse || {}));
+        // console.log("Available data keys:", Object.keys(createData || {}));
         router.push(RouteEnum.FINAL_PREVIEW);
       }
-    } else {
-      console.log("❌ Navigation conditions not met:");
-      console.log("- isCreateSuccess:", isCreateSuccess);
-      console.log("- createResponse exists:", !!createResponse);
-      console.log("- not submitting:", !isSubmitting);
-    }
+    } // else {
+    //   console.log("❌ Navigation conditions not met:");
+    //   console.log("- isCreateSuccess:", isCreateSuccess);
+    //   console.log("- createResponse exists:", !!createResponse);
+    //   console.log("- not submitting:", !isSubmitting);
+    // }
   }, [isCreateSuccess, createResponse, createData, router, isSubmitting, dispatch]);
 
-  const { data: fundingSource, isLoading: fundingSourceLoading } = useGetAllFundingSources({
-    page: 1,
-    size: 2000000,
-    search: "",
-  });
+  // NOTE: Old funding source API call removed - using comprehensive backend endpoint
 
   // Keep original activity plans query for now (display purposes)
   const { data: activites, error: activitiesError, isLoading: activitiesLoading, refetch: refetchActivities } = useGetAllActivityPlans({
@@ -138,102 +149,285 @@ const CreateActivityMemo = () => {
     search: "",
   });
 
-  const { data: costInput, isLoading: costInputLoading } = useGetAllCostInputs({
-    page: 1,
-    size: 2000000,
-    search: "",
-  });
+  // NOTE: Old cost input and cost categories API calls removed - using comprehensive backend endpoint
 
-  const { data: costCategories, isLoading: costCategoriesLoading } = useGetAllCostCategories({
-    page: 1,
-    size: 2000000,
-    search: "",
-  });
+  // NOTE: Old API calls removed - now using comprehensive backend endpoint from allConfigController
 
-  const { data: budgetLines, isLoading: budgetLinesLoading } = useGetAllBudgetLines({
-    page: 1,
-    size: 2000000,
-    search: "",
-  });
-
-  const { data: fco, isLoading: fcoLoading } = useGetAllFCONumbers({
-    page: 1,
-    size: 2000000,
-    search: "",
-  });
-
-  const { data: interventions, isLoading: interventionsLoading } = useGetAllInterventionAreas({
-    page: 1,
-    size: 20000,
-    search: "",
-  });
+  // NOTE: All old individual API calls removed - using comprehensive backend endpoint below
 
   const { data: profile } = useGetUserProfile();
 
-  // Create formatted options for dropdowns
-  const budgetLinesOptions = React.useMemo(() => {
-    const rawResults = (budgetLines as any)?.data?.results || [];
-    console.log("Budget Lines raw data:", budgetLines);
-    console.log("Budget Lines raw results:", rawResults);
+  // Use new comprehensive backend endpoint for real config data
+  const { data: allConfigData, isLoading: configLoading, error: configError } = useGetAllConfigDropdown();
 
-    const options = rawResults.map((item: any) => ({
+  // Individual config hooks for convenience (using the same comprehensive endpoint)
+  const {
+    data: backendBudgetLines,
+    count: budgetLinesCount,
+    isLoading: backendBudgetLinesLoading,
+    source: budgetLinesSource
+  } = useGetBudgetLinesDropdown();
+
+  const {
+    data: backendCostCategories,
+    count: costCategoriesCount,
+    isLoading: backendCostCategoriesLoading,
+    source: costCategoriesSource
+  } = useGetCostCategoriesDropdown();
+
+  const {
+    data: backendCostInputs,
+    count: costInputsCount,
+    isLoading: costInputLoading,  // renamed to avoid conflicts
+    source: costInputsSource
+  } = useGetCostInputsDropdown();
+
+  const {
+    data: backendFCONumbers,
+    count: fcoNumbersCount,
+    isLoading: fcoLoading,  // renamed to match existing usage
+    source: fcoNumbersSource
+  } = useGetFCONumbersDropdown();
+
+  // Dedicated FCO Numbers API (more reliable than comprehensive config)
+  const {
+    data: dedicatedFCOData,
+    isLoading: dedicatedFCOLoading,
+    error: dedicatedFCOError
+  } = useGetAllFCONumbersUnrestricted({
+    page: 1,
+    size: 1000,
+    search: "",
+    enabled: true
+  });
+
+  const {
+    data: backendFundingSources,
+    count: fundingSourcesCount,
+    isLoading: fundingSourceLoading,
+    source: fundingSourcesSource
+  } = useGetFundingSourcesDropdown();
+
+  const {
+    data: backendInterventionAreas,
+    count: interventionAreasCount,
+    isLoading: interventionsLoading,  // renamed to match existing usage
+    source: interventionAreasSource
+  } = useGetInterventionAreasDropdown();
+
+  // Fallback for bypass approach (remove once backend is confirmed working)
+  const {
+    data: bypassedFinanceData,
+    isLoading: bypassLoading,
+    errors: bypassErrors,
+    sources: bypassSources
+  } = useBypassedFinanceConfig();
+
+  // Create formatted options for dropdowns - prioritize real backend data
+  const budgetLinesOptions = React.useMemo(() => {
+    let rawResults = [];
+    let dataSource = '';
+
+    // Priority 1: New comprehensive backend endpoint
+    if (backendBudgetLines.length > 0) {
+      rawResults = backendBudgetLines;
+      dataSource = `🏆 REAL BACKEND DATA (${budgetLinesCount} items)`;
+    }
+    // Priority 2: Bypassed data (old approach)
+    else if (bypassedFinanceData.budgetLines.length > 3) {
+      rawResults = bypassedFinanceData.budgetLines;
+      dataSource = `BYPASSED (${bypassSources.budgetLines})`;
+    }
+    // Priority 3: Legacy fallback data (for remaining gaps)
+    else {
+      rawResults = [];
+      dataSource = 'NO DATA AVAILABLE';
+    }
+
+    // Debug console.log commented to prevent render loops
+    // console.log(`🔍 BUDGET LINES DATA SOURCE: ${dataSource}`);
+    // console.log("Budget Lines raw results:", rawResults);
+
+    const apiOptions = rawResults.map((item: any) => ({
       id: item.id,
       name: item.name || item.description || 'Unnamed Item'
     }));
-    console.log("Budget Lines formatted options:", options);
-    return options;
-  }, [budgetLines]);
+
+    // Only apply fallback merge if using non-backend sources
+    const finalOptions = backendBudgetLines.length > 0 ? apiOptions : mergeFallbackBudgetLines(apiOptions);
+    // console.log(`💰 Budget Lines: ${apiOptions.length} from ${dataSource} + ${finalOptions.length - apiOptions.length} fallback = ${finalOptions.length} total`);
+    return finalOptions;
+  }, [backendBudgetLines, budgetLinesCount, bypassedFinanceData.budgetLines, bypassSources.budgetLines]);
 
   const costCategoriesOptions = React.useMemo(() => {
-    const rawResults = (costCategories as any)?.data?.results || [];
-    console.log("Cost Categories raw data:", costCategories);
-    console.log("Cost Categories raw results:", rawResults);
+    let rawResults = [];
+    let dataSource = '';
 
-    const options = rawResults.map((item: any) => ({
+    // Priority 1: New comprehensive backend endpoint
+    if (backendCostCategories.length > 0) {
+      rawResults = backendCostCategories;
+      dataSource = `🏆 REAL BACKEND DATA (${costCategoriesCount} items)`;
+    }
+    // Priority 2: Bypassed data as fallback
+    else if (bypassedFinanceData.costCategories.length > 3) {
+      rawResults = bypassedFinanceData.costCategories;
+      dataSource = `BYPASSED (${bypassSources.costCategories})`;
+    }
+    // Priority 3: Legacy fallback data (for remaining gaps)
+    else {
+      rawResults = [];
+      dataSource = 'NO DATA AVAILABLE';
+    }
+
+    // Debug console.log commented to prevent render loops
+    // console.log(`📊 COST CATEGORIES DATA SOURCE: ${dataSource}`);
+    // console.log("Cost Categories raw results:", rawResults);
+
+    const apiOptions = rawResults.map((item: any) => ({
       id: item.id,
       name: item.name || item.description || 'Unnamed Item'
     }));
-    console.log("Cost Categories formatted options:", options);
-    return options;
-  }, [costCategories]);
+
+    // Only apply fallback merge if using non-backend sources
+    const finalOptions = backendCostCategories.length > 0 ? apiOptions : mergeFallbackCostCategories(apiOptions);
+    // console.log(`📊 Cost Categories: ${apiOptions.length} from ${dataSource} + ${finalOptions.length - apiOptions.length} fallback = ${finalOptions.length} total`);
+    return finalOptions;
+  }, [backendCostCategories, costCategoriesCount, bypassedFinanceData.costCategories, bypassSources.costCategories]);
 
   const costInputOptions = React.useMemo(() => {
-    const rawResults = (costInput as any)?.data?.results || [];
-    console.log("Cost Input raw data:", costInput);
-    console.log("Cost Input raw results:", rawResults);
+    let rawResults = [];
+    let dataSource = '';
 
-    const options = rawResults.map((item: any) => ({
+    // Priority 1: New comprehensive backend endpoint
+    if (backendCostInputs.length > 0) {
+      rawResults = backendCostInputs;
+      dataSource = `🏆 REAL BACKEND DATA (${costInputsCount} items)`;
+    }
+    // Priority 2: Bypassed data as fallback
+    else if (bypassedFinanceData.costInputs.length > 3) {
+      rawResults = bypassedFinanceData.costInputs;
+      dataSource = `BYPASSED (${bypassSources.costInputs})`;
+    }
+    // Priority 3: Legacy fallback data (for remaining gaps)
+    else {
+      rawResults = [];
+      dataSource = 'NO DATA AVAILABLE';
+    }
+
+    // Debug console.log commented to prevent render loops
+    // console.log(`🔧 COST INPUTS DATA SOURCE: ${dataSource}`);
+    // console.log("Cost Inputs raw results:", rawResults);
+
+    const apiOptions = rawResults.map((item: any) => ({
       id: item.id,
       name: item.name || item.description || 'Unnamed Item'
     }));
-    console.log("Cost Input formatted options:", options);
-    return options;
-  }, [costInput]);
+
+    // Only apply fallback merge if using non-backend sources
+    const finalOptions = backendCostInputs.length > 0 ? apiOptions : mergeFallbackCostInputs(apiOptions);
+    // console.log(`🔧 Cost Inputs: ${apiOptions.length} from ${dataSource} + ${finalOptions.length - apiOptions.length} fallback = ${finalOptions.length} total`);
+    return finalOptions;
+  }, [backendCostInputs, costInputsCount, bypassedFinanceData.costInputs, bypassSources.costInputs]);
 
   const fcoOptions = React.useMemo(() => {
-    const rawResults = (fco as any)?.data?.results || [];
-    console.log("FCO raw data:", fco);
-    console.log("FCO raw results:", rawResults);
+    let rawResults = [];
+    let dataSource = '';
 
-    const options = rawResults.map((item: any) => ({
+    // Priority 1: Dedicated FCO Numbers API (most reliable)
+    const dedicatedFCOResults = dedicatedFCOData?.data?.results || dedicatedFCOData?.results || [];
+    if (dedicatedFCOResults.length > 0) {
+      rawResults = dedicatedFCOResults;
+      dataSource = `🎯 DEDICATED FCO API (${dedicatedFCOResults.length} items)`;
+    }
+    // Priority 2: Comprehensive backend endpoint
+    else if (backendFCONumbers.length > 0) {
+      rawResults = backendFCONumbers;
+      dataSource = `🏆 COMPREHENSIVE CONFIG API (${fcoNumbersCount} items)`;
+    }
+    // Priority 3: Show fallback data when both APIs return no FCO numbers
+    else {
+      rawResults = [];
+      dataSource = 'NO FCO NUMBERS FROM APIS - USING FALLBACK';
+    }
+
+    // Debug console.log commented to prevent render loops
+    // console.log(`🔢 FCO DATA SOURCE: ${dataSource}`);
+    // console.log("🔢 Dedicated FCO API results:", dedicatedFCOResults);
+    // console.log("🔢 Comprehensive config FCO results:", backendFCONumbers);
+    // console.log("🔢 FCO raw results chosen:", rawResults);
+    // console.log("🔢 FCO API errors:", { dedicatedError: dedicatedFCOError, comprehensiveError: null });
+
+    const apiOptions = rawResults.map((item: any) => ({
       id: item.id,
-      name: item.name || item.number || item.code || 'Unnamed FCO'
+      name: item.name || item.number || item.code || `FCO-${item.id?.slice(0, 8) || 'Unknown'}`
     }));
-    console.log("FCO formatted options:", options);
-    return options;
-  }, [fco]);
+
+    // Apply fallback merge only when no real API data is available
+    const finalOptions = dedicatedFCOResults.length > 0 || backendFCONumbers.length > 0
+      ? apiOptions
+      : mergeFallbackFCONumbers(apiOptions);
+
+    // console.log(`🔢 FCO Numbers final result: ${apiOptions.length} from API + ${finalOptions.length - apiOptions.length} from fallback = ${finalOptions.length} total`);
+    // console.log(`🔢 FCO Final options:`, finalOptions);
+    return finalOptions;
+  }, [dedicatedFCOData, backendFCONumbers, fcoNumbersCount, dedicatedFCOError]);
 
   const fundingSourceOptions = React.useMemo(() => {
-    const options = (fundingSource as any)?.data?.results || [];
-    console.log("Funding Sources raw data:", fundingSource);
-    console.log("Funding Sources options:", options);
-    return options;
-  }, [fundingSource]);
+    let rawResults = [];
+    let dataSource = '';
 
-  // Debug logging (reduced)
-  if (fundingSourceLoading || costInputLoading || costCategoriesLoading || budgetLinesLoading || fcoLoading || interventionsLoading) {
-    console.log("⏳ Some data still loading...");
-  }
+    // Priority 1: New comprehensive backend endpoint
+    if (backendFundingSources.length > 0) {
+      rawResults = backendFundingSources;
+      dataSource = `🏆 REAL BACKEND DATA (${fundingSourcesCount} items)`;
+    }
+    // Priority 2: Bypassed data as fallback
+    else {
+      rawResults = [];
+      dataSource = 'NO DATA AVAILABLE';
+    }
+
+    // Debug console.log commented to prevent render loops
+    // console.log(`💰 FUNDING SOURCES DATA SOURCE: ${dataSource}`);
+    // console.log("Funding Sources raw results:", rawResults);
+
+    const apiOptions = rawResults.map((item: any) => ({
+      id: item.id,
+      name: item.name || 'Unnamed Funding Source'
+    }));
+
+    // Only apply fallback merge if using non-backend sources
+    const finalOptions = backendFundingSources.length > 0 ? apiOptions : mergeFallbackFundingSources(apiOptions);
+    // console.log(`💰 Funding Sources: ${apiOptions.length} from ${dataSource} + ${finalOptions.length - apiOptions.length} fallback = ${finalOptions.length} total`);
+    return finalOptions;
+  }, [backendFundingSources, fundingSourcesCount]);
+
+  // Debug console.log commented to prevent render loops
+  // React.useEffect(() => {
+  //   console.log("=== 🎯 REAL BACKEND DATA STATUS ===");
+  //   console.log("All Config Data:", allConfigData);
+  //   console.log("Config Loading:", configLoading);
+  //   console.log("Config Error:", configError);
+  //   console.log("🏆 Budget Lines (Backend):", backendBudgetLines.length, "items", backendBudgetLines);
+  //   console.log("🏆 Cost Categories (Backend):", backendCostCategories.length, "items", backendCostCategories);
+  //   console.log("🏆 Cost Inputs (Backend):", backendCostInputs.length, "items", backendCostInputs);
+  //   console.log("🏆 FCO Numbers (Backend):", backendFCONumbers.length, "items", backendFCONumbers);
+  //   console.log("🏆 Funding Sources (Backend):", backendFundingSources.length, "items", backendFundingSources);
+  //   console.log("🏆 Intervention Areas (Backend):", backendInterventionAreas.length, "items", backendInterventionAreas);
+  //   console.log("=== BYPASSED DATA DEBUG (for comparison) ===");
+  //   console.log("Bypassed Budget Lines:", bypassedFinanceData.budgetLines.length, "items");
+  //   console.log("Bypassed Cost Categories:", bypassedFinanceData.costCategories.length, "items");
+  //   console.log("Bypassed Cost Inputs:", bypassedFinanceData.costInputs.length, "items");
+  //   console.log("Bypassed FCO Numbers:", bypassedFinanceData.fcoNumbers.length, "items");
+  //   console.log("Bypassed Funding Sources:", bypassedFinanceData.fundingSources.length, "items");
+  //   console.log("Bypassed Intervention Areas:", bypassedFinanceData.interventionAreas.length, "items");
+  //   console.log("=== END API DEBUG ===");
+  // }, [allConfigData, backendBudgetLines, backendCostCategories, backendCostInputs, backendFCONumbers, backendFundingSources, backendInterventionAreas, bypassedFinanceData]);
+
+  // Debug console.log commented to prevent render loops
+  // if (fundingSourceLoading || costInputLoading || backendCostCategoriesLoading || backendBudgetLinesLoading || fcoLoading || dedicatedFCOLoading || interventionsLoading) {
+  //   console.log("⏳ Some data still loading...");
+  // }
 
   const usersOptions = (users as any)?.data?.results?.map(
     ({ first_name, last_name, id }: any) => ({
@@ -250,15 +444,16 @@ const CreateActivityMemo = () => {
   ) || [];
 
   const activitiesOptions = React.useMemo(() => {
-    console.log("Activities loading state:", activitiesLoading);
-    console.log("Activities error:", activitiesError);
-    if (activitiesError) {
-      console.error("Detailed activities error:", activitiesError);
-    }
+    // Debug console.log commented to prevent render loops
+    // console.log("Activities loading state:", activitiesLoading);
+    // console.log("Activities error:", activitiesError);
+    // if (activitiesError) {
+    //   console.error("Detailed activities error:", activitiesError);
+    // }
     const rawResults = (activites as any)?.data?.results || [];
-    console.log("Activities raw data:", activites);
-    console.log("Activities raw results:", rawResults);
-    console.log("Number of activities loaded:", rawResults.length);
+    // console.log("Activities raw data:", activites);
+    // console.log("Activities raw results:", rawResults);
+    // console.log("Number of activities loaded:", rawResults.length);
 
     // Show all activities (removed restrictive memo filter)
     // Sort activities - memo required first, then by activity code
@@ -269,7 +464,7 @@ const CreateActivityMemo = () => {
     });
 
     const options = sortedActivities.map(({ activity_code, activity_description, id, work_plan_activity, is_memo_required, work_plan_activity_identifier }: any) => {
-      console.log("Activity data:", { activity_code, activity_description, id, work_plan_activity, is_memo_required, work_plan_activity_identifier });
+      // console.log("Activity data:", { activity_code, activity_description, id, work_plan_activity, is_memo_required, work_plan_activity_identifier });
 
       // Build display label with activity number, code, and description
       const activityNumber = work_plan_activity_identifier || '';
@@ -282,16 +477,39 @@ const CreateActivityMemo = () => {
         value: id, // Use ActivityPlan ID directly as per backend analysis
       };
     });
-    console.log("Activities formatted options:", options);
+    // console.log("Activities formatted options:", options);
     return options;
   }, [activites, activitiesLoading, activitiesError]);
 
-  const interventionsOptions = (interventions as any)?.data?.results?.map(
-    ({ code, id }: any) => ({
+  const interventionsOptions = React.useMemo(() => {
+    let rawResults = [];
+    let dataSource = '';
+
+    // Priority 1: New comprehensive backend endpoint
+    if (backendInterventionAreas.length > 0) {
+      rawResults = backendInterventionAreas;
+      dataSource = `🏆 REAL BACKEND DATA (${interventionAreasCount} items)`;
+    }
+    // Priority 2: Bypassed data as fallback
+    else {
+      rawResults = [];
+      dataSource = 'NO DATA AVAILABLE';
+    }
+
+    // Debug console.log commented to prevent render loops
+    // console.log(`🎯 INTERVENTION AREAS DATA SOURCE: ${dataSource}`);
+    // console.log("Intervention Areas raw results:", rawResults);
+
+    const apiOptions = rawResults.map(({ code, id }: any) => ({
       id,
       name: code,
-    })
-  ) || [];
+    }));
+
+    // Only apply fallback merge if using non-backend sources
+    const finalOptions = backendInterventionAreas.length > 0 ? apiOptions : mergeFallbackInterventionAreas(apiOptions);
+    // console.log(`🎯 Intervention Areas: ${apiOptions.length} from ${dataSource} + ${finalOptions.length - apiOptions.length} fallback = ${finalOptions.length} total`);
+    return finalOptions;
+  }, [backendInterventionAreas, interventionAreasCount]);
 
   // Form persistence key
   const FORM_STORAGE_KEY = 'activity_memo_form_data';
@@ -300,10 +518,11 @@ const CreateActivityMemo = () => {
   const loadSavedFormData = () => {
     try {
       const savedData = localStorage.getItem(FORM_STORAGE_KEY);
-      console.log('Raw saved data from localStorage:', savedData);
+      // Debug console.log commented to prevent render loops
+      // console.log('Raw saved data from localStorage:', savedData);
       if (savedData) {
         const parsedData = JSON.parse(savedData);
-        console.log('✅ Loaded saved form data:', parsedData);
+        // console.log('✅ Loaded saved form data:', parsedData);
 
         // Validate the structure to ensure it's compatible
         if (parsedData && typeof parsedData === 'object') {
@@ -320,12 +539,12 @@ const CreateActivityMemo = () => {
             through: Array.isArray(parsedData.through) ? parsedData.through : [],
             expenses: Array.isArray(parsedData.expenses) ? parsedData.expenses : [],
           };
-          console.log('📋 Validated saved data:', validatedData);
+          // console.log('📋 Validated saved data:', validatedData);
           return validatedData;
         }
-      } else {
-        console.log('ℹ️ No saved form data found');
-      }
+      } // else {
+      //   console.log('ℹ️ No saved form data found');
+      // }
     } catch (error) {
       console.error('❌ Error loading saved form data:', error);
       // Clear corrupted data
@@ -335,7 +554,7 @@ const CreateActivityMemo = () => {
   };
 
   const savedFormData = loadSavedFormData();
-  console.log('📋 Final savedFormData being used:', savedFormData);
+  // console.log('📋 Final savedFormData being used:', savedFormData);
 
   const form = useForm<z.infer<typeof SampleMemoSchema>>({
     resolver: zodResolver(SampleMemoSchema),
@@ -384,7 +603,8 @@ const CreateActivityMemo = () => {
 
       if (hasContent) {
         localStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(data));
-        console.log('Form data saved to localStorage');
+        // Debug console.log commented to prevent render loops
+        // console.log('Form data saved to localStorage');
       }
     } catch (error) {
       console.error('Error saving form data:', error);
@@ -410,10 +630,10 @@ const CreateActivityMemo = () => {
     }
   };
 
-  // Debug form errors (only when there are errors)
-  if (Object.keys(errors).length > 0) {
-    console.log("📝 Form validation errors:", errors);
-  }
+  // Debug console.log commented to prevent render loops
+  // if (Object.keys(errors).length > 0) {
+  //   console.log("📝 Form validation errors:", errors);
+  // }
 
   useEffect(() => {
     if (profile) {
@@ -487,7 +707,7 @@ const CreateActivityMemo = () => {
         const selectedActivity = (activites as any)?.data?.results?.find(
           (activity: any) => activity.id === data?.activity
         );
-        const selectedCostCategory = (costCategories as any)?.data?.results?.find(
+        const selectedCostCategory = (backendCostCategories as any)?.find(
           (costCategory: any) => costCategory.id === data?.cost_categories[0]
         );
 
@@ -513,7 +733,7 @@ const CreateActivityMemo = () => {
         (activity: any) => activity.id === data?.activity
       );
       console.log("Selected activity for Redux:", selectedActivity);
-      const selectedCostCategory = (costCategories as any)?.data?.results?.find(
+      const selectedCostCategory = (backendCostCategories as any)?.find(
         (costCategory: any) => costCategory.id === data?.cost_categories[0]
       );
 
@@ -586,7 +806,7 @@ const CreateActivityMemo = () => {
             <div className='grid grid-cols-2 gap-5'>
               <div>
                 <Label className='font-semibold'>FCO Number</Label>
-                {fcoLoading ? (
+                {(fcoLoading || dedicatedFCOLoading) ? (
                   <div className="p-4 text-center text-gray-500">Loading FCO numbers...</div>
                 ) : (
                   <FormField
@@ -616,7 +836,7 @@ const CreateActivityMemo = () => {
 
               <div>
                 <Label className='font-semibold'>Budget Line</Label>
-                {budgetLinesLoading ? (
+                {backendBudgetLinesLoading ? (
                   <div className="p-4 text-center text-gray-500">Loading budget lines...</div>
                 ) : (
                   <FormField
@@ -648,7 +868,7 @@ const CreateActivityMemo = () => {
             <div className='grid grid-cols-2 gap-5'>
               <div>
                 <Label className='font-semibold'>Cost Category</Label>
-                {costCategoriesLoading ? (
+                {backendCostCategoriesLoading ? (
                   <div className="p-4 text-center text-gray-500">Loading cost categories...</div>
                 ) : (
                   <FormField

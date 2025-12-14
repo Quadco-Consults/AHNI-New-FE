@@ -1549,6 +1549,18 @@ export const globalHubLinks: GlobalHubItem[] = [
       }
     ]
   },
+  {
+    label: "Activity Memo",
+    path: "/dashboard/procurement/activity-memo",
+    icon: <FileText className="w-4 h-4" />,
+    category: "procurement",
+    permissions: [
+      {
+        module: "procurements",
+        codenames: ["view_purchaserequest"]
+      }
+    ]
+  },
   
   // Inventory Management
   {

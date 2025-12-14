@@ -103,25 +103,26 @@ const PurchaseRequesttDetails = () => {
   // Fetch activity memo data if we have the ID
   const { data: activityMemoData } = useGetActivityMemo(activityMemoId as string, !!activityMemoId);
 
-  console.log("=== PURCHASE REQUEST DEBUG ===");
-  console.log("Purchase request data:", data);
-  console.log("Activity memo ID:", activityMemoId);
-  console.log("Activity memo data:", activityMemoData);
-  console.log("Items structure:", data?.data?.items);
-  console.log("=== USER FIELDS DEBUG ===");
-  console.log("requested_by_detail:", data?.data?.requested_by_detail);
-  console.log("reviewed_by_detail:", data?.data?.reviewed_by_detail);
-  console.log("authorised_by_detail:", data?.data?.authorised_by_detail);
-  console.log("approved_by_detail:", data?.data?.approved_by_detail);
-  console.log("All purchase request fields:", data?.data ? Object.keys(data.data) : 'No data');
-  if (data?.data?.items?.[0]) {
-    console.log("First item full:", data.data.items[0]);
-    console.log("First item keys:", Object.keys(data.data.items[0]));
-    console.log("item field:", data.data.items[0].item);
-    console.log("item_detail field:", data.data.items[0].item_detail);
-    console.log("FCO details:", data.data.items[0].fconumber_details);
-    console.log("FCO number:", data.data.items[0].fco_number);
-  }
+  // Debug console.log commented to prevent render loops
+  // console.log("=== PURCHASE REQUEST DEBUG ===");
+  // console.log("Purchase request data:", data);
+  // console.log("Activity memo ID:", activityMemoId);
+  // console.log("Activity memo data:", activityMemoData);
+  // console.log("Items structure:", data?.data?.items);
+  // console.log("=== USER FIELDS DEBUG ===");
+  // console.log("requested_by_detail:", data?.data?.requested_by_detail);
+  // console.log("reviewed_by_detail:", data?.data?.reviewed_by_detail);
+  // console.log("authorised_by_detail:", data?.data?.authorised_by_detail);
+  // console.log("approved_by_detail:", data?.data?.approved_by_detail);
+  // console.log("All purchase request fields:", data?.data ? Object.keys(data.data) : 'No data');
+  // if (data?.data?.items?.[0]) {
+  //   console.log("First item full:", data.data.items[0]);
+  //   console.log("First item keys:", Object.keys(data.data.items[0]));
+  //   console.log("item field:", data.data.items[0].item);
+  //   console.log("item_detail field:", data.data.items[0].item_detail);
+  //   console.log("FCO details:", data.data.items[0].fconumber_details);
+  //   console.log("FCO number:", data.data.items[0].fco_number);
+  // }
 
   if (isLoading) {
     return <LoadingSpinner />;
@@ -257,11 +258,19 @@ const PurchaseRequesttDetails = () => {
                   <TableCell className='text-center text-gray-600 text-xs'>
                     {/* Display FCO/Activity No from activity memo data or item data */}
                     {(() => {
+                      // Debug console.log commented to prevent render loops
+                      // console.log("🔍 FCO Debug for row", index, ":", {
+                      //   activityMemoFCO: activityMemoData?.data?.fconumber_details,
+                      //   itemFCO: row?.fconumber_details,
+                      //   itemFCONumber: row?.fco_number,
+                      //   activityCode: activityMemoData?.data?.activity_detail?.code
+                      // });
+
                       // First try: FCO details from activity memo
                       if (activityMemoData?.data?.fconumber_details && activityMemoData.data.fconumber_details.length > 0) {
                         return activityMemoData.data.fconumber_details.map((fco: any, idx: number) => (
-                          <span key={idx}>
-                            {fco?.module_code || fco?.code || fco?.name}
+                          <span key={idx} className="font-medium">
+                            {fco?.module_name || fco?.module_code || fco?.name || fco?.code || `FCO-${idx + 1}`}
                             {idx + 1 < (activityMemoData.data.fconumber_details?.length || 0) && ", "}
                           </span>
                         ));
@@ -270,8 +279,8 @@ const PurchaseRequesttDetails = () => {
                       // Second try: FCO details from purchase request item
                       if (row?.fconumber_details && row.fconumber_details.length > 0) {
                         return row.fconumber_details.map((fco: any, idx: number) => (
-                          <span key={idx}>
-                            {fco?.module_code || fco?.code || fco?.name}
+                          <span key={idx} className="font-medium">
+                            {fco?.module_name || fco?.module_code || fco?.name || fco?.code || `FCO-${idx + 1}`}
                             {idx + 1 < (row.fconumber_details?.length || 0) && ", "}
                           </span>
                         ));
@@ -279,24 +288,24 @@ const PurchaseRequesttDetails = () => {
 
                       // Third try: Activity detail from activity memo
                       if (activityMemoData?.data?.activity_detail?.code) {
-                        return activityMemoData.data.activity_detail.code;
+                        return <span className="font-medium">{activityMemoData.data.activity_detail.code}</span>;
                       }
 
                       // Fourth try: fco_number array (if it contains IDs, show count)
                       if (Array.isArray(row?.fco_number) && row.fco_number.length > 0) {
-                        return `${row.fco_number.length} FCO(s)`;
+                        return <span className="text-blue-600 font-medium">{row.fco_number.length} FCO(s) Selected</span>;
                       }
 
                       // Fifth try: Simple FCO field from item
                       if (row?.fco) {
-                        return row.fco;
+                        return <span className="font-medium">{row.fco}</span>;
                       }
 
                       // Fallbacks for other possible fields
-                      if (row?.activity_number) return row.activity_number;
-                      if (row?.fconumber) return row.fconumber;
+                      if (row?.activity_number) return <span className="font-medium">{row.activity_number}</span>;
+                      if (row?.fconumber) return <span className="font-medium">{row.fconumber}</span>;
 
-                      return "N/A";
+                      return <span className="text-gray-400 italic">No FCO</span>;
                     })()}
                   </TableCell>
                   <TableCell className='text-center text-gray-600 text-xs'>{safeRender(row.item_detail?.category) !== 'N/A' ? safeRender(row.item_detail?.category) : safeRender(row.category) !== 'N/A' ? safeRender(row.category) : 'General'}</TableCell>

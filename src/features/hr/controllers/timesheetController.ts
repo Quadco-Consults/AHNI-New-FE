@@ -78,7 +78,7 @@ export const useGetTimesheets = ({
 }: TimesheetFilterParams = {}) => {
   // SECURITY FIX: Get current user to ensure proper access control
   const currentUser = getCurrentUser();
-  const currentEmployeeId = currentUser?.employee?.id || currentUser?.id;
+  const currentEmployeeId = currentUser?.employee_uuid || currentUser?.employee?.id || currentUser?.id;
 
   // If no specific employee is requested and user is not admin/HR, filter by current user
   const effectiveEmployee = employee || currentEmployeeId;
@@ -130,7 +130,7 @@ export const useGetTimesheets = ({
 export const useGetTimesheetById = (id: string, enabled: boolean = true) => {
   // Get current user context for security validation
   const currentUser = getCurrentUser();
-  const currentEmployeeId = currentUser?.employee?.id || currentUser?.id;
+  const currentEmployeeId = currentUser?.employee_uuid || currentUser?.employee?.id || currentUser?.id;
 
   return useQuery<ApiResponse<Timesheet>>({
     queryKey: ["timesheet", id, currentEmployeeId],

@@ -63,10 +63,15 @@ function PurchaseRequest({
   const { data: allActivityMemos } = useGetAllActivityMemos({ size: 5 });
 
 
-  // Filter and sort results based on status
+  // Filter and sort results based on status and current user
   const filteredAndSortedResults = data?.data?.results
     ?.slice()
     .filter((item) => {
+      // First filter by user - only show items requested by current user
+      const isUserRequested = item.requested_by?.id === currentUser?.data?.id;
+      if (!isUserRequested) return false;
+
+      // Then filter by status
       if (status === "pending") {
         // Show pending, under_review, review, or any non-approved status
         return !item.status || item.status.toLowerCase() !== 'approved';

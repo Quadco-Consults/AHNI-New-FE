@@ -67,7 +67,7 @@ export const useGetAllLeaveBalances = ({
 export const useGetEmployeeLeaveBalance = (employeeId?: string, enabled: boolean = true) => {
   // SECURITY FIX: Get current user context
   const currentUser = getCurrentUser();
-  const currentEmployeeId = currentUser?.employee?.id || currentUser?.id;
+  const currentEmployeeId = currentUser?.employee_uuid || currentUser?.employee?.id || currentUser?.id;
 
   // SECURITY FIX: If no employee ID provided, use current user's ID
   // If employee ID is provided, it should match current user (unless admin/HR)
