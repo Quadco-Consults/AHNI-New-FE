@@ -63,17 +63,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
     getDepartmentTheme
   } = useDepartmentFeatures();
 
-  // Debug permission state (only in development)
-  if (process.env.NODE_ENV === 'development') {
-    console.log('🔍 UNIFIED SIDEBAR - ERP User Lifecycle:', {
-      isAuthenticated: authState.isAuthenticated,
-      isAdmin: isAdmin,
-      isLoading: permissionsLoading,
-      hasUser: !!user,
-      workflow: 'Create User → Global Hub Access → Role Assignment → Departmental Menus',
-      approach: 'Universal Global Hub + Role-based Departmental Access'
-    });
-  }
+  // Debug permission state (only in development) - moved to useEffect after hydration
 
   // State for collapsible sections
   const [selectedLinkIndex, setSelectedLinkIndex] = useState<null | number>(null);
@@ -90,7 +80,16 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
 
   useEffect(() => {
     setIsHydrated(true);
-  }, []);
+
+    // Debug after hydration
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔍 SIDEBAR HYDRATED DEBUG:', {
+        isAuthenticated: authState.isAuthenticated,
+        hasUser: !!user,
+        userEmail: user?.email || 'no user'
+      });
+    }
+  }, [authState.isAuthenticated, user]);
 
   // Department-based access mapping using new hook
   const getDepartmentAccess = () => {
@@ -506,12 +505,34 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
         'FINANCE': ['Finance'],
         'CONTRACT & GRANTS': ['C&G'],
         'CONTRACTS & GRANTS': ['C&G'],
+        'CONTRACTS AND GRANTS': ['C&G'],
+        'C ANG G': ['C&G'],
+        'C AND G': ['C&G'],
+        'C&G': ['C&G'],
+        'CG': ['C&G'],
         'ADMIN': ['Admin'],
         'ADMINISTRATION': ['Admin'],
         'ADMIN DEPT': ['Admin']
       };
 
-      const allowedDepartments = departmentMapping[userDept] || [];
+      let allowedDepartments = departmentMapping[userDept] || [];
+
+      // Fallback: If no exact match, check for partial matches with common patterns
+      if (allowedDepartments.length === 0 && userDept) {
+        if (userDept.includes('CONTRACT') || userDept.includes('GRANT') || userDept.includes('C&G') || userDept.includes('CG')) {
+          allowedDepartments = ['C&G'];
+        } else if (userDept.includes('PROGRAM')) {
+          allowedDepartments = ['Programs'];
+        } else if (userDept.includes('PROCUR')) {
+          allowedDepartments = ['Procurement Management'];
+        } else if (userDept.includes('HR') || userDept.includes('HUMAN')) {
+          allowedDepartments = ['HR'];
+        } else if (userDept.includes('FINANC')) {
+          allowedDepartments = ['Finance'];
+        } else if (userDept.includes('ADMIN')) {
+          allowedDepartments = ['Admin'];
+        }
+      }
 
       // Allow if item matches user's department
       return allowedDepartments.includes(item.name);
@@ -641,43 +662,26 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
         return true;
       }
 
-      // Check item-specific permissions - more permissive approach
-      const itemPermissions = item.permissions;
-      if (itemPermissions && itemPermissions.length > 0) {
-        // For staff users, be more permissive with global hub access
-        if (user?.is_staff) {
-          // Staff users can see most global hub items
-          // Individual items within categories will still be permission-checked at the component level
-          return true;
-        }
+      // UNIVERSAL ACCESS POLICY for Global Hub - ALL authenticated users can see ALL Global Hub items
+      // This implements the requirement: "Global Hub is universally accessible to ALL authenticated AHNI employees"
+      // No permission checking needed - if user is authenticated, they can access all Global Hub items
 
-        // For non-staff users, check specific permissions
-        const hasPermissionAccess = itemPermissions.some(permission => {
-          if (!permission.codenames || permission.codenames.length === 0) {
-            return false;
-          }
-
-          const hasAllCodenames = permission.codenames.every(codename =>
-            hasPermissionByCodename(permission.module, codename)
-          );
-
-          return hasAllCodenames;
-        });
-
-        return hasPermissionAccess;
-      }
-
-      return false; // Default to hide items without proper permissions
+      return true; // Default to SHOW items for Global Hub universal access
     });
 
     // Debug logging (development only)
     if (process.env.NODE_ENV === 'development') {
-      console.log('🌐 GLOBAL HUB PERMISSION-BASED ACCESS:', {
-        policy: 'Global Hub access based on user permissions and department features',
+      console.log('🌐 GLOBAL HUB UNIVERSAL ACCESS (UPDATED POLICY):', {
+        policy: 'Universal Global Hub access for ALL authenticated AHNI employees',
         originalCount: globalHubLinks.length,
         visibleItemsCount: filtered.length,
-        accessLevel: isAdmin || user?.is_superuser ? 'Admin - Full Access' : 'Permission-Based Access',
+        accessLevel: 'Universal Access for All Authenticated Users',
         userType: isAdmin ? 'Admin' : user?.is_staff ? 'Staff Officer' : 'Regular Employee',
+        isStaff: user?.is_staff,
+        isAdmin: isAdmin,
+        isSuperuser: user?.is_superuser,
+        universalItems: filtered.filter(item => !item.permissions || item.permissions.length === 0).length,
+        permissionBasedItems: filtered.filter(item => item.permissions && item.permissions.length > 0).length,
         departmentAccess: {
           procurement: canAccessProcurementFeatures,
           admin: canAccessAdminFeatures,
@@ -688,13 +692,14 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
         visibleItems: filtered.map(item => ({
           label: item.label,
           category: item.category,
-          hasPermissions: !!(item.permissions && item.permissions.length > 0)
+          hasPermissions: !!(item.permissions && item.permissions.length > 0),
+          isUniversal: !item.permissions || item.permissions.length === 0
         }))
       });
     }
 
     return filtered;
-  }, [isHydrated, permissionsLoading, authState.isAuthenticated, globalHubLinks, hasPermission, hasPermissionByCodename]);
+  }, [isHydrated, permissionsLoading, authState.isAuthenticated, globalHubLinks, hasPermission, hasPermissionByCodename, user, isAdmin, canAccessProcurementFeatures, canAccessAdminFeatures, canAccessFinanceFeatures, canAccessContractsGrantsFeatures, canAccessProgramsFeatures]);
 
   const groupedGlobalHubMenu = useMemo(() => {
     const grouped = groupGlobalHubByCategory(filteredGlobalHubItems, globalHubCategories);
@@ -1137,16 +1142,28 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
           )}
 
           {/* Global Hub - only show if user has access */}
+          {(() => {
+            if (process.env.NODE_ENV === 'development') {
+              console.log('🌐 GLOBAL HUB RENDER CHECK:', {
+                userHasGlobalHubAccess,
+                groupedGlobalHubMenuLength: groupedGlobalHubMenu.length,
+                willRender: userHasGlobalHubAccess && groupedGlobalHubMenu.length > 0
+              });
+            }
+            return null;
+          })()}
           {userHasGlobalHubAccess && groupedGlobalHubMenu.length > 0 && (
             <div>
-              <h4
-                className={cn(
-                  "text-black/40 px-2 py-3 text-xs font-semibold uppercase duration-200",
-                  sidebarWidth === false ? "block" : "hidden"
-                )}
-              >
-                GLOBAL HUB
-              </h4>
+              <Link href="/dashboard/global-hub">
+                <h4
+                  className={cn(
+                    "text-black/40 px-2 py-3 text-xs font-semibold uppercase duration-200 hover:text-primary cursor-pointer transition-colors",
+                    sidebarWidth === false ? "block" : "hidden"
+                  )}
+                >
+                  GLOBAL HUB
+                </h4>
+              </Link>
 
               <div className="space-y-1">
                 {groupedGlobalHubMenu.map((category) => (
