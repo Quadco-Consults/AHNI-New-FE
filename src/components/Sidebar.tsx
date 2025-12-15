@@ -121,7 +121,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
       accessMap.push('Support');
 
       // Staff members (officers) get access to ALL Global Hub items
-      if (user?.is_staff || isAdmin || user?.is_superuser) {
+      if (user?.is_staff || isAdmin) {
         accessMap.push('Communication', 'Organization', 'Programs & Planning', 'Procurement & Purchasing',
                        'Inventory Management', 'Fleet & Transport', 'Maintenance', 'Financial Services', 'Contracts & Reports');
       } else {
@@ -224,7 +224,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
 
       if (isChild && parentDepartment) {
         // SUPERUSER OVERRIDE: Admins get access to everything
-        if (isAdmin || user?.is_superuser) {
+        if (isAdmin) {
           departmentBasedAccess = true;
         } else {
           // For child items, check if parent department is allowed OR if we're in department hierarchy
@@ -269,7 +269,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
         }
       } else {
         // SUPERUSER OVERRIDE: Admins get access to everything
-        if (isAdmin || user?.is_superuser) {
+        if (isAdmin) {
           departmentBasedAccess = true;
         } else {
           // For top-level items, check if this department is allowed
@@ -291,7 +291,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
       // Also handle case when permissions are still loading
       const permissionBasedAccess =
         // SUPERUSER OVERRIDE: Admins get access to everything
-        (isAdmin || user?.is_superuser) ||
+        (isAdmin) ||
         // No specific permissions required
         (!item.permissions || item.permissions.length === 0) ||
         // User has required permissions
@@ -322,7 +322,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
       let adjustedPermissionAccess = permissionBasedAccess;
 
       // SUPERUSER OVERRIDE: Admins get access to everything
-      if (isAdmin || user?.is_superuser || user?.is_staff) {
+      if (isAdmin || user?.is_staff) {
         adjustedPermissionAccess = true;
       } else if (isChild && isInDepartmentHierarchy(parentDepartment, userPosition)) {
         // For department hierarchy (including sub-departments), be more permissive for department officers
@@ -335,7 +335,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
       // Enhanced child menu access for departmental officers with their own department
       if (isChild && parentDepartment) {
         // SUPERUSER OVERRIDE: Admins get access to everything (already handled above, but keeping for clarity)
-        if (!(isAdmin || user?.is_superuser)) {
+        if (!(isAdmin)) {
           // SIMPLIFIED ADMIN DEPARTMENT ACCESS
           // If user can access Admin features, grant access to all Admin submenus
           if (parentDepartment === 'Admin' && canAccessAdminFeatures) {
@@ -486,10 +486,14 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
       return [];
     }
 
+    // Only superusers and specifically admin department users can see all departments
+    // HR Managers should NOT see all departments, even if they are staff
+    const isActualAdminUser = user?.is_superuser ||
+      (userDepartment?.toUpperCase() === 'ADMIN' || userDepartment?.toUpperCase() === 'ADMINISTRATION');
+
     // First filter by department - users should only see their own department unless admin
     const departmentFiltered = departmentalLinks.filter(item => {
-      // Admins can see all departments
-      if (isAdmin || user?.is_superuser) {
+      if (isActualAdminUser) {
         return true;
       }
 
@@ -544,7 +548,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
     // Debug logging (development only) - Check departmental filtering
     if (process.env.NODE_ENV === 'development') {
       console.log('🏢 DEPARTMENTAL FILTERING Debug:', {
-        userType: isAdmin ? 'Admin' : 'Regular User',
+        userType: isActualAdminUser ? 'Admin' : 'Regular User',
         userPosition: user?.position?.title,
         userDepartment: userDepartment,
         backendDepartment: user?.department?.name,
@@ -593,6 +597,15 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
       return [];
     }
 
+    // Override admin access for Settings/Module links - HR managers should NOT see settings
+    const isActualAdminUserForSettings = user?.is_superuser ||
+      (userDepartment?.toUpperCase() === 'ADMIN' || userDepartment?.toUpperCase() === 'ADMINISTRATION');
+
+    // If not actually an admin user, return empty array (no Settings access)
+    if (!isActualAdminUserForSettings) {
+      return [];
+    }
+
     const filtered = filterMenuItems(moduleLinks);
 
     // Debug logging (development only)
@@ -600,7 +613,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
       console.log('🔍 UNIFIED Module Links Filtering:', {
         originalCount: moduleLinks.length,
         filteredCount: filtered.length,
-        isAdmin: isAdmin,
+        isActualAdminUserForSettings: isActualAdminUserForSettings,
         filteredItems: filtered.map(item => item.name),
         userEmail: user?.email,
         userIsSuperuser: user?.is_superuser,
@@ -617,7 +630,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
     }
 
     return filtered;
-  }, [isHydrated, permissionsLoading, authState.isAuthenticated, moduleLinks, hasPermission, isAdmin]);
+  }, [isHydrated, permissionsLoading, authState.isAuthenticated, moduleLinks, hasPermission, user?.is_superuser, userDepartment]);
 
   const filteredGlobalHubItems = useMemo(() => {
     const hasBasicAuth = authState.isAuthenticated && !!user;
@@ -637,7 +650,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
 
     const filtered = mapped.filter(item => {
       // Admin and superuser access to everything
-      if (isAdmin || user?.is_superuser) {
+      if (isAdmin) {
         return true;
       }
 
@@ -662,17 +675,85 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
         return true;
       }
 
-      // UNIVERSAL ACCESS POLICY for Global Hub - ALL authenticated users can see ALL Global Hub items
-      // This implements the requirement: "Global Hub is universally accessible to ALL authenticated AHNI employees"
-      // No permission checking needed - if user is authenticated, they can access all Global Hub items
+      // PERMISSION-BASED ACCESS for Global Hub items with proper role filtering
+      // Global Hub is accessible to all, but content is filtered based on user permissions and roles
+      const itemPermissions = item.permissions;
+      if (itemPermissions && itemPermissions.length > 0) {
+        // Super admins can see everything
+        if (user?.is_superuser) {
+          return true;
+        }
 
-      return true; // Default to SHOW items for Global Hub universal access
+        // For regular staff and officers, check specific permissions
+        const hasPermissionAccess = itemPermissions.some(permission => {
+          if (!permission.codenames || permission.codenames.length === 0) {
+            return true; // No specific permissions required
+          }
+
+          // Check if user has the required permissions
+          const hasAnyCodename = permission.codenames.some(codename =>
+            hasPermissionByCodename(permission.module, codename)
+          );
+
+          return hasAnyCodename;
+        });
+
+        // Global Hub should be accessible to ALL authenticated users with full visibility
+        // Staff members, officers, and departmental managers get broader access to Global Hub items
+        if (user?.is_staff || user?.is_superuser ||
+            canAccessAdminFeatures || canAccessProcurementFeatures || canAccessFinanceFeatures ||
+            canAccessContractsGrantsFeatures || canAccessProgramsFeatures || canAccessHRFeatures) {
+          return hasPermissionAccess || true; // Departmental users get access to most Global Hub items
+        }
+
+        // For regular employees, check department relevance
+        const isDepartmentRelevant =
+          canAccessAdminFeatures && (item.category === 'inventory' || item.category === 'fleet' || item.category === 'maintenance' || item.category === 'financial') ||
+          canAccessProcurementFeatures && item.category === 'procurement' ||
+          canAccessFinanceFeatures && item.category === 'financial' ||
+          canAccessContractsGrantsFeatures && item.category === 'contracts' ||
+          canAccessProgramsFeatures && item.category === 'programs' ||
+          canAccessHRFeatures && item.category === 'hr' || // HR items only for HR department users
+          item.category === 'communication' || // Universal communication items
+          item.category === 'organization'; // Universal organization items
+
+        return hasPermissionAccess || isDepartmentRelevant;
+      }
+
+      return true; // Items without permissions (universal access items)
     });
 
     // Debug logging (development only)
     if (process.env.NODE_ENV === 'development') {
-      console.log('🌐 GLOBAL HUB UNIVERSAL ACCESS (UPDATED POLICY):', {
-        policy: 'Universal Global Hub access for ALL authenticated AHNI employees',
+      // Special debug for Finance Manager users
+      if (user?.email?.toLowerCase().includes('finance') ||
+          user?.position?.title?.toLowerCase().includes('finance')) {
+        console.log('💰 FINANCE MANAGER GLOBAL HUB DEBUG:', {
+          userEmail: user?.email,
+          userPosition: user?.position?.title,
+          isStaff: user?.is_staff,
+          isSuperuser: user?.is_superuser,
+          canAccessFinanceFeatures,
+          originalGlobalHubCount: globalHubLinks.length,
+          filteredCount: filtered.length,
+          filteredItems: filtered.map(item => ({
+            label: item.label,
+            category: item.category,
+            hasPermissions: !!(item.permissions && item.permissions.length > 0)
+          })),
+          departmentAccess: {
+            procurement: canAccessProcurementFeatures,
+            admin: canAccessAdminFeatures,
+            finance: canAccessFinanceFeatures,
+            contractsGrants: canAccessContractsGrantsFeatures,
+            programs: canAccessProgramsFeatures,
+            hr: canAccessHRFeatures
+          }
+        });
+      }
+
+      console.log('🌐 GLOBAL HUB ROLE-BASED ACCESS (ENHANCED FOR MANAGERS):', {
+        policy: 'Global Hub accessible to all, but content filtered by department and permissions',
         originalCount: globalHubLinks.length,
         visibleItemsCount: filtered.length,
         accessLevel: 'Universal Access for All Authenticated Users',
@@ -687,7 +768,8 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
           admin: canAccessAdminFeatures,
           finance: canAccessFinanceFeatures,
           contractsGrants: canAccessContractsGrantsFeatures,
-          programs: canAccessProgramsFeatures
+          programs: canAccessProgramsFeatures,
+          hr: canAccessHRFeatures
         },
         visibleItems: filtered.map(item => ({
           label: item.label,
@@ -699,7 +781,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
     }
 
     return filtered;
-  }, [isHydrated, permissionsLoading, authState.isAuthenticated, globalHubLinks, hasPermission, hasPermissionByCodename, user, isAdmin, canAccessProcurementFeatures, canAccessAdminFeatures, canAccessFinanceFeatures, canAccessContractsGrantsFeatures, canAccessProgramsFeatures]);
+  }, [isHydrated, permissionsLoading, authState.isAuthenticated, globalHubLinks, hasPermission, hasPermissionByCodename, user, isAdmin, canAccessProcurementFeatures, canAccessAdminFeatures, canAccessFinanceFeatures, canAccessContractsGrantsFeatures, canAccessProgramsFeatures, canAccessHRFeatures]);
 
   const groupedGlobalHubMenu = useMemo(() => {
     const grouped = groupGlobalHubByCategory(filteredGlobalHubItems, globalHubCategories);
