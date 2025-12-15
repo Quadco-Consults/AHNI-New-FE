@@ -89,7 +89,7 @@ const LeaveTypesList = () => {
       cell: ({ row }) => (
         <div className="flex items-center gap-1">
           <DollarSign className="w-4 h-4 text-green-600" />
-          <span>{row.original.value_of_a_leave_day.toFixed(2)}</span>
+          <span>{row.original.value_of_a_leave_day != null ? row.original.value_of_a_leave_day.toFixed(2) : '0.00'}</span>
         </div>
       ),
     },

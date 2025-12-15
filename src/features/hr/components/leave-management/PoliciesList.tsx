@@ -38,7 +38,7 @@ const PoliciesList = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
   // Fetch policies from backend
-  const { data: policiesData, isLoading } = useQuery({
+  const { data: policiesData, isLoading, isError } = useQuery({
     queryKey: ["leave-policies"],
     queryFn: async () => {
       try {
@@ -46,6 +46,11 @@ const PoliciesList = () => {
         return response.data;
       } catch (error: any) {
         console.error("Error fetching policies:", error);
+        // Return empty array for 404 errors to prevent component crash
+        if (error.response?.status === 404) {
+          console.warn("Leave policies endpoint not found (404), returning empty array");
+          return { results: [] };
+        }
         throw error;
       }
     },

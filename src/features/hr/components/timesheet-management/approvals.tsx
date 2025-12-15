@@ -443,6 +443,7 @@ const TimesheetApprovals = () => {
         }}
         className="fixed inset-0 flex items-center justify-center p-4 overflow-auto"
         overlayClassName="fixed inset-0 bg-black bg-opacity-50"
+        appElement={typeof document !== 'undefined' ? document.getElementById('__next') || document.body : undefined}
       >
         <div className="bg-white rounded-lg p-6 max-w-4xl w-full max-h-[90vh] overflow-auto space-y-6">
           {viewingTimesheet && (
