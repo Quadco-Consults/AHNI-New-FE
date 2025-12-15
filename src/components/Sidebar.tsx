@@ -37,6 +37,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
   // UNIFIED PERMISSION SYSTEM - Single source of truth
   const {
     hasPermission,
+    hasPermissionByCodename,
     isAdmin,
     isLoading: permissionsLoading,
     user
@@ -96,6 +97,16 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
     const features = getDepartmentFeatures();
     const accessMap: string[] = [];
 
+    // Debug department features (development only)
+    if (process.env.NODE_ENV === 'development' && user?.email?.includes('admin')) {
+      console.log('🏢 Department Features Debug:', {
+        userEmail: user?.email,
+        features,
+        adminFeature: features.admin,
+        canAccessAdminFeatures
+      });
+    }
+
     if (features.programs) accessMap.push('Programs');
     if (features.contractsGrants) accessMap.push('C&G');
     if (features.hr) accessMap.push('HR');
@@ -103,21 +114,25 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
     if (features.admin) accessMap.push('Admin');
     if (features.procurement) accessMap.push('Procurement Management');
 
-    // UNIVERSAL ACCESS - All authenticated AHNI employees get access to all Global Hub categories
-    // This includes both organizational and departmental Global Hub items
+    // STAFF GLOBAL HUB ACCESS - All staff members get full Global Hub access
     if (user && authState.isAuthenticated) {
+      // Core Global Hub items that all authenticated users can access
       accessMap.push('Global Hub');
-      accessMap.push('Communication');
-      accessMap.push('Organization');
-      accessMap.push('Programs & Planning');
-      accessMap.push('Procurement & Purchasing');
-      accessMap.push('Inventory Management');
-      accessMap.push('Fleet & Transport');
-      accessMap.push('Maintenance');
-      accessMap.push('Financial Services');
-      accessMap.push('Contracts & Reports');
       accessMap.push('Staff Self-Service');
       accessMap.push('Support');
+
+      // Staff members (officers) get access to ALL Global Hub items
+      if (user?.is_staff || isAdmin || user?.is_superuser) {
+        accessMap.push('Communication', 'Organization', 'Programs & Planning', 'Procurement & Purchasing',
+                       'Inventory Management', 'Fleet & Transport', 'Maintenance', 'Financial Services', 'Contracts & Reports');
+      } else {
+        // For non-staff users, provide department-specific access only
+        if (canAccessContractsGrantsFeatures) accessMap.push('Contracts & Reports');
+        if (canAccessProgramsFeatures) accessMap.push('Programs & Planning');
+        if (canAccessFinanceFeatures) accessMap.push('Financial Services');
+        if (canAccessAdminFeatures) accessMap.push('Inventory Management', 'Fleet & Transport', 'Maintenance');
+        if (canAccessProcurementFeatures) accessMap.push('Procurement & Purchasing');
+      }
     }
 
     if (features.leave) accessMap.push('Leave Management');
@@ -224,6 +239,14 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
           const isNestedProgramsChild = (parentDepartment === 'Plans' || parentDepartment === 'Stakeholder Management' ||
             parentDepartment === 'Fund Request' || parentDepartment === 'Adhoc Management') && canAccessProgramsFeatures;
           const isNestedProcurementChild = (parentDepartment === 'Purchase Request' || parentDepartment === 'Vendor Management') && canAccessProcurementFeatures;
+
+          // SIMPLIFIED ADMIN NESTED CHILDREN - All admin submenus
+          const adminSubmenus = [
+            'Inventory Management', 'Solicitation Management', 'Fleet Management', 'Facility Management',
+            'Payment Request', 'Service Level Agreements', 'Asset Maintenance', 'Expense Authorization', 'Travel Expenses Report'
+          ];
+          const isNestedAdminChild = (adminSubmenus.includes(parentDepartment) || parentDepartment === 'Admin') && canAccessAdminFeatures;
+
           // Enhanced nested finance child check - includes ALL 22 finance submenu items
           const financeSubmenus = [
             'Financial Classifications', 'Chart of Accounts', 'Bank Accounts', 'Journal Entries',
@@ -243,7 +266,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
           const isNestedHRChild = (hrSubmenus.includes(parentDepartment) || parentDepartment === 'HR') && canAccessHRFeatures;
 
           departmentBasedAccess = allowedDepartments.length === 0 || directParentAllowed || departmentHierarchyAllowed ||
-            isNestedCGChild || isNestedProgramsChild || isNestedProcurementChild || isNestedFinanceChild || isNestedHRChild;
+            isNestedCGChild || isNestedProgramsChild || isNestedProcurementChild || isNestedAdminChild || isNestedFinanceChild || isNestedHRChild;
         }
       } else {
         // SUPERUSER OVERRIDE: Admins get access to everything
@@ -258,6 +281,8 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
             (item.name === 'Finance' && user?.email?.toLowerCase().includes('finance')) ||
             // Special HR user override - email-based HR users should access HR department
             (item.name === 'HR' && user?.email?.toLowerCase().includes('hr')) ||
+            // Special admin user override - email-based admin users should access Admin department
+            (item.name === 'Admin' && (user?.email?.toLowerCase().includes('admin.officer') || user?.email?.toLowerCase().includes('adminofficer'))) ||
             // TEMPORARY DEBUG: Force HR access for testing
             (item.name === 'HR');
         }
@@ -278,6 +303,8 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
         (item.name === 'Finance' && user?.email?.toLowerCase().includes('finance')) ||
         // Special HR user override - email-based HR users should access HR module
         (item.name === 'HR' && user?.email?.toLowerCase().includes('hr')) ||
+        // Special admin user override - email-based admin users should access Admin module
+        (item.name === 'Admin' && (user?.email?.toLowerCase().includes('admin.officer') || user?.email?.toLowerCase().includes('adminofficer'))) ||
         // REMOVED: These forced HR overrides granted access to all users
         // (item.name === 'HR') ||
         // (item.name?.includes('Employee Management')) ||
@@ -289,7 +316,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
         (permissionsLoading && authState.isAuthenticated && user);
 
       // Get user position for department hierarchy checks
-      const userPosition = user?.position?.title || '';
+      const userPosition = user?.position?.name || user?.position?.title || '';
 
       // Special handling for Department Officers - if they can access their department hierarchy,
       // they should see the main functional sub-menus even if specific permissions are missing
@@ -310,36 +337,30 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
       if (isChild && parentDepartment) {
         // SUPERUSER OVERRIDE: Admins get access to everything (already handled above, but keeping for clarity)
         if (!(isAdmin || user?.is_superuser)) {
-          // Check if this is the user's own department
-          const isOwnDepartment = (parentDepartment === 'C&G' && canAccessContractsGrantsFeatures) ||
-            (parentDepartment === 'Programs' && canAccessProgramsFeatures) ||
-            (parentDepartment === 'HR' && canAccessHRFeatures) ||
-            (parentDepartment === 'Finance' && canAccessFinanceFeatures) ||
-            (parentDepartment === 'Admin' && canAccessAdminFeatures) ||
-            (parentDepartment === 'Procurement Management' && canAccessProcurementFeatures);
-
-          // More permissive logic for departmental officers - remove permission count restriction
-          if (isOwnDepartment) {
-            adjustedPermissionAccess = true; // Allow all child items for department officers in their own department
-          }
-
-          // Special Finance department override - be even more permissive for Finance users
-          if (parentDepartment === 'Finance' && (canAccessFinanceFeatures || user?.email?.toLowerCase().includes('finance'))) {
+          // SIMPLIFIED ADMIN DEPARTMENT ACCESS
+          // If user can access Admin features, grant access to all Admin submenus
+          if (parentDepartment === 'Admin' && canAccessAdminFeatures) {
             adjustedPermissionAccess = true;
           }
 
-          // Special HR department override - be even more permissive for HR users and managers
-          const hrSubmenus = [
-            'Employee Management', 'Leave Management', 'Performance Management', 'Training & Development',
-            'Recruitment', 'Compensation & Benefits', 'Separation Management', 'Grievance Management',
-            'Timesheet Management', 'Compliance & Audit', 'Employee Relations', 'HR Reports'
-          ];
-          if ((parentDepartment === 'HR' || hrSubmenus.includes(parentDepartment)) && (canAccessHRFeatures || user?.email?.toLowerCase().includes('hr'))) {
+          // Other department-specific overrides
+          if (parentDepartment === 'Finance' && canAccessFinanceFeatures) {
             adjustedPermissionAccess = true;
           }
 
-          // TEMPORARY DEBUG: Force HR child access for testing
-          if (parentDepartment === 'HR' || hrSubmenus.includes(parentDepartment)) {
+          if (parentDepartment === 'HR' && canAccessHRFeatures) {
+            adjustedPermissionAccess = true;
+          }
+
+          if (parentDepartment === 'Programs' && canAccessProgramsFeatures) {
+            adjustedPermissionAccess = true;
+          }
+
+          if (parentDepartment === 'C&G' && canAccessContractsGrantsFeatures) {
+            adjustedPermissionAccess = true;
+          }
+
+          if (parentDepartment === 'Procurement Management' && canAccessProcurementFeatures) {
             adjustedPermissionAccess = true;
           }
         }
@@ -354,7 +375,9 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
           item.name === 'Communication' || item.name === 'Organization' ||
           item.name === 'Programs' || item.name === 'C ANG G' ||
           item.name === 'Finance' || item.name === 'Settings' ||
-          item.name === 'Access Management'; // Add Settings/Access Management to debug
+          item.name === 'Access Management' || item.name === 'Admin' ||
+          item.name === 'HR' || item.name === 'Fleet Management' ||
+          item.name.includes('Fleet'); // Add Fleet Management to debug
 
         if (isImportantItem || !finalAccess || isChild) {
           console.log(`🔍 ENHANCED Department Check: "${item.name}"`, {
@@ -484,7 +507,8 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
         'CONTRACT & GRANTS': ['C&G'],
         'CONTRACTS & GRANTS': ['C&G'],
         'ADMIN': ['Admin'],
-        'ADMINISTRATION': ['Admin']
+        'ADMINISTRATION': ['Admin'],
+        'ADMIN DEPT': ['Admin']
       };
 
       const allowedDepartments = departmentMapping[userDept] || [];
@@ -507,11 +531,20 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
         departmentFilteredDepartments: departmentFiltered.map(item => item.name),
         finalFilteredDepartments: filtered.map(item => item.name),
         departmentAccessRule: 'Department Officers should see only their assigned department menu',
+        hasFleetManagement: departmentalLinks.some(item => item.name === 'Fleet Management'),
+        fleetManagementFiltered: departmentFiltered.some(item => item.name === 'Fleet Management'),
         detailedResults: filtered.map(item => ({
           name: item.name,
           hasChildren: !!item.children,
           childrenCount: item.children?.length || 0
-        }))
+        })),
+        // DETAILED ADMIN CHILDREN DEBUG
+        adminItem: filtered.find(item => item.name === 'Admin'),
+        adminChildren: filtered.find(item => item.name === 'Admin')?.children?.map(child => child.name) || [],
+        adminChildrenCount: filtered.find(item => item.name === 'Admin')?.children?.length || 0,
+        missingItems: ['Solicitation Management', 'Fleet Management', 'Facility Management'].filter(
+          name => !filtered.find(item => item.name === 'Admin')?.children?.some(child => child.name === name)
+        )
       });
     }
 
@@ -582,30 +615,105 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
     }));
 
     const filtered = mapped.filter(item => {
-      // UNIVERSAL GLOBAL HUB ACCESS: All Global Hub items are accessible to ALL AHNI employees
-      // regardless of department, role, or permissions for cross-departmental requests
-      return true; // Show all Global Hub items to all authenticated AHNI employees
+      // Admin and superuser access to everything
+      if (isAdmin || user?.is_superuser) {
+        return true;
+      }
+
+      // Universal items that all authenticated users can access (no permissions required)
+      const universalItems = [
+        'Announcements',
+        'Organization Chart',
+        'Calendar',
+        'Directory',
+        'Annual Supervision Plan',
+        'Site Visit Application',
+        'Site Visit Management',
+        'Supervision Evaluation'
+      ];
+
+      if (universalItems.includes(item.label)) {
+        return true;
+      }
+
+      // If item has no permissions defined, it's universal access
+      if (!item.permissions || item.permissions.length === 0) {
+        return true;
+      }
+
+      // Check item-specific permissions - more permissive approach
+      const itemPermissions = item.permissions;
+      if (itemPermissions && itemPermissions.length > 0) {
+        // For staff users, be more permissive with global hub access
+        if (user?.is_staff) {
+          // Staff users can see most global hub items
+          // Individual items within categories will still be permission-checked at the component level
+          return true;
+        }
+
+        // For non-staff users, check specific permissions
+        const hasPermissionAccess = itemPermissions.some(permission => {
+          if (!permission.codenames || permission.codenames.length === 0) {
+            return false;
+          }
+
+          const hasAllCodenames = permission.codenames.every(codename =>
+            hasPermissionByCodename(permission.module, codename)
+          );
+
+          return hasAllCodenames;
+        });
+
+        return hasPermissionAccess;
+      }
+
+      return false; // Default to hide items without proper permissions
     });
 
     // Debug logging (development only)
     if (process.env.NODE_ENV === 'development') {
-      console.log('🌐 UNIVERSAL GLOBAL HUB - All AHNI Employees:', {
-        policy: 'ALL Global Hub items accessible to ALL authenticated AHNI employees for cross-departmental requests',
+      console.log('🌐 GLOBAL HUB PERMISSION-BASED ACCESS:', {
+        policy: 'Global Hub access based on user permissions and department features',
         originalCount: globalHubLinks.length,
-        totalVisibleItems: filtered.length,
-        accessLevel: 'Universal - No restrictions based on department or role',
-        userType: isAdmin ? 'Admin' : 'Regular Employee',
-        allItemsVisible: filtered.length === globalHubLinks.length
+        visibleItemsCount: filtered.length,
+        accessLevel: isAdmin || user?.is_superuser ? 'Admin - Full Access' : 'Permission-Based Access',
+        userType: isAdmin ? 'Admin' : user?.is_staff ? 'Staff Officer' : 'Regular Employee',
+        departmentAccess: {
+          procurement: canAccessProcurementFeatures,
+          admin: canAccessAdminFeatures,
+          finance: canAccessFinanceFeatures,
+          contractsGrants: canAccessContractsGrantsFeatures,
+          programs: canAccessProgramsFeatures
+        },
+        visibleItems: filtered.map(item => ({
+          label: item.label,
+          category: item.category,
+          hasPermissions: !!(item.permissions && item.permissions.length > 0)
+        }))
       });
     }
 
     return filtered;
-  }, [isHydrated, permissionsLoading, authState.isAuthenticated, globalHubLinks, hasPermission]);
+  }, [isHydrated, permissionsLoading, authState.isAuthenticated, globalHubLinks, hasPermission, hasPermissionByCodename]);
 
-  const groupedGlobalHubMenu = useMemo(
-    () => groupGlobalHubByCategory(filteredGlobalHubItems, globalHubCategories),
-    [filteredGlobalHubItems]
-  );
+  const groupedGlobalHubMenu = useMemo(() => {
+    const grouped = groupGlobalHubByCategory(filteredGlobalHubItems, globalHubCategories);
+
+    // Debug logging for grouped categories
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🗂️ GLOBAL HUB GROUPED CATEGORIES:', {
+        totalCategories: grouped.length,
+        categories: grouped.map(cat => ({
+          category: cat.category,
+          label: cat.label,
+          itemCount: cat.items.length,
+          items: cat.items.map(item => item.label)
+        }))
+      });
+    }
+
+    return grouped;
+  }, [filteredGlobalHubItems]);
 
   const userHasGlobalHubAccess = useMemo(() => {
     const hasBasicAuth = authState.isAuthenticated && !!user;

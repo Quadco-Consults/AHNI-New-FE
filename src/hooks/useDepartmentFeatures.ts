@@ -40,7 +40,7 @@ export const useDepartmentFeatures = () => {
     userDepartment?.toLowerCase().includes('contract');
   const isHRDepartment = userDepartment === 'HR' || userDepartment === 'Human Resources';
   const isFinanceDepartment = userDepartment === 'FINANCE' || userDepartment === 'Finance';
-  const isAdminDepartment = userDepartment === 'ADMIN' || userDepartment === 'Administration';
+  const isAdminDepartment = userDepartment === 'ADMIN' || userDepartment === 'Administration' || userDepartment === 'Admin Dept';
   const isProcurementDepartment = userDepartment === 'PROCUREMENT' || userDepartment === 'Procurement';
 
   // Enhanced email and position-based detection for departmental officers and managers
@@ -49,7 +49,7 @@ export const useDepartmentFeatures = () => {
   const isProgramsOfficer = userEmail.includes('programs') || userEmail.includes('program');
   const isHROfficer = userEmail.includes('hr') || userEmail.includes('human') || userEmail.includes('hrmanager');
   const isFinanceOfficer = userEmail.includes('finance') || userEmail.includes('financemanager') || userEmail.includes('financeofficer');
-  const isAdminOfficer = userEmail.includes('admin');
+  const isAdminOfficer = userEmail.includes('admin.officer') || userEmail.includes('adminofficer') || userEmail.includes('admin_officer');
   const isProcurementOfficer = userEmail.includes('procurement');
 
   // Enhanced position-based detection for departmental roles
@@ -58,6 +58,10 @@ export const useDepartmentFeatures = () => {
   const isHRPosition = userPosition.toLowerCase().includes('hr') ||
                      userPosition.toLowerCase().includes('human resources') ||
                      userPosition.toLowerCase().includes('human resource');
+  const isAdminPosition = userPosition.toLowerCase().includes('admin officer') ||
+                         userPosition.toLowerCase().includes('admin.officer') ||
+                         userPosition.toLowerCase().includes('admin_officer') ||
+                         userPosition.toLowerCase().includes('adminofficer');
 
   // HR debug removed temporarily to fix scoping issue
 
@@ -82,10 +86,25 @@ export const useDepartmentFeatures = () => {
     [isFinanceDepartment, isFinanceOfficer, isFinancePosition, user?.is_superuser, user?.is_staff]
   );
 
-  const canAccessAdminFeatures = useMemo(() =>
-    isAdminDepartment || isAdminOfficer || user?.is_superuser || user?.is_staff,
-    [isAdminDepartment, isAdminOfficer, user?.is_superuser, user?.is_staff]
-  );
+  const canAccessAdminFeatures = useMemo(() => {
+    const result = isAdminDepartment || isAdminOfficer || isAdminPosition || user?.is_superuser || user?.is_staff;
+
+    // Debug admin feature access (development only)
+    if (process.env.NODE_ENV === 'development' && userEmail.includes('admin')) {
+      console.log('🔍 Admin Features Debug:', {
+        userEmail,
+        userPosition,
+        isAdminDepartment,
+        isAdminOfficer,
+        isAdminPosition,
+        is_superuser: user?.is_superuser,
+        is_staff: user?.is_staff,
+        canAccessAdminFeatures: result
+      });
+    }
+
+    return result;
+  }, [isAdminDepartment, isAdminOfficer, isAdminPosition, user?.is_superuser, user?.is_staff, userEmail, userPosition]);
 
   const canAccessProcurementFeatures = useMemo(() =>
     isProcurementDepartment || isProcurementOfficer || user?.is_superuser || user?.is_staff,

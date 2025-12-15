@@ -19,7 +19,7 @@ import FormSelect from "components/atoms/FormSelect";
 import FormTextArea from "components/atoms/FormTextArea";
 import FormButton from "@/components/FormButton";
 import { useGetAllPurchaseOrdersQuery, useGetSinglePurchaseOrderQuery } from "@/features/procurement/controllers/purchaseOrderController";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useCallback } from "react";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -256,7 +256,7 @@ export default function CreatePaymentRequest() {
   );
 
   // Helper function to suggest default expense account based on payment type
-  const getSuggestedExpenseAccount = (paymentType: string) => {
+  const getSuggestedExpenseAccount = useCallback((paymentType: string) => {
     const accountSuggestions = {
       "CONSULTANT": "professional-fees",
       "FACILITATOR": "training-expenses",
@@ -273,7 +273,7 @@ export default function CreatePaymentRequest() {
       );
     }
     return null;
-  };
+  }, [expenseAccountOptions]);
 
   const onSubmit: SubmitHandler<TPaymentRequestFormData> = (data) => {
     sessionStorage.setItem("paymentRequestFormData", JSON.stringify(data));
@@ -369,7 +369,7 @@ export default function CreatePaymentRequest() {
         ],
       });
     }
-  }, [paymentRequest, user, purchaseOrder, form]);
+  }, [paymentRequest, user, purchaseOrder]); // Removed form to prevent infinite loop
 
   // Auto-populate PO details when purchase order is selected
   useEffect(() => {
@@ -394,7 +394,7 @@ export default function CreatePaymentRequest() {
         }
       }
     }
-  }, [selectedPO, paymentType, form]);
+  }, [selectedPO, paymentType]); // Removed form to prevent infinite loop
 
   // Auto-populate vendor details when complete vendor data is available
   useEffect(() => {
@@ -431,7 +431,7 @@ export default function CreatePaymentRequest() {
         form.setValue("payment_items.0.tax_identification_number", vendor.tin);
       }
     }
-  }, [vendorDetails, paymentType, form]);
+  }, [vendorDetails, paymentType]); // Removed form to prevent infinite loop
 
   // Auto-suggest expense account when payment type changes
   useEffect(() => {
@@ -447,7 +447,7 @@ export default function CreatePaymentRequest() {
         });
       }
     }
-  }, [paymentType, expenseAccountOptions, form, getSuggestedExpenseAccount]);
+  }, [paymentType, expenseAccountOptions, getSuggestedExpenseAccount]); // Removed form to prevent infinite loop
 
   // Helper function to convert amount to words
   const handleAmountChange = (amount: string, index: number) => {
@@ -463,54 +463,57 @@ export default function CreatePaymentRequest() {
   useEffect(() => {
     const subscription = form.watch((value, { name, type }) => {
       if (type === 'change' && name) {
-        // Check if a consultant was selected
-        if (name.includes('consultant') && !name.includes('facilitator')) {
-          const match = name.match(/payment_items\.(\d+)\.consultant/);
-          if (match) {
-            const index = parseInt(match[1]);
-            const consultantId = value.payment_items?.[index]?.consultant;
-            if (consultantId) {
-              handleStaffSelection("CONSULTANT", consultantId, index);
+        // Defer setState operations to avoid "setState during render" error
+        setTimeout(() => {
+          // Check if a consultant was selected
+          if (name.includes('consultant') && !name.includes('facilitator')) {
+            const match = name.match(/payment_items\.(\d+)\.consultant/);
+            if (match) {
+              const index = parseInt(match[1]);
+              const consultantId = value.payment_items?.[index]?.consultant;
+              if (consultantId) {
+                handleStaffSelection("CONSULTANT", consultantId, index);
+              }
             }
           }
-        }
-        // Check if a facilitator was selected
-        if (name.includes('facilitator')) {
-          const match = name.match(/payment_items\.(\d+)\.facilitator/);
-          if (match) {
-            const index = parseInt(match[1]);
-            const facilitatorId = value.payment_items?.[index]?.facilitator;
-            if (facilitatorId) {
-              handleStaffSelection("FACILITATOR", facilitatorId, index);
+          // Check if a facilitator was selected
+          if (name.includes('facilitator')) {
+            const match = name.match(/payment_items\.(\d+)\.facilitator/);
+            if (match) {
+              const index = parseInt(match[1]);
+              const facilitatorId = value.payment_items?.[index]?.facilitator;
+              if (facilitatorId) {
+                handleStaffSelection("FACILITATOR", facilitatorId, index);
+              }
             }
           }
-        }
-        // Check if an adhoc staff was selected
-        if (name.includes('adhoc_staff')) {
-          const match = name.match(/payment_items\.(\d+)\.adhoc_staff/);
-          if (match) {
-            const index = parseInt(match[1]);
-            const adhocStaffId = value.payment_items?.[index]?.adhoc_staff;
-            if (adhocStaffId) {
-              handleStaffSelection("ADHOC_STAFF", adhocStaffId, index);
+          // Check if an adhoc staff was selected
+          if (name.includes('adhoc_staff')) {
+            const match = name.match(/payment_items\.(\d+)\.adhoc_staff/);
+            if (match) {
+              const index = parseInt(match[1]);
+              const adhocStaffId = value.payment_items?.[index]?.adhoc_staff;
+              if (adhocStaffId) {
+                handleStaffSelection("ADHOC_STAFF", adhocStaffId, index);
+              }
             }
           }
-        }
-        // Check if amount in figures was changed
-        if (name.includes('amount_in_figures')) {
-          const match = name.match(/payment_items\.(\d+)\.amount_in_figures/);
-          if (match) {
-            const index = parseInt(match[1]);
-            const amount = value.payment_items?.[index]?.amount_in_figures;
-            if (amount) {
-              handleAmountChange(String(amount), index);
+          // Check if amount in figures was changed
+          if (name.includes('amount_in_figures')) {
+            const match = name.match(/payment_items\.(\d+)\.amount_in_figures/);
+            if (match) {
+              const index = parseInt(match[1]);
+              const amount = value.payment_items?.[index]?.amount_in_figures;
+              if (amount) {
+                handleAmountChange(String(amount), index);
+              }
             }
           }
-        }
+        }, 0); // Close setTimeout with 0ms delay
       }
     });
     return () => subscription.unsubscribe();
-  }, [form, consultantOptions, facilitatorOptions, adhocOptions]);
+  }, [form]); // Removed options dependencies to prevent infinite re-renders
 
   // Helper function to auto-populate payment item based on staff selection
   const handleStaffSelection = (staffType: string, staffId: string, index: number) => {
@@ -694,8 +697,8 @@ export default function CreatePaymentRequest() {
                     </div>
                   )}
                 </div>
-                {fields.map((field, index) => (
-                  <Card key={field.id} className='mb-4'>
+                {fields.map((_, index) => (
+                  <Card key={index} className='mb-4'>
                     <CardContent className='pt-6'>
                       <div className='flex justify-between items-center mb-4'>
                         <h4 className='font-medium'>

@@ -63,6 +63,21 @@ export default function ProcurementPlan() {
     enabled: isAuthenticated, // Only fetch if authenticated
   });
 
+  // Debug logging to understand procurement plan data structure
+  if (procurementData?.data?.results?.length > 0) {
+    console.log("=== PROCUREMENT PLAN LIST DEBUG ===");
+    console.log("First procurement plan data:", procurementData.data.results[0]);
+    console.log("Available fields:", Object.keys(procurementData.data.results[0]));
+    console.log("Project field:", procurementData.data.results[0].project);
+    console.log("Financial Year field:", procurementData.data.results[0].financial_year);
+    console.log("Description field:", procurementData.data.results[0].description);
+    console.log("Name field:", procurementData.data.results[0].name);
+    console.log("Title field:", procurementData.data.results[0].title);
+    console.log("Plan name field:", procurementData.data.results[0].plan_name);
+    console.log("Plan number field:", procurementData.data.results[0].plan_number);
+    console.log("====================================");
+  }
+
   const handleDownloadTemplate = async () => {
     try {
       // TanStack Query refetch will trigger the download automatically
@@ -288,13 +303,41 @@ const columns: ColumnDef<any>[] = [
   },
   {
     header: "Procurement Plan",
-    accessorKey: "description",
+    accessorKey: "plan_name",
     cell: ({ row }) => {
-      const description = row.original?.description;
-      if (typeof description === 'object' && description !== null) {
-        return description.name || description.title || description.id || "Unknown";
+      const data = row.original;
+      // Try multiple possible field names for procurement plan title/name
+      const planName = data?.plan_name || data?.name || data?.title ||
+                       data?.plan_title || data?.procurement_plan_name ||
+                       data?.plan_number || data?.description;
+
+      if (typeof planName === 'object' && planName !== null) {
+        return planName.name || planName.title || planName.id || "Unknown Plan";
       }
-      return String(description || "N/A");
+
+      // If still no name found, create a descriptive name from project and year
+      if (!planName || planName === "N/A") {
+        const project = data?.project;
+        const year = data?.financial_year;
+
+        let projectName = "Unknown Project";
+        if (typeof project === 'object' && project !== null) {
+          projectName = project.title || project.name || project.project_name || "Unknown Project";
+        } else if (typeof project === 'string') {
+          projectName = project;
+        }
+
+        let yearName = "Unknown Year";
+        if (typeof year === 'object' && year !== null) {
+          yearName = year.year || year.name || "Unknown Year";
+        } else if (typeof year === 'string') {
+          yearName = year;
+        }
+
+        return `${projectName} - ${yearName} Procurement Plan`;
+      }
+
+      return String(planName || "Procurement Plan");
     },
   },
   {
@@ -302,22 +345,39 @@ const columns: ColumnDef<any>[] = [
     accessorKey: "project",
     size: 200,
     cell: ({ row }) => {
-      // Try to get project title/name from project object or fallback to ID
-      const project = row.original?.project;
-      const projectDetail = row.original?.project_detail;
+      const data = row.original;
+      // Try to get project title/name from multiple possible fields
+      const project = data?.project;
+      const projectDetail = data?.project_detail;
+      const projectName = data?.project_name;
+      const projectTitle = data?.project_title;
 
       // First check if there's a project_detail object (common pattern in API responses)
       if (typeof projectDetail === 'object' && projectDetail !== null) {
-        return projectDetail.title || projectDetail.name || projectDetail.project_name || "Unknown Project";
+        return projectDetail.title || projectDetail.name || projectDetail.project_name ||
+               projectDetail.project_title || "Unknown Project";
+      }
+
+      // Check for direct project name/title fields
+      if (projectName && projectName !== "N/A") {
+        return String(projectName);
+      }
+      if (projectTitle && projectTitle !== "N/A") {
+        return String(projectTitle);
       }
 
       // Then check the project field itself
       if (typeof project === 'object' && project !== null) {
-        return project.title || project.name || project.project_name || project.id || "Unknown Project";
+        return project.title || project.name || project.project_name ||
+               project.project_title || project.id || "Unknown Project";
       }
 
-      // Fallback to string value
-      return String(project || "N/A");
+      // Fallback to string value if it's not empty
+      if (project && project !== "N/A") {
+        return String(project);
+      }
+
+      return "Unknown Project";
     },
   },
   {
@@ -325,12 +385,34 @@ const columns: ColumnDef<any>[] = [
     accessorKey: "financial_year",
     size: 100,
     cell: ({ row }) => {
-      // Try to get financial year name from object or fallback to ID
-      const financialYear = row.original?.financial_year;
-      if (typeof financialYear === 'object' && financialYear !== null) {
-        return financialYear.year || financialYear.name || financialYear.id || "Unknown Year";
+      const data = row.original;
+      // Try to get financial year from multiple possible fields
+      const financialYear = data?.financial_year;
+      const fyName = data?.financial_year_name;
+      const year = data?.year;
+
+      // Check for direct financial year name field
+      if (fyName && fyName !== "N/A") {
+        return String(fyName);
       }
-      return String(financialYear || "N/A");
+
+      // Check if financial_year is an object
+      if (typeof financialYear === 'object' && financialYear !== null) {
+        return financialYear.year || financialYear.name || financialYear.financial_year ||
+               financialYear.id || "Unknown Year";
+      }
+
+      // Check for direct year field
+      if (year && year !== "N/A") {
+        return String(year);
+      }
+
+      // Fallback to string value if it's not empty
+      if (financialYear && financialYear !== "N/A") {
+        return String(financialYear);
+      }
+
+      return "Unknown Year";
     },
   },
   {

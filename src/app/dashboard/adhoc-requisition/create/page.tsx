@@ -37,8 +37,8 @@ import { useGetLocationList } from "@/features/modules/controllers/config/locati
 import { useGetAllUsers } from "@/features/auth/controllers/userController";
 import { useGetAllProjects } from "@/features/projects/controllers/projectController";
 import { useGetAllFCONumbersQuery } from "@/features/modules/controllers/finance/fcoNumberController";
-import { useGetAllBudgetLinesQuery } from "@/features/modules/controllers/finance/budgetLineController";
-import { useMemo } from "react";
+import { useGetBudgetLinesDropdown } from "@/features/modules/controllers/config/allConfigController";
+import { useMemo, useCallback } from "react";
 import { mergeFallbackPositions, mergeFallbackDepartments } from "@/utils/adhocStaffFallbackData";
 
 const STEPS = [
@@ -75,7 +75,13 @@ export default function CreateAdhocRequisitionPage() {
   const { data: usersData, isLoading: usersLoading } = useGetAllUsers({ page: 1, size: 1000, search: "" });
   const { data: projectsData, isLoading: projectsLoading } = useGetAllProjects({ page: 1, size: 1000, search: "" });
   const { data: fcoData, isLoading: fcoLoading } = useGetAllFCONumbersQuery({ page: 1, size: 1000, search: "" });
-  const { data: budgetLinesData, isLoading: budgetLinesLoading } = useGetAllBudgetLinesQuery({ page: 1, size: 1000, search: "" });
+
+  // Use master config API for budget lines
+  const {
+    data: masterBudgetLines,
+    isLoading: masterConfigLoading,
+    error: masterConfigError
+  } = useGetBudgetLinesDropdown();
 
   // Transform data for dropdowns - handle both unrestricted and fallback data
   const positions = useMemo(() => {
@@ -191,31 +197,85 @@ export default function CreateAdhocRequisitionPage() {
   }, [fcoData]);
 
   const budgetLines = useMemo(() => {
-    const results = (budgetLinesData as any)?.data?.data?.results || (budgetLinesData as any)?.data?.results || [];
-    return results.map((bl: any) => ({
+    if (!masterBudgetLines || masterBudgetLines.length === 0) {
+      console.log('💰 Budget Lines: Empty or loading...', {
+        hasData: !!masterBudgetLines,
+        count: masterBudgetLines?.length || 0,
+        isLoading: masterConfigLoading,
+        hasError: !!masterConfigError
+      });
+      return [];
+    }
+
+    console.log('💰 Budget Lines from Master Config API:', {
+      masterBudgetLines,
+      count: masterBudgetLines.length,
+      isLoading: masterConfigLoading,
+      hasError: !!masterConfigError
+    });
+
+    if (masterConfigError) {
+      console.error('💰 Budget Lines Error:', masterConfigError);
+    }
+
+    return masterBudgetLines.map((bl: any) => ({
       id: bl.id,
       name: bl.name || bl.budget_line_name,
       code: bl.code || bl.budget_line_code,
       description: bl.description
     }));
-  }, [budgetLinesData]);
+  }, [masterBudgetLines, masterConfigLoading, masterConfigError]);
 
   const form = useForm<TAdhocRequisitionFormData>({
     resolver: zodResolver(AdhocRequisitionSchema),
     defaultValues: {
+      // Basic Information
+      position_title: "",
+      requesting_department: "",
+      number_of_positions: 1,
       priority: "MEDIUM",
+
+      // Duration & Budget
+      start_date: "",
+      end_date: "",
+      proposed_salary: 0,
       currency: "NGN",
+      project: "",
+      fco: "",
+      budget_line: "",
+      total_budget: 0,
+
+      // Requirements
+      qualifications: "",
+      skills_required: "",
+      experience_years: 0,
+      education_level: "Bachelor's Degree",
+
+      // Job Details
+      job_description: "",
+      key_responsibilities: "",
+      reporting_to: "",
+      location: "",
       work_arrangement: "ON_SITE",
+
+      // Justification & Approval
+      business_justification: "",
+      urgency_reason: "",
+      alternative_considered: "",
+      reviewer_id: "",
+      authorizer_id: "",
+      approver_id: "",
+      additional_notes: "",
     },
   });
 
-  const onSubmit = (data: TAdhocRequisitionFormData) => {
+  const onSubmit = useCallback((data: TAdhocRequisitionFormData) => {
     createRequisition(data, {
       onSuccess: () => {
         router.push(ProgramRoutes.ADHOC_REQUISITION);
       },
     });
-  };
+  }, [createRequisition, router]);
 
   const nextStep = async () => {
     const fields = getStepFields(currentStep);
@@ -305,7 +365,11 @@ export default function CreateAdhocRequisitionPage() {
 
         {/* Form */}
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form
+            key="adhoc-requisition-form"
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-6"
+          >
             {/* Step 1: Basic Information */}
             {currentStep === 1 && (
               <Card className="p-6">
@@ -667,7 +731,7 @@ export default function CreateAdhocRequisitionPage() {
                                       const selectedBL = budgetLines.find((bl: any) => bl.id === field.value || bl.name === field.value);
                                       return selectedBL ? `${selectedBL.code ? `${selectedBL.code} - ` : ''}${selectedBL.name}` : field.value;
                                     })()
-                                  : budgetLinesLoading ? "Loading budget lines..." : "Select budget line"}
+                                  : masterConfigLoading ? "Loading budget lines..." : "Select budget line"}
                                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                               </Button>
                             </FormControl>

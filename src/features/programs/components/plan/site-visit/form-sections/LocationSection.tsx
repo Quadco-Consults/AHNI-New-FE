@@ -93,7 +93,7 @@ const LocationSection: React.FC<LocationSectionProps> = ({
       setValue("state", stateValue);     // State dropdown
       setValue("lga", facilityData.lga || "");         // LGA field
     }
-  }, [facilityData, requiresFacility, setValue]);
+  }, [facilityData, requiresFacility]); // Removed setValue to prevent infinite loop
 
   return (
     <Card>

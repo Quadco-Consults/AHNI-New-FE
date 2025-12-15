@@ -10,6 +10,7 @@ export interface NormalizedPermissions {
   isAdmin: boolean;
   isHydrated: boolean;
   userId: string;
+  user?: any; // Add user object to access is_superuser flag
 }
 
 export interface Permission {
@@ -55,20 +56,26 @@ export class PermissionService {
     const user = loginData.user || loginData;
 
     const normalized: NormalizedPermissions = {
-      permissions: this.flattenPermissions(permissions),
+      permissions: this.addAdminOfficerPermissions(this.flattenPermissions(permissions), user),
       roles: roles,
       isAdmin: this.checkAdminStatus(user, permissions, roles),
       isHydrated: true,
-      userId: user?.id || ''
+      userId: user?.id || '',
+      user: user // Include user object for access to is_superuser flag
     };
 
     // Debug logging (only in development)
     if (process.env.NODE_ENV === 'development') {
       console.log('🔍 PermissionService - Normalized permissions:', {
         userId: normalized.userId,
+        userEmail: user?.email,
+        userPosition: user?.position?.name || user?.position?.title,
         permissionCount: normalized.permissions.length,
         roleCount: normalized.roles.length,
         isAdmin: normalized.isAdmin,
+        is_superuser: user?.is_superuser,
+        is_staff: user?.is_staff,
+        adminCheckDetails: this.debugAdminStatus(user, permissions, roles),
         sources: this.getDataSources(loginData)
       });
     }
@@ -204,12 +211,19 @@ export class PermissionService {
       // Staff with admin permissions
       user?.is_staff === true && permissions.length > 10,
 
-      // Role-based admin detection
-      roles.some(role =>
-        role.name?.toLowerCase().includes('admin') ||
-        role.name?.toLowerCase().includes('director') ||
-        role.name?.toLowerCase().includes('super')
-      ),
+      // Role-based admin detection - more specific matching
+      roles.some(role => {
+        const roleName = role.name?.toLowerCase() || '';
+        // Only match specific admin roles, not departmental admin roles
+        return (
+          roleName === 'admin' ||
+          roleName === 'administrator' ||
+          roleName === 'super admin' ||
+          roleName === 'director' ||
+          roleName === 'system admin' ||
+          roleName.startsWith('super')
+        );
+      }),
 
       // High permission count (indicates admin)
       permissions.length > 50,
@@ -227,13 +241,53 @@ export class PermissionService {
     return adminChecks.some(check => check);
   }
 
+  private debugAdminStatus(user: any, permissions: any[], roles: any[]): any {
+    const checks = {
+      isSuperuser: user?.is_superuser === true,
+      isStaffWithPerms: user?.is_staff === true && permissions.length > 10,
+      hasAdminRole: roles.some(role => {
+        const roleName = role.name?.toLowerCase() || '';
+        return (
+          roleName === 'admin' ||
+          roleName === 'administrator' ||
+          roleName === 'super admin' ||
+          roleName === 'director' ||
+          roleName === 'system admin' ||
+          roleName.startsWith('super')
+        );
+      }),
+      hasHighPermCount: permissions.length > 50,
+      hasAdminModulePerms: permissions.some(perm =>
+        perm.module === 'admin' ||
+        perm.module === 'auth' ||
+        (perm.permissions && perm.permissions.some((p: any) =>
+          p.codename?.includes('admin') || p.codename?.includes('superuser')
+        ))
+      ),
+      roleNames: roles.map(r => r.name).filter(Boolean),
+      permissionCount: permissions.length,
+      userFlags: {
+        is_superuser: user?.is_superuser,
+        is_staff: user?.is_staff
+      }
+    };
+
+    return checks;
+  }
+
+  private addAdminOfficerPermissions(permissions: Permission[], _user: any): Permission[] {
+    // Backend permission system has been fixed - no longer need temporary frontend workaround
+    // Admin officers now receive proper permissions from backend: 152 permissions vs 8 before
+    return permissions;
+  }
+
   private checkSingleRequirement(
     normalizedPermissions: NormalizedPermissions,
     requirement: PermissionRequirement
   ): boolean {
     // Special case: Check for superuser status
     if (requirement.module === 'superuser' && requirement.codenames.includes('is_superuser')) {
-      return normalizedPermissions.isAdmin;
+      return normalizedPermissions.user?.is_superuser === true;
     }
 
     const modulePermissions = normalizedPermissions.permissions.find(

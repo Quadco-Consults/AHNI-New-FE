@@ -50,12 +50,14 @@ export default function CreateAssetMaintenance() {
   const currentDate = new Date().toISOString().split('T')[0];
 
   // Debug logging moved to useEffect to prevent render loops
-  // console.log('🔍 ASSET MAINTENANCE USER CONTEXT:', {
-  //   currentUser: currentUser?.first_name + ' ' + currentUser?.last_name,
-  //   userLocation: currentUser?.location || currentUser?.employee?.location,
-  //   userDepartment: currentUser?.department?.name || currentUser?.employee?.department?.name,
-  //   context: 'asset_maintenance_creation'
-  // });
+  console.log('🔍 ASSET MAINTENANCE USER DEBUG:');
+  console.log('  - Current User Name:', currentUser?.first_name + ' ' + currentUser?.last_name);
+  console.log('  - User Location (direct):', currentUser?.location);
+  console.log('  - User Location (employee):', currentUser?.employee?.location);
+  console.log('  - Final User Location:', currentUser?.location || currentUser?.employee?.location);
+  console.log('  - User Department:', currentUser?.department?.name || currentUser?.employee?.department?.name);
+  console.log('  - Has Employee Object:', !!currentUser?.employee);
+  console.log('  - Full User Object:', currentUser);
 
   const form = useForm<TAssetMaintenanceFormData>({
     resolver: zodResolver(AssetMaintenanceSchema),
@@ -214,14 +216,14 @@ export default function CreateAssetMaintenance() {
   }, [asset, userLocation]);
 
   // Debug logging commented to prevent render loops
-  // console.log('🚗 FILTERED ASSET DATA:', {
-  //   userLocation,
-  //   totalItemsFromAPI: asset?.data?.results?.length || 0,
-  //   filteredAssetsCount: filteredAssets.length,
-  //   assetCategories: filteredAssets.map((item: any) => item.category?.name).filter(Boolean),
-  //   assetNames: filteredAssets.map((item: any) => item.name),
-  //   filterApplied: 'location + asset categories only'
-  // });
+  console.log('🚗 FILTERED ASSET DATA:', {
+    userLocation,
+    totalItemsFromAPI: asset?.data?.results?.length || 0,
+    filteredAssetsCount: filteredAssets.length,
+    assetCategories: filteredAssets.map((item: any) => item.category?.name).filter(Boolean),
+    assetNames: filteredAssets.map((item: any) => item.name),
+    filterApplied: 'location + asset categories only'
+  });
 
   const assetOptions = useMemo(
     () =>

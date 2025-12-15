@@ -37,7 +37,6 @@ import {
 } from "@/features/modules/controllers/program/facilityController";
 import { useGetAllUsers } from "@/features/auth/controllers/userController";
 import { filterAhniStaffOnly } from "@/utils/userFilters";
-import { useGetEmployeeOnboardings } from "@/features/hr/controllers/employeeOnboardingController";
 import { useGetAllAnnualPlans } from "@/features/programs/controllers/annualSupervisionPlanController";
 import { AnnualPlanStatus } from "@/features/programs/types/annual-supervision-plan";
 import { useGetAllLocations } from "@/features/modules/controllers/config/locationController";
@@ -80,43 +79,27 @@ const SiteVisitCreate = () => {
     size: 1000,
   });
 
-  // Fetch from both sources: Users table AND Employee database
+  // Fetch users from user table only (not employee database)
   const { data: user } = useGetAllUsers({ page: 1, size: 2000000 });
 
-  const { data: employeeData } = useGetEmployeeOnboardings({
-    page: 1,
-    size: 2000000,
-  });
+  // IMPORTANT FIX: Only use users from user table, NOT employee database
+  // Site visit backend expects user UUIDs, not employee record IDs
+  // Mixing employee data causes UUID mismatch errors
+  const ahniStaffUsers = filterAhniStaffOnly((user?.data?.results || []) as any[]);
 
-  // Combine users from both sources
-  const allStaff = [
-    // Users from user table (filter to exclude vendors)
-    ...filterAhniStaffOnly((user?.data?.results || []) as any[]),
-    // Employees from employee database (all are AHNI staff)
-    ...((employeeData?.data?.results || []) as any[]).map((emp: any) => ({
-      id: emp.id,
-      first_name: emp.legal_firstname || emp.first_name,
-      last_name: emp.legal_lastname || emp.last_name,
-      email: emp.email,
-      user_type: 'STAFF',
-      designation: emp.designation?.name || emp.position,
-      department: emp.department?.name,
-      phone_number: emp.phone_number || emp.mobile_number,
-      is_staff: true,
-      _source: 'employee_database'
-    }))
-  ];
-
-  // Remove duplicates based on email
-  const uniqueStaff = allStaff.reduce((acc: any[], current: any) => {
-    const exists = acc.find(item => item.email === current.email);
-    if (!exists) {
-      acc.push(current);
-    }
-    return acc;
-  }, []);
-
-  const ahniStaffUsers = uniqueStaff;
+  // Debug user data structure (development only)
+  if (process.env.NODE_ENV === 'development' && ahniStaffUsers.length > 0) {
+    console.log('🔍 Site Visit Team Members Debug:', {
+      totalUsers: ahniStaffUsers.length,
+      sampleUser: {
+        id: ahniStaffUsers[0]?.id,
+        name: `${ahniStaffUsers[0]?.first_name} ${ahniStaffUsers[0]?.last_name}`,
+        email: ahniStaffUsers[0]?.email,
+        source: 'user_table_only'
+      },
+      message: 'Using only user table data to avoid UUID mismatch'
+    });
+  }
 
   // Debug team members data structure
 
@@ -226,13 +209,13 @@ const SiteVisitCreate = () => {
       setValue("state", facilityData.data.state);
       setValue("lga", facilityData.data.lga || "");
     }
-  }, [facilityData, setValue]);
+  }, [facilityData]); // Removed setValue to prevent infinite loop
 
   // Handle travel fees updates from calculator
   const handleTravelFeesUpdate = useCallback((fees: TravelFees, totalCost: number) => {
     setTravelFees(fees);
     setValue("travel_fees", fees);
-  }, [setValue]);
+  }, []); // Removed setValue dependency to prevent infinite loop
 
   const onSubmit: SubmitHandler<TSiteVisitApplicationFormValues> = async (
     data: TSiteVisitApplicationFormValues
