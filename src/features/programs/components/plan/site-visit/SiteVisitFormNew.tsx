@@ -28,7 +28,6 @@ import {
 import { useCreateSiteVisit } from "@/features/programs/controllers/siteVisitController";
 import { useGetAllFacility } from "@/features/modules/controllers/program/facilityController";
 import { useGetAllUsers } from "@/features/auth/controllers/userController";
-import { useGetEmployeeOnboardings } from "@/features/hr/controllers/employeeOnboardingController";
 import { useGetAllAnnualPlans } from "@/features/programs/controllers/annualSupervisionPlanController";
 import { useGetAllLocations } from "@/features/modules/controllers/config/locationController";
 import { useGetAllProjects } from "@/features/projects/controllers/projectController";
@@ -76,7 +75,6 @@ const SiteVisitFormNew: React.FC<SiteVisitFormNewProps> = ({
   const { data: locationsData } = useGetAllLocations({ page: 1, size: 1000 });
   const { data: projectsData } = useGetAllProjects({ page: 1, size: 1000 });
   const { data: usersData } = useGetAllUsers({ page: 1, size: 1000 });
-  const { data: employeesData } = useGetEmployeeOnboardings({ page: 1, size: 1000 });
 
   // Form initialization
   const form = useForm<TSiteVisitApplicationFormValues>({
@@ -115,8 +113,8 @@ const SiteVisitFormNew: React.FC<SiteVisitFormNewProps> = ({
       authorizer: initialData?.authorizer || "",
       approver: initialData?.approver || "",
     },
-    mode: 'onChange',
-    reValidateMode: 'onChange',
+    mode: 'onBlur',
+    reValidateMode: 'onBlur',
   });
 
   // Watch visit type changes to clear facility when switching from supervision to non-supervision
@@ -137,7 +135,7 @@ const SiteVisitFormNew: React.FC<SiteVisitFormNewProps> = ({
         form.setValue("lga", "");
       }
     }
-  }, [visitType, form]);
+  }, [visitType]); // Removed form from dependencies to prevent infinite loop
 
   // Processed data - memoized to prevent re-renders
   const facilities = React.useMemo(
@@ -162,31 +160,14 @@ const SiteVisitFormNew: React.FC<SiteVisitFormNewProps> = ({
     [annualPlansData]
   );
 
+  // IMPORTANT FIX: Only use users from user table, NOT employee database
+  // Site visit backend expects user UUIDs, not employee record IDs
+  // Mixing employee data causes UUID mismatch errors like:
+  // "Invalid pk ef7f95b2-53f1-4581-b239-e930eec334f4 - object does not exist"
   const allStaff = React.useMemo(() => {
     const users = filterAhniStaffOnly((usersData?.data?.results || []) as any[]);
-    const employees = ((employeesData?.data?.results || []) as any[]).map((emp: any) => ({
-      id: emp.id,
-      first_name: emp.legal_firstname || emp.first_name,
-      last_name: emp.legal_lastname || emp.last_name,
-      email: emp.email,
-      user_type: 'STAFF',
-      designation: emp.designation?.name || emp.position,
-      department: emp.department?.name,
-      phone_number: emp.phone_number || emp.mobile_number,
-      is_staff: true,
-      _source: 'employee_database'
-    }));
-
-    // Remove duplicates based on email
-    const combined = [...users, ...employees];
-    const unique = combined.reduce((acc: any[], current: any) => {
-      const exists = acc.find(item => item.email === current.email);
-      if (!exists) acc.push(current);
-      return acc;
-    }, []);
-
-    return unique;
-  }, [usersData, employeesData]);
+    return users;
+  }, [usersData]);
 
   // Get selected plan details
   const selectedPlanData = React.useMemo(

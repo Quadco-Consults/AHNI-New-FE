@@ -512,7 +512,7 @@ export const departmentalLinks: SidebarItem[] = [
             permissions: [
               {
                 module: "adminapp",
-                codenames: ["view_consumable"]
+                codenames: ["view_itemrequisition"]
               }
             ]
           },
@@ -616,7 +616,8 @@ export const departmentalLinks: SidebarItem[] = [
         permissions: [
           {
             module: "adminapp",
-            codenames: ["view_vehiclerequest", "view_vehiclemaintenanceticket"]
+            codenames: ["view_vehiclerequest", "view_vehiclemaintenanceticket"],
+            requireAll: false // Use OR logic - user needs ANY of these permissions
           }
         ],
         children: [
@@ -654,6 +655,7 @@ export const departmentalLinks: SidebarItem[] = [
       },
       {
         name: "Facility Management",
+        path: "/dashboard/admin/facility-management",
         permissions: [
           {
             module: "adminapp",
@@ -1865,7 +1867,7 @@ export const moduleLinks: SidebarItem[] = [
         ]
       },
       {
-        name: "Admin",
+        name: "Admin Module",
         path: "/dashboard/modules/admin",
         permissions: [
           {

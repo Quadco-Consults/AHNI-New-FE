@@ -27,9 +27,9 @@ import { useGetAllItems } from "@/features/modules/controllers/config/itemContro
 import { useGetLocationList } from "@/features/modules/controllers/config/locationController";
 import {
   useGetDepartmentsDropdown,
-  useGetLocationsDropdown
+  useGetLocationsDropdown,
+  useGetFCONumbersDropdown
 } from "@/features/modules/controllers/config/allConfigController";
-import { useGetAllFCONumbers } from "@/features/modules/controllers/finance/fcoNumberController";
 import { useGetAllPartners } from "@/features/projects/controllers/projectController";
 import { useCreatePurchaseRequest } from "@/features/procurement/controllers/purchaseRequestController";
 import { useGetActivityMemo } from "@/features/procurement/controllers/activityMemoController";
@@ -113,10 +113,7 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
   });
   const { createPurchaseRequest, isLoading } = useCreatePurchaseRequest();
 
-  const { data: fco } = useGetAllFCONumbers({
-    page: 1,
-    size: 2000000,
-  });
+  const { data: fco, isLoading: isFcoLoading, error: fcoError } = useGetFCONumbersDropdown();
 
   const { data: users } = useGetAllUsers({
     page: 1,
@@ -159,12 +156,12 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
 
   // Debug FCO matching after both Redux data and API data are available
   useEffect(() => {
-    if (activityMemoData?.length > 0 && (fco as any)?.data?.data?.results) {
+    if (activityMemoData?.length > 0 && fco) {
       const latestEntry = activityMemoData[activityMemoData.length - 1];
       if (latestEntry?.fconumber) {
         console.log("📊 Checking FCO ID matches:");
         latestEntry.fconumber.forEach((fcoId: string, index: number) => {
-          const matchingFco = (fco as any).data.data.results.find((f: any) => f.id === fcoId);
+          const matchingFco = fco.find((f: any) => f.id === fcoId);
           console.log(`📊 FCO ${index} (${fcoId}):`, matchingFco ? matchingFco.name : 'NOT FOUND');
         });
       }
@@ -1060,7 +1057,7 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
                               <LoadingSpinner />
                             ) : (
                               // @ts-ignore
-                              fco?.data?.data?.results?.map((item) => {
+                              fco?.map((item) => {
                                 return (
                                   <SelectItem key={item?.id} value={String(item?.id)}>
                                     {String(item?.name || item?.id || 'Unknown FCO')}
@@ -1075,8 +1072,8 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
                           control={control}
                           name={`items.${index}.fco_number` as any}
                           render={({ field }) => {
-                            // Handle both possible API response structures
-                            const fcoOptions = (fco as any)?.data?.results || (fco as any)?.data?.data?.results || [];
+                            // Handle master config API response structure
+                            const fcoOptions = fco || [];
 
                             console.log("🔍 FCO Dropdown Debug:", {
                               itemIndex: index,

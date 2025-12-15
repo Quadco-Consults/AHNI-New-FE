@@ -222,7 +222,7 @@ export default function Account() {
     } else {
       console.log('❌ No profile data available for form reset');
     }
-  }, [profile, Profileform]);
+  }, [profile]); // Removed Profileform to prevent infinite loop
 
   const handlePaperclipClick = () => {
     if (fileInputRef.current) {
@@ -256,6 +256,8 @@ export default function Account() {
       console.log('🔍 Form submission - Hook was initialized with:', userId);
 
       // Use FormData ONLY when uploading a file, otherwise use JSON like the manager profile
+      let result; // Declare result in the correct scope
+
       if (file) {
         console.log('📁 Profile picture detected - using FormData for file upload');
         const formData = new FormData();
@@ -269,7 +271,7 @@ export default function Account() {
         formData.append("profile_picture", file);
 
         console.log('📤 Submitting FormData via updateUser hook...');
-        const result = await updateUser(formData);
+        result = await updateUser(formData);
       } else {
         console.log('📝 No profile picture - using JSON like manager profile');
         const jsonData = {
@@ -282,7 +284,7 @@ export default function Account() {
         };
 
         console.log('📤 Submitting JSON data via updateUser hook...');
-        const result = await updateUser(jsonData);
+        result = await updateUser(jsonData);
       }
       console.log('✅ Form submission completed:', result);
 

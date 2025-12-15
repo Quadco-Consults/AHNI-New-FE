@@ -134,7 +134,7 @@ const ProcurementPlanUploadModal = (props: PropsType) => {
       setIsUpdateMode(false);
       form.reset();
     }
-  }, [props.isOpen, form]);
+  }, [props.isOpen]); // Removed 'form' from dependency array to prevent infinite re-renders
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files && e.target.files[0];

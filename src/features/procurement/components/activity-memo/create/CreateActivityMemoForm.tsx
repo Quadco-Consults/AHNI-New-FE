@@ -23,15 +23,19 @@ import { MinusCircle } from "lucide-react";
 // Import controllers
 import { useGetAllUsers, useGetUserProfile } from "@/features/auth/controllers/userController";
 import { useGetAllActivityPlans } from "@/features/programs/controllers/activityPlanController";
-import { useGetAllFCONumbers } from "@/features/modules/controllers/finance/fcoNumberController";
-import { useGetAllBudgetLines } from "@/features/modules/controllers/finance/budgetLineController";
-import { useGetAllCostCategories } from "@/features/modules/controllers/finance/costCategoryController";
-import { useGetAllCostInputs } from "@/features/modules/controllers/finance/costInputController";
-import { useGetAllFundingSources } from "@/features/modules/controllers/project/fundingSourceController";
-import { useGetAllInterventionAreas } from "@/features/modules/controllers/program/interventionAreaController";
 import { useGetAllItems } from "@/features/modules/controllers/config/itemController";
 import { useCreateActivityMemo, useUpdateActivityMemo, ActivityMemo } from "@/features/procurement/controllers/activityMemoController";
 import { SampleMemoSchema } from "@/features/procurement/types/procurement-validator";
+
+// Import master config API hooks (unrestricted)
+import {
+  useGetFCONumbersDropdown,
+  useGetBudgetLinesDropdown,
+  useGetCostCategoriesDropdown,
+  useGetCostInputsDropdown,
+  useGetFundingSourcesDropdown,
+  useGetInterventionAreasDropdown
+} from "@/features/modules/controllers/config/allConfigController";
 
 interface CreateActivityMemoFormProps {
   editMode?: boolean;
@@ -47,13 +51,15 @@ const CreateActivityMemoForm = ({ editMode = false, existingData, memoId }: Crea
   const { data: users } = useGetAllUsers({ page: 1, size: 2000000 });
   const { data: profile } = useGetUserProfile();
   const { data: activites } = useGetAllActivityPlans({ page: 1, size: 2000000 });
-  const { data: fco } = useGetAllFCONumbers({ page: 1, size: 2000000 });
-  const { data: budgetLines } = useGetAllBudgetLines({ page: 1, size: 2000000 });
-  const { data: costCategories } = useGetAllCostCategories({ page: 1, size: 2000000 });
-  const { data: costInput } = useGetAllCostInputs({ page: 1, size: 2000000 });
-  const { data: fundingSource } = useGetAllFundingSources({ page: 1, size: 2000000 });
-  const { data: interventions } = useGetAllInterventionAreas({ page: 1, size: 20000 });
   const { data: items } = useGetAllItems({ page: 1, size: 2000000 });
+
+  // Use master config API for dropdown data (bypasses permission filtering)
+  const { data: fco, isLoading: isFcoLoading, error: fcoError } = useGetFCONumbersDropdown();
+  const { data: budgetLines, isLoading: isBudgetLinesLoading, error: budgetLinesError } = useGetBudgetLinesDropdown();
+  const { data: costCategories, isLoading: isCostCategoriesLoading, error: costCategoriesError } = useGetCostCategoriesDropdown();
+  const { data: costInput, isLoading: isCostInputLoading, error: costInputError } = useGetCostInputsDropdown();
+  const { data: fundingSource, isLoading: isFundingSourceLoading, error: fundingSourceError } = useGetFundingSourcesDropdown();
+  const { data: interventions, isLoading: isInterventionsLoading, error: interventionsError } = useGetInterventionAreasDropdown();
 
   const { createActivityMemo, isLoading: isCreating } = useCreateActivityMemo();
   const { updateActivityMemo, isLoading: isUpdating } = useUpdateActivityMemo(memoId || '');
@@ -89,38 +95,72 @@ const CreateActivityMemoForm = ({ editMode = false, existingData, memoId }: Crea
     });
   }, [activites]);
 
-  const fcoOptions = React.useMemo(() =>
-    (fco as any)?.data?.results?.map((item: any) => ({
+  // Format master config API data
+  const fcoOptions = React.useMemo(() => {
+    if (!fco || fco.length === 0) {
+      console.log('💰 FCO Numbers: Empty or loading...', { hasData: !!fco, count: fco?.length || 0 });
+      return [];
+    }
+    return fco.map((item: any) => ({
       id: item.id,
-      name: item.name || item.number || item.code || 'Unnamed FCO'
-    })) || [], [fco]);
+      name: item.name || item.fco_number || item.code || 'Unnamed FCO'
+    }));
+  }, [fco]);
 
-  const budgetLinesOptions = React.useMemo(() =>
-    (budgetLines as any)?.data?.results?.map((item: any) => ({
+  const budgetLinesOptions = React.useMemo(() => {
+    if (!budgetLines || budgetLines.length === 0) {
+      console.log('💰 Budget Lines: Empty or loading...', { hasData: !!budgetLines, count: budgetLines?.length || 0 });
+      return [];
+    }
+    return budgetLines.map((item: any) => ({
       id: item.id,
-      name: item.name || item.description || 'Unnamed Item'
-    })) || [], [budgetLines]);
+      name: item.name || item.budget_line_name || 'Unnamed Budget Line'
+    }));
+  }, [budgetLines]);
 
-  const costCategoriesOptions = React.useMemo(() =>
-    (costCategories as any)?.data?.results?.map((item: any) => ({
+  const costCategoriesOptions = React.useMemo(() => {
+    if (!costCategories || costCategories.length === 0) {
+      console.log('💰 Cost Categories: Empty or loading...', { hasData: !!costCategories, count: costCategories?.length || 0 });
+      return [];
+    }
+    return costCategories.map((item: any) => ({
       id: item.id,
-      name: item.name || item.description || 'Unnamed Item'
-    })) || [], [costCategories]);
+      name: item.name || item.cost_category_name || 'Unnamed Cost Category'
+    }));
+  }, [costCategories]);
 
-  const costInputOptions = React.useMemo(() =>
-    (costInput as any)?.data?.results?.map((item: any) => ({
+  const costInputOptions = React.useMemo(() => {
+    if (!costInput || costInput.length === 0) {
+      console.log('💰 Cost Inputs: Empty or loading...', { hasData: !!costInput, count: costInput?.length || 0 });
+      return [];
+    }
+    return costInput.map((item: any) => ({
       id: item.id,
-      name: item.name || item.description || 'Unnamed Item'
-    })) || [], [costInput]);
+      name: item.name || item.cost_input_name || 'Unnamed Cost Input'
+    }));
+  }, [costInput]);
 
-  const fundingSourceOptions = React.useMemo(() =>
-    (fundingSource as any)?.data?.results || [], [fundingSource]);
+  const fundingSourceOptions = React.useMemo(() => {
+    if (!fundingSource || fundingSource.length === 0) {
+      console.log('💰 Funding Sources: Empty or loading...', { hasData: !!fundingSource, count: fundingSource?.length || 0 });
+      return [];
+    }
+    return fundingSource.map((item: any) => ({
+      id: item.id,
+      name: item.name || item.funding_source_name || 'Unnamed Funding Source'
+    }));
+  }, [fundingSource]);
 
-  const interventionsOptions = React.useMemo(() =>
-    (interventions as any)?.data?.results?.map(({ code, id }: any) => ({
-      id,
-      name: code,
-    })) || [], [interventions]);
+  const interventionsOptions = React.useMemo(() => {
+    if (!interventions || interventions.length === 0) {
+      console.log('💰 Intervention Areas: Empty or loading...', { hasData: !!interventions, count: interventions?.length || 0 });
+      return [];
+    }
+    return interventions.map((item: any) => ({
+      id: item.id,
+      name: item.code || item.name || 'Unnamed Intervention Area'
+    }));
+  }, [interventions]);
 
   const itemsOptions = React.useMemo(() =>
     (items as any)?.data?.results?.map(({ name, id, uom }: any) => ({

@@ -85,7 +85,7 @@ const TravelFeesSection: React.FC = () => {
         });
       }
     }
-  }, [applicableRate?.accommodation_rate, applicableRate?.meal_allowance, applicableRate?.transport_allowance, applicableRate?.per_diem_rate, teamMembers.length, setValue]);
+  }, [applicableRate?.accommodation_rate, applicableRate?.meal_allowance, applicableRate?.transport_allowance, applicableRate?.per_diem_rate, teamMembers.length]); // Removed setValue to prevent infinite loop
 
   return (
     <Card>
