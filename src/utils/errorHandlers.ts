@@ -11,6 +11,28 @@ export interface ErrorContext {
 }
 
 /**
+ * Logout state management to suppress authentication toasts during logout
+ */
+class LogoutStateManager {
+  private isLoggingOut = false;
+
+  public setLoggingOut(state: boolean) {
+    this.isLoggingOut = state;
+    if (state) {
+      console.log('🚪 Logout state: ACTIVE - Suppressing auth toasts');
+    } else {
+      console.log('🚪 Logout state: INACTIVE - Auth toasts enabled');
+    }
+  }
+
+  public isInLogoutProcess(): boolean {
+    return this.isLoggingOut;
+  }
+}
+
+export const logoutStateManager = new LogoutStateManager();
+
+/**
  * Handle employee profile related errors with user-friendly messages
  */
 export const handleEmployeeProfileError = (error: any, context?: ErrorContext) => {
@@ -105,10 +127,15 @@ export const handleApiError = (error: any, context?: ErrorContext) => {
       break;
 
     case 401:
-      toast.error('Authentication Required', {
-        description: 'Please log in to continue.',
-        duration: 5000,
-      });
+      // Suppress authentication toasts during logout process
+      if (!logoutStateManager.isInLogoutProcess()) {
+        toast.error('Authentication Required', {
+          description: 'Please log in to continue.',
+          duration: 5000,
+        });
+      } else {
+        console.log('🚪 401 error during logout - toast suppressed');
+      }
       // Redirect to login will be handled by axios interceptor
       break;
 

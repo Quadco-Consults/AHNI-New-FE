@@ -20,6 +20,7 @@ import { getPageTitleFromPath } from "utils/utls";
 import { useGetUserProfile } from "features/auth/controllers/userController";
 import { useQueryClient } from "@tanstack/react-query";
 import NotificationDropdown from "./NotificationDropdown";
+import { logoutStateManager } from "@/utils/errorHandlers";
 
 const Header = ({ sidebarWidth }: { sidebarWidth: boolean }) => {
   const { setTheme } = useTheme();
@@ -44,28 +45,60 @@ const Header = ({ sidebarWidth }: { sidebarWidth: boolean }) => {
 
   const dispatch = useAppDispatch();
 
-  const logoutHandler = () => {
-    // Clear Redux state
-    dispatch(logOut());
+  const logoutHandler = async () => {
+    try {
+      console.log('🚪 Starting logout process...');
 
-    // Clear ALL localStorage tokens and user data (including vendor tokens)
-    localStorage.removeItem('token');
-    localStorage.removeItem('refresh_token');
-    localStorage.removeItem('user');
-    localStorage.removeItem('vendor_access_token');
-    localStorage.removeItem('vendor_refresh_token');
-    localStorage.removeItem('vendor_user');
+      // Set logout state to suppress authentication toasts
+      logoutStateManager.setLoggingOut(true);
 
-    // Clear persisted Redux state
-    localStorage.removeItem("persist:ahni");
+      // Clear Redux state first
+      dispatch(logOut());
 
-    // Clear TanStack Query cache to prevent stale user data
-    queryClient.clear();
+      // Clear localStorage with error handling
+      try {
+        localStorage.removeItem('token');
+        localStorage.removeItem('refresh_token');
+        localStorage.removeItem('user');
+        localStorage.removeItem('vendor_access_token');
+        localStorage.removeItem('vendor_refresh_token');
+        localStorage.removeItem('vendor_user');
+        localStorage.removeItem("persist:ahni");
+        console.log('✅ localStorage cleared successfully');
+      } catch (storageError) {
+        console.error('❌ Failed to clear localStorage:', storageError);
+        // Continue logout process even if localStorage fails
+      }
 
-    // Invalidate all queries to force fresh fetch on next login
-    queryClient.invalidateQueries();
+      // Clear TanStack Query cache with error handling
+      try {
+        await queryClient.clear();
+        console.log('✅ Query cache cleared successfully');
+      } catch (queryError) {
+        console.error('❌ Failed to clear query cache:', queryError);
+        // Continue logout process even if cache clearing fails
+      }
 
-    router.push(AuthRoutes.LOGIN);
+      // Navigate to login page
+      console.log('🔄 Redirecting to login page...');
+      router.push(AuthRoutes.LOGIN);
+
+    } catch (error) {
+      console.error('❌ Logout process encountered an error:', error);
+      // Force redirect even if logout fails
+      try {
+        router.push(AuthRoutes.LOGIN);
+      } catch (routerError) {
+        console.error('❌ Router navigation failed, using fallback:', routerError);
+        // Last resort fallback
+        window.location.href = AuthRoutes.LOGIN;
+      }
+    } finally {
+      // Always reset logout state after a delay to allow any pending requests to complete
+      setTimeout(() => {
+        logoutStateManager.setLoggingOut(false);
+      }, 2000);
+    }
   };
 
   return (

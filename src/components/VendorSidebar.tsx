@@ -18,9 +18,10 @@ import {
   HelpCircle,
   MessageSquare
 } from "lucide-react";
-import { VendorAuthUtils } from "@/features/vendor-portal/controllers/vendorAuthController";
+import { VendorAuthUtils, useVendorLogout } from "@/features/vendor-portal/controllers/vendorAuthController";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
+import { logoutStateManager } from "@/utils/errorHandlers";
 
 type VendorSidebarProps = {
   sidebarWidth: boolean;
@@ -106,13 +107,34 @@ const VendorSidebar = ({ sidebarWidth, setSidebarWidth }: VendorSidebarProps) =>
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [isHydrated, setIsHydrated] = useState(false);
 
+  // Use the proper vendor logout hook with API call
+  const { mutate: logout, isPending: isLoggingOut } = useVendorLogout();
+
   useEffect(() => {
     setIsHydrated(true);
   }, []);
 
   const handleLogout = () => {
-    VendorAuthUtils.removeVendorToken();
-    router.push('/vendor-portal/login');
+    // Set logout state to suppress authentication toasts
+    logoutStateManager.setLoggingOut(true);
+
+    logout(undefined, {
+      onSuccess: () => {
+        console.log('✅ Vendor logout successful');
+        router.push('/vendor-portal/login');
+      },
+      onError: (error) => {
+        console.error('❌ Vendor logout error:', error);
+        // Still redirect even if API call fails
+        router.push('/vendor-portal/login');
+      },
+      onSettled: () => {
+        // Reset logout state after a delay to allow any pending requests to complete
+        setTimeout(() => {
+          logoutStateManager.setLoggingOut(false);
+        }, 2000);
+      }
+    });
   };
 
   const isActive = (href: string) => {
