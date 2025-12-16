@@ -2,7 +2,7 @@
 
 import { useEffect, ReactNode, useRef } from "react";
 import { useAppDispatch } from "@/store/hooks";
-import { setAuth } from "@/store/auth/authSlice";
+import { setAuth, logOut } from "@/store/auth/authSlice";
 import { getAccessToken, getCurrentUser } from "@/utils/auth";
 
 interface AuthProviderProps {
@@ -56,6 +56,8 @@ export default function AuthProvider({ children }: AuthProviderProps) {
             localStorage.removeItem('token');
             localStorage.removeItem('refresh_token');
             localStorage.removeItem('user');
+            // CRITICAL FIX: Update Redux state to match localStorage clearing
+            dispatch(logOut());
             return;
           }
 
@@ -65,6 +67,8 @@ export default function AuthProvider({ children }: AuthProviderProps) {
           localStorage.removeItem('token');
           localStorage.removeItem('refresh_token');
           localStorage.removeItem('user');
+          // CRITICAL FIX: Update Redux state to match localStorage clearing
+          dispatch(logOut());
           return;
         }
 
