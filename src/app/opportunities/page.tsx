@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import OpportunityCard from "@/components/OpportunityCard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,7 +33,6 @@ export default function OpportunitiesPage() {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [jobTypeFilter, setJobTypeFilter] = useState("all");
   const [locationFilter, setLocationFilter] = useState("all");
-  const [expandedCard, setExpandedCard] = useState<string | null>(null);
 
   // Fetch opportunities from both sources
   const { data: eoiData, isLoading: eoiLoading } = useGetPublicEois({
@@ -126,24 +126,6 @@ export default function OpportunitiesPage() {
     });
   };
 
-  const getTimeAgo = (dateString: string) => {
-    if (!dateString) return "Recently posted";
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffTime = now.getTime() - date.getTime();
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
-    if (diffDays === 0) return "Today";
-    if (diffDays === 1) return "1 day ago";
-    if (diffDays < 7) return `${diffDays} days ago`;
-    if (diffDays < 14) return "1 week ago";
-    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
-    return `${Math.floor(diffDays / 30)} months ago`;
-  };
-
-  const toggleCard = (id: string) => {
-    setExpandedCard(expandedCard === id ? null : id);
-  };
 
   // Helper function to determine opportunity detail route
   const getDetailRoute = (opportunity: any) => {
@@ -623,151 +605,23 @@ export default function OpportunitiesPage() {
                 </CardContent>
               </Card>
             ) : (
-              <div className="space-y-8">
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                 {filteredOpportunities.map((opportunity) => (
-                  <Card
+                  <OpportunityCard
                     key={opportunity.id}
-                    className="hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 cursor-pointer border-2 border-border hover:border-primary/20 bg-white"
-                    onClick={() => router.push(getDetailRoute(opportunity))}
-                  >
-                    <CardContent className="p-8">
-                      <div className="flex items-start justify-between mb-6">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-4">
-                            <div className="p-2 rounded-full bg-primary/10">
-                              <Building2 className="h-5 w-5 text-primary" />
-                            </div>
-                            <div className="flex flex-wrap items-center gap-2">
-                              <Badge variant="secondary" className="font-semibold text-sm px-3 py-1">
-                                {opportunity.project}
-                              </Badge>
-                              <Badge
-                                variant="outline"
-                                className={`font-semibold text-sm px-3 py-1 ${
-                                  opportunity.type === 'Consultant' ? 'border-blue-500 text-blue-700 bg-blue-50' :
-                                  opportunity.type === 'Full Time' ? 'border-green-500 text-green-700 bg-green-50' :
-                                  opportunity.type === 'Adhoc' ? 'border-purple-500 text-purple-700 bg-purple-50' :
-                                  opportunity.type === 'EOI' ? 'border-orange-500 text-orange-700 bg-orange-50' :
-                                  'border-gray-500 text-gray-700 bg-gray-50'
-                                }`}
-                              >
-                                {opportunity.type}
-                              </Badge>
-                            </div>
-                          </div>
-
-                          <h3 className="text-2xl font-bold text-foreground mb-4 leading-tight">
-                            {opportunity.title}
-                          </h3>
-
-                          <div className="flex flex-wrap items-center gap-6 text-base text-muted-foreground mb-4">
-                            <span className="flex items-center gap-2 font-medium">
-                              <MapPin className="h-4 w-4" />
-                              {opportunity.location}
-                            </span>
-                            <span className="flex items-center gap-2 font-medium">
-                              <Calendar className="h-4 w-4" />
-                              Posted {getTimeAgo(opportunity.postedDate)}
-                            </span>
-                            <span className="flex items-center gap-2 font-medium">
-                              <Clock className="h-4 w-4" />
-                              {formatDate(opportunity.deadline)}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="mb-6">
-                        <p className="text-foreground/80 line-clamp-3 text-lg leading-relaxed">
-                          {opportunity.description}
-                        </p>
-                      </div>
-
-                      {expandedCard === opportunity.id && (
-                        <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-                          <div className="mb-4">
-                            <h4 className="font-semibold text-gray-900 mb-2">Full Description</h4>
-                            <p className="text-gray-700 whitespace-pre-line">{opportunity.description}</p>
-                          </div>
-
-                          {opportunity.requirements && (
-                            <div className="mb-4">
-                              <h4 className="font-semibold text-gray-900 mb-2">Requirements</h4>
-                              <p className="text-gray-700">{opportunity.requirements}</p>
-                            </div>
-                          )}
-
-                          <div className="border-t pt-4 mt-4">
-                            <h4 className="font-semibold text-gray-900 mb-2">Application Instructions</h4>
-                            <div className="bg-blue-50 p-4 rounded-lg">
-                              <p className="text-sm text-blue-900 mb-2">
-                                To apply, please send your CV and cover letter to:
-                              </p>
-                              <div className="flex items-center gap-2 text-blue-900 font-medium">
-                                <Mail className="h-4 w-4" />
-                                {opportunity.applicationEmail}
-                              </div>
-                              <p className="text-xs text-blue-800 mt-2">
-                                • Submit documents as a single MS Word file<br/>
-                                • Include position title in subject line<br/>
-                                • Only shortlisted candidates will be contacted<br/>
-                                • AHNI does not charge candidates any fees
-                              </p>
-                            </div>
-                          </div>
-
-                          <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded">
-                            <div className="flex items-start gap-2">
-                              <AlertCircle className="h-4 w-4 text-yellow-600 mt-0.5" />
-                              <div className="text-xs text-yellow-800">
-                                <strong>Important:</strong> AHNI has Zero Tolerance to Sexual Abuse and is committed to safeguarding and child protection.
-                                We are an equal opportunity employer.
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-6 gap-4">
-                        <Button
-                          variant="ghost"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleCard(opportunity.id);
-                          }}
-                          className="text-primary hover:text-primary/80 font-semibold hover:bg-primary/5 px-4 py-2"
-                        >
-                          {expandedCard === opportunity.id ? "View Less" : "Read More Details"}
-                        </Button>
-
-                        <div className="flex items-center gap-3">
-                          <Button
-                            variant="outline"
-                            size="default"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              router.push(getDetailRoute(opportunity));
-                            }}
-                            className="font-semibold border-2 border-primary/60 text-primary hover:border-primary hover:bg-primary hover:text-white transition-all shadow-sm hover:shadow-md"
-                          >
-                            <ExternalLink className="h-4 w-4 mr-2" />
-                            View Details
-                          </Button>
-                          <Button
-                            size="default"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              window.open(`mailto:${opportunity.applicationEmail}?subject=Application for ${opportunity.title}`, '_blank');
-                            }}
-                            className="font-semibold bg-primary hover:bg-primary/90 text-white shadow-md hover:shadow-lg transition-all"
-                          >
-                            <Mail className="h-4 w-4 mr-2" />
-                            Apply Now
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                    id={opportunity.id}
+                    title={opportunity.title}
+                    type={opportunity.type}
+                    category={opportunity.category}
+                    project={opportunity.project}
+                    location={opportunity.location}
+                    postedDate={opportunity.postedDate}
+                    deadline={opportunity.deadline}
+                    description={opportunity.description}
+                    requirements={opportunity.requirements}
+                    applicationEmail={opportunity.applicationEmail}
+                    onCardClick={() => router.push(getDetailRoute(opportunity))}
+                  />
                 ))}
               </div>
             )}
