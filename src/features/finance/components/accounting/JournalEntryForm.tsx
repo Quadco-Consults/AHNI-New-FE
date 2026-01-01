@@ -94,20 +94,18 @@ export default function JournalEntryForm({
 
   // Reset form when initialData changes (for editing)
   useEffect(() => {
-    if (initialData) {
-      form.reset(initialData);
-    } else {
-      form.reset({
-        entry_date: new Date().toISOString().split('T')[0],
-        description: "",
-        reference_number: "",
-        line_items: [
-          { account: "", description: "", debit_amount: 0, credit_amount: 0 },
-          { account: "", description: "", debit_amount: 0, credit_amount: 0 },
-        ],
-      });
-    }
-  }, [initialData, form]);
+    const defaultValues = {
+      entry_date: new Date().toISOString().split('T')[0],
+      description: "",
+      reference_number: "",
+      line_items: [
+        { account: "", description: "", debit_amount: 0, credit_amount: 0 },
+        { account: "", description: "", debit_amount: 0, credit_amount: 0 },
+      ],
+    };
+
+    form.reset(initialData || defaultValues);
+  }, [initialData]);
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
@@ -264,7 +262,7 @@ export default function JournalEntryForm({
                 {/* Line Items */}
                 <div className="space-y-3">
                   {fields.map((field, index) => (
-                    <div key={field.id} className="grid grid-cols-12 gap-2 items-start">
+                    <div key={`${field.id}-${index}`} className="grid grid-cols-12 gap-2 items-start">
                       <div className="col-span-4">
                         <FormField
                           control={form.control}

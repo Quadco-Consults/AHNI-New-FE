@@ -175,7 +175,7 @@ export default function CustomerForm({
         notes: "",
       });
     }
-  }, [initialData, form]);
+  }, [initialData]);
 
   const watchedCustomerType = form.watch("customer_type");
   const watchedSameAsBilling = form.watch("same_as_billing");
@@ -190,7 +190,7 @@ export default function CustomerForm({
     } else if (watchedCustomerType === "COMPANY" && watchedCompanyName) {
       form.setValue("display_name", watchedCompanyName);
     }
-  }, [watchedCustomerType, watchedFirstName, watchedLastName, watchedCompanyName, form]);
+  }, [watchedCustomerType, watchedFirstName, watchedLastName, watchedCompanyName]);
 
   // Copy billing address to shipping when same_as_billing is true
   useEffect(() => {
@@ -198,7 +198,7 @@ export default function CustomerForm({
       const billingAddress = form.getValues("billing_address");
       form.setValue("shipping_address", billingAddress);
     }
-  }, [watchedSameAsBilling, form]);
+  }, [watchedSameAsBilling]);
 
   const handleSubmit = async (data: CustomerFormData) => {
     setIsSubmitting(true);

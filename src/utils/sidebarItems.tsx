@@ -1362,36 +1362,6 @@ export const departmentalLinks: SidebarItem[] = [
         ]
       },
         {
-          name: "QuickBooks Settings",
-          path: "/dashboard/finance/quickbooks/settings",
-          permissions: [
-          {
-            module: "finance",
-            codenames: ["view_quickbookssettings"]
-          }
-        ]
-        },
-        {
-          name: "QuickBooks Sync",
-          path: "/dashboard/finance/quickbooks/sync",
-          permissions: [
-          {
-            module: "finance",
-            codenames: ["view_quickbookssync"]
-          }
-        ]
-        },
-        {
-          name: "Customer Management",
-          path: "/dashboard/finance/customers",
-          permissions: [
-          {
-            module: "finance",
-            codenames: ["view_customersmanagement"]
-          }
-        ]
-        },
-        {
           name: "Invoicing & Billing",
           path: "/dashboard/finance/invoices",
           permissions: [
