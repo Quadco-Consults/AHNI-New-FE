@@ -7,15 +7,13 @@
     "yarn": ">=1.22.0"
   },
   "scripts": {
-    "dev": "next dev",
-    // "build": "NODE_OPTIONS=\"--max-old-space-size=8192\" next build",
+    "dev": "next dev --turbo",
     "build": "NODE_OPTIONS=\"--max-old-space-size=8192\" next build --turbo",
     "build:webpack": "NODE_OPTIONS=\"--max-old-space-size=8192\" next build --webpack",
     "start": "next start",
     "lint": "next lint",
-    "analyze": "NODE_OPTIONS=\"--max-old-space-size=8192\" ANALYZE=true next build --turbo",    
-    "build:production": "NODE_OPTIONS=\"--max-old-space-size=8192\" NODE_ENV=production next build",
-    "dev:turbo": "next dev --turbo",
+    "analyze": "NODE_OPTIONS=\"--max-old-space-size=8192\" ANALYZE=true next build --turbo",
+    "build:production": "NODE_OPTIONS=\"--max-old-space-size=8192\" NODE_ENV=production next build --turbo",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "storybook:build": "storybook build",
@@ -46,7 +44,6 @@
     "@radix-ui/react-tabs": "^1.0.4",
     "@reduxjs/toolkit": "^2.2.1",
     "@tanstack/react-query": "^5.85.5",
-    "@tanstack/react-query-devtools": "^5.85.5",
     "@tanstack/react-table": "^8.13.2",
     "ahooks": "^3.8.0",
     "axios": "^1.6.7",
@@ -94,6 +91,7 @@
     "zustand": "^5.0.8"
   },
   "devDependencies": {
+    "@tanstack/react-query-devtools": "^5.85.5",
     "@types/lodash": "^4.17.7",
     "@types/node": "^20.12.7",
     "@types/number-to-words": "^1.2.3",
