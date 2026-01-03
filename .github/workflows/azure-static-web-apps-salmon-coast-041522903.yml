@@ -22,16 +22,17 @@ jobs:
           submodules: true
           lfs: false
       
-      # ADD THIS STEP - Setup Node.js 20
       - name: Setup Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'yarn'
       
-      # UPDATE THIS STEP - Use yarn instead of npm
       - name: Install dependencies
         run: yarn install --frozen-lockfile
+      
+      - name: Patch Next.js SWC dependencies
+        run: yarn next --version || true
       
       - name: Install OIDC Client from Core Package
         run: npm install @actions/core@1.6.0 @actions/http-client --legacy-peer-deps
@@ -55,6 +56,7 @@ jobs:
           api_location: ""
           output_location: ".next"
           github_id_token: ${{ steps.idtoken.outputs.result }}
+          skip_api_build: true
         env:
           NODE_VERSION: '20'
 
