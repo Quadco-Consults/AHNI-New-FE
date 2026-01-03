@@ -16,6 +16,8 @@
     "storybook:start": "storybook dev -p 6006"
   },
   "dependencies": {
+    "@actions/core": "1.6.0",
+    "@actions/http-client": "^3.0.0",
     "@hookform/resolvers": "^3.10.0",
     "@iconify/react": "^4.1.1",
     "@radix-ui/react-accordion": "^1.1.2",
