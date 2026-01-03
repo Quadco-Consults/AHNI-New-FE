@@ -36,24 +36,39 @@ jobs:
         env:
           NODE_ENV: production
       
-      # Remove unnecessary files from out directory
-      - name: Clean build output
+      # Verify and clean build output
+      - name: Verify build output and cleanup
         run: |
-          echo "Build output size before cleanup:"
-          du -sh .next/
+          echo "=== Checking build directories ==="
+          ls -lah
           
-          # Remove source maps (largest contributor to size)
-          find .next/ -name "*.map" -type f -delete
+          if [ -d "out" ]; then
+            echo "✓ Static export 'out' directory found"
+            echo "Build output size before cleanup:"
+            du -sh out/
+            
+            # Remove source maps
+            find out/ -name "*.map" -type f -delete
+            
+            # Remove any development files
+            find out/ -name "*.development.js" -type f -delete
+            
+            echo "Build output size after cleanup:"
+            du -sh out/
+            
+            echo "=== Top 20 largest files in out/ ==="
+            find out/ -type f -exec du -h {} + | sort -rh | head -20
+          else
+            echo "ERROR: 'out' directory not found!"
+            echo "Make sure next.config.js has output: 'export'"
+            exit 1
+          fi
           
-          # Remove .next cache if present
-          rm -rf .next/.next/cache
-          
-          # Remove build info
-          rm -rf .next/.next/build-info.json
-          
-          echo "Build output size after cleanup:"
-          du -sh .next/
-          ls -lah .next/
+          # Remove .next directory (not needed for static export)
+          if [ -d ".next" ]; then
+            echo "Removing .next directory (not needed for deployment)..."
+            rm -rf .next
+          fi
       
       - name: Install OIDC Client from Core Package
         run: npm install @actions/core@1.6.0 @actions/http-client --legacy-peer-deps
@@ -74,7 +89,7 @@ jobs:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_SALMON_COAST_041522903 }}
           action: "upload"
           app_location: "/"
-          output_location: ".next"
+          output_location: "out"
           skip_app_build: true
           github_id_token: ${{ steps.idtoken.outputs.result }}
         env:
