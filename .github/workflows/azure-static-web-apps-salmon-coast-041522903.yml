@@ -40,20 +40,20 @@ jobs:
       - name: Clean build output
         run: |
           echo "Build output size before cleanup:"
-          du -sh out/
+          du -sh .next/
           
           # Remove source maps (largest contributor to size)
-          find out/ -name "*.map" -type f -delete
+          find .next/ -name "*.map" -type f -delete
           
           # Remove .next cache if present
-          rm -rf out/.next/cache
+          rm -rf .next/.next/cache
           
           # Remove build info
-          rm -rf out/.next/build-info.json
+          rm -rf .next/.next/build-info.json
           
           echo "Build output size after cleanup:"
-          du -sh out/
-          ls -lah out/
+          du -sh .next/
+          ls -lah .next/
       
       - name: Install OIDC Client from Core Package
         run: npm install @actions/core@1.6.0 @actions/http-client --legacy-peer-deps
