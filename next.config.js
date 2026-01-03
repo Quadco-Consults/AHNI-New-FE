@@ -15,7 +15,7 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'https://salmon-coast-041522903.6.azurestaticapps.net',
+        hostname: 'ahni-erp-029252c2fbb9.herokuapp.com',
         port: '',
         pathname: '**',
       },
@@ -55,13 +55,19 @@ const nextConfig = {
     } : false,
   },
 
+  // Empty turbopack config to silence the warning
+  // Turbopack handles most optimizations automatically
+  turbopack: {},
+
+  // Keep webpack config for fallback compatibility
+  // Note: This won't be used when Turbopack is active
   webpack: (config, { dev, isServer }) => {
     if (isServer) {
       config.externals.push('canvas');
     }
     
-    // Production optimizations
-    if (!dev) {
+    // Production optimizations (only applies when using webpack)
+    if (!dev && !isServer) {
       // Minimize chunk size
       config.optimization = {
         ...config.optimization,
@@ -71,7 +77,6 @@ const nextConfig = {
           cacheGroups: {
             default: false,
             vendors: false,
-            // Critical framework code
             framework: {
               name: 'framework',
               chunks: 'all',
@@ -79,14 +84,12 @@ const nextConfig = {
               priority: 40,
               enforce: true,
             },
-            // Large libraries (lazy load these when possible)
             heavy: {
               name: 'heavy-libs',
               test: /[\\/]node_modules[\\/](jspdf|exceljs|html2canvas|react-pdf)[\\/]/,
               priority: 35,
               reuseExistingChunk: true,
             },
-            // Common vendor code
             lib: {
               test: /[\\/]node_modules[\\/]/,
               name(module) {
@@ -98,9 +101,8 @@ const nextConfig = {
               priority: 30,
               minChunks: 1,
               reuseExistingChunk: true,
-              maxSize: 244000, // Split chunks larger than 244KB
+              maxSize: 244000,
             },
-            // Shared code between pages
             commons: {
               name: 'commons',
               minChunks: 2,
