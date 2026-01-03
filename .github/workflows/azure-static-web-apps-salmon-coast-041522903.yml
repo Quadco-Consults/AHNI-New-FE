@@ -47,33 +47,29 @@ jobs:
           echo "=== Checking build directories ==="
           ls -lah
           
-          if [ -d "out" ]; then
+          if [ -d ".next" ]; then
             echo "✓ Static export 'out' directory found"
             echo "Build output size before cleanup:"
-            du -sh out/
+            du -sh .next/
             
             # Remove source maps (saves 100-200MB)
-            find out/ -name "*.map" -type f -delete
+            find .next/ -name "*.map" -type f -delete
             
             # Remove any development files
-            find out/ -name "*.development.js" -type f -delete
+            find .next/ -name "*.development.js" -type f -delete
             
             echo "Build output size after cleanup:"
-            du -sh out/
+            du -sh .next/
             
             echo "=== Top 20 largest files in out/ ==="
-            find out/ -type f -exec du -h {} + | sort -rh | head -20
+            find .next/ -type f -exec du -h {} + | sort -rh | head -20
           else
             echo "ERROR: 'out' directory not found!"
             echo "Make sure next.config.js has output: 'export'"
             exit 1
           fi
           
-          # Remove .next directory (not needed for deployment)
-          if [ -d ".next" ]; then
-            echo "Removing .next directory (not needed for deployment)..."
-            rm -rf .next
-          fi
+          
           
           # Final size check
           TOTAL_SIZE=$(du -sb out/ | cut -f1)
@@ -109,7 +105,7 @@ jobs:
           action: "upload"
           app_location: "/"
           api_location: "" # No API folder - static export only
-          output_location: "out" # CRITICAL: Deploy the 'out' folder, not '.next'
+          output_location: ".next"
           skip_app_build: true
           github_id_token: ${{ steps.idtoken.outputs.result }}
         env:
@@ -126,4 +122,5 @@ jobs:
         uses: Azure/static-web-apps-deploy@v1
         with:
           action: "close"
+
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_SALMON_COAST_041522903 }}
