@@ -13,7 +13,7 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'ahni-erp-029252c2fbb9.herokuapp.com',
+        hostname: 'salmon-coast-041522903.6.azurestaticapps.net',
         port: '',
         pathname: '**',
       },
