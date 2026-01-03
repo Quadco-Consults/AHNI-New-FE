@@ -45,6 +45,19 @@ jobs:
                return await coredemo.getIDToken()
            result-encoding: string
       
+      # - name: Build And Deploy
+      #   id: builddeploy
+      #   uses: Azure/static-web-apps-deploy@v1
+      #   with:
+      #     azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_SALMON_COAST_041522903 }}
+      #     action: "upload"
+      #     app_location: "/"
+      #     api_location: ""
+      #     output_location: "build"
+      #     github_id_token: ${{ steps.idtoken.outputs.result }}
+      #   env:
+      #     NODE_VERSION: '20'
+
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
@@ -53,11 +66,11 @@ jobs:
           action: "upload"
           app_location: "/"
           api_location: ""
-          output_location: "build"
+          output_location: "out"  # Changed from "build" to "out"
           github_id_token: ${{ steps.idtoken.outputs.result }}
         env:
           NODE_VERSION: '20'
-          
+                
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
     runs-on: ubuntu-latest
