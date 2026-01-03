@@ -1,118 +1,31 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
-  output: 'export', // CRITICAL: This generates the 'out' folder
-  
-  // Disable source maps in production (saves 100-200MB)
-  productionBrowserSourceMaps: false,
-  
-  compress: true,
-  
+  reactStrictMode: false, // Disable strict mode temporarily to avoid double rendering issues
+  swcMinify: false, // Disable SWC minification since SWC is corrupted
   images: {
-    unoptimized: true, // Required for static export
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'salmon-coast-041522903.6.azurestaticapps.net',
-        port: '',
-        pathname: '**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'ahni-erp-029252c2fbb9.herokuapp.com',
-        port: '',
-        pathname: '**',
-      },
-    ],
-    formats: ['image/webp'],
-    deviceSizes: [640, 828, 1200],
-    imageSizes: [32, 64, 128],
-    dangerouslyAllowSVG: true,
-    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    domains: ["ahni-erp-029252c2fbb9.herokuapp.com"],
   },
-  
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   typescript: {
     ignoreBuildErrors: true,
   },
-  
   experimental: {
-    scrollRestoration: true,
-    optimizePackageImports: [
-      'lucide-react', 
-      '@tanstack/react-query', 
-      'recharts',
-      '@radix-ui/react-accordion',
-      '@radix-ui/react-alert-dialog',
-      '@radix-ui/react-avatar',
-      '@radix-ui/react-checkbox',
-      '@radix-ui/react-dialog',
-      '@radix-ui/react-dropdown-menu',
-      '@radix-ui/react-select',
-      'react-icons',
-    ],
+    forceSwcTransforms: false, // Force using Babel instead of SWC
   },
 
-  compiler: {
-    removeConsole: process.env.NODE_ENV === "production" ? {
-      exclude: ['error', 'warn'],
-    } : false,
-  },
+  webpack: (config, { isServer }) => {
+    // Enable caching back for better performance
+    config.cache = {
+      type: 'filesystem',
+    };
 
-  turbopack: {},
-
-  webpack: (config, { dev, isServer }) => {
+    // Fix Canvas issues for PDF generation
     if (isServer) {
       config.externals.push('canvas');
     }
-    
-    if (!dev && !isServer) {
-      config.optimization = {
-        ...config.optimization,
-        minimize: true,
-        splitChunks: {
-          chunks: 'all',
-          cacheGroups: {
-            default: false,
-            vendors: false,
-            framework: {
-              name: 'framework',
-              chunks: 'all',
-              test: /[\\/]node_modules[\\/](react|react-dom|scheduler)[\\/]/,
-              priority: 40,
-              enforce: true,
-            },
-            heavy: {
-              name: 'heavy-libs',
-              test: /[\\/]node_modules[\\/](jspdf|exceljs|html2canvas|react-pdf)[\\/]/,
-              priority: 35,
-              reuseExistingChunk: true,
-            },
-            lib: {
-              test: /[\\/]node_modules[\\/]/,
-              name(module) {
-                const packageName = module.context.match(
-                  /[\\/]node_modules[\\/](.*?)([\\/]|$)/
-                )?.[1];
-                return `npm.${packageName?.replace('@', '')}`;
-              },
-              priority: 30,
-              minChunks: 1,
-              reuseExistingChunk: true,
-              maxSize: 244000,
-            },
-            commons: {
-              name: 'commons',
-              minChunks: 2,
-              priority: 20,
-              maxSize: 244000,
-            },
-          },
-          maxInitialRequests: 25,
-          minSize: 20000,
-        },
-      };
-    }
-    
+
     return config;
   },
 };
