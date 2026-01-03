@@ -1,19 +1,25 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  // output: 'export', // REMOVED - Can't use with API routes
+  output: 'export', // CRITICAL: This generates the 'out' folder
   
-  // Disable source maps in production
+  // Disable source maps in production (saves 100-200MB)
   productionBrowserSourceMaps: false,
   
   compress: true,
   
   images: {
-    // For non-static builds, you can use optimized images
+    unoptimized: true, // Required for static export
     remotePatterns: [
       {
         protocol: 'https',
         hostname: 'salmon-coast-041522903.6.azurestaticapps.net',
+        port: '',
+        pathname: '**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'ahni-erp-029252c2fbb9.herokuapp.com',
         port: '',
         pathname: '**',
       },
