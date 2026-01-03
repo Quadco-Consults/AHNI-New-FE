@@ -1,7 +1,16 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Static export configuration for Azure Static Web Apps
+  output: 'export',
+  trailingSlash: true,
+  distDir: 'build',
+
+  // Bundle optimization
+  poweredByHeader: false,
+  generateEtags: false,
   reactStrictMode: true, // Enable strict mode for better performance and debugging
   images: {
+    unoptimized: true, // Required for static export
     remotePatterns: [
       {
         protocol: 'https',
@@ -10,10 +19,6 @@ const nextConfig = {
         pathname: '**',
       },
     ],
-    formats: ['image/webp', 'image/avif'], // Modern formats for better compression
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920], // Responsive image sizes
-    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384], // Icon sizes
-    minimumCacheTTL: 60 * 60 * 24 * 365, // 1 year cache for images
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
@@ -35,11 +40,40 @@ const nextConfig = {
   },
 
   // Keep webpack config for Pages Router compatibility and fallback
-  webpack: (config, { isServer }) => {
+  webpack: (config, { isServer, dev }) => {
     // Fix Canvas issues for PDF generation (fallback for webpack builds)
     if (isServer) {
       config.externals.push('canvas');
     }
+
+    // Bundle size optimizations
+    if (!dev && !isServer) {
+      // Reduce bundle size by excluding source maps from production
+      config.devtool = false;
+
+      // Split chunks more aggressively
+      config.optimization = {
+        ...config.optimization,
+        splitChunks: {
+          chunks: 'all',
+          cacheGroups: {
+            vendor: {
+              test: /[\\/]node_modules[\\/]/,
+              name: 'vendors',
+              chunks: 'all',
+              maxSize: 244000, // ~240KB chunks
+            },
+            common: {
+              minChunks: 2,
+              chunks: 'all',
+              enforce: true,
+              maxSize: 244000,
+            }
+          }
+        }
+      };
+    }
+
     return config;
   },
 };
