@@ -29,13 +29,31 @@ jobs:
           cache: 'yarn'
       
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
-      
-      - name: Patch Next.js SWC dependencies
-        run: yarn next --version || true
+        run: yarn install --frozen-lockfile --production=false
       
       - name: Build application
         run: yarn build
+        env:
+          NODE_ENV: production
+      
+      # Remove unnecessary files from out directory
+      - name: Clean build output
+        run: |
+          echo "Build output size before cleanup:"
+          du -sh out/
+          
+          # Remove source maps (largest contributor to size)
+          find out/ -name "*.map" -type f -delete
+          
+          # Remove .next cache if present
+          rm -rf out/.next/cache
+          
+          # Remove build info
+          rm -rf out/.next/build-info.json
+          
+          echo "Build output size after cleanup:"
+          du -sh out/
+          ls -lah out/
       
       - name: Install OIDC Client from Core Package
         run: npm install @actions/core@1.6.0 @actions/http-client --legacy-peer-deps
