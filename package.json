@@ -16,7 +16,7 @@
     "storybook:start": "storybook dev -p 6006"
   },
   "dependencies": {
-    "@actions/core": "^1.9.1",
+    "@actions/core": "1.6.0",
     "@actions/http-client": "^3.0.0",
     "@hookform/resolvers": "^5.2.2",
     "@iconify/react": "^4.1.1",
