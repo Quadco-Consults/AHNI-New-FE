@@ -1,17 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  output: 'export',
+  // output: 'export', // REMOVED - Can't use with API routes
   
-  // CRITICAL: Disable source maps in production (saves 100-200MB)
+  // Disable source maps in production
   productionBrowserSourceMaps: false,
   
-  // Optimize output
   compress: true,
   
-  // Optimize images for static export
   images: {
-    unoptimized: true, // Required for static export
+    // For non-static builds, you can use optimized images
     remotePatterns: [
       {
         protocol: 'https',
@@ -21,8 +19,8 @@ const nextConfig = {
       },
     ],
     formats: ['image/webp'],
-    deviceSizes: [640, 828, 1200], // Reduced from 6 to 3 sizes
-    imageSizes: [32, 64, 128], // Reduced from 8 to 3 sizes
+    deviceSizes: [640, 828, 1200],
+    imageSizes: [32, 64, 128],
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
@@ -49,26 +47,19 @@ const nextConfig = {
   },
 
   compiler: {
-    // Remove console logs in production
     removeConsole: process.env.NODE_ENV === "production" ? {
       exclude: ['error', 'warn'],
     } : false,
   },
 
-  // Empty turbopack config to silence the warning
-  // Turbopack handles most optimizations automatically
   turbopack: {},
 
-  // Keep webpack config for fallback compatibility
-  // Note: This won't be used when Turbopack is active
   webpack: (config, { dev, isServer }) => {
     if (isServer) {
       config.externals.push('canvas');
     }
     
-    // Production optimizations (only applies when using webpack)
     if (!dev && !isServer) {
-      // Minimize chunk size
       config.optimization = {
         ...config.optimization,
         minimize: true,

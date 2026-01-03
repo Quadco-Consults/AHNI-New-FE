@@ -42,40 +42,15 @@ jobs:
         env:
           NODE_ENV: production
       
-      # Verify and clean build output
-      - name: Verify build output and cleanup
+      # For standalone builds, Next.js outputs to .next/standalone
+      - name: Prepare deployment files
         run: |
-          echo "=== Checking build directories ==="
-          ls -lah
+          echo "Build completed. Checking output..."
+          ls -lah .next/
           
-          if [ -d "out" ]; then
-            echo "✓ Static export 'out' directory found"
-            echo "Build output size before cleanup:"
-            du -sh out/
-            
-            # Remove source maps
-            find out/ -name "*.map" -type f -delete
-            
-            # Remove any development files
-            find out/ -name "*.development.js" -type f -delete
-            
-            echo "Build output size after cleanup:"
-            du -sh out/
-            
-            echo "=== Top 20 largest files in out/ ==="
-            find out/ -type f -exec du -h {} + | sort -rh | head -20
-          else
-            echo "ERROR: 'out' directory not found!"
-            echo "Make sure next.config.js has output: 'export'"
-            exit 1
-          fi
+          # Note: Azure Static Web Apps doesn't support Next.js API routes natively
+          # You need to deploy to Azure App Service instead or remove API routes
           
-          # Remove .next directory (not needed for static export)
-          if [ -d ".next" ]; then
-            echo "Removing .next directory (not needed for deployment)..."
-            rm -rf .next
-          fi
-      
       - name: Install OIDC Client from Core Package
         run: npm install @actions/core@1.6.0 @actions/http-client --legacy-peer-deps
       
@@ -88,6 +63,8 @@ jobs:
                return await coredemo.getIDToken()
            result-encoding: string
       
+      # WARNING: This deployment will fail with API routes
+      # Azure Static Web Apps doesn't support Next.js API routes
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
@@ -95,12 +72,11 @@ jobs:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_SALMON_COAST_041522903 }}
           action: "upload"
           app_location: "/"
-          output_location: "out"
+          output_location: ".next"
           skip_app_build: true
           github_id_token: ${{ steps.idtoken.outputs.result }}
         env:
           NODE_VERSION: '20'
-          IS_STATIC_EXPORT: true
                 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
