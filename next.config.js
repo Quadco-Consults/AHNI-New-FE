@@ -1,6 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true, // Enable strict mode for better performance and debugging
+  output: 'export',
+  distDir: 'out',
   images: {
     remotePatterns: [
       {
@@ -43,5 +45,6 @@ const nextConfig = {
     return config;
   },
 };
+
 
 module.exports = nextConfig;
