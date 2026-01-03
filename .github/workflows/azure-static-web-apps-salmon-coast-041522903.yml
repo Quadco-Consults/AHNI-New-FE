@@ -161,7 +161,7 @@ jobs:
 
           skip_api_build: true # No API to build
         env:
-          NODE_VERSION: '20'
+          NODE_VERSION: '20.18.0'
           IS_STATIC_EXPORT: true
                 
   close_pull_request_job:
