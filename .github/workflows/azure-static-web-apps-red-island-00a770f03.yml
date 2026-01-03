@@ -29,7 +29,7 @@ jobs:
           action: "upload"
           app_location: "/"
           api_location: ""
-          output_location: "out" # Changed from .next to out
+          output_location: ".next" # Changed from .next to out
         env:
           NODE_VERSION: '20'
 
