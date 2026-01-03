@@ -16,17 +16,6 @@ import {
   User
 } from "lucide-react";
 
-// Add this function to enable static export
-export function generateStaticParams() {
-  // Return empty array since this is a placeholder page
-  // Or return some dummy IDs if you want to pre-generate specific routes
-  return [
-    { id: '1' },
-    { id: '2' },
-    { id: '3' },
-  ];
-}
-
 export default function JobDetailsPage() {
   const params = useParams();
   const router = useRouter();
