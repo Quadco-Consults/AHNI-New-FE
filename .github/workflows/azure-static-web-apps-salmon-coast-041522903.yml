@@ -94,7 +94,7 @@ jobs:
           
           echo ""
           echo "=== Final deployment size check ==="
-          TOTAL_SIZE=$(du -sb out/ | cut -f1)
+          TOTAL_SIZE=$(du -sb .next/ | cut -f1)
           SIZE_LIMIT=524288000
           SIZE_MB=$((TOTAL_SIZE / 1024 / 1024))
           LIMIT_MB=$((SIZE_LIMIT / 1024 / 1024))
@@ -108,7 +108,7 @@ jobs:
             echo "Current size: $SIZE_MB MB / $LIMIT_MB MB"
             echo ""
             echo "Largest files:"
-            find out/ -type f -exec du -h {} + | sort -rh | head -50
+            find .next/ -type f -exec du -h {} + | sort -rh | head -50
             exit 1
           else
             REMAINING=$((SIZE_LIMIT - TOTAL_SIZE))
@@ -119,17 +119,17 @@ jobs:
           
           echo ""
           echo "=== What's being deployed ==="
-          ls -lah out/
+          ls -lah .next/
           
           # Final size check
-          TOTAL_SIZE=$(du -sb out/ | cut -f1)
+          TOTAL_SIZE=$(du -sb .next/ | cut -f1)
           SIZE_LIMIT=524288000
           echo "Total size: $TOTAL_SIZE bytes"
           echo "Size limit: $SIZE_LIMIT bytes"
           
           if [ $TOTAL_SIZE -gt $SIZE_LIMIT ]; then
             echo "ERROR: Build exceeds 500MB limit!"
-            echo "Current size: $(du -sh out/)"
+            echo "Current size: $(du -sh .next/)"
             exit 1
           else
             echo "✓ Build size is within limits"
