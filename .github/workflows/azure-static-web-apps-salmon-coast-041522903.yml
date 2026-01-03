@@ -48,28 +48,78 @@ jobs:
           ls -lah
           
           if [ -d ".next" ]; then
-            echo "✓ Static export 'out' directory found"
-            echo "Build output size before cleanup:"
+            echo "✓ Static export '.next' directory found"
+            echo "Build .nextput size before cleanup:"
             du -sh .next/
+            du -sh .next/ --apparent-size
             
             # Remove source maps (saves 100-200MB)
+            echo "Removing source maps..."
             find .next/ -name "*.map" -type f -delete
             
-            # Remove any development files
+            # Remove development files
+            echo "Removing development files..."
             find .next/ -name "*.development.js" -type f -delete
+            find .next/ -name "*.development.css" -type f -delete
+            
+            # Remove React DevTools
+            find .next/ -name "*react-devtools*" -type f -delete
             
             echo "Build output size after cleanup:"
             du -sh .next/
+            du -sh .next/ --apparent-size
             
-            echo "=== Top 20 largest files in out/ ==="
-            find .next/ -type f -exec du -h {} + | sort -rh | head -20
+            echo ""
+            echo "=== Top 30 largest files in .next/ ==="
+            find .next/ -type f -exec du -h {} + | sort -rh | head -30
           else
-            echo "ERROR: 'out' directory not found!"
+            echo "ERROR: '.next' directory not found!"
             echo "Make sure next.config.js has output: 'export'"
             exit 1
           fi
           
+          # Remove node_modules to save space (already installed, not needed in deployment)
+          if [ -d "node_modules" ]; then
+            echo ""
+            echo "Removing node_modules..."
+            du -sh node_modules/
+            rm -rf node_modules
+            echo "✓ node_modules removed"
+          fi
           
+          # Remove other build artifacts
+          rm -rf .turbo 2>/dev/null || true
+          rm -rf .yarn 2>/dev/null || true
+          rm -rf coverage 2>/dev/null || true
+          
+          echo ""
+          echo "=== Final deployment size check ==="
+          TOTAL_SIZE=$(du -sb out/ | cut -f1)
+          SIZE_LIMIT=524288000
+          SIZE_MB=$((TOTAL_SIZE / 1024 / 1024))
+          LIMIT_MB=$((SIZE_LIMIT / 1024 / 1024))
+          
+          echo "Total size: $TOTAL_SIZE bytes ($SIZE_MB MB)"
+          echo "Size limit: $SIZE_LIMIT bytes ($LIMIT_MB MB)"
+          
+          if [ $TOTAL_SIZE -gt $SIZE_LIMIT ]; then
+            echo ""
+            echo "❌ ERROR: Build exceeds 500MB limit!"
+            echo "Current size: $SIZE_MB MB / $LIMIT_MB MB"
+            echo ""
+            echo "Largest files:"
+            find out/ -type f -exec du -h {} + | sort -rh | head -50
+            exit 1
+          else
+            REMAINING=$((SIZE_LIMIT - TOTAL_SIZE))
+            REMAINING_MB=$((REMAINING / 1024 / 1024))
+            echo "✓ Build size is within limits"
+            echo "Remaining: $REMAINING_MB MB"
+          fi
+          
+          echo ""
+          echo "=== What's being deployed ==="
+          ls -lah out/
           
           # Final size check
           TOTAL_SIZE=$(du -sb out/ | cut -f1)
@@ -105,7 +155,7 @@ jobs:
           action: "upload"
           app_location: "/"
           api_location: "" # No API folder - static export only
-          output_location: ".next"
+          output_location: ".next" # CRITICAL: Deploy the 'out' folder, not '.next'
           skip_app_build: true
           github_id_token: ${{ steps.idtoken.outputs.result }}
         env:
@@ -122,5 +172,4 @@ jobs:
         uses: Azure/static-web-apps-deploy@v1
         with:
           action: "close"
-
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_SALMON_COAST_041522903 }}
