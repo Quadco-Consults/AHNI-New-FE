@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true, // Enable strict mode for better performance and debugging
-  output: 'export',
+  // output: 'export',
   // distDir: 'out',
   images: {
     remotePatterns: [

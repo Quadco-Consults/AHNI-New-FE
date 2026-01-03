@@ -34,6 +34,9 @@ jobs:
       - name: Patch Next.js SWC dependencies
         run: yarn next --version || true
       
+      - name: Build application
+        run: yarn build
+      
       - name: Install OIDC Client from Core Package
         run: npm install @actions/core@1.6.0 @actions/http-client --legacy-peer-deps
       
@@ -53,13 +56,11 @@ jobs:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_SALMON_COAST_041522903 }}
           action: "upload"
           app_location: "/"
-          api_location: ""
-          output_location: "out"
+          output_location: ".next"
+          skip_app_build: true
           github_id_token: ${{ steps.idtoken.outputs.result }}
-          skip_api_build: true
         env:
           NODE_VERSION: '20'
-
                 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
