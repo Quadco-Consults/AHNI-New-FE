@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  // output: 'export',
+  output: 'export', // ← UNCOMMENT THIS LINE
   
   // CRITICAL: Disable source maps (saves 100-200MB)
   productionBrowserSourceMaps: false,
@@ -23,9 +23,9 @@ const nextConfig = {
         pathname: '**',
       },
     ],
-    formats: ['image/webp'], // Only webp, not avif
-    deviceSizes: [640, 1080, 1920], // Reduced to 3 sizes
-    imageSizes: [16, 32, 64], // Reduced to 3 sizes
+    formats: ['image/webp'],
+    deviceSizes: [640, 1080, 1920],
+    imageSizes: [16, 32, 64],
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
@@ -77,11 +77,10 @@ const nextConfig = {
         splitChunks: {
           chunks: 'all',
           minSize: 20000,
-          maxSize: 200000, // Smaller chunks for better caching
+          maxSize: 200000,
           cacheGroups: {
             default: false,
             vendors: false,
-            // React core (smallest bundle)
             framework: {
               name: 'framework',
               chunks: 'all',
@@ -90,7 +89,6 @@ const nextConfig = {
               enforce: true,
               reuseExistingChunk: true,
             },
-            // Heavy libraries - split aggressively
             pdf: {
               name: 'pdf-libs',
               test: /[\\/]node_modules[\\/](jspdf|jspdf-autotable|react-pdf)[\\/]/,
@@ -109,7 +107,6 @@ const nextConfig = {
               priority: 37,
               reuseExistingChunk: true,
             },
-            // All other vendors
             lib: {
               test: /[\\/]node_modules[\\/]/,
               name(module) {
@@ -122,7 +119,6 @@ const nextConfig = {
               minChunks: 1,
               reuseExistingChunk: true,
             },
-            // Common code
             commons: {
               name: 'commons',
               minChunks: 2,
@@ -133,7 +129,6 @@ const nextConfig = {
         },
       };
 
-      // Remove comments in production
       config.optimization.minimizer.forEach((minimizer) => {
         if (minimizer.constructor.name === 'TerserPlugin') {
           minimizer.options.terserOptions = {
