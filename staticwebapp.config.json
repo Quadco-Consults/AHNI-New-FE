@@ -1,9 +1,50 @@
 {
+  "navigationFallback": {
+    "rewrite": "/404.html",
+    "exclude": ["/_next/**", "/images/**", "/favicon.ico", "*.{css,js,jpg,png,gif,svg,ico,woff,woff2}"]
+  },
+  "routes": [
+    {
+      "route": "/_next/*",
+      "headers": {
+        "cache-control": "public, max-age=31536000, immutable"
+      }
+    },
+    {
+      "route": "/images/*",
+      "headers": {
+        "cache-control": "public, max-age=31536000, immutable"
+      }
+    },
+    {
+      "route": "/*",
+      "headers": {
+        "cache-control": "public, max-age=0, must-revalidate"
+      }
+    }
+  ],
+  "globalHeaders": {
+    "content-security-policy": "default-src 'self' https://ahni-erp-029252c2fbb9.herokuapp.com https://salmon-coast-041522903.6.azurestaticapps.net; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://ahni-erp-029252c2fbb9.herokuapp.com",
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+    "X-XSS-Protection": "1; mode=block"
+  },
+  "mimeTypes": {
+    ".json": "application/json",
+    ".js": "text/javascript",
+    ".css": "text/css",
+    ".html": "text/html",
+    ".svg": "image/svg+xml",
+    ".png": "image/png",
+    ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg",
+    ".gif": "image/gif",
+    ".webp": "image/webp",
+    ".woff": "font/woff",
+    ".woff2": "font/woff2"
+  },
   "platform": {
     "apiRuntime": "node:20"
   },
-  "navigationFallback": {
-        "rewrite": "/index.html"
-    }
+  "trailingSlash": "auto"
 }
-

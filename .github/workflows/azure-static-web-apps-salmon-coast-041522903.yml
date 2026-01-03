@@ -155,9 +155,11 @@ jobs:
           action: "upload"
           app_location: "/"
           api_location: "" # No API folder - static export only
-          output_location: ".next" # CRITICAL: Deploy the 'out' folder, not '.next'
+          output_location: ".next" 
           skip_app_build: true
           github_id_token: ${{ steps.idtoken.outputs.result }}
+
+          skip_api_build: true # No API to build
         env:
           NODE_VERSION: '20'
           IS_STATIC_EXPORT: true
