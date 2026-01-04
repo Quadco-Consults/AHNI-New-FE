@@ -35,6 +35,8 @@ interface StoreDetailPageProps {
 export default function StoreDetailPage({ storeId }: StoreDetailPageProps) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("overview");
+  const [page, setPage] = useState(1);
+  const ITEMS_PER_PAGE = 15;
   const { data: storeData, isLoading, error: storeError } = useGetSingleStore(storeId);
 
   // Debug store data fetch specifically for store ID 41
@@ -47,7 +49,7 @@ export default function StoreDetailPage({ storeId }: StoreDetailPageProps) {
 
   // Enhanced debugging to identify duplicate store issue
   const { data: allItemsData, isLoading: inventoryLoading, error: inventoryError } = useQuery({
-    queryKey: ["store-inventory-comprehensive", storeId],
+    queryKey: ["store-inventory-comprehensive", storeId, page, ITEMS_PER_PAGE],
     queryFn: async () => {
       console.log("🔍 ENHANCED DUPLICATE STORE DEBUGGING...");
       console.log("🔍 Current Store ID being viewed:", storeId);
@@ -79,84 +81,27 @@ export default function StoreDetailPage({ storeId }: StoreDetailPageProps) {
 
       // STEP 2: Get ALL item-store-stocks to see which stores have items
       try {
-        console.log("🔍 STEP 2: Analyzing ALL item-store-stocks globally...");
+        console.log("🔍 STEP 2: Analyzing store-specific item-store-stocks with pagination...");
         const globalStockResponse = await AxiosWithToken.get("admins/inventory/item-store-stocks/", {
           params: {
-            page: 1,
-            size: 1000,
+            store: storeId,
+            page: page,
+            size: ITEMS_PER_PAGE,
             expand: "item_detail,item_detail.category,store_detail,store_detail.location",
           },
         });
 
         const allStocks = globalStockResponse.data?.data?.results || [];
-        console.log("🔍 TOTAL STOCKS IN SYSTEM:", allStocks.length);
+        console.log("🔍 STORE-SPECIFIC STOCKS FOUND:", allStocks.length);
 
-        // Group stocks by store to see which stores have inventory
-        const storeInventoryMap = new Map();
-        allStocks.forEach((stock: any) => {
-          const stockStoreId = typeof stock.store_detail === 'string'
-            ? stock.store_detail
-            : stock.store_detail?.id;
-
-          const stockStoreName = typeof stock.store_detail === 'string'
-            ? stockStoreId
-            : stock.store_detail?.name;
-
-          if (!storeInventoryMap.has(stockStoreId)) {
-            storeInventoryMap.set(stockStoreId, {
-              storeId: stockStoreId,
-              storeName: stockStoreName,
-              itemCount: 0,
-              items: []
-            });
-          }
-
-          const storeData = storeInventoryMap.get(stockStoreId);
-          storeData.itemCount++;
-          storeData.items.push({
-            itemName: stock.item_detail?.name,
-            quantity: stock.quantity
-          });
-        });
-
-        console.log("🔍 STORES WITH INVENTORY:");
-        for (const [storeId, data] of storeInventoryMap) {
-          console.log(`  Store ID: ${storeId} | Name: ${data.storeName} | Items: ${data.itemCount}`);
-          if (data.storeName?.toLowerCase().includes('hq') || data.storeName?.toLowerCase().includes('main')) {
-            console.log(`  ⭐ HQ/MAIN STORE WITH ${data.itemCount} ITEMS:`, data.items);
-          }
-        }
-
-        // Check if current store has any inventory
-        const currentStoreStocks = allStocks.filter((stock: any) => {
-          const stockStoreId = typeof stock.store_detail === 'string'
-            ? stock.store_detail
-            : stock.store_detail?.id;
-          return stockStoreId === storeId;
-        });
-
-        console.log(`🔍 CURRENT STORE (${storeId}) HAS ${currentStoreStocks.length} ITEMS`);
-
-        if (currentStoreStocks.length === 0) {
-          console.log("❌ PROBLEM IDENTIFIED: Current store has NO inventory!");
-          console.log("🔍 Looking for which store HAS the inventory...");
-
-          // Find stores with inventory that might be the "correct" one
-          const storesWithInventory = Array.from(storeInventoryMap.entries())
-            .filter(([_, data]) => data.itemCount > 0)
-            .map(([storeId, data]) => ({ storeId, ...data }));
-
-          console.log("📋 STORES THAT HAVE INVENTORY:", storesWithInventory);
-        }
-
-        if (currentStoreStocks.length > 0) {
-          console.log("✅ FOUND INVENTORY FOR CURRENT STORE:", currentStoreStocks.length, "items");
+        if (allStocks.length > 0) {
+          console.log("✅ FOUND INVENTORY FOR CURRENT STORE:", allStocks.length, "items");
           // Transform to items format
           return {
             status: true,
             message: "Retrieved inventory for current store",
             data: {
-              results: currentStoreStocks.map((stock: any) => ({
+              results: allStocks.map((stock: any) => ({
                 ...stock.item_detail,
                 store_stocks: [stock]
               })),
@@ -174,8 +119,8 @@ export default function StoreDetailPage({ storeId }: StoreDetailPageProps) {
         const storeStockResponse = await AxiosWithToken.get("admins/inventory/item-store-stocks/", {
           params: {
             store: storeId,
-            page: 1,
-            size: 1000,
+            page: page,
+            size: ITEMS_PER_PAGE,
             expand: "item_detail,item_detail.category,store_detail,store_detail.location",
           },
         });
@@ -815,6 +760,12 @@ export default function StoreDetailPage({ storeId }: StoreDetailPageProps) {
                 // @ts-ignore
                 columns={consumableColumns}
                 isLoading={inventoryLoading}
+                pagination={{
+                  total: allItemsData?.data?.pagination?.count || 0,
+                  pageSize: ITEMS_PER_PAGE,
+                  current: page,
+                  onChange: (page: number) => setPage(page),
+                }}
               />
             ) : (
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-12 text-center">

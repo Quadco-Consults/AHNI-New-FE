@@ -36,6 +36,14 @@ const ActivityMemoList = ({ status }: ActivityMemoListProps) => {
   // Get current user
   const { data: currentUser } = useGetUserProfile();
 
+  // Check if user is admin/superuser or has admin role
+  const isAdmin = currentUser?.data?.is_superuser ||
+                 currentUser?.data?.is_staff ||
+                 currentUser?.data?.roles?.some((role: any) =>
+                   role.name?.toLowerCase().includes('admin') ||
+                   role.name?.toLowerCase().includes('super')
+                 );
+
   // Filter results based on tab selection and current user
   const filteredMemos = status === 'approved'
     ? (data?.data?.results || []).filter(memo => {
@@ -48,8 +56,16 @@ const ActivityMemoList = ({ status }: ActivityMemoListProps) => {
         //   statusMatch: memo.status === 'APPROVED',
         //   userMatch: memo.created_by === currentUser?.data?.id
         // });
-        return memo.status === 'APPROVED' && memo.created_by === currentUser?.data?.id;
-      }) // Show only APPROVED memos created by current user
+
+        // Check status match first
+        const statusMatch = memo.status === 'APPROVED';
+
+        // If admin, skip user filtering - show all approved memos
+        // If not admin, only show memos created by current user
+        const userMatch = isAdmin || memo.created_by === currentUser?.data?.id;
+
+        return statusMatch && userMatch;
+      }) // Show APPROVED memos (all for admin, own for regular users)
     : (data?.data?.results || []).filter(memo => {
         // Debug logging commented to prevent render loops
         // console.log('📝 Activity Memo Debug (Pending):', {
@@ -60,8 +76,15 @@ const ActivityMemoList = ({ status }: ActivityMemoListProps) => {
         //   statusMatch: memo.status === 'DRAFT' || memo.status === 'SUBMITTED',
         //   userMatch: memo.created_by === currentUser?.data?.id
         // });
-        // For 'pending' tab, show only DRAFT and SUBMITTED memos created by current user
-        return (memo.status === 'DRAFT' || memo.status === 'SUBMITTED') && memo.created_by === currentUser?.data?.id;
+
+        // Check status match first - for 'pending' tab, show DRAFT and SUBMITTED memos
+        const statusMatch = memo.status === 'DRAFT' || memo.status === 'SUBMITTED';
+
+        // If admin, skip user filtering - show all pending memos
+        // If not admin, only show memos created by current user
+        const userMatch = isAdmin || memo.created_by === currentUser?.data?.id;
+
+        return statusMatch && userMatch;
       });
 
   // Helper function to check if user can approve

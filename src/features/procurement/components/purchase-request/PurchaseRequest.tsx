@@ -67,9 +67,20 @@ function PurchaseRequest({
   const filteredAndSortedResults = data?.data?.results
     ?.slice()
     .filter((item) => {
-      // First filter by user - only show items requested by current user
-      const isUserRequested = item.requested_by?.id === currentUser?.data?.id;
-      if (!isUserRequested) return false;
+      // Check if user is admin/superuser or has admin role
+      const isAdmin = currentUser?.data?.is_superuser ||
+                     currentUser?.data?.is_staff ||
+                     currentUser?.data?.roles?.some((role: any) =>
+                       role.name?.toLowerCase().includes('admin') ||
+                       role.name?.toLowerCase().includes('super')
+                     );
+
+      // If user is admin, skip user filtering - show all data
+      // If not admin, only show items requested by current user
+      if (!isAdmin) {
+        const isUserRequested = item.requested_by?.id === currentUser?.data?.id;
+        if (!isUserRequested) return false;
+      }
 
       // Then filter by status
       if (status === "pending") {
