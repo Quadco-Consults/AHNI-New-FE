@@ -1,5 +1,6 @@
 "use client";
 
+export const dynamic = "force-dynamic";
 import { useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { Button } from "components/ui/button";
@@ -9,7 +10,8 @@ import { Textarea } from "components/ui/textarea";
 import { Label } from "components/ui/label";
 import { Input } from "components/ui/input";
 import {
-  Dialog,
+
+Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,

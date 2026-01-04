@@ -1,5 +1,6 @@
 "use client";
 
+export const dynamic = "force-dynamic";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import Registration from "@/features/procurement/components/vendor-management/vendor-registration/Registration";
@@ -16,7 +17,8 @@ import { Icon } from "@iconify/react";
 import { ColumnDef } from "@tanstack/react-table";
 import { cn } from "lib/utils";
 import {
-  Building2,
+
+Building2,
   FileText,
   Clock,
   CheckCircle,

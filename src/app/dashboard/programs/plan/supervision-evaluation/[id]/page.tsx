@@ -1,5 +1,11 @@
 import SupervisionEvaluationDetails from "@/features/programs/components/evaluation/SupervisionEvaluationDetails";
 
+
+export async function generateStaticParams() {
+  // Return empty array to generate no static pages by default
+  // Pages will be generated on-demand in development
+  return [];
+}
 interface SupervisionEvaluationDetailPageProps {
   params: { id: string };
 }

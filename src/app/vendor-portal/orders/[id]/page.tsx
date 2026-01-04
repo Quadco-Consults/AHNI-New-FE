@@ -1,5 +1,6 @@
 "use client";
 
+export const dynamic = "force-dynamic";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
@@ -15,7 +16,8 @@ import { Textarea } from "components/ui/textarea";
 import { Checkbox } from "components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
 import {
-  ArrowLeft,
+
+ArrowLeft,
   Calendar,
   DollarSign,
   Package,

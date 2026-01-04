@@ -1,16 +1,16 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Static export configuration for Azure Static Web Apps
-  output: 'export',
-  trailingSlash: true,
-  distDir: 'build',
+  // Static export configuration for Azure Static Web Apps (disabled for development)
+  // output: 'export',
+  // trailingSlash: true,
+  // distDir: 'build',
 
   // Bundle optimization
   poweredByHeader: false,
   generateEtags: false,
   reactStrictMode: true, // Enable strict mode for better performance and debugging
   images: {
-    unoptimized: true, // Required for static export
+    unoptimized: false, // Enable image optimization
     remotePatterns: [
       {
         protocol: 'https',

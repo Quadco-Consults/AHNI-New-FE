@@ -1,5 +1,6 @@
 "use client";
 
+export const dynamic = "force-dynamic";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "components/ui/card";
@@ -8,7 +9,8 @@ import { Badge } from "components/ui/badge";
 import { Alert, AlertDescription } from "components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
 import {
-  Calendar,
+
+Calendar,
   Clock,
   FileText,
   Building2,

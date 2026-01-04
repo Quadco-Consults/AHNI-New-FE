@@ -43,7 +43,7 @@ interface PurchaseRequestFilterParams {
   enabled?: boolean;
 }
 
-const BASE_URL = "procurements/purchase-request-memo/";
+const BASE_URL = "procurements/purchase-request/";
 
 // ===== PURCHASE REQUEST HOOKS =====
 

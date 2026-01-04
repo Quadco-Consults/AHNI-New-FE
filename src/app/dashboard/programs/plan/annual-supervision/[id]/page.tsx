@@ -1,5 +1,6 @@
 "use client";
 
+export const dynamic = "force-dynamic";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useParams } from "next/navigation";
@@ -8,7 +9,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "components/ui/card";
 import { Button } from "components/ui/button";
 import { Badge } from "components/ui/badge";
 import {
-  Table,
+
+Table,
   TableBody,
   TableCell,
   TableHead,

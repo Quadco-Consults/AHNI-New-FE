@@ -1,5 +1,6 @@
 "use client";
 
+export const dynamic = "force-dynamic";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { Button } from "components/ui/button";
@@ -11,7 +12,8 @@ import CbaAPI from "@/features/procurement/controllers/cbaController";
 import { useGetSolicitationSubmission } from "@/features/procurement/controllers/vendorBidSubmissionsController";
 import { useGetSingleSolicitation } from "@/features/procurement/controllers/solicitationController";
 import {
-  Users,
+
+Users,
   Building2,
   FileText,
   BarChart,

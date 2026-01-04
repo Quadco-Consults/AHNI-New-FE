@@ -1,5 +1,6 @@
 "use client";
 
+export const dynamic = "force-dynamic";
 import PreAwardAssessment from "@/features/contracts-grants/components/sub-grant/awards/id/submission/id/preaward-assessment/index";
 
 export default function PreAwardAssessmentPage() {

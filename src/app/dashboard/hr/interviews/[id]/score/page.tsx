@@ -1,5 +1,6 @@
 "use client";
 
+export const dynamic = "force-dynamic";
 import { useParams, useRouter } from "next/navigation";
 import { useGetInterview } from "@/features/hr/controllers/hrInterviewController";
 import { Loading } from "@/components/Loading";

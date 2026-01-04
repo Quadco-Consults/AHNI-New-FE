@@ -1,5 +1,6 @@
 "use client";
 
+export const dynamic = "force-dynamic";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -14,7 +15,8 @@ import { Input } from "components/ui/input";
 import { Textarea } from "components/ui/textarea";
 import { Label } from "components/ui/label";
 import {
-  Calendar,
+
+Calendar,
   Clock,
   FileText,
   AlertCircle,

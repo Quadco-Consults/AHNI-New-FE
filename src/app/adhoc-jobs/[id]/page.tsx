@@ -1,5 +1,6 @@
 "use client";
 
+export const dynamic = "force-dynamic";
 import { useParams, useRouter } from "next/navigation";
 import { useGetPublicOpportunity } from "@/features/procurement/controllers/solicitationController";
 import BackNavigation from "components/atoms/BackNavigation";
@@ -9,7 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { format, isValid } from "date-fns";
 import {
-  Calendar,
+
+Calendar,
   Clock,
   MapPin,
   Users,

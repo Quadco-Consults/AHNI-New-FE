@@ -1,5 +1,6 @@
 "use client";
 
+export const dynamic = "force-dynamic";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm, useFieldArray, FormProvider } from "react-hook-form";
@@ -13,7 +14,8 @@ import Card from "components/Card";
 import { LoadingSpinner } from "components/Loading";
 import { format, isValid } from "date-fns";
 import {
-  Calendar,
+
+Calendar,
   Clock,
   MapPin,
   Users,
@@ -691,7 +693,6 @@ export default function ConsultantJobDetailsPage() {
       </div>
     );
   };
-
 
   return (
     <div className="min-h-screen">

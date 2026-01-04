@@ -332,7 +332,7 @@ const VendorPerformance = () => {
                 <TableCell className='pl-6 font-semibold'></TableCell>
                 <TableCell>
                   {vendorEvaluationData?.data?.evaluators[0]?.name}
-                </TableCell>{" "}
+                </TableCell>
               </TableRow>
 
               {/* Supervisors Header */}
@@ -355,7 +355,7 @@ const VendorPerformance = () => {
                 <TableCell className='pl-6 font-semibold'></TableCell>
                 <TableCell>
                   {vendorEvaluationData?.data?.supervisors[0]?.name}
-                </TableCell>{" "}
+                </TableCell>
               </TableRow>
             </TableBody>
           </Table>

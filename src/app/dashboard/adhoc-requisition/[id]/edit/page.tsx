@@ -1,5 +1,6 @@
 "use client";
 
+export const dynamic = "force-dynamic";
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -9,7 +10,8 @@ import { Card } from "components/ui/card";
 import { Input } from "components/ui/input";
 import { Textarea } from "components/ui/textarea";
 import {
-  Select,
+
+Select,
   SelectContent,
   SelectItem,
   SelectTrigger,

@@ -87,7 +87,9 @@ const VendorPerformanceAnalytics = () => {
     // Calculate averages and trends
     Array.from(vendorMap.values()).forEach((stats) => {
       stats.averageScore =
-        stats.scores.reduce((sum, score) => sum + score, 0) / stats.scores.length;
+        stats.scores.length > 0
+          ? stats.scores.reduce((sum, score) => sum + score, 0) / stats.scores.length
+          : 0;
 
       // Calculate trend (comparing last 2 evaluations if available)
       if (stats.scores.length >= 2) {
@@ -114,7 +116,7 @@ const VendorPerformanceAnalytics = () => {
     );
     const avgScore =
       vendorPerformance.length > 0
-        ? vendorPerformance.reduce((sum, v) => sum + v.averageScore, 0) /
+        ? vendorPerformance.reduce((sum, v) => sum + (isNaN(v.averageScore) ? 0 : v.averageScore), 0) /
           vendorPerformance.length
         : 0;
 
@@ -173,9 +175,10 @@ const VendorPerformanceAnalytics = () => {
       size: 120,
       cell: ({ row }) => {
         const score = row.original.averageScore;
+        const displayScore = isNaN(score) ? 0 : score;
         return (
           <div className="flex items-center gap-2">
-            <span className="font-semibold">{score.toFixed(1)}</span>
+            <span className="font-semibold">{displayScore.toFixed(1)}</span>
             <span className="text-xs text-gray-500">/ 25</span>
             <div
               className={cn(
@@ -185,12 +188,12 @@ const VendorPerformanceAnalytics = () => {
               <div
                 className={cn(
                   "h-full",
-                  score >= 20 && "bg-green-500",
-                  score >= 15 && score < 20 && "bg-blue-500",
-                  score >= 10 && score < 15 && "bg-yellow-500",
-                  score < 10 && "bg-red-500"
+                  displayScore >= 20 && "bg-green-500",
+                  displayScore >= 15 && displayScore < 20 && "bg-blue-500",
+                  displayScore >= 10 && displayScore < 15 && "bg-yellow-500",
+                  displayScore < 10 && "bg-red-500"
                 )}
-                style={{ width: `${(score / 25) * 100}%` }}
+                style={{ width: `${(displayScore / 25) * 100}%` }}
               />
             </div>
           </div>

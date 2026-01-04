@@ -1,5 +1,6 @@
 "use client";
 
+export const dynamic = "force-dynamic";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 import Registration from "@/features/procurement/components/vendor-management/vendor-registration/Registration";
@@ -10,7 +11,8 @@ import { Button } from "components/ui/button";
 import { Badge } from "components/ui/badge";
 import { Alert, AlertDescription } from "components/ui/alert";
 import {
-  Building2,
+
+Building2,
   FileText,
   Clock,
   CheckCircle,
