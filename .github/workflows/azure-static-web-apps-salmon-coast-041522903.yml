@@ -1,5 +1,4 @@
 name: Azure Static Web Apps CI/CD
-
 on:
   push:
     branches:
@@ -8,7 +7,7 @@ on:
     types: [opened, synchronize, reopened, closed]
     branches:
       - develop
-
+      
 jobs:
   build_and_deploy_job:
     if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
@@ -22,8 +21,123 @@ jobs:
         with:
           submodules: true
           lfs: false
+      
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.18.0'
+          cache: 'yarn'
+      
+      - name: Verify Node.js version
+        run: |
+          echo "Node version: $(node --version)"
+          echo "Yarn version: $(yarn --version)"
+          node --version | grep -q "v20" || (echo "Error: Node.js 20.x required" && exit 1)
+      
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile --production=false
+      
+      - name: Build application
+        run: yarn build
+        env:
+          NODE_ENV: production
+      
+      - name: Verify and clean build output
+        run: |
+          echo "=== Checking build directories ==="
+          ls -lah
+          
+          if [ -d ".next" ]; then
+            echo "✓ Static export '.next' directory found"
+            echo "Build .nextput size before cleanup:"
+            du -sh .next/
+            du -sh .next/ --apparent-size
+            
+            # Remove source maps (saves 100-200MB)
+            echo "Removing source maps..."
+            find .next/ -name "*.map" -type f -delete
+            
+            # Remove development files
+            echo "Removing development files..."
+            find .next/ -name "*.development.js" -type f -delete
+            find .next/ -name "*.development.css" -type f -delete
+            
+            # Remove React DevTools
+            find .next/ -name "*react-devtools*" -type f -delete
+            
+            echo "Build output size after cleanup:"
+            du -sh .next/
+            du -sh .next/ --apparent-size
+            
+            echo ""
+            echo "=== Top 30 largest files in .next/ ==="
+            find .next/ -type f -exec du -h {} + | sort -rh | head -30
+          else
+            echo "ERROR: '.next' directory not found!"
+            echo "Make sure next.config.js has output: 'export'"
+            exit 1
+          fi
+          
+          # Remove node_modules to save space (already installed, not needed in deployment)
+          if [ -d "node_modules" ]; then
+            echo ""
+            echo "Removing node_modules..."
+            du -sh node_modules/
+            rm -rf node_modules
+            echo "✓ node_modules removed"
+          fi
+          
+          # Remove other build artifacts
+          rm -rf .turbo 2>/dev/null || true
+          rm -rf .yarn 2>/dev/null || true
+          rm -rf coverage 2>/dev/null || true
+          
+          echo ""
+          echo "=== Final deployment size check ==="
+          TOTAL_SIZE=$(du -sb .next/ | cut -f1)
+          SIZE_LIMIT=524288000
+          SIZE_MB=$((TOTAL_SIZE / 1024 / 1024))
+          LIMIT_MB=$((SIZE_LIMIT / 1024 / 1024))
+          
+          echo "Total size: $TOTAL_SIZE bytes ($SIZE_MB MB)"
+          echo "Size limit: $SIZE_LIMIT bytes ($LIMIT_MB MB)"
+          
+          if [ $TOTAL_SIZE -gt $SIZE_LIMIT ]; then
+            echo ""
+            echo "❌ ERROR: Build exceeds 500MB limit!"
+            echo "Current size: $SIZE_MB MB / $LIMIT_MB MB"
+            echo ""
+            echo "Largest files:"
+            find .next/ -type f -exec du -h {} + | sort -rh | head -50
+            exit 1
+          else
+            REMAINING=$((SIZE_LIMIT - TOTAL_SIZE))
+            REMAINING_MB=$((REMAINING / 1024 / 1024))
+            echo "✓ Build size is within limits"
+            echo "Remaining: $REMAINING_MB MB"
+          fi
+          
+          echo ""
+          echo "=== What's being deployed ==="
+          ls -lah .next/
+          
+          # Final size check
+          TOTAL_SIZE=$(du -sb .next/ | cut -f1)
+          SIZE_LIMIT=524288000
+          echo "Total size: $TOTAL_SIZE bytes"
+          echo "Size limit: $SIZE_LIMIT bytes"
+          
+          if [ $TOTAL_SIZE -gt $SIZE_LIMIT ]; then
+            echo "ERROR: Build exceeds 500MB limit!"
+            echo "Current size: $(du -sh .next/)"
+            exit 1
+          else
+            echo "✓ Build size is within limits"
+          fi
+      
       - name: Install OIDC Client from Core Package
-        run: npm install @actions/core@1.6.0 @actions/http-client
+        run: npm install @actions/core@1.6.0 @actions/http-client --legacy-peer-deps
+      
       - name: Get Id Token
         uses: actions/github-script@v6
         id: idtoken
@@ -32,20 +146,25 @@ jobs:
                const coredemo = require('@actions/core')
                return await coredemo.getIDToken()
            result-encoding: string
+      
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_SALMON_COAST_041522903 }}
           action: "upload"
-          ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
-          # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
-          app_location: "/" # App source code path
-          api_location: "" # Api source code path - optional
-          output_location: "build" # Built app content directory - optional
+          app_location: "/"
+          api_location: "" # No API folder - static export only
+          output_location: ".next" 
+          skip_app_build: true
           github_id_token: ${{ steps.idtoken.outputs.result }}
-          ###### End of Repository/Build Configurations ######
 
+          skip_api_build: true # No API to build
+        env:
+          NODE_VERSION: '20.18.0'
+          IS_STATIC_EXPORT: true
+          ORYX_DISABLE_TELEMETRY: 'true'
+                
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
     runs-on: ubuntu-latest
@@ -56,3 +175,4 @@ jobs:
         uses: Azure/static-web-apps-deploy@v1
         with:
           action: "close"
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_SALMON_COAST_041522903 }}
