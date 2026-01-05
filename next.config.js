@@ -1,7 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  output: 'export', // ← UNCOMMENT THIS LINE
+  // Note: Commenting out static export for Vercel deployment
+  // output: 'export', // Used for Azure Static Web Apps
 
   // CRITICAL: Disable source maps (saves 100-200MB)
   productionBrowserSourceMaps: false,
@@ -14,7 +15,7 @@ const nextConfig = {
   },
 
   images: {
-    unoptimized: true,
+    unoptimized: false, // Enable Vercel image optimization
     remotePatterns: [
       {
         protocol: 'https',
