@@ -2,10 +2,10 @@
 
 export const dynamic = "force-dynamic";
 import { Loading } from "@/components/Loading";
-import dynamic from "next/dynamic";
+import dynamicImport from "next/dynamic";
 import { use } from "react";
 
-const WorkforceNeedAnalysisViewIndex = dynamic(
+const WorkforceNeedAnalysisViewIndex = dynamicImport(
   () => import("@/features/hr/components/workforce-need-analysis/view/index"),
   {
     ssr: false,

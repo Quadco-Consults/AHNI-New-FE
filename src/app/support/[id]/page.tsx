@@ -2,9 +2,9 @@
 
 export const dynamic = "force-dynamic";
 import { Loading } from "@/components/Loading";
-import dynamic from "next/dynamic";
+import dynamicImport from "next/dynamic";
 
-const SupportDetails = dynamic(
+const SupportDetails = dynamicImport(
   () => import("@/features/support/components/support/id"),
   {
     ssr: false,

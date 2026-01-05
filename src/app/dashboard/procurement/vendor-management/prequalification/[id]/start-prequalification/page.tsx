@@ -2,9 +2,9 @@
 
 export const dynamic = "force-dynamic";
 import { Loading } from "@/components/Loading";
-import dynamic from "next/dynamic";
+import dynamicImport from "next/dynamic";
 
-const StartPrequalification = dynamic(
+const StartPrequalification = dynamicImport(
   () =>
     import(
       "@/features/procurement/components/vendor-management/prequalification/id/Start-prequalification"

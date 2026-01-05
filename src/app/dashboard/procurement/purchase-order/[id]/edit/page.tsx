@@ -2,9 +2,9 @@
 
 export const dynamic = "force-dynamic";
 import { Loading } from "@/components/Loading";
-import dynamic from "next/dynamic";
+import dynamicImport from "next/dynamic";
 
-const EditPurchaseOrder = dynamic(
+const EditPurchaseOrder = dynamicImport(
   () =>
     import("@/features/procurement/components/purchase-order/EditPurchaseOrder"),
   {

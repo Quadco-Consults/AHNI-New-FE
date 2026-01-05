@@ -2,9 +2,9 @@
 
 export const dynamic = "force-dynamic";
 import { Loading } from "@/components/Loading";
-import dynamic from "next/dynamic";
+import dynamicImport from "next/dynamic";
 
-const CreateFacilitatorApplicant = dynamic(
+const CreateFacilitatorApplicant = dynamicImport(
   () =>
     import(
       "@/features/contracts-grants/components/facilitator-management/applicant/CreateApplicant"

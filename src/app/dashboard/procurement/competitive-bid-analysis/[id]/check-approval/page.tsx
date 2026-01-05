@@ -3,9 +3,9 @@
 export const dynamic = "force-dynamic";
 import { Suspense } from "react";
 import { Loading } from "@/components/Loading";
-import dynamic from "next/dynamic";
+import dynamicImport from "next/dynamic";
 
-const CheckApproval = dynamic(
+const CheckApproval = dynamicImport(
   () =>
     import(
       "@/features/procurement/components/competitive-bid-analysis/[id]/CheckApproval"

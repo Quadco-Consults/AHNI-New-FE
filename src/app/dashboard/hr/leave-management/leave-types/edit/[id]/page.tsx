@@ -2,10 +2,10 @@
 
 export const dynamic = "force-dynamic";
 import { Loading } from "@/components/Loading";
-import dynamic from "next/dynamic";
+import dynamicImport from "next/dynamic";
 import { useParams } from "next/navigation";
 
-const LeaveTypeForm = dynamic(
+const LeaveTypeForm = dynamicImport(
   () => import("@/features/hr/components/leave-management/LeaveTypeForm"),
   {
     ssr: false,

@@ -2,9 +2,9 @@
 
 export const dynamic = "force-dynamic";
 import { Loading } from "@/components/Loading";
-import dynamic from "next/dynamic";
+import dynamicImport from "next/dynamic";
 
-const RFQQuotation = dynamic(
+const RFQQuotation = dynamicImport(
   () =>
     import(
       "@/features/procurement/components/solicitation-management/RFQ/create/Quotation"

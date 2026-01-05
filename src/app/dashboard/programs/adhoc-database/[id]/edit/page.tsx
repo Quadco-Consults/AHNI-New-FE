@@ -2,9 +2,9 @@
 
 export const dynamic = "force-dynamic";
 import { Loading } from "@/components/Loading";
-import dynamic from "next/dynamic";
+import dynamicImport from "next/dynamic";
 
-const AdhocStaffEdit = dynamic(
+const AdhocStaffEdit = dynamicImport(
   () =>
     import(
       "@/features/programs/components/adhoc-database/edit/AdhocStaffEdit"

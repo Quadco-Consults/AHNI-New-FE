@@ -2,9 +2,9 @@
 
 export const dynamic = "force-dynamic";
 import { Loading } from "@/components/Loading";
-import dynamic from "next/dynamic";
+import dynamicImport from "next/dynamic";
 
-const EditFundRequest = dynamic(
+const EditFundRequest = dynamicImport(
   () => import("@/features/programs/components/fund-request/edit/index"),
   {
     ssr: false,
