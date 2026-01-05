@@ -21,9 +21,27 @@ const breadcrumbs = [
 export default function TravelExpensesReportHomePage() {
     const [page, setPage] = useState(1);
 
-    const { data, isFetching } = useGetAllTravelExpensesQuery({
+    const { data, isFetching, error, isError } = useGetAllTravelExpensesQuery({
         page,
         size: 10,
+    });
+
+    // Debug travel expenses data structure
+    console.log("🔍 TRAVEL EXPENSES DEBUG:", {
+        isFetching,
+        isError,
+        error: error?.message,
+        data: data,
+        dataKeys: data ? Object.keys(data) : null,
+        innerData: data?.data,
+        innerDataKeys: data?.data ? Object.keys(data.data) : null,
+        paginator: data?.data?.paginator,
+        pagination: data?.data?.pagination,
+        results: data?.data?.results,
+        resultsLength: data?.data?.results?.length,
+        firstResult: data?.data?.results?.[0],
+        firstResultKeys: data?.data?.results?.[0] ? Object.keys(data.data.results[0]) : null,
+        staffIdSample: data?.data?.results?.slice(0, 3).map(r => ({ user: r.user, staff_id: r.staff_id }))
     });
 
     return (
@@ -56,11 +74,11 @@ export default function TravelExpensesReportHomePage() {
 
                 <DataTable
                     columns={travelExpenseColumn}
-                    data={data?.data.results || []}
+                    data={data?.data?.results || []}
                     isLoading={isFetching}
                     pagination={{
-                        total: data?.data.pagination.count ?? 0,
-                        pageSize: data?.data.pagination.page_size ?? 0,
+                        total: data?.data?.paginator?.count || data?.data?.pagination?.count || 0,
+                        pageSize: data?.data?.paginator?.page_size || data?.data?.pagination?.page_size || 10,
                         onChange: (page: number) => setPage(page),
                     }}
                 />

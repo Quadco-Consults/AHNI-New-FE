@@ -21,12 +21,49 @@ export const travelExpenseColumn: ColumnDef<ITravelExpensePaginatedData>[] = [
     header: "Full Name",
     id: "user",
     accessorKey: "user",
+    cell: ({ getValue, row }) => {
+      const user = getValue();
+
+      // Handle when user is expanded object
+      if (typeof user === 'object' && user?.full_name) {
+        return user.full_name;
+      }
+
+      // Handle when user is string ID - fallback to user_data if available
+      const userData = row.original.user_data;
+      if (userData?.full_name) {
+        return userData.full_name;
+      }
+
+      // If user is just a string, try to extract it or show placeholder
+      if (typeof user === 'string') {
+        return user;
+      }
+
+      return "N/A";
+    },
   },
 
   {
     header: "Staff ID No",
     id: "staff_id",
     accessorKey: "staff_id",
+    cell: ({ getValue, row }) => {
+      const staffId = getValue();
+
+      // Check if staff_id exists and is valid
+      if (staffId && typeof staffId === 'string' && staffId.length > 0) {
+        return staffId;
+      }
+
+      // Try to get staff ID from user data if available
+      const userData = row.original.user_data || row.original.user;
+      if (userData && typeof userData === 'object' && userData.employee_id) {
+        return userData.employee_id;
+      }
+
+      return "N/A";
+    },
   },
 
   {

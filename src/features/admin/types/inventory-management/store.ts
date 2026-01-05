@@ -46,16 +46,34 @@ export interface TStoreSingleData {
   id: string;
   name: string;
   code: string;
-  location: TLocationData; // Full location object
-  store_type: "CENTRAL" | "LOCATION";
-  parent_store: TStoreSingleData | null; // Nested parent store
-  store_keeper: IUser; // Full user object
   description?: string;
+  store_type: "CENTRAL" | "LOCATION";
+  storeTypeDisplay?: string;
+
+  // Location - API returns both ID and expanded data
+  location: string; // Location ID
+  locationName?: string; // Direct field
+  location_data?: TLocationData; // Expanded location object
+
+  // Parent Store - API returns both ID and expanded data
+  parent_store: string | null; // Parent store ID
+  parentStoreName?: string | null; // Direct field
+  parent_store_data?: TStoreSingleData | null; // Expanded parent store
+
+  // Store Keeper - API returns both ID and expanded data
+  store_keeper: string; // Store keeper ID
+  storeKeeperName?: string; // Direct field
+  store_keeper_data?: IUser; // Expanded user object
+
   is_active: boolean;
+  available_items_count?: number;
+  total_stock_value?: number;
   created_datetime: string;
   updated_datetime: string;
-  created_by: IUser;
-  updated_by: IUser | null;
+  created_by: string; // Created by ID
+  updated_by: string | null; // Updated by ID
+  created_by_data?: IUser; // Expanded created by user
+  updated_by_data?: IUser | null; // Expanded updated by user
 }
 
 // API Response Types

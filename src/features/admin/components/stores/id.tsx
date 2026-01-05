@@ -47,6 +47,25 @@ export default function StoreDetailPage({ storeId }: StoreDetailPageProps) {
   console.log("🔍 Store Data Path Check:", storeData?.data);
   console.log("🔍 Store Data Success Check:", !!storeData?.data);
 
+  // Enhanced debugging for location and store_keeper data
+  if (storeData?.data) {
+    console.log("🔍 LOCATION DEBUG:", {
+      hasLocation: !!storeData.data.location,
+      locationData: storeData.data.location,
+      locationName: storeData.data.location?.name,
+      locationType: typeof storeData.data.location
+    });
+    console.log("🔍 STORE_KEEPER DEBUG:", {
+      hasStoreKeeper: !!storeData.data.store_keeper,
+      storeKeeperData: storeData.data.store_keeper,
+      firstName: storeData.data.store_keeper?.first_name,
+      lastName: storeData.data.store_keeper?.last_name,
+      email: storeData.data.store_keeper?.email,
+      storeKeeperType: typeof storeData.data.store_keeper
+    });
+    console.log("🔍 FULL STORE OBJECT KEYS:", Object.keys(storeData.data));
+  }
+
   // Enhanced debugging to identify duplicate store issue
   const { data: allItemsData, isLoading: inventoryLoading, error: inventoryError } = useQuery({
     queryKey: ["store-inventory-comprehensive", storeId, page, ITEMS_PER_PAGE],
@@ -451,11 +470,11 @@ export default function StoreDetailPage({ storeId }: StoreDetailPageProps) {
             <div className="flex-1">
               <h3 className="font-semibold text-gray-900 mb-2">Location</h3>
               <p className="text-gray-700 font-medium">
-                {store.location?.name || "N/A"}
+                {store.location_data?.name || store.locationName || "N/A"}
               </p>
-              {store.location?.description && (
+              {store.location_data?.address && (
                 <p className="text-sm text-gray-500 mt-1">
-                  {store.location.description}
+                  {store.location_data.address}
                 </p>
               )}
             </div>
@@ -471,14 +490,14 @@ export default function StoreDetailPage({ storeId }: StoreDetailPageProps) {
             <div className="flex-1">
               <h3 className="font-semibold text-gray-900 mb-2">Store Keeper</h3>
               <p className="text-gray-700 font-medium">
-                {store.store_keeper?.first_name} {store.store_keeper?.last_name}
+                {store.store_keeper_data?.full_name || store.storeKeeperName || "Not Assigned"}
               </p>
               <p className="text-sm text-gray-500">
-                {store.store_keeper?.email}
+                {store.store_keeper_data?.email || "N/A"}
               </p>
-              {store.store_keeper?.mobile_number && (
+              {store.store_keeper_data?.phone_number && (
                 <p className="text-sm text-gray-500">
-                  {store.store_keeper.mobile_number}
+                  {store.store_keeper_data.phone_number}
                 </p>
               )}
             </div>

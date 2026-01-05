@@ -51,6 +51,16 @@ export default function FuelConsumptionDetail() {
     true
   );
 
+  // Debug fuel consumption data structure
+  console.log("🔍 VEHICLE FUEL REQUEST DEBUG:", {
+    fuelConsumptionData: fuelConsumption,
+    data: fuelConsumption?.data,
+    assignedDriver: fuelConsumption?.data?.assigned_driver,
+    driverKeys: fuelConsumption?.data?.assigned_driver ? Object.keys(fuelConsumption.data.assigned_driver) : null,
+    requestedBy: fuelConsumption?.data?.created_by,
+    createdByKeys: fuelConsumption?.data?.created_by ? Object.keys(fuelConsumption.data.created_by) : null
+  });
+
 
   const { approveFuelConsumption, isLoading: isApproving } =
     useApproveFuelConsumption(id as string);
@@ -376,7 +386,11 @@ export default function FuelConsumptionDetail() {
               </td>
               <td className='p-4'>
                 {data.assigned_driver ?
-                  `${data.assigned_driver.first_name} ${data.assigned_driver.last_name}` :
+                  (typeof data.assigned_driver === 'string' ?
+                    data.assigned_driver :
+                    data.assigned_driver?.full_name ||
+                    `${data.assigned_driver?.first_name || ''} ${data.assigned_driver?.last_name || ''}`.trim()
+                  ) || "N/A" :
                   "N/A"
                 }
               </td>
@@ -489,7 +503,11 @@ export default function FuelConsumptionDetail() {
               <td className='p-3 border border-black text-center'>
                 <div className="font-medium">
                   {data.assigned_driver ?
-                    `${data.assigned_driver.first_name} ${data.assigned_driver.last_name}` :
+                    (typeof data.assigned_driver === 'string' ?
+                      data.assigned_driver :
+                      data.assigned_driver?.full_name ||
+                      `${data.assigned_driver?.first_name || ''} ${data.assigned_driver?.last_name || ''}`.trim()
+                    ) || "Driver/Staff" :
                     "Driver/Staff"
                   }
                 </div>
@@ -593,7 +611,11 @@ export default function FuelConsumptionDetail() {
                     <Label className="text-sm font-medium text-gray-500">Assigned Driver</Label>
                     <p className="mt-1 text-sm">
                       {data.assigned_driver ?
-                        `${data.assigned_driver.first_name} ${data.assigned_driver.last_name}` :
+                        (typeof data.assigned_driver === 'string' ?
+                          data.assigned_driver :
+                          data.assigned_driver?.full_name ||
+                          `${data.assigned_driver?.first_name || ''} ${data.assigned_driver?.last_name || ''}`.trim()
+                        ) || "N/A" :
                         "N/A"
                       }
                     </p>

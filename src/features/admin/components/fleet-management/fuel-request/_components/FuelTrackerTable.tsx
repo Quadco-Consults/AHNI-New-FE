@@ -49,7 +49,17 @@ export default function FuelTrackerTable({
       accessorKey: "asset",
       cell: ({ getValue, row }) => {
         const asset = getValue() as any;
-        // Try multiple possible field names for plate number
+
+        // Handle string values (when expand doesn't work)
+        if (typeof asset === 'string') {
+          return (
+            <div className="text-center font-medium">
+              {asset || "N/A"}
+            </div>
+          );
+        }
+
+        // Handle object values (when expand works)
         const plateNumber = asset?.plate_number || asset?.plateNumber || asset?.registration_number;
         const assetName = asset?.name || asset?.asset_name;
         const assetCode = asset?.code || asset?.asset_code;
@@ -68,9 +78,19 @@ export default function FuelTrackerTable({
       cell: ({ getValue, row }) => {
         const driver = getValue() as any;
 
-        // Check if driver exists and has valid name fields
+        // Check if driver exists
         if (!driver) return <div className="text-center">N/A</div>;
 
+        // Handle string values (when expand doesn't work)
+        if (typeof driver === 'string') {
+          return (
+            <div className="text-center">
+              {driver || "N/A"}
+            </div>
+          );
+        }
+
+        // Handle object values (when expand works)
         const firstName = driver.first_name || driver.firstName || "";
         const lastName = driver.last_name || driver.lastName || "";
         const fullName = driver.full_name || driver.fullName || "";

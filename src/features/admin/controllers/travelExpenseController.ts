@@ -63,6 +63,7 @@ export const useGetAllTravelExpenses = ({
           params: {
             page,
             size,
+            expand: 'user',
             ...(search && { search }),
             ...(status && { status }),
           },

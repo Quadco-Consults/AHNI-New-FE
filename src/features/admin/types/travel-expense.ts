@@ -100,7 +100,20 @@ export interface ITraveler {
 
 export interface ITravelExpensePaginatedData {
     id: string;
-    user: string;
+    user: string | {
+        id: string;
+        email: string;
+        employee_id: string | null;
+        full_name: string;
+        department: string | null;
+    };
+    user_data?: {
+        id: string;
+        email: string;
+        employee_id: string | null;
+        full_name: string;
+        department: string | null;
+    };
     created_datetime: string;
     updated_datetime: string;
     staff_id: string;

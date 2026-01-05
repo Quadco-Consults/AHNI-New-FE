@@ -35,6 +35,19 @@ export default function VendorFuelTrackerExample() {
   const error = purchasesError || vendorError;
   const isError = purchasesIsError || vendorIsError;
 
+  // Debug fuel purchases data structure
+  console.log("🔍 FUEL PURCHASES DEBUG:", {
+    vendorId,
+    purchasesData: vendorPurchases,
+    purchasesResults: vendorPurchases?.data?.results,
+    firstRecord: vendorPurchases?.data?.results?.[0],
+    firstRecordKeys: vendorPurchases?.data?.results?.[0] ? Object.keys(vendorPurchases.data.results[0]) : null,
+    assetType: typeof vendorPurchases?.data?.results?.[0]?.asset,
+    assetValue: vendorPurchases?.data?.results?.[0]?.asset,
+    driverType: typeof vendorPurchases?.data?.results?.[0]?.assigned_driver,
+    driverValue: vendorPurchases?.data?.results?.[0]?.assigned_driver
+  });
+
 
   // Check if vendor was not found
   const vendorNotFound = vendorIsError && (
@@ -371,10 +384,10 @@ export default function VendorFuelTrackerExample() {
                     <tr>
                       <td>${index + 1}</td>
                       <td>${format(new Date(record.date), 'dd/MM/yyyy')}</td>
-                      <td>${record.asset?.plate_number || record.asset?.name || 'N/A'}</td>
-                      <td>${record.assigned_driver?.first_name && record.assigned_driver?.last_name ?
+                      <td>${typeof record.asset === 'string' ? record.asset : (record.asset?.plate_number || record.asset?.name || 'N/A')}</td>
+                      <td>${typeof record.assigned_driver === 'string' ? record.assigned_driver : (record.assigned_driver?.first_name && record.assigned_driver?.last_name ?
                         `${record.assigned_driver.first_name} ${record.assigned_driver.last_name}` :
-                        record.assigned_driver?.full_name || 'N/A'}</td>
+                        record.assigned_driver?.full_name || 'N/A')}</td>
                       <td>${record.fuel_coupon || 'N/A'}</td>
                       <td>${previousOdo > 0 ? previousOdo.toLocaleString() : 'N/A'}</td>
                       <td>${record.odometer?.toLocaleString() || 'N/A'}</td>
