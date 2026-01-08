@@ -211,16 +211,18 @@ export class PermissionService {
       // Staff with admin permissions
       user?.is_staff === true && permissions.length > 10,
 
-      // Role-based admin detection - more specific matching
+      // Role-based admin detection - includes departmental admin managers
       roles.some(role => {
         const roleName = role.name?.toLowerCase() || '';
-        // Only match specific admin roles, not departmental admin roles
+        // Match system admin roles and departmental admin manager roles
         return (
           roleName === 'admin' ||
           roleName === 'administrator' ||
           roleName === 'super admin' ||
           roleName === 'director' ||
           roleName === 'system admin' ||
+          roleName === 'admin manager' ||
+          roleName.includes('admin manager') ||
           roleName.startsWith('super')
         );
       }),
@@ -253,6 +255,8 @@ export class PermissionService {
           roleName === 'super admin' ||
           roleName === 'director' ||
           roleName === 'system admin' ||
+          roleName === 'admin manager' ||
+          roleName.includes('admin manager') ||
           roleName.startsWith('super')
         );
       }),

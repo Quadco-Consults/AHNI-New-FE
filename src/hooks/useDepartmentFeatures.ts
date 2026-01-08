@@ -49,7 +49,8 @@ export const useDepartmentFeatures = () => {
   const isProgramsOfficer = userEmail.includes('programs') || userEmail.includes('program');
   const isHROfficer = userEmail.includes('hr') || userEmail.includes('human') || userEmail.includes('hrmanager');
   const isFinanceOfficer = userEmail.includes('finance') || userEmail.includes('financemanager') || userEmail.includes('financeofficer');
-  const isAdminOfficer = userEmail.includes('admin.officer') || userEmail.includes('adminofficer') || userEmail.includes('admin_officer');
+  const isAdminOfficer = userEmail.includes('admin.officer') || userEmail.includes('adminofficer') || userEmail.includes('admin_officer') ||
+                        userEmail.includes('admin.manager') || userEmail.includes('adminmanager') || userEmail.includes('admin_manager');
   const isProcurementOfficer = userEmail.includes('procurement');
 
   // Enhanced position-based detection for departmental roles
@@ -61,7 +62,11 @@ export const useDepartmentFeatures = () => {
   const isAdminPosition = userPosition.toLowerCase().includes('admin officer') ||
                          userPosition.toLowerCase().includes('admin.officer') ||
                          userPosition.toLowerCase().includes('admin_officer') ||
-                         userPosition.toLowerCase().includes('adminofficer');
+                         userPosition.toLowerCase().includes('adminofficer') ||
+                         userPosition.toLowerCase().includes('admin manager') ||
+                         userPosition.toLowerCase().includes('admin.manager') ||
+                         userPosition.toLowerCase().includes('admin_manager') ||
+                         userPosition.toLowerCase().includes('adminmanager');
 
   // HR debug removed temporarily to fix scoping issue
 

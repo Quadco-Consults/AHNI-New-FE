@@ -179,6 +179,10 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
         mainDepartment: 'Admin',
         subDepartments: ['Asset Management', 'Store Management', 'Vehicle Management', 'Facility Management', 'Travel Management']
       },
+      'Admin Manager': {
+        mainDepartment: 'Admin',
+        subDepartments: ['Asset Management', 'Store Management', 'Vehicle Management', 'Facility Management', 'Travel Management', 'Inventory Management', 'Solicitation Management', 'Fleet Management']
+      },
       'Finance Officer': {
         mainDepartment: 'Finance',
         subDepartments: [
@@ -281,7 +285,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
             // Special HR user override - email-based HR users should access HR department
             (item.name === 'HR' && user?.email?.toLowerCase().includes('hr')) ||
             // Special admin user override - email-based admin users should access Admin department
-            (item.name === 'Admin' && (user?.email?.toLowerCase().includes('admin.officer') || user?.email?.toLowerCase().includes('adminofficer'))) ||
+            (item.name === 'Admin' && (user?.email?.toLowerCase().includes('admin.officer') || user?.email?.toLowerCase().includes('adminofficer') || user?.email?.toLowerCase().includes('admin.manager') || user?.email?.toLowerCase().includes('adminmanager'))) ||
             // TEMPORARY DEBUG: Force HR access for testing
             (item.name === 'HR');
         }
@@ -303,7 +307,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
         // Special HR user override - email-based HR users should access HR module
         (item.name === 'HR' && user?.email?.toLowerCase().includes('hr')) ||
         // Special admin user override - email-based admin users should access Admin module
-        (item.name === 'Admin' && (user?.email?.toLowerCase().includes('admin.officer') || user?.email?.toLowerCase().includes('adminofficer'))) ||
+        (item.name === 'Admin' && (user?.email?.toLowerCase().includes('admin.officer') || user?.email?.toLowerCase().includes('adminofficer') || user?.email?.toLowerCase().includes('admin.manager') || user?.email?.toLowerCase().includes('adminmanager'))) ||
         // REMOVED: These forced HR overrides granted access to all users
         // (item.name === 'HR') ||
         // (item.name?.includes('Employee Management')) ||
@@ -326,7 +330,7 @@ const Sidebar = ({ sidebarWidth, setSidebarWidth }: SidebarProps) => {
         adjustedPermissionAccess = true;
       } else if (isChild && isInDepartmentHierarchy(parentDepartment, userPosition)) {
         // For department hierarchy (including sub-departments), be more permissive for department officers
-        const isDepartmentOfficer = ['Program Officer', 'Program Admin', 'HR Officer', 'HR Manager', 'Procurement Officer', 'Admin Officer', 'Finance Officer', 'Finance Manager'].includes(userPosition);
+        const isDepartmentOfficer = ['Program Officer', 'Program Admin', 'HR Officer', 'HR Manager', 'Procurement Officer', 'Admin Officer', 'Admin Manager', 'Finance Officer', 'Finance Manager'].includes(userPosition);
         if (isDepartmentOfficer) {
           adjustedPermissionAccess = true; // Allow access to all department sub-menus and their children
         }
