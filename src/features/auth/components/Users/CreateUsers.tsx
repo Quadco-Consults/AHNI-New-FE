@@ -117,6 +117,18 @@ const CreateUsers = () => {
 
   const onSubmit: SubmitHandler<TCreateUserFormValues> = async (data) => {
     try {
+      // Debug logging for role assignment
+      console.log("🔍 CREATE USER - Form data:", data);
+      console.log("🔍 CREATE USER - Roles:", data.roles);
+      console.log("🔍 CREATE USER - Roles type:", typeof data.roles);
+      console.log("🔍 CREATE USER - Roles is array:", Array.isArray(data.roles));
+      if (data.roles) {
+        console.log("🔍 CREATE USER - Roles length:", data.roles.length);
+        data.roles.forEach((role, index) => {
+          console.log(`🔍 CREATE USER - Role[${index}]:`, role, "Type:", typeof role);
+        });
+      }
+
       // Route to appropriate database based on user type
       await createUserByType(data);
       toast.success("User created successfully");
@@ -142,10 +154,15 @@ const CreateUsers = () => {
    */
   const createUserByType = async (data: TCreateUserFormValues) => {
     const userType = data.user_type;
-    
+
+    // Debug logging for API payload
+    console.log("🔍 CREATE USER TYPE - Data being sent to API:", JSON.stringify(data, null, 2));
+    console.log("🔍 CREATE USER TYPE - Roles in payload:", data.roles);
+
     // STEP 1: Always create in main users table first
     const createdUser = await createUser(data);
-    console.log("Created user response:", createdUser);
+    console.log("✅ Created user response:", createdUser);
+    console.log("✅ Created user response stringified:", JSON.stringify(createdUser, null, 2));
 
     // Try different possible response structures
     const userId = createdUser?.data?.id ||

@@ -8,6 +8,8 @@ import VendorSidebar from "@/components/VendorSidebar";
 import VendorHeader from "@/components/VendorHeader";
 import Footer from "@/components/Footer";
 import { cn } from "lib/utils";
+import { useSessionManager } from "@/hooks/useSessionManager";
+import { toast } from "sonner";
 
 import "@/features/vendor-portal/controllers/devTestingHelper";
 import "@/features/vendor-portal/utils/vendorLookup";
@@ -21,6 +23,19 @@ export default function VendorPortalLayout({ children }: VendorPortalLayoutProps
   const pathname = usePathname();
   const [sidebarWidth, setSidebarWidth] = useState(false);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
+
+  // Session manager for activity-based token refresh and idle timeout
+  useSessionManager({
+    enabled: pathname !== "/vendor-portal/login" && VendorAuthUtils.isVendorAuthenticated(),
+    idleTimeoutMs: 10 * 60 * 1000, // 10 minutes idle timeout
+    refreshIntervalMs: 5 * 60 * 1000, // Refresh token every 5 minutes while active
+    onSessionExpired: () => {
+      toast.error("Your session has expired due to inactivity. Please log in again.");
+    },
+    onTokenRefreshed: () => {
+      console.log("🔄 Vendor session extended due to activity");
+    },
+  });
 
   useEffect(() => {
     // Set page title
