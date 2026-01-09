@@ -10,6 +10,8 @@ interface ExtendedFilterParams extends FilterParams {
   expand?: string;
   enabled?: boolean;
   _timestamp?: number; // For cache busting
+  parent_category?: string; // Filter by parent category name (e.g., "Consumables")
+  parent_category_id?: string; // Filter by parent category UUID
 }
 
 // GET Operations (Queries)
@@ -23,9 +25,11 @@ export const useGetAllItemsManager = ({
   category__name,
   expand,
   _timestamp,
+  parent_category,
+  parent_category_id,
 }: ExtendedFilterParams = {}) => {
   return useQuery<ApiResponse<TPaginatedResponse<ItemData>>>({
-    queryKey: ["items", page, size, search, category, category__job_category, category__name, expand, _timestamp],
+    queryKey: ["items", page, size, search, category, category__job_category, category__name, expand, _timestamp, parent_category, parent_category_id],
     queryFn: async () => {
       const params = {
         page,
@@ -35,12 +39,15 @@ export const useGetAllItemsManager = ({
         category__job_category,
         ...(category__name && { category__name }),
         ...(expand && { expand }),
+        ...(parent_category && { parent_category }),
+        ...(parent_category_id && { parent_category_id }),
       };
 
       console.log("🔍 ITEMS API PARAMS DEBUG:", {
-        originalParams: { page, size, search, category, category__job_category, category__name, expand },
+        originalParams: { page, size, search, category, category__job_category, category__name, expand, parent_category, parent_category_id },
         finalParams: params,
         hasCategoryName: !!category__name,
+        hasParentCategory: !!parent_category,
       });
 
       const response = await AxiosWithToken.get("config/items/", {
