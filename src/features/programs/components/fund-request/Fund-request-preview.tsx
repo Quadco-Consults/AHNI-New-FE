@@ -144,14 +144,18 @@ export default function Summary() {
         <div className='space-y-3'>
           <h3 className='font-semibold'>Project Name</h3>
           <p className='text-sm text-gray-500'>
-            {/* {programFundRequest?.} */}
+            {project?.data?.title || 'N/A'}
           </p>
         </div>
 
         <div className='grid pb-5 grid-cols-2 gap-5 md:grid-cols-3'>
           <div className='space-y-3'>
             <h3 className='font-semibold'>Project ID</h3>
-            <p className='text-sm text-gray-500'>{project?.data.project_id}</p>
+            <p className='text-sm text-gray-500'>{project?.data?.project_id || 'N/A'}</p>
+          </div>
+          <div className='space-y-3'>
+            <h3 className='font-semibold'>Unique Identifier Code</h3>
+            <p className='text-sm text-gray-500'>{programFundRequest?.uuid_code || 'Auto-generated on submit'}</p>
           </div>
           <div className='space-y-3'>
             <h3 className='font-semibold'>Month</h3>

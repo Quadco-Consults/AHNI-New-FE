@@ -51,6 +51,7 @@ export const useGetAllAdhocAdvertisements = ({
   is_active,
   date_from,
   date_to,
+  ordering = "-created_datetime", // Default to newest first
   enabled = true,
 }: IAdhocAdvertisementFilterParams) => {
   return useQuery<PaginatedResponse<IAdhocAdvertisement>>({
@@ -65,6 +66,7 @@ export const useGetAllAdhocAdvertisements = ({
       is_active,
       date_from,
       date_to,
+      ordering,
     ],
     queryFn: async () => {
       try {
@@ -72,6 +74,7 @@ export const useGetAllAdhocAdvertisements = ({
           params: {
             page,
             size,
+            ordering, // Sort by newest first by default
             ...(search && { search }),
             ...(status && { status }),
             ...(project && { project }),
@@ -91,7 +94,8 @@ export const useGetAllAdhocAdvertisements = ({
       }
     },
     enabled: enabled,
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: true, // Refetch when user comes back to the page
+    staleTime: 0, // Always consider data stale to ensure fresh data
   });
 };
 

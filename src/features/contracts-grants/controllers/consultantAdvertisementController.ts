@@ -1,7 +1,8 @@
 import useApiManager from "@/constants/mainController";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { AxiosError } from "axios";
+import { toast } from "sonner";
 import {
   IConsultantPaginatedData,
   IConsultantSingleData,
@@ -40,6 +41,8 @@ interface ConsultantAdvertisementFilterParams {
   size?: number;
   search?: string;
   status?: string;
+  type?: "CONSULTANT" | "ADHOC" | "FACILITATOR";
+  ordering?: string;
   enabled?: boolean;
 }
 
@@ -63,18 +66,22 @@ export const useGetAllConsultantAdvertisements = ({
   size = 20,
   search = "",
   status = "",
+  type,
+  ordering = "-created_datetime",
   enabled = true,
 }: ConsultantAdvertisementFilterParams) => {
   return useQuery<PaginatedResponse<IConsultantPaginatedData>>({
-    queryKey: ["consultantAdvertisements", page, size, search, status],
+    queryKey: ["consultantAdvertisements", page, size, search, status, type, ordering],
     queryFn: async () => {
       try {
         const response = await AxiosWithToken.get(BASE_URL, {
           params: {
             page,
             size,
+            ordering,
             ...(search && { search }),
             ...(status && { status }),
+            ...(type && { type }),
           },
         });
         return response.data;
@@ -86,7 +93,8 @@ export const useGetAllConsultantAdvertisements = ({
       }
     },
     enabled: enabled,
-    refetchOnWindowFocus: false,
+    refetchOnWindowFocus: true,
+    staleTime: 0,
   });
 };
 
@@ -115,28 +123,47 @@ export const useGetSingleConsultantAdvertisement = (
 
 // Create Consultant Advertisement
 export const useCreateConsultantAdvertisement = () => {
-  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
-    IConsultantSingleData,
-    Error,
-    TConsultantAdvertisementCreateFormData
-  >({
-    endpoint: BASE_URL,
-    queryKey: ["consultantAdvertisements"],
-    isAuth: true,
-    method: "POST",
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: async (details: TConsultantAdvertisementCreateFormData) => {
+      const response = await AxiosWithToken.post(BASE_URL, details);
+      return response.data;
+    },
+    onSuccess: (data) => {
+      // Invalidate both consultant and adhoc advertisement caches
+      // This ensures new advertisements show up regardless of type
+      queryClient.invalidateQueries({ queryKey: ["consultantAdvertisements"] });
+      queryClient.invalidateQueries({ queryKey: ["adhocAdvertisements"] });
+      queryClient.invalidateQueries({ queryKey: ["activeAdhocAdvertisements"] });
+      toast.success(data?.message || "Advertisement created successfully!");
+    },
+    onError: (error: AxiosError) => {
+      console.error("Consultant advertisement create error:", error);
+      const errorMessage =
+        (error.response?.data as any)?.message || "Failed to create advertisement";
+      toast.error(errorMessage);
+    },
   });
 
   const createConsultantAdvertisement = async (
     details: TConsultantAdvertisementCreateFormData
   ) => {
     try {
-      await callApi(details);
+      await mutation.mutateAsync(details);
     } catch (error) {
       console.error("Consultant advertisement create error:", error);
+      throw error;
     }
   };
 
-  return { createConsultantAdvertisement, data, isLoading, isSuccess, error };
+  return {
+    createConsultantAdvertisement,
+    data: mutation.data,
+    isLoading: mutation.isPending,
+    isSuccess: mutation.isSuccess,
+    error: mutation.error,
+  };
 };
 
 // Update Consultant Advertisement

@@ -1,28 +1,30 @@
 "use client";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter, useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import LongArrowLeft from "components/icons/LongArrowLeft";
 import Card from "components/Card";
 import Summary from "./Summary";
 import { Button } from "components/ui/button";
-import { openDialog } from "store/ui";
-import { DialogType } from "constants/dailogs";
-import { useAppDispatch } from "hooks/useStore";
 import { LoadingSpinner } from "components/Loading";
 import { skipToken } from "@reduxjs/toolkit/query/react";
 import { useGetSingleProject, useGetAllProjects } from "@/features/projects/controllers/projectController";
 import { useGetAllFundRequests } from "@/features/programs/controllers/fundRequestController";
 import { RouteEnum } from "constants/RouterConstants";
 import FundRequestSummary from "./FundRequestSummary";
-import FundRequestWorkflowStatus from "../components/FundRequestWorkflowStatus";
 import ProjectBatchApproval from "./ProjectBatchApproval";
+import { useMemo } from "react";
 
 export default function FundRequestDetail() {
   const router = useRouter();
   const params = useParams();
+  const searchParams = useSearchParams();
   const id = params?.id as string;
+
+  // Get year and month from query parameters
+  const yearFilter = searchParams?.get('year') || '';
+  const monthFilter = searchParams?.get('month') || '';
 
   // Decode the URL-encoded ID
   const decodedId = decodeURIComponent(id || "");
@@ -58,18 +60,39 @@ export default function FundRequestDetail() {
       project: actualProjectId,
       enabled: !!actualProjectId,
       size: 1000,
+      // Pass year and month filters if available
+      ...(yearFilter ? { year: parseInt(yearFilter) } : {}),
+      ...(monthFilter ? { month: monthFilter } : {}),
     });
 
-  const dispatch = useAppDispatch();
+  // Filter fund requests by year and month on the client side as well
+  // (in case the API doesn't support filtering)
+  const filteredFundRequests = useMemo(() => {
+    if (!fundRequests?.data?.results) return [];
+
+    let results = fundRequests.data.results;
+
+    // Filter by year if specified
+    if (yearFilter) {
+      results = results.filter(req => req.year === yearFilter);
+    }
+
+    // Filter by month if specified
+    if (monthFilter) {
+      results = results.filter(req => req.month === monthFilter);
+    }
+
+    return results;
+  }, [fundRequests?.data?.results, yearFilter, monthFilter]);
 
   const isLoading = projectLoading || fundRequestsLoading;
-  const firstFundRequest = fundRequests?.data?.results?.[0];
+  const firstFundRequest = filteredFundRequests[0];
 
   // If project data is not available but we have fund requests, extract project info from the first fund request
   const projectData = actualProject?.data || (firstFundRequest?.project && typeof firstFundRequest.project === 'object' ? firstFundRequest.project : null);
 
   // If we still don't have project data but have fund requests, create a fallback project object
-  const fallbackProjectData = !projectData && fundRequests?.data?.results?.length ? {
+  const fallbackProjectData = !projectData && filteredFundRequests.length ? {
     id: decodedId,
     title: decodedId,
     project_id: decodedId,
@@ -88,11 +111,14 @@ export default function FundRequestDetail() {
   }
 
   // If project is not found and we have no fund requests either
-  if (!finalProjectData && !projectLoading && !fundRequests?.data?.results?.length) {
+  if (!finalProjectData && !projectLoading && !filteredFundRequests.length) {
+    const filterInfo = yearFilter || monthFilter
+      ? ` for ${monthFilter || ''} ${yearFilter || ''}`.trim()
+      : '';
     return (
       <Card className='p-8 text-center space-y-4'>
         <p className='text-red-600 font-semibold'>No fund requests found</p>
-        <p className='text-gray-600'>No fund requests found for project "{decodedId}".</p>
+        <p className='text-gray-600'>No fund requests found for project "{decodedId}"{filterInfo}.</p>
         <Button onClick={goBack}>Go Back</Button>
       </Card>
     );
@@ -120,10 +146,10 @@ export default function FundRequestDetail() {
 
           <div className='flex items-center gap-2'>
             <Link
-              href={RouteEnum.PROGRAM_FUND_REQUEST_VIEW_ALL_FUND_REQUESTS.replace(
+              href={`${RouteEnum.PROGRAM_FUND_REQUEST_VIEW_ALL_FUND_REQUESTS.replace(
                 ":id",
                 id || ""
-              )}
+              )}${yearFilter || monthFilter ? `?year=${yearFilter}&month=${monthFilter}` : ''}`}
             >
               <Button
                 variant='outline'
@@ -131,22 +157,11 @@ export default function FundRequestDetail() {
                 Preview
               </Button>
             </Link>
-            <Button
-              className='bg-primary text-white hover:bg-primary/90'
-              onClick={() => {
-                dispatch(
-                  openDialog({
-                    type: DialogType.SspApproveModal,
-                    dialogProps: {
-                      header: "Request Approval",
-                      width: "max-w-2xl",
-                    },
-                  })
-                );
-              }}
-            >
-              Approval
-            </Button>
+            {(yearFilter || monthFilter) && (
+              <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                {monthFilter} {yearFilter}
+              </span>
+            )}
           </div>
         </div>
         {isLoading ? (

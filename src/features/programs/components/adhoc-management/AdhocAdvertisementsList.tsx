@@ -75,7 +75,8 @@ export default function AdhocAdvertisementsList() {
         <Pagination
           total={data.data.pagination.count}
           itemsPerPage={data.data.pagination.page_size}
-          onChange={(page) => setPage(page)}
+          page={page}
+          onChange={(newPage) => setPage(newPage)}
         />
       )}
     </section>

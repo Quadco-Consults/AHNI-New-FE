@@ -129,7 +129,7 @@ export const validateFundRequestIdentifier = (identifier: string): boolean => {
 
 /**
  * Get next sequence number for a given project, location, year, and month
- * This calls the API endpoint to get the current count
+ * This fetches existing fund requests and calculates the next sequence number
  */
 export const getNextSequenceNumber = async (
   projectId: string,
@@ -141,10 +141,9 @@ export const getNextSequenceNumber = async (
     // Get the auth token from localStorage
     const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
 
-    // Since we can't use hooks outside of React components, we'll make a direct API call
     const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://ahni-erp-029252c2fbb9.herokuapp.com/api/v1';
 
-    console.log('Fetching next sequence number for:', { projectId, locationCode, year, month });
+    console.log('Fetching existing fund requests to calculate next sequence for:', { projectId, locationCode, year, month });
 
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
@@ -155,15 +154,18 @@ export const getNextSequenceNumber = async (
       headers['Authorization'] = `Bearer ${token}`;
     }
 
-    const response = await fetch(`${API_BASE_URL}/programs/fund-requests/next-sequence/`, {
-      method: 'POST',
+    // Format the prefix we're looking for
+    // Format: {PROJECT_ID}-{LOCATION_CODE}-{YY}-{MM}-
+    const yearSuffix = String(year).slice(-2);
+    const monthFormatted = String(month).padStart(2, '0');
+    const searchPrefix = `${projectId}-${locationCode}-${yearSuffix}-${monthFormatted}`;
+
+    console.log('Searching for fund requests with prefix:', searchPrefix);
+
+    // Fetch all fund requests to find matching ones
+    const response = await fetch(`${API_BASE_URL}/programs/fund-requests/?size=1000`, {
+      method: 'GET',
       headers,
-      body: JSON.stringify({
-        project_id: projectId,
-        location_code: locationCode,
-        year,
-        month
-      })
     });
 
     if (!response.ok) {
@@ -173,9 +175,31 @@ export const getNextSequenceNumber = async (
     }
 
     const data = await response.json();
-    const nextSequence = data?.data?.next_sequence || data?.next_sequence || 1;
+    const fundRequests = data?.data?.results || data?.results || [];
 
-    console.log('Next sequence number received from API:', nextSequence);
+    console.log(`Found ${fundRequests.length} total fund requests`);
+
+    // Find all fund requests with matching uuid_code prefix
+    let maxSequence = 0;
+
+    fundRequests.forEach((request: any) => {
+      const uuidCode = request.uuid_code;
+      if (uuidCode && uuidCode.startsWith(searchPrefix)) {
+        console.log('Found matching fund request:', uuidCode);
+
+        // Extract the sequence number (last part after the last dash)
+        const parts = uuidCode.split('-');
+        const sequencePart = parts[parts.length - 1];
+        const sequenceNum = parseInt(sequencePart, 10);
+
+        if (!isNaN(sequenceNum) && sequenceNum > maxSequence) {
+          maxSequence = sequenceNum;
+        }
+      }
+    });
+
+    const nextSequence = maxSequence + 1;
+    console.log(`Max existing sequence: ${maxSequence}, Next sequence: ${nextSequence}`);
 
     return nextSequence;
   } catch (error) {

@@ -475,6 +475,7 @@ export interface IAdhocAdvertisementFilterParams {
   is_active?: boolean;
   date_from?: string;
   date_to?: string;
+  ordering?: string; // e.g., "-created_datetime" for newest first
   enabled?: boolean;
 }
 

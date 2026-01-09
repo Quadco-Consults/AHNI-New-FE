@@ -369,7 +369,11 @@ export default function AdhocRequisitionDetailPage() {
                 </div>
                 <div>
                   <Label className="text-gray-600">Requesting Department</Label>
-                  <p className="font-medium mt-1">{requisition.requesting_department.name}</p>
+                  <p className="font-medium mt-1">
+                    {typeof requisition.requesting_department === 'object'
+                      ? requisition.requesting_department?.name
+                      : requisition.requesting_department || 'N/A'}
+                  </p>
                 </div>
                 <div>
                   <Label className="text-gray-600">Number of Positions</Label>
@@ -381,27 +385,43 @@ export default function AdhocRequisitionDetailPage() {
                 </div>
                 <div>
                   <Label className="text-gray-600">Project</Label>
-                  <p className="font-medium mt-1">{requisition.project.name}</p>
-                  {requisition.project.code && (
+                  <p className="font-medium mt-1">
+                    {typeof requisition.project === 'object'
+                      ? requisition.project?.name
+                      : requisition.project || 'N/A'}
+                  </p>
+                  {typeof requisition.project === 'object' && requisition.project?.code && (
                     <p className="text-sm text-gray-500">Code: {requisition.project.code}</p>
                   )}
                 </div>
                 <div>
                   <Label className="text-gray-600">FCO (Funding/Cost Object)</Label>
-                  <p className="font-medium mt-1">{requisition.fco.name}</p>
-                  {requisition.fco.code && (
+                  <p className="font-medium mt-1">
+                    {typeof requisition.fco === 'object'
+                      ? requisition.fco?.name
+                      : requisition.fco || 'N/A'}
+                  </p>
+                  {typeof requisition.fco === 'object' && requisition.fco?.code && (
                     <p className="text-sm text-gray-500">Code: {requisition.fco.code}</p>
                   )}
                 </div>
                 <div>
                   <Label className="text-gray-600">Budget Line</Label>
-                  <p className="font-medium mt-1">{requisition.budget_line}</p>
+                  <p className="font-medium mt-1">
+                    {typeof requisition.budget_line === 'object'
+                      ? (requisition.budget_line as any)?.name || (requisition.budget_line as any)?.code
+                      : requisition.budget_line || 'N/A'}
+                  </p>
                 </div>
                 <div>
                   <Label className="text-gray-600">Work Location</Label>
                   <div className="flex items-center gap-2 mt-1">
                     <MapPin className="w-4 h-4 text-gray-400" />
-                    <p className="font-medium">{requisition.location.name}</p>
+                    <p className="font-medium">
+                      {typeof requisition.location === 'object'
+                        ? requisition.location?.name
+                        : requisition.location || 'N/A'}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -466,9 +486,13 @@ export default function AdhocRequisitionDetailPage() {
                 <div>
                   <Label className="text-gray-600">Reports To</Label>
                   <p className="font-medium">
-                    {requisition.reporting_to.first_name} {requisition.reporting_to.last_name}
+                    {typeof requisition.reporting_to === 'object'
+                      ? `${requisition.reporting_to?.first_name || ''} ${requisition.reporting_to?.last_name || ''}`
+                      : requisition.reporting_to || 'N/A'}
                   </p>
-                  <p className="text-sm text-gray-500">{requisition.reporting_to.designation}</p>
+                  {typeof requisition.reporting_to === 'object' && requisition.reporting_to?.designation && (
+                    <p className="text-sm text-gray-500">{requisition.reporting_to.designation}</p>
+                  )}
                 </div>
               </div>
             </Card>

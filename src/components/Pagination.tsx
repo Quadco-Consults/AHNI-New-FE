@@ -6,6 +6,7 @@ type TProps = {
     onChange: (page: number) => void;
     total: number;
     itemsPerPage: number;
+    page?: number;
     nextLabel?: string;
     previousLabel?: string;
     className?: string;
@@ -16,6 +17,7 @@ export default function Pagination({
     onChange,
     total,
     itemsPerPage,
+    page = 1,
     nextLabel,
     previousLabel,
     className,
@@ -43,6 +45,7 @@ export default function Pagination({
                     onPageChange={({ selected }) => onChange(selected + 1)}
                     pageRangeDisplayed={5}
                     pageCount={pageCount}
+                    forcePage={page - 1}
                     renderOnZeroPageCount={null}
                     pageClassName="font-bold text-center bg-gray-100 rounded-md text-gray-500 cursor-pointer transition-all duration-150 hover:bg-primary hover:text-white"
                     activeClassName="border-gray-500 rounded-md bg-primary text-white"

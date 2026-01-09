@@ -33,10 +33,8 @@ export const ScopeOfWorkSchema = z.object({
   //   })
   // ),
   advertisement_document: z.union([
-    z
-      .any()
-      .refine((files: FileList) => files?.length > 0, "Please select a file"),
-    z.string().url(),
+    z.any(), // FileList - optional, no validation required
+    z.string(),
   ]).optional(),
   // fee_rate: z.string().min(1, "Please enter fee rate"),
   // payment_frequency: z.string().min(1, "Please select payment frequency"),

@@ -59,18 +59,14 @@ export default function ViewFundRequestActivity() {
       canLocationAuthorize:
         userId === request.location_authorizer &&
         request.status === "LOCATION_REVIEWED",
-      canStateReview:
-        userId === request.state_reviewer && request.status === "LOCATION_AUTHORIZED",
-      canStateAuthorize:
-        userId === request.state_authorizer && request.status === "STATE_REVIEWED",
+      canStateReview: false, // State review removed
+      canStateAuthorize: false, // State authorize removed
       canReject:
         request.status !== "REJECTED" &&
         request.status !== "HQ_APPROVED" &&
         (userId === request.location_reviewer ||
-          userId === request.location_authorizer ||
-          userId === request.state_reviewer ||
-          userId === request.state_authorizer) &&
-        ["PENDING", "LOCATION_REVIEWED", "LOCATION_AUTHORIZED", "STATE_REVIEWED"].includes(request.status),
+          userId === request.location_authorizer) &&
+        ["PENDING", "LOCATION_REVIEWED"].includes(request.status),
     };
   }, [fundRequest, profile?.data?.id]);
 
@@ -101,7 +97,7 @@ export default function ViewFundRequestActivity() {
     // Location Reviewer
     if (data.location_reviewer) {
       const reviewerDetails = getUserDetails(data.location_reviewer);
-      const isLocationReviewed = ["LOCATION_REVIEWED", "LOCATION_AUTHORIZED", "STATE_REVIEWED", "STATE_AUTHORIZED", "HQ_REVIEWED", "HQ_AUTHORIZED", "HQ_APPROVED"].includes(data.status);
+      const isLocationReviewed = ["LOCATION_REVIEWED", "LOCATION_AUTHORIZED", "HQ_REVIEWED", "HQ_AUTHORIZED", "HQ_APPROVED"].includes(data.status);
       approvals.push({
         id: "location_reviewer",
         name: reviewerDetails ? `${reviewerDetails.first_name} ${reviewerDetails.last_name}` : "Location Reviewer",
@@ -117,8 +113,8 @@ export default function ViewFundRequestActivity() {
     // Location Authorizer
     if (data.location_authorizer) {
       const authorizerDetails = getUserDetails(data.location_authorizer);
-      const isLocationAuthorized = ["LOCATION_AUTHORIZED", "STATE_REVIEWED", "STATE_AUTHORIZED", "HQ_REVIEWED", "HQ_AUTHORIZED", "HQ_APPROVED"].includes(data.status);
-      const isLocationReviewed = ["LOCATION_REVIEWED", "LOCATION_AUTHORIZED", "STATE_REVIEWED", "STATE_AUTHORIZED", "HQ_REVIEWED", "HQ_AUTHORIZED", "HQ_APPROVED"].includes(data.status);
+      const isLocationAuthorized = ["LOCATION_AUTHORIZED", "HQ_REVIEWED", "HQ_AUTHORIZED", "HQ_APPROVED"].includes(data.status);
+      const isLocationReviewed = ["LOCATION_REVIEWED", "LOCATION_AUTHORIZED", "HQ_REVIEWED", "HQ_AUTHORIZED", "HQ_APPROVED"].includes(data.status);
       approvals.push({
         id: "location_authorizer",
         name: authorizerDetails ? `${authorizerDetails.first_name} ${authorizerDetails.last_name}` : "Location Authorizer",
@@ -131,21 +127,21 @@ export default function ViewFundRequestActivity() {
       });
     }
 
-    // State Reviewer and State Authorizer removed - not in backend model
+    // State Reviewer and State Authorizer removed - workflow now goes directly to HQ
 
     // HQ Reviewer
     if (data.hq_reviewer) {
       const hqReviewerDetails = getUserDetails(data.hq_reviewer);
       const isHQReviewed = ["HQ_REVIEWED", "HQ_AUTHORIZED", "HQ_APPROVED"].includes(data.status);
-      const isStateAuthorized = ["STATE_AUTHORIZED", "HQ_REVIEWED", "HQ_AUTHORIZED", "HQ_APPROVED"].includes(data.status);
+      const isLocationAuthorized = ["LOCATION_AUTHORIZED", "HQ_REVIEWED", "HQ_AUTHORIZED", "HQ_APPROVED"].includes(data.status);
       approvals.push({
         id: "hq_reviewer",
         name: hqReviewerDetails ? `${hqReviewerDetails.first_name} ${hqReviewerDetails.last_name}` : "HQ Reviewer",
         position: "Headquarters Review",
-        status: isHQReviewed ? "APPROVED" : data.status === "REJECTED" ? "REJECTED" : !isStateAuthorized ? "UNDER_REVIEW" : "PENDING",
+        status: isHQReviewed ? "APPROVED" : data.status === "REJECTED" ? "REJECTED" : !isLocationAuthorized ? "UNDER_REVIEW" : "PENDING",
         level: "HQ Review",
         email: hqReviewerDetails?.email,
-        comments: isHQReviewed ? "Fund request reviewed at headquarters level" : !isStateAuthorized ? "Waiting for state authorization" : "Awaiting HQ review",
+        comments: isHQReviewed ? "Fund request reviewed at headquarters level" : !isLocationAuthorized ? "Waiting for location authorization" : "Awaiting HQ review",
         signDate: isHQReviewed ? data.updated_datetime : null
       });
     }
@@ -194,8 +190,6 @@ export default function ViewFundRequestActivity() {
   console.log('Fund Request Data:', {
     location_reviewer: fundRequest?.data?.location_reviewer,
     location_authorizer: fundRequest?.data?.location_authorizer,
-    state_reviewer: fundRequest?.data?.state_reviewer,
-    state_authorizer: fundRequest?.data?.state_authorizer,
   });
   console.log('Should show workflow:', fundRequest && fundRequest.data.status !== "HQ_APPROVED");
   console.log({ permissions, fundRequest, currentUser, profile });
@@ -595,73 +589,6 @@ Generated on: ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString
               </tr>
             </table>
           </div>
-
-          {/* AHNI STATE OFFICE APPROVAL - if state reviewers/authorizers exist */}
-          {(approvalHistory.find(a => a.id === 'state_reviewer') || approvalHistory.find(a => a.id === 'state_authorizer')) && (
-            <div className='border-2 border-black mb-6'>
-              <div className='bg-gray-100 text-center font-bold py-2 border-b border-black'>
-                AHNI {typeof fundRequest?.data.location === 'object' ? (fundRequest?.data.location?.state || 'STATE').toUpperCase() : 'STATE'} OFFICE APPROVAL
-              </div>
-              <table className='w-full border-collapse'>
-                <tr>
-                  <td className='border-r border-black p-4 w-1/2'>
-                    <div className='space-y-2'>
-                      <div className='font-bold'>Reviewed By:</div>
-                      <div className='text-sm'>{approvalHistory.find(a => a.id === 'state_reviewer')?.name || 'N/A'}</div>
-                    </div>
-                  </td>
-                  <td className='p-4 w-1/2'>
-                    <div className='space-y-2'>
-                      <div className='font-bold'>Authorised By:</div>
-                      <div className='text-sm'>{approvalHistory.find(a => a.id === 'state_authorizer')?.name || 'N/A'}</div>
-                    </div>
-                  </td>
-                </tr>
-                <tr>
-                  <td className='border-r border-t border-black p-4'>
-                    <div className='space-y-4'>
-                      <div className='font-bold'>Sign & Date:</div>
-                      <div className='h-16 flex items-center'>
-                        {(() => {
-                          const approval = approvalHistory.find(a => a.id === 'state_reviewer');
-                          const signDate = (approval as any)?.signDate;
-                          return signDate ?
-                            new Date(signDate).toLocaleDateString('en-US', {
-                              year: 'numeric',
-                              month: 'short',
-                              day: 'numeric'
-                            }) : '_________________';
-                        })()}
-                      </div>
-                      <div className='text-xs text-gray-600'>
-                        Status: {approvalHistory.find(a => a.id === 'state_reviewer')?.status || 'N/A'}
-                      </div>
-                    </div>
-                  </td>
-                  <td className='border-t border-black p-4'>
-                    <div className='space-y-4'>
-                      <div className='font-bold'>Sign & Date:</div>
-                      <div className='h-16 flex items-center'>
-                        {(() => {
-                          const approval = approvalHistory.find(a => a.id === 'state_authorizer');
-                          const signDate = (approval as any)?.signDate;
-                          return signDate ?
-                            new Date(signDate).toLocaleDateString('en-US', {
-                              year: 'numeric',
-                              month: 'short',
-                              day: 'numeric'
-                            }) : '_________________';
-                        })()}
-                      </div>
-                      <div className='text-xs text-gray-600'>
-                        Status: {approvalHistory.find(a => a.id === 'state_authorizer')?.status || 'N/A'}
-                      </div>
-                    </div>
-                  </td>
-                </tr>
-              </table>
-            </div>
-          )}
 
           {/* AHNI HEAD OFFICE ABUJA APPROVAL */}
           <div className='border-2 border-black'>

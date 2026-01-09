@@ -151,51 +151,30 @@ export const useGetAllDepartmentsUnrestricted = ({
   return useQuery<ApiResponse<TPaginatedResponse<DepartmentData>>>({
     queryKey: ["departments-unrestricted", page, size, search],
     queryFn: async () => {
-      // Try multiple endpoint patterns that might bypass permission filtering
-      const endpoints = [
-        "/admins/config/departments/",  // Admin endpoint pattern
-        "/config/departments/all/",     // All departments endpoint
-        "/hr/departments/",             // HR-specific endpoint
-        "/config/departments/"          // Original with special params
-      ];
-
-      const params = [
-        { page, size, search, access_scope: "global" },
-        { page, size, search, data_access_level: "global" },
-        { page, size, search, unrestricted: true },
-        { page, size, search, all: true },
-        { page, size: 2000000, search }  // Large size like users API
-      ];
-
-      for (let i = 0; i < endpoints.length; i++) {
-        try {
-          console.log(`🔍 Trying department endpoint ${i + 1}: ${endpoints[i]} with params:`, params[i % params.length]);
-          const response = await AxiosWithToken.get(endpoints[i], {
-            params: params[i % params.length]
-          });
-          console.log(`✅ SUCCESS with department endpoint ${i + 1}:`, response.data);
-          console.log(`📊 Department count from endpoint ${i + 1}:`, response.data?.data?.results?.length || response.data?.results?.length || 0);
-
-          // If we got more than 1 department, this endpoint worked
-          const resultCount = response.data?.data?.results?.length || response.data?.results?.length || 0;
-          if (resultCount > 1) {
-            console.log(`🎯 FOUND WORKING DEPARTMENT ENDPOINT: ${endpoints[i]} returned ${resultCount} departments!`);
-            return response.data;
-          } else if (i === endpoints.length - 1) {
-            // Last endpoint and still only 1 result - this confirms the permission filtering issue
-            console.warn(`⚠️ All department endpoints tested, but only ${resultCount} department(s) returned. This confirms backend permission filtering.`);
-            return response.data;
+      // Just use the standard endpoint - don't try multiple endpoints that may not exist
+      try {
+        const response = await AxiosWithToken.get("/config/departments/", {
+          params: { page, size, search }
+        });
+        return response.data;
+      } catch (error: any) {
+        console.warn('Department fetch failed, returning empty result:', error?.message);
+        // Return empty result structure instead of throwing
+        return {
+          status: true,
+          message: "No departments available",
+          data: {
+            results: [],
+            count: 0,
+            next: null,
+            previous: null
           }
-        } catch (error) {
-          console.log(`❌ Failed department endpoint ${i + 1} (${endpoints[i]}):`, error);
-          if (i === endpoints.length - 1) {
-            throw error; // Throw the last error if all attempts fail
-          }
-        }
+        };
       }
     },
     enabled,
     refetchOnWindowFocus: false,
+    retry: 1, // Only retry once
   });
 };
 

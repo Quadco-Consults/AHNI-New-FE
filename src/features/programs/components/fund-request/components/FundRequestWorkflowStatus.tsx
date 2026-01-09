@@ -49,8 +49,8 @@ const FundRequestWorkflowStatus: React.FC<FundRequestWorkflowStatusProps> = ({
   canReview = false,
   canLocationReview = false,
   canLocationAuthorize = false,
-  canStateReview = false,
-  canStateAuthorize = false,
+  canStateReview: _canStateReview = false,
+  canStateAuthorize: _canStateAuthorize = false,
   canReject = false,
 }) => {
   const [activeAction, setActiveAction] = useState<string | null>(null);
@@ -73,8 +73,6 @@ const FundRequestWorkflowStatus: React.FC<FundRequestWorkflowStatusProps> = ({
       "PENDING",
       "LOCATION_REVIEWED",
       "LOCATION_AUTHORIZED",
-      "STATE_REVIEWED",
-      "STATE_AUTHORIZED",
     ];
     const currentIndex = statusOrder.indexOf(currentStatus);
     const stepIndex = statusOrder.indexOf(stepStatus.toUpperCase());
@@ -92,7 +90,7 @@ const FundRequestWorkflowStatus: React.FC<FundRequestWorkflowStatusProps> = ({
       status: getStepStatus("PENDING"),
       description: "Review by location office",
       canAction: (canLocationReview && currentStatus === "PENDING") || (canOverrideApproval && currentStatus === "PENDING"),
-      actionLabel: (canLocationReview && currentStatus === "PENDING") ? "Location Review" : (canOverrideApproval ? "Override: Location Review" : "Location Review"),
+      actionLabel: "Review",
       actionType: "LOCATION_REVIEWED",
     },
     {
@@ -101,32 +99,14 @@ const FundRequestWorkflowStatus: React.FC<FundRequestWorkflowStatusProps> = ({
       status: getStepStatus("LOCATION_REVIEWED"),
       description: "Authorization from location office",
       canAction: (canLocationAuthorize && currentStatus === "LOCATION_REVIEWED") || (canOverrideApproval && currentStatus === "LOCATION_REVIEWED"),
-      actionLabel: (canLocationAuthorize && currentStatus === "LOCATION_REVIEWED") ? "Location Authorize" : (canOverrideApproval ? "Override: Location Authorize" : "Location Authorize"),
+      actionLabel: "Authorise",
       actionType: "LOCATION_AUTHORIZED",
     },
     {
       id: "LOCATION_AUTHORIZED",
-      title: "State Review",
-      status: getStepStatus("LOCATION_AUTHORIZED"),
-      description: "Review by state office",
-      canAction: (canStateReview && currentStatus === "LOCATION_AUTHORIZED") || (canOverrideApproval && currentStatus === "LOCATION_AUTHORIZED"),
-      actionLabel: (canStateReview && currentStatus === "LOCATION_AUTHORIZED") ? "State Review" : (canOverrideApproval ? "Override: State Review" : "State Review"),
-      actionType: "STATE_REVIEWED",
-    },
-    {
-      id: "STATE_REVIEWED",
-      title: "State Authorization",
-      status: getStepStatus("STATE_REVIEWED"),
-      description: "Authorization from state office",
-      canAction: (canStateAuthorize && currentStatus === "STATE_REVIEWED") || (canOverrideApproval && currentStatus === "STATE_REVIEWED"),
-      actionLabel: (canStateAuthorize && currentStatus === "STATE_REVIEWED") ? "State Authorize" : (canOverrideApproval ? "Override: State Authorize" : "State Authorize"),
-      actionType: "STATE_AUTHORIZED",
-    },
-    {
-      id: "STATE_AUTHORIZED",
       title: "Ready for HQ Approval",
-      status: getStepStatus("STATE_AUTHORIZED"),
-      description: "State approval complete - ready for project-level HQ approval",
+      status: getStepStatus("LOCATION_AUTHORIZED"),
+      description: "Location approval complete - ready for project-level HQ approval",
       canAction: false,
       actionLabel: "",
       actionType: undefined,
@@ -195,11 +175,7 @@ const FundRequestWorkflowStatus: React.FC<FundRequestWorkflowStatusProps> = ({
       case "LOCATION_REVIEWED":
         return "Awaiting location office authorization";
       case "LOCATION_AUTHORIZED":
-        return "Awaiting state office review";
-      case "STATE_REVIEWED":
-        return "Awaiting state office authorization";
-      case "STATE_AUTHORIZED":
-        return "State approval complete - ready for project-level HQ approval";
+        return "Location approval complete - ready for project-level HQ approval";
       case "HQ_REVIEWED":
         return "Under HQ review (project-level)";
       case "HQ_AUTHORIZED":
@@ -212,18 +188,6 @@ const FundRequestWorkflowStatus: React.FC<FundRequestWorkflowStatusProps> = ({
         return "Unknown status";
     }
   };
-  console.log('=== WORKFLOW STATUS DEBUG ===');
-  console.log('Current Status:', currentStatus);
-  console.log('Permissions:', {
-    canLocationReview,
-    canLocationAuthorize,
-    canStateReview,
-    canStateAuthorize,
-    canReject,
-  });
-  console.log('Workflow Steps:', workflowSteps);
-  console.log('Steps with canAction=true:', workflowSteps.filter(s => s.canAction));
-
   return (
     <Card className='p-6'>
       <div className='flex justify-between items-center mb-6'>

@@ -107,11 +107,33 @@ export default function ApplicationDetails() {
   // Generate options based on page type
   const contractRequestOptions = useMemo(() => {
     if (isAdhocPage) {
-      // Map adhoc requisitions
-      return adhocRequisitions?.data?.results?.map((req: any) => ({
-        label: req.requisition_number || req.title || req.position_title,
-        value: req.id,
-      })) || [];
+      // Map adhoc requisitions with more context for easy identification
+      // Filter to only show approved requisitions that haven't been converted yet
+      return adhocRequisitions?.data?.results
+        ?.filter((req: any) => req.status === "APPROVED" && !req.converted_to_advertisement)
+        ?.map((req: any) => {
+          // Build a descriptive label: "REQ-001 - Position Title (Department)"
+          const reqNumber = req.requisition_number || 'N/A';
+          const positionTitle = req.position_title || req.title || 'Untitled';
+          const department = typeof req.requesting_department === 'object'
+            ? req.requesting_department?.name
+            : req.requesting_department_name || '';
+          const priority = req.priority || '';
+
+          // Format: "REQ-001 - Data Analyst (Finance) - HIGH"
+          let label = `${reqNumber} - ${positionTitle}`;
+          if (department) {
+            label += ` (${department})`;
+          }
+          if (priority) {
+            label += ` - ${priority}`;
+          }
+
+          return {
+            label,
+            value: req.id,
+          };
+        }) || [];
     } else {
       // Map contract requests
       return contractRequests?.data?.results?.map(({ title, id }) => ({

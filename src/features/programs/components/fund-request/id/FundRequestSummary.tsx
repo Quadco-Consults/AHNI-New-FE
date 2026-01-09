@@ -1,14 +1,20 @@
 import DataTable from "components/Table/DataTable";
 import Card from "components/Card";
 import { useGetAllFundRequests } from "@/features/programs/controllers/fundRequestController";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { fundRequestSummaryColumns } from "@/features/programs/components/table-columns/fund-request/fund-request-summary";
 import TableFilters from "components/Table/TableFilters";
 import { useGetSingleProject, useGetAllProjects } from "@/features/projects/controllers/projectController";
+import { useMemo } from "react";
 
 export default function FundRequestSummary() {
     const params = useParams();
+    const searchParams = useSearchParams();
     const id = params?.id as string;
+
+    // Get year and month from query parameters
+    const yearFilter = searchParams?.get('year') || '';
+    const monthFilter = searchParams?.get('month') || '';
 
     // Decode the URL-encoded ID
     const decodedId = decodeURIComponent(id || "");
@@ -40,28 +46,46 @@ export default function FundRequestSummary() {
     // Use the actualProjectId if we have it, otherwise fallback to search parameter with the project_id
     // The 'project' param requires UUID, so if we don't have one, use 'search' instead
     const fundRequestParams = actualProjectId
-        ? { project: actualProjectId, size: 1000, enabled: true }
+        ? {
+            project: actualProjectId,
+            size: 1000,
+            enabled: true,
+            ...(yearFilter ? { year: parseInt(yearFilter) } : {}),
+            ...(monthFilter ? { month: monthFilter } : {}),
+          }
         : { search: decodedId, size: 1000, enabled: !!decodedId };
 
     const { data: fundRequest, isLoading } = useGetAllFundRequests(fundRequestParams);
 
-    // Debug: Log fund request data to check if activities are included
-    console.log('DEBUG: FundRequestSummary - decodedId:', decodedId);
-    console.log('DEBUG: FundRequestSummary - isUUID:', isUUID);
-    console.log('DEBUG: FundRequestSummary - project:', project);
-    console.log('DEBUG: FundRequestSummary - projectsBySearch:', projectsBySearch);
-    console.log('DEBUG: FundRequestSummary - actualProjectId:', actualProjectId);
-    console.log('DEBUG: FundRequestSummary - fundRequestParams:', fundRequestParams);
-    console.log('DEBUG: FundRequestSummary - fundRequest:', fundRequest);
-    console.log('DEBUG: Fund Request Data:', fundRequest?.data?.results);
-    console.log('DEBUG: Sample Fund Request:', fundRequest?.data?.results?.[0]);
-    console.log('DEBUG: Sample Activities:', fundRequest?.data?.results?.[0]?.activities);
+    // Filter fund requests by year and month on the client side as well
+    const filteredResults = useMemo(() => {
+        if (!fundRequest?.data?.results) return [];
+
+        let results = fundRequest.data.results;
+
+        // Filter by year if specified
+        if (yearFilter) {
+            results = results.filter(req => req.year === yearFilter);
+        }
+
+        // Filter by month if specified
+        if (monthFilter) {
+            results = results.filter(req => req.month === monthFilter);
+        }
+
+        return results;
+    }, [fundRequest?.data?.results, yearFilter, monthFilter]);
 
     return (
         <Card>
+            {(yearFilter || monthFilter) && (
+                <div className="mb-4 p-2 bg-blue-50 rounded text-sm text-blue-700">
+                    Showing fund requests for: {monthFilter} {yearFilter}
+                </div>
+            )}
             <TableFilters>
                 <DataTable
-                    data={fundRequest?.data?.results || []}
+                    data={filteredResults}
                     columns={fundRequestSummaryColumns}
                     isLoading={isLoading}
                     footer={true}

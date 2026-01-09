@@ -30,6 +30,8 @@ interface ProjectWithFundRequests {
   projectEndDate: string;
   approvalStage: string;
   fundRequests: FundRequestPaginatedData[];
+  // Composite key for grouping by project + year + month
+  groupKey: string;
 }
 
 // Helper function to safely extract project data
@@ -59,7 +61,7 @@ const extractLocationData = (request: FundRequestPaginatedData) => {
   return 'N/A';
 };
 
-// Helper function to group fund requests by project
+// Helper function to group fund requests by project + year + month
 // Sample data for when API is unavailable
 const getSampleFundRequests = (): ProjectWithFundRequests[] => [
   {
@@ -72,6 +74,19 @@ const getSampleFundRequests = (): ProjectWithFundRequests[] => [
     projectEndDate: "31/12/2024",
     approvalStage: "PENDING",
     fundRequests: [],
+    groupKey: "PROJ-001-2024-November",
+  },
+  {
+    projectId: "PROJ-001",
+    projectTitle: "Health Infrastructure Development",
+    state: "Lagos",
+    month: "December",
+    year: "2024",
+    projectStartDate: "01/01/2024",
+    projectEndDate: "31/12/2024",
+    approvalStage: "LOCATION_REVIEWED",
+    fundRequests: [],
+    groupKey: "PROJ-001-2024-December",
   },
   {
     projectId: "PROJ-002",
@@ -83,6 +98,7 @@ const getSampleFundRequests = (): ProjectWithFundRequests[] => [
     projectEndDate: "30/11/2024",
     approvalStage: "LOCATION_REVIEWED",
     fundRequests: [],
+    groupKey: "PROJ-002-2024-November",
   },
   {
     projectId: "PROJ-003",
@@ -94,11 +110,12 @@ const getSampleFundRequests = (): ProjectWithFundRequests[] => [
     projectEndDate: "28/02/2025",
     approvalStage: "HQ_APPROVED",
     fundRequests: [],
+    groupKey: "PROJ-003-2024-October",
   },
 ];
 
-const groupFundRequestsByProject = (fundRequests: FundRequestPaginatedData[]): ProjectWithFundRequests[] => {
-  const projectMap = new Map<string, ProjectWithFundRequests>();
+const groupFundRequestsByProjectYearMonth = (fundRequests: FundRequestPaginatedData[]): ProjectWithFundRequests[] => {
+  const groupMap = new Map<string, ProjectWithFundRequests>();
 
   fundRequests.forEach((request) => {
     const project = extractProjectData(request);
@@ -106,24 +123,64 @@ const groupFundRequestsByProject = (fundRequests: FundRequestPaginatedData[]): P
 
     if (!project.id) return; // Skip if no valid project ID
 
-    if (!projectMap.has(project.id)) {
-      projectMap.set(project.id, {
+    // Create composite key: project ID + year + month
+    const groupKey = `${project.id}-${request.year || 'Unknown'}-${request.month || 'Unknown'}`;
+
+    if (!groupMap.has(groupKey)) {
+      groupMap.set(groupKey, {
         projectId: project.id,
         projectTitle: project.title,
         state: state,
-        month: request.month,
-        year: request.year,
+        month: request.month || 'Unknown',
+        year: request.year || 'Unknown',
         projectStartDate: project.startDate,
         projectEndDate: project.endDate,
         approvalStage: request.status,
         fundRequests: [],
+        groupKey: groupKey,
       });
     }
 
-    projectMap.get(project.id)!.fundRequests.push(request);
+    // Update approval stage to the most recent/highest priority status in the group
+    const currentGroup = groupMap.get(groupKey)!;
+    currentGroup.fundRequests.push(request);
+
+    // Update the approval stage to show the "lowest" status (most pending)
+    // This helps show the overall progress of the group
+    const statusPriority: Record<string, number> = {
+      'PENDING': 1,
+      'LOCATION_REVIEWED': 2,
+      'LOCATION_AUTHORIZED': 3,
+      'HQ_REVIEWED': 4,
+      'HQ_AUTHORIZED': 5,
+      'HQ_APPROVED': 6,
+      'REJECTED': 0,
+    };
+
+    const currentPriority = statusPriority[currentGroup.approvalStage] || 0;
+    const newPriority = statusPriority[request.status] || 0;
+
+    // Show the lowest priority status (most pending work remaining)
+    if (newPriority < currentPriority || currentPriority === 0) {
+      currentGroup.approvalStage = request.status;
+    }
   });
 
-  return Array.from(projectMap.values());
+  // Sort by year (descending) then month (descending) for most recent first
+  const monthOrder: Record<string, number> = {
+    'January': 1, 'February': 2, 'March': 3, 'April': 4,
+    'May': 5, 'June': 6, 'July': 7, 'August': 8,
+    'September': 9, 'October': 10, 'November': 11, 'December': 12
+  };
+
+  return Array.from(groupMap.values()).sort((a, b) => {
+    // Sort by year descending
+    const yearDiff = parseInt(b.year) - parseInt(a.year);
+    if (yearDiff !== 0) return yearDiff;
+
+    // Then by month descending
+    return (monthOrder[b.month] || 0) - (monthOrder[a.month] || 0);
+  });
 };
 
 export default function FundRequest() {
@@ -140,7 +197,7 @@ export default function FundRequest() {
   const projectsWithFundRequests = useMemo(() => {
     // If API call succeeded, use real data
     if (fundRequestsResponse?.data?.results && !isError) {
-      return groupFundRequestsByProject(fundRequestsResponse.data.results);
+      return groupFundRequestsByProjectYearMonth(fundRequestsResponse.data.results);
     }
 
     // If API failed, use sample data to keep development flowing
@@ -342,12 +399,18 @@ const projectColumns: ColumnDef<ProjectWithFundRequests>[] = [
     header: "",
     id: "actions",
     size: 80,
-    cell: ({ row }) => (
-      <Link href={RouteEnum.PROGRAM_FUND_REQUEST_DETAILS.replace(":id", row.original.projectId)}>
-        <Button variant="ghost" size="sm" className="text-[#DEA004] hover:text-[#DEA004]">
-          View
-        </Button>
-      </Link>
-    ),
+    cell: ({ row }) => {
+      // Build URL with year and month as query parameters
+      const baseUrl = RouteEnum.PROGRAM_FUND_REQUEST_DETAILS.replace(":id", row.original.projectId);
+      const urlWithParams = `${baseUrl}?year=${encodeURIComponent(row.original.year)}&month=${encodeURIComponent(row.original.month)}`;
+
+      return (
+        <Link href={urlWithParams}>
+          <Button variant="ghost" size="sm" className="text-[#DEA004] hover:text-[#DEA004]">
+            View
+          </Button>
+        </Link>
+      );
+    },
   },
 ];

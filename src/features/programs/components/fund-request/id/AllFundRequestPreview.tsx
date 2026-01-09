@@ -308,7 +308,7 @@ ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}
       <body>
         <div class="header">
           <h1>Achieving Health Nigeria Initiative (AHNI)</h1>
-          <h2>FUND REQUEST SUMMARY</h2>
+          <h2>APPROVAL</h2>
         </div>
 
         <div class="info-grid">
@@ -380,7 +380,6 @@ ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}
 
         <div class="signature-grid">
           <div class="signature-box">
-            <div class="signature-line"></div>
             <div class="signature-info">
               <strong>Prepared by:</strong>
               <div>
@@ -395,7 +394,6 @@ ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}
           </div>
 
           <div class="signature-box">
-            <div class="signature-line"></div>
             <div class="signature-info">
               <strong>Reviewed by:</strong>
               <div>
@@ -410,7 +408,6 @@ ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}
           </div>
 
           <div class="signature-box">
-            <div class="signature-line"></div>
             <div class="signature-info">
               <strong>Authorized by:</strong>
               <div>
@@ -425,7 +422,6 @@ ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}
           </div>
 
           <div class="signature-box">
-            <div class="signature-line"></div>
             <div class="signature-info">
               <strong>Approved by:</strong>
               <div>
@@ -468,7 +464,7 @@ ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}
             <div className='flex items-center justify-center gap-2'>
               <div className='h-px bg-red-300 w-12'></div>
               <h2 className='text-red-600 font-bold text-xl tracking-wider uppercase'>
-                Fund Request Summary
+                Approval
               </h2>
               <div className='h-px bg-red-300 w-12'></div>
             </div>
@@ -600,93 +596,69 @@ ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}
             <div className='px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-purple-50 to-pink-50'>
               <h3 className='text-lg font-semibold text-gray-800 flex items-center gap-2'>
                 <div className='w-1 h-6 bg-purple-500 rounded-full'></div>
-                Approval Signatures
+                Approvals
               </h3>
-              <p className='text-sm text-gray-600 mt-1'>Required signatures for fund request approval workflow</p>
+              <p className='text-sm text-gray-600 mt-1'>Fund request approval workflow</p>
             </div>
             <div className='p-6'>
               <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
                 {/* Prepared By */}
-                <div className='bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-lg p-5 space-y-4'>
-                  <div className='space-y-2'>
-                    <h4 className='text-sm font-semibold text-blue-800 uppercase tracking-wide'>Signature:</h4>
-                    <div className='h-12 border-b-2 border-blue-300 bg-white rounded'></div>
+                <div className='bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-lg p-5 space-y-3'>
+                  <div className='flex justify-between items-start'>
+                    <span className='text-sm font-medium text-blue-700'>Prepared by:</span>
+                    <div className='text-right'>
+                      <p className='font-semibold text-sm text-gray-800'>{signatureInfo?.preparedBy?.name || 'N/A'}</p>
+                      <p className='text-xs text-gray-600 italic'>{signatureInfo?.preparedBy?.position || 'N/A'}</p>
+                    </div>
                   </div>
-                  <div className='space-y-3'>
-                    <div className='flex justify-between items-start'>
-                      <span className='text-sm font-medium text-blue-700'>Prepared by:</span>
-                      <div className='text-right'>
-                        <p className='font-semibold text-sm text-gray-800'>{signatureInfo?.preparedBy?.name || 'N/A'}</p>
-                        <p className='text-xs text-gray-600 italic'>{signatureInfo?.preparedBy?.position || 'N/A'}</p>
-                      </div>
-                    </div>
-                    <div className='flex justify-between items-center'>
-                      <span className='text-sm font-medium text-blue-700'>Date:</span>
-                      <span className='font-semibold text-sm text-gray-800'>{signatureInfo?.preparedBy?.date || 'N/A'}</span>
-                    </div>
+                  <div className='flex justify-between items-center'>
+                    <span className='text-sm font-medium text-blue-700'>Date:</span>
+                    <span className='font-semibold text-sm text-gray-800'>{signatureInfo?.preparedBy?.date || 'N/A'}</span>
                   </div>
                 </div>
 
                 {/* Reviewed By */}
-                <div className='bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-lg p-5 space-y-4'>
-                  <div className='space-y-2'>
-                    <h4 className='text-sm font-semibold text-green-800 uppercase tracking-wide'>Signature:</h4>
-                    <div className='h-12 border-b-2 border-green-300 bg-white rounded'></div>
+                <div className='bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-lg p-5 space-y-3'>
+                  <div className='flex justify-between items-start'>
+                    <span className='text-sm font-medium text-green-700'>Reviewed by:</span>
+                    <div className='text-right'>
+                      <p className='font-semibold text-sm text-gray-800'>{signatureInfo?.reviewedBy?.name || 'N/A'}</p>
+                      <p className='text-xs text-gray-600 italic'>{signatureInfo?.reviewedBy?.position || 'N/A'}</p>
+                    </div>
                   </div>
-                  <div className='space-y-3'>
-                    <div className='flex justify-between items-start'>
-                      <span className='text-sm font-medium text-green-700'>Reviewed by:</span>
-                      <div className='text-right'>
-                        <p className='font-semibold text-sm text-gray-800'>{signatureInfo?.reviewedBy?.name || 'N/A'}</p>
-                        <p className='text-xs text-gray-600 italic'>{signatureInfo?.reviewedBy?.position || 'N/A'}</p>
-                      </div>
-                    </div>
-                    <div className='flex justify-between items-center'>
-                      <span className='text-sm font-medium text-green-700'>Date:</span>
-                      <span className='font-semibold text-sm text-gray-800'>{signatureInfo?.reviewedBy?.date || 'N/A'}</span>
-                    </div>
+                  <div className='flex justify-between items-center'>
+                    <span className='text-sm font-medium text-green-700'>Date:</span>
+                    <span className='font-semibold text-sm text-gray-800'>{signatureInfo?.reviewedBy?.date || 'N/A'}</span>
                   </div>
                 </div>
 
                 {/* Authorized By */}
-                <div className='bg-gradient-to-br from-orange-50 to-orange-100 border border-orange-200 rounded-lg p-5 space-y-4'>
-                  <div className='space-y-2'>
-                    <h4 className='text-sm font-semibold text-orange-800 uppercase tracking-wide'>Signature:</h4>
-                    <div className='h-12 border-b-2 border-orange-300 bg-white rounded'></div>
+                <div className='bg-gradient-to-br from-orange-50 to-orange-100 border border-orange-200 rounded-lg p-5 space-y-3'>
+                  <div className='flex justify-between items-start'>
+                    <span className='text-sm font-medium text-orange-700'>Authorized by:</span>
+                    <div className='text-right'>
+                      <p className='font-semibold text-sm text-gray-800'>{signatureInfo?.authorizedBy?.name || 'N/A'}</p>
+                      <p className='text-xs text-gray-600 italic'>{signatureInfo?.authorizedBy?.position || 'N/A'}</p>
+                    </div>
                   </div>
-                  <div className='space-y-3'>
-                    <div className='flex justify-between items-start'>
-                      <span className='text-sm font-medium text-orange-700'>Authorized by:</span>
-                      <div className='text-right'>
-                        <p className='font-semibold text-sm text-gray-800'>{signatureInfo?.authorizedBy?.name || 'N/A'}</p>
-                        <p className='text-xs text-gray-600 italic'>{signatureInfo?.authorizedBy?.position || 'N/A'}</p>
-                      </div>
-                    </div>
-                    <div className='flex justify-between items-center'>
-                      <span className='text-sm font-medium text-orange-700'>Date:</span>
-                      <span className='font-semibold text-sm text-gray-800'>{signatureInfo?.authorizedBy?.date || 'N/A'}</span>
-                    </div>
+                  <div className='flex justify-between items-center'>
+                    <span className='text-sm font-medium text-orange-700'>Date:</span>
+                    <span className='font-semibold text-sm text-gray-800'>{signatureInfo?.authorizedBy?.date || 'N/A'}</span>
                   </div>
                 </div>
 
                 {/* Approved By */}
-                <div className='bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 rounded-lg p-5 space-y-4'>
-                  <div className='space-y-2'>
-                    <h4 className='text-sm font-semibold text-purple-800 uppercase tracking-wide'>Signature:</h4>
-                    <div className='h-12 border-b-2 border-purple-300 bg-white rounded'></div>
+                <div className='bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 rounded-lg p-5 space-y-3'>
+                  <div className='flex justify-between items-start'>
+                    <span className='text-sm font-medium text-purple-700'>Approved by:</span>
+                    <div className='text-right'>
+                      <p className='font-semibold text-sm text-gray-800'>{signatureInfo?.approvedBy?.name || 'N/A'}</p>
+                      <p className='text-xs text-gray-600 italic'>{signatureInfo?.approvedBy?.position || 'N/A'}</p>
+                    </div>
                   </div>
-                  <div className='space-y-3'>
-                    <div className='flex justify-between items-start'>
-                      <span className='text-sm font-medium text-purple-700'>Approved by:</span>
-                      <div className='text-right'>
-                        <p className='font-semibold text-sm text-gray-800'>{signatureInfo?.approvedBy?.name || 'N/A'}</p>
-                        <p className='text-xs text-gray-600 italic'>{signatureInfo?.approvedBy?.position || 'N/A'}</p>
-                      </div>
-                    </div>
-                    <div className='flex justify-between items-center'>
-                      <span className='text-sm font-medium text-purple-700'>Date:</span>
-                      <span className='font-semibold text-sm text-gray-800'>{signatureInfo?.approvedBy?.date || 'N/A'}</span>
-                    </div>
+                  <div className='flex justify-between items-center'>
+                    <span className='text-sm font-medium text-purple-700'>Date:</span>
+                    <span className='font-semibold text-sm text-gray-800'>{signatureInfo?.approvedBy?.date || 'N/A'}</span>
                   </div>
                 </div>
               </div>
