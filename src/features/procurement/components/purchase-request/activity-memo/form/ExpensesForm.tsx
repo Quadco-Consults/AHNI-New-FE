@@ -1,23 +1,23 @@
 "use client";
 
 import React from "react";
-import FormInput from "components/atoms/FormInput";
+import FormInput from "@/components/atoms/FormInput";
 
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-} from "components/ui/form";
+} from "@/components/ui/form";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "components/ui/select";
+} from "@/components/ui/select";
 import { MinusCircle } from "lucide-react";
 import { useFormContext } from "react-hook-form";
 import { useGetAllItems } from "@/features/modules/controllers/config/itemController";

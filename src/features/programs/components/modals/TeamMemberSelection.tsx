@@ -10,9 +10,9 @@ import { IUser } from "@/features/auth/types/user";
 import { Search } from "lucide-react";
 import { useState } from "react";
 import { useGetAllUsersManager } from "@/features/auth/controllers/userController";
-import { useAppDispatch, useAppSelector } from "hooks/useStore";
-import { addTeamMembers } from "store/admin/team-members";
-import { closeDialog } from "store/ui";
+import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
+import { addTeamMembers } from "@/store/admin/team-members";
+import { closeDialog } from "@/store/ui";
 import { filterAhniStaffOnly } from "@/utils/userFilters";
 import { useGetEmployeeOnboardings } from "@/features/hr/controllers/employeeOnboardingController";
 

@@ -2,9 +2,9 @@
 
 import React, { useEffect } from 'react';
 import { AlertTriangle, Clock, Users } from 'lucide-react';
-import { Button } from 'components/ui/button';
-import { Card } from 'components/ui/card';
-import { Badge } from 'components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { ApprovalFlow } from './ApprovalFlow';
 import { calculateUrgency, getUrgencyStyles, formatUrgencyNotification } from '../../utils/urgencyCalculator';

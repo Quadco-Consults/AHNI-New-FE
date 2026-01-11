@@ -1,9 +1,9 @@
 "use client";
 
-import FormInput from "components/atoms/FormInput";
-import Card from "components/Card";
-import { Button } from "components/ui/button";
-import { Form } from "components/ui/form";
+import FormInput from "@/components/atoms/FormInput";
+import Card from "@/components/Card";
+import { Button } from "@/components/ui/button";
+import { Form } from "@/components/ui/form";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 

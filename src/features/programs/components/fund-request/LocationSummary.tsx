@@ -1,10 +1,10 @@
 "use client";
 
 import { useMemo } from "react";
-import Card from "components/Card";
+import Card from "@/components/Card";
 import { useGetAllFundRequests } from "@/features/programs/controllers/fundRequestController";
-import { LoadingSpinner } from "components/Loading";
-import { Button } from "components/ui/button";
+import { LoadingSpinner } from "@/components/Loading";
+import { Button } from "@/components/ui/button";
 import { Download, Printer, ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import logoPng from "assets/imgs/logo.png";

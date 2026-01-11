@@ -1,6 +1,6 @@
-import DescriptionCard from "components/DescriptionCard";
-import { LoadingSpinner } from "components/Loading";
-import { Separator } from "components/ui/separator";
+import DescriptionCard from "@/components/DescriptionCard";
+import { LoadingSpinner } from "@/components/Loading";
+import { Separator } from "@/components/ui/separator";
 import { useParams } from "next/navigation";
 
 import { useGetEmployeeOnboardingBankAcct } from "@/features/hr/controllers/hrEmployeeOnboardingBankAccountController";

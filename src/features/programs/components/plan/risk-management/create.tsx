@@ -1,22 +1,22 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import LongArrowLeft from "components/icons/LongArrowLeft";
-import Card from "components/Card";
-import { Form } from "components/ui/form";
+import LongArrowLeft from "@/components/icons/LongArrowLeft";
+import Card from "@/components/Card";
+import { Form } from "@/components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
-import FormSelect from "components/atoms/FormSelectField";
-import FormInput from "components/atoms/FormInput";
-import FormTextArea from "components/atoms/FormTextArea";
-import { Button } from "components/ui/button";
-import { RouteEnum } from "constants/RouterConstants";
+import FormSelect from "@/components/atoms/FormSelectField";
+import FormInput from "@/components/atoms/FormInput";
+import FormTextArea from "@/components/atoms/FormTextArea";
+import { Button } from "@/components/ui/button";
+import { RouteEnum } from "@/constants/RouterConstants";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "@/components/FormButton";
 import {
   RiskPlanManagementSchema,
   TRiskPlanManagementFormValues,
-} from "features/programs/types/program-validator";
+} from "@/features/programs/types/program-validator";
 import {
   useCreateRiskManagementPlanController,
   useGetSingleRiskPlanManagement,
@@ -28,7 +28,7 @@ import { skipToken } from "@reduxjs/toolkit/query/react";
 import { useEffect } from "react";
 import { useGetAllRiskCategoryController } from "@/features/modules/controllers/program/riskCategoryController";
 import { useGetAllDepartments } from "@/features/modules/controllers/config/departmentController";
-import BreadcrumbCard, { TBreadcrumbList } from "components/Breadcrumb";
+import BreadcrumbCard, { TBreadcrumbList } from "@/components/Breadcrumb";
 
 const levelOptions = ["VERY_LOW", "LOW", "MEDIUM", "HIGH", "VERY_HIGH"].map(
   (option) => ({

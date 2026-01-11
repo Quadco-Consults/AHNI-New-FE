@@ -2,9 +2,9 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import RfqLayout from "./RfqLayout";
-import FormSelect from "components/atoms/FormSelectField";
-import { SelectContent, SelectItem } from "components/ui/select";
-import FormInput from "components/atoms/FormInput";
+import FormSelect from "@/components/atoms/FormSelectField";
+import { SelectContent, SelectItem } from "@/components/ui/select";
+import FormInput from "@/components/atoms/FormInput";
 import {
   SubmitHandler,
   useFieldArray,
@@ -17,9 +17,9 @@ import {
   usePathname,
   useSearchParams,
 } from "next/navigation";
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import FormButton from "@/components/FormButton";
-import { LoadingSpinner } from "components/Loading";
+import { LoadingSpinner } from "@/components/Loading";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useGetPurchaseRequests } from "@/features/procurement/controllers/purchaseRequestController";
 import {
@@ -29,8 +29,8 @@ import {
   DialogTrigger,
   DialogHeader,
   DialogDescription,
-} from "components/ui/dialog";
-import { Badge } from "components/ui/badge";
+} from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
 import logoPng from "assets/imgs/logo.png";
 
 import {
@@ -39,24 +39,24 @@ import {
   FormField,
   FormItem,
   FormMessage,
-} from "components/ui/form";
-import { Checkbox } from "components/ui/checkbox";
+} from "@/components/ui/form";
+import { Checkbox } from "@/components/ui/checkbox";
 
 import {
   SolicitationQuotationSchema,
   TSolicitationQuotationFormData,
 } from "@/features/procurement/types/procurement-validator";
-import FormTextArea from "components/atoms/FormTextArea";
+import FormTextArea from "@/components/atoms/FormTextArea";
 import { useGetAllEois } from "@/features/procurement/controllers/eoiController";
 import { VendorsResultsData } from "@/features/procurement/types/vendors";
 import { useGetVendors } from "@/features/procurement/controllers/vendorsController";
 import { useGetAllCategories } from "@/features/modules/controllers/config/categoryController";
-import { Input } from "components/ui/input";
+import { Input } from "@/components/ui/input";
 import { Icon } from "@iconify/react";
 import { DialogClose } from "@radix-ui/react-dialog";
-import AddSquareIcon from "components/icons/AddSquareIcon";
-import FadedButton from "components/atoms/FadedButton";
-import DeleteIcon from "components/icons/DeleteIcon";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
+import FadedButton from "@/components/atoms/FadedButton";
+import DeleteIcon from "@/components/icons/DeleteIcon";
 import { motion } from "framer-motion";
 import { Upload as UploadFile, Search } from 'lucide-react';
 import { CategoryResultsData } from "@/features/admin/types/configs-types/category";

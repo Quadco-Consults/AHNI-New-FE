@@ -2,17 +2,17 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { Form } from "components/ui/form";
-import FormInput from "components/atoms/FormInput";
-import BackNavigation from "components/atoms/BackNavigation";
-import { Card, CardContent } from "components/ui/card";
+import { Form } from "@/components/ui/form";
+import FormInput from "@/components/atoms/FormInput";
+import BackNavigation from "@/components/atoms/BackNavigation";
+import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation"; 
-import { CG_ROUTES } from "constants/RouterConstants";
+import { CG_ROUTES } from "@/constants/RouterConstants";
 import { useEffect, useMemo } from "react";
-import FormTextArea from "components/atoms/FormTextArea";
+import FormTextArea from "@/components/atoms/FormTextArea";
 import {
     ConsultancyReportSchema,
     TConsultancyReportFormData,
@@ -23,7 +23,7 @@ import {
     useUpdateConsultancyReport,
 } from "@/features/contracts-grants/controllers/consultancyReportController";
 import FormButton from "@/components/FormButton";
-import FormCombobox from "components/atoms/FormCombobox";
+import FormCombobox from "@/components/atoms/FormCombobox";
 import { useGetAllUsers } from "@/features/auth/controllers/userController";
 import { useGetAllConsultancyApplicants } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
 import { useGetAllProjects } from "@/features/projects/controllers/projectController";

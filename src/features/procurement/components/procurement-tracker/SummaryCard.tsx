@@ -1,6 +1,6 @@
 import { ColumnDef } from "@tanstack/react-table";
-import Card from "components/Card";
-import DataTable from "components/Table/DataTable";
+import Card from "@/components/Card";
+import DataTable from "@/components/Table/DataTable";
 import { usePathname } from "next/navigation";
 import { TPaginatedResponse } from "definations/index";
 import { ProcurementTrackerResults } from "../../types/procurementPlan";

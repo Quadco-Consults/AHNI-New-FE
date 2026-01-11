@@ -1,18 +1,18 @@
 "use client";
 
-import Card from "components/Card";
-import { Button } from "components/ui/button";
-import { Label } from "components/ui/label";
+import Card from "@/components/Card";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import { ArrowLeft } from "lucide-react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
-import { Loading } from "components/Loading";
+import { Loading } from "@/components/Loading";
 import { skipToken } from "@reduxjs/toolkit/query/react";
 import { useGetSingleSupervisionPlan } from "@/features/programs/controllers/supervisionPlanController";
-import BreadcrumbCard from "components/Breadcrumb";
-import { ProgramRoutes, RouteEnum } from "constants/RouterConstants";
+import BreadcrumbCard from "@/components/Breadcrumb";
+import { ProgramRoutes, RouteEnum } from "@/constants/RouterConstants";
 import { useGetAllSupervisionPlanReviews } from "@/features/programs/controllers/supervisionPlanReviewController";
-import FadedButton from "components/atoms/FadedButton";
+import FadedButton from "@/components/atoms/FadedButton";
 
 const breadcrumbs = [
   { name: "Programs", icon: true },

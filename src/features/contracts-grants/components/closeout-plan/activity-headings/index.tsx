@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import Card from "components/Card";
-import { Button } from "components/ui/button";
+import Card from "@/components/Card";
+import { Button } from "@/components/ui/button";
 import { PlusIcon } from "lucide-react";
-import DataTable from "components/Table/DataTable";
-import TableFilters from "components/Table/TableFilters";
+import DataTable from "@/components/Table/DataTable";
+import TableFilters from "@/components/Table/TableFilters";
 import { useGetAllActivityHeadings } from "@/features/contracts-grants/controllers/activityHeadingController";
 import { activityHeadingColumns } from "@/features/contracts-grants/components/table-columns/closeout-plan/activity-headings";
 import CreateEditModal from "./CreateEditModal";

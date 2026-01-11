@@ -1,5 +1,5 @@
-import Card from "components/Card";
-import SupportiveSupervisionPlanHeading from "components/SupportiveSupervisionPlanHeading";
+import Card from "@/components/Card";
+import SupportiveSupervisionPlanHeading from "@/components/SupportiveSupervisionPlanHeading";
 import { FC, ReactNode } from "react";
 
 type IPageProps = {

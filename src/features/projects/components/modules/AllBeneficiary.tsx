@@ -1,18 +1,18 @@
-import { Button } from "components/ui/button";
-import { Card } from "components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
-import { useAppDispatch } from "hooks/useStore";
-import { openDialog } from "store/ui";
-import { DialogType } from "constants/dailogs";
-import TableAction from "components/TableAction";
+import { useAppDispatch } from "@/hooks/useStore";
+import { openDialog } from "@/store/ui";
+import { DialogType } from "@/constants/dailogs";
+import TableAction from "@/components/TableAction";
 
-import { LoadingSpinner } from "components/Loading";
+import { LoadingSpinner } from "@/components/Loading";
 import {
     useDeleteBeneficiaryMutation,
     useGetAllBeneficiaries,
 } from "@/features/modules/controllers/project/beneficiaryController";
 import { useState } from "react";
-import Pagination from "components/Pagination";
+import Pagination from "@/components/Pagination";
 
 export default function AllBeneficiary() {
     const [page, setPage] = useState(1);

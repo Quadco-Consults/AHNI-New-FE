@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
-import { Button } from "components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 import { CheckCircle, FileText, ArrowLeft, Award, FileCheck } from "lucide-react";
 import { toast } from "sonner";
 import { skipToken } from "@reduxjs/toolkit/query";
@@ -14,9 +14,9 @@ import { useShortlistSubmissions } from "@/features/contracts-grants/controllers
 import { useGetAllAssessments } from "@/features/contracts-grants/controllers/preAwardAssessmentController";
 import OrganizationDetails from "./organization-details";
 import SubGrantUploadDetail from "./uploads";
-import Card from "components/Card";
-import { Badge } from "components/ui/badge";
-import { Loading } from "components/Loading";
+import Card from "@/components/Card";
+import { Badge } from "@/components/ui/badge";
+import { Loading } from "@/components/Loading";
 
 export default function SubGrantSubmissionDetailWithTabs() {
     const [tabValue, setTabValue] = useState("organization");

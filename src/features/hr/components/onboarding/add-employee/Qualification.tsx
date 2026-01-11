@@ -3,18 +3,18 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import { useParams } from "next/navigation";
-import { Form } from "components/ui/form";
-import { Separator } from "components/ui/separator";
+import { Form } from "@/components/ui/form";
+import { Separator } from "@/components/ui/separator";
 import { Save } from "lucide-react";
-import { openDialog } from "store/ui";
-import { DialogType } from "constants/dailogs";
-import { useAppDispatch } from "hooks/useStore";
-import FormInput from "components/atoms/FormInput";
-import FileUpload from "components/atoms/FileUpload";
+import { openDialog } from "@/store/ui";
+import { DialogType } from "@/constants/dailogs";
+import { useAppDispatch } from "@/hooks/useStore";
+import FormInput from "@/components/atoms/FormInput";
+import FileUpload from "@/components/atoms/FileUpload";
 import {
   WorkforceQualificationFormValues,
   workforceQualificationSchema,
-} from "features/hr/types/hr-validator";
+} from "@/features/hr/types/hr-validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import FormButton from "@/components/FormButton";
@@ -24,7 +24,7 @@ import {
 } from "@/features/hr/controllers/hrEmployeeOnboardingQualificationsController";
 import { EmployeeOnboardingQualifications } from "definations/hr-types/employee-onboarding";
 
-import { createFileObjectFromUrl } from "utils/get-file-extension";
+import { createFileObjectFromUrl } from "@/utils/get-file-extension";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 
 const Qualification = ({

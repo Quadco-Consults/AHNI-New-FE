@@ -1,14 +1,14 @@
 "use client";
 
-import Card from "components/Card";
-import BreadcrumbCard, { TBreadcrumbList } from "components/Breadcrumb";
-import { useParams } from "next/navigation";
+import Card from "@/components/Card";
+import BreadcrumbCard, { TBreadcrumbList } from "@/components/Breadcrumb";
+import { useParams, useRouter } from "next/navigation";
 import { useGetSingleWorkPlan } from "@/features/programs/controllers/workPlanController";
 import { skipToken } from "@reduxjs/toolkit/query";
-import { LoadingSpinner } from "components/Loading";
+import { LoadingSpinner } from "@/components/Loading";
 import Link from "next/link";
-import { Button } from "components/ui/button";
-import { FileText, PlusCircle, Activity } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { FileText, PlusCircle, Activity, ArrowLeft } from "lucide-react";
 
 const breadcrumbs: TBreadcrumbList[] = [
   { name: "Programs", icon: true },
@@ -18,6 +18,7 @@ const breadcrumbs: TBreadcrumbList[] = [
 ];
 
 export default function ActivityTypeSummary() {
+  const router = useRouter();
   const { id } = useParams();
 
   // Fetch work plan to get context info
@@ -28,6 +29,18 @@ export default function ActivityTypeSummary() {
   return (
     <div className="space-y-6">
       <BreadcrumbCard list={breadcrumbs} />
+
+      <div className="flex items-center gap-4">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => router.push("/dashboard/programs/plan/activity")}
+          className="flex items-center gap-2"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back
+        </Button>
+      </div>
 
       {/* Work Plan Context Info */}
       {workPlan?.data && (

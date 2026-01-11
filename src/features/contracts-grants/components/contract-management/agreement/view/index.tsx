@@ -11,16 +11,16 @@ import {
     useApproveAgreement,
     useRejectAgreement,
 } from "@/features/contracts-grants/controllers/agreementController";
-import { Button } from "components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "components/ui/card";
-import { Skeleton } from "components/ui/skeleton";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "components/ui/dialog";
-import { Label } from "components/ui/label";
-import { Input } from "components/ui/input";
-import { Textarea } from "components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, FileText, Plus, Download, Eye, RefreshCw, CheckCircle, AlertCircle, Building2, Calendar, DollarSign, MapPin, User, Phone, Mail, ThumbsUp, ThumbsDown, Clock, Circle } from "lucide-react";
-import { CG_ROUTES } from "constants/RouterConstants";
+import { CG_ROUTES } from "@/constants/RouterConstants";
 import { toast } from "sonner";
 import { IContractDocument } from "@/features/contracts-grants/types/contract-management/agreement";
 

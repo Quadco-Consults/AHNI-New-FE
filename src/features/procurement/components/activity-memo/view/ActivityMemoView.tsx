@@ -1,15 +1,15 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import Card from "components/Card";
-import { Button } from "components/ui/button";
+import Card from "@/components/Card";
+import { Button } from "@/components/ui/button";
 import { Edit, Download, AlertCircle, Loader2 } from 'lucide-react';
 import { Icon } from "@iconify/react";
 import { useGetActivityMemo } from "@/features/procurement/controllers/activityMemoController";
 import { format } from "date-fns";
 import { useState, useRef } from "react";
 import logoPng from "assets/imgs/logo.png";
-import GoBack from "components/GoBack";
+import GoBack from "@/components/GoBack";
 import ActivityMemoApprovalWorkflow from "@/features/procurement/components/activity-memo/ActivityMemoApprovalWorkflow";
 import { useGetUserProfile } from "@/features/auth/controllers/userController";
 

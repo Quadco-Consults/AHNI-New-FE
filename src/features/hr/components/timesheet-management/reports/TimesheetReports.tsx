@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
-import { Card } from "components/ui/card";
-import { Badge } from "components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import {
   Download,
   FileText,
@@ -21,7 +21,7 @@ import {
   ChevronRight,
   Eye
 } from "lucide-react";
-import DataTable from "components/Table/DataTable";
+import DataTable from "@/components/Table/DataTable";
 import { ColumnDef } from "@tanstack/react-table";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";

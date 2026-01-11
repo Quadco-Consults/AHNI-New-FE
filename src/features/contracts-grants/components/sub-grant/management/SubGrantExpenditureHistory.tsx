@@ -2,10 +2,10 @@
 
 import React, { useMemo, useState } from "react";
 import { TotalExpenditureSvg, TotalIncomeSvg } from "assets/svgs/CAndGSvgs";
-import DataTable from "components/Table/DataTable";
+import DataTable from "@/components/Table/DataTable";
 import { expenditureColumns } from "@/features/contracts-grants/components/table-columns/grant/expenditure";
 import { useGetAllSubGrantExpenditures } from "@/features/contracts-grants/controllers/subGrantExpenditureController";
-import { formatNumberCurrency } from "utils/utls";
+import { formatNumberCurrency } from "@/utils/utls";
 
 interface SubGrantExpenditureHistoryProps {
   subGrantId: string;

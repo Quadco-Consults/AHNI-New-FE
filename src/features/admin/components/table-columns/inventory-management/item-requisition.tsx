@@ -1,15 +1,15 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { TItemRequisitionPaginatedData } from "definations/admin/inventory-management/item-requisition";
-import ApproveIcon from "components/icons/ApproveIcon";
-import DeleteIcon from "components/icons/DeleteIcon";
-import EyeIcon from "components/icons/EyeIcon";
-import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
+import ApproveIcon from "@/components/icons/ApproveIcon";
+import DeleteIcon from "@/components/icons/DeleteIcon";
+import EyeIcon from "@/components/icons/EyeIcon";
+import MoreOptionsHorizontalIcon from "@/components/icons/MoreOptionsHorizontalIcon";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import Link from "next/link";
-import { Button } from "components/ui/button";
-import { AdminRoutes } from "constants/RouterConstants";
-import ConfirmationDialog from "components/ConfirmationDialog";
+import { Button } from "@/components/ui/button";
+import { AdminRoutes } from "@/constants/RouterConstants";
+import ConfirmationDialog from "@/components/ConfirmationDialog";
 import { useState } from "react";
 import {
   useDeleteItemRequisition,
@@ -18,9 +18,9 @@ import {
   useIssueItemRequisition,
 } from "@/features/admin/controllers/itemRequisitionController";
 import { toast } from "sonner";
-import PencilIcon from "components/icons/PencilIcon";
-import { Badge } from "components/ui/badge";
-import { cn } from "lib/utils";
+import PencilIcon from "@/components/icons/PencilIcon";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 export const itemRequisitionColumns: ColumnDef<TItemRequisitionPaginatedData>[] =
   [

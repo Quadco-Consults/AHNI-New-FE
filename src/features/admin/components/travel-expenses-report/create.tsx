@@ -1,23 +1,23 @@
 "use client";
 
-import Card from "components/Card";
-import { CardContent, CardHeader } from "components/ui/card";
+import Card from "@/components/Card";
+import { CardContent, CardHeader } from "@/components/ui/card";
 import { FormProvider, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import FormInput from "components/atoms/FormInput";
-import FormSelect from "components/atoms/FormSelect";
+import FormInput from "@/components/atoms/FormInput";
+import FormSelect from "@/components/atoms/FormSelect";
 import FormButton from "@/components/FormButton";
-import FileUpload from "components/FileUpload";
+import FileUpload from "@/components/FileUpload";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Button } from "components/ui/button";
-import { AdminRoutes } from "constants/RouterConstants";
-import BackNavigation from "components/atoms/BackNavigation";
-import { Separator } from "components/ui/separator";
+import { Button } from "@/components/ui/button";
+import { AdminRoutes } from "@/constants/RouterConstants";
+import BackNavigation from "@/components/atoms/BackNavigation";
+import { Separator } from "@/components/ui/separator";
 import { useEffect, useMemo, useCallback, useState } from "react";
 import { toast } from "sonner";
-import AddSquareIconFaded from "components/icons/AddSquareIconFaded";
-import DeleteIcon from "components/icons/DeleteIcon";
+import AddSquareIconFaded from "@/components/icons/AddSquareIconFaded";
+import DeleteIcon from "@/components/icons/DeleteIcon";
 import {
   TravelExpenseSchema,
   TTravelExpenseFormData

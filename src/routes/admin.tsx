@@ -1,4 +1,4 @@
-import { RouteEnum, AdminRoutes } from "constants/RouterConstants";
+import { RouteEnum, AdminRoutes } from "@/constants/RouterConstants";
 
 import { lazy } from "react";
 import { Navigate } from "react-router-dom"; 

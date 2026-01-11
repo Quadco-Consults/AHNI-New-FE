@@ -14,7 +14,7 @@ import { z } from "zod";
 import { Input } from "@/components/ui/input";
 import Modal from "react-modal";
 import { toast } from "sonner";
-import { closeDialog } from "store/ui";
+import { closeDialog } from "@/store/ui";
 import { useDispatch } from "react-redux";
 import { useGetAllProjects } from "@/features/projects/controllers/projectController";
 import { useGetAllFinancialYears } from "@/features/modules/controllers/config/financialYearController";

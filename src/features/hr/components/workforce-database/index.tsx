@@ -11,10 +11,10 @@ import MoreOptionsHorizontalIcon from "@/components/icons/MoreOptionsHorizontalI
 import SearchIcon from "@/components/icons/SearchIcon";
 import Card from "@/components/Card";
 import DataTable from "@/components/Table/DataTable";
-import { Button } from "components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "components/ui/dialog";
-import { HrRoutes } from "constants/RouterConstants";
+import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { HrRoutes } from "@/constants/RouterConstants";
 import { EmployeeOnboarding } from "@/features/hr/types/employee-onboarding";
 
 // Extended type for workforce database that includes additional fields

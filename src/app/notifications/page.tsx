@@ -2,12 +2,12 @@
 
 import { redirect } from "next/navigation";
 import { useEffect, useState } from "react";
-import { getAccessToken } from "utils/auth";
-import Footer from "components/Footer";
-import Header from "components/Header";
-import Sidebar from "components/Sidebar";
-import Suspense from "components/Suspense";
-import { cn } from "lib/utils";
+import { getAccessToken } from "@/utils/auth";
+import Footer from "@/components/Footer";
+import Header from "@/components/Header";
+import Sidebar from "@/components/Sidebar";
+import Suspense from "@/components/Suspense";
+import { cn } from "@/lib/utils";
 import Notifications from "@/features/notifications/components/notifications";
 
 export default function NotificationsPage() {

@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { TNotification } from "@/features/notifications/controllers/notificationController";
 import NotificationItem from "./NotificationItem";
-import { Button } from "components/ui/button";
-import { Badge } from "components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { ChevronDown } from 'lucide-react';import { Icon } from "@iconify/react";
 
 

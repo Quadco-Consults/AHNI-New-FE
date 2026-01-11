@@ -1,16 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "components/ui/card";
-import { Badge } from "components/ui/badge";
-import { Separator } from "components/ui/separator";
-import { Textarea } from "components/ui/textarea";
-import { Label } from "components/ui/label";
-import { RadioGroup, RadioGroupItem } from "components/ui/radio-group";
-import { Checkbox } from "components/ui/checkbox";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 // Import all approval workflow hooks
 import {

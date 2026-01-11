@@ -1,9 +1,9 @@
 import { ColumnDef } from "@tanstack/react-table";
-import EyeIcon from "components/icons/EyeIcon";
-import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
-import { Button } from "components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { Badge } from "components/ui/badge";
+import EyeIcon from "@/components/icons/EyeIcon";
+import MoreOptionsHorizontalIcon from "@/components/icons/MoreOptionsHorizontalIcon";
+import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { VendorsResultsData } from "definations/procurement-types/vendors";
 import { useGetVendorFuelStatistics } from "@/features/admin/controllers/fuelConsumptionController";

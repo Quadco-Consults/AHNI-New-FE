@@ -2,12 +2,12 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
-import Card from "components/Card";
-import BackNavigation from "components/BackNavigation";
-import { Button } from "components/ui/button";
+import Card from "@/components/Card";
+import BackNavigation from "@/components/BackNavigation";
+import { Button } from "@/components/ui/button";
 import { useGetSingleConsultancyApplicant } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
 import { DollarSign, Calendar, CheckCircle, Clock, XCircle, Plus, FileText, TrendingUp } from "lucide-react";
-import { LoadingSpinner } from "components/Loading";
+import { LoadingSpinner } from "@/components/Loading";
 
 // Mock payment data - Replace with actual API call
 const mockPayments = [

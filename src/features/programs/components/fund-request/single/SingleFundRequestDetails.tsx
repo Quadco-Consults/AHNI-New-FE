@@ -1,19 +1,19 @@
 "use client";
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useRouter, useParams, useSearchParams } from "next/navigation";
-import Card from "components/Card";
-import { Button } from "components/ui/button";
-import { LoadingSpinner } from "components/Loading";
+import Card from "@/components/Card";
+import { Button } from "@/components/ui/button";
+import { LoadingSpinner } from "@/components/Loading";
 import { useGetSingleFundRequest, useGetAllFundRequests } from "@/features/programs/controllers/fundRequestController";
 import { useGetSingleProject } from "@/features/projects/controllers/projectController";
 import FundRequestWorkflowStatus from "../components/FundRequestWorkflowStatus";
 import { useGetUserProfile } from "@/features/auth/controllers";
 import { useMemo, useEffect } from "react";
-import { Badge } from "components/ui/badge";
+import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Eye, Printer } from "lucide-react";
 import Link from "next/link";
-import { RouteEnum } from "constants/RouterConstants";
+import { RouteEnum } from "@/constants/RouterConstants";
 import { FundRequestPaginatedData } from "@/features/programs/types/fund-request";
 
 export default function SingleFundRequestDetails() {

@@ -10,18 +10,18 @@ import {
   IDisbursementPaginatedData,
   DisbursementSchema,
   TDisbursementFormData,
-} from "features/contracts-grants/types/grants";
-import { useAppDispatch, useAppSelector } from "hooks/useStore";
+} from "@/features/contracts-grants/types/grants";
+import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { closeDialog } from "store/ui";
+import { closeDialog } from "@/store/ui";
 import {
   useCreateDisbursement,
   useUpdateDisbursement,
   useCreateSubGrantDisbursement,
   useUpdateSubGrantDisbursement
 } from "../../controllers/disbursementController";
-import { queryClient } from "constants/mainController";
+import { queryClient } from "@/constants/mainController";
 
 
 export default function DisbursementModal() {

@@ -1,18 +1,18 @@
-import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
-import EyeIcon from "components/icons/EyeIcon";
-import DeleteIcon from "components/icons/DeleteIcon";
+import MoreOptionsHorizontalIcon from "@/components/icons/MoreOptionsHorizontalIcon";
+import EyeIcon from "@/components/icons/EyeIcon";
+import DeleteIcon from "@/components/icons/DeleteIcon";
 import { ColumnDef } from "@tanstack/react-table";
 import { useState } from "react";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { AdminRoutes } from "constants/RouterConstants";
-import ConfirmationDialog from "components/ConfirmationDialog";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { AdminRoutes } from "@/constants/RouterConstants";
+import ConfirmationDialog from "@/components/ConfirmationDialog";
 import { ITravelExpensePaginatedData } from "definations/admin/travel-expense";
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { formatDate } from "date-fns";
-import { Badge } from "components/ui/badge";
-import { cn } from "lib/utils";
-import PencilIcon from "components/icons/PencilIcon";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import PencilIcon from "@/components/icons/PencilIcon";
 import { toast } from "sonner";
 import { useDeleteTravelExpense } from "@/features/admin/controllers/travelExpenseController";
 

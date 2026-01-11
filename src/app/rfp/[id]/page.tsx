@@ -5,11 +5,11 @@ import { useParams } from "next/navigation";
 import { useState } from "react";
 import Registration from "@/features/procurement/components/vendor-management/vendor-registration/Registration";
 import { useGetPublicOpportunity } from "@/features/procurement/controllers/solicitationController";
-import { LoadingSpinner } from "components/Loading";
+import { LoadingSpinner } from "@/components/Loading";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "components/ui/button";
-import { Badge } from "components/ui/badge";
-import { Alert, AlertDescription } from "components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
 
 Building2,

@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Button } from "components/ui/button";
-import { Input } from "components/ui/input";
-import { Label } from "components/ui/label";
-import { Card } from "components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -13,7 +13,7 @@ import {
   DialogTrigger,
   DialogDescription,
   DialogFooter
-} from "components/ui/dialog";
+} from "@/components/ui/dialog";
 import {
   Upload,
   Download,
@@ -25,7 +25,7 @@ import {
   Info
 } from "lucide-react";
 import { toast } from "sonner";
-import { Alert, AlertDescription } from "components/ui/alert";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CreateCostCategoryManager } from "@/features/modules/controllers/finance/costCategoryController";
 
 interface ActivityImportData {

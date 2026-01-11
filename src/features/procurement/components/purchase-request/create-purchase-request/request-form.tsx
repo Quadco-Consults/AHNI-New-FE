@@ -1,15 +1,15 @@
-import AddSquareIcon from "components/icons/AddSquareIcon";
-import Card from "components/Card";
-import { Badge } from "components/ui/badge";
-import { Button } from "components/ui/button";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
+import Card from "@/components/Card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
   TableCell,
   TableHeader,
   TableRow,
-} from "components/ui/table";
-import { RouteEnum } from "constants/RouterConstants";
+} from "@/components/ui/table";
+import { RouteEnum } from "@/constants/RouterConstants";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import logoPng from "@/assets/svgs/logo-bg.svg";

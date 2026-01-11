@@ -3,19 +3,19 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Card, CardContent, CardHeader, CardTitle } from "components/ui/card";
-import { Button } from "components/ui/button";
-import { Badge } from "components/ui/badge";
-import { Alert, AlertDescription } from "components/ui/alert";
-import { Input } from "components/ui/input";
-import { Textarea } from "components/ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "components/ui/select";
+} from "@/components/ui/select";
 import {
   Form,
   FormControl,
@@ -23,8 +23,8 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "components/ui/form";
-import { LoadingSpinner } from "components/Loading";
+} from "@/components/ui/form";
+import { LoadingSpinner } from "@/components/Loading";
 import { toast } from "sonner";
 import {
   CalendarDays,

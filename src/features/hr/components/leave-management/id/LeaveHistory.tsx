@@ -8,15 +8,15 @@ import {
   Clock,
 } from "lucide-react";
 import { Icon } from "@iconify/react";
-import DataTable from "components/Table/DataTable";
+import DataTable from "@/components/Table/DataTable";
 import { ColumnDef } from "@tanstack/react-table";
-import { Badge } from "components/ui/badge";
-import { cn, truncateStringLength } from "lib/utils";
-import { Checkbox } from "components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
+import { cn, truncateStringLength } from "@/lib/utils";
+import { Checkbox } from "@/components/ui/checkbox";
 import Link from "next/link"; 
 import { useRouter } from "next/navigation";
-import { HrRoutes } from "constants/RouterConstants";
-import IconButton from "components/IconButton";
+import { HrRoutes } from "@/constants/RouterConstants";
+import IconButton from "@/components/IconButton";
 
 const LeaveHistory: React.FC = () => {
   const router = useRouter();

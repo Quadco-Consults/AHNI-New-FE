@@ -1,10 +1,10 @@
-import BackNavigation from "components/atoms/BackNavigation";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
+import BackNavigation from "@/components/atoms/BackNavigation";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PartnerSubmissionDetails from "./organization-details";
 import SubGrantUploadDetail from "./uploads";
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import { generatePath, Link, useParams } from "react-router-dom"; 
-import { CG_ROUTES } from "constants/RouterConstants";
+import { CG_ROUTES } from "@/constants/RouterConstants";
 
 export default function PartnerSubmissionDetailsWrapper() {
     const { subGrantId, partnerSubId } = useParams();

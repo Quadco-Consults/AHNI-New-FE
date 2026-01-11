@@ -1,8 +1,8 @@
 "use client";
 
-import GoBack from "components/GoBack";
+import GoBack from "@/components/GoBack";
 import CreatePurchaseRequestForm from "./form";
-import BreadcrumbCard from "components/Breadcrumb";
+import BreadcrumbCard from "@/components/Breadcrumb";
 import { useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 import { useGetPurchaseRequestById } from "@/features/procurement/controllers/purchaseRequestController";

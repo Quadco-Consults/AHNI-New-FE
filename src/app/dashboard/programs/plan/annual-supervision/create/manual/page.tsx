@@ -1,13 +1,13 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import BreadcrumbCard from "components/Breadcrumb";
-import { Button } from "components/ui/button";
-import { Card, CardContent } from "components/ui/card";
+import BreadcrumbCard from "@/components/Breadcrumb";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft, Edit3 } from "lucide-react";
 import AnnualPlanManualForm from "@/features/programs/components/plan/annual-supervision/AnnualPlanManualForm";
 import { useGetSingleAnnualPlan } from "@/features/programs/controllers/annualSupervisionPlanController";
-import { LoadingSpinner } from "components/Loading";
+import { LoadingSpinner } from "@/components/Loading";
 
 const ManualAnnualSupervisionPlanPage = () => {
   const router = useRouter();

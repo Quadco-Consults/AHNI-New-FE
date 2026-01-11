@@ -1,4 +1,4 @@
-import { TFundRequestActivity } from "features/programs/types/program-validator";
+import { TFundRequestActivity } from "@/features/programs/types/program-validator";
 import { useMemo } from "react";
 import {
     Table as ShadTable,
@@ -6,8 +6,8 @@ import {
     TableCell,
     TableHeader,
     TableRow,
-} from "components/ui/table";
-import { formatNumberCurrency } from "utils/utls";
+} from "@/components/ui/table";
+import { formatNumberCurrency } from "@/utils/utls";
 
 type TProps = {
     data: TFundRequestActivity[];

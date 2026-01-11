@@ -6,18 +6,18 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import RfpLayout from "./RfpLayout";
-import { Button } from "components/ui/button";
-import { Form } from "components/ui/form";
-import FormInput from "components/atoms/FormInput";
-import FormTextArea from "components/atoms/FormTextArea";
-import FormSelect from "components/atoms/FormSelectField";
-import { SelectContent, SelectItem } from "components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Form } from "@/components/ui/form";
+import FormInput from "@/components/atoms/FormInput";
+import FormTextArea from "@/components/atoms/FormTextArea";
+import FormSelect from "@/components/atoms/FormSelectField";
+import { SelectContent, SelectItem } from "@/components/ui/select";
 import FormButton from "@/components/FormButton";
 import { toast } from "sonner";
 import { useGetPurchaseRequestById } from "@/features/procurement/controllers/purchaseRequestController";
 import { useCreateSolicitation } from "@/features/procurement/controllers/solicitationController";
 // Removed unused imports for items and lots
-import { LoadingSpinner } from "components/Loading";
+import { LoadingSpinner } from "@/components/Loading";
 import { useQueryClient } from "@tanstack/react-query";
 
 // Schema for RFP Proposal matching backend requirements

@@ -8,9 +8,9 @@ import { toast } from "sonner";
 
 import FormButton from "@/components/FormButton";
 import FormInput from "@/components/FormInput";
-import FormSelect from "components/FormSelectField";
-import { Button } from "components/ui/button";
-import { Form } from "components/ui/form";
+import FormSelect from "@/components/FormSelectField";
+import { Button } from "@/components/ui/button";
+import { Form } from "@/components/ui/form";
 import { useCreateCompensationSpread } from "@/features/hr/controllers/hrCompensationSpreadController";
 import { useGetAllPositionsManager } from "@/features/modules/controllers/config/positionController";
 import { useGetAllGradesManager } from "@/features/modules/controllers/config/gradeController";

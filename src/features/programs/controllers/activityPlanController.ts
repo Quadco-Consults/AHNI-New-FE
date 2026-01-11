@@ -374,10 +374,11 @@ export const useDownloadActivities = () => {
   const downloadActivityPlans = async (params: any) => {
     try {
       // For file downloads, we need to handle this differently
+      // Using the same pattern as template and upload endpoints
       const response = await AxiosWithToken.get(
-        "/programs/plans/activity/download/?format=csv",
+        "/programs/plans/activity/sheet/download/",
         {
-          params,
+          params: { ...params, format: "csv" },
           responseType: "blob",
         }
       );

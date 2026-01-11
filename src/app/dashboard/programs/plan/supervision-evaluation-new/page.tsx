@@ -2,10 +2,10 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import BreadcrumbCard from "components/Breadcrumb";
-import { Button } from "components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
+import BreadcrumbCard from "@/components/Breadcrumb";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, FileDown, BarChart, Filter, ClipboardList, Target, TrendingUp } from "lucide-react";
 import {
   Dialog,
@@ -14,10 +14,10 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "components/ui/dialog";
+} from "@/components/ui/dialog";
 
 import SupervisionEvaluationForm from "@/features/programs/components/evaluation/SupervisionEvaluationForm";
-import DataTable from "components/Table/DataTable";
+import DataTable from "@/components/Table/DataTable";
 import { createSiteVisitEvaluationColumns } from "@/features/programs/components/table-columns/evaluation/site-visits-evaluation";
 import { supervisionEvaluationColumns } from "@/features/programs/components/table-columns/evaluation/supervision-evaluation";
 

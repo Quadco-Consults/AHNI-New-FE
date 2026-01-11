@@ -1,17 +1,17 @@
 "use client";
 
-import Card from "components/Card";
-import { Button } from "components/ui/button";
+import Card from "@/components/Card";
+import { Button } from "@/components/ui/button";
 import { EyeIcon, PlusIcon, EditIcon, GitBranch, RefreshCw } from 'lucide-react';
-import { Checkbox } from "components/ui/checkbox";
+import { Checkbox } from "@/components/ui/checkbox";
 
-import { Input } from "components/ui/input";
+import { Input } from "@/components/ui/input";
 import Link from "next/link";
-import { RouteEnum } from "constants/RouterConstants";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
+import { RouteEnum } from "@/constants/RouterConstants";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState, useEffect } from "react";
 
-import { cn } from "lib/utils";
+import { cn } from "@/lib/utils";
 import { CircleEllipsisIcon } from 'lucide-react';
 import { Icon } from "@iconify/react";
 import {
@@ -19,20 +19,20 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "components/ui/dropdown-menu";
+} from "@/components/ui/dropdown-menu";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "components/ui/dialog";
+} from "@/components/ui/dialog";
 import { ColumnDef } from "@tanstack/react-table";
-import DataTable from "components/Table/DataTable";
-import BreadcrumbCard from "components/Breadcrumb";
-import { IPurchaseOrderPaginatedData } from "features/procurement/types/purchase-order";
+import DataTable from "@/components/Table/DataTable";
+import BreadcrumbCard from "@/components/Breadcrumb";
+import { IPurchaseOrderPaginatedData } from "@/features/procurement/types/purchase-order";
 import { useGetAllPurchaseOrders, useGetSinglePurchaseOrder } from "@/features/procurement/controllers/purchaseOrderController";
-import { convertDateFormat, formatDate } from "utils/date";
+import { convertDateFormat, formatDate } from "@/utils/date";
 import PurchaseOrderWorkflowStatus from "./components/PurchaseOrderWorkflowStatus";
 
 const PurchaseOrder = () => {

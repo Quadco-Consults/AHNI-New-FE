@@ -1,21 +1,21 @@
 "use client";
 
 import FormButton from "@/components/FormButton";
-import FormTextArea from "components/atoms/FormTextArea";
-import BackNavigation from "components/atoms/BackNavigation";
-import { Card, CardContent, CardHeader } from "components/ui/card";
-import { LoadingSpinner } from "components/Loading";
-import DataTable from "components/Table/DataTable";
-import { Form } from "components/ui/form";
-import { Badge } from "components/ui/badge";
-import { Button } from "components/ui/button";
-import { Separator } from "components/ui/separator";
+import FormTextArea from "@/components/atoms/FormTextArea";
+import BackNavigation from "@/components/atoms/BackNavigation";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { LoadingSpinner } from "@/components/Loading";
+import DataTable from "@/components/Table/DataTable";
+import { Form } from "@/components/ui/form";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import { useForm } from "react-hook-form";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { useGetSingleExpenseAuthorizationQuery, useReviewExpenseAuthorization, useAuthorizeExpenseAuthorization, useApproveExpenseAuthorization, useSecurityClearanceExpenseAuthorization } from "@/features/admin/controllers/expenseAuthorizationController";
 import { expenseAuthorizationDestinationColumns } from "../table-columns/expense-authorization/expense-authorization-destinations";
-import { cn } from "lib/utils";
+import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useState } from "react";
 import {

@@ -2,16 +2,16 @@
 
 // import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "@/components/FormButton";
-import FormInput from "components/atoms/FormInput";
-import FormSelect from "components/atoms/FormSelectField";
+import FormInput from "@/components/atoms/FormInput";
+import FormSelect from "@/components/atoms/FormSelectField";
 
-import GoBack from "components/GoBack";
+import GoBack from "@/components/GoBack";
 
-import { Form } from "components/ui/form";
-import { SelectContent, SelectItem } from "components/ui/select";
+import { Form } from "@/components/ui/form";
+import { SelectContent, SelectItem } from "@/components/ui/select";
 
-import FormTextArea from "components/atoms/FormTextArea";
-import { HrRoutes } from "constants/RouterConstants";
+import FormTextArea from "@/components/atoms/FormTextArea";
+import { HrRoutes } from "@/constants/RouterConstants";
 
 import { UploadIcon } from "lucide-react";
 
@@ -20,7 +20,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useGetEmployeeOnboardings } from "../../controllers/employeeOnboardingController";
 
-import { LoadingSpinner } from "components/Loading";
+import { LoadingSpinner } from "@/components/Loading";
 import { EmployeeOnboarding } from "definations/hr-types/employee-onboarding";
 
 // import ItemsAPI from "@/features/modules/controllers/config/itemsController";

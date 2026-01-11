@@ -1,15 +1,15 @@
 import successProcess from "assets/imgs/successful.png";
 import FormButton from "@/components/FormButton";
 import { Button } from "@/components/ui/button";
-import { RouteEnum } from "constants/RouterConstants";
-import { useAppDispatch } from "hooks/useStore";
+import { RouteEnum } from "@/constants/RouterConstants";
+import { useAppDispatch } from "@/hooks/useStore";
 import { useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { useCreateSupportiveSupervision } from "@/features/programs/controllers/supportiveSupervisionController";
 import { toast } from "sonner";
-import { supportiveSupervisionActions } from "store/formData/ssp-values";
-import { RootState } from "store/index";
-import { closeDialog } from "store/ui";
+import { supportiveSupervisionActions } from "@/store/formData/ssp-values";
+import { RootState } from "@/store/index";
+import { closeDialog } from "@/store/ui";
 
 const SspSubmitModal = () => {
   const responses = useSelector((state: RootState) => state.ssp.items);

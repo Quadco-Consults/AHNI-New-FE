@@ -1,9 +1,9 @@
 "use client";
 
-import DataTable from "components/Table/DataTable";
-import TableFilters from "components/Table/TableFilters";
+import DataTable from "@/components/Table/DataTable";
+import TableFilters from "@/components/Table/TableFilters";
 import { useState } from "react";
-import Card from "components/Card";
+import Card from "@/components/Card";
 import { useDebounce } from "ahooks";
 import { useGetAllFundingSourcesManager } from "@/features/modules/controllers/project/fundingSourceController";
 import { fundingSourceColumns } from "@/features/contracts-grants/components/table-columns/donor-database/funding-source";

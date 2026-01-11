@@ -1,10 +1,10 @@
 /* eslint-disable react/prop-types */
-import Card from "components/Card";
-import { LoadingSpinner } from "components/Loading";
-import { Button } from "components/ui/button";
-import { Progress } from "components/ui/progress";
+import Card from "@/components/Card";
+import { LoadingSpinner } from "@/components/Loading";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import PriceIntelligenceAPI from "@/features/procurement/controllers/price-intelligenceController";
-import { ScrollArea } from "components/ui/scroll-area";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useMemo, useState } from "react";
 import {
   AreaChart,
@@ -22,8 +22,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "components/ui/dialog";
-import BreadcrumbCard from "components/Breadcrumb";
+} from "@/components/ui/dialog";
+import BreadcrumbCard from "@/components/Breadcrumb";
 import { PriceIntelligenceDetail } from "definations/procurement-types/price-intelligence";
 import { format, parseISO } from "date-fns";
 import { skipToken } from "@reduxjs/toolkit/query";

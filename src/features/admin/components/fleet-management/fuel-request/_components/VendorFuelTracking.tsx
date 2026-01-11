@@ -2,13 +2,13 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
-import { Badge } from "components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import DataTable from "@/components/Table/DataTable";
 import { useGetVendorFuelStatistics, useGetVendorFuelPurchases } from "@/features/admin/controllers/fuelConsumptionController";
 import { IFuelRequestPaginatedData } from "@/features/admin/types/fleet-management/fuel-request";
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Eye, TrendingDown, TrendingUp, Building2, Fuel } from "lucide-react";
 

@@ -2,7 +2,7 @@
 
 import { useParams, useSearchParams } from "next/navigation";
 import { useGetSinglePaymentRequestQuery } from "@/features/admin/controllers/paymentRequestController";
-import { LoadingSpinner } from "components/Loading";
+import { LoadingSpinner } from "@/components/Loading";
 import logoPng from "assets/imgs/logo.png";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";

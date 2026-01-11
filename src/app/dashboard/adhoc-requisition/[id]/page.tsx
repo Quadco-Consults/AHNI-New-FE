@@ -3,12 +3,12 @@
 export const dynamic = "force-dynamic";
 import { useState } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { Button } from "components/ui/button";
-import { Card } from "components/ui/card";
-import { Badge } from "components/ui/badge";
-import { Textarea } from "components/ui/textarea";
-import { Label } from "components/ui/label";
-import { Input } from "components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import {
 
 Dialog,
@@ -17,8 +17,8 @@ Dialog,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
+} from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   ArrowLeft,
   CheckCircle,
@@ -48,7 +48,7 @@ import {
 import { RequisitionStatus } from "@/types/adhoc-requisition";
 import { ProgramRoutes } from "@/constants/RouterConstants";
 import { format } from "date-fns";
-import { cn } from "lib/utils";
+import { cn } from "@/lib/utils";
 
 export default function AdhocRequisitionDetailPage() {
   const router = useRouter();

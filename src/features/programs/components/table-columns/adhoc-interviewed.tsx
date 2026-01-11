@@ -1,13 +1,13 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { Button } from "components/ui/button";
-import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
-import EyeIcon from "components/icons/EyeIcon";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import MoreOptionsHorizontalIcon from "@/components/icons/MoreOptionsHorizontalIcon";
+import EyeIcon from "@/components/icons/EyeIcon";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { ProgramRoutes } from "constants/RouterConstants";
+import { ProgramRoutes } from "@/constants/RouterConstants";
 import { IAdhocApplicant } from "@/features/programs/types/adhoc-management";
 
 export const adhocInterviewedColumns: ColumnDef<IAdhocApplicant>[] =

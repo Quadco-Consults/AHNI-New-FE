@@ -21,7 +21,7 @@ import { Input } from '@/components/ui/input';
 import { toast } from "sonner";
 
 import { useGRNDetails, useRespondToGRN, POGRNUtils } from '@/features/vendor-portal/controllers/purchaseOrderController';
-import { LoadingSpinner } from "components/Loading";
+import { LoadingSpinner } from "@/components/Loading";
 
 const GRNResponseSchema = z.object({
   response_type: z.enum(['ACKNOWLEDGE', 'DISPUTE', 'PROVIDE_INFO']),

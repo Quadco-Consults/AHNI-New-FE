@@ -1,15 +1,15 @@
 "use client";
 
-import { Form } from "components/ui/form";
+import { Form } from "@/components/ui/form";
 // import VendorRegistationLayout from "./VendorRegistationLayout";
 import { useForm } from "react-hook-form";
-import FormInput from "components/atoms/FormInput";
-import FormSelect from "components/atoms/FormSelectField";
+import FormInput from "@/components/atoms/FormInput";
+import FormSelect from "@/components/atoms/FormSelectField";
 import { ChevronRight } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import FormButton from "@/components/FormButton";
-import { Button } from "components/ui/button";
-import { SelectContent, SelectItem } from "components/ui/select";
+import { Button } from "@/components/ui/button";
+import { SelectContent, SelectItem } from "@/components/ui/select";
 import { useEffect, useMemo } from "react";
 import { useGetPayGroups } from "@/features/hr/controllers/payGroupController";
 import { useCreateCompensation } from "@/features/hr/controllers/compensationController";

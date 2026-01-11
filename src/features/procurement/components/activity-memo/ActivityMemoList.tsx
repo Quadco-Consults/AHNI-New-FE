@@ -1,14 +1,14 @@
 "use client";
 
-import Card from "components/Card";
-import { Button } from "components/ui/button";
+import Card from "@/components/Card";
+import { Button } from "@/components/ui/button";
 import { Plus, Edit, Trash2, CheckCircle, AlertCircle, Eye, FileText } from 'lucide-react';
-import { Badge } from "components/ui/badge";
+import { Badge } from "@/components/ui/badge";
 import { ColumnDef } from "@tanstack/react-table";
-import DataTable from "components/Table/DataTable";
+import DataTable from "@/components/Table/DataTable";
 import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
-import IconButton from "components/IconButton";
+import IconButton from "@/components/IconButton";
 import { useGetAllActivityMemos, ActivityMemo } from "@/features/procurement/controllers/activityMemoController";
 import { useState } from "react";
 import { format } from "date-fns";

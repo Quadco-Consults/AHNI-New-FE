@@ -1,10 +1,10 @@
 "use client";
 
 import React from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useParams } from "next/navigation";
 import { useGetSinglePayroll } from "@/features/hr/controllers/hrPayRollController";
-import GoBack from "components/GoBack";
+import GoBack from "@/components/GoBack";
 import Summary from "./Summary";
 import BreakDown from "./DetailedBreakdown";
 

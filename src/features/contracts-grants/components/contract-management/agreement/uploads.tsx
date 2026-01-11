@@ -1,15 +1,15 @@
 import ServiceLevelAgreementLayout from "./Layout";
-import { Button } from "components/ui/button";
-import AddSquareIcon from "components/icons/AddSquareIcon";
+import { Button } from "@/components/ui/button";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
 import FormButton from "@/components/FormButton";
-import { useAppDispatch } from "hooks/useStore";
-import { openDialog } from "store/ui";
-import { DialogType } from "constants/dailogs";
+import { useAppDispatch } from "@/hooks/useStore";
+import { openDialog } from "@/store/ui";
+import { DialogType } from "@/constants/dailogs";
 import { useCreateAgreement, useUploadContractDocument } from "@/features/contracts-grants/controllers/agreementController";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { CG_ROUTES } from "constants/RouterConstants";
+import { CG_ROUTES } from "@/constants/RouterConstants";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 
 export default function ServiceLevelAgreementUploads() {

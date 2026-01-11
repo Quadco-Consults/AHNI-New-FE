@@ -1,23 +1,23 @@
 /* eslint-disable no-unused-vars */
 import { ColumnDef } from "@tanstack/react-table";
-import DataTable from "components/Table/DataTable";
+import DataTable from "@/components/Table/DataTable";
 import React, { useState } from "react";
 import FilterIcon2 from "assets/svgs/FilterIcon2";
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import SearchBar from "components/SearchBar";
-import { Checkbox } from "components/ui/checkbox";
-import IconButton from "components/IconButton";
+import SearchBar from "@/components/SearchBar";
+import { Checkbox } from "@/components/ui/checkbox";
+import IconButton from "@/components/IconButton";
 import { Trash2 } from 'lucide-react';
 import { Icon } from "@iconify/react";
-import AddSquareIcon from "components/icons/AddSquareIcon";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
 import {
   useGetPayGroupCompensations,
   useDeletePayGroupCompensation,
 } from "@/features/hr/controllers/payGroupCompensationController";
 import { PayGroupCompensation as PayGroupCompensationType } from "@/features/hr/types/pay-group-compensation";
 import { toast } from "sonner";
-import ConfirmationDialog from "components/ConfirmationDialog";
+import ConfirmationDialog from "@/components/ConfirmationDialog";
 import PayGroupCompensationModal from "./components/PayGroupCompensationModal";
 
 const PayGroupCompensation: React.FC = () => {

@@ -2,10 +2,10 @@
 
 import { useMemo } from "react";
 import { useParams } from "next/navigation";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
-import { LoadingSpinner } from "components/Loading";
-import BreadcrumbCard from "components/Breadcrumb";
-import GoBack from "components/GoBack";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { LoadingSpinner } from "@/components/Loading";
+import BreadcrumbCard from "@/components/Breadcrumb";
+import GoBack from "@/components/GoBack";
 import CbaAPI from "@/features/procurement/controllers/cbaController";
 import {
   useGetMemberParticipation,

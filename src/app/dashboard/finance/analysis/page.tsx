@@ -1,5 +1,5 @@
-import Card from "components/Card";
-import { Button } from "components/ui/button";
+import Card from "@/components/Card";
+import { Button } from "@/components/ui/button";
 import { TrendingUp, Download } from "lucide-react";
 
 export default function FinancialAnalysisPage() {

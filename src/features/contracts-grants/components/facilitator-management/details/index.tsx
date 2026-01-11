@@ -1,10 +1,10 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import Card from "components/Card";
-import { Button } from "components/ui/button";
-import { Badge } from "components/ui/badge";
-import { cn } from "lib/utils";
+import Card from "@/components/Card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { PlusIcon } from "lucide-react";
 import { useGetSingleFacilitator } from "@/features/contracts-grants/controllers/facilitatorManagementController";

@@ -2,13 +2,13 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Card from "components/Card";
-import GoBack from "components/GoBack";
-import { Button } from "components/ui/button";
-import { Progress } from "components/ui/progress";
+import Card from "@/components/Card";
+import GoBack from "@/components/GoBack";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import { CheckCircle, AlertCircle, Upload, FileText, Users } from "lucide-react";
 import { toast } from "sonner";
-import { HrRoutes } from "constants/RouterConstants";
+import { HrRoutes } from "@/constants/RouterConstants";
 
 interface UploadedEmployee {
   file: {

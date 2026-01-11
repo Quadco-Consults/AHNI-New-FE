@@ -1,20 +1,20 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import BackNavigation from "components/atoms/BackNavigation";
+import BackNavigation from "@/components/atoms/BackNavigation";
 import FormButton from "@/components/FormButton";
-import FormInput from "components/atoms/FormInput";
-import FormSelect from "components/atoms/FormSelect";
-import Card from "components/Card";
-import { CardContent } from "components/ui/card";
-import { Form } from "components/ui/form";
+import FormInput from "@/components/atoms/FormInput";
+import FormSelect from "@/components/atoms/FormSelect";
+import Card from "@/components/Card";
+import { CardContent } from "@/components/ui/card";
+import { Form } from "@/components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
   CreateUserSchema,
   TCreateUserFormValues,
-} from "features/auth/types/user";
+} from "@/features/auth/types/user";
 import { useCreateUser } from "../../controllers/userController";
 import { useGetAllRoles } from "../../controllers/roleController";
 // Import specialized controllers
@@ -22,7 +22,7 @@ import { useCreateVendor } from "@/features/procurement/controllers/vendorsContr
 import { useCreateConsultantManagement } from "@/features/contracts-grants/controllers/consultantManagementController";
 import { useCreateFacilitator } from "@/features/contracts-grants/controllers/facilitatorManagementController";
 import { useCreateEmployeeOnboarding } from "@/features/hr/controllers/employeeOnboardingController";
-import FormMultiSelect from "components/atoms/FormMultiSelect";
+import FormMultiSelect from "@/components/atoms/FormMultiSelect";
 import { useMemo } from "react";
 import {
   useGetAllDepartmentsQuery,

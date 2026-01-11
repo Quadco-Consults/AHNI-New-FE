@@ -2,8 +2,8 @@ import { z } from "zod";
 import { TBeneficiaryData } from "definations/modules/project/beneficiaries";
 import { TFundingSourceData } from "definations/modules/project/funding-source";
 import { TPartnerData } from "definations/modules/project/partners";
-import { IUser } from "features/auth/types/user";
-// import { IGrantSingleData } from "features/contracts-grants/types/grants";
+import { IUser } from "@/features/auth/types/user";
+// import { IGrantSingleData } from "@/features/contracts-grants/types/grants";
 
 // Target Definition Schema
 export const ProjectTargetDefinitionSchema = z.object({

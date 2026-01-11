@@ -1,10 +1,10 @@
 "use client";
 
-import BackNavigation from "components/atoms/BackNavigation";
-import { Card, CardContent, CardHeader } from "components/ui/card";
+import BackNavigation from "@/components/atoms/BackNavigation";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { Separator } from "components/ui/separator";
+import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import {
   useGetSingleAssetMaintenanceQuery,
@@ -12,9 +12,9 @@ import {
   useAuthorizeAssetMaintenance,
   useApproveAssetMaintenance,
 } from "@/features/admin/controllers/assetMaintenanceController";
-import { LoadingSpinner } from "components/Loading";
-import { Textarea } from "components/ui/textarea";
-import { Button } from "components/ui/button";
+import { LoadingSpinner } from "@/components/Loading";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
 import FormButton from "@/components/FormButton";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";

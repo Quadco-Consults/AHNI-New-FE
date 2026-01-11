@@ -1,18 +1,18 @@
-import DeleteIcon from "components/icons/DeleteIcon";
-import EditIcon from "components/icons/EditIcon";
-import EyeIcon from "components/icons/EyeIcon";
-import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
-import ConfirmationDialog from "components/ConfirmationDialog";
-import { Button } from "components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
+import DeleteIcon from "@/components/icons/DeleteIcon";
+import EditIcon from "@/components/icons/EditIcon";
+import EyeIcon from "@/components/icons/EyeIcon";
+import MoreOptionsHorizontalIcon from "@/components/icons/MoreOptionsHorizontalIcon";
+import ConfirmationDialog from "@/components/ConfirmationDialog";
+import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useState } from "react";
 import Link from "next/link";
 import { ColumnDef } from "@tanstack/react-table";
 import { IAssetRequestPaginatedData } from "definations/admin/inventory-management/asset-request";
-import { Badge } from "components/ui/badge";
-import { cn } from "lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { AdminRoutes } from "constants/RouterConstants";
+import { AdminRoutes } from "@/constants/RouterConstants";
 import { useDeleteAssetRequest } from "@/features/admin/controllers/assetRequestController";
 import { toast } from "sonner";
 

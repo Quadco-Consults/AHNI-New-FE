@@ -2,10 +2,10 @@
 
 import { skipToken } from "@reduxjs/toolkit/query";
 import { useRef, useState, useMemo } from "react";
-import BackNavigation from "components/atoms/BackNavigation";
-import Card from "components/Card";
-import { LoadingSpinner } from "components/Loading";
-import { Button } from "components/ui/button";
+import BackNavigation from "@/components/atoms/BackNavigation";
+import Card from "@/components/Card";
+import { LoadingSpinner } from "@/components/Loading";
+import { Button } from "@/components/ui/button";
 import { useParams } from "next/navigation";
 import { useGetSingleConsultancyReport, useApproveConsultancyReport } from "@/features/contracts-grants/controllers/consultancyReportController";
 import { Download, Printer, CheckCircle } from "lucide-react";

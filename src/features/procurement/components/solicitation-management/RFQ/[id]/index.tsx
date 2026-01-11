@@ -1,19 +1,19 @@
 "use client";
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useParams, useRouter } from "next/navigation";
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import { ClipboardCheck } from 'lucide-react';
 import { Icon } from "@iconify/react";
-import { LoadingSpinner } from "components/Loading";
+import { LoadingSpinner } from "@/components/Loading";
 // import { SolicitationResultsData } from "definations/procurement-types/solicitation";
 import DetailsContent from "./tab-contents/Details-content";
 import VendorSubmission from "./tab-contents/Vendor-submission";
-import BreadcrumbCard from "components/Breadcrumb";
-import { useGetSingleSolicitation } from "features/procurement/controllers/solicitationController";
-import GoBack from "components/GoBack";
-import EOIVendorSubmission from "features/procurement/components/vendor-management/eoi/eoi-tabs-contents/EOIVendorSubmission";
-import SummaryOfTechnicalPrequalification from "features/procurement/components/competitive-bid-analysis/[id]/SummaryOfTechnicalPrequalification";
+import BreadcrumbCard from "@/components/Breadcrumb";
+import { useGetSingleSolicitation } from "@/features/procurement/controllers/solicitationController";
+import GoBack from "@/components/GoBack";
+import EOIVendorSubmission from "@/features/procurement/components/vendor-management/eoi/eoi-tabs-contents/EOIVendorSubmission";
+import SummaryOfTechnicalPrequalification from "@/features/procurement/components/competitive-bid-analysis/[id]/SummaryOfTechnicalPrequalification";
 import { useGetSolicitationSubmission } from "@/features/procurement/controllers/vendorBidSubmissionsController";
 import CbaAPI from "@/features/procurement/controllers/cbaController";
 import { toast } from "sonner";

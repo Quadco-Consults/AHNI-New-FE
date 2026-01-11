@@ -1,16 +1,16 @@
 import Link from "next/link";
-import Card from "components/Card";
-import { Button } from "components/ui/button";
-import AddSquareIcon from "components/icons/AddSquareIcon";
-import DataTable from "components/Table/DataTable";
+import Card from "@/components/Card";
+import { Button } from "@/components/ui/button";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
+import DataTable from "@/components/Table/DataTable";
 import { useGetAllProjects } from "@/features/projects/controllers/projectController";
-import { useAppDispatch } from "hooks/useStore";
+import { useAppDispatch } from "@/hooks/useStore";
 import { useEffect, useState } from "react";
-import BreadcrumbCard, { TBreadcrumbList } from "components/Breadcrumb";
-import { clearPartners } from "store/formData/project-values";
-import { clearObjectives } from "store/formData/project-objective";
+import BreadcrumbCard, { TBreadcrumbList } from "@/components/Breadcrumb";
+import { clearPartners } from "@/store/formData/project-values";
+import { clearObjectives } from "@/store/formData/project-objective";
 import { projectColumns } from "@/features/projects/components/table-columns/project-columns";
-import TableFilters from "components/Table/TableFilters";
+import TableFilters from "@/components/Table/TableFilters";
 import { useDebounce } from "ahooks";
 
 const breadcrumbs: TBreadcrumbList[] = [{ name: "Projects", icon: false }];

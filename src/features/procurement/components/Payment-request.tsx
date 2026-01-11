@@ -1,8 +1,8 @@
 "use client";
 
-import { Checkbox } from "components/ui/checkbox";
-import Card from "components/Card";
-import { Button } from "components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import Card from "@/components/Card";
+import { Button } from "@/components/ui/button";
 import { Plus, Edit, Trash2 } from 'lucide-react';
 import {
   Dialog,
@@ -10,7 +10,7 @@ import {
   DialogTitle,
   DialogTrigger,
   DialogClose,
-} from "components/ui/dialog";
+} from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -18,16 +18,16 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "components/ui/form";
-import { cn } from "lib/utils";
-import { Badge } from "components/ui/badge";
-import IconButton from "components/IconButton";
+} from "@/components/ui/form";
+import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import IconButton from "@/components/IconButton";
 import { Icon } from "@iconify/react";
 import { useForm } from "react-hook-form";
 
-import { Textarea } from "components/ui/textarea";
-import { Input } from "components/ui/input";
-import DataTable from "components/Table/DataTable";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import DataTable from "@/components/Table/DataTable";
 import { ColumnDef } from "@tanstack/react-table";
 
 type Data = {

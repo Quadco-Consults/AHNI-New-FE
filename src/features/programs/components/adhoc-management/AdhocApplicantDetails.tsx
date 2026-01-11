@@ -1,13 +1,13 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { Button } from "components/ui/button";
-import PersonIcon from "components/icons/Person";
-import { LoadingSpinner } from "components/Loading";
-import Card from "components/Card";
+import { Button } from "@/components/ui/button";
+import PersonIcon from "@/components/icons/Person";
+import { LoadingSpinner } from "@/components/Loading";
+import Card from "@/components/Card";
 import { toast } from "sonner";
 import { useState } from "react";
-import BackNavigation from "components/BackNavigation";
+import BackNavigation from "@/components/BackNavigation";
 import {
   useGetSingleAdhocApplicant,
   useShortlistApplicants,

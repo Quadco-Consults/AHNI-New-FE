@@ -3,28 +3,28 @@
 /* eslint-disable no-unused-vars */
 import { ColumnDef } from "@tanstack/react-table";
 import FormButton from "@/components/FormButton";
-import AddSquareIcon from "components/icons/AddSquareIcon";
-import DataTable from "components/Table/DataTable";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
+import DataTable from "@/components/Table/DataTable";
 import React, { useState } from "react";
 
 import FilterIcon2 from "assets/svgs/FilterIcon2";
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { HrRoutes, RouteEnum } from "constants/RouterConstants";
-import SearchBar from "components/SearchBar";
-import { Checkbox } from "components/ui/checkbox";
-import IconButton from "components/IconButton";
+import { HrRoutes, RouteEnum } from "@/constants/RouterConstants";
+import SearchBar from "@/components/SearchBar";
+import { Checkbox } from "@/components/ui/checkbox";
+import IconButton from "@/components/IconButton";
 import { Trash2 } from 'lucide-react';
 import { Icon } from "@iconify/react";
 import {
   useDeleteGrievance,
   useGetGrievances,
 } from "@/features/hr/controllers/grievanceController";
-import moment from "moment";
-import { Badge } from "components/ui/badge";
-import { cn } from "lib/utils";
-import ConfirmationDialog from "components/ConfirmationDialog";
+import { format } from "date-fns";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import ConfirmationDialog from "@/components/ConfirmationDialog";
 
 const GrievanceManagement: React.FC = () => {
   const router = useRouter();
@@ -83,7 +83,7 @@ const GrievanceManagement: React.FC = () => {
       accessorKey: "submit_date",
       size: 200,
       cell: ({ row }) => (
-        <p>{moment(row?.original?.created_datetime).format("DD-MMM-YYYY")}</p>
+        <p>{row?.original?.created_datetime ? format(new Date(row.original.created_datetime), "dd-MMM-yyyy") : "-"}</p>
       ),
     },
     {

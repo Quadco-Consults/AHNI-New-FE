@@ -5,14 +5,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useRouter, useSearchParams } from "next/navigation";
-import BackNavigation from "components/atoms/BackNavigation";
-import Card from "components/Card";
-import FormButton from "components/FormButton";
-import FormInput from "components/FormInput";
-import FormSelect from "components/FormSelect";
-import { Form, FormField, FormItem, FormControl } from "components/ui/form";
-import { Label } from "components/ui/label";
-import MultiSelectFormField from "components/ui/multiselect";
+import BackNavigation from "@/components/atoms/BackNavigation";
+import Card from "@/components/Card";
+import FormButton from "@/components/FormButton";
+import FormInput from "@/components/FormInput";
+import FormSelect from "@/components/FormSelect";
+import { Form, FormField, FormItem, FormControl } from "@/components/ui/form";
+import { Label } from "@/components/ui/label";
+import MultiSelectFormField from "@/components/ui/multiselect";
 import { SubGrantSchema, TSubGrantFormData } from "@/features/contracts-grants/types/contract-management/sub-grant/sub-grant";
 import { useCreateSubGrant, useUpdateSubGrant, useGetSingleSubGrant } from "@/features/contracts-grants/controllers/subGrantController";
 import { usePublishSubGrant } from "@/features/contracts-grants/controllers/subGrantWorkflowController";
@@ -20,7 +20,7 @@ import { useGetAllGrants } from "@/features/contracts-grants/controllers/grantCo
 import { useGetAllUsers } from "@/features/auth/controllers/userController";
 import { useGetAllDepartments } from "@/features/modules/controllers/config/departmentController";
 import { useGetAllLocations } from "@/features/modules/controllers/config/locationController";
-import { CG_ROUTES } from "constants/RouterConstants";
+import { CG_ROUTES } from "@/constants/RouterConstants";
 import { Loading } from "@/components/Loading";
 
 const CreateSubGrant: React.FC = () => {

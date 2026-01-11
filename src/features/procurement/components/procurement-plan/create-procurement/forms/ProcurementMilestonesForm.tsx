@@ -1,19 +1,19 @@
 "use client";
 
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import { useForm } from "react-hook-form";
-import { Form } from "components/ui/form";
+import { Form } from "@/components/ui/form";
 import { useRouter } from "next/navigation";
 import FormButton from "@/components/FormButton";
-import FormInput from "components/atoms/FormInput";
+import FormInput from "@/components/atoms/FormInput";
 import ProcurementPlanLayout from "../ProcurementPlanLayout";
-import FormTextArea from "components/atoms/FormTextArea";
+import FormTextArea from "@/components/atoms/FormTextArea";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ProcurementMilestoneSchema } from "@/features/procurement/types/procurement-validator";
 import ProcurementPlanAPI from "@/features/procurement/controllers/procurementPlanController";
 import { toast } from "sonner";
-import { RouteEnum } from "constants/RouterConstants";
+import { RouteEnum } from "@/constants/RouterConstants";
 
 const ProcurementMilestonesForm = () => {
   const router = useRouter();

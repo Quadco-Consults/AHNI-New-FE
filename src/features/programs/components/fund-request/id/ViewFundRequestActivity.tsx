@@ -3,17 +3,17 @@
 import logoPng from "assets/imgs/logo.png";
 import { useSearchParams } from "next/navigation";
 import { skipToken } from "@tanstack/react-query";
-import Card from "components/Card";
+import Card from "@/components/Card";
 import FundActivityTable from "./FundActivityTable";
-import { LoadingSpinner } from "components/Loading";
+import { LoadingSpinner } from "@/components/Loading";
 import { useGetSingleFundRequest } from "@/features/programs/controllers";
 import { useGetSingleProject } from "@/features/projects/controllers";
 import FundRequestWorkflowStatus from "../components/FundRequestWorkflowStatus";
 import { useAppSelector } from "@/hooks/useStore";
 import { useMemo } from "react";
 import { useGetUserProfile, useGetAllUsers } from "@/features/auth/controllers";
-import ApprovalDisplay, { ApprovalInfo } from "components/ApprovalDisplay";
-import { Button } from "components/ui/button";
+import ApprovalDisplay, { ApprovalInfo } from "@/components/ApprovalDisplay";
+import { Button } from "@/components/ui/button";
 import { Download, FileText, ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 

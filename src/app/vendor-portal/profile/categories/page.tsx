@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "components/ui/card";
-import { Button } from "components/ui/button";
-import { Badge } from "components/ui/badge";
-import { Alert, AlertDescription } from "components/ui/alert";
-import { Progress } from "components/ui/progress";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Progress } from "@/components/ui/progress";
 import {
   CheckCircle,
   Clock,
@@ -18,7 +18,7 @@ import {
   Award
 } from "lucide-react";
 import { useVendorProfile } from "@/features/vendor-portal/controllers/vendorAuthController";
-import { LoadingSpinner } from "components/Loading";
+import { LoadingSpinner } from "@/components/Loading";
 
 export default function VendorCategoriesPage() {
   const router = useRouter();

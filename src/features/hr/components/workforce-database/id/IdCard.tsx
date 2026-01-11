@@ -1,6 +1,6 @@
-import DescriptionCard from "components/DescriptionCard";
-import { Button } from "components/ui/button";
-import PrinterIcon from "components/icons/PrinterIcon";
+import DescriptionCard from "@/components/DescriptionCard";
+import { Button } from "@/components/ui/button";
+import PrinterIcon from "@/components/icons/PrinterIcon";
 import { EmployeeOnboarding } from "@/features/hr/types/employee-onboarding";
 
 const IdCard = ({ info }: { info: EmployeeOnboarding }) => {

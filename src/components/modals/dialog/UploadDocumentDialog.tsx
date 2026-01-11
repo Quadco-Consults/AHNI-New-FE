@@ -1,8 +1,8 @@
 "use client";
 
-import FileUpload from "components/FileUpload";
-import FormButton from "components/atoms/FormButton";
-import FormInput from "components/atoms/FormInput";
+import FileUpload from "@/components/FileUpload";
+import FormButton from "@/components/atoms/FormButton";
+import FormInput from "@/components/atoms/FormInput";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,7 +12,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "components/ui/alert-dialog";
+} from "@/components/ui/alert-dialog";
 import { FormProvider } from "react-hook-form";
 
 export default function UploadDocumentDialog({

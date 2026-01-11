@@ -1,14 +1,14 @@
 "use client";
 
 import FormButton from "@/components/FormButton";
-import FormInput from "components/atoms/FormInput";
-import FormSelect from "components/atoms/FormSelectField";
-import { Form } from "components/ui/form";
-import { useAppDispatch, useAppSelector } from "hooks/useStore";
+import FormInput from "@/components/atoms/FormInput";
+import FormSelect from "@/components/atoms/FormSelectField";
+import { Form } from "@/components/ui/form";
+import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useSearchParams } from "next/navigation"; 
-import { dailogSelector } from "store/ui";
+import { dailogSelector } from "@/store/ui";
 
 // const options = [
 //     {

@@ -5,11 +5,11 @@ import { Plus, Minus } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation"; 
-import { Form } from "components/ui/form";
-import Card from "components/Card";
-import { Button } from "components/ui/button";
-import { Input } from "components/ui/input";
-import { Separator } from "components/ui/separator";
+import { Form } from "@/components/ui/form";
+import Card from "@/components/Card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
 import { Upload as UploadFile } from "lucide-react";
 import { motion } from "framer-motion";
 import VendorRegistationLayout from "./VendorRegistationLayout";
@@ -19,9 +19,9 @@ import { toast } from "sonner";
 import VendorsDocumentAPI from "@/features/procurement/controllers/vendorDocumentsController";
 import VendorsAPI from "@/features/procurement/controllers/vendorsController";
 import { useSelector, useDispatch } from "react-redux";
-import { RootState } from "store/index";
+import { RootState } from "@/store/index";
 
-import { Badge } from "components/ui/badge";
+import { Badge } from "@/components/ui/badge";
 
 const UploadSchema = z.object({
   files: z

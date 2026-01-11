@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import { ColumnDef } from "@tanstack/react-table";
-import { Badge } from "components/ui/badge";
-import { Button } from "components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { toast } from "sonner";
-import { cn } from "lib/utils";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import {
   Eye,
@@ -17,7 +17,7 @@ import {
   Settings,
   MoreHorizontal
 } from "lucide-react";
-import ConfirmationDialog from "components/ConfirmationDialog";
+import ConfirmationDialog from "@/components/ConfirmationDialog";
 import {
   AnnualPlanStatus,
   AnnualPlanStatusLabels,

@@ -1,10 +1,10 @@
 "use client";
 
 import FormButton from "@/components/FormButton";
-import FormInput from "components/atoms/FormInput";
-import FormSelect from "components/atoms/FormSelectField";
-import { Form } from "components/ui/form";
-import FormTextArea from "components/atoms/FormTextArea";
+import FormInput from "@/components/atoms/FormInput";
+import FormSelect from "@/components/atoms/FormSelectField";
+import { Form } from "@/components/ui/form";
+import FormTextArea from "@/components/atoms/FormTextArea";
 import { UploadIcon, AlertCircle } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
@@ -22,8 +22,8 @@ import { getApproverOptions } from "@/utils/approvalFilters";
 import { filterAhniStaffOnly } from "@/utils/userFilters";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { Badge } from "components/ui/badge";
-import { Card } from "components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 
 interface LeaveFormData {
   leaveType: string;

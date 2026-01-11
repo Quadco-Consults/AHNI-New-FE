@@ -6,14 +6,14 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "components/ui/card";
-import { Button } from "components/ui/button";
-import { Badge } from "components/ui/badge";
-import { Alert, AlertDescription } from "components/ui/alert";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "components/ui/form";
-import { Input } from "components/ui/input";
-import { Textarea } from "components/ui/textarea";
-import { Label } from "components/ui/label";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import {
 
 Calendar,
@@ -29,7 +29,7 @@ Calendar,
   Info
 } from "lucide-react";
 import { useVendorRFQDetails } from "@/features/vendor-portal/controllers/vendorDashboardController";
-import { LoadingSpinner } from "components/Loading";
+import { LoadingSpinner } from "@/components/Loading";
 import { toast } from "sonner";
 
 const BidSubmissionSchema = z.object({

@@ -1,9 +1,9 @@
 import { Edit, Trash2 } from 'lucide-react';
 import { Icon } from "@iconify/react";
 import { ColumnDef } from "@tanstack/react-table";
-import IconButton from "components/IconButton";
-import { Badge } from "components/ui/badge";
-import { cn } from "lib/utils";
+import IconButton from "@/components/IconButton";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import logoPng from "@/assets/svgs/logo-bg.svg";
 
 type Data = {

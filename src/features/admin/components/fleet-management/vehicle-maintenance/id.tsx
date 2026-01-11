@@ -1,18 +1,18 @@
 "use client";
 
-import BackNavigation from "components/atoms/BackNavigation";
-import { Card } from "components/ui/card";
+import BackNavigation from "@/components/atoms/BackNavigation";
+import { Card } from "@/components/ui/card";
 import { useParams } from "next/navigation";
-import DescriptionCard from "components/DescriptionCard";
+import DescriptionCard from "@/components/DescriptionCard";
 import {
   useGetSingleVehicleMaintenanceQuery,
   useReviewVehicleMaintenance,
   useAuthorizeVehicleMaintenance,
   useApproveVehicleMaintenance,
 } from "@/features/admin/controllers/vehicleMaintenanceController";
-import { LoadingSpinner } from "components/Loading";
-import { Textarea } from "components/ui/textarea";
-import { Button } from "components/ui/button";
+import { LoadingSpinner } from "@/components/Loading";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
 import FormButton from "@/components/FormButton";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";

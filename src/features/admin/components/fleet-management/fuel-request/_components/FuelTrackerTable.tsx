@@ -2,7 +2,7 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
-import { Card, CardContent, CardHeader } from "components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import DataTable from "@/components/Table/DataTable";
 import { IFuelRequestPaginatedData } from "@/features/admin/types/fleet-management/fuel-request";

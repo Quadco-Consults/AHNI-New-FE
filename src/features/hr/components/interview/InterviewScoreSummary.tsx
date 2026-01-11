@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import Card from "components/Card";
-import { Badge } from "components/ui/badge";
-import { Separator } from "components/ui/separator";
+import Card from "@/components/Card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import {
   Table,
   TableBody,
@@ -11,9 +11,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "components/ui/table";
+} from "@/components/ui/table";
 import { formatDate } from "date-fns";
-import { Loading } from "components/Loading";
+import { Loading } from "@/components/Loading";
 import {
   useGetInterviewScores,
   useGetInterviewSummary,

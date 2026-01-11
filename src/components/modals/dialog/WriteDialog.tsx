@@ -1,7 +1,7 @@
 "use client";
 
-import FormButton from "components/atoms/FormButton";
-import FormTextArea from "components/atoms/FormTextArea";
+import FormButton from "@/components/atoms/FormButton";
+import FormTextArea from "@/components/atoms/FormTextArea";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -11,7 +11,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "components/ui/alert-dialog";
+} from "@/components/ui/alert-dialog";
 import { FormProvider } from "react-hook-form";
 
 export default function WriteDialog({

@@ -1,10 +1,10 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import Card from "components/Card";
-import BackNavigation from "components/BackNavigation";
-import { Button } from "components/ui/button";
-import { LoadingSpinner } from "components/Loading";
+import Card from "@/components/Card";
+import BackNavigation from "@/components/BackNavigation";
+import { Button } from "@/components/ui/button";
+import { LoadingSpinner } from "@/components/Loading";
 import {
   useGetSingleAdhocApplicant,
   useUpdateAdhocApplicantStatus,
@@ -23,15 +23,15 @@ import {
   Download,
   XCircle,
 } from "lucide-react";
-import { Badge } from "components/ui/badge";
-import { cn } from "lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Form } from "components/ui/form";
-import { Input } from "components/ui/input";
-import { Checkbox } from "components/ui/checkbox";
-import { Label } from "components/ui/label";
+import { Form } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import { createUserAccountFromApplicant } from "@/utils/createUserFromApplicant";
 
 interface AcceptanceFormData {

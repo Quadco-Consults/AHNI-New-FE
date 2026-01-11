@@ -1,22 +1,22 @@
 "use client";
 
-import { useAppDispatch, useAppSelector } from "hooks/useStore";
+import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
 import { SubmitHandler, useForm } from "react-hook-form";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import ProjectLayout from "./ProjectLayout";
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import FormButton from "@/components/FormButton";
-import { Label } from "components/ui/label";
-import { openDialog } from "store/ui";
-import { DialogType, mediumDailogScreen } from "constants/dailogs";
-import { FormField, FormItem, Form, FormControl } from "components/ui/form";
-import Card from "components/Card";
-import FormInput from "components/atoms/FormInput";
-import MultiSelectFormField from "components/ui/multiselect";
+import { Label } from "@/components/ui/label";
+import { openDialog } from "@/store/ui";
+import { DialogType, mediumDailogScreen } from "@/constants/dailogs";
+import { FormField, FormItem, Form, FormControl } from "@/components/ui/form";
+import Card from "@/components/Card";
+import FormInput from "@/components/atoms/FormInput";
+import MultiSelectFormField from "@/components/ui/multiselect";
 import { useEffect, useMemo, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import FormTextArea from "components/atoms/FormTextArea";
+import FormTextArea from "@/components/atoms/FormTextArea";
 import { toast } from "sonner";
 import { useGetAllUsers } from "@/features/auth/controllers/userController";
 import { filterAhniStaffOnly } from "@/utils/userFilters";
@@ -25,9 +25,9 @@ import {
   addObjective,
   clearObjectives,
   removeObjective,
-} from "store/formData/project-objective";
-import { addPartner, clearPartners } from "store/formData/project-values";
-import use from "hooks/use";
+} from "@/store/formData/project-objective";
+import { addPartner, clearPartners } from "@/store/formData/project-values";
+import use from "@/hooks/use";
 import {
   useAddProject,
   useGetSingleProject,
@@ -35,7 +35,7 @@ import {
 } from "@/features/projects/controllers/projectController";
 import { skipToken } from "@reduxjs/toolkit/query/react";
 import { X } from "lucide-react";
-import FormSelect from "components/atoms/FormSelect";
+import FormSelect from "@/components/atoms/FormSelect";
 import { useGetAllBeneficiaries } from "@/features/modules/controllers/project/beneficiaryController";
 import { useGetAllFundingSources } from "@/features/modules/controllers/project/fundingSourceController";
 import { useGetAllPartners } from "@/features/modules/controllers/project/partnerController";
@@ -46,15 +46,15 @@ import {
 import ConsortiumPartners from "./ConsortiumPartners";
 import TargetsToggleView from "./TargetsToggleView";
 import { ProjectTargetDefinition } from "@/features/projects/types/project";
-import BreadcrumbCard, { TBreadcrumbList } from "components/Breadcrumb";
-import LongArrowLeft from "components/icons/LongArrowLeft";
-import { RouteEnum } from "constants/RouterConstants";
-import DateInput from "components/DateInput";
-import { formatDate } from "utils/date";
-// import { nigerianStates } from "lib/index";
+import BreadcrumbCard, { TBreadcrumbList } from "@/components/Breadcrumb";
+import LongArrowLeft from "@/components/icons/LongArrowLeft";
+import { RouteEnum } from "@/constants/RouterConstants";
+import DateInput from "@/components/DateInput";
+import { formatDate } from "@/utils/date";
+// import { nigerianStates } from "@/lib/index";
 import { useGetAllLocations } from "@/features/modules/controllers/config/locationController";
 import { useGetAllInterventionAreas } from "@/features/modules/controllers/program/interventionAreaController";
-import FormMultiSelect from "components/atoms/FormMultiSelect";
+import FormMultiSelect from "@/components/atoms/FormMultiSelect";
 // import { useGetAllGrants } from "@/features/c&g/grant/grant";
 
 const breadcrumbs: TBreadcrumbList[] = [

@@ -1,11 +1,11 @@
-import Card from "components/Card";
-import SearchIcon from "components/icons/SearchIcon";
+import Card from "@/components/Card";
+import SearchIcon from "@/components/icons/SearchIcon";
 import { Column, ColumnDef, Row } from "@tanstack/react-table";
-import DataTable from "components/Table/DataTable";
-import BreadcrumbCard from "components/Breadcrumb";
+import DataTable from "@/components/Table/DataTable";
+import BreadcrumbCard from "@/components/Breadcrumb";
 import ProcurementPlanAPI from "@/features/procurement/controllers/procurementPlanController";
 import { useState } from "react";
-import { Textarea } from "components/ui/textarea";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -13,11 +13,11 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "components/ui/select";
+} from "@/components/ui/select";
 import FinancialAPI from "@/features/modules/controllers/config/financial-yearController";
-import { formatNumberCurrency } from "utils/utls";
+import { formatNumberCurrency } from "@/utils/utls";
 import ProcurementPlanUploadModal from "../components/ProcurementPlanUploadModal";
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import { FileDown } from "lucide-react";
 
 export default function ProcurementPlan() {

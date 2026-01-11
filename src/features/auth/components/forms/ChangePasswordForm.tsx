@@ -1,20 +1,20 @@
 "use client";
 
 import { useForm } from "react-hook-form";
-import { Form } from "components/ui/form";
+import { Form } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 // import { z } from "zod";
-import FormInput from "components/FormInput";
-import FormButton from "components/FormButton";
+import FormInput from "@/components/FormInput";
+import FormButton from "@/components/FormButton";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import Card from "components/Card";
+import Card from "@/components/Card";
 import PasswordHint from "../PasswordHint";
-import useQuery from "hooks/useQuery";
+import useQuery from "@/hooks/useQuery";
 import {
   ChangePasswordSchema,
   TChangePasswordFormValues,
-} from "features/auth/types/auth";
+} from "@/features/auth/types/auth";
 import { useChangePassword } from "../../controllers/authController";
 
 const ChangePasswordForm = () => {

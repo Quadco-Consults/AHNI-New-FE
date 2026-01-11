@@ -5,14 +5,14 @@ export const runtime = 'nodejs';
 
 import { redirect } from "next/navigation";
 import { useEffect, useState } from "react";
-import { getAccessToken } from "utils/auth";
-import Footer from "components/Footer";
-import Header from "components/Header";
-import Sidebar from "components/Sidebar";
-import Suspense from "components/Suspense";
-import { cn } from "lib/utils";
+import { getAccessToken } from "@/utils/auth";
+import Footer from "@/components/Footer";
+import Header from "@/components/Header";
+import Sidebar from "@/components/Sidebar";
+import Suspense from "@/components/Suspense";
+import { cn } from "@/lib/utils";
 import Account from "@/features/accounts/components/account";
-import NoSSR from "components/NoSSR";
+import NoSSR from "@/components/NoSSR";
 
 export default function AccountPage() {
     const [sidebarWidth, setSidebarWidth] = useState(false);

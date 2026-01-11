@@ -8,8 +8,8 @@ import { Form } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { useAppDispatch } from "hooks/useStore";
-import { closeDialog } from "store/ui";
+import { useAppDispatch } from "@/hooks/useStore";
+import { closeDialog } from "@/store/ui";
 import { useGetJobAdvertisements } from "@/features/hr/controllers/jobAdvertisementController";
 import { Building2, Plus, X } from "lucide-react";
 

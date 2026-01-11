@@ -2,17 +2,17 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "@/components/FormButton";
-import FormInput from "components/atoms/FormInput";
-import FormSelect from "components/atoms/FormSelect";
-import FormTextArea from "components/atoms/FormTextArea";
-import Card from "components/Card";
-import GoBack from "components/GoBack";
-import { Form } from "components/ui/form";
-import { AdminRoutes } from "constants/RouterConstants";
+import FormInput from "@/components/atoms/FormInput";
+import FormSelect from "@/components/atoms/FormSelect";
+import FormTextArea from "@/components/atoms/FormTextArea";
+import Card from "@/components/Card";
+import GoBack from "@/components/GoBack";
+import { Form } from "@/components/ui/form";
+import { AdminRoutes } from "@/constants/RouterConstants";
 import {
   AssetRequestSchema,
   TAssetRequestFormValues,
-} from "features/admin/types/inventory-management/asset-request";
+} from "@/features/admin/types/inventory-management/asset-request";
 import { useEffect, useMemo } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";

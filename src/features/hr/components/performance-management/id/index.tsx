@@ -1,19 +1,19 @@
 "use client";
 
-import { Separator } from "components/ui/separator";
+import { Separator } from "@/components/ui/separator";
 import EvaluatorForm from "../components/EvaluatorForm";
 import ImprovedEvaluatorForm from "../components/ImprovedEvaluatorForm";
 import FormButton from "@/components/FormButton";
 import { FileIcon, CheckCircle, CheckCircle2, FileDown, ClipboardList, Calendar, CalendarCheck, User, Target, Users, Send, Star, Mail, Briefcase, UserCheck, ClipboardCheck, Eye, File } from 'lucide-react';
-import GoBack from "components/GoBack";
+import GoBack from "@/components/GoBack";
 import { useState, useEffect } from "react";
 import React from "react";
 import { useParams } from "next/navigation";
 import { useGetPerformanceAssesment, useSubmitPerformanceAssesment } from "@/features/hr/controllers/hrPerformanceAssessmentController";
 import { useGetEmployeeGoals } from "@/features/hr/controllers/goalsController";
-import { Badge } from "components/ui/badge";
-import { Button } from "components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { areAllEvaluationsComplete } from "@/features/hr/utils/performanceCalculations";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";

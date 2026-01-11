@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { validateHourInput } from "../../../utils/timesheetValidation";
-import { cn } from "lib/utils";
+import { cn } from "@/lib/utils";
 
 interface ValidatedHourInputProps {
   value: string;

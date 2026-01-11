@@ -2,12 +2,12 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Card } from "components/ui/card";
-import { Badge } from "components/ui/badge";
-import { Button } from "components/ui/button";
-import GoBack from "components/GoBack";
-import { cn } from "lib/utils";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import GoBack from "@/components/GoBack";
+import { cn } from "@/lib/utils";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   CheckCircle,
   XCircle,
@@ -36,9 +36,9 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "components/ui/dialog";
-import { Textarea } from "components/ui/textarea";
-import { Label } from "components/ui/label";
+} from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { normalizeLeaveRequestEmployee } from "../../../utils/normalizeLeaveData";

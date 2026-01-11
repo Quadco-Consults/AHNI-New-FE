@@ -5,17 +5,17 @@ import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import Registration from "@/features/procurement/components/vendor-management/vendor-registration/Registration";
 import { useGetPublicOpportunity } from "@/features/procurement/controllers/solicitationController";
-import { LoadingSpinner } from "components/Loading";
-import Card from "components/Card";
-import BackNavigation from "components/atoms/BackNavigation";
-import DataTable from "components/Table/DataTable";
-import { Button } from "components/ui/button";
-import { Badge } from "components/ui/badge";
-import { Alert, AlertDescription } from "components/ui/alert";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
+import { LoadingSpinner } from "@/components/Loading";
+import Card from "@/components/Card";
+import BackNavigation from "@/components/atoms/BackNavigation";
+import DataTable from "@/components/Table/DataTable";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Icon } from "@iconify/react";
 import { ColumnDef } from "@tanstack/react-table";
-import { cn } from "lib/utils";
+import { cn } from "@/lib/utils";
 import {
 
 Building2,

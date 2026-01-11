@@ -1,12 +1,12 @@
 import FormButton from "@/components/FormButton";
 
-import { Card, CardContent } from "components/ui/card";
-import { Checkbox } from "components/ui/checkbox";
-import { Input } from "components/ui/input";
-import { ScrollArea } from "components/ui/scroll-area";
+import { Card, CardContent } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { IRole } from "definations/auth/permission";
-import { useAppDispatch, useAppSelector } from "hooks/useStore";
-import { cn } from "lib/utils";
+import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
+import { cn } from "@/lib/utils";
 import { Search } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useGetAllRoles } from "@/features/auth/controllers/roleController";
@@ -15,7 +15,7 @@ import {
     useGetSingleUser,
 } from "@/features/auth/controllers/userController";
 import { toast } from "sonner";
-import { closeDialog, dailogSelector } from "store/ui";
+import { closeDialog, dailogSelector } from "@/store/ui";
 
 const RoleCheckbox: React.FC<{
     role: IRole;

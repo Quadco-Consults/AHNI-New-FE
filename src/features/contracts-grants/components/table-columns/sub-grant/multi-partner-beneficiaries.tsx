@@ -1,9 +1,9 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { Button } from "components/ui/button";
-import { Badge } from "components/ui/badge";
-import { Progress } from "components/ui/progress";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import { Eye, DollarSign, MapPin, Phone, Mail } from "lucide-react";
 import { IAwardedPartner } from "../../types/multi-award";
 

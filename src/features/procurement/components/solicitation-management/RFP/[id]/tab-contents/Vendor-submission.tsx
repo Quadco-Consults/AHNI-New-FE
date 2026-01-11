@@ -1,20 +1,20 @@
 /* eslint-disable react/prop-types */
 import { Search } from 'lucide-react';
 import { Icon } from "@iconify/react";
-import Card from "components/Card";
-import { Badge } from "components/ui/badge";
-import { Checkbox } from "components/ui/checkbox";
-import { cn } from "lib/utils";
-import { Button } from "components/ui/button";
-import { Input } from "components/ui/input";
+import Card from "@/components/Card";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { RouteEnum } from "constants/RouterConstants";
-import DataTable from "components/Table/DataTable";
+import { RouteEnum } from "@/constants/RouterConstants";
+import DataTable from "@/components/Table/DataTable";
 import { ColumnDef } from "@tanstack/react-table";
 import { SolicitationSubmissionResultsData } from "definations/procurement-types/solicitation";
 import { useGetSolicitationSubmission } from "@/features/procurement/controllers/vendorBidSubmissionsController";
-import IconButton from "components/IconButton";
+import IconButton from "@/components/IconButton";
 import { generatePath } from "@/utils/generatePath";
 
 const VendorSubmission = (props?: any) => {

@@ -1,7 +1,7 @@
-import Card from "components/Card";
+import Card from "@/components/Card";
 import { IProjectSingleData } from "@/features/projects/types/project";
 import PerformanceTracking from "./PerformanceTracking";
-// import { formatNumberCurrency } from "utils/utls";
+// import { formatNumberCurrency } from "@/utils/utls";
 
 interface PerformanceProps extends IProjectSingleData {
   budget_performance_calculated?: {

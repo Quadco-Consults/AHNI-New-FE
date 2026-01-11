@@ -3,14 +3,14 @@
 /* eslint-disable react/prop-types */
 
 import { useRouter, useParams } from "next/navigation";
-import { SelectContent, SelectItem } from "components/ui/select";
-import { Form } from "components/ui/form";
+import { SelectContent, SelectItem } from "@/components/ui/select";
+import { Form } from "@/components/ui/form";
 import { useFieldArray, useForm } from "react-hook-form";
 import VendorsAPI from "@/features/procurement/controllers/vendorsController";
-import FormSelect from "components/atoms/FormSelectField";
-import { LoadingSpinner } from "components/Loading";
+import FormSelect from "@/components/atoms/FormSelectField";
+import { LoadingSpinner } from "@/components/Loading";
 import { VendorsResultsData } from "definations/procurement-types/vendors";
-import FormInput from "components/atoms/FormInput";
+import FormInput from "@/components/atoms/FormInput";
 import React, { useEffect, useMemo } from "react";
 import { z } from "zod";
 import {
@@ -18,7 +18,7 @@ import {
   VendorBidSubmissionSchema,
   IVendorBidSubmission
 } from "@/features/procurement/types/procurement-validator";
-import FormTextArea from "components/atoms/FormTextArea";
+import FormTextArea from "@/components/atoms/FormTextArea";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import FormButton from "@/components/FormButton";
@@ -26,7 +26,7 @@ import { useCreateSolicitationSubmission } from "@/features/procurement/controll
 import { useGetSingleSolicitation } from "@/features/procurement/controllers/solicitationController";
 import { useGetAllSolicitationEvaluationCriteria } from "@/features/modules/controllers";
 
-import GoBack from "components/GoBack";
+import GoBack from "@/components/GoBack";
 
 const ManualBidSubmission = () => {
   const { id } = useParams<{ id: string }>();

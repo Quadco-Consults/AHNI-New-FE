@@ -3,15 +3,15 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import RoundBack from "assets/svgs/RoundBack";
 import FormButton from "@/components/FormButton";
-import FormInput from "components/atoms/FormInput";
-import FormSelect from "components/atoms/FormSelect";
-import { Form } from "components/ui/form";
-import { useAppDispatch, useAppSelector } from "hooks/useStore";
+import FormInput from "@/components/atoms/FormInput";
+import FormSelect from "@/components/atoms/FormSelect";
+import { Form } from "@/components/ui/form";
+import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
 
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { assetSelector, clearAssets } from "store/assets";
-import { closeDialog } from "store/ui";
+import { assetSelector, clearAssets } from "@/store/assets";
+import { closeDialog } from "@/store/ui";
 import { z } from "zod";
 
 const assetActionSchema = z.object({

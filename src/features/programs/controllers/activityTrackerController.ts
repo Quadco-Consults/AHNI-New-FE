@@ -29,11 +29,25 @@ export const useGetAllActivityTrackers = ({
       try {
         const params: any = { page, size, search };
         if (status) params.status = status;
-        if (work_plan__id) params.work_plan__id = work_plan__id;
+        // Try multiple filter parameter names for work plan filtering
+        // Backend might use different naming conventions
+        if (work_plan__id) {
+          params.work_plan_activity__work_plan = work_plan__id; // Filter through activity relationship
+          params.work_plan__id = work_plan__id; // Also try direct filter
+          params.work_plan = work_plan__id; // Also try simple name
+        }
+
+        console.log("🔍 Activity Tracker API params:", params);
 
         const response = await AxiosWithToken.get("/programs/plans/works/trackers/", {
           params,
         });
+
+        console.log("📊 Activity Tracker API response:", {
+          total: response.data?.data?.pagination?.count || response.data?.count,
+          results: response.data?.data?.results?.length || response.data?.results?.length
+        });
+
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;

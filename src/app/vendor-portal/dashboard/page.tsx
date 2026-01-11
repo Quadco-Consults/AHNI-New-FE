@@ -2,10 +2,10 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "components/ui/card";
-import { Button } from "components/ui/button";
-import { Badge } from "components/ui/badge";
-import { Alert, AlertDescription } from "components/ui/alert";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   FileText,
   TrendingUp,
@@ -24,7 +24,7 @@ import { VendorAuthUtils, useVendorProfile } from "@/features/vendor-portal/cont
 import { useVendorDashboardStats, useVendorAvailableRFQs, useVendorDashboardOverview } from "@/features/vendor-portal/controllers/vendorDashboardController";
 import { useVendorOrderSummary, useVendorPurchaseOrders, useVendorGRNs, POGRNUtils } from "@/features/vendor-portal/controllers/purchaseOrderController";
 import VendorNotifications from "@/features/vendor-portal/components/VendorNotifications";
-import { LoadingSpinner } from "components/Loading";
+import { LoadingSpinner } from "@/components/Loading";
 
 export default function VendorDashboardPage() {
   const router = useRouter();

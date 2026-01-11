@@ -3,10 +3,10 @@
 import { useParams, useRouter } from "next/navigation";
 import { useGetActivityMemo, useUpdateActivityMemo } from "@/features/procurement/controllers/activityMemoController";
 import { toast } from "sonner";
-import Card from "components/Card";
+import Card from "@/components/Card";
 import { AlertCircle, Loader2 } from 'lucide-react';
 import { Icon } from "@iconify/react";
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import CreateActivityMemoForm from "../create/CreateActivityMemoForm";
 
 const EditActivityMemoForm = () => {

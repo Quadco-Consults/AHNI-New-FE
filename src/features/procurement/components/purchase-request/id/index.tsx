@@ -4,20 +4,20 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { useGetPurchaseRequestById } from "@/features/procurement/controllers/purchaseRequestController";
 import { useGetActivityMemo } from "@/features/procurement/controllers/activityMemoController";
-import { LoadingSpinner } from "components/Loading";
-import Card from "components/Card";
-import GoBack from "components/GoBack";
+import { LoadingSpinner } from "@/components/Loading";
+import Card from "@/components/Card";
+import GoBack from "@/components/GoBack";
 import {
   Table,
   TableBody,
   TableCell,
   TableHeader,
   TableRow,
-} from "components/ui/table";
+} from "@/components/ui/table";
 
 import logoPng from "assets/imgs/logo.png";
 import { FileText, Download } from 'lucide-react';
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Icon } from "@iconify/react";
 import { useRef } from "react";
 

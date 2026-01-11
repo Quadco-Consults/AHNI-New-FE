@@ -2,7 +2,7 @@
 
 import CheckIcon from "assets/svgs/CheckIcon";
 import PendingIcon from "assets/svgs/PendingIcon";
-import { Separator } from "components/ui/separator";
+import { Separator } from "@/components/ui/separator";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { X } from "lucide-react";
@@ -13,10 +13,10 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "components/ui/breadcrumb";
-import { RouteEnum } from "constants/RouterConstants";
+} from "@/components/ui/breadcrumb";
+import { RouteEnum } from "@/constants/RouterConstants";
 import { Icon } from "@iconify/react";
-import GoBack from "components/GoBack";
+import GoBack from "@/components/GoBack";
 
 interface Step {
   step: number;

@@ -1,6 +1,6 @@
 import { IConsultancyStaffSingleData } from "@/features/contracts-grants/types/contract-management/consultancy-management/consultancy-application";
-import DescriptionCard from "components/DescriptionCard";
-import FilePreview from "components/FilePreview";
+import DescriptionCard from "@/components/DescriptionCard";
+import FilePreview from "@/components/FilePreview";
 import { useEffect, useState } from "react";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 

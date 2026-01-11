@@ -4,11 +4,11 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Button } from "components/ui/button";
-import { Textarea } from "components/ui/textarea";
-import { Label } from "components/ui/label";
-import { useAppDispatch, useAppSelector } from "hooks/useStore";
-import { closeDialog } from "store/ui";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
+import { closeDialog } from "@/store/ui";
 import { toast } from "sonner";
 import {
   useReviewFundRequest,

@@ -1,5 +1,5 @@
-import DataTable from "components/Table/DataTable";
-import TableFilters from "components/Table/TableFilters";
+import DataTable from "@/components/Table/DataTable";
+import TableFilters from "@/components/Table/TableFilters";
 import { FC } from "react";
 
 type FuelTableProps = {

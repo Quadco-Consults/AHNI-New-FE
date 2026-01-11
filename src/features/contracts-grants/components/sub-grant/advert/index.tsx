@@ -1,10 +1,10 @@
 "use client";
 
 import { useDebounce } from "ahooks";
-import AddSquareIcon from "components/icons/AddSquareIcon";
-import { LoadingSpinner } from "components/Loading";
-import { Button } from "components/ui/button";
-import { CG_ROUTES } from "constants/RouterConstants";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
+import { LoadingSpinner } from "@/components/Loading";
+import { Button } from "@/components/ui/button";
+import { CG_ROUTES } from "@/constants/RouterConstants";
 import { useState } from "react";
 import Link from "next/link";
 import { useGetAllSubGrants } from "@/features/contracts-grants/controllers/subGrantController";

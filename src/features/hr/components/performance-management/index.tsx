@@ -3,22 +3,22 @@
 /* eslint-disable no-unused-vars */
 import { ColumnDef } from "@tanstack/react-table";
 import FormButton from "@/components/FormButton";
-import AddSquareIcon from "components/icons/AddSquareIcon";
-import DataTable from "components/Table/DataTable";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
+import DataTable from "@/components/Table/DataTable";
 import React from "react";
 
 import FilterIcon2 from "assets/svgs/FilterIcon2";
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import Link from "next/link"; import { useRouter } from "next/navigation";
-import { HrRoutes, RouteEnum } from "constants/RouterConstants";
-import SearchBar from "components/SearchBar";
-import { Checkbox } from "components/ui/checkbox";
-import IconButton from "components/IconButton";
+import { HrRoutes, RouteEnum } from "@/constants/RouterConstants";
+import SearchBar from "@/components/SearchBar";
+import { Checkbox } from "@/components/ui/checkbox";
+import IconButton from "@/components/IconButton";
 import { Trash2 } from 'lucide-react';
 import { Icon } from "@iconify/react";
 import { useGetPerformanceAssesments } from "@/features/hr/controllers/hrPerformanceAssessmentController";
-import useDebounce from "utils/useDebounce";
-import { Badge } from "components/ui/badge";
+import useDebounce from "@/utils/useDebounce";
+import { Badge } from "@/components/ui/badge";
 import { getEvaluationProgress, getRatingLabel } from "@/features/hr/utils/performanceCalculations";
 
 const PerformanceManagement: React.FC = () => {

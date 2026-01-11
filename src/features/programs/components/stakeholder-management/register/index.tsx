@@ -1,17 +1,17 @@
 "use client";
 import Link from "next/link";
-import Card from "components/Card";
-import { Button } from "components/ui/button";
-import AddSquareIcon from "components/icons/AddSquareIcon";
-import SearchIcon from "components/icons/SearchIcon";
-import FilterIcon from "components/icons/FilterIcon";
-import { RouteEnum } from "constants/RouterConstants";
-import DataTable from "components/Table/DataTable";
+import Card from "@/components/Card";
+import { Button } from "@/components/ui/button";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
+import SearchIcon from "@/components/icons/SearchIcon";
+import FilterIcon from "@/components/icons/FilterIcon";
+import { RouteEnum } from "@/constants/RouterConstants";
+import DataTable from "@/components/Table/DataTable";
 import { useGetAllStakeholderRegister } from "@/features/programs/controllers/stakeholderController";
 import { useState } from "react";
-import BreadcrumbCard, { TBreadcrumbList } from "components/Breadcrumb";
+import BreadcrumbCard, { TBreadcrumbList } from "@/components/Breadcrumb";
 import { stakeholderRegisterColumnss } from "@/features/programs/components/table-columns/stakeholder-management/stakeholder-register";
-import TableFilters from "components/Table/TableFilters";
+import TableFilters from "@/components/Table/TableFilters";
 import { useDebounce } from "ahooks";
 
 const breadcrumbs: TBreadcrumbList[] = [

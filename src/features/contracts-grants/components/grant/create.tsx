@@ -2,15 +2,15 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { skipToken } from "@reduxjs/toolkit/query";
-import BackNavigation from "components/atoms/BackNavigation";
+import BackNavigation from "@/components/atoms/BackNavigation";
 import FormButton from "@/components/FormButton";
-import FormInput from "components/atoms/FormInput";
-import FormSelect from "components/atoms/FormSelect";
-import Card from "components/Card";
-import { CardContent } from "components/ui/card";
-import { Form } from "components/ui/form";
-import { CG_ROUTES } from "constants/RouterConstants";
-import { GrantSchema, TGrantFormData } from "features/contracts-grants/types/grants";
+import FormInput from "@/components/atoms/FormInput";
+import FormSelect from "@/components/atoms/FormSelect";
+import Card from "@/components/Card";
+import { CardContent } from "@/components/ui/card";
+import { Form } from "@/components/ui/form";
+import { CG_ROUTES } from "@/constants/RouterConstants";
+import { GrantSchema, TGrantFormData } from "@/features/contracts-grants/types/grants";
 import { useEffect } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useRouter, useSearchParams } from "next/navigation";

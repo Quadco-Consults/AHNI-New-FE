@@ -1,18 +1,18 @@
 import FormButton from "@/components/FormButton";
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import GoodReceiveNoteLayout from "./Layout";
 import { toast } from "sonner";
 import {
   useCreateGoodReceiveNote,
   useModifyGoodReceiveNote,
 } from "@/features/admin/controllers/goodReceiveNoteController";
-import AddSquareIcon from "components/icons/AddSquareIcon";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
 import React, { useEffect, useState } from "react";
-import Upload from "components/Upload";
-import { AdminRoutes } from "constants/RouterConstants";
+import Upload from "@/components/Upload";
+import { AdminRoutes } from "@/constants/RouterConstants";
 // import { Link } from "next/link";
 import { useRouter } from "next/navigation";
-import { TGoodReceiveNoteFormValues } from "features/admin/types/inventory-management/good-receive-note";
+import { TGoodReceiveNoteFormValues } from "@/features/admin/types/inventory-management/good-receive-note";
 import Link from "next/link";
 
 export default function GRNFileUploads() {

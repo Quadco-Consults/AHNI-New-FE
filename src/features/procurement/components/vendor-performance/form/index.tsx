@@ -3,15 +3,15 @@
 "use client";
 
 import FormButton from "@/components/FormButton";
-import FormInput from "components/atoms/FormInput";
-import FormSelect from "components/atoms/FormSelectField";
-import LongArrowRight from "components/icons/LongArrowRight";
-import GoBack from "components/GoBack";
-import { Form, FormControl, FormField, FormItem } from "components/ui/form";
-import { Label } from "components/ui/label";
-import MultiSelectFormField from "components/ui/multiselect";
-import { Separator } from "components/ui/separator";
-import { RouteEnum } from "constants/RouterConstants";
+import FormInput from "@/components/atoms/FormInput";
+import FormSelect from "@/components/atoms/FormSelectField";
+import LongArrowRight from "@/components/icons/LongArrowRight";
+import GoBack from "@/components/GoBack";
+import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
+import { Label } from "@/components/ui/label";
+import MultiSelectFormField from "@/components/ui/multiselect";
+import { Separator } from "@/components/ui/separator";
+import { RouteEnum } from "@/constants/RouterConstants";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";

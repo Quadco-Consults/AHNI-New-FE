@@ -3,11 +3,11 @@
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import ServiceLevelAgreementLayout from "./Layout";
-import { Card, CardContent } from "components/ui/card";
-import { Button } from "components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import FormButton from "@/components/FormButton";
-import BackNavigation from "components/atoms/BackNavigation";
-import { CG_ROUTES } from "constants/RouterConstants";
+import BackNavigation from "@/components/atoms/BackNavigation";
+import { CG_ROUTES } from "@/constants/RouterConstants";
 import { toast } from "sonner";
 import { useCreateAgreement, useGetSingleAgreement, useUpdateAgreement } from "@/features/contracts-grants/controllers/agreementController";
 

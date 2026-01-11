@@ -1,10 +1,10 @@
 "use client";
 
-import ApprovalDisplay, { ApprovalInfo } from "components/ApprovalDisplay";
+import ApprovalDisplay, { ApprovalInfo } from "@/components/ApprovalDisplay";
 import { useGetSingleSupervisionPlan } from "@/features/programs/controllers/supervisionPlanController";
 import { useParams } from "next/navigation";
 import { useMemo } from "react";
-import { LoadingSpinner } from "components/Loading";
+import { LoadingSpinner } from "@/components/Loading";
 
 type Props = {};
 

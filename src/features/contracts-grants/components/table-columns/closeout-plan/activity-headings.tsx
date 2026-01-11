@@ -1,12 +1,12 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import DeleteIcon from "components/icons/DeleteIcon";
-import PencilIcon from "components/icons/PencilIcon";
-import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
-import ConfirmationDialog from "components/ConfirmationDialog";
-import { Button } from "components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
+import DeleteIcon from "@/components/icons/DeleteIcon";
+import PencilIcon from "@/components/icons/PencilIcon";
+import MoreOptionsHorizontalIcon from "@/components/icons/MoreOptionsHorizontalIcon";
+import ConfirmationDialog from "@/components/ConfirmationDialog";
+import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { IActivityHeadingPaginatedData } from "@/features/contracts-grants/types/activity-heading";
 import { useState } from "react";
 import { useDeleteActivityHeading } from "@/features/contracts-grants/controllers/activityHeadingController";

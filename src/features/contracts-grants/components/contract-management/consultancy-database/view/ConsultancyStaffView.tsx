@@ -1,14 +1,14 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import Card from "components/Card";
-import BackNavigation from "components/BackNavigation";
-import { LoadingSpinner } from "components/Loading";
-import { Button } from "components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
-import { Badge } from "components/ui/badge";
-import PencilIcon from "components/icons/PencilIcon";
-import DescriptionCard from "components/DescriptionCard";
+import Card from "@/components/Card";
+import BackNavigation from "@/components/BackNavigation";
+import { LoadingSpinner } from "@/components/Loading";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import PencilIcon from "@/components/icons/PencilIcon";
+import DescriptionCard from "@/components/DescriptionCard";
 import { useGetSingleConsultancyApplicant } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
 import { format } from "date-fns";
 import { DollarSign, Calendar, CheckCircle, Clock, XCircle, Plus, FileText, TrendingUp } from "lucide-react";

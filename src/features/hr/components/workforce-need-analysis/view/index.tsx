@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import Card from "@/components/Card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { cn } from "lib/utils";
+import { cn } from "@/lib/utils";
 import { Icon } from "@iconify/react";
 import {
   Users,

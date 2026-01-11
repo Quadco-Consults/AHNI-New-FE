@@ -1,8 +1,8 @@
-import Card from "components/Card";
-import DescriptionCard from "components/DescriptionCard";
+import Card from "@/components/Card";
+import DescriptionCard from "@/components/DescriptionCard";
 import { ISubGrantSingleData } from "@/features/contracts-grants/types/contract-management/sub-grant/sub-grant";
 import { useMemo } from "react";
-import { formatNumberCurrency } from "utils/utls";
+import { formatNumberCurrency } from "@/utils/utls";
 import { useGetSingleDepartment } from "@/features/modules/controllers/config/departmentController";
 
 const SubGrantAwardDetails = ({

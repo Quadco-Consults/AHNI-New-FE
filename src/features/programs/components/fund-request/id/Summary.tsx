@@ -1,4 +1,4 @@
-import { Badge } from "components/ui/badge";
+import { Badge } from "@/components/ui/badge";
 import { IProjectSingleData } from "definations/project";
 import { useGetAllFundRequests } from "@/features/programs/controllers/fundRequestController";
 import { useMemo } from "react";

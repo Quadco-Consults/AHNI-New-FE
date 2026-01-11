@@ -1,18 +1,18 @@
 "use client";
 
-import Card from "components/Card";
+import Card from "@/components/Card";
 import {
   Table,
   TableBody,
   TableCell,
   TableHeader,
   TableRow,
-} from "components/ui/table";
+} from "@/components/ui/table";
 import logoPng from "@/assets/imgs/logo-bg.png";
-import GoBack from "components/GoBack";
+import GoBack from "@/components/GoBack";
 import { useParams } from "next/navigation";
 import VendorsEvaluaionAndPerformanceAPI from "@/features/procurement/controllers/vendorPerformanceEvaluationController";
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import { FileText } from "lucide-react";
 import Image from "next/image";
 import html2canvas from "html2canvas";

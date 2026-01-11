@@ -1,17 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "components/ui/button";
-import { Input } from "components/ui/input";
-import { Badge } from "components/ui/badge";
-import { Card } from "components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "components/ui/select";
+} from "@/components/ui/select";
 import {
   Plus,
   Search,
@@ -31,21 +31,21 @@ import {
   Download
 } from "lucide-react";
 import { toast } from "sonner";
-import DataTable from "components/Table/DataTable";
-import VendorBillForm from "features/finance/components/payables/VendorBillForm";
+import DataTable from "@/components/Table/DataTable";
+import VendorBillForm from "@/features/finance/components/payables/VendorBillForm";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "components/ui/dropdown-menu";
+} from "@/components/ui/dropdown-menu";
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
-} from "components/ui/tabs";
+} from "@/components/ui/tabs";
 
 // Types for Accounts Payable
 interface VendorBill {

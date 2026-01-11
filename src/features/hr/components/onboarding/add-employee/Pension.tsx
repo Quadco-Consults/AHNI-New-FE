@@ -1,33 +1,33 @@
 "use client";
 
 import React from "react";
-import { Separator } from "components/ui/separator";
-import FormInput from "components/atoms/FormInput";
-import { Form } from "components/ui/form";
+import { Separator } from "@/components/ui/separator";
+import FormInput from "@/components/atoms/FormInput";
+import { Form } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { useParams, useRouter } from "next/navigation"; 
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Save } from "lucide-react";
-import { HrRoutes } from "constants/RouterConstants";
-import { useAppDispatch } from "hooks/useStore";
-import { openDialog } from "store/ui";
-import { DialogType } from "constants/dailogs";
-import Card from "components/Card";
+import { HrRoutes } from "@/constants/RouterConstants";
+import { useAppDispatch } from "@/hooks/useStore";
+import { openDialog } from "@/store/ui";
+import { DialogType } from "@/constants/dailogs";
+import Card from "@/components/Card";
 import {
   WorkforcePensionFormValues,
   workforcePensionSchema,
-} from "features/hr/types/hr-validator";
+} from "@/features/hr/types/hr-validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import FormButton from "@/components/FormButton";
-import { updateStepCompletion } from "store/stepTracker";
+import { updateStepCompletion } from "@/store/stepTracker";
 import {
   useCreateEmployeeOnboardingPension,
   useGetEmployeeOnboardingPension,
   useUpdateEmployeeOnboardingPension,
 } from "@/features/hr/controllers/hrEmployeeOnboardingPensionController";
-import FormCheckBox from "components/atoms/FormCheckBox";
-import GoBack from "components/GoBack";
+import FormCheckBox from "@/components/atoms/FormCheckBox";
+import GoBack from "@/components/GoBack";
 
 const Pension = () => {
   const id = typeof window !== "undefined" ? localStorage.getItem("workforceID") || "" : "";

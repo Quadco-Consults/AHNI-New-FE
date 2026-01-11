@@ -1,9 +1,9 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { Button } from "components/ui/button";
-import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import MoreOptionsHorizontalIcon from "@/components/icons/MoreOptionsHorizontalIcon";
 import { useParams, usePathname } from "next/navigation";
 import Link from "next/link";
 import { IConsultancyStaffPaginatedData } from "@/features/contracts-grants/types/contract-management/consultancy-management/consultancy-application";

@@ -4,7 +4,7 @@ import logoSvg from "@/assets/svgs/logo-bg.svg";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { ChevronDown, ArrowLeft, Menu, LogOut } from 'lucide-react';
-import { cn } from "lib/utils";
+import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import {
   Building2,

@@ -1,12 +1,12 @@
 "use client";
 
-import BackNavigation from "components/atoms/BackNavigation";
-import Card from "components/Card";
-import DescriptionCard from "components/DescriptionCard";
-import { LoadingSpinner } from "components/Loading";
+import BackNavigation from "@/components/atoms/BackNavigation";
+import Card from "@/components/Card";
+import DescriptionCard from "@/components/DescriptionCard";
+import { LoadingSpinner } from "@/components/Loading";
 import { projectColumns } from "@/features/projects/components/table-columns/project-columns";
-import DataTable from "components/Table/DataTable";
-import { Separator } from "components/ui/separator";
+import DataTable from "@/components/Table/DataTable";
+import { Separator } from "@/components/ui/separator";
 import { useParams } from "next/navigation";
 import { useGetSingleFundingSourceManager } from "@/features/modules/controllers/project/fundingSourceController";
 import { useGetAllProjects } from "@/features/projects/controllers/projectController";

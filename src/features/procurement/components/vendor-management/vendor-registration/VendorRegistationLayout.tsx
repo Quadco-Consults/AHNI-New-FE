@@ -1,4 +1,4 @@
-import VendorRegistrationHeading from "components/VendorRegistrationHeading";
+import VendorRegistrationHeading from "@/components/VendorRegistrationHeading";
 import { FC, ReactNode } from "react";
 
 type IPageProps = {

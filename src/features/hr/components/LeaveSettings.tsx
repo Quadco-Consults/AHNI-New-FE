@@ -1,22 +1,22 @@
 "use client";
 
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 
-import Card from "components/Card";
+import Card from "@/components/Card";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "components/ui/accordion";
-import { Form } from "components/ui/form";
-import FormRadio from "components/atoms/FormRadio";
+} from "@/components/ui/accordion";
+import { Form } from "@/components/ui/form";
+import FormRadio from "@/components/atoms/FormRadio";
 import { useForm } from "react-hook-form";
-import { Switch } from "components/ui/switch";
-import EditIcon from "components/icons/EditIcon";
-import { useAppDispatch } from "hooks/useStore";
-import { openDialog } from "store/ui";
-import { DialogType } from "constants/dailogs";
+import { Switch } from "@/components/ui/switch";
+import EditIcon from "@/components/icons/EditIcon";
+import { useAppDispatch } from "@/hooks/useStore";
+import { openDialog } from "@/store/ui";
+import { DialogType } from "@/constants/dailogs";
 
 export default function LeaveSettings() {
   const form = useForm<{ submitted_employees: string[] }>({

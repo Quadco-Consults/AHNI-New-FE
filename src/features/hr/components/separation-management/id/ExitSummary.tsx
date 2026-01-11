@@ -1,5 +1,5 @@
-import Card from "components/Card";
-import DescriptionCard from "components/DescriptionCard";
+import Card from "@/components/Card";
+import DescriptionCard from "@/components/DescriptionCard";
 import { SeparationManagement } from "@/features/hr/types/separation-management";
 
 interface ExitSummaryProps {

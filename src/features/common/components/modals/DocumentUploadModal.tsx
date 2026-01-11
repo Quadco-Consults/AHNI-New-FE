@@ -10,8 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import useApiManager from "@/constants/mainController";
 import { toast } from "sonner";
-import { useAppDispatch } from "hooks/useStore";
-import { closeDialog } from "store/ui";
+import { useAppDispatch } from "@/hooks/useStore";
+import { closeDialog } from "@/store/ui";
 
 interface DocumentUploadModalProps {
   onClose?: () => void;

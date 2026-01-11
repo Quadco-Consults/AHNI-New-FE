@@ -1,8 +1,8 @@
 import { ColumnDef } from "@tanstack/react-table";
-// import FilterIcon from "components/icons/FilterIcon";
-import Card from "components/Card";
-import DataTable from "components/Table/DataTable";
-// import { Button } from "components/ui/button";
+// import FilterIcon from "@/components/icons/FilterIcon";
+import Card from "@/components/Card";
+import DataTable from "@/components/Table/DataTable";
+// import { Button } from "@/components/ui/button";
 // import { SearchIcon } from "lucide-react";
 // import React from "react";
 import { TPaginatedResponse } from "definations/index";

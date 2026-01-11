@@ -1,23 +1,23 @@
 import Link from "next/link";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { Button } from "components/ui/button";
-import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
-import EyeIcon from "components/icons/EyeIcon";
-import DeleteIcon from "components/icons/DeleteIcon";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import MoreOptionsHorizontalIcon from "@/components/icons/MoreOptionsHorizontalIcon";
+import EyeIcon from "@/components/icons/EyeIcon";
+import DeleteIcon from "@/components/icons/DeleteIcon";
 import { ColumnDef } from "@tanstack/react-table";
-import { Badge } from "components/ui/badge";
-import { cn } from "lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import EditIcon from "components/icons/EditIcon";
+import EditIcon from "@/components/icons/EditIcon";
 import { useDeleteProject } from "@/features/projects/controllers/projectController";
-import PencilIcon from "components/icons/PencilIcon";
-import { useAppDispatch } from "hooks/useStore";
-import { openDialog } from "store/ui";
-import { DialogType } from "constants/dailogs";
-import ConfirmationDialog from "components/ConfirmationDialog";
+import PencilIcon from "@/components/icons/PencilIcon";
+import { useAppDispatch } from "@/hooks/useStore";
+import { openDialog } from "@/store/ui";
+import { DialogType } from "@/constants/dailogs";
+import ConfirmationDialog from "@/components/ConfirmationDialog";
 import { useState } from "react";
 // import { IProjectSingleData } from "definations/project";
-import { formatNumberCurrency } from "utils/utls";
+import { formatNumberCurrency } from "@/utils/utls";
 import { IProjectSingleData } from "../../types/project";
 
 export const projectColumns: ColumnDef<IProjectSingleData>[] = [

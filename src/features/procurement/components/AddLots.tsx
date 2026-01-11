@@ -7,8 +7,8 @@ import { CardContent } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
 
-import { useAppDispatch, useAppSelector } from "hooks/useStore";
-import { closeDialog, dailogSelector } from "store/ui";
+import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
+import { closeDialog, dailogSelector } from "@/store/ui";
 import { toast } from "sonner";
 import {
     LotSchema,

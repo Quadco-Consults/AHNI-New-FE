@@ -2,13 +2,13 @@
 
 import React from "react";
 import { useFormContext } from "react-hook-form";
-import { Card, CardContent, CardHeader, CardTitle } from "components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DollarSignIcon } from "lucide-react";
 import { useGetAllTravelRatesManager } from "@/features/modules/controllers/config/travelRateController";
-import { Input } from "components/ui/input";
-import { Label } from "components/ui/label";
-import { Badge } from "components/ui/badge";
-import { Alert, AlertDescription } from "components/ui/alert";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { InfoIcon, AlertCircleIcon } from "lucide-react";
 
 import { TSiteVisitApplicationFormValues } from "@/features/programs/types/site-visit";

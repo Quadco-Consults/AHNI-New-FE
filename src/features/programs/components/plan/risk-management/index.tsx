@@ -1,22 +1,22 @@
 "use client";
 import Link from "next/link";
-import Card from "components/Card";
-import { Button } from "components/ui/button";
-import AddSquareIcon from "components/icons/AddSquareIcon";
-import DataTable from "components/Table/DataTable";
+import Card from "@/components/Card";
+import { Button } from "@/components/ui/button";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
+import DataTable from "@/components/Table/DataTable";
 import { useGetAllRiskManagementPlans, useDownloadRiskManagementPlanTemplate } from "@/features/programs/controllers/riskPlansController";
 import { useState, useEffect } from "react";
-import BreadcrumbCard, { TBreadcrumbList } from "components/Breadcrumb";
+import BreadcrumbCard, { TBreadcrumbList } from "@/components/Breadcrumb";
 import { riskManagementPlanColumns } from "@/features/programs/components/table-columns/plan/risk-management-plan";
-import TableFilters from "components/Table/TableFilters";
+import TableFilters from "@/components/Table/TableFilters";
 import { useDebounce } from "ahooks";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import ArrowDownIcon from "components/icons/ArrowDownIcon";
-import UploadIcon from "components/icons/UploadIcon";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import ArrowDownIcon from "@/components/icons/ArrowDownIcon";
+import UploadIcon from "@/components/icons/UploadIcon";
 import { DownloadIcon } from "lucide-react";
-import { useAppDispatch } from "hooks/useStore";
-import { openDialog } from "store/ui";
-import { DialogType, mediumDailogScreen } from "constants/dailogs";
+import { useAppDispatch } from "@/hooks/useStore";
+import { openDialog } from "@/store/ui";
+import { DialogType, mediumDailogScreen } from "@/constants/dailogs";
 import { toast } from "sonner";
 
 const breadcrumbs: TBreadcrumbList[] = [

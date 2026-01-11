@@ -1,19 +1,19 @@
 "use client";
 
-import BackNavigation from "components/atoms/BackNavigation";
+import BackNavigation from "@/components/atoms/BackNavigation";
 import React, { useState } from "react";
 import GrantDetailsCard from "./_components/GrantDetailsCard";
 import ExpenditureHistory from "./_components/ExpenditureHistory";
 import ModificationHistory from "./_components/ModificationHistory";
 import DisbursementHistory from "./_components/DisbursementHistory";
-import AddSquareIcon from "components/icons/AddSquareIcon";
-import { Button } from "components/ui/button";
-import { openDialog } from "store/ui";
-import { DialogType } from "constants/dailogs";
-import { useAppDispatch } from "hooks/useStore";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
+import { Button } from "@/components/ui/button";
+import { openDialog } from "@/store/ui";
+import { DialogType } from "@/constants/dailogs";
+import { useAppDispatch } from "@/hooks/useStore";
 import { useParams } from "next/navigation";
-import { LoadingSpinner } from "components/Loading";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
+import { LoadingSpinner } from "@/components/Loading";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { skipToken } from "@reduxjs/toolkit/query";
 import ObligationHistory from "./_components/ObligationHistory";
 import { useGetSingleGrant } from "@/features/contracts-grants/controllers/grantController";

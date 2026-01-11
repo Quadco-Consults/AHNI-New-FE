@@ -2,21 +2,21 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "@/components/FormButton";
-import FormInput from "components/atoms/FormInput";
-import FormSelect from "components/atoms/FormSelectField";
-import FormTextArea from "components/atoms/FormTextArea";
-import LongArrowLeft from "components/icons/LongArrowLeft";
-import Card from "components/Card";
-import { Form } from "components/ui/form";
-// import { RouteEnum } from "constants/RouterConstants";
+import FormInput from "@/components/atoms/FormInput";
+import FormSelect from "@/components/atoms/FormSelectField";
+import FormTextArea from "@/components/atoms/FormTextArea";
+import LongArrowLeft from "@/components/icons/LongArrowLeft";
+import Card from "@/components/Card";
+import { Form } from "@/components/ui/form";
+// import { RouteEnum } from "@/constants/RouterConstants";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
-import { nigerianStates } from "lib/index";
+import { nigerianStates } from "@/lib/index";
 import {
   StakeholderRegisterSchema,
   TStakeholderRegisterFormValues,
-} from "features/programs/types/program-validator";
+} from "@/features/programs/types/program-validator";
 import {
   useCreateStakeholderRegister,
   //   useCreateStakeholderRegisterController,
@@ -25,7 +25,7 @@ import {
 } from "@/features/programs/controllers/stakeholderController";
 import { useEffect } from "react";
 import { skipToken } from "@reduxjs/toolkit/query/react";
-import BreadcrumbCard, { TBreadcrumbList } from "components/Breadcrumb";
+import BreadcrumbCard, { TBreadcrumbList } from "@/components/Breadcrumb";
 
 const importanceOptions = ["1", "2", "3", "4", "5"].map((option) => ({
   label: option,

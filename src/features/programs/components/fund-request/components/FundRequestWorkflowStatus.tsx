@@ -1,19 +1,19 @@
 "use client";
 
 import React, { useState } from "react";
-import { Badge } from "components/ui/badge";
-import { Button } from "components/ui/button";
-import { Card } from "components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { CheckCircle, Clock, XCircle, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { FormProvider, useForm } from "react-hook-form";
-import FormTextArea from "components/atoms/FormTextArea";
+import FormTextArea from "@/components/atoms/FormTextArea";
 import {
   useReviewFundRequest,
   useApproveFundRequest,
   useFundRequestActions,
 } from "@/features/programs/controllers/fundRequestController";
-import { useUserApprovalPermissions } from "hooks/useUserApprovalPermissions";
+import { useUserApprovalPermissions } from "@/hooks/useUserApprovalPermissions";
 
 interface WorkflowStep {
   id: string;

@@ -1,4 +1,4 @@
-import Card from "components/Card";
+import Card from "@/components/Card";
 import welcomePng from "assets/imgs/welcome.png";
 import {
   VendorsResultsData,

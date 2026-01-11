@@ -1,17 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "components/ui/button";
-import { Input } from "components/ui/input";
-import { Badge } from "components/ui/badge";
-import { Card } from "components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "components/ui/select";
+} from "@/components/ui/select";
 import {
   Plus,
   Search,
@@ -32,7 +32,7 @@ import {
   Truck
 } from "lucide-react";
 import { toast } from "sonner";
-import DataTable from "components/Table/DataTable";
+import DataTable from "@/components/Table/DataTable";
 import SalesOrderForm from "../../../../features/finance/components/sales/SalesOrderForm";
 import {
   DropdownMenu,
@@ -40,7 +40,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "components/ui/dropdown-menu";
+} from "@/components/ui/dropdown-menu";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -50,14 +50,14 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "components/ui/alert-dialog";
+} from "@/components/ui/alert-dialog";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "components/ui/dialog";
+} from "@/components/ui/dialog";
 
 // Types for Sales Orders
 interface SalesOrder {

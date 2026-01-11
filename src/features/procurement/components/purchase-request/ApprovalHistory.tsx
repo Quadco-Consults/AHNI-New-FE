@@ -1,7 +1,7 @@
 "use client";
 
-import { Card } from "components/ui/card";
-import { Badge } from "components/ui/badge";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { CheckCircle, XCircle, Clock, User, Calendar, MessageSquare } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 

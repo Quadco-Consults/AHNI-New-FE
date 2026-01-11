@@ -1,12 +1,12 @@
 "use client";
 
-import { Checkbox } from "components/ui/checkbox";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
     FormControl,
     FormField,
     FormItem,
     FormLabel,
-} from "components/ui/form";
+} from "@/components/ui/form";
 import { FC, InputHTMLAttributes } from "react";
 import { useFormContext } from "react-hook-form";
 

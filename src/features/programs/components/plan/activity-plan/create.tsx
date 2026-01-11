@@ -2,15 +2,15 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "@/components/FormButton";
-import FormInput from "components/atoms/FormInput";
-import FormSelect from "components/atoms/FormSelectField";
-import FormTextArea from "components/atoms/FormTextArea";
-import LongArrowLeft from "components/icons/LongArrowLeft";
-import Card from "components/Card";
-import { Form } from "components/ui/form";
+import FormInput from "@/components/atoms/FormInput";
+import FormSelect from "@/components/atoms/FormSelectField";
+import FormTextArea from "@/components/atoms/FormTextArea";
+import LongArrowLeft from "@/components/icons/LongArrowLeft";
+import Card from "@/components/Card";
+import { Form } from "@/components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
-import useQuery from "hooks/useQuery";
+import useQuery from "@/hooks/useQuery";
 import {
     useCreateActivityPlan,
     useEditActivityPlan,
@@ -21,11 +21,11 @@ import { useEffect, useMemo } from "react";
 import {
     ActivityPlanSchema,
     TActivityPlanFormValues,
-} from "features/programs/types/activity-plan";
+} from "@/features/programs/types/activity-plan";
 import { toast } from "sonner";
-import { RouteEnum } from "constants/RouterConstants";
+import { RouteEnum } from "@/constants/RouterConstants";
 import { useGetAllProjects } from "@/features/projects/controllers/projectController";
-import BreadcrumbCard, { TBreadcrumbList } from "components/Breadcrumb";
+import BreadcrumbCard, { TBreadcrumbList } from "@/components/Breadcrumb";
 import { useGetSingleWorkPlan } from "@/features/programs/controllers/workPlanController";
 
 const booleanOptions = [

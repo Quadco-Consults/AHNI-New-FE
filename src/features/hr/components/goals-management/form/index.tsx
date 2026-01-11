@@ -19,13 +19,13 @@ import AddSquareIcon from "@/components/icons/AddSquareIcon";
 import FormInput from "@/components/FormInput";
 import { MinusCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { HrRoutes } from "constants/RouterConstants";
+import { HrRoutes } from "@/constants/RouterConstants";
 import { useCreateGoal, CreateGoalPayload } from "@/features/hr/controllers/goalsController";
 import { useQueryClient } from "@tanstack/react-query";
-import GoBack from "components/GoBack";
-import FormSelect from "components/atoms/FormSelectField";
+import GoBack from "@/components/GoBack";
+import FormSelect from "@/components/atoms/FormSelectField";
 import { useGetAllUsers, useGetReviewers } from "@/features/auth/controllers/userController";
-import { SelectContent } from "components/ui/select";
+import { SelectContent } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 

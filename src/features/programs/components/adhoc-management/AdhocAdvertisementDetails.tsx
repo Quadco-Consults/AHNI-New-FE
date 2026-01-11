@@ -1,15 +1,15 @@
 "use client";
 
-import BackNavigation from "components/atoms/BackNavigation";
-import AddSquareIcon from "components/icons/AddSquareIcon";
-import { Button } from "components/ui/button";
-import { ProgramRoutes } from "constants/RouterConstants";
+import BackNavigation from "@/components/atoms/BackNavigation";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
+import { Button } from "@/components/ui/button";
+import { ProgramRoutes } from "@/constants/RouterConstants";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
-import { LoadingSpinner } from "components/Loading";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { LoadingSpinner } from "@/components/Loading";
 import { useState } from "react";
-import Card from "components/Card";
+import Card from "@/components/Card";
 import { useGetSingleAdhocAdvertisement } from "@/features/programs/controllers/adhocAdvertisementController";
 import AdhocJobDetails from "./AdhocJobDetails";
 import AdhocApplicantsList from "./AdhocApplicantsList";

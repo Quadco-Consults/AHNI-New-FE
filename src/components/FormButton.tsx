@@ -1,5 +1,5 @@
-import { Button } from "components/ui/button";
-import { LoadingSpinner } from "components/Loading";
+import { Button } from "@/components/ui/button";
+import { LoadingSpinner } from "@/components/Loading";
 import { ComponentProps, FC, ReactNode } from "react";
 
 interface ButtonProps extends ComponentProps<typeof Button> {

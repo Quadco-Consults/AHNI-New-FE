@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Card from "components/Card";
-import { Badge } from "components/ui/badge";
-import { Button } from "components/ui/button";
-import { Separator } from "components/ui/separator";
+import Card from "@/components/Card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import { formatDate, differenceInDays, isPast, isFuture } from "date-fns";
 import { useGetMyPendingInterviews } from "@/features/hr/controllers/hrInterviewController";
 import {

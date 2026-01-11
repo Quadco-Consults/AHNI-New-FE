@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import Modal from "react-modal";
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Download, CheckCircle, Loader2, FileDown, FileUp, Upload } from 'lucide-react';
 import { Icon } from "@iconify/react";
 import { XLSX } from "@/utils/excelUtils";

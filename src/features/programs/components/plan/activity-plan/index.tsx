@@ -1,27 +1,26 @@
 "use client";
-import Card from "components/Card";
-import { Button } from "components/ui/button";
+import Card from "@/components/Card";
+import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import DataTable from "components/Table/DataTable";
-import BreadcrumbCard, { TBreadcrumbList } from "components/Breadcrumb";
+import DataTable from "@/components/Table/DataTable";
+import BreadcrumbCard, { TBreadcrumbList } from "@/components/Breadcrumb";
 import { activityPlanListColumns } from "@/features/programs/components/table-columns/plan/activity-plan-list";
 import { useDebounce } from "ahooks";
-import TableFilters from "components/Table/TableFilters";
+import TableFilters from "@/components/Table/TableFilters";
 import { useGetAllWorkPlan } from "@/features/programs/controllers/workPlanController";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import UploadIcon from "components/icons/UploadIcon";
-import ArrowDownIcon from "components/icons/ArrowDownIcon";
-import AddSquareIcon from "components/icons/AddSquareIcon";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import UploadIcon from "@/components/icons/UploadIcon";
+import ArrowDownIcon from "@/components/icons/ArrowDownIcon";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
 import { DownloadIcon } from "lucide-react";
 import Link from "next/link";
-import { RouteEnum } from "constants/RouterConstants";
-import { useAppDispatch } from "hooks/useStore";
-import { openDialog } from "store/ui";
-import { DialogType } from "constants/dailogs";
+import { RouteEnum } from "@/constants/RouterConstants";
+import { useAppDispatch } from "@/hooks/useStore";
+import { openDialog } from "@/store/ui";
+import { DialogType } from "@/constants/dailogs";
 import { toast } from "sonner";
 import {
   useDownloadActivityPlanTemplate,
-  useDownloadActivityPlansMutation,
 } from "@/features/programs/controllers/activityPlanController";
 
 const breadcrumbs: TBreadcrumbList[] = [
@@ -49,9 +48,6 @@ export default function ActivityPlan() {
   const { refetch: downloadTemplate, isFetching: isDownloading } =
     useDownloadActivityPlanTemplate(false);
 
-  const { downloadActivityPlans, isLoading: downloading } =
-    useDownloadActivityPlansMutation();
-
   const handleDownloadTemplate = async () => {
     try {
       await downloadTemplate();
@@ -61,36 +57,11 @@ export default function ActivityPlan() {
     }
   };
 
-  const handleDownload = async () => {
-    try {
-      const blob = await downloadActivityPlans({
-        search: debouncedSearchQuery,
-      });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "activityPlans.csv";
-      link.click();
-      window.URL.revokeObjectURL(url);
-    } catch (err) {
-      console.error("Download failed", err);
-    }
-  };
-
   return (
     <div className='space-y-5'>
       <BreadcrumbCard list={breadcrumbs} />
 
       <div className='flex justify-end gap-2'>
-        <div className=''>
-          <Button
-            onClick={handleDownload}
-            disabled={downloading}
-            className='flex gap-2 py-6'
-          >
-            {downloading ? "Downloading..." : "Download Activity Plans"}
-          </Button>
-        </div>
         <Popover>
           <PopoverTrigger asChild>
             <Button className='flex gap-2 py-6 w-40'>

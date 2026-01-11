@@ -1,7 +1,7 @@
 "use client";
 
-import Card from "components/Card";
-import { CardContent } from "components/ui/card";
+import Card from "@/components/Card";
+import { CardContent } from "@/components/ui/card";
 import PaymentRequestLayout from "./Layout";
 import {
   FormProvider,
@@ -12,11 +12,11 @@ import {
 import {
   PaymentRequestSchema,
   TPaymentRequestFormData,
-} from "features/admin/types/payment-request";
+} from "@/features/admin/types/payment-request";
 import { zodResolver } from "@hookform/resolvers/zod";
-import FormInput from "components/atoms/FormInput";
-import FormSelect from "components/atoms/FormSelect";
-import FormTextArea from "components/atoms/FormTextArea";
+import FormInput from "@/components/atoms/FormInput";
+import FormSelect from "@/components/atoms/FormSelect";
+import FormTextArea from "@/components/atoms/FormTextArea";
 import FormButton from "@/components/FormButton";
 import { useGetAllPurchaseOrdersQuery, useGetSinglePurchaseOrderQuery } from "@/features/procurement/controllers/purchaseOrderController";
 import { useEffect, useMemo, useCallback } from "react";
@@ -24,8 +24,8 @@ import { useEffect, useMemo, useCallback } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useGetAllUsersQuery } from "@/features/auth/controllers/userController";
-import { Button } from "components/ui/button";
-import { AdminRoutes } from "constants/RouterConstants";
+import { Button } from "@/components/ui/button";
+import { AdminRoutes } from "@/constants/RouterConstants";
 import { useGetSinglePaymentRequestQuery } from "@/features/admin/controllers/paymentRequestController";
 import { useGetAllConsultancyApplicants } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
 import { useGetAllFacilitatorApplicants } from "@/features/contracts-grants/controllers/facilitatorApplicantsController";

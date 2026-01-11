@@ -1,10 +1,10 @@
 "use client";
 
-import BackNavigation from "components/atoms/BackNavigation";
-import Card from "components/Card";
+import BackNavigation from "@/components/atoms/BackNavigation";
+import Card from "@/components/Card";
 import { useParams } from "next/navigation";
 import { useGetSingleAdhocAdvertisement } from "@/features/programs/controllers/adhocAdvertisementController";
-import { LoadingSpinner } from "components/Loading";
+import { LoadingSpinner } from "@/components/Loading";
 import CreateAdhocApplicantForm from "./CreateAdhocApplicantForm";
 
 export default function CreateAdhocApplicant() {

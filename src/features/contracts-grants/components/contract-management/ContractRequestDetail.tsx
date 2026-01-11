@@ -2,16 +2,16 @@
 
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import BackNavigation from "components/atoms/BackNavigation";
-import { Card, CardContent, CardHeader, CardTitle } from "components/ui/card";
-import { Button } from "components/ui/button";
-import { Badge } from "components/ui/badge";
-import { Separator } from "components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
+import BackNavigation from "@/components/atoms/BackNavigation";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ContractRequestReview from "./ContractRequestReview";
 import WorkflowHistory from "./WorkflowHistory";
 import { useGetSingleContractRequest } from "@/features/contracts-grants/controllers/contractController";
-import { LoadingSpinner } from "components/Loading";
+import { LoadingSpinner } from "@/components/Loading";
 import { usePermissions } from "@/hooks/usePermissions";
 
 export default function ContractRequestDetail() {

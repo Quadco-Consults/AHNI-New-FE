@@ -1,21 +1,21 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import FormButton from "components/FormButton";
-import FormInput from "components/FormInput";
-import FormTextArea from "components/FormTextArea";
-import { CardContent } from "components/ui/card";
-import { Form } from "components/ui/form";
+import FormButton from "@/components/FormButton";
+import FormInput from "@/components/FormInput";
+import FormTextArea from "@/components/FormTextArea";
+import { CardContent } from "@/components/ui/card";
+import { Form } from "@/components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useAppDispatch, useAppSelector } from "hooks/useStore";
-import { closeDialog, dailogSelector } from "store/ui";
+import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
+import { closeDialog, dailogSelector } from "@/store/ui";
 import { toast } from "sonner";
 
 import {
   IModificationSingleData,
   ModificationSchema,
   TModificationFormData,
-} from "features/contracts-grants/types/modification";
+} from "@/features/contracts-grants/types/modification";
 import { useCreateSubGrantModification } from "@/features/contracts-grants/controllers/subGrantModificationController";
 
 const SubGrantModificationModal = () => {

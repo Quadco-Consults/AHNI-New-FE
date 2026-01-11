@@ -1,27 +1,27 @@
 "use client";
 import Link from "next/link";
-import Card from "components/Card";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { Button } from "components/ui/button";
-import AddSquareIcon from "components/icons/AddSquareIcon";
-import SearchIcon from "components/icons/SearchIcon";
-import FilterIcon from "components/icons/FilterIcon";
-import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
-import { RouteEnum } from "constants/RouterConstants";
-import EyeIcon from "components/icons/EyeIcon";
-import DeleteIcon from "components/icons/DeleteIcon";
+import Card from "@/components/Card";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
+import SearchIcon from "@/components/icons/SearchIcon";
+import FilterIcon from "@/components/icons/FilterIcon";
+import MoreOptionsHorizontalIcon from "@/components/icons/MoreOptionsHorizontalIcon";
+import { RouteEnum } from "@/constants/RouterConstants";
+import EyeIcon from "@/components/icons/EyeIcon";
+import DeleteIcon from "@/components/icons/DeleteIcon";
 import { ColumnDef } from "@tanstack/react-table";
-import { Badge } from "components/ui/badge";
-import DataTable from "components/Table/DataTable";
-import BreadcrumbCard from "components/Breadcrumb";
+import { Badge } from "@/components/ui/badge";
+import DataTable from "@/components/Table/DataTable";
+import BreadcrumbCard from "@/components/Breadcrumb";
 import {
     useDeleteEngagementPlan,
     useGetAllEngagementPlans,
 } from "@/features/programs/controllers/engagementPlanController";
-import ConfirmationDialog from "components/ConfirmationDialog";
+import ConfirmationDialog from "@/components/ConfirmationDialog";
 import { useState } from "react";
 import { toast } from "sonner";
-import { TEngagementPlanPaginatedData } from "features/programs/types/engagement-plan";
+import { TEngagementPlanPaginatedData } from "@/features/programs/types/engagement-plan";
 
 const breadcrumbs = [
     { name: "Programs", icon: true },

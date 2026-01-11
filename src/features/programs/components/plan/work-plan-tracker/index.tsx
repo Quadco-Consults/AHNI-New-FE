@@ -1,12 +1,12 @@
 "use client";
-import Card from "components/Card";
+import Card from "@/components/Card";
 import { useState } from "react";
-import DataTable from "components/Table/DataTable";
+import DataTable from "@/components/Table/DataTable";
 import { useGetAllActivityTracker } from "@/features/programs/controllers/activity-tracker";
-import BreadcrumbCard, { TBreadcrumbList } from "components/Breadcrumb";
+import BreadcrumbCard, { TBreadcrumbList } from "@/components/Breadcrumb";
 import { workPlanTrackercolumns } from "@/features/programs/components/table-columns/plan/work-plan-tracker";
 import { useDebounce } from "ahooks";
-import TableFilters from "components/Table/TableFilters";
+import TableFilters from "@/components/Table/TableFilters";
 import { useGetAllWorkPlan } from "@/features/programs/controllers/workPlanController";
 
 const breadcrumbs: TBreadcrumbList[] = [

@@ -3,15 +3,15 @@
 import { useMemo } from "react";
 import { useGetAllVendorEvaluations } from "@/features/procurement/controllers/vendorPerformanceEvaluationController";
 import { useGetAllProcurementTrackers } from "@/features/procurement/controllers/procurementTrackerController";
-import Card from "components/Card";
-import { Badge } from "components/ui/badge";
-import { Button } from "components/ui/button";
+import Card from "@/components/Card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { AlertCircle, CheckCircle2, Clock, TrendingUp, AlertTriangle } from "lucide-react";
 import Link from "next/link";
-import { cn } from "lib/utils";
+import { cn } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
-import DataTable from "components/Table/DataTable";
-import { Loading } from "components/Loading";
+import DataTable from "@/components/Table/DataTable";
+import { Loading } from "@/components/Loading";
 
 interface VendorEvaluationSummary {
   vendor_id: string;

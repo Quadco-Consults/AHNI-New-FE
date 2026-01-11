@@ -1,12 +1,12 @@
 "use client";
 
-import GoBack from "components/GoBack";
+import GoBack from "@/components/GoBack";
 import { useParams } from "next/navigation";
 import EditPurchaseRequestForm from "./form";
-import BreadcrumbCard from "components/Breadcrumb";
+import BreadcrumbCard from "@/components/Breadcrumb";
 import { useGetPurchaseRequestById } from "@/features/procurement/controllers/purchaseRequestController";
 import { useGetActivityMemo } from "@/features/procurement/controllers/activityMemoController";
-import { LoadingSpinner } from "components/Loading";
+import { LoadingSpinner } from "@/components/Loading";
 
 function PurchaseRequestEdit() {
   const { id } = useParams();

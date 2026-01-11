@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Card from "components/Card";
+import Card from "@/components/Card";
 import { useGetAllAdhocApplicants } from "@/features/programs/controllers/adhocApplicantController";
 import { useGetAllAdhocAdvertisements } from "@/features/programs/controllers/adhocAdvertisementController";
 import { useRouter } from "next/navigation";

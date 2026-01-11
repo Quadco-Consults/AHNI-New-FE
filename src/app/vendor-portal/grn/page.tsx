@@ -2,12 +2,12 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "components/ui/card";
-import { Button } from "components/ui/button";
-import { Badge } from "components/ui/badge";
-import { Alert, AlertDescription } from "components/ui/alert";
-import { Input } from "components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   ClipboardCheck,
   Calendar,
@@ -29,7 +29,7 @@ import {
   POGRNUtils
 } from "@/features/vendor-portal/controllers/purchaseOrderController";
 import { GRNStatus } from "@/features/vendor-portal/types/purchase-orders";
-import { LoadingSpinner } from "components/Loading";
+import { LoadingSpinner } from "@/components/Loading";
 
 export default function VendorGRNPage() {
   const router = useRouter();

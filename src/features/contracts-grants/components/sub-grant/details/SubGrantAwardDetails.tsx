@@ -1,15 +1,15 @@
-import Card from "components/Card";
-import DescriptionCard from "components/DescriptionCard";
+import Card from "@/components/Card";
+import DescriptionCard from "@/components/DescriptionCard";
 import { ISubGrantSingleData } from "@/features/contracts-grants/types/contract-management/sub-grant/sub-grant";
 import { useMemo } from "react";
-import { formatNumberCurrency } from "utils/utls";
+import { formatNumberCurrency } from "@/utils/utls";
 import { useGetSingleDepartment } from "@/features/modules/controllers/config/departmentController";
 import { useGetAllLocations } from "@/features/modules/controllers/config/locationController";
 import { useGetSubGrantAwards, useGetSubGrantOverview } from "@/features/contracts-grants/controllers/multiAwardController";
-import { Badge } from "components/ui/badge";
-import { Progress } from "components/ui/progress";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import { MapPin, Users, DollarSign, Clock, Award } from "lucide-react";
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 const SubGrantAwardDetails = (props: ISubGrantSingleData & { parent_project?: any }) => {

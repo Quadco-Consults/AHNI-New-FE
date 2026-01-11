@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { Bell, CheckCircle, XCircle, Clock, AlertTriangle } from "lucide-react";
-import { Card } from "components/ui/card";
-import { Badge } from "components/ui/badge";
-import { Button } from "components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 interface ApprovalNotification {

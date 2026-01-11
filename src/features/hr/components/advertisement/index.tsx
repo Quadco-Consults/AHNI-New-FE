@@ -1,18 +1,18 @@
 "use client";
 
-import AddSquareIcon from "components/icons/AddSquareIcon";
-import Card from "components/Card";
-import { Loading } from "components/Loading";
-import { Badge } from "components/ui/badge";
-import { Button } from "components/ui/button";
-import { HrRoutes } from "constants/RouterConstants";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
+import Card from "@/components/Card";
+import { Loading } from "@/components/Loading";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { HrRoutes } from "@/constants/RouterConstants";
 import { format } from "date-fns";
 import { Briefcase, CalendarDays, Clock, MapPin, Users } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
 import { useGetJobAdvertisements } from "@/features/hr/controllers/jobAdvertisementController";
-import useDebounce from "utils/useDebounce";
-import SearchBar from "components/SearchBar";
+import useDebounce from "@/utils/useDebounce";
+import SearchBar from "@/components/SearchBar";
 
 const Advertisement = () => {
   const [searchTerm, setSearchTerm] = useState("");

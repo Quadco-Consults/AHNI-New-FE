@@ -1,10 +1,10 @@
-import Card from "components/Card";
-import DescriptionCard from "components/DescriptionCard";
-// import { projectColumns } from "components/Table/columns/project/project-columns";
-// import DataTable from "components/Table/DataTable";
-import { IGrantSingleData } from "features/contracts-grants/types/grants";
+import Card from "@/components/Card";
+import DescriptionCard from "@/components/DescriptionCard";
+// import { projectColumns } from "@/components/Table/columns/project/project-columns";
+// import DataTable from "@/components/Table/DataTable";
+import { IGrantSingleData } from "@/features/contracts-grants/types/grants";
 import { useMemo } from "react";
-import { formatNumberCurrency } from "utils/utls";
+import { formatNumberCurrency } from "@/utils/utls";
 
 // const GrantDetailsCard = ({
 //     award_type,

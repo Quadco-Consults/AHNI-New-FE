@@ -1,4 +1,4 @@
-import validatePassword from "utils/validate-password";
+import validatePassword from "@/utils/validate-password";
 
 type PropsType = {
     password: string;

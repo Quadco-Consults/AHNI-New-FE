@@ -2,16 +2,16 @@
 
 "use client";
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Overview from "./Overview";
 import Uploads from "./Uploads";
 import Questionnaire from "./Questionnaire";
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useParams } from "next/navigation"; 
-import { RouteEnum } from "constants/RouterConstants";
+import { RouteEnum } from "@/constants/RouterConstants";
 import VendorsAPI from "@/features/procurement/controllers/vendorsController";
-import { LoadingSpinner } from "components/Loading";
+import { LoadingSpinner } from "@/components/Loading";
 import { VendorsResultsData } from "definations/procurement-types/vendors";
 import {
   Breadcrumb,
@@ -19,10 +19,10 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "components/ui/breadcrumb";
+} from "@/components/ui/breadcrumb";
 import { Edit } from 'lucide-react';
 import { Icon } from "@iconify/react";
-import GoBack from "components/GoBack";
+import GoBack from "@/components/GoBack";
 
 // Helper function to generate path with parameters
 const generatePath = (route: string, params?: Record<string, any>): string => {

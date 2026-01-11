@@ -1,15 +1,15 @@
 "use client";
 
 import { useMemo } from "react";
-import Card from "components/Card";
-import DataTable from "components/Table/DataTable";
-import { Badge } from "components/ui/badge";
-import { Button } from "components/ui/button";
-import { Progress } from "components/ui/progress";
+import Card from "@/components/Card";
+import DataTable from "@/components/Table/DataTable";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import { MapPin, Phone, Mail, DollarSign, Users, Award, Eye, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { useGetSubGrantAwards, useGetSubGrantOverview } from "@/features/contracts-grants/controllers/multiAwardController";
-import { LoadingSpinner } from "components/Loading";
+import { LoadingSpinner } from "@/components/Loading";
 import { ColumnDef } from "@tanstack/react-table";
 
 interface AwardedPartnersViewProps {

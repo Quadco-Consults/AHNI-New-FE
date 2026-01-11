@@ -1,19 +1,19 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { Badge } from "components/ui/badge";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 // import { IFacilityMaintenancePaginatedData } from "definations/admin/facility-management/facility-maintenance";
 import { useDeleteFacilityMaintenanceMutation } from "@/features/admin/controllers/facilityMaintenanceController";
 import { useState } from "react";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { Button } from "components/ui/button";
-import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import MoreOptionsHorizontalIcon from "@/components/icons/MoreOptionsHorizontalIcon";
 import Link from "next/link";
-import { AdminRoutes } from "constants/RouterConstants";
-import EyeIcon from "components/icons/EyeIcon";
-import DeleteIcon from "components/icons/DeleteIcon";
-import ConfirmationDialog from "components/ConfirmationDialog";
-import PencilIcon from "components/icons/PencilIcon";
-import { cn } from "lib/utils";
+import { AdminRoutes } from "@/constants/RouterConstants";
+import EyeIcon from "@/components/icons/EyeIcon";
+import DeleteIcon from "@/components/icons/DeleteIcon";
+import ConfirmationDialog from "@/components/ConfirmationDialog";
+import PencilIcon from "@/components/icons/PencilIcon";
+import { cn } from "@/lib/utils";
 import { IFacilityMaintenancePaginatedData } from "@/features/admin/types/facility-management/facility-maintenance";
 
 export const facilityMaintenanceColumns: ColumnDef<IFacilityMaintenancePaginatedData>[] =

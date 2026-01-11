@@ -9,8 +9,8 @@ import {
   IObligationPaginatedData,
   ObligationSchema,
   TObligationFormData,
-} from "features/contracts-grants/types/grants";
-import { useAppDispatch, useAppSelector } from "hooks/useStore";
+} from "@/features/contracts-grants/types/grants";
+import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
 import { SubmitHandler, useForm } from "react-hook-form";
 import {
   useCreateObligation,
@@ -21,7 +21,7 @@ import {
   useUpdateSubGrantObligation,
 } from "@/features/contracts-grants/controllers/subGrantObligationController";
 import { toast } from "sonner";
-import { closeDialog } from "store/ui";
+import { closeDialog } from "@/store/ui";
 
 export default function ObligationModal() {
   const { dialogProps } = useAppSelector((state) => state.ui.dailog);

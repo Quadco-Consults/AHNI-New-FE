@@ -1,13 +1,13 @@
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { useAppDispatch } from "hooks/useStore";
-import { openDialog } from "store/ui";
-import { DialogType } from "constants/dailogs";
-import TableAction from "components/TableAction";
-import { LoadingSpinner } from "components/Loading";
+import { useAppDispatch } from "@/hooks/useStore";
+import { openDialog } from "@/store/ui";
+import { DialogType } from "@/constants/dailogs";
+import TableAction from "@/components/TableAction";
+import { LoadingSpinner } from "@/components/Loading";
 import { useState } from "react";
 import { useDeleteCostInputMutation } from "@/features/modules/controllers/finance/costInputController";
-import Pagination from "components/Pagination";
+import Pagination from "@/components/Pagination";
 import { useGetAllCostGroupingsQuery } from "@/features/modules/controllers/finance/costGroupingController";
 
 export default function AllCostGroupings() {

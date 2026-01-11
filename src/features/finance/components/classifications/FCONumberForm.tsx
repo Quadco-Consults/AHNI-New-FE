@@ -4,10 +4,10 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Button } from "components/ui/button";
-import { Input } from "components/ui/input";
-import { Textarea } from "components/ui/textarea";
-import { Switch } from "components/ui/switch";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import {
   Form,
@@ -16,14 +16,14 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "components/ui/form";
+} from "@/components/ui/form";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "components/ui/dialog";
+} from "@/components/ui/dialog";
 import {
   useCreateFCONumber,
   useUpdateFCONumber,

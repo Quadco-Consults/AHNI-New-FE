@@ -3,7 +3,7 @@
 import React, { forwardRef, useMemo, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { Check, ChevronsUpDown, ChevronDown } from "lucide-react";
-import { cn } from "lib/utils";
+import { cn } from "@/lib/utils";
 
 // UI Components
 import {
@@ -12,14 +12,14 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "components/ui/form";
+} from "@/components/ui/form";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "components/ui/select";
+} from "@/components/ui/select";
 import {
   Command,
   CommandEmpty,
@@ -27,13 +27,13 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "components/ui/command";
+} from "@/components/ui/command";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "components/ui/popover";
-import { Button } from "components/ui/button";
+} from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
 
 type TOption = {
   label: string;

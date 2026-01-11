@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState } from "react";
-import Card from "components/Card";
+import Card from "@/components/Card";
 import { contractRecipientsColumns } from "@/features/contracts-grants/components/table-columns/contract-management/contract-recipients";
-import DataTable from "components/Table/DataTable";
-import TableFilters from "components/Table/TableFilters";
+import DataTable from "@/components/Table/DataTable";
+import TableFilters from "@/components/Table/TableFilters";
 import { useGetAllAdhocApplicants } from "@/features/programs/controllers/adhocApplicantController";
 
 export default function ContractRecipients() {

@@ -1,13 +1,13 @@
 "use client";
 
 import { skipToken } from "@reduxjs/toolkit/query";
-import BackNavigation from "components/atoms/BackNavigation";
-import Card from "components/Card";
-import DescriptionCard from "components/DescriptionCard";
-import { LoadingSpinner } from "components/Loading";
+import BackNavigation from "@/components/atoms/BackNavigation";
+import Card from "@/components/Card";
+import DescriptionCard from "@/components/DescriptionCard";
+import { LoadingSpinner } from "@/components/Loading";
 import { useParams } from "next/navigation";
 import { useGetSingleCloseOutPlan, useUpdateTaskStatus } from "@/features/contracts-grants/controllers/closeoutPlanController";
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Download } from 'lucide-react';
 import { Icon } from "@iconify/react";
 import { toast } from "sonner";

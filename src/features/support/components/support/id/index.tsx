@@ -1,15 +1,15 @@
 "use client";
 
-import { Card, CardContent, CardHeader } from "components/ui/card";
-import { Separator } from "components/ui/separator";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { useParams, useRouter } from "next/navigation";
 import { useGetSingleTicket, useEditTicket } from "@/features/support/controllers/supportController";
-import { LoadingSpinner } from "components/Loading";
-import DescriptionCard from "components/DescriptionCard";
-import { Badge } from "components/ui/badge";
-import { cn } from "lib/utils";
-import BackNavigation from "components/atoms/BackNavigation";
-import { Button } from "components/ui/button";
+import { LoadingSpinner } from "@/components/Loading";
+import DescriptionCard from "@/components/DescriptionCard";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import BackNavigation from "@/components/atoms/BackNavigation";
+import { Button } from "@/components/ui/button";
 import { CheckCircle, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
@@ -137,7 +137,13 @@ export default function SupportDetails() {
 
           <DescriptionCard
             label="Sender"
-            description={ticket.data.sender || "N/A"}
+            description={
+              ticket.data.sender && ticket.data.sender !== "N/A"
+                ? ticket.data.sender
+                : ticket.data.email
+                  ? ticket.data.email.split("@")[0].replace(/[._]/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase())
+                  : "N/A"
+            }
           />
 
           <DescriptionCard

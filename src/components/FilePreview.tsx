@@ -1,7 +1,7 @@
 "use client";
 
-import DeleteIcon from "components/icons/DeleteIcon";
-import { Button } from "components/ui/button";
+import DeleteIcon from "@/components/icons/DeleteIcon";
+import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { useState } from "react";
 import {
@@ -10,10 +10,10 @@ import {
   FileText,
   FileImage
 } from "lucide-react";
-import { getFileExtension } from "utils/get-file-extension";
+import { getFileExtension } from "@/utils/get-file-extension";
 import Link from "next/link";
 import ConfirmationDialog from "./ConfirmationDialog";
-// import ConfirmationDialog from "components/ConfirmationDialog";
+// import ConfirmationDialog from "@/components/ConfirmationDialog";
 
 const FILE_TYPE_ICONS = {
   png: Image,

@@ -1,15 +1,15 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { Badge } from "components/ui/badge";
-import { Button } from "components/ui/button";
-import Card from "components/Card";
-import DataTable from "components/Table/DataTable";
-import { Loading } from "components/Loading";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import Card from "@/components/Card";
+import DataTable from "@/components/Table/DataTable";
+import { Loading } from "@/components/Loading";
 import { useGetInterviews } from "@/features/hr/controllers/hrInterviewController";
 import { JobAdvertisement } from "@/features/hr/types/job-advertisement";
 import Link from "next/link";
-import EyeIcon from "components/icons/EyeIcon";
+import EyeIcon from "@/components/icons/EyeIcon";
 import { formatDate } from "date-fns";
 import {
   Table,
@@ -18,7 +18,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "components/ui/table";
+} from "@/components/ui/table";
 
 interface MyInterviewData {
   id: string;

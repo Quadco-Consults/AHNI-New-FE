@@ -1,8 +1,8 @@
 import { ColumnDef } from "@tanstack/react-table";
-import Card from "components/Card";
-import GoBack from "components/GoBack";
-import DataTable from "components/Table/DataTable";
-import { Button } from "components/ui/button";
+import Card from "@/components/Card";
+import GoBack from "@/components/GoBack";
+import DataTable from "@/components/Table/DataTable";
+import { Button } from "@/components/ui/button";
 import { FileDown } from "lucide-react";
 
 const FuelTableDetail = () => {

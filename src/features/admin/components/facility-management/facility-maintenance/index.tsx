@@ -1,8 +1,8 @@
 import { facilityMaintenanceColumns } from "@/features/admin/components/table-columns/facility-management/facility-maintenance";
-import DataTable from "components/Table/DataTable";
-import TableFilters from "components/Table/TableFilters";
-import { Button } from "components/ui/button";
-import { AdminRoutes } from "constants/RouterConstants";
+import DataTable from "@/components/Table/DataTable";
+import TableFilters from "@/components/Table/TableFilters";
+import { Button } from "@/components/ui/button";
+import { AdminRoutes } from "@/constants/RouterConstants";
 import { useState } from "react";
 import Link from "next/link";
 import { useGetAllFacilityMaintenance } from "@/features/admin/controllers/facilityMaintenanceController";

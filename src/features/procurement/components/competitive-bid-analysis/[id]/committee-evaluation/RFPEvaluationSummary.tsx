@@ -2,9 +2,9 @@
 
 import { useMemo } from "react";
 import { Info } from 'lucide-react';import { Icon } from "@iconify/react";
-import Card from "components/Card";
-import { Badge } from "components/ui/badge";
-import { Button } from "components/ui/button";
+import Card from "@/components/Card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 interface RFPEvaluationSummaryProps {
   cbaId: string;

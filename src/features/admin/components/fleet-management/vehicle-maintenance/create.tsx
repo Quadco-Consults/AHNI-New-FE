@@ -1,17 +1,17 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import BackNavigation from "components/atoms/BackNavigation";
+import BackNavigation from "@/components/atoms/BackNavigation";
 import FormButton from "@/components/FormButton";
-import FormInput from "components/atoms/FormInput";
-import FormSelect from "components/atoms/FormSelectField";
-import FormTextArea from "components/atoms/FormTextArea";
-import { Card, CardContent } from "components/ui/card";
-import { AdminRoutes } from "constants/RouterConstants";
+import FormInput from "@/components/atoms/FormInput";
+import FormSelect from "@/components/atoms/FormSelectField";
+import FormTextArea from "@/components/atoms/FormTextArea";
+import { Card, CardContent } from "@/components/ui/card";
+import { AdminRoutes } from "@/constants/RouterConstants";
 import {
   TVehicleMaintenanceFormValues,
   VehicleMaintenanceSchema,
-} from "features/admin/types/fleet-management/vehicle-maintenance";
+} from "@/features/admin/types/fleet-management/vehicle-maintenance";
 import { useEffect, useMemo } from "react";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { useRouter, useSearchParams } from "next/navigation";

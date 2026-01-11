@@ -1,16 +1,16 @@
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { useAppDispatch } from "hooks/useStore";
-import { openDialog } from "store/ui";
-import { DialogType } from "constants/dailogs";
-import TableAction from "components/TableAction";
-import { LoadingSpinner } from "components/Loading";
+import { useAppDispatch } from "@/hooks/useStore";
+import { openDialog } from "@/store/ui";
+import { DialogType } from "@/constants/dailogs";
+import TableAction from "@/components/TableAction";
+import { LoadingSpinner } from "@/components/Loading";
 import { useState } from "react";
 import {
   useDeleteLot,
   useGetAllLots,
 } from "@/features/modules/controllers/procurement/lotController";
-import Pagination from "components/Pagination";
+import Pagination from "@/components/Pagination";
 
 export default function AllLots() {
   const [page, setPage] = useState(1);

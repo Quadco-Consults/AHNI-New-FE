@@ -3,11 +3,11 @@
 export const dynamic = "force-dynamic";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "components/ui/card";
-import { Button } from "components/ui/button";
-import { Badge } from "components/ui/badge";
-import { Alert, AlertDescription } from "components/ui/alert";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
 
 Calendar,
@@ -23,7 +23,7 @@ Calendar,
   ArrowLeft
 } from "lucide-react";
 import { useVendorRFQDetails } from "@/features/vendor-portal/controllers/vendorDashboardController";
-import { LoadingSpinner } from "components/Loading";
+import { LoadingSpinner } from "@/components/Loading";
 
 export default function VendorRFQDetailsPage() {
   const params = useParams();

@@ -1,8 +1,8 @@
 "use client";
 
-import Card from "components/Card";
-import GoBack from "components/GoBack";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
+import Card from "@/components/Card";
+import GoBack from "@/components/GoBack";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import JobDetail from "./JobDetail";
 import SubmittedApplication from "./SubmittedApplication";
 import Shortlist from "./Shortlist";
@@ -10,7 +10,7 @@ import InterviewAnalysis from "./InterviewAnalysis";
 import Interviewed from "./Interviewed";
 import MyInterviews from "./MyInterviews";
 import  { useGetJobAdvertisement } from "@/features/hr/controllers/jobAdvertisementController";
-import { Loading } from "components/Loading";
+import { Loading } from "@/components/Loading";
 import { useParams } from "next/navigation";
 
 const AdvertisementDetail = () => {

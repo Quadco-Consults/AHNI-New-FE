@@ -3,16 +3,16 @@
 import React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { UploadFileSvg } from "assets/svgs/CAndGSvgs";
-import FadedButton from "components/atoms/FadedButton";
+import FadedButton from "@/components/atoms/FadedButton";
 import FormButton from "@/components/FormButton";
-import FormInput from "components/atoms/FormInput";
-import FormSelect from "components/atoms/FormSelect";
-import FormTextArea from "components/atoms/FormTextArea";
-import AddSquareIcon from "components/icons/AddSquareIcon";
-import DeleteIcon from "components/icons/DeleteIcon";
-import { Button } from "components/ui/button";
-import { Label } from "components/ui/label";
-import { countries } from "constants/countries";
+import FormInput from "@/components/atoms/FormInput";
+import FormSelect from "@/components/atoms/FormSelect";
+import FormTextArea from "@/components/atoms/FormTextArea";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
+import DeleteIcon from "@/components/icons/DeleteIcon";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { countries } from "@/constants/countries";
 import {
   ConsultancyStaffSchema,
   IConsultancyStaffSingleData,
@@ -33,7 +33,7 @@ import {
   useModifyConsultancyStaffMutation,
 } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
 import { toast } from "sonner";
-import { fileToBase64 } from "utils/fileToBase64";
+import { fileToBase64 } from "@/utils/fileToBase64";
 
 export default function NewConsultancyStaffForm({
   consultancyStaffData,

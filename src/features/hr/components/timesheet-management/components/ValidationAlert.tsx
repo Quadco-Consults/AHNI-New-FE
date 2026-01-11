@@ -2,7 +2,7 @@
 
 import { AlertCircle, AlertTriangle, X } from "lucide-react";
 import { ValidationError, getValidationMessageStyle } from "../../../utils/timesheetValidation";
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import { useState } from "react";
 
 interface ValidationAlertProps {

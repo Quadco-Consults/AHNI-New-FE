@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Card } from "components/ui/card";
+import { Card } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -9,8 +9,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "components/ui/table";
-import { Badge } from "components/ui/badge";
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 import { CheckCircle, Clock, User } from "lucide-react";
 import { TFundRequestResponseData } from "@/features/programs/types/fund-request";
 

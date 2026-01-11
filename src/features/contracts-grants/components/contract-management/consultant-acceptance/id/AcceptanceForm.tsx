@@ -2,19 +2,19 @@
 
 import { UploadFileSvg } from "assets/svgs/CAndGSvgs";
 import FormButton from "@/components/FormButton";
-import FormInput from "components/atoms/FormInput";
-import { Form } from "components/ui/form";
-import { Label } from "components/ui/label";
-import { Separator } from "components/ui/separator";
-import { Checkbox } from "components/ui/checkbox";
+import FormInput from "@/components/atoms/FormInput";
+import { Form } from "@/components/ui/form";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useParams, useRouter } from "next/navigation";
 import { useUpdateConsultancyApplicant, useGetSingleConsultancyApplicant } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
 import { FileText, Download, CheckCircle, XCircle, AlertCircle, Eye } from "lucide-react";
-import { Button } from "components/ui/button";
-import Card from "components/Card";
+import { Button } from "@/components/ui/button";
+import Card from "@/components/Card";
 import { createUserAccountFromApplicant } from "@/utils/createUserFromApplicant";
 
 interface AcceptanceFormData {

@@ -1,6 +1,6 @@
 import { TabsContent } from "@radix-ui/react-tabs";
-import { Tabs, TabsList, TabsTrigger } from "components/ui/tabs";
-import { Card } from "components/ui/card";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card } from "@/components/ui/card";
 import FundingList from "./AllFundingSource";
 import Beneficiaries from "./AllBeneficiary";
 import Partners from "./AllPartner";

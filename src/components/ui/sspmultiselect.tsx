@@ -1,10 +1,10 @@
 import React, { forwardRef, useRef, useState, useEffect } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { CheckIcon, XCircle, ChevronDown, XIcon } from "lucide-react";
-import { cn } from "lib/utils";
-import { Separator } from "components/ui/separator";
-import { Badge } from "components/ui/badge";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
+import { cn } from "@/lib/utils";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
     Command,
     CommandEmpty,
@@ -13,8 +13,8 @@ import {
     CommandItem,
     CommandList,
     CommandSeparator,
-} from "components/ui/command";
-import { IUser } from "features/auth/types/user";
+} from "@/components/ui/command";
+import { IUser } from "@/features/auth/types/user";
 
 const multiSelectVariants = cva("m-1", {
     variants: {

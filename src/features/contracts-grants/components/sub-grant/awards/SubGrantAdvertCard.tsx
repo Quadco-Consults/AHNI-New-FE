@@ -8,12 +8,12 @@ import {
     PersonClusterSvg,
     SuiteCase,
 } from "assets/svgs/CAndGSvgs";
-import DeleteIcon from "components/icons/DeleteIcon";
-import PencilIcon from "components/icons/PencilIcon";
-import ConfirmationDialog from "components/ConfirmationDialog";
-import Card from "components/Card";
-import { Button } from "components/ui/button";
-import { CardTitle } from "components/ui/card";
+import DeleteIcon from "@/components/icons/DeleteIcon";
+import PencilIcon from "@/components/icons/PencilIcon";
+import ConfirmationDialog from "@/components/ConfirmationDialog";
+import Card from "@/components/Card";
+import { Button } from "@/components/ui/button";
+import { CardTitle } from "@/components/ui/card";
 import { format } from "date-fns";
 import { ISubGrantPaginatedData } from "@/features/contracts-grants/types/contract-management/sub-grant/sub-grant";
 import React, { useState, useMemo } from "react";

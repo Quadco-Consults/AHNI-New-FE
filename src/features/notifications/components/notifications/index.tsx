@@ -1,17 +1,17 @@
-import Card from "components/Card";
-import { Button } from "components/ui/button";
-import SearchIcon from "components/icons/SearchIcon";
-import FilterIcon from "components/icons/FilterIcon";
+import Card from "@/components/Card";
+import { Button } from "@/components/ui/button";
+import SearchIcon from "@/components/icons/SearchIcon";
+import FilterIcon from "@/components/icons/FilterIcon";
 import {
     Breadcrumb,
     BreadcrumbItem,
     BreadcrumbList,
     BreadcrumbPage,
     BreadcrumbSeparator,
-} from "components/ui/breadcrumb";
+} from "@/components/ui/breadcrumb";
 import { Icon } from "@iconify/react";
 import { X } from "lucide-react";
-import ArrowDownIcon from "components/icons/ArrowDownIcon";
+import ArrowDownIcon from "@/components/icons/ArrowDownIcon";
 import { TNotification, NotificationFilters } from "@/features/notifications/controllers/notificationController";
 import { useGetNotifications, useMarkAllAsRead } from "@/features/notifications/controllers/notificationController";
 import NotificationContent from "../NotificationContent";
@@ -19,10 +19,10 @@ import NotificationList from "../NotificationList";
 import NotificationListInfinite from "../NotificationListInfinite";
 import NotificationPreferences from "../NotificationPreferences";
 import { NotificationListSkeleton, NotificationContentSkeleton } from "../NotificationSkeleton";
-import EmptyTodoIcon from "components/icons/EmptyTodoIcon";
+import EmptyTodoIcon from "@/components/icons/EmptyTodoIcon";
 import { useState, useMemo } from "react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useVendorEvaluationReminders } from "@/features/procurement/hooks/useVendorEvaluationReminders";
 
 export default function Notifications() {

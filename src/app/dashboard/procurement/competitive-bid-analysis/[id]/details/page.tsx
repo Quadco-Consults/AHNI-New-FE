@@ -3,11 +3,11 @@
 export const dynamic = "force-dynamic";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { Button } from "components/ui/button";
-import { Badge } from "components/ui/badge";
-import Card from "components/Card";
-import GoBack from "components/GoBack";
-import { LoadingSpinner } from "components/Loading";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import Card from "@/components/Card";
+import GoBack from "@/components/GoBack";
+import { LoadingSpinner } from "@/components/Loading";
 import CbaAPI from "@/features/procurement/controllers/cbaController";
 import { useGetSolicitationSubmission } from "@/features/procurement/controllers/vendorBidSubmissionsController";
 import { useGetSingleSolicitation } from "@/features/procurement/controllers/solicitationController";
@@ -29,7 +29,7 @@ Users,
   UserCheck,
   Clock
 } from 'lucide-react';
-import { RouteEnum } from "constants/RouterConstants";
+import { RouteEnum } from "@/constants/RouterConstants";
 import { useState, useMemo } from "react";
 
 const generatePath = (route: string, params?: Record<string, any>): string => {

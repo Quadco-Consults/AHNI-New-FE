@@ -1,30 +1,30 @@
 "use client";
 import { useRouter } from "next/navigation";
 import FormButton from "@/components/FormButton";
-import { openDialog } from "store/ui";
-import { DialogType } from "constants/dailogs";
-import { Label } from "components/ui/label";
-import { useAppDispatch, useAppSelector } from "hooks/useStore";
-import { Button } from "components/ui/button";
-import LongArrowLeft from "components/icons/LongArrowLeft";
-import Card from "components/Card";
+import { openDialog } from "@/store/ui";
+import { DialogType } from "@/constants/dailogs";
+import { Label } from "@/components/ui/label";
+import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
+import { Button } from "@/components/ui/button";
+import LongArrowLeft from "@/components/icons/LongArrowLeft";
+import Card from "@/components/Card";
 import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
-import { Form } from "components/ui/form";
-import FormInput from "components/atoms/FormInput";
-import DeleteIcon from "components/icons/DeleteIcon";
-import FormTextArea from "components/atoms/FormTextArea";
-import FormSelect from "components/atoms/FormSelectField";
-import BreadcrumbCard from "components/Breadcrumb";
+import { Form } from "@/components/ui/form";
+import FormInput from "@/components/atoms/FormInput";
+import DeleteIcon from "@/components/icons/DeleteIcon";
+import FormTextArea from "@/components/atoms/FormTextArea";
+import FormSelect from "@/components/atoms/FormSelectField";
+import BreadcrumbCard from "@/components/Breadcrumb";
 import {
   EngagementPlanSchema,
   TEngagementPlanFormValues,
-} from "features/programs/types/engagement-plan";
+} from "@/features/programs/types/engagement-plan";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import {
   addStakeholders,
   removeStakeholder,
-} from "store/formData/stakeholders";
+} from "@/store/formData/stakeholders";
 import { useGetAllStakeholderRegister } from "@/features/programs/controllers/stakeholderController";
 import {
   useCreateEngagementPlan,
@@ -34,7 +34,7 @@ import {
 import { toast } from "sonner";
 import { useSearchParams } from "next/navigation";
 import { useGetAllProjects } from "@/features/projects/controllers/projectController";
-import { RouteEnum } from "constants/RouterConstants";
+import { RouteEnum } from "@/constants/RouterConstants";
 
 const breadcrumbs = [
   { name: "Programs", icon: true },

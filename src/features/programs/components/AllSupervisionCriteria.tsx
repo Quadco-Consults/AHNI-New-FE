@@ -1,17 +1,17 @@
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 
-import TableAction from "components/TableAction";
+import TableAction from "@/components/TableAction";
 import { toast } from "sonner";
-import { useAppDispatch } from "hooks/useStore";
-import { DialogType } from "constants/dailogs";
-import { openDialog } from "store/ui";
-import { LoadingSpinner } from "components/Loading";
+import { useAppDispatch } from "@/hooks/useStore";
+import { DialogType } from "@/constants/dailogs";
+import { openDialog } from "@/store/ui";
+import { LoadingSpinner } from "@/components/Loading";
 import {
   useDeleteSupervisionCriteriaController,
   useGetAllSupervisionCriteriaController,
 } from "@/features/modules/controllers/program/supervisionCriteriaController";
 import { useState } from "react";
-import Pagination from "components/Pagination";
+import Pagination from "@/components/Pagination";
 
 export default function AllSupervisionCriteria() {
   const [page, setPage] = useState(1);

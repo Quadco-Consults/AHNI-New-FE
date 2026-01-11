@@ -1,21 +1,20 @@
 "use client";
 
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import { ChangeEvent, useState } from "react";
-import { Input } from "components/ui/input";
+import { Input } from "@/components/ui/input";
 import { Upload as UploadFile } from "lucide-react";
 import FormButton from "@/components/FormButton";
-import { closeDialog } from "store/ui";
+import { closeDialog } from "@/store/ui";
 import { z } from "zod";
-import FormSelect from "components/atoms/FormSelect";
+import FormSelect from "@/components/atoms/FormSelect";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useAppDispatch } from "hooks/useStore";
-import { toast } from "sonner";
-import FormInput from "components/atoms/FormInput";
-import FormTextArea from "components/atoms/FormTextArea";
-import FormRadio from "components/atoms/FormRadio";
-import { SupportSchema } from "features/support/types/support/support";
+import { useAppDispatch } from "@/hooks/useStore";
+import FormInput from "@/components/atoms/FormInput";
+import FormTextArea from "@/components/atoms/FormTextArea";
+import FormRadio from "@/components/atoms/FormRadio";
+import { SupportSchema } from "@/features/support/types/support/support";
 import { useCreateTicket } from "@/features/support/controllers/supportController";
 import { useGetUserProfile, useGetCurrentUser } from "@/features/auth/controllers/userController";
 import { useEffect } from "react";
@@ -57,6 +56,7 @@ const AddTicketModal = () => {
             department: "",
             issue_description: "",
             phone_number: "",
+            sender: "",
         },
     });
 
@@ -64,6 +64,12 @@ const AddTicketModal = () => {
     useEffect(() => {
         if (userData) {
             form.setValue("email", userData.email || "");
+
+            // Set sender name from user data
+            const senderName = `${userData.first_name || ""} ${userData.last_name || ""}`.trim();
+            if (senderName) {
+                form.setValue("sender", senderName);
+            }
 
             // Set phone number (mobile_number in profile)
             if (userData.mobile_number) {
@@ -93,33 +99,26 @@ const AddTicketModal = () => {
         department,
         issue_description,
         email,
-        priority, 
+        priority,
         phone_number,
+        sender,
     }) => {
-         
+        const formData = new FormData();
+        formData.append("subject", subject);
+        formData.append("department", department);
+        formData.append("issue_description", issue_description);
+        formData.append("email", email);
+        formData.append("priority", priority);
+        formData.append("phone_number", phone_number || "");
+        formData.append("sender", sender || email?.split("@")[0] || "Unknown User");
 
         try {
-            const formData = new FormData();
-            formData.append("subject", subject);  
-            formData.append("department", department); 
-            formData.append("issue_description", issue_description); 
-            formData.append("email", email); 
-            formData.append("priority", priority);  
-            formData.append("phone_number", phone_number || "");
-            
-            // Add sender information from user data
-            if (userData) {
-                const senderName = `${userData.first_name || ""} ${userData.last_name || ""}`.trim() || userData.email || "Unknown User";
-                formData.append("sender", senderName);
-            } 
-
-            await createTicket(formData as any)();
-
-            toast.success("Support ticket created successfully");
-
+            await createTicket(formData as any);
+            // Success toast is handled by useApiManager, just close the dialog
             dispatch(closeDialog());
         } catch (error: any) {
-            toast.error(error.response?.data?.message ?? error.message ?? "Something went wrong");
+            // Error toast is handled by useApiManager's onError callback
+            console.error("Ticket creation error:", error);
         }
     };
 

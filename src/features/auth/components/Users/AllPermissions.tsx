@@ -1,5 +1,5 @@
-import DataTable from "components/Table/DataTable";
-import TableFilters from "components/Table/TableFilters";
+import DataTable from "@/components/Table/DataTable";
+import TableFilters from "@/components/Table/TableFilters";
 import { useGetAllPermissions } from "@/features/auth/controllers/roleController";
 
 export default function AllPermissions() {

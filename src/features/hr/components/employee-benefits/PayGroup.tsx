@@ -1,21 +1,21 @@
 /* eslint-disable no-unused-vars */
 import { ColumnDef } from "@tanstack/react-table";
 import FormButton from "@/components/FormButton";
-import AddSquareIcon from "components/icons/AddSquareIcon";
-import DataTable from "components/Table/DataTable";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
+import DataTable from "@/components/Table/DataTable";
 import React, { useState } from "react";
 
 import FilterIcon2 from "assets/svgs/FilterIcon2";
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 
-import SearchBar from "components/SearchBar";
-import { Checkbox } from "components/ui/checkbox";
+import SearchBar from "@/components/SearchBar";
+import { Checkbox } from "@/components/ui/checkbox";
 
 import PayGroupModal from "./components/PayGroupModal";
 import BulkUploadPayGroupModal from "./components/BulkUploadPayGroupModal";
 import { useGetPayGroups } from "@/features/hr/controllers/payGroupController";
-import useDebounce from "utils/useDebounce";
+import useDebounce from "@/utils/useDebounce";
 import { Icon } from "@iconify/react";
 
 const PayGroup: React.FC = () => {

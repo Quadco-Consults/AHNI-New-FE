@@ -6,8 +6,8 @@ import FormInput from "@/components/FormInput";
 import { Form } from "@/components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { useAppDispatch, useAppSelector } from "hooks/useStore";
-import { closeDialog, dailogSelector } from "store/ui";
+import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
+import { closeDialog, dailogSelector } from "@/store/ui";
 import {
     AssetClassificationSchema,
     IAssetClassificationData,

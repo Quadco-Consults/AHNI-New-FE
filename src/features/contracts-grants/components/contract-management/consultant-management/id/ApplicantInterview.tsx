@@ -1,19 +1,19 @@
 "use client";
 
 import React from "react";
-import BackNavigation from "components/atoms/BackNavigation";
+import BackNavigation from "@/components/atoms/BackNavigation";
 import FormButton from "@/components/FormButton";
-import Card from "components/Card";
-import FormSelect from "components/atoms/FormSelect";
-import { Button } from "components/ui/button";
-import { Form } from "components/ui/form";
+import Card from "@/components/Card";
+import FormSelect from "@/components/atoms/FormSelect";
+import { Button } from "@/components/ui/button";
+import { Form } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useRouter, useParams } from "next/navigation";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { useGetSingleConsultancyApplicant } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
 import { useGetSingleConsultantManagement } from "@/features/contracts-grants/controllers/consultantManagementController";
-import { LoadingSpinner } from "components/Loading";
+import { LoadingSpinner } from "@/components/Loading";
 import { useGetMyPendingAdhocInterviews, useGetAllAdhocInterviews } from "@/features/programs/controllers/adhocInterviewController";
 import { useGetMyPendingConsultancyInterviews, useGetAllConsultancyInterviews } from "@/features/contracts-grants/controllers/consultancyInterviewController";
 import { useGetUserProfile } from "@/features/auth/controllers/userController";

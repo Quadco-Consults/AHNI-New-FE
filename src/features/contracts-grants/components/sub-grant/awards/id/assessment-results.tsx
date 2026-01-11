@@ -1,13 +1,13 @@
 "use client";
 
-import Card from "components/Card";
-import { Badge } from "components/ui/badge";
+import Card from "@/components/Card";
+import { Badge } from "@/components/ui/badge";
 import { Award, FileText, TrendingUp } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useGetAssessedSubmissions } from "@/features/contracts-grants/controllers/preAwardAssessmentController";
 import Link from "next/link";
-import { Button } from "components/ui/button";
-import { Loading } from "components/Loading";
+import { Button } from "@/components/ui/button";
+import { Loading } from "@/components/Loading";
 
 export default function AssessmentResults() {
     const params = useParams();

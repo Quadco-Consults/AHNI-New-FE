@@ -1,9 +1,9 @@
-import DataTable from "components/Table/DataTable";
-import Card from "components/Card";
+import DataTable from "@/components/Table/DataTable";
+import Card from "@/components/Card";
 import { useGetAllFundRequests } from "@/features/programs/controllers/fundRequestController";
 import { useParams, useSearchParams } from "next/navigation";
 import { fundRequestSummaryColumns } from "@/features/programs/components/table-columns/fund-request/fund-request-summary";
-import TableFilters from "components/Table/TableFilters";
+import TableFilters from "@/components/Table/TableFilters";
 import { useGetSingleProject, useGetAllProjects } from "@/features/projects/controllers/projectController";
 import { useMemo } from "react";
 

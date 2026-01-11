@@ -1,17 +1,17 @@
 "use client";
 
 import FormButton from "@/components/FormButton";
-import FormInput from "components/atoms/FormInput";
-import FormSelect from "components/atoms/FormSelect";
-import Card from "components/Card";
-import GoBack from "components/GoBack";
-import { Button } from "components/ui/button";
-import { Form } from "components/ui/form";
-import { DialogType } from "constants/dailogs";
-import { useAppDispatch } from "hooks/useStore";
+import FormInput from "@/components/atoms/FormInput";
+import FormSelect from "@/components/atoms/FormSelect";
+import Card from "@/components/Card";
+import GoBack from "@/components/GoBack";
+import { Button } from "@/components/ui/button";
+import { Form } from "@/components/ui/form";
+import { DialogType } from "@/constants/dailogs";
+import { useAppDispatch } from "@/hooks/useStore";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
-import { openDialog } from "store/ui";
+import { openDialog } from "@/store/ui";
 
 const CreateTimesheetManagementDetail = () => {
   const router = useRouter();

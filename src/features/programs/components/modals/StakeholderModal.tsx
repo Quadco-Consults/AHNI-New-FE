@@ -5,11 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useGetAllStakeholderRegister } from "@/features/programs/controllers/stakeholderController";
 import { LoadingSpinner } from "@/components/Loading";
-import { useAppDispatch, useAppSelector } from "hooks/useStore";
-import { addStakeholders } from "store/formData/stakeholders";
+import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
+import { addStakeholders } from "@/store/formData/stakeholders";
 import { CheckedState } from "@radix-ui/react-checkbox";
 import { useState } from "react";
-import { closeDialog } from "store/ui";
+import { closeDialog } from "@/store/ui";
 import { TStakeholderRegisterData } from "definations/program-validator";
 import { useDebounce } from "ahooks";
 

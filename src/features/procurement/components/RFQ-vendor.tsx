@@ -1,10 +1,10 @@
 "use client";
 
-import { Checkbox } from "components/ui/checkbox";
-import Card from "components/Card";
-import { cn } from "lib/utils";
-import { Badge } from "components/ui/badge";
-import IconButton from "components/IconButton";
+import { Checkbox } from "@/components/ui/checkbox";
+import Card from "@/components/Card";
+import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import IconButton from "@/components/IconButton";
 import { Edit, Trash2 } from 'lucide-react';
 import { Icon } from "@iconify/react";
 import {
@@ -13,7 +13,7 @@ import {
   DialogContent,
   DialogTitle,
   DialogTrigger,
-} from "components/ui/dialog";
+} from "@/components/ui/dialog";
 import { useForm } from "react-hook-form";
 import {
   Form,
@@ -22,7 +22,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "components/ui/form";
+} from "@/components/ui/form";
 import {
   Select,
   SelectContent,
@@ -30,11 +30,11 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "components/ui/select";
-import { Button } from "components/ui/button";
-import { Input } from "components/ui/input";
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { ColumnDef } from "@tanstack/react-table";
-import DataTable from "components/Table/DataTable";
+import DataTable from "@/components/Table/DataTable";
 
 type Data = {
   ref: string;

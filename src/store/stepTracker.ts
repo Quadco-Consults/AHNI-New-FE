@@ -1,6 +1,6 @@
 // stepsSlice.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { HrRoutes } from "constants/RouterConstants";
+import { HrRoutes } from "@/constants/RouterConstants";
 
 interface Step {
   label: string;

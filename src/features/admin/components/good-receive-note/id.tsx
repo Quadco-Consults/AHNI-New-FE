@@ -1,10 +1,10 @@
 "use client";
 
-import Card from "components/Card";
-import DataTable from "components/Table/DataTable";
+import Card from "@/components/Card";
+import DataTable from "@/components/Table/DataTable";
 import { ColumnDef } from "@tanstack/react-table";
 import { useParams } from "next/navigation";
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import { FileSpreadsheet, FileText } from "lucide-react";
 import { useGetSingleGoodReceiveNoteQuery, useDownloadGoodReceiveNote } from "@/features/admin/controllers/goodReceiveNoteController";
 import { useGetSinglePurchaseOrder } from "@/features/procurement/controllers/purchaseOrderController";

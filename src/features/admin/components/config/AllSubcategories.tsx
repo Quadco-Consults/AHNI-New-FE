@@ -1,16 +1,16 @@
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { useAppDispatch } from "hooks/useStore";
-import { openDialog } from "store/ui";
-import { DialogType } from "constants/dailogs";
-import TableAction from "components/TableAction";
-import { LoadingSpinner } from "components/Loading";
+import { useAppDispatch } from "@/hooks/useStore";
+import { openDialog } from "@/store/ui";
+import { DialogType } from "@/constants/dailogs";
+import TableAction from "@/components/TableAction";
+import { LoadingSpinner } from "@/components/Loading";
 import {
   useDeleteCategoryMutation,
   useGetAllCategoriesQuery,
 } from "@/features/modules/controllers/config/categoryController";
 import { useState, useMemo } from "react";
-import Pagination from "components/Pagination";
+import Pagination from "@/components/Pagination";
 import { TCategoryData } from "@/features/admin/types/config/category";
 
 export default function AllSubcategories() {

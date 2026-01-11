@@ -1,8 +1,8 @@
 "use client";
 
-import LongArrowRight from "components/icons/LongArrowRight";
-import { Button } from "components/ui/button";
-import { RouteEnum } from "constants/RouterConstants";
+import LongArrowRight from "@/components/icons/LongArrowRight";
+import { Button } from "@/components/ui/button";
+import { RouteEnum } from "@/constants/RouterConstants";
 import logoPng from "@/assets/svgs/logo-bg.svg";
 
 import Link from "next/link";

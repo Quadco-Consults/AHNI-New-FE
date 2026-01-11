@@ -1,12 +1,12 @@
 "use client";
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Uploads from "./Uploads";
 import { useParams } from "next/navigation";
 import VendorsAPI from "@/features/procurementApi/vendorsController";
-import { LoadingSpinner } from "components/Loading";
+import { LoadingSpinner } from "@/components/Loading";
 
-import GoBack from "components/GoBack";
+import GoBack from "@/components/GoBack";
 import Details from "./Details";
 import Resolutions from "./Resolutions";
 import Feedback from "./Feedback";

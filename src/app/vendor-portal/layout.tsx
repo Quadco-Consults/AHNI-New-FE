@@ -3,11 +3,11 @@
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { VendorAuthUtils } from "@/features/vendor-portal/controllers/vendorAuthController";
-import { LoadingSpinner } from "components/Loading";
+import { LoadingSpinner } from "@/components/Loading";
 import VendorSidebar from "@/components/VendorSidebar";
 import VendorHeader from "@/components/VendorHeader";
 import Footer from "@/components/Footer";
-import { cn } from "lib/utils";
+import { cn } from "@/lib/utils";
 import { useSessionManager } from "@/hooks/useSessionManager";
 import { toast } from "sonner";
 

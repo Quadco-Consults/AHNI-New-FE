@@ -7,8 +7,8 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "components/ui/select";
-import { LoadingSpinner } from "components/Loading";
+} from "@/components/ui/select";
+import { LoadingSpinner } from "@/components/Loading";
 import { VendorsResultsData } from "definations/procurement-types/vendors";
 import { Document, Page } from "react-pdf";
 import { pdfjs } from "react-pdf";
@@ -21,13 +21,13 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "components/ui/dialog";
+} from "@/components/ui/dialog";
 import { useState } from "react";
 import VendorsDocumentAPI from "@/features/procurement/controllers/vendorDocumentsController";
 import { VendorsDocumentResultsData } from "definations/procurement-types/vendors-document";
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import DeleteIcon from "components/icons/DeleteIcon";
+import DeleteIcon from "@/components/icons/DeleteIcon";
 import { Icon } from "@iconify/react";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 

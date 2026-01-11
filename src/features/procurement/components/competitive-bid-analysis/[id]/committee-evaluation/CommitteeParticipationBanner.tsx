@@ -2,10 +2,10 @@
 
 import { CheckCircle, Loader2, Users, Clock, Info, Mail } from 'lucide-react';
 import { Icon } from "@iconify/react";
-import Card from "components/Card";
-import { Badge } from "components/ui/badge";
-import { Button } from "components/ui/button";
-import { Progress } from "components/ui/progress";
+import Card from "@/components/Card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 interface IMemberParticipationSummary {
   total_members: number;
   submitted_members: string[];

@@ -2,7 +2,7 @@
 
 import { useParams } from "next/navigation";
 import { useGetSingleTravelExpenseQuery } from "@/features/admin/controllers/travelExpenseController";
-import { LoadingSpinner } from "components/Loading";
+import { LoadingSpinner } from "@/components/Loading";
 import logoPng from "assets/imgs/logo.png";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";

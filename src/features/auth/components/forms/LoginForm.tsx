@@ -1,9 +1,9 @@
 "use client";
 
 import React from "react";
-import FormButton from "components/FormButton";
-import FormInput from "components/FormInput";
-import { Form } from "components/ui/form";
+import FormButton from "@/components/FormButton";
+import FormInput from "@/components/FormInput";
+import { Form } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -11,11 +11,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
 import { toast } from "sonner";
-import { Checkbox } from "components/ui/checkbox";
-import { Button } from "components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
 import { Home } from "lucide-react";
-import Card from "components/Card";
-import { LoginSchema, TLoginFormValues } from "features/auth/types/auth";
+import Card from "@/components/Card";
+import { LoginSchema, TLoginFormValues } from "@/features/auth/types/auth";
 import { useLogin } from "../../controllers/authController";
 
 export default function LoginForm() {

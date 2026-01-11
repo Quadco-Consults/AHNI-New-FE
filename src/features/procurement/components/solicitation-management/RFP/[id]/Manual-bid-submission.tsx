@@ -4,14 +4,14 @@
 
 import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
-import { SelectContent, SelectItem } from "components/ui/select";
-import { Form } from "components/ui/form";
+import { SelectContent, SelectItem } from "@/components/ui/select";
+import { Form } from "@/components/ui/form";
 import { useFieldArray, useForm } from "react-hook-form";
 import VendorsAPI from "@/features/procurement/controllers/vendorsController";
-import FormSelect from "components/atoms/FormSelectField";
-import { LoadingSpinner } from "components/Loading";
+import FormSelect from "@/components/atoms/FormSelectField";
+import { LoadingSpinner } from "@/components/Loading";
 import { VendorsResultsData } from "definations/procurement-types/vendors";
-import FormInput from "components/atoms/FormInput";
+import FormInput from "@/components/atoms/FormInput";
 import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";
 import { RFPSubmissionSchema } from "@/features/procurement/types/procurement-validator";
@@ -22,7 +22,7 @@ import { useCreateSolicitationSubmission } from "@/features/procurement/controll
 import { useGetSingleSolicitation } from "@/features/procurement/controllers/solicitationController";
 import { useGetAllSolicitationEvaluationCriteria } from "@/features/modules/controllers";
 
-import GoBack from "components/GoBack";
+import GoBack from "@/components/GoBack";
 import { DollarSign } from 'lucide-react';import { Icon } from "@iconify/react";
 
 const ManualBidSubmission = () => {

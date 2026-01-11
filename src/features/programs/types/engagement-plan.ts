@@ -1,4 +1,4 @@
-import { TStakeholderRegisterData } from "features/programs/types/program-validator";
+import { TStakeholderRegisterData } from "@/features/programs/types/program-validator";
 import { z } from "zod";
 
 export const EngagementPlanSchema = z.object({

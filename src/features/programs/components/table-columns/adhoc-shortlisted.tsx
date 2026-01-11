@@ -1,17 +1,17 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { Button } from "components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useState } from "react";
-import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
-import EyeIcon from "components/icons/EyeIcon";
+import MoreOptionsHorizontalIcon from "@/components/icons/MoreOptionsHorizontalIcon";
+import EyeIcon from "@/components/icons/EyeIcon";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { ProgramRoutes } from "constants/RouterConstants";
+import { ProgramRoutes } from "@/constants/RouterConstants";
 import { IAdhocApplicant } from "@/features/programs/types/adhoc-management";
-import PersonIcon from "components/icons/Person";
+import PersonIcon from "@/components/icons/Person";
 
 export const adhocShortlistedColumns: ColumnDef<IAdhocApplicant>[] =
   [

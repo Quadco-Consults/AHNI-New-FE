@@ -1,6 +1,6 @@
-import { TBasePaginatedResponse } from "features/auth/types/auth";
+import { TBasePaginatedResponse } from "@/features/auth/types/auth";
 import { CostCategory } from "definations/module-finance";
-import { TFundRequestActivity } from "features/programs/types/program-validator";
+import { TFundRequestActivity } from "@/features/programs/types/program-validator";
 import {
   TFundRequestBackendResponse,
   TFundRequestActivityBackendResponse,

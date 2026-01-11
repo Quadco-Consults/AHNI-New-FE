@@ -2,13 +2,13 @@
 
 import { useParams, useSearchParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import { Loading } from "components/Loading";
-import GoBack from "components/GoBack";
-import { Button } from "components/ui/button";
-import { Textarea } from "components/ui/textarea";
-import { Checkbox } from "components/ui/checkbox";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
-import { Input } from "components/ui/input";
+import { Loading } from "@/components/Loading";
+import GoBack from "@/components/GoBack";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import CbaAPI from "@/features/procurement/controllers/cbaController";
 import { useGetSolicitationSubmission, useGetVendorBidSubmissions } from "@/features/procurement/controllers/vendorBidSubmissionsController";
 import { toast } from "sonner";

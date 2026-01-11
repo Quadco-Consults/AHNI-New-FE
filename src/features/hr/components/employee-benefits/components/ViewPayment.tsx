@@ -1,8 +1,8 @@
-import { useAppSelector } from "hooks/useStore";
-import { dailogSelector } from "store/ui";
+import { useAppSelector } from "@/hooks/useStore";
+import { dailogSelector } from "@/store/ui";
 import { z } from "zod";
 
-import { CardContent } from "components/ui/card";
+import { CardContent } from "@/components/ui/card";
 
 export const GoalSchema = z.object({
   goal: z.array(

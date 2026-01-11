@@ -2,10 +2,10 @@
 
 import { useParams } from "next/navigation";
 import { useState } from "react";
-import { Loading } from "components/Loading";
-import { Button } from "components/ui/button";
-import { Badge } from "components/ui/badge";
-import Card from "components/Card";
+import { Loading } from "@/components/Loading";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import Card from "@/components/Card";
 import { FileText, AlertTriangle, ClipboardCheck, CheckCircle, Download } from 'lucide-react';
 import { Icon } from "@iconify/react";
 import CbaAPI from "@/features/procurement/controllers/cbaController";

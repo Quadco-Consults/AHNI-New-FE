@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { Checkbox } from "components/ui/checkbox";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const TabsListCard = ({ data }: any) => {
   return (

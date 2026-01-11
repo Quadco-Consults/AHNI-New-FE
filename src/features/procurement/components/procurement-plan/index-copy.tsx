@@ -1,24 +1,24 @@
 // import Link from "next/link";
-import Card from "components/Card";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { Button } from "components/ui/button";
-import AddSquareIcon from "components/icons/AddSquareIcon";
-import ArrowDownIcon from "components/icons/ArrowDownIcon";
-import SearchIcon from "components/icons/SearchIcon";
-// import FilterIcon from "components/icons/FilterIcon";
-// import { RouteEnum } from "constants/RouterConstants";
-// import EyeIcon from "components/icons/EyeIcon";
-// import DeleteIcon from "components/icons/DeleteIcon";
+import Card from "@/components/Card";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
+import ArrowDownIcon from "@/components/icons/ArrowDownIcon";
+import SearchIcon from "@/components/icons/SearchIcon";
+// import FilterIcon from "@/components/icons/FilterIcon";
+// import { RouteEnum } from "@/constants/RouterConstants";
+// import EyeIcon from "@/components/icons/EyeIcon";
+// import DeleteIcon from "@/components/icons/DeleteIcon";
 import { Column, ColumnDef, Row } from "@tanstack/react-table";
-import DataTable from "components/Table/DataTable";
-import BreadcrumbCard from "components/Breadcrumb";
+import DataTable from "@/components/Table/DataTable";
+import BreadcrumbCard from "@/components/Breadcrumb";
 import ProcurementPlanAPI from "@/features/procurement/controllers/procurementPlanController";
 // import { ProcurementPlanResultsData } from "definations/procurement-types/procurementPlan";
-import UploadIcon from "components/icons/UploadIcon";
-// import { useAppDispatch } from "hooks/useStore";
-// import { DialogType } from "constants/dailogs";
+import UploadIcon from "@/components/icons/UploadIcon";
+// import { useAppDispatch } from "@/hooks/useStore";
+// import { DialogType } from "@/constants/dailogs";
 import { useState } from "react";
-import { Textarea } from "components/ui/textarea";
+import { Textarea } from "@/components/ui/textarea";
 import ProcurementPlanUploadModal from "./components/ProcurementPlanUploadModal";
 import { Download } from "lucide-react";
 import { XLSX } from "@/utils/excelUtils";
@@ -30,9 +30,9 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "components/ui/select";
+} from "@/components/ui/select";
 import FinancialAPI from "@/features/modules/controllers/config/financial-yearController";
-import { formatNumberCurrency } from "utils/utls";
+import { formatNumberCurrency } from "@/utils/utls";
 
 export default function ProcurementPlan() {
   const [selectedFinancialYear, setSelectedFinancialYear] = useState("");

@@ -1,17 +1,17 @@
 "use client";
 
 import { skipToken } from "@reduxjs/toolkit/query";
-import BackNavigation from "components/atoms/BackNavigation";
-import BreadcrumbCard from "components/Breadcrumb";
-import Card from "components/Card";
-import FilePreview from "components/FilePreview";
-import { LoadingSpinner } from "components/Loading";
-import { Badge } from "components/ui/badge";
-import { Button } from "components/ui/button";
-import { Input } from "components/ui/input";
-import { Label } from "components/ui/label";
-import { Separator } from "components/ui/separator";
-import { Textarea } from "components/ui/textarea";
+import BackNavigation from "@/components/atoms/BackNavigation";
+import BreadcrumbCard from "@/components/Breadcrumb";
+import Card from "@/components/Card";
+import FilePreview from "@/components/FilePreview";
+import { LoadingSpinner } from "@/components/Loading";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";

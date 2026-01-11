@@ -1,14 +1,14 @@
 "use client";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useParams } from "next/navigation";
 import Summary from "./Summary";
 import Activity from "./activity";
 import UnplannedActivity from "./unplanned-activity";
 import { useGetSingleWorkPlan } from "@/features/programs/controllers/workPlanController";
-import BreadcrumbCard, { TBreadcrumbList } from "components/Breadcrumb";
-import { LoadingSpinner } from "components/Loading";
-import GoBack from "components/GoBack";
-// import { Card } from "components/ui/card";
+import BreadcrumbCard, { TBreadcrumbList } from "@/components/Breadcrumb";
+import { LoadingSpinner } from "@/components/Loading";
+import GoBack from "@/components/GoBack";
+// import { Card } from "@/components/ui/card";
 
 const breadcrumbs: TBreadcrumbList[] = [
   { name: "Programs", icon: true },

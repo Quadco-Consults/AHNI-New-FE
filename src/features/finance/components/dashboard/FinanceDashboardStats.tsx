@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Card from "components/Card";
-import { Badge } from "components/ui/badge";
+import Card from "@/components/Card";
+import { Badge } from "@/components/ui/badge";
 import {
   Database,
   FileText,

@@ -1,20 +1,20 @@
 "use client";
 
 import React, { useState } from "react";
-import DataTable from "components/Table/DataTable";
+import DataTable from "@/components/Table/DataTable";
 import { useParams } from "next/navigation";
-import { formatNumberCurrency } from "utils/utls";
+import { formatNumberCurrency } from "@/utils/utls";
 import { ColumnDef } from "@tanstack/react-table";
-import { Button } from "components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
-import PencilIcon from "components/icons/PencilIcon";
-import DeleteIcon from "components/icons/DeleteIcon";
-import ConfirmationDialog from "components/ConfirmationDialog";
+import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import MoreOptionsHorizontalIcon from "@/components/icons/MoreOptionsHorizontalIcon";
+import PencilIcon from "@/components/icons/PencilIcon";
+import DeleteIcon from "@/components/icons/DeleteIcon";
+import ConfirmationDialog from "@/components/ConfirmationDialog";
 import { toast } from "sonner";
-import { openDialog } from "store/ui";
-import { DialogType } from "constants/dailogs";
-import { useAppDispatch } from "hooks/useStore";
+import { openDialog } from "@/store/ui";
+import { DialogType } from "@/constants/dailogs";
+import { useAppDispatch } from "@/hooks/useStore";
 import { useGetAllSubGrantModifications } from "@/features/contracts-grants/controllers/subGrantModificationController";
 
 interface ModificationData {

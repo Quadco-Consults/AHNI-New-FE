@@ -1,12 +1,12 @@
 "use client";
 
 import React from "react";
-import FormInput from "components/atoms/FormInput";
-import FormRadio from "components/atoms/FormRadio";
-import FormSelect from "components/atoms/FormSelect";
-import Card from "components/Card";
-import GoBack from "components/GoBack";
-import { Label } from "components/ui/label";
+import FormInput from "@/components/atoms/FormInput";
+import FormRadio from "@/components/atoms/FormRadio";
+import FormSelect from "@/components/atoms/FormSelect";
+import Card from "@/components/Card";
+import GoBack from "@/components/GoBack";
+import { Label } from "@/components/ui/label";
 import { useForm } from "react-hook-form";
 import {
   Form,
@@ -14,7 +14,7 @@ import {
   FormField,
   FormItem,
   FormMessage,
-} from "components/ui/form";
+} from "@/components/ui/form";
 import FormButton from "@/components/FormButton";
 import { useState } from "react";
 import { useRouter } from "next/navigation";

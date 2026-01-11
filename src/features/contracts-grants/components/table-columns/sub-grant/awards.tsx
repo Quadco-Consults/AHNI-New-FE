@@ -2,16 +2,16 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { Button } from "components/ui/button";
-import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
-import EyeIcon from "components/icons/EyeIcon";
-import PencilIcon from "components/icons/PencilIcon";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import MoreOptionsHorizontalIcon from "@/components/icons/MoreOptionsHorizontalIcon";
+import EyeIcon from "@/components/icons/EyeIcon";
+import PencilIcon from "@/components/icons/PencilIcon";
 import { Edit } from "lucide-react";
-import { formatNumberCurrency } from "utils/utls";
+import { formatNumberCurrency } from "@/utils/utls";
 import { ISubGrantPaginatedData } from "@/features/contracts-grants/types/contract-management/sub-grant/sub-grant";
 import { useGetAwardsBySubGrant } from "@/features/contracts-grants/controllers/subGrantAwardController";
-import { Badge } from "components/ui/badge";
+import { Badge } from "@/components/ui/badge";
 
 export const subGrantAwardColumns: ColumnDef<ISubGrantPaginatedData>[] = [
     {

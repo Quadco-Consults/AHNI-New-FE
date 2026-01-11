@@ -1,26 +1,44 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { Badge } from "components/ui/badge";
+import { Badge } from "@/components/ui/badge";
 import { TWorkPlanTrackerData } from "@/features/programs/types/activity-tracker";
-import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
+import MoreOptionsHorizontalIcon from "@/components/icons/MoreOptionsHorizontalIcon";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import Link from "next/link";
-import DeleteIcon from "components/icons/DeleteIcon";
-import { RouteEnum } from "constants/RouterConstants";
-import PencilIcon from "components/icons/PencilIcon";
-import ConfirmationDialog from "components/ConfirmationDialog";
+import DeleteIcon from "@/components/icons/DeleteIcon";
+import { RouteEnum } from "@/constants/RouterConstants";
+import PencilIcon from "@/components/icons/PencilIcon";
+import ConfirmationDialog from "@/components/ConfirmationDialog";
 import { toast } from "sonner";
 import { useDeleteActivityTracker } from "@/features/programs/controllers/activityTrackerController";
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import EditIcon from "components/icons/EditIcon";
-import { useAppDispatch } from "hooks/useStore";
-import { openDialog } from "store/ui";
-import { DialogType } from "constants/dailogs";
-import { formatNumberCurrency } from "utils/utls";
+import EditIcon from "@/components/icons/EditIcon";
+import { useAppDispatch } from "@/hooks/useStore";
+import { openDialog } from "@/store/ui";
+import { DialogType } from "@/constants/dailogs";
+import { formatNumberCurrency } from "@/utils/utls";
 
 export const getWorkPlanTrackerDetailsColumns = (
   workPlanId: string
 ): ColumnDef<TWorkPlanTrackerData>[] => [
+  {
+    header: "Activity Type",
+    accessorKey: "activity_type",
+    size: 120,
+    cell: ({ row }) => {
+      const activityType = row.original.activity_type || "PLANNED";
+      return (
+        <Badge
+          className={`${
+            activityType === "UNPLANNED" ? "bg-orange-500" : "bg-blue-500"
+          }`}
+        >
+          {activityType}
+        </Badge>
+      );
+    },
+  },
+
   {
     header: "Activity Code/ Number",
     accessorKey: "activity_number",

@@ -1,6 +1,6 @@
-import DescriptionCard from "components/DescriptionCard";
-import { LoadingSpinner } from "components/Loading";
-import { Separator } from "components/ui/separator";
+import DescriptionCard from "@/components/DescriptionCard";
+import { LoadingSpinner } from "@/components/Loading";
+import { Separator } from "@/components/ui/separator";
 import { useGetHrBeneficiaries } from "@/features/hr/controllers/hrBeneficiaryController";
 
 const Beneficiary = ({ id }: { id: string }) => {

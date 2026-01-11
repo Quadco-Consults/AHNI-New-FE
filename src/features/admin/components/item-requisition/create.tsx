@@ -2,17 +2,17 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "@/components/FormButton";
-import FormInput from "components/atoms/FormInput";
-import FormSelect from "components/atoms/FormSelectField";
-import AddSquareIcon from "components/icons/AddSquareIcon";
-import Card from "components/Card";
-import GoBack from "components/GoBack";
-import { Button } from "components/ui/button";
-import { AdminRoutes } from "constants/RouterConstants";
+import FormInput from "@/components/atoms/FormInput";
+import FormSelect from "@/components/atoms/FormSelectField";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
+import Card from "@/components/Card";
+import GoBack from "@/components/GoBack";
+import { Button } from "@/components/ui/button";
+import { AdminRoutes } from "@/constants/RouterConstants";
 import {
   ItemRequisitionSchema,
   TItemRequisitionFormValues,
-} from "features/admin/types/inventory-management/item-requisition";
+} from "@/features/admin/types/inventory-management/item-requisition";
 import { Minus } from "lucide-react";
 import { useEffect, useMemo } from "react";
 import {

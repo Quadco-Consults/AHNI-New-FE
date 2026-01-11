@@ -9,7 +9,7 @@ import {
   TLocationData,
 } from "@/features/modules/types";
 import { IProjectSingleData } from "@/features/projects/types/project";
-import { IUser } from "features/auth/types/user";
+import { IUser } from "@/features/auth/types/user";
 import { z } from "zod";
 // import { TAssetTypeData } from "definations/modules/admin/asset-type";
 // import { TFundingSourceData } from "definations/modules/project/funding-source";

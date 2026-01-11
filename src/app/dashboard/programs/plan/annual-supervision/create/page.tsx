@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import BreadcrumbCard from "components/Breadcrumb";
-import { Card, CardContent, CardHeader, CardTitle } from "components/ui/card";
-import { Button } from "components/ui/button";
+import BreadcrumbCard from "@/components/Breadcrumb";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { ArrowLeft, Calendar, Target, Upload, Edit3 } from "lucide-react";
 import {
   Dialog,
@@ -13,10 +13,10 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "components/ui/dialog";
+} from "@/components/ui/dialog";
 import AnnualPlanUpload from "@/features/programs/components/plan/annual-supervision/AnnualPlanUpload";
 import { useGetSingleAnnualPlan } from "@/features/programs/controllers/annualSupervisionPlanController";
-import { LoadingSpinner } from "components/Loading";
+import { LoadingSpinner } from "@/components/Loading";
 
 const CreateAnnualSupervisionPlanPage = () => {
   const router = useRouter();

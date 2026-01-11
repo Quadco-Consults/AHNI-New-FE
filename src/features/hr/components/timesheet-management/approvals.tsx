@@ -2,13 +2,13 @@
 
 import { useState } from "react";
 import { ColumnDef } from "@tanstack/react-table";
-import { Checkbox } from "components/ui/checkbox";
-import { Button } from "components/ui/button";
-import { Badge } from "components/ui/badge";
-import DataTable from "components/Table/DataTable";
-import Card from "components/Card";
-import SearchIcon from "components/icons/SearchIcon";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import DataTable from "@/components/Table/DataTable";
+import Card from "@/components/Card";
+import SearchIcon from "@/components/icons/SearchIcon";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Timesheet } from "../../types/timesheet";
 import { format } from "date-fns";
 import {

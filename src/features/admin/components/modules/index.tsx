@@ -1,8 +1,8 @@
 "use client";
 
 import { TabsContent } from "@radix-ui/react-tabs";
-import { Tabs, TabsList, TabsTrigger } from "components/ui/tabs";
-import { Card } from "components/ui/card";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card } from "@/components/ui/card";
 import AllAssetClassification from "../AllAssetClassification";
 import AllAssetTypes from "../AllAssetType";
 import AllAssetCondition from "../AllAssetCondition";

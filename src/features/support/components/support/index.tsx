@@ -1,59 +1,68 @@
-import Card from "components/Card";
-import { Button } from "components/ui/button";
-import SearchIcon from "components/icons/SearchIcon";
-import FilterIcon from "components/icons/FilterIcon";
+import Card from "@/components/Card";
+import { Button } from "@/components/ui/button";
+import SearchIcon from "@/components/icons/SearchIcon";
+import FilterIcon from "@/components/icons/FilterIcon";
 import {
     Breadcrumb,
     BreadcrumbItem,
     BreadcrumbList,
     BreadcrumbPage,
     BreadcrumbSeparator,
-} from "components/ui/breadcrumb";
+} from "@/components/ui/breadcrumb";
 import { Icon } from "@iconify/react"; 
 import { useState } from "react";
 import { PlusIcon, X } from "lucide-react"; 
-import DataTable from "components/Table/DataTable";
+import DataTable from "@/components/Table/DataTable";
 import { supportColumn } from "@/features/support/components/support"; 
 import { useGetAllTickets } from "@/features/support/controllers/supportController";
-import { useAppDispatch } from "hooks/useStore";
-import { openDialog } from "store/ui";
-import { DialogType } from "constants/dailogs";
+import { useAppDispatch } from "@/hooks/useStore";
+import { openDialog } from "@/store/ui";
+import { DialogType } from "@/constants/dailogs";
 
 export default function Notifications() {
     const [isClosed, setIsClosed] = useState(false)
     const dispatch = useAppDispatch();
     const [searchValue, setSearchValue] = useState<string>()
-   const [page, setPage] = useState(1);
-    // Filter logic: 
-    // - Closed Tickets tab: only show RESOLVED tickets
-    // - Open Tickets tab: show all non-RESOLVED tickets (PENDING, IN_PROGRESS, etc.)
-    const getStatusFilter = () => {
-        if (isClosed) {
-            return "RESOLVED"; // Only show resolved tickets
-        } else {
-            return ""; // Show all tickets, then we'll filter out resolved ones on frontend if needed
-        }
-    };
+    const [page, setPage] = useState(1);
 
     const { data: tickets, isFetching } = useGetAllTickets({
         page,
-        size: 10,
-        status: getStatusFilter(),
+        size: 100, // Fetch more to allow frontend filtering
+        status: "", // Get all tickets, filter on frontend
         search: searchValue,
     });
 
-    // Filter tickets on frontend if needed for Open Tickets tab
+    // Filter tickets based on selected tab
     const filteredTickets = () => {
         if (!tickets?.data?.results) return [];
-        
+
         if (isClosed) {
-            // For closed tickets tab, show only resolved tickets (backend should handle this)
-            return tickets.data.results;
+            // Closed tickets tab: show only RESOLVED/CLOSED tickets
+            return tickets.data.results.filter(ticket =>
+                ticket.status?.toUpperCase() === "RESOLVED" ||
+                ticket.status?.toUpperCase() === "CLOSED"
+            );
         } else {
-            // For open tickets tab, exclude resolved tickets
-            return tickets.data.results.filter(ticket => ticket.status !== "RESOLVED");
+            // Open tickets tab: show all non-resolved tickets (PENDING, IN_PROGRESS, OPEN, etc.)
+            return tickets.data.results.filter(ticket =>
+                ticket.status?.toUpperCase() !== "RESOLVED" &&
+                ticket.status?.toUpperCase() !== "CLOSED"
+            );
         }
     };
+
+    const displayedTickets = filteredTickets();
+
+    // Calculate counts for each tab
+    const openTicketsCount = tickets?.data?.results?.filter(ticket =>
+        ticket.status?.toUpperCase() !== "RESOLVED" &&
+        ticket.status?.toUpperCase() !== "CLOSED"
+    ).length ?? 0;
+
+    const closedTicketsCount = tickets?.data?.results?.filter(ticket =>
+        ticket.status?.toUpperCase() === "RESOLVED" ||
+        ticket.status?.toUpperCase() === "CLOSED"
+    ).length ?? 0;
     
     return (
         <div className="space-y-5">
@@ -117,22 +126,27 @@ export default function Notifications() {
 
             <Card className="space-y-4 bg-transparent shadow-none border-none">
                     <div className="w-full h-fit flex border-b-[2px] border-[#E4E7EC]">
-                        {
-                            ["Open Tickets", "Closed Tickets"].map((el,l) => (
-                                <div key={l} onClick={() => {setIsClosed(Boolean(l))}} className={` font-medium p-[16px] cursor-pointer text-[14px] leading-[145%] tracking-[0%] ${isClosed === Boolean(l) ? "text-[#FF0000] border-b-[2px] border-[#FF0000]" : "  text-[#667185]"}`}> 
-                                   {el}                 
-                                </div>
-                            ))
-                        }
+                        <div
+                            onClick={() => setIsClosed(false)}
+                            className={`font-medium p-[16px] cursor-pointer text-[14px] leading-[145%] tracking-[0%] ${!isClosed ? "text-[#FF0000] border-b-[2px] border-[#FF0000]" : "text-[#667185]"}`}
+                        >
+                            Open Tickets ({openTicketsCount})
+                        </div>
+                        <div
+                            onClick={() => setIsClosed(true)}
+                            className={`font-medium p-[16px] cursor-pointer text-[14px] leading-[145%] tracking-[0%] ${isClosed ? "text-[#FF0000] border-b-[2px] border-[#FF0000]" : "text-[#667185]"}`}
+                        >
+                            Closed Tickets ({closedTicketsCount})
+                        </div>
                     </div>
                     <DataTable
-                        data={filteredTickets()}
+                        data={displayedTickets}
                         headClass="bg-[#FFF2F2]"
                         columns={supportColumn}
                         isLoading={isFetching}
                         pagination={{
-                            total: tickets?.data.pagination.count ?? 0,
-                            pageSize: tickets?.data.pagination.page_size ?? 0,
+                            total: displayedTickets.length,
+                            pageSize: 10,
                             onChange: (page: number) => setPage(page),
                         }}
                     />

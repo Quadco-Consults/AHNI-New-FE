@@ -1,4 +1,4 @@
-import { IUser } from "features/auth/types/user";
+import { IUser } from "@/features/auth/types/user";
 import { TDepartmentData } from "definations/modules/config/department";
 import { TFCONumberData } from "definations/modules/finance/fco-number";
 import { IProjectSingleData } from "definations/project";

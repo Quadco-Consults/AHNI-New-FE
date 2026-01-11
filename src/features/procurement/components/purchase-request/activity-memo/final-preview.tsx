@@ -1,24 +1,24 @@
 "use client";
 
-import AddSquareIcon from "components/icons/AddSquareIcon";
-import Card from "components/Card";
-import { Button } from "components/ui/button";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
+import Card from "@/components/Card";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
   TableCell,
   TableHeader,
   TableRow,
-} from "components/ui/table";
-import { RouteEnum } from "constants/RouterConstants";
+} from "@/components/ui/table";
+import { RouteEnum } from "@/constants/RouterConstants";
 import { useMemo, useEffect, useState } from "react";
 import Link from "next/link";
 import { useSelector } from "react-redux";
-import { RootState } from "store/index";
+import { RootState } from "@/store/index";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import logoPng from "assets/imgs/logo.png";
-import GoBack from "components/GoBack";
+import GoBack from "@/components/GoBack";
 import { useGetActivityMemo } from "@/features/procurement/controllers/activityMemoController";
 import { useGetAllConfigDropdown } from "@/features/modules/controllers/config/allConfigController";
 import { useSearchParams } from "next/navigation";

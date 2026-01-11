@@ -1,9 +1,9 @@
 "use client";
 
 import RfqLayout from "./RfpLayout";
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 
-import { Form } from "components/ui/form";
+import { Form } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import FormButton from "@/components/FormButton";
 import { useRouter } from "next/navigation";
@@ -14,9 +14,9 @@ import { z } from "zod";
 import { toast } from "sonner";
 import React, { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Badge } from "components/ui/badge";
-import { Input } from "components/ui/input";
-import { RouteEnum } from "constants/RouterConstants";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { RouteEnum } from "@/constants/RouterConstants";
 
 const Items = () => {
   const router = useRouter();

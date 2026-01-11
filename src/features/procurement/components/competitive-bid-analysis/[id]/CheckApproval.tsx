@@ -1,11 +1,11 @@
 import { skipToken } from "@reduxjs/toolkit/query";
-import GoBack from "components/GoBack";
-import { Loading } from "components/Loading";
-import { Button } from "components/ui/button";
-import { Textarea } from "components/ui/textarea";
-import { RouteEnum } from "constants/RouterConstants";
-import useQuery from "hooks/useQuery";
-import { useAppDispatch } from "hooks/useStore";
+import GoBack from "@/components/GoBack";
+import { Loading } from "@/components/Loading";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { RouteEnum } from "@/constants/RouterConstants";
+import useQuery from "@/hooks/useQuery";
+import { useAppDispatch } from "@/hooks/useStore";
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {

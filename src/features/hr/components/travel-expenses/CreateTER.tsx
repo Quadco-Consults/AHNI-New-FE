@@ -8,20 +8,20 @@ import { format } from "date-fns";
 import { Plus, Trash2, Upload, Calculator, MapPin, Clock, DollarSign } from "lucide-react";
 
 // UI Components
-import { Card, CardContent, CardHeader, CardTitle } from "components/ui/card";
-import { Button } from "components/ui/button";
-import { Input } from "components/ui/input";
-import { Label } from "components/ui/label";
-import { Textarea } from "components/ui/textarea";
-import { Form } from "components/ui/form";
-import { Badge } from "components/ui/badge";
-import { Alert, AlertDescription } from "components/ui/alert";
-import { Separator } from "components/ui/separator";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Form } from "@/components/ui/form";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Separator } from "@/components/ui/separator";
 
 // Form Components
-import FormInput from "components/atoms/FormInput";
-import FormTextArea from "components/atoms/FormTextArea";
-import FormSelect from "components/atoms/FormSelect";
+import FormInput from "@/components/atoms/FormInput";
+import FormTextArea from "@/components/atoms/FormTextArea";
+import FormSelect from "@/components/atoms/FormSelect";
 import FormCheckBox from "@/components/FormCheckBox";
 import FormButton from "@/components/FormButton";
 

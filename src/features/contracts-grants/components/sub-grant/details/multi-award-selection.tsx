@@ -4,18 +4,18 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { skipToken } from "@reduxjs/toolkit/query";
-import Card from "components/Card";
-import { Button } from "components/ui/button";
-import { Badge } from "components/ui/badge";
-import { Checkbox } from "components/ui/checkbox";
-import { Input } from "components/ui/input";
-import { Label } from "components/ui/label";
+import Card from "@/components/Card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Award, DollarSign, Users, AlertCircle } from "lucide-react";
-import BackNavigation from "components/atoms/BackNavigation";
+import BackNavigation from "@/components/atoms/BackNavigation";
 import { useGetAllSubGrantManualSub } from "@/features/contracts-grants/controllers/submissionController";
 import { useGetSingleSubGrant } from "@/features/contracts-grants/controllers/subGrantController";
 import { useCreateMultiAward } from "@/features/contracts-grants/controllers/subGrantAwardController";
-import { Loading } from "components/Loading";
+import { Loading } from "@/components/Loading";
 
 interface BeneficiaryAllocation {
     submissionId: string;

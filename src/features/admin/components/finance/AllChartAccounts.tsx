@@ -1,17 +1,17 @@
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 
 import { toast } from "sonner";
-import { useAppDispatch } from "hooks/useStore";
-import { openDialog } from "store/ui";
-import { DialogType } from "constants/dailogs";
-import TableAction from "components/TableAction";
-import { LoadingSpinner } from "components/Loading";
+import { useAppDispatch } from "@/hooks/useStore";
+import { openDialog } from "@/store/ui";
+import { DialogType } from "@/constants/dailogs";
+import TableAction from "@/components/TableAction";
+import { LoadingSpinner } from "@/components/Loading";
 import { useState } from "react";
 import {
   useDeleteChartAccountMutation,
   useGetAllChartAccountsQuery,
 } from "@/features/modules/controllers/finance/chartAccountController";
-import Pagination from "components/Pagination";
+import Pagination from "@/components/Pagination";
 
 export default function AllChartAccounts() {
   const [page, setPage] = useState(1);

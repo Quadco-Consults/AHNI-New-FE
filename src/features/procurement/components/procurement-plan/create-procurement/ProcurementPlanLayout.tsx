@@ -1,4 +1,4 @@
-import ProcurementPlanHeading from "components/ProcurementPlanHeading";
+import ProcurementPlanHeading from "@/components/ProcurementPlanHeading";
 import { FC, ReactNode } from "react";
 
 type IPageProps = {

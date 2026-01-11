@@ -1,8 +1,8 @@
-import SuccessfulIcon from "components/icons/SuccessfulIcon";
-import { Button } from "components/ui/button";
-import { useAppSelector } from "hooks/useStore";
+import SuccessfulIcon from "@/components/icons/SuccessfulIcon";
+import { Button } from "@/components/ui/button";
+import { useAppSelector } from "@/hooks/useStore";
 import { useDispatch } from "react-redux";
-import { closeDialog, dailogSelector } from "store/ui";
+import { closeDialog, dailogSelector } from "@/store/ui";
 
 const HrSuccessModal = () => {
   const { dialogProps } = useAppSelector(dailogSelector);

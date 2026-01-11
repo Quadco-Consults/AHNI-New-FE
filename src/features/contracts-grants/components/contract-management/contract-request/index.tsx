@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "components/ui/button";
-import { Card } from "components/ui/card";
-import { Input } from "components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   Select,
@@ -12,12 +12,12 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "components/ui/select";
-import DataTable from "components/Table/DataTable";
+} from "@/components/ui/select";
+import DataTable from "@/components/Table/DataTable";
 import { Plus, Search, Filter } from "lucide-react";
 import { contractRequestColumns } from "@/features/contracts-grants/components/table-columns/contract-management/contract-request";
 import { useGetAllContractRequests } from "@/features/contracts-grants/controllers/contractController";
-import { CG_ROUTES } from "constants/RouterConstants";
+import { CG_ROUTES } from "@/constants/RouterConstants";
 import { usePermissions } from "@/hooks/usePermissions";
 
 export default function ContractRequest() {

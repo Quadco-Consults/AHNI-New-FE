@@ -1,23 +1,23 @@
 /* eslint-disable react/prop-types */
 import { Moon, Sun } from "lucide-react";
 import avatarPng from "assets/imgs/avatar.png";
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "components/ui/dropdown-menu";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { useTheme } from "configs/theme-provider";
-import { cn } from "lib/utils";
-import { Avatar, AvatarFallback, AvatarImage } from "components/ui/avatar";
+} from "@/components/ui/dropdown-menu";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useTheme } from "@/configs/theme-provider";
+import { cn } from "@/lib/utils";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { usePathname, useRouter } from "next/navigation";
-import { AuthRoutes, RouteEnum } from "constants/RouterConstants";
-import { useAppDispatch } from "hooks/useStore";
-import { logOut } from "store/auth/authSlice";
-import { getPageTitleFromPath } from "utils/utls";
-import { useGetUserProfile } from "features/auth/controllers/userController";
+import { AuthRoutes, RouteEnum } from "@/constants/RouterConstants";
+import { useAppDispatch } from "@/hooks/useStore";
+import { logOut } from "@/store/auth/authSlice";
+import { getPageTitleFromPath } from "@/utils/utls";
+import { useGetUserProfile } from "@/features/auth/controllers/userController";
 import { useQueryClient } from "@tanstack/react-query";
 import NotificationDropdown from "./NotificationDropdown";
 import { logoutStateManager } from "@/utils/errorHandlers";

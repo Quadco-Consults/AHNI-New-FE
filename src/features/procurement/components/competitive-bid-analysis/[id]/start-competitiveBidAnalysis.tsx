@@ -1,14 +1,14 @@
 "use client";
 
 import FormButton from "@/components/FormButton";
-import BreadcrumbCard from "components/Breadcrumb";
-import Card from "components/Card";
-import GoBack from "components/GoBack";
-import { LoadingSpinner } from "components/Loading";
-import DataTable from "components/Table/DataTable";
-import { Checkbox } from "components/ui/checkbox";
-import { Input } from "components/ui/input";
-import { Label } from "components/ui/label";
+import BreadcrumbCard from "@/components/Breadcrumb";
+import Card from "@/components/Card";
+import GoBack from "@/components/GoBack";
+import { LoadingSpinner } from "@/components/Loading";
+import DataTable from "@/components/Table/DataTable";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Table,
   TableBody,
@@ -16,9 +16,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "components/ui/table";
-import { Textarea } from "components/ui/textarea";
-import { RouteEnum } from "constants/RouterConstants";
+} from "@/components/ui/table";
+import { Textarea } from "@/components/ui/textarea";
+import { RouteEnum } from "@/constants/RouterConstants";
 import {
   SubmissionData,
   VendorSubmissionData,

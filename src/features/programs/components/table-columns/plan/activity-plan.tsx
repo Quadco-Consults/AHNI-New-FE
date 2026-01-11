@@ -1,25 +1,25 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { useDeleteActivityPlan } from "@/features/programs/controllers/activityPlanController";
-import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
-import DeleteIcon from "components/icons/DeleteIcon";
-import PencilIcon from "components/icons/PencilIcon";
-import EditIcon from "components/icons/EditIcon";
-import ConfirmationDialog from "components/ConfirmationDialog";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { Button } from "components/ui/button";
-import { Badge } from "components/ui/badge";
+import MoreOptionsHorizontalIcon from "@/components/icons/MoreOptionsHorizontalIcon";
+import DeleteIcon from "@/components/icons/DeleteIcon";
+import PencilIcon from "@/components/icons/PencilIcon";
+import EditIcon from "@/components/icons/EditIcon";
+import ConfirmationDialog from "@/components/ConfirmationDialog";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 
 import { useState } from "react";
 import { toast } from "sonner";
-import { useAppDispatch } from "hooks/useStore";
-import { openDialog } from "store/ui";
-import { DialogType } from "constants/dailogs";
+import { useAppDispatch } from "@/hooks/useStore";
+import { openDialog } from "@/store/ui";
+import { DialogType } from "@/constants/dailogs";
 import { TActivityPlanData } from "@/features/programs/types/activity-plan";
 import { TActivity } from "@/features/programs/types/work-plan";
 import { format } from "date-fns";
-import { formatNumberCurrency } from "utils/utls";
-import { RouteEnum } from "constants/RouterConstants";
+import { formatNumberCurrency } from "@/utils/utls";
+import { RouteEnum } from "@/constants/RouterConstants";
 
 export const getActivityPlanDetailsColumns = (
   workPlanId: string

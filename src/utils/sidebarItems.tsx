@@ -20,11 +20,11 @@ import {
   MapPin,
   ClipboardList
 } from "lucide-react";
-import ProgramsIcon from "components/icons/sidebar-icons/ProgramsIcon";
-import ProcurementManagementIcon from "components/icons/sidebar-icons/ProcurementManagementIcon";
-import AdminIcon from "components/icons/sidebar-icons/AdminIcon";
-import CGIcon from "components/icons/sidebar-icons/CGIcon";
-import HRIcon from "components/icons/sidebar-icons/HRIcon";
+import ProgramsIcon from "@/components/icons/sidebar-icons/ProgramsIcon";
+import ProcurementManagementIcon from "@/components/icons/sidebar-icons/ProcurementManagementIcon";
+import AdminIcon from "@/components/icons/sidebar-icons/AdminIcon";
+import CGIcon from "@/components/icons/sidebar-icons/CGIcon";
+import HRIcon from "@/components/icons/sidebar-icons/HRIcon";
 
 // Types
 export interface PermissionRequirement {
@@ -112,16 +112,6 @@ export const departmentalLinks: SidebarItem[] = [
               {
                 module: "programs",
                 codenames: ["view_riskmanagementplan"]
-              }
-            ]
-          },
-          {
-            name: "Supportive Supervision Plan",
-            path: "/dashboard/programs/plan/supportive-supervision-plan",
-            permissions: [
-              {
-                module: "programs",
-                codenames: ["view_supportivesupervisionplan"]
               }
             ]
           },

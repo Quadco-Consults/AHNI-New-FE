@@ -1,20 +1,20 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import DeleteIcon from "components/icons/DeleteIcon";
-import EyeIcon from "components/icons/EyeIcon";
-import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
-import { Button } from "components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { CG_ROUTES } from "constants/RouterConstants";
+import DeleteIcon from "@/components/icons/DeleteIcon";
+import EyeIcon from "@/components/icons/EyeIcon";
+import MoreOptionsHorizontalIcon from "@/components/icons/MoreOptionsHorizontalIcon";
+import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { CG_ROUTES } from "@/constants/RouterConstants";
 import { ISubGrantSubmissionPaginatedData } from "@/features/contracts-grants/types/contract-management/sub-grant/sub-grant";
 import { useParams, usePathname } from "next/navigation";
 import Link from "next/link";
-import PencilIcon from "components/icons/PencilIcon";
+import PencilIcon from "@/components/icons/PencilIcon";
 import { toast } from "sonner";
 import { useDeleteSubGrantSubmission } from "@/features/contracts-grants/controllers/submissionController";
 import { useState } from "react";
-import ConfirmationDialog from "components/ConfirmationDialog";
+import ConfirmationDialog from "@/components/ConfirmationDialog";
 
 export const preAwardAssessmentColumns: ColumnDef<ISubGrantSubmissionPaginatedData>[] =
     [

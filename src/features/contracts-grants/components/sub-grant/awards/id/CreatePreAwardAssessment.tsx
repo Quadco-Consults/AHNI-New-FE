@@ -1,13 +1,13 @@
 "use client";
 
-import BackNavigation from "components/atoms/BackNavigation";
-import Card from "components/Card";
-import { Button } from "components/ui/button";
-import { Badge } from "components/ui/badge";
+import BackNavigation from "@/components/atoms/BackNavigation";
+import Card from "@/components/Card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { useParams, useRouter } from "next/navigation";
 import { useGetSingleSubGrant } from "@/features/contracts-grants/controllers/subGrantController";
 import { useGetAllSubGrantManualSub } from "@/features/contracts-grants/controllers/submissionController";
-import { Loading } from "components/Loading";
+import { Loading } from "@/components/Loading";
 import { FileCheck, Award, User } from "lucide-react";
 import Link from "next/link";
 

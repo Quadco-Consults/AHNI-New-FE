@@ -6,9 +6,9 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "components/ui/select";
-import { Button } from "components/ui/button";
-import { Form } from "components/ui/form";
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Form } from "@/components/ui/form";
 import { ProjectDocumentSchema } from "definations/project-validator";
 import React, { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -19,7 +19,7 @@ import { z } from "zod";
 import { LoadingSpinner } from "@/components/Loading";
 import { ProjectDocumentTypesResultsData } from "definations/project-types/project-document-types";
 import { toast } from "sonner";
-import FormButton from "components/atoms/FormButton";
+import FormButton from "@/components/atoms/FormButton";
 import { useCreateProjectDocument } from "../../controllers";
 // import { useCreateProjectDocumentController } from "@/features/project/documentController";
 

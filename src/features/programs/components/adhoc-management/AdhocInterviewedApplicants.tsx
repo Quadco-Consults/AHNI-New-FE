@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import DataTable from "components/Table/DataTable";
-import TableFilters from "components/Table/TableFilters";
+import DataTable from "@/components/Table/DataTable";
+import TableFilters from "@/components/Table/TableFilters";
 import { useGetApplicantsByAdvertisement } from "@/features/programs/controllers/adhocApplicantController";
 import { adhocInterviewedColumns } from "@/features/programs/components/table-columns/adhoc-interviewed";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";

@@ -1,14 +1,14 @@
 "use client";
 
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import { ChangeEvent, useState } from "react";
-import { Input } from "components/ui/input";
+import { Input } from "@/components/ui/input";
 import { Upload as UploadFile } from "lucide-react";
-import { Label } from "components/ui/label";
+import { Label } from "@/components/ui/label";
 import FormButton from "@/components/FormButton";
-import { useAppDispatch } from "hooks/useStore";
-import { closeDialog } from "store/ui";
-import FormSelect from "components/atoms/FormSelectField";
+import { useAppDispatch } from "@/hooks/useStore";
+import { closeDialog } from "@/store/ui";
+import FormSelect from "@/components/atoms/FormSelectField";
 import { FormProvider, useForm } from "react-hook-form";
 
 export default function ActivityTrackerModal() {

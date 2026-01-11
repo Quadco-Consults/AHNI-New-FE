@@ -1,4 +1,4 @@
-import { IUser } from "features/auth/types/user";
+import { IUser } from "@/features/auth/types/user";
 import { TLocationData } from "definations/modules/config/location";
 import { z } from "zod";
 

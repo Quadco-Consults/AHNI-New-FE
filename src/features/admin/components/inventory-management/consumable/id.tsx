@@ -1,9 +1,9 @@
 "use client";
 
-import BackNavigation from "components/atoms/BackNavigation";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
-import ConsumableDetails from "features/admin/components/inventory-management/ConsumableDetails";
-import ConsumableStockCard from "features/admin/components/inventory-management/ConsumableStockCard";
+import BackNavigation from "@/components/atoms/BackNavigation";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import ConsumableDetails from "@/features/admin/components/inventory-management/ConsumableDetails";
+import ConsumableStockCard from "@/features/admin/components/inventory-management/ConsumableStockCard";
 import ConsumableRequisitions from "@/features/admin/components/inventory-management/ConsumableRequisitions";
 import { useParams, useSearchParams } from "next/navigation";
 import { useGetAllConsumableStockCardsQuery } from "@/features/admin/controllers/consumableController";

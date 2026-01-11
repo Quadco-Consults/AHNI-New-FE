@@ -7,13 +7,13 @@ import {
   PeoplePositionsSvg,
   SuiteCase,
 } from "assets/svgs/CAndGSvgs";
-import DeleteIcon from "components/icons/DeleteIcon";
-import PencilIcon from "components/icons/PencilIcon";
-import ConfirmationDialog from "components/ConfirmationDialog";
-import Card from "components/Card";
-import { Button } from "components/ui/button";
-import { CardTitle } from "components/ui/card";
-import { ProgramRoutes } from "constants/RouterConstants";
+import DeleteIcon from "@/components/icons/DeleteIcon";
+import PencilIcon from "@/components/icons/PencilIcon";
+import ConfirmationDialog from "@/components/ConfirmationDialog";
+import Card from "@/components/Card";
+import { Button } from "@/components/ui/button";
+import { CardTitle } from "@/components/ui/card";
+import { ProgramRoutes } from "@/constants/RouterConstants";
 import { format, isValid, differenceInMonths } from "date-fns";
 import { IAdhocAdvertisement } from "@/features/programs/types/adhoc-management";
 import { useState } from "react";
@@ -21,9 +21,9 @@ import Link from "next/link";
 import { useDeleteAdhocAdvertisement, useUpdateAdhocAdvertisement, usePublishAdvertisement } from "@/features/programs/controllers/adhocAdvertisementController";
 import { toast } from "sonner";
 import { Users, CheckCircle, AlertTriangle, Calendar } from "lucide-react";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "components/ui/dialog";
-import { Input } from "components/ui/input";
-import { Label } from "components/ui/label";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export default function AdhocAdvertisementCard(advertisement: IAdhocAdvertisement) {
   const [isModalOpen, setIsModalOpen] = useState(false);

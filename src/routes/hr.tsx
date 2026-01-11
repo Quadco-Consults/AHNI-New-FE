@@ -1,4 +1,4 @@
-import { HrRoutes } from "constants/RouterConstants";
+import { HrRoutes } from "@/constants/RouterConstants";
 import { lazy } from "react";
 
 export const hr = [

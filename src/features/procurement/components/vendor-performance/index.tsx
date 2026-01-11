@@ -4,20 +4,20 @@
 
 /* eslint-disable react/prop-types */
 import { Icon } from "@iconify/react";
-import Card from "components/Card";
-import { Badge } from "components/ui/badge";
-import { Checkbox } from "components/ui/checkbox";
-import { cn } from "lib/utils";
-import { Button } from "components/ui/button";
+import Card from "@/components/Card";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import { Plus, Trash2, Search } from 'lucide-react';
-import { Input } from "components/ui/input";
+import { Input } from "@/components/ui/input";
 import Link from "next/link";
-import { RouteEnum } from "constants/RouterConstants";
+import { RouteEnum } from "@/constants/RouterConstants";
 import { ColumnDef } from "@tanstack/react-table";
-import DataTable from "components/Table/DataTable";
-import GoBack from "components/GoBack";
+import DataTable from "@/components/Table/DataTable";
+import GoBack from "@/components/GoBack";
 import { useGetAllVendorEvaluations, useDeleteVendorEvaluation } from "@/features/procurement/controllers/vendorPerformanceEvaluationController";
-import IconButton from "components/IconButton";
+import IconButton from "@/components/IconButton";
 import { toast } from "sonner";
 
 const VendorPerformance = () => {

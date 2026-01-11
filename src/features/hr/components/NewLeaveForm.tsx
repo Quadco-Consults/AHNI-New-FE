@@ -2,20 +2,20 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "@/components/FormButton";
-// import FormInput from "components/atoms/FormInput";
-import { CardContent } from "components/ui/card";
-import { Form } from "components/ui/form";
+// import FormInput from "@/components/atoms/FormInput";
+import { CardContent } from "@/components/ui/card";
+import { Form } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
-import { useAppSelector } from "hooks/useStore";
-import { dailogSelector } from "store/ui";
+import { useAppSelector } from "@/hooks/useStore";
+import { dailogSelector } from "@/store/ui";
 // import { toast } from "sonner";
 import {
   CostCategorySchema,
   TCostCategoryData,
   TCostCategoryFormValues,
 } from "@/features/admin/types/finance/cost-category";
-import FormRadio from "components/atoms/FormRadio";
-import FormInput from "components/atoms/FormInput";
+import FormRadio from "@/components/atoms/FormRadio";
+import FormInput from "@/components/atoms/FormInput";
 // import {
 //   useAddCostCategory,
 //   useUpdateCostCategory,

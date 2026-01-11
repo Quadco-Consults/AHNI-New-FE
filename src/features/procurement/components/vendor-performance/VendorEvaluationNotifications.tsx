@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import { useVendorEvaluationReminders } from "@/features/procurement/hooks/useVendorEvaluationReminders";
-import { Button } from "components/ui/button";
-import { Badge } from "components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Bell, X, AlertCircle, Clock, Info } from "lucide-react";
-import { cn } from "lib/utils";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import {
   Dialog,
@@ -14,7 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "components/ui/dialog";
+} from "@/components/ui/dialog";
 
 const VendorEvaluationNotifications = () => {
   const { reminders, stats, isLoading, hasOverdue, hasDueSoon } = useVendorEvaluationReminders();

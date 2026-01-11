@@ -3,14 +3,14 @@
 import { useParams, useRouter } from "next/navigation";
 import { useGetSingleSupervisionEvaluation, useGetEvaluationResponses } from "@/features/programs/controllers/supervisionEvaluationController";
 import { useGetSingleSiteVisit } from "@/features/programs/controllers/siteVisitController";
-import { LoadingSpinner } from "components/Loading";
-import { Button } from "components/ui/button";
+import { LoadingSpinner } from "@/components/Loading";
+import { Button } from "@/components/ui/button";
 import { ArrowLeft, Download, Printer } from "lucide-react";
 import { useRef } from "react";
 import { useReactToPrint } from "react-to-print";
-import Card from "components/Card";
-import { Badge } from "components/ui/badge";
-import { cn } from "lib/utils";
+import Card from "@/components/Card";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 const SupervisionEvaluationReport = () => {
   const { id } = useParams();

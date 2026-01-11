@@ -5,10 +5,10 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { ChevronRight } from "lucide-react";
 import Modal from "react-modal";
-import { Form } from "components/ui/form";
-import FormInput from "components/atoms/FormInput";
+import { Form } from "@/components/ui/form";
+import FormInput from "@/components/atoms/FormInput";
 import FormButton from "@/components/FormButton";
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import { useUpdateCompensationSpread } from "@/features/hr/controllers/hrCompensationSpreadController";
 import { CompensationSpreadItem } from "@/features/hr/types/compensation-spread";
 

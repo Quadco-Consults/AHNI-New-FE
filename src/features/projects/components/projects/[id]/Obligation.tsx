@@ -1,10 +1,10 @@
 import { ColumnDef } from "@tanstack/react-table";
-import DataTable from "components/Table/DataTable";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { Button } from "components/ui/button";
-import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
-import DeleteIcon from "components/icons/DeleteIcon";
-import ConfirmationDialog from "components/ConfirmationDialog";
+import DataTable from "@/components/Table/DataTable";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import MoreOptionsHorizontalIcon from "@/components/icons/MoreOptionsHorizontalIcon";
+import DeleteIcon from "@/components/icons/DeleteIcon";
+import ConfirmationDialog from "@/components/ConfirmationDialog";
 import { useState } from "react";
 import { IProjectSingleData } from "definations/project";
 

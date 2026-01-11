@@ -1,10 +1,10 @@
 "use client";
 
-import DescriptionCard from "components/DescriptionCard";
-import { Card, CardContent, CardHeader } from "components/ui/card";
-import { Separator } from "components/ui/separator";
+import DescriptionCard from "@/components/DescriptionCard";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { useSearchParams } from "next/navigation";
-import { LoadingSpinner } from "components/Loading";
+import { LoadingSpinner } from "@/components/Loading";
 import { 
   useGetSingleAssetRequestQuery,
   useReviewAssetRequestMutation,
@@ -12,7 +12,7 @@ import {
   useApproveAssetRequestMutation 
 } from "@/features/admin/controllers/assetRequestController";
 import { FormProvider, useForm } from "react-hook-form";
-import FormTextArea from "components/atoms/FormTextArea";
+import FormTextArea from "@/components/atoms/FormTextArea";
 import FormButton from "@/components/FormButton";
 import { useGetSingleItem } from "@/features/modules/controllers";
 import { toast } from "sonner";

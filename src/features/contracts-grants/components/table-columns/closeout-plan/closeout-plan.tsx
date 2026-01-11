@@ -1,25 +1,25 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import DeleteIcon from "components/icons/DeleteIcon";
-import EyeIcon from "components/icons/EyeIcon";
-import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
-import PencilIcon from "components/icons/PencilIcon";
-import ConfirmationDialog from "components/ConfirmationDialog";
-import { Badge } from "components/ui/badge";
-import { Button } from "components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { DialogType } from "constants/dailogs";
-import { CG_ROUTES } from "constants/RouterConstants";
+import DeleteIcon from "@/components/icons/DeleteIcon";
+import EyeIcon from "@/components/icons/EyeIcon";
+import MoreOptionsHorizontalIcon from "@/components/icons/MoreOptionsHorizontalIcon";
+import PencilIcon from "@/components/icons/PencilIcon";
+import ConfirmationDialog from "@/components/ConfirmationDialog";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { DialogType } from "@/constants/dailogs";
+import { CG_ROUTES } from "@/constants/RouterConstants";
 import { ICloseOutPlanPaginatedData } from "@/features/contracts-grants/types/closeout-plan";
-import { useAppDispatch } from "hooks/useStore";
-import { cn } from "lib/utils";
+import { useAppDispatch } from "@/hooks/useStore";
+import { cn } from "@/lib/utils";
 import { useState } from "react";
 import Link from "next/link";
 import { useDeleteCloseoutPlan } from "@/features/contracts-grants/controllers/closeoutPlanController";
 import { closeoutPlanAPis } from "@/features/contracts-grants/controllers/closeOutPlanController";
 import { toast } from "sonner";
-import { openDialog } from "store/ui";
+import { openDialog } from "@/store/ui";
 
 export const closeOutPlanColumns: ColumnDef<ICloseOutPlanPaginatedData>[] = [
     {

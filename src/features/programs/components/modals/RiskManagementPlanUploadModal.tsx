@@ -1,16 +1,16 @@
 "use client";
 
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import { ChangeEvent, useState } from "react";
-import { Input } from "components/ui/input";
+import { Input } from "@/components/ui/input";
 import { Upload as UploadFile } from "lucide-react";
 import FormButton from "@/components/FormButton";
-import { closeDialog } from "store/ui";
+import { closeDialog } from "@/store/ui";
 import { z } from "zod";
-import FormSelect from "components/atoms/FormSelect";
+import FormSelect from "@/components/atoms/FormSelect";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useAppDispatch } from "hooks/useStore";
+import { useAppDispatch } from "@/hooks/useStore";
 import { toast } from "sonner";
 import { useUploadRiskManagementPlan } from "@/features/programs/controllers/riskPlansController";
 import { useGetAllFinancialYearsQuery } from "@/features/modules/controllers/config/financialYearController";

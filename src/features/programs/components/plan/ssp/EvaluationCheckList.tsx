@@ -3,10 +3,10 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import SupportiveSupervisionPlanLayout from "./SupportiveSupervisionPlanLayout";
 import FormButton from "@/components/FormButton";
-import { openDialog } from "store/ui";
-import { DialogType, largeDailogScreen } from "constants/dailogs";
-import { useAppDispatch, useAppSelector } from "hooks/useStore";
-import { Button } from "components/ui/button";
+import { openDialog } from "@/store/ui";
+import { DialogType, largeDailogScreen } from "@/constants/dailogs";
+import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
+import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import {
@@ -15,8 +15,8 @@ import {
   useModifySupervisionPlan,
 } from "@/features/programs/controllers/supervisionPlanController";
 import { TSSPCompositionFormValues } from "definations/program/plan/supervision-plan/supervision-plan";
-import { formatDate } from "utils/date";
-import { RouteEnum } from "constants/RouterConstants";
+import { formatDate } from "@/utils/date";
+import { RouteEnum } from "@/constants/RouterConstants";
 import { skipToken } from "@reduxjs/toolkit/query";
 
 export default function EvaluationCheckList() {

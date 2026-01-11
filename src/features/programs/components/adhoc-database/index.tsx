@@ -1,12 +1,12 @@
 "use client";
 
-import Card from "components/Card";
+import Card from "@/components/Card";
 import { adhocDatabaseColumns } from "@/features/programs/components/table-columns/adhoc-database";
-import DataTable from "components/Table/DataTable";
-import TableFilters from "components/Table/TableFilters";
+import DataTable from "@/components/Table/DataTable";
+import TableFilters from "@/components/Table/TableFilters";
 import { useState } from "react";
 import { useGetAllAdhocApplicants } from "@/features/programs/controllers/adhocApplicantController";
-import { Badge } from "components/ui/badge";
+import { Badge } from "@/components/ui/badge";
 
 export default function AdhocDatabase() {
     const [page, setPage] = useState(1);

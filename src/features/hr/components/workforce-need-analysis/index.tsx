@@ -6,12 +6,12 @@ import FormButton from "@/components/FormButton";
 import AddSquareIcon from "@/components/icons/AddSquareIcon";
 import DataTable from "@/components/Table/DataTable";
 import React from "react";
-import { cn } from "lib/utils";
+import { cn } from "@/lib/utils";
 import { Filter } from 'lucide-react';import { Icon } from "@iconify/react";
 
 import { Button } from "@/components/ui/button";
 import Link from "next/link"; import { useRouter } from "next/navigation";
-import { HrRoutes } from "constants/RouterConstants";
+import { HrRoutes } from "@/constants/RouterConstants";
 import { Checkbox } from "@/components/ui/checkbox";
 import PencilIcon from "@/components/icons/PencilIcon";
 import EyeIcon from "@/components/icons/EyeIcon";

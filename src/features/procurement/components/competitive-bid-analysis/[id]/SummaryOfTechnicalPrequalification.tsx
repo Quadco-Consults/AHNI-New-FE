@@ -8,12 +8,12 @@ import {
   TableHeader,
   TableHead,
   TableRow,
-} from "components/ui/table";
-import { LoadingSpinner } from "components/Loading";
-import { Button } from "components/ui/button";
-import { Badge } from "components/ui/badge";
+} from "@/components/ui/table";
+import { LoadingSpinner } from "@/components/Loading";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Icon } from "@iconify/react";
-import { cn } from "lib/utils";
+import { cn } from "@/lib/utils";
 import { useGetManualBidPrequalificationsBySolicitation } from "@/features/procurement/controllers/manualBidCbaPrequalificationController";
 import { useGetSolicitationSubmission } from "@/features/procurement/controllers/vendorBidSubmissionsController";
 

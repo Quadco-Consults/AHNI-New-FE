@@ -1,16 +1,16 @@
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { useAppDispatch } from "hooks/useStore";
-import { openDialog } from "store/ui";
-import { DialogType } from "constants/dailogs";
-import TableAction from "components/TableAction";
-import { LoadingSpinner } from "components/Loading";
+import { useAppDispatch } from "@/hooks/useStore";
+import { openDialog } from "@/store/ui";
+import { DialogType } from "@/constants/dailogs";
+import TableAction from "@/components/TableAction";
+import { LoadingSpinner } from "@/components/Loading";
 import { useState } from "react";
 import {
   useDeleteCostCategoryMutation,
   useGetAllCostCategoriesQuery,
 } from "@/features/modules/controllers/finance/costCategoryController";
-import Pagination from "components/Pagination";
+import Pagination from "@/components/Pagination";
 
 export default function AllCostCategories() {
   const [page, setPage] = useState(1);

@@ -1,7 +1,7 @@
 import React from "react";
-import DescriptionCard from "components/DescriptionCard";
-import FilePreview from "components/FilePreview";
-import { Separator } from "components/ui/separator";
+import DescriptionCard from "@/components/DescriptionCard";
+import FilePreview from "@/components/FilePreview";
+import { Separator } from "@/components/ui/separator";
 import { IConsultantSingleData } from "@/features/contracts-grants/types/contract-management/consultancy-management/consultancy-management";
 
 export default function ScopeOfWork({

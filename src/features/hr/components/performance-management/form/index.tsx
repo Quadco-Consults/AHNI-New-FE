@@ -1,12 +1,12 @@
 "use client";
 
 import FormButton from "@/components/FormButton";
-import FormInput from "components/atoms/FormInput";
-import FormSelect from "components/atoms/FormSelectField";
-import GoBack from "components/GoBack";
-import { Form } from "components/ui/form";
-import { SelectContent } from "components/ui/select";
-import { HrRoutes } from "constants/RouterConstants";
+import FormInput from "@/components/atoms/FormInput";
+import FormSelect from "@/components/atoms/FormSelectField";
+import GoBack from "@/components/GoBack";
+import { Form } from "@/components/ui/form";
+import { SelectContent } from "@/components/ui/select";
+import { HrRoutes } from "@/constants/RouterConstants";
 import { MinusCircle, PlusCircle } from "lucide-react";
 import { useMemo, useState, useEffect } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
@@ -16,8 +16,8 @@ import { useCreatePerformanceAssesment } from "@/features/hr/controllers/hrPerfo
 import { useGetEmployeeGoals } from "@/features/hr/controllers/goalsController";
 import { toast } from "sonner";
 import { EvaluatorType } from "@/features/hr/types/performance-assesment";
-import { Card, CardContent, CardHeader, CardTitle } from "components/ui/card";
-import { Badge } from "components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 

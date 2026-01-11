@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
-import { LoadingSpinner } from "components/Loading";
+import { LoadingSpinner } from "@/components/Loading";
 
 interface InterviewScore {
   id: string;

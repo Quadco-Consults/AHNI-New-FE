@@ -1,8 +1,8 @@
 import { ProcurementPlanResultsData } from "../../../types/procurementPlan";
 import { useState } from "react";
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Edit2, Save, X } from "lucide-react";
-import { Input } from "components/ui/input";
+import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { useQueryClient } from "@tanstack/react-query";

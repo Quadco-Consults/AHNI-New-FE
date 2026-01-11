@@ -1,21 +1,21 @@
 "use client";
 
-import BackNavigation from "components/atoms/BackNavigation";
-import AddSquareIcon from "components/icons/AddSquareIcon";
-import { Button } from "components/ui/button";
+import BackNavigation from "@/components/atoms/BackNavigation";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
+import { Button } from "@/components/ui/button";
 import SubGrantExpenditureHistory from "./SubGrantExpenditureHistory";
 import SubGrantObligationHistory from "./SubGrantObligationHistory";
 import SubGrantModificationHistory from "./SubGrantModificationHistory";
 import AwardDetailsTab from "./AwardDetailsTab";
 import { useParams } from "next/navigation";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useGetSingleSubGrant } from "@/features/contracts-grants/controllers/subGrantController";
 import { skipToken } from "@reduxjs/toolkit/query";
-import { LoadingSpinner } from "components/Loading";
+import { LoadingSpinner } from "@/components/Loading";
 import { useState } from "react";
-import { openDialog } from "store/ui";
-import { DialogType } from "constants/dailogs";
-import { useAppDispatch } from "hooks/useStore";
+import { openDialog } from "@/store/ui";
+import { DialogType } from "@/constants/dailogs";
+import { useAppDispatch } from "@/hooks/useStore";
 
 /**
  * Award Management Component

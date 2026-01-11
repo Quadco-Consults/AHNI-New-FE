@@ -1,10 +1,10 @@
 "use client";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ThemeProvider } from "configs/theme-provider";
+import { ThemeProvider } from "@/configs/theme-provider";
 import { FC, ReactNode } from "react";
 import { Toaster } from "sonner";
-import AppDialog from "components/modals/dialog/AppDialog";
+import AppDialog from "@/components/modals/dialog/AppDialog";
 
 const queryClient = new QueryClient({
   defaultOptions: {

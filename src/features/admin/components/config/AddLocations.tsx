@@ -2,16 +2,16 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "@/components/FormButton";
-import FormInput from "components/atoms/FormInput";
-import FormSelect from "components/atoms/FormSelect";
-import FormTextArea from "components/atoms/FormTextArea";
-import { CardContent } from "components/ui/card";
-import { Form } from "components/ui/form";
+import FormInput from "@/components/atoms/FormInput";
+import FormSelect from "@/components/atoms/FormSelect";
+import FormTextArea from "@/components/atoms/FormTextArea";
+import { CardContent } from "@/components/ui/card";
+import { Form } from "@/components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useAppDispatch, useAppSelector } from "hooks/useStore";
-import { closeDialog, dailogSelector } from "store/ui";
+import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
+import { closeDialog, dailogSelector } from "@/store/ui";
 import { toast } from "sonner";
-import { nigerianStates } from "lib/index";
+import { nigerianStates } from "@/lib/index";
 import {
   LocationSchema,
   TLocationData,

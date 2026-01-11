@@ -1,9 +1,9 @@
 import successProcess from "assets/imgs/successful.png";
-import { Button } from "components/ui/button";
-import { RouteEnum } from "constants/RouterConstants";
-import { useAppDispatch } from "hooks/useStore";
+import { Button } from "@/components/ui/button";
+import { RouteEnum } from "@/constants/RouterConstants";
+import { useAppDispatch } from "@/hooks/useStore";
 import { useRouter } from "next/navigation";
-import { closeDialog } from "store/ui";
+import { closeDialog } from "@/store/ui";
 
 const FundSuccessModal = () => {
   const router = useRouter();

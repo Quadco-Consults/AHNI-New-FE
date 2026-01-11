@@ -1,15 +1,15 @@
 "use client";
 
 import React from "react";
-import { Card } from "components/Card";
-import { Button } from "components/ui/button";
-import { Badge } from "components/ui/badge";
+import { Card } from "@/components/Card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { FileText } from 'lucide-react';import { Icon } from "@iconify/react";
-import { LoadingSpinner } from "components/Loading";
+import { LoadingSpinner } from "@/components/Loading";
 import CbaAPI from "@/features/procurement/controllers/cbaController";
 import SignatureWorkflowAPI from "@/features/procurement/controllers/signatureWorkflowController";
 import { CbaDocument, VendorComparison, EvaluationCriteria, ApprovalWorkflow } from "../../types/cba";
-import { cn } from "lib/utils";
+import { cn } from "@/lib/utils";
 
 interface CbaReportGeneratorProps {
   cbaId: string;

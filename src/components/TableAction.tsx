@@ -1,4 +1,4 @@
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -9,7 +9,7 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
     AlertDialogTrigger,
-} from "components/ui/alert-dialog";
+} from "@/components/ui/alert-dialog";
 import MoreIcon from "assets/MoreIcon";
 import Link from "next/link";
 

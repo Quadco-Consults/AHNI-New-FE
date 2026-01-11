@@ -1,14 +1,14 @@
 "use client";
 
-import DataTable from "components/Table/DataTable";
-import { Button } from "components/ui/button";
+import DataTable from "@/components/Table/DataTable";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { grantColumns } from "@/features/contracts-grants/components/table-columns/grant/grant";
-import TableFilters from "components/Table/TableFilters";
-import { CG_ROUTES } from "constants/RouterConstants";
+import TableFilters from "@/components/Table/TableFilters";
+import { CG_ROUTES } from "@/constants/RouterConstants";
 import { useState } from "react";
-import Card from "components/Card";
+import Card from "@/components/Card";
 import { useDebounce } from "ahooks";
 // import { useGetAllGrants } from "@/features/contracts-grants/controllers/grant/grant";
 import { useGetAllProjects } from "@/features/projects/controllers/projectController";

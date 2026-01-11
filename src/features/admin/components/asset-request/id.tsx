@@ -1,5 +1,5 @@
-import BackNavigation from "components/atoms/BackNavigation";
-import { Tabs, TabsList, TabsContent, TabsTrigger } from "components/ui/tabs";
+import BackNavigation from "@/components/atoms/BackNavigation";
+import { Tabs, TabsList, TabsContent, TabsTrigger } from "@/components/ui/tabs";
 import AssetRequestDetails from "./components/AssetRequestDetails";
 import ManagementApproval from "./components/ManagementApproval";
 import Upload from "./components/Upload";

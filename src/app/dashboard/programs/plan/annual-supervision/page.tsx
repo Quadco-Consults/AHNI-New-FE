@@ -2,23 +2,23 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import BreadcrumbCard from "components/Breadcrumb";
+import BreadcrumbCard from "@/components/Breadcrumb";
 import AnnualPlanUpload from "@/features/programs/components/plan/annual-supervision/AnnualPlanUpload";
-import { Button } from "components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import Card from "components/Card";
-import DataTable from "components/Table/DataTable";
-import TableFilters from "components/Table/TableFilters";
-import AddSquareIcon from "components/icons/AddSquareIcon";
-import ArrowDownIcon from "components/icons/ArrowDownIcon";
-import UploadIcon from "components/icons/UploadIcon";
+import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import Card from "@/components/Card";
+import DataTable from "@/components/Table/DataTable";
+import TableFilters from "@/components/Table/TableFilters";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
+import ArrowDownIcon from "@/components/icons/ArrowDownIcon";
+import UploadIcon from "@/components/icons/UploadIcon";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "components/ui/dialog";
+} from "@/components/ui/dialog";
 import { useDebounce } from "ahooks";
 import { annualSupervisionColumns } from "@/features/programs/components/table-columns/plan/annual-supervision";
 import { useGetAllAnnualPlans } from "@/features/programs/controllers/annualSupervisionPlanController";

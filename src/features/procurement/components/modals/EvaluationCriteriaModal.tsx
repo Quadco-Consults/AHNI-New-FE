@@ -1,23 +1,23 @@
 import logoPng from "assets/imgs/logo.png";
-import { ScrollArea } from "components/ui/scroll-area";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "components/ui/select";
-import { Checkbox } from "components/ui/checkbox";
+} from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useEffect, useMemo, useState } from "react";
-import { LoadingSpinner } from "components/Loading";
+import { LoadingSpinner } from "@/components/Loading";
 import FormButton from "@/components/FormButton";
-import { useAppDispatch, useAppSelector } from "hooks/useStore";
-import { closeDialog } from "store/ui";
+import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
+import { closeDialog } from "@/store/ui";
 // import { useGetAllSupervisionCriteria } from "@/features/modules/controllers/program/supervision-criteria";
 // import { useGetAllSupervisionCategory } from "@/features/modules/controllers/program/supervision-category";
-import { Button } from "components/ui/button";
-import Pagination from "components/Pagination";
-import DeleteIcon from "components/icons/DeleteIcon";
+import { Button } from "@/components/ui/button";
+import Pagination from "@/components/Pagination";
+import DeleteIcon from "@/components/icons/DeleteIcon";
 import {
   useGetAllSupervisionCategory,
   useGetAllSupervisionCriteriaManager,

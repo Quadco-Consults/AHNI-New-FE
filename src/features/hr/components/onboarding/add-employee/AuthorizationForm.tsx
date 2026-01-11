@@ -1,19 +1,19 @@
 "use client";
 
 import React from "react";
-import { Form } from "components/ui/form";
+import { Form } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
-import FormInput from "components/atoms/FormInput";
-import { DialogType } from "constants/dailogs";
-import { useAppDispatch } from "hooks/useStore";
-import FormCheckBox from "components/atoms/FormCheckBox";
-import { openDialog } from "store/ui";
+import FormInput from "@/components/atoms/FormInput";
+import { DialogType } from "@/constants/dailogs";
+import { useAppDispatch } from "@/hooks/useStore";
+import FormCheckBox from "@/components/atoms/FormCheckBox";
+import { openDialog } from "@/store/ui";
 import { Save } from "lucide-react";
 
 import {
   hrSystemAuthorizationSchema,
   hrSystemAuthorizationFormValues,
-} from "features/hr/types/hr-validator";
+} from "@/features/hr/types/hr-validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { toast } from "sonner";
@@ -24,8 +24,8 @@ import {
 } from "@/features/hr/controllers/hrEmployeeOnboardingAuthorizationController";
 import { useGetSystemAuthorizationList } from "@/features/hr/controllers/hrEmployeeOnboardingAuthorizationController";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
-import { updateStepCompletion } from "store/stepTracker";
-import { HrRoutes } from "constants/RouterConstants";
+import { updateStepCompletion } from "@/store/stepTracker";
+import { HrRoutes } from "@/constants/RouterConstants";
 
 export const AuthorizationForm = () => {
   const id = typeof window !== "undefined" ? localStorage.getItem("workforceID") || "" : "";

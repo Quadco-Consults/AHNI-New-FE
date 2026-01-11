@@ -1,17 +1,17 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import DeleteIcon from "components/icons/DeleteIcon";
-import EyeIcon from "components/icons/EyeIcon";
-import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
-import PencilIcon from "components/icons/PencilIcon";
-import ConfirmationDialog from "components/ConfirmationDialog";
-import { Badge } from "components/ui/badge";
-import { Button } from "components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { CG_ROUTES } from "constants/RouterConstants";
+import DeleteIcon from "@/components/icons/DeleteIcon";
+import EyeIcon from "@/components/icons/EyeIcon";
+import MoreOptionsHorizontalIcon from "@/components/icons/MoreOptionsHorizontalIcon";
+import PencilIcon from "@/components/icons/PencilIcon";
+import ConfirmationDialog from "@/components/ConfirmationDialog";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { CG_ROUTES } from "@/constants/RouterConstants";
 import { IFacilitatorPaginatedData } from "@/features/contracts-grants/types/contract-management/facilitator-management";
-import { cn } from "lib/utils";
+import { cn } from "@/lib/utils";
 import { useState } from "react";
 import Link from "next/link";
 import { useDeleteFacilitator } from "@/features/contracts-grants/controllers/facilitatorManagementController";

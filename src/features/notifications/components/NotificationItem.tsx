@@ -1,15 +1,15 @@
-import VerticalDotsIcon from "components/icons/VerticalDotsIcon";
-import { Button } from "components/ui/button";
+import VerticalDotsIcon from "@/components/icons/VerticalDotsIcon";
+import { Button } from "@/components/ui/button";
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
-} from "components/ui/dropdown-menu";
+} from "@/components/ui/dropdown-menu";
 import { TNotification, NotificationPriority, NotificationCategory } from "@/features/notifications/controllers/notificationController";
 import { useMarkNotificationAsRead, useMarkNotificationAsUnread, useDeleteNotification } from "@/features/notifications/controllers/notificationController";
 import { useRouter } from "next/navigation";
-import { Badge } from "components/ui/badge";
+import { Badge } from "@/components/ui/badge";
 import { CheckCircle, AlertCircle } from 'lucide-react';
 import { Icon } from "@iconify/react";
 

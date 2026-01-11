@@ -2,14 +2,14 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "@/components/FormButton";
-import FormTextArea from "components/atoms/FormTextArea";
-import { Button } from "components/ui/button";
-import { Form } from "components/ui/form";
-import { useAppDispatch, useAppSelector } from "hooks/useStore";
+import FormTextArea from "@/components/atoms/FormTextArea";
+import { Button } from "@/components/ui/button";
+import { Form } from "@/components/ui/form";
+import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
 import { X } from "lucide-react";
 import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
-import { addObjective } from "store/formData/project-objective";
-import { closeDialog } from "store/ui";
+import { addObjective } from "@/store/formData/project-objective";
+import { closeDialog } from "@/store/ui";
 import { z } from "zod";
 
 const ProjectObjectiveSchema = z.object({

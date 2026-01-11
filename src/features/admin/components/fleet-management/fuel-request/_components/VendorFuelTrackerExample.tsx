@@ -5,11 +5,11 @@ import { useGetVendorFuelPurchases } from "@/features/admin/controllers/fuelCons
 import { useGetVendor } from "@/features/procurement/controllers/vendorsController";
 import FuelTrackerTable from "./FuelTrackerTable";
 import { Loading } from "@/components/Loading";
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import { ArrowLeft, FileText, Download } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import { formatNumberCurrency } from "utils/utls";
+import { formatNumberCurrency } from "@/utils/utls";
 
 export default function VendorFuelTrackerExample() {
   const params = useParams();

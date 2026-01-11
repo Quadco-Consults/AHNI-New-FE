@@ -1,33 +1,33 @@
 "use client";
 
 import React from "react";
-import { Separator } from "components/ui/separator";
-import FormInput from "components/atoms/FormInput";
-import { Form } from "components/ui/form";
+import { Separator } from "@/components/ui/separator";
+import FormInput from "@/components/atoms/FormInput";
+import { Form } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import Link from "next/link";
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import { ChevronRight, Save } from "lucide-react";
-import { useAppDispatch } from "hooks/useStore";
-import { openDialog } from "store/ui";
-import { DialogType } from "constants/dailogs";
-import { HrRoutes } from "constants/RouterConstants";
-import { generatePath } from "utils/generatePath";
-import Card from "components/Card";
+import { useAppDispatch } from "@/hooks/useStore";
+import { openDialog } from "@/store/ui";
+import { DialogType } from "@/constants/dailogs";
+import { HrRoutes } from "@/constants/RouterConstants";
+import { generatePath } from "@/utils/generatePath";
+import Card from "@/components/Card";
 import {
   WorkforceBankAccountFormValues,
   workforceBankAccountSchema,
-} from "features/hr/types/hr-validator";
+} from "@/features/hr/types/hr-validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import FormButton from "@/components/FormButton";
-import { updateStepCompletion } from "store/stepTracker";
+import { updateStepCompletion } from "@/store/stepTracker";
 import {
   useCreateEmployeeOnboardingBankAcct,
   useGetEmployeeOnboardingBankAcct,
   useUpdateEmployeeOnboardingBankAcct,
 } from "@/features/hr/controllers/hrEmployeeOnboardingBankAccountController";
-import GoBack from "components/GoBack";
+import GoBack from "@/components/GoBack";
 
 const Salary = () => {
   const id = typeof window !== "undefined" ? localStorage.getItem("workforceID") || "" : "";

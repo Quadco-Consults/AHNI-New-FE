@@ -1,9 +1,9 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import Card from "components/Card";
-import BackNavigation from "components/BackNavigation";
-import { LoadingSpinner } from "components/Loading";
+import Card from "@/components/Card";
+import BackNavigation from "@/components/BackNavigation";
+import { LoadingSpinner } from "@/components/Loading";
 import { useGetAllAdhocApplicants } from "@/features/programs/controllers/adhocApplicantController";
 import { useGetSingleAdhocAdvertisement } from "@/features/programs/controllers/adhocAdvertisementController";
 import {
@@ -17,9 +17,9 @@ import {
   Phone,
   User,
 } from "lucide-react";
-import { Badge } from "components/ui/badge";
-import { cn } from "lib/utils";
-import { Button } from "components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 export default function AdhocAdvertisementContractsView() {
   const params = useParams();

@@ -1,10 +1,10 @@
 import { Briefcase } from 'lucide-react';import { Icon } from "@iconify/react";
 import { ColumnDef } from "@tanstack/react-table";
-import Card from "components/Card";
-import DataTable from "components/Table/DataTable";
-import { Badge } from "components/ui/badge";
+import Card from "@/components/Card";
+import DataTable from "@/components/Table/DataTable";
+import { Badge } from "@/components/ui/badge";
 import { ISolicitationRFQData } from "@/features/procurement/types/solicitation";
-import { cn } from "lib/utils";
+import { cn } from "@/lib/utils";
 
 const DetailsContent = (props: ISolicitationRFQData) => {
   const {

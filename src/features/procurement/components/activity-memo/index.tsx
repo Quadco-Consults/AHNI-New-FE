@@ -1,7 +1,7 @@
 "use client";
 
-import BreadcrumbCard from "components/Breadcrumb";
-import TabState from "components/ui/TabState";
+import BreadcrumbCard from "@/components/Breadcrumb";
+import TabState from "@/components/ui/TabState";
 import { useState } from "react";
 import ActivityMemoList from "./ActivityMemoList";
 

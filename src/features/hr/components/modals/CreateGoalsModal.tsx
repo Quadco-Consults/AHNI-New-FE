@@ -10,8 +10,8 @@ import FormButton from "@/components/FormButton";
 import AddSquareIcon from "@/components/icons/AddSquareIcon";
 import FormInput from "@/components/FormInput";
 import { MinusCircle } from "lucide-react";
-import { useAppDispatch, useAppSelector } from "hooks/useStore";
-import { closeDialog, dailogSelector } from "store/ui";
+import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
+import { closeDialog, dailogSelector } from "@/store/ui";
 import { useCreateGoal, CreateGoalPayload } from "@/features/hr/controllers/goalsController";
 import { useQueryClient } from "@tanstack/react-query";
 

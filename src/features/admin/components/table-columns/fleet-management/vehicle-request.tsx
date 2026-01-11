@@ -1,20 +1,20 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { toast } from "sonner";
 import { IVehicleRequestPaginatedData } from "definations/admin/fleet-management/vehicle-request";
 import { formatDate } from "date-fns";
-import { Badge } from "components/ui/badge";
-import { cn } from "lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { Button } from "components/ui/button";
-import EyeIcon from "components/icons/EyeIcon";
-import { AdminRoutes } from "constants/RouterConstants";
-import DeleteIcon from "components/icons/DeleteIcon";
-import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
+import { Button } from "@/components/ui/button";
+import EyeIcon from "@/components/icons/EyeIcon";
+import { AdminRoutes } from "@/constants/RouterConstants";
+import DeleteIcon from "@/components/icons/DeleteIcon";
+import MoreOptionsHorizontalIcon from "@/components/icons/MoreOptionsHorizontalIcon";
 import { useDeleteVehicleRequestMutation } from "@/features/admin/controllers/vehicleRequestController";
-import ConfirmationDialog from "components/ConfirmationDialog";
+import ConfirmationDialog from "@/components/ConfirmationDialog";
 import { useState } from "react";
-import PencilIcon from "components/icons/PencilIcon";
+import PencilIcon from "@/components/icons/PencilIcon";
 
 export const vehicleRequestColumns: ColumnDef<IVehicleRequestPaginatedData>[] =
   [

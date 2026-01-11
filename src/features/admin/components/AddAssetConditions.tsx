@@ -2,13 +2,13 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "@/components/FormButton";
-import FormInput from "components/atoms/FormInput";
+import FormInput from "@/components/atoms/FormInput";
 
-import { Form } from "components/ui/form";
+import { Form } from "@/components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { useAppDispatch, useAppSelector } from "hooks/useStore";
-import { closeDialog, dailogSelector } from "store/ui";
+import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
+import { closeDialog, dailogSelector } from "@/store/ui";
 import {
   useAddAssetConditionMutation,
   useUpdateAssetConditionMutation,
@@ -18,7 +18,7 @@ import {
   TAssetConditionData,
   TAssetConditionFormValues,
 } from "@/features/admin/types/admin/asset-condition";
-import FormTextArea from "components/atoms/FormTextArea";
+import FormTextArea from "@/components/atoms/FormTextArea";
 
 const AddAssetConditions = () => {
   const { dialogProps } = useAppSelector(dailogSelector);

@@ -5,8 +5,8 @@ import {
   ColumnDef,
   flexRender,
 } from "@tanstack/react-table";
-import { LoadingSpinner } from "components/Loading";
-import Pagination from "components/Pagination";
+import { LoadingSpinner } from "@/components/Loading";
+import Pagination from "@/components/Pagination";
 
 import {
   Table as ShadTable,
@@ -15,7 +15,7 @@ import {
   TableFooter,
   TableHeader,
   TableRow,
-} from "components/ui/table";
+} from "@/components/ui/table";
 
 type TPagination = {
   total: number;

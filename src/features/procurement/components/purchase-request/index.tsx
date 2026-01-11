@@ -1,8 +1,8 @@
 "use client";
 
-import BreadcrumbCard from "components/Breadcrumb";
+import BreadcrumbCard from "@/components/Breadcrumb";
 import PurchaseRequest from "./PurchaseRequest";
-import TabState from "components/ui/TabState";
+import TabState from "@/components/ui/TabState";
 import { useState } from "react";
 
 function PurchaseRequestTabs() {

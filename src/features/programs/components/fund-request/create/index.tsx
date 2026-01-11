@@ -1,12 +1,12 @@
 "use client";
 
 import { useRouter, usePathname } from "next/navigation";
-import { Form } from "components/ui/form";
+import { Form } from "@/components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
-import FormSelect from "components/atoms/FormSelectField";
+import FormSelect from "@/components/atoms/FormSelectField";
 import FormButton from "@/components/FormButton";
-import { Button } from "components/ui/button";
-import Card from "components/Card";
+import { Button } from "@/components/ui/button";
+import Card from "@/components/Card";
 import FundRequstLayout from "./Layout";
 import {
   FundRequestSchema,
@@ -14,11 +14,11 @@ import {
 } from "@/features/programs/types/program-validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import _ from "lodash";
-import { Separator } from "components/ui/separator";
-import { Alert, AlertDescription } from "components/ui/alert";
+import { Separator } from "@/components/ui/separator";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertTriangleIcon } from "lucide-react";
 
-import FormInput from "components/atoms/FormInput";
+import FormInput from "@/components/atoms/FormInput";
 import { useGetAllProjects } from "@/features/projects/controllers/projectController";
 // import { useGetAllPartners } from "@/features/modules/controllers/project/partners";
 import {

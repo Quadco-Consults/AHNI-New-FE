@@ -2,24 +2,24 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import WriteDialog from "@/components/modals/dialog/WriteDialog";
-import Card from "components/Card";
-import { Badge } from "components/ui/badge";
-import { Button } from "components/ui/button";
-import { DialogType } from "constants/dailogs";
+import Card from "@/components/Card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { DialogType } from "@/constants/dailogs";
 import {
   FindingsGrievianceManagementSchema,
   GrievianceManagementSchema,
 } from "@/features/hr/types/grieviance-management";
-import { useAppDispatch } from "hooks/useStore";
-import { cn } from "lib/utils";
+import { useAppDispatch } from "@/hooks/useStore";
+import { cn } from "@/lib/utils";
 
 import { EditIcon } from "lucide-react";
-import moment from "moment";
+import { format } from "date-fns";
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useUpdateGrievance } from "@/features/hr/controllers/grievanceController";
 import { toast } from "sonner";
-import { openDialog } from "store/ui";
+import { openDialog } from "@/store/ui";
 import { z } from "zod";
 export type TFormValues = z.infer<typeof FindingsGrievianceManagementSchema>;
 
@@ -68,7 +68,7 @@ const Details = (data: any) => {
           <div className='flex flex-col gap-2'>
             <h4 className='font-bold text-md'>Submission Date</h4>
             <p className='text-sm'>
-              {moment(data?.created_datetime).format("DD-MMM-YYYY")}
+              {data?.created_datetime ? format(new Date(data.created_datetime), "dd-MMM-yyyy") : "-"}
             </p>
           </div>
           <div className='flex flex-col gap-2'>

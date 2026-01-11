@@ -2,11 +2,11 @@
 
 import { useRouter, usePathname } from "next/navigation";
 import FormButton from "@/components/FormButton";
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import FundRequstLayout from "./Layout";
 import React, { useState } from "react";
 import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
-import { Form } from "components/ui/form";
+import { Form } from "@/components/ui/form";
 import {
   Table,
   TableBody,
@@ -14,14 +14,14 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "components/ui/table";
+} from "@/components/ui/table";
 import {
   FundRequestActivitySchema,
   TFundRequestActivityFormValues,
-} from "features/programs/types/program-validator";
+} from "@/features/programs/types/program-validator";
 import { zodResolver } from "@hookform/resolvers/zod";
-import FormInput from "components/atoms/FormInput";
-import FormSelect from "components/atoms/FormSelect";
+import FormInput from "@/components/atoms/FormInput";
+import FormSelect from "@/components/atoms/FormSelect";
 import { useGetAllCostCategoriesManager } from "@/features/modules/controllers/finance/costCategoryController";
 import ActivityBulkImport from "../ActivityBulkImport";
 import { Copy, Trash2 } from "lucide-react";

@@ -1,5 +1,5 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
-import { TProjectObjective } from "components/modals/dailog/components/ProjectObjectiveModal";
+import { TProjectObjective } from "@/components/modals/dailog/components/ProjectObjectiveModal";
 
 type TInitialSatate = {
     objectives: TProjectObjective[];

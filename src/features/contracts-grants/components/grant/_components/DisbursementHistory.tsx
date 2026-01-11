@@ -2,13 +2,13 @@
 
 import React, { useMemo, useState } from "react";
 import { TotalIncomeSvg, TotalExpenditureSvg } from "assets/svgs/CAndGSvgs";
-import DataTable from "components/Table/DataTable";
-import { IGrantSingleData } from "features/contracts-grants/types/grants";
+import DataTable from "@/components/Table/DataTable";
+import { IGrantSingleData } from "@/features/contracts-grants/types/grants";
 import { useParams } from "next/navigation";
-import { formatNumberCurrency } from "utils/utls";
+import { formatNumberCurrency } from "@/utils/utls";
 import { ColumnDef } from "@tanstack/react-table";
 import { IDisbursementPaginatedData } from "../../../types/grants";
-import { Badge } from "components/ui/badge";
+import { Badge } from "@/components/ui/badge";
 import { useGetAllDisbursements } from "../../../controllers/disbursementController";
 
 // Calculate total disbursed amount from real data

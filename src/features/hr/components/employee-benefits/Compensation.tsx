@@ -1,18 +1,18 @@
 /* eslint-disable no-unused-vars */
 import { ColumnDef } from "@tanstack/react-table";
 import FormButton from "@/components/FormButton";
-import AddSquareIcon from "components/icons/AddSquareIcon";
-import DataTable from "components/Table/DataTable";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
+import DataTable from "@/components/Table/DataTable";
 import React, { useState } from "react";
 
 import FilterIcon2 from "assets/svgs/FilterIcon2";
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import Link from "next/link"; import { useRouter } from "next/navigation";
-import { HrRoutes, RouteEnum } from "constants/RouterConstants";
-import { generatePath } from "utils/generatePath";
-import SearchBar from "components/SearchBar";
-import { Checkbox } from "components/ui/checkbox";
-import IconButton from "components/IconButton";
+import { HrRoutes, RouteEnum } from "@/constants/RouterConstants";
+import { generatePath } from "@/utils/generatePath";
+import SearchBar from "@/components/SearchBar";
+import { Checkbox } from "@/components/ui/checkbox";
+import IconButton from "@/components/IconButton";
 import { Trash2 } from 'lucide-react';
 import { Icon } from "@iconify/react";
 import PayGroupModal from "./components/PayGroupModal";
@@ -20,7 +20,7 @@ import {
   useDeleteCompensation,
   useGetCompensations,
 } from "@/features/hr/controllers/compensationController";
-import ConfirmationDialog from "components/ConfirmationDialog";
+import ConfirmationDialog from "@/components/ConfirmationDialog";
 import { toast } from "sonner";
 import EditCompensationModal from "./components/EditCompensationModal";
 import BulkUploadCompensationModal from "./components/BulkUploadCompensationModal";

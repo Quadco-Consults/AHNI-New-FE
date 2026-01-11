@@ -871,10 +871,9 @@ export default function SupervisionEvaluationForm({
           </Button>
           <Button
             type="submit"
-            loading={createEvaluationMutation.isPending}
-            disabled={selectedCriteria.length === 0}
+            disabled={selectedCriteria.length === 0 || createEvaluationMutation.isPending}
           >
-            Create Evaluation
+            {createEvaluationMutation.isPending ? "Creating..." : "Create Evaluation"}
           </Button>
         </div>
       </form>

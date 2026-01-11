@@ -1,15 +1,15 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import FormButton from "components/FormButton";
-import FormInput from "components/FormInput";
-import { Button } from "components/ui/button";
-import { RoleSchema, TRoleFormValue } from "features/auth/types/permission";
-import { useAppDispatch } from "hooks/useStore";
+import FormButton from "@/components/FormButton";
+import FormInput from "@/components/FormInput";
+import { Button } from "@/components/ui/button";
+import { RoleSchema, TRoleFormValue } from "@/features/auth/types/permission";
+import { useAppDispatch } from "@/hooks/useStore";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { useCreateRoleMutation } from "@/features/auth/controllers/roleController";
 import { toast } from "sonner";
-import { closeDialog } from "store/ui";
+import { closeDialog } from "@/store/ui";
 
 export default function CreateRole() {
   const form = useForm<TRoleFormValue>({

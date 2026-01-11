@@ -2,19 +2,19 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import BackNavigation from "components/atoms/BackNavigation";
-import Card from "components/Card";
-import { Button } from "components/ui/button";
-import { Input } from "components/ui/input";
-import { Label } from "components/ui/label";
-import { RadioGroup, RadioGroupItem } from "components/ui/radio-group";
-import { Textarea } from "components/ui/textarea";
+import BackNavigation from "@/components/atoms/BackNavigation";
+import Card from "@/components/Card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { FileCheck, Save, Award } from "lucide-react";
 import { useStartAssessment, useGetAllAssessments, useSubmitAssessment } from "@/features/contracts-grants/controllers/preAwardAssessmentController";
 import { useGetSingleSubGrantSubmission } from "@/features/contracts-grants/controllers/submissionController";
 import { technicalCapacityQuestions, financialPreAwardQuestions } from "./questions";
-import { Loading } from "components/Loading";
+import { Loading } from "@/components/Loading";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 
 interface Answer {

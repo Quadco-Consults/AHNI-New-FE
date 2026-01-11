@@ -1,9 +1,9 @@
 import React from "react";
 import CarIcon from "assets/svgs/CarIcon";
 import RequestIcon from "assets/svgs/RequestIcon";
-import Card from "components/Card";
+import Card from "@/components/Card";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, TooltipProps } from "recharts";
-import { Label } from "components/ui/label";
+import { Label } from "@/components/ui/label";
 
 type DataType = {
   month: string;

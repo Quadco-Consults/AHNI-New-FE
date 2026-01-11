@@ -1,5 +1,5 @@
 import React from "react";
-import SearchIcon from "components/icons/SearchIcon";
+import SearchIcon from "@/components/icons/SearchIcon";
 
 const SearchBar = ({
   onchange,

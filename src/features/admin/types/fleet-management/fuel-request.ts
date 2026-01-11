@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { TAssetSingleData } from "../inventory-management/asset";
-import { IUser } from "features/auth/types/user";
+import { IUser } from "@/features/auth/types/user";
 import { TLocationData } from "definations/modules/config/location";
 import { TFCONumberData } from "definations/modules/finance/fco-number";
 

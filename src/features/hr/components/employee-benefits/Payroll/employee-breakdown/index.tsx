@@ -2,10 +2,10 @@
 
 import React from "react";
 import { useParams, useRouter } from "next/navigation";
-import Card from "components/Card";
-import { Button } from "components/ui/button";
+import Card from "@/components/Card";
+import { Button } from "@/components/ui/button";
 import { FileText } from 'lucide-react';import { Icon } from "@iconify/react";
-import GoBack from "components/GoBack";
+import GoBack from "@/components/GoBack";
 import Image from "next/image";
 
 const EmployeePayrollBreakdown = () => {

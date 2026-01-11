@@ -1,12 +1,12 @@
 "use client";
 
-import FormCheckBox from "components/atoms/FormCheckBox";
-import AddSquareIcon from "components/icons/AddSquareIcon";
-import { Button } from "components/ui/button";
-import { Form } from "components/ui/form";
-import { Separator } from "components/ui/separator";
+import FormCheckBox from "@/components/atoms/FormCheckBox";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
+import { Button } from "@/components/ui/button";
+import { Form } from "@/components/ui/form";
+import { Separator } from "@/components/ui/separator";
 import { useForm } from "react-hook-form";
-import EmptyTodoIcon from "components/icons/EmptyTodoIcon";
+import EmptyTodoIcon from "@/components/icons/EmptyTodoIcon";
 
 const Todo = () => {
   const todo = false;

@@ -1,4 +1,4 @@
-import { cn } from "lib/utils";
+import { cn } from "@/lib/utils";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import ReactPaginate from "react-paginate";
 

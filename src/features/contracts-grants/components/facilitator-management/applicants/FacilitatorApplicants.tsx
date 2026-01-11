@@ -1,13 +1,13 @@
 "use client";
 
-import Card from "components/Card";
-import DataTable from "components/Table/DataTable";
-import TableFilters from "components/Table/TableFilters";
+import Card from "@/components/Card";
+import DataTable from "@/components/Table/DataTable";
+import TableFilters from "@/components/Table/TableFilters";
 import { useState } from "react";
 import { ColumnDef } from "@tanstack/react-table";
-import { Badge } from "components/ui/badge";
-import { Button } from "components/ui/button";
-import { cn } from "lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import {
   useGetAllFacilitatorApplicants,

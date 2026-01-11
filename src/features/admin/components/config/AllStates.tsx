@@ -2,12 +2,12 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
-import { Button } from "components/ui/button";
-import TableAction from "components/TableAction";
-import Pagination from "components/Pagination";
+import { Button } from "@/components/ui/button";
+import TableAction from "@/components/TableAction";
+import Pagination from "@/components/Pagination";
 import { DialogType } from "@/constants/dailogs";
-import { useAppDispatch } from "hooks/useStore";
-import { openDialog } from "store/ui";
+import { useAppDispatch } from "@/hooks/useStore";
+import { openDialog } from "@/store/ui";
 import { useGetAllStatesQuery, useDeleteStateMutation } from "@/features/modules/controllers/config/stateController";
 import { TStateData } from "@/features/admin/types/config/state";
 import { seedNigerianStates, validateStatesCompleteness, checkExistingStates } from "@/utils/seedNigerianStates";

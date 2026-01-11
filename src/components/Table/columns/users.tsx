@@ -9,7 +9,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "components/ui/alert-dialog";
+} from "@/components/ui/alert-dialog";
 
 import {
   DropdownMenu,
@@ -18,25 +18,25 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "components/ui/dropdown-menu";
-import { Button } from "components/ui/button";
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
 
 import { MoreHorizontal, Edit, RefreshCw, UserMinus } from "lucide-react";
-import { useAppDispatch } from "hooks/useStore";
-import { openDialog } from "store/ui";
+import { useAppDispatch } from "@/hooks/useStore";
+import { openDialog } from "@/store/ui";
 import {
   DialogType,
   largeDailogScreen,
   mediumDailogScreen,
-} from "constants/dailogs";
+} from "@/constants/dailogs";
 import { useState } from "react";
 import {
   useActivateUser,
   useDeactivateUser,
 } from "@/features/auth/controllers/userController";
 import { toast } from "sonner";
-import { Badge } from "components/ui/badge";
-import { IUser } from "features/auth/types/user";
+import { Badge } from "@/components/ui/badge";
+import { IUser } from "@/features/auth/types/user";
 
 const TableAction = ({
   id,

@@ -1,18 +1,18 @@
 import FormButton from "@/components/FormButton";
-import { Input } from "components/ui/input";
-import { Label } from "components/ui/label";
-import { Textarea } from "components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "components/ui/select";
-import { useAppDispatch, useAppSelector } from "hooks/useStore";
+} from "@/components/ui/select";
+import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
 import { FormEvent, useState, useEffect } from "react";
 import { toast } from "sonner";
-import { closeDialog } from "store/ui";
+import { closeDialog } from "@/store/ui";
 import { useGetAllDepartments } from "@/features/modules/controllers/config/departmentController";
 import { useGetAllLocations } from "@/features/modules/controllers/config/locationController";
 import { useGetAllUsers } from "@/features/auth/controllers/userController";

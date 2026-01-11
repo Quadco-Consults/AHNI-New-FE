@@ -1,23 +1,23 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { Badge } from "components/ui/badge";
-import { Checkbox } from "components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { AdvertisementResults } from "@/features/hr/types/advertisement";
-import { cn } from "lib/utils";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { Button } from "components/ui/button";
-import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
+import { cn } from "@/lib/utils";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import MoreOptionsHorizontalIcon from "@/components/icons/MoreOptionsHorizontalIcon";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { HrRoutes } from "constants/RouterConstants";
-import EyeIcon from "components/icons/EyeIcon";
-import ScanIcon from "components/icons/ScanIcon";
-import DeleteIcon from "components/icons/DeleteIcon";
-import DataTable from "components/Table/DataTable";
-// import SearchIcon from "components/icons/SearchIcon";
-import FilterIcon from "components/icons/FilterIcon";
-import AddSquareIcon from "components/icons/AddSquareIcon";
+import { HrRoutes } from "@/constants/RouterConstants";
+import EyeIcon from "@/components/icons/EyeIcon";
+import ScanIcon from "@/components/icons/ScanIcon";
+import DeleteIcon from "@/components/icons/DeleteIcon";
+import DataTable from "@/components/Table/DataTable";
+// import SearchIcon from "@/components/icons/SearchIcon";
+import FilterIcon from "@/components/icons/FilterIcon";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
 import {
   useGetJobApplications,
   usePatchJobApplicationAccepted,
@@ -29,7 +29,7 @@ import {
 } from "@/features/hr/controllers/hrJobApplicationsController";
 import { useCombinedApplicationStatus, getStatusDisplay } from "@/features/hr/controllers/useCombinedApplicationStatus";
 import { useGetJobAdvertisements } from "@/features/hr/controllers/jobAdvertisementController";
-import { Loading } from "components/Loading";
+import { Loading } from "@/components/Loading";
 import { CheckCheckIcon, ClipboardList, UserCheck, UserX, Users } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
@@ -40,20 +40,20 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "components/ui/dialog";
-import { Textarea } from "components/ui/textarea";
-import useDebounce from "utils/useDebounce";
+} from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import useDebounce from "@/utils/useDebounce";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "components/ui/select";
-import SearchBar from "components/SearchBar";
-import { openDialog } from "store/ui";
-import { DialogType, mediumDailogScreen } from "constants/dailogs";
-import { useAppDispatch } from "hooks/useStore";
+} from "@/components/ui/select";
+import SearchBar from "@/components/SearchBar";
+import { openDialog } from "@/store/ui";
+import { DialogType, mediumDailogScreen } from "@/constants/dailogs";
+import { useAppDispatch } from "@/hooks/useStore";
 import { useGetInterviews } from "@/features/hr/controllers/hrInterviewController";
 
 const ApplicationsTable = ({

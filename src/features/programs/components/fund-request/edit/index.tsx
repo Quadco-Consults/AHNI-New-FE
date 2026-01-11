@@ -1,12 +1,12 @@
 "use client";
 
 import { useRouter, usePathname, useParams } from "next/navigation";
-import { Form } from "components/ui/form";
+import { Form } from "@/components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
-import FormSelect from "components/atoms/FormSelectField";
+import FormSelect from "@/components/atoms/FormSelectField";
 import FormButton from "@/components/FormButton";
-import { Button } from "components/ui/button";
-import Card from "components/Card";
+import { Button } from "@/components/ui/button";
+import Card from "@/components/Card";
 import FundRequstLayout from "../create/Layout";
 import {
   FundRequestWithActivitiesSchema,
@@ -14,9 +14,9 @@ import {
 } from "@/features/programs/types/program-validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import _ from "lodash";
-import { Separator } from "components/ui/separator";
+import { Separator } from "@/components/ui/separator";
 
-import FormInput from "components/atoms/FormInput";
+import FormInput from "@/components/atoms/FormInput";
 import { useGetAllProjects } from "@/features/projects/controllers/projectController";
 import { useFieldArray } from "react-hook-form";
 import {
@@ -26,7 +26,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "components/ui/table";
+} from "@/components/ui/table";
 import { useGetAllCostCategoriesManager } from "@/features/modules/controllers/finance/costCategoryController";
 import {
   useGetAllFinancialYearsManager,

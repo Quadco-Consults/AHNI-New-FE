@@ -1,17 +1,17 @@
 "use client";
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useRouter, useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import LongArrowLeft from "components/icons/LongArrowLeft";
-import Card from "components/Card";
+import LongArrowLeft from "@/components/icons/LongArrowLeft";
+import Card from "@/components/Card";
 import Summary from "./Summary";
-import { Button } from "components/ui/button";
-import { LoadingSpinner } from "components/Loading";
+import { Button } from "@/components/ui/button";
+import { LoadingSpinner } from "@/components/Loading";
 import { skipToken } from "@reduxjs/toolkit/query/react";
 import { useGetSingleProject, useGetAllProjects } from "@/features/projects/controllers/projectController";
 import { useGetAllFundRequests } from "@/features/programs/controllers/fundRequestController";
-import { RouteEnum } from "constants/RouterConstants";
+import { RouteEnum } from "@/constants/RouterConstants";
 import FundRequestSummary from "./FundRequestSummary";
 import ProjectBatchApproval from "./ProjectBatchApproval";
 import { useMemo } from "react";

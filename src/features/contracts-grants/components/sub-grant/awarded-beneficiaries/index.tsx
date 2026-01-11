@@ -1,10 +1,10 @@
 "use client";
 
 import { useDebounce } from "ahooks";
-import Card from "components/Card";
+import Card from "@/components/Card";
 import { awardedBeneficiariesColumn } from "@/features/contracts-grants/components/table-columns/sub-grant/awarded-beneficiaries";
-import DataTable from "components/Table/DataTable";
-import TableFilters from "components/Table/TableFilters";
+import DataTable from "@/components/Table/DataTable";
+import TableFilters from "@/components/Table/TableFilters";
 import { useState, useEffect } from "react";
 import { useGetAllSubGrants } from "@/features/contracts-grants/controllers/subGrantController";
 import { useGetAllSubGrantSubmissions } from "@/features/contracts-grants/controllers/submissionController";

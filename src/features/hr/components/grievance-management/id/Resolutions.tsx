@@ -2,19 +2,19 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import WriteDialog from "@/components/modals/dialog/WriteDialog";
-import Card from "components/Card";
-import { Button } from "components/ui/button";
-import { Badge } from "components/ui/badge";
+import Card from "@/components/Card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { FindingsGrievianceManagementSchema, ResolutionGrievianceManagementSchema } from "@/features/hr/types/grieviance-management";
 import { VendorsResultsData } from "definations/procurement-types/vendors";
-import { useAppDispatch } from "hooks/useStore";
+import { useAppDispatch } from "@/hooks/useStore";
 
 import { EditIcon, CheckCircle2, XCircle } from "lucide-react";
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useUpdateGrievance, usePatchGrievance } from "@/features/hr/controllers/grievanceController";
 import { toast } from "sonner";
-import { cn } from "lib/utils";
+import { cn } from "@/lib/utils";
 
 const Resolutions = (data: VendorsResultsData) => {
   

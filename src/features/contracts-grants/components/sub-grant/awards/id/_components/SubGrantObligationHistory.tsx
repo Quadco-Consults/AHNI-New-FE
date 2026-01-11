@@ -1,11 +1,11 @@
 import React, { useMemo, useState } from "react";
 import { TotalExpenditureSvg, TotalIncomeSvg } from "assets/svgs/CAndGSvgs";
-import DataTable from "components/Table/DataTable";
+import DataTable from "@/components/Table/DataTable";
 import { ISubGrantSingleData } from "@/features/contracts-grants/types/contract-management/sub-grant/sub-grant";
 import { useParams } from "next/navigation";
 import { obligationColumns } from "@/features/contracts-grants/components/table-columns/grant/obligation";
 import { useGetAllSubGrantObligations } from "@/features/contracts-grants/controllers/subGrantObligationController";
-import { formatNumberCurrency } from "utils/utls";
+import { formatNumberCurrency } from "@/utils/utls";
 
 const SubGrantObligationHistory: React.FC<any> = ({
   amount_usd,

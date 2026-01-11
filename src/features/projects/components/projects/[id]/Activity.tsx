@@ -1,13 +1,13 @@
-import Card from "components/Card";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { Button } from "components/ui/button";
+import Card from "@/components/Card";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
 
-import EyeIcon from "components/icons/EyeIcon";
+import EyeIcon from "@/components/icons/EyeIcon";
 
 import { ColumnDef } from "@tanstack/react-table";
-import DataTable from "components/Table/DataTable";
+import DataTable from "@/components/Table/DataTable";
 import { ChevronDown } from "lucide-react";
-import TableFilters from "components/Table/TableFilters";
+import TableFilters from "@/components/Table/TableFilters";
 
 type projectData = {
   date: string;

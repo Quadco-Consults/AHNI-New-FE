@@ -6,8 +6,8 @@ import {
   PersonClusterSvg,
   SuiteCase,
 } from "assets/svgs/CAndGSvgs";
-import DescriptionCard from "components/DescriptionCard";
-import FilePreview from "components/FilePreview";
+import DescriptionCard from "@/components/DescriptionCard";
+import FilePreview from "@/components/FilePreview";
 import { format, isValid } from "date-fns";
 import { IConsultantSingleData } from "definations/c&g/contract-management/consultancy-management/consultancy-management";
 import React from "react";

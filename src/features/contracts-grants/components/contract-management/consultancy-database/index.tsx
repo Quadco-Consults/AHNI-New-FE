@@ -1,12 +1,12 @@
 "use client";
 
-import Card from "components/Card";
+import Card from "@/components/Card";
 import { consultantDatabaseColumns } from "@/features/contracts-grants/components/table-columns/contract-management/consultant-database";
-import DataTable from "components/Table/DataTable";
-import TableFilters from "components/Table/TableFilters";
+import DataTable from "@/components/Table/DataTable";
+import TableFilters from "@/components/Table/TableFilters";
 import { useState } from "react";
 import { useGetAllConsultancyApplicants } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
-import { Badge } from "components/ui/badge";
+import { Badge } from "@/components/ui/badge";
 
 export default function ConsultancyDatabase() {
     const [page, setPage] = useState(1);

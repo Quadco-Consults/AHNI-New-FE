@@ -2,19 +2,19 @@
 
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import Card from "components/Card";
+import Card from "@/components/Card";
 import FormButton from "@/components/FormButton";
-import { Badge } from "components/ui/badge";
-import { Button } from "components/ui/button";
-import { Separator } from "components/ui/separator";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import {
   Table,
   TableBody,
   TableCell,
   TableHeader,
   TableRow,
-} from "components/ui/table";
-import { Textarea } from "components/ui/textarea";
+} from "@/components/ui/table";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { InterviewScore } from "@/features/hr/types/interview";
 import {
@@ -23,7 +23,7 @@ import {
   useUpdateInterviewScore,
 } from "@/features/hr/controllers/hrInterviewController";
 import { formatDate } from "date-fns";
-import { Loading } from "components/Loading";
+import { Loading } from "@/components/Loading";
 
 interface InterviewScoreCardProps {
   interviewId: string;

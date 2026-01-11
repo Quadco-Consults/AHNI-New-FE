@@ -1,7 +1,7 @@
 "use client";
 
-import Card from "components/Card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
+import Card from "@/components/Card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ActivityTab from "./Activity-tab";
 import DetailTab from "./Details-tab";
 import ChartTab from "./ChartTab";
@@ -9,7 +9,7 @@ import MeasurementTab from "./Measurement-tab";
 import BudgetTab from "./Budget-tab";
 import { useSearchParams } from "next/navigation";
 import { useGetSingleFundRequest } from "@/features/programs/controllers";
-import { LoadingSpinner } from "components/Loading";
+import { LoadingSpinner } from "@/components/Loading";
 
 const Activity = () => {
   const searchParams = useSearchParams();

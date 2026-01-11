@@ -2,11 +2,11 @@
 
 import React from "react";
 import { useFormContext } from "react-hook-form";
-import { Card, CardContent, CardHeader, CardTitle } from "components/ui/card";
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "components/ui/form";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { CalendarIcon } from "lucide-react";
-import { Alert, AlertDescription } from "components/ui/alert";
-import DateInput from "components/DateInput";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import DateInput from "@/components/DateInput";
 
 import { TSiteVisitApplicationFormValues } from "@/features/programs/types/site-visit";
 

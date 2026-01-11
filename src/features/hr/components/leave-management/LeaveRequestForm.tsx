@@ -18,19 +18,19 @@ import {
   Info
 } from "lucide-react";
 
-import { Button } from "components/ui/button";
-import { Card } from "components/ui/card";
-import { Badge } from "components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
-import FormSelect from "components/atoms/FormSelectField";
-import { Textarea } from "components/ui/textarea";
-import { Input } from "components/ui/input";
-import { Label } from "components/ui/label";
-import { RadioGroup, RadioGroupItem } from "components/ui/radio-group";
-import { Checkbox } from "components/ui/checkbox";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "components/ui/form";
-import { Separator } from "components/ui/separator";
-import GoBack from "components/GoBack";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import FormSelect from "@/components/atoms/FormSelectField";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Separator } from "@/components/ui/separator";
+import GoBack from "@/components/GoBack";
 import BackendStatusBanner from "./BackendStatusBanner";
 
 import { LeaveType, LeaveRequestFormData } from "../../types/leave";

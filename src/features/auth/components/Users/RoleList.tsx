@@ -1,15 +1,15 @@
-import ConfirmationDialog from "components/ConfirmationDialog";
-import { LoadingSpinner } from "components/Loading";
-import { Button } from "components/ui/button";
-import { Card, CardContent, CardHeader } from "components/ui/card";
-import { Badge } from "components/ui/badge";
-import { DialogType, largeDailogScreen } from "constants/dailogs";
-import { useAppDispatch } from "hooks/useStore";
+import ConfirmationDialog from "@/components/ConfirmationDialog";
+import { LoadingSpinner } from "@/components/Loading";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { DialogType, largeDailogScreen } from "@/constants/dailogs";
+import { useAppDispatch } from "@/hooks/useStore";
 import { Shield, Key, Trash2, Users, ShieldCheck } from "lucide-react";
 import { useState } from "react";
 import { useDeleteRole, useGetAllRoles } from "../../controllers/roleController";
 import { toast } from "sonner";
-import { openDialog } from "store/ui";
+import { openDialog } from "@/store/ui";
 
 export default function AllRoles() {
   const [roleId, setRoleId] = useState("");

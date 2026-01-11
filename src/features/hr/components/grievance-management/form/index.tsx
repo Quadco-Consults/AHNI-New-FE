@@ -2,21 +2,21 @@
 
 // import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "@/components/FormButton";
-import FormInput from "components/atoms/FormInput";
-import FormSelect from "components/atoms/FormSelectField";
+import FormInput from "@/components/atoms/FormInput";
+import FormSelect from "@/components/atoms/FormSelectField";
 
-import GoBack from "components/GoBack";
+import GoBack from "@/components/GoBack";
 
-import { Form } from "components/ui/form";
-import { Separator } from "components/ui/separator";
-import FormTextArea from "components/atoms/FormTextArea";
-import { HrRoutes } from "constants/RouterConstants";
+import { Form } from "@/components/ui/form";
+import { Separator } from "@/components/ui/separator";
+import FormTextArea from "@/components/atoms/FormTextArea";
+import { HrRoutes } from "@/constants/RouterConstants";
 
 import { UploadIcon } from "lucide-react";
 
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
-import FileUpload from "components/atoms/FileUpload";
+import FileUpload from "@/components/atoms/FileUpload";
 import { useCreateGrievance } from "@/features/hr/controllers/grievanceController";
 import {
   GrievianceManagementSchema,

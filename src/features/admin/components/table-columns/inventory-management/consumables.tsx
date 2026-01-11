@@ -1,17 +1,17 @@
 import { ColumnDef } from "@tanstack/react-table";
 
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 import { toast } from "sonner";
-import { Badge } from "components/ui/badge";
+import { Badge } from "@/components/ui/badge";
 // import { TConsumablePaginatedData } from "definations/admin/inventory-management/consumable";
-import { Button } from "components/ui/button";
-import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
+import { Button } from "@/components/ui/button";
+import MoreOptionsHorizontalIcon from "@/components/icons/MoreOptionsHorizontalIcon";
 import Link from "next/link";
-import EyeIcon from "components/icons/EyeIcon";
-import DeleteIcon from "components/icons/DeleteIcon";
-import EditIcon from "components/icons/EditIcon";
-import ConfirmationDialog from "components/ConfirmationDialog";
+import EyeIcon from "@/components/icons/EyeIcon";
+import DeleteIcon from "@/components/icons/DeleteIcon";
+import EditIcon from "@/components/icons/EditIcon";
+import ConfirmationDialog from "@/components/ConfirmationDialog";
 import { formatDate } from "date-fns";
 import { useState } from "react";
 import { DeleteItemManager } from "@/features/modules/controllers";

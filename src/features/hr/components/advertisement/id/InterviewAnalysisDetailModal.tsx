@@ -1,10 +1,10 @@
 "use client";
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "components/ui/dialog";
-import { Badge } from "components/ui/badge";
-import { Separator } from "components/ui/separator";
-import Card from "components/Card";
-import { Loading } from "components/Loading";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import Card from "@/components/Card";
+import { Loading } from "@/components/Loading";
 import {
   useGetInterview,
   useGetInterviewScores,

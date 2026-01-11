@@ -1,7 +1,7 @@
 import React from 'react';
 import { Badge } from './ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { cn } from 'lib/utils';
+import { cn } from '@/lib/utils';
 import { CheckCircle, Clock, XCircle, AlertCircle, UserIcon, CalendarIcon } from 'lucide-react';
 
 export interface ApprovalInfo {

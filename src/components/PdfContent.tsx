@@ -11,8 +11,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "components/ui/dialog";
-import PdfIcon from "components/icons/PdfIcon";
+} from "@/components/ui/dialog";
+import PdfIcon from "@/components/icons/PdfIcon";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 

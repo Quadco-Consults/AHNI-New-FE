@@ -5,12 +5,12 @@ import {
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from "components/ui/select";
-import { useAppDispatch, useAppSelector } from "hooks/useStore";
+} from "@/components/ui/select";
+import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
 import { FormEvent, useState } from "react";
 import { toast } from "sonner";
 import { useUpdateActivityPlanStatus } from "@/features/programs/controllers/activityPlanController";
-import { closeDialog } from "store/ui";
+import { closeDialog } from "@/store/ui";
 
 const statusOptions = [
     "DONE",

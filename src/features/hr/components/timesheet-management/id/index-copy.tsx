@@ -1,16 +1,16 @@
 import { ColumnDef } from "@tanstack/react-table";
-import AddSquareIcon from "components/icons/AddSquareIcon";
-import ApproveIcon from "components/icons/ApproveIcon";
-import Card from "components/Card";
-import GoBack from "components/GoBack";
-import DataTable from "components/Table/DataTable";
-import { Badge } from "components/ui/badge";
-import { Button } from "components/ui/button";
-import { DialogType } from "constants/dailogs";
-import { HrRoutes } from "constants/RouterConstants";
-import { useAppDispatch } from "hooks/useStore";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
+import ApproveIcon from "@/components/icons/ApproveIcon";
+import Card from "@/components/Card";
+import GoBack from "@/components/GoBack";
+import DataTable from "@/components/Table/DataTable";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { DialogType } from "@/constants/dailogs";
+import { HrRoutes } from "@/constants/RouterConstants";
+import { useAppDispatch } from "@/hooks/useStore";
 import { generatePath, Link, useParams } from "react-router-dom"; 
-import { openDialog } from "store/ui";
+import { openDialog } from "@/store/ui";
 
 const TimesheetManagementDetail = () => {
   const admin = false;

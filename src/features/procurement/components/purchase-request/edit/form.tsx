@@ -2,25 +2,25 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "@/components/FormButton";
-import FormInput from "components/atoms/FormInput";
-import FormSelect from "components/atoms/FormSelect";
-import FormTextArea from "components/atoms/FormTextArea";
-import AddSquareIcon from "components/icons/AddSquareIcon";
-import LongArrowRight from "components/icons/LongArrowRight";
+import FormInput from "@/components/atoms/FormInput";
+import FormSelect from "@/components/atoms/FormSelect";
+import FormTextArea from "@/components/atoms/FormTextArea";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
+import LongArrowRight from "@/components/icons/LongArrowRight";
 
-import { Form, FormControl, FormField, FormItem } from "components/ui/form";
-import { Label } from "components/ui/label";
-import MultiSelectFormField from "components/ui/multiselect";
+import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
+import { Label } from "@/components/ui/label";
+import MultiSelectFormField from "@/components/ui/multiselect";
 
-import { Separator } from "components/ui/separator";
-import { RouteEnum } from "constants/RouterConstants";
+import { Separator } from "@/components/ui/separator";
+import { RouteEnum } from "@/constants/RouterConstants";
 
 import { SampleMemoSchema } from "@/features/procurement/types/procurement-validator";
 
 import { useFieldArray, useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
-import { store } from "store/index";
+import { store } from "@/store/index";
 import React from "react";
 import {
   useGetAllUsers,
@@ -34,16 +34,16 @@ import { useGetAllInterventionAreas } from "@/features/modules/controllers/progr
 
 import { useGetAllFundingSources } from "@/features/modules/controllers/project/fundingSourceController";
 
-import { activityActions } from "store/formData/activity-memo";
+import { activityActions } from "@/store/formData/activity-memo";
 import { z } from "zod";
 import ExpensesForm from "../activity-memo/form/ExpensesForm";
 import { useGetAllActivityPlans } from "@/features/programs/controllers/activityPlanController";
 import { useUpdateActivityMemo } from "@/features/procurement/controllers/activityMemoController";
 import { useUpdatePurchaseRequest } from "@/features/procurement/controllers/purchaseRequestController";
 import { useEffect, useState } from "react";
-import { Button } from "components/ui/button";
-import { openDialog } from "store/ui";
-import { DialogType } from "constants/dailogs";
+import { Button } from "@/components/ui/button";
+import { openDialog } from "@/store/ui";
+import { DialogType } from "@/constants/dailogs";
 import { toast } from "sonner";
 
 interface EditPurchaseRequestFormProps {

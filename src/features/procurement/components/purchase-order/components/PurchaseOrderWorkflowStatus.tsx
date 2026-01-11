@@ -1,13 +1,13 @@
 "use client";
 
 import React, { useState } from "react";
-import { Badge } from "components/ui/badge";
-import { Button } from "components/ui/button";
-import { Card } from "components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { CheckCircle, Clock, XCircle, AlertCircle, FileText, CreditCard, Handshake } from "lucide-react";
 import { toast } from "sonner";
 import { FormProvider, useForm } from "react-hook-form";
-import FormTextArea from "components/atoms/FormTextArea";
+import FormTextArea from "@/components/atoms/FormTextArea";
 import { useModifyPurchaseOrder } from "@/features/procurement/controllers/purchaseOrderController";
 import { useQueryClient } from "@tanstack/react-query";
 

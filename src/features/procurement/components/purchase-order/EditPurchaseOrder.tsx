@@ -1,43 +1,43 @@
 "use client";
 
-import GoBack from "components/GoBack";
-import { Label } from "components/ui/label";
+import GoBack from "@/components/GoBack";
+import { Label } from "@/components/ui/label";
 import { useParams } from "next/navigation";
 import { Check, ChevronsUpDown, MinusCircle, PlusCircle } from "lucide-react";
-import { cn } from "lib/utils";
-import { Button } from "components/ui/button";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   Command,
   CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
-} from "components/ui/command";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
+} from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useEffect, useMemo, useState } from "react";
 import { useGetVendors } from "@/features/procurement/controllers/vendorController";
 import {
   useGetPurchaseRequests,
   useGetPurchaseRequest,
 } from "@/features/procurement/controllers/purchaseRequestController";
-import { LoadingSpinner } from "components/Loading";
+import { LoadingSpinner } from "@/components/Loading";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 import { PurchaseOrderListSchema } from "@/features/procurement/types/procurement-validator";
 import { zodResolver } from "@hookform/resolvers/zod";
-import FormInput from "components/atoms/FormInput";
-import { Form, FormControl, FormField, FormItem } from "components/ui/form";
+import FormInput from "@/components/atoms/FormInput";
+import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import FormButton from "@/components/FormButton";
-import LongArrowRight from "components/icons/LongArrowRight";
-import BreadcrumbCard from "components/Breadcrumb";
+import LongArrowRight from "@/components/icons/LongArrowRight";
+import BreadcrumbCard from "@/components/Breadcrumb";
 import { useGetAllDepartments } from "@/features/modules/controllers/config/departmentController";
 import { 
   useUpdatePurchaseOrder, 
   useGetSinglePurchaseOrder 
 } from "@/features/procurement/controllers/purchaseOrderController";
-import { RouteEnum } from "constants/RouterConstants";
-import MultiSelectFormField from "components/ui/multiselect";
-import FormSelect from "components/atoms/FormSelect";
+import { RouteEnum } from "@/constants/RouterConstants";
+import MultiSelectFormField from "@/components/ui/multiselect";
+import FormSelect from "@/components/atoms/FormSelect";
 import { useGetAllItems } from "@/features/modules/controllers/config/itemController";
 import { useGetAllFCONumbersQuery } from "@/features/modules/controllers";
 import { toast } from "sonner";

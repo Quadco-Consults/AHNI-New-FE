@@ -1,11 +1,11 @@
 "use client";
 
-import { Label } from "components/ui/label";
-import { useAppDispatch, useAppSelector } from "hooks/useStore";
+import { Label } from "@/components/ui/label";
+import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
 import LocationSvg from "assets/svgs/LocationSvg";
-import { Button } from "components/ui/button";
-import { openDialog } from "store/ui";
-import { DialogType } from "constants/dailogs";
+import { Button } from "@/components/ui/button";
+import { openDialog } from "@/store/ui";
+import { DialogType } from "@/constants/dailogs";
 import { useFormContext } from "react-hook-form";
 
 export default function ConsortiumPartners() {

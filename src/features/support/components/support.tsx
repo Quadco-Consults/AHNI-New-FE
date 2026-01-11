@@ -1,10 +1,10 @@
 import { ColumnDef } from "@tanstack/react-table"; 
-import EyeIcon from "components/icons/EyeIcon"; 
-import { Badge } from "components/ui/badge";
-import { Button } from "components/ui/button"; 
-import { AdminRoutes, RouteEnum } from "constants/RouterConstants"; 
+import EyeIcon from "@/components/icons/EyeIcon"; 
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button"; 
+import { AdminRoutes, RouteEnum } from "@/constants/RouterConstants"; 
 import { TSupportPaginatedData } from "../types/support/support";
-import { cn } from "lib/utils";
+import { cn } from "@/lib/utils";
 import { useState } from "react";
 import Link from "next/link";
 

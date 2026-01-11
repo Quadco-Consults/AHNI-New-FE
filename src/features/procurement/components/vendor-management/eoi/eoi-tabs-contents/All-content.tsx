@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import TabsListCard from "./Tabs-list-card";
-import { DialogClose } from "components/ui/dialog";
+import { DialogClose } from "@/components/ui/dialog";
 
 const EOIAllTabsContent = () => {
   return (

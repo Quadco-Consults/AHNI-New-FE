@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Button } from "components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
-import Card from "components/Card";
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import Card from "@/components/Card";
 import { CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { Icon } from "@iconify/react";
 import { toast } from "sonner";

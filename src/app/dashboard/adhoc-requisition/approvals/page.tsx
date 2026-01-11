@@ -2,16 +2,16 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "components/ui/button";
-import { Card } from "components/ui/card";
-import { Badge } from "components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
-} from "components/ui/tabs";
-import DataTable from "components/Table/DataTable";
+} from "@/components/ui/tabs";
+import DataTable from "@/components/Table/DataTable";
 import { Eye, Clock, CheckCircle, AlertCircle } from "lucide-react";
 import { useGetPendingApprovals } from "@/controllers/adhocRequisitionController";
 import { IAdhocRequisitionPaginatedData, RequisitionStatus } from "@/types/adhoc-requisition";

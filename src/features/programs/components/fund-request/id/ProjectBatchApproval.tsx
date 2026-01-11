@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import { Badge } from "components/ui/badge";
-import { Button } from "components/ui/button";
-import { Card } from "components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import {
   CheckCircle,
   Clock,
@@ -14,10 +14,10 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { FormProvider, useForm } from "react-hook-form";
-import FormTextArea from "components/atoms/FormTextArea";
-import { LoadingSpinner } from "components/Loading";
+import FormTextArea from "@/components/atoms/FormTextArea";
+import { LoadingSpinner } from "@/components/Loading";
 import { useGetAllFundRequests } from "@/features/programs/controllers/fundRequestController";
-import { useUserApprovalPermissions } from "hooks/useUserApprovalPermissions";
+import { useUserApprovalPermissions } from "@/hooks/useUserApprovalPermissions";
 
 interface ProjectBatchApprovalProps {
   projectId: string;

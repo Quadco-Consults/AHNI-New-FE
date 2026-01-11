@@ -3,8 +3,8 @@
 "use client";
 
 import { TabsContent } from "@radix-ui/react-tabs";
-import { Tabs, TabsList, TabsTrigger } from "components/ui/tabs";
-import { Card } from "components/ui/card";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card } from "@/components/ui/card";
 import VendorRegistration from "./vendor-registration/Registration";
 import Prequalification from "./prequalification/index";
 import EOI from "./eoi/EOI";

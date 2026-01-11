@@ -15,16 +15,16 @@ import {
   Users,
   FileText
 } from "lucide-react";
-import { Card } from "components/ui/card";
-import { Button } from "components/ui/button";
-import { Input } from "components/ui/input";
-import { Badge } from "components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "components/ui/dialog";
-import { Textarea } from "components/ui/textarea";
-import { Label } from "components/ui/label";
-import GoBack from "components/GoBack";
-import DataTable from "components/Table/DataTable";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import GoBack from "@/components/GoBack";
+import DataTable from "@/components/Table/DataTable";
 import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { useGetLeaveRequests } from "../../controllers/leaveRequestController";

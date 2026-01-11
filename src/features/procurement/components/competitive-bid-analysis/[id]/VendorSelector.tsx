@@ -4,7 +4,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "components/ui/select";
+} from "@/components/ui/select";
 import { SolicitationSubmissionData } from "definations/procurement-types/solicitation";
 import React from "react";
 

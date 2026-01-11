@@ -1,4 +1,4 @@
-import EmployeeRegistrationHeading from "components/EmployeeRegistrationHeading";
+import EmployeeRegistrationHeading from "@/components/EmployeeRegistrationHeading";
 import { FC, ReactNode } from "react";
 
 type IPageProps = {

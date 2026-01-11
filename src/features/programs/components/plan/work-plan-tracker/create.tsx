@@ -2,12 +2,12 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "@/components/FormButton";
-import FormInput from "components/atoms/FormInput";
-import FormTextArea from "components/atoms/FormTextArea";
-import LongArrowLeft from "components/icons/LongArrowLeft";
-import Card from "components/Card";
-import { Form } from "components/ui/form";
-import { RouteEnum } from "constants/RouterConstants";
+import FormInput from "@/components/atoms/FormInput";
+import FormTextArea from "@/components/atoms/FormTextArea";
+import LongArrowLeft from "@/components/icons/LongArrowLeft";
+import Card from "@/components/Card";
+import { Form } from "@/components/ui/form";
+import { RouteEnum } from "@/constants/RouterConstants";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useRouter, useSearchParams, useParams } from "next/navigation";
 import { toast } from "sonner";
@@ -22,12 +22,12 @@ import {
   useGetSingleActivityTracker
 } from "@/features/programs/controllers/activityTrackerController";
 import { useEffect, useState } from "react";
-import BreadcrumbCard, { TBreadcrumbList } from "components/Breadcrumb";
+import BreadcrumbCard, { TBreadcrumbList } from "@/components/Breadcrumb";
 import {
   TWorkPlanTrackerFormValues,
   WorkPlanTrackerSchema,
-} from "features/programs/types/activity-tracker";
-import { formatNumberCurrency } from "utils/utls";
+} from "@/features/programs/types/activity-tracker";
+import { formatNumberCurrency } from "@/utils/utls";
 
 const breadcrumbs: TBreadcrumbList[] = [
   { name: "Programs", icon: true },

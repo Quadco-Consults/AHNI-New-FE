@@ -1,15 +1,15 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import DeleteIcon from "components/icons/DeleteIcon";
-import EyeIcon from "components/icons/EyeIcon";
-import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
-import { Button } from "components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
+import DeleteIcon from "@/components/icons/DeleteIcon";
+import EyeIcon from "@/components/icons/EyeIcon";
+import MoreOptionsHorizontalIcon from "@/components/icons/MoreOptionsHorizontalIcon";
+import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { ISubGrantSubmissionPaginatedData } from "@/features/contracts-grants/types/contract-management/sub-grant/sub-grant";
 import Link from "next/link";
 import { FileCheck, Award } from "lucide-react";
-import { Badge } from "components/ui/badge";
+import { Badge } from "@/components/ui/badge";
 
 const generatePath = (route: string, params?: Record<string, any>): string => {
   let path = route;

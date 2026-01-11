@@ -1,7 +1,7 @@
 import { Briefcase } from 'lucide-react';import { Icon } from "@iconify/react";
-import Card from "components/Card";
-import { Badge } from "components/ui/badge";
-import { Label } from "components/ui/label";
+import Card from "@/components/Card";
+import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
 import { CategoryResultsData } from "definations/configs/category";
 import { EOIResultsData } from "definations/procurement-types/eoi";
 import { useState } from "react";
@@ -15,8 +15,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "components/ui/dialog";
-import { cn } from "lib/utils";
+} from "@/components/ui/dialog";
+import { cn } from "@/lib/utils";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 

@@ -1,8 +1,8 @@
-import Card from "components/Card";
-import DescriptionCard from "components/DescriptionCard";
-import GoBack from "components/GoBack";
-import { Loading } from "components/Loading";
-import PdfContent from "components/PdfContent";
+import Card from "@/components/Card";
+import DescriptionCard from "@/components/DescriptionCard";
+import GoBack from "@/components/GoBack";
+import { Loading } from "@/components/Loading";
+import PdfContent from "@/components/PdfContent";
 import { useParams } from "next/navigation";
 import { useGetInterview } from "@/features/hr/controllers/interviewController";
 

@@ -1,9 +1,9 @@
 "use client";
 
 import { useGetAllAssessments } from "@/features/contracts-grants/controllers/preAwardAssessmentController";
-import { Badge } from "components/ui/badge";
-import { Button } from "components/ui/button";
-import { TableCell, TableRow } from "components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { TableCell, TableRow } from "@/components/ui/table";
 import { CheckCircle2, XCircle, FileText } from "lucide-react";
 import Link from "next/link";
 

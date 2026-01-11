@@ -1,8 +1,8 @@
 "use client";
 
-import Card from "components/Card";
-import BackNavigation from "components/atoms/BackNavigation";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
+import Card from "@/components/Card";
+import BackNavigation from "@/components/atoms/BackNavigation";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useGetSingleConsultancyApplicant } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
 import ApplicantDetails from "./ApplicantDetails";
 import AcceptanceForm from "./AcceptanceForm";

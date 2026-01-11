@@ -1,17 +1,17 @@
 "use client";
 
 import FormButton from "@/components/FormButton";
-import FormInput from "components/atoms/FormInput";
-import FormSelect from "components/atoms/FormSelectField";
-import Card from "components/Card";
-import GoBack from "components/GoBack";
-import { Button } from "components/ui/button";
+import FormInput from "@/components/atoms/FormInput";
+import FormSelect from "@/components/atoms/FormSelectField";
+import Card from "@/components/Card";
+import GoBack from "@/components/GoBack";
+import { Button } from "@/components/ui/button";
 
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
-import { Form } from "components/ui/form";
-import { LoadingSpinner } from "components/Loading";
-import { SelectContent, SelectItem } from "components/ui/select";
+import { Form } from "@/components/ui/form";
+import { LoadingSpinner } from "@/components/Loading";
+import { SelectContent, SelectItem } from "@/components/ui/select";
 
 import { EmployeeOnboarding } from "definations/hr-types/employee-onboarding";
 import { useGetEmployeeOnboardings } from "@/features/hr/controllers/employeeOnboardingController";
@@ -19,7 +19,7 @@ import { useGetAllProjects } from "@/features/projects/controllers/projectContro
 import { useCreateSeparationManagement } from "@/features/hr/controllers/separationManagementController";
 import { SeparationManagementCreate } from "@/features/hr/types/separation-management";
 import { toast } from "sonner";
-import { HrRoutes } from "constants/RouterConstants";
+import { HrRoutes } from "@/constants/RouterConstants";
 import { useEffect } from "react";
 
 const CreateSeparationManagement = () => {

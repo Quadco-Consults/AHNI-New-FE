@@ -1,14 +1,14 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { TWorkPlanTrackerData } from "definations/program-types/activity-tracker";
-import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
+import MoreOptionsHorizontalIcon from "@/components/icons/MoreOptionsHorizontalIcon";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import Link from "next/link";
-import DeleteIcon from "components/icons/DeleteIcon";
-import { RouteEnum } from "constants/RouterConstants";
-import ConfirmationDialog from "components/ConfirmationDialog";
+import DeleteIcon from "@/components/icons/DeleteIcon";
+import { RouteEnum } from "@/constants/RouterConstants";
+import ConfirmationDialog from "@/components/ConfirmationDialog";
 import { toast } from "sonner";
 import { useDeleteActivityTracker } from "@/features/programs/controllers/activityTrackerController";
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { EyeIcon } from "lucide-react";
 

@@ -1,16 +1,16 @@
-import { LoadingSpinner } from "components/Loading";
-import { Button } from "components/ui/button";
-import { Card } from "components/ui/card";
-import { Checkbox } from "components/ui/checkbox";
-import { Input } from "components/ui/input";
-import { ScrollArea } from "components/ui/scroll-area";
-import { IUser } from "features/auth/types/user";
-import { useAppDispatch, useAppSelector } from "hooks/useStore";
+import { LoadingSpinner } from "@/components/Loading";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { IUser } from "@/features/auth/types/user";
+import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
 import { Search } from "lucide-react";
 import { useState } from "react";
 import { useGetAllUsersQuery } from "@/features/auth/controllers/userController";
-import { addTeamMembers } from "store/admin/team-members";
-import { closeDialog } from "store/ui";
+import { addTeamMembers } from "@/store/admin/team-members";
+import { closeDialog } from "@/store/ui";
 
 export default function TeamMemberSelection() {
   const { teamMembers } = useAppSelector((state) => state.teamMember);

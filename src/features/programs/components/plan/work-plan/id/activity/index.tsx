@@ -1,11 +1,11 @@
-import { TActivity, TMonth } from "features/programs/types/work-plan";
+import { TActivity, TMonth } from "@/features/programs/types/work-plan";
 import { ColumnDef } from "@tanstack/react-table";
-import DataTable from "components/Table/DataTable";
-import { formatNumberCurrency } from "utils/utls";
-import { Card } from "components/ui/card";
+import DataTable from "@/components/Table/DataTable";
+import { formatNumberCurrency } from "@/utils/utls";
+import { Card } from "@/components/ui/card";
 import { useGetAllActivityPlans } from "@/features/programs/controllers/activityPlanController";
 import { useMemo } from "react";
-import { Badge } from "components/ui/badge";
+import { Badge } from "@/components/ui/badge";
 
 type PropsType = {
   activities: TActivity[];

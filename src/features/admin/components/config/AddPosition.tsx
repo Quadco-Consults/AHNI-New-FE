@@ -2,12 +2,12 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "@/components/FormButton";
-import FormInput from "components/atoms/FormInput";
-import { Form } from "components/ui/form";
+import FormInput from "@/components/atoms/FormInput";
+import { Form } from "@/components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { useAppDispatch, useAppSelector } from "hooks/useStore";
-import { closeDialog, dailogSelector } from "store/ui";
+import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
+import { closeDialog, dailogSelector } from "@/store/ui";
 import {
   PositionSchema,
   TPositionData,
@@ -17,7 +17,7 @@ import {
   useAddPositionMutation,
   useUpdatePositionMutation,
 } from "@/features/modules/controllers/config/positionController";
-import FormTextArea from "components/atoms/FormTextArea";
+import FormTextArea from "@/components/atoms/FormTextArea";
 
 const AddPosition = () => {
   const { dialogProps } = useAppSelector(dailogSelector);

@@ -1,8 +1,8 @@
 import FormButton from "@/components/FormButton";
-import { CG_ROUTES } from "constants/RouterConstants";
-import { useAppDispatch } from "hooks/useStore";
+import { CG_ROUTES } from "@/constants/RouterConstants";
+import { useAppDispatch } from "@/hooks/useStore";
 import { useRouter } from "next/navigation";
-import { closeDialog } from "store/ui";
+import { closeDialog } from "@/store/ui";
 
 const ConsultancyApplicationSuccessModal = () => {
     const router = useRouter();

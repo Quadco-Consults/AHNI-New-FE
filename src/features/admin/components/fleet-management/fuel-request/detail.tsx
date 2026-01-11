@@ -9,12 +9,12 @@ import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
 import Image from "next/image";
 import logoPng from "@/assets/imgs/logo-bg.png";
-import BackNavigation from "components/atoms/BackNavigation";
-import { Button } from "components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "components/ui/card";
-import { Badge } from "components/ui/badge";
-import { Separator } from "components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
+import BackNavigation from "@/components/atoms/BackNavigation";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import {
   Dialog,
@@ -23,15 +23,15 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "components/ui/dialog";
-import { Textarea } from "components/ui/textarea";
-import { Label } from "components/ui/label";
+} from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import {
   useGetSingleFuelConsumption,
   useApproveFuelConsumption,
   useRejectFuelConsumption,
 } from "@/features/admin/controllers/fuelConsumptionController";
-import { AdminRoutes } from "constants/RouterConstants";
+import { AdminRoutes } from "@/constants/RouterConstants";
 import VehicleFuelHistory from "./_components/VehicleFuelHistory";
 
 export default function FuelConsumptionDetail() {

@@ -1,15 +1,15 @@
 "use client";
 
-import { Button } from "components/ui/button";
-import Card from "components/Card";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
+import { Button } from "@/components/ui/button";
+import Card from "@/components/Card";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Dialog,
   DialogContent,
   DialogTitle,
   DialogTrigger,
   DialogClose,
-} from "components/ui/dialog";
+} from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
@@ -17,7 +17,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "components/ui/select";
+} from "@/components/ui/select";
 import {
   Form,
   FormControl,
@@ -25,17 +25,17 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "components/ui/form";
-import { Switch } from "components/ui/switch";
-import { Label } from "components/ui/label";
-import { Checkbox } from "components/ui/checkbox";
-import IconButton from "components/IconButton";
+} from "@/components/ui/form";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import IconButton from "@/components/IconButton";
 import { Icon } from "@iconify/react";
-import { Input } from "components/ui/input";
-import { FormDescription } from "components/ui/form";
+import { Input } from "@/components/ui/input";
+import { FormDescription } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { ColumnDef } from "@tanstack/react-table";
-import DataTable from "components/Table/DataTable";
+import DataTable from "@/components/Table/DataTable";
 
 type Data = {
   plan: string;

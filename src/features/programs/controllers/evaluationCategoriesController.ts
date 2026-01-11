@@ -28,19 +28,40 @@ export const useGetEvaluationCategories = (enabled: boolean = true) => {
         });
         console.log("📊 Categories API Response:", response.data);
 
-        // Handle different possible response structures
-        if (response.data?.data?.results) {
-          return response.data.data.results;
-        } else if (response.data?.results) {
-          return response.data.results;
-        } else if (Array.isArray(response.data)) {
-          return response.data;
-        } else if (response.data?.data && Array.isArray(response.data.data)) {
-          return response.data.data;
-        } else {
-          console.warn("Unexpected categories response structure:", response.data);
-          return [];
+        // Handle the API response structure: {status, message, data: {results: [...], count: ...}}
+        // The actual categories array is in response.data.data.results
+        const responseData = response.data;
+
+        // Check for nested data.results structure (most common)
+        if (responseData?.data?.results && Array.isArray(responseData.data.results)) {
+          console.log("✅ Found categories in data.results:", responseData.data.results.length);
+          return responseData.data.results;
         }
+
+        // Check for direct results in data object
+        if (responseData?.results && Array.isArray(responseData.results)) {
+          console.log("✅ Found categories in results:", responseData.results.length);
+          return responseData.results;
+        }
+
+        // Check if data itself is an array
+        if (responseData?.data && Array.isArray(responseData.data)) {
+          console.log("✅ Found categories in data array:", responseData.data.length);
+          return responseData.data;
+        }
+
+        // Check if response is directly an array
+        if (Array.isArray(responseData)) {
+          console.log("✅ Found categories as direct array:", responseData.length);
+          return responseData;
+        }
+
+        console.warn("⚠️ Unexpected categories response structure:", responseData);
+        console.warn("⚠️ Available keys:", responseData ? Object.keys(responseData) : 'no data');
+        if (responseData?.data) {
+          console.warn("⚠️ Data keys:", Object.keys(responseData.data));
+        }
+        return [];
       } catch (error) {
         const axiosError = error as AxiosError;
         console.error("Categories API Error:", axiosError.response?.data);

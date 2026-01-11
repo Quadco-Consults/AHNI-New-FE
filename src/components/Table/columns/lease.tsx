@@ -3,8 +3,8 @@ export default function Test() {
 }
 
 // import { ColumnDef } from "@tanstack/react-table";
-// import TableAction from "components/TableAction";
-// import { AdminRoutes } from "constants/RouterConstants";
+// import TableAction from "@/components/TableAction";
+// import { AdminRoutes } from "@/constants/RouterConstants";
 // import { toast } from "sonner";
 
 // // eslint-disable-next-line react-refresh/only-export-components

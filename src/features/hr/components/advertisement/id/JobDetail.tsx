@@ -1,8 +1,8 @@
-import AddSquareIcon from "components/icons/AddSquareIcon";
-import PdfContent from "components/PdfContent";
-import { Badge } from "components/ui/badge";
-import { Button } from "components/ui/button";
-import { HrRoutes } from "constants/RouterConstants";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
+import PdfContent from "@/components/PdfContent";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { HrRoutes } from "@/constants/RouterConstants";
 import { JobAdvertisement } from "@/features/hr/types/job-advertisement";
 import {
   Briefcase,
@@ -15,7 +15,7 @@ import {
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
-import moment from "moment";
+import { format } from "date-fns";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -118,7 +118,7 @@ const JobDetail = (props: JobAdvertisement) => {
         </Badge>
         <Badge variant='md'>
           <CalendarDays size={15} />{" "}
-          {created_datetime ? moment(created_datetime).format("DD-MM-YYYY") : 'N/A'}
+          {created_datetime ? format(new Date(created_datetime), "dd-MM-yyyy") : 'N/A'}
         </Badge>
         <Badge variant='md'>
           <MapPin size={15} /> {safeStringValue(locations)}
@@ -132,7 +132,7 @@ const JobDetail = (props: JobAdvertisement) => {
         {commencement_date && (
           <Badge variant='md'>
             <Calendar size={15} /> Starts:{" "}
-            {moment(commencement_date).format("DD-MM-YYYY")}
+            {format(new Date(commencement_date), "dd-MM-yyyy")}
           </Badge>
         )}
       </div>

@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { TAssetSingleData } from "../inventory-management/asset";
 import { TFCONumberData } from "definations/modules/finance/fco-number";
-import { IUser } from "features/auth/types/user";
+import { IUser } from "@/features/auth/types/user";
 
 export const VehicleMaintenanceSchema = z.object({
     asset: z.string().min(1, "Please select an asset"),

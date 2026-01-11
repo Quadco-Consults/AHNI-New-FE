@@ -1,9 +1,9 @@
 "use client";
 
-import BackNavigation from "components/atoms/BackNavigation";
-import { Tabs, TabsList, TabsContent, TabsTrigger } from "components/ui/tabs";
-import { Card, CardContent, CardHeader } from "components/ui/card";
-import { Separator } from "components/ui/separator";
+import BackNavigation from "@/components/atoms/BackNavigation";
+import { Tabs, TabsList, TabsContent, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useParams, useRouter } from "next/navigation";
@@ -15,12 +15,12 @@ import {
   useApprovePaymentRequest,
   useRejectPaymentRequest,
 } from "@/features/admin/controllers/paymentRequestController";
-import { LoadingSpinner } from "components/Loading";
+import { LoadingSpinner } from "@/components/Loading";
 import DocumentCard from "@/features/projects/components/projects/create/DocumentCard";
 import { useState } from "react";
 import { toast } from "sonner";
 import { FormProvider, useForm } from "react-hook-form";
-import FormTextArea from "components/atoms/FormTextArea";
+import FormTextArea from "@/components/atoms/FormTextArea";
 import FormButton from "@/components/FormButton";
 import {
   CalendarIcon,

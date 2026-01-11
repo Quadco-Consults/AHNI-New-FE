@@ -7,7 +7,10 @@
       "Bash(vercel --prod)",
       "Bash(find:*)",
       "Bash(git add:*)",
-      "Bash(git commit -m \"$(cat <<''EOF''\nfix: resolve dynamic naming conflicts for Vercel deployment\n\nFixed 19 files where ''dynamic'' was defined multiple times:\n- export const dynamic = \"force-dynamic\" (Next.js config)\n- import dynamic from \"next/dynamic\" (dynamic imports)\n\nRenamed dynamic import to dynamicImport to avoid conflicts.\nThis enables successful Vercel deployment.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
+      "Bash(git commit -m \"$(cat <<''EOF''\nfix: resolve dynamic naming conflicts for Vercel deployment\n\nFixed 19 files where ''dynamic'' was defined multiple times:\n- export const dynamic = \"force-dynamic\" (Next.js config)\n- import dynamic from \"next/dynamic\" (dynamic imports)\n\nRenamed dynamic import to dynamicImport to avoid conflicts.\nThis enables successful Vercel deployment.\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(npx tsc:*)",
+      "Bash(echo \"Remaining non-standard imports:\" echo \"features/:\" grep -r \"from [''''\"\"]features/\" --include=\"*.tsx\" --include=\"*.ts\" /Users/hbdmanzcontractorsltd/AHNI-New-FE/src/)",
+      "Bash(grep:*)"
     ],
     "deny": [],
     "ask": []

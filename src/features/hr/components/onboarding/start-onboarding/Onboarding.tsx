@@ -2,8 +2,8 @@ import CheckIcon from "assets/svgs/CheckIcon";
 
 import { useSelector } from "react-redux";
 import Link from "next/link";
-import { RootState } from "store/index";
-import { generatePath } from "utils/generatePath";
+import { RootState } from "@/store/index";
+import { generatePath } from "@/utils/generatePath";
 
 const Onboarding = ({id} : {
   id?: string;}) => {

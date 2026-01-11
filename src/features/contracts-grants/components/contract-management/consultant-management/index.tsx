@@ -1,16 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "components/ui/button";
-import { CG_ROUTES, ProgramRoutes } from "constants/RouterConstants";
+import { Button } from "@/components/ui/button";
+import { CG_ROUTES, ProgramRoutes } from "@/constants/RouterConstants";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import ConsultancyCard from "./ConsultantCard";
 import { useGetAllConsultantManagements } from "src/features/contracts-grants/controllers/consultantManagementController";
-import { LoadingSpinner } from "components/Loading";
-import Pagination from "components/Pagination";
-import UserAdvertType from "hooks/useJobAdvertType";
+import { LoadingSpinner } from "@/components/Loading";
+import Pagination from "@/components/Pagination";
+import UserAdvertType from "@/hooks/useJobAdvertType";
 import { getMockConsultants } from "@/utils/mockCGData";
 
 export default function Consultancy() {

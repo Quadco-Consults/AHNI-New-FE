@@ -1,9 +1,9 @@
 "use client";
 
-import Card from "components/Card";
+import Card from "@/components/Card";
 import { preAwardAssessmentColumns } from "@/features/contracts-grants/components/table-columns/sub-grant/pre-award-assessment";
-import DataTable from "components/Table/DataTable";
-import TableFilters from "components/Table/TableFilters";
+import DataTable from "@/components/Table/DataTable";
+import TableFilters from "@/components/Table/TableFilters";
 import { useState } from "react";
 import { useGetAllSubGrantSubmissions } from "@/features/contracts-grants/controllers/submissionController";
 

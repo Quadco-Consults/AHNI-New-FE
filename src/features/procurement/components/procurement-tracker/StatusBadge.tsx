@@ -1,5 +1,5 @@
-import { Badge } from "components/ui/badge";
-import { cn } from "lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 interface StatusBadgeProps {
   item: any; // Will be properly typed based on ProcurementTrackerResults

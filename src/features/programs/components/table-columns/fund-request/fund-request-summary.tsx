@@ -1,11 +1,11 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { Badge } from "components/ui/badge";
-import { Button } from "components/ui/button";
-import { RouteEnum } from "constants/RouterConstants";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { RouteEnum } from "@/constants/RouterConstants";
 import { FundRequestPaginatedData } from "definations/program-types/fund-request";
-import { cn } from "lib/utils";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { formatNumberCurrency } from "utils/utls";
+import { formatNumberCurrency } from "@/utils/utls";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,7 +13,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "components/ui/dropdown-menu";
+} from "@/components/ui/dropdown-menu";
 import { Eye, Edit, Trash2, MoreHorizontal } from "lucide-react";
 
 export const fundRequestSummaryColumns: ColumnDef<FundRequestPaginatedData>[] =

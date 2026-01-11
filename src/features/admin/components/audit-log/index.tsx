@@ -1,4 +1,4 @@
-import DataTable from "components/DataTable";
+import DataTable from "@/components/DataTable";
 import { useMemo, useState } from "react";
 import {
   useDownloadActivitiesMutation,
@@ -6,18 +6,18 @@ import {
 } from "@/features/auth/controllers/auditLogController";
 import { format } from "date-fns";
 
-import IconButton from "components/IconButton";
+import IconButton from "@/components/IconButton";
 import { Icon } from "@iconify/react";
-import { openDialog } from "store/ui";
-import { useAppDispatch } from "hooks/useStore";
-import { DialogType } from "constants/dailogs";
-import TableFilters from "components/TableFilters";
+import { openDialog } from "@/store/ui";
+import { useAppDispatch } from "@/hooks/useStore";
+import { DialogType } from "@/constants/dailogs";
+import TableFilters from "@/components/TableFilters";
 import { useDebounce } from "ahooks";
-import { FilterForm } from "components/FilterForm";
+import { FilterForm } from "@/components/FilterForm";
 
 import { useGetAllUsersQuery } from "@/features/auth/controllers/userController";
 import { FilterField } from "src";
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 
 const AuditLog = () => {
   const dispatch = useAppDispatch();

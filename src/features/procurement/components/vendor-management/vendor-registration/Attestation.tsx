@@ -1,19 +1,19 @@
 "use client";
 
-import { Label } from "components/ui/label";
+import { Label } from "@/components/ui/label";
 import VendorRegistationLayout from "./VendorRegistationLayout";
-import { Checkbox } from "components/ui/checkbox";
+import { Checkbox } from "@/components/ui/checkbox";
 import FormButton from "@/components/FormButton";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { RootState } from "store/index";
-import useUrlQuery from "hooks/useQuery";
-import { Button } from "components/ui/button";
-import { Form } from "components/ui/form";
+import { RootState } from "@/store/index";
+import useUrlQuery from "@/hooks/useQuery";
+import { Button } from "@/components/ui/button";
+import { Form } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
-import FormInput from "components/atoms/FormInput";
+import FormInput from "@/components/atoms/FormInput";
 import { z } from "zod";
 import { VendorAttestationSchema } from "@/features/procurement/types/procurement-validator";
 import { zodResolver } from "@hookform/resolvers/zod";

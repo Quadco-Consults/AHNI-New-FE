@@ -1,9 +1,9 @@
 import { format } from "date-fns";
-import { useAppSelector } from "hooks/useStore";
+import { useAppSelector } from "@/hooks/useStore";
 import { TNotification } from "@/features/notifications/types/notification";
 import { useGetUserProfile } from "@/features/auth/controllers/userController";
-import { Button } from "components/ui/button";
-import { Badge } from "components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { useRouter } from "next/navigation";
 import { AlertCircle, Clock, CheckCircle } from "lucide-react";
 

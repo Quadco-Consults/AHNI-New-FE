@@ -7,11 +7,11 @@ import { useForm, useFieldArray, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useGetPublicOpportunity } from "@/features/procurement/controllers/solicitationController";
-import BackNavigation from "components/atoms/BackNavigation";
-import DescriptionCard from "components/DescriptionCard";
-import FilePreview from "components/FilePreview";
-import Card from "components/Card";
-import { LoadingSpinner } from "components/Loading";
+import BackNavigation from "@/components/atoms/BackNavigation";
+import DescriptionCard from "@/components/DescriptionCard";
+import FilePreview from "@/components/FilePreview";
+import Card from "@/components/Card";
+import { LoadingSpinner } from "@/components/Loading";
 import { format, isValid } from "date-fns";
 import {
 
@@ -25,12 +25,12 @@ Calendar,
   AlertCircle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import FormInput from "components/atoms/FormInput";
-import FormTextArea from "components/atoms/FormTextArea";
-import FormSelect from "components/atoms/FormSelect";
+import FormInput from "@/components/atoms/FormInput";
+import FormTextArea from "@/components/atoms/FormTextArea";
+import FormSelect from "@/components/atoms/FormSelect";
 import FormButton from "@/components/FormButton";
-import { Label } from "components/ui/label";
-import { countries } from "constants/countries";
+import { Label } from "@/components/ui/label";
+import { countries } from "@/constants/countries";
 import { toast } from "sonner";
 import { PlusCircle, Upload, Trash2 } from "lucide-react";
 

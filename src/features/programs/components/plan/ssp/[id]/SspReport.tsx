@@ -3,14 +3,14 @@
 import { useParams, useRouter } from "next/navigation";
 import { useGetSingleSupervisionPlan } from "@/features/programs/controllers/supervisionPlanController";
 import { useGetAllSupervisionPlanReviews } from "@/features/programs/controllers/supervisionPlanReviewController";
-import { LoadingSpinner } from "components/Loading";
-import { Button } from "components/ui/button";
+import { LoadingSpinner } from "@/components/Loading";
+import { Button } from "@/components/ui/button";
 import { ArrowLeft, Download, Printer } from "lucide-react";
 import { useRef } from "react";
 import { useReactToPrint } from "react-to-print";
-import Card from "components/Card";
-import { Badge } from "components/ui/badge";
-import { cn } from "lib/utils";
+import Card from "@/components/Card";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 const SspReport = () => {
   const { id } = useParams();

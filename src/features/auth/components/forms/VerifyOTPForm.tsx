@@ -1,11 +1,11 @@
-import FormButton from "components/FormButton";
+import FormButton from "@/components/FormButton";
 import { toast } from "sonner";
 import { OtpInput } from "reactjs-otp-input";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import Card from "components/Card";
-import useQuery from "hooks/useQuery";
+import Card from "@/components/Card";
+import useQuery from "@/hooks/useQuery";
 
 export default function VerifyOTPForm() {
     const [countTimer, setCountTimer] = useState(60);

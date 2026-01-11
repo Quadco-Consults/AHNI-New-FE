@@ -1,14 +1,14 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import GoBack from "components/GoBack";
-import { Card, CardContent, CardHeader, CardTitle } from "components/ui/card";
-import { Badge } from "components/ui/badge";
+import GoBack from "@/components/GoBack";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { useGetGoal } from "@/features/hr/controllers/goalsController";
-import { LoadingSpinner } from "components/Loading";
-import { Button } from "components/ui/button";
+import { LoadingSpinner } from "@/components/Loading";
+import { Button } from "@/components/ui/button";
 import { Edit, Trash2 } from "lucide-react";
-import { HrRoutes } from "constants/RouterConstants";
+import { HrRoutes } from "@/constants/RouterConstants";
 
 const GoalDetail = () => {
   const params = useParams();

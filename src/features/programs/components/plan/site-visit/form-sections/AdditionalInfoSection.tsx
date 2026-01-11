@@ -2,12 +2,12 @@
 
 import React from "react";
 import { useFormContext } from "react-hook-form";
-import { Card, CardContent, CardHeader, CardTitle } from "components/ui/card";
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "components/ui/form";
-import { Input } from "components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
-import { Textarea } from "components/ui/textarea";
-import { Badge } from "components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import { FileTextIcon, DollarSignIcon } from "lucide-react";
 
 import { TSiteVisitApplicationFormValues } from "@/features/programs/types/site-visit";

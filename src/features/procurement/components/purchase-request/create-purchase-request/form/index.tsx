@@ -2,19 +2,19 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "@/components/FormButton";
-import FormInput from "components/atoms/FormInput";
-import FormSelect from "components/atoms/FormSelectField";
-import { Select, SelectTrigger, SelectValue } from "components/ui/select";
-import AddSquareIcon from "components/icons/AddSquareIcon";
-import LongArrowRight from "components/icons/LongArrowRight";
-import { LoadingSpinner } from "components/Loading";
-import { Button } from "components/ui/button";
+import FormInput from "@/components/atoms/FormInput";
+import FormSelect from "@/components/atoms/FormSelectField";
+import { Select, SelectTrigger, SelectValue } from "@/components/ui/select";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
+import LongArrowRight from "@/components/icons/LongArrowRight";
+import { LoadingSpinner } from "@/components/Loading";
+import { Button } from "@/components/ui/button";
 import { Upload as UploadFile } from "lucide-react";
 
-import { Form, FormControl, FormField, FormItem } from "components/ui/form";
-import MultiSelectFormField from "components/ui/multiselect";
-import { SelectContent, SelectItem } from "components/ui/select";
-import { RouteEnum } from "constants/RouterConstants";
+import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
+import MultiSelectFormField from "@/components/ui/multiselect";
+import { SelectContent, SelectItem } from "@/components/ui/select";
+import { RouteEnum } from "@/constants/RouterConstants";
 import { PurchaseRequestSchema } from "@/features/procurement/types/procurement-validator";
 import { MinusCircle } from "lucide-react";
 import React, { useEffect, useMemo, useState } from "react";
@@ -35,9 +35,9 @@ import { useCreatePurchaseRequest } from "@/features/procurement/controllers/pur
 import { useGetActivityMemo } from "@/features/procurement/controllers/activityMemoController";
 import { toast } from "sonner";
 import { z } from "zod";
-import { Input } from "components/ui/input";
+import { Input } from "@/components/ui/input";
 import { useSelector } from "react-redux";
-import { RootState } from "store/index";
+import { RootState } from "@/store/index";
 
 const CreatePurchaseRequestForm = ({ expenses }) => {
   const searchParams = useSearchParams();

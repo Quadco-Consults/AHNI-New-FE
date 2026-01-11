@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { TNotification } from "@/features/notifications/controllers/notificationController";
 import NotificationGroup from "./NotificationGroup";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Bell } from "lucide-react";
 
 interface NotificationListGroupedProps {

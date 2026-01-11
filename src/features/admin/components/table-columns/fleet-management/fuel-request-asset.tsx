@@ -1,9 +1,9 @@
 import { ColumnDef } from "@tanstack/react-table";
-import EyeIcon from "components/icons/EyeIcon";
-import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
-import { Button } from "components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { AdminRoutes } from "constants/RouterConstants";
+import EyeIcon from "@/components/icons/EyeIcon";
+import MoreOptionsHorizontalIcon from "@/components/icons/MoreOptionsHorizontalIcon";
+import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { AdminRoutes } from "@/constants/RouterConstants";
 import Link from "next/link";
 import { TAssetPaginatedData } from "definations/admin/inventory-management/asset";
 

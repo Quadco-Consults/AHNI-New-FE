@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import { ChevronDown, ChevronRight, Plus, Edit, Trash2, FolderOpen, File } from "lucide-react";
-import { Button } from "components/ui/button";
-import { Badge } from "components/ui/badge";
-import { Card } from "components/ui/card";
-import { cn } from "lib/utils";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 import { ChartOfAccount } from "../../types/accounting.types";
 
 interface ChartOfAccountsTreeProps {

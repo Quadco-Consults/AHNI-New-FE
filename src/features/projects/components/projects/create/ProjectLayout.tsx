@@ -1,5 +1,5 @@
-import Card from "components/Card";
-import ProjectsHeading from "components/ProjectsHeading";
+import Card from "@/components/Card";
+import ProjectsHeading from "@/components/ProjectsHeading";
 import { FC, ReactNode } from "react";
 
 type IPageProps = {

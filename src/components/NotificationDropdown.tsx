@@ -1,17 +1,17 @@
 "use client";
 import { useState } from "react";
 import { Bell, AlertCircle, Clock } from "lucide-react";
-import { Button } from "components/ui/button";
-import { Badge } from "components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
-} from "components/ui/dropdown-menu";
+} from "@/components/ui/dropdown-menu";
 import { useGetNotifications, useGetUnreadCount, useMarkNotificationAsRead } from "@/features/notifications/controllers/notificationController";
 import { TNotification } from "@/features/notifications/controllers/notificationController";
 import { useRouter } from "next/navigation";
-import { cn } from "lib/utils";
+import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { useVendorEvaluationReminders } from "@/features/procurement/hooks/useVendorEvaluationReminders";
 

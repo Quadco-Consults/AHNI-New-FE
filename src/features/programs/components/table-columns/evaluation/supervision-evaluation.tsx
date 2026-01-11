@@ -1,9 +1,9 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { Badge } from "components/ui/badge";
-import { Button } from "components/ui/button";
-import { Checkbox } from "components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,7 +11,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "components/ui/dropdown-menu";
+} from "@/components/ui/dropdown-menu";
 import {
   MoreHorizontal,
   Eye,
@@ -26,7 +26,7 @@ import {
   Users,
   FileText
 } from "lucide-react";
-import { formatDate } from "utils/date";
+import { formatDate } from "@/utils/date";
 import { ISupervisionEvaluation, SupervisionEvaluationStatus } from "@/features/programs/types/supervision-evaluation";
 
 interface SupervisionEvaluationColumnsProps {

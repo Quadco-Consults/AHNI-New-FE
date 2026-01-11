@@ -3,16 +3,16 @@
 import { FC } from "react";
 import { useFormContext } from "react-hook-form";
 
-import { cn } from "lib/utils";
+import { cn } from "@/lib/utils";
 import {
   FormControl,
   FormField,
   FormItem,
   FormLabel,
-} from "components/ui/form";
-import { RadioGroup, RadioGroupItem } from "components/ui/radio-group";
-import { Card, CardContent } from "components/ui/card";
-// import FormErrorMessage from "components/FormErrorMessage";
+} from "@/components/ui/form";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Card, CardContent } from "@/components/ui/card";
+// import FormErrorMessage from "@/components/FormErrorMessage";
 
 type PageProps = {
   options: {

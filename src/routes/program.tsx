@@ -1,4 +1,4 @@
-import { CG_ROUTES, ProgramRoutes, RouteEnum } from "constants/RouterConstants";
+import { CG_ROUTES, ProgramRoutes, RouteEnum } from "@/constants/RouterConstants";
 
 import { lazy } from "react";
 

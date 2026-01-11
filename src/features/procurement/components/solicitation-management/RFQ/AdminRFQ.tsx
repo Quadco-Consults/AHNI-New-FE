@@ -1,15 +1,15 @@
 "use client";
 
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Plus, Briefcase } from 'lucide-react';
 import eoiPng from "assets/imgs/rfq.png";
-import Card from "components/Card";
+import Card from "@/components/Card";
 import { Icon } from "@iconify/react";
 import Link from "next/link";
-import { RouteEnum } from "constants/RouterConstants";
-import { Loading } from "components/Loading";
+import { RouteEnum } from "@/constants/RouterConstants";
+import { Loading } from "@/components/Loading";
 import { useGetAllSolicitations } from "@/features/procurement/controllers/solicitationController";
-import Pagination from "components/Pagination";
+import Pagination from "@/components/Pagination";
 import { useState } from "react";
 
 const AdminRFQ = () => {

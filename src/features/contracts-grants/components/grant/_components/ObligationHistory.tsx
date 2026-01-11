@@ -1,12 +1,12 @@
 import React, { useMemo, useState } from "react";
 import { TotalExpenditureSvg, TotalIncomeSvg } from "assets/svgs/CAndGSvgs";
-import DataTable from "components/Table/DataTable";
-import { IGrantSingleData } from "features/contracts-grants/types/grants";
+import DataTable from "@/components/Table/DataTable";
+import { IGrantSingleData } from "@/features/contracts-grants/types/grants";
 import { useParams } from "next/navigation";
 import { skipToken } from "@reduxjs/toolkit/query";
 import { obligationColumns } from "@/features/contracts-grants/components/table-columns/grant/obligation";
 import { useGetAllObligations } from "@/features/contracts-grants/controllers/obligationController";
-import { formatNumberCurrency } from "utils/utls";
+import { formatNumberCurrency } from "@/utils/utls";
 
 const ObligationHistory: React.FC<any> = ({
   total_obligation_amount,

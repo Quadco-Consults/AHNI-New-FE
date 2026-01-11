@@ -10,9 +10,9 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "components/ui/form";
-import { Input } from "components/ui/input";
-import { cn } from "lib/utils";
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 import { Mail } from "lucide-react";
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {

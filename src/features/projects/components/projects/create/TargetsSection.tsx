@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "components/ui/button";
-import { Label } from "components/ui/label";
-import { Card } from "components/ui/card";
-import FormInput from "components/atoms/FormInput";
-import FormSelect from "components/atoms/FormSelect";
-import FormTextArea from "components/atoms/FormTextArea";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Card } from "@/components/ui/card";
+import FormInput from "@/components/atoms/FormInput";
+import FormSelect from "@/components/atoms/FormSelect";
+import FormTextArea from "@/components/atoms/FormTextArea";
 import { X, Plus } from "lucide-react";
 import { toast } from "sonner";
 

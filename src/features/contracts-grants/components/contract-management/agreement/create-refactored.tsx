@@ -2,24 +2,24 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { Form } from "components/ui/form";
-import FormInput from "components/atoms/FormInput";
-import BackNavigation from "components/atoms/BackNavigation";
-import FormSelect from "components/atoms/FormSelect";
-import { Card, CardContent, CardHeader } from "components/ui/card";
+import { Form } from "@/components/ui/form";
+import FormInput from "@/components/atoms/FormInput";
+import BackNavigation from "@/components/atoms/BackNavigation";
+import FormSelect from "@/components/atoms/FormSelect";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import FormButton from "@/components/FormButton";
 import {
     AgreementSchema,
     TAgreementFormData,
 } from "@/features/contracts-grants/types/contract-management/agreement";
 import { toast } from "sonner";
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
     useCreateAgreement,
 } from "@/features/contracts-grants/controllers/agreementController";
 import { useGetAllUsers } from "@/features/auth/controllers/userController";
 import { useRouter } from "next/navigation";
-import { CG_ROUTES } from "constants/RouterConstants";
+import { CG_ROUTES } from "@/constants/RouterConstants";
 import { useEffect, useMemo, useState } from "react";
 import ServiceLevelAgreementLayout from "./Layout";
 import { useGetAllLocations } from "@/features/modules/controllers/config/locationController";
@@ -27,7 +27,7 @@ import { useGetAllJobCategories } from "@/features/modules/controllers/config/jo
 import { useGetAllCategories } from "@/features/modules/controllers/config/categoryController";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { CheckCircle2, Building2, Users, FileText, Calendar, DollarSign, MapPin, Upload, X, UserCheck } from "lucide-react";
-import { Badge } from "components/ui/badge";
+import { Badge } from "@/components/ui/badge";
 
 const agreementTypeOptions = [
     { label: "Consultant", value: "CONSULTANT", category: "Staff Contracts" },

@@ -1,19 +1,19 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { Button } from "components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useState } from "react";
-import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
-import DeleteIcon from "components/icons/DeleteIcon";
-import PencilIcon from "components/icons/PencilIcon";
-import EyeIcon from "components/icons/EyeIcon";
-import ConfirmationDialog from "components/ConfirmationDialog";
+import MoreOptionsHorizontalIcon from "@/components/icons/MoreOptionsHorizontalIcon";
+import DeleteIcon from "@/components/icons/DeleteIcon";
+import PencilIcon from "@/components/icons/PencilIcon";
+import EyeIcon from "@/components/icons/EyeIcon";
+import ConfirmationDialog from "@/components/ConfirmationDialog";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useDeleteAdhocApplicant } from "@/features/programs/controllers/adhocApplicantController";
-import { ProgramRoutes } from "constants/RouterConstants";
+import { ProgramRoutes } from "@/constants/RouterConstants";
 import { IAdhocApplicant } from "@/features/programs/types/adhoc-management";
 import { format, isValid } from "date-fns";
 

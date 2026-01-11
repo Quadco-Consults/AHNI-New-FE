@@ -1,6 +1,6 @@
-import BackNavigation from "components/atoms/BackNavigation";
-import Card from "components/Card";
-import FundRequestHeading from "components/FundRequestHeading";
+import BackNavigation from "@/components/atoms/BackNavigation";
+import Card from "@/components/Card";
+import FundRequestHeading from "@/components/FundRequestHeading";
 import { FC, ReactNode } from "react";
 
 type IPageProps = {

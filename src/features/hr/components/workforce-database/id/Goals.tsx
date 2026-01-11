@@ -1,15 +1,15 @@
 import { useParams } from "next/navigation";
 import { useState, useEffect } from "react";
-import AddSquareIcon from "components/icons/AddSquareIcon";
-import { Button } from "components/ui/button";
-import { DialogType, mediumDailogScreen } from "constants/dailogs";
-import { useAppDispatch } from "hooks/useStore";
-import { openDialog } from "store/ui";
-import { Card, CardContent, CardHeader, CardTitle } from "components/ui/card";
-import { Badge } from "components/ui/badge";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
+import { Button } from "@/components/ui/button";
+import { DialogType, mediumDailogScreen } from "@/constants/dailogs";
+import { useAppDispatch } from "@/hooks/useStore";
+import { openDialog } from "@/store/ui";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Trash2, Edit } from "lucide-react";
 import { useGetEmployeeGoals, Goal } from "@/features/hr/controllers/goalsController";
-import { LoadingSpinner } from "components/Loading";
+import { LoadingSpinner } from "@/components/Loading";
 import { goalsStorage, StoredGoal } from "@/features/hr/utils/goalsStorage";
 
 const Goals = () => {

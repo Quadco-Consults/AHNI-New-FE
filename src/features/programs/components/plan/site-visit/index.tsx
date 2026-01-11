@@ -2,14 +2,14 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "components/ui/button";
-import { LoadingSpinner } from "components/Loading";
-import BreadcrumbCard from "components/Breadcrumb";
-import DataTable from "components/Table/DataTable";
-import Pagination from "components/Pagination";
-import { Input } from "components/ui/input";
+import { Button } from "@/components/ui/button";
+import { LoadingSpinner } from "@/components/Loading";
+import BreadcrumbCard from "@/components/Breadcrumb";
+import DataTable from "@/components/Table/DataTable";
+import Pagination from "@/components/Pagination";
+import { Input } from "@/components/ui/input";
 import { Search, Plus, FileDown, Upload, Eye, Edit, Trash2, CheckCircle, MoreHorizontal } from "lucide-react";
-import { RouteEnum } from "constants/RouterConstants";
+import { RouteEnum } from "@/constants/RouterConstants";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,7 +17,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "components/ui/dropdown-menu";
+} from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 
 import {

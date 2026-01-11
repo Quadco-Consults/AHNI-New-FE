@@ -1,33 +1,33 @@
 "use client";
 import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
-import { Form } from "components/ui/form";
-import FormTextArea from "components/atoms/FormTextArea";
-import FormInput from "components/atoms/FormInput";
-import FadedButton from "components/atoms/FadedButton";
-import AddSquareIcon from "components/icons/AddSquareIcon";
-import { Label } from "components/ui/label";
+import { Form } from "@/components/ui/form";
+import FormTextArea from "@/components/atoms/FormTextArea";
+import FormInput from "@/components/atoms/FormInput";
+import FadedButton from "@/components/atoms/FadedButton";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
+import { Label } from "@/components/ui/label";
 import { UploadFileSvg } from "assets/svgs/CAndGSvgs";
-import Card from "components/Card";
+import Card from "@/components/Card";
 import FormButton from "@/components/FormButton";
 import ConsultantManagementLayout from "./Layout";
-import FormSelect from "components/atoms/FormSelect";
+import FormSelect from "@/components/atoms/FormSelect";
 import {
   ScopeOfWorkSchema,
   TConsultantanagementDetailsFormData,
   TScopeOfWorkFormData,
 } from "@/features/contracts-grants/types/contract-management/consultancy-management/consultancy-management";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "components/ui/button";
-import DeleteIcon from "components/icons/DeleteIcon";
+import { Button } from "@/components/ui/button";
+import DeleteIcon from "@/components/icons/DeleteIcon";
 import { toast } from "sonner";
-import { fileToBase64 } from "utils/fileToBase64";
+import { fileToBase64 } from "@/utils/fileToBase64";
 import {
   useCreateConsultantManagement,
   useGetSingleConsultantManagement,
   useModifyConsultantManagement,
 } from "@/features/contracts-grants/controllers/consultantManagementController";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { CG_ROUTES, ProgramRoutes } from "constants/RouterConstants";
+import { CG_ROUTES, ProgramRoutes } from "@/constants/RouterConstants";
 import { skipToken } from "@reduxjs/toolkit/query";
 import { useEffect } from "react";
 import { useCreateConsultantAdvertisement } from "@/features/contracts-grants/controllers/consultantAdvertisementController";

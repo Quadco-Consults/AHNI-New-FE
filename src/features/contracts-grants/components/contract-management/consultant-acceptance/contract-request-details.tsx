@@ -2,9 +2,9 @@
 
 import { useState, useMemo } from "react";
 import { useParams, useRouter, usePathname } from "next/navigation";
-import Card from "components/Card";
-import BackNavigation from "components/atoms/BackNavigation";
-import { Button } from "components/ui/button";
+import Card from "@/components/Card";
+import BackNavigation from "@/components/atoms/BackNavigation";
+import { Button } from "@/components/ui/button";
 import { useGetSingleContractRequest } from "@/features/contracts-grants/controllers/contractController";
 import { useGetAllConsultancyApplicants } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
 import { Eye, CheckCircle, Clock, User, Mail, Phone, FileText, Calendar, Briefcase } from "lucide-react";

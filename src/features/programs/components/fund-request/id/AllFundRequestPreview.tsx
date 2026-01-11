@@ -2,9 +2,9 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import logoPng from "assets/imgs/logo.png";
-import BackNavigation from "components/atoms/BackNavigation";
-import Card from "components/Card";
-import DataTable from "components/Table/DataTable";
+import BackNavigation from "@/components/atoms/BackNavigation";
+import Card from "@/components/Card";
+import DataTable from "@/components/Table/DataTable";
 import { FundRequestPaginatedData } from "@/features/programs/types/fund-request";
 import { useParams } from "next/navigation";
 import { useGetAllFundRequests } from "@/features/programs/controllers/fundRequestController";
@@ -12,7 +12,7 @@ import { useGetSingleProject, useGetAllProjects } from "@/features/projects/cont
 import { useGetSingleUser } from "@/features/auth/controllers";
 import { useMemo } from "react";
 import { skipToken } from "@tanstack/react-query";
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Download, FileText, Printer } from "lucide-react";
 
 import {
@@ -20,7 +20,7 @@ import {
   TableBody,
   TableCell,
   TableRow,
-} from "components/ui/table";
+} from "@/components/ui/table";
 
 export default function AllFundRequestPreview() {
   const { id } = useParams();

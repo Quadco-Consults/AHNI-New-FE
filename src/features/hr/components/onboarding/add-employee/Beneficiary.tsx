@@ -2,20 +2,20 @@
 
 import React from "react";
 import { useForm } from "react-hook-form";
-import { Form } from "components/ui/form";
-import GoBack from "components/GoBack";
-// import FormCheckBox from "components/atoms/FormCheckBox";
-import { Separator } from "components/ui/separator";
-import { Button } from "components/ui/button";
-import FormInput from "components/atoms/FormInput";
+import { Form } from "@/components/ui/form";
+import GoBack from "@/components/GoBack";
+// import FormCheckBox from "@/components/atoms/FormCheckBox";
+import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
+import FormInput from "@/components/atoms/FormInput";
 import { ChevronRight, Save } from "lucide-react";
 import Link from "next/link";
-import { openDialog } from "store/ui";
-import { DialogType } from "constants/dailogs";
-import { useAppDispatch } from "hooks/useStore";
-import { HrRoutes } from "constants/RouterConstants";
-import { generatePath } from "utils/generatePath";
-import Card from "components/Card";
+import { openDialog } from "@/store/ui";
+import { DialogType } from "@/constants/dailogs";
+import { useAppDispatch } from "@/hooks/useStore";
+import { HrRoutes } from "@/constants/RouterConstants";
+import { generatePath } from "@/utils/generatePath";
+import Card from "@/components/Card";
 import {
   HrBeneficiaryFormValues,
   hrBeneficiarySchema,
@@ -23,11 +23,11 @@ import {
   hrContingentBeneficiarySchema,
   HrSignatoriesBeneficiaryFormValues,
   hrSignatoriesBeneficiarySchema,
-} from "features/hr/types/hr-validator";
+} from "@/features/hr/types/hr-validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import FormButton from "@/components/FormButton";
-import { updateStepCompletion } from "store/stepTracker";
+import { updateStepCompletion } from "@/store/stepTracker";
 import {
   useCreateHrBeneficiary,
   useUpdateHrBeneficiary,
@@ -38,10 +38,10 @@ import {
   useGetEmployeeOnboardingAddSignatory,
   useUpdateEmployeeOnboardingAddSignatory,
 } from "@/features/hr/controllers/hrEmployeeOnboardingSignatoryController";
-import FileUpload from "components/atoms/FileUpload";
-import AxiosWithToken from "constants/api_management/MyHttpHelperWithToken";
+import FileUpload from "@/components/atoms/FileUpload";
+import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 
-import { createFileObjectFromUrl } from "utils/get-file-extension";
+import { createFileObjectFromUrl } from "@/utils/get-file-extension";
 
 const Beneficiary = () => {
   const id = typeof window !== "undefined" ? localStorage.getItem("workforceID") || "" : "";

@@ -1,13 +1,13 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { Badge } from "components/ui/badge";
-import { Button } from "components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
-import EyeIcon from "components/icons/EyeIcon";
-import DataTable from "components/Table/DataTable";
-import { Loading } from "components/Loading";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import MoreOptionsHorizontalIcon from "@/components/icons/MoreOptionsHorizontalIcon";
+import EyeIcon from "@/components/icons/EyeIcon";
+import DataTable from "@/components/Table/DataTable";
+import { Loading } from "@/components/Loading";
 import { useCombinedApplicationStatus } from "@/features/hr/controllers/useCombinedApplicationStatus";
 import { usePatchJobApplicationAccepted } from "@/features/hr/controllers/hrJobApplicationsController";
 import { JobAdvertisement } from "@/features/hr/types/job-advertisement";

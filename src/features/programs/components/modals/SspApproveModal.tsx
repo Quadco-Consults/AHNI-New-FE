@@ -1,9 +1,9 @@
 "use client";
 
 import FormButton from "@/components/FormButton";
-import FormTextArea from "components/atoms/FormTextArea";
-import { Form } from "components/ui/form";
-import { cn } from "lib/utils";
+import FormTextArea from "@/components/atoms/FormTextArea";
+import { Form } from "@/components/ui/form";
+import { cn } from "@/lib/utils";
 import { CheckCircle2, XCircle, User, Calendar, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -12,10 +12,10 @@ import {
     useGetSingleSupervisionPlan,
 } from "@/features/programs/controllers/supervisionPlanController";
 import { toast } from "sonner";
-import { useAppDispatch, useAppSelector } from "hooks/useStore";
-import { closeDialog } from "store/ui";
-import { Badge } from "components/ui/badge";
-import Card from "components/Card";
+import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
+import { closeDialog } from "@/store/ui";
+import { Badge } from "@/components/ui/badge";
+import Card from "@/components/Card";
 
 const SspApproveModal = () => {
     const { dailog } = useAppSelector((state) => state.ui);

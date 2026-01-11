@@ -1,17 +1,17 @@
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 
 import { toast } from "sonner";
-import { useAppDispatch } from "hooks/useStore";
-import { openDialog } from "store/ui";
-import { DialogType } from "constants/dailogs";
-import TableAction from "components/TableAction";
-import { LoadingSpinner } from "components/Loading";
+import { useAppDispatch } from "@/hooks/useStore";
+import { openDialog } from "@/store/ui";
+import { DialogType } from "@/constants/dailogs";
+import TableAction from "@/components/TableAction";
+import { LoadingSpinner } from "@/components/Loading";
 import { useState } from "react";
 import {
   useDeleteFinancialYearMutation,
   useGetAllFinancialYearsQuery,
 } from "@/features/modules/controllers/config/financialYearController";
-import Pagination from "components/Pagination";
+import Pagination from "@/components/Pagination";
 
 export default function AllFinancialYear() {
   const [page, setPage] = useState(1);

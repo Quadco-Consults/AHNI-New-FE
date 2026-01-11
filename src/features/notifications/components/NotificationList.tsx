@@ -1,5 +1,5 @@
-import DashboardIcon from "components/icons/sidebar-icons/DashboardIcon";
-import { Separator } from "components/ui/separator";
+import DashboardIcon from "@/components/icons/sidebar-icons/DashboardIcon";
+import { Separator } from "@/components/ui/separator";
 import NotificationItem from "./NotificationItem";
 import { TNotification } from "@/features/notifications/types/notification";
 

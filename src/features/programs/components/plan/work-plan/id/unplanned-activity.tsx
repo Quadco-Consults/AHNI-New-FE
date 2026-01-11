@@ -1,16 +1,16 @@
 import { useGetAllActivityPlans } from "@/features/programs/controllers/activityPlanController";
 import { useMemo } from "react";
-import { Card } from "components/ui/card";
-import DataTable from "components/Table/DataTable";
+import { Card } from "@/components/ui/card";
+import DataTable from "@/components/Table/DataTable";
 import { ColumnDef } from "@tanstack/react-table";
-import { Badge } from "components/ui/badge";
-import { Button } from "components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { useDispatch } from "react-redux";
-import { openDialog } from "store/ui";
-import { DialogType } from "constants/dailogs";
+import { openDialog } from "@/store/ui";
+import { DialogType } from "@/constants/dailogs";
 import { Edit2, Upload } from "lucide-react";
-import { formatNumberCurrency } from "utils/utls";
-import { TMonth } from "features/programs/types/work-plan";
+import { formatNumberCurrency } from "@/utils/utls";
+import { TMonth } from "@/features/programs/types/work-plan";
 
 type PropsType = {
   workPlanId: string;

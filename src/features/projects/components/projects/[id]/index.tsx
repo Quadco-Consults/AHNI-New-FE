@@ -1,11 +1,11 @@
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useParams } from "next/navigation";
 import { useEffect } from "react";
-import GoBack from "components/GoBack";
-import Card from "components/Card";
+import GoBack from "@/components/GoBack";
+import Card from "@/components/Card";
 import Summary from "./Summary";
 import Uploads from "./Upload";
-import { Loading, LoadingSpinner } from "components/Loading";
+import { Loading, LoadingSpinner } from "@/components/Loading";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -13,14 +13,14 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "components/ui/breadcrumb";
+} from "@/components/ui/breadcrumb";
 import { Icon } from "@iconify/react";
-import { RouteEnum } from "constants/RouterConstants";
+import { RouteEnum } from "@/constants/RouterConstants";
 import { useGetSingleProject } from "@/features/projects/controllers/projectController";
 import Performance from "./Performance";
 import ActivityReport from "./ActivityReport";
-import ObligationHistory from "features/contracts-grants/components/grant/_components/ObligationHistory";
-import DisbursementHistory from "features/contracts-grants/components/grant/_components/DisbursementHistory";
+import ObligationHistory from "@/features/contracts-grants/components/grant/_components/ObligationHistory";
+import DisbursementHistory from "@/features/contracts-grants/components/grant/_components/DisbursementHistory";
 // import { useGetSingleSubGrant } from "@/features/c&g/subgrant/sub-grant";
 
 export default function ProjectDetail() {

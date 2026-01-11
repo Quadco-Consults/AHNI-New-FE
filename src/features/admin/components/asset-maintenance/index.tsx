@@ -1,10 +1,10 @@
 "use client";
 
 import { assetMaintenanceColumn } from "@/features/admin/components/table-columns/asset-maintenance";
-import DataTable from "components/Table/DataTable";
-import TableFilters from "components/Table/TableFilters";
-import { Button } from "components/ui/button";
-import { AdminRoutes } from "constants/RouterConstants";
+import DataTable from "@/components/Table/DataTable";
+import TableFilters from "@/components/Table/TableFilters";
+import { Button } from "@/components/ui/button";
+import { AdminRoutes } from "@/constants/RouterConstants";
 import { useState } from "react";
 import Link from "next/link";
 import { useGetAllAssetMaintenanceQuery } from "@/features/admin/controllers/assetMaintenanceController";

@@ -1,7 +1,7 @@
 "use client";
 
 import VendorEvaluationDashboard from "@/features/procurement/components/vendor-performance/VendorEvaluationDashboard";
-import BreadcrumbCard from "components/Breadcrumb";
+import BreadcrumbCard from "@/components/Breadcrumb";
 
 const VendorEvaluationDashboardPage = () => {
   const breadcrumbs = [

@@ -3,8 +3,8 @@
 import React, { useMemo } from "react";
 import { useGetSingleSubGrant } from "@/features/contracts-grants/controllers/subGrantController";
 import { useGetAwardsBySubGrant } from "@/features/contracts-grants/controllers/subGrantAwardController";
-import { LoadingSpinner } from "components/Loading";
-import { formatNumberCurrency } from "utils/utls";
+import { LoadingSpinner } from "@/components/Loading";
+import { formatNumberCurrency } from "@/utils/utls";
 
 interface AwardDetailsTabProps {
   subGrantId: string;

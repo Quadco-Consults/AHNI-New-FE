@@ -12,7 +12,7 @@ import {
   IExpenditurePaginatedData,
   TExpenditureFormData,
 } from "@/features/contracts-grants/types/grants";
-import { useAppDispatch, useAppSelector } from "hooks/useStore";
+import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
 import { SubmitHandler, useForm } from "react-hook-form";
 import {
   useCreateExpenditure,
@@ -23,13 +23,13 @@ import {
   useUpdateSubGrantExpenditure,
 } from "@/features/contracts-grants/controllers/subGrantExpenditureController";
 import { toast } from "sonner";
-import { closeDialog } from "store/ui";
+import { closeDialog } from "@/store/ui";
 import { useGetAllActivityPlans } from "@/features/programs/controllers/activityPlanController";
 import { useGetSingleProject } from "@/features/projects/controllers/projectController";
 import { useGetSingleSubGrant } from "@/features/contracts-grants/controllers/subGrantController";
 import { useGetAllSubGrantObligations } from "@/features/contracts-grants/controllers/subGrantObligationController";
 import { useMemo } from "react";
-import { formatNumberCurrency } from "utils/utls";
+import { formatNumberCurrency } from "@/utils/utls";
 
 export default function ExpenditureModal() {
   const { dialogProps } = useAppSelector((state) => state.ui.dailog);

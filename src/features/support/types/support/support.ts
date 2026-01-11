@@ -4,10 +4,11 @@ import { z } from "zod";
 export const SupportSchema = z.object({
   issue_description: z.string().min(1, "Please enter issue"),
   email: z.string().min(1, "Please enter email"),
-  subject: z.string().min(1, "Please enter subject"),  
+  subject: z.string().min(1, "Please enter subject"),
   department: z.string().min(1, "Please enter department"),
-  priority: z.string().min(1, "Please select priority level"),  
+  priority: z.string().min(1, "Please select priority level"),
   phone_number: z.string().optional(),
+  sender: z.string().optional(),
   status: z.string().optional()
 });
 

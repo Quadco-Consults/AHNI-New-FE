@@ -1,20 +1,20 @@
 "use client";
 
 import FormButton from "@/components/FormButton";
-import Card from "components/Card";
-import GoBack from "components/GoBack";
-import { Loading } from "components/Loading";
-import { Badge } from "components/ui/badge";
-import { Button } from "components/ui/button";
-import { Separator } from "components/ui/separator";
+import Card from "@/components/Card";
+import GoBack from "@/components/GoBack";
+import { Loading } from "@/components/Loading";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import {
   Table,
   TableBody,
   TableCell,
   TableHeader,
   TableRow,
-} from "components/ui/table";
-import { Textarea } from "components/ui/textarea";
+} from "@/components/ui/table";
+import { Textarea } from "@/components/ui/textarea";
 import { formatDate } from "date-fns";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";

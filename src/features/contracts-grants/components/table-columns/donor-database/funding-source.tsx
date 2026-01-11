@@ -2,11 +2,11 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { Button } from "components/ui/button";
-import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
-import { CG_ROUTES } from "constants/RouterConstants";
-import EyeIcon from "components/icons/EyeIcon";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import MoreOptionsHorizontalIcon from "@/components/icons/MoreOptionsHorizontalIcon";
+import { CG_ROUTES } from "@/constants/RouterConstants";
+import EyeIcon from "@/components/icons/EyeIcon";
 import { FundingSourceData } from "@/features/modules/types/project";
 
 export const fundingSourceColumns: ColumnDef<FundingSourceData>[] = [

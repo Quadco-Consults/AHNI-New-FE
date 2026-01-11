@@ -1,21 +1,21 @@
 "use client";
 import Link from "next/link";
-import Card from "components/Card";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { Button } from "components/ui/button";
-import AddSquareIcon from "components/icons/AddSquareIcon";
-import { RouteEnum } from "constants/RouterConstants";
-import ArrowDownIcon from "components/icons/ArrowDownIcon";
-import { useAppDispatch } from "hooks/useStore";
-import { DialogType } from "constants/dailogs";
-import { openDialog } from "store/ui";
-import UploadIcon from "components/icons/UploadIcon";
-import DataTable from "components/Table/DataTable";
+import Card from "@/components/Card";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
+import { RouteEnum } from "@/constants/RouterConstants";
+import ArrowDownIcon from "@/components/icons/ArrowDownIcon";
+import { useAppDispatch } from "@/hooks/useStore";
+import { DialogType } from "@/constants/dailogs";
+import { openDialog } from "@/store/ui";
+import UploadIcon from "@/components/icons/UploadIcon";
+import DataTable from "@/components/Table/DataTable";
 import { useGetAllSupervisionPlan } from "@/features/programs/controllers/supervisionPlanController";
-import BreadcrumbCard from "components/Breadcrumb";
+import BreadcrumbCard from "@/components/Breadcrumb";
 import { useState } from "react";
 import { supportiveSupervisionPlanColumns } from "@/features/programs/components/table-columns/plan/supportive-supervision-plan";
-import TableFilters from "components/Table/TableFilters";
+import TableFilters from "@/components/Table/TableFilters";
 import { useDebounce } from "ahooks";
 
 const breadcrumbs = [

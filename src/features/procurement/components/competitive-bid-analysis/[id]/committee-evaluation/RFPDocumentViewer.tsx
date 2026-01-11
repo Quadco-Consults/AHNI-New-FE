@@ -3,10 +3,10 @@
 import { useState } from "react";
 import { Download, CheckCircle, File } from 'lucide-react';
 import { Icon } from "@iconify/react";
-import Card from "components/Card";
-import { Badge } from "components/ui/badge";
-import { Button } from "components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
+import Card from "@/components/Card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface RFPDocument {
   id: string;

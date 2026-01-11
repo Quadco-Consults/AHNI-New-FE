@@ -1,26 +1,26 @@
 /* eslint-disable no-unused-vars */
 import { ColumnDef } from "@tanstack/react-table";
 import FormButton from "@/components/FormButton";
-import AddSquareIcon from "components/icons/AddSquareIcon";
-import DataTable from "components/Table/DataTable";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
+import DataTable from "@/components/Table/DataTable";
 import React, { useState } from "react";
 
 import FilterIcon2 from "assets/svgs/FilterIcon2";
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { HrRoutes, RouteEnum } from "constants/RouterConstants";
-import SearchBar from "components/SearchBar";
-import { Checkbox } from "components/ui/checkbox";
-import IconButton from "components/IconButton";
+import { HrRoutes, RouteEnum } from "@/constants/RouterConstants";
+import SearchBar from "@/components/SearchBar";
+import { Checkbox } from "@/components/ui/checkbox";
+import IconButton from "@/components/IconButton";
 import { Trash2 } from 'lucide-react';
 import { Icon } from "@iconify/react";
-import { Badge } from "components/ui/badge";
-import { cn } from "lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import { useGetLeaveRequests, useDeleteLeaveRequest } from "@/features/hr/controllers/leaveRequestController";
 import { toast } from "sonner";
 import ConfirmationDialog from "@/components/ConfirmationDialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const LeaveManagement: React.FC = () => {
   const router = useRouter();

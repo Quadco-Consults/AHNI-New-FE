@@ -1,9 +1,9 @@
 "use client";
 
 import { useParams, useSearchParams } from "next/navigation";
-import BackNavigation from "components/atoms/BackNavigation";
-import { Button } from "components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "components/ui/card";
+import BackNavigation from "@/components/atoms/BackNavigation";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DownloadIcon, Building2, Car } from "lucide-react";
 import { useGetVendors } from "@/features/procurement/controllers/vendorController";
 import { useGetAllItemsQuery } from "@/features/modules/controllers";

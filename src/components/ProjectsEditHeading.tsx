@@ -8,13 +8,13 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "components/ui/breadcrumb";
-import { Separator } from "components/ui/separator";
+} from "@/components/ui/breadcrumb";
+import { Separator } from "@/components/ui/separator";
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { X } from "lucide-react"; 
-import LongArrowLeft from "components/icons/LongArrowLeft";
-import { RouteEnum } from "constants/RouterConstants";
+import LongArrowLeft from "@/components/icons/LongArrowLeft";
+import { RouteEnum } from "@/constants/RouterConstants";
 
 interface Step {
   step: number;

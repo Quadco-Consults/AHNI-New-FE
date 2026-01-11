@@ -1,11 +1,11 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import BackNavigation from "components/atoms/BackNavigation";
+import BackNavigation from "@/components/atoms/BackNavigation";
 import FormButton from "@/components/FormButton";
-import FormInput from "components/atoms/FormInput";
-import FormSelect from "components/atoms/FormSelect";
-import Card from "components/Card";
+import FormInput from "@/components/atoms/FormInput";
+import FormSelect from "@/components/atoms/FormSelect";
+import Card from "@/components/Card";
 import {
   ContractRequestSchema,
   TContractRequestFormData,
@@ -24,7 +24,7 @@ import { useGetAllDepartments } from "@/features/modules/controllers/config/depa
 import { useGetAllLocations } from "@/features/modules/controllers/config/locationController";
 import { useGetAllFCONumbers } from "@/features/modules/controllers/finance/fcoNumberController";
 import { toast } from "sonner";
-import { CG_ROUTES } from "constants/RouterConstants";
+import { CG_ROUTES } from "@/constants/RouterConstants";
 import { filterAhniStaffOnly } from "@/utils/userFilters";
 import {
   getReviewerOptions,

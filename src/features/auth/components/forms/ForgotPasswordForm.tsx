@@ -1,15 +1,15 @@
 "use client";
 
 import { useForm } from "react-hook-form";
-import { Form } from "components/ui/form";
+import { Form } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import FormInput from "components/FormInput";
-import FormButton from "components/FormButton";
+import FormInput from "@/components/FormInput";
+import FormButton from "@/components/FormButton";
 import { toast } from "sonner";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import Card from "components/Card";
+import Card from "@/components/Card";
 import { useForgotPassword } from "../../controllers/authController";
 
 const emailSchema = z.object({

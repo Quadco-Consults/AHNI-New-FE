@@ -1,9 +1,9 @@
 "use client";
 
-import Card from "components/Card";
-// import { Button } from "components/ui/button";
-// import SearchIcon from "components/icons/SearchIcon";
-// import FilterIcon from "components/icons/FilterIcon";
+import Card from "@/components/Card";
+// import { Button } from "@/components/ui/button";
+// import SearchIcon from "@/components/icons/SearchIcon";
+// import FilterIcon from "@/components/icons/FilterIcon";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -11,20 +11,20 @@ import {
   BreadcrumbPage,
   BreadcrumbLink,
   BreadcrumbSeparator,
-} from "components/ui/breadcrumb";
-// import { useAppDispatch } from "hooks/useStore";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
+} from "@/components/ui/breadcrumb";
+// import { useAppDispatch } from "@/hooks/useStore";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { z } from "zod";
 import {
   ProfileSchema,
   SecuritySchema,
   // TProfileFormValues,
   // TSecurityFormValues,
-} from "features/accounts/types/account/account";
+} from "@/features/accounts/types/account/account";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FormProvider, useForm } from "react-hook-form";
-import FormInput from "components/FormInput";
-import FormButton from "components/FormButton";
+import FormInput from "@/components/FormInput";
+import FormButton from "@/components/FormButton";
 import { ImagePlus } from "lucide-react";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import {
@@ -32,13 +32,13 @@ import {
   useUpdateUser,
 } from "@/features/auth/controllers/userController";
 import { toast } from "sonner";
-import FormSelect from "components/FormSelect";
-import FormMultiSelect from "components/FormMultiSelect";
+import FormSelect from "@/components/FormSelect";
+import FormMultiSelect from "@/components/FormMultiSelect";
 import { useGetAllRoles } from "@/features/auth/controllers/roleController";
 import { useAuthChangePassword } from "@/features/auth/controllers/authController";
-import { useAppDispatch } from "hooks/useStore";
-import { logOut } from "store/auth/authSlice";
-import { AuthRoutes } from "constants/RouterConstants";
+import { useAppDispatch } from "@/hooks/useStore";
+import { logOut } from "@/store/auth/authSlice";
+import { AuthRoutes } from "@/constants/RouterConstants";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 

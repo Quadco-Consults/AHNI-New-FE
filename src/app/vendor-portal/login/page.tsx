@@ -5,16 +5,16 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Button } from "components/ui/button";
-import { Input } from "components/ui/input";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "components/ui/form";
-import { Alert, AlertDescription } from "components/ui/alert";
-import { Checkbox } from "components/ui/checkbox";
-import FormButton from "components/FormButton";
-import FormInput from "components/FormInput";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Checkbox } from "@/components/ui/checkbox";
+import FormButton from "@/components/FormButton";
+import FormInput from "@/components/FormInput";
 import { Eye, EyeOff, Building2, Mail, Lock, AlertCircle, Home } from "lucide-react";
 import { useVendorLogin, VendorAuthUtils } from "@/features/vendor-portal/controllers/vendorAuthController";
-import { LoadingSpinner } from "components/Loading";
+import { LoadingSpinner } from "@/components/Loading";
 import Image from "next/image";
 
 const loginSchema = z.object({

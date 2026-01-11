@@ -2,15 +2,15 @@
 
 import { SubmitHandler, useForm } from "react-hook-form";
 import ManualSubGrantStepWrapper from "./Layout";
-import { Form } from "components/ui/form";
-import FormInput from "components/atoms/FormInput";
-import FormTextArea from "components/atoms/FormTextArea";
-import FormSelect from "components/atoms/FormSelect";
+import { Form } from "@/components/ui/form";
+import FormInput from "@/components/atoms/FormInput";
+import FormTextArea from "@/components/atoms/FormTextArea";
+import FormSelect from "@/components/atoms/FormSelect";
 import FormButton from "@/components/FormButton";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useParams, useSearchParams } from "next/navigation";
-import { CG_ROUTES } from "constants/RouterConstants";
+import { CG_ROUTES } from "@/constants/RouterConstants";
 import {
     SubGrantSubmissionSchema,
     TSubGrantSubmissionFormData,

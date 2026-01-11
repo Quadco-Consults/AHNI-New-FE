@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { Card } from "@/components/ui/card";
-import { LoadingSpinner } from "components/Loading";
+import { LoadingSpinner } from "@/components/Loading";
 import { useGetAllItemRequisitions } from "@/features/admin/controllers/itemRequisitionController";
 import DataTable from "@/components/Table/DataTable";
 import TableFilters from "@/components/Table/TableFilters";

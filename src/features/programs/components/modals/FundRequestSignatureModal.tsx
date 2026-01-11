@@ -1,9 +1,9 @@
 "use client";
 
 import React from "react";
-import { useAppSelector, useAppDispatch } from "hooks/useStore";
-import { dailogSelector, closeDialog } from "store/ui";
-import { BaseDialog } from "components/modals/dialog/BaseDialog";
+import { useAppSelector, useAppDispatch } from "@/hooks/useStore";
+import { dailogSelector, closeDialog } from "@/store/ui";
+import { BaseDialog } from "@/components/modals/dialog/BaseDialog";
 import FundRequestApprovalSignatureForm from "../fund-request/components/FundRequestApprovalSignatureForm";
 import { useGetSingleFundRequest } from "@/features/programs/controllers/fundRequestController";
 

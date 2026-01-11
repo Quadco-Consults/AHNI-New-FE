@@ -1,4 +1,4 @@
-import Card from "components/Card";
+import Card from "@/components/Card";
 import { useParams } from "next/navigation";
 import { SubGrantPreAwardsApi } from "@/features/contracts-grants/controllers/subGrantController";
 

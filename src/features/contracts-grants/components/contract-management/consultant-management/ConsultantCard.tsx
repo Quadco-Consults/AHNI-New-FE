@@ -8,16 +8,16 @@ import {
     PersonClusterSvg,
     SuiteCase,
 } from "assets/svgs/CAndGSvgs";
-import DeleteIcon from "components/icons/DeleteIcon";
-import PencilIcon from "components/icons/PencilIcon";
-import ConfirmationDialog from "components/ConfirmationDialog";
-import Card from "components/Card";
-import { Button } from "components/ui/button";
-import { CardTitle } from "components/ui/card";
-import { CG_ROUTES, ProgramRoutes } from "constants/RouterConstants";
+import DeleteIcon from "@/components/icons/DeleteIcon";
+import PencilIcon from "@/components/icons/PencilIcon";
+import ConfirmationDialog from "@/components/ConfirmationDialog";
+import Card from "@/components/Card";
+import { Button } from "@/components/ui/button";
+import { CardTitle } from "@/components/ui/card";
+import { CG_ROUTES, ProgramRoutes } from "@/constants/RouterConstants";
 import { format, isValid } from "date-fns";
 import { IConsultantPaginatedData } from "definations/c&g/contract-management/consultancy-management/consultancy-management";
-import useJobAdvertType from "hooks/useJobAdvertType";
+import useJobAdvertType from "@/hooks/useJobAdvertType";
 import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";

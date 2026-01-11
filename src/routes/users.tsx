@@ -1,4 +1,4 @@
-import { RouteEnum } from "constants/RouterConstants";
+import { RouteEnum } from "@/constants/RouterConstants";
 
 import { lazy } from "react";
 

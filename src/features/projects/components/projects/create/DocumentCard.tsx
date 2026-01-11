@@ -1,9 +1,9 @@
-import DeleteIcon from "components/icons/DeleteIcon";
-import PdfIcon from "components/icons/PdfIcon";
-import EyeIcon from "components/icons/EyeIcon";
-import DownloadIcon from "components/icons/DownloadIcon";
-import ConfirmationDialog from "components/ConfirmationDialog";
-import { Button } from "components/ui/button";
+import DeleteIcon from "@/components/icons/DeleteIcon";
+import PdfIcon from "@/components/icons/PdfIcon";
+import EyeIcon from "@/components/icons/EyeIcon";
+import DownloadIcon from "@/components/icons/DownloadIcon";
+import ConfirmationDialog from "@/components/ConfirmationDialog";
+import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { useState } from "react";
 import { Document, Page } from "react-pdf";

@@ -1,16 +1,16 @@
 "use client";
 
-import Card from "components/Card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
+import Card from "@/components/Card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import BasicInformation from "./BasicInformation";
 import Qualification from "./Qualification";
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import { ChevronRight } from "lucide-react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { generatePath } from "utils/generatePath"; 
-import { HrRoutes } from "constants/RouterConstants";
-import GoBack from "components/GoBack";
+import { generatePath } from "@/utils/generatePath"; 
+import { HrRoutes } from "@/constants/RouterConstants";
+import GoBack from "@/components/GoBack";
 import { useGetEmployeeOnboardingQualificationsList } from "@/features/hr/controllers/hrEmployeeOnboardingQualificationsController";
 import { useGetJobApplication } from "@/features/hr/controllers/hrJobApplicationsController";
 import { useGetEmployeeOnboarding } from "@/features/hr/controllers/employeeOnboardingController";

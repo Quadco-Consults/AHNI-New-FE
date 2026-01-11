@@ -3,10 +3,10 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import FormButton from "@/components/FormButton";
-import FormInput from "components/atoms/FormInput";
-import FormSelect from "components/atoms/FormSelectField";
-import { Button } from "components/ui/button";
-import { Form } from "components/ui/form";
+import FormInput from "@/components/atoms/FormInput";
+import FormSelect from "@/components/atoms/FormSelectField";
+import { Button } from "@/components/ui/button";
+import { Form } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 

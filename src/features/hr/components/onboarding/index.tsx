@@ -7,13 +7,13 @@ import SearchIcon from "@/components/icons/SearchIcon";
 import Card from "@/components/Card";
 import { Loading } from "@/components/Loading";
 import DataTable from "@/components/Table/DataTable";
-import { Badge } from "components/ui/badge";
-import { Button } from "components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
-import { HrRoutes } from "constants/RouterConstants";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { HrRoutes } from "@/constants/RouterConstants";
 import { TOnboarding } from "definations/hr-types/hr-beneficiary";
-import { cn } from "lib/utils";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
 import {
@@ -27,7 +27,7 @@ import { Building2 } from "lucide-react";
 
 import { toast } from "sonner";
 import ConfirmationDialog from "@/components/ConfirmationDialog";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import ProjectAssignmentModal from "@/features/hr/components/modals/ProjectAssignmentModal";
 
 const Onboarding = () => {

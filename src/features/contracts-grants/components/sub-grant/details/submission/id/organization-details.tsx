@@ -1,11 +1,11 @@
 "use client";
 
 import { skipToken } from "@reduxjs/toolkit/query";
-import Card from "components/Card";
-import { LoadingSpinner } from "components/Loading";
+import Card from "@/components/Card";
+import { LoadingSpinner } from "@/components/Loading";
 import { useParams } from "next/navigation";
 import { useGetSingleSubGrantManualSub } from "@/features/contracts-grants/controllers/submissionController";
-import { Badge } from "components/ui/badge";
+import { Badge } from "@/components/ui/badge";
 import {
     Building2,
     User,

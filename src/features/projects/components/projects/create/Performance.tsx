@@ -1,15 +1,15 @@
 "use client";
 
-import LongArrowLeft from "components/icons/LongArrowLeft";
+import LongArrowLeft from "@/components/icons/LongArrowLeft";
 import { useForm } from "react-hook-form";
 
 import { useRouter, usePathname } from "next/navigation";
 import ProjectLayout from "./ProjectLayout";
-import { Form } from "components/ui/form";
-import Card from "components/Card";
-import FormInput from "components/atoms/FormInput";
-import FormTextArea from "components/atoms/FormTextArea";
-import { Button } from "components/ui/button";
+import { Form } from "@/components/ui/form";
+import Card from "@/components/Card";
+import FormInput from "@/components/atoms/FormInput";
+import FormTextArea from "@/components/atoms/FormTextArea";
+import { Button } from "@/components/ui/button";
 import FormButton from "@/components/FormButton";
 import { ChevronRight } from "lucide-react";
 

@@ -1,10 +1,10 @@
 "use client";
 
-import GoBack from "components/GoBack";
+import GoBack from "@/components/GoBack";
 import VendorEvaluationScoringForm from "../VendorEvaluationScoringForm";
 import VendorsEvaluaionAndPerformanceAPI from "@/features/procurement/controllers/vendorPerformanceEvaluationController";
 import { useRouter, useParams } from "next/navigation";
-import { Loading } from "components/Loading";
+import { Loading } from "@/components/Loading";
 import { toast } from "sonner";
 
 const InterviewForm = () => {

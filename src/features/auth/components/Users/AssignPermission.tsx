@@ -1,14 +1,14 @@
 import FormButton from "@/components/FormButton";
-import EmptyTodoIcon from "components/icons/EmptyTodoIcon";
-import { LoadingSpinner } from "components/Loading";
-import { Button } from "components/ui/button";
-import { Card, CardContent } from "components/ui/card";
-import { Checkbox } from "components/ui/checkbox";
-import { ScrollArea } from "components/ui/scroll-area";
-import { Input } from "components/ui/input";
+import EmptyTodoIcon from "@/components/icons/EmptyTodoIcon";
+import { LoadingSpinner } from "@/components/Loading";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Input } from "@/components/ui/input";
 import { IPermission } from "definations/auth/permission";
-import { useAppDispatch, useAppSelector } from "hooks/useStore";
-import { cn } from "lib/utils";
+import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
+import { cn } from "@/lib/utils";
 import { capitalize } from "lodash";
 import { FC, useEffect, useState, useMemo } from "react";
 import {
@@ -17,7 +17,7 @@ import {
     useUpdateRole,
 } from "@/features/auth/controllers/roleController";
 import { toast } from "sonner";
-import { closeDialog, dailogSelector } from "store/ui";
+import { closeDialog, dailogSelector } from "@/store/ui";
 import { ShieldCheck, Info, Search } from "lucide-react";
 
 interface Permission {

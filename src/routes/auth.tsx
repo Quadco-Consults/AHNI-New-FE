@@ -1,4 +1,4 @@
-import { AuthRoutes } from "constants/RouterConstants";
+import { AuthRoutes } from "@/constants/RouterConstants";
 
 import { lazy } from "react";
 

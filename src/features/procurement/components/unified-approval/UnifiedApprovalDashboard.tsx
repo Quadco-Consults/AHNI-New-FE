@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Button } from "components/ui/button";
-import { Badge } from "components/ui/badge";
-import { Card } from "components/ui/card";
-import { LoadingSpinner } from "components/Loading";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
+import { LoadingSpinner } from "@/components/Loading";
 import { toast } from "sonner";
 import {
   CheckCircle,

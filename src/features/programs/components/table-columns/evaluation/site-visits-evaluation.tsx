@@ -1,9 +1,9 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { Badge } from "components/ui/badge";
-import { Button } from "components/ui/button";
-import { Checkbox } from "components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,7 +11,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "components/ui/dropdown-menu";
+} from "@/components/ui/dropdown-menu";
 import {
   MoreHorizontal,
   Eye,
@@ -26,7 +26,7 @@ import {
   ClipboardList,
   BarChart
 } from "lucide-react";
-import { formatDate } from "utils/date";
+import { formatDate } from "@/utils/date";
 import { TSiteVisitPaginatedData, SiteVisitTypeLabels, SiteVisitType } from "@/features/programs/types/site-visit";
 
 // Extended interface for site visits with evaluation status

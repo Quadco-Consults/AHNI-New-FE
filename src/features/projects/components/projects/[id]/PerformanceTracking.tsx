@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Button } from "components/ui/button";
-import { Label } from "components/ui/label";
-import Card from "components/Card";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import Card from "@/components/Card";
 import { Plus, Edit, Save, X } from "lucide-react";
 import { toast } from "sonner";
 

@@ -2,7 +2,7 @@ import React from 'react';
 import { Badge } from './ui/badge';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Button } from './ui/button';
-import { cn } from 'lib/utils';
+import { cn } from '@/lib/utils';
 import { InfoIcon, UserIcon, CalendarIcon } from 'lucide-react';
 import { ApprovalInfo } from './ApprovalDisplay';
 

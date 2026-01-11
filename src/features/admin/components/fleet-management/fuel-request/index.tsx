@@ -1,10 +1,10 @@
 "use client";
 
-import { Button } from "components/ui/button";
-import { AdminRoutes } from "constants/RouterConstants";
+import { Button } from "@/components/ui/button";
+import { AdminRoutes } from "@/constants/RouterConstants";
 import { Plus } from "lucide-react";
 import Link from "next/link";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import VehicleFuelRequest from "./_components/VehicleFuelRequest";
 import VendorFuelRequest from "./_components/VendorFuelRequest";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";

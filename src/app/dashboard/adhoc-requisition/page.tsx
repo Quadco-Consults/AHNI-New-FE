@@ -2,18 +2,18 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "components/ui/button";
-import { Card } from "components/ui/card";
-import { Input } from "components/ui/input";
-import { Badge } from "components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "components/ui/select";
-import DataTable from "components/Table/DataTable";
+} from "@/components/ui/select";
+import DataTable from "@/components/Table/DataTable";
 import { Plus, Search, Filter, Eye, Edit, Trash2, Send } from "lucide-react";
 import { useGetAllAdhocRequisitions, useDeleteAdhocRequisition, useSubmitRequisition } from "@/controllers/adhocRequisitionController";
 import { IAdhocRequisitionPaginatedData, RequisitionStatus } from "@/types/adhoc-requisition";

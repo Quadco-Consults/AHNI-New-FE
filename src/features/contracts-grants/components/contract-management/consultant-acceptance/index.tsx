@@ -2,8 +2,8 @@
 
 import { useState, useMemo } from "react";
 import { usePathname } from "next/navigation";
-import Card from "components/Card";
-import { Button } from "components/ui/button";
+import Card from "@/components/Card";
+import { Button } from "@/components/ui/button";
 import { useGetAllContractRequests } from "@/features/contracts-grants/controllers/contractController";
 import { useGetAllConsultancyApplicants } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
 import { useGetAllAdhocApplicants } from "@/features/programs/controllers/adhocApplicantController";

@@ -1,18 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "components/ui/button";
-import { Input } from "components/ui/input";
-import { Badge } from "components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "components/ui/card";
+} from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -20,7 +20,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "components/ui/table";
+} from "@/components/ui/table";
 import {
   Dialog,
   DialogContent,
@@ -29,9 +29,9 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "components/ui/dialog";
-import { Label } from "components/ui/label";
-import { Textarea } from "components/ui/textarea";
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   FileText,
   Download,
@@ -49,7 +49,7 @@ import {
   Printer
 } from "lucide-react";
 import { toast } from "sonner";
-import { useGetUserProfile } from "features/auth/controllers/userController";
+import { useGetUserProfile } from "@/features/auth/controllers/userController";
 
 // AHNI Bank Reconciliation Data Structure
 interface UnpresentedCheque {

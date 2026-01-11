@@ -1,4 +1,4 @@
-import { CardContent } from "components/ui/card";
+import { CardContent } from "@/components/ui/card";
 
 type ViewLogProps = {
   data: {

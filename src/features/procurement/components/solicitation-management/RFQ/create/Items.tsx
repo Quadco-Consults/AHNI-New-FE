@@ -6,22 +6,22 @@ import { useForm, useFieldArray, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import RfqLayout from "./RfqLayout";
-import { Button } from "components/ui/button";
-import { Form } from "components/ui/form";
-import FormInput from "components/atoms/FormInput";
-import FormTextArea from "components/atoms/FormTextArea";
-import FormSelect from "components/atoms/FormSelectField";
-import { SelectContent, SelectItem } from "components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Form } from "@/components/ui/form";
+import FormInput from "@/components/atoms/FormInput";
+import FormTextArea from "@/components/atoms/FormTextArea";
+import FormSelect from "@/components/atoms/FormSelectField";
+import { SelectContent, SelectItem } from "@/components/ui/select";
 import FormButton from "@/components/FormButton";
-import FadedButton from "components/atoms/FadedButton";
-import AddSquareIcon from "components/icons/AddSquareIcon";
-import DeleteIcon from "components/icons/DeleteIcon";
+import FadedButton from "@/components/atoms/FadedButton";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
+import DeleteIcon from "@/components/icons/DeleteIcon";
 import { toast } from "sonner";
 import { useGetPurchaseRequestById } from "@/features/procurement/controllers/purchaseRequestController";
 import { useCreateSolicitation } from "@/features/procurement/controllers/solicitationController";
 import { useGetAllItems } from "@/features/modules/controllers";
 import { useGetAllLots } from "@/features/procurement/controllers/lotsController";
-import { LoadingSpinner } from "components/Loading";
+import { LoadingSpinner } from "@/components/Loading";
 
 // Schema for RFQ Items
 const RFQItemSchema = z.object({

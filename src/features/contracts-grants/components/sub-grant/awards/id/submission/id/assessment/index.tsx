@@ -1,14 +1,14 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { Button } from "components/ui/button";
-import { Card } from "components/ui/card";
-import { Badge } from "components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { ArrowLeft, FileText, Award, TrendingUp, AlertCircle, CheckCircle2, XCircle, FileCheck } from "lucide-react";
 import { useGetSingleAssessment } from "@/features/contracts-grants/controllers/preAwardAssessmentController";
 import Link from "next/link";
-import { Loading } from "components/Loading";
+import { Loading } from "@/components/Loading";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { useQuery } from "@tanstack/react-query";
 

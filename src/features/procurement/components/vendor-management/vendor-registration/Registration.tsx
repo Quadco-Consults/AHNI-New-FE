@@ -6,17 +6,17 @@ import {
   FormField,
   FormItem,
   FormMessage,
-} from "components/ui/form";
+} from "@/components/ui/form";
 import VendorRegistationLayout from "./VendorRegistationLayout";
 import { useForm } from "react-hook-form";
-import FormInput from "components/atoms/FormInput";
-import FormSelect from "components/atoms/FormSelectField";
+import FormInput from "@/components/atoms/FormInput";
+import FormSelect from "@/components/atoms/FormSelectField";
 import { ChevronRight, Search } from 'lucide-react';
 import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation";
 import FormButton from "@/components/FormButton";
-import { Button } from "components/ui/button";
-import FormTextArea from "components/atoms/FormTextArea";
+import { Button } from "@/components/ui/button";
+import FormTextArea from "@/components/atoms/FormTextArea";
 import {
   Dialog,
   DialogContent,
@@ -25,24 +25,24 @@ import {
   DialogHeader,
   DialogDescription,
   DialogClose,
-} from "components/ui/dialog";
+} from "@/components/ui/dialog";
 import { useEffect, useState } from "react";
 import CategoryAPI from "@/features/modules/controllers/config/categoryController";
 import logoPng from "@/assets/imgs/logo.png";
-import { Input } from "components/ui/input";
+import { Input } from "@/components/ui/input";
 import { Icon } from "@iconify/react";
-import { LoadingSpinner } from "components/Loading";
+import { LoadingSpinner } from "@/components/Loading";
 import { CategoryResultsData } from "definations/configs/category";
-import { Checkbox } from "components/ui/checkbox";
+import { Checkbox } from "@/components/ui/checkbox";
 import { VendorsRegistrationSchema } from "@/features/procurement/types/procurement-validator";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { vendorsActions } from "store/formData/procurement-vendors";
+import { vendorsActions } from "@/store/formData/procurement-vendors";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "store/index";
-import { SelectContent, SelectItem } from "components/ui/select";
-import { Badge } from "components/ui/badge";
-import useQuery from "hooks/useQuery";
+import { RootState } from "@/store/index";
+import { SelectContent, SelectItem } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import useQuery from "@/hooks/useQuery";
 import VendorsAPI from "@/features/procurement/controllers/vendorsController";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";

@@ -2,22 +2,22 @@
 
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { generatePath } from "utils/generatePath"; 
-import DescriptionCard from "components/DescriptionCard";
-import { Button } from "components/ui/button";
-import PrinterIcon from "components/icons/PrinterIcon";
+import { generatePath } from "@/utils/generatePath"; 
+import DescriptionCard from "@/components/DescriptionCard";
+import { Button } from "@/components/ui/button";
+import PrinterIcon from "@/components/icons/PrinterIcon";
 import { ChevronRight, Save } from "lucide-react";
-import { useAppDispatch } from "hooks/useStore";
-import { openDialog } from "store/ui";
-import { DialogType } from "constants/dailogs";
-import { HrRoutes } from "constants/RouterConstants";
-import Card from "components/Card";
-import { updateStepCompletion } from "store/stepTracker";
-import GoBack from "components/GoBack";
+import { useAppDispatch } from "@/hooks/useStore";
+import { openDialog } from "@/store/ui";
+import { DialogType } from "@/constants/dailogs";
+import { HrRoutes } from "@/constants/RouterConstants";
+import Card from "@/components/Card";
+import { updateStepCompletion } from "@/store/stepTracker";
+import GoBack from "@/components/GoBack";
 import { useGetEmployeeIdentityCard, useGetEmployeeOnboarding } from "@/features/hr/controllers/employeeOnboardingController";
 import { useGetJobApplication } from "@/features/hr/controllers/hrJobApplicationsController";
 import { useGetJobAdvertisement } from "@/features/hr/controllers/jobAdvertisementController";
-import moment from "moment";
+import { format } from "date-fns";
 
 const IdCardInformation = () => {
   const id = typeof window !== "undefined" ? localStorage.getItem("workforceID") || "" : "";
@@ -158,9 +158,7 @@ const IdCardInformation = () => {
               />
               <DescriptionCard
                 label='Date'
-                description={moment(data?.data?.date_of_hire).format(
-                  "DD-MM-YYYY"
-                )}
+                description={data?.data?.date_of_hire ? format(new Date(data.data.date_of_hire), "dd-MM-yyyy") : "-"}
               />
             </div>
           </div>

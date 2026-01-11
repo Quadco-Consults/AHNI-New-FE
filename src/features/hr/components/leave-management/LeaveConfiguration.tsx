@@ -13,9 +13,9 @@ import {
   ArrowRight,
   Plus
 } from "lucide-react";
-import { Card } from "components/ui/card";
-import { Button } from "components/ui/button";
-import GoBack from "components/GoBack";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import GoBack from "@/components/GoBack";
 import { useGetConfigurationStats } from "../../controllers/leaveConfigurationController";
 
 const LeaveConfiguration = () => {

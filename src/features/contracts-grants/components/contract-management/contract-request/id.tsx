@@ -5,12 +5,12 @@ import { useParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import BackNavigation from "components/atoms/BackNavigation";
+import BackNavigation from "@/components/atoms/BackNavigation";
 import FormButton from "@/components/FormButton";
-import FormTextArea from "components/atoms/FormTextArea";
-import Card from "components/Card";
-import DescriptionCard from "components/DescriptionCard";
-import { Form } from "components/ui/form";
+import FormTextArea from "@/components/atoms/FormTextArea";
+import Card from "@/components/Card";
+import DescriptionCard from "@/components/DescriptionCard";
+import { Form } from "@/components/ui/form";
 import { toast } from "sonner";
 import ApprovalHistory from "./ApprovalHistory";
 

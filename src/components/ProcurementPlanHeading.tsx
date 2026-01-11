@@ -1,10 +1,10 @@
 import CheckIcon from "assets/svgs/CheckIcon";
 import PendingIcon from "assets/svgs/PendingIcon";
-import { Separator } from "components/ui/separator";
+import { Separator } from "@/components/ui/separator";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import GoBack from "components/GoBack";
-import BreadcrumbCard from "components/Breadcrumb";
+import GoBack from "@/components/GoBack";
+import BreadcrumbCard from "@/components/Breadcrumb";
 
 interface Step {
   step: number;

@@ -1,14 +1,14 @@
 "use client";
 
-import BackNavigation from "components/atoms/BackNavigation";
+import BackNavigation from "@/components/atoms/BackNavigation";
 import FormButton from "@/components/FormButton";
-import FormSelect from "components/atoms/FormSelect";
-import FormTextArea from "components/atoms/FormTextArea";
-import DeleteIcon from "components/icons/DeleteIcon";
-import DescriptionCard from "components/DescriptionCard";
-import { LoadingSpinner } from "components/Loading";
-import { Button } from "components/ui/button";
-import { Card } from "components/ui/card";
+import FormSelect from "@/components/atoms/FormSelect";
+import FormTextArea from "@/components/atoms/FormTextArea";
+import DeleteIcon from "@/components/icons/DeleteIcon";
+import DescriptionCard from "@/components/DescriptionCard";
+import { LoadingSpinner } from "@/components/Loading";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { format } from "date-fns";
 import { PlusIcon, Download } from "lucide-react";
 import { useMemo, useEffect, useState } from "react";

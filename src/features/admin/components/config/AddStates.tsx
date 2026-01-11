@@ -4,12 +4,12 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import FormButton from "@/components/FormButton";
-import FormInput from "components/atoms/FormInput";
-import FormSelect from "components/atoms/FormSelect";
-import FormCheckBox from "components/FormCheckBox";
-import { Form } from "components/ui/form";
-import { useAppDispatch, useAppSelector } from "hooks/useStore";
-import { closeDialog, dailogSelector } from "store/ui";
+import FormInput from "@/components/atoms/FormInput";
+import FormSelect from "@/components/atoms/FormSelect";
+import FormCheckBox from "@/components/FormCheckBox";
+import { Form } from "@/components/ui/form";
+import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
+import { closeDialog, dailogSelector } from "@/store/ui";
 import { StateSchema, TStateFormValues, TStateData } from "@/features/admin/types/config/state";
 import { useAddStateMutation, useUpdateStateMutation } from "@/features/modules/controllers/config/stateController";
 

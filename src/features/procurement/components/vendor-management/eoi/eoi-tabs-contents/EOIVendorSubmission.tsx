@@ -1,14 +1,14 @@
 /* eslint-disable react/prop-types */
 import { Icon } from "@iconify/react";
-import Card from "components/Card";
-import IconButton from "components/IconButton";
-import { Badge } from "components/ui/badge";
-import { Checkbox } from "components/ui/checkbox";
-import { cn } from "lib/utils";
-import { Button } from "components/ui/button";
-import { Input } from "components/ui/input";
+import Card from "@/components/Card";
+import IconButton from "@/components/IconButton";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import Link from "next/link";
-import { RouteEnum } from "constants/RouterConstants";
+import { RouteEnum } from "@/constants/RouterConstants";
 
 // Helper function to generate path with parameters
 const generatePath = (route: string, params?: Record<string, any>): string => {
@@ -18,7 +18,7 @@ const generatePath = (route: string, params?: Record<string, any>): string => {
   }, route);
 };
 import { ColumnDef } from "@tanstack/react-table";
-import DataTable from "components/Table/DataTable";
+import DataTable from "@/components/Table/DataTable";
 import { Plus, Trash2, Search } from 'lucide-react';
 import { useParams } from "next/navigation";
 import { useState, useMemo, useEffect } from "react";

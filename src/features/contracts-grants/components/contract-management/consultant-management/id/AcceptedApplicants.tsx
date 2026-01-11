@@ -2,15 +2,15 @@
 
 import { useState } from "react";
 import { useParams, usePathname } from "next/navigation";
-import DataTable from "components/Table/DataTable";
-import { LoadingSpinner } from "components/Loading";
+import DataTable from "@/components/Table/DataTable";
+import { LoadingSpinner } from "@/components/Loading";
 import { useGetAllConsultancyApplicants } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
 import { useGetApplicantsByAdvertisement } from "@/features/programs/controllers/adhocApplicantController";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { ColumnDef } from "@tanstack/react-table";
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { Badge } from "components/ui/badge";
+import { Badge } from "@/components/ui/badge";
 import { format, isValid } from "date-fns";
 import { Eye, FileCheck } from "lucide-react";
 import { toast } from "sonner";

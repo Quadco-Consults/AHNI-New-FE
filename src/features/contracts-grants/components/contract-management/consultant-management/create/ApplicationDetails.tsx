@@ -1,28 +1,28 @@
 "use client";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import FormInput from "components/atoms/FormInput";
+import FormInput from "@/components/atoms/FormInput";
 import FormButton from "@/components/FormButton";
-import { Label } from "components/ui/label";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import {
   ConsultancyManagementDetailSchema,
   TConsultantanagementDetailsFormData,
 } from "@/features/contracts-grants/types/contract-management/consultancy-management/consultancy-management";
-import { Button } from "components/ui/button";
-import FormTextArea from "components/atoms/FormTextArea";
-import { FormField, FormItem, Form, FormControl, FormMessage } from "components/ui/form";
-import MultiSelectFormField from "components/ui/multiselect";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
+import { Button } from "@/components/ui/button";
+import FormTextArea from "@/components/atoms/FormTextArea";
+import { FormField, FormItem, Form, FormControl, FormMessage } from "@/components/ui/form";
+import MultiSelectFormField from "@/components/ui/multiselect";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useGetAllLocations } from "@/features/modules/controllers/config/locationController";
 import { useEffect, useMemo } from "react";
 import { useGetAllUsers } from "@/features/auth/controllers/userController";
 import { useRouter, useSearchParams, usePathname } from "next/navigation"; 
-import { CG_ROUTES, ProgramRoutes } from "constants/RouterConstants";
-// import { fileToBase64 } from "utils/fileToBase64";
+import { CG_ROUTES, ProgramRoutes } from "@/constants/RouterConstants";
+// import { fileToBase64 } from "@/utils/fileToBase64";
 import { useGetSingleConsultantManagement } from "@/features/contracts-grants/controllers/consultantManagementController";
 import { skipToken } from "@reduxjs/toolkit/query";
-import FormSelect from "components/atoms/FormSelect";
+import FormSelect from "@/components/atoms/FormSelect";
 import { useGetAllContractRequests, useGetSingleContractRequest } from "@/features/contracts-grants/controllers/contractController";
 import { useGetAllGrades } from "@/features/modules/controllers/config/gradeController";
 import { useGetAllAdhocRequisitions, useGetSingleAdhocRequisition } from "@/controllers/adhocRequisitionController";

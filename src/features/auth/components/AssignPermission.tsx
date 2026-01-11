@@ -15,8 +15,8 @@ import { capitalize } from "lodash";
 import { FC, useEffect, useState, useMemo } from "react";
 import { useGetAllPermissionsManager, useGetSingleRoleManager, useUpdateRoleManager } from "@/features/auth/controllers/roleController";
 import { toast } from "sonner";
-import { useAppDispatch } from "hooks/useStore";
-import { closeDialog } from "store/ui";
+import { useAppDispatch } from "@/hooks/useStore";
+import { closeDialog } from "@/store/ui";
 import { ShieldCheck, Info, Search, Shield, CheckCircle2, Key } from "lucide-react";
 
 type TPermissionSelector = {

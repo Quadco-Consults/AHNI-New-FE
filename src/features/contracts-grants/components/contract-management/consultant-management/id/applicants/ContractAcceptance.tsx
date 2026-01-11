@@ -1,12 +1,12 @@
 "use client";
 
 import { useParams, useRouter, usePathname } from "next/navigation";
-import { Button } from "components/ui/button";
-import { LoadingSpinner } from "components/Loading";
-import Card from "components/Card";
+import { Button } from "@/components/ui/button";
+import { LoadingSpinner } from "@/components/Loading";
+import Card from "@/components/Card";
 import { toast } from "sonner";
 import { useState } from "react";
-import BackNavigation from "components/BackNavigation";
+import BackNavigation from "@/components/BackNavigation";
 import { useGetSingleConsultancyApplicant } from "src/features/contracts-grants/controllers/consultancyApplicantsController";
 import { useModifyContractStatus } from "src/features/contracts-grants/controllers/contractController";
 import { useGetSingleAdhocApplicant, useUpdateAdhocApplicantStatus } from "@/features/programs/controllers/adhocApplicantController";

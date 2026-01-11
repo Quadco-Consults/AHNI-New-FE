@@ -3,7 +3,7 @@ import ReactDOM from "react-dom/client";
 import App from "./App.jsx";
 import "./index.css";
 import { pdfjs } from "react-pdf";
-import AppProviders from "components/AppProviders";
+import AppProviders from "@/components/AppProviders";
 import "react-pdf/dist/Page/TextLayer.css";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 

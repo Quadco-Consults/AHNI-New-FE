@@ -1,8 +1,8 @@
 "use client";
 
-import GoBack from "components/GoBack";
+import GoBack from "@/components/GoBack";
 import CreateActivityMemo from "./form";
-import BreadcrumbCard from "components/Breadcrumb";
+import BreadcrumbCard from "@/components/Breadcrumb";
 
 // type Props = {};
 

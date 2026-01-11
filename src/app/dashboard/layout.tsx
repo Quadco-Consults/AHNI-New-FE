@@ -4,11 +4,11 @@ export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
 import { useRouter } from "next/navigation";
-import Footer from "components/Footer";
-import Header from "components/Header";
-import Sidebar from "components/Sidebar";
-import Suspense from "components/Suspense";
-import { cn } from "lib/utils";
+import Footer from "@/components/Footer";
+import Header from "@/components/Header";
+import Sidebar from "@/components/Sidebar";
+import Suspense from "@/components/Suspense";
+import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import { useAuthInitialization } from "@/hooks/useAuthInitialization";
 import { useSessionManager } from "@/hooks/useSessionManager";

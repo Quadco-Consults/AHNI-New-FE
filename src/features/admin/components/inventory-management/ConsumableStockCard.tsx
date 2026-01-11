@@ -1,8 +1,8 @@
 import { stockMovementColumns } from "@/features/admin/components/table-columns/inventory-management/consumables";
-import DataTable from "components/Table/DataTable";
-import TableFilters from "components/Table/TableFilters";
-import { Card, CardContent } from "components/ui/card";
-import { Separator } from "components/ui/separator";
+import DataTable from "@/components/Table/DataTable";
+import TableFilters from "@/components/Table/TableFilters";
+import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 
 export default function ConsumableStockCard({
   stockCard,

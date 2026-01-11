@@ -2,14 +2,14 @@
 
 import React from "react";
 import { useFormContext } from "react-hook-form";
-import { Card, CardContent, CardHeader, CardTitle } from "components/ui/card";
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "components/ui/form";
-import { Input } from "components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
-import FormSelect from "components/atoms/FormSelectField";
-import { Textarea } from "components/ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import FormSelect from "@/components/atoms/FormSelectField";
+import { Textarea } from "@/components/ui/textarea";
 import { MapPinIcon } from "lucide-react";
-import { LoadingSpinner } from "components/Loading";
+import { LoadingSpinner } from "@/components/Loading";
 
 import { TSiteVisitApplicationFormValues, SiteVisitType } from "@/features/programs/types/site-visit";
 

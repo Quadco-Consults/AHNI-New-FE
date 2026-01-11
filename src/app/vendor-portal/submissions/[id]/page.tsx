@@ -3,11 +3,11 @@
 export const dynamic = "force-dynamic";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "components/ui/card";
-import { Button } from "components/ui/button";
-import { Badge } from "components/ui/badge";
-import { Alert, AlertDescription } from "components/ui/alert";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
 
 ArrowLeft,
@@ -24,7 +24,7 @@ ArrowLeft,
   MessageSquare,
   Edit
 } from "lucide-react";
-import { LoadingSpinner } from "components/Loading";
+import { LoadingSpinner } from "@/components/Loading";
 
 // Mock data - replace with actual API call
 const getSubmissionDetails = (id: string) => {

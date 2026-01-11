@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Button } from "components/ui/button";
-import Card from "components/Card";
-import { Badge } from "components/ui/badge";
-import { Textarea } from "components/ui/textarea";
-import { Label } from "components/ui/label";
+import { Button } from "@/components/ui/button";
+import Card from "@/components/Card";
+import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import {
   CheckCircle,
   XCircle,

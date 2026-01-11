@@ -1,11 +1,11 @@
 "use client";
 
-import DataTable from "components/Table/DataTable";
-import TableFilters from "components/Table/TableFilters";
+import DataTable from "@/components/Table/DataTable";
+import TableFilters from "@/components/Table/TableFilters";
 import { paymentRequestColumns } from "@/features/admin/components/table-columns/payment-request";
-import Card from "components/Card";
-import { Button } from "components/ui/button";
-import { AdminRoutes } from "constants/RouterConstants";
+import Card from "@/components/Card";
+import { Button } from "@/components/ui/button";
+import { AdminRoutes } from "@/constants/RouterConstants";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";

@@ -1,13 +1,13 @@
 import { Navigate, Outlet } from "react-router-dom"; 
-import Footer from "components/Footer";
-import Header from "components/Header";
-import Sidebar from "components/Sidebar";
-import Suspense from "components/Suspense";
-import { cn } from "lib/utils";
+import Footer from "@/components/Footer";
+import Header from "@/components/Header";
+import Sidebar from "@/components/Sidebar";
+import Suspense from "@/components/Suspense";
+import { cn } from "@/lib/utils";
 
 import { useState } from "react";
-import { useAppSelector } from "hooks/useStore";
-import { authSelector } from "store/auth/authSlice";
+import { useAppSelector } from "@/hooks/useStore";
+import { authSelector } from "@/store/auth/authSlice";
 
 const ProtectedPage = () => {
     const [sidebarWidth, setSidebarWidth] = useState(false);

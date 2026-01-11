@@ -1,7 +1,7 @@
-import BackNavigation from "components/atoms/BackNavigation";
+import BackNavigation from "@/components/atoms/BackNavigation";
 import FormButton from "@/components/FormButton";
-import Card from "components/Card";
-import { Button } from "components/ui/button";
+import Card from "@/components/Card";
+import { Button } from "@/components/ui/button";
 import { useGetAllQuestionnaires } from "@/features/modules/controllers/procurement/questionnaire";
 
 export default function PreAwardAssessmentStep() {

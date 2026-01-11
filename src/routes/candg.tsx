@@ -1,5 +1,5 @@
 import { lazy } from "react";
-import { CG_ROUTES } from "constants/RouterConstants";
+import { CG_ROUTES } from "@/constants/RouterConstants";
 
 export const candg = [
     {

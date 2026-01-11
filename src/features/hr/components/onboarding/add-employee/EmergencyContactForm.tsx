@@ -1,22 +1,22 @@
 "use client";
 
 import React from "react";
-import { Form } from "components/ui/form";
+import { Form } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
-import FormInput from "components/atoms/FormInput";
+import FormInput from "@/components/atoms/FormInput";
 import { useParams } from "next/navigation";
-import FormTextArea from "components/atoms/FormTextArea";
+import FormTextArea from "@/components/atoms/FormTextArea";
 
-import { Separator } from "components/ui/separator";
+import { Separator } from "@/components/ui/separator";
 
-import { openDialog } from "store/ui";
-import { DialogType } from "constants/dailogs";
-import { useAppDispatch } from "hooks/useStore";
+import { openDialog } from "@/store/ui";
+import { DialogType } from "@/constants/dailogs";
+import { useAppDispatch } from "@/hooks/useStore";
 
 import {
   hrEmergencySchema,
   HrEmergencyFormValues,
-} from "features/hr/types/hr-validator";
+} from "@/features/hr/types/hr-validator";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { toast } from "sonner";
@@ -27,8 +27,8 @@ import {
 } from "@/features/hr/controllers/hrEmployeeOnboardingAddInfoController";
 import { HrEmergencyResults } from "definations/hr-types/employee-onboarding";
 import { Save } from "lucide-react";
-import { updateStepCompletion } from "store/stepTracker";
-import { HrRoutes } from "constants/RouterConstants";
+import { updateStepCompletion } from "@/store/stepTracker";
+import { HrRoutes } from "@/constants/RouterConstants";
 
 export const EmergencyContactForm = ({
   number,

@@ -1,15 +1,15 @@
-import BackNavigation from "components/atoms/BackNavigation";
-import AddSquareIcon from "components/icons/AddSquareIcon";
-import { userColumns } from "components/Table/columns/users";
-import DataTable from "components/Table/DataTable";
-import TableFilters from "components/Table/TableFilters";
-import { Button } from "components/ui/button";
-import { RouteEnum } from "constants/RouterConstants";
+import BackNavigation from "@/components/atoms/BackNavigation";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
+import { userColumns } from "@/components/Table/columns/users";
+import DataTable from "@/components/Table/DataTable";
+import TableFilters from "@/components/Table/TableFilters";
+import { Button } from "@/components/ui/button";
+import { RouteEnum } from "@/constants/RouterConstants";
 import { useState } from "react";
 import Link from "next/link";
 import { useGetAllUsers } from "../../controllers/userController";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
-import useDebounce from "utils/useDebounce";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import useDebounce from "@/utils/useDebounce";
 
 export default function UserTablePage() {
   const [page, setPage] = useState(1);

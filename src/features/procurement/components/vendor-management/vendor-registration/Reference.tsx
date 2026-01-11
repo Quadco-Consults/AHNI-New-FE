@@ -1,10 +1,10 @@
 "use client";
 
-import { Form } from "components/ui/form";
+import { Form } from "@/components/ui/form";
 import VendorRegistationLayout from "./VendorRegistationLayout";
 import { useFieldArray, useForm } from "react-hook-form";
-import FormInput from "components/atoms/FormInput";
-import { Label } from "components/ui/label";
+import FormInput from "@/components/atoms/FormInput";
+import { Label } from "@/components/ui/label";
 import { ArrowLeft, ArrowRight, MinusCircle, PlusCircle } from "lucide-react";
 import FormButton from "@/components/FormButton";
 import { useRouter } from "next/navigation";
@@ -13,10 +13,10 @@ import { VendorsReferenceSchema } from "@/features/procurement/types/procurement
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useDispatch, useSelector } from "react-redux";
-import { vendorsActions } from "store/formData/procurement-vendors";
-import { RootState } from "store/index";
+import { vendorsActions } from "@/store/formData/procurement-vendors";
+import { RootState } from "@/store/index";
 import { useEffect } from "react";
-import useQuery from "hooks/useQuery";
+import useQuery from "@/hooks/useQuery";
 import VendorsAPI from "@/features/procurement/controllers/vendorsController";
 
 const Reference = () => {

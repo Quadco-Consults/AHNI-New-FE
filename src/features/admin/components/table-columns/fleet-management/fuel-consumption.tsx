@@ -1,21 +1,21 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { IFuelRequestPaginatedData } from "@/features/admin/types/fleet-management/fuel-request";
-import DeleteIcon from "components/icons/DeleteIcon";
-import EyeIcon from "components/icons/EyeIcon";
-import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
-import ConfirmationDialog from "components/ConfirmationDialog";
-import { Button } from "components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
+import DeleteIcon from "@/components/icons/DeleteIcon";
+import EyeIcon from "@/components/icons/EyeIcon";
+import MoreOptionsHorizontalIcon from "@/components/icons/MoreOptionsHorizontalIcon";
+import ConfirmationDialog from "@/components/ConfirmationDialog";
+import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import Link from "next/link";
 import { useState } from "react";
 import { format } from "date-fns";
-import PencilIcon from "components/icons/PencilIcon";
+import PencilIcon from "@/components/icons/PencilIcon";
 import { toast } from "sonner";
 import { useDeleteFuelConsumption, useGetSingleFuelConsumption } from "@/features/admin/controllers/fuelConsumptionController";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { FileText } from "lucide-react";
-import { formatNumberCurrency } from "utils/utls";
+import { formatNumberCurrency } from "@/utils/utls";
 
 export const fuelConsumptionColumns: ColumnDef<IFuelRequestPaginatedData>[] = [
   {

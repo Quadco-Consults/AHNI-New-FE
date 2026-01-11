@@ -1,15 +1,15 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { Button } from "components/ui/button";
-import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import MoreOptionsHorizontalIcon from "@/components/icons/MoreOptionsHorizontalIcon";
 import Link from "next/link";
-import { CG_ROUTES, ProgramRoutes } from "constants/RouterConstants";
+import { CG_ROUTES, ProgramRoutes } from "@/constants/RouterConstants";
 import { IConsultancyReportPaginatedData } from "definations/c&g/contract-management/consultancy-report";
-import EyeIcon from "components/icons/EyeIcon";
+import EyeIcon from "@/components/icons/EyeIcon";
 import { IConsultancyStaffPaginatedData } from "@/features/contracts-grants/types/contract-management/consultancy-management/consultancy-application";
-import { Badge } from "components/ui/badge";
-import { cn } from "lib/utils";
-import useJobAdvertType from "hooks/useJobAdvertType";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import useJobAdvertType from "@/hooks/useJobAdvertType";
 
 export const consultancyAcceptanceColumns: ColumnDef<IConsultancyStaffPaginatedData>[] =
     [

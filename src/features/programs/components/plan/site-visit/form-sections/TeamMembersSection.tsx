@@ -2,10 +2,10 @@
 
 import React, { useState } from "react";
 import { useFormContext } from "react-hook-form";
-import { Card, CardContent, CardHeader, CardTitle } from "components/ui/card";
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "components/ui/form";
-import { Button } from "components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Command,
   CommandEmpty,
@@ -13,19 +13,19 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "components/ui/command";
+} from "@/components/ui/command";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "components/ui/popover";
+} from "@/components/ui/popover";
 import { Check, ChevronsUpDown } from "lucide-react";
-import { Input } from "components/ui/input";
-import { Textarea } from "components/ui/textarea";
-import { Badge } from "components/ui/badge";
-import { Separator } from "components/ui/separator";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import { UsersIcon, PlusIcon, TrashIcon, UserIcon } from "lucide-react";
-import { Alert, AlertDescription } from "components/ui/alert";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 import {
   TSiteVisitApplicationFormValues,

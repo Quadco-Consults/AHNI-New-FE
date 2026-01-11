@@ -1,5 +1,5 @@
-import { Button } from "components/ui/button";
-import { RouteEnum } from "constants/RouterConstants";
+import { Button } from "@/components/ui/button";
+import { RouteEnum } from "@/constants/RouterConstants";
 import Link from "next/link";
 
 const TermsAndConditions = () => {

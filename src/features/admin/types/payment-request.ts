@@ -1,4 +1,4 @@
-import { IUser } from "features/auth/types/user";
+import { IUser } from "@/features/auth/types/user";
 import { z } from "zod";
 
 // Payment item schema for the new API structure

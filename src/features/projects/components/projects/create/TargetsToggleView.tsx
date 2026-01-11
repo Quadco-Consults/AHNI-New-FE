@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Button } from "components/ui/button";
-import { Label } from "components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import TargetDefinitionTable, { ProjectTargetDefinition } from "./TargetDefinitionTable";
 
 type ViewMode = 'simple' | 'quarterly';

@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import BackNavigation from "components/BackNavigation";
+import BackNavigation from "@/components/BackNavigation";
 import FormButton from "@/components/FormButton";
 import FormInput from "@/components/FormInput";
 import FormSelect from "@/components/FormSelect";

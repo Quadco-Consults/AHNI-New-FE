@@ -2,11 +2,11 @@
 
 import { useParams, useSearchParams, useRouter } from "next/navigation";
 import { useState } from "react";
-import { Loading } from "components/Loading";
-import GoBack from "components/GoBack";
-import { Button } from "components/ui/button";
-import { Textarea } from "components/ui/textarea";
-import { Badge } from "components/ui/badge";
+import { Loading } from "@/components/Loading";
+import GoBack from "@/components/GoBack";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import { FileText, Download, Award, CheckCircle, ClipboardList, ShieldCheck, FilePlus } from 'lucide-react';
 import { Icon } from "@iconify/react";
 import CbaAPI from "@/features/procurement/controllers/cbaController";
@@ -22,17 +22,17 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "components/ui/dialog";
-import { Form } from "components/ui/form";
-import FormSelect from "components/atoms/FormSelectField";
-import { SelectContent, SelectItem } from "components/ui/select";
-import FormTextArea from "components/atoms/FormTextArea";
+} from "@/components/ui/dialog";
+import { Form } from "@/components/ui/form";
+import FormSelect from "@/components/atoms/FormSelectField";
+import { SelectContent, SelectItem } from "@/components/ui/select";
+import FormTextArea from "@/components/atoms/FormTextArea";
 import FormButton from "@/components/FormButton";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { CbaApprovalSchema } from "@/features/procurement/types/procurement-validator";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { cn } from "lib/utils";
+import { cn } from "@/lib/utils";
 
 interface VendorItem {
   id: string;

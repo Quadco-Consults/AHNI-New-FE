@@ -2,15 +2,15 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Card } from "components/ui/card";
-import { Button } from "components/ui/button";
-import { Input } from "components/ui/input";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Calendar, Plus, Search, Trash2, Edit, AlertCircle } from "lucide-react";
-import DataTable from "components/Table/DataTable";
+import DataTable from "@/components/Table/DataTable";
 import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
-import GoBack from "components/GoBack";
-import { Badge } from "components/ui/badge";
+import GoBack from "@/components/GoBack";
+import { Badge } from "@/components/ui/badge";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { toast } from "sonner";

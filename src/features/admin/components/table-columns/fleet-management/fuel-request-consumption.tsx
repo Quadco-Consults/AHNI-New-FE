@@ -1,17 +1,17 @@
 import { ColumnDef } from "@tanstack/react-table";
-import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
-import { Button } from "components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
+import MoreOptionsHorizontalIcon from "@/components/icons/MoreOptionsHorizontalIcon";
+import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import Link from "next/link";
 import { IFuelRequestPaginatedData } from "@/features/admin/types/fleet-management/fuel-request";
-import ApproveIcon from "components/icons/ApproveIcon";
-import DeleteIcon from "components/icons/DeleteIcon";
+import ApproveIcon from "@/components/icons/ApproveIcon";
+import DeleteIcon from "@/components/icons/DeleteIcon";
 import { useState } from "react";
-import ConfirmationDialog from "components/ConfirmationDialog";
+import ConfirmationDialog from "@/components/ConfirmationDialog";
 import { toast } from "sonner";
 import { useDeleteFuelConsumption } from "@/features/admin/controllers/fuelConsumptionController";
-import PencilIcon from "components/icons/PencilIcon";
-import { formatNumberCurrency } from "utils/utls";
+import PencilIcon from "@/components/icons/PencilIcon";
+import { formatNumberCurrency } from "@/utils/utls";
 
 export const fuelRequestConsumptionColumns: ColumnDef<IFuelRequestPaginatedData>[] =
   [

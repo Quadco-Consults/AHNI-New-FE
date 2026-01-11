@@ -2,19 +2,19 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "@/components/FormButton";
-import { CardContent } from "components/ui/card";
-import { Form, FormControl, FormField, FormItem } from "components/ui/form";
+import { CardContent } from "@/components/ui/card";
+import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
 
-import { useAppDispatch, useAppSelector } from "hooks/useStore";
-import { closeDialog, dailogSelector } from "store/ui";
+import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
+import { closeDialog, dailogSelector } from "@/store/ui";
 import { toast } from "sonner";
 // import {
 //   useAddLot,
 //   useUpdateLot,
 // } from "@/features/modules/procurement/lotController";
 import { useGetJobAdvertisement } from "@/features/hr/controllers/jobAdvertisementController";
-import { Badge } from "components/ui/badge";
+import { Badge } from "@/components/ui/badge";
 import {
   Briefcase,
   Calendar,
@@ -26,16 +26,16 @@ import {
   PersonStanding,
   Users,
 } from "lucide-react";
-import moment from "moment";
+import { format } from "date-fns";
 
 import { useMemo, useState } from "react";
-import FormSelect from "components/atoms/FormSelectField";
-import { SelectContent, SelectItem } from "components/ui/select";
+import FormSelect from "@/components/atoms/FormSelectField";
+import { SelectContent, SelectItem } from "@/components/ui/select";
 import { z } from "zod";
 import { useGetAllUsers } from "@/features/auth/controllers/userController";
-import { Label } from "components/ui/label";
-import MultiSelectFormField from "components/ui/multiselect";
-import FormInput from "components/atoms/FormInput";
+import { Label } from "@/components/ui/label";
+import MultiSelectFormField from "@/components/ui/multiselect";
+import FormInput from "@/components/atoms/FormInput";
 
 export const LotSchema = z.object({
   interview_type: z.string().min(1, "Field Required"),
@@ -155,7 +155,7 @@ const CreateInterviewModal = () => {
           </Badge>
           <Badge variant='md'>
             <CalendarDays size={15} />{" "}
-            {moment(created_datetime!).format("DD-MM-YYYY")}
+            {created_datetime ? format(new Date(created_datetime), "dd-MM-yyyy") : "-"}
           </Badge>
           <Badge variant='md'>
             <MapPin size={15} /> {locations}
@@ -169,7 +169,7 @@ const CreateInterviewModal = () => {
           {commencement_date && (
             <Badge variant='md'>
               <Calendar size={15} /> Starts:{" "}
-              {moment(commencement_date).format("DD-MM-YYYY")}
+              {format(new Date(commencement_date), "dd-MM-yyyy")}
             </Badge>
           )}
         </div>

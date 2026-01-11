@@ -1,24 +1,24 @@
 "use client";
-import Card from "components/Card";
-import { Button } from "components/ui/button";
-import AddSquareIcon from "components/icons/AddSquareIcon";
+import Card from "@/components/Card";
+import { Button } from "@/components/ui/button";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
 import { useState } from "react";
-import { useAppDispatch } from "hooks/useStore";
-import { openDialog } from "store/ui";
-import { DialogType } from "constants/dailogs";
+import { useAppDispatch } from "@/hooks/useStore";
+import { openDialog } from "@/store/ui";
+import { DialogType } from "@/constants/dailogs";
 import {
     useGetAllWorkPlanQuery,
     useLazyDownloadWorkPlanTemplateQuery,
 } from "@/features/programs/controllers/workPlanController";
-import DataTable from "components/Table/DataTable";
+import DataTable from "@/components/Table/DataTable";
 import { toast } from "sonner";
 import { DownloadIcon } from "lucide-react";
-import BreadcrumbCard, { TBreadcrumbList } from "components/Breadcrumb";
+import BreadcrumbCard, { TBreadcrumbList } from "@/components/Breadcrumb";
 import { workPlanColumns } from "@/features/programs/components/table-columns/plan/work-plan";
-import TableFilters from "components/Table/TableFilters";
+import TableFilters from "@/components/Table/TableFilters";
 import { useDebounce } from "ahooks";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
-import { Label } from "components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 
 const breadcrumbs: TBreadcrumbList[] = [
     { name: "Programs", icon: true },

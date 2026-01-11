@@ -1,12 +1,12 @@
 "use client";
 
-import AddSquareIcon from "components/icons/AddSquareIcon";
-import Card from "components/Card";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
+import Card from "@/components/Card";
 import { expenseAuthorizationColumns } from "@/features/admin/components/table-columns/expense-authorization/expense-authorization";
-import DataTable from "components/Table/DataTable";
-import TableFilters from "components/Table/TableFilters";
-import { Button } from "components/ui/button";
-import { AdminRoutes } from "constants/RouterConstants";
+import DataTable from "@/components/Table/DataTable";
+import TableFilters from "@/components/Table/TableFilters";
+import { Button } from "@/components/ui/button";
+import { AdminRoutes } from "@/constants/RouterConstants";
 import { useState } from "react";
 import Link from "next/link";
 import { useGetAllExpenseAuthorizationsQuery } from "@/features/admin/controllers/expenseAuthorizationController";

@@ -2,13 +2,13 @@
 
 import { useParams } from "next/navigation";
 import { useGetJobApplication, usePatchJobApplicationShortlisted } from "@/features/hr/controllers/hrJobApplicationsController";
-import { Loading } from "components/Loading";
-import GoBack from "components/GoBack";
-import Card from "components/Card";
-import { Badge } from "components/ui/badge";
-import { Button } from "components/ui/button";
-import { cn } from "lib/utils";
-import PdfContent from "components/PdfContent";
+import { Loading } from "@/components/Loading";
+import GoBack from "@/components/GoBack";
+import Card from "@/components/Card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import PdfContent from "@/components/PdfContent";
 import { toast } from "sonner";
 import { useState } from "react";
 import { CheckCheckIcon } from "lucide-react";

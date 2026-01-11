@@ -1,20 +1,20 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "components/ui/button";
-import { Input } from "components/ui/input";
-import { Badge } from "components/ui/badge";
-import { Card } from "components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "components/ui/select";
+} from "@/components/ui/select";
 import { Plus, Search, Filter, Users, Building2, Mail, Phone, DollarSign, Edit, Trash2, Eye } from "lucide-react";
 import { toast } from "sonner";
-import DataTable from "components/Table/DataTable";
+import DataTable from "@/components/Table/DataTable";
 import CustomerForm from "../../../../features/finance/components/customer/CustomerForm";
 import {
   useGetCustomers,
@@ -33,20 +33,20 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "components/ui/alert-dialog";
+} from "@/components/ui/alert-dialog";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "components/ui/dialog";
+} from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "components/ui/dropdown-menu";
+} from "@/components/ui/dropdown-menu";
 import { MoreHorizontal } from "lucide-react";
 
 export default function CustomersPage() {

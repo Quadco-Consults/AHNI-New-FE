@@ -1,27 +1,27 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import AddSquareIcon from "components/icons/AddSquareIcon";
-import DeleteIcon from "components/icons/DeleteIcon";
-import DownIcon from "components/icons/DownIcon";
-import EyeIcon from "components/icons/EyeIcon";
-import FilterIcon from "components/icons/FilterIcon";
-import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
-import SearchIcon from "components/icons/SearchIcon";
-import Card from "components/Card";
-import DataTable from "components/Table/DataTable";
-import { Badge } from "components/ui/badge";
-import { Button } from "components/ui/button";
-import { Checkbox } from "components/ui/checkbox";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { HrRoutes } from "constants/RouterConstants";
-import { cn } from "lib/utils";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
+import DeleteIcon from "@/components/icons/DeleteIcon";
+import DownIcon from "@/components/icons/DownIcon";
+import EyeIcon from "@/components/icons/EyeIcon";
+import FilterIcon from "@/components/icons/FilterIcon";
+import MoreOptionsHorizontalIcon from "@/components/icons/MoreOptionsHorizontalIcon";
+import SearchIcon from "@/components/icons/SearchIcon";
+import Card from "@/components/Card";
+import DataTable from "@/components/Table/DataTable";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { HrRoutes } from "@/constants/RouterConstants";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import React, { useState } from "react";
 import { toast } from "sonner";
 import { useGetSeparationManagement, useDeleteSeparationManagement } from "@/features/hr/controllers/separationManagementController";
 import { SeparationManagement as SeparationManagementType } from "@/features/hr/types/separation-management";
-import useDebounce from "utils/useDebounce";
+import useDebounce from "@/utils/useDebounce";
 
 const SeparationManagement = () => {
   const [searchQuery, setSearchQuery] = useState("");

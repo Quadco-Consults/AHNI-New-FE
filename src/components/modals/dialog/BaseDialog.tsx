@@ -1,9 +1,9 @@
 "use client";
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "components/ui/dialog";
-import { useAppDispatch, useAppSelector } from "hooks/useStore";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
 import { FC, ReactNode } from "react";
-import { closeDialog, dailogSelector } from "store/ui";
+import { closeDialog, dailogSelector } from "@/store/ui";
 
 type PageProps = {
     children: ReactNode;

@@ -1,18 +1,18 @@
 "use client";
 
-import BackNavigation from "components/atoms/BackNavigation";
+import BackNavigation from "@/components/atoms/BackNavigation";
 import FormButton from "@/components/FormButton";
-import FormInput from "components/atoms/FormInput";
-import FormSelect from "components/atoms/FormSelectField";
-import Card from "components/Card";
-import { Button } from "components/ui/button";
+import FormInput from "@/components/atoms/FormInput";
+import FormSelect from "@/components/atoms/FormSelectField";
+import Card from "@/components/Card";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
   FormField,
   FormItem,
   FormMessage,
-} from "components/ui/form";
+} from "@/components/ui/form";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useParams, useRouter } from "next/navigation";
@@ -25,14 +25,14 @@ import {
   DialogHeader,
   DialogDescription,
   DialogClose,
-} from "components/ui/dialog";
-import { LoadingSpinner } from "components/Loading";
-import { Input } from "components/ui/input";
+} from "@/components/ui/dialog";
+import { LoadingSpinner } from "@/components/Loading";
+import { Input } from "@/components/ui/input";
 import { Search } from 'lucide-react';
 import { Icon } from "@iconify/react";
-import { Checkbox } from "components/ui/checkbox";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useGetAllUsers } from "@/features/auth/controllers/userController";
-import { Badge } from "components/ui/badge";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { useCreateAdhocInterview } from "@/features/programs/controllers/adhocInterviewController";
 import { useGetApplicantsByAdvertisement } from "@/features/programs/controllers/adhocApplicantController";

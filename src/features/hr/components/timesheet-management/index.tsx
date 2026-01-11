@@ -1,27 +1,27 @@
 "use client";
 
 import { ColumnDef, Row } from "@tanstack/react-table";
-import { Checkbox } from "components/ui/checkbox";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { Button } from "components/ui/button";
-import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import MoreOptionsHorizontalIcon from "@/components/icons/MoreOptionsHorizontalIcon";
 import Link from "next/link";
-import { HrRoutes } from "constants/RouterConstants";
-import EyeIcon from "components/icons/EyeIcon";
-import DeleteIcon from "components/icons/DeleteIcon";
-import DataTable from "components/Table/DataTable";
-import SearchIcon from "components/icons/SearchIcon";
-import FilterIcon from "components/icons/FilterIcon";
-import AddSquareIcon from "components/icons/AddSquareIcon";
-import Card from "components/Card";
+import { HrRoutes } from "@/constants/RouterConstants";
+import EyeIcon from "@/components/icons/EyeIcon";
+import DeleteIcon from "@/components/icons/DeleteIcon";
+import DataTable from "@/components/Table/DataTable";
+import SearchIcon from "@/components/icons/SearchIcon";
+import FilterIcon from "@/components/icons/FilterIcon";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
+import Card from "@/components/Card";
 import { Timesheet } from "../../types/timesheet";
-import { Badge } from "components/ui/badge";
+import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import { format } from "date-fns";
 import { useRouter } from "next/navigation";
 import { useGetTimesheets, useDeleteTimesheet } from "../../controllers/timesheetController";
 import { toast } from "sonner";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const TimesheetManagement = () => {
   const router = useRouter();

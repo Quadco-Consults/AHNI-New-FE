@@ -1,18 +1,18 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import BackNavigation from "components/atoms/BackNavigation";
+import BackNavigation from "@/components/atoms/BackNavigation";
 import FormButton from "@/components/FormButton";
-import FormInput from "components/atoms/FormInput";
-import FormSelect from "components/atoms/FormSelectField";
-import { Form } from "components/ui/form";
-import { AdminRoutes } from "constants/RouterConstants";
+import FormInput from "@/components/atoms/FormInput";
+import FormSelect from "@/components/atoms/FormSelectField";
+import { Form } from "@/components/ui/form";
+import { AdminRoutes } from "@/constants/RouterConstants";
 import {
   AssetSchema,
   TAssetFormValues,
-} from "features/admin/types/inventory-management/asset";
-import useQuery from "hooks/useQuery";
-import { nigerianStates } from "lib/index";
+} from "@/features/admin/types/inventory-management/asset";
+import useQuery from "@/hooks/useQuery";
+import { nigerianStates } from "@/lib/index";
 import { useCallback, useEffect, useMemo } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
@@ -25,7 +25,7 @@ import { useGetAllUsers } from "@/features/auth/controllers/userController";
 import { toast } from "sonner";
 import { useGetAllFundingSources } from "@/features/modules/controllers/project/fundingSourceController";
 import { useGetAllPartners } from "@/features/modules/controllers/project/partnerController";
-import FormTextArea from "components/atoms/FormTextArea";
+import FormTextArea from "@/components/atoms/FormTextArea";
 import { useGetAllCategories } from "@/features/modules/controllers/config/categoryController";
 import {
   useAddItem,

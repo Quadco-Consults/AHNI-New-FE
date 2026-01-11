@@ -1,17 +1,17 @@
 "use client";
 
 import FormButton from "@/components/FormButton";
-import FormTextArea from "components/atoms/FormTextArea";
-import Card from "components/Card";
-import DescriptionCard from "components/DescriptionCard";
-import GoBack from "components/GoBack";
-import { LoadingSpinner } from "components/Loading";
-import { Separator } from "components/ui/separator";
+import FormTextArea from "@/components/atoms/FormTextArea";
+import Card from "@/components/Card";
+import DescriptionCard from "@/components/DescriptionCard";
+import GoBack from "@/components/GoBack";
+import { LoadingSpinner } from "@/components/Loading";
+import { Separator } from "@/components/ui/separator";
 import { format } from "date-fns";
 import { FormProvider, useForm } from "react-hook-form";
 import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import { AdminRoutes } from "constants/RouterConstants";
+import { AdminRoutes } from "@/constants/RouterConstants";
 import { toast } from "sonner";
 import {
   useGetSingleItemRequisition,

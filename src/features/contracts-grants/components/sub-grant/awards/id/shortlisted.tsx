@@ -1,10 +1,10 @@
 "use client";
 
 import { skipToken } from "@reduxjs/toolkit/query";
-import Card from "components/Card";
+import Card from "@/components/Card";
 import { shortlistedSubmissionColumns } from "@/features/contracts-grants/components/table-columns/sub-grant/shortlisted";
-import DataTable from "components/Table/DataTable";
-import TableFilters from "components/Table/TableFilters";
+import DataTable from "@/components/Table/DataTable";
+import TableFilters from "@/components/Table/TableFilters";
 import { ISubGrantSingleData } from "@/features/contracts-grants/types/contract-management/sub-grant/sub-grant";
 import { useState, useMemo } from "react";
 import { useParams } from "next/navigation";

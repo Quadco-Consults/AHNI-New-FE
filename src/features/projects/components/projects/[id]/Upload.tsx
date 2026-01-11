@@ -1,15 +1,15 @@
 // src/pages/ProjectUploads.tsx
 import { useParams } from "next/navigation";
-import { openDialog } from "store/ui";
-import { DialogType } from "constants/dailogs";
-import { useAppDispatch } from "hooks/useStore";
+import { openDialog } from "@/store/ui";
+import { DialogType } from "@/constants/dailogs";
+import { useAppDispatch } from "@/hooks/useStore";
 import {
   useDeleteProjectDocument,
   useGetAllProjectDocuments,
 } from "@/features/projects/controllers/projectDocumentController";
 
 import { useState } from "react";
-import UploadsComponent from "components/UploadComponent";
+import UploadsComponent from "@/components/UploadComponent";
 
 export default function ProjectUploads() {
   const dispatch = useAppDispatch();

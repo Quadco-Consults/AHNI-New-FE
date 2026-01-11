@@ -1,13 +1,13 @@
 "use client";
 
-import { useAppSelector } from "hooks/useStore";
-import { dailogSelector } from "store/ui";
+import { useAppSelector } from "@/hooks/useStore";
+import { dailogSelector } from "@/store/ui";
 import { BaseDialog } from "./BaseDialog";
 import React, { useState, useEffect } from "react";
-import { DialogType } from "constants/dailogs";
+import { DialogType } from "@/constants/dailogs";
 import dynamic from "next/dynamic";
 
-import { LoadingSpinner } from "components/Loading";
+import { LoadingSpinner } from "@/components/Loading";
 
 // Loading component for modals
 const ModalLoading = () => (

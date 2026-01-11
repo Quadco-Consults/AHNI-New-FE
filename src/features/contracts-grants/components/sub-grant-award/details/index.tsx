@@ -1,19 +1,19 @@
 "use client";
 
-import BackNavigation from "components/atoms/BackNavigation";
-import AddSquareIcon from "components/icons/AddSquareIcon";
-import { Button } from "components/ui/button";
+import BackNavigation from "@/components/atoms/BackNavigation";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
+import { Button } from "@/components/ui/button";
 import SubGrantExpenditureHistory from "./_components/SubGrantExpenditureHistory";
 import SubGrantObligationHistory from "./_components/SubGrantObligationHistory";
 import SubGrantModificationHistory from "./_components/SubGrantModificationHistory";
 import SubGrantDisbursementHistory from "./_components/SubGrantDisbursementHistory";
 import AwardDetailsTab from "./_components/AwardDetailsTab";
 import { useParams } from "next/navigation";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useState, useMemo } from "react";
-import { openDialog } from "store/ui";
-import { DialogType } from "constants/dailogs";
-import { useAppDispatch } from "hooks/useStore";
+import { openDialog } from "@/store/ui";
+import { DialogType } from "@/constants/dailogs";
+import { useAppDispatch } from "@/hooks/useStore";
 import { useGetSingleSubGrant } from "@/features/contracts-grants/controllers/subGrantController";
 import { useGetAllSubGrantObligations } from "@/features/contracts-grants/controllers/subGrantObligationController";
 

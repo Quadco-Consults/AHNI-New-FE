@@ -4,11 +4,11 @@ import React, { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Trash2, ArrowLeft, Pencil } from 'lucide-react';
 import { Icon } from "@iconify/react";
-import { Button } from "components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useGetCompensationById, useDeleteCompensation } from "@/features/hr/controllers/compensationController";
 import { Loading } from "@/components/Loading";
-import ConfirmationDialog from "components/ConfirmationDialog";
+import ConfirmationDialog from "@/components/ConfirmationDialog";
 import { toast } from "sonner";
 import EditCompensationModal from "./components/EditCompensationModal";
 

@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Bell, Search, Settings, User, LogOut, Building2, Menu, HelpCircle } from "lucide-react";
-import { cn } from "lib/utils";
+import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Avatar, AvatarFallback } from "./ui/avatar";

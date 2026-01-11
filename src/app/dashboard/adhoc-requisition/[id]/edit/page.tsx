@@ -5,10 +5,10 @@ import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "components/ui/button";
-import { Card } from "components/ui/card";
-import { Input } from "components/ui/input";
-import { Textarea } from "components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
 
 Select,
@@ -16,9 +16,9 @@ Select,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "components/ui/select";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "components/ui/command";
+} from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
 import { Check, ChevronsUpDown } from "lucide-react";
 import {
   Form,
@@ -27,12 +27,12 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "components/ui/form";
+} from "@/components/ui/form";
 import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 import { useGetSingleAdhocRequisition, useUpdateAdhocRequisition } from "@/controllers/adhocRequisitionController";
 import { AdhocRequisitionSchema, TAdhocRequisitionFormData } from "@/types/adhoc-requisition";
 import { ProgramRoutes } from "@/constants/RouterConstants";
-import { cn } from "lib/utils";
+import { cn } from "@/lib/utils";
 import { useGetPositionPaginate } from "@/features/modules/controllers/config/positionController";
 import { useGetDepartmentPaginate } from "@/features/modules/controllers/config/departmentController";
 import { useGetLocationList } from "@/features/modules/controllers/config/locationController";
@@ -120,9 +120,34 @@ export default function EditAdhocRequisitionPage() {
   const form = useForm<TAdhocRequisitionFormData>({
     resolver: zodResolver(AdhocRequisitionSchema),
     defaultValues: {
+      position_title: "",
+      requesting_department: "",
+      number_of_positions: "",
       priority: "MEDIUM",
+      start_date: "",
+      end_date: "",
+      proposed_salary: "",
       currency: "NGN",
+      project: "",
+      fco: "",
+      budget_line: "",
+      total_budget: "",
+      qualifications: "",
+      skills_required: "",
+      experience_years: "",
+      education_level: "",
+      job_description: "",
+      key_responsibilities: "",
+      reporting_to: "",
+      location: "",
       work_arrangement: "ON_SITE",
+      business_justification: "",
+      urgency_reason: "",
+      alternative_considered: "",
+      reviewer_id: "",
+      authorizer_id: "",
+      approver_id: "",
+      additional_notes: "",
     },
   });
 

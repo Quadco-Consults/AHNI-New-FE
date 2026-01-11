@@ -3,9 +3,9 @@
 import { useMemo } from "react";
 import { useGetAllVendorEvaluations } from "@/features/procurement/controllers/vendorPerformanceEvaluationController";
 import { useGetAllProcurementTrackers } from "@/features/procurement/controllers/procurementTrackerController";
-import Card from "components/Card";
-import { Badge } from "components/ui/badge";
-import { cn } from "lib/utils";
+import Card from "@/components/Card";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import {
   TrendingUp,
   TrendingDown,
@@ -15,9 +15,9 @@ import {
   PieChart,
   Calendar,
 } from "lucide-react";
-import { Loading } from "components/Loading";
+import { Loading } from "@/components/Loading";
 import { ColumnDef } from "@tanstack/react-table";
-import DataTable from "components/Table/DataTable";
+import DataTable from "@/components/Table/DataTable";
 
 interface VendorPerformanceStats {
   vendorName: string;

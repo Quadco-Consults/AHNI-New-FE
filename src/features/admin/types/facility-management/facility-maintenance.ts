@@ -1,4 +1,4 @@
-import { IUser } from "features/auth/types/user";
+import { IUser } from "@/features/auth/types/user";
 import { TDepartmentData } from "definations/modules/config/department";
 import { TLocationData } from "definations/modules/config/location";
 import { TFacilityData } from "definations/modules/program/facility";

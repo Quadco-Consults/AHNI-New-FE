@@ -1,27 +1,27 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import ProjectLayout from "./ProjectLayout";
-import Card from "components/Card";
-import { Button } from "components/ui/button";
-import { openDialog } from "store/ui";
-import { DialogType } from "constants/dailogs";
-import AddSquareIcon from "components/icons/AddSquareIcon";
-import { useAppDispatch } from "hooks/useStore";
+import Card from "@/components/Card";
+import { Button } from "@/components/ui/button";
+import { openDialog } from "@/store/ui";
+import { DialogType } from "@/constants/dailogs";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
+import { useAppDispatch } from "@/hooks/useStore";
 import {
   useDeleteProjectDocument,
   useGetAllProjectDocuments,
 } from "@/features/projects/controllers/projectDocumentController";
-import { Loading } from "components/Loading";
+import { Loading } from "@/components/Loading";
 import { useState } from "react";
 import { pdfjs } from "react-pdf";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import "react-pdf/dist/esm/Page/TextLayer.css";
-import useQuery from "hooks/useQuery";
-import { RouteEnum } from "constants/RouterConstants";
-import Pagination from "components/Pagination";
-import LongArrowLeft from "components/icons/LongArrowLeft";
-import BreadcrumbCard, { TBreadcrumbList } from "components/Breadcrumb";
-import FilePreview from "components/FilePreview";
+import useQuery from "@/hooks/useQuery";
+import { RouteEnum } from "@/constants/RouterConstants";
+import Pagination from "@/components/Pagination";
+import LongArrowLeft from "@/components/icons/LongArrowLeft";
+import BreadcrumbCard, { TBreadcrumbList } from "@/components/Breadcrumb";
+import FilePreview from "@/components/FilePreview";
 import { toast } from "sonner";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;

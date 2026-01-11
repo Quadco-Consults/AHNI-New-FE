@@ -1,32 +1,32 @@
 "use client";
 
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { LoadingSpinner } from "components/Loading";
-import BreadcrumbCard from "components/Breadcrumb";
+import { LoadingSpinner } from "@/components/Loading";
+import BreadcrumbCard from "@/components/Breadcrumb";
 import CbaAPI from "@/features/procurement/controllers/cbaController";
-import Card from "components/Card";
-import { Badge } from "components/ui/badge";
+import Card from "@/components/Card";
+import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, FileText, BarChart, Briefcase, CalendarDays, Layers, ClipboardList, ClipboardCheck, Eye, ShieldCheck, CheckCircle, Package, Users, User, UserCheck, Lock } from 'lucide-react';
 import { Icon } from "@iconify/react";
 import { SolicitationItems } from "definations/procurement-types/solicitation";
-import GoBack from "components/GoBack";
+import GoBack from "@/components/GoBack";
 import { CommitteeMemberData } from "definations/procurement-types/cba";
-import { RouteEnum } from "constants/RouterConstants";
-import { cn } from "lib/utils";
+import { RouteEnum } from "@/constants/RouterConstants";
+import { cn } from "@/lib/utils";
 import {
     Dialog,
     DialogContent,
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-} from "components/ui/dialog";
-import { Form } from "components/ui/form";
-import FormSelect from "components/atoms/FormSelectField";
+} from "@/components/ui/dialog";
+import { Form } from "@/components/ui/form";
+import FormSelect from "@/components/atoms/FormSelectField";
 import { useForm } from "react-hook-form";
-import { SelectContent, SelectItem } from "components/ui/select";
-import FormTextArea from "components/atoms/FormTextArea";
+import { SelectContent, SelectItem } from "@/components/ui/select";
+import FormTextArea from "@/components/atoms/FormTextArea";
 import FormButton from "@/components/FormButton";
 import { z } from "zod";
 import { CbaApprovalSchema } from "@/features/procurement/types/procurement-validator";
@@ -39,7 +39,7 @@ import AnalysisResults from "./AnalysisResults";
 import SignatureWorkflowAPI from "@/features/procurement/controllers/signatureWorkflowController";
 import { useQueryClient } from "@tanstack/react-query";
 import { useGetMemberParticipation, useCurrentUser } from "@/features/procurement/controllers/committeeEvaluationController";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import CommitteeParticipationBanner from "./committee-evaluation/CommitteeParticipationBanner";
 import MemberEvaluationDashboard from "./committee-evaluation/MemberEvaluationDashboard";
 import ConsensusAnalysis from "./committee-evaluation/ConsensusAnalysis";

@@ -1,11 +1,11 @@
 // import logoPng from "assets/svgs/logo-bg-svg";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 //@ts-ignore
 import logoPng from "assets/imgs/logo.png";
-import { Input } from "components/ui/input";
-import { ScrollArea } from "components/ui/scroll-area";
-import { Button } from "components/ui/button";
-import { Checkbox } from "components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const Display = () => {
   return (

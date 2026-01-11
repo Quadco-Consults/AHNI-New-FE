@@ -1,24 +1,24 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Form, FormControl, FormField, FormItem, FormMessage } from "components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
-import FormInput from "components/atoms/FormInput";
-import FormSelect from "components/atoms/FormSelectField";
+import FormInput from "@/components/atoms/FormInput";
+import FormSelect from "@/components/atoms/FormSelectField";
 import FormButton from "@/components/FormButton";
-import { Button } from "components/ui/button";
-import { Label } from "components/ui/label";
-import { SelectContent, SelectItem } from "components/ui/select";
-import { LoadingSpinner } from "components/Loading";
-import MultiSelectFormField from "components/ui/multiselect";
-import { Textarea } from "components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { SelectContent, SelectItem } from "@/components/ui/select";
+import { LoadingSpinner } from "@/components/Loading";
+import MultiSelectFormField from "@/components/ui/multiselect";
+import { Textarea } from "@/components/ui/textarea";
 import { useEffect, useState, useCallback } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import Card from "components/Card";
-import DateInput from "components/DateInput";
-import BreadcrumbCard from "components/Breadcrumb";
-import { RouteEnum } from "constants/RouterConstants";
+import Card from "@/components/Card";
+import DateInput from "@/components/DateInput";
+import BreadcrumbCard from "@/components/Breadcrumb";
+import { RouteEnum } from "@/constants/RouterConstants";
 
 import {
   SiteVisitApplicationSchema,

@@ -2,11 +2,11 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "@/components/FormButton";
-import FormInput from "components/atoms/FormInput";
-import FormSelect from "components/atoms/FormSelect";
-import { Switch } from "components/ui/switch";
-import { Form } from "components/ui/form";
-import { useAppDispatch, useAppSelector } from "hooks/useStore";
+import FormInput from "@/components/atoms/FormInput";
+import FormSelect from "@/components/atoms/FormSelect";
+import { Switch } from "@/components/ui/switch";
+import { Form } from "@/components/ui/form";
+import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
 import { useMemo, useEffect } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useGetAllDepartments } from "@/features/modules/controllers/config/departmentController";
@@ -20,10 +20,10 @@ import { useUpdateVendor } from "@/features/procurement/controllers/vendorsContr
 import { useUpdateEmployeeOnboarding } from "@/features/hr/controllers/employeeOnboardingController";
 import { useCreateEmployeeOnboardingBankAcct, useUpdateEmployeeOnboardingBankAcct } from "@/features/hr/controllers/hrEmployeeOnboardingBankAccountController";
 import { toast } from "sonner";
-import { closeDialog, dailogSelector } from "store/ui";
-import { TUpdateUserFormValues, UpdateUserSchema } from "features/auth/types/user";
+import { closeDialog, dailogSelector } from "@/store/ui";
+import { TUpdateUserFormValues, UpdateUserSchema } from "@/features/auth/types/user";
 import { useGetAllRoles } from "../../controllers/roleController";
-import FormMultiSelect from "components/atoms/FormMultiSelect";
+import FormMultiSelect from "@/components/atoms/FormMultiSelect";
 
 const genderOptions = [
   { label: "Male", value: "MALE" },

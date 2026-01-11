@@ -3,17 +3,17 @@
 import React, { useState, useEffect } from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import logoPng from "@/assets/svgs/logo-bg.svg";
-import DataTable from "components/Table/DataTable";
-import { Button } from "components/ui/button";
+import DataTable from "@/components/Table/DataTable";
+import { Button } from "@/components/ui/button";
 
 import { ChevronRight } from "lucide-react";
 import TenderChecklist from "./TenderCheckList";
 import { useForm } from "react-hook-form";
-import { RouteEnum } from "constants/RouterConstants";
+import { RouteEnum } from "@/constants/RouterConstants";
 import { useRouter, useSearchParams, useParams } from "next/navigation";
 import ManualBidCbaPrequalificationAPI from "@/features/procurement/controllers/manualBidCbaPrequalificationController";
 import { toast } from "sonner";
-import GoBack from "components/GoBack";
+import GoBack from "@/components/GoBack";
 import CbaAPI from "@/features/procurement/controllers/cbaController";
 import { useGetSingleSolicitation } from "@/features/procurement/controllers/solicitationController";
 import { useGetSolicitationSubmission } from "@/features/procurement/controllers/vendorBidSubmissionsController";

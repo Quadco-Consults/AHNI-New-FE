@@ -9,7 +9,7 @@ import { ArrowLeft, Edit, FileText, MapPin, User, Calendar, CheckCircle, AlertCi
 import { useGetSupervisionEvaluationById } from "../../controllers/supervisionEvaluationController";
 import { SupervisionEvaluationStatusLabels } from "../../types/supervision-evaluation";
 import { formatDate, formatDateTime } from "@/utils/date";
-import { LoadingSpinner } from "components/Loading";
+import { LoadingSpinner } from "@/components/Loading";
 
 interface SupervisionEvaluationDetailProps {
   evaluationId: string;

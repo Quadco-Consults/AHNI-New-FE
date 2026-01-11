@@ -1,4 +1,4 @@
-import { IUser } from "features/auth/types/user";
+import { IUser } from "@/features/auth/types/user";
 import { TPrequalificationCategoryData } from "definations/modules/procurement/prequalification-category";
 import { TSolicitationEvaluationCriteriaData } from "definations/modules/procurement/solicitation-evaluation-criteria";
 import { TFacilityData } from "definations/modules/program/facility";

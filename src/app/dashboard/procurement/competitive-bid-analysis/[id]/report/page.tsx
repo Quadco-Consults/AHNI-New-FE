@@ -2,8 +2,8 @@
 
 export const dynamic = "force-dynamic";
 import { useParams } from "next/navigation";
-import BreadcrumbCard from "components/Breadcrumb";
-import GoBack from "components/GoBack";
+import BreadcrumbCard from "@/components/Breadcrumb";
+import GoBack from "@/components/GoBack";
 import CbaReportGenerator from "@/features/procurement/components/competitive-bid-analysis/CbaReportGenerator";
 
 const CbaReportPage = () => {

@@ -1,15 +1,15 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "components/ui/card";
-import { Badge } from "components/ui/badge";
-import { Button } from "components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useGetPerformanceAssesments } from "@/features/hr/controllers/hrPerformanceAssessmentController";
 import { PerformanceAssesment, EvaluatorType } from "@/features/hr/types/performance-assesment";
 import { CheckCircle, CheckCircle } from 'lucide-react';
 import { Icon } from "@iconify/react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const EvaluatorDashboard: React.FC = () => {
   const router = useRouter();

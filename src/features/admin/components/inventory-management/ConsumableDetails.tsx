@@ -1,7 +1,7 @@
 "use client";
 
-import { LoadingSpinner } from "components/Loading";
-import { Card, CardContent, CardHeader } from "components/ui/card";
+import { LoadingSpinner } from "@/components/Loading";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useParams } from "next/navigation";
 import { useGetSingleItemQuery } from "@/features/modules/controllers/config/itemController";
 

@@ -3,7 +3,7 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/no-unknown-property */
 
-import { LoadingSpinner } from "components/Loading";
+import { LoadingSpinner } from "@/components/Loading";
 import { VendorsResultsData } from "definations/procurement-types/vendors";
 import { Document, Page } from "react-pdf";
 import { pdfjs } from "react-pdf";
@@ -16,22 +16,21 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "components/ui/dialog";
+} from "@/components/ui/dialog";
 import { useState } from "react";
 import { useGetGrievianceManagementDocuments, useDeleteGrievianceManagementDocument, useCreateGrievianceManagementDocument } from "@/features/hr/controllers/hrGrievianceManagementDocumentController";
 import { VendorsDocumentResultsData } from "definations/procurement-types/vendors-document";
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import DeleteIcon from "components/icons/DeleteIcon";
+import DeleteIcon from "@/components/icons/DeleteIcon";
 import { Icon } from "@iconify/react";
-import AddSquareIcon from "components/icons/AddSquareIcon";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useAppDispatch } from "hooks/useStore";
+import { useAppDispatch } from "@/hooks/useStore";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DocumentGrievianceManagementSchema, GrievianceManagementDocument } from "@/features/hr/types/grieviance-management";
 import UploadDocumentDialog from "@/components/modals/dialog/UploadDocumentDialog";
-import moment from "moment";
-import ConfirmationDialog from "components/ConfirmationDialog";
+import ConfirmationDialog from "@/components/ConfirmationDialog";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
@@ -235,7 +234,7 @@ const Uploads = (data: VendorsResultsData) => {
                   Last Updated: {/* // @ts-ignore */}
                   {/* <span>{format(doc?.uploaded_datetime, "MMM dd, yyy")}</span> */}
                   {/* @ts-ignore */}
-                  <span>{moment(doc?.created_datetime).format("MMM DD, yyy")}</span>
+                  <span>{doc?.created_datetime ? format(new Date(doc.created_datetime), "MMM dd, yyyy") : "-"}</span>
                 </h6>
               </div>
             );

@@ -1,12 +1,12 @@
 "use client";
 
-import BackNavigation from "components/atoms/BackNavigation";
+import BackNavigation from "@/components/atoms/BackNavigation";
 import FormButton from "@/components/FormButton";
-import FormTextArea from "components/atoms/FormTextArea";
-import Card from "components/Card";
-import DescriptionCard from "components/DescriptionCard";
-import { LoadingSpinner } from "components/Loading";
-import { CardContent, CardHeader } from "components/ui/card";
+import FormTextArea from "@/components/atoms/FormTextArea";
+import Card from "@/components/Card";
+import DescriptionCard from "@/components/DescriptionCard";
+import { LoadingSpinner } from "@/components/Loading";
+import { CardContent, CardHeader } from "@/components/ui/card";
 import { format } from "date-fns";
 import { FormProvider, useForm, SubmitHandler } from "react-hook-form";
 import { useParams, useRouter } from "next/navigation";
@@ -16,14 +16,14 @@ import {
   useAuthorizeTravelExpense,
   useApproveTravelExpense,
 } from "@/features/admin/controllers/travelExpenseController";
-import { Badge } from "components/ui/badge";
-import { cn } from "lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { Separator } from "components/ui/separator";
+import { Separator } from "@/components/ui/separator";
 import { useState, useEffect } from "react";
 import DocumentCard from "@/features/projects/components/projects/create/DocumentCard";
 import { FileTextIcon } from "lucide-react";
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 interface ApprovalFormData {

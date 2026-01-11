@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "components/ui/button";
-import { Label } from "components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import { X, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { ProjectTargetDefinition } from "@/features/projects/types/project";

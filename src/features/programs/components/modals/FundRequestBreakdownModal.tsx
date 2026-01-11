@@ -1,12 +1,12 @@
 "use client";
 
 import FormButton from "@/components/FormButton";
-import FormInput from "components/atoms/FormInput";
-import { Button } from "components/ui/button";
-import { Separator } from "components/ui/separator";
-import { useAppDispatch } from "hooks/useStore";
+import FormInput from "@/components/atoms/FormInput";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { useAppDispatch } from "@/hooks/useStore";
 import { FormProvider, useForm } from "react-hook-form";
-import { closeDialog } from "store/ui";
+import { closeDialog } from "@/store/ui";
 
 export default function FundRequestBreakdown() {
     const form = useForm();

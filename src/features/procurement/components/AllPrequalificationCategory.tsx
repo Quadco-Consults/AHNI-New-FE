@@ -1,16 +1,16 @@
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { useAppDispatch } from "hooks/useStore";
-import { openDialog } from "store/ui";
-import { DialogType } from "constants/dailogs";
-import TableAction from "components/TableAction";
-import { LoadingSpinner } from "components/Loading";
+import { useAppDispatch } from "@/hooks/useStore";
+import { openDialog } from "@/store/ui";
+import { DialogType } from "@/constants/dailogs";
+import TableAction from "@/components/TableAction";
+import { LoadingSpinner } from "@/components/Loading";
 import { useState } from "react";
 import {
     useDeletePrequalificationCategory,
     useGetAllPrequalificationCategory,
 } from "@/features/modules/controllers/procurement/prequalificationCategoryController";
-import Pagination from "components/Pagination";
+import Pagination from "@/components/Pagination";
 
 export default function AllPrequalificationCategory() {
     const [page, setPage] = useState(1);

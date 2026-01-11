@@ -2,12 +2,12 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
-import { Button } from "components/ui/button";
-import { LoadingSpinner } from "components/Loading";
-import BreadcrumbCard from "components/Breadcrumb";
-import Card from "components/Card";
-import { Badge } from "components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { LoadingSpinner } from "@/components/Loading";
+import BreadcrumbCard from "@/components/Breadcrumb";
+import Card from "@/components/Card";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Calendar,
   MapPin,
@@ -18,7 +18,8 @@ import {
   Clock,
   Download,
   Edit,
-  AlertTriangle
+  AlertTriangle,
+  ArrowLeft
 } from "lucide-react";
 
 import {
@@ -146,6 +147,19 @@ const SiteVisitDetail = () => {
   return (
     <div className="p-6">
       <BreadcrumbCard list={breadcrumbs} />
+
+      {/* Back Button */}
+      <div className="mt-4">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => router.push("/dashboard/programs/plan/site-visit")}
+          className="flex items-center gap-2"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back
+        </Button>
+      </div>
 
       <div className="mt-6">
         {/* Header */}

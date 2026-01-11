@@ -1,23 +1,23 @@
 "use client";
 
-import BackNavigation from "components/atoms/BackNavigation";
-import { Card } from "components/ui/card";
+import BackNavigation from "@/components/atoms/BackNavigation";
+import { Card } from "@/components/ui/card";
 import { useParams } from "next/navigation";
-import DescriptionCard from "components/DescriptionCard";
+import DescriptionCard from "@/components/DescriptionCard";
 import {
   useGetSingleFacilityMaintenanceQuery,
   useReviewFacilityMaintenance,
   useAuthorizeFacilityMaintenance,
   useApproveFacilityMaintenance,
 } from "@/features/admin/controllers/facilityMaintenanceController";
-import { LoadingSpinner } from "components/Loading";
-import { Textarea } from "components/ui/textarea";
-import { Button } from "components/ui/button";
+import { LoadingSpinner } from "@/components/Loading";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
 import FormButton from "@/components/FormButton";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { formatNumberCurrency } from "utils/utls";
+import { formatNumberCurrency } from "@/utils/utls";
 import { Download, FileText } from "lucide-react";
 import { usePermissions } from "@/hooks/usePermissions";
 

@@ -2,13 +2,13 @@
 
 import { useParams, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import Card from "components/Card";
-import { Loading } from "components/Loading";
-import GoBack from "components/GoBack";
-import DataTable from "components/Table/DataTable";
+import Card from "@/components/Card";
+import { Loading } from "@/components/Loading";
+import GoBack from "@/components/GoBack";
+import DataTable from "@/components/Table/DataTable";
 import { ColumnDef } from "@tanstack/react-table";
-import { Badge } from "components/ui/badge";
-import { cn } from "lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import CbaAPI from "@/features/procurement/controllers/cbaController";
 import ManualBidCbaPrequalificationAPI from "@/features/procurement/controllers/manualBidCbaPrequalificationController";
 import logoPng from "@/assets/svgs/logo-bg.svg";

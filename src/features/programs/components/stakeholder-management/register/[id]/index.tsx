@@ -1,11 +1,11 @@
 "use client";
 
 import { skipToken } from "@reduxjs/toolkit/query/react";
-import LongArrowLeft from "components/icons/LongArrowLeft";
-import BreadcrumbCard, { TBreadcrumbList } from "components/Breadcrumb";
-import Card from "components/Card";
-import DescriptionCard from "components/DescriptionCard";
-import { LoadingSpinner } from "components/Loading";
+import LongArrowLeft from "@/components/icons/LongArrowLeft";
+import BreadcrumbCard, { TBreadcrumbList } from "@/components/Breadcrumb";
+import Card from "@/components/Card";
+import DescriptionCard from "@/components/DescriptionCard";
+import { LoadingSpinner } from "@/components/Loading";
 import { useRouter, useParams } from "next/navigation";
 import { useGetSingleStakeholderRegister } from "@/features/programs/controllers/stakeholderController";
 

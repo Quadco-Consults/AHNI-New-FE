@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "components/ui/button";
-import { ProgramRoutes } from "constants/RouterConstants";
+import { Button } from "@/components/ui/button";
+import { ProgramRoutes } from "@/constants/RouterConstants";
 import { Plus, AlertCircle } from "lucide-react";
 import Link from "next/link";
-import { LoadingSpinner } from "components/Loading";
-import Pagination from "components/Pagination";
+import { LoadingSpinner } from "@/components/Loading";
+import Pagination from "@/components/Pagination";
 import { useGetAllAdhocAdvertisements } from "@/features/programs/controllers/adhocAdvertisementController";
 import AdhocAdvertisementCard from "./AdhocAdvertisementCard";
 import { IAdhocAdvertisement } from "@/features/programs/types/adhoc-management";

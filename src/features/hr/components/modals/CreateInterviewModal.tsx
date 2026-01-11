@@ -20,7 +20,7 @@ import {
   PersonStanding,
   Users,
 } from "lucide-react";
-import moment from "moment";
+import { format } from "date-fns";
 import FormSelect from "@/components/FormSelect";
 import { useGetJobAdvertisement } from "@/features/hr/controllers/jobAdvertisementController";
 import { useGetAllUsers } from "@/features/auth/controllers/userController";
@@ -387,7 +387,7 @@ const CreateInterviewModal = ({ jobAdvertisementId, data, onClose }: CreateInter
           </Badge>
           <Badge variant="secondary">
             <CalendarDays size={15} />{" "}
-            {created_datetime ? moment(created_datetime).format("DD-MM-YYYY") : 'N/A'}
+            {created_datetime ? format(new Date(created_datetime), "dd-MM-yyyy") : 'N/A'}
           </Badge>
           <Badge variant="secondary">
             <MapPin size={15} /> {locationString}
@@ -407,7 +407,7 @@ const CreateInterviewModal = ({ jobAdvertisementId, data, onClose }: CreateInter
           {commencement_date && (
             <Badge variant="secondary">
               <Calendar size={15} /> Starts:{" "}
-              {moment(commencement_date).format("DD-MM-YYYY")}
+              {format(new Date(commencement_date), "dd-MM-yyyy")}
             </Badge>
           )}
         </div>

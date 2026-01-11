@@ -2,21 +2,21 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { skipToken } from "@reduxjs/toolkit/query";
-import BackNavigation from "components/atoms/BackNavigation";
+import BackNavigation from "@/components/atoms/BackNavigation";
 import FormButton from "@/components/FormButton";
-import FormInput from "components/atoms/FormInput";
-import FormSelect from "components/atoms/FormSelect";
-import Card from "components/Card";
-import { CardContent } from "components/ui/card";
-import { Form, FormControl, FormField, FormItem } from "components/ui/form";
-import { Label } from "components/ui/label";
-import MultiSelectFormField from "components/ui/multiselect";
-import { CG_ROUTES } from "constants/RouterConstants";
+import FormInput from "@/components/atoms/FormInput";
+import FormSelect from "@/components/atoms/FormSelect";
+import Card from "@/components/Card";
+import { CardContent } from "@/components/ui/card";
+import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
+import { Label } from "@/components/ui/label";
+import MultiSelectFormField from "@/components/ui/multiselect";
+import { CG_ROUTES } from "@/constants/RouterConstants";
 import {
     SubGrantSchema,
     TSubGrantFormData,
 } from "@/features/contracts-grants/types/contract-management/sub-grant/sub-grant";
-import { useAppDispatch, useAppSelector } from "hooks/useStore";
+import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
 import { useEffect, useMemo } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useNavigate, useSearchParams } from "next/navigation";

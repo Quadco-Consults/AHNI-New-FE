@@ -1,7 +1,7 @@
-import { Badge } from "components/ui/badge";
-import { Button } from "components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { VendorsResultsData } from "definations/procurement-types/vendors";
-import { cn } from "lib/utils";
+import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { toast } from "sonner";
 import {
@@ -10,10 +10,10 @@ import {
   DialogTitle,
   DialogHeader,
   DialogDescription,
-} from "components/ui/dialog";
-import FormTextArea from "components/atoms/FormTextArea";
+} from "@/components/ui/dialog";
+import FormTextArea from "@/components/atoms/FormTextArea";
 import { useForm } from "react-hook-form";
-import { Form } from "components/ui/form";
+import { Form } from "@/components/ui/form";
 
 const Overview = (data: VendorsResultsData) => {
   const [isProcessing, setIsProcessing] = useState(false);

@@ -3,12 +3,12 @@
 import { useState } from "react";
 import { ChevronDown, Zap, DollarSign, ClipboardCheck } from 'lucide-react';
 import { Icon } from "@iconify/react";
-import Card from "components/Card";
-import { Badge } from "components/ui/badge";
-import { Input } from "components/ui/input";
-import { Textarea } from "components/ui/textarea";
-import { Checkbox } from "components/ui/checkbox";
-import { Button } from "components/ui/button";
+import Card from "@/components/Card";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
 import { IVendorEvaluation, IItemSelection } from "@/features/procurement/types/cba";
 
 interface VendorData {

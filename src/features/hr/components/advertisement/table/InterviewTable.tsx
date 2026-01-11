@@ -2,16 +2,16 @@
 
 import { useState } from "react";
 import { ColumnDef } from "@tanstack/react-table";
-import { Badge } from "components/ui/badge";
-import { Button } from "components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
-import EyeIcon from "components/icons/EyeIcon";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import MoreOptionsHorizontalIcon from "@/components/icons/MoreOptionsHorizontalIcon";
+import EyeIcon from "@/components/icons/EyeIcon";
 import { useParams } from "next/navigation";
-import DataTable from "components/Table/DataTable";
-import SearchIcon from "components/icons/SearchIcon";
-import FilterIcon from "components/icons/FilterIcon";
-import { Loading } from "components/Loading";
+import DataTable from "@/components/Table/DataTable";
+import SearchIcon from "@/components/icons/SearchIcon";
+import FilterIcon from "@/components/icons/FilterIcon";
+import { Loading } from "@/components/Loading";
 import { useGetInterviews } from "@/features/hr/controllers/hrInterviewController";
 import { usePatchJobApplicationAccepted, useGetJobApplications } from "@/features/hr/controllers/hrJobApplicationsController";
 import { CheckCheckIcon } from "lucide-react";

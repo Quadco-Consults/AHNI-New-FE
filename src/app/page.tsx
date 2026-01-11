@@ -20,7 +20,7 @@ import {
   Globe,
   Home
 } from "lucide-react";
-import { getAccessToken } from "utils/auth";
+import { getAccessToken } from "@/utils/auth";
 import Image from "next/image";
 
 export default function HomePage() {

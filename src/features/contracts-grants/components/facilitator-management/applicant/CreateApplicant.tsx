@@ -2,13 +2,13 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Form } from "components/ui/form";
-import FormInput from "components/atoms/FormInput";
+import { Form } from "@/components/ui/form";
+import FormInput from "@/components/atoms/FormInput";
 import FormButton from "@/components/FormButton";
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import { useRouter, useParams } from "next/navigation";
 import { toast } from "sonner";
-import Card from "components/Card";
+import Card from "@/components/Card";
 import {
   FacilitatorApplicantSchema,
   TFacilitatorApplicantFormData

@@ -1,30 +1,30 @@
 "use client";
 
-import Card from "components/Card";
+import Card from "@/components/Card";
 import { useState, useMemo } from "react";
-import DataTable from "components/Table/DataTable";
-import BreadcrumbCard, { TBreadcrumbList } from "components/Breadcrumb";
+import DataTable from "@/components/Table/DataTable";
+import BreadcrumbCard, { TBreadcrumbList } from "@/components/Breadcrumb";
 import { useDebounce } from "ahooks";
-import TableFilters from "components/Table/TableFilters";
+import TableFilters from "@/components/Table/TableFilters";
 import { getActivityPlanDetailsColumns } from "@/features/programs/components/table-columns/plan/activity-plan";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useGetAllActivityPlans } from "@/features/programs/controllers/activityPlanController";
 import { useGetSingleWorkPlan } from "@/features/programs/controllers/workPlanController";
 import { skipToken } from "@reduxjs/toolkit/query";
-import { LoadingSpinner } from "components/Loading";
-import { Button } from "components/ui/button";
+import { LoadingSpinner } from "@/components/Loading";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { RouteEnum } from "constants/RouterConstants";
-import AddSquareIcon from "components/icons/AddSquareIcon";
-import UploadIcon from "components/icons/UploadIcon";
-import ArrowDownIcon from "components/icons/ArrowDownIcon";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { useAppDispatch } from "hooks/useStore";
-import { openDialog } from "store/ui";
-import { DialogType } from "constants/dailogs";
+import { RouteEnum } from "@/constants/RouterConstants";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
+import UploadIcon from "@/components/icons/UploadIcon";
+import ArrowDownIcon from "@/components/icons/ArrowDownIcon";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useAppDispatch } from "@/hooks/useStore";
+import { openDialog } from "@/store/ui";
+import { DialogType } from "@/constants/dailogs";
 import { toast } from "sonner";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
-import { DownloadIcon } from "lucide-react";
+import { DownloadIcon, ArrowLeft } from "lucide-react";
 
 const breadcrumbs: TBreadcrumbList[] = [
   { name: "Programs", icon: true },
@@ -35,6 +35,7 @@ const breadcrumbs: TBreadcrumbList[] = [
 ];
 
 export default function PlannedActivities() {
+  const router = useRouter();
   const [page, setPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const { id } = useParams();
@@ -153,20 +154,27 @@ export default function PlannedActivities() {
     <div className='space-y-5'>
       <BreadcrumbCard list={breadcrumbs} />
 
+      <div className="flex items-center gap-4">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => router.push(`/dashboard/programs/plan/activity/${id}`)}
+          className="flex items-center gap-2"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back
+        </Button>
+      </div>
+
       {/* Work Plan Context Info */}
       {workPlan?.data && (
         <Card className="p-4">
-          <div className="flex justify-between items-center">
-            <div className="space-y-1">
-              <h3 className="font-semibold">Planned Activities for:</h3>
-              <div className="flex gap-6 text-sm text-gray-600">
-                <span><strong>Project:</strong> {workPlan.data.project?.title}</span>
-                <span><strong>Financial Year:</strong> {workPlan.data.financial_year?.year}</span>
-              </div>
+          <div className="space-y-1">
+            <h3 className="font-semibold">Planned Activities for:</h3>
+            <div className="flex gap-6 text-sm text-gray-600">
+              <span><strong>Project:</strong> {workPlan.data.project?.title}</span>
+              <span><strong>Financial Year:</strong> {workPlan.data.financial_year?.year}</span>
             </div>
-            <Link href={`/dashboard/programs/plan/activity/${id}`}>
-              <Button variant="outline">← Back to Activity Types</Button>
-            </Link>
           </div>
         </Card>
       )}

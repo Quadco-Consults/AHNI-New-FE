@@ -1,7 +1,7 @@
 import CheckIcon from "assets/svgs/CheckIcon";
 import PendingIcon from "assets/svgs/PendingIcon";
-import BackNavigation from "components/atoms/BackNavigation";
-import { Separator } from "components/ui/separator";
+import BackNavigation from "@/components/atoms/BackNavigation";
+import { Separator } from "@/components/ui/separator";
 import React, { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 

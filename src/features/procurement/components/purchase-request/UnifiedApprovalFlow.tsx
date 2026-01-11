@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react';
 import { Settings } from 'lucide-react';
-import { Button } from 'components/ui/button';
-import { Badge } from 'components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 // Import both old and new components
 import { ApprovalFlow as NewApprovalFlow } from './ApprovalFlow';

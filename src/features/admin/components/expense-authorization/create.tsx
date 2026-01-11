@@ -1,20 +1,20 @@
 "use client";
 
 import FormButton from "@/components/FormButton";
-import FormCheckBox from "components/atoms/FormCheckBox";
-import FormInput from "components/atoms/FormInput";
-import FormSelect from "components/atoms/FormSelect";
-import FormTextArea from "components/atoms/FormTextArea";
-import Card from "components/Card";
-import GoBack from "components/GoBack";
-import { Form } from "components/ui/form";
-import { Label } from "components/ui/label";
+import FormCheckBox from "@/components/atoms/FormCheckBox";
+import FormInput from "@/components/atoms/FormInput";
+import FormSelect from "@/components/atoms/FormSelect";
+import FormTextArea from "@/components/atoms/FormTextArea";
+import Card from "@/components/Card";
+import GoBack from "@/components/GoBack";
+import { Form } from "@/components/ui/form";
+import { Label } from "@/components/ui/label";
 import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
-import FormRadio from "components/atoms/FormRadio";
+import FormRadio from "@/components/atoms/FormRadio";
 import {
   ExpenseAuthorizationSchema,
   TExpenseAuthorizationFormData,
-} from "features/admin/types/expense-authorization";
+} from "@/features/admin/types/expense-authorization";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useGetAllProjectsQuery } from "@/features/projects/controllers/projectController";
 import { useEffect, useMemo } from "react";
@@ -22,8 +22,8 @@ import { useGetAllDepartmentsQuery } from "@/features/modules/controllers/config
 import { useGetAllFCONumbersQuery } from "@/features/modules/controllers/finance/fcoNumberController";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { AdminRoutes } from "constants/RouterConstants";
-import { Button } from "components/ui/button";
+import { AdminRoutes } from "@/constants/RouterConstants";
+import { Button } from "@/components/ui/button";
 import {
   useCreateExpenseAuthorizationMutation,
   useGetSingleExpenseAuthorizationQuery,
@@ -31,10 +31,10 @@ import {
 } from "@/features/admin/controllers/expenseAuthorizationController";
 import { toast } from "sonner";
 import { useGetAllUsersQuery, useGetCurrentUser } from "@/features/auth/controllers/userController";
-import FadedButton from "components/atoms/FadedButton";
+import FadedButton from "@/components/atoms/FadedButton";
 
-import AddSquareIcon from "components/icons/AddSquareIcon";
-import DeleteIcon from "components/icons/DeleteIcon";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
+import DeleteIcon from "@/components/icons/DeleteIcon";
 import {
   getReviewerOptions,
   getAuthorizerOptions,

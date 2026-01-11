@@ -4,18 +4,18 @@ export default function ProcurementPlansForm() {
     return <></>;
 }
 
-// import { Button } from "components/ui/button";
+// import { Button } from "@/components/ui/button";
 // import { useMemo } from "react";
 // import { useLocation, useNavigate } 
 // import { useFieldArray, useForm } from "react-hook-form";
 // import WorkPlanAPi from "@/features/programs/controllers/work-planController";
-// import FormSelect from "components/atoms/FormSelectField";
-// import { SelectContent, SelectItem } from "components/ui/select";
-// import { LoadingSpinner } from "components/Loading";
+// import FormSelect from "@/components/atoms/FormSelectField";
+// import { SelectContent, SelectItem } from "@/components/ui/select";
+// import { LoadingSpinner } from "@/components/Loading";
 // import { WorkPlanResultsData } from "definations/program-types/program-workplan";
-// import { Form, FormMessage } from "components/ui/form";
-// import FormTextArea from "components/atoms/FormTextArea";
-// import FormInput from "components/atoms/FormInput";
+// import { Form, FormMessage } from "@/components/ui/form";
+// import FormTextArea from "@/components/atoms/FormTextArea";
+// import FormInput from "@/components/atoms/FormInput";
 // import { z } from "zod";
 // import { ProcurementPlanSchema } from "@/features/procurement/types/procurement-validator";
 // import { zodResolver } from "@hookform/resolvers/zod";
@@ -23,7 +23,7 @@ export default function ProcurementPlansForm() {
 // import { VendorsResultsData } from "definations/procurement-types/vendors";
 // import FormButton from "@/components/FormButton";
 // import { MinusCircle } from "lucide-react";
-// import AddSquareIcon from "components/icons/AddSquareIcon";
+// import AddSquareIcon from "@/components/icons/AddSquareIcon";
 // import ProcurementPlanLayout from "../ProcurementPlanLayout";
 
 // const ProcurementPlansForm = () => {

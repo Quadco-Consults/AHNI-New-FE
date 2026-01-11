@@ -1,26 +1,26 @@
-import EyeIcon from "components/icons/EyeIcon";
-import DeleteIcon from "components/icons/DeleteIcon";
+import EyeIcon from "@/components/icons/EyeIcon";
+import DeleteIcon from "@/components/icons/DeleteIcon";
 import { ColumnDef } from "@tanstack/react-table";
-import { Badge } from "components/ui/badge";
-import { cn } from "lib/utils";
-import ApproveIcon from "components/icons/ApproveIcon";
-import ApprovalStatusIcon from "components/icons/ApprovalStatusIcon";
-import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import ApproveIcon from "@/components/icons/ApproveIcon";
+import ApprovalStatusIcon from "@/components/icons/ApprovalStatusIcon";
+import MoreOptionsHorizontalIcon from "@/components/icons/MoreOptionsHorizontalIcon";
 import { toast } from "sonner";
 // import { TSupervisionPlanPaginatedData } from "definations/program/plan/supervision-plan/supervision-plan";
 import Link from "next/link";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { Button } from "components/ui/button";
-import { RouteEnum } from "constants/RouterConstants";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { RouteEnum } from "@/constants/RouterConstants";
 import { useDeleteSupervisionPlan } from "@/features/programs/controllers/supervisionPlanController";
-import ConfirmationDialog from "components/ConfirmationDialog";
+import ConfirmationDialog from "@/components/ConfirmationDialog";
 import { useState } from "react";
-import PencilIcon from "components/icons/PencilIcon";
-import { useAppDispatch } from "hooks/useStore";
-import { openDialog } from "store/ui";
-import { DialogType } from "constants/dailogs";
+import PencilIcon from "@/components/icons/PencilIcon";
+import { useAppDispatch } from "@/hooks/useStore";
+import { openDialog } from "@/store/ui";
+import { DialogType } from "@/constants/dailogs";
 import { TSupervisionPlanPaginatedData } from "@/features/programs/types/program/plan/supervision-plan/supervision-plan";
-import ApprovalSummary from "components/ApprovalSummary";
+import ApprovalSummary from "@/components/ApprovalSummary";
 
 export const supportiveSupervisionPlanColumns: ColumnDef<TSupervisionPlanPaginatedData>[] =
   [

@@ -3,20 +3,20 @@
 import { useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { Button } from "components/ui/button";
-import { Card } from "components/ui/card";
-import { Input } from "components/ui/input";
-import { Badge } from "components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "components/ui/select";
+} from "@/components/ui/select";
 import { Search, Plus, Eye, FileText, Filter } from "lucide-react";
 import { useGetAllAssessments } from "@/features/contracts-grants/controllers/assessmentController";
-import Pagination from "components/Pagination";
+import Pagination from "@/components/Pagination";
 import { format } from "date-fns";
 
 export default function AssessmentsList() {

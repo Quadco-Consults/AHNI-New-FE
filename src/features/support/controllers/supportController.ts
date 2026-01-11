@@ -67,11 +67,7 @@ export const useCreateTicket = () => {
   });
 
   const createTicket = async (details: TSupportFormValues) => {
-    try {
-      await callApi(details);
-    } catch (error) {
-      console.error("Support ticket create error:", error);
-    }
+    return await callApi(details);
   };
 
   return { createTicket, data, isLoading, isSuccess, error };

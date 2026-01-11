@@ -2,18 +2,18 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { Form } from "components/ui/form";
-import FormInput from "components/atoms/FormInput";
-import BackNavigation from "components/atoms/BackNavigation";
-import FormSelect from "components/atoms/FormSelect";
-import { Card, CardContent } from "components/ui/card";
+import { Form } from "@/components/ui/form";
+import FormInput from "@/components/atoms/FormInput";
+import BackNavigation from "@/components/atoms/BackNavigation";
+import FormSelect from "@/components/atoms/FormSelect";
+import { Card, CardContent } from "@/components/ui/card";
 import FormButton from "@/components/FormButton";
 import {
     AgreementSchema,
     TAgreementFormData,
 } from "@/features/contracts-grants/types/contract-management/agreement";
 import { toast } from "sonner";
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
     useCreateAgreement,
     useGetSingleAgreement,
@@ -21,7 +21,7 @@ import {
 } from "@/features/contracts-grants/controllers/agreementController";
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation"; 
-import { CG_ROUTES } from "constants/RouterConstants";
+import { CG_ROUTES } from "@/constants/RouterConstants";
 import { useEffect, useMemo, useState } from "react";
 import ServiceLevelAgreementLayout from "./Layout";
 import { useGetAllLocations } from "@/features/modules/controllers/config/locationController";

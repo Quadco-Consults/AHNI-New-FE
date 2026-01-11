@@ -6,19 +6,19 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
-import Card from "components/Card";
-import { Button } from "components/ui/button";
-import { Form } from "components/ui/form";
-import FormInput from "components/FormInput";
-import FormSelect from "components/FormSelect";
-import { Badge } from "components/ui/badge";
+import Card from "@/components/Card";
+import { Button } from "@/components/ui/button";
+import { Form } from "@/components/ui/form";
+import FormInput from "@/components/FormInput";
+import FormSelect from "@/components/FormSelect";
+import { Badge } from "@/components/ui/badge";
 import { Award, DollarSign, Users } from "lucide-react";
-import { Checkbox } from "components/ui/checkbox";
-import BackNavigation from "components/atoms/BackNavigation";
+import { Checkbox } from "@/components/ui/checkbox";
+import BackNavigation from "@/components/atoms/BackNavigation";
 import { useGetSingleSubGrantSubmission } from "@/features/contracts-grants/controllers/submissionController";
 import { useGetSingleSubGrant } from "@/features/contracts-grants/controllers/subGrantController";
 import { useMakeAward, useCreateCommittee } from "@/features/contracts-grants/controllers/subGrantWorkflowController";
-import { Loading } from "components/Loading";
+import { Loading } from "@/components/Loading";
 
 const AwardSchema = z.object({
     award_amount: z.string().min(1, "Please enter award amount"),

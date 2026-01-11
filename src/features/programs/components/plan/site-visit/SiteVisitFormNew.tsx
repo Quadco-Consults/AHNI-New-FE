@@ -5,14 +5,14 @@ import { useRouter } from "next/navigation";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { Card, CardHeader, CardTitle, CardContent } from "components/ui/card";
-import { Button } from "components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
-import { Separator } from "components/ui/separator";
-import { Badge } from "components/ui/badge";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
 import { CalendarIcon, UsersIcon, MapPinIcon, DollarSignIcon } from "lucide-react";
-import BreadcrumbCard from "components/Breadcrumb";
-import { RouteEnum } from "constants/RouterConstants";
+import BreadcrumbCard from "@/components/Breadcrumb";
+import { RouteEnum } from "@/constants/RouterConstants";
 
 // Types and Schema
 import {

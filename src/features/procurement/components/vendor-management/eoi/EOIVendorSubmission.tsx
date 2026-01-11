@@ -1,17 +1,17 @@
 "use client";
 
 import React, { useState } from "react";
-import Card from "components/Card";
-import { Button } from "components/ui/button";
-import { Form } from "components/ui/form";
-import FormInput from "components/atoms/FormInput";
-import FormTextArea from "components/atoms/FormTextArea";
+import Card from "@/components/Card";
+import { Button } from "@/components/ui/button";
+import { Form } from "@/components/ui/form";
+import FormInput from "@/components/atoms/FormInput";
+import FormTextArea from "@/components/atoms/FormTextArea";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { Input } from "components/ui/input";
-import { Label } from "components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Upload } from "lucide-react";
 
 const EOIResponseSchema = z.object({

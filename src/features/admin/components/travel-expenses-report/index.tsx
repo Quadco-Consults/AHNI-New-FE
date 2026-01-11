@@ -1,14 +1,14 @@
 "use client";
 
-import Card from "components/Card";
-import { Button } from "components/ui/button";
-import AddSquareIcon from "components/icons/AddSquareIcon";
-import SearchIcon from "components/icons/SearchIcon";
-import FilterIcon from "components/icons/FilterIcon";
-import DataTable from "components/Table/DataTable";
-import BreadcrumbCard from "components/Breadcrumb";
+import Card from "@/components/Card";
+import { Button } from "@/components/ui/button";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
+import SearchIcon from "@/components/icons/SearchIcon";
+import FilterIcon from "@/components/icons/FilterIcon";
+import DataTable from "@/components/Table/DataTable";
+import BreadcrumbCard from "@/components/Breadcrumb";
 import Link from "next/link";
-import { AdminRoutes } from "constants/RouterConstants";
+import { AdminRoutes } from "@/constants/RouterConstants";
 import { useState } from "react";
 import { travelExpenseColumn } from "@/features/admin/components/table-columns/travel-expense-report";
 import { useGetAllTravelExpensesQuery } from "@/features/admin/controllers/travelExpenseController";

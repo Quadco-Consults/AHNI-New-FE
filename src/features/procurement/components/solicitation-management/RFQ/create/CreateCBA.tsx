@@ -1,18 +1,18 @@
 "use client";
 
 import FormButton from "@/components/FormButton";
-import FormInput from "components/atoms/FormInput";
-import FormSelect from "components/atoms/FormSelectField";
-// import GoBack from "components/GoBack";
-import { Button } from "components/ui/button";
+import FormInput from "@/components/atoms/FormInput";
+import FormSelect from "@/components/atoms/FormSelectField";
+// import GoBack from "@/components/GoBack";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
   FormField,
   FormItem,
   FormMessage,
-} from "components/ui/form";
-import { SelectContent, SelectItem } from "components/ui/select";
+} from "@/components/ui/form";
+import { SelectContent, SelectItem } from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -21,23 +21,23 @@ import {
   DialogHeader,
   DialogDescription,
   DialogClose,
-} from "components/ui/dialog";
+} from "@/components/ui/dialog";
 import { useForm } from "react-hook-form";
 
 import logoPng from "assets/imgs/logo.png";
-import { Input } from "components/ui/input";
+import { Input } from "@/components/ui/input";
 import { Search, Info, Edit, ClipboardList, Building, Inbox, CheckCircle, XCircle } from 'lucide-react';
 import { Icon } from "@iconify/react";
-import { LoadingSpinner } from "components/Loading";
-import { Checkbox } from "components/ui/checkbox";
+import { LoadingSpinner } from "@/components/Loading";
+import { Checkbox } from "@/components/ui/checkbox";
 
 import { z } from "zod";
 // import { CbaSchema } from "definations/procurement-validator";
-// import { TUser } from "features/auth/types/user";
+// import { TUser } from "@/features/auth/types/user";
 // import CbaAPI from "@/features/procurementApi/cbaController";
 import { toast } from "sonner";
-import { RouteEnum } from "constants/RouterConstants";
-import { Badge } from "components/ui/badge";
+import { RouteEnum } from "@/constants/RouterConstants";
+import { Badge } from "@/components/ui/badge";
 // import LotsAPI from "@/features/procurementApi/lotsController";
 // import { LotsResultsData } from "definations/procurement-types/lots";
 // import { useGetAllUsers } from "@/features/auth/user";
@@ -60,7 +60,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { CbaSchema } from "@/features/procurement/types/procurement-validator";
 import { LotsResultsData } from "@/features/procurement/types/lots";
 import Image from "next/image";
-import { cn } from "lib/utils";
+import { cn } from "@/lib/utils";
 const CreateCBA = () => {
   const router = useRouter();
   const searchParams = useSearchParams();

@@ -2,12 +2,12 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "@/components/FormButton";
-import FormInput from "components/atoms/FormInput";
-import { CardContent } from "components/ui/card";
-import { Form } from "components/ui/form";
+import FormInput from "@/components/atoms/FormInput";
+import { CardContent } from "@/components/ui/card";
+import { Form } from "@/components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { useAppDispatch, useAppSelector } from "hooks/useStore";
-import { closeDialog, dailogSelector } from "store/ui";
+import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
+import { closeDialog, dailogSelector } from "@/store/ui";
 import { toast } from "sonner";
 import {
   ProjectClassSchema,
@@ -18,7 +18,7 @@ import {
   useAddProjectClassMutation,
   useUpdateProjectClassMutation,
 } from "@/features/modules/controllers/finance/projectClassController";
-import FormTextArea from "components/atoms/FormTextArea";
+import FormTextArea from "@/components/atoms/FormTextArea";
 
 const AddProjectClasses = () => {
   const { dialogProps } = useAppSelector(dailogSelector);

@@ -1,9 +1,9 @@
 "use client";
 
-import Card from "components/Card";
-import GoBack from "components/GoBack";
-import { Button } from "components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
+import Card from "@/components/Card";
+import GoBack from "@/components/GoBack";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Save } from "lucide-react";
 import Onboarding from "./Onboarding";
 import { useParams } from "next/navigation";

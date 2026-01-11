@@ -1,6 +1,6 @@
-import { ScrollArea } from "components/ui/scroll-area";
-import { Button } from "components/ui/button";
-import { Checkbox } from "components/ui/checkbox";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { MapPin } from "lucide-react";
 import {
   Select,
@@ -8,17 +8,17 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "components/ui/select";
+} from "@/components/ui/select";
 import { useDispatch } from "react-redux";
-import { addPartner } from "store/formData/project-values";
-import { closeDialog } from "store/ui";
-import { nigerianStates } from "lib/index";
+import { addPartner } from "@/store/formData/project-values";
+import { closeDialog } from "@/store/ui";
+import { nigerianStates } from "@/lib/index";
 import { useGetAllPartnersManager } from "@/features/modules/controllers/project/partnerController";
 import { useState } from "react";
 import { TPartnerData } from "@/features/projects/types/project/partners";
-import { useAppSelector } from "hooks/useStore";
-import Pagination from "components/Pagination";
-import { LoadingSpinner } from "components/Loading";
+import { useAppSelector } from "@/hooks/useStore";
+import Pagination from "@/components/Pagination";
+import { LoadingSpinner } from "@/components/Loading";
 
 export default function ConsortiumPartnerModal() {
   const [state, setState] = useState("");

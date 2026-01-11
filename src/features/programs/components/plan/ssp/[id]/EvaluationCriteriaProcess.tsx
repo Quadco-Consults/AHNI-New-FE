@@ -1,29 +1,29 @@
 "use client";
 
-import Card from "components/Card";
-import { Button } from "components/ui/button";
+import Card from "@/components/Card";
+import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { useRouter, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { LoadingSpinner } from "components/Loading";
+import { LoadingSpinner } from "@/components/Loading";
 import { toast } from "sonner";
 import { skipToken } from "@reduxjs/toolkit/query/react";
-import BreadcrumbCard from "components/Breadcrumb";
-import BackNavigation from "components/atoms/BackNavigation";
-import Upload from "components/Upload";
-import { Separator } from "components/ui/separator";
+import BreadcrumbCard from "@/components/Breadcrumb";
+import BackNavigation from "@/components/atoms/BackNavigation";
+import Upload from "@/components/Upload";
+import { Separator } from "@/components/ui/separator";
 import {
   FormProvider,
   SubmitHandler,
   useFieldArray,
   useForm,
 } from "react-hook-form";
-import FormTextArea from "components/atoms/FormTextArea";
-import AddSquareIcon from "components/icons/AddSquareIcon";
+import FormTextArea from "@/components/atoms/FormTextArea";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
 import { IObjective } from "@/features/programs/types/program/plan/supervision-plan/supervision-plan";
 import { useGetSingleSupervisionPlan } from "@/features/programs/controllers/supervisionPlanController";
-import FormRadio from "components/atoms/FormRadio";
-import FormInput from "components/atoms/FormInput";
+import FormRadio from "@/components/atoms/FormRadio";
+import FormInput from "@/components/atoms/FormInput";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   SupervisionPlanReviewSchema,
@@ -35,9 +35,9 @@ import {
   useGetSingleSupervisionPlanReview,
   useModifySupervisionPlanReview,
 } from "@/features/programs/controllers/supervisionPlanReviewController";
-import { fileToBase64 } from "utils/fileToBase64";
+import { fileToBase64 } from "@/utils/fileToBase64";
 import FormButton from "@/components/FormButton";
-import { RouteEnum } from "constants/RouterConstants";
+import { RouteEnum } from "@/constants/RouterConstants";
 
 const breadcrumbs = [
   { name: "Programs", icon: true },

@@ -2,21 +2,21 @@ import { ColumnDef } from "@tanstack/react-table";
 import {
   IExpenditurePaginatedData,
   IObligationPaginatedData,
-} from "features/contracts-grants/types/grants";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { Button } from "components/ui/button";
+} from "@/features/contracts-grants/types/grants";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useState } from "react";
-import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
-import DeleteIcon from "components/icons/DeleteIcon";
-import ConfirmationDialog from "components/ConfirmationDialog";
-import { useAppDispatch } from "hooks/useStore";
-import { openDialog } from "store/ui";
-import { DialogType } from "constants/dailogs";
+import MoreOptionsHorizontalIcon from "@/components/icons/MoreOptionsHorizontalIcon";
+import DeleteIcon from "@/components/icons/DeleteIcon";
+import ConfirmationDialog from "@/components/ConfirmationDialog";
+import { useAppDispatch } from "@/hooks/useStore";
+import { openDialog } from "@/store/ui";
+import { DialogType } from "@/constants/dailogs";
 import { useParams } from "next/navigation";
-import PencilIcon from "components/icons/PencilIcon";
+import PencilIcon from "@/components/icons/PencilIcon";
 import { useDeleteObligation } from "@/features/contracts-grants/controllers/obligationController";
-import { formatNumberCurrency } from "utils/utls";
+import { formatNumberCurrency } from "@/utils/utls";
 import { format } from "date-fns";
 
 export const obligationColumns: ColumnDef<IObligationPaginatedData>[] = [

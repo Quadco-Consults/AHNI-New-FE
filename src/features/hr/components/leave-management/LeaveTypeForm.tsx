@@ -8,13 +8,13 @@ import { z } from "zod";
 import { Calendar, DollarSign, FileText, Info, Save, X } from "lucide-react";
 import { toast } from "sonner";
 
-import { Button } from "components/ui/button";
-import { Card } from "components/ui/card";
-import { Input } from "components/ui/input";
-import { Label } from "components/ui/label";
-import { Checkbox } from "components/ui/checkbox";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "components/ui/form";
-import GoBack from "components/GoBack";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import GoBack from "@/components/GoBack";
 import BackendStatusBanner from "./BackendStatusBanner";
 
 import { LeavePackage } from "../../types/leave-package";

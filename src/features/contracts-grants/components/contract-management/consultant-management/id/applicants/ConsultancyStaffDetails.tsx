@@ -1,17 +1,17 @@
 "use client";
 
-// import BackNavigation from "components/atoms/BackNavigation";
+// import BackNavigation from "@/components/atoms/BackNavigation";
 
 // import { useGetSingleConsultancyStaff } from "@/features/contracts-grants/controllers/consultantManagementController";
 import { useParams, useRouter } from "next/navigation";
-import { Button } from "components/ui/button";
-import PersonIcon from "components/icons/Person";
+import { Button } from "@/components/ui/button";
+import PersonIcon from "@/components/icons/Person";
 import SingleConsultancyStaffDetails from "./SingleConsultancyStaffDetails";
-import { LoadingSpinner } from "components/Loading";
-import Card from "components/Card";
+import { LoadingSpinner } from "@/components/Loading";
+import Card from "@/components/Card";
 import { toast } from "sonner";
 import { useState } from "react";
-import BackNavigation from "components/BackNavigation";
+import BackNavigation from "@/components/BackNavigation";
 // import { useGetSingleConsultancyStaff } from "src/features/contracts-grants/controllers/consultantManagementController";
 import { useGetSingleConsultancyApplicant } from "src/features/contracts-grants/controllers/consultancyApplicantsController";
 import { useModifyContractStatus } from "src/features/contracts-grants/controllers/contractController";

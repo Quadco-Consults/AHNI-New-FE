@@ -1,9 +1,9 @@
-import { Checkbox } from "components/ui/checkbox";
-import { Button } from "components/ui/button";
-import { CardContent } from "components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
+import { CardContent } from "@/components/ui/card";
 import { useState } from "react";
-import { useAppDispatch, useAppSelector } from "hooks/useStore";
-import { closeDialog, dailogSelector } from "store/ui";
+import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
+import { closeDialog, dailogSelector } from "@/store/ui";
 
 type Activity = {
   name: string;

@@ -1,14 +1,14 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { Button } from "components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useState } from "react";
-import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
-import DeleteIcon from "components/icons/DeleteIcon";
-import PencilIcon from "components/icons/PencilIcon";
-import ConfirmationDialog from "components/ConfirmationDialog";
+import MoreOptionsHorizontalIcon from "@/components/icons/MoreOptionsHorizontalIcon";
+import DeleteIcon from "@/components/icons/DeleteIcon";
+import PencilIcon from "@/components/icons/PencilIcon";
+import ConfirmationDialog from "@/components/ConfirmationDialog";
 import Link from "next/link";
-import EyeIcon from "components/icons/EyeIcon";
+import EyeIcon from "@/components/icons/EyeIcon";
 import { IAdhocApplicant } from "@/features/programs/types/adhoc-management";
 
 export const adhocDatabaseColumns: ColumnDef<IAdhocApplicant>[] = [

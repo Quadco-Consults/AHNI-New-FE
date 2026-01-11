@@ -1,11 +1,11 @@
 "use client";
 
-import Card from "components/Card";
+import Card from "@/components/Card";
 import { consultancyReportColumns } from "@/features/contracts-grants/components/table-columns/contract-management/consultancy-report";
-import DataTable from "components/Table/DataTable";
-import TableFilters from "components/Table/TableFilters";
-import { Button } from "components/ui/button";
-import { CG_ROUTES } from "constants/RouterConstants";
+import DataTable from "@/components/Table/DataTable";
+import TableFilters from "@/components/Table/TableFilters";
+import { Button } from "@/components/ui/button";
+import { CG_ROUTES } from "@/constants/RouterConstants";
 import { Plus } from "lucide-react";
 import { useState, useMemo } from "react";
 import Link from "next/link";

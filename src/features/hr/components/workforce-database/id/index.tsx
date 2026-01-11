@@ -1,8 +1,8 @@
 "use client";
 
-import Card from "components/Card";
-import GoBack from "components/GoBack";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
+import Card from "@/components/Card";
+import GoBack from "@/components/GoBack";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import StaffInformation from "./StaffInformation";
 import Beneficiary from "./Beneficiary";
 import IdCard from "./IdCard";
@@ -10,7 +10,7 @@ import BankAccount from "./BankAccount";
 import AdditionalInfo from "./AdditionalInfo";
 import Compensation from "./Compensation";
 import { useParams } from "next/navigation";
-import { LoadingSpinner } from "components/Loading";
+import { LoadingSpinner } from "@/components/Loading";
 import { useGetEmployeeOnboarding } from "@/features/hr/controllers/employeeOnboardingController";
 import { useGetSingleUser } from "@/features/auth/controllers/userController";
 import { EmployeeOnboarding } from "@/features/hr/types/employee-onboarding";

@@ -1,14 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "components/ui/button";
-import { CG_ROUTES } from "constants/RouterConstants";
+import { Button } from "@/components/ui/button";
+import { CG_ROUTES } from "@/constants/RouterConstants";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 import ConsultancyCard from "../contract-management/consultant-management/ConsultantCard";
 import { useGetAllFacilitators } from "src/features/contracts-grants/controllers/facilitatorManagementController";
-import { LoadingSpinner } from "components/Loading";
-import Pagination from "components/Pagination";
+import { LoadingSpinner } from "@/components/Loading";
+import Pagination from "@/components/Pagination";
 
 export default function FacilitatorManagement() {
   const [page, setPage] = useState(1);

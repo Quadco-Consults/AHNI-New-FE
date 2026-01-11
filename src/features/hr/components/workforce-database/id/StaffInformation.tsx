@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { pdfjs, Document, Page } from "react-pdf";
 
-import DescriptionCard from "components/DescriptionCard";
-import { Separator } from "components/ui/separator";
+import DescriptionCard from "@/components/DescriptionCard";
+import { Separator } from "@/components/ui/separator";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import "react-pdf/dist/esm/Page/TextLayer.css";
 import {
@@ -12,9 +12,9 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "components/ui/dialog";
+} from "@/components/ui/dialog";
 
-import PdfIcon from "components/icons/PdfIcon";
+import PdfIcon from "@/components/icons/PdfIcon";
 import { EmployeeOnboarding } from "@/features/hr/types/employee-onboarding";
 import { useGetEmployeeOnboardingQualificationsList } from "@/features/hr/controllers/hrEmployeeOnboardingQualificationsController";
 import { useGetEmployeeOnboarding } from "@/features/hr/controllers/employeeOnboardingController";

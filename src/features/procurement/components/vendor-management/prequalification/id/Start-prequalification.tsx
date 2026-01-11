@@ -1,9 +1,9 @@
 "use client";
 
-import Card from "components/Card";
-import { LoadingSpinner } from "components/Loading";
-import { Button } from "components/ui/button";
-import { Checkbox } from "components/ui/checkbox";
+import Card from "@/components/Card";
+import { LoadingSpinner } from "@/components/Loading";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowLeft } from "lucide-react";
 import React, { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
@@ -18,16 +18,16 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "components/ui/breadcrumb";
+} from "@/components/ui/breadcrumb";
 import { Icon } from "@iconify/react";
 import { useForm } from "react-hook-form";
-import { Form, FormControl, FormField, FormItem } from "components/ui/form";
+import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { z } from "zod";
 import { VendorPrequalificationSchema } from "@/features/procurement/types/vendor-prequalification";
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "@/components/FormButton";
 import { useGetAllPrequalificationCriteria } from "@/features/procurement/controllers/prequalificationCriteriaController";
-import { RouteEnum } from "constants/RouterConstants";
+import { RouteEnum } from "@/constants/RouterConstants";
 
 type FormData = {
   score: boolean;

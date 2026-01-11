@@ -2,11 +2,11 @@
 
 import React, { useMemo, useState } from "react";
 import { TotalExpenditureSvg, TotalIncomeSvg } from "assets/svgs/CAndGSvgs";
-import DataTable from "components/Table/DataTable";
+import DataTable from "@/components/Table/DataTable";
 import { expenditureColumns } from "@/features/contracts-grants/components/table-columns/grant/expenditure";
 import { ISubGrantSingleData } from "@/features/contracts-grants/types/contract-management/sub-grant/sub-grant";
 import { useGetAllSubGrantExpenditures } from "@/features/contracts-grants/controllers/subGrantExpenditureController";
-import { formatNumberCurrency } from "utils/utls";
+import { formatNumberCurrency } from "@/utils/utls";
 import { ColumnDef } from "@tanstack/react-table";
 import { IExpenditurePaginatedData } from "@/features/contracts-grants/types/grants";
 

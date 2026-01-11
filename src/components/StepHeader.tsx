@@ -1,8 +1,8 @@
 import { useRouter } from "next/navigation";
 import CheckIcon from "assets/svgs/CheckIcon";
 import PendingIcon from "assets/svgs/PendingIcon";
-import LongArrowLeft from "components/icons/LongArrowLeft";
-import { Separator } from "components/ui/separator";
+import LongArrowLeft from "@/components/icons/LongArrowLeft";
+import { Separator } from "@/components/ui/separator";
 
 interface Step {
   step: number;

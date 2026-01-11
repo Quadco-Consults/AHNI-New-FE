@@ -5,12 +5,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronDown, ArrowLeft, Menu } from 'lucide-react';
 import { Icon } from "@iconify/react";
-import { cn } from "lib/utils";
+import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import IconButton from "./IconButton";
 
-import DashboardIcon from "components/icons/sidebar-icons/DashboardIcon";
-import ProjectsIcon from "components/icons/sidebar-icons/ProjectsIcon";
+import DashboardIcon from "@/components/icons/sidebar-icons/DashboardIcon";
+import ProjectsIcon from "@/components/icons/sidebar-icons/ProjectsIcon";
 
 import { useGetUserProfile } from "@/features/auth/controllers/userController";
 import { 

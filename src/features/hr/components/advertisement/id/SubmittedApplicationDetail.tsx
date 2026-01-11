@@ -1,11 +1,11 @@
-import UserIcon from "components/icons/UserIcon";
-import Card from "components/Card";
-import DescriptionCard from "components/DescriptionCard";
-import GoBack from "components/GoBack";
-import { Loading } from "components/Loading";
-import PdfContent from "components/PdfContent";
-import { Button } from "components/ui/button";
-// import { HrRoutes } from "constants/RouterConstants";
+import UserIcon from "@/components/icons/UserIcon";
+import Card from "@/components/Card";
+import DescriptionCard from "@/components/DescriptionCard";
+import GoBack from "@/components/GoBack";
+import { Loading } from "@/components/Loading";
+import PdfContent from "@/components/PdfContent";
+import { Button } from "@/components/ui/button";
+// import { HrRoutes } from "@/constants/RouterConstants";
 import { useParams, useRouter } from "next/navigation";
 import {
   useGetJobApplication,

@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Plus, Edit, Search } from 'lucide-react';
 import {
   Dialog,
@@ -9,8 +9,8 @@ import {
   DialogTrigger,
   DialogHeader,
   DialogDescription,
-} from "components/ui/dialog";
-import { Input } from "components/ui/input";
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { DialogClose } from "@radix-ui/react-dialog";
 import { CalendarIcon } from 'lucide-react';
 import { useForm } from "react-hook-form";
@@ -20,32 +20,32 @@ import {
   FormField,
   FormItem,
   FormMessage,
-} from "components/ui/form";
+} from "@/components/ui/form";
 import { format } from "date-fns";
-import { cn } from "lib/utils";
-import { Calendar } from "components/ui/calendar";
+import { cn } from "@/lib/utils";
+import { Calendar } from "@/components/ui/calendar";
 
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import eoiPng from "assets/imgs/eoi.png";
 import logoPng from "assets/imgs/logo.png";
-import Card from "components/Card";
+import Card from "@/components/Card";
 import { Icon } from "@iconify/react";
-import { Badge } from "components/ui/badge";
+import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { RouteEnum } from "constants/RouterConstants";
-import FormTextArea from "components/atoms/FormTextArea";
-import FormInput from "components/atoms/FormInput";
+import { RouteEnum } from "@/constants/RouterConstants";
+import FormTextArea from "@/components/atoms/FormTextArea";
+import FormInput from "@/components/atoms/FormInput";
 import React, { useMemo, useState } from "react";
-import { Label } from "components/ui/label";
+import { Label } from "@/components/ui/label";
 import { Upload as UploadFile } from 'lucide-react';
 import { useGetAllCategoriesManager } from "@/features/modules/controllers/config/categoryController";
-import { Checkbox } from "components/ui/checkbox";
+import { Checkbox } from "@/components/ui/checkbox";
 import { CategoryResultsData } from "@/features/admin/types/config/category";
 import { EOISchema } from "@/features/procurement/types/procurement-validator";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loading, LoadingSpinner } from "components/Loading";
+import { Loading, LoadingSpinner } from "@/components/Loading";
 import {
   useGetAllEois,
   useCreateEoi,
@@ -54,11 +54,11 @@ import {
 import { toast } from "sonner";
 import FormButton from "@/components/FormButton";
 import { EOIResultsData } from "@/features/procurement/types/eoi";
-import FormSelect from "components/atoms/FormSelectField";
-import { SelectContent, SelectItem } from "components/ui/select";
+import FormSelect from "@/components/atoms/FormSelectField";
+import { SelectContent, SelectItem } from "@/components/ui/select";
 import { TFinancialYearData } from "@/features/admin/types/config/financial-year";
 import { useGetAllFinancialYearsManager } from "@/features/modules/controllers/config/financialYearController";
-import DeleteIcon from "components/icons/DeleteIcon";
+import DeleteIcon from "@/components/icons/DeleteIcon";
 import { useQueryClient } from "@tanstack/react-query";
 
 const EOI = () => {

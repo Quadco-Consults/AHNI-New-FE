@@ -1,12 +1,12 @@
 "use client";
 
-import { Button } from "components/ui/button";
-import BreadcrumbCard from "components/Breadcrumb";
+import { Button } from "@/components/ui/button";
+import BreadcrumbCard from "@/components/Breadcrumb";
 import { useGetAllProcurementTrackers } from "@/features/procurement/controllers/procurementTrackerController";
-import TabState from "components/ui/TabState";
+import TabState from "@/components/ui/TabState";
 import { useMemo, useState } from "react";
 import { FileDown } from "lucide-react";
-import { Loading } from "components/Loading";
+import { Loading } from "@/components/Loading";
 import SummaryCard from "./SummaryCard";
 import DeliveryStageCard from "./DeliveryStageCard";
 import ProcurementProcessCard from "./ProcurementProcessCard";

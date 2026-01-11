@@ -1,7 +1,7 @@
-import { Badge } from "components/ui/badge";
-import { Card } from "components/ui/card";
-import { TWorkPlanSingleResponse } from "features/programs/types/work-plan";
-import { formatNumberCurrency } from "utils/utls";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
+import { TWorkPlanSingleResponse } from "@/features/programs/types/work-plan";
+import { formatNumberCurrency } from "@/utils/utls";
 
 type PropsType = {
   data: TWorkPlanSingleResponse;

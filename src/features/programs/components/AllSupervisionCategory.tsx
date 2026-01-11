@@ -1,17 +1,17 @@
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 
 import { toast } from "sonner";
-import { useAppDispatch } from "hooks/useStore";
-import { openDialog } from "store/ui";
-import { DialogType } from "constants/dailogs";
-import TableAction from "components/TableAction";
-import { LoadingSpinner } from "components/Loading";
+import { useAppDispatch } from "@/hooks/useStore";
+import { openDialog } from "@/store/ui";
+import { DialogType } from "@/constants/dailogs";
+import TableAction from "@/components/TableAction";
+import { LoadingSpinner } from "@/components/Loading";
 import {
   useDeleteSupervisionCategory,
   useGetAllSupervisionCategory,
 } from "@/features/modules/controllers/program/supervisionCategoryController";
 import { useState } from "react";
-import Pagination from "components/Pagination";
+import Pagination from "@/components/Pagination";
 
 export default function AllSupervisionCategory() {
   const [page, setPage] = useState(1);

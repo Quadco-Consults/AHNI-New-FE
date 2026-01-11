@@ -15,12 +15,12 @@ import {
   Eye,
   AlertCircle
 } from "lucide-react";
-import { Card } from "components/ui/card";
-import { Button } from "components/ui/button";
-import { Input } from "components/ui/input";
-import { Badge } from "components/ui/badge";
-import GoBack from "components/GoBack";
-import DataTable from "components/Table/DataTable";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import GoBack from "@/components/GoBack";
+import DataTable from "@/components/Table/DataTable";
 import { ColumnDef } from "@tanstack/react-table";
 import { useGetAllLeaveBalances } from "../../controllers/leaveBalanceController";
 import { useGetWorkforces } from "../../controllers/workforceController";

@@ -1,6 +1,6 @@
 "use client";
 
-import LongArrowLeft from "components/icons/LongArrowLeft";
+import LongArrowLeft from "@/components/icons/LongArrowLeft";
 import { useRouter } from "next/navigation";
 
 const GoBack = () => {

@@ -2,19 +2,19 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "@/components/FormButton";
-import FormInput from "components/atoms/FormInput";
-import FormSelect from "components/atoms/FormSelect";
-import FormTextArea from "components/atoms/FormTextArea";
-import AddSquareIcon from "components/icons/AddSquareIcon";
-import LongArrowRight from "components/icons/LongArrowRight";
+import FormInput from "@/components/atoms/FormInput";
+import FormSelect from "@/components/atoms/FormSelect";
+import FormTextArea from "@/components/atoms/FormTextArea";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
+import LongArrowRight from "@/components/icons/LongArrowRight";
 
-// import { Button } from "components/ui/button";
-import { Form, FormControl, FormField, FormItem } from "components/ui/form";
-import { Label } from "components/ui/label";
-import MultiSelectFormField from "components/ui/multiselect";
+// import { Button } from "@/components/ui/button";
+import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
+import { Label } from "@/components/ui/label";
+import MultiSelectFormField from "@/components/ui/multiselect";
 
-import { Separator } from "components/ui/separator";
-import { RouteEnum } from "constants/RouterConstants";
+import { Separator } from "@/components/ui/separator";
+import { RouteEnum } from "@/constants/RouterConstants";
 
 import { SampleMemoSchema } from "@/features/procurement/types/procurement-validator";
 
@@ -22,7 +22,7 @@ import { SampleMemoSchema } from "@/features/procurement/types/procurement-valid
 import { useFieldArray, useForm } from "react-hook-form";
 import { useDispatch } from "react-redux";
 import { useRouter } from "next/navigation";
-import { store } from "store/index";
+import { store } from "@/store/index";
 import React from "react";
 // import { useGetAllConsumables } from "@/features/admin/controllers/inventory-management/consumableController";
 import {
@@ -31,15 +31,15 @@ import {
 } from "@/features/auth/controllers/userController";
 // NOTE: All old finance controller imports removed - using comprehensive backend endpoint
 
-import { activityActions } from "store/formData/activity-memo";
+import { activityActions } from "@/store/formData/activity-memo";
 import { z } from "zod";
 import ExpensesForm from "./ExpensesForm";
 import { useGetAllActivityPlans } from "@/features/programs/controllers/activityPlanController";
 import { useCreateActivityMemo } from "@/features/procurement/controllers/activityMemoController";
 import { useEffect, useState } from "react";
-import { Button } from "components/ui/button";
-import { openDialog } from "store/ui";
-import { DialogType } from "constants/dailogs";
+import { Button } from "@/components/ui/button";
+import { openDialog } from "@/store/ui";
+import { DialogType } from "@/constants/dailogs";
 import { toast } from "sonner";
 import {
   mergeFallbackBudgetLines,

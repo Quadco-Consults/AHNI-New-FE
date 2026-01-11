@@ -1,8 +1,8 @@
-import PencilIcon from "components/icons/PencilIcon";
-import Card from "components/Card";
-import DescriptionCard from "components/DescriptionCard";
-import { Button } from "components/ui/button";
-import { Dialog, DialogContent } from "components/ui/dialog";
+import PencilIcon from "@/components/icons/PencilIcon";
+import Card from "@/components/Card";
+import DescriptionCard from "@/components/DescriptionCard";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { SeparationManagement } from "@/features/hr/types/separation-management";
 import { useUpdateSeparationManagement } from "@/features/hr/controllers/separationManagementController";
 import { useState } from "react";

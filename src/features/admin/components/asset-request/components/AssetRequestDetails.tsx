@@ -1,14 +1,14 @@
 "use client";
 
-import { LoadingSpinner } from "components/Loading";
-import DescriptionCard from "components/DescriptionCard";
+import { LoadingSpinner } from "@/components/Loading";
+import DescriptionCard from "@/components/DescriptionCard";
 import { format } from "date-fns";
-import { Card, CardContent, CardHeader } from "components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useSearchParams } from "next/navigation";
 import { useGetSingleAssetRequestQuery, useGetAssetRequestDocuments } from "@/features/admin/controllers/assetRequestController";
 import { useGetSingleUser } from "@/features/auth/controllers/userController";
-import { Separator } from "components/ui/separator";
-import { Button } from "components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
 import { FileText, Download } from "lucide-react";
 
 // Component to display user information

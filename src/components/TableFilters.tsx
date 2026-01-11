@@ -1,5 +1,5 @@
 import { Search } from "lucide-react";
-import FilterIcon from "components/icons/FilterIcon";
+import FilterIcon from "@/components/icons/FilterIcon";
 
 import React, { FC, ReactNode } from "react";
 

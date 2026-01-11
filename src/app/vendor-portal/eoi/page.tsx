@@ -2,12 +2,12 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "components/ui/card";
-import { Button } from "components/ui/button";
-import { Badge } from "components/ui/badge";
-import { Input } from "components/ui/input";
-import { Alert, AlertDescription } from "components/ui/alert";
-import { Progress } from "components/ui/progress";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Progress } from "@/components/ui/progress";
 import {
   Search,
   Calendar,
@@ -22,7 +22,7 @@ import {
   TrendingUp
 } from "lucide-react";
 import { usePublicEOIs, EOIUtils } from "@/features/vendor-portal/controllers/publicEOIController";
-import { LoadingSpinner } from "components/Loading";
+import { LoadingSpinner } from "@/components/Loading";
 
 export default function VendorEOIPage() {
   const router = useRouter();

@@ -6,11 +6,11 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { useAppDispatch, useAppSelector } from "hooks/useStore";
+import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
 import { FormEvent, useState } from "react";
 import { usePatchRiskManagementPlan } from "@/features/programs/controllers/riskPlansController";
 import { toast } from "sonner";
-import { closeDialog } from "store/ui";
+import { closeDialog } from "@/store/ui";
 
 const statusOptions = ["OPEN", "CLOSED", "MITIGATED"].map((option) => ({
     label: option,

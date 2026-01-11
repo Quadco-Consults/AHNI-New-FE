@@ -1,10 +1,10 @@
 "use client";
 
-import { Label } from "components/ui/label";
-import { Input } from "components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { Upload as UploadFile } from "lucide-react";
 import { FC } from "react";
-import { cn } from "lib/utils";
+import { cn } from "@/lib/utils";
 import { useFormContext } from "react-hook-form";
 
 type PageProps = {

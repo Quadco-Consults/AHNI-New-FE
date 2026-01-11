@@ -1,18 +1,18 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { IGoodReceiveNotePaginatedData } from "definations/admin/inventory-management/good-receive-note";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import Link from "next/link";
-import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
-import DeleteIcon from "components/icons/DeleteIcon";
-import EyeIcon from "components/icons/EyeIcon";
-import { Button } from "components/ui/button";
-import { AdminRoutes } from "constants/RouterConstants";
+import MoreOptionsHorizontalIcon from "@/components/icons/MoreOptionsHorizontalIcon";
+import DeleteIcon from "@/components/icons/DeleteIcon";
+import EyeIcon from "@/components/icons/EyeIcon";
+import { Button } from "@/components/ui/button";
+import { AdminRoutes } from "@/constants/RouterConstants";
 import { format } from "date-fns";
-import PencilIcon from "components/icons/PencilIcon";
+import PencilIcon from "@/components/icons/PencilIcon";
 import { useDeleteGoodReceiveNoteMutation } from "@/features/admin/controllers/goodReceiveNoteController";
 import { toast } from "sonner";
 import { useState } from "react";
-import ConfirmationDialog from "components/ConfirmationDialog";
+import ConfirmationDialog from "@/components/ConfirmationDialog";
 import { CheckCircle, XCircle } from "lucide-react";
 import GrnApprovalModal from "@/features/admin/components/good-receive-note/modals/GrnApprovalModal";
 

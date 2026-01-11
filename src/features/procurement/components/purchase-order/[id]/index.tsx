@@ -4,7 +4,7 @@ import logoPng from "@/assets/svgs/logo-bg.svg";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { formatDate } from "date-fns";
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { useGetSinglePurchaseOrder } from "@/features/procurement/controllers";
 import Image from "next/image";

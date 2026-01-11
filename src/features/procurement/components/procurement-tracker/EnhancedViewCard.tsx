@@ -1,8 +1,8 @@
 import { ColumnDef } from "@tanstack/react-table";
-import Card from "components/Card";
-import DataTable from "components/Table/DataTable";
-import { Badge } from "components/ui/badge";
-import { cn } from "lib/utils";
+import Card from "@/components/Card";
+import DataTable from "@/components/Table/DataTable";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { TPaginatedResponse } from "definations/index";

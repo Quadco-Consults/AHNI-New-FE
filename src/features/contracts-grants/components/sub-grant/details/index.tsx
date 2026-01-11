@@ -1,9 +1,9 @@
 "use client";
 
-import BackNavigation from "components/atoms/BackNavigation";
-import AddSquareIcon from "components/icons/AddSquareIcon";
-import { Button } from "components/ui/button";
-import { CG_ROUTES } from "constants/RouterConstants";
+import BackNavigation from "@/components/atoms/BackNavigation";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
+import { Button } from "@/components/ui/button";
+import { CG_ROUTES } from "@/constants/RouterConstants";
 import SubGrantAwardDetails from "./SubGrantAwardDetails";
 import SubGrantSubmissionDetails from "./submission";
 import ShortlistedSubmissionsList from "./shortlisted";
@@ -11,11 +11,11 @@ import AssessmentResults from "./assessment-results";
 import AwardedPartnersView from "./awarded-partners";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useGetSingleSubGrant } from "@/features/contracts-grants/controllers/subGrantController";
 import { useOpenSubmissions, useCloseSubmissions, usePublishSubGrant } from "@/features/contracts-grants/controllers/subGrantWorkflowController";
 import { skipToken } from "@reduxjs/toolkit/query";
-import { LoadingSpinner } from "components/Loading";
+import { LoadingSpinner } from "@/components/Loading";
 import { useState } from "react";
 import { toast } from "sonner";
 

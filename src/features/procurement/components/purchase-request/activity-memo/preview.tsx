@@ -4,12 +4,12 @@ import React, { useEffect, useMemo } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Separator } from "components/ui/separator";
-import Card from "components/Card";
-import { Button } from "components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import Card from "@/components/Card";
+import { Button } from "@/components/ui/button";
 import { ChevronRight, Save } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "store/index";
+import { RootState } from "@/store/index";
 
 import { toast } from "sonner";
 import { useGetActivityMemo, usePatchActivityMemo, useCreateActivityMemo } from "@/features/procurement/controllers/activityMemoController";
@@ -20,14 +20,14 @@ import {
   TableCell,
   TableHeader,
   TableRow,
-} from "components/ui/table";
-// import FormInput from "components/atoms/FormInput";
-import { Form } from "components/ui/form";
+} from "@/components/ui/table";
+// import FormInput from "@/components/atoms/FormInput";
+import { Form } from "@/components/ui/form";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { RouteEnum } from "constants/RouterConstants";
+import { RouteEnum } from "@/constants/RouterConstants";
 import { skipToken } from "@reduxjs/toolkit/query";
-import { activityActions } from "store/formData/activity-memo";
+import { activityActions } from "@/store/formData/activity-memo";
 
 // Sample Checkbox component
 // eslint-disable-next-line react/display-name

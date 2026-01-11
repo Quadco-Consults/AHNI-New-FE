@@ -1,20 +1,20 @@
 "use client";
 
-import Card from "components/Card";
-import AddSquareIcon from "components/icons/AddSquareIcon";
+import Card from "@/components/Card";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
 import FormButton from "@/components/FormButton";
 import ManualSubGrantStepWrapper from "./Layout";
-import { Button } from "components/ui/button";
-import { useAppDispatch } from "hooks/useStore";
-import { openDialog } from "store/ui";
-import { DialogType } from "constants/dailogs";
+import { Button } from "@/components/ui/button";
+import { useAppDispatch } from "@/hooks/useStore";
+import { openDialog } from "@/store/ui";
+import { DialogType } from "@/constants/dailogs";
 import { useParams, useSearchParams } from "next/navigation";
 import {
     useDeleteSubGrantUpload,
     useGetAllSubGrantUploads,
 } from "@/features/contracts-grants/controllers/submissionUploadController";
-import FilePreview from "components/FilePreview";
-import Pagination from "components/Pagination";
+import FilePreview from "@/components/FilePreview";
+import Pagination from "@/components/Pagination";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";

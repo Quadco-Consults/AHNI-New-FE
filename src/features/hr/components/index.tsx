@@ -1,5 +1,5 @@
 import { TabsContent } from "@radix-ui/react-tabs";
-import { Tabs, TabsList, TabsTrigger } from "components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import LeaveSettings from "./LeaveSettings";
 
 const Finance = () => {

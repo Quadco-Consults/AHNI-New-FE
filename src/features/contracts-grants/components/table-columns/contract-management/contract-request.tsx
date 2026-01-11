@@ -1,23 +1,23 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { Button } from "components/ui/button";
-import { Badge } from "components/ui/badge";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { useState } from "react";
-import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
-import DeleteIcon from "components/icons/DeleteIcon";
-import PencilIcon from "components/icons/PencilIcon";
-import EyeIcon from "components/icons/EyeIcon";
-import ConfirmationDialog from "components/ConfirmationDialog";
+import MoreOptionsHorizontalIcon from "@/components/icons/MoreOptionsHorizontalIcon";
+import DeleteIcon from "@/components/icons/DeleteIcon";
+import PencilIcon from "@/components/icons/PencilIcon";
+import EyeIcon from "@/components/icons/EyeIcon";
+import ConfirmationDialog from "@/components/ConfirmationDialog";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { IAgreementPaginatedData } from "definations/c&g/contract-management/agreement";
 import { useDeleteContractRequest } from "@/features/contracts-grants/controllers/contractController";
-import { CG_ROUTES } from "constants/RouterConstants";
+import { CG_ROUTES } from "@/constants/RouterConstants";
 import WorkflowActions from "../../contract-management/WorkflowActions";
-import { Separator } from "components/ui/separator";
+import { Separator } from "@/components/ui/separator";
 import { useGetAllUsers } from "@/features/auth/controllers/userController";
 import { formatUserName } from "../../../utils/userLookup";
 

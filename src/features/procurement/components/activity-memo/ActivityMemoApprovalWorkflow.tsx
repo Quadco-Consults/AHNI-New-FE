@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "components/ui/button";
-import { Badge } from "components/ui/badge";
-import { Card } from "components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { CheckCircle, XCircle, Clock, FileText, ArrowRight, MessageSquare } from "lucide-react";
 import { ActivityMemoApprovalAPI } from "@/features/procurement/controllers/activityMemoApprovalController";
-import { Textarea } from "components/ui/textarea";
+import { Textarea } from "@/components/ui/textarea";
 
 interface ActivityMemoApprovalWorkflowProps {
   activityMemoData: any;

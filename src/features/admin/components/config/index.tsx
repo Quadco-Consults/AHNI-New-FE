@@ -1,7 +1,7 @@
 import { TabsContent } from "@radix-ui/react-tabs";
-import { Tabs, TabsList, TabsTrigger } from "components/ui/tabs";
-import { Card } from "components/ui/card";
-import { ApiErrorBoundary } from "components/common/ApiErrorBoundary";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card } from "@/components/ui/card";
+import { ApiErrorBoundary } from "@/components/common/ApiErrorBoundary";
 import AllCategory from "./AllCategory";
 import AllSubcategories from "./AllSubcategories";
 import AllDepartments from "./AllDepartments";

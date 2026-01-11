@@ -3,18 +3,18 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import RoundBack from "assets/svgs/RoundBack";
 import FormButton from "@/components/FormButton";
-import FormInput from "components/atoms/FormInput";
-import FormSelect from "components/atoms/FormSelectField";
-import FormTextArea from "components/atoms/FormTextArea";
-import Card from "components/Card";
-import { Form } from "components/ui/form";
-import { AdminRoutes } from "constants/RouterConstants";
+import FormInput from "@/components/atoms/FormInput";
+import FormSelect from "@/components/atoms/FormSelectField";
+import FormTextArea from "@/components/atoms/FormTextArea";
+import Card from "@/components/Card";
+import { Form } from "@/components/ui/form";
+import { AdminRoutes } from "@/constants/RouterConstants";
 import {
   EditItemSchema,
   ItemSchema,
   TItemFormValues,
 } from "@/features/admin/types/config/item";
-import useQuery from "hooks/useQuery";
+import useQuery from "@/hooks/useQuery";
 import { useEffect, useMemo } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
@@ -26,7 +26,7 @@ import {
 } from "@/features/modules/controllers/config/itemController";
 // import { useGetAllItemsQuery } from "@/features/modules/controllers/config/itemController";
 import { toast } from "sonner";
-import { formatDate } from "utils/date";
+import { formatDate } from "@/utils/date";
 import {
   ITEM_TYPES,
   buildCategoryOptions,

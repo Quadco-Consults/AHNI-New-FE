@@ -1,13 +1,13 @@
-import { Button } from "components/ui/button";
-import { useAppDispatch } from "hooks/useStore";
-import { openDialog } from "store/ui";
-import { DialogType } from "constants/dailogs";
+import { Button } from "@/components/ui/button";
+import { useAppDispatch } from "@/hooks/useStore";
+import { openDialog } from "@/store/ui";
+import { DialogType } from "@/constants/dailogs";
 import {
     useDeletePartner,
     useGetAllPartners,
 } from "@/features/modules/controllers/project/partnerController";
 import { useState } from "react";
-import DataTable from "components/Table/DataTable";
+import DataTable from "@/components/Table/DataTable";
 import { modulePartnerColumn } from "@/features/projects/components/table-columns/project/partner";
 
 export default function AllPartner() {

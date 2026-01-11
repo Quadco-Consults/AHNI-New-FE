@@ -3,16 +3,16 @@
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Button } from "components/ui/button";
-import { Input } from "components/ui/input";
-import { Textarea } from "components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "components/ui/card";
-import { Badge } from "components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { useRouter, useParams } from "next/navigation";
-import { HrRoutes } from "constants/RouterConstants";
+import { HrRoutes } from "@/constants/RouterConstants";
 import { useSubmitEvaluation, useGetPerformanceAssesment } from "@/features/hr/controllers/hrPerformanceAssessmentController";
 import { toast } from "sonner";
-import { Label } from "components/ui/label";
+import { Label } from "@/components/ui/label";
 import { EvaluationSubmission } from "@/features/hr/types/performance-assesment";
 import { useQueryClient } from "@tanstack/react-query";
 

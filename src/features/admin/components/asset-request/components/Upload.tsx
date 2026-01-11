@@ -1,11 +1,11 @@
 "use client";
-import { Card, CardContent, CardHeader } from "components/ui/card";
-import { Separator } from "components/ui/separator";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { useSearchParams } from "next/navigation";
 import { useGetSingleAssetRequestQuery, useGetAssetRequestDocuments } from "@/features/admin/controllers/assetRequestController";
 import { FileText, Download, Eye } from "lucide-react";
-import { Button } from "components/ui/button";
-import { Loading } from "components/Loading";
+import { Button } from "@/components/ui/button";
+import { Loading } from "@/components/Loading";
 
 export default function Upload() {
   const searchParams = useSearchParams();

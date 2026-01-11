@@ -2,26 +2,26 @@
 
 "use client";
 
-import Card from "components/Card";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { Button } from "components/ui/button";
-import AddSquareIcon from "components/icons/AddSquareIcon";
-import ArrowDownIcon from "components/icons/ArrowDownIcon";
-import SearchIcon from "components/icons/SearchIcon";
-import DataTable from "components/Table/DataTable";
-import BreadcrumbCard from "components/Breadcrumb";
-import UploadIcon from "components/icons/UploadIcon";
+import Card from "@/components/Card";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
+import ArrowDownIcon from "@/components/icons/ArrowDownIcon";
+import SearchIcon from "@/components/icons/SearchIcon";
+import DataTable from "@/components/Table/DataTable";
+import BreadcrumbCard from "@/components/Breadcrumb";
+import UploadIcon from "@/components/icons/UploadIcon";
 import { useState } from "react";
 import ProcurementPlanUploadModal from "./components/ProcurementPlanUploadModal";
 import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
-import { RouteEnum } from "constants/RouterConstants";
-import IconButton from "components/IconButton";
+import { RouteEnum } from "@/constants/RouterConstants";
+import IconButton from "@/components/IconButton";
 import { Icon } from "@iconify/react";
 import { useLazyDownloadProcurementPlanTemplateQuery, useGetAllProcurementPlans, useDeleteProcurementPlan } from "../../controllers/procurementPlanController";
 import { toast } from "sonner";
 import { DownloadIcon, Trash2, X } from 'lucide-react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useGetAllFinancialYears } from "../../../modules/controllers/config/financialYearController";
 import {
   AlertDialog,
@@ -32,7 +32,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "components/ui/alert-dialog";
+} from "@/components/ui/alert-dialog";
 
 export default function ProcurementPlan() {
   const [isModalOpen, setModalOpen] = useState(false);

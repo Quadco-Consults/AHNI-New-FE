@@ -1,19 +1,19 @@
 "use client";
 import FormButton from "@/components/FormButton";
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import PaymentRequestLayout from "./Layout";
 import { toast } from "sonner";
-import { TPaymentRequestFormData } from "features/admin/types/payment-request";
+import { TPaymentRequestFormData } from "@/features/admin/types/payment-request";
 import {
   useCreatePaymentRequest,
   useGetSinglePaymentRequest,
   useGetSinglePaymentRequestQuery,
   useModifyPaymentRequest,
 } from "@/features/admin/controllers/paymentRequestController";
-import AddSquareIcon from "components/icons/AddSquareIcon";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
 import React, { useEffect, useState } from "react";
-import Upload from "components/Upload";
-import { AdminRoutes } from "constants/RouterConstants";
+import Upload from "@/components/Upload";
+import { AdminRoutes } from "@/constants/RouterConstants";
 // import { useLocation, useNavigate, useSearchParams } from ''
 // import DocumentCard from "pages/protectedPages/projects/create/DocumentCard";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";

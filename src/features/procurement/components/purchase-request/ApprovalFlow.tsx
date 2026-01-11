@@ -2,9 +2,9 @@
 
 import React from 'react';
 import { AlertCircle, CheckCircle, Clock, User, Calendar, FileText, AlertTriangle } from 'lucide-react';
-import { Button } from 'components/ui/button';
-import { Badge } from 'components/ui/badge';
-import { Card } from 'components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card } from '@/components/ui/card';
 import { usePurchaseRequestApproval } from '../../hooks/usePurchaseRequestApproval';
 import { ApprovalInfo, User as ApprovalUser, ApprovalAction } from '../../types/approval';
 

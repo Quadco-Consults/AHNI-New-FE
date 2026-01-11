@@ -2,22 +2,22 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "@/components/FormButton";
-import FormInput from "components/atoms/FormInput";
-import FormTextArea from "components/atoms/FormTextArea";
-import { Form } from "components/ui/form";
+import FormInput from "@/components/atoms/FormInput";
+import FormTextArea from "@/components/atoms/FormTextArea";
+import { Form } from "@/components/ui/form";
 import {
   IObligationPaginatedData,
   ObligationSchema,
   TObligationFormData,
-} from "features/contracts-grants/types/grants";
-import { useAppDispatch, useAppSelector } from "hooks/useStore";
+} from "@/features/contracts-grants/types/grants";
+import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
 import { SubmitHandler, useForm } from "react-hook-form";
 import {
   useCreateSubGrantObligation,
   useUpdateSubGrantObligation,
 } from "@/features/contracts-grants/controllers/subGrantObligationController";
 import { toast } from "sonner";
-import { closeDialog } from "store/ui";
+import { closeDialog } from "@/store/ui";
 
 export default function SubGrantObligationModal() {
   const { dialogProps } = useAppSelector((state) => state.ui.dailog);

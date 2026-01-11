@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "components/ui/card";
-import { Button } from "components/ui/button";
-import { Badge } from "components/ui/badge";
-import { Input } from "components/ui/input";
-import { Alert, AlertDescription } from "components/ui/alert";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Search,
   Calendar,
@@ -18,9 +18,9 @@ import {
   ArrowRight
 } from "lucide-react";
 import { useVendorAvailableRFQs, useVendorCategories, useRFQSummary } from "@/features/vendor-portal/controllers/vendorDashboardController";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
-import { Checkbox } from "components/ui/checkbox";
-import { LoadingSpinner } from "components/Loading";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { LoadingSpinner } from "@/components/Loading";
 
 export default function VendorRFQsPage() {
   const router = useRouter();

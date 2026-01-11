@@ -3,14 +3,14 @@ export default function Test() {
 }
 
 // import { ColumnDef, Row } from "@tanstack/react-table";
-// import TableAction from "components/TableAction";
-// import DeleteIcon from "components/icons/DeleteIcon";
-// import EyeIcon from "components/icons/EyeIcon";
-// import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
-// import { Button } from "components/ui/button";
-// import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-// import { AdminRoutes } from "constants/RouterConstants";
-// import { formatCurrency } from "lib/utils";
+// import TableAction from "@/components/TableAction";
+// import DeleteIcon from "@/components/icons/DeleteIcon";
+// import EyeIcon from "@/components/icons/EyeIcon";
+// import MoreOptionsHorizontalIcon from "@/components/icons/MoreOptionsHorizontalIcon";
+// import { Button } from "@/components/ui/button";
+// import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+// import { AdminRoutes } from "@/constants/RouterConstants";
+// import { formatCurrency } from "@/lib/utils";
 // import Link from "next/link";
 // import { toast } from "sonner";
 

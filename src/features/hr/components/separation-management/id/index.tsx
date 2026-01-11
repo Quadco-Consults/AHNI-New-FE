@@ -1,14 +1,14 @@
 "use client";
 
-import Card from "components/Card";
-import GoBack from "components/GoBack";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "components/ui/tabs";
+import Card from "@/components/Card";
+import GoBack from "@/components/GoBack";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ExitSummary from "./ExitSummary";
 import Severance from "./Severance";
 import Feedback from "./Feedback";
 import { useParams } from "next/navigation";
 import { useGetSeparationManagementById } from "@/features/hr/controllers/separationManagementController";
-import { LoadingSpinner } from "components/Loading";
+import { LoadingSpinner } from "@/components/Loading";
 
 const SeparationManagementDetail = () => {
   const { id } = useParams();

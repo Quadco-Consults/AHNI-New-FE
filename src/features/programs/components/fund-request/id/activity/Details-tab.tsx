@@ -1,5 +1,5 @@
 import { ColumnDef } from "@tanstack/react-table";
-import DataTable from "components/Table/DataTable";
+import DataTable from "@/components/Table/DataTable";
 import { useMemo } from "react";
 import { TFundRequestResponseData } from "@/features/programs/types/fund-request";
 

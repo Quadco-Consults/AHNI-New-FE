@@ -1,16 +1,16 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import FileUpload from "components/atoms/FileUpload";
+import FileUpload from "@/components/atoms/FileUpload";
 import FormButton from "@/components/FormButton";
-import FormInput from "components/atoms/FormInput";
-import FormSelect from "components/atoms/FormSelect";
-import FormTextArea from "components/atoms/FormTextArea";
-import Card from "components/Card";
-import GoBack from "components/GoBack";
-import { Form } from "components/ui/form";
-import { HrRoutes } from "constants/RouterConstants";
-import { jobAdvertismentSchema } from "features/hr/types/hr-validator";
+import FormInput from "@/components/atoms/FormInput";
+import FormSelect from "@/components/atoms/FormSelect";
+import FormTextArea from "@/components/atoms/FormTextArea";
+import Card from "@/components/Card";
+import GoBack from "@/components/GoBack";
+import { Form } from "@/components/ui/form";
+import { HrRoutes } from "@/constants/RouterConstants";
+import { jobAdvertismentSchema } from "@/features/hr/types/hr-validator";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { useCreateJobAdvertisement, useGetJobAdvertisement } from "@/features/hr/controllers/jobAdvertisementController";

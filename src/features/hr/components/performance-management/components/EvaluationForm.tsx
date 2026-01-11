@@ -1,16 +1,16 @@
 "use client";
 
 import { useForm, Controller } from "react-hook-form";
-import { Button } from "components/ui/button";
-import { Input } from "components/ui/input";
-import { Separator } from "components/ui/separator";
-import { Textarea } from "components/ui/textarea";
-import Card from "components/Card";
-import { useAppDispatch } from "hooks/useStore";
-import { openDialog } from "store/ui";
-import { DialogType } from "constants/dailogs";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
+import { Textarea } from "@/components/ui/textarea";
+import Card from "@/components/Card";
+import { useAppDispatch } from "@/hooks/useStore";
+import { openDialog } from "@/store/ui";
+import { DialogType } from "@/constants/dailogs";
 import { useRouter, useParams } from "next/navigation";
-import { HrRoutes } from "constants/RouterConstants";
+import { HrRoutes } from "@/constants/RouterConstants";
 import { useUpdatePerformanceAssesment } from "@/features/hr/controllers/hrPerformanceAssessmentController";
 import { toast } from "sonner";
 

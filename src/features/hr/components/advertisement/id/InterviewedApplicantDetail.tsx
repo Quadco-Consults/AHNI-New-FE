@@ -1,11 +1,11 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { Badge } from "components/ui/badge";
-import { Separator } from "components/ui/separator";
-import Card from "components/Card";
-import GoBack from "components/GoBack";
-import { Loading } from "components/Loading";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import Card from "@/components/Card";
+import GoBack from "@/components/GoBack";
+import { Loading } from "@/components/Loading";
 import {
   useGetInterview,
   useGetInterviewScores,

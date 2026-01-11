@@ -1,7 +1,7 @@
 "use client";
 
-import GoBack from "components/GoBack";
-import BreadcrumbCard from "components/Breadcrumb";
+import GoBack from "@/components/GoBack";
+import BreadcrumbCard from "@/components/Breadcrumb";
 import CreateActivityMemoForm from "@/features/procurement/components/activity-memo/create/CreateActivityMemoForm";
 
 export default function CreateActivityMemoPage() {

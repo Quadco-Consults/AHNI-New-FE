@@ -1,8 +1,8 @@
 "use client";
 
-import { Card } from "components/ui/card";
-import { Badge } from "components/ui/badge";
-import { Progress } from "components/ui/progress";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import { ModuleIntegrationStats } from "../../types/integration.types";
 
 interface ActivityChartProps {

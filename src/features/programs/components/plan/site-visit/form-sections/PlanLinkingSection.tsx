@@ -1,13 +1,13 @@
 "use client";
 
 import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "components/ui/select";
-import { Label } from "components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 import { LinkIcon, CheckCircleIcon } from "lucide-react";
-import { Alert, AlertDescription } from "components/ui/alert";
-import { Badge } from "components/ui/badge";
-import { LoadingSpinner } from "components/Loading";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { LoadingSpinner } from "@/components/Loading";
 
 import { SiteVisitType } from "@/features/programs/types/site-visit";
 

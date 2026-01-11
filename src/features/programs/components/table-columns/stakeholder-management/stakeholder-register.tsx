@@ -1,16 +1,16 @@
-import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import EyeIcon from "components/icons/EyeIcon";
-import DeleteIcon from "components/icons/DeleteIcon";
+import MoreOptionsHorizontalIcon from "@/components/icons/MoreOptionsHorizontalIcon";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import EyeIcon from "@/components/icons/EyeIcon";
+import DeleteIcon from "@/components/icons/DeleteIcon";
 import { ColumnDef } from "@tanstack/react-table";
 import { useDeleteStakeholderRegister } from "@/features/programs/controllers/stakeholderController";
 import { toast } from "sonner";
-import ConfirmationDialog from "components/ConfirmationDialog";
+import ConfirmationDialog from "@/components/ConfirmationDialog";
 import { TStakeholderRegisterData } from "definations/program-validator";
 import Link from "next/link";
-import { Button } from "components/ui/button";
+import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { RouteEnum } from "constants/RouterConstants";
+import { RouteEnum } from "@/constants/RouterConstants";
 
 export const stakeholderRegisterColumnss: ColumnDef<TStakeholderRegisterData>[] =
   [

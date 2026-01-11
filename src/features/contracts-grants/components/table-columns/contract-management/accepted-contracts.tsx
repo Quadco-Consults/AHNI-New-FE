@@ -1,12 +1,12 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { Popover, PopoverContent, PopoverTrigger } from "components/ui/popover";
-import { Button } from "components/ui/button";
-import MoreOptionsHorizontalIcon from "components/icons/MoreOptionsHorizontalIcon";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import MoreOptionsHorizontalIcon from "@/components/icons/MoreOptionsHorizontalIcon";
 import Link from "next/link";
 import { IAdhocApplicant } from "@/features/programs/types/adhoc-management";
-import EyeIcon from "components/icons/EyeIcon";
-import { Badge } from "components/ui/badge";
-import { cn } from "lib/utils";
+import EyeIcon from "@/components/icons/EyeIcon";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import { FileText, CheckCircle, Download } from "lucide-react";
 
 export const acceptedContractsColumns: ColumnDef<IAdhocApplicant>[] =

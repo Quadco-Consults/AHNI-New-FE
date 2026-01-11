@@ -1,11 +1,11 @@
 "use client";
 
-import { Card } from "components/ui/card";
-import { Badge } from "components/ui/badge";
-import { Button } from "components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { AlertTriangle, Info, XCircle, Clock } from "lucide-react";
 import { AlertData } from "../../types/integration.types";
-import { cn } from "lib/utils";
+import { cn } from "@/lib/utils";
 
 interface AlertsListProps {
   alerts: AlertData[];

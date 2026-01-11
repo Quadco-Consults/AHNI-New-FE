@@ -1,10 +1,10 @@
 import { useState } from "react";
-import Card from "components/Card";
-import { Button } from "components/ui/button";
-import AddSquareIcon from "components/icons/AddSquareIcon";
-import { Loading } from "components/Loading";
-import Pagination from "components/Pagination";
-import FilePreview from "components/FilePreview";
+import Card from "@/components/Card";
+import { Button } from "@/components/ui/button";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
+import { Loading } from "@/components/Loading";
+import Pagination from "@/components/Pagination";
+import FilePreview from "@/components/FilePreview";
 import { toast } from "sonner";
 import { pdfjs } from "react-pdf";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";

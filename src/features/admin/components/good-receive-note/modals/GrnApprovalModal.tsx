@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Card } from "components/ui/card";
-import { Button } from "components/ui/button";
-import { Textarea } from "components/ui/textarea";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import FormButton from "@/components/FormButton";
 import { toast } from "sonner";
 import {

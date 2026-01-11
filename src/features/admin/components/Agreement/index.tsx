@@ -1,7 +1,7 @@
-import Card from "components/Card";
+import Card from "@/components/Card";
 import { agreementColumns } from "@/features/contracts-grants/components/table-columns/contract-management/agreement";
-import DataTable from "components/Table/DataTable";
-import TableFilters from "components/Table/TableFilters";
+import DataTable from "@/components/Table/DataTable";
+import TableFilters from "@/components/Table/TableFilters";
 import { useState } from "react";
 import { useGetAllAgreements } from "@/features/contracts-grants/controllers/agreementController";
 

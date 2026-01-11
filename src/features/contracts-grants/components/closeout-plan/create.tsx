@@ -2,19 +2,19 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { skipToken } from "@reduxjs/toolkit/query";
-import BackNavigation from "components/atoms/BackNavigation";
-import FadedButton from "components/atoms/FadedButton";
+import BackNavigation from "@/components/atoms/BackNavigation";
+import FadedButton from "@/components/atoms/FadedButton";
 import FormButton from "@/components/FormButton";
-import FormInput from "components/atoms/FormInput";
-import FormSelect from "components/atoms/FormSelect";
-import FormTextArea from "components/atoms/FormTextArea";
-import AddSquareIcon from "components/icons/AddSquareIcon";
-import DeleteIcon from "components/icons/DeleteIcon";
-import Card from "components/Card";
-import { Button } from "components/ui/button";
-import { CardContent } from "components/ui/card";
-import { Form } from "components/ui/form";
-import { CG_ROUTES } from "constants/RouterConstants";
+import FormInput from "@/components/atoms/FormInput";
+import FormSelect from "@/components/atoms/FormSelect";
+import FormTextArea from "@/components/atoms/FormTextArea";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
+import DeleteIcon from "@/components/icons/DeleteIcon";
+import Card from "@/components/Card";
+import { Button } from "@/components/ui/button";
+import { CardContent } from "@/components/ui/card";
+import { Form } from "@/components/ui/form";
+import { CG_ROUTES } from "@/constants/RouterConstants";
 import {
   CloseOutPlanSchema,
   TCloseOutPlanFormData,

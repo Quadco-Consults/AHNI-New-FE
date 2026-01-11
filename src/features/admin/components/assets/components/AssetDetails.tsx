@@ -1,13 +1,13 @@
 "use client";
 
-import { Card, CardContent, CardHeader } from "components/ui/card";
-import { Separator } from "components/ui/separator";
-// import { TAssetSingleData } from "features/admin/types/inventory-management/asset";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+// import { TAssetSingleData } from "@/features/admin/types/inventory-management/asset";
 // import { ColumnDef } from "@tanstack/react-table";
-import DescriptionCard from "components/DescriptionCard";
-import { LoadingSpinner } from "components/Loading";
+import DescriptionCard from "@/components/DescriptionCard";
+import { LoadingSpinner } from "@/components/Loading";
 import { useSearchParams } from "next/navigation";
-import BackNavigation from "components/atoms/BackNavigation";
+import BackNavigation from "@/components/atoms/BackNavigation";
 import { useGetSingleItemQuery } from "@/features/modules/controllers";
 import { ColumnDef } from "@tanstack/react-table";
 import TableFilters from "@/components/TableFilters";

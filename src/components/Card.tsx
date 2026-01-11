@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { cn } from "lib/utils";
+import { cn } from "@/lib/utils";
 import { ReactNode } from "react";
 
 const Card = ({

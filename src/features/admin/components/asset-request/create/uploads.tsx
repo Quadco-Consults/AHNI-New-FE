@@ -3,10 +3,10 @@
 import React, { useState, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import LongArrowLeft from "components/icons/LongArrowLeft";
-import Card from "components/Card";
-import { Button } from "components/ui/button";
-import { AdminRoutes } from "constants/RouterConstants";
+import LongArrowLeft from "@/components/icons/LongArrowLeft";
+import Card from "@/components/Card";
+import { Button } from "@/components/ui/button";
+import { AdminRoutes } from "@/constants/RouterConstants";
 import { useUploadAssetRequestDocumentMutation } from "@/features/admin/controllers/assetRequestController";
 import { toast } from "sonner";
 import { Upload, FileText, X } from "lucide-react";

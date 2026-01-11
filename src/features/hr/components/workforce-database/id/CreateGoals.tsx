@@ -2,15 +2,15 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
-import { useAppDispatch, useAppSelector } from "hooks/useStore";
-import { closeDialog, dailogSelector } from "store/ui";
+import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
+import { closeDialog, dailogSelector } from "@/store/ui";
 import { toast } from "sonner";
 import { z } from "zod";
 
-import { CardContent } from "components/ui/card";
-import { Form } from "components/ui/form";
+import { CardContent } from "@/components/ui/card";
+import { Form } from "@/components/ui/form";
 import FormButton from "@/components/FormButton";
-import AddSquareIcon from "components/icons/AddSquareIcon";
+import AddSquareIcon from "@/components/icons/AddSquareIcon";
 import GoalForm from "./GoalForm";
 import { useCreateGoal } from "../../controllers/goalsController";
 

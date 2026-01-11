@@ -2,17 +2,17 @@
 
 import "@/utils/polyfills";
 import { zodResolver } from "@hookform/resolvers/zod";
-import FileUpload from "components/atoms/FileUpload";
+import FileUpload from "@/components/atoms/FileUpload";
 import FormButton from "@/components/FormButton";
-import FormInput from "components/atoms/FormInput";
-// import FormSelect from "components/atoms/FormSelect";
-import FormTextArea from "components/atoms/FormTextArea";
-import Card from "components/Card";
-import GoBack from "components/GoBack";
-import { Button } from "components/ui/button";
-import { Form } from "components/ui/form";
-// import { HrRoutes } from "constants/RouterConstants";
-import { jobApplicationSchema } from "features/hr/types/hr-validator";
+import FormInput from "@/components/atoms/FormInput";
+// import FormSelect from "@/components/atoms/FormSelect";
+import FormTextArea from "@/components/atoms/FormTextArea";
+import Card from "@/components/Card";
+import GoBack from "@/components/GoBack";
+import { Button } from "@/components/ui/button";
+import { Form } from "@/components/ui/form";
+// import { HrRoutes } from "@/constants/RouterConstants";
+import { jobApplicationSchema } from "@/features/hr/types/hr-validator";
 import { useEffect } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useParams, useRouter } from "next/navigation";

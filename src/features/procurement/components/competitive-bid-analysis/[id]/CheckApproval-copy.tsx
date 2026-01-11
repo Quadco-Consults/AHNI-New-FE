@@ -1,9 +1,9 @@
 import { skipToken } from "@reduxjs/toolkit/query";
-import GoBack from "components/GoBack";
-import { Loading } from "components/Loading";
-import { Button } from "components/ui/button";
-import { Textarea } from "components/ui/textarea";
-import { RouteEnum } from "constants/RouterConstants";
+import GoBack from "@/components/GoBack";
+import { Loading } from "@/components/Loading";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { RouteEnum } from "@/constants/RouterConstants";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";

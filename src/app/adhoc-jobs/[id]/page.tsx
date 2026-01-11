@@ -3,9 +3,9 @@
 export const dynamic = "force-dynamic";
 import { useParams, useRouter } from "next/navigation";
 import { useGetPublicOpportunity } from "@/features/procurement/controllers/solicitationController";
-import BackNavigation from "components/atoms/BackNavigation";
-import Card from "components/Card";
-import { LoadingSpinner } from "components/Loading";
+import BackNavigation from "@/components/atoms/BackNavigation";
+import Card from "@/components/Card";
+import { LoadingSpinner } from "@/components/Loading";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { format, isValid } from "date-fns";

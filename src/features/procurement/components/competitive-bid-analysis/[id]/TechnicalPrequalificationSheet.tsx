@@ -2,20 +2,20 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import logoSvg from "@/assets/svgs/logo-bg.svg";
-import Card from "components/Card";
-import DataTable from "components/Table/DataTable";
-import { Button } from "components/ui/button";
-import { Separator } from "components/ui/separator";
+import Card from "@/components/Card";
+import DataTable from "@/components/Table/DataTable";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import { ChevronRight } from "lucide-react";
 import TenderChecklist from "./TenderCheckList";
 import { useForm } from "react-hook-form";
-import GoBack from "components/GoBack";
+import GoBack from "@/components/GoBack";
 import { useRouter, useParams } from "next/navigation";
 import { useGetSolicitationSubmission } from "@/features/procurement/controllers/vendorBidSubmissionsController";
 import { useEffect, useState } from "react";
-import { RouteEnum } from "constants/RouterConstants";
+import { RouteEnum } from "@/constants/RouterConstants";
 import { toast } from "sonner";
-import { Loading } from "components/Loading";
+import { Loading } from "@/components/Loading";
 import { skipToken } from "@reduxjs/toolkit/query";
 import VendorsAPI from "@/features/procurement/controllers/vendorsController";
 import { useGetSingleSolicitation } from "@/features/procurement/controllers/solicitationController";
