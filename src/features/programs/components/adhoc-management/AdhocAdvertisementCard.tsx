@@ -24,6 +24,7 @@ import { Users, CheckCircle, AlertTriangle, Calendar } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useApplicantCount } from "@/features/programs/hooks/useApplicantCount";
 
 export default function AdhocAdvertisementCard(advertisement: IAdhocAdvertisement) {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -35,6 +36,9 @@ export default function AdhocAdvertisementCard(advertisement: IAdhocAdvertisemen
   const deleteMutation = useDeleteAdhocAdvertisement();
   const updateMutation = useUpdateAdhocAdvertisement(advertisement.id);
   const publishMutation = usePublishAdvertisement(advertisement.id);
+
+  // Get comprehensive applicant statistics (only use shortlisted count, not total)
+  const { shortlistedCount } = useApplicantCount(advertisement.id);
 
   // DEBUG: Log advertisement data to console
   if (process.env.NODE_ENV === 'development') {
@@ -280,11 +284,17 @@ export default function AdhocAdvertisementCard(advertisement: IAdhocAdvertisemen
               label={`₦${parseFloat(advertisement.proposed_salary || '0').toLocaleString()}/month`}
             />
 
-            {/* Applicant Stats */}
-            {advertisement.total_applicants !== undefined && (
+            {/* Applicant Stats - Use advertisement's total_applicants as source of truth */}
+            <DetailsTag
+              icon={<Users size={16} />}
+              label={`${advertisement.total_applicants || 0} applicant${(advertisement.total_applicants || 0) !== 1 ? 's' : ''}`}
+            />
+
+            {/* Shortlisted Count */}
+            {shortlistedCount > 0 && (
               <DetailsTag
-                icon={<Users size={16} />}
-                label={`${advertisement.total_applicants} applicant${advertisement.total_applicants !== 1 ? 's' : ''}`}
+                icon={<CheckCircle size={16} />}
+                label={`${shortlistedCount} shortlisted`}
               />
             )}
           </div>

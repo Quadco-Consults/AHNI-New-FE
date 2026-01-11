@@ -38,6 +38,7 @@ import { useCreateAdhocInterview } from "@/features/programs/controllers/adhocIn
 import { useGetApplicantsByAdvertisement } from "@/features/programs/controllers/adhocApplicantController";
 import { filterAhniStaffOnly } from "@/utils/userFilters";
 import { useGetEmployeeOnboardings } from "@/features/hr/controllers/employeeOnboardingController";
+import { useApplicantCount } from "@/features/programs/hooks/useApplicantCount";
 
 export default function CreateAdhocInterview() {
   const router = useRouter();
@@ -59,6 +60,37 @@ export default function CreateAdhocInterview() {
       enabled: !!advertisementId,
     }
   );
+
+  // Use the new hook for comprehensive applicant statistics
+  const {
+    totalCount,
+    shortlistedCount,
+    interviewEligibleCount,
+    totalFormatted,
+    shortlistedFormatted,
+    statusCounts
+  } = useApplicantCount(advertisementId);
+
+  // Debug logging for applicant statistics
+  console.log('🔍 APPLICANT STATISTICS:', {
+    advertisementId,
+    totalApplicants: totalCount,
+    shortlistedApplicants: shortlistedCount,
+    interviewEligible: interviewEligibleCount,
+    statusBreakdown: statusCounts,
+    advertisementCachedTotal: advertisementData?.data?.total_applicants,
+    rawAPIResponse: applicantsData?.data,
+    applicantDetails: applicantsData?.data?.results?.map((app: any) => ({
+      id: app.id,
+      application_number: app.application_number,
+      name: app.full_name,
+      status: app.status,
+      email: app.email,
+      advertisement: app.advertisement,
+      advertisement_title: app.advertisement_title,
+      application_date: app.application_date
+    }))
+  });
 
   // Fetch from both sources: Users table AND Employee database
   const { data: users, isLoading: isUsersLoading, error: usersError } = useGetAllUsers({
@@ -84,23 +116,54 @@ export default function CreateAdhocInterview() {
     usersDataStructure: users ? Object.keys(users) : [],
   });
 
-  // Combine users from both sources
+  // Map employees to their corresponding user records for committee selection
+  // TEMPORARY: Include ALL users to debug program officer visibility
+  const ahniUsers = usersResults.filter((user: any) => {
+    const userType = user?.user_type?.toUpperCase()?.trim() || '';
+
+    // TEMPORARY: Allow all user types except obvious external ones for debugging
+    const isExternalVendor =
+      userType === 'VENDOR' ||
+      userType === 'SUPPLIER' ||
+      userType === 'CONTRACTOR' ||
+      userType === 'EXTERNAL';
+
+    console.log(`🔍 User Filter Debug: ${user.first_name} ${user.last_name} (${userType}) - ${isExternalVendor ? 'EXCLUDED' : 'INCLUDED'}`);
+
+    return !isExternalVendor; // Include everyone except obvious vendors
+  });
+  const employees = (employeeData?.data?.results || []) as any[];
+
   const allStaff = [
     // Users from user table (filter to exclude vendors)
-    ...filterAhniStaffOnly(usersResults),
-    // Employees from employee database (all are AHNI staff)
-    ...((employeeData?.data?.results || []) as any[]).map((emp: any) => ({
-      id: emp.id,
-      first_name: emp.legal_firstname || emp.first_name,
-      last_name: emp.legal_lastname || emp.last_name,
-      email: emp.email,
-      user_type: 'STAFF',
-      designation: emp.designation?.name || emp.position,
-      department: emp.department?.name,
-      phone_number: emp.phone_number || emp.mobile_number,
-      is_staff: true,
-      _source: 'employee_database'
-    }))
+    ...ahniUsers,
+    // Employees from employee database - try to map to existing users by email
+    ...employees.map((emp: any) => {
+      // Try to find corresponding user record by email
+      const correspondingUser = ahniUsers.find((user: any) =>
+        user.email && emp.email && user.email.toLowerCase() === emp.email.toLowerCase()
+      );
+
+      return {
+        id: correspondingUser?.id || emp.id, // Use user ID if found, fallback to employee ID
+        first_name: emp.legal_firstname || emp.first_name,
+        last_name: emp.legal_lastname || emp.last_name,
+        email: emp.email,
+        user_type: 'STAFF',
+        designation: emp.designation?.name || (
+          typeof emp.position === 'object'
+            ? (emp.position?.name || emp.position?.title)
+            : emp.position
+        ) || 'N/A',
+        department: emp.department?.name,
+        phone_number: emp.phone_number || emp.mobile_number,
+        is_staff: true,
+        _source: 'employee_database',
+        _hasUserRecord: !!correspondingUser,
+        _originalEmployeeId: emp.id,
+        _mappedUserId: correspondingUser?.id
+      };
+    })
   ];
 
   // Remove duplicates based on email (but keep entries with null emails)
@@ -121,15 +184,143 @@ export default function CreateAdhocInterview() {
 
   const ahniStaffUsers = uniqueStaff;
 
-  console.log('👥 Combined AHNI staff:', {
-    fromUsers: filterAhniStaffOnly(usersResults).length,
-    fromEmployees: employeeData?.data?.results?.length || 0,
+  // Filter for committee selection: Only users who have valid user IDs (either from user table or mapped employees)
+  const committeeEligibleUsers = ahniStaffUsers.filter((user: any) =>
+    user._source !== 'employee_database' || user._hasUserRecord
+  );
+
+  // Debug: Check all user types to identify program officers
+  const allUserTypes = usersResults.reduce((types: any, user: any) => {
+    const userType = user?.user_type?.toUpperCase()?.trim() || 'NO_TYPE';
+    types[userType] = (types[userType] || 0) + 1;
+    return types;
+  }, {});
+
+  console.log('📊 All User Types Found:', allUserTypes);
+
+  // DEBUG: Let's search for the specific program officer by name or email
+  // Replace 'program officer' with the actual name or email if you know it
+  const searchTerms = ['program', 'officer', 'coordination', 'manager']; // Add more search terms if needed
+
+  const potentialProgramOfficers = usersResults.filter((user: any) => {
+    const fullName = `${user.first_name || ''} ${user.last_name || ''}`.toLowerCase();
+    const email = (user.email || '').toLowerCase();
+    const userType = (user.user_type || '').toLowerCase();
+    const designation = typeof user?.designation === 'object'
+      ? (user?.designation?.name || '').toLowerCase()
+      : (user?.designation || '').toLowerCase();
+
+    return searchTerms.some(term =>
+      fullName.includes(term) ||
+      email.includes(term) ||
+      userType.includes(term) ||
+      designation.includes(term)
+    );
+  });
+
+  console.log('🔍 POTENTIAL PROGRAM OFFICERS IN USERS:', potentialProgramOfficers.map(user => ({
+    name: `${user.first_name} ${user.last_name}`,
+    email: user.email,
+    user_type: user.user_type,
+    designation: typeof user?.designation === 'object' ? user?.designation?.name : user?.designation,
+    passedFilter: ahniUsers.some(u => u.id === user.id),
+    inCommitteeEligible: committeeEligibleUsers.some(u => u.id === user.id)
+  })));
+
+  // Also search in employee database
+  const potentialProgramOfficersEmployees = employees.filter((emp: any) => {
+    const fullName = `${emp.legal_firstname || emp.first_name || ''} ${emp.legal_lastname || emp.last_name || ''}`.toLowerCase();
+    const email = (emp.email || '').toLowerCase();
+    const position = typeof emp.position === 'object'
+      ? (emp.position?.name || emp.position?.title || '').toLowerCase()
+      : (emp.position || '').toLowerCase();
+    const designation = typeof emp.designation === 'object'
+      ? (emp.designation?.name || emp.designation?.title || '').toLowerCase()
+      : (emp.designation || '').toLowerCase();
+
+    return searchTerms.some(term =>
+      fullName.includes(term) ||
+      email.includes(term) ||
+      position.includes(term) ||
+      designation.includes(term)
+    );
+  });
+
+  console.log('🔍 POTENTIAL PROGRAM OFFICERS IN EMPLOYEES:', potentialProgramOfficersEmployees.map(emp => ({
+    name: `${emp.legal_firstname || emp.first_name} ${emp.legal_lastname || emp.last_name}`,
+    email: emp.email,
+    position: typeof emp.position === 'object' ? (emp.position?.name || emp.position?.title) : emp.position,
+    designation: typeof emp.designation === 'object' ? (emp.designation?.name || emp.designation?.title) : emp.designation,
+    hasMatchingUser: usersResults.some(u => u.email?.toLowerCase() === emp.email?.toLowerCase())
+  })));
+
+  // Debug: Look for users with "program" or "officer" in their designation or user_type
+  const programOfficersInUsers = usersResults.filter((user: any) => {
+    const userType = user?.user_type?.toLowerCase() || '';
+    const designation = typeof user?.designation === 'object'
+      ? user?.designation?.name?.toLowerCase() || ''
+      : user?.designation?.toLowerCase() || '';
+
+    return userType.includes('program') || userType.includes('officer') ||
+           designation.includes('program') || designation.includes('officer');
+  });
+
+  // Debug: Look for program officers in employee database
+  const programOfficersInEmployees = employees.filter((emp: any) => {
+    const position = typeof emp.position === 'object'
+      ? (emp.position?.name?.toLowerCase() || emp.position?.title?.toLowerCase() || '')
+      : (emp.position?.toLowerCase() || '');
+
+    const designation = typeof emp.designation === 'object'
+      ? (emp.designation?.name?.toLowerCase() || emp.designation?.title?.toLowerCase() || '')
+      : (emp.designation?.toLowerCase() || '');
+
+    return position.includes('program') || position.includes('officer') ||
+           designation.includes('program') || designation.includes('officer');
+  });
+
+  console.log('🎯 Program Officers in Users Table:', programOfficersInUsers.map((user: any) => ({
+    name: `${user.first_name} ${user.last_name}`,
+    email: user.email,
+    user_type: user.user_type,
+    designation: typeof user?.designation === 'object' ? user?.designation?.name : user?.designation,
+    includedInFilter: ahniUsers.some((u: any) => u.id === user.id)
+  })));
+
+  console.log('🎯 Program Officers in Employee Database:', programOfficersInEmployees.map((emp: any) => ({
+    name: `${emp.legal_firstname || emp.first_name} ${emp.legal_lastname || emp.last_name}`,
+    email: emp.email,
+    position: typeof emp.position === 'object'
+      ? (emp.position?.name || emp.position?.title || 'N/A')
+      : (emp.position || 'N/A'),
+    designation: typeof emp.designation === 'object'
+      ? (emp.designation?.name || emp.designation?.title || 'N/A')
+      : (emp.designation || 'N/A'),
+    hasUserAccount: usersResults.some((u: any) => u.email?.toLowerCase() === emp.email?.toLowerCase())
+  })));
+
+  console.log('👥 Combined AHNI staff with reconciliation:', {
+    fromUsers: ahniUsers.length,
+    fromEmployees: employees.length,
     combined: allStaff.length,
     afterDedup: ahniStaffUsers.length,
-    sampleStaff: ahniStaffUsers.slice(0, 3).map((s: any) => ({
+    committeeEligible: committeeEligibleUsers.length,
+    employeeMapping: employees.slice(0, 3).map((emp: any) => {
+      const user = ahniUsers.find((u: any) => u.email?.toLowerCase() === emp.email?.toLowerCase());
+      return {
+        employeeName: `${emp.legal_firstname || emp.first_name} ${emp.legal_lastname || emp.last_name}`,
+        employeeEmail: emp.email,
+        employeeId: emp.id,
+        mappedUserId: user?.id,
+        hasUserRecord: !!user
+      };
+    }),
+    sampleCommitteeEligible: committeeEligibleUsers.slice(0, 3).map((s: any) => ({
       name: `${s.first_name} ${s.last_name}`,
       email: s.email,
-      source: s._source || 'users_table'
+      id: s.id,
+      source: s._source || 'users_table',
+      hasUserRecord: s._hasUserRecord
     }))
   });
 
@@ -153,6 +344,8 @@ export default function CreateAdhocInterview() {
         : titleData || 'Unknown Advertisement';
 
       form.setValue('advertisement', advertisementTitle);
+      // Clear any existing interviewer selections to prevent stale data
+      form.setValue('interviewers', []);
       console.log('Setting advertisement title:', advertisementTitle);
     }
   }, [advertisementData, form]);
@@ -160,12 +353,12 @@ export default function CreateAdhocInterview() {
   const { handleSubmit, watch } = form;
 
   const matchedUsers =
-    ahniStaffUsers?.filter((user: any) =>
+    committeeEligibleUsers?.filter((user: any) =>
       (form.watch("interviewers") as string[])?.includes(user?.id)
     ) || [];
 
-  // Filter users based on search term
-  const filteredUsers = ahniStaffUsers?.filter((user: any) => {
+  // Filter users based on search term (only committee-eligible users)
+  const filteredUsers = committeeEligibleUsers?.filter((user: any) => {
     if (!searchTerm) return true;
 
     const searchLower = searchTerm.toLowerCase();
@@ -179,6 +372,23 @@ export default function CreateAdhocInterview() {
     const fullName = `${firstName} ${lastName}`.toLowerCase();
 
     return fullName.includes(searchLower) || email.toLowerCase().includes(searchLower);
+  });
+
+  // DEBUG: Show final filtered users available for selection
+  console.log('👥 FINAL FILTERED USERS FOR COMMITTEE SELECTION:', {
+    totalUsers: usersResults.length,
+    ahniUsersAfterFilter: ahniUsers.length,
+    committeeEligible: committeeEligibleUsers.length,
+    finalFiltered: filteredUsers.length,
+    searchTerm: searchTerm || 'none',
+    sampleFiltered: filteredUsers.slice(0, 10).map(user => ({
+      id: user.id,
+      name: `${user.first_name} ${user.last_name}`,
+      email: user.email,
+      user_type: user.user_type,
+      designation: typeof user?.designation === 'object' ? user?.designation?.name : user?.designation,
+      source: user._source || 'users_table'
+    }))
   });
 
   const onSubmit = async (interview_data: any) => {
@@ -213,6 +423,34 @@ export default function CreateAdhocInterview() {
       return;
     }
 
+    // Validate and map committee member IDs to ensure they're valid user IDs
+    if (interview_data.interview_type === "COMMITTEE") {
+      const validCommitteeIds = committeeEligibleUsers.map((user: any) => user.id);
+      const invalidIds = interview_data.interviewers.filter((id: string) => !validCommitteeIds.includes(id));
+
+      if (invalidIds.length > 0) {
+        console.error("❌ Invalid committee member IDs detected:", invalidIds);
+        toast.error("Some selected committee members don't have user accounts. Please select only staff with system access.");
+        return;
+      }
+
+      // Additional validation: ensure all IDs are actual user IDs (not employee IDs without user records)
+      const selectedUsers = interview_data.interviewers.map((id: string) => {
+        const user = committeeEligibleUsers.find((u: any) => u.id === id);
+        return user;
+      }).filter(Boolean);
+
+      const usersWithoutAccounts = selectedUsers.filter((user: any) =>
+        user._source === 'employee_database' && !user._hasUserRecord
+      );
+
+      if (usersWithoutAccounts.length > 0) {
+        console.error("❌ Selected employees without user accounts:", usersWithoutAccounts);
+        toast.error("Some selected employees don't have system user accounts. Please select only staff with login access.");
+        return;
+      }
+    }
+
     if (eligibleApplicants.length === 0) {
       toast.error("No eligible applicants found. Please ensure there are shortlisted or submitted applicants.");
       return;
@@ -232,6 +470,24 @@ export default function CreateAdhocInterview() {
             interviewer: interview_data.interviewers[0]
           }),
         };
+
+        // Debug logging for committee member validation
+        if (interview_data.interview_type === "COMMITTEE") {
+          console.log('🔍 Committee Interview Debug:', {
+            selectedIds: interview_data.interviewers,
+            selectedUsers: interview_data.interviewers.map((id: string) => {
+              const user = committeeEligibleUsers.find((u: any) => u.id === id);
+              return user ? {
+                id,
+                name: `${user.first_name} ${user.last_name}`,
+                email: user.email,
+                source: user._source || 'users_table',
+                hasUserRecord: user._hasUserRecord,
+                isValidForAPI: user._source !== 'employee_database' || user._hasUserRecord
+              } : { id, status: 'NOT_FOUND' };
+            })
+          });
+        }
 
         console.log(`📋 Creating interview for applicant ${applicant.id}:`, interviewPayload);
         return createAdhocInterview(interviewPayload as any);
@@ -299,7 +555,24 @@ export default function CreateAdhocInterview() {
               <div>
                 <label className="text-gray-600 font-medium">Total Applicants:</label>
                 <p className="text-gray-900 font-semibold mt-1">
-                  {applicantsData?.data?.results?.length || 0} applicants
+                  {advertisementData?.data?.total_applicants || 0} applicants
+                  {advertisementData?.data?.total_applicants !== totalCount && (
+                    <span className="text-orange-500 text-xs ml-2">
+                      (Live: {totalCount})
+                    </span>
+                  )}
+                </p>
+              </div>
+
+              <div>
+                <label className="text-gray-600 font-medium">Shortlisted Applicants:</label>
+                <p className="text-gray-900 font-semibold mt-1">
+                  {shortlistedFormatted}
+                  {interviewEligibleCount > shortlistedCount && (
+                    <span className="text-blue-600 text-xs ml-2">
+                      (+{interviewEligibleCount - shortlistedCount} interview-eligible)
+                    </span>
+                  )}
                 </p>
               </div>
 
