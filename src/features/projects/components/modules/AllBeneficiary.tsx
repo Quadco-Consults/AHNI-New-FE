@@ -13,6 +13,7 @@ import {
 } from "@/features/modules/controllers/project/beneficiaryController";
 import { useState } from "react";
 import Pagination from "@/components/Pagination";
+import BeneficiaryBulkImport from "./BeneficiaryBulkImport";
 
 export default function AllBeneficiary() {
     const [page, setPage] = useState(1);
@@ -59,23 +60,26 @@ export default function AllBeneficiary() {
                 <h1 className="text-[#D92D20] font-semibold text-sm">
                     Beneficiaries
                 </h1>
-                <Button
-                    onClick={() =>
-                        dispatch(
-                            openDialog({
-                                type: DialogType.AddBeneficiaries,
-                                dialogProps: {
-                                    header: "Add Beneficiary",
-                                },
-                            })
-                        )
-                    }
-                    variant="outline"
-                    className="gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-[#FFFFFF] text-[#DEA004] border-[1px] border-[#C7CBD5]"
-                    size="sm"
-                >
-                    Click to add New
-                </Button>
+                <div className="flex gap-2">
+                    <BeneficiaryBulkImport />
+                    <Button
+                        onClick={() =>
+                            dispatch(
+                                openDialog({
+                                    type: DialogType.AddBeneficiaries,
+                                    dialogProps: {
+                                        header: "Add Beneficiary",
+                                    },
+                                })
+                            )
+                        }
+                        variant="outline"
+                        className="gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-[#FFFFFF] text-[#DEA004] border-[1px] border-[#C7CBD5]"
+                        size="sm"
+                    >
+                        Click to add New
+                    </Button>
+                </div>
             </div>
             <div>
                 <div className="flex justify-between text-[#756D6D] font-semibold text-sm mb-10">

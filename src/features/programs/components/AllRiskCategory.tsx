@@ -11,6 +11,7 @@ import {
 } from "@/features/modules/controllers/program/riskCategoryController";
 import { useState } from "react";
 import Pagination from "@/components/Pagination";
+import RiskCategoryBulkImport from "./RiskCategoryBulkImport";
 
 export default function AllRiskCategory() {
   const [page, setPage] = useState(1);
@@ -50,24 +51,27 @@ export default function AllRiskCategory() {
   return (
     <div>
       <div className='flex justify-between items-center py-6 mb-6'>
-        <h1 className='text-[#D92D20] font-semibold text-sm'>Team Members</h1>
-        <Button
-          onClick={() =>
-            dispatch(
-              openDialog({
-                type: DialogType.AddRiskCategory,
-                dialogProps: {
-                  header: "Add Risk Category",
-                },
-              })
-            )
-          }
-          variant='outline'
-          className='gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-[#FFFFFF] text-[#DEA004] border-[1px] border-[#C7CBD5]'
-          size='sm'
-        >
-          Click to add New
-        </Button>
+        <h1 className='text-[#D92D20] font-semibold text-sm'>Risk Categories</h1>
+        <div className='flex gap-2'>
+          <RiskCategoryBulkImport />
+          <Button
+            onClick={() =>
+              dispatch(
+                openDialog({
+                  type: DialogType.AddRiskCategory,
+                  dialogProps: {
+                    header: "Add Risk Category",
+                  },
+                })
+              )
+            }
+            variant='outline'
+            className='gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-[#FFFFFF] text-[#DEA004] border-[1px] border-[#C7CBD5]'
+            size='sm'
+          >
+            Click to add New
+          </Button>
+        </div>
       </div>
       <div>
         <div className='flex text-[#756D6D] font-semibold text-sm mb-10'>

@@ -11,6 +11,7 @@ import {
   useDeleteInterventionArea,
   useGetAllInterventionAreas,
 } from "@/features/modules/controllers/program/interventionAreaController";
+import InterventionAreaBulkImport from "./InterventionAreaBulkImport";
 
 export default function AllInterventions() {
   const [page, setPage] = useState(1);
@@ -52,23 +53,26 @@ export default function AllInterventions() {
         <h1 className='text-[#D92D20] font-semibold text-sm'>
           Intervention Areas
         </h1>
-        <Button
-          onClick={() =>
-            dispatch(
-              openDialog({
-                type: DialogType.AddInterventionArea,
-                dialogProps: {
-                  header: "Add Intervention Area",
-                },
-              })
-            )
-          }
-          variant='outline'
-          className='gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-[#FFFFFF] text-[#DEA004] border-[1px] border-[#C7CBD5]'
-          size='sm'
-        >
-          Click to add New
-        </Button>
+        <div className='flex gap-2'>
+          <InterventionAreaBulkImport />
+          <Button
+            onClick={() =>
+              dispatch(
+                openDialog({
+                  type: DialogType.AddInterventionArea,
+                  dialogProps: {
+                    header: "Add Intervention Area",
+                  },
+                })
+              )
+            }
+            variant='outline'
+            className='gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-[#FFFFFF] text-[#DEA004] border-[1px] border-[#C7CBD5]'
+            size='sm'
+          >
+            Click to add New
+          </Button>
+        </div>
       </div>
       <div>
         <div className='flex text-[#756D6D] font-semibold text-sm mb-10'>

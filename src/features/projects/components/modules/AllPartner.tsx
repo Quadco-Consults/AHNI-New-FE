@@ -9,6 +9,7 @@ import {
 import { useState } from "react";
 import DataTable from "@/components/Table/DataTable";
 import { modulePartnerColumn } from "@/features/projects/components/table-columns/project/partner";
+import PartnerBulkImport from "./PartnerBulkImport";
 
 export default function AllPartner() {
     const [page, setPage] = useState(1);
@@ -27,23 +28,26 @@ export default function AllPartner() {
                 <h1 className="text-[#D92D20] font-semibold text-sm">
                     Partners
                 </h1>
-                <Button
-                    onClick={() =>
-                        dispatch(
-                            openDialog({
-                                type: DialogType.AddPartners,
-                                dialogProps: {
-                                    header: "Add Partner",
-                                },
-                            })
-                        )
-                    }
-                    variant="outline"
-                    className="gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-[#FFFFFF] text-[#DEA004] border-[1px] border-[#C7CBD5]"
-                    size="sm"
-                >
-                    Click to add New
-                </Button>
+                <div className="flex gap-2">
+                    <PartnerBulkImport />
+                    <Button
+                        onClick={() =>
+                            dispatch(
+                                openDialog({
+                                    type: DialogType.AddPartners,
+                                    dialogProps: {
+                                        header: "Add Partner",
+                                    },
+                                })
+                            )
+                        }
+                        variant="outline"
+                        className="gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-[#FFFFFF] text-[#DEA004] border-[1px] border-[#C7CBD5]"
+                        size="sm"
+                    >
+                        Click to add New
+                    </Button>
+                </div>
             </div>
 
             {data && (
