@@ -11,6 +11,7 @@ import {
     useDeleteAssetClassificationMutation,
     useGetAllAssetClassificationsQuery,
 } from "@/features/modules/controllers/config/assetClassificationController";
+import AssetClassificationBulkImport from "./AssetClassificationBulkImport";
 
 export default function AllAssetClassification() {
     const [page, setPage] = useState(1);
@@ -52,23 +53,26 @@ export default function AllAssetClassification() {
                 <h1 className="text-[#D92D20] font-semibold text-sm">
                     Asset Classifications
                 </h1>
-                <Button
-                    onClick={() =>
-                        dispatch(
-                            openDialog({
-                                type: DialogType.AddAssetClassification,
-                                dialogProps: {
-                                    header: "Add Asset Classification",
-                                },
-                            })
-                        )
-                    }
-                    variant="outline"
-                    className="gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-[#FFFFFF] text-[#DEA004] border-[1px] border-[#C7CBD5]"
-                    size="sm"
-                >
-                    Click to add New
-                </Button>
+                <div className="flex gap-2">
+                    <AssetClassificationBulkImport />
+                    <Button
+                        onClick={() =>
+                            dispatch(
+                                openDialog({
+                                    type: DialogType.AddAssetClassification,
+                                    dialogProps: {
+                                        header: "Add Asset Classification",
+                                    },
+                                })
+                            )
+                        }
+                        variant="outline"
+                        className="gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-[#FFFFFF] text-[#DEA004] border-[1px] border-[#C7CBD5]"
+                        size="sm"
+                    >
+                        Click to add New
+                    </Button>
+                </div>
             </div>
             <div>
                 <div className="flex text-[#756D6D] font-semibold text-sm border-b border-gray-300 pb-4">

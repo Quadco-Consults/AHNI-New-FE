@@ -82,7 +82,7 @@ export default function AllSolicitationEvaluationCriteria() {
           <LoadingSpinner />
         ) : (
           <div>
-            {solicitationCriteria?.results.map((item: any) => (
+            {solicitationCriteria?.results?.map((item: any) => (
               <div
                 key={item.id}
                 className="flex justify-between mt-6 text-[#756D6D] font-normal text-xs"
@@ -103,8 +103,8 @@ export default function AllSolicitationEvaluationCriteria() {
         )}
 
         <Pagination
-          total={solicitationCriteria?.pagination.count ?? 0}
-          itemsPerPage={solicitationCriteria?.pagination.page_size ?? 0}
+          total={solicitationCriteria?.pagination?.count ?? 0}
+          itemsPerPage={solicitationCriteria?.pagination?.page_size ?? 0}
           onChange={(page: number) => setPage(page)}
         />
       </div>

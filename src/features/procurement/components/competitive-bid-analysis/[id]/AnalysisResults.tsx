@@ -1,17 +1,19 @@
 "use client";
 
-import { useParams } from "next/navigation";
-import { useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { useState, useMemo } from "react";
 import { Loading } from "@/components/Loading";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Card from "@/components/Card";
-import { FileText, AlertTriangle, ClipboardCheck, CheckCircle, Download } from 'lucide-react';
+import { FileText, AlertTriangle, ClipboardCheck, CheckCircle, Download, ShoppingCart } from 'lucide-react';
 import { Icon } from "@iconify/react";
 import CbaAPI from "@/features/procurement/controllers/cbaController";
 import { toast } from "sonner";
 import { jsPDF } from "jspdf";
 import "jspdf-autotable";
+import { useGetAllMemberEvaluations, useCalculateConsensus } from "@/features/procurement/controllers/committeeEvaluationController";
+import Link from "next/link";
 
 interface AnalysisResultsProps {
   cbaId?: string;
@@ -24,6 +26,16 @@ const AnalysisResults = ({ cbaId: propCbaId }: AnalysisResultsProps) => {
 
   const { data: analysisData, isLoading, error } = CbaAPI.useGetCbaAnalysisResults(cbaId);
   const { data: cbaData } = CbaAPI.useGetSingleCba(cbaId);
+
+  // Fetch committee evaluations and consensus for COMMITTEE CBAs
+  const isCommitteeCBA = cbaData?.data?.cba_type === 'COMMITTEE';
+  const { data: memberEvaluations } = useGetAllMemberEvaluations(cbaId, isCommitteeCBA);
+  const { calculateConsensus } = useCalculateConsensus(memberEvaluations || []);
+
+  const consensusResults = useMemo(() => {
+    if (!isCommitteeCBA || !memberEvaluations || memberEvaluations.length === 0) return null;
+    return calculateConsensus();
+  }, [isCommitteeCBA, memberEvaluations, calculateConsensus]);
 
   // Debug logging
   console.log("🔍 Analysis Results Debug:", {
@@ -230,14 +242,49 @@ const AnalysisResults = ({ cbaId: propCbaId }: AnalysisResultsProps) => {
   const result = analysisData.data;
   const selectedTotal = result?.selected_total || 0;
 
+  // Check if selected vendor matches consensus recommendation
+  const selectedVendorMatchesConsensus = useMemo(() => {
+    if (!consensusResults || !result?.vendor_id) return true; // No warning if no consensus
+    return result.vendor_id === consensusResults.recommended_vendor?.id;
+  }, [consensusResults, result]);
+
   return (
     <div className="space-y-6">
+      {/* Consensus Validation Warning - Only for Committee CBAs */}
+      {isCommitteeCBA && consensusResults && !selectedVendorMatchesConsensus && (
+        <div className="bg-amber-50 border-l-4 border-amber-400 p-4 rounded">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <AlertTriangle className="h-5 w-5 text-amber-400" />
+            </div>
+            <div className="ml-3">
+              <h3 className="text-sm font-medium text-amber-800">
+                Selected Vendor Differs from Committee Consensus
+              </h3>
+              <div className="mt-2 text-sm text-amber-700">
+                <p>
+                  <strong>Committee Recommended:</strong> {consensusResults.recommended_vendor?.name}
+                  (Score: {consensusResults.recommended_vendor?.consensus_score?.toFixed(1)},
+                  Agreement: {consensusResults.agreement_percentage}%)
+                </p>
+                <p className="mt-1">
+                  <strong>Currently Selected:</strong> Vendor ID {result?.vendor_id?.slice(0, 13)}...
+                </p>
+                <p className="mt-2 italic">
+                  Please ensure there is a documented justification for deviating from the committee's consensus recommendation.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header Section with Download Actions */}
       <Card className="p-6 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-green-600 rounded-xl flex items-center justify-center shadow-md">
-              <ClipboardCheck size={16} />
+              <ClipboardCheck size={24} className="text-white" />
             </div>
             <div>
               <h2 className="text-xl font-bold text-gray-900">Analysis Results</h2>
@@ -245,19 +292,34 @@ const AnalysisResults = ({ cbaId: propCbaId }: AnalysisResultsProps) => {
             </div>
           </div>
           <Badge className="bg-green-600 text-white px-4 py-2 text-base shadow-md">
-            <CheckCircle size={16} />
+            <CheckCircle size={16} className="mr-1" />
             Submitted
           </Badge>
         </div>
 
-        {/* Download Actions */}
+        {/* Action Buttons */}
         <div className="flex gap-3 mt-4">
+          {/* Create PO Button - Only show if CBA is APPROVED */}
+          {cbaData?.data?.status === 'APPROVED' && result?.vendor_id && (
+            <Link
+              href={`/dashboard/procurement/purchase-orders/create?vendor_id=${result.vendor_id}&cba_id=${cbaId}&solicitation_id=${result.solicitation_id}`}
+              className="flex-1"
+            >
+              <Button
+                className="bg-green-600 hover:bg-green-700 text-white w-full"
+              >
+                <ShoppingCart size={16} className="mr-2" />
+                Create Purchase Order
+              </Button>
+            </Link>
+          )}
+
           <Button
             onClick={handleDownloadPDF}
             disabled={isDownloading}
-            className="bg-blue-600 hover:bg-blue-700 text-white flex-1"
+            className={`bg-blue-600 hover:bg-blue-700 text-white ${cbaData?.data?.status === 'APPROVED' ? 'flex-1' : 'flex-1'}`}
           >
-            <FileText size={16} />
+            <FileText size={16} className="mr-2" />
             {isDownloading ? "Generating PDF..." : "Download PDF Report"}
           </Button>
           <Button
@@ -265,10 +327,18 @@ const AnalysisResults = ({ cbaId: propCbaId }: AnalysisResultsProps) => {
             variant="outline"
             className="border-blue-600 text-blue-600 hover:bg-blue-50"
           >
-            <Download size={16} />
+            <Download size={16} className="mr-2" />
             Download JSON
           </Button>
         </div>
+
+        {/* Status Info for PO Creation */}
+        {cbaData?.data?.status !== 'APPROVED' && (
+          <div className="mt-3 text-xs text-gray-600 bg-gray-50 p-2 rounded">
+            <Icon icon="mdi:information-outline" className="inline mr-1" />
+            Purchase Order can be created once this CBA is fully approved.
+          </div>
+        )}
       </Card>
 
       {/* Analysis Details */}

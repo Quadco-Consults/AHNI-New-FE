@@ -43,7 +43,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import CommitteeParticipationBanner from "./committee-evaluation/CommitteeParticipationBanner";
 import MemberEvaluationDashboard from "./committee-evaluation/MemberEvaluationDashboard";
 import ConsensusAnalysis from "./committee-evaluation/ConsensusAnalysis";
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 const generatePath = (route: string, params?: Record<string, any>): string => {
   let path = route;
@@ -65,8 +66,31 @@ const getStatusVariant = (status: string) => {
   }
 };
 
+// Helper function to determine user role
+const getUserRole = (user: any) => {
+  const designation = user?.designation?.toLowerCase() || '';
+  const role = user?.role?.toLowerCase() || '';
+  const email = user?.email?.toLowerCase() || '';
+
+  if (email.includes('admin@') || email === 'admin@mail.com') return 'ADMIN';
+  if (designation.includes('admin') || role.includes('admin') ||
+      designation.includes('managing director') || designation.includes('md') ||
+      role.includes('managing director') || role.includes('md') ||
+      designation.includes('director') || role.includes('director') ||
+      designation.includes('administrator') || role.includes('administrator')) {
+    return 'ADMIN';
+  }
+  if (designation.includes('procurement') || role.includes('procurement') ||
+      designation.includes('officer') || role.includes('officer') ||
+      designation.includes('manager') || role.includes('manager')) {
+    return 'PROCUREMENT_STAFF';
+  }
+  return 'STAFF';
+};
+
 const CompetitiveBidAnalysisDetail = () => {
     const { id } = useParams();
+    const router = useRouter();
     const [open, setOpen] = useState(false);
     const queryClient = useQueryClient();
     const currentUser = useCurrentUser();
@@ -134,6 +158,52 @@ const CompetitiveBidAnalysisDetail = () => {
 
         return data.data.committee_members.some(member => member.id === currentUser.id);
     }, [isCommitteeCBA, data, currentUser.id]);
+
+    // Determine user role for access control
+    const userRole = useMemo(() => {
+        if (!currentUser?.id) return 'STAFF';
+        return getUserRole(currentUser);
+    }, [currentUser]);
+
+    // Check if user is the assigned evaluator for NON-COMMITTEE CBAs
+    const isAssignedEvaluator = useMemo(() => {
+        if (!data?.data) return false;
+        const assigneeId = typeof data.data.assignee === 'string'
+            ? data.data.assignee
+            : (data.data.assignee as any)?.user_id || (data.data.assignee as any)?.id;
+        return assigneeId === currentUser.id;
+    }, [data, currentUser.id]);
+
+    // Check if user is in the approval workflow
+    const isApprover = useMemo(() => {
+        if (!data?.data?.approval_workflow) return false;
+        const workflow = data.data.approval_workflow as any;
+        const currentUserId = currentUser.id;
+
+        return workflow.reviewer === currentUserId ||
+               workflow.authoriser === currentUserId ||
+               workflow.approver === currentUserId ||
+               (workflow.reviewer as any)?.id === currentUserId ||
+               (workflow.authoriser as any)?.id === currentUserId ||
+               (workflow.approver as any)?.id === currentUserId;
+    }, [data, currentUser.id]);
+
+    // ACCESS CONTROL: Check if user has permission to view this CBA
+    useEffect(() => {
+        if (isLoading || !data?.data) return;
+
+        const hasAccess =
+            userRole === 'ADMIN' ||
+            userRole === 'PROCUREMENT_STAFF' ||
+            isCommitteeMember ||
+            isAssignedEvaluator ||
+            isApprover;
+
+        if (!hasAccess) {
+            toast.error('You are not authorized to view this CBA');
+            router.push('/dashboard/procurement/competitive-bid-analysis');
+        }
+    }, [isLoading, data, userRole, isCommitteeMember, isAssignedEvaluator, isApprover, router]);
 
     const handleSendReminders = () => {
         // TODO: Implement reminder functionality

@@ -14,6 +14,8 @@ import {
 import CommitteeParticipationBanner from "./committee-evaluation/CommitteeParticipationBanner";
 import MemberEvaluationDashboard from "./committee-evaluation/MemberEvaluationDashboard";
 import ConsensusAnalysis from "./committee-evaluation/ConsensusAnalysis";
+import { sendCommitteeReminders } from "@/features/procurement/utils/committeeNotifications";
+import { toast } from "sonner";
 
 // Import the original CBA details component
 import CompetitiveBidAnalysisDetail from "./index";
@@ -94,9 +96,33 @@ const EnhancedCBADetails = () => {
     );
   }
 
-  const handleSendReminders = () => {
-    // TODO: Implement reminder functionality
-    console.log("Sending reminders to pending committee members");
+  const handleSendReminders = async () => {
+    if (!memberParticipation?.pending_members || memberParticipation.pending_members.length === 0) {
+      toast.info("No pending committee members to remind");
+      return;
+    }
+
+    // Get committee member details for pending members
+    const pendingMembersDetails = cbaData?.data?.committee_members?.filter(member =>
+      memberParticipation.pending_members.some(pendingId =>
+        String(pendingId) === String(member.id) ||
+        String(pendingId) === String(member.email)
+      )
+    );
+
+    if (!pendingMembersDetails || pendingMembersDetails.length === 0) {
+      toast.error("Could not find pending member details");
+      return;
+    }
+
+    // Send reminder notifications
+    const success = await sendCommitteeReminders(id, pendingMembersDetails);
+
+    if (success) {
+      // Optionally refresh member participation data to show updated reminder status
+      // This would require extending the backend to track reminder timestamps
+      console.log("✅ Reminders sent successfully");
+    }
   };
 
   return (
