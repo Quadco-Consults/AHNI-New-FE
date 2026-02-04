@@ -16,7 +16,7 @@ import { useGetSolicitationSubmission } from "@/features/procurement/controllers
 import { toast } from "sonner";
 import logoPng from "@/assets/svgs/logo-bg.svg";
 import Image from "next/image";
-import { FileSpreadsheet } from "lucide-react";
+import { FileSpreadsheet, Shield } from "lucide-react";
 
 const TableComponent = () => {
   console.log("🚀 CBA TableComponent is rendering!");
@@ -34,6 +34,31 @@ const TableComponent = () => {
     searchParams: Object.fromEntries(searchParams?.entries() || []),
     windowLocation: typeof window !== 'undefined' ? window.location.href : 'server'
   });
+
+  // Handle missing parameters with user-friendly error
+  if (!id || !cba) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="text-center max-w-md">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Shield size={32} className="text-red-600" />
+          </div>
+          <h2 className="text-xl font-bold text-red-600 mb-2">Missing Required Information</h2>
+          <p className="text-gray-600 mb-4">
+            {!id && !cba && "Both Solicitation ID and CBA ID are missing."}
+            {!id && cba && "Solicitation ID is missing."}
+            {id && !cba && "CBA ID is missing."}
+          </p>
+          <p className="text-sm text-gray-500 mb-4">
+            Please navigate to this page from the CBA details page.
+          </p>
+          <Button onClick={() => router.push('/dashboard/procurement/competitive-bid-analysis')}>
+            Back to CBA List
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   // Try both data sources to get bid submissions
   const { data: manualBidData, isLoading: isManualLoading, error: manualError } =
@@ -366,7 +391,11 @@ const TableComponent = () => {
   };
 
   const handleSubmitAnalysis = async () => {
-    if (!cba || !id) return alert("Missing required IDs");
+    if (!cba || !id) {
+      toast.error("Missing required information. Please return to CBA details.");
+      return;
+    }
+
     if (
       !formattedData ||
       !formattedData.data ||
@@ -381,13 +410,22 @@ const TableComponent = () => {
     );
 
     if (!selectedVendors.length) {
-      return toast.error("No vendors selected.");
+      toast.error("Please select at least one vendor by checking items in their columns.");
+      return;
     }
+
+    if (!recommendationNote.trim()) {
+      toast.error("Please provide an award recommendation.");
+      return;
+    }
+
+    // Show loading toast
+    const loadingToast = toast.loading(`Submitting analysis for ${selectedVendors.length} vendor(s)...`);
 
     try {
       const apiCalls = selectedVendors.map(async (vendor) => {
         const selectedItems = getSelectedItemsForVendor(vendor);
-        
+
         if (selectedItems.length > 0) {
           const payload = {
             cba_id: cba,
@@ -413,12 +451,19 @@ const TableComponent = () => {
       });
 
       await Promise.all(apiCalls);
-      router.push(`${RouteEnum.COMPETITIVE_BID_ANALYSIS}`);
 
-      toast.success("Analysis submitted successfully!");
+      toast.dismiss(loadingToast);
+      toast.success("Analysis submitted successfully! Redirecting...");
+
+      // Delay navigation to let user see success message
+      setTimeout(() => {
+        router.push(`${RouteEnum.COMPETITIVE_BID_ANALYSIS}`);
+      }, 1500);
+
     } catch (error) {
+      toast.dismiss(loadingToast);
       console.error("Error submitting analysis:", error);
-      toast.error("Failed to submit analysis.");
+      toast.error("Failed to submit analysis. Please try again.");
     }
   };
 
@@ -473,84 +518,102 @@ const TableComponent = () => {
   });
 
   return (
-    <>
-      <GoBack />
-      {/* <Image src={logoPng} alt="logo" width={200} /> */}
-      <div className="flex justify-center items-center flex-col mb-10">
-        <Image src={logoPng.src} alt="logo" width={200} height={100} />
-        <h1>Achieving Health Nigeria Initiative (AHNI)</h1>
-        <p>COMPETITIVE BID ANALYSIS (CBA)</p>
-      </div>
-
-      <div className="my-4 flex w-full font-bold justify-between items-center">
-        <p className="uppercase">
-          SUBJECT: CBA FOR {solicitation?.title} ({solicitation?.rfq_id})
-        </p>
-        <Button variant="custom">
-          <span>
-            <FileSpreadsheet size={25} />
-          </span>
-          Download
-        </Button>
-      </div>
-
-      {/* Show debug info and fallback when no formatted data */}
-      {!formattedData?.data?.companies || !formattedData?.data?.items ? (
-        <div className="bg-yellow-50 border border-yellow-300 rounded-lg p-6 mb-6">
-          <h3 className="text-yellow-800 font-semibold mb-4">⚠️ CBA Data Debug Information</h3>
-
-          <div className="space-y-4 text-sm">
-            <div>
-              <strong>Summary Data Status:</strong> {summaryData ? '✅ Available' : '❌ Not Available'}
-            </div>
-
-            <div>
-              <strong>Formatted Data Status:</strong> {formattedData ? '✅ Available' : '❌ Not Available'}
-            </div>
-
-            {summaryData && (
+    <div className="min-h-screen bg-gray-50 pb-10">
+      {/* Header Navigation */}
+      <div className="bg-white shadow-sm border-b sticky top-0 z-50 mb-6">
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <GoBack />
+              <div className="h-8 w-px bg-gray-300" />
               <div>
-                <strong>Raw Summary Data Structure:</strong>
-                <pre className="bg-gray-100 p-2 rounded mt-2 text-xs overflow-auto max-h-40">
-                  {JSON.stringify(summaryData, null, 2)}
-                </pre>
+                <h1 className="text-xl font-bold text-gray-900">Competitive Bid Analysis - Approval</h1>
+                <p className="text-sm text-gray-500">Review and approve vendor selections</p>
               </div>
-            )}
-
-            <div className="mt-4 p-4 bg-blue-50 rounded">
-              <p className="text-blue-800">
-                <strong>Expected Data Sources:</strong>
-              </p>
-              <ul className="text-blue-700 mt-2 space-y-1">
-                <li>• Manual Bid Submissions: {manualBidData ? '✅ Available' : '❌ Not Available'}</li>
-                <li>• Vendor Bid Submissions: {vendorSubmissionData ? '✅ Available' : '❌ Not Available'}</li>
-              </ul>
-
-              {(manualError || vendorError) && (
-                <div className="mt-3 text-red-700">
-                  <strong>Errors:</strong>
-                  {manualError && <div>• Manual Bid Error: {manualError.message}</div>}
-                  {vendorError && <div>• Vendor Submission Error: {vendorError.message}</div>}
-                </div>
-              )}
             </div>
-
-            <div className="mt-4 p-4 bg-green-50 rounded">
-              <p className="text-green-800">
-                <strong>API Call Details:</strong>
-              </p>
-              <ul className="text-green-700 mt-2 space-y-1">
-                <li>• Solicitation ID: {id}</li>
-                <li>• CBA ID: {cba}</li>
-                <li>• Manual Bid API: {isManualLoading ? 'Loading...' : (manualBidData ? 'Success' : 'No Data')}</li>
-                <li>• Vendor Submission API: {isVendorLoading ? 'Loading...' : (vendorSubmissionData ? 'Success' : 'No Data')}</li>
-              </ul>
+            <div className="flex items-center space-x-2">
+              <div className="text-xs text-gray-500">
+                <div><strong>CBA ID:</strong> {(cba as string)?.slice(0, 8)}...</div>
+                <div><strong>Solicitation ID:</strong> {(id as string)?.slice(0, 8)}...</div>
+              </div>
             </div>
           </div>
         </div>
-      ) : null}
+      </div>
 
-      <div className="overflow-x-auto bg-white">
+      <div className="max-w-7xl mx-auto px-4">
+        {/* Logo and Title Section */}
+        <div className="flex justify-center items-center flex-col mb-8 bg-white rounded-lg shadow-sm p-8">
+          <Image src={logoPng.src} alt="logo" width={200} height={100} />
+          <h2 className="text-2xl font-bold text-gray-900 mt-4">Achieving Health Nigeria Initiative (AHNI)</h2>
+          <p className="text-lg text-gray-600 mt-2">COMPETITIVE BID ANALYSIS (CBA)</p>
+        </div>
+
+        {/* Subject and Download Section */}
+        <div className="my-4 flex w-full font-bold justify-between items-center bg-white rounded-lg shadow-sm p-4">
+          <p className="uppercase text-gray-900">
+            SUBJECT: CBA FOR {solicitation?.title} ({solicitation?.rfq_id})
+          </p>
+          <Button variant="custom">
+            <span>
+              <FileSpreadsheet size={25} />
+            </span>
+            Download
+          </Button>
+        </div>
+
+        {/* Show user-friendly message when no formatted data */}
+        {!formattedData?.data?.companies || formattedData?.data?.companies?.length === 0 || !formattedData?.data?.items || formattedData?.data?.items?.length === 0 ? (
+        <div className="bg-blue-50 border border-blue-300 rounded-lg p-8 mb-6 text-center">
+          <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <FileSpreadsheet size={32} className="text-blue-600" />
+          </div>
+          <h3 className="text-blue-900 font-semibold mb-2 text-lg">No Bid Data Available</h3>
+          <p className="text-blue-700 mb-4">
+            {!formattedData?.data?.companies?.length && !formattedData?.data?.items?.length
+              ? "There are no vendor bids or items to display for this analysis."
+              : !formattedData?.data?.companies?.length
+              ? "No vendors have submitted bids for this solicitation yet."
+              : "No items found in the vendor bids."}
+          </p>
+          <div className="flex gap-3 justify-center">
+            <Button
+              variant="outline"
+              onClick={() => router.push(`/dashboard/procurement/competitive-bid-analysis/${cba}/details`)}
+            >
+              Back to CBA Details
+            </Button>
+            <Button onClick={() => window.location.reload()}>
+              Refresh Data
+            </Button>
+          </div>
+
+          {/* Optional debug section - can be removed in production */}
+          <details className="mt-6 text-left">
+            <summary className="text-sm text-blue-600 cursor-pointer hover:text-blue-800">
+              Show technical details
+            </summary>
+            <div className="mt-3 bg-white rounded p-4 text-xs">
+              <div className="space-y-2">
+                <div><strong>Solicitation ID:</strong> {id}</div>
+                <div><strong>CBA ID:</strong> {cba}</div>
+                <div><strong>Manual Bid Data:</strong> {manualBidData ? '✅ Available' : '❌ Not Available'}</div>
+                <div><strong>Vendor Submission Data:</strong> {vendorSubmissionData ? '✅ Available' : '❌ Not Available'}</div>
+                {(manualError || vendorError) && (
+                  <div className="text-red-600 mt-2">
+                    <strong>Errors:</strong>
+                    {manualError && <div>• Manual Bid: {String(manualError)}</div>}
+                    {vendorError && <div>• Vendor Submission: {String(vendorError)}</div>}
+                  </div>
+                )}
+              </div>
+            </div>
+          </details>
+        </div>
+        ) : null}
+
+        {/* Bid Analysis Table */}
+        <div className="overflow-x-auto bg-white rounded-lg shadow-sm">
         <table className="min-w-full border-collapse border border-gray-300 rounded-sm p-10">
           <thead className="bg-gray-100">
             <tr>
@@ -718,23 +781,36 @@ const TableComponent = () => {
             ))}
           </tbody>
         </table>
-      </div>
+        </div>
 
-      <div className="flex my-4 px-8 max-w-[900px] justify-between items-center">
-        <p className="text-[14px] uppercase">Award Recommendation :</p>
-        <Textarea
-          className="border rounded-md p-3 max-w-[400px]"
-          placeholder="Enter recommendation here"
-          onChange={(e) => setRecommendationNote(e.target.value)}
-        />
-      </div>
+        {/* Award Recommendation Section */}
+        <div className="flex my-4 max-w-full justify-between items-center bg-white rounded-lg shadow-sm p-6">
+          <p className="text-sm font-semibold uppercase text-gray-700">Award Recommendation:</p>
+          <Textarea
+            className="border rounded-md p-3 flex-1 ml-4"
+            placeholder="Enter your recommendation for award approval here..."
+            rows={3}
+            onChange={(e) => setRecommendationNote(e.target.value)}
+          />
+        </div>
 
-      <div className="flex w-full justify-end">
-        <Button onClick={handleSubmitAnalysis} disabled={submissionLoading}>
-          Submit Analysis
-        </Button>
+        {/* Submit Button */}
+        <div className="flex w-full justify-between items-center bg-white rounded-lg shadow-sm p-6">
+          <div className="text-sm text-gray-600">
+            <p className="font-semibold mb-1">Ready to submit?</p>
+            <p>Please review your selections and recommendations before submitting.</p>
+          </div>
+          <Button
+            onClick={handleSubmitAnalysis}
+            disabled={submissionLoading}
+            className="px-8 py-3"
+            size="lg"
+          >
+            {submissionLoading ? "Submitting..." : "Submit Analysis"}
+          </Button>
+        </div>
       </div>
-    </>
+    </div>
   );
 };
 

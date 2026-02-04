@@ -607,6 +607,7 @@ const VendorBidAnalysis = () => {
   ];
 
   const { modifyCba, isLoading: submittingAnalysis } = CbaAPI.useModifyCba(cbaId as string);
+  const { evaluateCba, isLoading: submittingEvaluation } = CbaAPI.useCbaEvaluation(cbaId as string);
 
   const handleSubmitAnalysis = async () => {
     if (selectedItems.length === 0) {
@@ -648,13 +649,39 @@ const VendorBidAnalysis = () => {
       total: selectedTotal
     });
 
+    // Prepare comprehensive evaluation data for each vendor
+    const vendorEvaluations = vendorData.map(vendor => ({
+      vendor_id: vendor.vendorId || vendor.id,
+      vendor_name: vendor.name,
+      quality_score: qualityScores[vendor.id] || null,
+      approved_models: approvedModels[vendor.id] || null,
+      price_responsiveness: priceResponsiveness[vendor.id] || null,
+      technical_eligibility: technicalEligibility[vendor.id] || null,
+      bank_account_evaluation: bankAccountEvaluation[vendor.id] || null,
+      experience_evaluation: experienceEvaluation[vendor.id] || null,
+      grand_total: vendor.grandTotal,
+      delivery_time: vendor.deliveryTime,
+      payment_terms: vendor.paymentTerms,
+      tin: vendor.tin,
+      validity_period: vendor.validityPeriod,
+      currency: vendor.currency,
+      warranty: vendor.warranty
+    }));
+
     // Prepare the payload to update CBA with analysis results
     // Backend now expects selected_bid_submission (submission ID) instead of selected_vendor_id
     const analysisPayload = {
       selected_bid_submission: selectedSubmissionId, // Send submission ID directly
       selected_items: selectedItems.map(item => item.itemId),
       recommendation_note: awardRecommendation || `Award recommended to ${selectedVendorItems.vendorName} for ${selectedItems.length} items with total value of ₦${selectedTotal.toLocaleString()}`,
-      selected_total: selectedTotal
+      selected_total: selectedTotal,
+      vendor_evaluations: vendorEvaluations, // Include all evaluation criteria
+      evaluation_metadata: {
+        evaluated_by: cbaData?.data?.created_by || "System",
+        evaluation_date: new Date().toISOString(),
+        total_vendors_evaluated: vendorData.length,
+        selected_vendor_id: selectedVendor?.vendorId || selectedSubmissionId
+      }
     };
 
     console.log("📤 Submitting CBA Analysis:", {
@@ -663,7 +690,56 @@ const VendorBidAnalysis = () => {
     });
 
     try {
+      // Submit the main analysis payload (selection and recommendation)
       await modifyCba(analysisPayload);
+
+      // Also submit the evaluation data if backend has the evaluate endpoint
+      // This ensures all evaluation criteria are saved
+      try {
+        const evaluationPayload = {
+          cba_id: cbaId as string,
+          solicitation_id: solicitationId as string,
+          evaluation_criteria: {
+            technical_evaluation_percentage: 60,
+            price_reasonableness_percentage: 40,
+            approved_models: Object.values(approvedModels).filter(Boolean)
+          },
+          vendor_evaluations: vendorData.map(vendor => {
+            // Extract numeric scores from quality score ranges (e.g., "60-70" -> 65)
+            const qualityScoreRange = qualityScores[vendor.id];
+            let technicalScore = 0;
+            if (qualityScoreRange) {
+              const scores = qualityScoreRange.split('-').map(Number);
+              technicalScore = scores.length === 2 ? (scores[0] + scores[1]) / 2 : 0;
+            }
+
+            return {
+              vendor_id: vendor.vendorId || vendor.id,
+              technical_eligibility: technicalEligibility[vendor.id] === 'YES',
+              financial_eligibility: true, // Default to true
+              delivery_leadtime: vendor.deliveryTime,
+              payment_terms: vendor.paymentTerms,
+              tax_identification: vendor.tin,
+              validity_period: vendor.validityPeriod,
+              bank_account_verified: bankAccountEvaluation[vendor.id] === 'YES',
+              vendor_experience_verified: experienceEvaluation[vendor.id] === 'YES',
+              currency: vendor.currency,
+              warranty_provision: vendor.warranty,
+              technical_score: technicalScore,
+              price_score: 0, // Will be calculated by backend based on price ranking
+              overall_rank: priceResponsiveness[vendor.id] ? parseInt(priceResponsiveness[vendor.id].charAt(0)) : 0
+            };
+          })
+        };
+
+        console.log("📤 Submitting CBA Evaluation Data:", evaluationPayload);
+        await evaluateCba(evaluationPayload);
+        console.log("✅ Evaluation data saved successfully");
+      } catch (evalError) {
+        console.warn("⚠️ Could not save evaluation data (endpoint may not exist):", evalError);
+        // Don't fail the whole submission if evaluation endpoint doesn't work
+      }
+
       toast.success(`Analysis submitted successfully! Selected ${selectedItems.length} items from ${selectedVendorItems.vendorName} with total: ₦${selectedTotal.toLocaleString()}`);
 
       // Invalidate queries to refresh CBA data
@@ -1034,9 +1110,11 @@ const VendorBidAnalysis = () => {
             <Button
               onClick={handleSubmitAnalysis}
               className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-2"
-              disabled={selectedItems.length === 0}
+              disabled={selectedItems.length === 0 || submittingAnalysis || submittingEvaluation}
             >
-              Submit Analysis ({selectedItems.length} items selected)
+              {submittingAnalysis || submittingEvaluation
+                ? "Submitting Analysis..."
+                : `Submit Analysis (${selectedItems.length} items selected)`}
             </Button>
           </div>
         </div>

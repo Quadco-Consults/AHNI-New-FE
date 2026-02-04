@@ -176,7 +176,7 @@ const CbaDetailsPage = () => {
                   View Results
                 </Button>
               </Link>
-              <Link href={`/dashboard/procurement/competitive-bid-analysis/${id}/check-approval`} className="w-full">
+              <Link href={`/dashboard/procurement/competitive-bid-analysis/${id}/check-approval?id=${solicitationId}&cba=${id}`} className="w-full">
                 <Button variant="outline" className="w-full border-purple-600 text-purple-600 hover:bg-purple-50">
                   <Shield size={16} />
                   Approve Results
@@ -356,7 +356,7 @@ const CbaDetailsPage = () => {
               </div>
             </Link>
 
-            <Link href={`/dashboard/procurement/competitive-bid-analysis/${id}/check-approval`} className="block">
+            <Link href={`/dashboard/procurement/competitive-bid-analysis/${id}/check-approval?id=${solicitationId}&cba=${id}`} className="block">
               <div className="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-all duration-200 hover:border-purple-300">
                 <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
                   <Shield size={24} className="text-purple-600" />
