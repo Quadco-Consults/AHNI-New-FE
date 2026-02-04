@@ -351,6 +351,31 @@ export const useGetApprovers = ({
   });
 };
 
+// Get Procurement Officers
+export const useGetProcurementOfficers = ({
+  page = 1,
+  size = 2000000, // Get all procurement officers by default
+  search = "",
+  enabled = true,
+}: TRequest & { enabled?: boolean } = {}) => {
+  return useQuery<TPaginatedResponse<IUser>>({
+    queryKey: ["procurement-officers", page, size, search],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get("users/procurement-officers/", {
+          params: { page, size, search },
+        });
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    enabled,
+    refetchOnWindowFocus: false,
+  });
+};
+
 // Legacy exports for backward compatibility
 export const useGetAllUsersQuery = useGetAllUsers;
 export const useGetSingleUserQuery = useGetSingleUser;
@@ -371,3 +396,4 @@ export const useGetAllUsersManager = useGetAllUsers;
 export const useGetReviewersQuery = useGetReviewers;
 export const useGetAuthorizersQuery = useGetAuthorizers;
 export const useGetApproversQuery = useGetApprovers;
+export const useGetProcurementOfficersQuery = useGetProcurementOfficers;

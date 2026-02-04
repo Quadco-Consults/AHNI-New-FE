@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useGetAllUsers } from "@/features/auth/controllers/userController";
+import { useGetProcurementOfficers } from "@/features/auth/controllers/userController";
 import {
   useUpdatePurchaseRequest,
   useGetPurchaseRequest
@@ -31,9 +31,9 @@ export default function AssignPurchaseRequestModal({
 
   const { updatePurchaseRequest, isLoading: isUpdating } = useUpdatePurchaseRequest(id);
   const { data: purchaseRequestData, isLoading: isFetching } = useGetPurchaseRequest(id);
-  const { data: users } = useGetAllUsers({
+  const { data: users } = useGetProcurementOfficers({
     page: 1,
-    size: 100,
+    size: 1000,
     search: "",
   });
 

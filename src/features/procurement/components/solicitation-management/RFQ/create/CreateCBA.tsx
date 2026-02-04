@@ -53,7 +53,7 @@ import {
   useGetSingleCba,
   useUpdateCba,
 } from "@/features/procurement/controllers";
-import { useGetAllUsers } from "@/features/auth/controllers";
+import { useGetAllUsers, useGetProcurementOfficers } from "@/features/auth/controllers";
 import { useGetSolicitationSubmission } from "@/features/procurement/controllers/vendorBidSubmissionsController";
 import { useGetPurchaseRequest } from "@/features/procurement/controllers/purchaseRequestController";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -100,7 +100,7 @@ const CreateCBA = () => {
   // const query = useQuery();
   // const rfqId = query.get("id");
 
-  const { data: users } = useGetAllUsers({
+  const { data: users } = useGetProcurementOfficers({
     page: 1,
     size: 2000000,
   });
@@ -281,13 +281,11 @@ const CreateCBA = () => {
     }
   }, [isEditMode, purchaseRequestData, form]);
 
-  // Filter to only show internal users (AHNI_STAFF and ADMIN) and exclude vendors/external users
-  const internalUsers = users?.data?.results?.filter((user) =>
-    user.user_type === "AHNI_STAFF" || user.user_type === "ADMIN"
-  ) || [];
+  // Procurement officers are already filtered by the backend
+  const procurementOfficers = users?.data?.results || [];
 
   const matchedUsers =
-    internalUsers?.filter((user) =>
+    procurementOfficers?.filter((user) =>
       // @ts-ignore
       form.watch("committee_members").includes(user?.id)
     ) || [];
@@ -810,10 +808,10 @@ const CreateCBA = () => {
             </div>
           )}
 
-          <FormSelect name="assignee" label="Assignee">
+          <FormSelect name="assignee" label="Assignee (Procurement Officer)">
             <SelectContent>
               {isLoading && <LoadingSpinner />}
-              {internalUsers?.map((user) => (
+              {procurementOfficers?.map((user) => (
                 <SelectItem key={user?.id} value={user?.id}>
                   {user?.first_name} {user?.last_name}
                 </SelectItem>
