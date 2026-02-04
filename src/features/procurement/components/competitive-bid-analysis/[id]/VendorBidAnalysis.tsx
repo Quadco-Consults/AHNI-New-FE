@@ -238,6 +238,12 @@ const VendorBidAnalysis = () => {
       });
 
         console.log("🎯 Final processed vendors:", processedVendors);
+        console.log("✅ Vendor Names Extracted:");
+        processedVendors.forEach((v, idx) => {
+          console.log(`  ${idx + 1}. ${v.name} (ID: ${v.id}, Vendor ID: ${v.vendorId})`);
+          console.log(`     - Items: ${v.items.length}`);
+          console.log(`     - Grand Total: ₦${v.grandTotal.toLocaleString()}`);
+        });
         setVendorData(processedVendors);
       }
     } else {
@@ -801,7 +807,7 @@ const VendorBidAnalysis = () => {
             PROCUREMENT EVALUATION COMMITTEE
           </h3>
           <p className="text-sm text-gray-600">
-            RFQ ID: {solicitationId || 'N/A'} | CBA ID: {cbaId || 'N/A'}
+            RFQ ID: {cbaData?.data?.solicitation?.rfq_id || solicitationId || 'N/A'} | CBA Reference: {cbaData?.data?.cba_reference || 'N/A'}
           </p>
           <p className="text-xs text-gray-500 mt-2">
             Date: {new Date().toLocaleDateString('en-US', {

@@ -103,11 +103,19 @@ export type VendorSubmissionData = {
   submissions: SubmissionData[];
 };
 
+export type SolicitationShortData = {
+  id: string;
+  rfq_id: string | null;
+  title: string;
+  status: string;
+};
+
 export type CbaResultsData = {
   id: string;
+  cba_reference?: string; // Human-readable CBA reference (e.g., CBA-2026-001)
   created_at: string;
   updated_at: string;
-  solicitation: string; // UUID reference
+  solicitation: SolicitationShortData; // Expanded solicitation object from backend
   cba_type: 'COMMITTEE' | 'NON COMMITTEE';
   lot?: string; // UUID reference
   cba_date: string;
