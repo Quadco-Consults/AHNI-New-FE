@@ -24,7 +24,7 @@ import PrinterIcon from "@/components/icons/PrinterIcon";
 import SendIcon from "@/components/icons/SendIcon";
 import { useState, useMemo } from "react";
 import { Loading } from "@/components/Loading";
-import { Plus, AlertCircle } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Icon } from "@iconify/react";
 import { useCurrentUser } from "@/features/procurement/controllers/committeeEvaluationController";
 
@@ -62,26 +62,6 @@ const CompetitiveAnalysis = () => {
         </h6>
       </div>
 
-      {/* Backend Filtering Notice for Developers */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
-          <div className="flex items-start gap-2">
-            <AlertCircle size={20} className="text-amber-600 mt-0.5" />
-            <div>
-              <p className="text-amber-900 font-semibold text-sm">Backend Filtering Required</p>
-              <p className="text-amber-700 text-xs mt-1">
-                The API endpoint <code className="bg-amber-100 px-1 rounded">GET /procurements/cba/</code> should filter CBAs based on user access:
-              </p>
-              <ul className="list-disc list-inside text-amber-700 text-xs mt-2 space-y-1">
-                <li>For COMMITTEE CBAs: Only show if user is in <code className="bg-amber-100 px-1 rounded">committee_members</code></li>
-                <li>For NON-COMMITTEE CBAs: Only show if user is the <code className="bg-amber-100 px-1 rounded">assignee</code></li>
-                <li>Admin and Procurement Staff: Show all CBAs</li>
-                <li>Approvers in workflow: Show CBAs where they are designated approvers</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      )}
 
       <Card className='space-y-10'>
         <div className='flex items-center justify-end'>
