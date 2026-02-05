@@ -34,13 +34,13 @@ export interface IGoodReceiveNotePaginatedData {
   invoice_number: string;
   waybill_number: string;
   remark: string;
-  status?: "pending" | "confirmed" | "received" | "approved" | "rejected";
-  approved_datetime: string | null;
+  status?: "pending" | "received" | "accepted" | "rejected" | "cancelled";
+  accepted_datetime: string | null;
   rejected_datetime: string | null;
   received_datetime?: string | null;
   created_by: string;
   updated_by: string | null;
-  approved_by: string | null;
+  accepted_by: string | null;
   rejected_by: string | null;
 }
 
@@ -65,8 +65,8 @@ export interface IGoodReceiveNoteSingleData {
   invoice_number: string;
   waybill_number: string;
   remark: string;
-  status?: "pending" | "confirmed" | "received" | "approved" | "rejected";
-  approved_datetime?: string | null;
+  status?: "pending" | "received" | "accepted" | "rejected" | "cancelled";
+  accepted_datetime?: string | null;
   rejected_datetime?: string | null;
   received_datetime?: string | null;
   created_by: string;
@@ -76,8 +76,8 @@ export interface IGoodReceiveNoteSingleData {
     email?: string;
   } | null;
   updated_by: string | null;
-  approved_by?: string | null;
-  approved_by_detail?: {
+  accepted_by?: string | null;
+  accepted_by_detail?: {
     user_id: string;
     name: string;
     email?: string;

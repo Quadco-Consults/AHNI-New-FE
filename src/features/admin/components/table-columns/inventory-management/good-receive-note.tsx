@@ -61,15 +61,15 @@ const statusColumn: ColumnDef<IGoodReceiveNotePaginatedData> = {
   id: "status",
   size: 120,
   cell: ({ row }) => {
-    const { status, approved_datetime, rejected_datetime, received_datetime } = row.original;
+    const { status, accepted_datetime, rejected_datetime, received_datetime } = row.original;
 
     // Use explicit status field if available, otherwise fall back to datetime fields
     let displayStatus = status;
     let statusClass = "";
 
     if (!displayStatus) {
-      if (approved_datetime) {
-        displayStatus = "approved";
+      if (accepted_datetime) {
+        displayStatus = "accepted";
       } else if (rejected_datetime) {
         displayStatus = "rejected";
       } else if (received_datetime) {
@@ -80,7 +80,7 @@ const statusColumn: ColumnDef<IGoodReceiveNotePaginatedData> = {
     }
 
     switch (displayStatus) {
-      case "approved":
+      case "accepted":
         statusClass = "bg-green-100 text-green-800";
         break;
       case "rejected":
@@ -89,8 +89,8 @@ const statusColumn: ColumnDef<IGoodReceiveNotePaginatedData> = {
       case "received":
         statusClass = "bg-blue-100 text-blue-800";
         break;
-      case "confirmed":
-        statusClass = "bg-purple-100 text-purple-800";
+      case "cancelled":
+        statusClass = "bg-gray-100 text-gray-800";
         break;
       case "pending":
       default:
@@ -143,10 +143,10 @@ export const getApprovedGRNColumns = (): ColumnDef<IGoodReceiveNotePaginatedData
   statusColumn,
   {
     header: "Approved Date",
-    id: "approved_datetime",
+    id: "accepted_datetime",
     size: 150,
-    accessorFn: ({ approved_datetime }) =>
-      approved_datetime ? format(approved_datetime, "dd-MMM-yyyy") : "N/A",
+    accessorFn: ({ accepted_datetime }) =>
+      accepted_datetime ? format(accepted_datetime, "dd-MMM-yyyy") : "N/A",
   },
   {
     header: "Actions",
@@ -158,7 +158,7 @@ export const getApprovedGRNColumns = (): ColumnDef<IGoodReceiveNotePaginatedData
   },
 ];
 
-const TableMenu = ({ id, status, approved_datetime, rejected_datetime, received_datetime }: IGoodReceiveNotePaginatedData) => {
+const TableMenu = ({ id, status, accepted_datetime, rejected_datetime, received_datetime }: IGoodReceiveNotePaginatedData) => {
   const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [approvalModalState, setApprovalModalState] = useState<{
     isOpen: boolean;
@@ -194,20 +194,20 @@ const TableMenu = ({ id, status, approved_datetime, rejected_datetime, received_
   };
 
   // Check GRN status and determine available actions
-  // Backend workflow: created → received → approved/rejected
-  const isApproved = !!approved_datetime || status === "approved";
+  // Backend workflow: created → received → accepted/rejected
+  const isAccepted = !!accepted_datetime || status === "accepted";
   const isRejected = !!rejected_datetime || status === "rejected";
   const isReceived = !!received_datetime || status === "received";
-  const isCreated = status === "created" || status === "pending" || (!status && !isApproved && !isRejected);
+  const isCancelled = status === "cancelled";
+  const isCreated = status === "created" || status === "pending" || (!status && !isAccepted && !isRejected);
   const isPending = status === "pending" || isCreated;
-  const isConfirmed = status === "confirmed"; // Legacy status, not in backend workflow
 
   // Available actions based on actual backend implementation:
   // - created/pending: can use "mark-received" endpoint
-  // - received: can use "approve" or "reject" endpoints
-  // - approved/rejected: final states, no actions
-  const canMarkReceived = isCreated && !isReceived && !isApproved && !isRejected;
-  const canApproveOrReject = isReceived && !isApproved && !isRejected;
+  // - received: can use "approve" (accept) or "reject" endpoints
+  // - accepted/rejected/cancelled: final states, no actions
+  const canMarkReceived = isCreated && !isReceived && !isAccepted && !isRejected && !isCancelled;
+  const canApproveOrReject = isReceived && !isAccepted && !isRejected && !isCancelled;
 
   return (
     <>
@@ -242,7 +242,7 @@ const TableMenu = ({ id, status, approved_datetime, rejected_datetime, received_
               <Button
                 className='w-full flex items-center justify-start gap-2'
                 variant='ghost'
-                disabled={isApproved || isRejected}
+                disabled={isAccepted || isRejected || isCancelled}
               >
                 <PencilIcon />
                 Edit
@@ -282,19 +282,6 @@ const TableMenu = ({ id, status, approved_datetime, rejected_datetime, received_
                   Reject
                 </Button>
               </>
-            )}
-
-            {/* Show message for GRNs with no available actions */}
-            {isConfirmed && (
-              <div className='w-full p-2 text-xs text-amber-600 bg-amber-50 rounded border border-amber-200'>
-                ⚠️ Status "confirmed" is not supported. Expected workflow: created → received → approved/rejected
-              </div>
-            )}
-
-            {!canMarkReceived && !canApproveOrReject && !isApproved && !isRejected && !isConfirmed && (
-              <div className='w-full p-2 text-xs text-gray-600 bg-gray-50 rounded border border-gray-200'>
-                ℹ️ No actions available for current status: {status || 'unknown'}
-              </div>
             )}
 
             <Button

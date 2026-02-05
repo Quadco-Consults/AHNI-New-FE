@@ -3,9 +3,9 @@
 import Card from "@/components/Card";
 import DataTable from "@/components/Table/DataTable";
 import { ColumnDef } from "@tanstack/react-table";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { FileSpreadsheet, FileText } from "lucide-react";
+import { FileSpreadsheet, FileText, ArrowLeft } from "lucide-react";
 import { useGetSingleGoodReceiveNoteQuery, useDownloadGoodReceiveNote } from "@/features/admin/controllers/goodReceiveNoteController";
 import { useGetSinglePurchaseOrder } from "@/features/procurement/controllers/purchaseOrderController";
 import { useGetPurchaseRequest } from "@/features/procurement/controllers/purchaseRequestController";
@@ -18,15 +18,24 @@ const tableColumns: ColumnDef<any>[] = [
   {
     header: "Description of Items",
     cell: ({ row }) => {
-      return row.original?.item_detail?.name ||
-             row.original?.description ||
-             `Item ID: ${row.original?.item || row.original?.id || 'N/A'}`;
+      // Try multiple paths where item details might be
+      const itemName = row.original?.item_detail?.name ||
+                       row.original?.item?.name ||
+                       row.original?.description ||
+                       row.original?.item_name;
+
+      if (itemName) return itemName;
+
+      // Fallback to showing item ID if no name found
+      const itemId = row.original?.item || row.original?.item_detail?.id || row.original?.id;
+      return itemId ? `Item ID: ${itemId}` : 'N/A';
     },
   },
   {
     header: "Unit of Measurement",
     cell: ({ row }) => {
       return row.original?.item_detail?.uom ||
+             row.original?.item?.uom ||
              row.original?.uom ||
              "Not specified";
     },
@@ -59,6 +68,7 @@ const tableColumns: ColumnDef<any>[] = [
     header: "FCO Number",
     cell: ({ row }) => {
       return row.original?.fco_number_detail?.code ||
+             row.original?.fco_number?.code ||
              row.original?.fco_number ||
              "Not specified";
     },
@@ -67,6 +77,7 @@ const tableColumns: ColumnDef<any>[] = [
 
 export default function GoodReceiveNoteDetails() {
   const { id } = useParams();
+  const router = useRouter();
   const [downloading, setDownloading] = useState(false);
 
   const { data } = useGetSingleGoodReceiveNoteQuery(id as string || "", !!id);
@@ -123,13 +134,18 @@ export default function GoodReceiveNoteDetails() {
     console.log("🔍 PO Items:", poData?.purchase_order_items);
     console.log("🔍 PR Data:", prData);
     console.log("🔍 PR Officer (requested_by_detail):", prData?.requested_by_detail);
+    console.log("🔍 PO Items Structure (first item):", poData?.purchase_order_items?.[0]);
+    console.log("🔍 Item Detail Path:", poData?.purchase_order_items?.[0]?.item_detail);
+    console.log("🔍 FCO Detail Path:", poData?.purchase_order_items?.[0]?.fco_number_detail);
 
     return {
       // GRN specific fields
+      grn_number: grnData?.grn_number,
       invoice_number: grnData?.invoice_number,
       waybill_number: grnData?.waybill_number,
       remark: grnData?.remark,
       created_datetime: grnData?.created_datetime,
+      delivery_date: grnData?.delivery_date,
 
       // Purchase Order fields
       purchase_order_number: purchaseOrder?.purchase_order_number,
@@ -203,7 +219,7 @@ export default function GoodReceiveNoteDetails() {
     };
   }, [data, purchaseOrderData, purchaseRequestData, createdByUser, acceptedByUser, receivedByUser, destinationStoreData]);
 
-  const handleDownload = async (format: 'pdf' | 'csv' = 'pdf') => {
+  const handleDownload = async (format: 'text' | 'pdf' = 'text') => {
     if (!id) return;
 
     setDownloading(true);
@@ -211,7 +227,10 @@ export default function GoodReceiveNoteDetails() {
       await downloadGoodReceiveNote(format);
     } catch (error) {
       console.error('Download failed:', error);
-      // You might want to show a toast notification here
+      // Show error toast if PDF format fails (not implemented on backend)
+      if (format === 'pdf') {
+        alert('PDF download is not yet implemented. Downloaded as text file instead.');
+      }
     } finally {
       setDownloading(false);
     }
@@ -219,6 +238,18 @@ export default function GoodReceiveNoteDetails() {
 
   return (
     <div className='bg-white p-6 max-w-6xl mx-auto'>
+      {/* Back Button */}
+      <div className='mb-4'>
+        <Button
+          variant='outline'
+          onClick={() => router.back()}
+          className='flex items-center gap-2'
+        >
+          <ArrowLeft size={16} />
+          Back
+        </Button>
+      </div>
+
       {/* Compact Header Section */}
       <div className='flex justify-center items-center flex-col mb-6 pb-4 border-b border-gray-200'>
         <div className='mb-3'>
@@ -250,13 +281,20 @@ export default function GoodReceiveNoteDetails() {
             <div className='space-y-3'>
               <div className='flex justify-between items-center py-2 border-b border-gray-200'>
                 <span className='text-sm font-medium text-gray-600'>GRN Number:</span>
-                <span className='text-sm font-semibold text-gray-800'>{details?.invoice_number || 'N/A'}</span>
+                <span className='text-sm font-semibold text-gray-800'>{details?.grn_number || 'N/A'}</span>
               </div>
 
               <div className='flex justify-between items-center py-2 border-b border-gray-200'>
-                <span className='text-sm font-medium text-gray-600'>Receipt Date:</span>
+                <span className='text-sm font-medium text-gray-600'>Created Date:</span>
                 <span className='text-sm font-semibold text-gray-800'>
                   {details?.created_datetime ? new Date(details.created_datetime).toLocaleDateString("en-US") : 'N/A'}
+                </span>
+              </div>
+
+              <div className='flex justify-between items-center py-2 border-b border-gray-200'>
+                <span className='text-sm font-medium text-gray-600'>Delivery Date:</span>
+                <span className='text-sm font-semibold text-gray-800'>
+                  {details?.delivery_date ? new Date(details.delivery_date).toLocaleDateString("en-US") : 'N/A'}
                 </span>
               </div>
 
@@ -300,9 +338,10 @@ export default function GoodReceiveNoteDetails() {
                 <span className='text-sm font-medium text-gray-600'>GRN Status:</span>
                 <span className={`px-2 py-1 rounded text-xs font-medium ${
                   details?.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                  details?.status === 'approved' ? 'bg-green-100 text-green-800' :
+                  details?.status === 'accepted' ? 'bg-green-100 text-green-800' :
                   details?.status === 'rejected' ? 'bg-red-100 text-red-800' :
                   details?.status === 'received' ? 'bg-blue-100 text-blue-800' :
+                  details?.status === 'cancelled' ? 'bg-gray-100 text-gray-800' :
                   'bg-gray-100 text-gray-800'
                 }`}>
                   {details?.status?.toUpperCase() || 'N/A'}
@@ -592,10 +631,10 @@ export default function GoodReceiveNoteDetails() {
         <Button
           variant='default'
           className='flex items-center gap-2 text-sm'
-          onClick={() => handleDownload('pdf')}
+          onClick={() => handleDownload('text')}
           disabled={downloading}
         >
-          <FileSpreadsheet size={16} />
+          <FileText size={16} />
           {downloading ? 'Downloading...' : 'Download GRN'}
         </Button>
       </div>

@@ -284,18 +284,21 @@ export const useRejectGoodReceiveNote = (id: string) => {
 
 // Download Good Receive Note
 export const useDownloadGoodReceiveNote = (id: string) => {
-  const downloadGoodReceiveNote = async (format: 'pdf' | 'csv' = 'pdf') => {
+  const downloadGoodReceiveNote = async (format: 'text' | 'pdf' = 'text') => {
     try {
       const response = await AxiosWithToken.get(`${BASE_URL}${id}/download/`, {
         params: { format },
         responseType: "blob",
       });
 
+      // Determine file extension based on format
+      const fileExtension = format === 'text' ? 'txt' : format;
+
       // Create download link
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement("a");
       link.href = url;
-      link.setAttribute("download", `GRN_${id}.${format}`);
+      link.setAttribute("download", `GRN_${id}.${fileExtension}`);
       document.body.appendChild(link);
       link.click();
       link.remove();
