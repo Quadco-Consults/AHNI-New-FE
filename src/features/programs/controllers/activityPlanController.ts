@@ -34,6 +34,7 @@ export const useGetAllActivityPlans = ({
       search,
       status,
       urgency_level,
+      is_unplanned,
       month,
       financial_year,
       project,

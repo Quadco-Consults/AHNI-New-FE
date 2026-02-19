@@ -49,13 +49,13 @@ export default function UnplannedActivities() {
   // Fetch work plan for context
   const { data: workPlan, isLoading: workPlanLoading } = useGetSingleWorkPlan(id ?? skipToken);
 
-  // Fetch activity plans for this specific work plan, then filter for unplanned on frontend
+  // Fetch activity plans for this specific work plan, filtered for unplanned activities
   const { data: activityPlans, isFetching } = useGetAllActivityPlans({
     page,
     size: 100,
     search: debouncedSearchQuery,
     work_plan: id as string, // Filter by this specific work plan
-    // Note: Removing is_unplanned filter to test if API call triggers
+    is_unplanned: true, // Only fetch unplanned activities
   });
 
   // Also fetch WorkPlanTracker data to get metadata fields
