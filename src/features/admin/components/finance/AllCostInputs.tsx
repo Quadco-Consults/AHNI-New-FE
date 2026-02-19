@@ -11,6 +11,7 @@ import {
   useGetAllCostInputsQuery,
 } from "@/features/modules/controllers/finance/costInputController";
 import Pagination from "@/components/Pagination";
+import CostInputBulkImport from "./CostInputBulkImport";
 
 export default function AllCostInputs() {
   const [page, setPage] = useState(1);
@@ -53,23 +54,26 @@ export default function AllCostInputs() {
       <div className='flex items-center justify-between py-6 mb-6'>
         <h1 className='text-[#D92D20] font-semibold text-sm'>Cost Input</h1>
 
-        <Button
-          onClick={() =>
-            dispatch(
-              openDialog({
-                type: DialogType.AddCostInput,
-                dialogProps: {
-                  header: "Add Cost Input",
-                },
-              })
-            )
-          }
-          variant='outline'
-          className='gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-[#FFFFFF] text-[#DEA004] border-[1px] border-[#C7CBD5]'
-          size='sm'
-        >
-          Click to add New
-        </Button>
+        <div className='flex gap-2'>
+          <CostInputBulkImport />
+          <Button
+            onClick={() =>
+              dispatch(
+                openDialog({
+                  type: DialogType.AddCostInput,
+                  dialogProps: {
+                    header: "Add Cost Input",
+                  },
+                })
+              )
+            }
+            variant='outline'
+            className='gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-[#FFFFFF] text-[#DEA004] border-[1px] border-[#C7CBD5]'
+            size='sm'
+          >
+            Click to add New
+          </Button>
+        </div>
       </div>
       <div>
         <div className='flex justify-between text-[#756D6D] font-semibold text-sm border-b border-gray-300 pb-4'>

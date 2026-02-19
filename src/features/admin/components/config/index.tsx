@@ -1,6 +1,9 @@
 import { TabsContent } from "@radix-ui/react-tabs";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { ApiErrorBoundary } from "@/components/common/ApiErrorBoundary";
 import AllCategory from "./AllCategory";
 import AllSubcategories from "./AllSubcategories";
@@ -16,8 +19,25 @@ import AllExchangeRates from "./AllExchangeRates";
 import AllTravelRates from "./AllTravelRates";
 
 const Config = () => {
+  const router = useRouter();
+
   return (
     <div>
+      <div className="mb-6">
+        <Button
+          onClick={() => router.back()}
+          variant="ghost"
+          size="sm"
+          className="gap-2 mb-4"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back
+        </Button>
+        <h1 className="text-2xl font-bold text-gray-800">Configuration Module</h1>
+        <p className="text-sm text-gray-600 mt-1">
+          Manage system configurations including categories, departments, locations, and exchange rates
+        </p>
+      </div>
       <div>
         <Tabs defaultValue='categories'>
           <TabsList>

@@ -1877,6 +1877,16 @@ export const moduleLinks: SidebarItem[] = [
         ]
       },
       {
+        name: "Finance",
+        path: "/dashboard/modules/finance",
+        permissions: [
+          {
+            module: "superuser",
+            codenames: ["is_superuser"]
+          }
+        ]
+      },
+      {
         name: "Audit Log",
         path: "/dashboard/modules/audit-log",
         permissions: [
