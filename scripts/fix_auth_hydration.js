@@ -121,7 +121,7 @@ const testAPI = async () => {
   }
 
   try {
-    const response = await fetch('https://ahni-erp-029252c2fbb9.herokuapp.com/api/v1/users/profile/', {
+    const response = await fetch('https://127.0.0.1:8000/api/v1/users/profile/', {
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json'

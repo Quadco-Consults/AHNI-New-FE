@@ -141,7 +141,7 @@ export const getNextSequenceNumber = async (
     // Get the auth token from localStorage
     const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
 
-    const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://ahni-erp-029252c2fbb9.herokuapp.com/api/v1';
+    const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://127.0.0.1:8000/api/v1';
 
     console.log('Fetching existing fund requests to calculate next sequence for:', { projectId, locationCode, year, month });
 

@@ -19,7 +19,7 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'ahni-erp-029252c2fbb9.herokuapp.com',
+        hostname: '127.0.0.1:8000',
         port: '',
         pathname: '**',
       },

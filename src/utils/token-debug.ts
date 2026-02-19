@@ -83,7 +83,7 @@ export const testTokenRefresh = async () => {
   }
 
   try {
-    const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "https://ahni-erp-029252c2fbb9.herokuapp.com/api/v1/";
+    const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "https://127.0.0.1:8000/api/v1/";
     const normalizedBaseURL = baseURL.endsWith('/') ? baseURL : `${baseURL}/`;
 
     const response = await fetch(`${normalizedBaseURL}auth/token/refresh/`, {

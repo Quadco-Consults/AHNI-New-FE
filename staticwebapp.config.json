@@ -37,7 +37,7 @@
     }
   ],
   "globalHeaders": {
-    "content-security-policy": "default-src 'self' https://ahni-erp-029252c2fbb9.herokuapp.com https://salmon-coast-041522903.6.azurestaticapps.net; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://ahni-erp-029252c2fbb9.herokuapp.com",
+    "content-security-policy": "default-src 'self' https://127.0.0.1:8000 https://salmon-coast-041522903.6.azurestaticapps.net; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://127.0.0.1:8000",
     "X-Content-Type-Options": "nosniff",
     "X-Frame-Options": "DENY",
     "X-XSS-Protection": "1; mode=block"

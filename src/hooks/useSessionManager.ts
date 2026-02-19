@@ -11,7 +11,7 @@ const ACTIVITY_EVENTS = ['mousedown', 'mousemove', 'keydown', 'scroll', 'touchst
 
 // Get base URL for API calls
 const getBaseURL = () => {
-  const rawBaseURL = process.env.NEXT_PUBLIC_BASE_URL || "https://ahni-erp-029252c2fbb9.herokuapp.com/api/v1/";
+  const rawBaseURL = process.env.NEXT_PUBLIC_BASE_URL || "https://127.0.0.1:8000/api/v1/";
   return rawBaseURL.endsWith('/') ? rawBaseURL : `${rawBaseURL}/`;
 };
 

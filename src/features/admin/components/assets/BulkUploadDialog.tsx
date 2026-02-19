@@ -226,7 +226,7 @@ export default function AssetBulkUploadDialog({ open, onOpenChange }: BulkUpload
     try {
       toast.info("Downloading pre-filled template from backend...");
 
-      const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "https://ahni-erp-029252c2fbb9.herokuapp.com/api/v1/";
+      const baseURL = process.env.NEXT_PUBLIC_BASE_URL || "https://127.0.0.1:8000/api/v1/";
       const token = localStorage.getItem('token');
 
       if (!token) {
