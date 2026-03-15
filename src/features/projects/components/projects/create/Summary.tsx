@@ -190,7 +190,7 @@ export default function ProjectSummaryPage() {
         objectives,
         partners,
         currency,
-        intervention_area,
+        intervention_areas,
         targets,
         // eslint-disable-next-line no-unsafe-optional-chaining
       } = project?.data;
