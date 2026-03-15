@@ -126,6 +126,16 @@ export const departmentalLinks: SidebarItem[] = [
           {
             name: "Supervision Evaluation",
             path: "/dashboard/programs/plan/supervision-evaluation"
+          },
+          {
+            name: "Cost Sheets",
+            path: "/dashboard/programs/plan/cost-sheets",
+            permissions: [
+              {
+                module: "programs",
+                codenames: ["view_workplan"]
+              }
+            ]
           }
         ]
       },

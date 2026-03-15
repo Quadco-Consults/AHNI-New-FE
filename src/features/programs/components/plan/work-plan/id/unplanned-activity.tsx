@@ -483,7 +483,7 @@ export default function UnplannedActivity({ workPlanId, workPlanData }: PropsTyp
       accessorKey: "cost_category.name",
       size: 250,
       cell: ({ row }) => {
-        const value = row.getValue("cost_category.name") as string;
+        const value = row.original.cost_category?.name || "";
         return value || <span className="text-gray-400 italic">Not set</span>;
       },
     },
@@ -492,7 +492,7 @@ export default function UnplannedActivity({ workPlanId, workPlanData }: PropsTyp
       accessorKey: "cost_grouping.name",
       size: 250,
       cell: ({ row }) => {
-        const value = row.getValue("cost_grouping.name") as string;
+        const value = row.original.cost_grouping?.name || "";
         return value || <span className="text-gray-400 italic">Not set</span>;
       },
     },
@@ -501,7 +501,7 @@ export default function UnplannedActivity({ workPlanId, workPlanData }: PropsTyp
       accessorKey: "cost_input.name",
       size: 250,
       cell: ({ row }) => {
-        const value = row.getValue("cost_input.name") as string;
+        const value = row.original.cost_input?.name || "";
         return value || <span className="text-gray-400 italic">Not set</span>;
       },
     },
@@ -510,7 +510,7 @@ export default function UnplannedActivity({ workPlanId, workPlanData }: PropsTyp
       accessorKey: "intervention_area.name",
       size: 250,
       cell: ({ row }) => {
-        const value = row.getValue("intervention_area.name") as string;
+        const value = row.original.intervention_area?.name || "";
         return value || <span className="text-gray-400 italic">Not set</span>;
       },
     },

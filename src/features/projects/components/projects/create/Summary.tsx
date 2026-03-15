@@ -161,7 +161,7 @@ export default function ProjectSummaryPage() {
       currency: "USD",
       start_date: "",
       end_date: "",
-      intervention_area: "",
+      intervention_areas: [],
     },
   });
 
@@ -201,14 +201,14 @@ export default function ProjectSummaryPage() {
       const fundingSources = funding_sources.map((source) => source.id);
 
       const beneficiariesArr = beneficiaries.map((ben) => ben.id);
-      const interventionAreaId = intervention_area?.id;
+      const interventionAreaIds = intervention_areas?.map((area) => area.id) || [];
 
       reset({
         title,
         project_id,
         // @ts-ignore
         location: locations,
-        intervention_area: interventionAreaId,
+        intervention_areas: interventionAreaIds,
         goal,
         narrative: narrative || "",
         budget_performance,
@@ -272,8 +272,8 @@ export default function ProjectSummaryPage() {
 
   const interventionAreaOptions = useMemo(
     () =>
-      interventionAreas?.data?.results?.map(({ code, id }) => ({
-        label: code,
+      interventionAreas?.data?.results?.map(({ name, id }) => ({
+        label: name,
         value: id,
       })),
     [interventionAreas]
@@ -303,7 +303,7 @@ export default function ProjectSummaryPage() {
       start_date,
       end_date,
       location,
-      intervention_area,
+      intervention_areas,
     } = data;
     const partnersId = consortiumPartners.map((partner) => partner.id);
 
@@ -325,7 +325,7 @@ export default function ProjectSummaryPage() {
       budget: budget || "0",
       currency: currency,
       location,
-      intervention_area,
+      intervention_areas,
       // Add the new targets data
       targets: projectTargets,
     };
@@ -414,11 +414,10 @@ export default function ProjectSummaryPage() {
                     required
                     options={locationOptions}
                   />
-                  <FormSelect
-                    label='Intervention Area'
-                    name='intervention_area'
-                    placeholder='Select an Intervention Area'
-                    required
+                  <FormMultiSelect
+                    label='Intervention Areas'
+                    name='intervention_areas'
+                    placeholder='Select Intervention Areas'
                     options={interventionAreaOptions}
                   />
                 </div>

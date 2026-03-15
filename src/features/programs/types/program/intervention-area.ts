@@ -1,8 +1,10 @@
 import { z } from "zod";
 
 export const InterventionAreaSchema = z.object({
-  code: z.string().min(1, "Field Required"),
+  name: z.string().min(1, "Name is required"),
+  code: z.string().optional(),
   description: z.string().optional(),
+  budget_lines: z.array(z.string()).optional(),
 });
 
 export type TInterventionAreaFormValues = z.infer<
@@ -13,6 +15,8 @@ export interface TInterventionAreaData {
   id: string;
   created_datetime: string;
   updated_datetime: string;
-  code: string;
-  description: string;
+  name: string;
+  code?: string;
+  description?: string;
+  budget_lines?: string[];
 }

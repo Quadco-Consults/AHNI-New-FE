@@ -58,6 +58,7 @@ const modalComponentMap: Record<string, () => Promise<{default: React.ComponentT
   [DialogType.AddPartners]: () => import("@/features/projects/components/modules/AddPartner"),
   [DialogType.AddRiskCategory]: () => import("@/features/programs/components/AddRiskCategory"),
   [DialogType.AddInterventionArea]: () => import("@/features/programs/components/AddInterventionArea"),
+  [DialogType.AddModule]: () => import("@/features/programs/components/AddModule"),
   [DialogType.AddSupervisionCategory]: () => import("@/features/programs/components/AddSupervisionCategory"),
   [DialogType.AddSupervisionCriteria]: () => import("@/features/programs/components/modals/AddSupervisionCriteria"),
   [DialogType.AddFacility]: () => import("@/features/programs/components/AddFacility"),
@@ -116,6 +117,9 @@ const modalComponentMap: Record<string, () => Promise<{default: React.ComponentT
   [DialogType.FundRequestApproval]: () => import("@/features/programs/components/modals/FundRequestApprovalModal"),
   [DialogType.FundRequestReject]: () => import("@/features/programs/components/modals/FundRequestRejectModal"),
   [DialogType.FundRequestSignature]: () => import("@/features/programs/components/modals/FundRequestSignatureModal"),
+  [DialogType.ACTIVITY_COST_SHEET_MODAL]: () => import("@/features/programs/components/modals/ActivityCostSheetModal"),
+  [DialogType.COST_SHEET_UPLOAD_MODAL]: () => import("@/features/programs/components/modals/CostSheetUploadModal"),
+  [DialogType.WORKPLAN_COST_SHEET_UPLOAD_MODAL]: () => import("@/features/programs/components/modals/WorkPlanCostSheetUploadModal"),
 };
 
 const AppDialog = () => {

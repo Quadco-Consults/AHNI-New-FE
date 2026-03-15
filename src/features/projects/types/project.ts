@@ -24,7 +24,7 @@ export const ProjectSchema = z.object({
   currency: z.string().min(1, "Please select currency"),
   start_date: z.string().min(1, "Please select start date"),
   end_date: z.string().min(1, "Please select end date"),
-  intervention_area: z.string().optional(),
+  intervention_areas: z.array(z.string()).optional(),
 });
 
 export type TProjectFormValues = z.infer<typeof ProjectSchema>;
@@ -38,7 +38,7 @@ export interface IProjectSingleData {
   project_managers: { id: string; first_name: string; last_name: string }[];
   beneficiaries: { id: string; name: string }[];
   location: { id: number; name: string }[];
-  intervention_area: { id: string; code: string };
+  intervention_areas: { id: string; code: string; name: string }[];
   project_id: string;
   goal: string;
   narrative: string;

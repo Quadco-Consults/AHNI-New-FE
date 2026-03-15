@@ -11,6 +11,7 @@ import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
 import { closeDialog, dailogSelector } from "@/store/ui";
 
 import FormTextArea from "@/components/FormTextArea";
+import FormMultiSelect from "@/components/atoms/FormMultiSelect";
 import {
   InterventionAreaSchema,
   TInterventionAreaData,
@@ -20,6 +21,7 @@ import {
   useAddInterventionArea,
   useUpdateInterventionArea,
 } from "@/features/modules/controllers/program/interventionAreaController";
+import { useGetAllBudgetLinesQuery } from "@/features/modules/controllers/finance/budgetLineController";
 
 const AddInterventionArea = () => {
   const { dialogProps } = useAppSelector(dailogSelector);
@@ -29,9 +31,16 @@ const AddInterventionArea = () => {
   const form = useForm<TInterventionAreaFormValues>({
     resolver: zodResolver(InterventionAreaSchema),
     defaultValues: {
+      name: data?.name ?? "",
       code: data?.code ?? "",
       description: data?.description ?? "",
+      budget_lines: data?.budget_lines ?? [],
     },
+  });
+
+  const { data: budgetLinesData } = useGetAllBudgetLinesQuery({
+    page: 1,
+    size: 1000,
   });
 
   const dispatch = useAppDispatch();
@@ -65,16 +74,32 @@ const AddInterventionArea = () => {
           className='flex flex-col gap-y-7'
         >
           <FormInput
+            label='Name'
+            name='name'
+            placeholder='Enter Name'
+            required
+          />
+
+          <FormInput
             label='Code'
             name='code'
             placeholder='Enter Code'
-            required
           />
 
           <FormTextArea
             label='Description'
             placeholder='Enter Description'
             name='description'
+          />
+
+          <FormMultiSelect
+            label='Budget Lines'
+            name='budget_lines'
+            placeholder='Select Budget Lines'
+            options={budgetLinesData?.data?.results?.map((budgetLine: any) => ({
+              label: budgetLine.name,
+              value: budgetLine.id,
+            })) ?? []}
           />
 
           <div className='flex justify-start gap-4'>

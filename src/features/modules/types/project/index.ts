@@ -326,6 +326,24 @@ export interface PartnerFormValues {
   notes?: string;
 }
 
+// Module types
+export interface ModuleData {
+  id: string;
+  name: string;
+  code?: string;
+  description?: string;
+  budget_lines?: string[];
+  created_datetime?: string;
+  updated_datetime?: string;
+}
+
+export interface ModuleFormValues {
+  name: string;
+  code?: string;
+  description?: string;
+  budget_lines?: string[];
+}
+
 // Legacy type exports for backward compatibility
 export type TBeneficiaryData = BeneficiaryData;
 export type TBeneficiaryFormValues = BeneficiaryFormValues;
@@ -335,3 +353,5 @@ export type TFundingSourceData = FundingSourceData;
 export type TFundingSourceFormValues = FundingSourceFormValues;
 export type TPartnerData = PartnerData;
 export type TPartnerFormValues = PartnerFormValues;
+export type TModuleData = ModuleData;
+export type TModuleFormValues = ModuleFormValues;

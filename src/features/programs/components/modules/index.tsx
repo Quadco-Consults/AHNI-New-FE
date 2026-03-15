@@ -11,6 +11,12 @@ import SupervisionCriteria from "../AllSupervisionCriteria";
 import Facility from "../AllFacility";
 import RiskCategory from "../AllRiskCategory";
 import Interventions from "../AllInterventions";
+import AllModules from "../AllModules";
+import BudgetLine from "@/features/admin/components/finance/AllBudgetLines";
+import CostCategories from "@/features/admin/components/finance/AllCostCategories";
+import CostInput from "@/features/admin/components/finance/AllCostInputs";
+import AllCostGroupings from "@/features/admin/components/finance/AllCostGroupings";
+import FcoNumber from "@/features/admin/components/finance/AllFCONumber";
 
 const Programs = () => {
   const router = useRouter();
@@ -27,47 +33,90 @@ const Programs = () => {
           <ArrowLeft className="h-4 w-4" />
           Back
         </Button>
-        <h1 className="text-2xl font-bold text-gray-800">Programs Module Configuration</h1>
+        <h1 className="text-2xl font-bold text-gray-800">Programs Configuration</h1>
         <p className="text-sm text-gray-600 mt-1">
-          Manage program-related configurations including supervision categories, facilities, and intervention areas
+          Manage program master data including modules, intervention areas, budget lines, and cost structures
         </p>
       </div>
       <div>
-        <Tabs defaultValue='category'>
+        <Tabs defaultValue='modules'>
           <TabsList>
-            <TabsTrigger value='category'>
-              Supervision Evaluation Category
-            </TabsTrigger>
-            <TabsTrigger value='criteria'>
-              Supervision Evaluation Criteria
-            </TabsTrigger>
-            <TabsTrigger value='facility'>Facility</TabsTrigger>
-            <TabsTrigger value='risk'>Risk Category</TabsTrigger>
+            <TabsTrigger value='modules'>Modules</TabsTrigger>
             <TabsTrigger value='interventions'>Intervention Areas</TabsTrigger>
+            <TabsTrigger value='budgetLine'>Budget Lines</TabsTrigger>
+            <TabsTrigger value='categories'>Cost Categories</TabsTrigger>
+            <TabsTrigger value='costGrouping'>Cost Groupings</TabsTrigger>
+            <TabsTrigger value='costInput'>Cost Inputs</TabsTrigger>
+            <TabsTrigger value='fcoNumber'>FCO Numbers</TabsTrigger>
+            <TabsTrigger value='facility'>Facilities</TabsTrigger>
+            <TabsTrigger value='risk'>Risk Categories</TabsTrigger>
+            <TabsTrigger value='category'>Supervision Categories</TabsTrigger>
+            <TabsTrigger value='criteria'>Supervision Criteria</TabsTrigger>
           </TabsList>
-          <TabsContent value='category'>
+
+          <TabsContent value='modules'>
             <Card className='mt-10 pb-8 px-6'>
-              <SupervisionCategory />
+              <AllModules />
             </Card>
           </TabsContent>
-          <TabsContent value='criteria'>
+
+          <TabsContent value='interventions'>
             <Card className='mt-10 pb-8 px-6'>
-              <SupervisionCriteria />
+              <Interventions />
             </Card>
           </TabsContent>
+
+          <TabsContent value='budgetLine'>
+            <Card className='mt-10 pb-8 px-6'>
+              <BudgetLine />
+            </Card>
+          </TabsContent>
+
+          <TabsContent value='categories'>
+            <Card className='mt-10 pb-8 px-6'>
+              <CostCategories />
+            </Card>
+          </TabsContent>
+
+          <TabsContent value='costGrouping'>
+            <Card className='mt-10 pb-8 px-6'>
+              <AllCostGroupings />
+            </Card>
+          </TabsContent>
+
+          <TabsContent value='costInput'>
+            <Card className='mt-10 pb-8 px-6'>
+              <CostInput />
+            </Card>
+          </TabsContent>
+
+          <TabsContent value='fcoNumber'>
+            <Card className='mt-10 pb-8 px-6'>
+              <FcoNumber />
+            </Card>
+          </TabsContent>
+
           <TabsContent value='facility'>
             <Card className='mt-10 pb-8 px-6'>
               <Facility />
             </Card>
           </TabsContent>
+
           <TabsContent value='risk'>
             <Card className='mt-10 pb-8 px-6'>
               <RiskCategory />
             </Card>
           </TabsContent>
-          <TabsContent value='interventions'>
+
+          <TabsContent value='category'>
             <Card className='mt-10 pb-8 px-6'>
-              <Interventions />
+              <SupervisionCategory />
+            </Card>
+          </TabsContent>
+
+          <TabsContent value='criteria'>
+            <Card className='mt-10 pb-8 px-6'>
+              <SupervisionCriteria />
             </Card>
           </TabsContent>
         </Tabs>

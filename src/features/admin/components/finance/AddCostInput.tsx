@@ -19,6 +19,8 @@ import {
   useUpdateCostInputMutation,
 } from "@/features/modules/controllers/finance/costInputController";
 import FormTextArea from "@/components/atoms/FormTextArea";
+import FormSelect from "@/components/atoms/FormSelect";
+import { useGetAllCostGroupingsQuery } from "@/features/modules/controllers/finance/costGroupingController";
 
 const AddCostInput = () => {
   const { dialogProps } = useAppSelector(dailogSelector);
@@ -31,12 +33,18 @@ const AddCostInput = () => {
       name: data?.name ?? "",
       description: data?.description ?? "",
       code: data?.code ?? "",
+      cost_grouping: data?.cost_grouping ?? "",
     },
   });
 
   const [addCostInput, { isLoading }] = useAddCostInputMutation();
   const [updateCostInput, { isLoading: isUpdateLoading }] =
     useUpdateCostInputMutation();
+
+  const { data: costGroupingsData } = useGetAllCostGroupingsQuery({
+    page: 1,
+    size: 1000,
+  });
 
   const dispatch = useAppDispatch();
 
@@ -83,6 +91,16 @@ const AddCostInput = () => {
             name='code'
             required
             placeholder='Enter Code'
+          />
+
+          <FormSelect
+            label='Cost Grouping'
+            name='cost_grouping'
+            placeholder='Select Cost Grouping'
+            options={costGroupingsData?.data?.results?.map((item: any) => ({
+              label: item.name,
+              value: item.id,
+            })) ?? []}
           />
 
           <div className='flex justify-start gap-4'>

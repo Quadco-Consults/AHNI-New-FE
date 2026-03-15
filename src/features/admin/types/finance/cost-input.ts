@@ -4,6 +4,7 @@ export const CostInputSchema = z.object({
     name: z.string().min(1, "Field Required"),
     description: z.string().optional(),
     code: z.string().min(1, "Field Required"),
+    cost_grouping: z.string().optional(),
 });
 
 export type TCostInputFormValues = z.infer<typeof CostInputSchema>;
@@ -15,4 +16,5 @@ export interface TCostInputData {
     name: string;
     description: string;
     code: string;
+    cost_grouping?: string;
 }
