@@ -26,6 +26,7 @@ import { useGetAllActivityPlans } from "@/features/programs/controllers/activity
 import { useGetAllItems } from "@/features/modules/controllers/config/itemController";
 import { useCreateActivityMemo, useUpdateActivityMemo, ActivityMemo } from "@/features/procurement/controllers/activityMemoController";
 import { SampleMemoSchema } from "@/features/procurement/types/procurement-validator";
+import ExpensesForm from "@/features/procurement/components/purchase-request/activity-memo/form/ExpensesForm";
 
 // Import master config API hooks (unrestricted)
 import {
@@ -237,9 +238,13 @@ const CreateActivityMemoForm = ({ editMode = false, existingData, memoId }: Crea
         : (existingData as any).authorised_by_details?.map((a: any) => a.user_id) || [],
       expenses: existingData.expenses?.map((exp: any) => ({
         item: exp.item_detail?.id || exp.item || "",
+        is_service: exp.is_service || false,
         quantity: exp.quantity || "",
-        num_of_days: exp.num_of_days || 0,
         unit_cost: exp.unit_cost || "",
+        duration: exp.duration || 1,
+        duration_unit: exp.duration_unit || "month",
+        num_of_facility: exp.num_of_facility || 1,
+        uom: exp.uom || exp.item_detail?.uom || "",
         total_cost: exp.total_cost || 0,
       })) || [],
     } : savedFormData || {
@@ -298,24 +303,28 @@ const CreateActivityMemoForm = ({ editMode = false, existingData, memoId }: Crea
   // Watch expenses for calculation
   const watchedExpenses = watch('expenses') || [];
 
-  // Calculate totals
-  useEffect(() => {
-    watchedExpenses.forEach((expense: any, index: number) => {
-      const quantity = parseFloat(expense?.quantity || 0);
-      const unitCost = parseFloat(expense?.unit_cost || 0);
-      const totalCost = quantity * unitCost;
-
-      if (expense?.total_cost !== totalCost) {
-        setValue(`expenses.${index}.total_cost`, totalCost || 0);
-      }
-    });
-  }, [watchedExpenses, setValue]);
+  // Note: Individual expense calculations are handled by ExpensesForm component
 
   const calculateGrandTotal = () => {
     return watchedExpenses.reduce((sum: number, expense: any) => {
-      const quantity = parseFloat(expense?.quantity || 0);
-      const unitCost = parseFloat(expense?.unit_cost || 0);
-      return sum + (quantity * unitCost);
+      const isService = expense?.is_service || false;
+      let totalCost = 0;
+
+      if (isService) {
+        // For services: Total = Quantity × Duration × # of Facilities × Unit Cost
+        const quantity = parseFloat(expense?.quantity || 0);
+        const duration = parseFloat(expense?.duration || 1);
+        const numOfFacility = parseFloat(expense?.num_of_facility || 1);
+        const unitCost = parseFloat(expense?.unit_cost || 0);
+        totalCost = quantity * duration * numOfFacility * unitCost;
+      } else {
+        // For regular items: Total = Quantity × Unit Cost
+        const quantity = parseFloat(expense?.quantity || 0);
+        const unitCost = parseFloat(expense?.unit_cost || 0);
+        totalCost = quantity * unitCost;
+      }
+
+      return sum + totalCost;
     }, 0);
   };
 
@@ -606,89 +615,12 @@ const CreateActivityMemoForm = ({ editMode = false, existingData, memoId }: Crea
             <div>
               <h3 className="text-lg font-semibold text-gray-800 mb-4">Expenses Breakdown</h3>
 
-              {fields.map((field, index) => (
-                <div key={field.id} className="grid grid-cols-2 gap-5 mt-5 p-4 border rounded-lg">
-                  <FormField
-                    control={control}
-                    name={`expenses.${index}.item`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Item</FormLabel>
-                        <Select
-                          onValueChange={(value) => {
-                            field.onChange(value);
-                            const selectedItem = itemsLookup[value];
-                            if (selectedItem?.uom) {
-                              setValue(`expenses.${index}.uom`, selectedItem.uom);
-                            }
-                          }}
-                          value={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select Item" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {itemsOptions.map((item) => (
-                              <SelectItem key={item.value} value={item.value}>
-                                {item.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormInput
-                    label="Description"
-                    name={`expenses.${index}.description`}
-                    placeholder="Enter description"
-                  />
-
-                  <FormInput
-                    label="Quantity"
-                    name={`expenses.${index}.quantity`}
-                    type="number"
-                    placeholder="0"
-                  />
-
-                  <FormInput
-                    label="Unit Cost (₦)"
-                    name={`expenses.${index}.unit_cost`}
-                    type="number"
-                    placeholder="0.00"
-                  />
-
-                  <FormInput
-                    label="UOM"
-                    name={`expenses.${index}.uom`}
-                    placeholder="Unit of Measure"
-                  />
-
-                  <div className="flex items-end">
-                    <div className="flex-1">
-                      <FormLabel>Total Cost (₦)</FormLabel>
-                      <div className="h-10 flex items-center px-3 border rounded-md bg-gray-50 font-semibold">
-                        {(parseFloat(watchedExpenses[index]?.quantity || 0) *
-                          parseFloat(watchedExpenses[index]?.unit_cost || 0)).toLocaleString()}
-                      </div>
-                    </div>
-                    {fields.length > 1 && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => remove(index)}
-                        className="ml-2 text-red-600 hover:text-red-800"
-                      >
-                        <MinusCircle size={20} />
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              ))}
+              <ExpensesForm
+                fields={fields}
+                watch={watch}
+                remove={remove}
+                setValue={setValue}
+              />
 
               <div className="flex justify-between items-center mt-4">
                 <Button
@@ -697,9 +629,12 @@ const CreateActivityMemoForm = ({ editMode = false, existingData, memoId }: Crea
                   onClick={() =>
                     append({
                       item: "",
-                      description: "",
+                      is_service: false,
                       quantity: 1,
                       unit_cost: 0,
+                      duration: 1,
+                      duration_unit: "month",
+                      num_of_facility: 1,
                       uom: "",
                       total_cost: 0,
                     })

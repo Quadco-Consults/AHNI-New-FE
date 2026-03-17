@@ -65,7 +65,7 @@ const ExpensesForm = ({
   const regularItemsOptions = regularItemsResults
     .filter((item: any) => {
       // Filter out items from Services parent category
-      const parentCategoryName = item?.category?.parent_category?.name || item?.parent_category?.name;
+      const parentCategoryName = item?.category?.parent?.name;
       return parentCategoryName !== "Services";
     })
     .map(({ name, id, uom }: any) => ({
