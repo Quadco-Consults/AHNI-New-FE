@@ -35,35 +35,54 @@ const ExpensesForm = ({
 }) => {
   const { control } = useFormContext();
 
-  const { data: item, isLoading: itemsLoading, error: itemsError } = useGetAllItems({
+  // Fetch service items (parent_category = "Services")
+  const { data: serviceItems, isLoading: servicesLoading, error: servicesError } = useGetAllItems({
     page: 1,
     size: 2000000,
+    parent_category: "Services",
   });
 
-  // Debug console.log commented to prevent render loops
-  // console.log("Items API response:", item);
-  // console.log("Items loading:", itemsLoading);
-  // console.log("Items error:", itemsError);
+  // Fetch regular items (all non-service items - could be Consumables, Assets, etc.)
+  const { data: regularItems, isLoading: regularItemsLoading, error: regularItemsError } = useGetAllItems({
+    page: 1,
+    size: 2000000,
+    // Note: We load all items here and could add a filter to exclude Services if needed
+  });
 
-  // Map consumables data to options - try multiple data structure patterns
-  const itemsOptions = item?.data?.results?.map(({ name, id, uom }) => ({
+  // Map service items to options
+  const serviceItemsOptions = serviceItems?.data?.results?.map(({ name, id, uom }) => ({
     label: name,
     value: id,
     uom: uom,
-  })) || item?.results?.map(({ name, id, uom }) => ({
+  })) || serviceItems?.results?.map(({ name, id, uom }) => ({
     label: name,
     value: id,
     uom: uom,
   })) || [];
 
-  // Create a lookup map for item details
-  const itemsLookup = item?.data?.results?.reduce((acc: any, item: any) => {
+  // Map regular items to options (filter out Services category)
+  const regularItemsResults = regularItems?.data?.results || regularItems?.results || [];
+  const regularItemsOptions = regularItemsResults
+    .filter((item: any) => {
+      // Filter out items from Services parent category
+      const parentCategoryName = item?.category?.parent_category?.name || item?.parent_category?.name;
+      return parentCategoryName !== "Services";
+    })
+    .map(({ name, id, uom }: any) => ({
+      label: name,
+      value: id,
+      uom: uom,
+    }));
+
+  // Create a combined lookup map for item details (both service and regular items)
+  const allItemsResults = [
+    ...(serviceItems?.data?.results || serviceItems?.results || []),
+    ...(regularItems?.data?.results || regularItems?.results || [])
+  ];
+  const itemsLookup = allItemsResults.reduce((acc: any, item: any) => {
     acc[item.id] = item;
     return acc;
-  }, {}) || item?.results?.reduce((acc: any, item: any) => {
-    acc[item.id] = item;
-    return acc;
-  }, {}) || {};
+  }, {});
   // Watch all expenses for calculation
   const watchedExpenses = watch('expenses') || [];
 
@@ -105,11 +124,52 @@ const ExpensesForm = ({
         return (
           <div key={`expense-${field.id}-${index}`} className='border rounded-lg p-4 mt-5 bg-gray-50'>
             <div className='grid grid-cols-2 gap-5'>
+              {/* Expense Type - First field for better UX */}
+              <FormField
+                control={control}
+                name={`expenses.${index}.is_service`}
+                render={({ field }) => (
+                  <FormItem className='flex flex-col gap-0 mb-1.5'>
+                    <FormLabel>Expense Type</FormLabel>
+                    <Select
+                      onValueChange={(value) => {
+                        const newIsService = value === 'true';
+                        field.onChange(newIsService);
+
+                        // Clear selected item when expense type changes
+                        // to prevent showing a consumable in service mode or vice versa
+                        setValue(`expenses.${index}.item`, '');
+                        setValue(`expenses.${index}.uom`, '');
+                      }}
+                      value={field.value ? 'true' : 'false'}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select type" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="false">Regular Item</SelectItem>
+                        <SelectItem value="true">Service/Personnel</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Description/Item Name - Second field, filtered by expense type */}
               <FormField
                 control={control}
                 name={`expenses.${index}.item`}
                 render={({ field }) => {
                   const { value, onChange } = field;
+
+                  // Determine which items to show based on expense type
+                  const currentItemsOptions = isService ? serviceItemsOptions : regularItemsOptions;
+                  const currentItemsLoading = isService ? servicesLoading : regularItemsLoading;
+                  const currentItemsError = isService ? servicesError : regularItemsError;
+                  const itemTypeLabel = isService ? "service items" : "regular items";
 
                   return (
                     <FormItem className='flex flex-col gap-0 mb-1.5'>
@@ -130,21 +190,21 @@ const ExpensesForm = ({
                         }}
                         value={value}
                         defaultValue={value}
-                        disabled={itemsLoading}
+                        disabled={currentItemsLoading}
                       >
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder={
-                              itemsLoading ? "Loading items..." :
-                              itemsError ? "Error loading items" :
-                              itemsOptions.length === 0 ? "No items available" :
-                              "Select an item"
+                              currentItemsLoading ? `Loading ${itemTypeLabel}...` :
+                              currentItemsError ? `Error loading ${itemTypeLabel}` :
+                              currentItemsOptions.length === 0 ? `No ${itemTypeLabel} available` :
+                              `Select a ${isService ? 'service' : 'item'}`
                             } />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {itemsOptions.length > 0 ? (
-                            itemsOptions.map((item) => (
+                          {currentItemsOptions.length > 0 ? (
+                            currentItemsOptions.map((item) => (
                               <SelectItem
                                 value={item.value as string}
                                 key={item.value as string}
@@ -152,48 +212,27 @@ const ExpensesForm = ({
                                 {item.label}
                               </SelectItem>
                             ))
-                          ) : !itemsLoading ? (
+                          ) : !currentItemsLoading ? (
                             <SelectItem value="no-items" disabled>
-                              No items available
+                              No {itemTypeLabel} available
                             </SelectItem>
                           ) : null}
                         </SelectContent>
                       </Select>
                       <FormMessage />
-                      {itemsError && (
+                      {currentItemsError && (
                         <p className="text-red-500 text-xs mt-1">
-                          Error loading items: {itemsError.message || 'Unknown error'}
+                          Error loading {itemTypeLabel}: {currentItemsError.message || 'Unknown error'}
+                        </p>
+                      )}
+                      {isService && serviceItemsOptions.length === 0 && !servicesLoading && (
+                        <p className="text-amber-600 text-xs mt-1">
+                          💡 Create service items in Config → Items with Parent Category = "Services"
                         </p>
                       )}
                     </FormItem>
                   );
                 }}
-              />
-
-              {/* Service Type Toggle */}
-              <FormField
-                control={control}
-                name={`expenses.${index}.is_service`}
-                render={({ field }) => (
-                  <FormItem className='flex flex-col gap-0 mb-1.5'>
-                    <FormLabel>Expense Type</FormLabel>
-                    <Select
-                      onValueChange={(value) => field.onChange(value === 'true')}
-                      value={field.value ? 'true' : 'false'}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select type" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="false">Regular Item</SelectItem>
-                        <SelectItem value="true">Service/Personnel</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
               />
 
               {/* Common Fields */}
