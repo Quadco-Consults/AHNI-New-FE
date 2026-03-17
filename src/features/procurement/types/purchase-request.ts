@@ -127,6 +127,13 @@ export interface Expense {
   unit_cost: string;
   total_cost: string;
   purchase_request_memo: string;
+  // Service-specific fields
+  is_service?: boolean;
+  duration?: number; // Duration value (e.g., 1, 3, 6, 12)
+  duration_unit?: 'day' | 'week' | 'month' | 'year'; // Unit of duration
+  num_of_facility?: number;
+  // Optional field for recurring expenses
+  frequency?: number;
 }
 
 export interface RequestPayload {
