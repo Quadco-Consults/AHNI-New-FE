@@ -27,6 +27,7 @@ import { useGetAllItems } from "@/features/modules/controllers/config/itemContro
 import { useCreateActivityMemo, useUpdateActivityMemo, ActivityMemo } from "@/features/procurement/controllers/activityMemoController";
 import { SampleMemoSchema } from "@/features/procurement/types/procurement-validator";
 import ExpensesForm from "@/features/procurement/components/purchase-request/activity-memo/form/ExpensesForm";
+import { useGetAllModules } from "@/features/modules/controllers/project/moduleController";
 
 // Import master config API hooks (unrestricted)
 import {
@@ -53,6 +54,18 @@ const CreateActivityMemoForm = ({ editMode = false, existingData, memoId }: Crea
   const { data: profile } = useGetUserProfile();
   const { data: activites } = useGetAllActivityPlans({ page: 1, size: 2000000 });
   const { data: items } = useGetAllItems({ page: 1, size: 2000000 });
+
+  // Fetch modules
+  const modulesQuery = useGetAllModules({
+    page: 1,
+    size: 2000000,
+    search: "",
+    enabled: true,
+  });
+  const modulesData = modulesQuery?.data;
+  const modulesLoading = modulesQuery?.isLoading ?? false;
+  const modulesError = modulesQuery?.error;
+  const isModulesError = modulesQuery?.isError ?? false;
 
   // Use master config API for dropdown data (bypasses permission filtering)
   const { data: fco, isLoading: isFcoLoading, error: fcoError } = useGetFCONumbersDropdown();
@@ -163,6 +176,27 @@ const CreateActivityMemoForm = ({ editMode = false, existingData, memoId }: Crea
     }));
   }, [interventions]);
 
+  // Module options - show ALL modules
+  const modulesOptions = React.useMemo(() => {
+    const rawResults = (modulesData as any)?.results || (modulesData as any)?.data?.results || [];
+
+    // Show all modules regardless of budget line selection
+    const allOptions = rawResults.map(({ name, id }: any) => ({
+      id,
+      name,
+    }));
+
+    return allOptions;
+  }, [modulesData]);
+
+  // Debug modules data (only log once when data changes)
+  React.useEffect(() => {
+    if (!modulesLoading && modulesData) {
+      const rawResults = (modulesData as any)?.results || (modulesData as any)?.data?.results || [];
+      console.log('🔵 MODULES: Loaded', rawResults.length, 'modules:', rawResults.map((m: any) => m.name).join(", "));
+    }
+  }, [modulesData, modulesLoading]);
+
   const itemsOptions = React.useMemo(() =>
     (items as any)?.data?.results?.map(({ name, id, uom }: any) => ({
       label: name,
@@ -191,6 +225,7 @@ const CreateActivityMemoForm = ({ editMode = false, existingData, memoId }: Crea
           return {
             ...parsedData,
             fconumber: Array.isArray(parsedData.fconumber) ? parsedData.fconumber : [],
+            module: Array.isArray(parsedData.module) ? parsedData.module : [],
             intervention_areas: Array.isArray(parsedData.intervention_areas) ? parsedData.intervention_areas : [],
             budget_line: Array.isArray(parsedData.budget_line) ? parsedData.budget_line : [],
             cost_categories: Array.isArray(parsedData.cost_categories) ? parsedData.cost_categories : [],
@@ -221,6 +256,7 @@ const CreateActivityMemoForm = ({ editMode = false, existingData, memoId }: Crea
       subject: existingData.subject || "",
       requested_date: existingData.requested_date || "",
       fconumber: existingData.fconumber || [],
+      module: (existingData as any).module || [],
       intervention_areas: existingData.intervention_areas || [],
       budget_line: existingData.budget_line || [],
       cost_categories: existingData.cost_categories || [],
@@ -252,6 +288,7 @@ const CreateActivityMemoForm = ({ editMode = false, existingData, memoId }: Crea
       subject: "",
       requested_date: "",
       fconumber: [],
+      module: [],
       intervention_areas: [],
       budget_line: [],
       cost_categories: [],
@@ -335,6 +372,125 @@ const CreateActivityMemoForm = ({ editMode = false, existingData, memoId }: Crea
     }
   }, [profile, setValue]);
 
+  // Auto-populate financial fields when activity is selected
+  const selectedActivityId = watch('activity');
+  const prevActivityIdRef = React.useRef<string | null>(null);
+
+  useEffect(() => {
+    if (selectedActivityId && activites) {
+      const selectedActivity = (activites as any)?.data?.results?.find(
+        (activity: any) => activity.id === selectedActivityId
+      );
+
+      if (selectedActivity) {
+        // Check if this is a new activity selection (activity changed)
+        const isActivityChange = prevActivityIdRef.current !== null && prevActivityIdRef.current !== selectedActivityId;
+
+        if (isActivityChange) {
+          console.log("🔄 Activity changed - clearing old financial fields before auto-populating new ones...");
+          // Clear all financial fields when activity changes
+          setValue('budget_line', []);
+          setValue('module', []);
+          setValue('intervention_areas', []);
+          setValue('cost_categories', []);
+          setValue('cost_input', []);
+        }
+
+        // Update the ref to track the current activity
+        prevActivityIdRef.current = selectedActivityId;
+
+        console.log("🎯 Auto-populating financial fields from activity...");
+        let fieldsPopulated = 0;
+
+        // Helper function to find option ID by name (case-insensitive match)
+        const findOptionIdByName = (options: any[], searchName: string) => {
+          if (!searchName) return null;
+          const option = options.find(opt =>
+            opt.name?.toLowerCase().trim() === searchName.toLowerCase().trim()
+          );
+          return option?.id || null;
+        };
+
+        // 1. Budget Line (string → array of IDs)
+        if (selectedActivity.budget_line && budgetLinesOptions.length > 0) {
+          const budgetLineId = findOptionIdByName(budgetLinesOptions, selectedActivity.budget_line);
+          if (budgetLineId) {
+            setValue('budget_line', [budgetLineId]);
+            fieldsPopulated++;
+            console.log(`✅ Budget Line: "${selectedActivity.budget_line}" → ID: ${budgetLineId}`);
+          } else {
+            console.log(`⚠️ Budget Line "${selectedActivity.budget_line}" not found in options`);
+          }
+        }
+
+        // 2. Module (string → array of IDs) - only if activity has module field
+        if (selectedActivity.module && modulesOptions.length > 0) {
+          const moduleId = findOptionIdByName(modulesOptions, selectedActivity.module);
+          if (moduleId) {
+            setValue('module', [moduleId]);
+            fieldsPopulated++;
+            console.log(`✅ Module: "${selectedActivity.module}" → ID: ${moduleId}`);
+          } else {
+            console.log(`⚠️ Module "${selectedActivity.module}" not found in options`);
+          }
+        }
+
+        // 3. Intervention Area (string → array of IDs)
+        if (selectedActivity.intervention_area && interventionsOptions.length > 0) {
+          const interventionId = findOptionIdByName(interventionsOptions, selectedActivity.intervention_area);
+          if (interventionId) {
+            setValue('intervention_areas', [interventionId]);
+            fieldsPopulated++;
+            console.log(`✅ Intervention Area: "${selectedActivity.intervention_area}" → ID: ${interventionId}`);
+          } else {
+            console.log(`⚠️ Intervention Area "${selectedActivity.intervention_area}" not found in options`);
+          }
+        }
+
+        // 4. Cost Category (string → array of IDs)
+        if (selectedActivity.cost_category && costCategoriesOptions.length > 0) {
+          const costCategoryId = findOptionIdByName(costCategoriesOptions, selectedActivity.cost_category);
+          if (costCategoryId) {
+            setValue('cost_categories', [costCategoryId]);
+            fieldsPopulated++;
+            console.log(`✅ Cost Category: "${selectedActivity.cost_category}" → ID: ${costCategoryId}`);
+          } else {
+            console.log(`⚠️ Cost Category "${selectedActivity.cost_category}" not found in options`);
+          }
+        }
+
+        // 5. Cost Input (string → array of IDs)
+        if (selectedActivity.cost_input && costInputOptions.length > 0) {
+          const costInputId = findOptionIdByName(costInputOptions, selectedActivity.cost_input);
+          if (costInputId) {
+            setValue('cost_input', [costInputId]);
+            fieldsPopulated++;
+            console.log(`✅ Cost Input: "${selectedActivity.cost_input}" → ID: ${costInputId}`);
+          } else {
+            console.log(`⚠️ Cost Input "${selectedActivity.cost_input}" not found in options`);
+            console.log("Available cost input names:", costInputOptions.map((opt: any) => opt.name).join(", "));
+            console.log("💡 Note: Activity has cost_input = '" + selectedActivity.cost_input + "' which may be a Cost Category, not a Cost Input");
+          }
+        }
+
+        // Show feedback to user
+        if (fieldsPopulated > 0) {
+          toast.success(`Auto-filled ${fieldsPopulated} financial field(s) from activity`, {
+            description: "FCO Number and Funding Source need to be selected manually",
+            duration: 3000,
+          });
+        } else {
+          toast.info("Activity selected, but no financial fields could be auto-populated", {
+            description: "Please fill in the financial fields manually",
+            duration: 3000,
+          });
+        }
+
+        console.log(`📊 Auto-population complete: ${fieldsPopulated} fields populated`);
+      }
+    }
+  }, [selectedActivityId, activites, budgetLinesOptions, modulesOptions, interventionsOptions, costCategoriesOptions, costInputOptions, setValue]);
+
   const onSubmit = async (data: z.infer<typeof SampleMemoSchema>) => {
     try {
       setIsSubmitting(true);
@@ -348,6 +504,7 @@ const CreateActivityMemoForm = ({ editMode = false, existingData, memoId }: Crea
         reviewed_by: data.copy, // CC = Reviewers
         authorised_by: data.through, // Through = Authorizers
         fconumber: data.fconumber,
+        module: data.module,
         intervention_areas: data.intervention_areas,
         budget_line: data.budget_line,
         cost_categories: data.cost_categories,
@@ -519,6 +676,43 @@ const CreateActivityMemoForm = ({ editMode = false, existingData, memoId }: Crea
                       </FormItem>
                     )}
                   />
+                </div>
+
+                <div>
+                  <Label className="font-semibold">Module</Label>
+                  {modulesLoading ? (
+                    <div className="p-4 text-center text-gray-500">Loading modules...</div>
+                  ) : isModulesError ? (
+                    <div className="p-4 text-center">
+                      <p className="text-red-500 text-sm">Failed to load modules</p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {modulesError?.message || 'API error - modules endpoint may not be available'}
+                      </p>
+                    </div>
+                  ) : (
+                    <FormField
+                      control={control}
+                      name="module"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <MultiSelectFormField
+                              options={modulesOptions}
+                              defaultValue={field.value}
+                              onValueChange={field.onChange}
+                              placeholder={modulesOptions.length === 0 ? 'No modules available' : 'Select Module'}
+                              variant="inverted"
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                  )}
+                  {!isModulesError && modulesOptions.length === 0 && !modulesLoading && (
+                    <p className="text-amber-600 text-xs mt-1">
+                      💡 No modules found. Create modules in Dashboard → Programs → Modules.
+                    </p>
+                  )}
                 </div>
               </div>
 

@@ -3,15 +3,22 @@
 import { useParams, useRouter } from "next/navigation";
 import Card from "@/components/Card";
 import { Button } from "@/components/ui/button";
-import { Edit, Download, AlertCircle, Loader2 } from 'lucide-react';
+import { Edit, Download, AlertCircle, Loader2, FileText } from 'lucide-react';
 import { Icon } from "@iconify/react";
 import { useGetActivityMemo } from "@/features/procurement/controllers/activityMemoController";
 import { format } from "date-fns";
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo, useEffect } from "react";
 import logoPng from "assets/imgs/logo.png";
 import GoBack from "@/components/GoBack";
 import ActivityMemoApprovalWorkflow from "@/features/procurement/components/activity-memo/ActivityMemoApprovalWorkflow";
 import { useGetUserProfile } from "@/features/auth/controllers/userController";
+import { useGetAllBudgetLinesQuery } from "@/features/modules/controllers/finance/budgetLineController";
+import { useGetAllModules } from "@/features/modules/controllers/project/moduleController";
+import { useGetAllInterventionAreaQuery } from "@/features/modules/controllers/program/interventionAreaController";
+import { useGetAllCostCategoriesQuery } from "@/features/modules/controllers/finance/costCategoryController";
+import { useGetAllCostInputsQuery } from "@/features/modules/controllers/finance/costInputController";
+import { useGetAllFundingSources } from "@/features/modules/controllers/project/fundingSourceController";
+import { useGetAllFCONumbersQuery } from "@/features/modules/controllers/finance/fcoNumberController";
 
 const ActivityMemoView = () => {
   const params = useParams();
@@ -21,6 +28,50 @@ const ActivityMemoView = () => {
 
   const { data: memoData, isLoading, error, refetch } = useGetActivityMemo(memoId);
   const { data: currentUser } = useGetUserProfile();
+
+  // Debug: Log memo data to see structure
+  useEffect(() => {
+    if (memoData) {
+      console.log("📋 Activity Memo Data:", memoData);
+      console.log("📋 Through Details:", memoData.through_details);
+      console.log("📋 Through IDs:", memoData.through);
+    }
+  }, [memoData]);
+
+  // Fetch reference data for lookups
+  const { data: budgetLinesData } = useGetAllBudgetLinesQuery({ page: 1, size: 2000000 });
+  const { data: modulesData } = useGetAllModules({ page: 1, size: 2000000 });
+  const { data: interventionsData } = useGetAllInterventionAreaQuery({ page: 1, size: 2000000 });
+  const { data: costCategoriesData } = useGetAllCostCategoriesQuery({ page: 1, size: 2000000 });
+  const { data: costInputsData } = useGetAllCostInputsQuery({ page: 1, size: 2000000 });
+  const { data: fundingSourcesData } = useGetAllFundingSources({ page: 1, size: 2000000 });
+  const { data: fcoNumbersData } = useGetAllFCONumbersQuery({ page: 1, size: 2000000 });
+
+  // Create lookup functions
+  const lookupName = useMemo(() => {
+    const budgetLines = (budgetLinesData as any)?.results || (budgetLinesData as any)?.data?.results || [];
+    const modules = (modulesData as any)?.results || (modulesData as any)?.data?.results || [];
+    const interventions = (interventionsData as any)?.results || (interventionsData as any)?.data?.results || [];
+    const costCategories = (costCategoriesData as any)?.results || (costCategoriesData as any)?.data?.results || [];
+    const costInputs = (costInputsData as any)?.results || (costInputsData as any)?.data?.results || [];
+    const fundingSources = (fundingSourcesData as any)?.results || (fundingSourcesData as any)?.data?.results || [];
+    const fcoNumbers = (fcoNumbersData as any)?.results || (fcoNumbersData as any)?.data?.results || [];
+
+    const allItems = [
+      ...budgetLines.map((item: any) => ({ id: item.id, name: item.name || item.code, code: item.code })),
+      ...modules.map((item: any) => ({ id: item.id, name: item.name || item.code, code: item.code })),
+      ...interventions.map((item: any) => ({ id: item.id, name: item.description || item.code, code: item.code })),
+      ...costCategories.map((item: any) => ({ id: item.id, name: item.name || item.code, code: item.code })),
+      ...costInputs.map((item: any) => ({ id: item.id, name: item.name || item.code, code: item.code })),
+      ...fundingSources.map((item: any) => ({ id: item.id, name: item.name || item.code, code: item.code })),
+      ...fcoNumbers.map((item: any) => ({ id: item.id, name: item.fco_number || item.code || item.name, code: item.code })),
+    ];
+
+    return (id: string) => {
+      const item = allItems.find((i: any) => i.id === id);
+      return item?.name || item?.code || id;
+    };
+  }, [budgetLinesData, modulesData, interventionsData, costCategoriesData, costInputsData, fundingSourcesData, fcoNumbersData]);
 
   const [currentStage, setCurrentStage] = useState(1); // 1 = Memo, 2 = Expense Breakdown, 3 = Approval Workflow
 
@@ -226,8 +277,8 @@ const ActivityMemoView = () => {
                 <div className="flex">
                   <span className="font-bold w-20 text-base">Through:</span>
                   <div className="flex-1">
-                    {memoData?.reviewed_by_details && memoData.reviewed_by_details.length > 0 ? (
-                      memoData.reviewed_by_details.map((user: any, index: number) => (
+                    {memoData?.through_details && memoData.through_details.length > 0 ? (
+                      memoData.through_details.map((user: any, index: number) => (
                         <div key={index} className="text-base">
                           {user.name || `${user.first_name} ${user.last_name}`} ({user.designation || 'Staff'}, AHNI)
                           <span className="ml-8 text-sm text-gray-600">
@@ -235,8 +286,12 @@ const ActivityMemoView = () => {
                           </span>
                         </div>
                       ))
+                    ) : memoData?.through && memoData.through.length > 0 ? (
+                      <div className="text-base text-amber-600">
+                        {memoData.through.length} reviewer(s) selected (Details not available)
+                      </div>
                     ) : (
-                      <div className="text-base">Reviewer</div>
+                      <div className="text-base text-gray-400">No reviewers assigned</div>
                     )}
                   </div>
                 </div>
@@ -258,14 +313,15 @@ const ActivityMemoView = () => {
               {/* Budget Information */}
               <div className="grid grid-cols-2 gap-8 mb-6 text-sm">
                 <div className="space-y-2">
-                  <div><span className="font-semibold">Budget Line #:</span> {memoData?.budget_line_details?.[0]?.module_name || memoData?.budget_line_details?.[0]?.module_code || memoData?.budget_line?.[0] || "-"}</div>
-                  <div><span className="font-semibold">Intervention:</span> {memoData?.intervention_areas_details?.[0]?.code || memoData?.intervention_areas_details?.[0]?.description || memoData?.intervention_areas?.[0] || "-"}</div>
-                  <div><span className="font-semibold">Cost Grouping #:</span> {memoData?.cost_categories_details?.[0]?.module_name || memoData?.cost_categories_details?.[0]?.module_code || memoData?.cost_categories?.[0] || "-"}</div>
+                  <div><span className="font-semibold">Budget Line #:</span> {memoData?.budget_line?.[0] ? lookupName(memoData.budget_line[0]) : "-"}</div>
+                  <div><span className="font-semibold">Module:</span> {memoData?.module?.[0] ? lookupName(memoData.module[0]) : "-"}</div>
+                  <div><span className="font-semibold">Intervention:</span> {memoData?.intervention_areas?.[0] ? lookupName(memoData.intervention_areas[0]) : "-"}</div>
+                  <div><span className="font-semibold">Cost Grouping #:</span> {memoData?.cost_categories?.[0] ? lookupName(memoData.cost_categories[0]) : "-"}</div>
                 </div>
                 <div className="space-y-2">
-                  <div><span className="font-semibold">FCO#:</span> {memoData?.fconumber_details?.[0]?.module_name || memoData?.fconumber_details?.[0]?.module_code || memoData?.fconumber?.[0] || "-"}</div>
-                  <div><span className="font-semibold">Cost Input #:</span> {memoData?.cost_inputs_details?.[0]?.module_name || memoData?.cost_inputs_details?.[0]?.module_code || memoData?.cost_input?.[0] || "-"}</div>
-                  <div><span className="font-semibold">Funding Source:</span> {memoData?.funding_sources_details?.[0]?.module_name || memoData?.funding_source?.[0] || "-"}</div>
+                  <div><span className="font-semibold">FCO#:</span> {memoData?.fconumber?.[0] ? lookupName(memoData.fconumber[0]) : "-"}</div>
+                  <div><span className="font-semibold">Cost Input #:</span> {memoData?.cost_input?.[0] ? lookupName(memoData.cost_input[0]) : "-"}</div>
+                  <div><span className="font-semibold">Funding Source:</span> {memoData?.funding_source?.[0] ? lookupName(memoData.funding_source[0]) : "-"}</div>
                 </div>
               </div>
 
@@ -344,7 +400,7 @@ const ActivityMemoView = () => {
                   </tr>
                   <tr className="border-b border-black">
                     <td className="border-r border-black p-4 bg-blue-100 font-semibold">FCO #:</td>
-                    <td className="p-4">{memoData.fconumber_details?.[0]?.module_name || memoData.fconumber_details?.[0]?.module_code || memoData.fconumber?.[0] || "N/A"}</td>
+                    <td className="p-4">{memoData.fconumber?.[0] ? lookupName(memoData.fconumber[0]) : "N/A"}</td>
                   </tr>
                 </tbody>
               </table>
@@ -354,25 +410,27 @@ const ActivityMemoView = () => {
                 <tbody>
                   <tr className="border-b border-black">
                     <td className="border-r border-black p-3 bg-blue-100 font-semibold w-1/2">
-                      Intervention: {memoData?.intervention_areas_details?.[0]?.code || memoData?.intervention_areas_details?.[0]?.description || memoData?.intervention_areas?.[0] || "-"}
+                      Budget Line #: {memoData?.budget_line?.[0] ? lookupName(memoData.budget_line[0]) : "-"}
                     </td>
                     <td className="p-3 bg-blue-100 font-semibold">
-                      Budget Line #: {memoData?.budget_line_details?.[0]?.module_name || memoData?.budget_line_details?.[0]?.module_code || memoData?.budget_line?.[0] || "-"}
+                      Module: {memoData?.module?.[0] ? lookupName(memoData.module[0]) : "-"}
                     </td>
                   </tr>
                   <tr className="border-b border-black">
                     <td className="border-r border-black p-3 bg-blue-100 font-semibold">
-                      Cost Grouping #: {memoData?.cost_categories_details?.[0]?.module_name || memoData?.cost_categories_details?.[0]?.module_code || memoData?.cost_categories?.[0] || "-"}
+                      Intervention: {memoData?.intervention_areas?.[0] ? lookupName(memoData.intervention_areas[0]) : "-"}
                     </td>
                     <td className="p-3 bg-blue-100 font-semibold">
-                      Cost Input #: {memoData?.cost_inputs_details?.[0]?.module_name || memoData?.cost_inputs_details?.[0]?.module_code || memoData?.cost_input?.[0] || "-"}
+                      Cost Grouping #: {memoData?.cost_categories?.[0] ? lookupName(memoData.cost_categories[0]) : "-"}
                     </td>
                   </tr>
                   <tr className="border-b border-black">
                     <td className="border-r border-black p-3 bg-blue-100 font-semibold">
-                      Funding Source: {memoData?.funding_sources_details?.[0]?.module_name || memoData?.funding_source?.[0] || "-"}
+                      Cost Input #: {memoData?.cost_input?.[0] ? lookupName(memoData.cost_input[0]) : "-"}
                     </td>
-                    <td className="p-3 bg-blue-100 font-semibold"></td>
+                    <td className="p-3 bg-blue-100 font-semibold">
+                      Funding Source: {memoData?.funding_source?.[0] ? lookupName(memoData.funding_source[0]) : "-"}
+                    </td>
                   </tr>
                 </tbody>
               </table>

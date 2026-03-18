@@ -41,6 +41,7 @@ import { Button } from "@/components/ui/button";
 import { openDialog } from "@/store/ui";
 import { DialogType } from "@/constants/dailogs";
 import { toast } from "sonner";
+import { useGetAllModules } from "@/features/modules/controllers/project/moduleController";
 import {
   mergeFallbackBudgetLines,
   mergeFallbackCostCategories,
@@ -148,6 +149,26 @@ const CreateActivityMemo = () => {
     size: 2000000,
     search: "",
   });
+
+  // Fetch modules
+  const modulesQuery = useGetAllModules({
+    page: 1,
+    size: 2000000,
+    search: "",
+    enabled: true,
+  });
+  const modulesData = modulesQuery?.data;
+  const modulesLoading = modulesQuery?.isLoading ?? false;
+  const modulesError = modulesQuery?.error;
+  const isModulesError = modulesQuery?.isError ?? false;
+
+  // Debug modules data (only log once when data changes)
+  React.useEffect(() => {
+    if (!modulesLoading && modulesData) {
+      const rawResults = (modulesData as any)?.results || (modulesData as any)?.data?.results || [];
+      console.log("🔵 MODULES: Loaded", rawResults.length, "modules:", rawResults.map((m: any) => m.name).join(", "));
+    }
+  }, [modulesData]);
 
   // NOTE: Old cost input and cost categories API calls removed - using comprehensive backend endpoint
 
@@ -530,6 +551,7 @@ const CreateActivityMemo = () => {
           const validatedData = {
             ...parsedData,
             fconumber: Array.isArray(parsedData.fconumber) ? parsedData.fconumber : [],
+            module: Array.isArray(parsedData.module) ? parsedData.module : [],
             intervention_areas: Array.isArray(parsedData.intervention_areas) ? parsedData.intervention_areas : [],
             budget_line: Array.isArray(parsedData.budget_line) ? parsedData.budget_line : [],
             cost_categories: Array.isArray(parsedData.cost_categories) ? parsedData.cost_categories : [],
@@ -554,7 +576,14 @@ const CreateActivityMemo = () => {
   };
 
   const savedFormData = loadSavedFormData();
-  // console.log('📋 Final savedFormData being used:', savedFormData);
+
+  // Log when saved data is loaded
+  React.useEffect(() => {
+    if (savedFormData) {
+      console.log('📋 Form pre-populated from localStorage (saved draft)');
+      console.log('💡 To start fresh, clear your browser localStorage or use the "Clear Form" button');
+    }
+  }, []);
 
   const form = useForm<z.infer<typeof SampleMemoSchema>>({
     resolver: zodResolver(SampleMemoSchema),
@@ -563,6 +592,7 @@ const CreateActivityMemo = () => {
       subject: "",
       requested_date: "",
       fconumber: [],
+      module: [],
       intervention_areas: [],
       budget_line: [],
       cost_categories: [],
@@ -590,6 +620,20 @@ const CreateActivityMemo = () => {
 
   // Watch all form values for auto-save
   const watchedValues = watch();
+
+  // Module options - show ALL modules (budget line filtering removed as per user feedback)
+  const modulesOptions = React.useMemo(() => {
+    const rawResults = (modulesData as any)?.results || (modulesData as any)?.data?.results || [];
+
+    // Show all modules regardless of budget line selection
+    // This allows users to select any module even if not explicitly linked to the budget line
+    const allOptions = rawResults.map(({ name, id }: any) => ({
+      id,
+      name,
+    }));
+
+    return allOptions;
+  }, [modulesData]);
 
   // Save form data to localStorage
   const saveFormData = (data: any) => {
@@ -650,6 +694,125 @@ const CreateActivityMemo = () => {
     control,
     name: "expenses",
   });
+
+  // Auto-populate financial fields when activity is selected
+  const selectedActivityId = watch('activity');
+  const prevActivityIdRef = React.useRef<string | null>(null);
+
+  useEffect(() => {
+    if (selectedActivityId && activites) {
+      const selectedActivity = (activites as any)?.data?.results?.find(
+        (activity: any) => activity.id === selectedActivityId
+      );
+
+      if (selectedActivity) {
+        // Check if this is a new activity selection (activity changed)
+        const isActivityChange = prevActivityIdRef.current !== null && prevActivityIdRef.current !== selectedActivityId;
+
+        if (isActivityChange) {
+          console.log("🔄 Activity changed - clearing old financial fields before auto-populating new ones...");
+          // Clear all financial fields when activity changes
+          setValue('budget_line', []);
+          setValue('module', []);
+          setValue('intervention_areas', []);
+          setValue('cost_categories', []);
+          setValue('cost_input', []);
+        }
+
+        // Update the ref to track the current activity
+        prevActivityIdRef.current = selectedActivityId;
+
+        console.log("🎯 Auto-populating financial fields from activity...");
+        let fieldsPopulated = 0;
+
+        // Helper function to find option ID by name (case-insensitive match)
+        const findOptionIdByName = (options: any[], searchName: string) => {
+          if (!searchName) return null;
+          const option = options.find(opt =>
+            opt.name?.toLowerCase().trim() === searchName.toLowerCase().trim()
+          );
+          return option?.id || null;
+        };
+
+        // 1. Budget Line (string → array of IDs)
+        if (selectedActivity.budget_line && budgetLinesOptions.length > 0) {
+          const budgetLineId = findOptionIdByName(budgetLinesOptions, selectedActivity.budget_line);
+          if (budgetLineId) {
+            setValue('budget_line', [budgetLineId]);
+            fieldsPopulated++;
+            console.log(`✅ Budget Line: "${selectedActivity.budget_line}" → ID: ${budgetLineId}`);
+          } else {
+            console.log(`⚠️ Budget Line "${selectedActivity.budget_line}" not found in options`);
+          }
+        }
+
+        // 2. Module (string → array of IDs) - only if activity has module field
+        if (selectedActivity.module && modulesOptions.length > 0) {
+          const moduleId = findOptionIdByName(modulesOptions, selectedActivity.module);
+          if (moduleId) {
+            setValue('module', [moduleId]);
+            fieldsPopulated++;
+            console.log(`✅ Module: "${selectedActivity.module}" → ID: ${moduleId}`);
+          } else {
+            console.log(`⚠️ Module "${selectedActivity.module}" not found in options`);
+          }
+        }
+
+        // 3. Intervention Area (string → array of IDs)
+        if (selectedActivity.intervention_area && interventionsOptions.length > 0) {
+          const interventionId = findOptionIdByName(interventionsOptions, selectedActivity.intervention_area);
+          if (interventionId) {
+            setValue('intervention_areas', [interventionId]);
+            fieldsPopulated++;
+            console.log(`✅ Intervention Area: "${selectedActivity.intervention_area}" → ID: ${interventionId}`);
+          } else {
+            console.log(`⚠️ Intervention Area "${selectedActivity.intervention_area}" not found in options`);
+          }
+        }
+
+        // 4. Cost Category (string → array of IDs)
+        if (selectedActivity.cost_category && costCategoriesOptions.length > 0) {
+          const costCategoryId = findOptionIdByName(costCategoriesOptions, selectedActivity.cost_category);
+          if (costCategoryId) {
+            setValue('cost_categories', [costCategoryId]);
+            fieldsPopulated++;
+            console.log(`✅ Cost Category: "${selectedActivity.cost_category}" → ID: ${costCategoryId}`);
+          } else {
+            console.log(`⚠️ Cost Category "${selectedActivity.cost_category}" not found in options`);
+          }
+        }
+
+        // 5. Cost Input (string → array of IDs)
+        if (selectedActivity.cost_input && costInputOptions.length > 0) {
+          const costInputId = findOptionIdByName(costInputOptions, selectedActivity.cost_input);
+          if (costInputId) {
+            setValue('cost_input', [costInputId]);
+            fieldsPopulated++;
+            console.log(`✅ Cost Input: "${selectedActivity.cost_input}" → ID: ${costInputId}`);
+          } else {
+            console.log(`⚠️ Cost Input "${selectedActivity.cost_input}" not found in options`);
+            console.log("Available cost input names:", costInputOptions.map((opt: any) => opt.name).join(", "));
+            console.log("💡 Note: Activity has cost_input = '" + selectedActivity.cost_input + "' which may be a Cost Category, not a Cost Input");
+          }
+        }
+
+        // Show feedback to user
+        if (fieldsPopulated > 0) {
+          toast.success(`Auto-filled ${fieldsPopulated} financial field(s) from activity`, {
+            description: "FCO Number and Funding Source need to be selected manually",
+            duration: 3000,
+          });
+        } else {
+          toast.info("Activity selected, but no financial fields could be auto-populated", {
+            description: "Please fill in the financial fields manually",
+            duration: 3000,
+          });
+        }
+
+        console.log(`📊 Auto-population complete: ${fieldsPopulated} fields populated`);
+      }
+    }
+  }, [selectedActivityId, activites, budgetLinesOptions, modulesOptions, interventionsOptions, costCategoriesOptions, costInputOptions, setValue]);
 
   const onSubmit = async (data: z.infer<typeof SampleMemoSchema>) => {
     console.log("🚀 FORM SUBMISSION STARTED!");
@@ -858,9 +1021,51 @@ const CreateActivityMemo = () => {
                   />
                 )}
                 {errors.budget_line && (
-                  <span className='text-sm text-red-500 font-medium'>
+                  <span className='text-sm text-red-500 font-semibold'>
                     {errors.budget_line.message}
                   </span>
+                )}
+              </div>
+
+              <div>
+                <Label className='font-semibold'>Module</Label>
+                {modulesLoading ? (
+                  <div className="p-4 text-center text-gray-500">Loading modules...</div>
+                ) : isModulesError ? (
+                  <div className="p-4 text-center">
+                    <p className="text-red-500 text-sm">Failed to load modules</p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {modulesError?.message || 'API error - modules endpoint may not be available'}
+                    </p>
+                  </div>
+                ) : (
+                  <FormField
+                    control={form.control}
+                    name='module'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <MultiSelectFormField
+                            options={modulesOptions}
+                            defaultValue={field.value}
+                            onValueChange={field.onChange}
+                            placeholder={modulesOptions.length === 0 ? 'No modules available' : 'Select Module'}
+                            variant='inverted'
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                )}
+                {errors.module && (
+                  <span className='text-sm text-red-500 font-medium'>
+                    {errors.module.message}
+                  </span>
+                )}
+                {!isModulesError && modulesOptions.length === 0 && !modulesLoading && (
+                  <p className="text-amber-600 text-xs mt-1">
+                    💡 No modules found. Create modules in Dashboard → Programs → Modules.
+                  </p>
                 )}
               </div>
             </div>

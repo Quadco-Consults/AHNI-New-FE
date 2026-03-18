@@ -720,54 +720,189 @@ const Preview = () => {
                 </tbody>
               </table>
 
-              {/* Expense Table Header */}
-              <div className='bg-orange-200 border-b border-black'>
-                <table className='w-full border-collapse text-base print:text-sm'>
-                  <thead>
-                    <tr>
-                      <th className='border-r border-black p-4 font-bold text-left print:p-3' style={{width: '40%'}}>Description/Item Name</th>
-                      <th className='border-r border-black p-4 font-bold text-center print:p-3' style={{width: '15%'}}>UOM</th>
-                      <th className='border-r border-black p-4 font-bold text-center print:p-3' style={{width: '15%'}}>Quantity</th>
-                      <th className='border-r border-black p-4 font-bold text-center print:p-3' style={{width: '15%'}}>Unit Cost</th>
-                      <th className='p-4 font-bold text-center print:p-3' style={{width: '15%'}}>Total Cost</th>
-                    </tr>
-                  </thead>
-                </table>
-              </div>
+              {/* Separate expenses by type */}
+              {(() => {
+                const goodsWorkExpenses = expensesData.filter((exp: any) =>
+                  exp.expense_type === 'GOODS' || exp.expense_type === 'WORK' || (!exp.expense_type && !exp.is_service)
+                );
+                const serviceExpenses = expensesData.filter((exp: any) =>
+                  exp.expense_type === 'SERVICE' || exp.is_service
+                );
 
-              {/* Currency Header Row */}
-              <div className='border-b border-black'>
-                <table className='w-full border-collapse text-base print:text-sm'>
-                  <tbody>
-                    <tr>
-                      <td className='border-r border-black p-3 print:p-2' style={{width: '40%'}}></td>
-                      <td className='border-r border-black p-3 print:p-2' style={{width: '15%'}}></td>
-                      <td className='border-r border-black p-3 print:p-2' style={{width: '15%'}}></td>
-                      <td className='border-r border-black p-3 text-center font-bold print:p-2' style={{width: '15%'}}>₦</td>
-                      <td className='p-3 text-center font-bold print:p-2' style={{width: '15%'}}>₦</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+                const goodsWorkTotal = goodsWorkExpenses.reduce((sum: number, row: any) => sum + Number(row.total_cost || 0), 0);
+                const serviceTotal = serviceExpenses.reduce((sum: number, row: any) => sum + Number(row.total_cost || 0), 0);
 
-              {/* Expense Rows */}
-              <table className='w-full border-collapse text-base print:text-sm'>
-                <tbody>
-                  {expensesData.map((row: any, index: number) => (
-                    <tr key={index} className='border-b border-black'>
-                      <td className='border-r border-black p-4 print:p-2' style={{width: '40%'}}>{row?.item_detail?.name || row?.item || "N/A"}</td>
-                      <td className='border-r border-black p-4 text-center print:p-2' style={{width: '15%'}}>{row?.item_detail?.uom || row?.uom || "Each"}</td>
-                      <td className='border-r border-black p-4 text-center print:p-2' style={{width: '15%'}}>{row.quantity || "1"}</td>
-                      <td className='border-r border-black p-4 text-right print:p-2' style={{width: '15%'}}>
-                        {Number(row.unit_cost || 0).toLocaleString()}
-                      </td>
-                      <td className='p-4 text-right print:p-2' style={{width: '15%'}}>
-                        {Number(row.total_cost || 0).toLocaleString()}.00
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                return (
+                  <>
+                    {/* GOODS/WORK Section */}
+                    {goodsWorkExpenses.length > 0 && (
+                      <>
+                        {/* Section Title (if mixed) */}
+                        {serviceExpenses.length > 0 && (
+                          <div className='bg-blue-300 border-b border-black p-3'>
+                            <h3 className='font-bold text-lg'>GOODS / WORK ITEMS</h3>
+                          </div>
+                        )}
+
+                        {/* GOODS/WORK Table Header */}
+                        <div className='bg-orange-200 border-b border-black'>
+                          <table className='w-full border-collapse text-base print:text-sm'>
+                            <thead>
+                              <tr>
+                                <th className='border-r border-black p-4 font-bold text-left print:p-3' style={{width: '40%'}}>Description/Item Name</th>
+                                <th className='border-r border-black p-4 font-bold text-center print:p-3' style={{width: '15%'}}>UOM</th>
+                                <th className='border-r border-black p-4 font-bold text-center print:p-3' style={{width: '15%'}}>QTY</th>
+                                <th className='border-r border-black p-4 font-bold text-center print:p-3' style={{width: '15%'}}>Unit cost</th>
+                                <th className='p-4 font-bold text-center print:p-3' style={{width: '15%'}}>Total Cost</th>
+                              </tr>
+                            </thead>
+                          </table>
+                        </div>
+
+                        {/* Currency Header */}
+                        <div className='border-b border-black'>
+                          <table className='w-full border-collapse text-base print:text-sm'>
+                            <tbody>
+                              <tr>
+                                <td className='border-r border-black p-3 print:p-2' style={{width: '40%'}}></td>
+                                <td className='border-r border-black p-3 print:p-2' style={{width: '15%'}}></td>
+                                <td className='border-r border-black p-3 print:p-2' style={{width: '15%'}}></td>
+                                <td className='border-r border-black p-3 text-center font-bold print:p-2' style={{width: '15%'}}>₦</td>
+                                <td className='p-3 text-center font-bold print:p-2' style={{width: '15%'}}>₦</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+
+                        {/* GOODS/WORK Expense Rows */}
+                        <table className='w-full border-collapse text-base print:text-sm'>
+                          <tbody>
+                            {goodsWorkExpenses.map((row: any, index: number) => (
+                              <tr key={`goods-${index}`} className='border-b border-black'>
+                                <td className='border-r border-black p-4 print:p-2' style={{width: '40%'}}>
+                                  {row?.item_detail?.name || row?.item || "N/A"}
+                                </td>
+                                <td className='border-r border-black p-4 text-center print:p-2' style={{width: '15%'}}>
+                                  {row?.item_detail?.uom || row?.uom || "Unit"}
+                                </td>
+                                <td className='border-r border-black p-4 text-center print:p-2' style={{width: '15%'}}>
+                                  {row.quantity || "1"}
+                                </td>
+                                <td className='border-r border-black p-4 text-right print:p-2' style={{width: '15%'}}>
+                                  {Number(row.unit_cost || 0).toLocaleString()}
+                                </td>
+                                <td className='p-4 text-right print:p-2' style={{width: '15%'}}>
+                                  {Number(row.total_cost || 0).toLocaleString()}.00
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+
+                        {/* Subtotal for GOODS/WORK (if mixed) */}
+                        {serviceExpenses.length > 0 && (
+                          <div className='bg-yellow-100 border-b border-black'>
+                            <table className='w-full border-collapse'>
+                              <tbody>
+                                <tr>
+                                  <td className='p-4 text-right font-semibold' style={{width: '85%'}}>GOODS/WORK SUBTOTAL</td>
+                                  <td className='p-4 text-right font-semibold' style={{width: '15%'}}>₦ {goodsWorkTotal.toLocaleString()}.00</td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        )}
+                      </>
+                    )}
+
+                    {/* SERVICE Section */}
+                    {serviceExpenses.length > 0 && (
+                      <>
+                        {/* Section Title (if mixed) */}
+                        {goodsWorkExpenses.length > 0 && (
+                          <div className='bg-blue-300 border-b border-black p-3 mt-6'>
+                            <h3 className='font-bold text-lg'>SERVICE ITEMS (Personnel/Events)</h3>
+                          </div>
+                        )}
+
+                        {/* SERVICE Table Header */}
+                        <div className='bg-orange-200 border-b border-black'>
+                          <table className='w-full border-collapse text-base print:text-sm'>
+                            <thead>
+                              <tr>
+                                <th className='border-r border-black p-4 font-bold text-left print:p-3' style={{width: '30%'}}>Expense Item</th>
+                                <th className='border-r border-black p-4 font-bold text-center print:p-3' style={{width: '15%'}}>Quantity/ # of Persons</th>
+                                <th className='border-r border-black p-4 font-bold text-center print:p-3' style={{width: '10%'}}># of months</th>
+                                <th className='border-r border-black p-4 font-bold text-center print:p-3' style={{width: '12%'}}># of Facilities</th>
+                                <th className='border-r border-black p-4 font-bold text-center print:p-3' style={{width: '15%'}}>Unit cost</th>
+                                <th className='p-4 font-bold text-center print:p-3' style={{width: '18%'}}>Total Cost</th>
+                              </tr>
+                            </thead>
+                          </table>
+                        </div>
+
+                        {/* Currency Header for SERVICE */}
+                        <div className='border-b border-black'>
+                          <table className='w-full border-collapse text-base print:text-sm'>
+                            <tbody>
+                              <tr>
+                                <td className='border-r border-black p-3 print:p-2' style={{width: '30%'}}></td>
+                                <td className='border-r border-black p-3 print:p-2' style={{width: '15%'}}></td>
+                                <td className='border-r border-black p-3 print:p-2' style={{width: '10%'}}></td>
+                                <td className='border-r border-black p-3 print:p-2' style={{width: '12%'}}></td>
+                                <td className='border-r border-black p-3 text-center font-bold print:p-2' style={{width: '15%'}}>₦</td>
+                                <td className='p-3 text-center font-bold print:p-2' style={{width: '18%'}}>₦</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+
+                        {/* SERVICE Expense Rows */}
+                        <table className='w-full border-collapse text-base print:text-sm'>
+                          <tbody>
+                            {serviceExpenses.map((row: any, index: number) => (
+                              <tr key={`service-${index}`} className='border-b border-black'>
+                                <td className='border-r border-black p-4 print:p-2' style={{width: '30%'}}>
+                                  {row?.item_detail?.name || row?.item || "N/A"}
+                                </td>
+                                <td className='border-r border-black p-4 text-center print:p-2' style={{width: '15%'}}>
+                                  {row.quantity || "1"}
+                                </td>
+                                <td className='border-r border-black p-4 text-center print:p-2' style={{width: '10%'}}>
+                                  {row.duration || "1"}
+                                </td>
+                                <td className='border-r border-black p-4 text-center print:p-2' style={{width: '12%'}}>
+                                  {row.num_of_facility || "1"}
+                                </td>
+                                <td className='border-r border-black p-4 text-right print:p-2' style={{width: '15%'}}>
+                                  {Number(row.unit_cost || 0).toLocaleString()}
+                                </td>
+                                <td className='p-4 text-right print:p-2' style={{width: '18%'}}>
+                                  {Number(row.total_cost || 0).toLocaleString()}.00
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+
+                        {/* Subtotal for SERVICE (if mixed) */}
+                        {goodsWorkExpenses.length > 0 && (
+                          <div className='bg-yellow-100 border-b border-black'>
+                            <table className='w-full border-collapse'>
+                              <tbody>
+                                <tr>
+                                  <td className='p-4 text-right font-semibold' style={{width: '82%'}}>SERVICE SUBTOTAL</td>
+                                  <td className='p-4 text-right font-semibold' style={{width: '18%'}}>₦ {serviceTotal.toLocaleString()}.00</td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </>
+                );
+              })()}
 
               {/* Overall Total Row */}
               <div className='bg-green-200 border-b border-black'>

@@ -44,6 +44,7 @@ export interface ActivityMemo {
   status?: 'DRAFT' | 'PENDING' | 'SUBMITTED' | 'REVIEWED' | 'AUTHORISED' | 'APPROVED' | 'REJECTED';
   ref_number?: string;
   budget_line: string[];
+  module?: string[];
   cost_categories: string[];
   fconumber: string[];
   fconumber_details?: Array<{
@@ -55,6 +56,11 @@ export interface ActivityMemo {
     module_id?: string;
     module_code?: string;
     module_name?: string;
+  }>;
+  module_details?: Array<{
+    id?: string;
+    name?: string;
+    code?: string;
   }>;
   intervention_areas_details?: Array<{
     id?: string;
