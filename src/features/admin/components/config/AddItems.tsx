@@ -65,7 +65,7 @@ const AddItems = () => {
 
   // Get all categories from the API response
   const allCategories = useMemo(() => {
-    return (categories?.data?.results || []) as TCategoryData[];
+    return (categories?.results || []) as TCategoryData[];
   }, [categories]);
 
   // Item type options (GOODS, SERVICE, WORK, OTHERS)

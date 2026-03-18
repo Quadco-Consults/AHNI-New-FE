@@ -35,18 +35,25 @@ const ExpensesForm = ({
 }) => {
   const { control } = useFormContext();
 
-  // Fetch service items (parent_category = "Services")
+  // Fetch service items (category__job_category = "SERVICE")
   const { data: serviceItems, isLoading: servicesLoading, error: servicesError } = useGetAllItems({
     page: 1,
     size: 2000000,
-    parent_category: "Services",
+    category__job_category: "SERVICE",
   });
 
-  // Fetch regular items (all non-service items - could be Consumables, Assets, etc.)
+  // Fetch work items (category__job_category = "WORK")
+  const { data: workItems, isLoading: workLoading, error: workError } = useGetAllItems({
+    page: 1,
+    size: 2000000,
+    category__job_category: "WORK",
+  });
+
+  // Fetch regular items (GOODS items)
   const { data: regularItems, isLoading: regularItemsLoading, error: regularItemsError } = useGetAllItems({
     page: 1,
     size: 2000000,
-    // Note: We load all items here and could add a filter to exclude Services if needed
+    category__job_category: "GOODS",
   });
 
   // Map service items to options
@@ -60,23 +67,29 @@ const ExpensesForm = ({
     uom: uom,
   })) || [];
 
-  // Map regular items to options (filter out Services category)
-  const regularItemsResults = regularItems?.data?.results || regularItems?.results || [];
-  const regularItemsOptions = regularItemsResults
-    .filter((item: any) => {
-      // Filter out items from Services parent category
-      const parentCategoryName = item?.category?.parent?.name;
-      return parentCategoryName !== "Services";
-    })
-    .map(({ name, id, uom }: any) => ({
-      label: name,
-      value: id,
-      uom: uom,
-    }));
+  // Map work items to options
+  const workItemsOptions = workItems?.data?.results?.map(({ name, id, uom }) => ({
+    label: name,
+    value: id,
+    uom: uom,
+  })) || workItems?.results?.map(({ name, id, uom }) => ({
+    label: name,
+    value: id,
+    uom: uom,
+  })) || [];
 
-  // Create a combined lookup map for item details (both service and regular items)
+  // Map regular items (GOODS) to options
+  const regularItemsResults = regularItems?.data?.results || regularItems?.results || [];
+  const regularItemsOptions = regularItemsResults.map(({ name, id, uom }: any) => ({
+    label: name,
+    value: id,
+    uom: uom,
+  }));
+
+  // Create a combined lookup map for item details (service, work, and regular items)
   const allItemsResults = [
     ...(serviceItems?.data?.results || serviceItems?.results || []),
+    ...(workItems?.data?.results || workItems?.results || []),
     ...(regularItems?.data?.results || regularItems?.results || [])
   ];
   const itemsLookup = allItemsResults.reduce((acc: any, item: any) => {
@@ -118,8 +131,11 @@ const ExpensesForm = ({
     <div>
       {/* @ts-ignore */}
       {fields.map((field, index) => {
-        // Watch if this expense is a service
-        const isService = watch(`expenses.${index}.is_service`) || false;
+        // Watch expense type (GOODS, SERVICE, or WORK)
+        const expenseTypeValue = watch(`expenses.${index}.expense_type`);
+        const isServiceLegacy = watch(`expenses.${index}.is_service`);
+        const expenseType: 'GOODS' | 'SERVICE' | 'WORK' = expenseTypeValue || (isServiceLegacy ? 'SERVICE' : 'GOODS');
+        const isService = expenseType === 'SERVICE';
 
         return (
           <div key={`expense-${field.id}-${index}`} className='border rounded-lg p-4 mt-5 bg-gray-50'>
@@ -127,21 +143,22 @@ const ExpensesForm = ({
               {/* Expense Type - First field for better UX */}
               <FormField
                 control={control}
-                name={`expenses.${index}.is_service`}
+                name={`expenses.${index}.expense_type`}
                 render={({ field }) => (
                   <FormItem className='flex flex-col gap-0 mb-1.5'>
                     <FormLabel>Expense Type</FormLabel>
                     <Select
                       onValueChange={(value) => {
-                        const newIsService = value === 'true';
-                        field.onChange(newIsService);
+                        field.onChange(value);
+                        // Also update is_service for backward compatibility
+                        setValue(`expenses.${index}.is_service`, value === 'SERVICE');
 
                         // Clear selected item when expense type changes
-                        // to prevent showing a consumable in service mode or vice versa
                         setValue(`expenses.${index}.item`, '');
                         setValue(`expenses.${index}.uom`, '');
                       }}
-                      value={field.value ? 'true' : 'false'}
+                      value={field.value || expenseType}
+                      defaultValue={expenseType}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -149,8 +166,9 @@ const ExpensesForm = ({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="false">Regular Item</SelectItem>
-                        <SelectItem value="true">Service/Personnel</SelectItem>
+                        <SelectItem value="GOODS">Regular Item (Goods)</SelectItem>
+                        <SelectItem value="SERVICE">Service/Personnel</SelectItem>
+                        <SelectItem value="WORK">Work</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -166,10 +184,27 @@ const ExpensesForm = ({
                   const { value, onChange } = field;
 
                   // Determine which items to show based on expense type
-                  const currentItemsOptions = isService ? serviceItemsOptions : regularItemsOptions;
-                  const currentItemsLoading = isService ? servicesLoading : regularItemsLoading;
-                  const currentItemsError = isService ? servicesError : regularItemsError;
-                  const itemTypeLabel = isService ? "service items" : "regular items";
+                  let currentItemsOptions, currentItemsLoading, currentItemsError, itemTypeLabel, itemTypeName;
+
+                  if (expenseType === 'SERVICE') {
+                    currentItemsOptions = serviceItemsOptions;
+                    currentItemsLoading = servicesLoading;
+                    currentItemsError = servicesError;
+                    itemTypeLabel = "service items";
+                    itemTypeName = "service";
+                  } else if (expenseType === 'WORK') {
+                    currentItemsOptions = workItemsOptions;
+                    currentItemsLoading = workLoading;
+                    currentItemsError = workError;
+                    itemTypeLabel = "work items";
+                    itemTypeName = "work item";
+                  } else {
+                    currentItemsOptions = regularItemsOptions;
+                    currentItemsLoading = regularItemsLoading;
+                    currentItemsError = regularItemsError;
+                    itemTypeLabel = "regular items";
+                    itemTypeName = "item";
+                  }
 
                   return (
                     <FormItem className='flex flex-col gap-0 mb-1.5'>
@@ -198,7 +233,7 @@ const ExpensesForm = ({
                               currentItemsLoading ? `Loading ${itemTypeLabel}...` :
                               currentItemsError ? `Error loading ${itemTypeLabel}` :
                               currentItemsOptions.length === 0 ? `No ${itemTypeLabel} available` :
-                              `Select a ${isService ? 'service' : 'item'}`
+                              `Select a ${itemTypeName}`
                             } />
                           </SelectTrigger>
                         </FormControl>
@@ -225,9 +260,14 @@ const ExpensesForm = ({
                           Error loading {itemTypeLabel}: {currentItemsError.message || 'Unknown error'}
                         </p>
                       )}
-                      {isService && serviceItemsOptions.length === 0 && !servicesLoading && (
+                      {expenseType === 'SERVICE' && serviceItemsOptions.length === 0 && !servicesLoading && (
                         <p className="text-amber-600 text-xs mt-1">
-                          💡 Create service items in Config → Items with Parent Category = "Services"
+                          💡 Create service items in Config → Items with Item Type = "SERVICE"
+                        </p>
+                      )}
+                      {expenseType === 'WORK' && workItemsOptions.length === 0 && !workLoading && (
+                        <p className="text-amber-600 text-xs mt-1">
+                          💡 Create work items in Config → Items with Item Type = "WORK"
                         </p>
                       )}
                     </FormItem>
@@ -328,9 +368,9 @@ const ExpensesForm = ({
 
             {/* Calculation Info */}
             <div className='mt-2 text-xs text-gray-600 italic'>
-              {isService
-                ? '💡 Calculation: # of Persons × # of Months × # of Facilities × Unit Cost'
-                : '💡 Calculation: Quantity × Unit Cost × Frequency'}
+              {expenseType === 'SERVICE'
+                ? '💡 Calculation: # of Persons × Duration × # of Facilities × Unit Cost'
+                : '💡 Calculation: Quantity × Unit Cost'}
             </div>
           </div>
         );

@@ -12,8 +12,8 @@ import { toast } from "sonner";
 import FormSelect from "@/components/FormSelect";
 import { useGetAllCategories } from "@/features/modules/controllers/config/categoryController";
 import {
-  useAddItem,
-  useUpdateItem,
+  useAddItemMutation,
+  useUpdateItemMutation,
 } from "@/features/modules/controllers/config/itemController";
 import {
   ItemSchema,
@@ -28,7 +28,7 @@ const AddNewItems = () => {
     size: 2000000,
   });
 
-  const categoryOptions = categories?.data?.results?.map((cat) => ({
+  const categoryOptions = categories?.results?.map((cat) => ({
     label: cat.name,
     value: cat.id,
   }));
@@ -46,26 +46,32 @@ const AddNewItems = () => {
     },
   });
 
-  const [items, { isLoading }] = useAddItem();
-  const [updateItems, { isLoading: updateItemsLoading }] = useUpdateItem();
+  const [items, { isLoading }] = useAddItemMutation();
+  const [updateItems, { isLoading: updateItemsLoading }] = useUpdateItemMutation();
 
   const dispatch = useAppDispatch();
   const onSubmit: SubmitHandler<TItemFormValues> = async (data) => {
+    console.log("🚀 ITEM CREATION - Starting:", data);
     try {
       if (dialogProps?.type === "update") {
+        console.log("🔄 ITEM UPDATE - ID:", dialogProps?.data?.id);
         await updateItems({
           //@ts-ignore
           id: String(dialogProps?.data?.id),
           body: data,
         });
+        console.log("✅ ITEM UPDATE - Success");
       } else {
-        await items(data);
+        console.log("➕ ITEM CREATE - Calling API with data:", data);
+        const result = await items(data);
+        console.log("✅ ITEM CREATE - Success, result:", result);
       }
 
       toast.success("Item Added Succesfully");
       dispatch(closeDialog());
       form.reset();
     } catch (error: any) {
+      console.error("❌ ITEM CREATION ERROR:", error);
       toast.error(
         error.response?.data?.message ?? error.message ?? "Something went wrong"
       );

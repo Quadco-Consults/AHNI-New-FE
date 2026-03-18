@@ -12,13 +12,16 @@ import {
 import { useState, useMemo } from "react";
 import Pagination from "@/components/Pagination";
 import { TCategoryData } from "@/features/admin/types/config/category";
+import { Search } from "lucide-react";
 
 export default function AllCategory() {
   const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
 
   const { data: category, isFetching } = useGetAllCategoriesQuery({
     page,
     size: 20,
+    search,
   });
 
   const dispatch = useAppDispatch();
@@ -60,23 +63,38 @@ export default function AllCategory() {
       <div className='flex items-center justify-between py-6 mb-6'>
         <h1 className='text-[#D92D20] font-semibold text-sm'>Categories</h1>
 
-        <Button
-          onClick={() =>
-            dispatch(
-              openDialog({
-                type: DialogType.AddCategories,
-                dialogProps: {
-                  header: "Add Category",
-                },
-              })
-            )
-          }
-          variant='outline'
-          className='gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-[#FFFFFF] text-[#DEA004] border-[1px] border-[#C7CBD5]'
-          size='sm'
-        >
-          Click to add New
-        </Button>
+        <div className="flex items-center gap-4">
+          <div className="flex items-stretch gap-2 border border-gray-300 rounded-md shadow-sm px-4 py-2 w-[350px]">
+            <Search size={20} className="text-gray-500" />
+            <input
+              className="w-full text-sm outline-none rounded-none border-none text-md h-[20px]"
+              placeholder="Search categories by name..."
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
+            />
+          </div>
+
+          <Button
+            onClick={() =>
+              dispatch(
+                openDialog({
+                  type: DialogType.AddCategories,
+                  dialogProps: {
+                    header: "Add Category",
+                  },
+                })
+              )
+            }
+            variant='outline'
+            className='gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-[#FFFFFF] text-[#DEA004] border-[1px] border-[#C7CBD5]'
+            size='sm'
+          >
+            Click to add New
+          </Button>
+        </div>
       </div>
       <div>
         <div className='flex justify-between text-[#756D6D] font-semibold text-sm border-b border-gray-300 pb-4'>

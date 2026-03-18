@@ -12,13 +12,16 @@ import {
 import { useState, useMemo } from "react";
 import Pagination from "@/components/Pagination";
 import { TCategoryData } from "@/features/admin/types/config/category";
+import { Search } from "lucide-react";
 
 export default function AllSubcategories() {
   const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
 
   const { data: category, isFetching } = useGetAllCategoriesQuery({
     page,
     size: 100, // Get more to show all subcategories
+    search,
   });
 
   const dispatch = useAppDispatch();
@@ -28,16 +31,16 @@ export default function AllSubcategories() {
 
   // Filter only subcategories (categories with a parent)
   const subcategories = useMemo(() => {
-    if (!category?.data?.results) return [];
-    return category.data.results.filter((cat) => cat.parent);
+    if (!category?.results) return [];
+    return category.results.filter((cat) => cat.parent);
   }, [category]);
 
   // Helper to get parent category name
   const getParentName = (parentId: string | TCategoryData | null | undefined): string => {
-    if (!parentId || !category?.data?.results) return "N/A";
+    if (!parentId || !category?.results) return "N/A";
 
     const id = typeof parentId === 'string' ? parentId : parentId.id;
-    const parent = category.data.results.find((cat) => cat.id === id);
+    const parent = category.results.find((cat) => cat.id === id);
     return parent?.name || "Unknown";
   };
 
@@ -75,23 +78,38 @@ export default function AllSubcategories() {
           </p>
         </div>
 
-        <Button
-          onClick={() =>
-            dispatch(
-              openDialog({
-                type: DialogType.AddSubcategories,
-                dialogProps: {
-                  header: "Add Subcategory",
-                },
-              })
-            )
-          }
-          variant='outline'
-          className='gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-[#FFFFFF] text-[#DEA004] border-[1px] border-[#C7CBD5]'
-          size='sm'
-        >
-          Click to add New Subcategory
-        </Button>
+        <div className="flex items-center gap-4">
+          <div className="flex items-stretch gap-2 border border-gray-300 rounded-md shadow-sm px-4 py-2 w-[350px]">
+            <Search size={20} className="text-gray-500" />
+            <input
+              className="w-full text-sm outline-none rounded-none border-none text-md h-[20px]"
+              placeholder="Search subcategories..."
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
+            />
+          </div>
+
+          <Button
+            onClick={() =>
+              dispatch(
+                openDialog({
+                  type: DialogType.AddSubcategories,
+                  dialogProps: {
+                    header: "Add Subcategory",
+                  },
+                })
+              )
+            }
+            variant='outline'
+            className='gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-[#FFFFFF] text-[#DEA004] border-[1px] border-[#C7CBD5]'
+            size='sm'
+          >
+            Click to add New Subcategory
+          </Button>
+        </div>
       </div>
 
       <div>

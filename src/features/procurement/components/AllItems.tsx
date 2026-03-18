@@ -11,13 +11,28 @@ import {
   useGetAllItems,
 } from "@/features/modules/controllers/config/itemController";
 import Pagination from "@/components/Pagination";
+import { Search } from "lucide-react";
 
 export default function AllItems() {
   const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
 
   const { data: item, isFetching } = useGetAllItems({
     page,
     size: 20,
+    search,
+  });
+
+  // Debug logging
+  console.log("🔍 ITEMS DEBUG:", {
+    item,
+    hasData: !!item,
+    hasDataProp: !!item?.data,
+    hasResults: !!item?.data?.results,
+    resultsLength: item?.data?.results?.length,
+    results: item?.data?.results,
+    search,
+    page,
   });
 
   const dispatch = useAppDispatch();
@@ -51,23 +66,38 @@ export default function AllItems() {
       <div className='flex items-center justify-between py-6 mb-6'>
         <h1 className='text-[#D92D20] font-semibold text-sm'>Items</h1>
 
-        <Button
-          onClick={() =>
-            dispatch(
-              openDialog({
-                type: DialogType.AddItems,
-                dialogProps: {
-                  header: "Add Item",
-                },
-              })
-            )
-          }
-          variant='outline'
-          className='gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-[#FFFFFF] text-[#DEA004] border-[1px] border-[#C7CBD5]'
-          size='sm'
-        >
-          Click to add New
-        </Button>
+        <div className="flex items-center gap-4">
+          <div className="flex items-stretch gap-2 border border-gray-300 rounded-md shadow-sm px-4 py-2 w-[350px]">
+            <Search size={20} className="text-gray-500" />
+            <input
+              className="w-full text-sm outline-none rounded-none border-none text-md h-[20px]"
+              placeholder="Search items by name, description..."
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
+            />
+          </div>
+
+          <Button
+            onClick={() =>
+              dispatch(
+                openDialog({
+                  type: DialogType.AddItems,
+                  dialogProps: {
+                    header: "Add Item",
+                  },
+                })
+              )
+            }
+            variant='outline'
+            className='gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-[#FFFFFF] text-[#DEA004] border-[1px] border-[#C7CBD5]'
+            size='sm'
+          >
+            Click to add New
+          </Button>
+        </div>
       </div>
       <div>
         <div className='flex justify-between text-[#756D6D] font-semibold text-sm border-b border-gray-300 pb-4'>
@@ -80,9 +110,9 @@ export default function AllItems() {
 
         {isFetching || isDeleteLoading ? (
           <LoadingSpinner />
-        ) : (
+        ) : item?.data?.results && item.data.results.length > 0 ? (
           <div>
-            {item?.data?.results?.map((itemData: any) => (
+            {item.data.results.map((itemData: any) => (
               <div
                 key={itemData.id}
                 className='flex justify-between mt-6 text-[#756D6D] font-normal text-xs'
@@ -101,6 +131,12 @@ export default function AllItems() {
                 </div>
               </div>
             ))}
+          </div>
+        ) : (
+          <div className="text-center py-12 text-gray-500">
+            <p className="text-sm">No items found.</p>
+            {search && <p className="text-xs mt-2">Try adjusting your search or clear the search to see all items.</p>}
+            {!search && <p className="text-xs mt-2">Click "Click to add New" to create an item.</p>}
           </div>
         )}
 
