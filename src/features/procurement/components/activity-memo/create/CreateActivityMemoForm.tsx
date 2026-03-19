@@ -28,12 +28,13 @@ import { useCreateActivityMemo, useUpdateActivityMemo, ActivityMemo } from "@/fe
 import { SampleMemoSchema } from "@/features/procurement/types/procurement-validator";
 import ExpensesForm from "@/features/procurement/components/purchase-request/activity-memo/form/ExpensesForm";
 import { useGetAllModules } from "@/features/modules/controllers/project/moduleController";
+import { useGetSingleProject } from "@/features/projects/controllers/projectController";
 
 // Import master config API hooks (unrestricted)
 import {
   useGetFCONumbersDropdown,
   useGetBudgetLinesDropdown,
-  useGetCostCategoriesDropdown,
+  useGetCostGroupingsDropdown,
   useGetCostInputsDropdown,
   useGetFundingSourcesDropdown,
   useGetInterventionAreasDropdown
@@ -70,7 +71,7 @@ const CreateActivityMemoForm = ({ editMode = false, existingData, memoId }: Crea
   // Use master config API for dropdown data (bypasses permission filtering)
   const { data: fco, isLoading: isFcoLoading, error: fcoError } = useGetFCONumbersDropdown();
   const { data: budgetLines, isLoading: isBudgetLinesLoading, error: budgetLinesError } = useGetBudgetLinesDropdown();
-  const { data: costCategories, isLoading: isCostCategoriesLoading, error: costCategoriesError } = useGetCostCategoriesDropdown();
+  const { data: costGroupings, isLoading: isCostGroupingsLoading, error: costGroupingsError } = useGetCostGroupingsDropdown();
   const { data: costInput, isLoading: isCostInputLoading, error: costInputError } = useGetCostInputsDropdown();
   const { data: fundingSource, isLoading: isFundingSourceLoading, error: fundingSourceError } = useGetFundingSourcesDropdown();
   const { data: interventions, isLoading: isInterventionsLoading, error: interventionsError } = useGetInterventionAreasDropdown();
@@ -132,16 +133,16 @@ const CreateActivityMemoForm = ({ editMode = false, existingData, memoId }: Crea
     }));
   }, [budgetLines]);
 
-  const costCategoriesOptions = React.useMemo(() => {
-    if (!costCategories || costCategories.length === 0) {
-      console.log('💰 Cost Categories: Empty or loading...', { hasData: !!costCategories, count: costCategories?.length || 0 });
+  const costGroupingsOptions = React.useMemo(() => {
+    if (!costGroupings || costGroupings.length === 0) {
+      console.log('💰 Cost Groupings: Empty or loading...', { hasData: !!costGroupings, count: costGroupings?.length || 0 });
       return [];
     }
-    return costCategories.map((item: any) => ({
+    return costGroupings.map((item: any) => ({
       id: item.id,
-      name: item.name || item.cost_category_name || 'Unnamed Cost Category'
+      name: item.name || item.code || 'Unnamed Cost Grouping'
     }));
-  }, [costCategories]);
+  }, [costGroupings]);
 
   const costInputOptions = React.useMemo(() => {
     if (!costInput || costInput.length === 0) {
@@ -376,6 +377,21 @@ const CreateActivityMemoForm = ({ editMode = false, existingData, memoId }: Crea
   const selectedActivityId = watch('activity');
   const prevActivityIdRef = React.useRef<string | null>(null);
 
+  // Get selected activity's project ID
+  const selectedActivity = React.useMemo(() => {
+    if (selectedActivityId && activites) {
+      return (activites as any)?.data?.results?.find(
+        (activity: any) => activity.id === selectedActivityId
+      );
+    }
+    return null;
+  }, [selectedActivityId, activites]);
+
+  const projectId = selectedActivity?.project || null;
+
+  // Fetch project details when activity has a project
+  const { data: projectData } = useGetSingleProject(projectId as string, !!projectId);
+
   useEffect(() => {
     if (selectedActivityId && activites) {
       const selectedActivity = (activites as any)?.data?.results?.find(
@@ -394,6 +410,7 @@ const CreateActivityMemoForm = ({ editMode = false, existingData, memoId }: Crea
           setValue('intervention_areas', []);
           setValue('cost_categories', []);
           setValue('cost_input', []);
+          setValue('funding_source', []); // Clear funding source too
         }
 
         // Update the ref to track the current activity
@@ -447,15 +464,18 @@ const CreateActivityMemoForm = ({ editMode = false, existingData, memoId }: Crea
           }
         }
 
-        // 4. Cost Category (string → array of IDs)
-        if (selectedActivity.cost_category && costCategoriesOptions.length > 0) {
-          const costCategoryId = findOptionIdByName(costCategoriesOptions, selectedActivity.cost_category);
-          if (costCategoryId) {
-            setValue('cost_categories', [costCategoryId]);
+        // 4. Cost Grouping (string → array of IDs)
+        // Note: Activity has both cost_category (old/test data) and cost_grouping (correct field)
+        const costGroupingValue = selectedActivity.cost_grouping || selectedActivity.cost_category;
+        if (costGroupingValue && costGroupingsOptions.length > 0) {
+          const costGroupingId = findOptionIdByName(costGroupingsOptions, costGroupingValue);
+          if (costGroupingId) {
+            setValue('cost_categories', [costGroupingId]);
             fieldsPopulated++;
-            console.log(`✅ Cost Category: "${selectedActivity.cost_category}" → ID: ${costCategoryId}`);
+            console.log(`✅ Cost Grouping: "${costGroupingValue}" → ID: ${costGroupingId}`);
           } else {
-            console.log(`⚠️ Cost Category "${selectedActivity.cost_category}" not found in options`);
+            console.log(`⚠️ Cost Grouping "${costGroupingValue}" not found in options`);
+            console.log("Available cost grouping names:", costGroupingsOptions.map((opt: any) => opt.name).join(", "));
           }
         }
 
@@ -469,14 +489,37 @@ const CreateActivityMemoForm = ({ editMode = false, existingData, memoId }: Crea
           } else {
             console.log(`⚠️ Cost Input "${selectedActivity.cost_input}" not found in options`);
             console.log("Available cost input names:", costInputOptions.map((opt: any) => opt.name).join(", "));
-            console.log("💡 Note: Activity has cost_input = '" + selectedActivity.cost_input + "' which may be a Cost Category, not a Cost Input");
+            console.log("💡 Note: Activity has cost_input = '" + selectedActivity.cost_input + "' which may be a Cost Grouping, not a Cost Input");
           }
         }
 
+        // 6. Funding Source from Project (if activity is linked to a project)
+        if (projectData && fundingSourceOptions.length > 0) {
+          const project = (projectData as any)?.data || projectData;
+          console.log("🏢 Activity is linked to project:", project?.title);
+
+          // Project funding_sources is an array of objects with { id, name }
+          const projectFundingSources = project?.funding_sources || [];
+          console.log("💰 Project funding sources:", projectFundingSources);
+
+          if (projectFundingSources.length > 0) {
+            // Extract IDs from the project's funding sources
+            const fundingSourceIds = projectFundingSources.map((fs: any) => fs.id);
+            setValue('funding_source', fundingSourceIds);
+            fieldsPopulated++;
+            console.log(`✅ Funding Source(s) from project: ${projectFundingSources.map((fs: any) => fs.name).join(', ')} → IDs: ${fundingSourceIds.join(', ')}`);
+          } else {
+            console.log("⚠️ Project has no funding sources configured");
+          }
+        } else if (selectedActivity.project) {
+          console.log("⚠️ Activity has project ID but project data not loaded yet");
+        }
+
         // Show feedback to user
+        const autoFilledFundingSource = projectData && (projectData as any)?.data?.funding_sources?.length > 0;
         if (fieldsPopulated > 0) {
           toast.success(`Auto-filled ${fieldsPopulated} financial field(s) from activity`, {
-            description: "FCO Number and Funding Source need to be selected manually",
+            description: autoFilledFundingSource ? "FCO Number needs to be selected manually" : "FCO Number and Funding Source need to be selected manually",
             duration: 3000,
           });
         } else {
@@ -489,7 +532,7 @@ const CreateActivityMemoForm = ({ editMode = false, existingData, memoId }: Crea
         console.log(`📊 Auto-population complete: ${fieldsPopulated} fields populated`);
       }
     }
-  }, [selectedActivityId, activites, budgetLinesOptions, modulesOptions, interventionsOptions, costCategoriesOptions, costInputOptions, setValue]);
+  }, [selectedActivityId, activites, budgetLinesOptions, modulesOptions, interventionsOptions, costGroupingsOptions, costInputOptions, projectData, fundingSourceOptions, setValue]);
 
   const onSubmit = async (data: z.infer<typeof SampleMemoSchema>) => {
     try {
@@ -718,7 +761,7 @@ const CreateActivityMemoForm = ({ editMode = false, existingData, memoId }: Crea
 
               <div className="grid grid-cols-2 gap-5">
                 <div>
-                  <Label className="font-semibold">Cost Category</Label>
+                  <Label className="font-semibold">Cost Grouping</Label>
                   <FormField
                     control={control}
                     name="cost_categories"
@@ -726,10 +769,10 @@ const CreateActivityMemoForm = ({ editMode = false, existingData, memoId }: Crea
                       <FormItem>
                         <FormControl>
                           <MultiSelectFormField
-                            options={costCategoriesOptions}
+                            options={costGroupingsOptions}
                             defaultValue={field.value}
                             onValueChange={field.onChange}
-                            placeholder="Select Cost Category"
+                            placeholder="Select Cost Grouping"
                             variant="inverted"
                           />
                         </FormControl>
