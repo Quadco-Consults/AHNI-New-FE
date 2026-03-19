@@ -8,11 +8,11 @@ import { IUser } from "@/features/auth/types/user";
 // Target Definition Schema
 export const ProjectTargetDefinitionSchema = z.object({
   id: z.string().optional(),
-  indicator_code: z.string().min(1, "Please select indicator"),
-  indicator_name: z.string().min(1, "Please enter indicator name"),
-  tracking_mode: z.enum(['SIMPLE', 'QUARTERLY']),
-  fiscal_year: z.string().min(1, "Please select fiscal year"),
-  annual_target: z.number().min(0, "Annual target must be non-negative"),
+  indicator_code: z.string().optional(), // Made optional for editing
+  indicator_name: z.string().optional(), // Made optional for editing
+  tracking_mode: z.enum(['SIMPLE', 'QUARTERLY']).optional(), // Made optional for editing
+  fiscal_year: z.string().optional(), // Made optional for editing
+  annual_target: z.number().min(0, "Annual target must be non-negative").optional(), // Made optional
   q1_target: z.number().optional(),
   q2_target: z.number().optional(),
   q3_target: z.number().optional(),
@@ -27,7 +27,7 @@ export const ProjectSchema = z.object({
   title: z.string().min(1, "Please enter title"),
   project_id: z.string().min(1, "Please enter project id"),
   location: z.array(z.string().min(1, "Please select project location")),
-  intervention_area: z.string().min(1, "Please select intervention area"),
+  intervention_areas: z.array(z.string()).optional(), // Changed from singular to plural array
   goal: z.string().min(1, "Please enter goal"),
   narrative: z.string().min(1, "Please enter narrative"),
   budget: z.string().min(1, "Please enter budget"),
@@ -42,6 +42,7 @@ export const ProjectSchema = z.object({
   expected_results: z.string().min(1, "Please enter expected results"),
   start_date: z.string().min(1, "Please select start date"),
   end_date: z.string().min(1, "Please select end date"),
+  achievement_against_target: z.string().optional(), // Added missing field
   // Optional fields that shouldn't block form submission
   budget_performance: z.string().optional(),
   targets: z.array(ProjectTargetDefinitionSchema).optional(),
@@ -52,7 +53,7 @@ export type TProjectFormValues = z.infer<typeof ProjectSchema>;
 export interface IProjectSingleData {
   id: string;
   location: { name: string; id: number }[];
-  intervention_area: { code: string; id: string };
+  intervention_areas: { code: string; id: string; name: string }[]; // Changed from singular to plural array
   project_managers: IUser[];
   beneficiaries: TBeneficiaryData[];
   funding_sources: TFundingSourceData[];
@@ -65,6 +66,8 @@ export interface IProjectSingleData {
   // grant: IGrantSingleData;
   created_datetime: string;
   updated_datetime: string;
+  created_by: string | null; // Added missing field
+  updated_by: string | null; // Added missing field
   project_id: string;
   title: string;
   goal: string;

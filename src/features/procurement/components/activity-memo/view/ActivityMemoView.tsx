@@ -435,72 +435,144 @@ const ActivityMemoView = () => {
                 </tbody>
               </table>
 
-              {/* Expense Table Header */}
-              <div className="bg-orange-200 border-b border-black">
-                <table className="w-full border-collapse text-sm">
-                  <thead>
-                    <tr>
-                      <th className="border-r border-black p-3 font-bold text-left" style={{width: '40%'}}>Description/Item Name</th>
-                      <th className="border-r border-black p-3 font-bold text-center" style={{width: '15%'}}>UOM</th>
-                      <th className="border-r border-black p-3 font-bold text-center" style={{width: '15%'}}>Quantity</th>
-                      <th className="border-r border-black p-3 font-bold text-center" style={{width: '15%'}}>Unit Cost</th>
-                      <th className="p-3 font-bold text-center" style={{width: '15%'}}>Total Cost</th>
-                    </tr>
-                  </thead>
-                </table>
-              </div>
+              {(() => {
+                // Detect if this is personnel expenses
+                const isPersonnelExpenses = expensesData.some(
+                  (expense: any) => expense.num_of_persons || expense.num_of_months || expense.num_of_facilities ||
+                  expense.expense_type === 'personnel'
+                );
 
-              {/* Currency Header Row */}
-              <div className="border-b border-black">
-                <table className="w-full border-collapse text-sm">
-                  <tbody>
-                    <tr>
-                      <td className="border-r border-black p-2" style={{width: '40%'}}></td>
-                      <td className="border-r border-black p-2" style={{width: '15%'}}></td>
-                      <td className="border-r border-black p-2" style={{width: '15%'}}></td>
-                      <td className="border-r border-black p-2 text-center font-bold" style={{width: '15%'}}>₦</td>
-                      <td className="p-2 text-center font-bold" style={{width: '15%'}}>₦</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+                return isPersonnelExpenses ? (
+                  /* Personnel Payment Table Format */
+                  <>
+                    {/* Personnel Expense Table Header */}
+                    <div className="bg-orange-200 border-b border-black">
+                      <table className="w-full border-collapse text-sm">
+                        <thead>
+                          <tr>
+                            <th className="border-r border-black p-3 font-bold text-left" style={{width: '30%'}}>Expense Item</th>
+                            <th className="border-r border-black p-3 font-bold text-center" style={{width: '15%'}}>Quantity/<br/># of Persons</th>
+                            <th className="border-r border-black p-3 font-bold text-center" style={{width: '10%'}}># of<br/>months</th>
+                            <th className="border-r border-black p-3 font-bold text-center" style={{width: '10%'}}># of<br/>Facilities</th>
+                            <th className="border-r border-black p-3 font-bold text-center" style={{width: '15%'}}>Unit cost<br/>₦</th>
+                            <th className="p-3 font-bold text-center" style={{width: '20%'}}>Total Cost<br/>₦</th>
+                          </tr>
+                        </thead>
+                      </table>
+                    </div>
 
-              {/* Expense Rows */}
-              <table className="w-full border-collapse text-sm">
-                <tbody>
-                  {expensesData.map((row: any, index: number) => (
-                    <tr key={index} className="border-b border-black">
-                      <td className="border-r border-black p-3" style={{width: '40%'}}>
-                        {row?.item_detail?.name || row?.item || "N/A"}
-                      </td>
-                      <td className="border-r border-black p-3 text-center" style={{width: '15%'}}>
-                        {row?.item_detail?.uom || row?.uom || "Each"}
-                      </td>
-                      <td className="border-r border-black p-3 text-center" style={{width: '15%'}}>
-                        {row.quantity || "1"}
-                      </td>
-                      <td className="border-r border-black p-3 text-right" style={{width: '15%'}}>
-                        {Number(row.unit_cost || 0).toLocaleString()}
-                      </td>
-                      <td className="p-3 text-right" style={{width: '15%'}}>
-                        {Number(row.total_cost || 0).toLocaleString()}.00
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                    {/* Expense Rows */}
+                    <table className="w-full border-collapse text-sm">
+                      <tbody>
+                        {expensesData.map((row: any, index: number) => (
+                          <tr key={index} className="border-b border-black">
+                            <td className="border-r border-black p-3" style={{width: '30%'}}>
+                              {row?.item_detail?.name || row?.item || "N/A"}
+                            </td>
+                            <td className="border-r border-black p-3 text-center" style={{width: '15%'}}>
+                              {row.num_of_persons || row.quantity || "1"}
+                            </td>
+                            <td className="border-r border-black p-3 text-center" style={{width: '10%'}}>
+                              {row.num_of_months || "1"}
+                            </td>
+                            <td className="border-r border-black p-3 text-center" style={{width: '10%'}}>
+                              {row.num_of_facilities || "1"}
+                            </td>
+                            <td className="border-r border-black p-3 text-right" style={{width: '15%'}}>
+                              {Number(row.unit_cost || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </td>
+                            <td className="p-3 text-right" style={{width: '20%'}}>
+                              {Number(row.total_cost || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
 
-              {/* Overall Total Row */}
-              <div className="bg-green-200 border-b border-black">
-                <table className="w-full border-collapse text-base">
-                  <tbody>
-                    <tr>
-                      <td className="p-4 text-center font-bold" style={{width: '85%'}}>OVERALL TOTAL</td>
-                      <td className="p-4 text-right font-bold" style={{width: '15%'}}>₦ {grandTotal.toLocaleString()}.00</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+                    {/* Overall Total Row */}
+                    <div className="bg-green-200 border-b border-black">
+                      <table className="w-full border-collapse text-base">
+                        <tbody>
+                          <tr>
+                            <td className="p-4 text-center font-bold" style={{width: '80%'}}>OVERALL TOTAL</td>
+                            <td className="p-4 text-right font-bold" style={{width: '20%'}}>{grandTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </>
+                ) : (
+                  /* Services/Items Table Format */
+                  <>
+                    {/* Expense Table Header */}
+                    <div className="bg-orange-200 border-b border-black">
+                      <table className="w-full border-collapse text-sm">
+                        <thead>
+                          <tr>
+                            <th className="border-r border-black p-3 font-bold text-left" style={{width: '40%'}}>Description/Item Name</th>
+                            <th className="border-r border-black p-3 font-bold text-center" style={{width: '15%'}}>UOM</th>
+                            <th className="border-r border-black p-3 font-bold text-center" style={{width: '15%'}}>Quantity</th>
+                            <th className="border-r border-black p-3 font-bold text-center" style={{width: '15%'}}>Unit Cost</th>
+                            <th className="p-3 font-bold text-center" style={{width: '15%'}}>Total Cost</th>
+                          </tr>
+                        </thead>
+                      </table>
+                    </div>
+
+                    {/* Currency Header Row */}
+                    <div className="border-b border-black">
+                      <table className="w-full border-collapse text-sm">
+                        <tbody>
+                          <tr>
+                            <td className="border-r border-black p-2" style={{width: '40%'}}></td>
+                            <td className="border-r border-black p-2" style={{width: '15%'}}></td>
+                            <td className="border-r border-black p-2" style={{width: '15%'}}></td>
+                            <td className="border-r border-black p-2 text-center font-bold" style={{width: '15%'}}>₦</td>
+                            <td className="p-2 text-center font-bold" style={{width: '15%'}}>₦</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* Expense Rows */}
+                    <table className="w-full border-collapse text-sm">
+                      <tbody>
+                        {expensesData.map((row: any, index: number) => (
+                          <tr key={index} className="border-b border-black">
+                            <td className="border-r border-black p-3" style={{width: '40%'}}>
+                              {row?.item_detail?.name || row?.item || "N/A"}
+                            </td>
+                            <td className="border-r border-black p-3 text-center" style={{width: '15%'}}>
+                              {row?.item_detail?.uom || row?.uom || "Each"}
+                            </td>
+                            <td className="border-r border-black p-3 text-center" style={{width: '15%'}}>
+                              {row.quantity || "1"}
+                            </td>
+                            <td className="border-r border-black p-3 text-right" style={{width: '15%'}}>
+                              {Number(row.unit_cost || 0).toLocaleString()}
+                            </td>
+                            <td className="p-3 text-right" style={{width: '15%'}}>
+                              {Number(row.total_cost || 0).toLocaleString()}.00
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+
+                    {/* Overall Total Row */}
+                    <div className="bg-green-200 border-b border-black">
+                      <table className="w-full border-collapse text-base">
+                        <tbody>
+                          <tr>
+                            <td className="p-4 text-center font-bold" style={{width: '85%'}}>OVERALL TOTAL</td>
+                            <td className="p-4 text-right font-bold" style={{width: '15%'}}>₦ {grandTotal.toLocaleString()}.00</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </>
+                );
+              })()}
 
               {/* Signature Section */}
               <table className="w-full border-collapse text-sm">

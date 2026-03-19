@@ -86,6 +86,16 @@ export const departmentalLinks: SidebarItem[] = [
             ]
           },
           {
+            name: "Cost Sheets",
+            path: "/dashboard/programs/plan/cost-sheets",
+            permissions: [
+              {
+                module: "programs",
+                codenames: ["view_workplan"]
+              }
+            ]
+          },
+          {
             name: "Work Plan Tracker",
             path: "/dashboard/programs/plan/activity-tracker",
             permissions: [
@@ -126,16 +136,6 @@ export const departmentalLinks: SidebarItem[] = [
           {
             name: "Supervision Evaluation",
             path: "/dashboard/programs/plan/supervision-evaluation"
-          },
-          {
-            name: "Cost Sheets",
-            path: "/dashboard/programs/plan/cost-sheets",
-            permissions: [
-              {
-                module: "programs",
-                codenames: ["view_workplan"]
-              }
-            ]
           }
         ]
       },

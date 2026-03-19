@@ -134,9 +134,13 @@ export interface ActivityMemo {
       uom?: string;
     };
     quantity?: string | number;
+    num_of_persons?: string | number;
+    num_of_months?: string | number;
+    num_of_facilities?: string | number;
     num_of_days?: string | number;
     unit_cost?: string | number;
     total_cost?: number | string;
+    expense_type?: 'personnel' | 'service' | 'item';
   }>;
 }
 

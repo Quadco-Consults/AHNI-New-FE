@@ -2,7 +2,7 @@ import useApiManager from "@/constants/mainController";
 import { useQuery } from "@tanstack/react-query";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { AxiosError } from "axios";
-import { TProjectFormValues, IProjectSingleData } from "../types/project";
+import { TProjectFormValues, IProjectSingleData } from "../types/project/index";
 import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
 
 const BASE_URL = "/projects/";
@@ -98,9 +98,11 @@ export const useUpdateProject = (id: string) => {
 
   const updateProject = async (details: any) => {
     try {
-      await callApi(details);
+      const response = await callApi(details);
+      return response;
     } catch (error) {
       console.error("Project update error:", error);
+      throw error;
     }
   };
 

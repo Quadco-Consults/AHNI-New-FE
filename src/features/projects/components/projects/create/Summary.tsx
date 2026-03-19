@@ -3,7 +3,7 @@
 import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
 import { SubmitHandler, useForm } from "react-hook-form";
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import ProjectLayout from "./ProjectLayout";
 import { Button } from "@/components/ui/button";
 import FormButton from "@/components/FormButton";
@@ -42,10 +42,10 @@ import { useGetAllPartners } from "@/features/modules/controllers/project/partne
 import {
   ProjectSchema,
   TProjectFormValues,
-} from "@/features/projects/types/project";
+  ProjectTargetDefinition,
+} from "@/features/projects/types/project/index";
 import ConsortiumPartners from "./ConsortiumPartners";
 import TargetsToggleView from "./TargetsToggleView";
-import { ProjectTargetDefinition } from "@/features/projects/types/project";
 import BreadcrumbCard, { TBreadcrumbList } from "@/components/Breadcrumb";
 import LongArrowLeft from "@/components/icons/LongArrowLeft";
 import { RouteEnum } from "@/constants/RouterConstants";
@@ -66,6 +66,9 @@ const breadcrumbs: TBreadcrumbList[] = [
 export default function ProjectSummaryPage() {
   // State for managing project targets
   const [projectTargets, setProjectTargets] = useState<ProjectTargetDefinition[]>([]);
+  // State for tracking loaded data to force component re-render
+  const [loadedLocations, setLoadedLocations] = useState<string[]>([]);
+  const [loadedInterventionAreas, setLoadedInterventionAreas] = useState<string[]>([]);
 
   const { data: beneficiary } = useGetAllBeneficiaries({
     page: 1,
@@ -73,13 +76,13 @@ export default function ProjectSummaryPage() {
     search: "",
   });
 
-  const { data: fundingSource } = useGetAllFundingSources({
+  const { data: fundingSource, isLoading: isFundingSourceLoading } = useGetAllFundingSources({
     page: 1,
     size: 2000000,
     search: "",
   });
 
-  const { data: user } = useGetAllUsers({
+  const { data: user, isLoading: isUserLoading } = useGetAllUsers({
     page: 1,
     size: 2000000,
     search: "",
@@ -172,7 +175,7 @@ export default function ProjectSummaryPage() {
   } = form;
 
   useEffect(() => {
-    if (project) {
+    if (project && !isFundingSourceLoading && !isUserLoading) {
       const {
         title,
         project_id,
@@ -195,13 +198,50 @@ export default function ProjectSummaryPage() {
         // eslint-disable-next-line no-unsafe-optional-chaining
       } = project?.data;
 
-      const projectManagers = project_managers.map((manager) => manager.id);
-      const locations = location.map((loc) => loc.id);
+      console.log("📊 Loading project data for editing:", {
+        projectId: project?.data?.id,
+        hasPartners: !!partners,
+        partnersCount: partners?.length || 0,
+        hasProjectManagers: !!project_managers,
+        projectManagersCount: project_managers?.length || 0,
+        hasFundingSources: !!funding_sources,
+        fundingSourcesCount: funding_sources?.length || 0,
+        hasLocation: !!location,
+        locationCount: location?.length || 0,
+        hasInterventionAreas: !!intervention_areas,
+        interventionAreasCount: intervention_areas?.length || 0,
+        hasTargets: !!targets,
+        targetsCount: targets?.length || 0,
+        rawLocation: location,
+        rawInterventionAreas: intervention_areas,
+        rawTargets: targets,
+      });
 
-      const fundingSources = funding_sources.map((source) => source.id);
+      const projectManagers = project_managers.map((manager: any) => manager.id);
+      const locations = location.map((loc: any) => loc.id);
 
-      const beneficiariesArr = beneficiaries.map((ben) => ben.id);
-      const interventionAreaIds = intervention_areas?.map((area) => area.id) || [];
+      const fundingSources = funding_sources.map((source: any) => source.id);
+
+      const beneficiariesArr = beneficiaries.map((ben: any) => ben.id);
+      const interventionAreaIds = intervention_areas?.map((area: any) => area.id) || [];
+
+      // Store location and intervention area IDs in state to use in dynamic keys
+      setLoadedLocations(locations);
+      setLoadedInterventionAreas(interventionAreaIds);
+
+      console.log("🔄 Mapped IDs:", {
+        projectManagers,
+        fundingSources,
+        beneficiariesArr,
+        locations,
+        interventionAreaIds,
+      });
+
+      console.log("📋 Available options:", {
+        userOptionsCount: userOptions?.length || 0,
+        fundingSourceOptionsCount: fundingSource?.data?.results?.length || 0,
+        beneficiaryOptionsCount: beneficiary?.data?.results?.length || 0,
+      });
 
       reset({
         title,
@@ -222,20 +262,55 @@ export default function ProjectSummaryPage() {
         end_date,
       });
 
-      objectives?.map((obj) => {
+      console.log("✅ Form reset with values:", {
+        project_managers: projectManagers,
+        funding_sources: fundingSources,
+        location: locations,
+        intervention_areas: interventionAreaIds,
+      });
+
+      // Clear existing objectives before adding new ones to avoid duplicates
+      dispatch(clearObjectives());
+      objectives?.map((obj: any) => {
         dispatch(addObjective(obj));
       });
 
-      dispatch(addPartner(partners));
+      // Load partners into Redux state - CRITICAL for edit functionality
+      console.log("👥 Loading partners into Redux:", partners);
+      if (partners && partners.length > 0) {
+        dispatch(addPartner(partners));
+        console.log("✅ Partners loaded successfully:", partners.length);
+      } else {
+        console.warn("⚠️ No partners found in project data!");
+      }
 
-      // Load existing targets if available
+      // Load existing targets if available and map API fields to our schema
       if (targets && targets.length > 0) {
-        setProjectTargets(targets);
+        console.log("🎯 Loading existing targets from API:", targets);
+
+        // Map API response fields to our frontend schema
+        const mappedTargets = targets.map((target: any) => ({
+          id: target.id,
+          indicator_code: target.indicator_code,
+          indicator_name: target.indicator_name,
+          tracking_mode: target.tracking_mode,
+          fiscal_year: target.fiscal_year,
+          annual_target: target.target_value ? parseFloat(target.target_value) : undefined, // API uses 'target_value'
+          q1_target: target.q1_target ? parseFloat(target.q1_target) : undefined,
+          q2_target: target.q2_target ? parseFloat(target.q2_target) : undefined,
+          q3_target: target.q3_target ? parseFloat(target.q3_target) : undefined,
+          q4_target: target.q4_target ? parseFloat(target.q4_target) : undefined,
+          target_notes: target.comments, // API uses 'comments'
+        }));
+
+        console.log("✅ Mapped targets for frontend:", mappedTargets);
+        setProjectTargets(mappedTargets);
+        console.log("✅ Targets loaded successfully:", mappedTargets.length);
+      } else {
+        console.warn("⚠️ No targets found in project data!");
       }
     }
-  }, [project, partner, dispatch, reset, setProjectTargets]);
-
-  const pathname = usePathname();
+  }, [project, partner, dispatch, reset, setProjectTargets, isFundingSourceLoading, isUserLoading]);
 
   const { consortiumPartners } = useAppSelector(
     (state) => state.consortiumPartner
@@ -305,7 +380,23 @@ export default function ProjectSummaryPage() {
       location,
       intervention_areas,
     } = data;
+
+    // Get partners from Redux state
     const partnersId = consortiumPartners.map((partner) => partner.id);
+
+    // IMPORTANT FIX: If updating and partners array is empty, use existing project partners
+    // This prevents sending an empty partners array which causes backend validation error
+    let finalPartners = partnersId;
+    if (projectId && partnersId.length === 0 && project?.data?.partners) {
+      console.log("⚠️ Partners array is empty but project has partners. Using existing partners.");
+      finalPartners = project.data.partners.map((partner) => partner.id);
+    }
+
+    // Validate that we have partners before submission
+    if (finalPartners.length === 0) {
+      toast.error("Please select at least one consortium partner before saving.");
+      return;
+    }
 
     const formData = {
       title: title,
@@ -316,7 +407,7 @@ export default function ProjectSummaryPage() {
       start_date: formatDate(start_date),
       end_date: formatDate(end_date),
       project_managers: project_managers,
-      partners: partnersId,
+      partners: finalPartners,
       funding_sources: funding_sources,
       objectives: objectives.objectives,
       expected_results: expected_results,
@@ -329,35 +420,54 @@ export default function ProjectSummaryPage() {
       // Add the new targets data
       targets: projectTargets,
     };
-    console.log("🚀 FORM SUBMISSION:", { formData });
-    console.log("🎯 Project targets being sent:", projectTargets);
+
+    console.log("🚀 FORM SUBMISSION - Complete Data Being Sent to Backend:");
+    console.log("📍 Location:", location, "| Type:", typeof location, "| Is Array:", Array.isArray(location), "| Length:", location?.length);
+    console.log("🎨 Intervention Areas:", intervention_areas, "| Type:", typeof intervention_areas, "| Is Array:", Array.isArray(intervention_areas), "| Length:", intervention_areas?.length);
+    console.log("🎯 Targets:", projectTargets, "| Length:", projectTargets?.length);
+    console.log("👥 Partners:", finalPartners, "| Length:", finalPartners?.length);
+    console.log("💰 Budget:", budget, "| Currency:", currency);
+    console.log("📦 Full Form Data:", formData);
 
     try {
       let id;
 
       if (projectId) {
         console.log("📝 Updating existing project:", projectId);
-        await updateProject(formData);
+        const updateResponse = await updateProject(formData);
+        console.log("✅ UPDATE RESPONSE:", updateResponse);
+        if (updateResponse?.data) {
+          console.log("📍 Response Location:", updateResponse.data.location);
+          console.log("🎨 Response Intervention Areas:", updateResponse.data.intervention_areas);
+          console.log("🎯 Response Targets:", updateResponse.data.targets);
+        }
         toast.success("Project Updated Successfully.");
         id = projectId;
       } else {
         console.log("✨ Creating new project...");
         const res = await addProject(formData as any);
-        console.log("✅ Project creation response:", res);
+        console.log("✅ CREATE RESPONSE:", res);
+        if (res?.data) {
+          console.log("📍 Response Location:", res.data.location);
+          console.log("🎨 Response Intervention Areas:", res.data.intervention_areas);
+          console.log("🎯 Response Targets:", res.data.targets);
+        }
         toast.success("Project Created Successfully.");
         id = res?.data?.id;
         console.log("🆔 Extracted project ID:", id);
       }
 
-      let path = pathname;
+      // Navigate to uploads page
+      // Construct path correctly whether we're at /create or /create/summary
+      const uploadsPath = `/dashboard/projects/create/uploads?id=${id}`;
+      console.log("🔄 Navigating to:", uploadsPath);
+      router.push(uploadsPath);
 
-      path = path.substring(0, path.lastIndexOf("/"));
-
-      path += `/create/uploads?id=${id}`;
-      router.push(path);
-
-      dispatch(clearObjectives());
-      dispatch(clearPartners());
+      // Only clear state when creating a new project, not when updating
+      if (!projectId) {
+        dispatch(clearObjectives());
+        dispatch(clearPartners());
+      }
     } catch (error: any) {
       console.error("❌ PROJECT CREATION ERROR:", error);
       console.log("📄 Error details:", error);
@@ -408,6 +518,7 @@ export default function ProjectSummaryPage() {
                                     /> */}
 
                   <FormMultiSelect
+                    key={`location-${projectId || 'new'}-${loadedLocations.join(',') || 'empty'}`}
                     label='Project Location'
                     name='location'
                     placeholder='Select Location'
@@ -415,6 +526,7 @@ export default function ProjectSummaryPage() {
                     options={locationOptions}
                   />
                   <FormMultiSelect
+                    key={`intervention-${projectId || 'new'}-${loadedInterventionAreas.join(',') || 'empty'}`}
                     label='Intervention Areas'
                     name='intervention_areas'
                     placeholder='Select Intervention Areas'
@@ -424,6 +536,7 @@ export default function ProjectSummaryPage() {
 
                 {/* Performance Targets Section - MOVED TO TOP */}
                 <TargetsToggleView
+                  key={`targets-${projectId || 'new'}-${projectTargets.length}`}
                   isEditable={true}
                   onTargetsChange={setProjectTargets}
                   initialTargets={projectTargets}
@@ -499,6 +612,7 @@ export default function ProjectSummaryPage() {
                         <FormItem>
                           <FormControl>
                             <MultiSelectFormField
+                              key={`project-managers-${projectId || 'new'}-${field.value?.join(',')}`}
                               options={userOptions || []}
                               defaultValue={field.value}
                               onValueChange={field.onChange}
@@ -527,6 +641,7 @@ export default function ProjectSummaryPage() {
                       <FormItem>
                         <FormControl>
                           <MultiSelectFormField
+                            key={`funding-sources-${projectId || 'new'}-${field.value?.join(',')}`}
                             options={fundingSource?.data?.results || []}
                             defaultValue={field.value}
                             onValueChange={field.onChange}
@@ -634,6 +749,7 @@ export default function ProjectSummaryPage() {
                       <FormItem>
                         <FormControl>
                           <MultiSelectFormField
+                            key={`beneficiaries-${projectId || 'new'}-${field.value?.join(',')}`}
                             options={beneficiary?.data?.results || []}
                             defaultValue={field.value}
                             onValueChange={field.onChange}

@@ -473,22 +473,34 @@ function PurchaseRequest({
                             <span className="font-bold w-16">To:</span>
                             <div className="flex-1">
                               <div className="border-b border-black pb-1">
-                                {selectedPRForDetails.approved_by_detail ?
-                                  `${selectedPRForDetails.approved_by_detail.first_name} ${selectedPRForDetails.approved_by_detail.last_name} (MD, AHNI)` :
-                                  'Dr. Umar Adamu (MD, AHNI)'
-                                }
+                                {selectedPRForDetails.approved_by_detail ? (
+                                  `${selectedPRForDetails.approved_by_detail.name ||
+                                    `${selectedPRForDetails.approved_by_detail.first_name || ''} ${selectedPRForDetails.approved_by_detail.last_name || ''}`.trim() ||
+                                    selectedPRForDetails.approved_by_detail.email || 'Approver'
+                                  } (MD, AHNI)`
+                                ) : (
+                                  'Please select approver in form'
+                                )}
                               </div>
                               <div className="border-b border-black pb-1 mt-2">
-                                {selectedPRForDetails.authorized_by_detail ?
-                                  `${selectedPRForDetails.authorized_by_detail.first_name} ${selectedPRForDetails.authorized_by_detail.last_name} (Director of Operations, AHNI)` :
-                                  'Irene Osaigbovo (Director of Operations, AHNI)'
-                                }
+                                {selectedPRForDetails.authorised_by_detail ? (
+                                  `${selectedPRForDetails.authorised_by_detail.name ||
+                                    `${selectedPRForDetails.authorised_by_detail.first_name || ''} ${selectedPRForDetails.authorised_by_detail.last_name || ''}`.trim() ||
+                                    selectedPRForDetails.authorised_by_detail.email || 'Authorizer'
+                                  } (Director of Operations, AHNI)`
+                                ) : (
+                                  'Please select authorizer in form'
+                                )}
                               </div>
                               <div className="border-b border-black pb-1 mt-2">
-                                {selectedPRForDetails.reviewed_by_detail ?
-                                  `${selectedPRForDetails.reviewed_by_detail.first_name} ${selectedPRForDetails.reviewed_by_detail.last_name} (Director of Finance, AHNI)` :
-                                  'Charles Ihaza (Director of Finance, AHNI)'
-                                }
+                                {selectedPRForDetails.reviewed_by_detail ? (
+                                  `${selectedPRForDetails.reviewed_by_detail.name ||
+                                    `${selectedPRForDetails.reviewed_by_detail.first_name || ''} ${selectedPRForDetails.reviewed_by_detail.last_name || ''}`.trim() ||
+                                    selectedPRForDetails.reviewed_by_detail.email || 'Reviewer'
+                                  } (Director of Finance, AHNI)`
+                                ) : (
+                                  'Please select reviewer in form'
+                                )}
                               </div>
                             </div>
                             <div className="text-right text-sm w-24">
@@ -503,12 +515,16 @@ function PurchaseRequest({
                             <div className="flex-1">
                               <div className="border-b border-black pb-1">
                                 {detailsActivityMemoData.through_details?.length > 0 ?
-                                  detailsActivityMemoData.through_details.map(person =>
-                                    `${person.first_name || ''} ${person.last_name || ''} (${person.designation || 'Project Lead'})`
-                                  ).join(', ') :
-                                  detailsActivityMemoData.through?.length > 0 ?
-                                    detailsActivityMemoData.through.join(', ') :
-                                    'Tine Woji (Project Lead, Global Fund, Abuja)'
+                                  detailsActivityMemoData.through_details.map((person, idx) => {
+                                    const personName = person.name ||
+                                      `${person.first_name || ''} ${person.last_name || ''}`.trim() ||
+                                      person.email ||
+                                      'Personnel';
+                                    return `${personName} (${person.designation || 'Staff'})`;
+                                  }).join(', ') :
+                                  detailsActivityMemoData.through_details?.length > 0 ?
+                                    detailsActivityMemoData.through_details.map(id => id).join(', ') :
+                                    'Please select through personnel in form'
                                 }
                               </div>
                             </div>
@@ -521,10 +537,21 @@ function PurchaseRequest({
                             <span className="font-bold w-16">From:</span>
                             <div className="flex-1">
                               <div className="border-b border-black pb-1">
-                                {selectedPRForDetails.requested_by ?
-                                  `${selectedPRForDetails.requested_by.first_name} ${selectedPRForDetails.requested_by.last_name} (${selectedPRForDetails.requested_by.designation || 'STL/STA-PCT, GCZ, AHSO'})` :
-                                  'Dr Onyeka Ugwu (STL/STA-PCT, GCZ, AHSO)'
-                                }
+                                {selectedPRForDetails.requested_by ? (
+                                  `${selectedPRForDetails.requested_by.name ||
+                                    `${selectedPRForDetails.requested_by.first_name || ''} ${selectedPRForDetails.requested_by.last_name || ''}`.trim() ||
+                                    selectedPRForDetails.requested_by.email ||
+                                    'Requester'
+                                  } (${selectedPRForDetails.requested_by.designation || 'Staff'})`
+                                ) : selectedPRForDetails.requested_by_detail ? (
+                                  `${selectedPRForDetails.requested_by_detail.name ||
+                                    `${selectedPRForDetails.requested_by_detail.first_name || ''} ${selectedPRForDetails.requested_by_detail.last_name || ''}`.trim() ||
+                                    selectedPRForDetails.requested_by_detail.email ||
+                                    'Requester'
+                                  } (Staff)`
+                                ) : (
+                                  'Please select requester in form'
+                                )}
                               </div>
                             </div>
                             <div className="text-right text-sm w-24">
@@ -539,29 +566,29 @@ function PurchaseRequest({
                             <div className="flex gap-4">
                               <span className="font-bold">Budget Line #:</span>
                               <span>
-                                {detailsActivityMemoData.budget_line_details?.map(bl => bl.module_code).join(', ') ||
-                                 detailsActivityMemoData.budget_line?.join(', ') || 'N/A'}
+                                {detailsActivityMemoData.budget_line_details?.map(bl => bl.name || bl.module_name || bl.code || bl.module_code).filter(Boolean).join(', ') ||
+                                 'N/A'}
                               </span>
                             </div>
                             <div className="flex gap-4">
                               <span className="font-bold">Module:</span>
                               <span>
-                                {detailsActivityMemoData.intervention_areas_details?.map(ia => ia.description).join(', ') ||
-                                 detailsActivityMemoData.intervention_areas?.join(', ') || 'N/A'}
+                                {detailsActivityMemoData.module_details?.map(m => m.name || m.code).filter(Boolean).join(', ') ||
+                                 'N/A'}
                               </span>
                             </div>
                             <div className="flex gap-4">
                               <span className="font-bold">Intervention:</span>
                               <span>
-                                {detailsActivityMemoData.cost_categories_details?.map(cc => cc.module_name).join(', ') ||
-                                 detailsActivityMemoData.cost_categories?.join(', ') || 'N/A'}
+                                {detailsActivityMemoData.intervention_areas_details?.map(ia => ia.description || ia.code || ia.name).filter(Boolean).join(', ') ||
+                                 'N/A'}
                               </span>
                             </div>
                             <div className="flex gap-4">
                               <span className="font-bold">Cost Grouping #:</span>
                               <span>
-                                {detailsActivityMemoData.cost_inputs_details?.map(ci => ci.module_code).join(', ') ||
-                                 detailsActivityMemoData.cost_input?.join(', ') || 'N/A'}
+                                {detailsActivityMemoData.cost_categories_details?.map(cc => cc.module_name || cc.name || cc.code || cc.module_code).filter(Boolean).join(', ') ||
+                                 'N/A'}
                               </span>
                             </div>
                           </div>
@@ -569,15 +596,16 @@ function PurchaseRequest({
                             <div className="flex gap-4">
                               <span className="font-bold">FCO#:</span>
                               <span>
-                                {detailsActivityMemoData.fconumber_details?.map(fco => fco.module_code).join(', ') ||
-                                 detailsActivityMemoData.fconumber?.join(', ') || 'N/A'}
+                                {detailsActivityMemoData.fconumber_details?.map(fco => fco.module_name || fco.name || fco.module_code || fco.code).filter(Boolean).join(', ') ||
+                                 detailsActivityMemoData.activity_detail?.code ||
+                                 'N/A'}
                               </span>
                             </div>
                             <div className="flex gap-4">
                               <span className="font-bold">Funding Source:</span>
                               <span>
-                                {detailsActivityMemoData.funding_sources_details?.map(fs => fs.module_name).join(', ') ||
-                                 detailsActivityMemoData.funding_source?.join(', ') || 'N/A'}
+                                {detailsActivityMemoData.funding_sources_details?.map(fs => fs.name || fs.module_name).filter(Boolean).join(', ') ||
+                                 'N/A'}
                               </span>
                             </div>
                           </div>
@@ -626,40 +654,75 @@ function PurchaseRequest({
                         </div>
                       </div>
                     ) : (
-                      /* Fallback when no activity memo data */
+                      /* Fallback using Purchase Request data when no activity memo */
                       <div className="space-y-6">
-                        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
-                          <div className="text-center mb-4">
-                            <p className="text-yellow-800 mb-2">No Activity Memo data available for this Purchase Request</p>
-                            <p className="text-sm text-yellow-600">This Purchase Request may not have an associated Activity Memo, or the memo data could not be loaded.</p>
-                          </div>
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                          <p className="text-blue-800 text-sm text-center">
+                            This Purchase Request was created directly (not through Activity Memo flow). Showing Purchase Request details below.
+                          </p>
                         </div>
 
-                        {/* Show sample memo structure */}
-                        <div className="space-y-4 opacity-50">
+                        {/* Use Purchase Request data */}
+                        <div className="space-y-4">
                           {/* To/Through/From Section */}
                           <div className="space-y-3">
                             <div className="flex items-start gap-4">
                               <span className="font-bold w-16">To:</span>
                               <div className="flex-1">
-                                <div className="border-b border-black pb-1">Dr. Umar Adamu (MD, AHNI)</div>
-                                <div className="border-b border-black pb-1 mt-2">Irene Osaigbovo (Director of Operations, AHNI)</div>
-                                <div className="border-b border-black pb-1 mt-2">Charles Ihaza (Director of Finance, AHNI)</div>
+                                <div className="border-b border-black pb-1">
+                                  {selectedPRForDetails.approved_by_detail ? (
+                                    `${selectedPRForDetails.approved_by_detail.name ||
+                                      `${selectedPRForDetails.approved_by_detail.first_name || ''} ${selectedPRForDetails.approved_by_detail.last_name || ''}`.trim() ||
+                                      selectedPRForDetails.approved_by_detail.email || 'Approver'
+                                    } (MD, AHNI)`
+                                  ) : (
+                                    'Please select approver in form'
+                                  )}
+                                </div>
+                                <div className="border-b border-black pb-1 mt-2">
+                                  {selectedPRForDetails.authorised_by_detail ? (
+                                    `${selectedPRForDetails.authorised_by_detail.name ||
+                                      `${selectedPRForDetails.authorised_by_detail.first_name || ''} ${selectedPRForDetails.authorised_by_detail.last_name || ''}`.trim() ||
+                                      selectedPRForDetails.authorised_by_detail.email || 'Authorizer'
+                                    } (Director of Operations, AHNI)`
+                                  ) : (
+                                    'Please select authorizer in form'
+                                  )}
+                                </div>
+                                <div className="border-b border-black pb-1 mt-2">
+                                  {selectedPRForDetails.reviewed_by_detail ? (
+                                    `${selectedPRForDetails.reviewed_by_detail.name ||
+                                      `${selectedPRForDetails.reviewed_by_detail.first_name || ''} ${selectedPRForDetails.reviewed_by_detail.last_name || ''}`.trim() ||
+                                      selectedPRForDetails.reviewed_by_detail.email || 'Reviewer'
+                                    } (Director of Finance, AHNI)`
+                                  ) : (
+                                    'Please select reviewer in form'
+                                  )}
+                                </div>
                               </div>
                               <div className="text-right text-sm w-24">
-                                <div>{new Date().toLocaleDateString()}</div>
-                                <div className="mt-6">{new Date().toLocaleDateString()}</div>
-                                <div className="mt-6">{new Date().toLocaleDateString()}</div>
+                                <div>{selectedPRForDetails.approved_date || selectedPRForDetails.date_of_request}</div>
+                                <div className="mt-6">{selectedPRForDetails.authorised_date || selectedPRForDetails.date_of_request}</div>
+                                <div className="mt-6">{selectedPRForDetails.reviewed_date || selectedPRForDetails.date_of_request}</div>
                               </div>
                             </div>
 
                             <div className="flex items-start gap-4">
                               <span className="font-bold w-16">Through:</span>
                               <div className="flex-1">
-                                <div className="border-b border-black pb-1">Tine Woji (Project Lead, Global Fund, Abuja)</div>
+                                <div className="border-b border-black pb-1">
+                                  {selectedPRForDetails.reviewed_by_detail ? (
+                                    `${selectedPRForDetails.reviewed_by_detail.name ||
+                                      `${selectedPRForDetails.reviewed_by_detail.first_name || ''} ${selectedPRForDetails.reviewed_by_detail.last_name || ''}`.trim() ||
+                                      selectedPRForDetails.reviewed_by_detail.email || 'Reviewer'
+                                    } (Reviewer)`
+                                  ) : (
+                                    'Please select reviewer in form'
+                                  )}
+                                </div>
                               </div>
                               <div className="text-right text-sm w-24">
-                                <div>{new Date().toLocaleDateString()}</div>
+                                <div>{selectedPRForDetails.date_of_request}</div>
                               </div>
                             </div>
 
@@ -667,14 +730,25 @@ function PurchaseRequest({
                               <span className="font-bold w-16">From:</span>
                               <div className="flex-1">
                                 <div className="border-b border-black pb-1">
-                                  {selectedPRForDetails.requested_by ?
-                                    `${selectedPRForDetails.requested_by.first_name} ${selectedPRForDetails.requested_by.last_name}` :
-                                    'N/A'
-                                  }
+                                  {selectedPRForDetails.requested_by ? (
+                                    `${selectedPRForDetails.requested_by.name ||
+                                      `${selectedPRForDetails.requested_by.first_name || ''} ${selectedPRForDetails.requested_by.last_name || ''}`.trim() ||
+                                      selectedPRForDetails.requested_by.email ||
+                                      'Requester'
+                                    } (${selectedPRForDetails.requested_by.designation || 'Staff'})`
+                                  ) : selectedPRForDetails.requested_by_detail ? (
+                                    `${selectedPRForDetails.requested_by_detail.name ||
+                                      `${selectedPRForDetails.requested_by_detail.first_name || ''} ${selectedPRForDetails.requested_by_detail.last_name || ''}`.trim() ||
+                                      selectedPRForDetails.requested_by_detail.email ||
+                                      'Requester'
+                                    } (Staff)`
+                                  ) : (
+                                    'Please select requester in form'
+                                  )}
                                 </div>
                               </div>
                               <div className="text-right text-sm w-24">
-                                <div>{selectedPRForDetails.date_of_request || 'N/A'}</div>
+                                <div>{selectedPRForDetails.date_of_request || selectedPRForDetails.request_date}</div>
                               </div>
                             </div>
                           </div>
@@ -682,30 +756,23 @@ function PurchaseRequest({
                           <div className="grid grid-cols-2 gap-8 mt-6">
                             <div className="space-y-2">
                               <div className="flex gap-4">
-                                <span className="font-bold">Budget Line #:</span>
-                                <span>N/A</span>
+                                <span className="font-bold">Department:</span>
+                                <span>{selectedPRForDetails.requesting_department_detail?.name || 'N/A'}</span>
                               </div>
                               <div className="flex gap-4">
-                                <span className="font-bold">Module:</span>
-                                <span>N/A</span>
-                              </div>
-                              <div className="flex gap-4">
-                                <span className="font-bold">Intervention:</span>
-                                <span>N/A</span>
-                              </div>
-                              <div className="flex gap-4">
-                                <span className="font-bold">Cost Grouping #:</span>
-                                <span>N/A</span>
+                                <span className="font-bold">Location:</span>
+                                <span>{selectedPRForDetails.location_detail?.name || 'N/A'}</span>
                               </div>
                             </div>
                             <div className="space-y-2">
                               <div className="flex gap-4">
-                                <span className="font-bold">FCO#:</span>
-                                <span>N/A</span>
-                              </div>
-                              <div className="flex gap-4">
-                                <span className="font-bold">Cost Input #:</span>
-                                <span>N/A</span>
+                                <span className="font-bold">Total Amount:</span>
+                                <span>
+                                  ₦{selectedPRForDetails.items?.reduce((sum: number, item: any) => {
+                                    const amount = parseFloat(item.sub_total_amount?.toString() || item.amount?.toString() || "0");
+                                    return sum + amount;
+                                  }, 0).toLocaleString()}
+                                </span>
                               </div>
                             </div>
                           </div>
@@ -713,16 +780,33 @@ function PurchaseRequest({
                           <div className="mt-6">
                             <div className="flex gap-4 mb-4">
                               <span className="font-bold">Date:</span>
-                              <span>N/A</span>
+                              <span>{selectedPRForDetails.date_of_request}</span>
                             </div>
                             <div className="flex gap-4 mb-6">
                               <span className="font-bold">Subject:</span>
-                              <span className="underline">{selectedPRForDetails.title || 'N/A'}</span>
+                              <span className="underline">{selectedPRForDetails.title || 'Purchase Request'}</span>
                             </div>
                           </div>
 
                           <div className="mt-6 leading-relaxed text-justify">
-                            <p>Sample memo content will appear here when Activity Memo data is available.</p>
+                            <p>
+                              This is a purchase request for {selectedPRForDetails.requesting_department_detail?.name || 'department'} operations.
+                              The request is for procurement of {selectedPRForDetails.items?.length || 0} item(s) to be delivered to {selectedPRForDetails.location_detail?.name || 'specified location'}.
+                            </p>
+
+                            <p className="mt-4">
+                              This is therefore a request to approve the sum of
+                              <strong> ₦{selectedPRForDetails.items?.reduce((sum: number, item: any) => {
+                                const amount = parseFloat(item.sub_total_amount?.toString() || item.amount?.toString() || "0");
+                                return sum + amount;
+                              }, 0).toLocaleString()}</strong> for immediate procurement of listed items.
+                            </p>
+
+                            <p className="mt-4">
+                              Please find the item details in the Purchase Request tab for your review and approval.
+                            </p>
+
+                            <p className="mt-4">Thank you.</p>
                           </div>
                         </div>
                       </div>
@@ -771,15 +855,25 @@ function PurchaseRequest({
                         <div className="space-y-2">
                           <div className="flex">
                             <span className="w-24 font-bold bg-gray-200 p-1 border border-black">FCO #:</span>
-                            <span className="flex-1 p-1 border border-black">{detailsActivityMemoData?.fconumber?.join(', ') || 'N-THRIP'}</span>
+                            <span className="flex-1 p-1 border border-black">
+                              {detailsActivityMemoData?.fconumber_details?.map(fco => fco.module_name || fco.name || fco.module_code || fco.code).filter(Boolean).join(', ') ||
+                               detailsActivityMemoData?.activity_detail?.code ||
+                               'N/A'}
+                            </span>
                           </div>
                           <div className="flex">
                             <span className="w-24 font-bold bg-gray-200 p-1 border border-black">Module:</span>
-                            <span className="flex-1 p-1 border border-black">{detailsActivityMemoData?.intervention_areas?.join(', ') || 'Program management'}</span>
+                            <span className="flex-1 p-1 border border-black">
+                              {detailsActivityMemoData?.module_details?.map(m => m.name || m.code).filter(Boolean).join(', ') ||
+                               'N/A'}
+                            </span>
                           </div>
                           <div className="flex">
                             <span className="w-24 font-bold bg-gray-200 p-1 border border-black">Budget Line #:</span>
-                            <span className="flex-1 p-1 border border-black">{detailsActivityMemoData?.budget_line?.join(', ') || '916'}</span>
+                            <span className="flex-1 p-1 border border-black">
+                              {detailsActivityMemoData?.budget_line_details?.map(bl => bl.name || bl.module_name || bl.code || bl.module_code).filter(Boolean).join(', ') ||
+                               'N/A'}
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -787,62 +881,129 @@ function PurchaseRequest({
                       <div className="grid grid-cols-2 gap-4 text-sm mt-2">
                         <div className="flex">
                           <span className="w-24 font-bold bg-gray-200 p-1 border border-black">Cost Input #:</span>
-                          <span className="flex-1 p-1 border border-black">{detailsActivityMemoData?.cost_input?.join(', ') || '11.1'}</span>
+                          <span className="flex-1 p-1 border border-black">
+                            {detailsActivityMemoData?.cost_inputs_details?.map(ci => ci.module_name || ci.name || ci.code || ci.module_code).filter(Boolean).join(', ') ||
+                             'N/A'}
+                          </span>
                         </div>
                         <div className="flex">
                           <span className="w-24 font-bold bg-gray-200 p-1 border border-black">Funding Source:</span>
-                          <span className="flex-1 p-1 border border-black">{detailsActivityMemoData?.funding_source?.join(', ') || 'Global Fund'}</span>
+                          <span className="flex-1 p-1 border border-black">
+                            {detailsActivityMemoData?.funding_sources_details?.map(fs => fs.name || fs.module_name).filter(Boolean).join(', ') ||
+                             'N/A'}
+                          </span>
                         </div>
                       </div>
                     </div>
 
                     {detailsActivityMemoData?.expenses && detailsActivityMemoData.expenses.length > 0 ? (
-                      /* Real expense data table */
-                      <div>
-                        <table className="w-full border-collapse border border-black text-xs">
-                          <thead>
-                            <tr className="bg-blue-200">
-                              <th className="border border-black px-1 py-2 text-center w-8">#</th>
-                              <th className="border border-black px-2 py-2 text-center">Description/Item Name</th>
-                              <th className="border border-black px-1 py-2 text-center w-16">UOM</th>
-                              <th className="border border-black px-1 py-2 text-center w-16">QTY</th>
-                              <th className="border border-black px-2 py-2 text-center w-20">Unit cost</th>
-                              <th className="border border-black px-2 py-2 text-center w-24">Total Cost</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {detailsActivityMemoData.expenses.map((expense, index) => (
-                              <tr key={index}>
-                                <td className="border border-black px-1 py-1 text-center">{index + 1}</td>
-                                <td className="border border-black px-2 py-1">
-                                  {expense.item_detail?.name || expense.item || 'N/A'}
-                                </td>
-                                <td className="border border-black px-1 py-1 text-center">
-                                  {expense.item_detail?.uom || 'Unit'}
-                                </td>
-                                <td className="border border-black px-1 py-1 text-center">{expense.quantity || '1'}</td>
-                                <td className="border border-black px-2 py-1 text-center">
-                                  ₦{expense.unit_cost ? parseFloat(expense.unit_cost.toString()).toLocaleString() : '0'}
-                                </td>
-                                <td className="border border-black px-2 py-1 text-center font-semibold">
-                                  ₦{expense.total_cost ? parseFloat(expense.total_cost.toString()).toLocaleString() : '0'}
-                                </td>
-                              </tr>
-                            ))}
+                      (() => {
+                        // Detect if this is personnel expenses
+                        const isPersonnelExpenses = detailsActivityMemoData.expenses.some(
+                          expense => expense.num_of_persons || expense.num_of_months || expense.num_of_facilities ||
+                          expense.expense_type === 'personnel'
+                        );
 
-                            {/* Overall Total Row */}
-                            <tr className="bg-green-200 font-bold">
-                              <td colSpan={5} className="border border-black px-2 py-2 text-right">OVERALL TOTAL</td>
-                              <td className="border border-black px-2 py-2 text-center">
-                                ₦{detailsActivityMemoData.expenses.reduce((sum, expense) => {
-                                  const cost = parseFloat(expense.total_cost?.toString() || '0') || 0;
-                                  return sum + cost;
-                                }, 0).toLocaleString()}
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
+                        return isPersonnelExpenses ? (
+                          /* Personnel Payment Table Format */
+                          <div>
+                            <table className="w-full border-collapse border border-black text-xs">
+                              <thead>
+                                <tr className="bg-blue-200">
+                                  <th className="border border-black px-2 py-2 text-center">Expense Item</th>
+                                  <th className="border border-black px-2 py-2 text-center">Quantity/<br/># of Persons</th>
+                                  <th className="border border-black px-2 py-2 text-center"># of<br/>months</th>
+                                  <th className="border border-black px-2 py-2 text-center"># of<br/>Facilities</th>
+                                  <th className="border border-black px-2 py-2 text-center">Unit cost<br/>₦</th>
+                                  <th className="border border-black px-2 py-2 text-center">Total Cost<br/>₦</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {detailsActivityMemoData.expenses.map((expense, index) => (
+                                  <tr key={index}>
+                                    <td className="border border-black px-2 py-1">
+                                      {expense.item_detail?.name || expense.item || 'N/A'}
+                                    </td>
+                                    <td className="border border-black px-2 py-1 text-center">
+                                      {expense.num_of_persons || expense.quantity || '1'}
+                                    </td>
+                                    <td className="border border-black px-2 py-1 text-center">
+                                      {expense.num_of_months || '1'}
+                                    </td>
+                                    <td className="border border-black px-2 py-1 text-center">
+                                      {expense.num_of_facilities || '1'}
+                                    </td>
+                                    <td className="border border-black px-2 py-1 text-right">
+                                      {expense.unit_cost ? parseFloat(expense.unit_cost.toString()).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}
+                                    </td>
+                                    <td className="border border-black px-2 py-1 text-right font-semibold">
+                                      {expense.total_cost ? parseFloat(expense.total_cost.toString()).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}
+                                    </td>
+                                  </tr>
+                                ))}
+
+                                {/* Overall Total Row */}
+                                <tr className="bg-green-200 font-bold">
+                                  <td colSpan={5} className="border border-black px-2 py-2 text-center">OVERALL TOTAL</td>
+                                  <td className="border border-black px-2 py-2 text-right">
+                                    {detailsActivityMemoData.expenses.reduce((sum, expense) => {
+                                      const cost = parseFloat(expense.total_cost?.toString() || '0') || 0;
+                                      return sum + cost;
+                                    }, 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        ) : (
+                          /* Services/Items Table Format */
+                          <div>
+                            <table className="w-full border-collapse border border-black text-xs">
+                              <thead>
+                                <tr className="bg-blue-200">
+                                  <th className="border border-black px-1 py-2 text-center w-8">#</th>
+                                  <th className="border border-black px-2 py-2 text-center">Description/Item Name</th>
+                                  <th className="border border-black px-1 py-2 text-center w-16">UOM</th>
+                                  <th className="border border-black px-1 py-2 text-center w-16">QTY</th>
+                                  <th className="border border-black px-2 py-2 text-center w-20">Unit cost</th>
+                                  <th className="border border-black px-2 py-2 text-center w-24">Total Cost</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {detailsActivityMemoData.expenses.map((expense, index) => (
+                                  <tr key={index}>
+                                    <td className="border border-black px-1 py-1 text-center">{index + 1}</td>
+                                    <td className="border border-black px-2 py-1">
+                                      {expense.item_detail?.name || expense.item || 'N/A'}
+                                    </td>
+                                    <td className="border border-black px-1 py-1 text-center">
+                                      {expense.item_detail?.uom || 'Unit'}
+                                    </td>
+                                    <td className="border border-black px-1 py-1 text-center">{expense.quantity || '1'}</td>
+                                    <td className="border border-black px-2 py-1 text-center">
+                                      ₦{expense.unit_cost ? parseFloat(expense.unit_cost.toString()).toLocaleString() : '0'}
+                                    </td>
+                                    <td className="border border-black px-2 py-1 text-center font-semibold">
+                                      ₦{expense.total_cost ? parseFloat(expense.total_cost.toString()).toLocaleString() : '0'}
+                                    </td>
+                                  </tr>
+                                ))}
+
+                                {/* Overall Total Row */}
+                                <tr className="bg-green-200 font-bold">
+                                  <td colSpan={5} className="border border-black px-2 py-2 text-right">OVERALL TOTAL</td>
+                                  <td className="border border-black px-2 py-2 text-center">
+                                    ₦{detailsActivityMemoData.expenses.reduce((sum, expense) => {
+                                      const cost = parseFloat(expense.total_cost?.toString() || '0') || 0;
+                                      return sum + cost;
+                                    }, 0).toLocaleString()}
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        );
+                      })()
                     ) : (
                       /* Fallback with sample AHNI expense data */
                       <div>
@@ -922,7 +1083,17 @@ function PurchaseRequest({
                         <div>
                           <p className="font-bold">Prepared by: {
                             detailsActivityMemoData?.created_by_details?.name ||
-                            (selectedPRForDetails.requested_by ? `${selectedPRForDetails.requested_by.first_name} ${selectedPRForDetails.requested_by.last_name}` : 'N/A')
+                            (selectedPRForDetails.requested_by ? (
+                              selectedPRForDetails.requested_by.name ||
+                              `${selectedPRForDetails.requested_by.first_name || ''} ${selectedPRForDetails.requested_by.last_name || ''}`.trim() ||
+                              selectedPRForDetails.requested_by.email ||
+                              'N/A'
+                            ) : selectedPRForDetails.requested_by_detail ? (
+                              selectedPRForDetails.requested_by_detail.name ||
+                              `${selectedPRForDetails.requested_by_detail.first_name || ''} ${selectedPRForDetails.requested_by_detail.last_name || ''}`.trim() ||
+                              selectedPRForDetails.requested_by_detail.email ||
+                              'N/A'
+                            ) : 'N/A')
                           }</p>
                           <div className="mt-2">
                             <p>Sign: _________________________</p>
@@ -932,7 +1103,10 @@ function PurchaseRequest({
                         <div>
                           <p className="font-bold">Reviewed by: {
                             detailsActivityMemoData?.reviewed_by_details?.[0]?.name ||
-                            (selectedPRForDetails.reviewed_by_detail ? `${selectedPRForDetails.reviewed_by_detail.first_name} ${selectedPRForDetails.reviewed_by_detail.last_name}` : 'N/A')
+                            (selectedPRForDetails.reviewed_by_detail?.name) ||
+                            (selectedPRForDetails.reviewed_by_detail?.first_name && selectedPRForDetails.reviewed_by_detail?.last_name ?
+                              `${selectedPRForDetails.reviewed_by_detail.first_name} ${selectedPRForDetails.reviewed_by_detail.last_name}` :
+                              selectedPRForDetails.reviewed_by_detail?.email || 'N/A')
                           }</p>
                           <div className="mt-2">
                             <p>Sign: _________________________</p>
@@ -942,7 +1116,10 @@ function PurchaseRequest({
                         <div>
                           <p className="font-bold">Approved by: {
                             detailsActivityMemoData?.approved_by_details?.name ||
-                            (selectedPRForDetails.approved_by_detail ? `${selectedPRForDetails.approved_by_detail.first_name} ${selectedPRForDetails.approved_by_detail.last_name}` : 'N/A')
+                            (selectedPRForDetails.approved_by_detail?.name) ||
+                            (selectedPRForDetails.approved_by_detail?.first_name && selectedPRForDetails.approved_by_detail?.last_name ?
+                              `${selectedPRForDetails.approved_by_detail.first_name} ${selectedPRForDetails.approved_by_detail.last_name}` :
+                              selectedPRForDetails.approved_by_detail?.email || 'N/A')
                           }</p>
                           <div className="mt-2">
                             <p>Sign: _________________________</p>
@@ -1046,7 +1223,14 @@ function PurchaseRequest({
                                 {item.item?.uom || item.uom || 'Unit'}
                               </td>
                               <td className="border border-black px-2 py-2 text-center">
-                                {item.fconumber_details?.[0]?.module_code || item.fconumber || item.fco_number || item.fco || 'N/A'}
+                                {item.fconumber_details?.[0]?.module_name ||
+                                 item.fconumber_details?.[0]?.name ||
+                                 item.fconumber_details?.[0]?.module_code ||
+                                 item.fconumber_details?.[0]?.code ||
+                                 item.fconumber ||
+                                 item.fco_number ||
+                                 item.fco ||
+                                 'N/A'}
                               </td>
                               <td className="border border-black px-2 py-2 text-center">
                                 {item.quantity || item.units || '0'}
@@ -1159,10 +1343,19 @@ function PurchaseRequest({
                               <div>
                                 <span className="font-bold">Name:</span>
                                 <span className="ml-2">
-                                  {selectedPRForDetails.requested_by
-                                    ? `${selectedPRForDetails.requested_by.first_name} ${selectedPRForDetails.requested_by.last_name}`
-                                    : 'Kaahassa Zabadi'
-                                  }
+                                  {selectedPRForDetails.requested_by ? (
+                                    selectedPRForDetails.requested_by.name ||
+                                    `${selectedPRForDetails.requested_by.first_name || ''} ${selectedPRForDetails.requested_by.last_name || ''}`.trim() ||
+                                    selectedPRForDetails.requested_by.email ||
+                                    'Requester'
+                                  ) : selectedPRForDetails.requested_by_detail ? (
+                                    selectedPRForDetails.requested_by_detail.name ||
+                                    `${selectedPRForDetails.requested_by_detail.first_name || ''} ${selectedPRForDetails.requested_by_detail.last_name || ''}`.trim() ||
+                                    selectedPRForDetails.requested_by_detail.email ||
+                                    'Requester'
+                                  ) : (
+                                    'N/A'
+                                  )}
                                 </span>
                               </div>
                             </td>
@@ -1183,10 +1376,14 @@ function PurchaseRequest({
                               <div>
                                 <span className="font-bold">Name:</span>
                                 <span className="ml-2">
-                                  {selectedPRForDetails.reviewed_by_detail
-                                    ? `${selectedPRForDetails.reviewed_by_detail.first_name} ${selectedPRForDetails.reviewed_by_detail.last_name}`
-                                    : 'Charles Ihaza'
-                                  }
+                                  {selectedPRForDetails.reviewed_by_detail ? (
+                                    selectedPRForDetails.reviewed_by_detail.name ||
+                                    `${selectedPRForDetails.reviewed_by_detail.first_name || ''} ${selectedPRForDetails.reviewed_by_detail.last_name || ''}`.trim() ||
+                                    selectedPRForDetails.reviewed_by_detail.email ||
+                                    'Reviewer'
+                                  ) : (
+                                    'N/A'
+                                  )}
                                 </span>
                               </div>
                             </td>
@@ -1207,10 +1404,14 @@ function PurchaseRequest({
                               <div>
                                 <span className="font-bold">Name:</span>
                                 <span className="ml-2">
-                                  {selectedPRForDetails.authorized_by_detail
-                                    ? `${selectedPRForDetails.authorized_by_detail.first_name} ${selectedPRForDetails.authorized_by_detail.last_name}`
-                                    : 'Irene Osaigbovo'
-                                  }
+                                  {(selectedPRForDetails.authorised_by_detail || selectedPRForDetails.authorized_by_detail) ? (
+                                    (selectedPRForDetails.authorised_by_detail || selectedPRForDetails.authorized_by_detail).name ||
+                                    `${(selectedPRForDetails.authorised_by_detail || selectedPRForDetails.authorized_by_detail).first_name || ''} ${(selectedPRForDetails.authorised_by_detail || selectedPRForDetails.authorized_by_detail).last_name || ''}`.trim() ||
+                                    (selectedPRForDetails.authorised_by_detail || selectedPRForDetails.authorized_by_detail).email ||
+                                    'Authorizer'
+                                  ) : (
+                                    'N/A'
+                                  )}
                                 </span>
                               </div>
                             </td>
@@ -1231,10 +1432,14 @@ function PurchaseRequest({
                               <div>
                                 <span className="font-bold">Name:</span>
                                 <span className="ml-2">
-                                  {selectedPRForDetails.approved_by_detail
-                                    ? `${selectedPRForDetails.approved_by_detail.first_name} ${selectedPRForDetails.approved_by_detail.last_name}`
-                                    : 'Dr Umar Adamu'
-                                  }
+                                  {selectedPRForDetails.approved_by_detail ? (
+                                    selectedPRForDetails.approved_by_detail.name ||
+                                    `${selectedPRForDetails.approved_by_detail.first_name || ''} ${selectedPRForDetails.approved_by_detail.last_name || ''}`.trim() ||
+                                    selectedPRForDetails.approved_by_detail.email ||
+                                    'Approver'
+                                  ) : (
+                                    'N/A'
+                                  )}
                                 </span>
                               </div>
                             </td>
