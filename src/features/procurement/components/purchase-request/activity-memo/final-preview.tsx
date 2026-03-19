@@ -157,6 +157,20 @@ const Preview = () => {
 
     return null;
   };
+
+  // Helper function to get Module display value
+  const getModuleDisplay = () => {
+    // Get module details from the activity memo data
+    const moduleDetails = requestsDetails?.module_details || apiData?.module_details || memoData?.module_details;
+
+    if (Array.isArray(moduleDetails) && moduleDetails.length > 0) {
+      // Extract module names from the details array
+      const moduleNames = moduleDetails.map(module => module.name || module.code).filter(Boolean);
+      return moduleNames.length > 0 ? moduleNames.join(', ') : null;
+    }
+
+    return null;
+  };
   const interventionArea = findInterventionArea(interventionAreaId);
   const fundingSource = findFundingSource(fundingSourceId);
 
@@ -613,7 +627,7 @@ const Preview = () => {
               <div className='grid grid-cols-2 gap-10 mb-8 mt-8 text-base print:gap-8 print:mb-6 print:mt-6 print:text-sm'>
                 <div className='space-y-2'>
                   <div><span className='font-semibold'>Budget Line #:</span> {budgetLine?.name || <span className="text-gray-500 italic">Budget line not specified</span>}</div>
-                  <div><span className='font-semibold'>Module:</span> {budgetLine?.module_name || <span className="text-gray-500 italic">Module not specified</span>}</div>
+                  <div><span className='font-semibold'>Module:</span> {getModuleDisplay() || <span className="text-gray-500 italic">Module not specified</span>}</div>
                   <div><span className='font-semibold'>Intervention:</span> {interventionArea?.name || interventionArea?.description || <span className="text-gray-500 italic">Please select intervention area</span>}</div>
                   <div><span className='font-semibold'>Cost Grouping #:</span> {costCategory?.code || costCategory?.name || <span className="text-gray-500 italic">Cost category not specified</span>}</div>
                 </div>
@@ -706,7 +720,7 @@ const Preview = () => {
               <table className='w-full border-collapse text-base print:text-sm'>
                 <tbody>
                   <tr className='border-b border-black'>
-                    <td className='border-r border-black p-4 bg-blue-100 font-semibold w-1/2 print:p-3'>Module: {budgetLine?.module_name || <span className="text-gray-500 italic font-normal">Module not specified</span>}</td>
+                    <td className='border-r border-black p-4 bg-blue-100 font-semibold w-1/2 print:p-3'>Module: {getModuleDisplay() || <span className="text-gray-500 italic font-normal">Module not specified</span>}</td>
                     <td className='p-4 bg-blue-100 font-semibold print:p-3'>Intervention: {interventionArea?.name || interventionArea?.description || <span className="text-gray-500 italic font-normal">Please select intervention area</span>}</td>
                   </tr>
                   <tr className='border-b border-black'>
