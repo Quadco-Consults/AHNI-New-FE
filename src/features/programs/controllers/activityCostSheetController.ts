@@ -67,14 +67,21 @@ export const useGetAllActivityCostSheets = ({
 /**
  * Get cost sheets for a specific activity
  */
-export const useGetActivityCostSheets = (activityId: string, enabled: boolean = true) => {
+export const useGetActivityCostSheets = (
+  activityId?: string,
+  activityPlanId?: string,
+  enabled: boolean = true
+) => {
+  const identifier = activityId || activityPlanId;
+  const queryParam = activityId ? "activity" : "activity_plan";
+
   return useQuery<TActivityCostSheetListResponse>({
-    queryKey: ["activity-cost-sheets", activityId],
+    queryKey: ["activity-cost-sheets", queryParam, identifier],
     queryFn: async () => {
       try {
         const response = await AxiosWithToken.get("/programs/plans/activity-cost-sheets/", {
           params: {
-            activity: activityId,
+            [queryParam]: identifier,
             size: 1000, // Get all for the activity
           },
         });
@@ -86,7 +93,7 @@ export const useGetActivityCostSheets = (activityId: string, enabled: boolean = 
         );
       }
     },
-    enabled: enabled && !!activityId,
+    enabled: enabled && !!identifier,
     refetchOnWindowFocus: false,
   });
 };

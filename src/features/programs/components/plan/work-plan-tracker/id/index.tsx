@@ -2,7 +2,8 @@
 
 import Card from "@/components/Card";
 import { useState, useMemo, useEffect } from "react";
-import DataTable from "@/components/Table/DataTable";
+import DataTableWithExpansion from "@/components/Table/DataTableWithExpansion";
+import CostSheetTrackersExpanded from "../CostSheetTrackersExpanded";
 import {
   useGetAllActivityTrackers,
 } from "@/features/programs/controllers/activityTrackerController";
@@ -267,7 +268,7 @@ export default function ActivityTracker() {
         <TableFilters
           onSearchChange={(e) => setSearchController(e.target.value)}
         >
-          <DataTable
+          <DataTableWithExpansion
             data={paginatedTrackers}
             columns={getWorkPlanTrackerDetailsColumns(id as string)}
             isLoading={isLoading}
@@ -282,6 +283,19 @@ export default function ActivityTracker() {
                   }
                 : undefined
             }
+            renderExpandedRow={(row: any) => (
+              <CostSheetTrackersExpanded
+                activityId={row.work_plan_activity}
+                activityNumber={row.activity_number || "N/A"}
+                isEditable={true}
+              />
+            )}
+            canExpand={(row: any) => {
+              // Only show expand button for PLANNED activities that have work_plan_activity ID
+              const activityType = (row.activity_type || "PLANNED").toUpperCase();
+              const hasWorkPlanActivity = !!row.work_plan_activity;
+              return activityType === "PLANNED" && hasWorkPlanActivity;
+            }}
           />
         </TableFilters>
       </Card>

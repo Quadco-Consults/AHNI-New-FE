@@ -417,14 +417,31 @@ export default function ProjectSummaryPage() {
       currency: currency,
       location,
       intervention_areas,
-      // Add the new targets data
-      targets: projectTargets,
+      // Add the new targets data - filter out incomplete targets without indicator_code
+      targets: (() => {
+        // First, filter out incomplete targets
+        const validTargets = projectTargets.filter(target => target.indicator_code && target.indicator_code !== '');
+
+        // Group by tracking mode
+        const simpleTargets = validTargets.filter(t => t.tracking_mode === 'SIMPLE');
+        const quarterlyTargets = validTargets.filter(t => t.tracking_mode === 'QUARTERLY');
+
+        // If we have targets from BOTH modes, only send one mode (prefer QUARTERLY as it's more detailed)
+        if (simpleTargets.length > 0 && quarterlyTargets.length > 0) {
+          console.log("⚠️ MIXED MODES DETECTED: Found both SIMPLE and QUARTERLY targets. Sending only QUARTERLY targets.");
+          return quarterlyTargets;
+        }
+
+        // Otherwise, return all valid targets
+        return validTargets;
+      })(),
     };
 
     console.log("🚀 FORM SUBMISSION - Complete Data Being Sent to Backend:");
     console.log("📍 Location:", location, "| Type:", typeof location, "| Is Array:", Array.isArray(location), "| Length:", location?.length);
     console.log("🎨 Intervention Areas:", intervention_areas, "| Type:", typeof intervention_areas, "| Is Array:", Array.isArray(intervention_areas), "| Length:", intervention_areas?.length);
-    console.log("🎯 Targets:", projectTargets, "| Length:", projectTargets?.length);
+    console.log("🎯 Targets (before filter):", projectTargets, "| Length:", projectTargets?.length);
+    console.log("🎯 Targets (after filter):", formData.targets, "| Length:", formData.targets?.length);
     console.log("👥 Partners:", finalPartners, "| Length:", finalPartners?.length);
     console.log("💰 Budget:", budget, "| Currency:", currency);
     console.log("📦 Full Form Data:", formData);

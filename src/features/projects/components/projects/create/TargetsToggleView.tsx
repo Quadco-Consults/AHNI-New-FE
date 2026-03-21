@@ -25,9 +25,33 @@ export default function TargetsToggleView({ isEditable = true, onTargetsChange, 
   }, [initialTargets]);
 
   const handleTargetsChange = (targets: ProjectTargetDefinition[]) => {
-    setProjectTargets(targets);
-    onTargetsChange?.(targets);
+    // Merge the updated targets with targets from the other mode
+    // This preserves targets when switching between Simple and Quarterly views
+    // Only include targets that have a valid indicator_code
+    const otherModeTargets = projectTargets.filter(target => {
+      // Skip targets without indicator_code (incomplete targets)
+      if (!target.indicator_code || target.indicator_code === '') return false;
+
+      if (viewMode === 'simple') {
+        return target.tracking_mode === 'QUARTERLY';
+      } else {
+        return target.tracking_mode === 'SIMPLE';
+      }
+    });
+
+    const mergedTargets = [...otherModeTargets, ...targets];
+    setProjectTargets(mergedTargets);
+    onTargetsChange?.(mergedTargets);
   };
+
+  // Filter targets to show only those matching current view mode
+  const filteredTargets = projectTargets.filter(target => {
+    if (viewMode === 'simple') {
+      return target.tracking_mode === 'SIMPLE';
+    } else {
+      return target.tracking_mode === 'QUARTERLY';
+    }
+  });
 
   return (
     <div className="space-y-6">
@@ -101,7 +125,7 @@ export default function TargetsToggleView({ isEditable = true, onTargetsChange, 
 
         {/* Render Target Definition Table */}
         <TargetDefinitionTable
-          targets={projectTargets}
+          targets={filteredTargets}
           onTargetsChange={handleTargetsChange}
           viewMode={viewMode}
           isEditable={isEditable}

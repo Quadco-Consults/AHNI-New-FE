@@ -321,6 +321,75 @@ export const useGetProjectFundRequests = (id: string, enabled: boolean = true) =
   });
 };
 
+// ===== ACHIEVEMENT HOOKS =====
+
+// Create or Update Achievement
+export const useSaveAchievement = () => {
+  const saveAchievement = async (achievementData: {
+    id?: string;
+    project_target: string;
+    quarter?: 'Q1' | 'Q2' | 'Q3' | 'Q4';
+    value: number;
+    comments?: string;
+    achievement_date: string;
+  }) => {
+    try {
+      // If achievement has an ID, we need to update it
+      if (achievementData.id && !achievementData.id.includes('_')) {
+        // Real ID from backend - update existing achievement
+        const response = await AxiosWithToken.put(
+          `projects/achievements/${achievementData.id}/`,
+          {
+            quarter: achievementData.quarter,
+            value: achievementData.value,
+            achievement_date: achievementData.achievement_date,
+          }
+        );
+        return response.data;
+      } else {
+        // New achievement - create it via project target's add_achievement action
+        const { id, project_target, ...dataToSend } = achievementData;
+        const response = await AxiosWithToken.post(
+          `projects/project-targets/${project_target}/add_achievement/`,
+          dataToSend
+        );
+        return response.data;
+      }
+    } catch (error) {
+      console.error("Achievement save error:", error);
+      throw error;
+    }
+  };
+
+  return { saveAchievement };
+};
+
+// Update Project Target Comments
+export const useUpdateProjectTarget = (targetId: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    any,
+    Error,
+    { comments: string }
+  >({
+    endpoint: `/projects/project-targets/${targetId}/`,
+    queryKey: ["project-targets", targetId],
+    isAuth: true,
+    method: "PATCH",
+  });
+
+  const updateTargetComments = async (comments: string) => {
+    try {
+      const response = await callApi({ comments });
+      return response;
+    } catch (error) {
+      console.error("Target update error:", error);
+      throw error;
+    }
+  };
+
+  return { updateTargetComments, data, isLoading, isSuccess, error };
+};
+
 // Maintain legacy exports for backward compatibility
 export const useGetAllProjectsQuery = useGetAllProjects;
 export const useGetSingleProjectQuery = useGetSingleProject;

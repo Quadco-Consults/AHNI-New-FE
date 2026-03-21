@@ -4,8 +4,11 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import Card from "@/components/Card";
-import { Plus, Edit, Save, X } from "lucide-react";
+import { Plus, Edit, Save, X, Target } from "lucide-react";
 import { toast } from "sonner";
+import { useSaveAchievement, useUpdateProjectTarget } from "@/features/projects/controllers/projectController";
+import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
+import SimpleAchievementModal from "./SimpleAchievementModal";
 
 // Types for achievement tracking
 interface ProjectTarget {
@@ -50,75 +53,36 @@ export default function PerformanceTracking({ projectId, projectTargets = [] }: 
     field: 'q1' | 'q2' | 'q3' | 'q4' | 'comments';
   } | null>(null);
   const [editValue, setEditValue] = useState<string>('');
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Modal state for simple target achievement recording
+  const [simpleModalOpen, setSimpleModalOpen] = useState(false);
+  const [selectedSimpleTarget, setSelectedSimpleTarget] = useState<TargetWithAchievements | null>(null);
+
+  // API hooks for saving achievements
+  const { saveAchievement } = useSaveAchievement();
 
   // Initialize targets with achievement tracking
   useEffect(() => {
-    // Debug: Log what projectTargets we're receiving (commented out for production)
-    // console.log("🎯 PerformanceTracking received projectTargets:", projectTargets);
-    // console.log("🎯 projectTargets length:", projectTargets.length);
-
     // Map backend target structure to component expected structure
-    let sourceTargets = projectTargets.map(target => ({
-      id: target.id,
-      indicator_code: target.indicator_code,
-      indicator_name: target.indicator_name,
-      tracking_mode: target.tracking_mode,
-      fiscal_year: target.fiscal_year,
-      annual_target: Number(target.target_value) || 0, // Map target_value to annual_target
-      q1_target: target.q1_target,
-      q2_target: target.q2_target,
-      q3_target: target.q3_target,
-      q4_target: target.q4_target,
-      target_notes: target.comments || '',
-      achievements: target.achievements || []
-    }));
+    // CHANGED: Now showing ALL targets (both SIMPLE and QUARTERLY modes)
+    let sourceTargets = projectTargets
+      .map(target => ({
+        id: target.id,
+        indicator_code: target.indicator_code,
+        indicator_name: target.indicator_name,
+        tracking_mode: target.tracking_mode,
+        fiscal_year: target.fiscal_year,
+        annual_target: Number(target.target_value) || 0, // Map target_value to annual_target
+        q1_target: target.q1_target,
+        q2_target: target.q2_target,
+        q3_target: target.q3_target,
+        q4_target: target.q4_target,
+        target_notes: target.comments || '',
+        achievements: target.achievements || []
+      }));
 
-    // console.log("🎯 Mapped sourceTargets:", sourceTargets);
-
-    if (sourceTargets.length === 0) {
-      // Create sample targets based on user's data format
-      sourceTargets = [
-        {
-          id: 'sample_1',
-          indicator_code: 'TX_CURR',
-          indicator_name: 'Number of adults and children currently receiving antiretroviral therapy (ART)',
-          tracking_mode: 'QUARTERLY' as const,
-          fiscal_year: 'FY25',
-          annual_target: 100035,
-          q1_target: 99728,
-          q2_target: 102303,
-          q3_target: 103384,
-          q4_target: 104207,
-          target_notes: 'TX_CURR indicator for FY25'
-        },
-        {
-          id: 'sample_2',
-          indicator_code: 'TX_NEW',
-          indicator_name: 'Number of adults and children newly enrolled on antiretroviral therapy (ART)',
-          tracking_mode: 'QUARTERLY' as const,
-          fiscal_year: 'FY25',
-          annual_target: 3422,
-          q1_target: 2060,
-          q2_target: 1749,
-          q3_target: 1615,
-          q4_target: 1421,
-          target_notes: 'TX_NEW indicator for FY25'
-        },
-        {
-          id: 'sample_3',
-          indicator_code: 'HTS_TST',
-          indicator_name: 'Number of individuals who received HIV testing services (HTS)',
-          tracking_mode: 'QUARTERLY' as const,
-          fiscal_year: 'FY25',
-          annual_target: 778399,
-          q1_target: 210799,
-          q2_target: 144766,
-          q3_target: 191834,
-          q4_target: 165843,
-          target_notes: 'HTS_TST indicator for FY25'
-        }
-      ];
-    }
+    // console.log("🎯 Mapped sourceTargets (ALL modes):", sourceTargets);
 
     const targetsWithAchievements: TargetWithAchievements[] = sourceTargets.map(target => {
       // Initialize empty achievements - only use actual data from backend
@@ -159,55 +123,104 @@ export default function PerformanceTracking({ projectId, projectTargets = [] }: 
     setEditValue(currentValue);
   };
 
-  const handleSaveCell = () => {
-    if (!editingCell) return;
+  const handleSaveCell = async () => {
+    if (!editingCell || isSaving) return;
 
     const { targetId, field } = editingCell;
+    setIsSaving(true);
 
-    setTargets(prev => prev.map(target => {
-      if (target.id === targetId) {
-        if (field === 'comments') {
-          return {
-            ...target,
-            target_notes: editValue
-          };
-        } else {
-          // Handle quarterly achievement update
-          const quarter = field.toUpperCase() as 'Q1' | 'Q2' | 'Q3' | 'Q4';
-          const value = parseFloat(editValue) || 0;
+    try {
+      if (field === 'comments') {
+        // Save comments via API using PATCH on the target
+        await AxiosWithToken.patch(`projects/project-targets/${targetId}/`, {
+          comments: editValue
+        });
 
-          // Update or create achievement for this quarter
-          const updatedAchievements = target.achievements.filter(a => a.quarter !== quarter);
-          if (value > 0) {
-            updatedAchievements.push({
-              id: `${targetId}_${quarter}`,
-              target_id: targetId,
-              quarter,
-              achievement_value: value,
-              achievement_date: new Date().toISOString().split('T')[0],
-              comments: ''
-            });
+        // Update local state
+        setTargets(prev => prev.map(target => {
+          if (target.id === targetId) {
+            return {
+              ...target,
+              target_notes: editValue
+            };
           }
+          return target;
+        }));
 
-          // Recalculate totals
-          const totalAchievement = updatedAchievements.reduce((sum, ach) => sum + ach.achievement_value, 0);
-          const percentageAchieved = target.annual_target > 0 ? (totalAchievement / target.annual_target) * 100 : 0;
+        toast.success("Comment saved successfully!");
+      } else {
+        // Handle quarterly achievement update
+        const quarter = field.toUpperCase() as 'Q1' | 'Q2' | 'Q3' | 'Q4';
+        const value = parseFloat(editValue) || 0;
 
-          return {
-            ...target,
-            achievements: updatedAchievements,
-            total_achievement: totalAchievement,
-            percentage_achieved: Math.round(percentageAchieved * 100) / 100,
-            is_on_target: percentageAchieved >= 80
-          };
+        // Find the target to check if achievement exists
+        const target = targets.find(t => t.id === targetId);
+
+        // Verify target is in quarterly mode
+        if (target?.tracking_mode !== 'QUARTERLY') {
+          toast.error("This target is not configured for quarterly tracking");
+          setIsSaving(false);
+          return;
         }
-      }
-      return target;
-    }));
 
-    setEditingCell(null);
-    setEditValue('');
-    toast.success("Achievement updated successfully!");
+        const existingAchievement = target?.achievements.find(a => a.quarter === quarter);
+
+        // Save achievement via API
+        const achievementData = {
+          id: existingAchievement?.id && !existingAchievement.id.includes('_') ? existingAchievement.id : undefined,
+          project_target: targetId,
+          quarter,
+          value,
+          achievement_date: new Date().toISOString().split('T')[0],
+        };
+
+        const response = await saveAchievement(achievementData);
+
+        // Extract achievement ID from response
+        const achievementId = response?.data?.id || response?.id || `${targetId}_${quarter}`;
+
+        // Update local state with API response
+        setTargets(prev => prev.map(target => {
+          if (target.id === targetId) {
+            // Update or create achievement for this quarter
+            const updatedAchievements = target.achievements.filter(a => a.quarter !== quarter);
+            if (value > 0) {
+              updatedAchievements.push({
+                id: achievementId,
+                target_id: targetId,
+                quarter,
+                achievement_value: value,
+                achievement_date: new Date().toISOString().split('T')[0],
+                comments: ''
+              });
+            }
+
+            // Recalculate totals
+            const totalAchievement = updatedAchievements.reduce((sum, ach) => sum + ach.achievement_value, 0);
+            const percentageAchieved = target.annual_target > 0 ? (totalAchievement / target.annual_target) * 100 : 0;
+
+            return {
+              ...target,
+              achievements: updatedAchievements,
+              total_achievement: totalAchievement,
+              percentage_achieved: Math.round(percentageAchieved * 100) / 100,
+              is_on_target: percentageAchieved >= 80
+            };
+          }
+          return target;
+        }));
+
+        toast.success("Achievement saved successfully!");
+      }
+
+      setEditingCell(null);
+      setEditValue('');
+    } catch (error) {
+      console.error("Error saving data:", error);
+      toast.error("Failed to save. Please try again.");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleCancelEdit = () => {
@@ -215,271 +228,465 @@ export default function PerformanceTracking({ projectId, projectTargets = [] }: 
     setEditValue('');
   };
 
+  // Handle opening the simple achievement modal
+  const handleOpenSimpleModal = (target: TargetWithAchievements) => {
+    console.log('Opening modal for target:', target.id, target.indicator_code);
+    setSelectedSimpleTarget(target);
+    setSimpleModalOpen(true);
+  };
+
+  // Handle saving simple achievement from modal
+  const handleSaveSimpleAchievement = async (achievementData: Omit<Achievement, 'id'>) => {
+    if (!selectedSimpleTarget) return;
+
+    const response = await saveAchievement({
+      project_target: selectedSimpleTarget.id,
+      value: achievementData.achievement_value,
+      achievement_date: achievementData.achievement_date,
+      comments: achievementData.comments
+    });
+
+    // Extract achievement ID from response
+    const achievementId = response?.data?.id || response?.id || `${selectedSimpleTarget.id}_${Date.now()}`;
+
+    // Update local state
+    setTargets(prev => prev.map(target => {
+      if (target.id === selectedSimpleTarget.id) {
+        const updatedAchievements = [
+          ...target.achievements,
+          {
+            id: achievementId,
+            target_id: selectedSimpleTarget.id,
+            achievement_value: achievementData.achievement_value,
+            achievement_date: achievementData.achievement_date,
+            comments: achievementData.comments
+          }
+        ];
+
+        // Recalculate totals
+        const totalAchievement = updatedAchievements.reduce((sum, ach) => sum + ach.achievement_value, 0);
+        const percentageAchieved = target.annual_target > 0 ? (totalAchievement / target.annual_target) * 100 : 0;
+
+        return {
+          ...target,
+          achievements: updatedAchievements,
+          total_achievement: totalAchievement,
+          percentage_achieved: Math.round(percentageAchieved * 100) / 100,
+          is_on_target: percentageAchieved >= 80
+        };
+      }
+      return target;
+    }));
+  };
+
   return (
     <div className="space-y-6">
       {/* Performance Overview */}
-      <Card className="p-6">
-        <h3 className="text-xl font-semibold mb-4">Performance Overview</h3>
+      <Card className="p-6 bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200">
+        <h3 className="text-xl font-semibold mb-6 text-gray-800">Performance Overview</h3>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="text-center p-4 bg-blue-50 rounded-lg">
-            <div className="text-2xl font-bold text-blue-600">{targets.length}</div>
-            <div className="text-sm text-blue-800">Total Targets</div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="text-center p-6 bg-white rounded-xl shadow-sm border border-blue-200 hover:shadow-md transition-shadow">
+            <div className="text-4xl font-bold text-blue-600 mb-2">{targets.length}</div>
+            <div className="text-sm font-medium text-blue-800">Total Targets</div>
           </div>
-          <div className="text-center p-4 bg-green-50 rounded-lg">
-            <div className="text-2xl font-bold text-green-600">
+          <div className="text-center p-6 bg-white rounded-xl shadow-sm border border-green-200 hover:shadow-md transition-shadow">
+            <div className="text-4xl font-bold text-green-600 mb-2">
               {targets.filter(t => t.is_on_target).length}
             </div>
-            <div className="text-sm text-green-800">On Target</div>
+            <div className="text-sm font-medium text-green-800">On Target</div>
           </div>
-          <div className="text-center p-4 bg-red-50 rounded-lg">
-            <div className="text-2xl font-bold text-red-600">
+          <div className="text-center p-6 bg-white rounded-xl shadow-sm border border-red-200 hover:shadow-md transition-shadow">
+            <div className="text-4xl font-bold text-red-600 mb-2">
               {targets.filter(t => !t.is_on_target).length}
             </div>
-            <div className="text-sm text-red-800">Off Target</div>
+            <div className="text-sm font-medium text-red-800">Off Target</div>
           </div>
-          <div className="text-center p-4 bg-purple-50 rounded-lg">
-            <div className="text-2xl font-bold text-purple-600">
+          <div className="text-center p-6 bg-white rounded-xl shadow-sm border border-purple-200 hover:shadow-md transition-shadow">
+            <div className="text-4xl font-bold text-purple-600 mb-2">
               {targets.length > 0 ? Math.round((targets.reduce((sum, t) => sum + t.percentage_achieved, 0) / targets.length) * 10) / 10 : 0}%
             </div>
-            <div className="text-sm text-purple-800">Avg Performance</div>
+            <div className="text-sm font-medium text-purple-800">Avg Performance</div>
           </div>
         </div>
       </Card>
 
       {/* Comprehensive Performance Table */}
-      <Card className="p-6">
-        <h3 className="text-xl font-semibold mb-4">Performance Summary Table</h3>
+      <Card className="p-6 shadow-lg">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-xl font-semibold text-gray-800">Performance Summary Table</h3>
+          <div className="text-xs text-gray-500 italic">
+            Click on any cell to edit • Press Enter to save • Escape to cancel
+          </div>
+        </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full border border-gray-300 text-sm">
-            <thead className="bg-blue-50">
+        {targets.length === 0 ? (
+          <div className="text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+            <div className="text-gray-400 mb-4">
+              <Target className="mx-auto h-16 w-16" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-700 mb-2">No Performance Targets Defined</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              This project doesn't have any performance targets yet. Add targets during project creation or setup to track achievements.
+            </p>
+            <div className="mt-6 text-left max-w-md mx-auto bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <h4 className="font-semibold text-blue-900 mb-2 text-sm">Tracking Modes Available:</h4>
+              <div className="space-y-2 text-xs text-gray-700">
+                <div className="flex items-start gap-2">
+                  <span className="px-2 py-1 bg-green-100 text-green-800 rounded font-medium">SIMPLE</span>
+                  <span>Record achievements as they happen throughout the year</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="px-2 py-1 bg-purple-100 text-purple-800 rounded font-medium">QUARTERLY</span>
+                  <span>Track achievements by quarter (Q1, Q2, Q3, Q4)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="overflow-x-auto rounded-lg border border-gray-200">
+          <table className="w-full text-sm border-collapse">
+            <thead className="bg-gradient-to-r from-blue-600 to-blue-700 text-white sticky top-0">
               <tr>
-                <th className="px-3 py-3 text-left font-semibold border border-gray-300">Standard Indicators</th>
-                <th className="px-3 py-3 text-right font-semibold border border-gray-300">Annual Target FY25</th>
-                <th className="px-3 py-3 text-right font-semibold border border-gray-300">FY25Q1</th>
-                <th className="px-3 py-3 text-right font-semibold border border-gray-300">FY25Q2</th>
-                <th className="px-3 py-3 text-right font-semibold border border-gray-300">FY25Q3</th>
-                <th className="px-3 py-3 text-right font-semibold border border-gray-300">FY25Q4</th>
-                <th className="px-3 py-3 text-right font-semibold border border-gray-300">Cumulative Achievement</th>
-                <th className="px-3 py-3 text-right font-semibold border border-gray-300">Annual Performance (%)</th>
-                <th className="px-3 py-3 text-center font-semibold border border-gray-300">On Target Y/N</th>
-                <th className="px-3 py-3 text-left font-semibold border border-gray-300">Comments</th>
+                <th className="px-4 py-4 text-left font-semibold border-r border-blue-500">Indicator</th>
+                <th className="px-4 py-4 text-center font-semibold border-r border-blue-500">Mode</th>
+                <th className="px-4 py-4 text-right font-semibold border-r border-blue-500">Annual Target</th>
+                <th className="px-4 py-4 text-center font-semibold border-r border-blue-500 bg-blue-500/30" colSpan={4}>Achievement Tracking</th>
+                <th className="px-4 py-4 text-right font-semibold border-r border-blue-500">Total<br/><span className="text-xs font-normal">Achievement</span></th>
+                <th className="px-4 py-4 text-right font-semibold border-r border-blue-500">Performance<br/><span className="text-xs font-normal">(%)</span></th>
+                <th className="px-4 py-4 text-center font-semibold border-r border-blue-500">Status</th>
+                <th className="px-4 py-4 text-left font-semibold">Comments/Actions</th>
               </tr>
             </thead>
             <tbody className="bg-white">
               {targets.map((target, index) => {
-                // Get quarterly achievements
-                const q1_achievement = target.achievements.find(a => a.quarter === 'Q1')?.achievement_value || 0;
-                const q2_achievement = target.achievements.find(a => a.quarter === 'Q2')?.achievement_value || 0;
-                const q3_achievement = target.achievements.find(a => a.quarter === 'Q3')?.achievement_value || 0;
-                const q4_achievement = target.achievements.find(a => a.quarter === 'Q4')?.achievement_value || 0;
+                const isQuarterly = target.tracking_mode === 'QUARTERLY';
 
-                const cumulativeAchievement = q1_achievement + q2_achievement + q3_achievement + q4_achievement;
-                const performancePercent = (target.annual_target || 0) > 0 ? (cumulativeAchievement / (target.annual_target || 1)) : 0;
+                // Get achievements based on tracking mode
+                const q1_achievement = isQuarterly ? (target.achievements.find(a => a.quarter === 'Q1')?.achievement_value || 0) : 0;
+                const q2_achievement = isQuarterly ? (target.achievements.find(a => a.quarter === 'Q2')?.achievement_value || 0) : 0;
+                const q3_achievement = isQuarterly ? (target.achievements.find(a => a.quarter === 'Q3')?.achievement_value || 0) : 0;
+                const q4_achievement = isQuarterly ? (target.achievements.find(a => a.quarter === 'Q4')?.achievement_value || 0) : 0;
+
+                // For simple tracking, sum all achievements
+                const totalAchievement = isQuarterly
+                  ? q1_achievement + q2_achievement + q3_achievement + q4_achievement
+                  : target.achievements.reduce((sum, ach) => sum + ach.achievement_value, 0);
+
+                const performancePercent = (target.annual_target || 0) > 0 ? (totalAchievement / (target.annual_target || 1)) : 0;
                 const isOnTarget = performancePercent >= 0.80;
 
                 return (
-                  <tr key={target.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                    <td className="px-3 py-3 border border-gray-300 font-medium">{target.indicator_code}</td>
-                    <td className="px-3 py-3 border border-gray-300 text-right">{target.annual_target?.toLocaleString() || '0'}</td>
+                  <tr key={target.id} className={`${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-blue-50 transition-colors`}>
+                    {/* Indicator Name/Code */}
+                    <td className="px-4 py-4 border-b border-r border-gray-200 font-semibold text-gray-800">
+                      <div className="flex flex-col gap-1">
+                        <span className="text-blue-600">{target.indicator_code}</span>
+                        <span className="text-xs text-gray-500 font-normal truncate max-w-[200px]" title={target.indicator_name}>
+                          {target.indicator_name}
+                        </span>
+                      </div>
+                    </td>
 
-                    {/* Q1 Achievement - Editable */}
-                    <td className="px-3 py-3 border border-gray-300 text-right">
+                    {/* Tracking Mode Badge */}
+                    <td className="px-4 py-4 border-b border-r border-gray-200 text-center">
+                      <span className={`px-2 py-1 rounded text-xs font-bold ${
+                        isQuarterly
+                          ? 'bg-purple-100 text-purple-800 border border-purple-300'
+                          : 'bg-green-100 text-green-800 border border-green-300'
+                      }`}>
+                        {target.tracking_mode}
+                      </span>
+                    </td>
+
+                    {/* Annual Target */}
+                    <td className="px-4 py-4 border-b border-r border-gray-200 text-right font-semibold text-gray-700">
+                      {target.annual_target?.toLocaleString() || '0'}
+                    </td>
+
+                    {/* Achievement Tracking Section - Adaptive based on tracking mode */}
+                    {isQuarterly ? (
+                      <>
+                        {/* Q1 Achievement - Editable */}
+                        <td className="px-4 py-4 border-b border-r border-gray-200 text-right bg-blue-50/50">
                       {editingCell?.targetId === target.id && editingCell?.field === 'q1' ? (
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center justify-end gap-3">
                           <input
                             type="number"
                             value={editValue}
                             onChange={(e) => setEditValue(e.target.value)}
-                            className="w-20 px-1 py-1 text-xs border rounded"
+                            className="w-48 px-4 py-3 text-lg font-semibold border-3 border-blue-500 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-400 shadow-xl"
                             autoFocus
                             onKeyDown={(e) => {
                               if (e.key === 'Enter') handleSaveCell();
                               if (e.key === 'Escape') handleCancelEdit();
                             }}
                           />
-                          <Save
-                            className="text-green-600 cursor-pointer"
-                            size={12}
+                          <button
                             onClick={handleSaveCell}
-                          />
-                          <X
-                            className="text-red-600 cursor-pointer"
-                            size={12}
+                            disabled={isSaving}
+                            className={`p-3 bg-green-500 hover:bg-green-600 text-white rounded-xl transition-all hover:scale-110 shadow-lg ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            title="Save (Enter)"
+                          >
+                            <Save size={24} />
+                          </button>
+                          <button
                             onClick={handleCancelEdit}
-                          />
+                            disabled={isSaving}
+                            className={`p-3 bg-red-500 hover:bg-red-600 text-white rounded-xl transition-all hover:scale-110 shadow-lg ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            title="Cancel (Esc)"
+                          >
+                            <X size={24} />
+                          </button>
                         </div>
                       ) : (
-                        <span
-                          className="cursor-pointer hover:bg-blue-100 px-1 py-1 rounded"
+                        <div
+                          className="cursor-pointer hover:bg-blue-200 px-3 py-2 rounded-md transition-colors flex items-center justify-end gap-2 group"
                           onClick={() => handleCellEdit(target.id, 'q1')}
                           title="Click to edit Q1 achievement"
                         >
-                          {q1_achievement > 0 ? q1_achievement.toLocaleString() : '-'}
-                        </span>
+                          <span className="font-medium">{q1_achievement > 0 ? q1_achievement.toLocaleString() : '-'}</span>
+                          <Edit className="w-3 h-3 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </div>
                       )}
                     </td>
 
                     {/* Q2 Achievement - Editable */}
-                    <td className="px-3 py-3 border border-gray-300 text-right">
+                    <td className="px-4 py-4 border-b border-r border-gray-200 text-right bg-blue-50/50">
                       {editingCell?.targetId === target.id && editingCell?.field === 'q2' ? (
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center justify-end gap-3">
                           <input
                             type="number"
                             value={editValue}
                             onChange={(e) => setEditValue(e.target.value)}
-                            className="w-20 px-1 py-1 text-xs border rounded"
+                            className="w-48 px-4 py-3 text-lg font-semibold border-3 border-blue-500 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-400 shadow-xl"
                             autoFocus
                             onKeyDown={(e) => {
                               if (e.key === 'Enter') handleSaveCell();
                               if (e.key === 'Escape') handleCancelEdit();
                             }}
                           />
-                          <Save
-                            className="text-green-600 cursor-pointer"
-                            size={12}
+                          <button
                             onClick={handleSaveCell}
-                          />
-                          <X
-                            className="text-red-600 cursor-pointer"
-                            size={12}
+                            disabled={isSaving}
+                            className={`p-3 bg-green-500 hover:bg-green-600 text-white rounded-xl transition-all hover:scale-110 shadow-lg ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            title="Save (Enter)"
+                          >
+                            <Save size={24} />
+                          </button>
+                          <button
                             onClick={handleCancelEdit}
-                          />
+                            disabled={isSaving}
+                            className={`p-3 bg-red-500 hover:bg-red-600 text-white rounded-xl transition-all hover:scale-110 shadow-lg ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            title="Cancel (Esc)"
+                          >
+                            <X size={24} />
+                          </button>
                         </div>
                       ) : (
-                        <span
-                          className="cursor-pointer hover:bg-blue-100 px-1 py-1 rounded"
+                        <div
+                          className="cursor-pointer hover:bg-blue-200 px-3 py-2 rounded-md transition-colors flex items-center justify-end gap-2 group"
                           onClick={() => handleCellEdit(target.id, 'q2')}
                           title="Click to edit Q2 achievement"
                         >
-                          {q2_achievement > 0 ? q2_achievement.toLocaleString() : '-'}
-                        </span>
+                          <span className="font-medium">{q2_achievement > 0 ? q2_achievement.toLocaleString() : '-'}</span>
+                          <Edit className="w-3 h-3 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </div>
                       )}
                     </td>
 
                     {/* Q3 Achievement - Editable */}
-                    <td className="px-3 py-3 border border-gray-300 text-right">
+                    <td className="px-4 py-4 border-b border-r border-gray-200 text-right bg-blue-50/50">
                       {editingCell?.targetId === target.id && editingCell?.field === 'q3' ? (
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center justify-end gap-3">
                           <input
                             type="number"
                             value={editValue}
                             onChange={(e) => setEditValue(e.target.value)}
-                            className="w-20 px-1 py-1 text-xs border rounded"
+                            className="w-48 px-4 py-3 text-lg font-semibold border-3 border-blue-500 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-400 shadow-xl"
                             autoFocus
                             onKeyDown={(e) => {
                               if (e.key === 'Enter') handleSaveCell();
                               if (e.key === 'Escape') handleCancelEdit();
                             }}
                           />
-                          <Save
-                            className="text-green-600 cursor-pointer"
-                            size={12}
+                          <button
                             onClick={handleSaveCell}
-                          />
-                          <X
-                            className="text-red-600 cursor-pointer"
-                            size={12}
+                            disabled={isSaving}
+                            className={`p-3 bg-green-500 hover:bg-green-600 text-white rounded-xl transition-all hover:scale-110 shadow-lg ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            title="Save (Enter)"
+                          >
+                            <Save size={24} />
+                          </button>
+                          <button
                             onClick={handleCancelEdit}
-                          />
+                            disabled={isSaving}
+                            className={`p-3 bg-red-500 hover:bg-red-600 text-white rounded-xl transition-all hover:scale-110 shadow-lg ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            title="Cancel (Esc)"
+                          >
+                            <X size={24} />
+                          </button>
                         </div>
                       ) : (
-                        <span
-                          className="cursor-pointer hover:bg-blue-100 px-1 py-1 rounded"
+                        <div
+                          className="cursor-pointer hover:bg-blue-200 px-3 py-2 rounded-md transition-colors flex items-center justify-end gap-2 group"
                           onClick={() => handleCellEdit(target.id, 'q3')}
                           title="Click to edit Q3 achievement"
                         >
-                          {q3_achievement > 0 ? q3_achievement.toLocaleString() : '-'}
-                        </span>
+                          <span className="font-medium">{q3_achievement > 0 ? q3_achievement.toLocaleString() : '-'}</span>
+                          <Edit className="w-3 h-3 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </div>
                       )}
                     </td>
 
                     {/* Q4 Achievement - Editable */}
-                    <td className="px-3 py-3 border border-gray-300 text-right">
+                    <td className="px-4 py-4 border-b border-r border-gray-200 text-right bg-blue-50/50">
                       {editingCell?.targetId === target.id && editingCell?.field === 'q4' ? (
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center justify-end gap-3">
                           <input
                             type="number"
                             value={editValue}
                             onChange={(e) => setEditValue(e.target.value)}
-                            className="w-20 px-1 py-1 text-xs border rounded"
+                            className="w-48 px-4 py-3 text-lg font-semibold border-3 border-blue-500 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-400 shadow-xl"
                             autoFocus
                             onKeyDown={(e) => {
                               if (e.key === 'Enter') handleSaveCell();
                               if (e.key === 'Escape') handleCancelEdit();
                             }}
                           />
-                          <Save
-                            className="text-green-600 cursor-pointer"
-                            size={12}
+                          <button
                             onClick={handleSaveCell}
-                          />
-                          <X
-                            className="text-red-600 cursor-pointer"
-                            size={12}
+                            disabled={isSaving}
+                            className={`p-3 bg-green-500 hover:bg-green-600 text-white rounded-xl transition-all hover:scale-110 shadow-lg ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            title="Save (Enter)"
+                          >
+                            <Save size={24} />
+                          </button>
+                          <button
                             onClick={handleCancelEdit}
-                          />
+                            disabled={isSaving}
+                            className={`p-3 bg-red-500 hover:bg-red-600 text-white rounded-xl transition-all hover:scale-110 shadow-lg ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            title="Cancel (Esc)"
+                          >
+                            <X size={24} />
+                          </button>
                         </div>
                       ) : (
-                        <span
-                          className="cursor-pointer hover:bg-blue-100 px-1 py-1 rounded"
+                        <div
+                          className="cursor-pointer hover:bg-blue-200 px-3 py-2 rounded-md transition-colors flex items-center justify-end gap-2 group"
                           onClick={() => handleCellEdit(target.id, 'q4')}
                           title="Click to edit Q4 achievement"
                         >
-                          {q4_achievement > 0 ? q4_achievement.toLocaleString() : '-'}
-                        </span>
+                          <span className="font-medium">{q4_achievement > 0 ? q4_achievement.toLocaleString() : '-'}</span>
+                          <Edit className="w-3 h-3 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </div>
                       )}
                     </td>
+                      </>
+                    ) : (
+                      /* Simple Tracking Mode - Show achievement count and record button */
+                      <td className="px-4 py-4 border-b border-r border-gray-200 text-center" colSpan={4}>
+                        <div className="flex items-center justify-center gap-4">
+                          <div className="text-sm text-gray-600">
+                            {target.achievements.length > 0 ? (
+                              <span className="font-medium text-gray-700">
+                                {target.achievements.length} achievement{target.achievements.length !== 1 ? 's' : ''} recorded
+                              </span>
+                            ) : (
+                              <span className="italic text-gray-400">No achievements recorded yet</span>
+                            )}
+                          </div>
+                          <Button
+                            size="sm"
+                            onClick={() => handleOpenSimpleModal(target)}
+                            className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-4 py-2 rounded-lg font-semibold transition-all hover:scale-105"
+                          >
+                            <Plus size={16} className="mr-1" />
+                            Record Achievement
+                          </Button>
+                        </div>
+                      </td>
+                    )}
 
-                    <td className="px-3 py-3 border border-gray-300 text-right font-semibold">{cumulativeAchievement.toLocaleString()}</td>
-                    <td className="px-3 py-3 border border-gray-300 text-right font-semibold">
-                      <span className={`${isOnTarget ? 'text-green-600' : 'text-red-600'}`}>
-                        {(performancePercent * 100).toFixed(1)}%
-                      </span>
+                    {/* Total Achievement */}
+                    <td className="px-4 py-4 border-b border-r border-gray-200 text-right">
+                      <span className="font-bold text-lg text-gray-900">{totalAchievement.toLocaleString()}</span>
                     </td>
-                    <td className="px-3 py-3 border border-gray-300 text-center">
-                      <span className={`px-2 py-1 rounded text-xs font-semibold ${
-                        isOnTarget ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                    <td className="px-4 py-4 border-b border-r border-gray-200 text-right">
+                      <div className="flex flex-col items-end gap-1">
+                        <span className={`text-lg font-bold ${isOnTarget ? 'text-green-600' : 'text-red-600'}`}>
+                          {(performancePercent * 100).toFixed(1)}%
+                        </span>
+                        <div className="w-full max-w-[100px] bg-gray-200 rounded-full h-2">
+                          <div
+                            className={`h-2 rounded-full transition-all ${isOnTarget ? 'bg-green-500' : 'bg-red-500'}`}
+                            style={{ width: `${Math.min(performancePercent * 100, 100)}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-4 border-b border-r border-gray-200 text-center">
+                      <span className={`px-4 py-2 rounded-full text-sm font-bold inline-flex items-center gap-2 ${
+                        isOnTarget ? 'bg-green-100 text-green-800 border-2 border-green-300' : 'bg-red-100 text-red-800 border-2 border-red-300'
                       }`}>
-                        {isOnTarget ? 'Y' : 'N'}
+                        {isOnTarget ? (
+                          <>
+                            <span className="w-2 h-2 bg-green-600 rounded-full"></span>
+                            YES
+                          </>
+                        ) : (
+                          <>
+                            <span className="w-2 h-2 bg-red-600 rounded-full"></span>
+                            NO
+                          </>
+                        )}
                       </span>
                     </td>
 
                     {/* Comments - Editable */}
-                    <td className="px-3 py-3 border border-gray-300 text-xs">
+                    <td className="px-4 py-4 border-b border-gray-200">
                       {editingCell?.targetId === target.id && editingCell?.field === 'comments' ? (
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-3">
                           <input
                             type="text"
                             value={editValue}
                             onChange={(e) => setEditValue(e.target.value)}
-                            className="w-32 px-1 py-1 text-xs border rounded"
+                            className="flex-1 px-4 py-3 text-lg border-3 border-blue-500 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-400 shadow-xl"
+                            placeholder="Enter comment..."
                             autoFocus
                             onKeyDown={(e) => {
                               if (e.key === 'Enter') handleSaveCell();
                               if (e.key === 'Escape') handleCancelEdit();
                             }}
                           />
-                          <Save
-                            className="text-green-600 cursor-pointer"
-                            size={12}
+                          <button
                             onClick={handleSaveCell}
-                          />
-                          <X
-                            className="text-red-600 cursor-pointer"
-                            size={12}
+                            disabled={isSaving}
+                            className={`p-3 bg-green-500 hover:bg-green-600 text-white rounded-xl transition-all hover:scale-110 shadow-lg ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            title="Save (Enter)"
+                          >
+                            <Save size={24} />
+                          </button>
+                          <button
                             onClick={handleCancelEdit}
-                          />
+                            disabled={isSaving}
+                            className={`p-3 bg-red-500 hover:bg-red-600 text-white rounded-xl transition-all hover:scale-110 shadow-lg ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            title="Cancel (Esc)"
+                          >
+                            <X size={24} />
+                          </button>
                         </div>
                       ) : (
-                        <span
-                          className="cursor-pointer hover:bg-blue-100 px-1 py-1 rounded"
+                        <div
+                          className="cursor-pointer hover:bg-blue-100 px-3 py-2 rounded-md transition-colors text-sm group flex items-center gap-2"
                           onClick={() => handleCellEdit(target.id, 'comments')}
                           title="Click to edit comments"
                         >
-                          {target.target_notes || 'Click to add comment'}
-                        </span>
+                          <span className={target.target_notes ? 'text-gray-700' : 'text-gray-400 italic'}>
+                            {target.target_notes || 'Click to add comment'}
+                          </span>
+                          <Edit className="w-3 h-3 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </div>
                       )}
                     </td>
                   </tr>
@@ -488,26 +695,48 @@ export default function PerformanceTracking({ projectId, projectTargets = [] }: 
             </tbody>
           </table>
         </div>
+        )}
 
-        <div className="mt-4 space-y-2">
-          <div className="flex items-center gap-4 text-sm">
-            <div className="flex items-center gap-2">
-              <span className="w-3 h-3 bg-blue-100 border border-blue-300 rounded"></span>
-              <span className="text-gray-600">Click any achievement cell to edit</span>
+        {targets.length > 0 && (
+        <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border-l-4 border-blue-500">
+          <div className="flex items-start gap-3">
+            <div className="flex-shrink-0 mt-0.5">
+              <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                <Edit className="w-4 h-4 text-white" />
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Save className="text-green-600" size={12} />
-              <span className="text-gray-600">Save changes</span>
+            <div className="flex-1 space-y-3">
+              <h4 className="font-semibold text-gray-800 text-sm">How to Record Performance Data</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <span className="px-2 py-1 bg-purple-100 text-purple-800 rounded text-xs font-bold">QUARTERLY</span>
+                    <span className="text-gray-700 font-medium">Targets</span>
+                  </div>
+                  <ul className="text-xs text-gray-600 ml-4 space-y-1">
+                    <li>• Click any Q1-Q4 cell to edit</li>
+                    <li>• Press <kbd className="px-1 py-0.5 bg-white border border-gray-300 rounded font-mono">Enter</kbd> to save or <kbd className="px-1 py-0.5 bg-white border border-gray-300 rounded font-mono">Esc</kbd> to cancel</li>
+                  </ul>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <span className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-bold">SIMPLE</span>
+                    <span className="text-gray-700 font-medium">Targets</span>
+                  </div>
+                  <ul className="text-xs text-gray-600 ml-4 space-y-1">
+                    <li>• Click "Record Achievement" button</li>
+                    <li>• Enter achievement value with date</li>
+                    <li>• Multiple achievements accumulate automatically</li>
+                  </ul>
+                </div>
+              </div>
+              <p className="text-xs text-gray-600 italic mt-3">
+                Total achievement and performance percentage are calculated automatically. Targets ≥80% are marked as "On Target".
+              </p>
             </div>
-            <div className="flex items-center gap-2">
-              <X className="text-red-600" size={12} />
-              <span className="text-gray-600">Cancel editing</span>
-            </div>
-          </div>
-          <div className="text-xs text-gray-600">
-            <p><strong>Instructions:</strong> Click on any Q1-Q4 achievement cell or comment to edit. Press Enter to save or Escape to cancel. Calculations update automatically.</p>
           </div>
         </div>
+        )}
       </Card>
 
       {/* Additional Tools Section - Optional */}
@@ -532,6 +761,21 @@ export default function PerformanceTracking({ projectId, projectTargets = [] }: 
           </div>
         </Card>
       )}
+
+      {/* Simple Achievement Modal */}
+      <SimpleAchievementModal
+        isOpen={simpleModalOpen && selectedSimpleTarget !== null}
+        onClose={() => {
+          console.log('Closing modal');
+          setSimpleModalOpen(false);
+          setSelectedSimpleTarget(null);
+        }}
+        targetId={selectedSimpleTarget?.id || ''}
+        targetName={selectedSimpleTarget ? `${selectedSimpleTarget.indicator_code} - ${selectedSimpleTarget.indicator_name}` : ''}
+        annualTarget={selectedSimpleTarget?.annual_target || 0}
+        currentAchievements={selectedSimpleTarget?.achievements || []}
+        onSave={handleSaveSimpleAchievement}
+      />
     </div>
   );
 }

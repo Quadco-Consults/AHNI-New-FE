@@ -10,7 +10,11 @@ import { toast } from "sonner";
 import { useState } from "react";
 import ConfirmationDialog from "@/components/ConfirmationDialog";
 
-export const costSheetSubActivitiesColumns = (activityId: string, workPlanId: string): ColumnDef<TActivityCostSheet>[] => [
+export const costSheetSubActivitiesColumns = (
+    activityId?: string,
+    workPlanId?: string,
+    activityPlanId?: string
+): ColumnDef<TActivityCostSheet>[] => [
     {
         header: "Description",
         accessorKey: "description",
@@ -96,11 +100,21 @@ export const costSheetSubActivitiesColumns = (activityId: string, workPlanId: st
         header: "",
         size: 100,
         id: "actions",
-        cell: ({ row }) => <TableActions data={row.original} activityId={activityId} workPlanId={workPlanId} />,
+        cell: ({ row }) => <TableActions data={row.original} activityId={activityId} workPlanId={workPlanId} activityPlanId={activityPlanId} />,
     },
 ];
 
-const TableActions = ({ data, activityId, workPlanId }: { data: TActivityCostSheet; activityId: string; workPlanId: string }) => {
+const TableActions = ({
+    data,
+    activityId,
+    workPlanId,
+    activityPlanId
+}: {
+    data: TActivityCostSheet;
+    activityId?: string;
+    workPlanId?: string;
+    activityPlanId?: string;
+}) => {
     const dispatch = useAppDispatch();
     const [dialogOpen, setDialogOpen] = useState(false);
     const { deleteCostSheet, isLoading } = useDeleteActivityCostSheet(data.id);
@@ -115,6 +129,8 @@ const TableActions = ({ data, activityId, workPlanId }: { data: TActivityCostShe
                     costSheet: data,
                     activityId,
                     workPlanId,
+                    activityPlanId,
+                    isUnplanned: !!activityPlanId,
                     mode: "edit",
                 },
             })

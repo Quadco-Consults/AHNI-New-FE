@@ -2,8 +2,9 @@
 
 import Card from "@/components/Card";
 import { useState, useMemo } from "react";
-import DataTable from "@/components/Table/DataTable";
+import DataTableWithExpansion from "@/components/Table/DataTableWithExpansion";
 import BreadcrumbCard, { TBreadcrumbList } from "@/components/Breadcrumb";
+import CostSheetTrackersExpanded from "@/features/programs/components/plan/work-plan-tracker/CostSheetTrackersExpanded";
 import { useDebounce } from "ahooks";
 import TableFilters from "@/components/Table/TableFilters";
 import { getActivityPlanDetailsColumns } from "@/features/programs/components/table-columns/plan/activity-plan";
@@ -250,12 +251,23 @@ export default function PlannedActivities() {
         <TableFilters
           onSearchChange={(e) => setSearchQuery(e.target.value)}
         >
-          <DataTable
+          <DataTableWithExpansion
             data={plannedData}
             columns={getActivityPlanDetailsColumns(id as string)}
             isLoading={isFetching || workPlanLoading}
             pagination={{
               onChange: (page: number) => setPage(page),
+            }}
+            renderExpandedRow={(row: any) => (
+              <CostSheetTrackersExpanded
+                activityId={row.work_plan_activity}
+                activityNumber={row.activity_code || "N/A"}
+                isEditable={true}
+              />
+            )}
+            canExpand={(row: any) => {
+              // Show expand button for activities with work_plan_activity ID
+              return !!row.work_plan_activity;
             }}
           />
         </TableFilters>

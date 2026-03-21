@@ -2,7 +2,7 @@
 
 import Card from "@/components/Card";
 import { useState, useMemo } from "react";
-import DataTable from "@/components/Table/DataTable";
+import DataTableWithExpansion from "@/components/Table/DataTableWithExpansion";
 import BreadcrumbCard, { TBreadcrumbList } from "@/components/Breadcrumb";
 import { useDebounce } from "ahooks";
 import TableFilters from "@/components/Table/TableFilters";
@@ -26,6 +26,7 @@ import { DialogType } from "@/constants/dailogs";
 import { toast } from "sonner";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { DownloadIcon, ArrowLeft } from "lucide-react";
+import CostSheetTrackersExpanded from "@/features/programs/components/plan/work-plan-tracker/CostSheetTrackersExpanded";
 
 const breadcrumbs: TBreadcrumbList[] = [
   { name: "Programs", icon: true },
@@ -264,6 +265,9 @@ export default function UnplannedActivities() {
             These activities were added outside of the original work plan and may require additional approval.
             Activities with justification are automatically marked as unplanned during upload.
           </p>
+          <p className="text-sm text-orange-700 font-medium mt-2">
+            💡 To create cost sheets: Click the expand arrow (▼) on any activity row, then click "Manage Cost Sheets"
+          </p>
         </div>
       </Card>
 
@@ -338,12 +342,28 @@ export default function UnplannedActivities() {
         <TableFilters
           onSearchChange={(e) => setSearchQuery(e.target.value)}
         >
-          <DataTable
+          <DataTableWithExpansion
             data={unplannedData}
             columns={getActivityPlanDetailsColumns(id as string)}
             isLoading={isFetching || workPlanLoading || trackersLoading}
             pagination={{
               onChange: (page: number) => setPage(page),
+            }}
+            renderExpandedRow={(row: any) => (
+              <CostSheetTrackersExpanded
+                activityPlanId={row.id}
+                activityNumber={row.activity_code || "N/A"}
+                isEditable={true}
+              />
+            )}
+            canExpand={(row: any) => {
+              // Show expand button for all unplanned activities with an ID
+              console.log('🔍 canExpand check for unplanned:', {
+                hasId: !!row.id,
+                rowId: row.id,
+                rowKeys: Object.keys(row)
+              });
+              return !!row.id;
             }}
           />
         </TableFilters>
