@@ -12,8 +12,6 @@ import { useRouter } from "next/navigation";
 import { z } from "zod";
 import { toast } from "sonner";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Button } from "@/components/ui/button";
-import { Home } from "lucide-react";
 import Card from "@/components/Card";
 import { LoginSchema, TLoginFormValues } from "@/features/auth/types/auth";
 import { useLogin } from "../../controllers/authController";
@@ -70,21 +68,7 @@ export default function LoginForm() {
     }
   }, [isSuccess, router]);
   return (
-    <div className="">
-      {/* Home Button */}
-      <div className="mb-6">
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={() => router.push('/')}
-          className="flex items-center gap-2 text-gray-600 hover:text-primary border-gray-300 hover:border-primary"
-        >
-          <Home className="h-4 w-4" />
-          Home
-        </Button>
-      </div>
-
+    <div>
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)}>
           <img src="/imgs/logo.png" className="w-[130px] mx-auto" />
