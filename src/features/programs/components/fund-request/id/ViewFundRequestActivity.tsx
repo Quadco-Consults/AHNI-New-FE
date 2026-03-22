@@ -274,25 +274,77 @@ export default function ViewFundRequestActivity() {
         <table class="activity-table">
           <thead>
             <tr>
-              <th>Activity</th>
-              <th>Description</th>
-              <th>Budget Code</th>
-              <th>Amount (${data.currency})</th>
+              <th>S/N</th>
+              <th>Description of Activity</th>
+              <th>Unit Cost</th>
+              <th>Qty</th>
+              <th>Frq</th>
+              <th>Requested Amount (${data.currency})</th>
+              <th>Comment</th>
             </tr>
           </thead>
           <tbody>
-            ${data.activities?.map(activity => `
-              <tr>
-                <td>${activity.activity || 'N/A'}</td>
-                <td>${activity.description || 'N/A'}</td>
-                <td>${activity.budget_code || 'N/A'}</td>
-                <td>${Number(activity.amount || 0).toLocaleString()}</td>
-              </tr>
-            `).join('') || '<tr><td colspan="4">No activities found</td></tr>'}
-            <tr style="font-weight: bold; background-color: #f9fafb;">
-              <td colspan="3">Total Amount</td>
-              <td>${Number(data.activities?.reduce((sum, act) => sum + Number(act.amount || 0), 0) || 0).toLocaleString()} ${data.currency}</td>
-            </tr>
+            ${(() => {
+              const groupedActivities = {};
+              data.activities?.forEach(activity => {
+                const category = activity.category?.name || 'Uncategorized';
+                if (!groupedActivities[category]) {
+                  groupedActivities[category] = [];
+                }
+                groupedActivities[category].push(activity);
+              });
+
+              let html = '';
+              let counter = 1;
+
+              Object.keys(groupedActivities).forEach(category => {
+                html += '<tr style="background-color: #e5e7eb;">';
+                html += '<td style="font-weight: bold; color: #dc2626;" colspan="7">' + category + '</td>';
+                html += '</tr>';
+
+                groupedActivities[category].forEach(activity => {
+                  const currSymbol = data.currency === 'NGN' ? '₦' : '$';
+                  html += '<tr>';
+                  html += '<td>' + counter.toFixed(2) + '</td>';
+                  html += '<td>' + (activity.activity_description || 'N/A') + '</td>';
+                  html += '<td>' + currSymbol + Number(activity.unit_cost || 0).toLocaleString() + '</td>';
+                  html += '<td>' + (activity.quantity || 'N/A') + '</td>';
+                  html += '<td>' + (activity.frequency || 'N/A') + '</td>';
+                  html += '<td>' + currSymbol + Number(activity.amount || 0).toLocaleString() + '</td>';
+                  html += '<td>' + (activity.comment || '') + '</td>';
+                  html += '</tr>';
+                  counter++;
+                });
+              });
+
+              const subtotal = data.activities?.reduce((sum, act) => sum + Number(act.amount || 0), 0) || 0;
+              const availableBalance = Number(data.available_balance || 0);
+              const amountRequired = subtotal - availableBalance;
+              const currSymbol = data.currency === 'NGN' ? '₦' : '$';
+
+              html += '<tr style="font-weight: bold;">';
+              html += '<td></td>';
+              html += '<td>Subtotal</td>';
+              html += '<td colspan="4">' + currSymbol + subtotal.toLocaleString() + '</td>';
+              html += '<td></td>';
+              html += '</tr>';
+
+              html += '<tr style="font-weight: bold;">';
+              html += '<td></td>';
+              html += '<td>Less Cash Balance</td>';
+              html += '<td colspan="4">' + currSymbol + availableBalance.toLocaleString() + '</td>';
+              html += '<td></td>';
+              html += '</tr>';
+
+              html += '<tr style="font-weight: bold; background-color: #f9fafb;">';
+              html += '<td></td>';
+              html += '<td>Amount Required</td>';
+              html += '<td colspan="4">' + currSymbol + amountRequired.toLocaleString() + '</td>';
+              html += '<td></td>';
+              html += '</tr>';
+
+              return html || '<tr><td colspan="7">No activities found</td></tr>';
+            })()}
           </tbody>
         </table>
 
@@ -350,14 +402,45 @@ Status: ${data.status || 'N/A'}
 Available Balance: ${Number(data.available_balance || 0).toLocaleString()} ${data.currency}
 
 FUND REQUEST ACTIVITIES:
-${data.activities?.map((activity, index) => `
-${index + 1}. Activity: ${activity.activity || 'N/A'}
-   Description: ${activity.description || 'N/A'}
-   Budget Code: ${activity.budget_code || 'N/A'}
-   Amount: ${Number(activity.amount || 0).toLocaleString()} ${data.currency}
-`).join('') || 'No activities found'}
+${(() => {
+  const groupedActivities = {};
+  data.activities?.forEach(activity => {
+    const category = activity.category?.name || 'Uncategorized';
+    if (!groupedActivities[category]) {
+      groupedActivities[category] = [];
+    }
+    groupedActivities[category].push(activity);
+  });
 
-Total Amount: ${Number(data.activities?.reduce((sum, act) => sum + Number(act.amount || 0), 0) || 0).toLocaleString()} ${data.currency}
+  let text = '';
+  let counter = 1;
+
+  Object.keys(groupedActivities).forEach(category => {
+    text += '\n--- ' + category.toUpperCase() + ' ---\n';
+
+    groupedActivities[category].forEach(activity => {
+      text += '\n' + counter + '. ' + (activity.activity_description || 'N/A');
+      text += '\n   Unit Cost: ' + Number(activity.unit_cost || 0).toLocaleString() + ' ' + data.currency;
+      text += '\n   Quantity: ' + (activity.quantity || 'N/A');
+      text += '\n   Frequency: ' + (activity.frequency || 'N/A');
+      text += '\n   Amount: ' + Number(activity.amount || 0).toLocaleString() + ' ' + data.currency;
+      text += '\n   Comment: ' + (activity.comment || 'N/A');
+      text += '\n';
+      counter++;
+    });
+  });
+
+  const subtotal = data.activities?.reduce((sum, act) => sum + Number(act.amount || 0), 0) || 0;
+  const availableBalance = Number(data.available_balance || 0);
+  const amountRequired = subtotal - availableBalance;
+
+  text += '\nSubtotal: ' + subtotal.toLocaleString() + ' ' + data.currency;
+  text += '\nLess Cash Balance: ' + availableBalance.toLocaleString() + ' ' + data.currency;
+  text += '\nAmount Required: ' + amountRequired.toLocaleString() + ' ' + data.currency;
+  text += '\n';
+
+  return text || 'No activities found';
+})()}
 
 APPROVAL HISTORY:
 ${approvalHistory.map(approval => `
