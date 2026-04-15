@@ -24,8 +24,10 @@ import {
   useGetSingleStoreTransfer,
 } from "@/features/admin/controllers/storeTransferController";
 import { useGetAllStores } from "@/features/admin/controllers/storeController";
-import { useGetAllItems } from "@/features/modules/controllers/config/itemController";
-import { useGetItemStocksByItem } from "@/features/admin/controllers/itemStoreStockController";
+import {
+  useGetItemStocksByItem,
+  useGetStoreInventory
+} from "@/features/admin/controllers/itemStoreStockController";
 
 export default function CreateStoreTransfer() {
   const router = useRouter();
@@ -51,9 +53,6 @@ export default function CreateStoreTransfer() {
     name: "items",
   });
 
-  // Consumables category UUID - filters to show only consumable items
-  const CONSUMABLES_CATEGORY_ID = "fadb6228-23de-4b04-9eac-b75940cf622f";
-
   // Fetch data
   const { data: existingTransfer } = useGetSingleStoreTransfer(id || "", isEdit);
   const { data: storesData } = useGetAllStores({
@@ -61,11 +60,12 @@ export default function CreateStoreTransfer() {
     size: 1000,
     is_active: true,
   });
-  const { data: itemsData } = useGetAllItems({
-    page: 1,
-    size: 10000,
-    category: CONSUMABLES_CATEGORY_ID, // Filter for consumables only
-  });
+
+  // Fetch inventory from selected source store (only items available in that store)
+  const { data: storeInventoryData } = useGetStoreInventory(
+    selectedSourceStore,
+    !!selectedSourceStore
+  );
 
   // Mutations
   const { createStoreTransfer, isLoading: isCreating } = useCreateStoreTransfer();
@@ -82,14 +82,26 @@ export default function CreateStoreTransfer() {
     }));
   }, [storesData]);
 
-  // Item options
+  // Item options - only show items available in selected source store
   const itemOptions = useMemo(() => {
-    if (!itemsData?.data?.results) return [];
-    return itemsData.data.results.map((item: any) => ({
-      label: `${item.name} - ${item.category?.name || "N/A"}`,
-      value: item.id,
-    }));
-  }, [itemsData]);
+    if (!storeInventoryData?.data?.results) return [];
+
+    // Filter out items with zero or negative quantity
+    const availableItems = storeInventoryData.data.results.filter(
+      (stock: any) => (stock.available_quantity || 0) > 0
+    );
+
+    return availableItems.map((stock: any) => {
+      const itemName = stock.item_detail?.name || stock.itemName || "Unknown Item";
+      const availableQty = stock.available_quantity || 0;
+      const categoryName = stock.item_detail?.category || "N/A";
+
+      return {
+        label: `${itemName} (Available: ${availableQty} units) - ${categoryName}`,
+        value: stock.item, // This is the item ID
+      };
+    });
+  }, [storeInventoryData]);
 
   // Watch source store to filter available items
   const sourceStore = form.watch("source_store");
@@ -131,6 +143,29 @@ export default function CreateStoreTransfer() {
       if (itemsWithQuantity.length === 0) {
         toast.error("Please add at least one consumable with quantity");
         return;
+      }
+
+      // Validate that all requested quantities don't exceed available stock
+      if (storeInventoryData?.data?.results) {
+        for (const item of itemsWithQuantity) {
+          const stockRecord = storeInventoryData.data.results.find(
+            (stock: any) => stock.item === item.item
+          );
+
+          if (!stockRecord) {
+            toast.error(`Item not found in source store. Please refresh and try again.`);
+            return;
+          }
+
+          const availableQty = stockRecord.available_quantity || 0;
+          if (item.quantity > availableQty) {
+            const itemName = stockRecord.item_detail?.name || (stockRecord as any).itemName || "Unknown item";
+            toast.error(
+              `${itemName}: Requested quantity (${item.quantity}) exceeds available stock (${availableQty})`
+            );
+            return;
+          }
+        }
       }
 
       // Transform data for backend - rename items to transfer_items and fields
@@ -213,7 +248,6 @@ export default function CreateStoreTransfer() {
                   placeholder="Select source store"
                   required
                   options={storeOptions}
-                  disabled={isEdit} // Can't change source store on edit
                 />
 
                 <FormSelect
@@ -222,7 +256,6 @@ export default function CreateStoreTransfer() {
                   placeholder="Select destination store"
                   required
                   options={storeOptions}
-                  disabled={isEdit} // Can't change destination store on edit
                 />
               </div>
             </div>
@@ -269,15 +302,15 @@ export default function CreateStoreTransfer() {
               {!selectedSourceStore && (
                 <div className="bg-yellow-50 border border-yellow-200 rounded p-3 mb-4">
                   <p className="text-sm text-yellow-800">
-                    ⚠️ Please select a source store first to see available consumables
+                    ⚠️ Please select a source store first. Only consumables available in the selected store will be shown.
                   </p>
                 </div>
               )}
 
               {selectedSourceStore && itemOptions.length === 0 && (
-                <div className="bg-blue-50 border border-blue-200 rounded p-3 mb-4">
-                  <p className="text-sm text-blue-800">
-                    ℹ️ No consumables found. Add consumables to the system first.
+                <div className="bg-orange-50 border border-orange-200 rounded p-3 mb-4">
+                  <p className="text-sm text-orange-800">
+                    ⚠️ No consumables with available stock found in the selected source store. Please add inventory to this store first.
                   </p>
                 </div>
               )}
@@ -312,7 +345,6 @@ export default function CreateStoreTransfer() {
                         placeholder="Select consumable"
                         required
                         options={itemOptions}
-                        disabled={!selectedSourceStore}
                       />
 
                       <FormInput
@@ -336,6 +368,7 @@ export default function CreateStoreTransfer() {
                     <ItemStockInfo
                       itemId={form.watch(`items.${index}.item`)}
                       storeId={selectedSourceStore}
+                      requestedQuantity={form.watch(`items.${index}.quantity`) || 0}
                     />
                   </Card>
                 ))}
@@ -373,13 +406,15 @@ export default function CreateStoreTransfer() {
   );
 }
 
-// Helper component to show available stock
+// Helper component to show available stock and validate quantity
 function ItemStockInfo({
   itemId,
   storeId,
+  requestedQuantity,
 }: {
   itemId: string;
   storeId: string;
+  requestedQuantity: number;
 }) {
   const { data: stockData } = useGetItemStocksByItem(itemId, !!itemId && !!storeId);
 
@@ -392,7 +427,7 @@ function ItemStockInfo({
   if (!storeStock) {
     return (
       <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded">
-        <p className="text-xs text-red-700">
+        <p className="text-xs text-red-700 font-medium">
           ⚠️ This consumable is not available in the source store
         </p>
       </div>
@@ -401,6 +436,18 @@ function ItemStockInfo({
 
   const availableQty = storeStock.available_quantity || 0;
   const isLowStock = availableQty <= (storeStock.re_order_level || 0);
+  const exceedsAvailable = requestedQuantity > availableQty;
+
+  // Show error if requested quantity exceeds available
+  if (exceedsAvailable) {
+    return (
+      <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded">
+        <p className="text-xs text-red-700 font-medium">
+          ❌ Requested quantity ({requestedQuantity}) exceeds available stock ({availableQty} units)
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -412,7 +459,7 @@ function ItemStockInfo({
     >
       <p className={`text-xs ${isLowStock ? "text-yellow-700" : "text-green-700"}`}>
         ✓ Available in source store: <strong>{availableQty}</strong> units
-        {isLowStock && " (Low stock)"}
+        {isLowStock && " (Low stock - will trigger reorder)"}
       </p>
     </div>
   );
