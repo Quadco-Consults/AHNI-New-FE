@@ -208,11 +208,12 @@ export default function ConsumableStockCard({
       accessorKey: "description",
       size: 200,
       cell: ({ row }) => {
+        // Prioritize remark (which contains GRN/PO info) over generic movement type
         const description =
+          row.original.remark ||
           row.original.description ||
           row.original.movementTypeDisplay ||
           row.original.movement_type ||
-          row.original.remark ||
           'Stock Movement';
         return <span className="text-sm">{description}</span>;
       },
