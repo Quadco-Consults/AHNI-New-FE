@@ -20,6 +20,7 @@ import {
 type TPagination = {
   total: number;
   pageSize: number;
+  page: number;
   onChange: (page: number) => void;
 };
 interface TableProps<TData> {
@@ -45,7 +46,7 @@ export default function DataTable<TData>({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    getPaginationRowModel: pagination ? undefined : getPaginationRowModel(), // Only use internal pagination if no custom pagination
     // debugTable: true,
     defaultColumn: {
       // size: 150,
@@ -53,6 +54,10 @@ export default function DataTable<TData>({
       // maxSize: 600,
       // cell: (info) => createElement(Typography, {}, info.getValue()),
     },
+    ...(pagination ? {
+      manualPagination: true, // Tell table we're handling pagination externally
+      pageCount: Math.ceil(pagination.total / pagination.pageSize),
+    } : {}),
   });
 
   return (
@@ -183,6 +188,7 @@ export default function DataTable<TData>({
         <Pagination
           total={pagination.total}
           itemsPerPage={pagination.pageSize}
+          page={pagination.page}
           onChange={pagination.onChange}
         />
       )}

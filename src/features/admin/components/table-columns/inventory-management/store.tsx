@@ -53,6 +53,9 @@ export const getStoreColumns = ({
     header: "Type",
     cell: ({ row }) => {
       const type = row.getValue("store_type") as string;
+      const store = row.original as any;
+      const displayType = store.storeTypeDisplay || type;
+
       return (
         <Badge
           variant="outline"
@@ -60,10 +63,12 @@ export const getStoreColumns = ({
             "font-medium",
             type === "CENTRAL"
               ? "bg-purple-100 text-purple-800 border-purple-200"
-              : "bg-blue-100 text-blue-800 border-blue-200"
+              : type === "LOCATION"
+              ? "bg-blue-100 text-blue-800 border-blue-200"
+              : "bg-gray-100 text-gray-800 border-gray-200"  // GENERAL or other types
           )}
         >
-          {type === "CENTRAL" ? "Central Store" : "Location Store"}
+          {displayType}
         </Badge>
       );
     },

@@ -33,8 +33,14 @@ export const consumableColums: ColumnDef<TConsumablePaginatedData>[] = [
       const totalQuantity = row.original.total_quantity || row.original.quantity || 0;
       const storesCount = row.original.stores_count || 0;
 
+      // Show quantity even if not distributed to stores
       if (storesCount === 0) {
-        return <span className="text-gray-400">Not distributed</span>;
+        return (
+          <div className="text-sm">
+            <div className="font-medium">{totalQuantity || "N/A"}</div>
+            <div className="text-xs text-gray-400">Not in stores</div>
+          </div>
+        );
       }
 
       return (
@@ -77,38 +83,42 @@ export const consumableColums: ColumnDef<TConsumablePaginatedData>[] = [
   {
     header: "Stores",
     accessorKey: "store_stocks",
-    size: 200,
+    size: 250,
     cell: ({ row }) => {
       const storeStocks = row.original.store_stocks || [];
 
-      // Display stores where this consumable is available
+      // Display all stores where this consumable is available
       if (storeStocks.length > 0) {
-        // Show first store name and count if multiple
-        const firstStore = storeStocks[0].store_detail?.name || "Unknown Store";
-        const totalStores = storeStocks.length;
-        const totalQuantity = storeStocks.reduce((sum: number, stock: any) => sum + (stock.available_quantity || 0), 0);
+        return (
+          <div className="flex flex-wrap gap-1">
+            {storeStocks.map((stock: any, index: number) => {
+              // Get store name from storeName field (backend serializer field)
+              const storeName =
+                stock.storeName ||
+                stock.store_data?.name ||
+                stock.store_detail?.name ||
+                `Store ID: ${stock.store}`;
 
-        if (totalStores === 1) {
-          return (
-            <div className="text-sm">
-              <div className="font-medium">{firstStore}</div>
-              <div className="text-xs text-gray-500">Qty: {totalQuantity}</div>
-            </div>
-          );
-        } else {
-          return (
-            <div className="text-sm">
-              <div className="font-medium">{firstStore}</div>
-              <div className="text-xs text-gray-500">+{totalStores - 1} more stores</div>
-            </div>
-          );
-        }
+              const quantity = stock.available_quantity || 0;
+
+              return (
+                <Badge
+                  key={index}
+                  variant="secondary"
+                  className="text-xs"
+                >
+                  {storeName} ({quantity})
+                </Badge>
+              );
+            })}
+          </div>
+        );
       }
 
       return (
-        <span className="text-sm text-gray-400">
-          Not assigned to any store
-        </span>
+        <Badge variant="outline" className="text-xs text-gray-400">
+          Not in any store
+        </Badge>
       );
     },
   },
@@ -117,14 +127,22 @@ export const consumableColums: ColumnDef<TConsumablePaginatedData>[] = [
     accessorKey: "category.name",
     size: 200,
     cell: ({ row }) => {
-      const category = row.original.category;
+      const category = row.original.category || row.original.category_detail;
 
-      // Display the category name (subcategory like "Medical Consumables", "IT Consumables", etc.)
+      // Display the category name
       if (category && typeof category === 'object' && category.name) {
+        // Check if this is a parent category (no parent) or a subcategory
+        const isParentCategory = !category.parent;
+
         return (
-          <span className="text-sm">
-            {category.name}
-          </span>
+          <div className="text-sm">
+            <span>{category.name}</span>
+            {isParentCategory && category.name === 'Consumables' && (
+              <div className="text-xs text-gray-400 italic">
+                (Not categorized)
+              </div>
+            )}
+          </div>
         );
       }
 

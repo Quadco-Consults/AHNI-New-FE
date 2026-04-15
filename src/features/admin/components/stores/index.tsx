@@ -42,6 +42,17 @@ export default function StoresHomePage() {
   });
 
   const rawStores = storesData?.data?.results || [];
+  // Fix: API returns "pagination" but old code expected "paginator"
+  const pagination = storesData?.data?.pagination || storesData?.data?.paginator;
+
+  // TEMPORARY: Deduplication disabled to debug missing AHNI HQ store
+  // TODO: Re-enable after finding the issue
+  const stores = rawStores;
+
+  /* DEDUPLICATION DISABLED - UNCOMMENT TO RE-ENABLE
+  // IMPORTANT: This deduplication only works for the CURRENT PAGE
+  // If duplicate stores exist across different pages, they won't be caught
+  // TODO: Fix backend to return unique stores instead of deduplicating on frontend
 
   // Deduplicate stores by ID (keep the first occurrence of each unique ID)
   const uniqueStoresMap = new Map();
@@ -88,20 +99,28 @@ export default function StoresHomePage() {
   });
 
   const stores = Array.from(storesByName.values());
-  const pagination = storesData?.data?.paginator;
+  */
 
-  // Update pagination count to reflect deduplicated stores
-  const adjustedPagination = pagination ? {
-    ...pagination,
-    count: stores.length
-  } : pagination;
+  // Keep the original pagination count from API (total across all pages)
+  // Don't adjust count based on deduplicated stores - that breaks pagination
+  const adjustedPagination = pagination;
 
-  // Debug logging for duplicate stores
+  // Debug logging for stores
   console.log("🔍 STORES DEBUG - Raw API response:", storesData);
+  console.log("🔍 STORES DEBUG - Pagination info:", pagination);
+  console.log("🔍 STORES DEBUG - Total count from API:", pagination?.count);
+  console.log("🔍 STORES DEBUG - Current page:", page);
   console.log("🔍 STORES DEBUG - Raw stores count:", rawStores.length);
-  console.log("🔍 STORES DEBUG - Deduplicated stores count:", stores.length);
-  console.log("🔍 STORES DEBUG - Final stores array:", stores);
-  console.log("🔍 STORES DEBUG - Store names:", stores.map((store: any) => ({ id: store.id, name: store.name, code: store.code })));
+  console.log("🔍 STORES DEBUG - Final stores count:", stores.length);
+  console.log("🔍 STORES DEBUG - Store details:", stores.map((store: any) => ({
+    id: store.id,
+    name: store.name,
+    code: store.code,
+    store_type: store.store_type,
+    is_active: store.is_active,
+    locationName: store.locationName,
+    parentStoreName: store.parentStoreName
+  })));
 
   // Check for duplicates in raw data
   const rawStoreNames = rawStores.map((store: any) => store.name);
@@ -228,9 +247,10 @@ export default function StoresHomePage() {
             pagination={
               adjustedPagination
                 ? {
+                    page: page,
                     total: adjustedPagination.count,
                     pageSize: adjustedPagination.page_size,
-                    onChange: (page: number) => setPage(page),
+                    onChange: (newPage: number) => setPage(newPage),
                   }
                 : undefined
             }

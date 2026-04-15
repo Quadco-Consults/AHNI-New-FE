@@ -31,6 +31,16 @@ export const useGetAllItemsManager = ({
   return useQuery<ApiResponse<TPaginatedResponse<ItemData>>>({
     queryKey: ["items", page, size, search, category, category__job_category, category__name, expand, _timestamp, parent_category, parent_category_id],
     queryFn: async () => {
+      console.log("🔍 ITEMS API - RECEIVED PARAMS:", {
+        page,
+        size,
+        search,
+        searchType: typeof search,
+        searchLength: search?.length,
+        category,
+        category__name,
+      });
+
       const params = {
         page,
         size,
@@ -43,20 +53,36 @@ export const useGetAllItemsManager = ({
         ...(parent_category_id && { parent_category_id }),
       };
 
-      console.log("🔍 ITEMS API PARAMS DEBUG:", {
-        originalParams: { page, size, search, category, category__job_category, category__name, expand, parent_category, parent_category_id },
-        finalParams: params,
-        hasCategoryName: !!category__name,
-        hasParentCategory: !!parent_category,
-      });
+      console.log("🔍 ITEMS API - FINAL PARAMS OBJECT:", params);
+      console.log("🔍 ITEMS API - AXIOS REQUEST URL:", "config/items/");
+      console.log("🔍 ITEMS API - EXPAND PARAM:", expand);
 
       const response = await AxiosWithToken.get("config/items/", {
         params,
       });
+
+      console.log("🔍 ITEMS API - RESPONSE:", {
+        count: response.data?.data?.pagination?.count || response.data?.data?.count,
+        resultsLength: response.data?.data?.results?.length,
+      });
+
+      // Debug first item to check store_stocks structure
+      if (response.data?.data?.results && response.data.data.results.length > 0) {
+        const firstItem = response.data.data.results[0];
+        console.log("🔍 ITEMS API - FIRST ITEM FROM BACKEND:", {
+          name: firstItem.name,
+          store_stocks: firstItem.store_stocks,
+          store_stocks_type: typeof firstItem.store_stocks,
+          has_store_stocks: !!firstItem.store_stocks,
+        });
+      }
+
       return response.data;
     },
     enabled,
     refetchOnWindowFocus: false,
+    staleTime: 0, // Data is immediately stale
+    cacheTime: 0, // Don't cache results
   });
 };
 
@@ -217,6 +243,55 @@ export const useBulkUploadItems = () => {
   };
 
   return { bulkUploadItems, data, isLoading, isSuccess, error };
+};
+
+// Extended filter params for consumables endpoint
+interface ConsumablesFilterParams extends ExtendedFilterParams {
+  location?: string;
+  stock_status?: string;
+}
+
+// GET Consumables with location-aware filtering
+export const useGetConsumablesQuery = ({
+  page = 1,
+  size = 20,
+  search = "",
+  enabled = true,
+  expand,
+  category,
+  location,
+  stock_status,
+}: ConsumablesFilterParams = {}) => {
+  return useQuery<ApiResponse<TPaginatedResponse<ItemData>>>({
+    queryKey: ["consumables", page, size, search, expand, category, location, stock_status],
+    queryFn: async () => {
+      const params = {
+        page,
+        size,
+        search,
+        ...(expand && { expand }),
+        ...(category && { category }),
+        ...(location && { location }),
+        ...(stock_status && { stock_status }),
+      };
+
+      const response = await AxiosWithToken.get("config/items/consumables/", {
+        params,
+      });
+
+      // Remote API returns triple-nested structure: response.data.data.data
+      // Unwrap to match expected format: { data: { results, pagination } }
+      const actualData = response.data?.data?.data;
+
+      return {
+        status: true,
+        message: "Consumables retrieved successfully",
+        data: actualData
+      };
+    },
+    enabled,
+    refetchOnWindowFocus: false,
+  });
 };
 
 // Additional missing exports

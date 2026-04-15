@@ -10,7 +10,6 @@ import Card from "@/components/Card";
 import { Form } from "@/components/ui/form";
 import { AdminRoutes } from "@/constants/RouterConstants";
 import {
-  EditItemSchema,
   ItemSchema,
   TItemFormValues,
 } from "@/features/admin/types/config/item";
@@ -34,28 +33,21 @@ import {
 } from "@/utils/categoryHelpers";
 import { useState } from "react";
 
-const stockControlMethodOptions = [
-  { label: "Stock Level", value: "STOCK_LEVEL" },
-  { label: "Availability", value: "AVAILABILITY" },
-  { label: "Just In Time", value: "JUST_IN_TIME" },
-];
-
 export default function CreateConsumablePage() {
   const query = useQuery();
-  const consumableId = query.get("id");
+  const consumableId = query?.get("id") || null;
 
   // State for cascading category selection
   const [selectedItemType, setSelectedItemType] = useState<string>("");
   const [selectedParentCategory, setSelectedParentCategory] = useState<string>("");
 
-  const { data: item } = useGetSingleItem(consumableId || "", {
-    enabled: !!consumableId,
-  });
+  const { data: item } = useGetSingleItem(consumableId || "", !!consumableId);
 
   const { data: category } = useGetAllCategories({
     page: 1,
     size: 1000, // Get all categories
     search: "",
+    enabled: true,
   });
 
   // Item type options (GOODS, SERVICE, WORK)
@@ -71,57 +63,60 @@ export default function CreateConsumablePage() {
 
   // Parent category options (filtered by item type)
   const parentCategoryOptions = useMemo(() => {
-    if (!category?.data?.results || !selectedItemType) {
+    if (!category?.results || !selectedItemType) {
       return [];
     }
 
     const topLevelCategories = getCategoriesByTypeAndParent(
-      category.data.results,
+      category.results as any,
       selectedItemType as any
     );
 
-    return buildCategoryOptions(topLevelCategories);
+    return buildCategoryOptions(topLevelCategories as any);
   }, [category, selectedItemType]);
 
   // Final category options (filtered by parent category)
   const finalCategoryOptions = useMemo(() => {
-    if (!category?.data?.results || !selectedItemType) {
+    if (!category?.results || !selectedItemType) {
       return [];
     }
 
     const childCategories = getCategoriesByTypeAndParent(
-      category.data.results,
+      category.results as any,
       selectedItemType as any,
       selectedParentCategory || undefined
     );
 
-    return buildCategoryOptions(childCategories);
+    return buildCategoryOptions(childCategories as any);
   }, [category, selectedItemType, selectedParentCategory]);
 
   // For edit mode: Get subcategories (consumable types) under "Consumables" parent
   const consumableTypeOptions = useMemo(() => {
-    if (!category?.data?.results) {
+    if (!category?.results) {
       return [];
     }
 
     // Find the "Consumables" parent category
-    const consumablesParent = category.data.results.find(
+    const consumablesParent = category.results.find(
       (cat) =>
         cat.job_category === 'GOODS' &&
         !cat.parent &&
         (cat.name.toLowerCase().includes('consumable') || cat.code === 'CON')
     );
 
+    console.log("🔍 Consumables Parent Category:", consumablesParent);
+
     if (!consumablesParent) {
       // If no parent found, return all GOODS subcategories
-      const goodsSubcategories = category.data.results.filter(
-        (cat) => cat.job_category === 'GOODS' && cat.parent
+      const goodsSubcategories = category.results.filter(
+        (cat: any) => cat.job_category === 'GOODS' && cat.parent
       );
-      return buildCategoryOptions(goodsSubcategories);
+      console.log("⚠️ No Consumables parent found, using GOODS subcategories:", goodsSubcategories.length);
+      return buildCategoryOptions(goodsSubcategories as any);
     }
 
     // Get all subcategories under Consumables
-    const subcategories = category.data.results.filter((cat) => {
+    const subcategories = category.results.filter((cat: any) => {
       if (typeof cat.parent === 'string') {
         return cat.parent === consumablesParent.id;
       } else if (cat.parent && typeof cat.parent === 'object') {
@@ -130,37 +125,23 @@ export default function CreateConsumablePage() {
       return false;
     });
 
+    console.log("📂 Consumable Subcategories Found:", subcategories.length);
+    console.log("✅ Consumable Type Options:", buildCategoryOptions(subcategories));
+
     return buildCategoryOptions(subcategories);
   }, [category]);
 
-  const Schema = consumableId ? EditItemSchema : ItemSchema;
+  // Use ItemSchema for both create and edit - edit mode only modifies master data
+  const Schema = ItemSchema;
 
   const defaultValues = useMemo(() => {
-    return consumableId
-      ? {
-          name: "",
-          description: "",
-          quantity: "",
-          stock_control_method: "STOCK_LEVEL",
-          category: "",
-          expiry_date: formatDate(String(new Date())),
-          // previous_quantity: "",
-          re_order_level: "",
-          buffer_stock: "",
-          max_stock: "",
-          entry_date: "",
-          // available_quantity: "",
-          item_cost: "",
-          // grn_tracking_number: "",
-          uom: "",
-        }
-      : {
-          name: "",
-          description: "",
-          category: "",
-          uom: "",
-        };
-  }, [consumableId]);
+    return {
+      name: "",
+      description: "",
+      category: "",
+      uom: "",
+    };
+  }, []);
 
   const form = useForm<TItemFormValues>({
     resolver: zodResolver(Schema),
@@ -168,23 +149,27 @@ export default function CreateConsumablePage() {
   });
 
   useEffect(() => {
-    if (consumableId) {
+    if (consumableId && item?.data) {
+      const itemData = item.data as any; // Type assertion to access all properties
+
+      // Debug: Check category structure
+      console.log("🔍 EDIT MODE - Item Data:", itemData);
+      console.log("📂 Category Structure:", itemData.category);
+      console.log("🔑 Category ID:", itemData.category?.id);
+
+      // Handle category - it could be an object with id or just a string id
+      const categoryId = typeof itemData.category === 'object'
+        ? itemData.category?.id
+        : itemData.category;
+
+      console.log("✅ Final Category ID to use:", categoryId);
+
+      // Only populate master data fields in edit mode
       form.reset({
-        name: item?.data?.name,
-        description: item?.data?.description,
-        uom: item?.data?.uom,
-        quantity: item?.data?.quantity ? String(item?.data?.quantity) : "0",
-        stock_control_method: item?.data?.stock_control_method,
-        category: item?.data?.category?.id,
-        expiry_date: item?.data?.expiry_date || "",
-        // previous_quantity: String(item?.data?.previous_quantity ?? ""),
-        re_order_level: String(item?.data?.re_order_level ?? ""),
-        buffer_stock: String(item?.data?.buffer_stock ?? ""),
-        max_stock: String(item?.data?.max_stock ?? ""),
-        entry_date: item?.data?.entry_date,
-        // available_quantity: String(item?.data?.available_quantity ?? ""),
-        item_cost: item?.data?.item_cost,
-        // grn_tracking_number: item?.data?.grn_tracking_number,
+        name: itemData.name,
+        description: itemData.description,
+        uom: itemData.uom,
+        category: categoryId,
       });
     }
   }, [consumableId, item, form]);
@@ -197,33 +182,17 @@ export default function CreateConsumablePage() {
   const router = useRouter();
 
   const onSubmit: SubmitHandler<TItemFormValues> = async (data) => {
-    const editConsumableData = {
+    // Edit mode: Only send master data fields
+    const editConsumableData: any = {
       name: data?.name,
       description: data?.description,
       uom: data?.uom,
-      price: data?.item_cost,
-      category: data?.category,
-
-      quantity: data?.quantity ? String(Number(data?.quantity)) : "0",
-      stock_control_method: data?.stock_control_method,
-      expiry_date: data?.expiry_date,
-      // previous_quantity: data?.previous_quantity
-      //   ? String(Number(data?.previous_quantity))
-      //   : "0",
-      re_order_level: data?.re_order_level
-        ? String(Number(data?.re_order_level))
-        : "0",
-      buffer_stock: data?.buffer_stock
-        ? String(Number(data?.buffer_stock))
-        : "0",
-      max_stock: data?.max_stock ? String(Number(data?.max_stock)) : "0",
-      entry_date: data?.entry_date,
-      // available_quantity: data?.available_quantity
-      //   ? String(Number(data?.available_quantity))
-      //   : "0",
-      item_cost: data?.item_cost,
-      // grn_tracking_number: data?.grn_tracking_number || "",
     };
+
+    // Only include category if it has a valid value (not null, undefined, or empty string)
+    if (data?.category) {
+      editConsumableData.category = data.category;
+    }
 
     const createConsumableData = {
       name: data?.name,
@@ -233,14 +202,17 @@ export default function CreateConsumablePage() {
     };
 
     // Debug logging to see what data is being sent
-    console.log("🚀 Creating consumable with data:", createConsumableData);
+    console.log("🔍 Form Data Received:", data);
     console.log("📂 Category ID being used:", data?.category);
 
     try {
       if (consumableId) {
+        console.log("📝 Editing consumable (master data only):", editConsumableData);
+        console.log("🔑 Category in edit payload:", editConsumableData.category);
         await editItem(editConsumableData);
         toast.success("Consumable Updated");
       } else {
+        console.log("🚀 Creating consumable with data:", createConsumableData);
         await createItem(createConsumableData);
         toast.success("Consumable Created");
         console.log("✅ Consumable created successfully");
@@ -352,97 +324,26 @@ export default function CreateConsumablePage() {
               </div>
             )}
             {consumableId && (
-              <div className='grid grid-cols-1 gap-6 md:grid-cols-3'>
-                {/* Consumable Type Dropdown */}
-                <FormSelect
-                  name='category'
-                  label='Consumable Type'
-                  placeholder={
-                    consumableTypeOptions.length === 0
-                      ? "No consumable types available"
-                      : "Select Consumable Type"
-                  }
-                  options={consumableTypeOptions}
-                  required
-                />
+              <div className='space-y-4'>
+                <div className='bg-blue-50 border border-blue-200 rounded-lg p-4'>
+                  <p className='text-sm text-blue-800'>
+                    <strong>Note:</strong> This form edits the item master data only.
+                    To manage store-specific stock levels, quantities, and reorder points,
+                    use the "View Store Stock" option from the consumables list.
+                  </p>
+                </div>
 
-                <FormInput
-                  name='quantity'
-                  label='Quantity'
-                  placeholder='Enter Quantity'
-                  required
-                />
-
-                <FormSelect
-                  name='stock_control_method'
-                  label='Stock Control Method'
-                  placeholder='Select Stock Control Method'
-                  options={stockControlMethodOptions}
-                  required
-                />
-
-                <FormInput
-                  label='Expiry Date'
-                  name='expiry_date'
-                  type='date'
-                  placeholder='Select Expiry Date'
-                  required
-                />
-                {/* <FormInput
-                  name='previous_quantity'
-                  label='Previous Quantity'
-                  placeholder='Enter Previous Quantity'
-                  required
-                /> */}
-
-                <FormInput
-                  name='re_order_level'
-                  placeholder='Enter Re-order Levek Stock'
-                  label='Re-order Level'
-                  required
-                />
-                <FormInput
-                  name='buffer_stock'
-                  label='Buffer Stock'
-                  placeholder='Enter Buffer Stock'
-                  required
-                />
-
-                <FormInput
-                  name='max_stock'
-                  label='Max Stock'
-                  placeholder='Enter Max Stock'
-                  required
-                />
-
-                <FormInput
-                  name='entry_date'
-                  type='date'
-                  label='Entry Date'
-                  placeholder='Select Entry Date'
-                  required
-                />
-
-                {/* <FormInput
-                  name='available_quantity'
-                  label='Available Quantity'
-                  placeholder='Enter Available Quantity'
-                  required
-                /> */}
-
-                <FormInput
-                  name='item_cost'
-                  label='Cost of Item'
-                  placeholder='Enter Cost of Item'
-                  required
-                />
-
-                {/* <FormInput
-                  label='GRN Tracking Number'
-                  name='grn_tracking_number'
-                  placeholder='Enter GRN Tracking Number'
-                  // required
-                /> */}
+                {/* Consumable Type Dropdown - Only show if there are subcategories */}
+                {consumableTypeOptions.length > 0 && (
+                  <FormSelect
+                    name='category'
+                    label='Consumable Type'
+                    placeholder="Select Consumable Type"
+                    options={consumableTypeOptions}
+                    required
+                  />
+                )}
+                {/* If no subcategories, category is preserved from form reset */}
               </div>
             )}
 

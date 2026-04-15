@@ -47,11 +47,12 @@ export default function BulkAssignToStoreDialog({
   // Consumables category UUID
   const CONSUMABLES_CATEGORY_ID = "fadb6228-23de-4b04-9eac-b75940cf622f";
 
-  // Fetch stores
+  // Fetch stores (only when dialog is open)
   const { data: storesData } = useGetAllStores({
     page: 1,
     size: 1000,
     is_active: true,
+    enabled: open,
   });
 
   // Fetch all consumables

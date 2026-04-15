@@ -8,7 +8,7 @@ import Card from "@/components/Card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Pencil, MapPin, User, Building2, Calendar, CheckCircle, XCircle, Package, TrendingDown, AlertTriangle, AlertCircle, Plus, Eye, FileText, TrendingUp } from "lucide-react";
+import { Pencil, MapPin, User, Building2, Calendar, CheckCircle, XCircle, Package, TrendingDown, AlertTriangle, AlertCircle, Plus, Eye, FileText, TrendingUp, Edit } from "lucide-react";
 import { useGetSingleStore } from "@/features/admin/controllers/storeController";
 import { useGetStoreInventory } from "@/features/admin/controllers/itemStoreStockController";
 import { useQuery } from "@tanstack/react-query";
@@ -27,6 +27,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal } from "lucide-react";
+import EditItemStoreStockDialog from "@/features/admin/components/inventory-management/consumable/EditItemStoreStockDialog";
 
 interface StoreDetailPageProps {
   storeId: string;
@@ -37,6 +38,8 @@ export default function StoreDetailPage({ storeId }: StoreDetailPageProps) {
   const [activeTab, setActiveTab] = useState("overview");
   const [page, setPage] = useState(1);
   const ITEMS_PER_PAGE = 15;
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [selectedStock, setSelectedStock] = useState<any>(null);
   const { data: storeData, isLoading, error: storeError } = useGetSingleStore(storeId);
 
   // Debug store data fetch specifically for store ID 41
@@ -376,6 +379,45 @@ export default function StoreDetailPage({ storeId }: StoreDetailPageProps) {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => {
+                  const itemId = row.original.item || row.original.item_detail?.id;
+                  const itemDetail = row.original.item_detail;
+
+                  // Extract category ID properly
+                  let categoryId = "";
+                  if (itemDetail?.category) {
+                    // If category is an object, get the id
+                    if (typeof itemDetail.category === 'object' && itemDetail.category.id) {
+                      categoryId = itemDetail.category.id;
+                    }
+                    // If category is already a string UUID, use it
+                    else if (typeof itemDetail.category === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(itemDetail.category)) {
+                      categoryId = itemDetail.category;
+                    }
+                  }
+
+                  setSelectedStock({
+                    id: row.original.id,
+                    itemId: itemId,
+                    itemName: row.original.itemName || itemDetail?.name || "N/A",
+                    itemDescription: itemDetail?.description || "",
+                    itemUom: itemDetail?.uom || "",
+                    itemCategory: categoryId,
+                    quantity: row.original.quantity || 0,
+                    available_quantity: row.original.available_quantity || 0,
+                    reserved_quantity: row.original.reserved_quantity || 0,
+                    re_order_level: row.original.re_order_level || 0,
+                    buffer_stock: row.original.buffer_stock || 0,
+                    max_stock: row.original.max_stock || 0,
+                  });
+                  setEditDialogOpen(true);
+                }}
+              >
+                <Edit className="mr-2 h-4 w-4" />
+                Edit Consumable
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() => router.push(`/dashboard/admin/inventory-management/consumable/${itemId}`)}
@@ -809,6 +851,16 @@ export default function StoreDetailPage({ storeId }: StoreDetailPageProps) {
           </TabsContent>
         </Tabs>
       </Card>
+
+      {/* Edit Stock Dialog */}
+      {selectedStock && (
+        <EditItemStoreStockDialog
+          open={editDialogOpen}
+          onOpenChange={setEditDialogOpen}
+          stockData={selectedStock}
+          storeId={storeId}
+        />
+      )}
     </div>
   );
 }
