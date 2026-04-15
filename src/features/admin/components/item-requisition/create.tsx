@@ -14,7 +14,7 @@ import {
   TItemRequisitionFormValues,
 } from "@/features/admin/types/inventory-management/item-requisition";
 import { Minus } from "lucide-react";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   FormProvider,
   SubmitHandler,
@@ -35,6 +35,7 @@ import { toast } from "sonner";
 import { useGetAllItemsQuery } from "@/features/modules/controllers/config/itemController";
 import { useGetAllStores } from "@/features/admin/controllers/storeController";
 import { useGetAllEnhancedConsumables } from "@/features/admin/controllers/consumableController";
+import { useGetStoreInventory } from "@/features/admin/controllers/itemStoreStockController";
 import {
   getReviewerOptions,
   getAuthorizerOptions,
@@ -52,6 +53,15 @@ export default function CreateItemRequisition() {
 
   // Get user department for auto-population
   const userDepartment = currentUser?.employee?.department || currentUser?.department;
+
+  // Track selected store to filter consumables
+  const [selectedStore, setSelectedStore] = useState<string>("");
+
+  // Fetch inventory from selected store (only items available in that store)
+  const { data: storeInventoryData } = useGetStoreInventory(
+    selectedStore,
+    !!selectedStore
+  );
 
   // Phase 6: Use Enhanced Consumables API with location-based filtering
   const { data: consumables, isLoading: isLoadingConsumables, error: enhancedError } = useGetAllEnhancedConsumables({
@@ -156,24 +166,40 @@ export default function CreateItemRequisition() {
     useCreateItemRequisitionMutation();
 
   const consumableOptions = useMemo(() => {
-    console.log("🔍 ENHANCED API - Consumables data:", consumables);
-    console.log("🔍 ENHANCED API - Consumables results:", consumables?.results);
-    console.log("🔍 ENHANCED API - Consumables data.results:", consumables?.data?.results);
-    console.log("🔍 ENHANCED API - Full structure:", JSON.stringify(consumables, null, 2));
-    console.log("🔍 LEGACY API - Items data:", items);
-    console.log("🔍 LEGACY API - Items results:", items?.data?.results);
+    // Priority: Use store-specific inventory if a store is selected
+    if (selectedStore && storeInventoryData?.data?.results) {
+      console.log("🔍 STORE-SPECIFIC - Using store inventory, items count:", storeInventoryData.data.results.length);
 
-    // TEMPORARY: Test dropdown functionality with hardcoded options
-    const testOptions = [
-      { label: "Test Item 1 (Office Supply)", value: "test-1" },
-      { label: "Test Item 2 (Medical Supply)", value: "test-2" },
-      { label: "Test Item 3 (IT Equipment)", value: "test-3" },
-    ];
+      // Filter out items with zero or negative quantity
+      const availableItems = storeInventoryData.data.results.filter(
+        (stock: any) => (stock.available_quantity || 0) > 0
+      );
 
-    // Priority 1: Use Enhanced Consumables API if available
+      console.log("🔍 STORE-SPECIFIC - Available items count:", availableItems.length);
+
+      return availableItems.map((stock: any) => {
+        const itemName = stock.item_detail?.name || stock.itemName || "Unknown Item";
+        const availableQty = stock.available_quantity || 0;
+        const categoryName = stock.item_detail?.category?.name || "N/A";
+
+        return {
+          label: `${itemName} (Available: ${availableQty} units) - ${categoryName}`,
+          value: stock.item, // This is the item ID
+        };
+      });
+    }
+
+    // Fallback: Show empty message if store is selected but no inventory
+    if (selectedStore) {
+      console.log("🔍 STORE-SPECIFIC - No inventory found for selected store");
+      return [];
+    }
+
+    // No store selected yet: Show location-based items
+    console.log("🔍 LOCATION-BASED - No store selected, using location filtering");
     const enhancedResults = consumables?.results || consumables?.data?.results || consumables?.data?.data?.consumables;
     if (enhancedResults && enhancedResults.length > 0) {
-      console.log("🔍 ENHANCED API - Using enhanced consumables data, items count:", enhancedResults.length);
+      console.log("🔍 LOCATION-BASED - Using enhanced consumables data, items count:", enhancedResults.length);
 
       // Filter consumables available in user's location
       const userLocation = currentUserProfile?.data?.location?.id;
@@ -208,7 +234,7 @@ export default function CreateItemRequisition() {
       });
     }
 
-    // Priority 2: Use Legacy Items API if available
+    // Fallback: Use Legacy Items API if available
     if (items?.data?.results && items.data.results.length > 0) {
       console.log("🔍 LEGACY API - Using legacy items data, items count:", items.data.results.length);
       return items.data.results.map(({ name, id }) => ({
@@ -217,10 +243,10 @@ export default function CreateItemRequisition() {
       }));
     }
 
-    // Priority 3: Use test data as fallback
-    console.log("🔍 FALLBACK - Using test data, options count:", testOptions.length);
-    return testOptions;
-  }, [consumables, items, currentUserProfile]);
+    // No data available
+    console.log("🔍 FALLBACK - No data available");
+    return [];
+  }, [selectedStore, storeInventoryData, consumables, items, currentUserProfile]);
 
   const departmentOptions = useMemo(
     () =>
@@ -344,6 +370,12 @@ export default function CreateItemRequisition() {
     }
   };
 
+  // Watch store selection to filter consumables
+  const storeValue = form.watch("store");
+  useEffect(() => {
+    setSelectedStore(storeValue);
+  }, [storeValue]);
+
   // Auto-select store based on user's location
   useEffect(() => {
     console.log("🔍 AUTO-SELECTION EFFECT TRIGGERED:", {
@@ -441,6 +473,64 @@ export default function CreateItemRequisition() {
       <Card>
         <FormProvider {...form}>
           <form className='space-y-6' onSubmit={form.handleSubmit(onSubmit)}>
+            {/* Department Display Section */}
+            {userDepartment && (
+              <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <h3 className="text-lg font-bold text-blue-800 mb-2">Request Department</h3>
+                <p className="text-gray-700">
+                  <strong>Department:</strong> {userDepartment.name}
+                </p>
+                <p className="text-sm text-gray-600 mt-1">
+                  This requisition will be submitted for your department.
+                </p>
+              </div>
+            )}
+
+            {/* Hidden department field - auto-populated */}
+            <input
+              type="hidden"
+              {...form.register('department')}
+              value={userDepartment?.id || ""}
+            />
+
+            {/* Store Selection - Must be first */}
+            <div className="space-y-1 bg-gray-50 border border-gray-200 rounded-lg p-4">
+              <h3 className="font-semibold text-gray-900 mb-3">📦 Select Store</h3>
+              <FormSelect
+                label='Store'
+                name='store'
+                placeholder={storeOptions.length === 0 ? 'No stores available at your location' : 'Select Store'}
+                options={storeOptions}
+                required
+              />
+              {currentUserProfile?.data?.location && (
+                <p className="text-xs text-gray-500 mt-1">
+                  Showing stores for your location ({storeOptions.length} available)
+                </p>
+              )}
+            </div>
+
+            {/* Store Selection Warning */}
+            {!selectedStore && (
+              <div className="bg-yellow-50 border border-yellow-200 rounded p-3 mb-4">
+                <p className="text-sm text-yellow-800">
+                  ⚠️ Please select a store first. Only consumables available in the selected store will be shown.
+                </p>
+              </div>
+            )}
+
+            {selectedStore && consumableOptions.length === 0 && (
+              <div className="bg-orange-50 border border-orange-200 rounded p-3 mb-4">
+                <p className="text-sm text-orange-800">
+                  ⚠️ No consumables with available stock found in the selected store. Please contact the store keeper to add inventory.
+                </p>
+              </div>
+            )}
+
+            {/* Items Section */}
+            <div className="bg-white border border-gray-200 rounded-lg p-4">
+              <h3 className="font-semibold text-gray-900 mb-4">📋 Consumables to Requisition</h3>
+
             {fields.map((field, index) => (
               <div
                 key={field.id}
@@ -449,9 +539,10 @@ export default function CreateItemRequisition() {
                 <FormSelect
                   label='Item Requested'
                   name={`consummables.${index}.consummable`}
-                  placeholder='Select Item'
+                  placeholder={selectedStore ? 'Select Item' : 'Select store first'}
                   options={consumableOptions}
                   required
+                  disabled={!selectedStore}
                 />
 
                 <FormInput
@@ -459,6 +550,7 @@ export default function CreateItemRequisition() {
                   name={`consummables.${index}.quantity`}
                   placeholder='Enter Quantity'
                   required
+                  disabled={!selectedStore}
                 />
 
                 <Button
@@ -478,47 +570,16 @@ export default function CreateItemRequisition() {
               onClick={() => {
                 append({ consummable: "", quantity: "0" });
               }}
+              disabled={!selectedStore}
             >
               <AddSquareIcon />
               Add Item
             </Button>
+            </div>
 
-            {/* Department Display Section */}
-            {userDepartment && (
-              <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <h3 className="text-lg font-bold text-blue-800 mb-2">Request Department</h3>
-                <p className="text-gray-700">
-                  <strong>Department:</strong> {userDepartment.name}
-                </p>
-                <p className="text-sm text-gray-600 mt-1">
-                  This requisition will be submitted for your department.
-                </p>
-              </div>
-            )}
-
-            <div className='grid grid-cols-1 gap-5 md:grid-cols-2'>
-              {/* Hidden department field - auto-populated */}
-              <input
-                type="hidden"
-                {...form.register('department')}
-                value={userDepartment?.id || ""}
-              />
-
-              {/* Phase 5: Store Selection - Auto-filtered by user location */}
-              <div className="space-y-1">
-                <FormSelect
-                  label='Store'
-                  name='store'
-                  placeholder={storeOptions.length === 0 ? 'No stores available at your location' : 'Select Store'}
-                  options={storeOptions}
-                  required
-                />
-                {currentUserProfile?.data?.location && (
-                  <p className="text-xs text-gray-500">
-                    Showing stores for your location ({storeOptions.length} available)
-                  </p>
-                )}
-              </div>
+            {/* Approval Workflow Section */}
+            <div className='grid grid-cols-1 gap-5 md:grid-cols-2 bg-gray-50 border border-gray-200 rounded-lg p-4'>
+              <h3 className="font-semibold text-gray-900 mb-2 col-span-2">👥 Approval Workflow</h3>
 
               <FormSelect
                 label='Reviewer'
