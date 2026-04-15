@@ -10,13 +10,15 @@ export default function ConsumableStockCard({
   loading,
   error,
   itemStocks = [],
-  itemName = "Unknown Item"
+  itemName = "Unknown Item",
+  storeName
 }: {
   stockCard: any;
   loading?: boolean;
   error?: any;
   itemStocks?: any[];
   itemName?: string;
+  storeName?: string; // Optional: display store-specific stock card
 }) {
   // Debug the stockCard data structure
   console.log("🔍 ConsumableStockCard DEBUG - Full Data:", {
@@ -278,10 +280,12 @@ export default function ConsumableStockCard({
         <CardContent className='py-5 space-y-6'>
           <div>
             <h4 className='text-lg font-medium'>
-              {itemName} - Stock Card
+              {itemName} - Stock Card{storeName && ` (${storeName})`}
             </h4>
             <p className='text-sm text-gray-600 mt-1'>
-              Transaction history showing quantity received, issued, and running balances
+              {storeName
+                ? `Transaction history for ${storeName} showing quantity received, issued, and running balances`
+                : `Transaction history across all stores showing quantity received, issued, and running balances`}
             </p>
           </div>
           <Separator />

@@ -11,43 +11,57 @@ import { useGetSinglePurchaseOrder } from "@/features/procurement/controllers/pu
 import { useGetPurchaseRequest } from "@/features/procurement/controllers/purchaseRequestController";
 import { useGetSingleUser } from "@/features/auth/controllers/userController";
 import { useGetSingleStore } from "@/features/admin/controllers/storeController";
+import { useGetStoreInventory } from "@/features/admin/controllers/itemStoreStockController";
 import { useMemo, useState } from "react";
 import Link from "next/link";
 
-const tableColumns: ColumnDef<any>[] = [
+// Table columns for GRN Items (what was actually received)
+const grnItemsTableColumns: ColumnDef<any>[] = [
   {
     header: "Description of Items",
     cell: ({ row }) => {
-      // Try multiple paths where item details might be
-      const itemName = row.original?.item_detail?.name ||
-                       row.original?.item?.name ||
-                       row.original?.description ||
-                       row.original?.item_name;
+      // Access item details from grn_item -> purchase_order_item -> item_detail
+      const itemName = row.original?.purchase_order_item_detail?.item_detail?.name ||
+                       row.original?.purchase_order_item?.item_detail?.name ||
+                       row.original?.item_detail?.name;
 
       if (itemName) return itemName;
 
-      // Fallback to showing item ID if no name found
-      const itemId = row.original?.item || row.original?.item_detail?.id || row.original?.id;
+      // Fallback to showing purchase_order_item ID if no name found
+      const itemId = row.original?.purchase_order_item;
       return itemId ? `Item ID: ${itemId}` : 'N/A';
     },
   },
   {
     header: "Unit of Measurement",
     cell: ({ row }) => {
-      return row.original?.item_detail?.uom ||
-             row.original?.item?.uom ||
-             row.original?.uom ||
+      return row.original?.purchase_order_item_detail?.item_detail?.uom ||
+             row.original?.purchase_order_item?.item_detail?.uom ||
+             row.original?.item_detail?.uom ||
              "Not specified";
     },
   },
   {
     header: "Quantity Ordered",
-    cell: ({ row }) => row.original?.quantity || 0,
+    cell: ({ row }) => row.original?.purchase_order_item_detail?.quantity || 0,
+  },
+  {
+    header: "Quantity Received",
+    cell: ({ row }) => {
+      const received = row.original?.received_quantity || 0;
+      const ordered = row.original?.purchase_order_item_detail?.quantity || 0;
+      const isComplete = received === ordered;
+      return (
+        <span className={isComplete ? "text-green-600 font-semibold" : "text-orange-600 font-semibold"}>
+          {received} {isComplete ? "✓" : ""}
+        </span>
+      );
+    },
   },
   {
     header: "Unit Price",
     cell: ({ row }) => {
-      const price = parseFloat(row.original?.unit_price || "0");
+      const price = parseFloat(row.original?.purchase_order_item_detail?.unit_price || "0");
       return new Intl.NumberFormat('en-NG', {
         style: 'currency',
         currency: 'NGN'
@@ -57,7 +71,7 @@ const tableColumns: ColumnDef<any>[] = [
   {
     header: "Total Price",
     cell: ({ row }) => {
-      const price = parseFloat(row.original?.total_price || "0");
+      const price = parseFloat(row.original?.purchase_order_item_detail?.total_price || "0");
       return new Intl.NumberFormat('en-NG', {
         style: 'currency',
         currency: 'NGN'
@@ -67,11 +81,13 @@ const tableColumns: ColumnDef<any>[] = [
   {
     header: "FCO Number",
     cell: ({ row }) => {
-      return row.original?.fco_number_detail?.code ||
-             row.original?.fco_number?.code ||
-             row.original?.fco_number ||
+      return row.original?.purchase_order_item_detail?.fco_number ||
              "Not specified";
     },
+  },
+  {
+    header: "Remarks",
+    cell: ({ row }) => row.original?.remark || "—",
   },
 ];
 
@@ -111,6 +127,12 @@ export default function GoodReceiveNoteDetails() {
   const { data: destinationStoreData } = useGetSingleStore(
     destinationStoreId || "",
     !!destinationStoreId
+  );
+
+  // Fetch store inventory to verify items are recorded
+  const { data: storeInventoryData } = useGetStoreInventory(
+    destinationStoreId || "",
+    !!destinationStoreId && !!data?.data?.grn_items
   );
 
   const details = useMemo(() => {
@@ -175,6 +197,9 @@ export default function GoodReceiveNoteDetails() {
       // Items from full PO data
       purchase_order_items: poData?.purchase_order_items || [],
 
+      // GRN Items - what was actually received
+      grn_items: grnData?.grn_items || [],
+
       // Approval/Signature fields with user details
       // Use fetched user data since backend doesn't return expanded details
       created_by: grnData?.created_by,
@@ -217,7 +242,7 @@ export default function GoodReceiveNoteDetails() {
       // Status from GRN
       status: grnData?.status,
     };
-  }, [data, purchaseOrderData, purchaseRequestData, createdByUser, acceptedByUser, receivedByUser, destinationStoreData]);
+  }, [data, purchaseOrderData, purchaseRequestData, createdByUser, acceptedByUser, receivedByUser, destinationStoreData, storeInventoryData]);
 
   const handleDownload = async (format: 'text' | 'pdf' = 'text') => {
     if (!id) return;
@@ -432,17 +457,92 @@ export default function GoodReceiveNoteDetails() {
         </div>
       )}
 
-      {/* Items Table */}
+      {/* GRN Items Table - What was actually received */}
       <div className='my-4'>
-        <h3 className='font-semibold text-gray-800 mb-3'>Purchase Order Items</h3>
+        <h3 className='font-semibold text-gray-800 mb-3'>Items Received via this GRN</h3>
         <div className='border border-gray-200 rounded overflow-hidden'>
           <DataTable
-            columns={tableColumns}
-            data={details?.purchase_order_items || []}
+            columns={grnItemsTableColumns}
+            data={details?.grn_items || []}
             headClass='bg-gray-50 font-medium text-sm'
           />
         </div>
       </div>
+
+      {/* Store Stock Verification Section */}
+      {destinationStoreId && storeInventoryData && details?.grn_items && details.grn_items.length > 0 && (
+        <div className='my-4 bg-blue-50 border border-blue-200 rounded-lg p-4'>
+          <h3 className='font-semibold text-blue-900 mb-3'>📋 Store Stock Verification</h3>
+          <p className='text-sm text-blue-700 mb-4'>
+            Verify that the received items have been recorded in <strong>{details?.destination_store_name}</strong> inventory.
+          </p>
+
+          <div className='space-y-3'>
+            {details.grn_items.map((grnItem: any, index: number) => {
+              const itemId = grnItem?.purchase_order_item_detail?.item_detail?.id;
+              const itemName = grnItem?.purchase_order_item_detail?.item_detail?.name || `Item ${index + 1}`;
+              const receivedQty = grnItem?.received_quantity || 0;
+
+              // Find this item in the store inventory
+              const storeStock = storeInventoryData?.data?.results?.find(
+                (stock: any) => stock.item === itemId || stock.item?.id === itemId
+              );
+
+              const isRecorded = !!storeStock;
+              const currentStock = storeStock?.current_stock || 0;
+
+              return (
+                <div key={index} className='bg-white border border-blue-300 rounded p-3 flex justify-between items-center'>
+                  <div className='flex-1'>
+                    <h4 className='font-semibold text-gray-800'>{itemName}</h4>
+                    <p className='text-sm text-gray-600'>
+                      Received Quantity: <span className='font-medium'>{receivedQty}</span>
+                    </p>
+                  </div>
+                  <div className='text-right'>
+                    {isRecorded ? (
+                      <div className='space-y-1'>
+                        <span className='px-3 py-1 rounded text-xs bg-green-100 text-green-800 font-medium inline-block'>
+                          ✓ Recorded in Store
+                        </span>
+                        <p className='text-sm text-gray-700'>
+                          Current Stock: <span className='font-semibold text-green-700'>{currentStock}</span>
+                        </p>
+                        {storeStock && (
+                          <Link
+                            href={`/dashboard/admin/inventory-management/stores/${destinationStoreId}`}
+                            className='text-xs text-blue-600 hover:underline block'
+                          >
+                            View in Store →
+                          </Link>
+                        )}
+                      </div>
+                    ) : (
+                      <div>
+                        <span className='px-3 py-1 rounded text-xs bg-yellow-100 text-yellow-800 font-medium inline-block'>
+                          ⚠ Not Found in Store
+                        </span>
+                        <p className='text-xs text-gray-600 mt-1'>
+                          Item may not be stocked yet
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className='mt-4 pt-3 border-t border-blue-200'>
+            <Link
+              href={`/dashboard/admin/inventory-management/stores/${destinationStoreId}`}
+              className='text-sm text-blue-700 hover:text-blue-900 font-medium hover:underline'
+            >
+              View Full Store Inventory →
+            </Link>
+          </div>
+        </div>
+      )}
 
       {/* Approval Flow Section */}
       <div className='my-6'>

@@ -117,8 +117,8 @@ export const useGetSingleGoodReceiveNote = (
       try {
         const response = await AxiosWithToken.get(`${BASE_URL}${id}/`, {
           params: {
-            // Phase 3: Added destination_store to expand parameter
-            expand: 'created_by,approved_by,rejected_by,received_by,purchase_order,destination_store,destination_store.location,destination_store.store_keeper',
+            // Expand all related data including grn_items with full item details
+            expand: 'created_by,approved_by,rejected_by,received_by,purchase_order,destination_store,destination_store.location,destination_store.store_keeper,grn_items,grn_items.purchase_order_item,grn_items.purchase_order_item.item_detail,grn_items.purchase_order_item.item_detail.category',
           }
         });
         return response.data;
@@ -145,7 +145,18 @@ export const useCreateGoodReceiveNote = () => {
       return response.data;
     } catch (error) {
       console.error("Good receive note create error:", error);
-      throw error; // Re-throw to maintain error handling flow
+      const axiosError = error as AxiosError;
+      // Extract the error message from the response
+      const errorData = axiosError.response?.data as any;
+      const errorMessage = errorData?.message || "Failed to create Good Receive Note";
+      // Throw error with proper structure for frontend consumption
+      throw {
+        data: {
+          message: errorMessage,
+          error_code: errorData?.error_code,
+        },
+        status: axiosError.response?.status,
+      };
     }
   };
 
@@ -163,7 +174,18 @@ export const useModifyGoodReceiveNote = (id: string) => {
       return response.data;
     } catch (error) {
       console.error("Good receive note modify error:", error);
-      throw error;
+      const axiosError = error as AxiosError;
+      // Extract the error message from the response
+      const errorData = axiosError.response?.data as any;
+      const errorMessage = errorData?.message || "Failed to modify Good Receive Note";
+      // Throw error with proper structure for frontend consumption
+      throw {
+        data: {
+          message: errorMessage,
+          error_code: errorData?.error_code,
+        },
+        status: axiosError.response?.status,
+      };
     }
   };
 

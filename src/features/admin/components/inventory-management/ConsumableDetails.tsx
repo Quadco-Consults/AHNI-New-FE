@@ -17,6 +17,7 @@ export default function ConsumableDetails() {
   const { id: consumableId } = useParams();
   const searchParams = useSearchParams();
   const tabParam = searchParams.get("tab");
+  const storeIdParam = searchParams.get("store"); // Get store ID if viewing from store context
 
   // Default to "overview" if no tab param, otherwise use the param
   const [activeTab, setActiveTab] = useState(tabParam || "overview");
@@ -34,9 +35,11 @@ export default function ConsumableDetails() {
   );
 
   // Fetch stock movement data for Stock Card tab
+  // Filter by store if storeIdParam is provided (when viewing from store context)
   const { data: stockCardData, isLoading: stockCardLoading, error: stockCardError } = useGetAllConsumableStockCardsQuery(
     consumableId || "",
-    activeTab === "stock"
+    activeTab === "stock",
+    storeIdParam || undefined // Pass store ID to filter movements
   );
 
   // Fetch item stock across stores
@@ -46,6 +49,11 @@ export default function ConsumableDetails() {
   );
 
   const itemStocks = itemStocksData?.data?.results || [];
+
+  // Find the store name if viewing from store context
+  const storeName = storeIdParam
+    ? itemStocks.find((stock: any) => stock.store === storeIdParam)?.store_detail?.name
+    : undefined;
 
   return (
     <div>
@@ -213,6 +221,7 @@ export default function ConsumableDetails() {
                       error={stockCardError}
                       itemStocks={itemStocks}
                       itemName={consumable?.data?.name || "Unknown Item"}
+                      storeName={storeName}
                     />
                   </TabsContent>
 

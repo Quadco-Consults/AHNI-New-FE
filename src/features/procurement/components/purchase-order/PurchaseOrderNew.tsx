@@ -58,7 +58,6 @@ const PurchaseOrderNew = () => {
   const [openReviewer, setOpenReviewer] = useState(false);
   const [openAuthorizer, setOpenAuthorizer] = useState(false);
   const [openApprover, setOpenApprover] = useState(false);
-  const [openVendorRep, setOpenVendorRep] = useState(false);
   const [vendorValue, setVendorValue] = useState(vendorIdFromUrl || "");
   const [requestValue, setRequestValue] = useState("");
   const [purchaseValue, setPurchaseValue] = useState("");
@@ -169,6 +168,7 @@ const PurchaseOrderNew = () => {
       reviewed_by: "",
       authorized_by: "",
       approved_by: "",
+      vendor_representative_name: "",
     },
   });
 
@@ -255,15 +255,24 @@ const PurchaseOrderNew = () => {
                "";
       };
 
+      // Ensure FCO is always an array of strings, never nested arrays
+      const normalizeFCO = () => {
+        const fcoValue = extractFCO();
+        if (!fcoValue) return [];
+        // If it's already an array, return it as-is
+        if (Array.isArray(fcoValue)) return fcoValue;
+        // If it's a string, wrap it in an array
+        return [fcoValue];
+      };
+
       const mappedItem = {
         item_id: data?.item || data?.item_detail?.id || "",
-        fco: extractFCO(),
         quantity: data?.quantity || 0,
         unit_cost: data?.unit_cost || 0,
         description: extractDescription(),
         uom: extractUOM(),
         total: (data?.sub_total_amount || data?.total || 0).toString(),
-        fco_number: extractFCO() ? [extractFCO()] : [], // Initialize with existing FCO if available
+        fco_number: normalizeFCO(), // Properly normalize FCO to array of strings
         name: extractDescription(),
       };
 
@@ -599,6 +608,8 @@ const PurchaseOrderNew = () => {
       ...(data?.reviewed_by && { reviewed_by: data.reviewed_by }),
       ...(data?.authorized_by && { authorized_by: data.authorized_by }),
       ...(data?.approved_by && { approved_by: data.approved_by }),
+      // Vendor representative name (not a user, just text)
+      ...((data as any)?.vendor_representative_name && { vendor_representative_name: (data as any).vendor_representative_name }),
       // Payment and delivery
       ...(data?.payment_terms && { payment_terms: data.payment_terms }),
       ...(data?.delivery_lead_time && { delivery_lead_time: data.delivery_lead_time }),
@@ -609,8 +620,10 @@ const PurchaseOrderNew = () => {
         const totalPrice = unitPrice * quantity;
 
         return {
-          item_id: item?.description || "",
-          fco: item?.fco_number?.[0] || "",
+          item: item?.item_id || "",  // The actual item UUID (backend expects 'item' not 'item_id')
+          description: item?.description || item?.name || "",  // Item description/name
+          uom: item?.uom || "",  // Unit of measurement
+          fco_number: item?.fco_number?.[0] || "",  // FCO number
           unit_price: unitPrice,
           quantity: quantity,
           total_price: totalPrice,
@@ -677,6 +690,21 @@ const PurchaseOrderNew = () => {
             const error = errors[key as keyof typeof errors];
             if (error && 'message' in error) {
               console.error(`  - ${key}: ${error.message}`);
+            }
+            // Handle array field errors (like items)
+            if (Array.isArray(error)) {
+              console.error(`  - ${key} (array field) has ${error.length} items with errors:`);
+              error.forEach((itemError: any, index: number) => {
+                if (itemError) {
+                  console.error(`    Item ${index}:`, itemError);
+                  Object.keys(itemError || {}).forEach(fieldKey => {
+                    const fieldError = itemError[fieldKey];
+                    if (fieldError && 'message' in fieldError) {
+                      console.error(`      - ${fieldKey}: ${fieldError.message}`);
+                    }
+                  });
+                }
+              });
             }
           });
         })} className="space-y-5">
@@ -747,11 +775,16 @@ const PurchaseOrderNew = () => {
                           {vendors?.data?.results?.map((vendor) => (
                             <CommandItem
                               key={vendor?.id}
-                              value={vendor?.id}
+                              value={vendor?.company_name}
                               onSelect={(currentValue) => {
-                                setVendorValue(currentValue);
-                                field.onChange(currentValue); // Use field.onChange for proper form integration
-                                setOpen(false);
+                                const selectedVendor = vendors?.data?.results?.find(
+                                  (v) => v.company_name.toLowerCase() === currentValue.toLowerCase()
+                                );
+                                if (selectedVendor) {
+                                  setVendorValue(selectedVendor.id);
+                                  field.onChange(selectedVendor.id);
+                                  setOpen(false);
+                                }
                               }}
                             >
                               <Check
@@ -817,11 +850,16 @@ const PurchaseOrderNew = () => {
                             return (
                               <CommandItem
                                 key={request?.id}
-                                value={request?.id}
+                                value={request?.ref_number}
                                 onSelect={(currentValue) => {
-                                  setPurchaseValue(currentValue);
-                                  field.onChange(currentValue); // Use field.onChange for proper form integration
-                                  setOpensPurchase(false);
+                                  const selectedRequest = requests?.data?.results?.find(
+                                    (r) => r.ref_number.toLowerCase() === currentValue.toLowerCase()
+                                  );
+                                  if (selectedRequest) {
+                                    setPurchaseValue(selectedRequest.id);
+                                    field.onChange(selectedRequest.id);
+                                    setOpensPurchase(false);
+                                  }
                                 }}
                               >
                                 <Check
@@ -880,25 +918,30 @@ const PurchaseOrderNew = () => {
                         <CommandEmpty>No Department found.</CommandEmpty>
                         <CommandGroup>
                           {departmentsIsLoading && <LoadingSpinner />}
-                          {departments?.data?.results?.map((request) => {
+                          {departments?.data?.results?.map((department) => {
                             return (
                               <CommandItem
-                                key={request?.id}
-                                value={request?.id}
+                                key={department?.id}
+                                value={department?.name}
                                 onSelect={(currentValue) => {
-                                  setRequestValue(currentValue);
-                                  setOpens(false);
+                                  const selectedDept = departments?.data?.results?.find(
+                                    (d) => d.name.toLowerCase() === currentValue.toLowerCase()
+                                  );
+                                  if (selectedDept) {
+                                    setRequestValue(selectedDept.id);
+                                    setOpens(false);
+                                  }
                                 }}
                               >
                                 <Check
                                   className={cn(
                                     "mr-2 h-4 w-4",
-                                    requestValue === request?.id
+                                    requestValue === department?.id
                                       ? "opacity-100"
                                       : "opacity-0"
                                   )}
                                 />
-                                {request?.name}
+                                {department?.name}
                               </CommandItem>
                             );
                           })}
@@ -942,11 +985,16 @@ const PurchaseOrderNew = () => {
                         {locations?.data?.results?.map((location: any) => (
                           <CommandItem
                             key={location?.id}
-                            value={location?.id}
+                            value={location?.name}
                             onSelect={(currentValue) => {
-                              setDeliveryValue(currentValue);
-                              setValue("delivery_location", currentValue);
-                              setOpenDelivery(false);
+                              const selectedLocation = locations?.data?.results?.find(
+                                (l: any) => l.name.toLowerCase() === currentValue.toLowerCase()
+                              );
+                              if (selectedLocation) {
+                                setDeliveryValue(selectedLocation.id);
+                                setValue("delivery_location", selectedLocation.id);
+                                setOpenDelivery(false);
+                              }
                             }}
                           >
                             <Check
@@ -1168,12 +1216,13 @@ const PurchaseOrderNew = () => {
               onClick={() =>
                 append({
                   description: "",
-                  fco: "",
                   item_id: "",
                   quantity: "",
                   total: "",
                   unit_cost: "",
                   uom: "",
+                  name: "",
+                  fco_number: [],
                 })
               }
               className="bg-alternate border border-primary text-primary"
@@ -1230,7 +1279,14 @@ const PurchaseOrderNew = () => {
                               <div className="p-2 text-sm text-gray-500">No users available</div>
                             )}
                             {!usersIsLoading &&
-                              ((users as any)?.data?.results || (users as any)?.results)?.filter((user: any) => user && user.id && (user.first_name || user.last_name))?.map((user: any) => {
+                              ((users as any)?.data?.results || (users as any)?.results)
+                                ?.filter((user: any) =>
+                                  user &&
+                                  user.id &&
+                                  (user.first_name || user.last_name) &&
+                                  user.user_type === "AHNI_STAFF"
+                                )
+                                ?.map((user: any) => {
                                 const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim();
                                 return (
                                   <CommandItem
@@ -1304,7 +1360,14 @@ const PurchaseOrderNew = () => {
                               <div className="p-2 text-sm text-gray-500">No users available</div>
                             )}
                             {!usersIsLoading &&
-                              ((users as any)?.data?.results || (users as any)?.results)?.filter((user: any) => user && user.id && (user.first_name || user.last_name))?.map((user: any) => {
+                              ((users as any)?.data?.results || (users as any)?.results)
+                                ?.filter((user: any) =>
+                                  user &&
+                                  user.id &&
+                                  (user.first_name || user.last_name) &&
+                                  user.user_type === "AHNI_STAFF"
+                                )
+                                ?.map((user: any) => {
                                 const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim();
                                 return (
                                   <CommandItem
@@ -1378,7 +1441,14 @@ const PurchaseOrderNew = () => {
                               <div className="p-2 text-sm text-gray-500">No users available</div>
                             )}
                             {!usersIsLoading &&
-                              ((users as any)?.data?.results || (users as any)?.results)?.filter((user: any) => user && user.id && (user.first_name || user.last_name))?.map((user: any) => {
+                              ((users as any)?.data?.results || (users as any)?.results)
+                                ?.filter((user: any) =>
+                                  user &&
+                                  user.id &&
+                                  (user.first_name || user.last_name) &&
+                                  user.user_type === "AHNI_STAFF"
+                                )
+                                ?.map((user: any) => {
                                 const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim();
                                 return (
                                   <CommandItem
@@ -1412,79 +1482,21 @@ const PurchaseOrderNew = () => {
             </div>
 
             <div className="grid grid-cols-2 gap-5 mt-4">
-              <FormField
-                control={form.control}
-                name="agreed_by"
-                render={({ field }) => (
-                  <FormItem>
-                    <Label>Vendor Representative (Optional)</Label>
-                    <Popover open={openVendorRep} onOpenChange={setOpenVendorRep}>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant="outline"
-                            role="combobox"
-                            aria-expanded={openVendorRep}
-                            className={cn(
-                              "w-full justify-between",
-                              !field.value && "text-muted-foreground"
-                            )}
-                          >
-                            {field.value
-                              ? (() => {
-                                  const user = ((users as any)?.data?.results || (users as any)?.results)?.find(
-                                    (user: any) => user.id === field.value
-                                  );
-                                  return user
-                                    ? `${user.first_name || ''} ${user.last_name || ''}`.trim() || "Unknown User"
-                                    : "Unknown User";
-                                })()
-                              : "Select Vendor Representative"}
-                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-full p-0">
-                        <Command>
-                          <CommandInput placeholder="Search users..." />
-                          <CommandEmpty>No user found.</CommandEmpty>
-                          <CommandGroup>
-                            {usersIsLoading && <LoadingSpinner />}
-                            {!usersIsLoading && !((users as any)?.data?.results || (users as any)?.results) && (
-                              <div className="p-2 text-sm text-gray-500">No users available</div>
-                            )}
-                            {!usersIsLoading &&
-                              ((users as any)?.data?.results || (users as any)?.results)?.filter((user: any) => user && user.id && (user.first_name || user.last_name))?.map((user: any) => {
-                                const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim();
-                                return (
-                                  <CommandItem
-                                    value={fullName}
-                                    key={user.id}
-                                    onSelect={() => {
-                                      field.onChange(user.id);
-                                      setOpenVendorRep(false);
-                                    }}
-                                  >
-                                    <Check
-                                      className={cn(
-                                        "mr-2 h-4 w-4",
-                                        user.id === field.value
-                                          ? "opacity-100"
-                                          : "opacity-0"
-                                      )}
-                                    />
-                                    {fullName || "Unknown User"}
-                                  </CommandItem>
-                                );
-                              })}
-                          </CommandGroup>
-                        </Command>
-                      </PopoverContent>
-                    </Popover>
-                  <FormMessage />
-                  </FormItem>
+              <div>
+                <Label>Vendor Representative Name (Optional)</Label>
+                <FormInput
+                  name="vendor_representative_name"
+                  placeholder={vendorValue
+                    ? "Enter representative name (e.g., MD, CEO, Contact Person)"
+                    : "Select a vendor first"}
+                  disabled={!vendorValue}
+                />
+                {vendorValue && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    Hint: Enter the name of the vendor's MD, CEO, or authorized representative
+                  </p>
                 )}
-              />
+              </div>
             </div>
           </div>
           )}

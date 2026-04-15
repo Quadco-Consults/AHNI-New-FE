@@ -267,34 +267,36 @@ const ActionListAction = ({ data, onRefresh, isRefreshing }: any) => {
     });
   }, [latestPOData]);
 
-  // Force refetch when opening workflow dialog to get latest status
+  // Initialize with existing data when opening dialog (instant load)
   useEffect(() => {
     if (showWorkflow) {
-      console.log("🔄 Workflow dialog opened - refreshing data to get latest status");
-      setIsLoadingLatestStatus(true);
-      // Refetch both list and single PO data
+      console.log("🔄 Workflow dialog opened - using existing data for instant load");
+      // Use existing data immediately
+      setLatestPOData(data);
+      setIsLoadingLatestStatus(false);
+      // Then fetch fresh data in background
+      refetchPO();
+    }
+  }, [showWorkflow, data, refetchPO]);
+
+  const handleWorkflowSuccess = () => {
+    // Don't close the dialog - just refresh PO data so user can see updated status
+    console.log("✅ Workflow action succeeded - refreshing PO data");
+    setIsLoadingLatestStatus(true);
+    // Only refresh the single PO (faster than refreshing entire list)
+    refetchPO();
+    // Refresh list in background (without blocking UI)
+    setTimeout(() => {
       if (onRefresh) {
         onRefresh();
       }
-      refetchPO();
-    }
-  }, [showWorkflow, onRefresh, refetchPO]);
-
-  const handleWorkflowSuccess = () => {
-    // Don't close the dialog - just refresh data so user can see updated status
-    setIsLoadingLatestStatus(true);
-    // Trigger data refresh
-    if (onRefresh) {
-      onRefresh();
-    }
-    refetchPO();
+    }, 500);
   };
 
   const handleManualRefresh = () => {
+    console.log("🔄 Manual refresh triggered");
     setIsLoadingLatestStatus(true);
-    if (onRefresh) {
-      onRefresh();
-    }
+    // Only refresh the single PO (instant feedback)
     refetchPO();
   };
 

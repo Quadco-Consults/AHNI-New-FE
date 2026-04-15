@@ -420,19 +420,19 @@ export default function StoreDetailPage({ storeId }: StoreDetailPageProps) {
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
-                onClick={() => router.push(`/dashboard/admin/inventory-management/consumable/${itemId}`)}
+                onClick={() => router.push(`/dashboard/admin/inventory-management/consumable/${itemId}?store=${storeId}`)}
               >
                 <Eye className="mr-2 h-4 w-4" />
                 View Details
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={() => router.push(`/dashboard/admin/inventory-management/consumable/${itemId}?tab=stock`)}
+                onClick={() => router.push(`/dashboard/admin/inventory-management/consumable/${itemId}?tab=stock&store=${storeId}`)}
               >
                 <FileText className="mr-2 h-4 w-4" />
                 Stock Card
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={() => router.push(`/dashboard/admin/inventory-management/consumable/${itemId}?tab=requisitions`)}
+                onClick={() => router.push(`/dashboard/admin/inventory-management/consumable/${itemId}?tab=requisitions&store=${storeId}`)}
               >
                 <TrendingUp className="mr-2 h-4 w-4" />
                 Stock Movement

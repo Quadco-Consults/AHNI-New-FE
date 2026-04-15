@@ -33,9 +33,16 @@ export const useGetAllPurchaseOrders = ({
         return response.data.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        throw new Error(
-          "Sorry: " + (axiosError.response?.data as any)?.message
-        );
+        const errorMessage = (axiosError.response?.data as any)?.message;
+
+        // Handle specific backend field error
+        if (errorMessage?.includes("Cannot resolve keyword 'vendor_name'")) {
+          throw new Error(
+            "Backend search configuration error. Please contact the system administrator to fix the vendor search field."
+          );
+        }
+
+        throw new Error("Sorry: " + errorMessage);
       }
     },
     enabled: enabled,

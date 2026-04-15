@@ -31,7 +31,7 @@ export const useGetAllEnhancedConsumables = ({
   expand = "store_stocks",
   category = "",
   location = "",
-  stock_status = "",
+  stock_status,
   enabled = true,
 }: EnhancedConsumablesRequest) => {
   return useQuery<TPaginatedResponse<TConsumablePaginatedData>>({
@@ -107,22 +107,32 @@ export const useGetSingleConsumable = (id: string, enabled: boolean = true) => {
 };
 
 // Get All Consumable Stock Cards (Transaction History Only)
-export const useGetAllConsumableStockCards = (id: string, enabled: boolean = true) => {
+export const useGetAllConsumableStockCards = (
+  id: string,
+  enabled: boolean = true,
+  storeId?: string // Optional: filter by specific store
+) => {
   return useQuery<TResponse<any>>({
-    queryKey: ["consumable-stock-cards", id],
+    queryKey: ["consumable-stock-cards", id, storeId],
     queryFn: async () => {
       try {
         // Get stock movements (transaction history) - this is what a stock card should show
-        const params = {
+        const params: any = {
           item: id,
-          expand: 'item_detail,created_by,updated_by,store,purchase_order',
+          expand: 'item_detail,created_by,updated_by,store_detail,purchase_order',
           ordering: '-created_datetime' // Show latest transactions first
         };
+
+        // Filter by specific store if provided
+        if (storeId) {
+          params.store = storeId;
+        }
 
         console.log("🔍 Stock Movements API Request:", {
           endpoint: '/stock-movements/',
           params,
-          itemId: id
+          itemId: id,
+          storeId: storeId || 'ALL'
         });
 
         const response = await AxiosWithToken.get(`/stock-movements/`, { params });

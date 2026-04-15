@@ -254,7 +254,7 @@ const Order = () => {
 
                 <div>
                   <p className='text-xs text-gray-600 uppercase font-semibold'>Delivery Location</p>
-                  <p className='text-sm font-bold text-gray-900'>{data?.data?.location || 'AHNI Office - Abuja'}</p>
+                  <p className='text-sm font-bold text-gray-900'>{data?.data?.location_detail?.name || 'AHNI Office - Abuja'}</p>
                 </div>
 
                 <div>

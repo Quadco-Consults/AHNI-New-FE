@@ -229,7 +229,6 @@ export const PurchaseOrderListSchema = z.object({
   items: z.array(
     z.object({
       item_id: z.string().optional(),
-      fco: z.string().optional(),
       unit_cost: z.union([
         z.string(),
         z.number(),
@@ -257,7 +256,7 @@ export const PurchaseOrderListSchema = z.object({
   reviewed_by: z.string().optional(),
   authorized_by: z.string().optional(),
   approved_by: z.string().optional(),
-  agreed_by: z.string().optional(),
+  vendor_representative_name: z.string().optional(),
 });
 
 export const SolicitationItemsSchema = z.object({
