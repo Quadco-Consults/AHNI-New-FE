@@ -341,7 +341,7 @@ export default function StoreTransferDetail() {
             <div>
               <label className="text-sm text-gray-600">Created By</label>
               <p className="font-medium text-gray-900">
-                {details.created_by || "N/A"}
+                {details.created_by_name || details.created_by?.full_name || "N/A"}
               </p>
             </div>
           </div>
