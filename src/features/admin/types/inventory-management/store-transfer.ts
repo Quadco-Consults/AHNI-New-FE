@@ -82,18 +82,30 @@ export interface IStoreTransferSingleData {
   transfer_number: string;
   source_store: string;
   source_store_detail?: TStoreSingleData;
+  // Flat store fields for easy access
+  source_store_name?: string;
+  source_store_code?: string;
+  source_store_type?: string;
+  source_store_location?: string;
   destination_store: string;
   destination_store_detail?: TStoreSingleData;
+  // Flat store fields for easy access
+  destination_store_name?: string;
+  destination_store_code?: string;
+  destination_store_type?: string;
+  destination_store_location?: string;
   transfer_reason: string;
   status: StoreTransferStatus;
   expected_delivery_date?: string;
   actual_delivery_date?: string;
   items: IStoreTransferItem[];
+  transfer_items?: IStoreTransferItem[];  // Alias
 
   // Audit trail
   created_datetime: string;
   updated_datetime: string;
   created_by: string;
+  created_by_name?: string;  // Flat name field
   created_by_detail?: {
     user_id: string;
     name: string;
@@ -102,6 +114,7 @@ export interface IStoreTransferSingleData {
 
   // Approval workflow
   approved_by?: string | null;
+  approved_by_name?: string | null;  // Flat name field
   approved_by_detail?: {
     user_id: string;
     name: string;
@@ -112,6 +125,7 @@ export interface IStoreTransferSingleData {
 
   // Rejection workflow
   rejected_by?: string | null;
+  rejected_by_name?: string | null;  // Flat name field
   rejected_by_detail?: {
     user_id: string;
     name: string;
@@ -122,6 +136,7 @@ export interface IStoreTransferSingleData {
 
   // Shipping workflow
   shipped_by?: string | null;
+  shipped_by_name?: string | null;  // Flat name field
   shipped_by_detail?: {
     user_id: string;
     name: string;
@@ -132,6 +147,7 @@ export interface IStoreTransferSingleData {
 
   // Receiving workflow
   received_by?: string | null;
+  received_by_name?: string | null;  // Flat name field
   received_by_detail?: {
     user_id: string;
     name: string;
