@@ -146,6 +146,117 @@ export const useCreateSolicitation = () => {
   return { createSolicitation, data, isLoading, isSuccess, error };
 };
 
+// Update Solicitation (Full Update)
+export const useUpdateSolicitation = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    SolicitationResponse,
+    Error,
+    TSolicitationQuotationFormData
+  >({
+    endpoint: `${BASE_URL}${id}/`,
+    queryKey: ["solicitations", id],
+    isAuth: true,
+    method: "PUT",
+  });
+
+  const updateSolicitation = async (details: TSolicitationQuotationFormData) => {
+    try {
+      console.log("🔄 Updating Solicitation:", id, details);
+      const res = await callApi(details);
+      console.log("✅ Solicitation Updated:", res);
+      return res;
+    } catch (error) {
+      console.error("❌ Solicitation update error:", error);
+      throw error;
+    }
+  };
+
+  return { updateSolicitation, data, isLoading, isSuccess, error };
+};
+
+// Modify Solicitation (Partial Update)
+export const useModifySolicitation = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    SolicitationResponse,
+    Error,
+    Partial<TSolicitationQuotationFormData>
+  >({
+    endpoint: `${BASE_URL}${id}/`,
+    queryKey: ["solicitations", id],
+    isAuth: true,
+    method: "PATCH",
+  });
+
+  const modifySolicitation = async (details: Partial<TSolicitationQuotationFormData>) => {
+    try {
+      console.log("🔧 Modifying Solicitation:", id, details);
+      const res = await callApi(details);
+      console.log("✅ Solicitation Modified:", res);
+      return res;
+    } catch (error) {
+      console.error("❌ Solicitation modify error:", error);
+      throw error;
+    }
+  };
+
+  return { modifySolicitation, data, isLoading, isSuccess, error };
+};
+
+// Close Solicitation (OPEN → CLOSED)
+export const useCloseSolicitation = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    SolicitationResponse,
+    Error,
+    { action: string }
+  >({
+    endpoint: `${BASE_URL}${id}/`,
+    queryKey: ["solicitations", id],
+    isAuth: true,
+    method: "PATCH",
+  });
+
+  const closeSolicitation = async () => {
+    try {
+      console.log("🔒 Closing Solicitation:", id);
+      const res = await callApi({ action: "close" });
+      console.log("✅ Solicitation Closed:", res);
+      return res;
+    } catch (error) {
+      console.error("❌ Solicitation close error:", error);
+      throw error;
+    }
+  };
+
+  return { closeSolicitation, data, isLoading, isSuccess, error };
+};
+
+// Delete Solicitation
+export const useDeleteSolicitation = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    void,
+    Error,
+    Record<string, never>
+  >({
+    endpoint: `${BASE_URL}${id}/`,
+    queryKey: ["solicitations"],
+    isAuth: true,
+    method: "DELETE",
+  });
+
+  const deleteSolicitation = async () => {
+    try {
+      console.log("🗑️ Deleting Solicitation:", id);
+      await callApi({} as Record<string, never>);
+      console.log("✅ Solicitation Deleted");
+    } catch (error) {
+      console.error("❌ Solicitation delete error:", error);
+      throw error;
+    }
+  };
+
+  return { deleteSolicitation, data, isLoading, isSuccess, error };
+};
+
 // Get Single Public Opportunity (EOI or RFQ) - without authentication
 export const useGetPublicOpportunity = (id: string, enabled: boolean = true) => {
   return useQuery<TResponse<any>>({
@@ -169,6 +280,9 @@ export const useGetAllSolicitationsQuery = useGetAllSolicitations;
 export const useGetSingleSolicitationQuery = useGetSingleSolicitation;
 export const useGetPassedSolicitationQuery = useGetPassedSolicitation;
 export const useCreateSolicitationMutation = useCreateSolicitation;
+export const useUpdateSolicitationMutation = useUpdateSolicitation;
+export const useModifySolicitationMutation = useModifySolicitation;
+export const useDeleteSolicitationMutation = useDeleteSolicitation;
 
-// Missing named export
+// Additional named exports
 export const useGetSolicitationById = useGetSingleSolicitation;

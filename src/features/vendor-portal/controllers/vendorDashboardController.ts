@@ -447,15 +447,53 @@ export const useVendorCategories = () => {
         throw new Error('No vendor token found');
       }
 
-      const response = await VendorAxiosWithToken.get(`${VENDOR_DASHBOARD_ENDPOINTS.AVAILABLE_RFQS}/categories/`);
+      try {
+        const response = await VendorAxiosWithToken.get(`${VENDOR_DASHBOARD_ENDPOINTS.AVAILABLE_RFQS}categories/`);
 
-      return response.data;
+        // Log API response for debugging
+        logAPIResponse('VENDOR_CATEGORIES', response);
+
+        // Handle different response formats
+        const data = response.data;
+
+        // If data has status field, extract from nested data
+        if (data.status === 'success' && data.data) {
+          return Array.isArray(data.data) ? data.data : [];
+        }
+
+        // If data is directly an array
+        if (Array.isArray(data)) {
+          return data;
+        }
+
+        // If data has results field
+        if (data.results && Array.isArray(data.results)) {
+          return data.results;
+        }
+
+        console.warn('⚠️ Unexpected vendor categories response format:', data);
+        return [];
+      } catch (error: any) {
+        console.error('❌ Vendor categories API error:', error);
+
+        // If API fails, return empty array instead of throwing
+        if (error?.response?.status === 403) {
+          console.warn('🔒 Categories API permission denied - returning empty array');
+          return [];
+        }
+
+        throw error;
+      }
     },
     enabled: VendorAuthUtils.isVendorAuthenticated(),
     staleTime: 1000 * 60 * 10, // 10 minutes
     retry: (failureCount, error: any) => {
       if (error?.response?.status === 401) {
         VendorAuthUtils.removeVendorToken();
+        return false;
+      }
+      // Don't retry on permission errors
+      if (error?.response?.status === 403) {
         return false;
       }
       return failureCount < 3;
@@ -473,15 +511,47 @@ export const useRFQSummary = () => {
         throw new Error('No vendor token found');
       }
 
-      const response = await VendorAxiosWithToken.get(`${VENDOR_DASHBOARD_ENDPOINTS.AVAILABLE_RFQS}/summary/`);
+      try {
+        const response = await VendorAxiosWithToken.get(`${VENDOR_DASHBOARD_ENDPOINTS.AVAILABLE_RFQS}summary/`);
 
-      return response.data;
+        // Log API response for debugging
+        logAPIResponse('RFQ_SUMMARY', response);
+
+        // Handle different response formats
+        const data = response.data;
+
+        // If data has status field, extract from nested data
+        if (data.status === 'success' && data.data) {
+          return data.data;
+        }
+
+        return data;
+      } catch (error: any) {
+        console.error('❌ RFQ Summary API error:', error);
+
+        // If API fails, return default summary
+        if (error?.response?.status === 403) {
+          console.warn('🔒 RFQ Summary API permission denied - returning default');
+          return {
+            total_available: 0,
+            closing_soon: 0,
+            new_rfqs: 0,
+            submitted_bids: 0
+          };
+        }
+
+        throw error;
+      }
     },
     enabled: VendorAuthUtils.isVendorAuthenticated(),
     staleTime: 1000 * 60 * 5, // 5 minutes
     retry: (failureCount, error: any) => {
       if (error?.response?.status === 401) {
         VendorAuthUtils.removeVendorToken();
+        return false;
+      }
+      // Don't retry on permission errors
+      if (error?.response?.status === 403) {
         return false;
       }
       return failureCount < 3;
@@ -499,15 +569,35 @@ export const useVendorRFQDetails = (rfqId: string) => {
         throw new Error('No vendor token found');
       }
 
-      const response = await VendorAxiosWithToken.get(`${VENDOR_DASHBOARD_ENDPOINTS.AVAILABLE_RFQS}/${rfqId}/`);
+      try {
+        const response = await VendorAxiosWithToken.get(`${VENDOR_DASHBOARD_ENDPOINTS.AVAILABLE_RFQS}${rfqId}/`);
 
-      return response.data;
+        // Log API response for debugging
+        logAPIResponse('RFQ_DETAILS', response);
+
+        // Handle different response formats
+        const data = response.data;
+
+        // If data has status field, extract from nested data
+        if (data.status === 'success' && data.data) {
+          return data.data;
+        }
+
+        return data;
+      } catch (error: any) {
+        console.error('❌ RFQ Details API error:', error);
+        throw error;
+      }
     },
     enabled: !!rfqId && VendorAuthUtils.isVendorAuthenticated(),
     staleTime: 1000 * 60 * 10, // 10 minutes for RFQ details
     retry: (failureCount, error: any) => {
       if (error?.response?.status === 401) {
         VendorAuthUtils.removeVendorToken();
+        return false;
+      }
+      // Don't retry on permission errors
+      if (error?.response?.status === 403) {
         return false;
       }
       return failureCount < 3;

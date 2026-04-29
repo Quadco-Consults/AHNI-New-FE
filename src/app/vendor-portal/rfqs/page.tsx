@@ -161,9 +161,9 @@ export default function VendorRFQsPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Categories</SelectItem>
-                    {!categoriesLoading && categories?.map((category: any) => (
+                    {!categoriesLoading && Array.isArray(categories) && categories.map((category: any) => (
                       <SelectItem key={category.id} value={category.id.toString()}>
-                        {category.name} ({category.rfq_count})
+                        {category.name} ({category.rfq_count || 0})
                       </SelectItem>
                     ))}
                   </SelectContent>

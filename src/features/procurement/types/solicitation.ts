@@ -95,14 +95,18 @@ export interface ISolicitationRFQData {
   id: string;
   rfq_id: string | null;
   purchase_request: string;
+  eoi_tender?: string; // Link to EOI tender
   title: string;
   background: string;
   status: string;
   opening_date: string;
   closing_date: string;
   tender_type: string;
+  rfq_type?: 'PROCUREMENT' | 'ADMIN'; // Department classification
   request_type: string;
   procurement_type: null;
+  specification_document?: string; // File upload field
+  specification_document_detail?: string; // Read-only URL
   selected_vendors?: string[]; // Array of vendor UUIDs for single/closed source RFQs (backend format)
   selected_vendors_details?: Array<{
     id: string;
@@ -141,4 +145,73 @@ export interface ISolicitationRFQData {
       description: string;
     }
   ];
+}
+
+// RFP Types
+export interface IRFPDocument {
+  id: string;
+  name: string;
+  file: string;
+  uploaded_at: string;
+}
+
+export interface IVendorDetails {
+  id: string;
+  company_name: string;
+  company_registration_number: string;
+  type_of_business: string;
+  status: string;
+  email: string;
+}
+
+export interface IRFPData {
+  id: string;
+  title: string;
+  rfp_id: string;
+  background: string;
+  eoi_tender?: string;
+  tender_type: string;
+  tender_type_display?: string;
+  request_type: string;
+  status: 'DRAFT' | 'PUBLISHED' | 'OPEN' | 'CLOSED';
+  status_display?: string;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+  opening_date?: string;
+  closing_date: string;
+  documents?: IRFPDocument[];
+}
+
+export interface IRFPSubmissionDocument {
+  id: string;
+  title: string;
+  file: string;
+  uploaded_at: string;
+}
+
+export interface IRFPVendorSubmission {
+  id: string;
+  rfp: string;
+  vendor: string;
+  vendor_details?: IVendorDetails;
+  submitted_by: string;
+  status: 'DRAFT' | 'SUBMITTED' | 'UNDER_REVIEW' | 'ACCEPTED' | 'REJECTED';
+  status_display?: string;
+  notes: string;
+  submitted_at: string | null;
+  created_at: string;
+  updated_at: string;
+  documents?: IRFPSubmissionDocument[];
+}
+
+// Response types for RFP
+export interface RFPResponse {
+  message: string;
+  data: IRFPData;
+}
+
+export interface RFPVendorSubmissionResponse {
+  message: string;
+  data: IRFPVendorSubmission;
 }
