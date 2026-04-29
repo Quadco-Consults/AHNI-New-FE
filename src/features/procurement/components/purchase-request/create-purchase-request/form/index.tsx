@@ -436,9 +436,14 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
         quantity: exp?.quantity,
         unit_cost: exp?.unit_cost,
         amount: exp?.total_cost,
-        uom: exp?.uom || "",
         item: typeof exp?.item === 'object' ? exp?.item?.id : exp?.item,
         fco_number: [],
+        // Service fields
+        is_service: exp?.is_service || false,
+        duration: exp?.duration || 1,
+        duration_unit: exp?.duration_unit || 'month',
+        num_of_facility: exp?.num_of_facility || 1,
+        frequency: exp?.frequency || 1,
       }));
     }
 
@@ -457,9 +462,14 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
             quantity: exp?.quantity ? Number(exp.quantity) : 1,
             unit_cost: exp?.unit_cost ? Number(exp.unit_cost) : 0,
             amount: exp?.total_cost ? Number(exp.total_cost) : 0,
-            uom: exp?.uom || "",
             item: typeof exp?.item === 'object' ? (exp?.item?.id || "") : (exp?.item || ""), // Ensure we get the ID, not the object
             fco_number: Array.isArray(latestActivityMemo?.fconumber) ? latestActivityMemo.fconumber : [], // FCO numbers from memo level
+            // ✅ SERVICE SUPPORT: Preserve service-specific fields
+            is_service: exp?.is_service || false,
+            duration: exp?.duration || 1,
+            duration_unit: exp?.duration_unit || 'month',
+            num_of_facility: exp?.num_of_facility || 1,
+            frequency: exp?.frequency || 1,
           };
           return mappedItem;
         });
@@ -482,9 +492,14 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
             quantity: exp?.quantity ? Number(exp.quantity) : 1,
             unit_cost: exp?.unit_cost ? Number(exp.unit_cost) : 0,
             amount: exp?.total_cost ? Number(exp.total_cost) : 0,
-            uom: exp?.uom || "",
             item: typeof exp?.item === 'object' ? (exp?.item?.id || "") : (exp?.item || ""), // Ensure we get the ID, not the object
             fco_number: Array.isArray(apiMemoData.data?.fconumber) ? apiMemoData.data.fconumber : [], // FCO numbers from memo level
+            // ✅ SERVICE SUPPORT: Preserve service-specific fields
+            is_service: exp?.is_service || false,
+            duration: exp?.duration || 1,
+            duration_unit: exp?.duration_unit || 'month',
+            num_of_facility: exp?.num_of_facility || 1,
+            frequency: exp?.frequency || 1,
           };
           return mappedItem;
         });
@@ -781,7 +796,12 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
           quantity: item.quantity || 1,
           unit_cost: item.unit_cost || 0,
           amount: item.amount || 0,
-          uom: typeof item.uom === 'object' ? (item.uom?.name || item.uom?.id || "") : (item.uom || "")
+          // ✅ SERVICE SUPPORT: Preserve service fields
+          is_service: item.is_service || false,
+          duration: item.duration || 1,
+          duration_unit: item.duration_unit || 'month',
+          num_of_facility: item.num_of_facility || 1,
+          frequency: item.frequency || 1,
         };
 
         // Safe item created for index ${index}

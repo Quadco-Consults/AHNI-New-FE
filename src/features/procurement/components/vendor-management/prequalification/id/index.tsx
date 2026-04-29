@@ -6,9 +6,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Overview from "./Overview";
 import Uploads from "./Uploads";
 import Questionnaire from "./Questionnaire";
+import VendorActivity from "./VendorActivity";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { useParams } from "next/navigation"; 
+import { useParams } from "next/navigation";
 import { RouteEnum } from "@/constants/RouterConstants";
 import VendorsAPI from "@/features/procurement/controllers/vendorsController";
 import { LoadingSpinner } from "@/components/Loading";
@@ -97,6 +98,7 @@ const PrequalificationDetails = () => {
           <TabsTrigger value='overview'>Overview</TabsTrigger>
           <TabsTrigger value='uploads'>Uploads</TabsTrigger>
           <TabsTrigger value='questionnaire'>More details</TabsTrigger>
+          <TabsTrigger value='activity'>Activity</TabsTrigger>
         </TabsList>
         <TabsContent value='overview'>
           <Overview {...(data as VendorsResultsData)} />
@@ -106,6 +108,9 @@ const PrequalificationDetails = () => {
         </TabsContent>
         <TabsContent value='questionnaire'>
           <Questionnaire {...(data as VendorsResultsData)} />
+        </TabsContent>
+        <TabsContent value='activity'>
+          <VendorActivity />
         </TabsContent>
       </Tabs>
     </div>

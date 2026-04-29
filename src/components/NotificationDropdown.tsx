@@ -50,7 +50,12 @@ export default function NotificationDropdown() {
       'TravelExpenseReport': '/dashboard/admin/travel-expenses-report',
       'ConsultancyReport': '/dashboard/c-and-g/consultancy-report',
       'ContractRequest': '/dashboard/c-and-g/contract-request',
-      'VendorEvaluation': '/dashboard/procurement/vendor-performance/form'
+      'VendorEvaluation': '/dashboard/procurement/vendor-performance/form',
+      'Vendor': '/dashboard/procurement/vendor-management',
+      'Cba': '/dashboard/procurement/competitive-bid-analysis',
+      'RFQ Clarification': '/dashboard/procurement/rfq-clarifications',
+      'Vendor Document': '/dashboard/procurement/vendor-management',
+      'Vendor Message': '/dashboard/procurement/messages'
     };
 
     const route = routes[notification.module_type] || '/dashboard';

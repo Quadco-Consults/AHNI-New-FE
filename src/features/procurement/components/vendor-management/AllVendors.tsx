@@ -7,6 +7,7 @@ import IconButton from "@/components/IconButton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ColumnDef } from "@tanstack/react-table";
@@ -15,17 +16,18 @@ import { useGetVendors, useDeleteVendor, useBulkUploadVendors } from "@/features
 import { VendorsResultsData } from "@/definations/procurement-types/vendors";
 import Link from "next/link";
 import { toast } from "sonner";
-import { Upload, Edit, Trash2 } from 'lucide-react';
-import VendorBulkUploadModal from "./vendor-management/VendorBulkUploadModal";
+import { Upload } from 'lucide-react';
+import VendorBulkUploadModal from "./VendorBulkUploadModal";
 import { VendorTemplateData } from "@/features/procurement/utils/vendorTemplateGenerator";
 
-const SupplierDatabase = () => {
+const AllVendors = () => {
   const [showBulkUpload, setShowBulkUpload] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
+  const [statusFilter, setStatusFilter] = useState<string>(""); // Empty = all statuses
 
   const { data, isLoading, refetch } = useGetVendors({
-    status: "Approved",
+    status: statusFilter,
     page: currentPage,
     size: pageSize,
   });
@@ -85,7 +87,7 @@ const SupplierDatabase = () => {
         area_of_specialization: vendor.area_of_specialization,
         key_staff: keyStaff,
         branches: branches,
-        status: "Approved", // Default status for bulk uploaded vendors
+        status: "Pending", // Default status for bulk uploaded vendors
       };
     });
 
@@ -101,22 +103,42 @@ const SupplierDatabase = () => {
   return (
     <div className='space-y-10'>
       <div>
-        <h4 className='text-lg font-bold'>Supplier Database</h4>
+        <h4 className='text-lg font-bold'>All Vendors</h4>
         <h6>
           Procurement -{" "}
           <span className='text-black font-medium dark:text-grey-dark'>
-            Supplier Database
+            All Vendors
           </span>
         </h6>
       </div>
 
       <Card className='space-y-10'>
         <div className='flex items-center justify-between'>
-          <h4 className='text-lg font-bold'>Supplier Database</h4>
-          <Button onClick={() => setShowBulkUpload(true)}>
-            <Upload size={18} className='mr-2' />
-            Bulk Upload Vendors
-          </Button>
+          <h4 className='text-lg font-bold'>Vendor Management</h4>
+          <div className="flex gap-3">
+            {/* Status Filter */}
+            <Select value={statusFilter} onValueChange={(value) => {
+              setStatusFilter(value);
+              setCurrentPage(1); // Reset to first page when changing filter
+            }}>
+              <SelectTrigger className="w-[200px]">
+                <SelectValue placeholder="Filter by status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">All Statuses</SelectItem>
+                <SelectItem value="Approved">Approved</SelectItem>
+                <SelectItem value="Pending">Pending</SelectItem>
+                <SelectItem value="In Progress">In Progress</SelectItem>
+                <SelectItem value="Rejected">Rejected</SelectItem>
+                <SelectItem value="Inactive">Inactive</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Button onClick={() => setShowBulkUpload(true)}>
+              <Upload size={18} className='mr-2' />
+              Bulk Upload Vendors
+            </Button>
+          </div>
         </div>
 
         <DataTable
@@ -240,7 +262,7 @@ const SupplierDatabase = () => {
   );
 };
 
-export default SupplierDatabase;
+export default AllVendors;
 
 const columns: ColumnDef<VendorsResultsData>[] = [
   {
@@ -310,94 +332,23 @@ const columns: ColumnDef<VendorsResultsData>[] = [
     accessorKey: "company_address",
   },
   {
-    header: "Other Opt.Addresses",
-    size: 240,
-    accessorKey: "other_opt_addresses",
-    cell: ({ row }) => (
-      <div className='space-y-2'>
-        {row.original.branches?.map(({ address }, idx) => {
-          return (
-            <div className='' key={idx}>
-              {idx + 1}. {address}
-            </div>
-          );
-        }) || "-"}
-      </div>
-    ),
-  },
-
-  {
-    header: "Point of Contact Person",
-    size: 200,
-    accessorKey: "point_of_contact_person",
-    cell: ({ row }) => (
-      <div className='space-y-2'>
-        {row.original.key_staff?.length > 0 ? row.original.key_staff[0]?.name : "-"}
-      </div>
-    ),
-  },
-
-  {
-    header: "Company Email",
-    size: 200,
-    accessorKey: "email",
-  },
-  {
-    header: "Mobile Number 1",
-    size: 200,
-    accessorKey: "mobile_number_1",
-    cell: ({ row }) => (
-      <div className='space-y-2'>
-        {(row.original.key_staff?.length > 0 &&
-          row.original.key_staff[0]?.phone_number) ||
-          "-"}
-      </div>
-    ),
-  },
-  {
-    header: "Mobile Number 2",
-    size: 200,
-    accessorKey: "mobile_number_2",
-    cell: ({ row }) => (
-      <div className='space-y-2'>
-        {(row.original.key_staff?.length > 1 &&
-          row.original.key_staff[1]?.phone_number) ||
-          "-"}
-      </div>
-    ),
-  },
-  {
-    header: "Mobile Number 3",
-    size: 200,
-    accessorKey: "mobile_number_3",
-    cell: ({ row }) => (
-      <div className='space-y-2'>
-        {(row.original.key_staff?.length > 2 &&
-          row.original.key_staff[2]?.phone_number) ||
-          "-"}
-      </div>
-    ),
-  },
-  {
-    header: "Products/Services",
-    accessorKey: "nature_of_business",
-    size: 300,
-  },
-  {
     header: "Status",
-    size: 200,
+    size: 150,
     accessorKey: "status",
     cell: ({ getValue }) => {
+      const status = getValue() as string;
       return (
         <Badge
           className={cn(
             "p-1 rounded-lg",
-            getValue() === "Approved" && "bg-green-200 text-green-500",
-            getValue() === "Inactive" && "bg-red-200 text-red-500",
-            getValue() === "Pending" && "bg-yellow-200 text-yellow-500"
+            status === "Approved" && "bg-green-200 text-green-700",
+            status === "Inactive" && "bg-gray-200 text-gray-700",
+            status === "Pending" && "bg-yellow-200 text-yellow-700",
+            status === "In Progress" && "bg-blue-200 text-blue-700",
+            status === "Rejected" && "bg-red-200 text-red-700"
           )}
         >
-          {getValue() as string}
+          {status}
         </Badge>
       );
     },
@@ -415,10 +366,9 @@ const ActionListAction = ({ data }: any) => {
   const deleteVendorHandler = async (id: string) => {
     try {
       deleteVendor();
-      toast.success("Document successfully deleted.");
+      toast.success("Vendor successfully deleted.");
     } catch (error) {
       toast.error("Something went wrong");
-      // console.log(error);
     }
   };
   return (
@@ -460,7 +410,6 @@ const VendorAction = ({ data }: any) => {
       </div>
       <div>
         <h4 className='font-bold'>{data?.company_name || "N/A"}</h4>
-        {/* <h6>{data?.company_address}</h6> */}
       </div>
     </div>
   );

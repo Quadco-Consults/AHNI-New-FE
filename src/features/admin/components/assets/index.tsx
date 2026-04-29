@@ -20,8 +20,9 @@ export default function AssetHomePage() {
     page,
     size: 20,
     search,
-    // Remove hardcoded category filter to show all assets
-    // category: "b0983944-f926-4141-8e28-093960d75246",
+    // Filter by "Assets" parent category to show all asset types (Vehicles, IT Equipment, etc.)
+    // This excludes Services and only shows GOODS under the Assets category
+    parent_category_id: "17ca9ee7-603a-43a9-91e8-979652a8231c", // Assets category
     // Expand all related fields to get full nested objects
     expand: "category,assignee,asset_type,project,donor,asset_condition,location,classification,implementer",
   });
@@ -37,38 +38,29 @@ export default function AssetHomePage() {
 
   return (
     <div className='space-y-5'>
-      <div className='flex justify-between items-center gap-3'>
-        <div className="flex-1 max-w-sm">
-          <input
-            type="text"
-            placeholder="Search assets (Honda, Range Rover, etc.)..."
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setPage(1); // Reset to page 1 when searching
-            }}
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-        <div className='flex gap-3'>
-          <Button
-            variant="outline"
-            onClick={() => setBulkUploadOpen(true)}
-          >
-            <Upload size={20} />
-            Bulk Upload
+      <div className='flex justify-end items-center gap-3'>
+        <Button
+          variant="outline"
+          onClick={() => setBulkUploadOpen(true)}
+        >
+          <Upload size={20} />
+          Bulk Upload
+        </Button>
+        <Link href='/dashboard/admin/assets/create'>
+          <Button>
+            <Plus size={20} />
+            Create Asset
           </Button>
-          <Link href='/dashboard/admin/assets/create'>
-            <Button>
-              <Plus size={20} />
-              Create Asset
-            </Button>
-          </Link>
-        </div>
+        </Link>
       </div>
 
       <Card className='space-y-4'>
-        <TableFilters>
+        <TableFilters
+          onSearchChange={(e) => {
+            setSearch(e.target.value);
+            setPage(1); // Reset to page 1 when searching
+          }}
+        >
           <DataTable
             data={asset?.data?.results || []}
             columns={assetColumn}

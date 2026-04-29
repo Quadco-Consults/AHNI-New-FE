@@ -39,6 +39,13 @@ export type PurchaseRequestItems = {
   uom?: string;
   purchase_request: string;
   created_datetime: string;
+
+  // ✅ SERVICE SUPPORT: Personnel/service-specific fields
+  is_service?: boolean;
+  duration?: number;
+  duration_unit?: 'day' | 'week' | 'month' | 'year';
+  num_of_facility?: number;
+  frequency?: number;
 };
 
 export type PurchaseRequestResultsData = {

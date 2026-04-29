@@ -8,7 +8,7 @@ import BreadcrumbCard from "@/components/Breadcrumb";
 import CbaAPI from "@/features/procurement/controllers/cbaController";
 import Card from "@/components/Card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, FileText, BarChart, Briefcase, CalendarDays, Layers, ClipboardList, ClipboardCheck, Eye, ShieldCheck, CheckCircle, Package, Users, User, UserCheck, Lock } from 'lucide-react';
+import { CheckCircle2, FileText, BarChart, Briefcase, CalendarDays, Layers, ClipboardList, ClipboardCheck, Eye, ShieldCheck, CheckCircle, Package, Users, User, UserCheck, Lock, XCircle } from 'lucide-react';
 import { Icon } from "@iconify/react";
 import { SolicitationItems } from "definations/procurement-types/solicitation";
 import GoBack from "@/components/GoBack";
@@ -92,6 +92,7 @@ const CompetitiveBidAnalysisDetail = () => {
     const { id } = useParams();
     const router = useRouter();
     const [open, setOpen] = useState(false);
+    const [rejectOpen, setRejectOpen] = useState(false);
     const queryClient = useQueryClient();
     const currentUser = useCurrentUser();
 
@@ -109,36 +110,52 @@ const CompetitiveBidAnalysisDetail = () => {
     // Fetch vendor submissions
     const { data: submissionsData } = useGetSolicitationSubmission(solicitationId as string, !!solicitationId);
 
-    // Use signature workflow for approvals instead of the old approval system
-    const { data: workflowStatus } = SignatureWorkflowAPI.useCbaWorkflowStatus(id as string);
-    const { approveWorkflowStep, isLoading: createApprovalCbaIsLoading } = SignatureWorkflowAPI.useApproveCbaWorkflowStep(id as string);
+    // Use new signature workflow hooks
+    const { data: workflowStatus } = CbaAPI.useGetWorkflowStatus(id as string, !!id);
+    const { data: signatureStatus } = CbaAPI.useGetSignatureStatus(id as string, !!id);
+    const { submitForReview } = CbaAPI.useSubmitCbaForReview(id as string);
+    const { reviewCba, isLoading: reviewLoading } = CbaAPI.useReviewCba(id as string);
+    const { authoriseCba, isLoading: authoriseLoading } = CbaAPI.useAuthoriseCba(id as string);
+    const { approveCba, isLoading: approveLoading } = CbaAPI.useApproveCba(id as string);
 
-    // Get current approval step and role
+    // Rejection hooks
+    const { reviewRejectCba, isLoading: reviewRejectLoading } = CbaAPI.useReviewRejectCba(id as string);
+    const { authoriseRejectCba, isLoading: authoriseRejectLoading } = CbaAPI.useAuthoriseRejectCba(id as string);
+    const { approveRejectCba, isLoading: approveRejectLoading } = CbaAPI.useApproveRejectCba(id as string);
+
+    // Get current approval step and role dynamically from workflow status
     const getCurrentApprovalStep = () => {
-        const cbaData = data?.data;
-        const status = cbaData?.status;
-
-        if (status === 'PENDING') {
-            const currentStepNumber = 1;
-
-            switch (currentStepNumber) {
-                case 1:
-                    return { step: 1, role: 'Reviewer', isComplete: false };
-                case 2:
-                    return { step: 2, role: 'Authoriser', isComplete: false };
-                case 3:
-                    return { step: 3, role: 'Approver', isComplete: false };
-                default:
-                    return { step: 1, role: 'Reviewer', isComplete: false };
-            }
-        } else if (status === 'APPROVED') {
-            return { step: 4, role: 'Completed', isComplete: true };
-        } else {
-            return { step: 1, role: 'Reviewer', isComplete: false };
+        if (!workflowStatus?.data) {
+            return { step: 0, role: 'Pending', isComplete: false };
         }
+
+        const { current_step, step_name, is_completed, action_type } = workflowStatus.data;
+
+        if (is_completed) {
+            return { step: 4, role: 'Completed', isComplete: true };
+        }
+
+        // Map action_type to step and role
+        const stepMapping: Record<string, { step: number; role: string }> = {
+            'review': { step: 1, role: 'Reviewer' },
+            'authorise': { step: 2, role: 'Authoriser' },
+            'approve': { step: 3, role: 'Approver' }
+        };
+
+        if (action_type && stepMapping[action_type]) {
+            return {
+                step: stepMapping[action_type].step,
+                role: stepMapping[action_type].role,
+                isComplete: false
+            };
+        }
+
+        return { step: current_step, role: step_name, isComplete: false };
     };
 
     const currentStep = getCurrentApprovalStep();
+    const createApprovalCbaIsLoading = reviewLoading || authoriseLoading || approveLoading;
+    const createRejectionCbaIsLoading = reviewRejectLoading || authoriseRejectLoading || approveRejectLoading;
 
     // Committee evaluation logic
     const isCommitteeCBA = data?.data?.cba_type === 'COMMITTEE';
@@ -174,18 +191,28 @@ const CompetitiveBidAnalysisDetail = () => {
         return assigneeId === currentUser.id;
     }, [data, currentUser.id]);
 
-    // Check if user is in the approval workflow
+    // Check if user is in the approval workflow (reviewers, authorisers, or approvers)
     const isApprover = useMemo(() => {
-        if (!data?.data?.approval_workflow) return false;
-        const workflow = data.data.approval_workflow as any;
+        if (!data?.data) return false;
+        const cbaData = data.data;
         const currentUserId = currentUser.id;
 
-        return workflow.reviewer === currentUserId ||
-               workflow.authoriser === currentUserId ||
-               workflow.approver === currentUserId ||
-               (workflow.reviewer as any)?.id === currentUserId ||
-               (workflow.authoriser as any)?.id === currentUserId ||
-               (workflow.approver as any)?.id === currentUserId;
+        // Check if user is in reviewers array
+        const isReviewer = cbaData.reviewers?.some((user: any) =>
+            (typeof user === 'string' ? user : user?.id) === currentUserId
+        );
+
+        // Check if user is in authorisers array
+        const isAuthoriser = cbaData.authorisers?.some((user: any) =>
+            (typeof user === 'string' ? user : user?.id) === currentUserId
+        );
+
+        // Check if user is in approvers array
+        const isApproverUser = cbaData.approvers?.some((user: any) =>
+            (typeof user === 'string' ? user : user?.id) === currentUserId
+        );
+
+        return isReviewer || isAuthoriser || isApproverUser;
     }, [data, currentUser.id]);
 
     // ACCESS CONTROL: Check if user has permission to view this CBA
@@ -218,33 +245,48 @@ const CompetitiveBidAnalysisDetail = () => {
         },
     });
 
+    // Rejection form
+    const RejectSchema = z.object({
+        comments: z.string().min(10, "Rejection reason must be at least 10 characters"),
+    });
+
+    const rejectForm = useForm<z.infer<typeof RejectSchema>>({
+        resolver: zodResolver(RejectSchema),
+        defaultValues: {
+            comments: "",
+        },
+    });
+
     const { handleSubmit } = form;
 
     const onSubmit = async (formData: z.infer<typeof CbaApprovalSchema>) => {
         try {
-            // Map step number to workflow step name
-            const stepMapping: Record<number, 'reviewed' | 'authorized' | 'approved'> = {
-                1: 'reviewed',
-                2: 'authorized',
-                3: 'approved'
-            };
-
-            const workflowStep = stepMapping[currentStep.step];
-
             const submissionData = {
-                step: workflowStep,
-                remarks: formData.remarks,
-                signature: '' // Optional signature field
+                signature: currentUser?.email || 'digital-signature', // Use user email or digital signature
+                comments: formData.remarks
             };
 
             if (formData.status === 'APPROVED') {
-                await approveWorkflowStep(submissionData);
+                // Call appropriate hook based on current step
+                switch (currentStep.step) {
+                    case 1:
+                        await reviewCba(submissionData);
+                        break;
+                    case 2:
+                        await authoriseCba(submissionData);
+                        break;
+                    case 3:
+                        await approveCba({ status: 'APPROVED', remarks: formData.remarks });
+                        break;
+                    default:
+                        throw new Error('Invalid approval step');
+                }
 
                 // Invalidate queries to refresh CBA data
                 await queryClient.invalidateQueries({ queryKey: ["cba", id] });
                 await queryClient.invalidateQueries({ queryKey: ["cbas"] });
                 await queryClient.invalidateQueries({ queryKey: ["cba-workflow-status", id] });
-                await queryClient.invalidateQueries({ queryKey: ["cba-signature-workflow", id] });
+                await queryClient.invalidateQueries({ queryKey: ["cba-signature-status", id] });
 
                 toast.success(`${currentStep.role} approval submitted successfully.`);
             } else {
@@ -255,6 +297,38 @@ const CompetitiveBidAnalysisDetail = () => {
             setOpen(false);
         } catch (error) {
             toast.error("Something went wrong");
+            console.log(error);
+        }
+    };
+
+    const onReject = async (formData: z.infer<typeof RejectSchema>) => {
+        try {
+            // Call appropriate reject hook based on current step
+            switch (currentStep.step) {
+                case 1:
+                    await reviewRejectCba({ comments: formData.comments });
+                    break;
+                case 2:
+                    await authoriseRejectCba({ comments: formData.comments });
+                    break;
+                case 3:
+                    await approveRejectCba({ comments: formData.comments });
+                    break;
+                default:
+                    throw new Error('Invalid rejection step');
+            }
+
+            // Invalidate queries to refresh CBA data
+            await queryClient.invalidateQueries({ queryKey: ["cba", id] });
+            await queryClient.invalidateQueries({ queryKey: ["cbas"] });
+            await queryClient.invalidateQueries({ queryKey: ["cba-workflow-status", id] });
+            await queryClient.invalidateQueries({ queryKey: ["cba-signature-status", id] });
+
+            toast.success(`CBA rejected at ${currentStep.role} stage`);
+            setRejectOpen(false);
+            rejectForm.reset();
+        } catch (error) {
+            toast.error("Failed to reject CBA");
             console.log(error);
         }
     };
@@ -424,7 +498,214 @@ const CompetitiveBidAnalysisDetail = () => {
                     </div>
                 </div>
 
+                {/* 3-Level Approval Workflow Section */}
+                {data?.data && (data.data.reviewers?.length > 0 || data.data.authorisers?.length > 0 || data.data.approvers?.length > 0) && (
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                        <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-6 border-b">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center space-x-4">
+                                    <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
+                                        <ShieldCheck size={24} className="text-indigo-600" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-xl font-bold text-gray-900">Approval Workflow</h3>
+                                        <p className="text-gray-600 text-sm mt-1">3-Level signature approval process</p>
+                                    </div>
+                                </div>
+                                {workflowStatus?.data?.can_user_act && (
+                                    <div className="flex items-center gap-3">
+                                        <Button
+                                            onClick={() => setRejectOpen(true)}
+                                            variant="outline"
+                                            className="border-red-500 text-red-600 hover:bg-red-50 gap-2"
+                                            disabled={createRejectionCbaIsLoading}
+                                        >
+                                            <XCircle size={18} />
+                                            Reject
+                                        </Button>
+                                        <Button
+                                            onClick={() => setOpen(true)}
+                                            className="bg-indigo-600 hover:bg-indigo-700 text-white gap-2"
+                                            disabled={createApprovalCbaIsLoading}
+                                        >
+                                            <CheckCircle size={18} />
+                                            {currentStep.role === 'Reviewer' && 'Review CBA'}
+                                            {currentStep.role === 'Authoriser' && 'Authorise CBA'}
+                                            {currentStep.role === 'Approver' && 'Approve CBA'}
+                                        </Button>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
 
+                        <div className="p-6">
+                            {/* Workflow Progress */}
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                                {/* Stage 1: Review */}
+                                <div className={cn(
+                                    "relative p-6 rounded-lg border-2 transition-all",
+                                    signatureStatus?.data?.current_stage === 'review' || (currentStep.step === 1 && !currentStep.isComplete)
+                                        ? "border-blue-500 bg-blue-50"
+                                        : signatureStatus?.data?.reviewers?.signed === signatureStatus?.data?.reviewers?.total
+                                        ? "border-green-500 bg-green-50"
+                                        : "border-gray-200 bg-gray-50"
+                                )}>
+                                    <div className="flex items-center justify-between mb-3">
+                                        <div className="flex items-center gap-2">
+                                            <div className={cn(
+                                                "w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold",
+                                                signatureStatus?.data?.reviewers?.signed === signatureStatus?.data?.reviewers?.total
+                                                    ? "bg-green-500 text-white"
+                                                    : "bg-blue-500 text-white"
+                                            )}>
+                                                {signatureStatus?.data?.reviewers?.signed === signatureStatus?.data?.reviewers?.total ? '✓' : '1'}
+                                            </div>
+                                            <h4 className="font-semibold text-gray-900">Review</h4>
+                                        </div>
+                                        <Badge variant={
+                                            signatureStatus?.data?.reviewers?.signed === signatureStatus?.data?.reviewers?.total
+                                                ? "default"
+                                                : "secondary"
+                                        }>
+                                            {signatureStatus?.data?.reviewers?.signed || 0}/{signatureStatus?.data?.reviewers?.total || 0}
+                                        </Badge>
+                                    </div>
+                                    <div className="space-y-2">
+                                        {signatureStatus?.data?.reviewers?.users?.map((user: any) => (
+                                            <div key={user.id} className="flex items-center justify-between text-sm">
+                                                <span className="text-gray-700">{user.name}</span>
+                                                {user.has_signed ? (
+                                                    <CheckCircle size={16} className="text-green-600" />
+                                                ) : (
+                                                    <div className="w-4 h-4 rounded-full border-2 border-gray-300" />
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Stage 2: Authorise */}
+                                <div className={cn(
+                                    "relative p-6 rounded-lg border-2 transition-all",
+                                    signatureStatus?.data?.current_stage === 'authorise' || (currentStep.step === 2 && !currentStep.isComplete)
+                                        ? "border-green-500 bg-green-50"
+                                        : signatureStatus?.data?.authorisers?.signed === signatureStatus?.data?.authorisers?.total
+                                        ? "border-green-500 bg-green-50"
+                                        : "border-gray-200 bg-gray-50"
+                                )}>
+                                    <div className="flex items-center justify-between mb-3">
+                                        <div className="flex items-center gap-2">
+                                            <div className={cn(
+                                                "w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold",
+                                                signatureStatus?.data?.authorisers?.signed === signatureStatus?.data?.authorisers?.total
+                                                    ? "bg-green-500 text-white"
+                                                    : "bg-green-500 text-white"
+                                            )}>
+                                                {signatureStatus?.data?.authorisers?.signed === signatureStatus?.data?.authorisers?.total ? '✓' : '2'}
+                                            </div>
+                                            <h4 className="font-semibold text-gray-900">Authorise</h4>
+                                        </div>
+                                        <Badge variant={
+                                            signatureStatus?.data?.authorisers?.signed === signatureStatus?.data?.authorisers?.total
+                                                ? "default"
+                                                : "secondary"
+                                        }>
+                                            {signatureStatus?.data?.authorisers?.signed || 0}/{signatureStatus?.data?.authorisers?.total || 0}
+                                        </Badge>
+                                    </div>
+                                    <div className="space-y-2">
+                                        {signatureStatus?.data?.authorisers?.users?.map((user: any) => (
+                                            <div key={user.id} className="flex items-center justify-between text-sm">
+                                                <span className="text-gray-700">{user.name}</span>
+                                                {user.has_signed ? (
+                                                    <CheckCircle size={16} className="text-green-600" />
+                                                ) : (
+                                                    <div className="w-4 h-4 rounded-full border-2 border-gray-300" />
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Stage 3: Approve */}
+                                <div className={cn(
+                                    "relative p-6 rounded-lg border-2 transition-all",
+                                    signatureStatus?.data?.current_stage === 'approve' || (currentStep.step === 3 && !currentStep.isComplete)
+                                        ? "border-purple-500 bg-purple-50"
+                                        : signatureStatus?.data?.approvers?.signed === signatureStatus?.data?.approvers?.total
+                                        ? "border-green-500 bg-green-50"
+                                        : "border-gray-200 bg-gray-50"
+                                )}>
+                                    <div className="flex items-center justify-between mb-3">
+                                        <div className="flex items-center gap-2">
+                                            <div className={cn(
+                                                "w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold",
+                                                signatureStatus?.data?.approvers?.signed === signatureStatus?.data?.approvers?.total
+                                                    ? "bg-green-500 text-white"
+                                                    : "bg-purple-500 text-white"
+                                            )}>
+                                                {signatureStatus?.data?.approvers?.signed === signatureStatus?.data?.approvers?.total ? '✓' : '3'}
+                                            </div>
+                                            <h4 className="font-semibold text-gray-900">Approve</h4>
+                                        </div>
+                                        <Badge variant={
+                                            signatureStatus?.data?.approvers?.signed === signatureStatus?.data?.approvers?.total
+                                                ? "default"
+                                                : "secondary"
+                                        }>
+                                            {signatureStatus?.data?.approvers?.signed || 0}/{signatureStatus?.data?.approvers?.total || 0}
+                                        </Badge>
+                                    </div>
+                                    <div className="space-y-2">
+                                        {signatureStatus?.data?.approvers?.users?.map((user: any) => (
+                                            <div key={user.id} className="flex items-center justify-between text-sm">
+                                                <span className="text-gray-700">{user.name}</span>
+                                                {user.has_signed ? (
+                                                    <CheckCircle size={16} className="text-green-600" />
+                                                ) : (
+                                                    <div className="w-4 h-4 rounded-full border-2 border-gray-300" />
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Workflow Status Info */}
+                            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <div className="text-sm text-gray-600">
+                                            <span className="font-semibold">Current Stage:</span> {currentStep.role}
+                                        </div>
+                                        {signatureStatus?.data?.can_proceed && (
+                                            <Badge className="bg-green-100 text-green-700">
+                                                Ready to proceed
+                                            </Badge>
+                                        )}
+                                    </div>
+                                    {data?.data?.status === 'PENDING' && !workflowStatus?.data?.can_user_act && (
+                                        <Button
+                                            onClick={async () => {
+                                                try {
+                                                    await submitForReview();
+                                                    await queryClient.invalidateQueries({ queryKey: ["cba", id] });
+                                                    toast.success("CBA submitted for review");
+                                                } catch (error) {
+                                                    toast.error("Failed to submit for review");
+                                                }
+                                            }}
+                                            className="bg-blue-600 hover:bg-blue-700 text-white gap-2"
+                                        >
+                                            <CheckCircle size={18} />
+                                            Submit for Review
+                                        </Button>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
             {/* Committee Evaluation Tabs - Only for Committee CBAs */}
             {isCommitteeCBA && (
@@ -721,6 +1002,99 @@ const CompetitiveBidAnalysisDetail = () => {
                 <AnalysisResults cbaId={id as string} />
 
             </div>
+
+            {/* Approval Dialog */}
+            <Dialog open={open} onOpenChange={setOpen}>
+                <DialogContent className="max-w-md">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                            <CheckCircle className="text-green-600" size={24} />
+                            {currentStep.role === 'Reviewer' && 'Review CBA'}
+                            {currentStep.role === 'Authoriser' && 'Authorise CBA'}
+                            {currentStep.role === 'Approver' && 'Approve CBA'}
+                        </DialogTitle>
+                    </DialogHeader>
+                    <Form {...form}>
+                        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                            <FormTextArea
+                                form={form}
+                                name="remarks"
+                                label="Comments (Optional)"
+                                placeholder="Add any remarks or comments..."
+                                rows={4}
+                            />
+                            <div className="flex justify-end gap-3 pt-4">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={() => setOpen(false)}
+                                    disabled={createApprovalCbaIsLoading}
+                                >
+                                    Cancel
+                                </Button>
+                                <FormButton
+                                    isLoading={createApprovalCbaIsLoading}
+                                    type="submit"
+                                    className="bg-indigo-600 hover:bg-indigo-700"
+                                >
+                                    <CheckCircle size={18} className="mr-2" />
+                                    Confirm
+                                </FormButton>
+                            </div>
+                        </form>
+                    </Form>
+                </DialogContent>
+            </Dialog>
+
+            {/* Rejection Dialog */}
+            <Dialog open={rejectOpen} onOpenChange={setRejectOpen}>
+                <DialogContent className="max-w-md">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2 text-red-600">
+                            <XCircle size={24} />
+                            Reject CBA at {currentStep.role} Stage
+                        </DialogTitle>
+                    </DialogHeader>
+                    <Form {...rejectForm}>
+                        <form onSubmit={rejectForm.handleSubmit(onReject)} className="space-y-4">
+                            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                                <p className="text-sm text-red-800">
+                                    <strong>Warning:</strong> Rejecting this CBA will set its status to REJECTED and halt the approval workflow.
+                                    Please provide a clear reason for rejection.
+                                </p>
+                            </div>
+                            <FormTextArea
+                                form={rejectForm}
+                                name="comments"
+                                label="Rejection Reason *"
+                                placeholder="Please explain why you are rejecting this CBA..."
+                                rows={5}
+                            />
+                            <div className="flex justify-end gap-3 pt-4">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={() => {
+                                        setRejectOpen(false);
+                                        rejectForm.reset();
+                                    }}
+                                    disabled={createRejectionCbaIsLoading}
+                                >
+                                    Cancel
+                                </Button>
+                                <FormButton
+                                    isLoading={createRejectionCbaIsLoading}
+                                    type="submit"
+                                    className="bg-red-600 hover:bg-red-700 text-white"
+                                >
+                                    <XCircle size={18} className="mr-2" />
+                                    Confirm Rejection
+                                </FormButton>
+                            </div>
+                        </form>
+                    </Form>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 };

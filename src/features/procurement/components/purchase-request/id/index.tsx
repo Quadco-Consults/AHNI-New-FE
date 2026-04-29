@@ -234,10 +234,12 @@ const PurchaseRequesttDetails = () => {
               <TableRow className='bg-gray-50'>
                 <TableCell className='text-center font-medium text-gray-700 text-xs'>S/N</TableCell>
                 <TableCell className='font-medium text-gray-700 text-xs'>Description of items/services</TableCell>
+                <TableCell className='text-center font-medium text-gray-700 text-xs'>Type</TableCell>
                 <TableCell className='text-center font-medium text-gray-700 text-xs'>UOM</TableCell>
                 <TableCell className='text-center font-medium text-gray-700 text-xs'>FCO</TableCell>
                 <TableCell className='text-center font-medium text-gray-700 text-xs'>Category</TableCell>
                 <TableCell className='text-center font-medium text-gray-700 text-xs'>Quantity</TableCell>
+                <TableCell className='text-center font-medium text-gray-700 text-xs'>Duration</TableCell>
                 <TableCell className='text-center font-medium text-gray-700 text-xs'>Unit Cost</TableCell>
                 <TableCell className='text-center font-medium text-gray-700 text-xs'>Total Cost</TableCell>
               </TableRow>
@@ -254,18 +256,24 @@ const PurchaseRequesttDetails = () => {
                     {/* Prioritize item_detail.name over raw item UUID */}
                     {row.item_detail?.name || row.item_detail?.description || 'N/A'}
                   </TableCell>
-                  <TableCell className='text-center text-gray-600 text-xs'>{row.item_detail?.uom || row.uom || 'Each'}</TableCell>
+                  <TableCell className='text-center text-xs'>
+                    {/* ✅ SERVICE SUPPORT: Show item type */}
+                    {row.is_service ? (
+                      <span className="bg-purple-100 text-purple-700 px-2 py-1 rounded text-xs font-medium">Service</span>
+                    ) : (
+                      <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-medium">Item</span>
+                    )}
+                  </TableCell>
+                  <TableCell className='text-center text-gray-600 text-xs'>
+                    {/* ✅ SERVICE SUPPORT: Show appropriate UOM */}
+                    {row.is_service
+                      ? `person/${row.duration_unit || 'month'}`
+                      : (row.item_detail?.uom || row.uom || 'Each')
+                    }
+                  </TableCell>
                   <TableCell className='text-center text-gray-600 text-xs'>
                     {/* Display FCO/Activity No from activity memo data or item data */}
                     {(() => {
-                      // Debug console.log commented to prevent render loops
-                      // console.log("🔍 FCO Debug for row", index, ":", {
-                      //   activityMemoFCO: activityMemoData?.data?.fconumber_details,
-                      //   itemFCO: row?.fconumber_details,
-                      //   itemFCONumber: row?.fco_number,
-                      //   activityCode: activityMemoData?.data?.activity_detail?.code
-                      // });
-
                       // First try: FCO details from activity memo
                       if (activityMemoData?.data?.fconumber_details && activityMemoData.data.fconumber_details.length > 0) {
                         return activityMemoData.data.fconumber_details.map((fco: any, idx: number) => (
@@ -309,7 +317,21 @@ const PurchaseRequesttDetails = () => {
                     })()}
                   </TableCell>
                   <TableCell className='text-center text-gray-600 text-xs'>{safeRender(row.item_detail?.category) !== 'N/A' ? safeRender(row.item_detail?.category) : safeRender(row.category) !== 'N/A' ? safeRender(row.category) : 'General'}</TableCell>
-                  <TableCell className='text-center font-medium text-xs'>{row.quantity}</TableCell>
+                  <TableCell className='text-center font-medium text-xs'>
+                    {/* ✅ SERVICE SUPPORT: Show persons or quantity */}
+                    {row.is_service ? `${row.quantity} person${row.quantity > 1 ? 's' : ''}` : row.quantity}
+                  </TableCell>
+                  <TableCell className='text-center text-gray-600 text-xs'>
+                    {/* ✅ SERVICE SUPPORT: Show duration for services */}
+                    {row.is_service ? (
+                      <span className="font-medium">
+                        {row.duration} {row.duration_unit}
+                        {row.num_of_facility && row.num_of_facility > 1 && ` × ${row.num_of_facility} loc`}
+                      </span>
+                    ) : (
+                      <span className="text-gray-400">-</span>
+                    )}
+                  </TableCell>
                   <TableCell className='text-center font-medium text-xs'>
                     ₦ {Number(row.unit_cost).toLocaleString()}.00
                   </TableCell>

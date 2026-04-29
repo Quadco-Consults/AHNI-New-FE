@@ -261,6 +261,27 @@ export const useBulkUploadVendors = () => {
   return { bulkUploadVendors, data, isLoading, isSuccess, error };
 };
 
+// Get Vendor Activity History
+export const useGetVendorActivity = (vendorId: string, enabled: boolean = true) => {
+  return useQuery<ApiResponse<any>>({
+    queryKey: ["vendor-activity", vendorId],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get(`${BASE_URL}${vendorId}/activity/`);
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error(
+          "Sorry: " + (axiosError.response?.data as any)?.message || axiosError.message
+        );
+      }
+    },
+    enabled: enabled && !!vendorId,
+    refetchOnWindowFocus: false,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+};
+
 // Legacy exports for backward compatibility
 export const useGetVendorsQuery = useGetVendors;
 export const useGetVendorListQuery = useGetVendorList;
@@ -275,6 +296,7 @@ const VendorsAPI = {
   useGetVendors,
   useGetVendorList,
   useGetVendor,
+  useGetVendorActivity,
   useCreateVendor,
   useUpdateVendor,
   useModifyVendor,

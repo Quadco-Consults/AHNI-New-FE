@@ -122,7 +122,7 @@ export type CbaResultsData = {
   committee_members: CommitteeMemberData[];
   assignee?: AssigneeData; // Changed to AssigneeData to match backend response
   remarks?: string;
-  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'COMPLETED';
+  status: 'PENDING' | 'UNDER_REVIEW' | 'APPROVED' | 'REJECTED' | 'COMPLETED';
   title?: string;
   vendor_submissions?: VendorSubmissionData[];
   vendor_responses?: {};
@@ -132,6 +132,20 @@ export type CbaResultsData = {
   selected_items?: string[];
   recommendation_note?: string;
   selected_total?: number;
+  // 3-Level Approval Workflow - Assignment
+  reviewers?: CommitteeMemberData[];
+  authorisers?: CommitteeMemberData[];
+  approvers?: CommitteeMemberData[];
+  // 3-Level Approval Workflow - Tracking
+  reviewed_by?: CommitteeMemberData;
+  reviewed_date?: string;
+  review_comments?: string;
+  authorised_by?: CommitteeMemberData;
+  authorised_date?: string;
+  authorisation_comments?: string;
+  approved_by_user?: CommitteeMemberData;
+  approved_date?: string;
+  approval_comments?: string;
 };
 
 export interface CbaData {

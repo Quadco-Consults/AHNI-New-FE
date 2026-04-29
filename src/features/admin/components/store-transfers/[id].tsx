@@ -56,19 +56,31 @@ const itemColumns: ColumnDef<IStoreTransferItem>[] = [
   },
   {
     header: "Qty Requested",
-    cell: ({ row }) => row.original.quantity_requested || 0,
+    cell: ({ row }) => {
+      const qty = row.original.quantity_requested;
+      return qty ? Number(qty).toFixed(2) : "0.00";
+    },
   },
   {
     header: "Qty Approved",
-    cell: ({ row }) => row.original.quantity_approved || "-",
+    cell: ({ row }) => {
+      const qty = row.original.quantity_approved;
+      return qty !== null && qty !== undefined ? Number(qty).toFixed(2) : "-";
+    },
   },
   {
     header: "Qty Sent",
-    cell: ({ row }) => row.original.quantity_sent || "-",
+    cell: ({ row }) => {
+      const qty = row.original.quantity_sent;
+      return qty !== null && qty !== undefined ? Number(qty).toFixed(2) : "-";
+    },
   },
   {
     header: "Qty Received",
-    cell: ({ row }) => row.original.quantity_received || "-",
+    cell: ({ row }) => {
+      const qty = row.original.quantity_received;
+      return qty !== null && qty !== undefined ? Number(qty).toFixed(2) : "-";
+    },
   },
   {
     header: "Remark",
@@ -118,36 +130,36 @@ export default function StoreTransferDetail() {
       created_datetime: transfer.created_datetime,
 
       // Source Store
-      source_store_name: transfer.source_store_detail?.name,
-      source_store_code: transfer.source_store_detail?.code,
-      source_store_type: transfer.source_store_detail?.store_type,
-      source_store_location: transfer.source_store_detail?.location?.name,
-      source_store_keeper: transfer.source_store_detail?.store_keeper
-        ? `${transfer.source_store_detail.store_keeper.first_name} ${transfer.source_store_detail.store_keeper.last_name}`.trim()
+      source_store_name: transfer.source_store?.name || transfer.source_store_name,
+      source_store_code: transfer.source_store?.code || transfer.source_store_code,
+      source_store_type: transfer.source_store?.store_type || transfer.source_store_type,
+      source_store_location: transfer.source_store?.location?.name || transfer.source_store_location,
+      source_store_keeper: transfer.source_store?.store_keeper
+        ? `${transfer.source_store.store_keeper.first_name} ${transfer.source_store.store_keeper.last_name}`.trim()
         : null,
 
       // Destination Store
-      destination_store_name: transfer.destination_store_detail?.name,
-      destination_store_code: transfer.destination_store_detail?.code,
-      destination_store_type: transfer.destination_store_detail?.store_type,
-      destination_store_location: transfer.destination_store_detail?.location?.name,
-      destination_store_keeper: transfer.destination_store_detail?.store_keeper
-        ? `${transfer.destination_store_detail.store_keeper.first_name} ${transfer.destination_store_detail.store_keeper.last_name}`.trim()
+      destination_store_name: transfer.destination_store?.name || transfer.destination_store_name,
+      destination_store_code: transfer.destination_store?.code || transfer.destination_store_code,
+      destination_store_type: transfer.destination_store?.store_type || transfer.destination_store_type,
+      destination_store_location: transfer.destination_store?.location?.name || transfer.destination_store_location,
+      destination_store_keeper: transfer.destination_store?.store_keeper
+        ? `${transfer.destination_store.store_keeper.first_name} ${transfer.destination_store.store_keeper.last_name}`.trim()
         : null,
 
       // Workflow details
-      created_by: transfer.created_by_detail?.name,
-      created_by_email: transfer.created_by_detail?.email,
-      approved_by: transfer.approved_by_detail?.name,
+      created_by: transfer.created_by?.full_name || transfer.created_by_name,
+      created_by_email: transfer.created_by?.email,
+      approved_by: transfer.approved_by?.full_name || transfer.approved_by_name,
       approved_datetime: transfer.approved_datetime,
       approval_comment: transfer.approval_comment,
-      rejected_by: transfer.rejected_by_detail?.name,
+      rejected_by: transfer.rejected_by?.full_name || transfer.rejected_by_name,
       rejected_datetime: transfer.rejected_datetime,
       rejection_reason: transfer.rejection_reason,
-      shipped_by: transfer.shipped_by_detail?.name,
+      shipped_by: transfer.shipped_by?.full_name || transfer.shipped_by_name,
       shipped_datetime: transfer.shipped_datetime,
       shipping_comment: transfer.shipping_comment,
-      received_by: transfer.received_by_detail?.name,
+      received_by: transfer.received_by?.full_name || transfer.received_by_name,
       received_datetime: transfer.received_datetime,
       receiving_comment: transfer.receiving_comment,
 
@@ -341,7 +353,7 @@ export default function StoreTransferDetail() {
             <div>
               <label className="text-sm text-gray-600">Created By</label>
               <p className="font-medium text-gray-900">
-                {details.created_by_name || details.created_by?.full_name || "N/A"}
+                {details.created_by || "N/A"}
               </p>
             </div>
           </div>
@@ -389,7 +401,7 @@ export default function StoreTransferDetail() {
             <div>
               <label className="text-sm text-blue-700">Store Code</label>
               <p className="font-semibold text-blue-900">
-                {details.source_store_code}
+                {details.source_store_code || "N/A"}
               </p>
             </div>
             <div>
@@ -434,7 +446,7 @@ export default function StoreTransferDetail() {
             <div>
               <label className="text-sm text-green-700">Store Code</label>
               <p className="font-semibold text-green-900">
-                {details.destination_store_code}
+                {details.destination_store_code || "N/A"}
               </p>
             </div>
             <div>

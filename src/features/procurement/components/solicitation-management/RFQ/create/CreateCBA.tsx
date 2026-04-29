@@ -100,9 +100,13 @@ const CreateCBA = () => {
   // const query = useQuery();
   // const rfqId = query.get("id");
 
-  const { data: users } = useGetProcurementOfficers({
+  // Get all AHNI staff users (internal staff)
+  const { data: users, isLoading: usersLoading } = useGetAllUsers({
     page: 1,
     size: 2000000,
+    search: "",
+    status: "",
+    user_type: "", // Get all user types, we'll filter in the component
   });
 
   const { data: lots, isLoading: lotIsLoading } = useGetLotList({
@@ -146,9 +150,9 @@ const CreateCBA = () => {
   );
 
   const form = useForm<z.infer<typeof CbaSchema> & {
-    reviewer?: string;
-    authoriser?: string;
-    approver?: string;
+    reviewers?: string[];
+    authorisers?: string[];
+    approvers?: string[];
   }>({
     resolver: zodResolver(CbaSchema),
     defaultValues: {
@@ -158,9 +162,9 @@ const CreateCBA = () => {
       cba_date: "",
       assignee: "",
       committee_members: [],
-      reviewer: "",
-      authoriser: "",
-      approver: "",
+      reviewers: [],
+      authorisers: [],
+      approvers: [],
     },
   });
   const { handleSubmit, watch, reset } = form;
@@ -179,9 +183,9 @@ const CreateCBA = () => {
         assignee: "",
         lot: undefined,
         committee_members: [],
-        reviewer: "",
-        authoriser: "",
-        approver: "",
+        reviewers: [],
+        authorisers: [],
+        approvers: [],
       };
 
       // Extract solicitation (always a string UUID)
@@ -228,36 +232,30 @@ const CreateCBA = () => {
         console.log("🔧 COMMITTEE MEMBERS:", formData.committee_members, "from", cbaData.committee_members);
       }
 
-      // Extract approval workflow (check if it exists and has the fields)
-      if (cbaData.approval_workflow) {
-        console.log("🔧 RAW APPROVAL WORKFLOW:", cbaData.approval_workflow);
-
-        if (cbaData.approval_workflow.reviewer) {
-          formData.reviewer = typeof cbaData.approval_workflow.reviewer === 'string'
-            ? cbaData.approval_workflow.reviewer
-            : cbaData.approval_workflow.reviewer?.id || "";
-        }
-
-        if (cbaData.approval_workflow.authoriser) {
-          formData.authoriser = typeof cbaData.approval_workflow.authoriser === 'string'
-            ? cbaData.approval_workflow.authoriser
-            : cbaData.approval_workflow.authoriser?.id || "";
-        }
-
-        if (cbaData.approval_workflow.approver) {
-          formData.approver = typeof cbaData.approval_workflow.approver === 'string'
-            ? cbaData.approval_workflow.approver
-            : cbaData.approval_workflow.approver?.id || "";
-        }
-
-        console.log("🔧 EXTRACTED APPROVAL WORKFLOW:", {
-          reviewer: formData.reviewer,
-          authoriser: formData.authoriser,
-          approver: formData.approver
-        });
-      } else {
-        console.log("🔧 NO APPROVAL WORKFLOW IN CBA DATA");
+      // Extract approval workflow (arrays of user IDs)
+      if (cbaData.reviewers && Array.isArray(cbaData.reviewers)) {
+        formData.reviewers = cbaData.reviewers.map((user: any) =>
+          typeof user === 'string' ? user : user?.id
+        ).filter(Boolean);
       }
+
+      if (cbaData.authorisers && Array.isArray(cbaData.authorisers)) {
+        formData.authorisers = cbaData.authorisers.map((user: any) =>
+          typeof user === 'string' ? user : user?.id
+        ).filter(Boolean);
+      }
+
+      if (cbaData.approvers && Array.isArray(cbaData.approvers)) {
+        formData.approvers = cbaData.approvers.map((user: any) =>
+          typeof user === 'string' ? user : user?.id
+        ).filter(Boolean);
+      }
+
+      console.log("🔧 EXTRACTED APPROVAL WORKFLOW:", {
+        reviewers: formData.reviewers,
+        authorisers: formData.authorisers,
+        approvers: formData.approvers
+      });
 
       console.log("🔧 FINAL FORM DATA TO RESET:", formData);
       // Use reset to update all fields at once
@@ -281,19 +279,23 @@ const CreateCBA = () => {
     }
   }, [isEditMode, purchaseRequestData, form]);
 
-  // Procurement officers are already filtered by the backend
-  const procurementOfficers = users?.data?.results || [];
+  // Filter for internal AHNI staff only (exclude vendors and consultants)
+  const allUsers = users?.data?.results || [];
+  const internalUsers = allUsers.filter((user: any) =>
+    user?.user_type === 'AHNI_STAFF' || user?.user_type === 'ADMIN'
+  );
+  const procurementOfficers = internalUsers; // For backward compatibility
 
   const matchedUsers =
-    procurementOfficers?.filter((user) =>
+    internalUsers?.filter((user) =>
       // @ts-ignore
       form.watch("committee_members").includes(user?.id)
     ) || [];
 
   const onSubmit = async (data: z.infer<typeof CbaSchema> & {
-    reviewer?: string;
-    authoriser?: string;
-    approver?: string;
+    reviewers?: string[];
+    authorisers?: string[];
+    approvers?: string[];
   }) => {
     // Ensure cba_date is in 'YYYY-MM-DD' format
     let formattedDate = data?.cba_date;
@@ -316,12 +318,10 @@ const CreateCBA = () => {
       ...(selectedRFQ?.solicitation_items && {
         items: selectedRFQ.solicitation_items
       }),
-      // Add approval workflow
-      approval_workflow: {
-        reviewer: data?.reviewer || null,
-        authoriser: data?.authoriser || null,
-        approver: data?.approver || null,
-      },
+      // Add 3-level approval workflow (arrays of user IDs)
+      ...(data?.reviewers && data.reviewers.length > 0 && { reviewers: data.reviewers }),
+      ...(data?.authorisers && data.authorisers.length > 0 && { authorisers: data.authorisers }),
+      ...(data?.approvers && data.approvers.length > 0 && { approvers: data.approvers }),
     };
 
     console.log("🔍 DEBUG: CBA Payload being sent:", payload);
@@ -615,7 +615,7 @@ const CreateCBA = () => {
                     </div>
 
                     <div className="space-y-5 ">
-                      {isLoading ? (
+                      {usersLoading ? (
                         <LoadingSpinner />
                       ) : (
                         <>
@@ -810,7 +810,10 @@ const CreateCBA = () => {
 
           <FormSelect name="assignee" label="Assignee (Procurement Officer)">
             <SelectContent>
-              {isLoading && <LoadingSpinner />}
+              {usersLoading && <LoadingSpinner />}
+              {!usersLoading && procurementOfficers.length === 0 && (
+                <div className="p-2 text-gray-500 text-sm">No AHNI staff found</div>
+              )}
               {procurementOfficers?.map((user) => (
                 <SelectItem key={user?.id} value={user?.id}>
                   {user?.first_name} {user?.last_name}
@@ -825,66 +828,192 @@ const CreateCBA = () => {
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
                 Approval Workflow
               </h3>
-              <p className="text-sm text-gray-600 mb-6">
-                Select the users who will handle each step of the approval process
+              <p className="text-sm text-gray-600 mb-4">
+                Select multiple users for each approval stage. At least one person must be assigned to each stage.
               </p>
 
               <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-                {/* Reviewer */}
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs font-semibold">
+                {/* Reviewers */}
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm font-semibold">
                       1
                     </div>
-                    <span className="font-medium">Reviewer</span>
+                    <div>
+                      <h4 className="font-semibold text-gray-900">Reviewers</h4>
+                      <p className="text-xs text-gray-500">
+                        {form.watch("reviewers")?.length || 0} selected
+                      </p>
+                    </div>
                   </div>
-                  <FormSelect name="reviewer" label="Select Reviewer">
-                    <SelectContent>
-                      {internalUsers?.map((user) => (
-                        <SelectItem key={user?.id} value={user?.id}>
-                          {user?.first_name} {user?.last_name} - {user?.designation}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </FormSelect>
+                  <div className="border rounded-lg p-3 bg-gray-50 max-h-64 overflow-y-auto">
+                    {usersLoading ? (
+                      <LoadingSpinner />
+                    ) : internalUsers.length === 0 ? (
+                      <p className="text-sm text-gray-500">No AHNI staff found</p>
+                    ) : (
+                      <FormField
+                        control={form.control}
+                        name="reviewers"
+                        render={() => (
+                          <FormItem className="space-y-2">
+                            {internalUsers.map((user) => (
+                              <FormField
+                                key={user.id}
+                                control={form.control}
+                                name="reviewers"
+                                render={({ field }) => (
+                                  <FormItem className="flex items-center space-x-3 space-y-0">
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={field.value?.includes(user.id)}
+                                        onCheckedChange={(checked) => {
+                                          return checked
+                                            ? field.onChange([...field.value, user.id])
+                                            : field.onChange(
+                                                field.value?.filter((value) => value !== user.id)
+                                              );
+                                        }}
+                                      />
+                                    </FormControl>
+                                    <div className="text-sm leading-none">
+                                      <span className="font-medium">{user.first_name} {user.last_name}</span>
+                                      <span className="text-gray-500 ml-1 text-xs">
+                                        {typeof user.designation === 'string' ? user.designation : ''}
+                                      </span>
+                                    </div>
+                                  </FormItem>
+                                )}
+                              />
+                            ))}
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    )}
+                  </div>
                 </div>
 
-                {/* Authoriser */}
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 bg-green-500 text-white rounded-full flex items-center justify-center text-xs font-semibold">
+                {/* Authorisers */}
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center text-sm font-semibold">
                       2
                     </div>
-                    <span className="font-medium">Authoriser</span>
+                    <div>
+                      <h4 className="font-semibold text-gray-900">Authorisers</h4>
+                      <p className="text-xs text-gray-500">
+                        {form.watch("authorisers")?.length || 0} selected
+                      </p>
+                    </div>
                   </div>
-                  <FormSelect name="authoriser" label="Select Authoriser">
-                    <SelectContent>
-                      {internalUsers?.map((user) => (
-                        <SelectItem key={user?.id} value={user?.id}>
-                          {user?.first_name} {user?.last_name} - {user?.designation}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </FormSelect>
+                  <div className="border rounded-lg p-3 bg-gray-50 max-h-64 overflow-y-auto">
+                    {usersLoading ? (
+                      <LoadingSpinner />
+                    ) : internalUsers.length === 0 ? (
+                      <p className="text-sm text-gray-500">No AHNI staff found</p>
+                    ) : (
+                      <FormField
+                        control={form.control}
+                        name="authorisers"
+                        render={() => (
+                          <FormItem className="space-y-2">
+                            {internalUsers.map((user) => (
+                              <FormField
+                                key={user.id}
+                                control={form.control}
+                                name="authorisers"
+                                render={({ field }) => (
+                                  <FormItem className="flex items-center space-x-3 space-y-0">
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={field.value?.includes(user.id)}
+                                        onCheckedChange={(checked) => {
+                                          return checked
+                                            ? field.onChange([...field.value, user.id])
+                                            : field.onChange(
+                                                field.value?.filter((value) => value !== user.id)
+                                              );
+                                        }}
+                                      />
+                                    </FormControl>
+                                    <div className="text-sm leading-none">
+                                      <span className="font-medium">{user.first_name} {user.last_name}</span>
+                                      <span className="text-gray-500 ml-1 text-xs">
+                                        {typeof user.designation === 'string' ? user.designation : ''}
+                                      </span>
+                                    </div>
+                                  </FormItem>
+                                )}
+                              />
+                            ))}
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    )}
+                  </div>
                 </div>
 
-                {/* Approver */}
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 bg-purple-500 text-white rounded-full flex items-center justify-center text-xs font-semibold">
+                {/* Approvers */}
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-8 h-8 bg-purple-500 text-white rounded-full flex items-center justify-center text-sm font-semibold">
                       3
                     </div>
-                    <span className="font-medium">Approver</span>
+                    <div>
+                      <h4 className="font-semibold text-gray-900">Approvers</h4>
+                      <p className="text-xs text-gray-500">
+                        {form.watch("approvers")?.length || 0} selected
+                      </p>
+                    </div>
                   </div>
-                  <FormSelect name="approver" label="Select Approver">
-                    <SelectContent>
-                      {internalUsers?.map((user) => (
-                        <SelectItem key={user?.id} value={user?.id}>
-                          {user?.first_name} {user?.last_name} - {user?.designation}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </FormSelect>
+                  <div className="border rounded-lg p-3 bg-gray-50 max-h-64 overflow-y-auto">
+                    {usersLoading ? (
+                      <LoadingSpinner />
+                    ) : internalUsers.length === 0 ? (
+                      <p className="text-sm text-gray-500">No AHNI staff found</p>
+                    ) : (
+                      <FormField
+                        control={form.control}
+                        name="approvers"
+                        render={() => (
+                          <FormItem className="space-y-2">
+                            {internalUsers.map((user) => (
+                              <FormField
+                                key={user.id}
+                                control={form.control}
+                                name="approvers"
+                                render={({ field }) => (
+                                  <FormItem className="flex items-center space-x-3 space-y-0">
+                                    <FormControl>
+                                      <Checkbox
+                                        checked={field.value?.includes(user.id)}
+                                        onCheckedChange={(checked) => {
+                                          return checked
+                                            ? field.onChange([...field.value, user.id])
+                                            : field.onChange(
+                                                field.value?.filter((value) => value !== user.id)
+                                              );
+                                        }}
+                                      />
+                                    </FormControl>
+                                    <div className="text-sm leading-none">
+                                      <span className="font-medium">{user.first_name} {user.last_name}</span>
+                                      <span className="text-gray-500 ml-1 text-xs">
+                                        {typeof user.designation === 'string' ? user.designation : ''}
+                                      </span>
+                                    </div>
+                                  </FormItem>
+                                )}
+                              />
+                            ))}
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

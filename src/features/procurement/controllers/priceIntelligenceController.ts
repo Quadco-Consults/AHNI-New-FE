@@ -1,13 +1,16 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { AxiosError } from "axios";
 import {
   PriceIntelligenceDetail,
   PriceIntelligenceList,
+  MarketItemCreate,
+  MarketItemResponse,
 } from "../types/price-intelligence";
 import { TRequest, TResponse } from "definations/index";
 
 const BASE_URL = "procurements/price-intelligence/";
+const MARKET_ITEM_URL = "procurements/market-item/";
 
 // ===== PRICE INTELLIGENCE HOOKS =====
 
@@ -94,3 +97,93 @@ export const useGetSinglePriceIntelligence = (
 // Legacy exports for backward compatibility
 export const useGetPriceIntelligencesQuery = useGetAllPriceIntelligence;
 export const useGetPriceIntelligenceQuery = useGetSinglePriceIntelligence;
+
+// ===== MARKET ITEM HOOKS =====
+
+// Get All Market Items
+export const useGetMarketItems = ({
+  page = 1,
+  size = 10,
+  enabled = true,
+}: TRequest & { enabled?: boolean } = {}) => {
+  return useQuery<TResponse<{ results: MarketItemResponse[]; pagination?: any }>>({
+    queryKey: ["market-items", page, size],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get(MARKET_ITEM_URL, {
+          params: { page, size },
+        });
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    enabled: enabled,
+    refetchOnWindowFocus: false,
+  });
+};
+
+// Create Market Item
+export const useCreateMarketItem = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<TResponse<MarketItemResponse>, Error, MarketItemCreate>({
+    mutationFn: async (data: MarketItemCreate) => {
+      try {
+        const response = await AxiosWithToken.post(MARKET_ITEM_URL, data);
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    onSuccess: () => {
+      // Invalidate price intelligence queries to refresh data
+      queryClient.invalidateQueries({ queryKey: ["price-intelligence"] });
+      queryClient.invalidateQueries({ queryKey: ["market-items"] });
+    },
+  });
+};
+
+// Update Market Item
+export const useUpdateMarketItem = (id: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation<TResponse<MarketItemResponse>, Error, Partial<MarketItemCreate>>({
+    mutationFn: async (data: Partial<MarketItemCreate>) => {
+      try {
+        const response = await AxiosWithToken.patch(`${MARKET_ITEM_URL}${id}/`, data);
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["price-intelligence"] });
+      queryClient.invalidateQueries({ queryKey: ["market-items"] });
+    },
+  });
+};
+
+// Delete Market Item
+export const useDeleteMarketItem = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<TResponse<void>, Error, string>({
+    mutationFn: async (id: string) => {
+      try {
+        const response = await AxiosWithToken.delete(`${MARKET_ITEM_URL}${id}/`);
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["price-intelligence"] });
+      queryClient.invalidateQueries({ queryKey: ["market-items"] });
+    },
+  });
+};

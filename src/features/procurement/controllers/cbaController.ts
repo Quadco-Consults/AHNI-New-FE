@@ -355,6 +355,222 @@ export const useGetCbaAnalysisResults = (cbaId: string, enabled: boolean = true)
   });
 };
 
+// ===== 3-LEVEL SIGNATURE WORKFLOW HOOKS =====
+
+// Submit CBA for Review
+export const useSubmitCbaForReview = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    CbaResponse,
+    Error,
+    Record<string, never>
+  >({
+    endpoint: `${BASE_URL}${id}/submit_for_review/`,
+    queryKey: ["cbas", "cba"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const submitForReview = async () => {
+    try {
+      await callApi({} as Record<string, never>);
+    } catch (error) {
+      console.error("CBA submit for review error:", error);
+      throw error;
+    }
+  };
+
+  return { submitForReview, data, isLoading, isSuccess, error };
+};
+
+// Review CBA
+export const useReviewCba = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    CbaResponse,
+    Error,
+    { signature: string; comments?: string }
+  >({
+    endpoint: `${BASE_URL}${id}/review/`,
+    queryKey: ["cbas", "cba"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const reviewCba = async (details: { signature: string; comments?: string }) => {
+    try {
+      await callApi(details);
+    } catch (error) {
+      console.error("CBA review error:", error);
+      throw error;
+    }
+  };
+
+  return { reviewCba, data, isLoading, isSuccess, error };
+};
+
+// Authorise CBA
+export const useAuthoriseCba = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    CbaResponse,
+    Error,
+    { signature: string; comments?: string }
+  >({
+    endpoint: `${BASE_URL}${id}/authorise/`,
+    queryKey: ["cbas", "cba"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const authoriseCba = async (details: { signature: string; comments?: string }) => {
+    try {
+      await callApi(details);
+    } catch (error) {
+      console.error("CBA authorise error:", error);
+      throw error;
+    }
+  };
+
+  return { authoriseCba, data, isLoading, isSuccess, error };
+};
+
+// Get Signature Status
+export const useGetSignatureStatus = (cbaId: string, enabled: boolean = true) => {
+  return useQuery<TResponse<{
+    reviewers: {
+      total: number;
+      signed: number;
+      pending: number;
+      users: Array<{ id: string; name: string; has_signed: boolean }>;
+    };
+    authorisers: {
+      total: number;
+      signed: number;
+      pending: number;
+      users: Array<{ id: string; name: string; has_signed: boolean }>;
+    };
+    approvers: {
+      total: number;
+      signed: number;
+      pending: number;
+      users: Array<{ id: string; name: string; has_signed: boolean }>;
+    };
+    current_stage: "review" | "authorise" | "approve" | "completed";
+    can_proceed: boolean;
+  }>>({
+    queryKey: ["cba-signature-status", cbaId],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get(`${BASE_URL}${cbaId}/signature_status/`);
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    enabled: enabled && !!cbaId,
+    refetchOnWindowFocus: false,
+  });
+};
+
+// Get Workflow Status
+export const useGetWorkflowStatus = (cbaId: string, enabled: boolean = true) => {
+  return useQuery<TResponse<{
+    current_step: number;
+    total_steps: number;
+    step_name: string;
+    can_user_act: boolean;
+    action_type: "review" | "authorise" | "approve" | null;
+    is_completed: boolean;
+  }>>({
+    queryKey: ["cba-workflow-status", cbaId],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get(`${BASE_URL}${cbaId}/workflow_status/`);
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    enabled: enabled && !!cbaId,
+    refetchOnWindowFocus: false,
+  });
+};
+
+// Reject at Review Stage
+export const useReviewRejectCba = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    CbaResponse,
+    Error,
+    { comments: string }
+  >({
+    endpoint: `${BASE_URL}${id}/review-reject/`,
+    queryKey: ["cbas", "cba"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const reviewRejectCba = async (details: { comments: string }) => {
+    try {
+      await callApi(details);
+    } catch (error) {
+      console.error("CBA review reject error:", error);
+      throw error;
+    }
+  };
+
+  return { reviewRejectCba, data, isLoading, isSuccess, error };
+};
+
+// Reject at Authorisation Stage
+export const useAuthoriseRejectCba = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    CbaResponse,
+    Error,
+    { comments: string }
+  >({
+    endpoint: `${BASE_URL}${id}/authorise-reject/`,
+    queryKey: ["cbas", "cba"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const authoriseRejectCba = async (details: { comments: string }) => {
+    try {
+      await callApi(details);
+    } catch (error) {
+      console.error("CBA authorise reject error:", error);
+      throw error;
+    }
+  };
+
+  return { authoriseRejectCba, data, isLoading, isSuccess, error };
+};
+
+// Reject at Approval Stage
+export const useApproveRejectCba = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    CbaResponse,
+    Error,
+    { comments: string }
+  >({
+    endpoint: `${BASE_URL}${id}/approve-reject/`,
+    queryKey: ["cbas", "cba"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const approveRejectCba = async (details: { comments: string }) => {
+    try {
+      await callApi(details);
+    } catch (error) {
+      console.error("CBA approve reject error:", error);
+      throw error;
+    }
+  };
+
+  return { approveRejectCba, data, isLoading, isSuccess, error };
+};
+
 // Legacy exports for backward compatibility
 export const useGetCbaListQuery = useGetAllCbas;
 export const useGetCbaQuery = useGetSingleCba;
@@ -381,6 +597,17 @@ const CbaAPI = {
   useCalculateCbaScores,
   usePriceResponsivenessRanking,
   useGetCbaAnalysisResults,
+  // Signature workflow hooks
+  useSubmitCbaForReview,
+  useReviewCba,
+  useAuthoriseCba,
+  useGetSignatureStatus,
+  useGetWorkflowStatus,
+  // Rejection hooks
+  useReviewRejectCba,
+  useAuthoriseRejectCba,
+  useApproveRejectCba,
+  // Legacy exports
   useGetCbaListQuery,
   useGetCbaQuery,
   useCreateCbaMutation,

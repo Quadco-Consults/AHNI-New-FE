@@ -10,6 +10,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useGetAllPriceIntelligence, useGetSinglePriceIntelligence } from "@/features/procurement/controllers/priceIntelligenceController";
 import { useGetAllCategoriesManager } from "@/features/modules/controllers/config/categoryController";
 import BreadcrumbCard from "@/components/Breadcrumb";
+import AddMarketItemModal from "./price-intelligence/AddMarketItemModal";
+import PriceHistoryChart from "./price-intelligence/PriceHistoryChart";
 import {
   Dialog,
   DialogContent,
@@ -205,7 +207,10 @@ const PriceIntelligence = () => {
 
   return (
     <div className='space-y-10'>
-      <BreadcrumbCard list={breadcrumbs} />
+      <div className="flex items-center justify-between">
+        <BreadcrumbCard list={breadcrumbs} />
+        <AddMarketItemModal />
+      </div>
 
       {/* Search and Filter Controls */}
       <div className="bg-white p-6 rounded-lg border">
@@ -586,6 +591,16 @@ const ItemDetailsContent = ({ itemData }: { itemData: any }) => {
           </div>
         </Card>
       </div>
+
+      {/* Price History Chart */}
+      {itemData?.source_prices && Object.keys(itemData.source_prices).length > 0 && (
+        <PriceHistoryChart
+          sourcePrices={itemData.source_prices}
+          minPrice={itemData.min_price}
+          maxPrice={itemData.max_price}
+          avgPrice={itemData.avg_price}
+        />
+      )}
 
       {/* Price History & Sources */}
       <Card className="p-4">

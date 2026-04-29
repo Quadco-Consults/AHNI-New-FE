@@ -149,12 +149,7 @@ export default function AssetRequestDetails() {
             )}
 
             <DescriptionCard
-              label='Disposal Justification'
-              description={assetRequest?.data.disposal_justification}
-            />
-
-            <DescriptionCard
-              label='Disposal Justification'
+              label={assetRequest?.data.type === "MOVEMENT" ? "Movement Justification" : "Disposal Justification"}
               description={assetRequest?.data.disposal_justification}
             />
 
