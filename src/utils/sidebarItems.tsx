@@ -306,7 +306,7 @@ export const departmentalLinks: SidebarItem[] = [
         ],
         children: [
           {
-            name: "Prequalification",
+            name: "Vendor Prequalification",
             path: "/dashboard/procurement/vendor-management/prequalification",
             permissions: [
               {
