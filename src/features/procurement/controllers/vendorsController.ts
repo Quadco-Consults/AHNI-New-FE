@@ -282,6 +282,58 @@ export const useGetVendorActivity = (vendorId: string, enabled: boolean = true) 
   });
 };
 
+// Assign Vendor to Current User
+export const useAssignVendor = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    ApiResponse<VendorsResultsData>,
+    Error,
+    Record<string, never>
+  >({
+    endpoint: `${BASE_URL}${id}/assign/`,
+    queryKey: ["vendors", "vendor-list", "vendor"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const assignVendor = async () => {
+    try {
+      const result = await callApi({} as Record<string, never>);
+      return result;
+    } catch (error) {
+      console.error("Vendor assign error:", error);
+      throw error;
+    }
+  };
+
+  return { assignVendor, data, isLoading, isSuccess, error };
+};
+
+// Unassign Vendor
+export const useUnassignVendor = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    ApiResponse<VendorsResultsData>,
+    Error,
+    Record<string, never>
+  >({
+    endpoint: `${BASE_URL}${id}/unassign/`,
+    queryKey: ["vendors", "vendor-list", "vendor"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const unassignVendor = async () => {
+    try {
+      const result = await callApi({} as Record<string, never>);
+      return result;
+    } catch (error) {
+      console.error("Vendor unassign error:", error);
+      throw error;
+    }
+  };
+
+  return { unassignVendor, data, isLoading, isSuccess, error };
+};
+
 // Legacy exports for backward compatibility
 export const useGetVendorsQuery = useGetVendors;
 export const useGetVendorListQuery = useGetVendorList;
@@ -302,6 +354,8 @@ const VendorsAPI = {
   useModifyVendor,
   useDeleteVendor,
   useBulkUploadVendors,
+  useAssignVendor,
+  useUnassignVendor,
   // Legacy naming for component compatibility
   useGetVendorsQuery: useGetVendors,
   useGetVendorListQuery: useGetVendorList,

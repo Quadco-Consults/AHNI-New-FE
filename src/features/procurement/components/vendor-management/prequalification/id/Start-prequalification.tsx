@@ -28,6 +28,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "@/components/FormButton";
 import { useGetAllPrequalificationCriteria } from "@/features/procurement/controllers/prequalificationCriteriaController";
 import { RouteEnum } from "@/constants/RouterConstants";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useGetUser } from "@/features/user/controllers/userController";
 
 type FormData = {
   score: boolean;
@@ -39,6 +41,7 @@ const StartPrequalification = () => {
 
   const { id } = useParams();
   const router = useRouter();
+  const { data: userData } = useGetUser();
 
   const { data: vendors, isLoading } = useGetAllVendorPrequalifications({
     page: 1,
@@ -145,6 +148,16 @@ const StartPrequalification = () => {
         </span>
         View Vendor info
       </Button>
+
+      {/* Assignment Status Banner */}
+      {vendors?.assignment_info?.is_assigned && vendors?.assignment_info?.assigned_to === userData?.data?.id && (
+        <Alert className="bg-blue-50 border-blue-200">
+          <Icon icon="mdi:account-check" className="h-4 w-4 text-blue-600" />
+          <AlertDescription className="text-blue-800">
+            This vendor is assigned to you. You can now complete the prequalification.
+          </AlertDescription>
+        </Alert>
+      )}
 
       {isLoading && <LoadingSpinner />}
 

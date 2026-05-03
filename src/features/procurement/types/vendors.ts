@@ -69,6 +69,13 @@ export interface VendorsResultsData {
   state: string;
   area_of_specialization?: string;
   eoi?: string; // EOI ID if vendor registered through an EOI advertisement
+  assignment_info?: {
+    is_assigned: boolean;
+    assigned_to: string | null;
+    assigned_to_name: string | null;
+    assigned_to_email?: string;
+    assigned_at: string | null;
+  };
 }
 
 export interface VendorsData {

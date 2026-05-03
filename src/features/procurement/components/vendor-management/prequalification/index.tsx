@@ -16,9 +16,10 @@ import Link from "next/link";
 import { RouteEnum } from "@/constants/RouterConstants";
 import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "@/components/Table/DataTable";
-import { useGetVendors, useDeleteVendor } from "@/features/procurement/controllers/vendorsController";
+import { useGetVendors, useDeleteVendor, useAssignVendor, useUnassignVendor } from "@/features/procurement/controllers/vendorsController";
 import { VendorsResultsData } from "definations/procurement-types/vendors";
 import { toast } from "sonner";
+import { useGetUser } from "@/features/user/controllers/userController";
 
 const VendorManagement = () => {
   const [searchTerm, setSearchTerm] = React.useState("");
@@ -250,6 +251,30 @@ const columns: ColumnDef<VendorsResultsData>[] = [
     },
   },
   {
+    header: "Assignment",
+    accessorKey: "assignment_info",
+    cell: ({ row }) => {
+      const assignmentInfo = row.original.assignment_info;
+      if (!assignmentInfo?.is_assigned) {
+        return (
+          <Badge className="bg-gray-100 text-gray-800 px-3 py-2 rounded-lg">
+            Available
+          </Badge>
+        );
+      }
+      return (
+        <div className="flex flex-col gap-1">
+          <Badge className="bg-blue-100 text-blue-800 px-3 py-2 rounded-lg">
+            Assigned
+          </Badge>
+          <span className="text-xs text-muted-foreground">
+            {assignmentInfo.assigned_to_name}
+          </span>
+        </div>
+      );
+    },
+  },
+  {
     header: "Actions",
     id: "actions",
     cell: ({ row }) => <ActionListAction data={row.original} />,
@@ -258,6 +283,13 @@ const columns: ColumnDef<VendorsResultsData>[] = [
 
 const ActionListAction = ({ data }: any) => {
   const { deleteVendor } = useDeleteVendor(data.id);
+  const { assignVendor, isLoading: isAssigning } = useAssignVendor(data.id);
+  const { unassignVendor, isLoading: isUnassigning } = useUnassignVendor(data.id);
+  const { data: userData } = useGetUser();
+
+  const assignmentInfo = data.assignment_info;
+  const currentUserId = userData?.data?.id;
+  const isAssignedToCurrentUser = assignmentInfo?.assigned_to === currentUserId;
 
   const deleteVendorHandler = async (id: string) => {
     try {
@@ -268,6 +300,25 @@ const ActionListAction = ({ data }: any) => {
       console.log(error);
     }
   };
+
+  const handleAssign = async () => {
+    try {
+      await assignVendor();
+      toast.success("Vendor assigned to you successfully");
+    } catch (error: any) {
+      toast.error(error?.message || "Failed to assign vendor");
+    }
+  };
+
+  const handleUnassign = async () => {
+    try {
+      await unassignVendor();
+      toast.success("Vendor unassigned successfully");
+    } catch (error: any) {
+      toast.error(error?.message || "Failed to unassign vendor");
+    }
+  };
+
   return (
     <div className='flex gap-2'>
       <Link
@@ -286,6 +337,28 @@ const ActionListAction = ({ data }: any) => {
           <Icon icon='ph:eye-duotone' fontSize={15} />
         </IconButton>
       </Link>
+
+      {/* Assignment/Unassignment Button */}
+      {!assignmentInfo?.is_assigned ? (
+        <IconButton
+          onClick={handleAssign}
+          disabled={isAssigning}
+          className='bg-blue-50 hover:bg-blue-100 text-blue-600'
+          title="Claim this vendor for prequalification"
+        >
+          <Icon icon='mdi:account-check' fontSize={15} />
+        </IconButton>
+      ) : isAssignedToCurrentUser ? (
+        <IconButton
+          onClick={handleUnassign}
+          disabled={isUnassigning}
+          className='bg-amber-50 hover:bg-amber-100 text-amber-600'
+          title="Release this vendor"
+        >
+          <Icon icon='mdi:account-remove' fontSize={15} />
+        </IconButton>
+      ) : null}
+
       <IconButton
         onClick={() => deleteVendorHandler(data.id)}
         className='bg-[#F9F9F9] hover:text-primary'
