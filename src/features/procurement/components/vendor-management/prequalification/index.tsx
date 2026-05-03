@@ -19,7 +19,7 @@ import DataTable from "@/components/Table/DataTable";
 import { useGetVendors, useDeleteVendor, useAssignVendor, useUnassignVendor } from "@/features/procurement/controllers/vendorsController";
 import { VendorsResultsData } from "definations/procurement-types/vendors";
 import { toast } from "sonner";
-import { useGetUser } from "@/features/user/controllers/userController";
+import { useGetCurrentUser } from "@/features/auth/controllers/userController";
 
 const VendorManagement = () => {
   const [searchTerm, setSearchTerm] = React.useState("");
@@ -285,7 +285,7 @@ const ActionListAction = ({ data }: any) => {
   const { deleteVendor } = useDeleteVendor(data.id);
   const { assignVendor, isLoading: isAssigning } = useAssignVendor(data.id);
   const { unassignVendor, isLoading: isUnassigning } = useUnassignVendor(data.id);
-  const { data: userData } = useGetUser();
+  const { data: userData } = useGetCurrentUser();
 
   const assignmentInfo = data.assignment_info;
   const currentUserId = userData?.data?.id;

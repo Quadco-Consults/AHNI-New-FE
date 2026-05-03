@@ -29,7 +29,7 @@ import FormButton from "@/components/FormButton";
 import { useGetAllPrequalificationCriteria } from "@/features/procurement/controllers/prequalificationCriteriaController";
 import { RouteEnum } from "@/constants/RouterConstants";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useGetUser } from "@/features/user/controllers/userController";
+import { useGetCurrentUser } from "@/features/auth/controllers/userController";
 
 type FormData = {
   score: boolean;
@@ -41,7 +41,7 @@ const StartPrequalification = () => {
 
   const { id } = useParams();
   const router = useRouter();
-  const { data: userData } = useGetUser();
+  const { data: userData } = useGetCurrentUser();
 
   const { data: vendors, isLoading } = useGetAllVendorPrequalifications({
     page: 1,
