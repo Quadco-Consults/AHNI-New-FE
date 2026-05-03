@@ -25,7 +25,7 @@ const SupplierDatabase = () => {
   const [pageSize, setPageSize] = useState(20);
 
   const { data, isLoading, refetch } = useGetVendors({
-    status: "Approved",
+    // Removed status filter to show all vendors regardless of approval status
     page: currentPage,
     size: pageSize,
   });
