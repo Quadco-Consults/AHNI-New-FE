@@ -316,16 +316,6 @@ export const departmentalLinks: SidebarItem[] = [
             ]
           },
           {
-            name: "EOI",
-            path: "/dashboard/procurement/vendor-management/eoi",
-            permissions: [
-              {
-                module: "procurements",
-                codenames: ["view_vendor"]
-              }
-            ]
-          },
-          {
             name: "Vendor Evaluation",
             path: "/dashboard/procurement/vendor-performance",
             permissions: [
@@ -444,6 +434,16 @@ export const departmentalLinks: SidebarItem[] = [
               {
                 module: "procurements",
                 codenames: ["view_requestforproposal"]
+              }
+            ]
+          },
+          {
+            name: "EOI",
+            path: "/dashboard/procurement/vendor-management/eoi",
+            permissions: [
+              {
+                module: "procurements",
+                codenames: ["view_vendor"]
               }
             ]
           }
