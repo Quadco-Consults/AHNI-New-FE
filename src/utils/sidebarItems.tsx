@@ -418,6 +418,16 @@ export const departmentalLinks: SidebarItem[] = [
         ],
         children: [
           {
+            name: "Advertisement",
+            path: "/dashboard/procurement/vendor-management/eoi",
+            permissions: [
+              {
+                module: "procurements",
+                codenames: ["view_vendor"]
+              }
+            ]
+          },
+          {
             name: "RFQ",
             path: "/dashboard/procurement/solicitation-management/rfq",
             permissions: [
@@ -434,16 +444,6 @@ export const departmentalLinks: SidebarItem[] = [
               {
                 module: "procurements",
                 codenames: ["view_requestforproposal"]
-              }
-            ]
-          },
-          {
-            name: "Advertisement",
-            path: "/dashboard/procurement/vendor-management/eoi",
-            permissions: [
-              {
-                module: "procurements",
-                codenames: ["view_vendor"]
               }
             ]
           }
