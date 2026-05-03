@@ -43,13 +43,25 @@ const Overview = () => {
   const totalVendors = vendors.length;
   const totalProcurementPlans = procurementPlans.length;
 
-  // Calculate status counts
+  // Calculate status counts for PR lifecycle
+  // Pending = Pending + Reviewed + Authorised (awaiting final approval)
   const pendingRequests = purchaseRequests.filter((r: any) =>
-    r.status?.toLowerCase() === 'pending' || r.status?.toLowerCase() === 'submitted'
+    r.status === 'Pending' || r.status === 'Reviewed' || r.status === 'Authorised'
   ).length;
 
+  // Approved PRs ready for procurement
   const approvedRequests = purchaseRequests.filter((r: any) =>
-    r.status?.toLowerCase() === 'approved'
+    r.status === 'Approved'
+  ).length;
+
+  // In Procurement = Has RFQ or PO but no GRN yet
+  const inProcurementRequests = purchaseRequests.filter((r: any) =>
+    (r.has_rfq === true || r.has_po === true) && r.has_grn !== true
+  ).length;
+
+  // Closed Out = Complete cycle with GRN
+  const closedOutRequests = purchaseRequests.filter((r: any) =>
+    r.has_grn === true
   ).length;
 
   const activePurchaseOrders = purchaseOrders.filter((po: any) =>
@@ -59,40 +71,58 @@ const Overview = () => {
   // Quick stats cards
   const statsCards = [
     {
-      title: "Purchase Requests",
+      title: "Total Purchase Requests",
       value: totalPurchaseRequests,
       icon: ShoppingCart,
-      description: `${approvedRequests} approved, ${pendingRequests} pending`,
+      description: "All PRs created",
       color: "text-blue-600",
       bgColor: "bg-blue-50",
       link: "/dashboard/procurement/purchase-request"
     },
     {
-      title: "Purchase Orders",
-      value: totalPurchaseOrders,
-      icon: FileCheck,
-      description: `${activePurchaseOrders} active orders`,
+      title: "Approved PRs",
+      value: approvedRequests,
+      icon: CheckCircle,
+      description: "Ready for procurement",
       color: "text-green-600",
       bgColor: "bg-green-50",
-      link: "/dashboard/procurement/purchase-order"
+      link: "/dashboard/procurement/purchase-request"
+    },
+    {
+      title: "Pending Approval",
+      value: pendingRequests,
+      icon: Clock,
+      description: "Awaiting approval workflow",
+      color: "text-amber-600",
+      bgColor: "bg-amber-50",
+      link: "/dashboard/procurement/purchase-request"
+    },
+    {
+      title: "In Procurement",
+      value: inProcurementRequests,
+      icon: TrendingUp,
+      description: "RFQ/PO issued, awaiting completion",
+      color: "text-purple-600",
+      bgColor: "bg-purple-50",
+      link: "/dashboard/procurement/procurement-tracker"
+    },
+    {
+      title: "Closed Out",
+      value: closedOutRequests,
+      icon: FileCheck,
+      description: "Complete procurement cycle",
+      color: "text-emerald-600",
+      bgColor: "bg-emerald-50",
+      link: "/dashboard/procurement/purchase-request"
     },
     {
       title: "Registered Vendors",
       value: totalVendors,
       icon: Users,
       description: "Active supplier database",
-      color: "text-purple-600",
-      bgColor: "bg-purple-50",
+      color: "text-cyan-600",
+      bgColor: "bg-cyan-50",
       link: "/dashboard/procurement/supplier-database"
-    },
-    {
-      title: "Procurement Plans",
-      value: totalProcurementPlans,
-      icon: ClipboardList,
-      description: "Active procurement plans",
-      color: "text-orange-600",
-      bgColor: "bg-orange-50",
-      link: "/dashboard/procurement/procurement-plan"
     }
   ];
 
@@ -137,8 +167,8 @@ const Overview = () => {
         </p>
       </div>
 
-      {/* Key Metrics */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      {/* Key Metrics - PR Status Breakdown */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {statsCards.map((stat, index) => {
           const Icon = stat.icon;
           return (
