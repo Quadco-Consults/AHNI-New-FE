@@ -26,7 +26,6 @@ import { z } from "zod";
 import { VendorPrequalificationSchema } from "@/features/procurement/types/vendor-prequalification";
 import { zodResolver } from "@hookform/resolvers/zod";
 import FormButton from "@/components/FormButton";
-import { useGetAllPrequalificationCriteria } from "@/features/procurement/controllers/prequalificationCriteriaController";
 import { RouteEnum } from "@/constants/RouterConstants";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useGetCurrentUser } from "@/features/auth/controllers/userController";
@@ -47,11 +46,6 @@ const StartPrequalification = () => {
     page: 1,
     size: 20,
     vendor: id as string,
-  });
-
-  const { data: prequalificationCriteria } = useGetAllPrequalificationCriteria({
-    page: 1,
-    size: 20,
   });
 
   const { createVendorPrequalification, isLoading: loading } =
@@ -161,7 +155,7 @@ const StartPrequalification = () => {
 
       {isLoading && <LoadingSpinner />}
 
-      {prequalificationCriteria?.data?.results?.map((criteria, index) => {
+      {vendors?.categories?.map((criteria: any, index: number) => {
         return (
           <div
             key={index}
