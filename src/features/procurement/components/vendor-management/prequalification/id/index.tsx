@@ -54,7 +54,7 @@ const PrequalificationDetails = () => {
             <Icon icon='iconoir:slash' />
           </BreadcrumbSeparator>
           <BreadcrumbItem>
-            <BreadcrumbItem>Prequalification</BreadcrumbItem>
+            <BreadcrumbPage>Prequalification</BreadcrumbPage>
           </BreadcrumbItem>
           <BreadcrumbSeparator>
             <Icon icon='iconoir:slash' />
