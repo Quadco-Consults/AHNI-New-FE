@@ -17,7 +17,7 @@ export const useGetCurrentUser = () => {
     queryKey: ["currentUser"],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get("auth/me/");
+        const response = await AxiosWithToken.get("users/profile/");
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
