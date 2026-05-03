@@ -438,7 +438,7 @@ export const departmentalLinks: SidebarItem[] = [
             ]
           },
           {
-            name: "EOI",
+            name: "Advertisement",
             path: "/dashboard/procurement/vendor-management/eoi",
             permissions: [
               {
