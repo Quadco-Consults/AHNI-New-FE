@@ -44,6 +44,7 @@ import { SelectContent, SelectItem } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import useQuery from "@/hooks/useQuery";
 import VendorsAPI from "@/features/procurement/controllers/vendorsController";
+import EoiAPI from "@/features/procurement/controllers/eoiController";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 // import { skipToken } from "@reduxjs/toolkit/query";
@@ -54,6 +55,9 @@ const Registration = () => {
   const eoiId = query.get("eoi_id"); // Capture EOI ID from URL if vendor is registering from an EOI
 
   const queryClient = useQueryClient();
+
+  // Fetch EOI data if registering through an EOI
+  const { data: eoiData } = EoiAPI.useGetEoi(eoiId as string, !!eoiId);
 
   // Use the hook correctly
   const {
@@ -167,6 +171,19 @@ const Registration = () => {
       }
     }
   }, [vendorId, vendor, isLoading, form]);
+
+  // Load EOI categories if registering through an EOI
+  useEffect(() => {
+    if (eoiId && eoiData?.data && !vendorId) {
+      // Only populate categories if this is a new vendor (not editing)
+      const eoiCategories = eoiData.data.categories_details?.map((cat: any) => cat?.cat_id || cat?.id) || [];
+
+      if (eoiCategories.length > 0) {
+        console.log("Setting submitted_categories from EOI:", eoiCategories);
+        form.setValue('submitted_categories', eoiCategories);
+      }
+    }
+  }, [eoiId, eoiData, vendorId, form]);
 
   // Auto-save form data to sessionStorage on change
   useEffect(() => {
