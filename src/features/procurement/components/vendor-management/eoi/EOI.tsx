@@ -465,7 +465,19 @@ const EOI = () => {
                               <Calendar
                                 mode="single"
                                 selected={startDate}
-                                onSelect={setStartDate}
+                                onSelect={(date) => {
+                                  setStartDate(date);
+                                  // Clear end date if it's before the new start date
+                                  if (date && endDate && endDate < date) {
+                                    setEndDate(undefined);
+                                  }
+                                }}
+                                disabled={(date) => {
+                                  // Disable past dates (before today)
+                                  const today = new Date();
+                                  today.setHours(0, 0, 0, 0);
+                                  return date < today;
+                                }}
                                 initialFocus
                               />
                             </PopoverContent>
@@ -496,6 +508,18 @@ const EOI = () => {
                                 mode="single"
                                 selected={endDate}
                                 onSelect={setEndDate}
+                                disabled={(date) => {
+                                  // Disable dates before start date
+                                  if (startDate) {
+                                    const start = new Date(startDate);
+                                    start.setHours(0, 0, 0, 0);
+                                    return date < start;
+                                  }
+                                  // If no start date, disable past dates
+                                  const today = new Date();
+                                  today.setHours(0, 0, 0, 0);
+                                  return date < today;
+                                }}
                                 initialFocus
                               />
                             </PopoverContent>
