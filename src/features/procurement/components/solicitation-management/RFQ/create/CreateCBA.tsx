@@ -274,10 +274,18 @@ const CreateCBA = () => {
   // Auto-populate assignee from purchase request (only in create mode)
   useEffect(() => {
     if (!isEditMode && purchaseRequestData?.data?.assigned_to) {
-      console.log("🔧 Auto-populating assignee from purchase request:", purchaseRequestData.data.assigned_to);
-      form.setValue("assignee", purchaseRequestData.data.assigned_to);
+      const assignedOfficer = purchaseRequestData.data.assigned_to;
+      console.log("🔧 Auto-populating assignee from purchase request:", assignedOfficer);
+
+      // Find the officer's name for logging
+      const officerDetails = procurementOfficers?.find(u => u.id === assignedOfficer);
+      if (officerDetails) {
+        console.log("✅ Officer found:", officerDetails.first_name, officerDetails.last_name);
+      }
+
+      form.setValue("assignee", assignedOfficer);
     }
-  }, [isEditMode, purchaseRequestData, form]);
+  }, [isEditMode, purchaseRequestData?.data?.assigned_to, form.setValue, procurementOfficers]);
 
   // Filter for internal AHNI staff only (exclude vendors and consultants)
   const allUsers = users?.data?.results || [];
@@ -808,19 +816,31 @@ const CreateCBA = () => {
             </div>
           )}
 
-          <FormSelect name="assignee" label="Assignee (Procurement Officer)">
-            <SelectContent>
-              {usersLoading && <LoadingSpinner />}
-              {!usersLoading && procurementOfficers.length === 0 && (
-                <div className="p-2 text-gray-500 text-sm">No AHNI staff found</div>
-              )}
-              {procurementOfficers?.map((user) => (
-                <SelectItem key={user?.id} value={user?.id}>
-                  {user?.first_name} {user?.last_name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </FormSelect>
+          <div className="space-y-2">
+            <FormSelect name="assignee" label="Assignee (Procurement Officer)">
+              <SelectContent>
+                {usersLoading && <LoadingSpinner />}
+                {!usersLoading && procurementOfficers.length === 0 && (
+                  <div className="p-2 text-gray-500 text-sm">No AHNI staff found</div>
+                )}
+                {procurementOfficers?.map((user) => (
+                  <SelectItem key={user?.id} value={user?.id}>
+                    {user?.first_name} {user?.last_name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </FormSelect>
+            {!isEditMode && purchaseRequestData?.data?.assigned_to && watch("assignee") === purchaseRequestData.data.assigned_to && (
+              <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                <div className="flex items-center gap-2">
+                  <CheckCircle size={16} className="text-green-600" />
+                  <p className="text-xs text-green-800">
+                    <strong>Auto-populated:</strong> Officer assigned from Purchase Request
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Approval Flow Section */}
           <div className="space-y-6">

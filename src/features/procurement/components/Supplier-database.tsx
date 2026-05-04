@@ -25,14 +25,24 @@ const SupplierDatabase = () => {
   const [pageSize, setPageSize] = useState(20);
 
   const { data, isLoading, refetch } = useGetVendors({
-    // Removed status filter to show all vendors regardless of approval status
+    status: "Approved", // Only show approved vendors in supplier database
     page: currentPage,
     size: pageSize,
   });
   const { bulkUploadVendors } = useBulkUploadVendors();
 
   // Extract pagination info from response
-  const pagination = data?.data?.paginator;
+  const pagination = data?.data?.pagination;
+
+  // DEBUG: Log data to console
+  console.log('🔍 Supplier Database Debug:', {
+    totalVendors: pagination?.count,
+    currentPage: pagination?.page,
+    totalPages: pagination?.total_pages,
+    pageSize: pagination?.page_size,
+    vendorsOnThisPage: data?.data?.results?.length,
+    showPagination: pagination && pagination.total_pages > 1,
+  });
 
   const handleBulkUpload = async (vendors: VendorTemplateData[]) => {
     // Transform vendor data to match backend API format

@@ -35,6 +35,7 @@ import { toast } from "sonner";
 import { useState } from "react";
 import { useGetSolicitationSubmission } from "@/features/procurement/controllers/vendorBidSubmissionsController";
 import { useGetSingleSolicitation } from "@/features/procurement/controllers/solicitationController";
+import { useGetPurchaseRequest } from "@/features/procurement/controllers/purchaseRequestController";
 import AnalysisResults from "./AnalysisResults";
 import SignatureWorkflowAPI from "@/features/procurement/controllers/signatureWorkflowController";
 import { useQueryClient } from "@tanstack/react-query";
@@ -106,6 +107,14 @@ const CompetitiveBidAnalysisDetail = () => {
 
     // Fetch RFQ/Solicitation details
     const { data: rfqData } = useGetSingleSolicitation(solicitationId as string, !!solicitationId);
+
+    // Get Purchase Request ID from RFQ/Solicitation
+    const purchaseRequestId = typeof rfqData?.data?.purchase_request === 'object'
+        ? (rfqData?.data?.purchase_request as any)?.id
+        : rfqData?.data?.purchase_request;
+
+    // Fetch Purchase Request details to check if user is assigned
+    const { data: prData } = useGetPurchaseRequest(purchaseRequestId as string, !!purchaseRequestId);
 
     // Fetch vendor submissions
     const { data: submissionsData } = useGetSolicitationSubmission(solicitationId as string, !!solicitationId);
@@ -191,6 +200,12 @@ const CompetitiveBidAnalysisDetail = () => {
         return assigneeId === currentUser.id;
     }, [data, currentUser.id]);
 
+    // Check if user is assigned to the Purchase Request
+    const isAssignedToPR = useMemo(() => {
+        if (!prData?.data) return false;
+        return prData.data.assigned_to === currentUser.id;
+    }, [prData, currentUser.id]);
+
     // Check if user is in the approval workflow (reviewers, authorisers, or approvers)
     const isApprover = useMemo(() => {
         if (!data?.data) return false;
@@ -220,17 +235,18 @@ const CompetitiveBidAnalysisDetail = () => {
         if (isLoading || !data?.data) return;
 
         const hasAccess =
-            userRole === 'ADMIN' ||
-            userRole === 'PROCUREMENT_STAFF' ||
-            isCommitteeMember ||
-            isAssignedEvaluator ||
-            isApprover;
+            userRole === 'ADMIN' ||  // Admin users
+            userRole === 'PROCUREMENT_STAFF' ||  // Procurement admin officers
+            isCommitteeMember ||  // Committee members for this CBA
+            isAssignedEvaluator ||  // CBA evaluator
+            isAssignedToPR ||  // Procurement officer assigned to the related PR
+            isApprover;  // Users in review/authorise/approve workflow
 
         if (!hasAccess) {
             toast.error('You are not authorized to view this CBA');
             router.push('/dashboard/procurement/competitive-bid-analysis');
         }
-    }, [isLoading, data, userRole, isCommitteeMember, isAssignedEvaluator, isApprover, router]);
+    }, [isLoading, data, userRole, isCommitteeMember, isAssignedEvaluator, isAssignedToPR, isApprover, router]);
 
     const handleSendReminders = () => {
         // TODO: Implement reminder functionality
