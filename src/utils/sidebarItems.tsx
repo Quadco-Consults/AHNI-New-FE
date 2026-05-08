@@ -1500,7 +1500,7 @@ export const globalHubLinks: GlobalHubItem[] = [
 
   // Procurement & Purchasing
   {
-    label: "Approved Purchase Requests",
+    label: "Purchase Requests",
     path: "/dashboard/procurement/purchase-request",
     icon: <ShoppingCart className="w-4 h-4" />,
     category: "procurement",
