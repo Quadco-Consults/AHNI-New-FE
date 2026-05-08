@@ -25,7 +25,6 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useGetPublicEois } from "@/features/procurement/controllers/eoiController";
-import { useGetAllOpportunities } from "@/features/opportunities/controllers/opportunitiesController";
 
 export default function OpportunitiesPage() {
   const router = useRouter();
@@ -34,58 +33,76 @@ export default function OpportunitiesPage() {
   const [jobTypeFilter, setJobTypeFilter] = useState("all");
   const [locationFilter, setLocationFilter] = useState("all");
 
-  // Fetch opportunities from both sources
-  const { data: eoiData, isLoading: eoiLoading } = useGetPublicEois({
+  // Fetch all opportunities from the unified public endpoint
+  const { data: publicOpportunitiesData, isLoading: opportunitiesLoading } = useGetPublicEois({
     page: 1,
     size: 50,
     search: searchTerm,
     enabled: true
   });
 
-  const { data: unifiedData, isLoading: unifiedLoading } = useGetAllOpportunities({
-    page: 1,
-    size: 50,
-    search: searchTerm
-  });
-
-  // Combine and transform data to match AHNI structure
+  // Transform unified public opportunities data to match AHNI structure
   const allOpportunities = useMemo(() => {
-    const procurementOpportunities = (eoiData?.data?.results || []).map((item: any) => ({
-      id: item.id,
-      title: item.title || item.opportunity_title,
-      type: item.opportunity_type || "EOI",
-      project: item.project || "Procurement",
-      location: item.location || "Nigeria",
-      postedDate: item.created_datetime || item.publication_date,
-      deadline: item.closing_date || item.deadline,
-      description: item.description || item.background,
-      requirements: item.requirements || "",
-      applicationEmail: "procurement@ahnigeria.org",
-      category: "Procurement & EOI"
-    }));
+    const results = publicOpportunitiesData?.data?.results || [];
 
-    const jobOpportunities = (unifiedData?.opportunities || []).map((item: any) => ({
-      id: item.id,
-      title: item.title,
-      type: item.type === "HR_JOB" ? "Full Time" :
-            item.type === "CONSULTANT" ? "Consultant" :
-            item.type === "ADHOC" ? "Adhoc" :
-            item.type === "FACILITATOR" ? "Facilitator" : "Contract",
-      project: item.department || "AHNI Programs",
-      location: Array.isArray(item.locations) ? item.locations.join(", ") : item.locations || "Nigeria",
-      postedDate: item.created_datetime,
-      deadline: item.end_date || item.commencement_date,
-      description: item.background || item.description,
-      requirements: item.qualifications_required || "",
-      applicationEmail: item.type === "CONSULTANT" ? "consultants@ahnigeria.org" :
-                       item.type === "FACILITATOR" ? "facilitators@ahnigeria.org" :
-                       item.type === "ADHOC" ? "opportunities@ahnigeria.org" :
-                       "careers@ahnigeria.org",
-      category: item.type === "HR_JOB" ? "Employment" : "Contract & Consulting"
-    }));
+    return results.map((item: any) => {
+      // Determine display type based on opportunity_type
+      let displayType = item.opportunity_type || "Other";
+      if (item.opportunity_type === "JOB") displayType = "Full Time";
+      if (item.opportunity_type === "CONSULTANT") displayType = "Consultant";
+      if (item.opportunity_type === "ADHOC") displayType = "Adhoc";
+      if (item.opportunity_type === "FACILITATOR") displayType = "Facilitator";
+      if (item.opportunity_type === "EOI") displayType = "EOI";
+      if (item.opportunity_type === "RFQ") displayType = "RFQ";
+      if (item.opportunity_type === "RFP") displayType = "RFP";
 
-    return [...procurementOpportunities, ...jobOpportunities];
-  }, [eoiData, unifiedData]);
+      // Determine category
+      let category = "Other";
+      if (item.opportunity_type === "EOI" || item.opportunity_type === "RFQ" || item.opportunity_type === "RFP") {
+        category = "Procurement & EOI";
+      } else if (item.opportunity_type === "JOB") {
+        category = "Employment";
+      } else if (item.opportunity_type === "CONSULTANT" || item.opportunity_type === "ADHOC" || item.opportunity_type === "FACILITATOR") {
+        category = "Contract & Consulting";
+      }
+
+      // Determine application email
+      let applicationEmail = "careers@ahnigeria.org";
+      if (item.opportunity_type === "EOI" || item.opportunity_type === "RFQ" || item.opportunity_type === "RFP") {
+        applicationEmail = "procurement@ahnigeria.org";
+      } else if (item.opportunity_type === "CONSULTANT") {
+        applicationEmail = "consultants@ahnigeria.org";
+      } else if (item.opportunity_type === "FACILITATOR") {
+        applicationEmail = "facilitators@ahnigeria.org";
+      } else if (item.opportunity_type === "ADHOC") {
+        applicationEmail = "opportunities@ahnigeria.org";
+      }
+
+      // Extract location from categories or use default
+      let location = "Nigeria";
+      if (item.categories && Array.isArray(item.categories)) {
+        const locationCategory = item.categories.find((cat: any) => cat.parent_category === "Location");
+        if (locationCategory) {
+          location = locationCategory.name;
+        }
+      }
+
+      return {
+        id: item.id,
+        title: item.name || item.title, // Backend returns 'name', fallback to 'title'
+        type: displayType,
+        project: item.project || "AHNI Programs",
+        location: location,
+        postedDate: item.created_at || item.opening_date,
+        deadline: item.closing_date,
+        description: item.description || "",
+        requirements: item.requirements || "",
+        applicationEmail: applicationEmail,
+        category: category,
+        opportunity_type: item.opportunity_type // Keep original for routing
+      };
+    });
+  }, [publicOpportunitiesData]);
 
   // Filter opportunities
   const filteredOpportunities = useMemo(() => {
@@ -130,8 +147,8 @@ export default function OpportunitiesPage() {
   // Helper function to determine opportunity detail route
   const getDetailRoute = (opportunity: any) => {
     // Map opportunity types to their detail routes
-    // Handle both backend types and transformed frontend types
-    const type = opportunity.type || opportunity.opportunity_type;
+    // Use the original opportunity_type from backend for accurate routing
+    const type = opportunity.opportunity_type || opportunity.type;
 
     switch (type) {
       case 'Full Time':
@@ -158,7 +175,7 @@ export default function OpportunitiesPage() {
     }
   };
 
-  const isLoading = eoiLoading || unifiedLoading;
+  const isLoading = opportunitiesLoading;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 relative overflow-x-hidden">

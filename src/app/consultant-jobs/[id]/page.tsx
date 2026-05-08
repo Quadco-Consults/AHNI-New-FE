@@ -7,6 +7,7 @@ import { useForm, useFieldArray, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useGetPublicOpportunity } from "@/features/procurement/controllers/solicitationController";
+import { useSubmitConsultantApplication } from "@/features/contracts-grants/controllers/publicApplicationController";
 import BackNavigation from "@/components/atoms/BackNavigation";
 import DescriptionCard from "@/components/DescriptionCard";
 import FilePreview from "@/components/FilePreview";
@@ -102,6 +103,7 @@ export default function ConsultantJobDetailsPage() {
   const [showApplicationForm, setShowApplicationForm] = useState(false);
 
   const { data, isLoading, error } = useGetPublicOpportunity(id as string);
+  const submitApplication = useSubmitConsultantApplication(id as string);
 
   if (isLoading) {
     return <LoadingSpinner />;
@@ -239,15 +241,55 @@ export default function ConsultantJobDetailsPage() {
 
     const onSubmit = async (data: ApplicationFormData) => {
       try {
-        // Here you would integrate with the API to submit the application
-        console.log("Application Data:", data);
-        console.log("Files:", files);
+        // Transform form data to match API expectations
+        const applicationData = {
+          name: data.name,
+          email: data.email,
+          phone_number: data.phone_number,
+          type: "CONSULTANT" as const,
+          place_of_birth: data.place_of_birth,
+          citizenship: data.citizenship,
+          start_duration_date: data.start_duration_date,
+          end_duration_date: data.end_duration_date,
+          education: data.education.map((edu) => ({
+            institution: edu.name,
+            degree: edu.degree,
+            field_of_study: edu.major,
+            year: edu.date,
+          })),
+          language_proficiency: data.language_proficiency.map((lang) => ({
+            language: lang.language,
+            proficiency: `Speaking: ${lang.proficiency_speaking}, Reading: ${lang.proficiency_reading}`,
+          })),
+          employment_history: data.employment_history.map((emp) => ({
+            company: emp.employer_name,
+            position: emp.position_title,
+            start_date: emp.from,
+            end_date: emp.to,
+            description: "",
+          })),
+          special_consultant_services: data.special_consultant_services?.map((service) => ({
+            service: service.services_performed,
+            description: `Employer: ${service.employer_name}, Tel: ${service.employer_telephone}`,
+          })) || [],
+        };
 
-        // For now, just show success message
-        toast.success("Application submitted successfully! We will review your application and contact you soon.");
-        setShowApplicationForm(false);
-      } catch (error) {
-        toast.error("Failed to submit application. Please try again.");
+        // Submit application via API
+        const response = await submitApplication.mutateAsync(applicationData);
+
+        if (response.status) {
+          toast.success(response.message || "Application submitted successfully! We will review your application and contact you soon.");
+          setShowApplicationForm(false);
+
+          // Optional: Redirect to a thank you page or back to opportunities
+          // router.push('/opportunities?success=true');
+        } else {
+          toast.error(response.message || "Failed to submit application. Please try again.");
+        }
+      } catch (error: any) {
+        console.error("Application submission error:", error);
+        const errorMessage = error?.response?.data?.message || error?.message || "Failed to submit application. Please try again.";
+        toast.error(errorMessage);
       }
     };
 

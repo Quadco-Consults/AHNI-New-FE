@@ -2,16 +2,26 @@
 
 export const dynamic = "force-dynamic";
 import { useParams, useRouter } from "next/navigation";
+import { useState } from "react";
+import { useForm, FormProvider } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { useGetPublicOpportunity } from "@/features/procurement/controllers/solicitationController";
+import { useSubmitAdhocApplication } from "@/features/contracts-grants/controllers/publicApplicationController";
 import BackNavigation from "@/components/atoms/BackNavigation";
 import Card from "@/components/Card";
 import { LoadingSpinner } from "@/components/Loading";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { format, isValid } from "date-fns";
+import FormInput from "@/components/atoms/FormInput";
+import FormTextArea from "@/components/atoms/FormTextArea";
+import FormSelect from "@/components/atoms/FormSelect";
+import FormButton from "@/components/FormButton";
+import { nigeriaStates } from "@/constants/nigeria-states";
+import { toast } from "sonner";
 import {
-
-Calendar,
+  Calendar,
   Clock,
   MapPin,
   Users,
@@ -21,6 +31,21 @@ Calendar,
   AlertCircle,
   DollarSign
 } from "lucide-react";
+
+// Simplified application form schema
+const ApplicationFormSchema = z.object({
+  surname: z.string().min(1, "Surname is required"),
+  other_names: z.string().min(1, "Other names are required"),
+  email: z.string().email("Valid email is required"),
+  phone_number: z.string().min(1, "Phone number is required"),
+  gender: z.enum(["MALE", "FEMALE", "OTHER"], { required_error: "Gender is required" }),
+  date_of_birth: z.string().min(1, "Date of birth is required"),
+  state_of_origin: z.string().min(1, "State of origin is required"),
+  qualification: z.string().min(1, "Qualification is required"),
+  years_of_experience: z.number().min(0, "Years of experience must be 0 or greater"),
+});
+
+type ApplicationFormData = z.infer<typeof ApplicationFormSchema>;
 
 // DetailItem component matching staff portal design
 function DetailItem({ label, value }: { label: string; value: string | number }) {
@@ -36,8 +61,10 @@ export default function AdhocJobDetailsPage() {
   const params = useParams();
   const router = useRouter();
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
+  const [showApplicationForm, setShowApplicationForm] = useState(false);
 
   const { data, isLoading, error } = useGetPublicOpportunity(id as string);
+  const submitApplication = useSubmitAdhocApplication(id as string);
 
   if (isLoading) {
     return <LoadingSpinner />;
@@ -98,6 +125,146 @@ export default function AdhocJobDetailsPage() {
     return "Duration to be discussed";
   };
 
+  // Gender options
+  const genderOptions = [
+    { label: "Male", value: "MALE" },
+    { label: "Female", value: "FEMALE" },
+    { label: "Other", value: "OTHER" },
+  ];
+
+  // State options
+  const stateOptions = nigeriaStates.map((state) => ({
+    label: state,
+    value: state,
+  }));
+
+  // Application Form Component
+  const ApplicationForm = () => {
+    const form = useForm<ApplicationFormData>({
+      resolver: zodResolver(ApplicationFormSchema),
+      defaultValues: {
+        surname: "",
+        other_names: "",
+        email: "",
+        phone_number: "",
+        gender: "MALE",
+        date_of_birth: "",
+        state_of_origin: "",
+        qualification: "",
+        years_of_experience: 0,
+      },
+    });
+
+    const onSubmit = async (data: ApplicationFormData) => {
+      try {
+        // Transform to match backend API expectations
+        const applicationData = {
+          name: `${data.surname}, ${data.other_names}`,
+          email: data.email,
+          phone_number: data.phone_number,
+          type: "ADHOC" as const,
+          contractor_name: `${data.other_names} ${data.surname}`,
+          place_of_birth: data.state_of_origin,
+          // Store qualifications in education field
+          education: [{
+            degree: data.qualification,
+            institution: "See application details",
+            year: new Date().getFullYear().toString(),
+          }],
+        };
+
+        const response = await submitApplication.mutateAsync(applicationData);
+
+        if (response.status) {
+          toast.success(response.message || "Application submitted successfully!");
+          setShowApplicationForm(false);
+        }
+      } catch (error: any) {
+        toast.error(
+          error?.response?.data?.message ||
+          "Failed to submit application. Please try again."
+        );
+        console.error("Application submission error:", error);
+      }
+    };
+
+    return (
+      <div className="space-y-6 p-6">
+        <div className="flex items-center justify-between border-b pb-4">
+          <h2 className="text-2xl font-bold">Apply for Adhoc Position</h2>
+          <Button
+            variant="outline"
+            onClick={() => setShowApplicationForm(false)}
+          >
+            Back to Job Details
+          </Button>
+        </div>
+
+        <FormProvider {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            {/* Personal Information */}
+            <section className="space-y-4">
+              <h3 className="text-lg font-semibold">Personal Information</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormInput label="Surname" name="surname" required />
+                <FormInput label="Other Names" name="other_names" required />
+                <FormInput label="Email Address" name="email" type="email" required />
+                <FormInput label="Phone Number" name="phone_number" type="tel" required />
+                <FormSelect label="Gender" name="gender" required options={genderOptions} />
+                <FormInput label="Date of Birth" name="date_of_birth" type="date" required />
+                <FormSelect label="State of Origin" name="state_of_origin" required options={stateOptions} />
+              </div>
+            </section>
+
+            {/* Professional Information */}
+            <section className="space-y-4">
+              <h3 className="text-lg font-semibold">Professional Information</h3>
+              <FormTextArea
+                label="Qualifications"
+                name="qualification"
+                required
+                placeholder="List your educational qualifications and certifications"
+                rows={4}
+              />
+              <FormInput
+                label="Years of Experience"
+                name="years_of_experience"
+                type="number"
+                required
+                placeholder="0"
+              />
+            </section>
+
+            {/* Position Info Display */}
+            <section className="bg-gray-50 p-4 rounded-lg space-y-2">
+              <h4 className="font-semibold text-gray-700">Applying For:</h4>
+              <p className="text-gray-900 font-medium">{opportunity.title || opportunity.position_title || "Adhoc Position"}</p>
+              {opportunity.advertisement_number && (
+                <p className="text-sm text-gray-600">
+                  Reference: {opportunity.advertisement_number}
+                </p>
+              )}
+            </section>
+
+            {/* Submit Button */}
+            <div className="flex justify-end space-x-4 pt-6 border-t">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowApplicationForm(false)}
+              >
+                Cancel
+              </Button>
+              <FormButton size="lg" loading={submitApplication.isPending}>
+                Submit Application
+              </FormButton>
+            </div>
+          </form>
+        </FormProvider>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen">
       {/* Header with Back Navigation */}
@@ -109,7 +276,10 @@ export default function AdhocJobDetailsPage() {
 
       {/* Main Content Card */}
       <Card>
-        <div className="space-y-6 p-6">
+        {showApplicationForm ? (
+          <ApplicationForm />
+        ) : (
+          <div className="space-y-6 p-6">
           {/* Job Title and ID */}
           <div className="space-y-3">
             <h1 className="text-2xl font-bold text-foreground">
@@ -228,15 +398,11 @@ export default function AdhocJobDetailsPage() {
             </h3>
             <div className="text-blue-800">
               <p className="mb-2">
-                To apply for this adhoc position, please send your CV and cover letter to:
+                To apply for this adhoc position, please fill out the application form below:
               </p>
-              <div className="flex items-center gap-2 font-medium mb-3">
-                <Mail className="h-4 w-4" />
-                opportunities@ahnigeria.org
-              </div>
               <div className="text-sm space-y-1">
-                <p>• Submit documents as a single MS Word file</p>
-                <p>• Include position title in subject line</p>
+                <p>• Complete all required sections</p>
+                <p>• Provide accurate contact information</p>
                 <p>• Only shortlisted candidates will be contacted</p>
                 <p>• Application deadline: {formatDate(opportunity.application_deadline || opportunity.closing_date)}</p>
                 <p className="font-medium">• AHNI does not charge candidates any fees</p>
@@ -258,7 +424,7 @@ export default function AdhocJobDetailsPage() {
           {/* Action Buttons */}
           <div className="flex gap-4 pt-6 border-t">
             <Button
-              onClick={() => window.open('mailto:opportunities@ahnigeria.org?subject=Application for Adhoc Position', '_blank')}
+              onClick={() => setShowApplicationForm(true)}
               className="flex items-center gap-2"
             >
               <Mail className="h-4 w-4" />
@@ -274,6 +440,7 @@ export default function AdhocJobDetailsPage() {
             </Button>
           </div>
         </div>
+        )}
       </Card>
     </div>
   );

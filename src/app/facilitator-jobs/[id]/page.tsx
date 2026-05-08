@@ -3,10 +3,11 @@
 export const dynamic = "force-dynamic";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
-import { useForm, useFieldArray, FormProvider } from "react-hook-form";
+import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useGetPublicOpportunity } from "@/features/procurement/controllers/solicitationController";
+import { useSubmitFacilitatorApplication } from "@/features/contracts-grants/controllers/publicApplicationController";
 import BackNavigation from "@/components/atoms/BackNavigation";
 import DescriptionCard from "@/components/DescriptionCard";
 import FilePreview from "@/components/FilePreview";
@@ -14,8 +15,7 @@ import Card from "@/components/Card";
 import { LoadingSpinner } from "@/components/Loading";
 import { format, isValid } from "date-fns";
 import {
-
-Calendar,
+  Calendar,
   Clock,
   MapPin,
   Users,
@@ -27,55 +27,17 @@ Calendar,
 import { Button } from "@/components/ui/button";
 import FormInput from "@/components/atoms/FormInput";
 import FormTextArea from "@/components/atoms/FormTextArea";
-import FormSelect from "@/components/atoms/FormSelect";
 import FormButton from "@/components/FormButton";
-import { Label } from "@/components/ui/label";
-import { countries } from "@/constants/countries";
 import { toast } from "sonner";
-import { PlusCircle, Upload, Trash2 } from "lucide-react";
 
-// Application form schema (same as consultant application)
+// Simplified application form schema matching admin form
 const ApplicationFormSchema = z.object({
-  name: z.string().min(1, "Name is required"),
+  first_name: z.string().min(1, "First name is required"),
+  last_name: z.string().min(1, "Last name is required"),
   email: z.string().email("Valid email is required"),
   phone_number: z.string().min(1, "Phone number is required"),
-  position_under_contract: z.string().min(1, "Position is required"),
-  place_of_birth: z.string().min(1, "Place of birth is required"),
-  citizenship: z.string().min(1, "Citizenship is required"),
-  date_of_birth: z.string().min(1, "Date of birth is required"),
-  start_duration_date: z.string().min(1, "Start date is required"),
-  end_duration_date: z.string().min(1, "End date is required"),
-  education: z.array(z.object({
-    name: z.string().min(1, "Institution name is required"),
-    location: z.string().min(1, "Location is required"),
-    major: z.string().min(1, "Major is required"),
-    degree: z.string().min(1, "Degree is required"),
-    date: z.string().min(1, "Date is required"),
-  })).min(1, "At least one education entry is required"),
-  language_proficiency: z.array(z.object({
-    language: z.string().min(1, "Language is required"),
-    proficiency_speaking: z.string().min(1, "Speaking proficiency is required"),
-    proficiency_reading: z.string().min(1, "Reading proficiency is required"),
-  })).min(1, "At least one language entry is required"),
-  employment_history: z.array(z.object({
-    position_title: z.string().min(1, "Position title is required"),
-    employer_name: z.string().min(1, "Employer name is required"),
-    employer_telephone: z.string().min(1, "Employer telephone is required"),
-    from: z.string().min(1, "Start date is required"),
-    to: z.string().min(1, "End date is required"),
-  })).min(1, "At least one employment entry is required"),
-  special_consultant_services: z.array(z.object({
-    services_performed: z.string().min(1, "Services performed is required"),
-    employer_name: z.string().min(1, "Employer name is required"),
-    employer_telephone: z.string().min(1, "Employer telephone is required"),
-    from: z.string().min(1, "Start date is required"),
-    to: z.string().min(1, "End date is required"),
-  })),
-  referees: z.array(z.object({
-    name: z.string().min(1, "Referee name is required"),
-    email: z.string().email("Valid email is required"),
-    phone_number: z.string().min(1, "Phone number is required"),
-  })).min(1, "At least one referee is required"),
+  qualifications: z.string().min(1, "Qualifications are required"),
+  experience: z.string().min(1, "Experience is required"),
 });
 
 type ApplicationFormData = z.infer<typeof ApplicationFormSchema>;
@@ -161,101 +123,57 @@ export default function FacilitatorJobDetailsPage() {
     return "Duration to be discussed";
   };
 
-  // Application Form Component (same as consultant form)
+  // Initialize API submission hook
+  const submitApplication = useSubmitFacilitatorApplication(id as string);
+
+  // Simplified Application Form Component matching admin form
   const ApplicationForm = () => {
     const form = useForm<ApplicationFormData>({
       resolver: zodResolver(ApplicationFormSchema),
       defaultValues: {
-        name: "",
+        first_name: "",
+        last_name: "",
         email: "",
         phone_number: "",
-        position_under_contract: opportunity.title || "",
-        place_of_birth: "",
-        citizenship: "",
-        date_of_birth: "",
-        start_duration_date: opportunity.start_date || opportunity.commencement_date || "",
-        end_duration_date: opportunity.end_date || "",
-        education: [{ name: "", location: "", major: "", degree: "", date: "" }],
-        language_proficiency: [{ language: "", proficiency_speaking: "", proficiency_reading: "" }],
-        employment_history: [{ position_title: "", employer_name: "", employer_telephone: "", from: "", to: "" }],
-        special_consultant_services: [{ services_performed: "", employer_name: "", employer_telephone: "", from: "", to: "" }],
-        referees: [{ name: "", email: "", phone_number: "" }],
+        qualifications: "",
+        experience: "",
       },
     });
 
-    const {
-      fields: educationFields,
-      append: appendEducation,
-      remove: removeEducation,
-    } = useFieldArray({
-      name: "education",
-      control: form.control,
-    });
-
-    const {
-      fields: languageFields,
-      append: appendLanguage,
-      remove: removeLanguage,
-    } = useFieldArray({
-      name: "language_proficiency",
-      control: form.control,
-    });
-
-    const {
-      fields: employmentFields,
-      append: appendEmployment,
-      remove: removeEmployment,
-    } = useFieldArray({
-      name: "employment_history",
-      control: form.control,
-    });
-
-    const {
-      fields: serviceFields,
-      append: appendService,
-      remove: removeService,
-    } = useFieldArray({
-      name: "special_consultant_services",
-      control: form.control,
-    });
-
-    const {
-      fields: refereeFields,
-      append: appendReferee,
-      remove: removeReferee,
-    } = useFieldArray({
-      name: "referees",
-      control: form.control,
-    });
-
-    const [files, setFiles] = useState<{ resume: File | null; coverLetter: File | null }>({
-      resume: null,
-      coverLetter: null,
-    });
-
-    const countryOptions = countries.map(({ name }) => ({
-      label: name,
-      value: name,
-    }));
-
     const onSubmit = async (data: ApplicationFormData) => {
       try {
-        console.log("Facilitator Application Data:", data);
-        console.log("Files:", files);
+        // Transform to match backend API expectations
+        const applicationData = {
+          name: `${data.last_name}, ${data.first_name}`,
+          email: data.email,
+          phone_number: data.phone_number,
+          type: "FACILITATOR" as const,
+          contractor_name: `${data.first_name} ${data.last_name}`,
+          // Store qualifications and experience in appropriate fields
+          education: [{
+            degree: "See qualifications",
+            institution: data.qualifications,
+            year: new Date().getFullYear().toString(),
+          }],
+          employment_history: [{
+            company: "See experience details",
+            position: data.experience,
+            start_date: new Date().toISOString().split('T')[0],
+          }],
+        };
 
-        toast.success("Application submitted successfully! We will review your application and contact you soon.");
-        setShowApplicationForm(false);
-      } catch (error) {
-        toast.error("Failed to submit application. Please try again.");
-      }
-    };
+        const response = await submitApplication.mutateAsync(applicationData);
 
-    const handleFileChange = (type: 'resume' | 'coverLetter') => (e: React.ChangeEvent<HTMLInputElement>) => {
-      if (e.target.files && e.target.files[0]) {
-        setFiles(prev => ({
-          ...prev,
-          [type]: e.target.files![0]
-        }));
+        if (response.status) {
+          toast.success(response.message || "Application submitted successfully!");
+          setShowApplicationForm(false);
+        }
+      } catch (error: any) {
+        toast.error(
+          error?.response?.data?.message ||
+          "Failed to submit application. Please try again."
+        );
+        console.error("Application submission error:", error);
       }
     };
 
@@ -272,303 +190,46 @@ export default function FacilitatorJobDetailsPage() {
         </div>
 
         <FormProvider {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             {/* Personal Information */}
             <section className="space-y-4">
               <h3 className="text-lg font-semibold">Personal Information</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormInput label="Full Name (Last, First, Middle)" name="name" required />
+                <FormInput label="First Name" name="first_name" required />
+                <FormInput label="Last Name" name="last_name" required />
                 <FormInput label="Email Address" name="email" type="email" required />
                 <FormInput label="Phone Number" name="phone_number" type="tel" required />
-                <FormInput label="Position Under Contract" name="position_under_contract" required />
-                <FormInput label="Date of Birth" name="date_of_birth" type="date" required />
-                <FormInput label="Place of Birth" name="place_of_birth" required />
-                <FormSelect label="Citizenship" name="citizenship" options={countryOptions} required />
               </div>
             </section>
 
-            {/* Duration of Assignment */}
+            {/* Professional Information */}
             <section className="space-y-4">
-              <h3 className="text-lg font-semibold">Duration of Assignment</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormInput label="Start Date" name="start_duration_date" type="date" required />
-                <FormInput label="End Date" name="end_duration_date" type="date" required />
-              </div>
+              <h3 className="text-lg font-semibold">Professional Information</h3>
+              <FormTextArea
+                label="Qualifications"
+                name="qualifications"
+                required
+                placeholder="List your educational qualifications, certifications, and relevant training"
+                rows={4}
+              />
+              <FormTextArea
+                label="Experience"
+                name="experience"
+                required
+                placeholder="Describe your relevant work experience and achievements"
+                rows={4}
+              />
             </section>
 
-            {/* Education */}
-            <section className="space-y-4">
-              <h3 className="text-lg font-semibold">Education</h3>
-              {educationFields.map((field, index) => (
-                <div key={field.id} className="p-4 border border-gray-200 rounded-lg space-y-4">
-                  <div className="flex justify-between items-center">
-                    <h4 className="font-medium">Education #{index + 1}</h4>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => removeEducation(index)}
-                      disabled={educationFields.length === 1}
-                      className="flex items-center gap-2"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                      Remove
-                    </Button>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormInput label="Institution Name" name={`education.${index}.name`} required />
-                    <FormInput label="Location" name={`education.${index}.location`} required />
-                    <FormInput label="Major/Subject" name={`education.${index}.major`} required />
-                    <FormInput label="Degree" name={`education.${index}.degree`} required />
-                    <FormInput label="Date" name={`education.${index}.date`} type="date" required />
-                  </div>
-                </div>
-              ))}
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => appendEducation({ name: "", location: "", major: "", degree: "", date: "" })}
-                className="flex items-center gap-2"
-              >
-                <PlusCircle className="h-4 w-4" />
-                Add Education
-              </Button>
-            </section>
-
-            {/* Language Proficiency */}
-            <section className="space-y-4">
-              <h3 className="text-lg font-semibold">Language Proficiency</h3>
-              {languageFields.map((field, index) => (
-                <div key={field.id} className="p-4 border border-gray-200 rounded-lg space-y-4">
-                  <div className="flex justify-between items-center">
-                    <h4 className="font-medium">Language #{index + 1}</h4>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => removeLanguage(index)}
-                      disabled={languageFields.length === 1}
-                      className="flex items-center gap-2"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                      Remove
-                    </Button>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <FormInput label="Language" name={`language_proficiency.${index}.language`} required />
-                    <FormSelect
-                      label="Speaking Proficiency"
-                      name={`language_proficiency.${index}.proficiency_speaking`}
-                      options={[
-                        { label: "Basic", value: "Basic" },
-                        { label: "Intermediate", value: "Intermediate" },
-                        { label: "Advanced", value: "Advanced" },
-                        { label: "Native", value: "Native" },
-                      ]}
-                      required
-                    />
-                    <FormSelect
-                      label="Reading Proficiency"
-                      name={`language_proficiency.${index}.proficiency_reading`}
-                      options={[
-                        { label: "Basic", value: "Basic" },
-                        { label: "Intermediate", value: "Intermediate" },
-                        { label: "Advanced", value: "Advanced" },
-                        { label: "Native", value: "Native" },
-                      ]}
-                      required
-                    />
-                  </div>
-                </div>
-              ))}
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => appendLanguage({ language: "", proficiency_speaking: "", proficiency_reading: "" })}
-                className="flex items-center gap-2"
-              >
-                <PlusCircle className="h-4 w-4" />
-                Add Language
-              </Button>
-            </section>
-
-            {/* Employment History */}
-            <section className="space-y-4">
-              <h3 className="text-lg font-semibold">Employment History</h3>
-              {employmentFields.map((field, index) => (
-                <div key={field.id} className="p-4 border border-gray-200 rounded-lg space-y-4">
-                  <div className="flex justify-between items-center">
-                    <h4 className="font-medium">Employment #{index + 1}</h4>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => removeEmployment(index)}
-                      disabled={employmentFields.length === 1}
-                      className="flex items-center gap-2"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                      Remove
-                    </Button>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormInput label="Position Title" name={`employment_history.${index}.position_title`} required />
-                    <FormInput label="Employer Name" name={`employment_history.${index}.employer_name`} required />
-                    <FormInput label="Employer Telephone" name={`employment_history.${index}.employer_telephone`} required />
-                    <FormInput label="From Date" name={`employment_history.${index}.from`} type="date" required />
-                    <FormInput label="To Date" name={`employment_history.${index}.to`} type="date" required />
-                  </div>
-                </div>
-              ))}
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => appendEmployment({ position_title: "", employer_name: "", employer_telephone: "", from: "", to: "" })}
-                className="flex items-center gap-2"
-              >
-                <PlusCircle className="h-4 w-4" />
-                Add Employment
-              </Button>
-            </section>
-
-            {/* Special Consultant Services */}
-            <section className="space-y-4">
-              <h3 className="text-lg font-semibold">Special Consultant Services</h3>
-              {serviceFields.map((field, index) => (
-                <div key={field.id} className="p-4 border border-gray-200 rounded-lg space-y-4">
-                  <div className="flex justify-between items-center">
-                    <h4 className="font-medium">Service #{index + 1}</h4>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => removeService(index)}
-                      disabled={serviceFields.length === 1}
-                      className="flex items-center gap-2"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                      Remove
-                    </Button>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormInput label="Services Performed" name={`special_consultant_services.${index}.services_performed`} required />
-                    <FormInput label="Employer Name" name={`special_consultant_services.${index}.employer_name`} required />
-                    <FormInput label="Employer Telephone" name={`special_consultant_services.${index}.employer_telephone`} required />
-                    <FormInput label="From Date" name={`special_consultant_services.${index}.from`} type="date" required />
-                    <FormInput label="To Date" name={`special_consultant_services.${index}.to`} type="date" required />
-                  </div>
-                </div>
-              ))}
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => appendService({ services_performed: "", employer_name: "", employer_telephone: "", from: "", to: "" })}
-                className="flex items-center gap-2"
-              >
-                <PlusCircle className="h-4 w-4" />
-                Add Service
-              </Button>
-            </section>
-
-            {/* Referees */}
-            <section className="space-y-4">
-              <h3 className="text-lg font-semibold">Referees</h3>
-              {refereeFields.map((field, index) => (
-                <div key={field.id} className="p-4 border border-gray-200 rounded-lg space-y-4">
-                  <div className="flex justify-between items-center">
-                    <h4 className="font-medium">Referee #{index + 1}</h4>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => removeReferee(index)}
-                      disabled={refereeFields.length === 1}
-                      className="flex items-center gap-2"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                      Remove
-                    </Button>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <FormInput label="Full Name" name={`referees.${index}.name`} required />
-                    <FormInput label="Email" name={`referees.${index}.email`} type="email" required />
-                    <FormInput label="Phone Number" name={`referees.${index}.phone_number`} type="tel" required />
-                  </div>
-                </div>
-              ))}
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => appendReferee({ name: "", email: "", phone_number: "" })}
-                className="flex items-center gap-2"
-              >
-                <PlusCircle className="h-4 w-4" />
-                Add Referee
-              </Button>
-            </section>
-
-            {/* File Uploads */}
-            <section className="space-y-4">
-              <h3 className="text-lg font-semibold">Documents</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <Label className="font-medium">Upload Resume *</Label>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      className="cursor-pointer flex items-center gap-2"
-                      onClick={() => {
-                        const input = document.querySelector('input[data-file-type="resume"]') as HTMLInputElement;
-                        input?.click();
-                      }}
-                    >
-                      <Upload className="h-4 w-4" />
-                      Choose File
-                    </Button>
-                    <input
-                      type="file"
-                      className="hidden"
-                      data-file-type="resume"
-                      accept=".pdf,.doc,.docx"
-                      onChange={handleFileChange('resume')}
-                    />
-                    <span className="text-sm text-gray-600">
-                      {files.resume ? files.resume.name : "No file chosen"}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="font-medium">Upload Cover Letter *</Label>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      className="cursor-pointer flex items-center gap-2"
-                      onClick={() => {
-                        const input = document.querySelector('input[data-file-type="coverLetter"]') as HTMLInputElement;
-                        input?.click();
-                      }}
-                    >
-                      <Upload className="h-4 w-4" />
-                      Choose File
-                    </Button>
-                    <input
-                      type="file"
-                      className="hidden"
-                      data-file-type="coverLetter"
-                      accept=".pdf,.doc,.docx"
-                      onChange={handleFileChange('coverLetter')}
-                    />
-                    <span className="text-sm text-gray-600">
-                      {files.coverLetter ? files.coverLetter.name : "No file chosen"}
-                    </span>
-                  </div>
-                </div>
-              </div>
+            {/* Position Info Display */}
+            <section className="bg-gray-50 p-4 rounded-lg space-y-2">
+              <h4 className="font-semibold text-gray-700">Applying For:</h4>
+              <p className="text-gray-900 font-medium">{opportunity.title || "Facilitator Position"}</p>
+              {opportunity.reference_number && (
+                <p className="text-sm text-gray-600">
+                  Reference: {opportunity.reference_number}
+                </p>
+              )}
             </section>
 
             {/* Submit Button */}
@@ -580,7 +241,7 @@ export default function FacilitatorJobDetailsPage() {
               >
                 Cancel
               </Button>
-              <FormButton size="lg">
+              <FormButton size="lg" loading={submitApplication.isPending}>
                 Submit Application
               </FormButton>
             </div>

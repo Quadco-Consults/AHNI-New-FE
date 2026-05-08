@@ -49,7 +49,7 @@ interface AssessmentFilterParams {
   enabled?: boolean;
 }
 
-const BASE_URL = "/contract-grants/sub-grants/assessments/";
+const BASE_URL = "/contract-grants/award/assessments/";
 
 // ===== ASSESSMENT CRITERIA HOOKS =====
 
