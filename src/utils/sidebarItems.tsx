@@ -388,18 +388,8 @@ export const departmentalLinks: SidebarItem[] = [
         ]
       },
       {
-        name: "Purchase Request",
+        name: "Approved Purchase Request",
         path: "/dashboard/procurement/purchase-request",
-        permissions: [
-          {
-            module: "procurements",
-            codenames: ["view_purchaserequest"]
-          }
-        ]
-      },
-      {
-        name: "Activity Memo",
-        path: "/dashboard/procurement/activity-memo",
         permissions: [
           {
             module: "procurements",
@@ -1510,21 +1500,9 @@ export const globalHubLinks: GlobalHubItem[] = [
 
   // Procurement & Purchasing
   {
-    label: "Purchase Requests",
+    label: "Approved Purchase Requests",
     path: "/dashboard/procurement/purchase-request",
     icon: <ShoppingCart className="w-4 h-4" />,
-    category: "procurement",
-    permissions: [
-      {
-        module: "procurements",
-        codenames: ["view_purchaserequest"]
-      }
-    ]
-  },
-  {
-    label: "Activity Memo",
-    path: "/dashboard/procurement/activity-memo",
-    icon: <FileText className="w-4 h-4" />,
     category: "procurement",
     permissions: [
       {
