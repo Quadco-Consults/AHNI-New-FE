@@ -7,7 +7,7 @@ import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useGetPublicOpportunity } from "@/features/procurement/controllers/solicitationController";
-import { useSubmitAdhocApplication } from "@/features/contracts-grants/controllers/publicApplicationController";
+import { useSubmitAdhocApplication, useUploadApplicationDocument } from "@/features/contracts-grants/controllers/publicApplicationController";
 import BackNavigation from "@/components/atoms/BackNavigation";
 import Card from "@/components/Card";
 import { LoadingSpinner } from "@/components/Loading";
@@ -18,8 +18,11 @@ import FormInput from "@/components/atoms/FormInput";
 import FormTextArea from "@/components/atoms/FormTextArea";
 import FormSelect from "@/components/atoms/FormSelect";
 import FormButton from "@/components/FormButton";
+import { Label } from "@/components/ui/label";
 import { nigeriaStates } from "@/constants/nigeria-states";
 import { toast } from "sonner";
+import { Upload, X } from "lucide-react";
+import { useState as useReactState } from "react";
 import {
   Calendar,
   Clock,
@@ -65,6 +68,7 @@ export default function AdhocJobDetailsPage() {
 
   const { data, isLoading, error } = useGetPublicOpportunity(id as string);
   const submitApplication = useSubmitAdhocApplication(id as string);
+  const uploadDocument = useUploadApplicationDocument();
 
   if (isLoading) {
     return <LoadingSpinner />;
@@ -140,6 +144,8 @@ export default function AdhocJobDetailsPage() {
 
   // Application Form Component
   const ApplicationForm = () => {
+    const [documents, setDocuments] = useReactState<File[]>([]);
+
     const form = useForm<ApplicationFormData>({
       resolver: zodResolver(ApplicationFormSchema),
       defaultValues: {
@@ -176,6 +182,25 @@ export default function AdhocJobDetailsPage() {
         const response = await submitApplication.mutateAsync(applicationData);
 
         if (response.status) {
+          // Upload documents if any were selected
+          if (documents.length > 0 && response.data?.id) {
+            const applicantId = response.data.id;
+
+            // Upload each document
+            for (const file of documents) {
+              try {
+                await uploadDocument.mutateAsync({
+                  applicantId,
+                  document: file,
+                  name: file.name,
+                });
+              } catch (docError) {
+                console.error('Failed to upload document:', file.name, docError);
+                // Continue with other documents even if one fails
+              }
+            }
+          }
+
           toast.success(response.message || "Application submitted successfully!");
           setShowApplicationForm(false);
         }
@@ -186,6 +211,17 @@ export default function AdhocJobDetailsPage() {
         );
         console.error("Application submission error:", error);
       }
+    };
+
+    const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (e.target.files && e.target.files.length > 0) {
+        const newFiles = Array.from(e.target.files);
+        setDocuments(prev => [...prev, ...newFiles]);
+      }
+    };
+
+    const removeDocument = (index: number) => {
+      setDocuments(prev => prev.filter((_, i) => i !== index));
     };
 
     return (
@@ -244,6 +280,73 @@ export default function AdhocJobDetailsPage() {
                   Reference: {opportunity.advertisement_number}
                 </p>
               )}
+            </section>
+
+            {/* Document Uploads */}
+            <section className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold">Supporting Documents (Optional)</h3>
+                <p className="text-sm text-muted-foreground">Resume, certificates, etc.</p>
+              </div>
+
+              <div className="space-y-3">
+                {/* Upload Button */}
+                <div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="cursor-pointer flex items-center gap-2"
+                    onClick={() => {
+                      const input = document.querySelector('input[data-file-type="adhoc-documents"]') as HTMLInputElement;
+                      input?.click();
+                    }}
+                  >
+                    <Upload className="h-4 w-4" />
+                    Add Documents
+                  </Button>
+                  <input
+                    type="file"
+                    className="hidden"
+                    data-file-type="adhoc-documents"
+                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                    multiple
+                    onChange={handleFileSelect}
+                  />
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Accepted formats: PDF, DOC, DOCX, JPG, PNG (Max 5MB per file)
+                  </p>
+                </div>
+
+                {/* Document List */}
+                {documents.length > 0 && (
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Selected Documents ({documents.length})</Label>
+                    <div className="space-y-2">
+                      {documents.map((file, index) => (
+                        <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded border">
+                          <div className="flex items-center gap-2 flex-1 min-w-0">
+                            <Upload className="h-4 w-4 text-gray-500 flex-shrink-0" />
+                            <span className="text-sm text-gray-700 truncate">{file.name}</span>
+                            <span className="text-xs text-gray-500 flex-shrink-0">
+                              ({(file.size / 1024).toFixed(1)} KB)
+                            </span>
+                          </div>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeDocument(index)}
+                            className="flex-shrink-0"
+                          >
+                            <X className="h-4 w-4 text-red-500" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             </section>
 
             {/* Submit Button */}

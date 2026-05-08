@@ -151,3 +151,33 @@ export const useSubmitApplication = () => {
     },
   });
 };
+
+/**
+ * Upload document for an application
+ */
+export interface DocumentUploadData {
+  applicantId: string;
+  document: File;
+  name?: string;
+}
+
+export const useUploadApplicationDocument = () => {
+  return useMutation<ApiResponse<any>, AxiosError, DocumentUploadData>({
+    mutationFn: async ({ applicantId, document, name }) => {
+      const formData = new FormData();
+      formData.append('document', document);
+      formData.append('name', name || document.name);
+
+      const response = await Axios.post(
+        `${BASE_URL}${applicantId}/documents/`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      return response.data;
+    },
+  });
+};
