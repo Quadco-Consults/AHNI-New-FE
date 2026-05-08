@@ -3,20 +3,14 @@
 import BreadcrumbCard from "@/components/Breadcrumb";
 import PurchaseRequest from "./PurchaseRequest";
 import TabState from "@/components/ui/TabState";
-import { useState, useMemo } from "react";
-import { useDepartmentFeatures } from "@/hooks/useDepartmentFeatures";
+import { useState } from "react";
 
 function PurchaseRequestTabs() {
   const breadcrumbs = [
     { name: "Procurement", icon: true },
     { name: "Purchase Request", icon: false },
   ];
-
-  // Check if user is from Procurement department
-  const { isProcurementDepartment } = useDepartmentFeatures();
-
-  // Define all tabs
-  const allTabs = [
+  const tabDetails = [
     {
       id: 1,
       state: "created",
@@ -30,19 +24,6 @@ function PurchaseRequestTabs() {
       tabComponent: <PurchaseRequest status='approved' />,
     },
   ];
-
-  // Filter tabs based on department
-  // Procurement users only see "Approved Purchase Requests"
-  // All other users (Global Hub, other departments) see both tabs
-  const tabDetails = useMemo(() => {
-    if (isProcurementDepartment) {
-      // Procurement users only see approved requests
-      return allTabs.filter(tab => tab.state === "approved");
-    }
-    // All other users see all tabs
-    return allTabs;
-  }, [isProcurementDepartment]);
-
   const [tabState, setTabState] = useState<string | number>(
     tabDetails[0].state
   );

@@ -389,7 +389,7 @@ export const departmentalLinks: SidebarItem[] = [
       },
       {
         name: "Approved Purchase Request",
-        path: "/dashboard/procurement/purchase-request",
+        path: "/dashboard/procurement/approved-purchase-request",
         permissions: [
           {
             module: "procurements",
