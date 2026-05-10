@@ -730,7 +730,28 @@ export default function CreateAgreement() {
     return (
         <ServiceLevelAgreementLayout>
             <div className="space-y-6">
-                <BackNavigation extraText="New Agreement" />
+                <BackNavigation extraText={id ? "Edit Agreement" : "New Agreement"} />
+
+                {/* Warning Banner for Editing Approved Agreements */}
+                {id && data?.data?.status && data.data.status !== 'DRAFT' && (
+                    <div className="bg-amber-50 border-l-4 border-amber-400 rounded-lg p-4">
+                        <div className="flex items-start gap-3">
+                            <div className="w-6 h-6 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <svg className="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h4 className="font-semibold text-amber-800 mb-1">
+                                    ⚠️ Editing {data.data.status_display || data.data.status} Agreement
+                                </h4>
+                                <p className="text-amber-700 text-sm">
+                                    You are editing an agreement that is not in DRAFT status. Changes will be saved immediately and may affect active contracts. Please review all changes carefully before saving.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 {/* Workflow Information Banner */}
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4">

@@ -453,10 +453,12 @@ export default function AgreementView() {
 
     const approvalStage = getApprovalStage();
 
-    const canEdit = agreement?.status === 'DRAFT' || !agreement?.status;
-    const canSubmit = canEdit && documents && documents.length > 0;
+    // Allow editing for all agreements except TERMINATED
+    const canEdit = agreement?.status !== 'TERMINATED';
+    const canSubmit = agreement?.status === 'DRAFT' && documents && documents.length > 0;
     const isActive = agreement?.status === 'ACTIVE';
     const isSubmitted = agreement?.status === 'SUBMITTED';
+    const isDraft = agreement?.status === 'DRAFT' || !agreement?.status;
 
     // Determine available actions based on approval stage
     const canReject = isSubmitted;
@@ -1485,12 +1487,19 @@ export default function AgreementView() {
                         Back to List
                     </Button>
                     {canEdit && (
-                        <Button
-                            onClick={() => router.push(`${CG_ROUTES.CREATE_AGREEMENT_DETAILS}?id=${agreementId}`)}
-                            className="bg-indigo-600 hover:bg-indigo-700"
-                        >
-                            Edit Agreement
-                        </Button>
+                        <div className="flex flex-col items-end gap-1">
+                            <Button
+                                onClick={() => router.push(`${CG_ROUTES.CREATE_AGREEMENT_DETAILS}?id=${agreementId}`)}
+                                className="bg-indigo-600 hover:bg-indigo-700"
+                            >
+                                Edit Agreement
+                            </Button>
+                            {!isDraft && agreement?.status && (
+                                <p className="text-xs text-amber-600 font-medium">
+                                    Editing {agreement.status_display || agreement.status} agreement
+                                </p>
+                            )}
+                        </div>
                     )}
                 </div>
             </div>

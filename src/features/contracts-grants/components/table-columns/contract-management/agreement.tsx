@@ -266,8 +266,10 @@ const TableMenu = ({ id, status }: IAgreementPaginatedData) => {
     const [isDialogOpen, setDialogOpen] = useState(false);
     const { deleteAgreement, isLoading } = useDeleteAgreement(id);
 
-    // Only allow editing DRAFT agreements
-    const canEdit = status === 'DRAFT' || !status;
+    // Allow editing for all agreements except TERMINATED
+    // Users can edit to correct information or update details
+    const canEdit = status !== 'TERMINATED';
+    const canDelete = status === 'DRAFT' || !status; // Only delete drafts
 
     const handleDelete = async () => {
         try {
@@ -313,14 +315,16 @@ const TableMenu = ({ id, status }: IAgreementPaginatedData) => {
                                 </Button>
                             </Link>
                         )}
-                        <Button
-                            className="w-full flex items-center justify-start gap-2"
-                            variant="ghost"
-                            onClick={() => setDialogOpen(true)}
-                        >
-                            <DeleteIcon />
-                            Delete
-                        </Button>
+                        {canDelete && (
+                            <Button
+                                className="w-full flex items-center justify-start gap-2"
+                                variant="ghost"
+                                onClick={() => setDialogOpen(true)}
+                            >
+                                <DeleteIcon />
+                                Delete
+                            </Button>
+                        )}
                     </PopoverContent>
                 </Popover>
             </>
