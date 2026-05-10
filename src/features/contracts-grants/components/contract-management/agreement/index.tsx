@@ -75,8 +75,8 @@ export default function Agreement() {
                         data={data?.data?.results || []}
                         isLoading={isFetching}
                         pagination={{
-                            total: data?.data?.pagination?.count ?? 0,
-                            pageSize: data?.data?.pagination?.page_size ?? 0,
+                            total: data?.data?.paginator?.count ?? 0,
+                            pageSize: data?.data?.paginator?.page_size ?? 0,
                             onChange: (page: number) => setPage(page),
                         }}
                     />
