@@ -720,10 +720,48 @@ export default function CreateAgreement() {
     const { data } = useGetSingleAgreement(id || "", !!id);
 
     useEffect(() => {
-        if (data) {
-            form.reset(data.data);
+        if (data && data.data) {
+            const agreement = data.data;
+
+            // Transform backend field names to form field names
+            const formData: any = {
+                service_type: agreement.service_type_display, // Map display to form field
+                service: agreement.service, // UUID of service category
+                type: agreement.type,
+                start_date: agreement.start_date,
+                end_date: agreement.end_date,
+                contract_cost: agreement.contract_cost?.toString() || "",
+                location: agreement.location,
+
+                // Transform ID fields from number to string
+                consultant_id: agreement.consultant?.toString() || undefined,
+                facilitator_id: agreement.facilitator?.toString() || undefined,
+                adhoc_staff_id: agreement.adhoc_staff?.toString() || undefined,
+                vendor_id: agreement.vendor?.toString() || undefined,
+
+                // Approval workflow
+                reviewer_id: undefined,
+                authorizer_id: undefined,
+                approver_id: undefined,
+
+                // SLA fields
+                response_time: agreement.response_time || undefined,
+                resolution_time: agreement.resolution_time || undefined,
+                uptime_percentage: agreement.uptime_percentage || undefined,
+                service_hours: agreement.service_hours || undefined,
+                key_deliverables: agreement.key_deliverables ? JSON.stringify(agreement.key_deliverables) : undefined,
+                performance_kpis: agreement.performance_kpis ? JSON.stringify(agreement.performance_kpis) : undefined,
+                penalty_terms: agreement.penalty_terms || undefined,
+                escalation_matrix: agreement.escalation_matrix ? JSON.stringify(agreement.escalation_matrix) : undefined,
+                monthly_cost: agreement.monthly_cost || undefined,
+                payment_frequency: agreement.payment_frequency || undefined,
+            };
+
+            console.log('🔄 Loading agreement data for edit:', formData);
+            form.reset(formData);
+
             // Set the selected agreement type when editing
-            setSelectedAgreementType(data.data.type);
+            setSelectedAgreementType(agreement.type);
         }
     }, [data]);
 
