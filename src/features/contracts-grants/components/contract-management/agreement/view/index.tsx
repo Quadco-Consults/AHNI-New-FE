@@ -1489,7 +1489,7 @@ export default function AgreementView() {
                     {canEdit && (
                         <div className="flex flex-col items-end gap-1">
                             <Button
-                                onClick={() => router.push(`${CG_ROUTES.CREATE_AGREEMENT_DETAILS}?id=${agreementId}`)}
+                                onClick={() => router.push(`${CG_ROUTES.CREATE_AGREEMENT}?id=${agreementId}`)}
                                 className="bg-indigo-600 hover:bg-indigo-700"
                             >
                                 Edit Agreement
