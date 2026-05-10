@@ -196,19 +196,31 @@ export default function ServiceLevelAgreementUploads() {
                     )}
                 </div>
                 
-                <div className="flex items-center justify-end gap-x-4">
+                <div className="flex items-center justify-between gap-x-4">
                     <Button variant="outline" type="button" size="lg" onClick={() => router.back()}>
                         Back
                     </Button>
 
-                    <FormButton 
-                        type="button"
-                        size="lg" 
-                        loading={isLoading}
-                        onClick={onSubmit}
-                    >
-                        Finish
-                    </FormButton>
+                    <div className="flex gap-x-4">
+                        <Button
+                            variant="outline"
+                            type="button"
+                            size="lg"
+                            disabled={isLoading}
+                            onClick={onSubmit}
+                        >
+                            Skip Documents
+                        </Button>
+
+                        <FormButton
+                            type="button"
+                            size="lg"
+                            loading={isLoading}
+                            onClick={onSubmit}
+                        >
+                            {tempDocuments.length > 0 ? `Create with ${tempDocuments.length} Document(s)` : 'Create Agreement'}
+                        </FormButton>
+                    </div>
                 </div>
             </div>
         </ServiceLevelAgreementLayout>

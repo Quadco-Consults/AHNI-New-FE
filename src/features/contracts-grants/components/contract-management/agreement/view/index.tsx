@@ -19,7 +19,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, FileText, Plus, Download, Eye, RefreshCw, CheckCircle, AlertCircle, Building2, Calendar, DollarSign, MapPin, User, Phone, Mail, ThumbsUp, ThumbsDown, Clock, Circle } from "lucide-react";
+import { ArrowLeft, FileText, Plus, Download, Eye, RefreshCw, CheckCircle, AlertCircle, Building2, Calendar, DollarSign, MapPin, User, Phone, Mail, ThumbsUp, ThumbsDown, Clock, Circle, Activity, TrendingUp, AlertTriangle, Users } from "lucide-react";
 import { CG_ROUTES } from "@/constants/RouterConstants";
 import { toast } from "sonner";
 import { IContractDocument } from "@/features/contracts-grants/types/contract-management/agreement";
@@ -916,6 +916,165 @@ export default function AgreementView() {
                                 </div>
                             </CardContent>
                         </Card>
+
+                        {/* SLA-Specific Section (only show when type='SLA') */}
+                        {agreement.type === 'SLA' && (
+                            <Card className="border-purple-200 shadow-sm">
+                                <CardHeader className="border-b border-purple-100 bg-gradient-to-r from-purple-50 to-indigo-50">
+                                    <div className="flex items-center gap-2">
+                                        <div className="p-2 bg-purple-100 rounded-lg">
+                                            <svg className="h-5 w-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <CardTitle className="text-lg">SLA Performance Metrics</CardTitle>
+                                            <p className="text-xs text-gray-600 mt-0.5">Service Level Agreement specifications</p>
+                                        </div>
+                                    </div>
+                                </CardHeader>
+                                <CardContent className="pt-6">
+                                    <div className="space-y-6">
+                                        {/* Service Level Commitments */}
+                                        <div>
+                                            <h3 className="text-sm font-semibold text-purple-900 mb-3">Service Level Commitments</h3>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                {agreement.response_time && (
+                                                    <div className="space-y-1">
+                                                        <div className="flex items-center gap-1.5 text-xs font-medium text-gray-500">
+                                                            <Clock className="h-3.5 w-3.5" />
+                                                            Response Time
+                                                        </div>
+                                                        <p className="text-sm text-gray-900">{agreement.response_time}</p>
+                                                    </div>
+                                                )}
+                                                {agreement.resolution_time && (
+                                                    <div className="space-y-1">
+                                                        <div className="flex items-center gap-1.5 text-xs font-medium text-gray-500">
+                                                            <Clock className="h-3.5 w-3.5" />
+                                                            Resolution Time
+                                                        </div>
+                                                        <p className="text-sm text-gray-900">{agreement.resolution_time}</p>
+                                                    </div>
+                                                )}
+                                                {agreement.uptime_percentage && (
+                                                    <div className="space-y-1">
+                                                        <div className="flex items-center gap-1.5 text-xs font-medium text-gray-500">
+                                                            <Activity className="h-3.5 w-3.5" />
+                                                            Uptime SLA
+                                                        </div>
+                                                        <p className="text-sm text-gray-900">{agreement.uptime_percentage}%</p>
+                                                    </div>
+                                                )}
+                                                {agreement.service_hours && (
+                                                    <div className="space-y-1">
+                                                        <div className="flex items-center gap-1.5 text-xs font-medium text-gray-500">
+                                                            <Calendar className="h-3.5 w-3.5" />
+                                                            Service Hours
+                                                        </div>
+                                                        <p className="text-sm text-gray-900">{agreement.service_hours}</p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                            {!agreement.response_time && !agreement.resolution_time && !agreement.uptime_percentage && !agreement.service_hours && (
+                                                <p className="text-sm text-gray-500 italic">No service level commitments defined</p>
+                                            )}
+                                        </div>
+
+                                        {/* Financial Terms */}
+                                        {(agreement.monthly_cost || agreement.payment_frequency) && (
+                                            <div>
+                                                <h3 className="text-sm font-semibold text-purple-900 mb-3">Financial Terms</h3>
+                                                <div className="grid grid-cols-2 gap-4">
+                                                    {agreement.monthly_cost && (
+                                                        <div className="space-y-1">
+                                                            <div className="flex items-center gap-1.5 text-xs font-medium text-gray-500">
+                                                                <DollarSign className="h-3.5 w-3.5" />
+                                                                Monthly Cost
+                                                            </div>
+                                                            <p className="text-sm text-gray-900">${agreement.monthly_cost.toLocaleString()}</p>
+                                                        </div>
+                                                    )}
+                                                    {agreement.payment_frequency && (
+                                                        <div className="space-y-1">
+                                                            <div className="flex items-center gap-1.5 text-xs font-medium text-gray-500">
+                                                                <Calendar className="h-3.5 w-3.5" />
+                                                                Payment Frequency
+                                                            </div>
+                                                            <p className="text-sm text-gray-900 capitalize">{agreement.payment_frequency.toLowerCase().replace('_', ' ')}</p>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* Performance & Penalties */}
+                                        {(agreement.key_deliverables || agreement.performance_kpis || agreement.penalty_terms) && (
+                                            <div>
+                                                <h3 className="text-sm font-semibold text-purple-900 mb-3">Performance & Deliverables</h3>
+                                                <div className="space-y-3">
+                                                    {agreement.key_deliverables && (
+                                                        <div className="space-y-1">
+                                                            <div className="flex items-center gap-1.5 text-xs font-medium text-gray-500">
+                                                                <CheckCircle className="h-3.5 w-3.5" />
+                                                                Key Deliverables
+                                                            </div>
+                                                            <p className="text-sm text-gray-900 whitespace-pre-wrap">{typeof agreement.key_deliverables === 'string' ? agreement.key_deliverables : JSON.stringify(agreement.key_deliverables, null, 2)}</p>
+                                                        </div>
+                                                    )}
+                                                    {agreement.performance_kpis && (
+                                                        <div className="space-y-1">
+                                                            <div className="flex items-center gap-1.5 text-xs font-medium text-gray-500">
+                                                                <TrendingUp className="h-3.5 w-3.5" />
+                                                                Performance KPIs
+                                                            </div>
+                                                            <p className="text-sm text-gray-900 whitespace-pre-wrap">{typeof agreement.performance_kpis === 'string' ? agreement.performance_kpis : JSON.stringify(agreement.performance_kpis, null, 2)}</p>
+                                                        </div>
+                                                    )}
+                                                    {agreement.penalty_terms && (
+                                                        <div className="space-y-1">
+                                                            <div className="flex items-center gap-1.5 text-xs font-medium text-gray-500">
+                                                                <AlertTriangle className="h-3.5 w-3.5" />
+                                                                Penalty Terms
+                                                            </div>
+                                                            <p className="text-sm text-gray-900 whitespace-pre-wrap">{agreement.penalty_terms}</p>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* Escalation Matrix */}
+                                        {agreement.escalation_matrix && (
+                                            <div>
+                                                <h3 className="text-sm font-semibold text-purple-900 mb-3">Escalation Matrix</h3>
+                                                <div className="space-y-1">
+                                                    <div className="flex items-center gap-1.5 text-xs font-medium text-gray-500">
+                                                        <Users className="h-3.5 w-3.5" />
+                                                        Contact Hierarchy
+                                                    </div>
+                                                    <p className="text-sm text-gray-900 whitespace-pre-wrap">{typeof agreement.escalation_matrix === 'string' ? agreement.escalation_matrix : JSON.stringify(agreement.escalation_matrix, null, 2)}</p>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* No SLA data message */}
+                                        {!agreement.response_time && !agreement.resolution_time && !agreement.uptime_percentage &&
+                                         !agreement.service_hours && !agreement.monthly_cost && !agreement.payment_frequency &&
+                                         !agreement.key_deliverables && !agreement.performance_kpis && !agreement.penalty_terms &&
+                                         !agreement.escalation_matrix && (
+                                            <div className="text-center py-8">
+                                                <div className="inline-flex items-center justify-center w-12 h-12 bg-purple-100 rounded-full mb-3">
+                                                    <AlertCircle className="h-6 w-6 text-purple-600" />
+                                                </div>
+                                                <p className="text-sm text-gray-600">No SLA specifications defined yet</p>
+                                                <p className="text-xs text-gray-500 mt-1">Edit this agreement to add SLA performance metrics</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        )}
 
                     </div>
 

@@ -25,6 +25,18 @@ export const AgreementSchema = z.object({
     reviewer_id: z.string().optional().transform(val => val && val.trim() !== "" ? val : undefined),
     authorizer_id: z.string().optional().transform(val => val && val.trim() !== "" ? val : undefined),
     approver_id: z.string().optional().transform(val => val && val.trim() !== "" ? val : undefined),
+
+    // SLA-specific fields (only used when type='SLA')
+    response_time: z.string().optional(),
+    resolution_time: z.string().optional(),
+    uptime_percentage: z.coerce.number().optional(),
+    service_hours: z.string().optional(),
+    key_deliverables: z.string().optional(), // Will be converted to JSON
+    performance_kpis: z.string().optional(), // Will be converted to JSON
+    penalty_terms: z.string().optional(),
+    escalation_matrix: z.string().optional(), // Will be converted to JSON
+    monthly_cost: z.coerce.number().optional(),
+    payment_frequency: z.string().optional(),
 }).superRefine((data, ctx) => {
     const { type } = data;
     const serviceAgreementTypes = ["SLA", "SECURITY", "INSURANCE", "LEASE", "HMO", "TICKETING"];
@@ -374,4 +386,16 @@ export interface IAgreementSingleData {
 
     // Additional fields
     remarks?: string | null;
+
+    // SLA-specific fields (only populated when type='SLA')
+    response_time?: string | null;
+    resolution_time?: string | null;
+    uptime_percentage?: number | null;
+    service_hours?: string | null;
+    key_deliverables?: any; // JSON field
+    performance_kpis?: any; // JSON field
+    penalty_terms?: string | null;
+    escalation_matrix?: any; // JSON field
+    monthly_cost?: number | null;
+    payment_frequency?: 'MONTHLY' | 'QUARTERLY' | 'ANNUALLY' | 'MILESTONE' | 'ON_DEMAND' | null;
 }

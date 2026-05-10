@@ -9,7 +9,7 @@ import FormButton from "@/components/FormButton";
 import BackNavigation from "@/components/atoms/BackNavigation";
 import { CG_ROUTES } from "@/constants/RouterConstants";
 import { toast } from "sonner";
-import { useCreateAgreement, useGetSingleAgreement, useUpdateAgreement } from "@/features/contracts-grants/controllers/agreementController";
+import { useGetSingleAgreement, useUpdateAgreement } from "@/features/contracts-grants/controllers/agreementController";
 
 // Helper to get current user ID
 const getCurrentUserId = () => {
@@ -39,7 +39,6 @@ export default function AgreementSummary() {
     const [agreementStatus, setAgreementStatus] = useState<string>('');
     const [isEditMode, setIsEditMode] = useState(false);
 
-    const { createAgreement, isLoading: isCreating } = useCreateAgreement();
     const { data: existingAgreement, isLoading: isFetchingAgreement } = useGetSingleAgreement(
         agreementId || '',
         !!agreementId
@@ -167,14 +166,13 @@ export default function AgreementSummary() {
             if (isEditMode) {
                 await updateAgreement(cleanedData);
                 toast.success("Agreement updated successfully!");
+                router.push(CG_ROUTES.AGREEMENT);
             } else {
-                await createAgreement(cleanedData);
-                // Clean up session storage only for new agreements
-                sessionStorage.removeItem('agreementFormData');
-                toast.success("Agreement created successfully!");
+                // Don't create agreement yet - save data and go to uploads page
+                // The uploads page will create the agreement with documents
+                toast.success("Agreement details saved. Proceeding to document upload...");
+                router.push(CG_ROUTES.CREATE_AGREEMENT_UPLOADS);
             }
-
-            router.push(CG_ROUTES.AGREEMENT);
 
         } catch (error: any) {
             console.error(`Agreement ${isEditMode ? 'update' : 'creation'} error:`, error);
@@ -192,7 +190,7 @@ export default function AgreementSummary() {
         );
     }
 
-    const isLoading = isCreating || isUpdating;
+    const isLoading = isUpdating;
 
     const getEntityLabel = () => {
         const { type } = agreementData;

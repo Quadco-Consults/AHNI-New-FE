@@ -972,6 +972,134 @@ export default function CreateAgreement() {
                                     />
                                 </div>
 
+                                {/* SLA-Specific Fields (only show when type='SLA') */}
+                                {agreementType === 'SLA' && (
+                                    <div className="space-y-6">
+                                        <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                                            <h3 className="font-semibold text-purple-900 mb-3 flex items-center gap-2">
+                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                Service Level Agreement (SLA) Specifications
+                                            </h3>
+                                            <p className="text-sm text-purple-700 mb-4">
+                                                Define the performance commitments, KPIs, and penalties for this SLA.
+                                            </p>
+
+                                            <div className="grid grid-cols-2 gap-6">
+                                                {/* Service Level Commitments */}
+                                                <div className="col-span-2">
+                                                    <h4 className="font-medium text-purple-800 mb-3">Service Level Commitments</h4>
+                                                </div>
+
+                                                <FormInput
+                                                    label="Response Time SLA"
+                                                    name="response_time"
+                                                    placeholder='e.g., "4 hours for critical issues"'
+                                                />
+
+                                                <FormInput
+                                                    label="Resolution Time SLA"
+                                                    name="resolution_time"
+                                                    placeholder='e.g., "24 hours for critical issues"'
+                                                />
+
+                                                <FormInput
+                                                    type="number"
+                                                    label="Uptime SLA (%)"
+                                                    name="uptime_percentage"
+                                                    placeholder="e.g., 99.9"
+                                                    step="0.01"
+                                                />
+
+                                                <FormInput
+                                                    label="Service Hours"
+                                                    name="service_hours"
+                                                    placeholder='e.g., "24/7" or "Mon-Fri 9am-5pm"'
+                                                />
+
+                                                {/* Financial Terms */}
+                                                <div className="col-span-2">
+                                                    <h4 className="font-medium text-purple-800 mb-3 mt-4">Financial Terms</h4>
+                                                </div>
+
+                                                <FormInput
+                                                    type="number"
+                                                    label="Monthly Cost"
+                                                    name="monthly_cost"
+                                                    placeholder="Enter monthly service cost"
+                                                />
+
+                                                <FormSelect
+                                                    label="Payment Frequency"
+                                                    name="payment_frequency"
+                                                    placeholder="Select payment frequency"
+                                                    options={[
+                                                        { label: 'Monthly', value: 'MONTHLY' },
+                                                        { label: 'Quarterly', value: 'QUARTERLY' },
+                                                        { label: 'Annually', value: 'ANNUALLY' },
+                                                        { label: 'Milestone-based', value: 'MILESTONE' },
+                                                        { label: 'On Demand', value: 'ON_DEMAND' },
+                                                    ]}
+                                                />
+
+                                                {/* Performance & Penalties */}
+                                                <div className="col-span-2">
+                                                    <h4 className="font-medium text-purple-800 mb-3 mt-4">Performance & Penalties</h4>
+                                                </div>
+
+                                                <div className="col-span-2">
+                                                    <FormInput
+                                                        label="Key Deliverables"
+                                                        name="key_deliverables"
+                                                        placeholder="Describe key deliverables (optional)"
+                                                    />
+                                                    <p className="text-xs text-gray-500 mt-1">
+                                                        Enter deliverables or leave blank to add later
+                                                    </p>
+                                                </div>
+
+                                                <div className="col-span-2">
+                                                    <FormInput
+                                                        label="Performance KPIs"
+                                                        name="performance_kpis"
+                                                        placeholder="Describe performance KPIs (optional)"
+                                                    />
+                                                    <p className="text-xs text-gray-500 mt-1">
+                                                        Enter KPIs or leave blank to add later
+                                                    </p>
+                                                </div>
+
+                                                <div className="col-span-2">
+                                                    <FormInput
+                                                        label="Penalty Terms"
+                                                        name="penalty_terms"
+                                                        placeholder="Describe penalties for SLA breaches (optional)"
+                                                    />
+                                                </div>
+
+                                                <div className="col-span-2">
+                                                    <FormInput
+                                                        label="Escalation Matrix"
+                                                        name="escalation_matrix"
+                                                        placeholder="Describe escalation contacts (optional)"
+                                                    />
+                                                    <p className="text-xs text-gray-500 mt-1">
+                                                        Enter contact hierarchy for issue escalation
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded">
+                                                <p className="text-xs text-yellow-800">
+                                                    <strong>Note:</strong> SLA-specific fields are optional during creation.
+                                                    You can fill them in later by editing the agreement.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
                                 {/* Entity Availability Warning */}
                                 {selectedAgreementType && !isLoadingEntities && entityOptions.length === 0 && (
                                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
