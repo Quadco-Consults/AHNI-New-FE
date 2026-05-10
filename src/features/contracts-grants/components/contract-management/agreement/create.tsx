@@ -717,11 +717,23 @@ export default function CreateAgreement() {
         }
     };
 
-    const { data } = useGetSingleAgreement(id || "", !!id);
+    const { data, isLoading: isLoadingAgreement } = useGetSingleAgreement(id || "", !!id);
+
+    // Debug logging
+    console.log('📍 Edit Mode Debug:', {
+        hasId: !!id,
+        id,
+        hasData: !!data,
+        dataStructure: data ? Object.keys(data) : [],
+        isLoading: isLoadingAgreement,
+    });
 
     useEffect(() => {
+        console.log('🔍 useEffect triggered:', { hasData: !!data, hasDataData: !!(data?.data) });
+
         if (data && data.data) {
             const agreement = data.data;
+            console.log('📥 Raw agreement from backend:', agreement);
 
             // Transform backend field names to form field names
             const formData: any = {
@@ -757,11 +769,15 @@ export default function CreateAgreement() {
                 payment_frequency: agreement.payment_frequency || undefined,
             };
 
-            console.log('🔄 Loading agreement data for edit:', formData);
+            console.log('🔄 Transformed formData for form:', formData);
             form.reset(formData);
+            console.log('✅ Form reset complete');
 
             // Set the selected agreement type when editing
             setSelectedAgreementType(agreement.type);
+            console.log('✅ Agreement type set to:', agreement.type);
+        } else {
+            console.log('⚠️ No data to load - either still loading or data is undefined');
         }
     }, [data]);
 
