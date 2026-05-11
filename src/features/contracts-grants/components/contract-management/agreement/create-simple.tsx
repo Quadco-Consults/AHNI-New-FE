@@ -313,10 +313,19 @@ export default function CreateAgreementSimple() {
                 start_date: data.start_date,
                 end_date: data.end_date,
                 location: data.location,
-                service_type: data.service_type,
-                service: data.service,
                 status: 'ACTIVE', // Set as ACTIVE immediately, no DRAFT
             };
+
+            // Only include service fields for service agreements (SLA, SECURITY, etc.)
+            const isServiceAgreement = ['SLA', 'SECURITY', 'INSURANCE', 'LEASE', 'HMO', 'TICKETING'].includes(data.type);
+            if (isServiceAgreement) {
+                if (data.service_type) {
+                    transformedData.service_type = data.service_type;
+                }
+                if (data.service) {
+                    transformedData.service = data.service;
+                }
+            }
 
             // Add entity fields based on agreement type (backend expects field names without _id suffix)
             if (data.type === 'CONSULTANT' && data.consultant_id) {
