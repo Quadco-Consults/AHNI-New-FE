@@ -12,7 +12,7 @@ export const AgreementSchema = z.object({
     // Other fields
     start_date: z.string().min(1, "Please select start date"),
     end_date: z.string().min(1, "Please select end date"),
-    contract_cost: z.coerce.string().min(1, "Please enter contract cost"),
+    contract_cost: z.coerce.string().optional(),
     location: z.string().min(1, "Please select location"),
     // Conditional fields based on agreement type
     // Transform empty strings to undefined for proper validation
@@ -171,6 +171,7 @@ export interface IAgreementPaginatedData {
     updated_datetime?: string;
     provider?: string;
     service: string; // Service category UUID
+    service_name?: string; // Service category name (looked up from UUID)
     start_date: string;
     end_date: string;
     contract_cost?: string | number;

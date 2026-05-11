@@ -919,8 +919,8 @@ export default function AgreementView() {
                             </CardContent>
                         </Card>
 
-                        {/* SLA-Specific Section (only show when type='SLA') */}
-                        {agreement.type === 'SLA' && (
+                        {/* SLA-Specific Section (only show when type='SLA') - Hidden as per user request */}
+                        {false && agreement.type === 'SLA' && (
                             <Card className="border-purple-200 shadow-sm">
                                 <CardHeader className="border-b border-purple-100 bg-gradient-to-r from-purple-50 to-indigo-50">
                                     <div className="flex items-center gap-2">
@@ -1095,79 +1095,6 @@ export default function AgreementView() {
                                                 <CardTitle className="text-lg">Contract Documents</CardTitle>
                                                 <p className="text-xs text-gray-600 mt-0.5">{documents.length} {documents.length === 1 ? 'document' : 'documents'} uploaded</p>
                                             </div>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                onClick={() => {
-                                                    console.log('🔄 Manual refresh triggered');
-                                                    refetchDocuments();
-                                                }}
-                                                className="h-8 text-xs hover:bg-green-100 hover:text-green-700 hover:border-green-300"
-                                            >
-                                                <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
-                                                Refresh
-                                            </Button>
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                onClick={() => {
-                                                    console.log('🔍 Debug: Checking all recent agreements for documents...');
-                                                    import('@/constants/api_management/MyHttpHelperWithToken').then(({ default: AxiosWithToken }) => {
-                                                        AxiosWithToken.get('/contract-grants/agreements/')
-                                                        .then(response => {
-                                                            const agreements = response.data?.data?.results || [];
-                                                            const agreementSummary = agreements.slice(0, 5).map((a: any) => ({
-                                                                id: a.id,
-                                                                type: a.service_type_display,
-                                                                status: a.status,
-                                                                documents: a.agreement_documents?.length || 0,
-                                                                created: a.created_datetime,
-                                                                hasDocuments: !!(a.agreement_documents && a.agreement_documents.length > 0)
-                                                            }));
-
-                                                            console.log('📋 Recent agreements summary:');
-                                                            agreementSummary.forEach((ag, i) => {
-                                                                console.log(`  ${i+1}. ${ag.hasDocuments ? '📄' : '📋'} ${ag.id} (${ag.type}) - ${ag.documents} docs - ${ag.status}`);
-                                                            });
-
-                                                            const withDocs = agreementSummary.filter(a => a.hasDocuments);
-                                                            if (withDocs.length > 0) {
-                                                                console.log('🎯 Agreements WITH documents:', withDocs);
-                                                            } else {
-                                                                console.log('❌ No agreements found with documents in recent 5');
-                                                            }
-                                                        });
-                                                    });
-                                                }}
-                                                className="h-8 text-xs hover:bg-blue-100 hover:text-blue-700 hover:border-blue-300"
-                                            >
-                                                🔍 Debug
-                                            </Button>
-                                            {canEdit && (
-                                                <Button
-                                                    variant="outline"
-                                                    size="sm"
-                                                    onClick={() => setIsUploadDialogOpen(true)}
-                                                    className="h-8 text-xs hover:bg-indigo-100 hover:text-indigo-700 hover:border-indigo-300"
-                                                >
-                                                    <Plus className="h-3.5 w-3.5 mr-1.5" />
-                                                    Upload
-                                                </Button>
-                                            )}
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                onClick={() => {
-                                                    console.log('🔄 Manual refresh triggered');
-                                                    refetchDocuments();
-                                                    refetch();
-                                                }}
-                                                className="h-8 w-8 p-0 hover:bg-indigo-100"
-                                            >
-                                                <RefreshCw className="h-4 w-4 text-indigo-600" />
-                                            </Button>
                                         </div>
                                     </div>
                                 </CardHeader>
@@ -1352,6 +1279,9 @@ export default function AgreementView() {
                                             Status
                                         </th>
                                         <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                                            Document
+                                        </th>
+                                        <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                                             Date Created
                                         </th>
                                     </tr>
@@ -1387,6 +1317,32 @@ export default function AgreementView() {
                                             <span className={`px-2.5 py-1 rounded-full text-xs font-medium border ${getStatusColor(agreement.status || 'DRAFT')}`}>
                                                 {agreement.status_display || agreement.status || 'DRAFT'}
                                             </span>
+                                        </td>
+                                        <td className="px-4 py-4">
+                                            {documents && documents.length > 0 ? (
+                                                <div className="flex flex-col gap-2">
+                                                    {documents
+                                                        .filter(doc => doc.document_type === 'CONTRACT')
+                                                        .map(doc => (
+                                                            <a
+                                                                key={doc.id}
+                                                                href={doc.file_url || doc.file}
+                                                                download
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-md text-xs font-medium transition-colors"
+                                                            >
+                                                                <Download className="h-3.5 w-3.5" />
+                                                                {doc.file_name || 'Download'}
+                                                            </a>
+                                                        ))}
+                                                    {documents.filter(doc => doc.document_type === 'CONTRACT').length === 0 && (
+                                                        <span className="text-xs text-gray-400 italic">No document</span>
+                                                    )}
+                                                </div>
+                                            ) : (
+                                                <span className="text-xs text-gray-400 italic">No document</span>
+                                            )}
                                         </td>
                                         <td className="px-4 py-4 text-sm text-gray-500">
                                             {agreement.created_datetime ? formatDate(agreement.created_datetime) : '-'}
@@ -1442,6 +1398,46 @@ export default function AgreementView() {
                                                     }`}>
                                                         {mod.status}
                                                     </span>
+                                                </td>
+                                                <td className="px-4 py-4">
+                                                    <div className="flex flex-col gap-2">
+                                                        {/* Show modification's attached document */}
+                                                        {mod.document && (
+                                                            <a
+                                                                href={mod.document.file_url || mod.document.file}
+                                                                download
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-md text-xs font-medium transition-colors"
+                                                            >
+                                                                <Download className="h-3.5 w-3.5" />
+                                                                {mod.document.file_name || 'Download'}
+                                                            </a>
+                                                        )}
+
+                                                        {/* Show all documents matching this modification type */}
+                                                        {documents && documents
+                                                            .filter(doc => doc.document_type === mod.modification_type)
+                                                            .map(doc => (
+                                                                <a
+                                                                    key={doc.id}
+                                                                    href={doc.file_url || doc.file}
+                                                                    download
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-md text-xs font-medium transition-colors"
+                                                                >
+                                                                    <Download className="h-3.5 w-3.5" />
+                                                                    {doc.file_name || 'Download'}
+                                                                </a>
+                                                            ))
+                                                        }
+
+                                                        {/* Show "No document" if nothing exists */}
+                                                        {!mod.document && (!documents || documents.filter(doc => doc.document_type === mod.modification_type).length === 0) && (
+                                                            <span className="text-xs text-gray-400 italic">No document</span>
+                                                        )}
+                                                    </div>
                                                 </td>
                                                 <td className="px-4 py-4 text-sm text-gray-500">
                                                     {formatDate(mod.created_at)}

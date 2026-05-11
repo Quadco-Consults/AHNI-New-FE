@@ -162,23 +162,12 @@ export const agreementColumns: ColumnDef<IAgreementPaginatedData>[] = [
             }
 
             // For vendor-based agreements (SLA, Security, Insurance, etc.), show the service name
-            // Check if backend provided service_name field (flattened)
+            // Backend now provides service_name field
             if (row.original.service_name) {
                 return row.original.service_name;
             }
-            // Check if backend provided expanded service details (_details suffix)
-            if (row.original.service_details) {
-                return row.original.service_details.name;
-            }
-            // Check if service field itself is an object (in-place expansion)
-            if (row.original.service && typeof row.original.service === 'object') {
-                return row.original.service.name || row.original.service.service_name;
-            }
-            // Fallback: Display a message that backend needs to add the field for vendor services
-            if (row.original.service && typeof row.original.service === 'string') {
-                return `⚠️ Service ID: ${row.original.service.substring(0, 8)}... (Name field pending)`;
-            }
-            // If no service, return the service type display as fallback
+
+            // If no service name available, return the service type display as fallback
             return serviceTypeDisplay || '-';
         },
     },

@@ -94,18 +94,28 @@ export default function CreateAgreement() {
 
             console.log(`✅ Found ${consultants.length} consultants from dropdown`);
 
-            // Backend returns: { value, label, title, grade_level, commencement_date, end_date }
-            setEntityOptions(consultants.map((item: any) => ({
-                label: item.label,      // Already formatted
-                value: item.value,
-                title: item.title,
-                grade_level: item.grade_level,
-                commencement_date: item.commencement_date,
-                end_date: item.end_date
-            })));
+            // Backend returns: { value, label, name, position, email }
+            if (consultants.length > 0) {
+                setEntityOptions(consultants.map((item: any) => ({
+                    label: item.label,      // Already formatted
+                    value: item.value,
+                    name: item.name,
+                    position: item.position,
+                    email: item.email
+                })));
+            } else {
+                console.log('❌ No approved consultants found');
+                setEntityOptions([{
+                    label: 'No approved consultants available. Please add and approve consultants first.',
+                    value: ""
+                }]);
+            }
         } catch (error) {
             console.error('Failed to fetch consultants:', error);
-            setEntityOptions([]);
+            setEntityOptions([{
+                label: 'Error loading consultants. Please try again.',
+                value: ""
+            }]);
         } finally {
             setIsLoadingEntities(false);
         }
@@ -124,17 +134,27 @@ export default function CreateAgreement() {
 
             console.log(`✅ Found ${facilitators.length} facilitators from dropdown`);
 
-            setEntityOptions(facilitators.map((item: any) => ({
-                label: item.label,
-                value: item.value,
-                title: item.title,
-                grade_level: item.grade_level,
-                commencement_date: item.commencement_date,
-                end_date: item.end_date
-            })));
+            if (facilitators.length > 0) {
+                setEntityOptions(facilitators.map((item: any) => ({
+                    label: item.label,
+                    value: item.value,
+                    name: item.name,
+                    position: item.position,
+                    email: item.email
+                })));
+            } else {
+                console.log('❌ No facilitators found');
+                setEntityOptions([{
+                    label: 'No facilitators available. Please add facilitators first.',
+                    value: ""
+                }]);
+            }
         } catch (error) {
             console.error('Failed to fetch facilitators:', error);
-            setEntityOptions([]);
+            setEntityOptions([{
+                label: 'Error loading facilitators. Please try again.',
+                value: ""
+            }]);
         } finally {
             setIsLoadingEntities(false);
         }
@@ -156,17 +176,29 @@ export default function CreateAgreement() {
             console.log(`✅ Found ${adhocStaff.length} adhoc staff from dropdown`);
 
             // ✅ Backend already formats data correctly with value/label
-            setEntityOptions(adhocStaff.map((item: any) => ({
-                label: item.label,      // Already formatted: "Surname, Names - Designation"
-                value: item.value,      // Already a string UUID
-                name: item.name,
-                designation: item.designation,
-                assignment_location: item.assignment_location,
-                status: item.status
-            })));
+            if (adhocStaff.length > 0) {
+                setEntityOptions(adhocStaff.map((item: any) => ({
+                    label: item.label,      // Already formatted: "Full Name - Designation"
+                    value: item.value,      // Already a string UUID
+                    name: item.name,
+                    surname: item.surname,
+                    other_names: item.other_names,
+                    position: item.position,
+                    email: item.email
+                })));
+            } else {
+                console.log('❌ No adhoc staff found');
+                setEntityOptions([{
+                    label: 'No adhoc staff available. Please add adhoc staff first.',
+                    value: ""
+                }]);
+            }
         } catch (error) {
             console.error('Failed to fetch adhoc staff:', error);
-            setEntityOptions([]);
+            setEntityOptions([{
+                label: 'Error loading adhoc staff. Please try again.',
+                value: ""
+            }]);
         } finally {
             setIsLoadingEntities(false);
         }

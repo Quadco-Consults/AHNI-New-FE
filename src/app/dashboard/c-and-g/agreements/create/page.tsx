@@ -6,7 +6,7 @@ import dynamic from "next/dynamic";
 const AgreementCreate = dynamic(
   () =>
     import(
-      "@/features/contracts-grants/components/contract-management/agreement/create-refactored"
+      "@/features/contracts-grants/components/contract-management/agreement/create-simple"
     ),
   {
     ssr: false,
