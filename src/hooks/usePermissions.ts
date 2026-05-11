@@ -71,6 +71,7 @@ export function usePermissions() {
         canApprove: false,
         canAuthorize: false,
         canReview: false,
+        canManageApprovals: false,
         canManageEmployees: false,
         canManageExpenses: false,
         canAccessHR: false,
@@ -101,6 +102,9 @@ export function usePermissions() {
       canApprove: uiPermissions.includes(UIPermissionCategory.APPROVE_REQUESTS),
       canAuthorize: uiPermissions.includes(UIPermissionCategory.AUTHORIZE_REQUESTS),
       canReview: uiPermissions.includes(UIPermissionCategory.REVIEW_REQUESTS),
+      canManageApprovals: uiPermissions.includes(UIPermissionCategory.APPROVE_REQUESTS) ||
+                          uiPermissions.includes(UIPermissionCategory.AUTHORIZE_REQUESTS) ||
+                          uiPermissions.includes(UIPermissionCategory.REVIEW_REQUESTS),
       canManageEmployees: uiPermissions.includes(UIPermissionCategory.MANAGE_EMPLOYEES),
       canManageExpenses: uiPermissions.includes(UIPermissionCategory.MANAGE_EXPENSES),
       canAccessHR: uiPermissions.includes(UIPermissionCategory.HR_MODULE),
