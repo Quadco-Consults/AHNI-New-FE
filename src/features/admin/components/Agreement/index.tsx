@@ -1,15 +1,20 @@
 import Card from "@/components/Card";
-import { agreementColumns } from "@/features/contracts-grants/components/table-columns/contract-management/agreement";
+import { adminAgreementColumns } from "./columns";
 import DataTable from "@/components/Table/DataTable";
 import TableFilters from "@/components/Table/TableFilters";
 import { useState } from "react";
 import { useGetAllAgreements } from "@/features/contracts-grants/controllers/agreementController";
 
+/**
+ * Admin Agreements Page
+ * Shows view-only access to all agreements
+ * Admin users can only VIEW agreements, not create/edit/delete
+ */
 export default function Agreement() {
     const [page, setPage] = useState(1);
 
-    const { data, isLoading } = useGetAllAgreements({ 
-        page, 
+    const { data, isLoading } = useGetAllAgreements({
+        page,
         size: 10,
         search: "",
         status: ""
@@ -19,11 +24,14 @@ export default function Agreement() {
 
     return (
         <section className="space-y-5">
-            <h1 className="text-xl font-bold">Agreements</h1>
+            <h1 className="text-xl font-bold">Service Level Agreements (View Only)</h1>
+            <p className="text-sm text-gray-600">
+                You have view-only access to agreements. To create or edit agreements, go to the Contracts & Grants module.
+            </p>
             <Card>
                 <TableFilters>
                     <DataTable
-                        columns={agreementColumns}
+                        columns={adminAgreementColumns}
                         data={data?.data.results || []}
                         isLoading={isLoading}
                         pagination={{
