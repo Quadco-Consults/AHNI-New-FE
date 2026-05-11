@@ -23,11 +23,13 @@ import { ArrowLeft, FileText, Plus, Download, Eye, RefreshCw, CheckCircle, Alert
 import { CG_ROUTES } from "@/constants/RouterConstants";
 import { toast } from "sonner";
 import { IContractDocument } from "@/features/contracts-grants/types/contract-management/agreement";
+import { usePermissions } from "@/hooks/usePermissions";
 
 export default function AgreementView() {
     const params = useParams();
     const router = useRouter();
     const agreementId = params?.id as string;
+    const { isAdmin } = usePermissions();
 
     const [isModificationModalOpen, setIsModificationModalOpen] = useState(false);
     const [modificationType, setModificationType] = useState<'EXTENSION' | 'ADDENDUM' | 'AMENDMENT'>('EXTENSION');
@@ -454,9 +456,10 @@ export default function AgreementView() {
     const approvalStage = getApprovalStage();
 
     // Allow editing for all agreements except TERMINATED
-    const canEdit = agreement?.status !== 'TERMINATED';
-    const canSubmit = agreement?.status === 'DRAFT' && documents && documents.length > 0;
-    const isActive = agreement?.status === 'ACTIVE';
+    // Admin users have view-only access - they cannot edit, modify, or upload documents
+    const canEdit = agreement?.status !== 'TERMINATED' && !isAdmin;
+    const canSubmit = agreement?.status === 'DRAFT' && documents && documents.length > 0 && !isAdmin;
+    const isActive = agreement?.status === 'ACTIVE' && !isAdmin;
     const isSubmitted = agreement?.status === 'SUBMITTED';
     const isDraft = agreement?.status === 'DRAFT' || !agreement?.status;
 
