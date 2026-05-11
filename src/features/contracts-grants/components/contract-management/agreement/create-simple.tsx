@@ -351,7 +351,8 @@ export default function CreateAgreementSimple() {
             } else if (data.type === 'FACILITATOR' && data.facilitator_id) {
                 transformedData.facilitator = data.facilitator_id;
             } else if (data.type === 'ADHOC_STAFF' && data.adhoc_staff_id) {
-                transformedData.adhoc_staff = data.adhoc_staff_id;
+                // Adhoc staff uses integer ID, not UUID - convert to integer
+                transformedData.adhoc_staff = parseInt(data.adhoc_staff_id);
             } else if (['SLA', 'SECURITY', 'INSURANCE', 'LEASE', 'HMO', 'TICKETING'].includes(data.type) && data.vendor_id) {
                 transformedData.vendor = data.vendor_id;
             }
