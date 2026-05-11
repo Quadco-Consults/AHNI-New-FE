@@ -265,14 +265,11 @@ export default function CreateAgreementSimple() {
                 facilitator_id: agreement.facilitator?.toString(),
                 adhoc_staff_id: agreement.adhoc_staff?.toString(),
                 vendor_id: agreement.vendor?.toString(),
-                service_type: agreement.service_type,
                 service: agreement.service,
+                // Note: service_type doesn't exist in backend model, only service field exists
             });
 
-            // Set selected job category for service filtering
-            if (agreement.service_type) {
-                setSelectedJobCategory(agreement.service_type);
-            }
+            // Note: Backend doesn't have service_type field, so no job category filtering needed
 
             console.log("✅ Form populated with agreement data");
         }
