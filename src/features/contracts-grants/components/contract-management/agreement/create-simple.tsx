@@ -254,26 +254,45 @@ export default function CreateAgreementSimple() {
             const agreement = agreementData.data;
 
             console.log("📥 Loading agreement for edit:", agreement);
+            console.log("Agreement type:", agreement.type);
+            console.log("Agreement vendor:", agreement.vendor);
 
-            // Map backend data to form fields - ensure all fields are strings
-            const formData = {
-                type: agreement.type || "",
-                start_date: agreement.start_date || "",
-                end_date: agreement.end_date || "",
-                location: agreement.location?.toString() || "",
-                consultant_id: agreement.consultant?.toString() || "",
-                facilitator_id: agreement.facilitator?.toString() || "",
-                adhoc_staff_id: agreement.adhoc_staff?.toString() || "",
-                vendor_id: agreement.vendor?.toString() || "",
-                service: agreement.service?.toString() || "",
-            };
+            // Use setTimeout to ensure form is ready before setting values
+            setTimeout(() => {
+                // Set each field individually for better control
+                if (agreement.type) {
+                    form.setValue("type", agreement.type);
+                    console.log("✅ Set type:", agreement.type);
+                }
+                if (agreement.start_date) {
+                    form.setValue("start_date", agreement.start_date);
+                }
+                if (agreement.end_date) {
+                    form.setValue("end_date", agreement.end_date);
+                }
+                if (agreement.location) {
+                    form.setValue("location", agreement.location.toString());
+                }
+                if (agreement.consultant) {
+                    form.setValue("consultant_id", agreement.consultant.toString());
+                }
+                if (agreement.facilitator) {
+                    form.setValue("facilitator_id", agreement.facilitator.toString());
+                }
+                if (agreement.adhoc_staff) {
+                    form.setValue("adhoc_staff_id", agreement.adhoc_staff.toString());
+                }
+                if (agreement.vendor) {
+                    form.setValue("vendor_id", agreement.vendor.toString());
+                    console.log("✅ Set vendor_id:", agreement.vendor.toString());
+                }
+                if (agreement.service) {
+                    form.setValue("service", agreement.service.toString());
+                }
 
-            console.log("📝 Form data to populate:", formData);
-
-            // Reset form with all values
-            form.reset(formData, { keepDefaultValues: false });
-
-            console.log("✅ Form populated with agreement data");
+                console.log("✅ All form fields populated");
+                console.log("Current form values:", form.getValues());
+            }, 100);
         }
     }, [agreementData, isEditMode]);
 
