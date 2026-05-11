@@ -255,25 +255,27 @@ export default function CreateAgreementSimple() {
 
             console.log("📥 Loading agreement for edit:", agreement);
 
-            // Map backend data to form fields
-            form.reset({
-                type: agreement.type,
-                start_date: agreement.start_date,
-                end_date: agreement.end_date,
-                location: agreement.location || "",
-                consultant_id: agreement.consultant?.toString(),
-                facilitator_id: agreement.facilitator?.toString(),
-                adhoc_staff_id: agreement.adhoc_staff?.toString(),
-                vendor_id: agreement.vendor?.toString(),
-                service: agreement.service,
-                // Note: service_type doesn't exist in backend model, only service field exists
-            });
+            // Map backend data to form fields - ensure all fields are strings
+            const formData = {
+                type: agreement.type || "",
+                start_date: agreement.start_date || "",
+                end_date: agreement.end_date || "",
+                location: agreement.location?.toString() || "",
+                consultant_id: agreement.consultant?.toString() || "",
+                facilitator_id: agreement.facilitator?.toString() || "",
+                adhoc_staff_id: agreement.adhoc_staff?.toString() || "",
+                vendor_id: agreement.vendor?.toString() || "",
+                service: agreement.service?.toString() || "",
+            };
 
-            // Note: Backend doesn't have service_type field, so no job category filtering needed
+            console.log("📝 Form data to populate:", formData);
+
+            // Reset form with all values
+            form.reset(formData, { keepDefaultValues: false });
 
             console.log("✅ Form populated with agreement data");
         }
-    }, [agreementData, isEditMode, form]);
+    }, [agreementData, isEditMode]);
 
 
     const handleAddDocument = () => {
