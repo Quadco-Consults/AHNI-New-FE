@@ -32,7 +32,7 @@ import { DocumentGrievianceManagementSchema, GrievianceManagementDocument } from
 import UploadDocumentDialog from "@/components/modals/dialog/UploadDocumentDialog";
 import ConfirmationDialog from "@/components/ConfirmationDialog";
 
-pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.mjs`;
+pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).toString();
 
 const Uploads = (data: VendorsResultsData) => {
   const [numPages, setNumPages] = useState<number>();
