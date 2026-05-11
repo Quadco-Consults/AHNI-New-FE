@@ -121,9 +121,12 @@ export const useCreateAgreement = () => {
 
   const createAgreement = async (details: TAgreementFormData) => {
     try {
-      await callApi(details);
+      const response = await callApi(details);
+      console.log('✅ Agreement created successfully:', response);
+      return response;
     } catch (error) {
       console.error("Agreement create error:", error);
+      throw error;
     }
   };
 

@@ -101,6 +101,7 @@ export default function ServiceLevelAgreementUploads() {
                         formData.append('file', doc.file);
                         formData.append('title', doc.title || doc.file.name);
                         formData.append('document_type', doc.document_type || 'CONTRACT');
+                        formData.append('is_active', 'true');  // Explicitly set is_active to true
                         if (doc.description) {
                             formData.append('description', doc.description);
                         }
