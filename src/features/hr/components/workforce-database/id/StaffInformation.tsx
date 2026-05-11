@@ -21,7 +21,7 @@ import { useGetEmployeeOnboarding } from "@/features/hr/controllers/employeeOnbo
 import { useGetJobApplication } from "@/features/hr/controllers/hrJobApplicationsController";
 import { useGetJobAdvertisement } from "@/features/hr/controllers/jobAdvertisementController";
 
-pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.mjs`;
 
 const StaffInformation = ({ info }: { info: EmployeeOnboarding }) => {
   // const [data, setData] = useState<EmployeeOnboarding | {}>({});
