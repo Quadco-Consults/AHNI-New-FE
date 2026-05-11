@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import React, { useState, useEffect } from "react";
 import {
     useGetSingleAgreement,
@@ -23,13 +23,15 @@ import { ArrowLeft, FileText, Plus, Download, Eye, RefreshCw, CheckCircle, Alert
 import { CG_ROUTES } from "@/constants/RouterConstants";
 import { toast } from "sonner";
 import { IContractDocument } from "@/features/contracts-grants/types/contract-management/agreement";
-import { usePermissions } from "@/hooks/usePermissions";
 
 export default function AgreementView() {
     const params = useParams();
     const router = useRouter();
+    const searchParams = useSearchParams();
     const agreementId = params?.id as string;
-    const { isAdmin } = usePermissions();
+
+    // Check if page is in read-only mode (e.g., when accessed from admin module)
+    const isReadOnly = searchParams.get('readonly') === 'true';
 
     const [isModificationModalOpen, setIsModificationModalOpen] = useState(false);
     const [modificationType, setModificationType] = useState<'EXTENSION' | 'ADDENDUM' | 'AMENDMENT'>('EXTENSION');
@@ -456,10 +458,10 @@ export default function AgreementView() {
     const approvalStage = getApprovalStage();
 
     // Allow editing for all agreements except TERMINATED
-    // Admin users have view-only access - they cannot edit, modify, or upload documents
-    const canEdit = agreement?.status !== 'TERMINATED' && !isAdmin;
-    const canSubmit = agreement?.status === 'DRAFT' && documents && documents.length > 0 && !isAdmin;
-    const isActive = agreement?.status === 'ACTIVE' && !isAdmin;
+    // When in read-only mode (e.g., accessed from admin module), users can only view
+    const canEdit = agreement?.status !== 'TERMINATED' && !isReadOnly;
+    const canSubmit = agreement?.status === 'DRAFT' && documents && documents.length > 0 && !isReadOnly;
+    const isActive = agreement?.status === 'ACTIVE' && !isReadOnly;
     const isSubmitted = agreement?.status === 'SUBMITTED';
     const isDraft = agreement?.status === 'DRAFT' || !agreement?.status;
 

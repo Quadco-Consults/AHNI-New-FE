@@ -241,7 +241,7 @@ const ViewOnlyMenu = ({ agreementId }: { agreementId: string }) => {
                 </PopoverTrigger>
                 <PopoverContent className="w-fit">
                     <Link
-                        href={CG_ROUTES.VIEW_AGREEMENT.replace(':id', agreementId)}
+                        href={`${CG_ROUTES.VIEW_AGREEMENT.replace(':id', agreementId)}?readonly=true`}
                     >
                         <Button
                             className="w-full flex items-center justify-start gap-2"
