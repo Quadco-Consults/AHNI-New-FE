@@ -97,7 +97,7 @@ const SmartFormSelect = forwardRef<HTMLButtonElement, SmartFormSelectProps>(
     // Filter out empty/null values and normalize value to string
     const filteredOptions = useMemo(() => {
       return options
-        .filter((item) => item.value !== "" && item.value != null)
+        .filter((item) => item != null && item.value !== "" && item.value != null)
         .map((item) => ({
           label: item.label,
           value: String(item.value), // Normalize to string for consistent handling
