@@ -72,14 +72,15 @@ const NewVehicleRequest = () => {
     size: 2000000,
   });
 
-  const projectOptions = useMemo(
-    () =>
-      project?.data?.results?.map(({ title, id }) => ({
+  const projectOptions = useMemo(() => {
+    const results = project?.data?.results || [];
+    return results
+      .filter((item) => item != null && item.title && item.id)
+      .map(({ title, id }) => ({
         label: title,
         value: id,
-      })),
-    [project]
-  );
+      }));
+  }, [project]);
 
   // Watch the selected project to filter activities
   const selectedProject = form.watch("project");
@@ -90,14 +91,23 @@ const NewVehicleRequest = () => {
     project: selectedProject, // Filter activities by selected project
   });
 
-  const activityOptions = useMemo(
-    () =>
-      activity?.data?.results?.map(({ activity_name, id }) => ({
+  const activityOptions = useMemo(() => {
+    console.log("🔍 Activity Query Data:", activity);
+    console.log("🔍 Selected Project:", selectedProject);
+    console.log("🔍 Activity Results:", activity?.data?.results);
+
+    // Ensure we always return an array and filter out null/undefined entries
+    const results = activity?.data?.results || [];
+    const options = results
+      .filter((item) => item != null && item.activity_name && item.id)
+      .map(({ activity_name, id }) => ({
         label: activity_name,
         value: id,
-      })),
-    [activity]
-  );
+      }));
+
+    console.log("🔍 Activity Options Generated:", options);
+    return options;
+  }, [activity, selectedProject]);
 
 
   // Fetch all users and filter to AHNI staff on frontend
@@ -160,14 +170,15 @@ const NewVehicleRequest = () => {
     size: 2000000,
   });
 
-  const locationOptions = useMemo(
-    () =>
-      locations?.data?.results?.map(({ name, id }) => ({
+  const locationOptions = useMemo(() => {
+    const results = locations?.data?.results || [];
+    return results
+      .filter((item) => item != null && item.name && item.id)
+      .map(({ name, id }) => ({
         label: name,
         value: id,
-      })),
-    [locations]
-  );
+      }));
+  }, [locations]);
 
   // Watch selected location for filtering assets
   const selectedLocation = form.watch("location");
@@ -253,14 +264,15 @@ const NewVehicleRequest = () => {
     size: 2000000,
   });
 
-  const vendorOptions = useMemo(
-    () =>
-      vendor?.data.results.map(({ company_name, id }) => ({
+  const vendorOptions = useMemo(() => {
+    const results = vendor?.data?.results || [];
+    return results
+      .filter((item) => item != null && item.company_name && item.id)
+      .map(({ company_name, id }) => ({
         label: company_name,
         value: id,
-      })),
-    [vendor]
-  );
+      }));
+  }, [vendor]);
 
   const requestType = form.watch("request_type");
 
