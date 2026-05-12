@@ -81,8 +81,13 @@ const grnItemsTableColumns: ColumnDef<any>[] = [
   {
     header: "FCO Number",
     cell: ({ row }) => {
-      return row.original?.purchase_order_item_detail?.fco_number ||
-             "Not specified";
+      // Access the expanded fco_number_detail object
+      const fcoDetail = row.original?.purchase_order_item_detail?.fco_number_detail;
+      if (fcoDetail) {
+        // Display FCO name (or code as fallback)
+        return fcoDetail.name || fcoDetail.code || "Not specified";
+      }
+      return "Not specified";
     },
   },
   {
