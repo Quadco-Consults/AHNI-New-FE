@@ -180,26 +180,31 @@ const SmartFormSelect = forwardRef<HTMLButtonElement, SmartFormSelectProps>(
                     <CommandList>
                       <CommandEmpty>{emptyMessage}</CommandEmpty>
                       <CommandGroup>
-                        {filteredOptions.map((option) => (
-                          <CommandItem
-                            key={option.value}
-                            value={option.label}
-                            onSelect={() => {
-                              handleValueChange(option.value);
-                              setOpen(false);
-                            }}
-                          >
-                            <Check
-                              className={cn(
-                                "mr-2 h-4 w-4",
-                                value === option.value
-                                  ? "opacity-100"
-                                  : "opacity-0"
-                              )}
-                            />
-                            {option.label}
-                          </CommandItem>
-                        ))}
+                        {filteredOptions.map((option) => {
+                          // Safety check: skip null/undefined options
+                          if (!option) return null;
+
+                          return (
+                            <CommandItem
+                              key={option.value}
+                              value={option.label}
+                              onSelect={() => {
+                                handleValueChange(option.value);
+                                setOpen(false);
+                              }}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  value === option.value
+                                    ? "opacity-100"
+                                    : "opacity-0"
+                                )}
+                              />
+                              {option.label}
+                            </CommandItem>
+                          );
+                        })}
                       </CommandGroup>
                     </CommandList>
                   </Command>
@@ -223,15 +228,20 @@ const SmartFormSelect = forwardRef<HTMLButtonElement, SmartFormSelectProps>(
 
               {filteredOptions.length > 0 ? (
                 <SelectContent>
-                  {filteredOptions.map((item) => (
-                    <SelectItem
-                      className="cursor-pointer"
-                      key={item.value}
-                      value={item.value}
-                    >
-                      {item.label}
-                    </SelectItem>
-                  ))}
+                  {filteredOptions.map((item) => {
+                    // Safety check: skip null/undefined items
+                    if (!item) return null;
+
+                    return (
+                      <SelectItem
+                        className="cursor-pointer"
+                        key={item.value}
+                        value={item.value}
+                      >
+                        {item.label}
+                      </SelectItem>
+                    );
+                  })}
                 </SelectContent>
               ) : (
                 children
