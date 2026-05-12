@@ -170,11 +170,26 @@ export default function CreateGoodReceiveNote() {
       }
 
       // Transform the data to match backend expectations
-      const grn_items = itemsWithQuantity.map((item) => ({
-        purchase_order_item: String(item.item_id),
-        received_quantity: parseFloat(item.quantity_received),
-        remark: item.comment || "",
-      }));
+      const grn_items = itemsWithQuantity.map((item, index) => {
+        // Validate that item_id is a valid UUID format
+        const itemId = String(item.item_id);
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+        if (!uuidRegex.test(itemId)) {
+          console.error(`❌ Item ${index} has invalid UUID:`, {
+            item_id: item.item_id,
+            full_item: item,
+            type: typeof item.item_id
+          });
+          throw new Error(`Item ${index + 1}: Invalid item ID format. Expected UUID but got: ${itemId}`);
+        }
+
+        return {
+          purchase_order_item: itemId,
+          received_quantity: parseFloat(item.quantity_received),
+          remark: item.comment || "",
+        };
+      });
 
       const transformedData = {
         purchase_order: data.purchase_order,
