@@ -191,7 +191,7 @@ export default function GoodReceiveNoteDetails() {
       destination_store_type: destinationStoreData?.data?.store_type,
       destination_store_location: destinationStoreData?.data?.location?.name,
       destination_store_keeper: destinationStoreData?.data?.store_keeper
-        ? `${destinationStoreData.data.store_keeper.first_name} ${destinationStoreData.data.store_keeper.last_name}`.trim()
+        ? `${destinationStoreData.data.store_keeper.first_name || ''} ${destinationStoreData.data.store_keeper.last_name || ''}`.trim() || 'N/A'
         : null,
 
       // Items from full PO data
@@ -205,7 +205,7 @@ export default function GoodReceiveNoteDetails() {
       created_by: grnData?.created_by,
       created_by_detail: createdByUser?.data
         ? {
-            name: `${createdByUser.data.first_name} ${createdByUser.data.last_name}`.trim(),
+            name: `${createdByUser.data.first_name || ''} ${createdByUser.data.last_name || ''}`.trim() || 'N/A',
             email: createdByUser.data.email,
             user_id: createdByUser.data.id,
           }
@@ -214,7 +214,7 @@ export default function GoodReceiveNoteDetails() {
       approved_by: grnData?.accepted_by,
       approved_by_detail: acceptedByUser?.data
         ? {
-            name: `${acceptedByUser.data.first_name} ${acceptedByUser.data.last_name}`.trim(),
+            name: `${acceptedByUser.data.first_name || ''} ${acceptedByUser.data.last_name || ''}`.trim() || 'N/A',
             email: acceptedByUser.data.email,
             user_id: acceptedByUser.data.id,
           }
@@ -224,7 +224,7 @@ export default function GoodReceiveNoteDetails() {
       received_by: grnData?.received_by,
       received_by_detail: receivedByUser?.data
         ? {
-            name: `${receivedByUser.data.first_name} ${receivedByUser.data.last_name}`.trim(),
+            name: `${receivedByUser.data.first_name || ''} ${receivedByUser.data.last_name || ''}`.trim() || 'N/A',
             email: receivedByUser.data.email,
             user_id: receivedByUser.data.id,
           }
