@@ -171,21 +171,21 @@ export default function CreateGoodReceiveNote() {
 
       // Transform the data to match backend expectations
       const grn_items = itemsWithQuantity.map((item, index) => {
-        // Validate that item_id is a valid UUID format
-        const itemId = String(item.item_id);
-        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+        // item_id should be an integer (purchase_order_item.id)
+        const itemId = item.item_id;
 
-        if (!uuidRegex.test(itemId)) {
-          console.error(`❌ Item ${index} has invalid UUID:`, {
+        // Validate that item_id exists and is a valid number
+        if (!itemId || isNaN(Number(itemId))) {
+          console.error(`❌ Item ${index} has invalid item_id:`, {
             item_id: item.item_id,
             full_item: item,
             type: typeof item.item_id
           });
-          throw new Error(`Item ${index + 1}: Invalid item ID format. Expected UUID but got: ${itemId}`);
+          throw new Error(`Item ${index + 1}: Invalid purchase order item ID. Expected number but got: ${itemId}`);
         }
 
         return {
-          purchase_order_item: itemId,
+          purchase_order_item: String(itemId), // Backend expects string representation of integer
           received_quantity: parseFloat(item.quantity_received),
           remark: item.comment || "",
         };

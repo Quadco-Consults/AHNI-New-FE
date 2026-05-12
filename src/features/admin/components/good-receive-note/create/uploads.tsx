@@ -121,16 +121,15 @@ export default function GRNFileUploads() {
           throw new Error(`Item #${index + 1}: Missing purchase order item ID. Check console for details.`);
         }
 
-        // Validate UUID format
+        // Validate that item ID is a valid number (purchase_order_items.id is bigint)
         const itemIdStr = String(purchase_order_item);
-        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-        if (!uuidRegex.test(itemIdStr)) {
-          console.error(`❌ Item ${index} has invalid UUID format:`, {
+        if (isNaN(Number(itemIdStr))) {
+          console.error(`❌ Item ${index} has invalid item ID:`, {
             purchase_order_item: itemIdStr,
             type: typeof purchase_order_item,
             item
           });
-          throw new Error(`Item #${index + 1}: Invalid item ID format. Expected UUID but got: "${itemIdStr}". Please go back and reselect the purchase order.`);
+          throw new Error(`Item #${index + 1}: Invalid purchase order item ID. Expected number but got: "${itemIdStr}". Please go back and reselect the purchase order.`);
         }
 
         if (!received_quantity || parseFloat(String(received_quantity)) < 0) {
@@ -139,7 +138,7 @@ export default function GRNFileUploads() {
         }
 
         const transformed = {
-          purchase_order_item: itemIdStr,
+          purchase_order_item: itemIdStr, // Backend expects string representation of integer
           received_quantity: parseFloat(String(received_quantity)),
           remark: String(remark),
         };
