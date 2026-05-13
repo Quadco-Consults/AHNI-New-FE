@@ -38,7 +38,8 @@ interface FacilitatorApplicantsFilterParams {
   page?: number;
   size?: number;
   search?: string;
-  facilitator_id?: string;
+  facilitator_id?: string; // For backward compatibility
+  facilitators?: string; // Many-to-many field (preferred)
   status?: string;
   enabled?: boolean;
 }
@@ -58,6 +59,7 @@ export const useGetAllFacilitatorApplicants = ({
   size = 20,
   search = "",
   facilitator_id = "",
+  facilitators = "",
   status = "",
   enabled = true,
 }: FacilitatorApplicantsFilterParams) => {
@@ -68,6 +70,7 @@ export const useGetAllFacilitatorApplicants = ({
       size,
       search,
       facilitator_id,
+      facilitators,
       status,
     ],
     queryFn: async () => {
@@ -77,7 +80,8 @@ export const useGetAllFacilitatorApplicants = ({
             page,
             size,
             ...(search && { search }),
-            ...(facilitator_id && { facilitator_id }),
+            ...(facilitators && { facilitators }), // Use facilitators if provided
+            ...(facilitator_id && !facilitators && { facilitator_id }), // Fallback to facilitator_id
             ...(status && { status }),
           },
         });

@@ -100,7 +100,8 @@ export default function SingleConsultancyStaffDetails({
     };
     const criteriaLabels: Record<string, string> = {
         relevant_experience: "Has done similar work previously (nature of task)",
-        project_management: "Understands project management and the potential task(s)",
+        similar_work_experience: "Similar Work Experience",
+        project_management_knowledge: "Understands project management and the potential task(s)",
         recent_experience: "Experience is recent (2-3 years)",
         comparable_projects: "Worked with projects comparable to the AHNI (budget and complexity)",
         communication_skills: "Excellent Communication Skills",
@@ -159,7 +160,8 @@ export default function SingleConsultancyStaffDetails({
         // Calculate averages for each criterion
         const criteriaKeys = [
             'relevant_experience',
-            'project_management',
+            'similar_work_experience',
+            'project_management_knowledge',
             'recent_experience',
             'comparable_projects',
             'communication_skills',
@@ -268,12 +270,12 @@ export default function SingleConsultancyStaffDetails({
                             <div className="text-sm font-medium opacity-90 mb-3">Overall Interview Score</div>
                             <div className="flex items-end justify-center gap-2 mb-2">
                                 <span className="text-6xl font-bold">{effectiveInterviewScores.total_score || 0}</span>
-                                <span className="text-3xl font-semibold opacity-80 mb-3">/ 50</span>
+                                <span className="text-3xl font-semibold opacity-80 mb-3">/ 55</span>
                             </div>
                             <div className="text-sm opacity-90">
-                                {effectiveInterviewScores.total_score && effectiveInterviewScores.total_score >= 40 ? '🌟 Excellent Performance' :
-                                 effectiveInterviewScores.total_score && effectiveInterviewScores.total_score >= 30 ? '✨ Good Performance' :
-                                 effectiveInterviewScores.total_score && effectiveInterviewScores.total_score >= 20 ? '👍 Average Performance' :
+                                {effectiveInterviewScores.total_score && effectiveInterviewScores.total_score >= 44 ? '🌟 Excellent Performance' :
+                                 effectiveInterviewScores.total_score && effectiveInterviewScores.total_score >= 33 ? '✨ Good Performance' :
+                                 effectiveInterviewScores.total_score && effectiveInterviewScores.total_score >= 22 ? '👍 Average Performance' :
                                  '📝 Needs Improvement'}
                             </div>
                             {effectiveInterviewScores.interview_date && (
@@ -345,69 +347,69 @@ export default function SingleConsultancyStaffDetails({
                 </section>
 
                 <section className="col-span-3 space-y-3">
-                    <h3 className="font-bold text-lg">Language Proficiency</h3>
+                    <h3 className="font-bold text-lg">Education</h3>
 
                     <div className="space-y-10">
-                        {education.map(
-                            ({ name, location, major, degree, date }) => (
-                                <div className="grid grid-cols-3 gap-10">
+                        {education && Array.isArray(education) && education.length > 0 ? (
+                            education.map((edu, index) => (
+                                <div key={index} className="grid grid-cols-3 gap-10">
                                     <DescriptionCard
                                         label="Institution Name"
-                                        description={name}
+                                        description={edu.name || 'N/A'}
                                     />
 
                                     <DescriptionCard
                                         label="Institution Location"
-                                        description={location}
+                                        description={edu.location || 'N/A'}
                                     />
 
                                     <DescriptionCard
                                         label="Major"
-                                        description={major}
+                                        description={edu.major || 'N/A'}
                                     />
 
                                     <DescriptionCard
                                         label="Degree"
-                                        description={degree}
+                                        description={edu.degree || 'N/A'}
                                     />
 
                                     <DescriptionCard
                                         label="Date"
-                                        description={date}
+                                        description={edu.date || 'N/A'}
                                     />
                                 </div>
-                            )
+                            ))
+                        ) : (
+                            <p className="text-gray-500">No education information available</p>
                         )}
                     </div>
                 </section>
 
                 <section className="col-span-3 space-y-3">
-                    <h3 className="font-bold text-lg">Education</h3>
+                    <h3 className="font-bold text-lg">Language Proficiency</h3>
 
                     <div className="space-y-10">
-                        {language_proficiency.map(
-                            ({
-                                language,
-                                proficiency_speaking,
-                                proficiency_reading,
-                            }) => (
-                                <div className="grid grid-cols-3 gap-10">
+                        {language_proficiency && Array.isArray(language_proficiency) && language_proficiency.length > 0 ? (
+                            language_proficiency.map((lang, index) => (
+                                <div key={index} className="grid grid-cols-3 gap-10">
                                     <DescriptionCard
-                                        label="Lanugage"
-                                        description={language}
+                                        label="Language"
+                                        description={lang.language || 'N/A'}
                                     />
 
                                     <DescriptionCard
                                         label="Proficiency Speaking"
-                                        description={proficiency_speaking}
+                                        description={lang.proficiency_speaking || 'N/A'}
                                     />
 
                                     <DescriptionCard
                                         label="Proficiency Reading"
-                                        description={proficiency_reading}
+                                        description={lang.proficiency_reading || 'N/A'}
                                     />
                                 </div>
-                            )
+                            ))
+                        ) : (
+                            <p className="text-gray-500">No language proficiency information available</p>
                         )}
                     </div>
                 </section>
@@ -416,41 +418,37 @@ export default function SingleConsultancyStaffDetails({
                     <h3 className="font-bold text-lg">Employment History</h3>
 
                     <div className="space-y-10">
-                        {employment_history.map(
-                            ({
-                                position_title,
-                                employer_name,
-                                employer_telephone,
-                                from,
-                                to,
-                            }) => (
-                                <div className="grid grid-cols-3 gap-10">
+                        {employment_history && Array.isArray(employment_history) && employment_history.length > 0 ? (
+                            employment_history.map((emp, index) => (
+                                <div key={index} className="grid grid-cols-3 gap-10">
                                     <DescriptionCard
                                         label="Position Title"
-                                        description={position_title}
+                                        description={emp.position_title || 'N/A'}
                                     />
 
                                     <DescriptionCard
                                         label="Employer Name"
-                                        description={employer_name}
+                                        description={emp.employer_name || 'N/A'}
                                     />
 
                                     <DescriptionCard
                                         label="Employer Telephone"
-                                        description={employer_telephone}
+                                        description={emp.employer_telephone || 'N/A'}
                                     />
 
                                     <DescriptionCard
                                         label="From"
-                                        description={from}
+                                        description={emp.from || 'N/A'}
                                     />
 
                                     <DescriptionCard
                                         label="To"
-                                        description={to}
+                                        description={emp.to || 'N/A'}
                                     />
                                 </div>
-                            )
+                            ))
+                        ) : (
+                            <p className="text-gray-500">No employment history available</p>
                         )}
                     </div>
                 </section>
@@ -461,41 +459,37 @@ export default function SingleConsultancyStaffDetails({
                     </h3>
 
                     <div className="space-y-10">
-                        {special_consultant_services.map(
-                            ({
-                                services_performed,
-                                employer_name,
-                                employer_telephone,
-                                from,
-                                to,
-                            }) => (
-                                <div className="grid grid-cols-3 gap-10">
+                        {special_consultant_services && Array.isArray(special_consultant_services) && special_consultant_services.length > 0 ? (
+                            special_consultant_services.map((service, index) => (
+                                <div key={index} className="grid grid-cols-3 gap-10">
                                     <DescriptionCard
                                         label="Services Performed"
-                                        description={services_performed}
+                                        description={service.services_performed || 'N/A'}
                                     />
 
                                     <DescriptionCard
                                         label="Employer Name"
-                                        description={employer_name}
+                                        description={service.employer_name || 'N/A'}
                                     />
 
                                     <DescriptionCard
                                         label="Employer Telephone"
-                                        description={employer_telephone}
+                                        description={service.employer_telephone || 'N/A'}
                                     />
 
                                     <DescriptionCard
                                         label="From"
-                                        description={from}
+                                        description={service.from || 'N/A'}
                                     />
 
                                     <DescriptionCard
                                         label="To"
-                                        description={to}
+                                        description={service.to || 'N/A'}
                                     />
                                 </div>
-                            )
+                            ))
+                        ) : (
+                            <p className="text-gray-500">No specific consultant services available</p>
                         )}
                     </div>
                 </section>
@@ -504,24 +498,28 @@ export default function SingleConsultancyStaffDetails({
                     <h3 className="font-bold text-lg">Referees</h3>
 
                     <div className="space-y-10">
-                        {referees.map(({ name, email, phone_number }) => (
-                            <div className="grid grid-cols-3 gap-10">
-                                <DescriptionCard
-                                    label="Name"
-                                    description={name}
-                                />
+                        {referees && Array.isArray(referees) && referees.length > 0 ? (
+                            referees.map((referee, index) => (
+                                <div key={index} className="grid grid-cols-3 gap-10">
+                                    <DescriptionCard
+                                        label="Name"
+                                        description={referee.name || 'N/A'}
+                                    />
 
-                                <DescriptionCard
-                                    label="Email"
-                                    description={email}
-                                />
+                                    <DescriptionCard
+                                        label="Email"
+                                        description={referee.email || 'N/A'}
+                                    />
 
-                                <DescriptionCard
-                                    label="Phone Number"
-                                    description={phone_number}
-                                />
-                            </div>
-                        ))}
+                                    <DescriptionCard
+                                        label="Phone Number"
+                                        description={referee.phone_number || 'N/A'}
+                                    />
+                                </div>
+                            ))
+                        ) : (
+                            <p className="text-gray-500">No referees available</p>
+                        )}
                     </div>
                 </section>
 
@@ -612,7 +610,8 @@ export default function SingleConsultancyStaffDetails({
                                 {allInterviews.map((interview) => {
                                     const totalScore = [
                                         interview.relevant_experience,
-                                        interview.project_management,
+                                        interview.similar_work_experience,
+                                        interview.project_management_knowledge,
                                         interview.recent_experience,
                                         interview.comparable_projects,
                                         interview.communication_skills,
@@ -653,7 +652,7 @@ export default function SingleConsultancyStaffDetails({
                                                     <div className="text-sm font-medium opacity-90">Score</div>
                                                     <div className="flex items-end justify-center gap-1">
                                                         <span className="text-3xl font-bold">{totalScore}</span>
-                                                        <span className="text-lg opacity-80 mb-1">/ 50</span>
+                                                        <span className="text-lg opacity-80 mb-1">/ 55</span>
                                                     </div>
                                                 </div>
                                             </div>

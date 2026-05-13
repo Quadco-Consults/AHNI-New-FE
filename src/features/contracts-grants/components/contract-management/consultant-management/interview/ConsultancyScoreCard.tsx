@@ -70,6 +70,7 @@ const ConsultancyScoreCard = ({
       "rating-7": 0,
       "rating-8": 0,
       "rating-9": 0,
+      "rating-10": 0,
     },
   });
 
@@ -85,15 +86,16 @@ const ConsultancyScoreCard = ({
   useEffect(() => {
     if (existingScore) {
       setValue("rating-0", existingScore.relevant_experience || 0);
-      setValue("rating-1", existingScore.project_management || 0);
-      setValue("rating-2", existingScore.recent_experience || 0);
-      setValue("rating-3", existingScore.comparable_projects || 0);
-      setValue("rating-4", existingScore.communication_skills || 0);
-      setValue("rating-5", existingScore.technical_skill || 0);
-      setValue("rating-6", existingScore.relevant_qualification || 0);
-      setValue("rating-7", existingScore.academic_credentials || 0);
-      setValue("rating-8", existingScore.timeline_management || 0);
-      setValue("rating-9", existingScore.toolset_framework || 0);
+      setValue("rating-1", existingScore.similar_work_experience || 0);
+      setValue("rating-2", existingScore.project_management_knowledge || 0);
+      setValue("rating-3", existingScore.recent_experience || 0);
+      setValue("rating-4", existingScore.comparable_projects || 0);
+      setValue("rating-5", existingScore.communication_skills || 0);
+      setValue("rating-6", existingScore.technical_skill || 0);
+      setValue("rating-7", existingScore.relevant_qualification || 0);
+      setValue("rating-8", existingScore.academic_credentials || 0);
+      setValue("rating-9", existingScore.timeline_management || 0);
+      setValue("rating-10", existingScore.toolset_framework || 0);
     }
   }, [existingScore, setValue]);
 
@@ -103,7 +105,7 @@ const ConsultancyScoreCard = ({
       parseInt(watch(`rating-${index}`) || 0)
     );
     const total = ratings.reduce((sum, rating) => sum + rating, 0);
-    const percentage = (total / 50) * 100; // 10 criteria × 5 max = 50 points
+    const percentage = (total / 55) * 100; // 11 criteria × 5 max = 55 points
 
     setTotalScore(total);
     setPercentageScore(Math.round(percentage));
@@ -118,6 +120,7 @@ const ConsultancyScoreCard = ({
     watch("rating-7"),
     watch("rating-8"),
     watch("rating-9"),
+    watch("rating-10"),
   ]);
 
   const onSubmit = async (formData: any) => {
@@ -131,15 +134,16 @@ const ConsultancyScoreCard = ({
 
     const scoreData: Partial<ConsultancyInterviewScore> = {
       relevant_experience: formData["rating-0"],
-      project_management: formData["rating-1"],
-      recent_experience: formData["rating-2"],
-      comparable_projects: formData["rating-3"],
-      communication_skills: formData["rating-4"],
-      technical_skill: formData["rating-5"],
-      relevant_qualification: formData["rating-6"],
-      academic_credentials: formData["rating-7"],
-      timeline_management: formData["rating-8"],
-      toolset_framework: formData["rating-9"],
+      similar_work_experience: formData["rating-1"],
+      project_management_knowledge: formData["rating-2"],
+      recent_experience: formData["rating-3"],
+      comparable_projects: formData["rating-4"],
+      communication_skills: formData["rating-5"],
+      technical_skill: formData["rating-6"],
+      relevant_qualification: formData["rating-7"],
+      academic_credentials: formData["rating-8"],
+      timeline_management: formData["rating-9"],
+      toolset_framework: formData["rating-10"],
       status: "SUBMITTED",
     };
 
@@ -202,7 +206,7 @@ const ConsultancyScoreCard = ({
             <div>
               <p className="text-sm text-gray-600">Total Score</p>
               <p className="text-2xl font-bold text-blue-600">
-                {existingScore.total_score || 0} / 50
+                {existingScore.total_score || 0} / 55
               </p>
             </div>
             <div>
@@ -249,7 +253,7 @@ const ConsultancyScoreCard = ({
             {isEditing ? "Edit Your" : "Submit Your"} Consultancy Interview Evaluation
           </h2>
           <p className="text-sm text-gray-600">
-            Evaluate the candidate across 10 key consultancy criteria
+            Evaluate the candidate across 11 key consultancy criteria
           </p>
         </div>
         {existingScore && (
@@ -292,7 +296,7 @@ const ConsultancyScoreCard = ({
           <div>
             <p className="text-sm text-gray-600">Current Total Score</p>
             <p className="text-2xl font-bold text-purple-600">
-              {totalScore} / 50
+              {totalScore} / 55
             </p>
           </div>
           <div>
@@ -421,47 +425,52 @@ const ratingSections = [
     field: "relevant_experience",
   },
   {
-    title: "2. Project Management Understanding",
-    description: "Understands project management and the potential task(s)",
-    field: "project_management",
+    title: "2. Similar Work Experience",
+    description: "Has experience with similar work nature and complexity",
+    field: "similar_work_experience",
   },
   {
-    title: "3. Recent Experience",
+    title: "3. Project Management Knowledge",
+    description: "Understands project management and the potential task(s)",
+    field: "project_management_knowledge",
+  },
+  {
+    title: "4. Recent Experience",
     description: "Experience is recent (2-3 years)",
     field: "recent_experience",
   },
   {
-    title: "4. Comparable Projects",
+    title: "5. Comparable Projects",
     description: "Worked with projects comparable to the AHNI (budget and complexity)",
     field: "comparable_projects",
   },
   {
-    title: "5. Communication Skills",
+    title: "6. Communication Skills",
     description: "Excellent Communication Skills",
     field: "communication_skills",
   },
   {
-    title: "6. Technical Skill",
+    title: "7. Technical Skill",
     description: "Relevant Technical Skill",
     field: "technical_skill",
   },
   {
-    title: "7. Relevant Qualification",
+    title: "8. Relevant Qualification",
     description: "Qualifications are relevant to the consultancy",
     field: "relevant_qualification",
   },
   {
-    title: "8. Academic Credentials",
+    title: "9. Academic Credentials",
     description: "Strong academic credentials",
     field: "academic_credentials",
   },
   {
-    title: "9. Timeline Management",
+    title: "10. Timeline Management",
     description: "Demonstrated ability to manage the project/consultancy timelines",
     field: "timeline_management",
   },
   {
-    title: "10. Proven Toolset and Framework",
+    title: "11. Proven Toolset and Framework",
     description: "Proven toolset and framework",
     field: "toolset_framework",
   },

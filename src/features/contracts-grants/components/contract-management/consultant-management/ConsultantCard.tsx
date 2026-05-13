@@ -135,11 +135,14 @@ export default function ConsultantCard({
                                 : "No location specified"
                             }
                         />
-                        <DetailsTag icon={<SuiteCase />} label={grade_level || "Grade Level TBD"} />
+                        <DetailsTag
+                            icon={<SuiteCase />}
+                            label={typeof grade_level === 'object' ? grade_level?.name : grade_level || "Grade Level TBD"}
+                        />
 
                         <DetailsTag
                             icon={<PersonClusterSvg />}
-                            label={supervisor || "Supervisor TBD"}
+                            label={typeof supervisor === 'object' ? supervisor?.name : supervisor || "Supervisor TBD"}
                         />
                     </div>
                 </div>

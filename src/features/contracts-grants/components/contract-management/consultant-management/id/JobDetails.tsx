@@ -65,11 +65,20 @@ export default function JobDetails({
         <DetailsTag
           icon={<SuiteCase />}
           label={(() => {
-            // Check if grade_level looks like an ID (UUID format)
-            if (grade_level && grade_level.includes('-') && grade_level.length > 30) {
-              return status || 'Position Level TBD';
+            // Handle grade_level as either string or object
+            if (grade_level) {
+              if (typeof grade_level === 'object') {
+                return grade_level.name || 'Position Level TBD';
+              }
+              if (typeof grade_level === 'string') {
+                // Check if it looks like an ID (UUID format)
+                if (grade_level.includes('-') && grade_level.length > 30) {
+                  return status || 'Position Level TBD';
+                }
+                return grade_level;
+              }
             }
-            return grade_level || status || 'Position Level TBD';
+            return status || 'Position Level TBD';
           })()}
         />
 

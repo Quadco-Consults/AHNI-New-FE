@@ -89,6 +89,21 @@ export default function ScopeOfWork() {
           sessionStorage.getItem("consultantManagementFormData") || "{}"
         );
 
+      // Calculate duration in days from commencement_date to end_date
+      let duration = 1; // Default to 1 day minimum
+      if (applicationDetails.commencement_date && applicationDetails.end_date) {
+        const startDate = new Date(applicationDetails.commencement_date);
+        const endDate = new Date(applicationDetails.end_date);
+        const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
+        const calculatedDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        // Ensure minimum 1 day (same day = 1 day duration)
+        duration = calculatedDays === 0 ? 1 : calculatedDays;
+        console.log(`📅 Calculated duration: ${duration} days (from ${applicationDetails.commencement_date} to ${applicationDetails.end_date})`);
+      }
+
+      console.log('🔍 Application Details from sessionStorage:', applicationDetails);
+      console.log('🔍 Duration value:', duration);
+
       let payload = {
         ...applicationDetails,
         ...data,
@@ -96,9 +111,14 @@ export default function ScopeOfWork() {
           typeof data.advertisement_document !== "string" && data.advertisement_document?.[0]
             ? await fileToBase64(data.advertisement_document[0])
             : data.advertisement_document || null,
+        // Add required duration field (calculated from dates)
+        duration: duration,
         // Add type field for create operations
         ...(consultantId ? {} : { type: type as "CONSULTANT" | "ADHOC" | "FACILITATOR" }),
       };
+
+      console.log('📦 Final payload before API call:', payload);
+      console.log('📦 Duration in payload:', payload.duration);
 
       // Map consultant fields to facilitator fields when creating facilitators
       if (pathname?.includes("facilitator-management") && !consultantId) {
@@ -107,11 +127,11 @@ export default function ScopeOfWork() {
 
         payload = {
           ...applicationDetails,
-          facilitaor_number: payload.consultants_number || payload.facilitaor_number,
+          facilitator_number: payload.consultants_number || payload.facilitator_number,
           // Keep advertisement_document at top level for facilitators
           advertisement_document: advertisement_document || '',
           // Add facilitator-specific required fields with defaults
-          duration: "30", // Default duration in days
+          duration: duration, // Use calculated duration instead of hardcoded value
           extra_info: "Additional information will be provided", // Default extra info
           evaluation_comments: "To be evaluated during selection process", // Default evaluation comments
           supervisor: applicationDetails.supervisor || users?.data?.results?.[0]?.id || "", // Use form value first, then fallback to first user

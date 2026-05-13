@@ -365,7 +365,7 @@ const CreateUsers = () => {
       duration: "365", // One year in days
       commencement_date: new Date().toISOString().split('T')[0], // Today's date
       end_date: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // One year from now
-      facilitaor_number: "1", // Note: typo in schema (facilitaor instead of facilitator)
+      facilitator_number: "1", // Fixed typo in schema
       
       // Required text fields with incomplete profile indicators
       extra_info: `INCOMPLETE PROFILE - Created from USER_MANAGEMENT for user_id: ${userId}. Missing: specialization areas, certification details, facilitation experience, training background, and supervisor assignment. Requires completion via facilitator onboarding process.`,

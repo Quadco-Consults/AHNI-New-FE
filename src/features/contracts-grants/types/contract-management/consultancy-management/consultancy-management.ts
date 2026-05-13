@@ -5,7 +5,7 @@ import { z } from "zod";
 export const ConsultancyManagementDetailSchema = z.object({
   title: z.string().min(1, "Please enter title"),
   contract_request: z.string().optional(), // Contract request ID
-  description: z.string().optional(), // Job description
+  job_description: z.string().optional(), // Job description - renamed from "description" to avoid conflict
   locations: z.array(z.string()).nonempty(),
   grade_level: z.string().optional(), // Optional grade level
   commencement_date: z.string().min(1, "Please select commencement date"),
@@ -14,6 +14,10 @@ export const ConsultancyManagementDetailSchema = z.object({
     z.string().min(1, "Please enter number of consultants"),
     z.number()
   ]).transform((val) => String(val)),
+  facilitator_number: z.union([
+    z.string().min(1, "Please enter number of facilitators"),
+    z.number()
+  ]).transform((val) => String(val)).optional(), // For facilitator management
   supervisor: z.string().optional(), // Optional supervisor field for facilitators
   // background: z.string().min(1, "Please enter background"),
 });
@@ -75,11 +79,11 @@ export interface IConsultantPaginatedData {
   days_remaining_calculated?: number;
   contract_status_calculated?: string;
   advertisement_document: string;
-  supervisor?: string;
+  supervisor?: string | { id: string; name: string; description?: string };
   created_datetime: string;
   updated_datetime: string;
   title: string;
-  grade_level: string;
+  grade_level: string | { id: string; name: string; description?: string };
   duration: number;
   commencement_date: string;
   end_date: string;
@@ -102,7 +106,7 @@ export interface IConsultantSingleData {
   locations: string[] | TLocationData[]; // Can be either format
   created_datetime: string;
   title: string;
-  grade_level: string;
+  grade_level: string | { id: string; name: string; description?: string };
   duration: number;
   commencement_date: string;
   end_date: string;

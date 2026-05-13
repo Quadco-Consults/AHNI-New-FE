@@ -468,7 +468,7 @@ export default function EditUserModal() {
       duration: "365", // One year in days
       commencement_date: new Date().toISOString().split('T')[0],
       end_date: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      facilitaor_number: "1", // Note: typo in schema
+      facilitator_number: "1", // Fixed typo in schema
       evaluation_comments: "⚠️ UPDATED FROM USER MANAGEMENT - Professional evaluation and competency assessment may be incomplete",
       advertisement_document: "https://placeholder.com/advertisement",
       supervisor: userData.department || "TBD - Requires supervisor assignment",

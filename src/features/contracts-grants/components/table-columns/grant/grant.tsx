@@ -52,8 +52,12 @@ export const grantColumns: ColumnDef<IGrantPaginatedData>[] = [
 
   {
     header: "Intervention Area",
-    id: "intervention_area",
-    accessorKey: "intervention_area.code",
+    id: "intervention_areas",
+    accessorFn: ({ intervention_areas }) =>
+      intervention_areas
+        ?.map((ia) => ia.code)
+        .filter(Boolean)
+        .join(", ") || "N/A",
     size: 200,
   },
 

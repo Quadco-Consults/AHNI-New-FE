@@ -38,7 +38,7 @@ export default function ApplicationDetails() {
     defaultValues: {
       title: "",
       contract_request: "",
-      description: "",
+      job_description: "",
       locations: [],
       commencement_date: "",
       end_date: "",
@@ -175,15 +175,19 @@ export default function ApplicationDetails() {
   const { data } = useGetSingleConsultantManagement(
     consultantId ?? skipToken
   );
-  const { data: grades } = useGetAllGrades({
+  const { data: grades, isLoading: isLoadingGrades, error: gradesError } = useGetAllGrades({
     page: 1,
     size: 2000000,
   });
 
-  const gradeOptions = grades?.data.results.map(({ name, id }) => ({
+  console.log('🎓 Grades data:', grades);
+  console.log('🎓 Is loading grades:', isLoadingGrades);
+  console.log('🎓 Grades error:', gradesError);
+
+  const gradeOptions = grades?.data?.results?.map(({ name, id }) => ({
     label: name,
     value: id,
-  }));
+  })) || [];
 
   const userOptions = user?.data.results.map(({ first_name, last_name, id }) => ({
     label: `${first_name} ${last_name}`,
@@ -242,7 +246,7 @@ export default function ApplicationDetails() {
 
         // Job Description
         if (extractedData.job_description) {
-          form.setValue("description", extractedData.job_description, { shouldValidate: false });
+          form.setValue("job_description", extractedData.job_description, { shouldValidate: false });
         }
 
         // Locations
@@ -351,17 +355,26 @@ export default function ApplicationDetails() {
 
           <FormTextArea
             label='Job Description'
-            name='description'
-            placeholder='Enter Background'
-            required
+            name='job_description'
+            placeholder='Enter Job Description'
+            required={false}
           />
           <FormSelect
             label='Grade'
             name='grade_level'
             required
-            placeholder='Select Position'
+            placeholder={isLoadingGrades ? 'Loading grades...' : 'Select Grade'}
             options={gradeOptions}
           />
+          {isLoadingGrades && (
+            <p className="text-sm text-gray-500 mt-1">Loading grades...</p>
+          )}
+          {gradesError && (
+            <p className="text-sm text-red-500 mt-1">Failed to load grades. Please refresh the page.</p>
+          )}
+          {!isLoadingGrades && gradeOptions.length === 0 && (
+            <p className="text-sm text-amber-600 mt-1">No grades available. Please add grades in settings.</p>
+          )}
           <div>
             <Label className='font-semibold'>Locations</Label>
 

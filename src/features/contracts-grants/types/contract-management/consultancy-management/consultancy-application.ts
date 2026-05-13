@@ -5,13 +5,13 @@ export const ConsultancyStaffSchema = z.object({
     referees: z.array(
         z.object({
             name: z.string().min(1, "Field Required"),
-            email: z.string().min(1, "Field Required"),
+            email: z.string().min(1, "Field Required").email("Enter a valid email address"),
             phone_number: z.string().min(1, "Field Required"),
         })
     ),
     name: z.string().min(1, "Field Required"),
     contractor_name: z.string().optional(),
-    email: z.string().min(1, "Field Required"),
+    email: z.string().min(1, "Field Required").email("Enter a valid email address"),
     phone_number: z.string().min(1, "Field Required"),
     position_under_contract: z.string().min(1, "Field Required"),
     place_of_birth: z.string().min(1, "Field Required"),

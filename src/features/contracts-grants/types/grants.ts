@@ -52,7 +52,7 @@ export interface IGrantSingleData {
   project_id?: string;
   award_refrence_number?: string; // Note: backend has typo "refrence" instead of "reference"
   award_amount: string;
-  funding_source?: string;
+  funding_sources?: { id: string; name: string }[]; // Changed from singular to plural array to match API
   pipeline?: string;
   money_months_remaining?: string;
   burn_rate?: string;

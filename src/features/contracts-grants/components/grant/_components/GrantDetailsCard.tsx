@@ -16,7 +16,7 @@ const GrantDetailsCard = ({
   award_type,
   title,
   project_id,
-  funding_source,
+  funding_sources,
   award_refrence_number,
   award_amount,
   pipeline,
@@ -41,7 +41,7 @@ const GrantDetailsCard = ({
       {
         id: 3,
         label: "Funding Source",
-        value: funding_source || "N/A",
+        value: funding_sources?.map(fs => fs.name).filter(Boolean).join(", ") || "N/A",
       },
 
       {
@@ -63,7 +63,7 @@ const GrantDetailsCard = ({
       },
     ];
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [title, project_id, funding_source, award_type, award_refrence_number, award_amount]);
+  }, [title, project_id, funding_sources, award_type, award_refrence_number, award_amount]);
 
   return (
     <div className='w-full bg-white px-[2.5rem] py-[1.25rem] rounded-2xl flex flex-col gap-y-[1.25rem]'>

@@ -38,8 +38,8 @@ export const facilitatorManagementColumns: ColumnDef<IFacilitatorPaginatedData>[
     },
     {
         header: "Number of Facilitators",
-        id: "facilitaor_number",
-        accessorKey: "facilitaor_number",
+        id: "facilitator_number",
+        accessorKey: "facilitator_number",
         size: 150,
     },
     {

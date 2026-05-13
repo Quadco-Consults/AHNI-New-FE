@@ -290,6 +290,7 @@ export const useGetAllConsultancyInterviews = (consultancyId?: string, enabled: 
     queryKey: ["consultancy-interviews", consultancyId],
     queryFn: async () => {
       try {
+        // Use applicant-interviews to match where bulk-create stores interview schedule data
         const response = await AxiosWithToken.get("/contract-grants/consultancy/applicant-interviews/", {
           params: consultancyId ? { consultancy: consultancyId } : undefined,
         });

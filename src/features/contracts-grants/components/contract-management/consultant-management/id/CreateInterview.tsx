@@ -241,9 +241,9 @@ export default function CreateInterview() {
     });
 
     const interviewData = {
-      consultancy: data?.data.id,
+      consultancy: consultancyId,
       interview_type: interview_data.interview_type,
-      date: interview_data.date, // Backend confirmed: single "date" field
+      date: interview_data.date,
       committee_members:
         watch("interview_type") === "COMMITTEE"
           ? interview_data.committee_members
@@ -251,9 +251,39 @@ export default function CreateInterview() {
       applicants: shortlistedApplicants.map((applicant: any) => applicant.id),
     };
 
+    console.log('📤 Submitting interview data:', interviewData);
+
     try {
-      await createContractInterview(interviewData as any);
-      toast.success(`Successfully created interview for ${shortlistedApplicants.length} applicant(s).`);
+      const response = await createContractInterview(interviewData as any);
+      console.log('✅ Interview creation response:', response);
+
+      // NOTE: Do NOT update status to INTERVIEWED here
+      // Status should only change to INTERVIEWED after scoring is completed
+      // Applicants remain SHORTLISTED until interview scores are submitted
+
+      // Verify the interviews were created correctly
+      console.log('🔍 Verifying created interviews...');
+      try {
+        const verifyResponse = await AxiosWithToken.get(
+          `/contract-grants/consultancy/applicant-interviews/`,
+          { params: { consultancy: consultancyId } }
+        );
+        console.log('✅ Verification response:', verifyResponse.data);
+        const createdInterviews = verifyResponse.data?.data?.results || verifyResponse.data?.results || [];
+        console.log(`✅ Total interviews scheduled: ${createdInterviews.length}`);
+        createdInterviews.forEach((interview: any, index: number) => {
+          console.log(`  Interview ${index + 1}:`, {
+            id: interview.id,
+            applicant: interview.applicant || interview.application,
+            interview_type: interview.interview_type,
+            date: interview.date
+          });
+        });
+      } catch (verifyError) {
+        console.error('❌ Failed to verify interviews:', verifyError);
+      }
+
+      toast.success(`Successfully scheduled interview for ${shortlistedApplicants.length} applicant(s). Committee members can now score the applicants.`);
       router.back();
     } catch (error) {
       toast.error("Something went wrong");

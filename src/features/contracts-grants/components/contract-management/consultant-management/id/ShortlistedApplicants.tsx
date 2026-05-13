@@ -26,7 +26,8 @@ export default function ShortlistedAppplicants() {
     page: currentPage,
     size: 10,
     consultants: id,
-    filteringByStatus: "SHORTLISTED (frontend filtering)",
+    status: "SHORTLISTED",
+    filteringByStatus: "SHORTLISTED (server-side filtering)",
     isAdhoc,
   });
 
@@ -37,6 +38,7 @@ export default function ShortlistedAppplicants() {
           page: currentPage,
           size: 10,
           consultants: id,
+          status: "SHORTLISTED", // Server-side filtering for better performance
         }
       : skipToken
   );
@@ -89,14 +91,12 @@ export default function ShortlistedAppplicants() {
         return true;
       }
       // Filter out applicants that don't belong to this consultant management
+      // Backend already filters by status=SHORTLISTED, so no need to filter again
       const belongsToThisConsultant =
         applicant.consultants === undefined || // Backend filtered already, trust it
         applicant.consultants?.includes(id) ||
         applicant.consultancy === id ||
         applicant.consultant_id === id;
-
-      // Also filter by status (SHORTLISTED) since we removed it from the API call
-      const isShortlisted = applicant.status === "SHORTLISTED";
 
       if (!belongsToThisConsultant) {
         console.warn("⚠️ Filtering out applicant with wrong consultant_id:", {
@@ -108,7 +108,7 @@ export default function ShortlistedAppplicants() {
         });
       }
 
-      return belongsToThisConsultant && isShortlisted;
+      return belongsToThisConsultant; // Status filtering now done server-side
     })
     ?.map((applicant: any) => {
       const interview = applicantInterviewMap.get(applicant.id);

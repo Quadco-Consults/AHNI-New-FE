@@ -9,7 +9,7 @@ export const FacilitatorManagementDetailSchema = z.object({
     duration: z.string().min(1, "Please enter duration"),
     commencement_date: z.string().min(1, "Please select commencement date"),
     end_date: z.string().min(1, "Please select end date"),
-    facilitaor_number: z.string().min(1, "Please enter number of consultants"),
+    facilitator_number: z.string().min(1, "Please enter number of facilitators"),
     extra_info: z.string().min(1, "Please enter extra info"),
     background: z.string().min(1, "Please enter background"),
     evaluation_comments: z.string().min(1, "Please enter evaluation comment"),
@@ -75,7 +75,7 @@ export interface IFacilitatorPaginatedData {
     duration: number;
     commencement_date: string;
     end_date: string;
-    facilitaor_number: number;
+    facilitator_number: number;
     status: string;
     extra_info: string;
     background: string;
@@ -96,7 +96,7 @@ export interface IFacilitatorSingleData {
     duration: number;
     commencement_date: string;
     end_date: string;
-    facilitaor_number: number;
+    facilitator_number: number;
     status: string;
     extra_info: string;
     background: string;

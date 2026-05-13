@@ -26,7 +26,7 @@ export default function FacilitatorApplicants({ facilitatorId }: FacilitatorAppl
   const { data: applicantsResponse, isLoading, refetch } = useGetAllFacilitatorApplicants({
     page,
     size: 10,
-    facilitator_id: facilitatorId,
+    facilitators: facilitatorId, // Use facilitators (many-to-many field)
     enabled: !!facilitatorId,
   });
 

@@ -337,11 +337,11 @@ export default function InterviewedApplicants() {
         // Method 1: Check direct scores from merged interview data
         const directScore = applicant.total_score || applicant.average_score;
         if (directScore && directScore > 0) {
-          const percentage = (directScore / 50) * 100;
+          const percentage = (directScore / 55) * 100;
           return (
             <div className="flex items-center gap-2">
               <span className="font-semibold text-gray-900">{directScore.toFixed(1)}</span>
-              <span className="text-gray-500 text-sm">/ 50</span>
+              <span className="text-gray-500 text-sm">/ 55</span>
               <span className="text-xs text-gray-400">({percentage.toFixed(1)}%)</span>
             </div>
           );
@@ -359,12 +359,12 @@ export default function InterviewedApplicants() {
               sum + interview.total_score, 0
             );
             const averageScore = totalScore / completedInterviews.length;
-            const percentage = (averageScore / 50) * 100;
+            const percentage = (averageScore / 55) * 100;
 
             return (
               <div className="flex items-center gap-2">
                 <span className="font-semibold text-gray-900">{averageScore.toFixed(1)}</span>
-                <span className="text-gray-500 text-sm">/ 50</span>
+                <span className="text-gray-500 text-sm">/ 55</span>
                 <span className="text-xs text-gray-400">({percentage.toFixed(1)}%)</span>
               </div>
             );
@@ -374,11 +374,11 @@ export default function InterviewedApplicants() {
         // Method 3: Check legacy interview_scores object
         const interviewScores = applicant.interview_scores;
         if (interviewScores && interviewScores.total_score && interviewScores.total_score > 0) {
-          const percentage = (interviewScores.total_score / 50) * 100;
+          const percentage = (interviewScores.total_score / 55) * 100;
           return (
             <div className="flex items-center gap-2">
               <span className="font-semibold text-gray-900">{interviewScores.total_score}</span>
-              <span className="text-gray-500 text-sm">/ 50</span>
+              <span className="text-gray-500 text-sm">/ 55</span>
               <span className="text-xs text-gray-400">({percentage.toFixed(1)}%)</span>
             </div>
           );

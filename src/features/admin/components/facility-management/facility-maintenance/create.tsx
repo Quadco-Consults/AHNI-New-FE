@@ -67,24 +67,12 @@ export default function CreateFacilityManagementTicket() {
   // Get current date in YYYY-MM-DD format
   const currentDate = new Date().toISOString().split('T')[0];
 
-  // Debug user data structure
-  console.log('🔍 USER DATA DEBUG:');
-  console.log('Current User:', currentUser);
-  console.log('Employee:', currentUser?.employee);
-  console.log('Employee Location:', currentUser?.employee?.location);
-  console.log('Direct Location:', currentUser?.location);
-  console.log('Department:', currentUser?.department);
-  console.log('Employee Department:', currentUser?.employee?.department);
-
   // Get user's office location for context display
   // Try multiple location sources
   const userLocation = currentUser?.employee?.location ||
                       currentUser?.location ||
                       currentUser?.department?.location ||
                       currentUser?.employee?.department?.location;
-
-  console.log('📍 FINAL USER LOCATION:', userLocation);
-  console.log('📍 LOCATION TYPE:', typeof userLocation);
 
 
   const router = useRouter();
@@ -156,8 +144,6 @@ export default function CreateFacilityManagementTicket() {
     search: "",
   });
 
-  console.log('📍 AVAILABLE LOCATIONS:', locations?.data?.results);
-
   // Handle both string and object locations, match string to UUID from API
   const effectiveLocation = useMemo(() => {
     if (typeof userLocation === 'string' && locations?.data?.results) {
@@ -168,12 +154,6 @@ export default function CreateFacilityManagementTicket() {
         userLocation.includes(loc.name)
       );
 
-      console.log('🔍 MATCHING LOCATION SEARCH:', {
-        searchString: userLocation,
-        foundMatch: matchingLocation,
-        allLocations: locations.data.results.map((loc: any) => loc.name)
-      });
-
       if (matchingLocation) {
         return {
           id: matchingLocation.id,
@@ -181,7 +161,6 @@ export default function CreateFacilityManagementTicket() {
         };
       } else {
         // Fallback: use first available AHNI office or create a meaningful default
-        console.log('⚠️ No UUID match found for location string, using first available location');
         const firstAvailableLocation = locations.data.results[0];
         if (firstAvailableLocation) {
           return {
@@ -206,8 +185,6 @@ export default function CreateFacilityManagementTicket() {
       };
     }
   }, [userLocation, locations, currentUser]);
-
-  console.log('✅ EFFECTIVE LOCATION:', effectiveLocation);
 
   const form = useForm<TFacilityMaintenanceFormValues>({
     resolver: zodResolver(FacilityMaintenanceSchema),
@@ -252,25 +229,16 @@ export default function CreateFacilityManagementTicket() {
   const onSubmit: SubmitHandler<TFacilityMaintenanceFormValues> = async (
     data
   ) => {
-    console.log('🎯 FORM SUBMIT TRIGGERED!');
-    console.log('🔍 Form Data:', data);
-    console.log('🔍 Form Validation State:', form.formState);
-
     try {
-      console.log('🚀 SUBMITTING FACILITY MAINTENANCE:', data);
-
       if (id) {
         await modifyFacilityMaintenance(data);
         toast.success("Facility Maintenance Ticket Updated");
       } else {
-        const response = await createFacilityMaintenance(data);
-        console.log('✅ CREATE RESPONSE:', response);
+        await createFacilityMaintenance(data);
         toast.success("Facility Maintenance Ticket Raised");
       }
       router.push(AdminRoutes.INDEX_FACILITY_MAINTENANCE);
     } catch (error: any) {
-      console.error('❌ SUBMISSION ERROR:', error);
-      console.error('❌ Full Error Object:', JSON.stringify(error, null, 2));
       const errorMessage = error?.response?.data?.message ||
                           error?.data?.message ||
                           error?.message ||
@@ -305,11 +273,6 @@ export default function CreateFacilityManagementTicket() {
       // Location is auto-populated from user's office location
       // No need to change it when facility is selected since it represents
       // the user's office location making the request
-      if (name === 'facility' && value.facility && facility?.data?.results) {
-        const selectedFacility = facility.data.results.find(f => f.id === value.facility);
-        console.log('🔍 Selected Facility:', selectedFacility?.name);
-        console.log('📍 Location remains user office location:', effectiveLocation?.name || effectiveLocation?.id);
-      }
     });
 
     return () => subscription.unsubscribe();
@@ -465,60 +428,7 @@ export default function CreateFacilityManagementTicket() {
                 options={approverOptions}
               />
 
-              {/* Debug Info */}
-              <div className="mb-4 p-3 bg-gray-100 rounded text-xs">
-                <strong>Debug Info:</strong><br/>
-                Form Valid: {form.formState.isValid ? '✅' : '❌'}<br/>
-                Form Errors: {Object.keys(form.formState.errors).length}<br/>
-                {Object.keys(form.formState.errors).length > 0 && (
-                  <div>
-                    Errors: {JSON.stringify(form.formState.errors, null, 2)}
-                  </div>
-                )}
-              </div>
-
               <div className='flex justify-end gap-4'>
-                <button
-                  type="button"
-                  onClick={() => {
-                    console.log('🔍 MANUAL FORM CHECK:');
-                    console.log('Form Values:', form.getValues());
-                    console.log('Form State:', form.formState);
-                    console.log('Form Errors:', form.formState.errors);
-                  }}
-                  className="px-4 py-2 bg-blue-500 text-white rounded"
-                >
-                  Debug Form
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const values = form.getValues();
-                    console.log('🔧 Set User Location:');
-                    console.log('Current form values:', values);
-                    console.log('User location:', effectiveLocation);
-                    console.log('User location ID:', effectiveLocation?.id);
-
-                    if (effectiveLocation?.id) {
-                      form.setValue('location', effectiveLocation.id, { shouldValidate: true });
-                      console.log('✅ Set user location:', effectiveLocation.id);
-                    } else {
-                      console.log('❌ No user location found');
-                      // If no match found, try to use the first available location as fallback
-                      if (locations?.data?.results?.length > 0) {
-                        const firstLocation = locations.data.results[0];
-                        form.setValue('location', firstLocation.id, { shouldValidate: true });
-                        console.log('🔧 Set first available location as fallback:', firstLocation.name);
-                      } else {
-                        form.setValue('location', 'no-location-available', { shouldValidate: true });
-                        console.log('🔧 Set no-location placeholder');
-                      }
-                    }
-                  }}
-                  className="px-4 py-2 bg-green-500 text-white rounded"
-                >
-                  Set User Location
-                </button>
                 <FormButton
                   size='lg'
                   loading={isCreateLoading || isModifyLoading}

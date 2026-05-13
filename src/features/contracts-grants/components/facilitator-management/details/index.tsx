@@ -68,7 +68,7 @@ export default function FacilitatorDetails() {
 
             <div>
               <label className="text-sm font-medium text-gray-500">Number of Facilitators</label>
-              <p className="text-lg">{facilitator?.facilitaor_number || 'N/A'}</p>
+              <p className="text-lg">{facilitator?.facilitator_number || 'N/A'}</p>
             </div>
 
             <div>

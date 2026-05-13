@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import { usePathname } from "next/navigation";
 import Card from "@/components/Card";
 import { Button } from "@/components/ui/button";
-import { useGetAllContractRequests } from "@/features/contracts-grants/controllers/contractController";
+import { useGetAllConsultantManagements } from "@/features/contracts-grants/controllers/consultantManagementController";
 import { useGetAllConsultancyApplicants } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
 import { useGetAllAdhocApplicants } from "@/features/programs/controllers/adhocApplicantController";
 import { useGetAllAdhocAdvertisements } from "@/features/programs/controllers/adhocAdvertisementController";
@@ -20,8 +20,8 @@ export default function ConsultantContractDashboard() {
     // Determine type based on pathname
     const applicantType = pathname?.includes("adhoc") ? "ADHOC" : "CONSULTANT";
 
-    // Fetch all contract requests/advertisements based on type
-    const { data: contractRequestsData, isFetching: isLoadingContractRequests } = useGetAllContractRequests({
+    // Fetch all consultant advertisements/adhoc advertisements based on type
+    const { data: consultantsData, isFetching: isLoadingConsultants } = useGetAllConsultantManagements({
         page,
         size: 100,
         enabled: applicantType === "CONSULTANT",
@@ -33,7 +33,7 @@ export default function ConsultantContractDashboard() {
         enabled: applicantType === "ADHOC",
     });
 
-    const isLoadingRequests = applicantType === "ADHOC" ? isLoadingAdhocAdvertisements : isLoadingContractRequests;
+    const isLoadingRequests = applicantType === "ADHOC" ? isLoadingAdhocAdvertisements : isLoadingConsultants;
 
     // Fetch applicants based on type - use different endpoints for AdHoc vs Consultancy
     const { data: consultancyApplicantsData, isFetching: isLoadingConsultancyApplicants } = useGetAllConsultancyApplicants({
@@ -52,12 +52,12 @@ export default function ConsultantContractDashboard() {
     const applicantsData = applicantType === "ADHOC" ? adhocApplicantsData : consultancyApplicantsData;
     const isLoadingApplicants = applicantType === "ADHOC" ? isLoadingAdhocApplicants : isLoadingConsultancyApplicants;
 
-    // Use correct data source for advertisements/requests
+    // Use correct data source for advertisements
     const rawAdvertisements = applicantType === "ADHOC"
         ? adhocAdvertisementsData?.data?.results || []
-        : contractRequestsData?.data?.results || [];
+        : consultantsData?.data?.results || [];
 
-    const contractRequests = rawAdvertisements;
+    const consultantAdvertisements = rawAdvertisements;
     const allApplicantsRaw = applicantsData?.data?.results || [];
 
     console.log("📊 All Applicants Raw Data:", allApplicantsRaw);
@@ -77,8 +77,8 @@ export default function ConsultantContractDashboard() {
     // Filter applicants by type with backward compatibility
     const allApplicants = useMemo(() => {
         return allApplicantsRaw.filter(applicant => {
-            // Only show applicants with contracts issued or approved
-            if (!['CONTRACT_ISSUED', 'APPROVED'].includes(applicant.status)) {
+            // Only show applicants who have been accepted or have contracts issued
+            if (!['ACCEPTED', 'CONTRACT_ISSUED'].includes(applicant.status)) {
                 return false;
             }
 
@@ -103,21 +103,20 @@ export default function ConsultantContractDashboard() {
         NoType: allApplicantsRaw.filter(a => !a.type).length,
     });
 
-    // Group applicants by contract_request (for consultancy) or advertisement (for adhoc)
-    const groupedByContractRequest = contractRequests.map(request => {
+    // Group applicants by consultant advertisement (for consultancy) or advertisement (for adhoc)
+    const groupedByContractRequest = consultantAdvertisements.map(advertisement => {
         const applicantsForRequest = allApplicants.filter(applicant => {
             if (applicantType === "ADHOC") {
                 // For AdHoc, match by advertisement field
                 const advertisementId = typeof (applicant as any).advertisement === 'object' && (applicant as any).advertisement !== null
                     ? ((applicant as any).advertisement as any).id
                     : (applicant as any).advertisement;
-                return advertisementId === request.id;
+                return advertisementId === advertisement.id;
             } else {
-                // For Consultancy, match by contract_request field
-                const contractReqId = typeof applicant.contract_request === 'object' && applicant.contract_request !== null
-                    ? (applicant.contract_request as any).id
-                    : applicant.contract_request;
-                return contractReqId === request.id;
+                // For Consultancy, match by consultants array (many-to-many relationship)
+                const consultantsArray = (applicant as any).consultants || [];
+                // Check if this consultant advertisement ID is in the applicant's consultants array
+                return consultantsArray.includes(advertisement.id);
             }
         });
 
@@ -126,27 +125,29 @@ export default function ConsultantContractDashboard() {
         const pendingCount = applicantsForRequest.length - acceptedCount;
 
         return {
-            ...request,
+            ...advertisement,
             issuedContractsCount: applicantsForRequest.length,
             acceptedCount,
             pendingCount,
             applicants: applicantsForRequest,
         };
-    }).filter(request => request.issuedContractsCount > 0); // Only show requests with issued contracts
+    }).filter(advert => advert.issuedContractsCount > 0); // Only show advertisements with issued contracts
 
-    // Handle applicants without a contract_request/advertisement (legacy data)
+    // Handle applicants without a consultant/advertisement link (legacy data)
     const uncategorizedApplicants = allApplicants.filter(applicant => {
         if (applicantType === "ADHOC") {
             return !(applicant as any).advertisement || (applicant as any).advertisement === null;
         } else {
-            return !applicant.contract_request || applicant.contract_request === null;
+            // For consultancy, check if consultants array is empty or missing
+            const consultantsArray = (applicant as any).consultants || [];
+            return consultantsArray.length === 0;
         }
     });
 
     const uncategorizedAccepted = uncategorizedApplicants.filter(a => a.offer_accepted).length;
     const uncategorizedPending = uncategorizedApplicants.length - uncategorizedAccepted;
 
-    console.log("Grouped Contract Requests:", groupedByContractRequest);
+    console.log("Grouped Consultant Advertisements:", groupedByContractRequest);
     console.log("Uncategorized Applicants:", uncategorizedApplicants);
 
     const isLoading = isLoadingRequests || isLoadingApplicants;
@@ -163,7 +164,7 @@ export default function ConsultantContractDashboard() {
                 </div>
                 <div className="flex items-center gap-3">
                     <div className="bg-blue-50 text-blue-700 px-4 py-2 rounded-lg text-sm font-medium">
-                        <span className="font-bold">{groupedByContractRequest.length}</span> Active Adverts
+                        <span className="font-bold">{groupedByContractRequest.length}</span> {applicantType === "ADHOC" ? "Adhoc Adverts" : "Consultant Adverts"}
                     </div>
                 </div>
             </div>
@@ -229,7 +230,7 @@ export default function ConsultantContractDashboard() {
                         </div>
                         <h3 className="text-lg font-semibold text-gray-900 mb-2">No Contracts Issued Yet</h3>
                         <p className="text-gray-600 max-w-md mx-auto">
-                            Once contracts are issued to applicants, they will appear here grouped by job advert for easy tracking.
+                            Once contracts are issued to applicants, they will appear here grouped by {applicantType === "ADHOC" ? "adhoc advertisement" : "consultant advertisement"} for easy tracking.
                         </p>
                     </div>
                 </Card>
@@ -238,22 +239,22 @@ export default function ConsultantContractDashboard() {
                 {/* Job Adverts Grid */}
                 {groupedByContractRequest.length > 0 && (
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                    {groupedByContractRequest.map((request) => (
-                        <Card key={request.id} className="hover:shadow-lg transition-shadow duration-200 border-2 hover:border-[#DEA004]">
+                    {groupedByContractRequest.map((advertisement) => (
+                        <Card key={advertisement.id} className="hover:shadow-lg transition-shadow duration-200 border-2 hover:border-[#DEA004]">
                             <div className="space-y-4">
                                 {/* Header */}
                                 <div className="flex items-start justify-between">
                                     <div className="flex-1">
                                         <h3 className="font-bold text-lg text-gray-900 mb-1 line-clamp-2">
                                             {applicantType === "ADHOC"
-                                                ? ((request as any).position_title || 'Job Position')
-                                                : ((request as any).title || 'Job Position')
+                                                ? ((advertisement as any).position_title || 'Job Position')
+                                                : ((advertisement as any).title || 'Job Position')
                                             }
                                         </h3>
                                         <p className="text-sm text-gray-600">
                                             Ref: {applicantType === "ADHOC"
-                                                ? ((request as any).advertisement_number || request.id?.slice(0, 8))
-                                                : request.id?.slice(0, 8)
+                                                ? ((advertisement as any).advertisement_number || advertisement.id?.slice(0, 8))
+                                                : advertisement.id?.slice(0, 8)
                                             }
                                         </p>
                                     </div>
@@ -270,19 +271,19 @@ export default function ConsultantContractDashboard() {
                                 <div className="grid grid-cols-3 gap-2 py-3 border-y border-gray-200">
                                     <div className="text-center">
                                         <p className="text-2xl font-bold text-blue-600">
-                                            {request.issuedContractsCount}
+                                            {advertisement.issuedContractsCount}
                                         </p>
                                         <p className="text-xs text-gray-600 mt-1">Issued</p>
                                     </div>
                                     <div className="text-center border-x border-gray-200">
                                         <p className="text-2xl font-bold text-green-600">
-                                            {request.acceptedCount}
+                                            {advertisement.acceptedCount}
                                         </p>
                                         <p className="text-xs text-gray-600 mt-1">Accepted</p>
                                     </div>
                                     <div className="text-center">
                                         <p className="text-2xl font-bold text-amber-600">
-                                            {request.pendingCount}
+                                            {advertisement.pendingCount}
                                         </p>
                                         <p className="text-xs text-gray-600 mt-1">Pending</p>
                                     </div>
@@ -290,17 +291,17 @@ export default function ConsultantContractDashboard() {
 
                                 {/* Details */}
                                 <div className="space-y-2">
-                                    {request.department && (
+                                    {(advertisement as any).supervisor && (
                                         <div className="flex items-center gap-2 text-sm text-gray-700">
                                             <Briefcase className="h-4 w-4 text-gray-400" />
-                                            <span>{typeof request.department === 'object' ? request.department.name : request.department}</span>
+                                            <span>Supervisor: {typeof (advertisement as any).supervisor === 'object' ? (advertisement as any).supervisor.first_name + ' ' + (advertisement as any).supervisor.last_name : 'N/A'}</span>
                                         </div>
                                     )}
-                                    {((request as any).created_datetime || (request as any).publication_date) && (
+                                    {((advertisement as any).created_datetime || (advertisement as any).publication_date) && (
                                         <div className="flex items-center gap-2 text-sm text-gray-700">
                                             <Calendar className="h-4 w-4 text-gray-400" />
                                             <span>Posted: {new Date(
-                                                (request as any).publication_date || (request as any).created_datetime
+                                                (advertisement as any).publication_date || (advertisement as any).created_datetime
                                             ).toLocaleDateString()}</span>
                                         </div>
                                     )}
@@ -310,13 +311,13 @@ export default function ConsultantContractDashboard() {
                                 <div className="space-y-1">
                                     <div className="flex justify-between text-xs text-gray-600">
                                         <span>Acceptance Progress</span>
-                                        <span>{request.issuedContractsCount > 0 ? Math.round((request.acceptedCount / request.issuedContractsCount) * 100) : 0}%</span>
+                                        <span>{advertisement.issuedContractsCount > 0 ? Math.round((advertisement.acceptedCount / advertisement.issuedContractsCount) * 100) : 0}%</span>
                                     </div>
                                     <div className="w-full bg-gray-200 rounded-full h-2">
                                         <div
                                             className="bg-gradient-to-r from-green-500 to-green-600 h-2 rounded-full transition-all duration-500"
                                             style={{
-                                                width: `${request.issuedContractsCount > 0 ? (request.acceptedCount / request.issuedContractsCount) * 100 : 0}%`
+                                                width: `${advertisement.issuedContractsCount > 0 ? (advertisement.acceptedCount / advertisement.issuedContractsCount) * 100 : 0}%`
                                             }}
                                         />
                                     </div>
@@ -327,13 +328,13 @@ export default function ConsultantContractDashboard() {
                                     className="w-full flex items-center justify-center gap-2 bg-[#DEA004] hover:bg-[#c48f04]"
                                     onClick={() => {
                                         const detailsPath = applicantType === "ADHOC"
-                                            ? `/dashboard/programs/adhoc/adhoc-acceptance/details/${request.id}`
-                                            : `/dashboard/c-and-g/consultant/consultance-acceptance/details/${request.id}`;
+                                            ? `/dashboard/programs/adhoc/adhoc-acceptance/details/${advertisement.id}`
+                                            : `/dashboard/c-and-g/consultant/consultance-acceptance/details/${advertisement.id}`;
                                         router.push(detailsPath);
                                     }}
                                 >
                                     <Eye className="h-4 w-4" />
-                                    View Applicants ({request.issuedContractsCount})
+                                    View Applicants ({advertisement.issuedContractsCount})
                                 </Button>
                             </div>
                         </Card>
@@ -347,7 +348,7 @@ export default function ConsultantContractDashboard() {
                         <div className="pt-6">
                             <h2 className="text-2xl font-bold text-gray-900 mb-2">Uncategorized Contracts</h2>
                             <p className="text-gray-600 text-sm mb-4">
-                                These contracts were issued before job adverts were linked. Click "View Contract" for each applicant to review and accept.
+                                These contracts were issued before {applicantType === "ADHOC" ? "adhoc advertisements" : "consultant advertisements"} were linked. Click "View Contract" for each applicant to review and accept.
                             </p>
                         </div>
 

@@ -1,23 +1,24 @@
 import useApiManager from "@/constants/mainController";
 import { useQuery } from "@tanstack/react-query";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
-import { 
-  GradeData, 
-  GradeFormValues 
+import {
+  GradeData,
+  GradeFormValues
 } from "../../types/config";
-import { 
+import {
   FilterParams,
-  TPaginatedResponse
+  TPaginatedResponse,
+  ApiResponse
 } from "../../types";
 
 // GET Operations (Queries)
-export const useGetAllGradesManager = ({ 
-  page = 1, 
-  size = 20, 
+export const useGetAllGradesManager = ({
+  page = 1,
+  size = 20,
   search = "",
-  enabled = true 
+  enabled = true
 }: FilterParams & { enabled?: boolean } = {}) => {
-  return useQuery<TPaginatedResponse<GradeData>>({
+  return useQuery<ApiResponse<TPaginatedResponse<GradeData>>>({
     queryKey: ["grades", page, size, search],
     queryFn: async () => {
       const response = await AxiosWithToken.get("/config/grade/", {

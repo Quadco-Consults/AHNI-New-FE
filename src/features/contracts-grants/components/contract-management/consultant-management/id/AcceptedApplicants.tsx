@@ -230,7 +230,7 @@ export default function AcceptedApplicants() {
         return (
           <div className="flex items-center gap-2">
             <span className="font-semibold text-gray-900">{interviewScores.total_score}</span>
-            <span className="text-gray-500 text-sm">/ 50</span>
+            <span className="text-gray-500 text-sm">/ 55</span>
           </div>
         );
       },

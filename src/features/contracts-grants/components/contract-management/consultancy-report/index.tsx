@@ -136,7 +136,7 @@ export default function ConsultancyReport() {
 
         // Log summary
         const enrichedCount = enriched.filter(r =>
-            typeof r.consultant === 'object' && (r.consultant as any).name
+            typeof r.consultant === 'object' && r.consultant !== null && (r.consultant as any).name
         ).length;
 
         console.log(`\n✅ Successfully enriched ${enrichedCount}/${reports.length} reports with consultant names`);
