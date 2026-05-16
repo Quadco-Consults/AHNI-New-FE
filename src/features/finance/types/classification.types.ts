@@ -55,6 +55,9 @@ export interface BudgetLine {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  // Related fields from backend
+  modules?: string[]; // Array of Module IDs
+  intervention_areas?: string[]; // Array of Intervention Area IDs
 }
 
 // Form data types for creation/editing

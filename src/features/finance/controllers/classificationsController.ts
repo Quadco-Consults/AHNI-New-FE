@@ -322,6 +322,23 @@ export const useGetBudgetLines = (filters?: ClassificationFilters) => {
   });
 };
 
+export const useGetSingleBudgetLine = (id: string, enabled: boolean = true) => {
+  return useQuery<FinanceApiResponse<BudgetLine>>({
+    queryKey: ["budget-line", id],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get(`finance/budget-lines/${id}/`);
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Failed to fetch budget line: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    enabled: enabled && !!id,
+    refetchOnWindowFocus: false,
+  });
+};
+
 export const useCreateBudgetLine = () => {
   const queryClient = useQueryClient();
   const { callApi, isLoading, isSuccess, error, data } = useApiManager<
