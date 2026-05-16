@@ -1,4 +1,6 @@
 import { CardContent } from "@/components/ui/card";
+import { LoadingSpinner } from "@/components/Loading";
+import { useGetCompensationsSpread } from "@/features/hr/controllers/hrCompensationSpreadController";
 
 type EarningItem = {
   label: string;
@@ -67,25 +69,70 @@ const EarningsBreakdown = ({
   );
 };
 
-const Compensation = () => {
+const Compensation = ({ id }: { id: string }) => {
+  const { data, isLoading } = useGetCompensationsSpread({
+    params: {
+      employee: id,
+    },
+  });
+
+  const compensationData = data?.data?.results?.[0]; // Get the first (and should be only) compensation record
+
+  // If no compensation data, show message
+  if (!isLoading && !compensationData) {
+    return (
+      <div className='space-y-10'>
+        <p className='text-small'>
+          This page contains a breakdown of the monthly earning of this staff,
+          carefully go through the page to understand the way the payment
+          system is structured.
+        </p>
+        <div className='card-wrapper text-center py-10'>
+          <p className='text-muted-foreground text-lg'>
+            No compensation data available for this employee.
+          </p>
+          <p className='text-sm text-muted-foreground mt-2'>
+            Compensation information will appear here once it has been configured.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className='space-y-10'>
+        <LoadingSpinner />
+      </div>
+    );
+  }
+
+  // Format numbers for display
+  const formatAmount = (amount: number) => {
+    return amount.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  };
+
+  const earnings: EarningItem[] = [
+    { label: "Basic Salary", amount: formatAmount(parseFloat(compensationData.basic || '0')) },
+    { label: "Housing Allowance", amount: formatAmount(parseFloat(compensationData.housing || '0')) },
+    { label: "Transport Allowance", amount: formatAmount(parseFloat(compensationData.transport || '0')) },
+    { label: "Meal Allowance", amount: formatAmount(parseFloat(compensationData.meal || '0')) },
+    { label: "Miscellaneous", amount: formatAmount(parseFloat(compensationData.miscellaneous || '0')) },
+  ];
+
+  const netPay = formatAmount(parseFloat(compensationData.net_salary || '0'));
+
   return (
     <div className='space-y-10'>
       <p className='text-small'>
         This page contains a breakdown of the monthly earning of this staff,
-        carefully go through the page to understand the <br /> way the payment
+        carefully go through the page to understand the way the payment
         system is structured.
       </p>
       <EarningsBreakdown
-        // period='May 2025'
-        earnings={[
-          { label: "Basic Salary", amount: "1,500,000.00" },
-          { label: "Meal Allowance", amount: "75,000.00" },
-          { label: "Miscellaneous", amount: "50,000.00" },
-          { label: "Transport Allowance", amount: "100,000.00" },
-          { label: "Housing Allowance", amount: "250,000.00" },
-        ]}
-        netPay='1,975,000.00'
-        netPayWords='ONE MILLION NINE HUNDRED SEVENTY-FIVE THOUSAND NAIRA ONLY'
+        period={compensationData.effective_date ? new Date(compensationData.effective_date).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : undefined}
+        earnings={earnings}
+        netPay={netPay}
       />
     </div>
   );

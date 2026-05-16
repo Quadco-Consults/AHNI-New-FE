@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import OpportunityCard from "@/components/OpportunityCard";
@@ -32,18 +32,33 @@ export default function OpportunitiesPage() {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [jobTypeFilter, setJobTypeFilter] = useState("all");
   const [locationFilter, setLocationFilter] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Reset to page 1 when search or filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, categoryFilter, jobTypeFilter, locationFilter]);
 
   // Fetch all opportunities from the unified public endpoint
-  const { data: publicOpportunitiesData, isLoading: opportunitiesLoading } = useGetPublicEois({
-    page: 1,
-    size: 50,
+  // TEMPORARY: Using size=13 (max safe size before record #14 error) until production backend fix deploys
+  const { data: publicOpportunitiesData, isLoading: opportunitiesLoading, error } = useGetPublicEois({
+    page: 1,  // Fixed to page 1 to avoid pagination hitting problematic record #14
+    size: 13,  // Maximum safe size - records 1-13 work, record #14+ has project.name error
     search: searchTerm,
     enabled: true
   });
 
+  // Debug logging
+  console.log('=== OPPORTUNITIES DEBUG ===');
+  console.log('Raw API Data:', publicOpportunitiesData);
+  console.log('Loading:', opportunitiesLoading);
+  console.log('Error:', error);
+  console.log('Results count:', publicOpportunitiesData?.data?.results?.length || 0);
+
   // Transform unified public opportunities data to match AHNI structure
   const allOpportunities = useMemo(() => {
     const results = publicOpportunitiesData?.data?.results || [];
+    console.log('Processing results:', results.length, 'opportunities');
 
     return results.map((item: any) => {
       // Determine display type based on opportunity_type
@@ -642,6 +657,19 @@ export default function OpportunitiesPage() {
                 ))}
               </div>
             )}
+
+            {/* Pagination Controls - Temporarily disabled until backend fix deploys */}
+            {!opportunitiesLoading && filteredOpportunities.length > 0 && publicOpportunitiesData?.data?.count > 13 && (
+              <div className="mt-8 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                <div className="flex items-center gap-2 text-sm text-amber-800">
+                  <AlertCircle className="h-4 w-4" />
+                  <p>
+                    Showing first 13 of {publicOpportunitiesData?.data?.count} opportunities.
+                    Full pagination will be available after backend maintenance completes.
+                  </p>
+                </div>
+              </div>
+            )}
               </div>
 
               {/* Sidebar with Quick Info */}
@@ -659,7 +687,7 @@ export default function OpportunitiesPage() {
                       <div className="flex justify-between items-center">
                         <span className="text-muted-foreground">Total Opportunities</span>
                         <Badge variant="secondary" className="font-bold">
-                          {allOpportunities.length}
+                          {publicOpportunitiesData?.data?.count || 0}
                         </Badge>
                       </div>
                       <div className="flex justify-between items-center">

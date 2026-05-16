@@ -35,6 +35,11 @@ interface CompensationSpreadFilterParams {
   page?: number;
   size?: number;
   enabled?: boolean;
+  employee?: string;
+  params?: {
+    employee?: string;
+    search?: string;
+  };
 }
 
 // Updated to match backend fix: compensation-spread (CRUD) vs employee-compensation (read-only)
@@ -48,16 +53,23 @@ export const useGetCompensationsSpread = ({
   page = 1,
   size = 20,
   enabled = true,
+  employee,
+  params,
 }: CompensationSpreadFilterParams = {}) => {
+  // Extract employee from params object if provided
+  const employeeId = params?.employee || employee;
+  const searchQuery = params?.search || search;
+
   return useQuery<ApiResponse<TPaginatedResponse<CompensationSpreadItem>>>({
-    queryKey: ["compensations-spread", page, size, search],
+    queryKey: ["compensations-spread", page, size, searchQuery, employeeId],
     queryFn: async () => {
       try {
         const response = await AxiosWithToken.get(BASE_URL, {
           params: {
             page,
             size,
-            ...(search && { search }),
+            ...(searchQuery && { search: searchQuery }),
+            ...(employeeId && { employee: employeeId }),
           },
         });
         return response.data;

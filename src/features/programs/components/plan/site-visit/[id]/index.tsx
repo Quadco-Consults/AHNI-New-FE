@@ -46,7 +46,7 @@ const SiteVisitDetail = () => {
   const siteVisit = siteVisitResponse?.data;
 
   // EA Generation
-  const generateEAsMutation = useGenerateEAsFromSiteVisit();
+  const generateEAsMutation = useGenerateEAsFromSiteVisit(id || "");
 
   const handleGenerateEAs = async () => {
     if (!id) {
@@ -55,7 +55,7 @@ const SiteVisitDetail = () => {
     }
 
     try {
-      const result = await generateEAsMutation.mutateAsync(id);
+      const result = await generateEAsMutation.mutateAsync();
 
       if (result.success) {
         toast.success(`Successfully generated ${result.eas_created} EA(s) for site visit team members`);

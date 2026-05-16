@@ -76,7 +76,7 @@ const WorkforceDetail = () => {
     {
       label: "Compensation and Benefit",
       value: "compensation_and_benefit",
-      children: <Compensation />,
+      children: <Compensation id={id as string} />,
     },
     {
       label: "Bank Account & Pension",

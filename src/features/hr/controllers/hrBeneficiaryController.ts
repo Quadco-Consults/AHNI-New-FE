@@ -17,6 +17,13 @@ interface HrBeneficiaryFilterParams {
   page?: number;
   size?: number;
   enabled?: boolean;
+  employee?: string;
+  is_primary?: boolean;
+  params?: {
+    employee?: string;
+    is_primary?: boolean;
+    search?: string;
+  };
 }
 
 const BASE_URL = "/hr/employees/beneficiaries/";
@@ -29,16 +36,26 @@ export const useGetHrBeneficiaries = ({
   page = 1,
   size = 20,
   enabled = true,
+  employee,
+  is_primary,
+  params,
 }: HrBeneficiaryFilterParams) => {
+  // Extract employee from params object if provided
+  const employeeId = params?.employee || employee;
+  const isPrimary = params?.is_primary || is_primary;
+  const searchQuery = params?.search || search;
+
   return useQuery<ApiResponse<{ results: HrBeneficiaryResults[] }>>({
-    queryKey: ["hr-beneficiaries", page, size, search],
+    queryKey: ["hr-beneficiaries", page, size, searchQuery, employeeId, isPrimary],
     queryFn: async () => {
       try {
         const response = await AxiosWithToken.get(BASE_URL, {
           params: {
             page,
             size,
-            ...(search && { search }),
+            ...(searchQuery && { search: searchQuery }),
+            ...(employeeId && { employee: employeeId }),
+            ...(isPrimary !== undefined && { is_primary: isPrimary }),
           },
         });
         return response.data;
