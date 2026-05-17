@@ -63,6 +63,7 @@ import {
   useGetInterventionAreasDropdown
 } from "@/features/modules/controllers/config/allConfigController";
 import { useGetAllFCONumbersUnrestricted } from "@/features/modules/controllers/finance/fcoNumberController";
+import { useGetAllCostCategoriesManager } from "@/features/modules/controllers/finance/costCategoryController";
 
 const CreateActivityMemo = () => {
   const dispatch = useDispatch();
@@ -197,6 +198,14 @@ const CreateActivityMemo = () => {
     source: costGroupingsSource
   } = useGetCostGroupingsDropdown();
 
+  // Fetch cost categories separately
+  const { data: costCategoriesData, isLoading: costCategoriesLoading } = useGetAllCostCategoriesManager({
+    page: 1,
+    size: 2000,
+    search: "",
+    enabled: true,
+  });
+
   const {
     data: backendCostInputs,
     count: costInputsCount,
@@ -315,6 +324,16 @@ const CreateActivityMemo = () => {
     // console.log(`📊 Cost Groupings: ${apiOptions.length} from ${dataSource} + ${finalOptions.length - apiOptions.length} fallback = ${finalOptions.length} total`);
     return finalOptions;
   }, [backendCostGroupings, costGroupingsCount, bypassedFinanceData.costCategories, bypassSources.costCategories]);
+
+  const costCategoriesOptions = React.useMemo(() => {
+    const rawResults = (costCategoriesData as any)?.results || [];
+    const options = rawResults.map((item: any) => ({
+      id: item.id,
+      name: item.name || item.description || 'Unnamed Cost Category'
+    }));
+    console.log(`📂 Cost Categories: Loaded ${options.length} items from finance_costcategory table`);
+    return options;
+  }, [costCategoriesData]);
 
   const costInputOptions = React.useMemo(() => {
     let rawResults = [];
@@ -929,7 +948,7 @@ const CreateActivityMemo = () => {
         fconumber: filterValidIds(data.fconumber, fcoOptions),
         intervention_areas: filterValidIds(data.intervention_areas, interventionsOptions),
         budget_line: filterValidIds(data.budget_line, budgetLinesOptions),
-        cost_categories: filterValidIds(data.cost_categories, costGroupingsOptions),
+        cost_categories: filterValidIds(data.cost_categories, costCategoriesOptions),
         cost_grouping: filterValidIds(data.cost_grouping, costGroupingsOptions),
         cost_input: filterValidIds(data.cost_input, costInputOptions),
         funding_source: filterValidIds(data.funding_source, fundingSourceOptions),
@@ -1175,7 +1194,7 @@ const CreateActivityMemo = () => {
             <div className='grid grid-cols-2 gap-5'>
               <div>
                 <Label className='font-semibold'>Cost Categories</Label>
-                {backendCostGroupingsLoading ? (
+                {costCategoriesLoading ? (
                   <div className="p-4 text-center text-gray-500">Loading cost categories...</div>
                 ) : (
                   <FormField
@@ -1185,10 +1204,10 @@ const CreateActivityMemo = () => {
                       <FormItem>
                         <FormControl>
                           <MultiSelectFormField
-                            options={costGroupingsOptions}
+                            options={costCategoriesOptions}
                             defaultValue={field.value}
                             onValueChange={field.onChange}
-                            placeholder={costGroupingsOptions.length === 0 ? 'No cost categories available' : 'Select Cost Categories'}
+                            placeholder={costCategoriesOptions.length === 0 ? 'No cost categories available' : 'Select Cost Categories'}
                             variant='inverted'
                           />
                         </FormControl>
