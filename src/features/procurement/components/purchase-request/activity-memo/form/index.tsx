@@ -918,6 +918,8 @@ const CreateActivityMemo = () => {
       };
 
       // Filter all array fields to remove cached/invalid IDs
+      // Note: Both cost_categories and cost_grouping use the same options (costGroupingsOptions)
+      // as the backend uses cost_grouping table for both fields
       const activityMemoData: any = {
         subject: data.subject,
         requested_date: data.requested_date,
@@ -927,7 +929,7 @@ const CreateActivityMemo = () => {
         fconumber: filterValidIds(data.fconumber, fcoOptions),
         intervention_areas: filterValidIds(data.intervention_areas, interventionsOptions),
         budget_line: filterValidIds(data.budget_line, budgetLinesOptions),
-        cost_categories: filterValidIds(data.cost_categories, costCategoriesOptions),
+        cost_categories: filterValidIds(data.cost_categories, costGroupingsOptions),
         cost_grouping: filterValidIds(data.cost_grouping, costGroupingsOptions),
         cost_input: filterValidIds(data.cost_input, costInputOptions),
         funding_source: filterValidIds(data.funding_source, fundingSourceOptions),
@@ -1172,13 +1174,43 @@ const CreateActivityMemo = () => {
 
             <div className='grid grid-cols-2 gap-5'>
               <div>
-                <Label className='font-semibold'>Cost Grouping</Label>
+                <Label className='font-semibold'>Cost Categories</Label>
                 {backendCostGroupingsLoading ? (
                   <div className="p-4 text-center text-gray-500">Loading cost categories...</div>
                 ) : (
                   <FormField
                     control={form.control}
                     name='cost_categories'
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <MultiSelectFormField
+                            options={costGroupingsOptions}
+                            defaultValue={field.value}
+                            onValueChange={field.onChange}
+                            placeholder={costGroupingsOptions.length === 0 ? 'No cost categories available' : 'Select Cost Categories'}
+                            variant='inverted'
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                )}
+                {errors.cost_categories && (
+                  <span className='text-sm text-red-500 font-medium'>
+                    {errors.cost_categories.message}
+                  </span>
+                )}
+              </div>
+
+              <div>
+                <Label className='font-semibold'>Cost Grouping</Label>
+                {backendCostGroupingsLoading ? (
+                  <div className="p-4 text-center text-gray-500">Loading cost groupings...</div>
+                ) : (
+                  <FormField
+                    control={form.control}
+                    name='cost_grouping'
                     render={({ field }) => (
                       <FormItem>
                         <FormControl>
@@ -1194,13 +1226,15 @@ const CreateActivityMemo = () => {
                     )}
                   />
                 )}
-                {errors.cost_categories && (
+                {errors.cost_grouping && (
                   <span className='text-sm text-red-500 font-medium'>
-                    {errors.cost_categories.message}
+                    {errors.cost_grouping.message}
                   </span>
                 )}
               </div>
+            </div>
 
+            <div className='grid grid-cols-2 gap-5'>
               <div>
                 <Label className='font-semibold'>Cost Input</Label>
                 {costInputLoading ? (
