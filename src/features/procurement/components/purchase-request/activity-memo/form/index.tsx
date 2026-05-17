@@ -597,6 +597,7 @@ const CreateActivityMemo = () => {
       intervention_areas: [],
       budget_line: [],
       cost_categories: [],
+      cost_grouping: [],
       cost_input: [],
       funding_source: [],
       comment: "",
@@ -905,8 +906,7 @@ const CreateActivityMemo = () => {
       console.log("About to submit with activity ID:", data.activity);
       console.log("Type of activity ID:", typeof data.activity);
       const activityMemoData = {
-        // Skip activity field for now since it's optional and causing UUID mismatch
-        // activity: data.activity, // Commented out - ActivityPlan vs ActivityPlanFromWorkPlan mismatch
+        activity: data.activity,  // ✅ Re-enabled - now works with backend aliases
         subject: data.subject,
         requested_date: data.requested_date,
         comment: data.comment,
@@ -916,10 +916,12 @@ const CreateActivityMemo = () => {
         intervention_areas: data.intervention_areas,
         budget_line: data.budget_line,
         cost_categories: data.cost_categories,
+        cost_grouping: data.cost_grouping,  // ✅ Added
         cost_input: data.cost_input,
         funding_source: data.funding_source,
-        through: data.through,
-        copy: data.copy,
+        modules: data.module,  // ✅ Added (note: form uses 'module', backend expects 'modules')
+        through: data.through,  // ✅ Now mapped via backend alias
+        copy: data.copy,  // ✅ Now mapped via backend alias
         expenses: data.expenses,
       };
 

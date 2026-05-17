@@ -31,8 +31,9 @@ import { useGetAllCostCategories } from "@/features/modules/controllers/finance/
 import { useGetAllCostInputs } from "@/features/modules/controllers/finance/costInputController";
 import { useGetAllFCONumbers } from "@/features/modules/controllers/finance/fcoNumberController";
 import { useGetAllInterventionAreas } from "@/features/modules/controllers/program/interventionAreaController";
-
+import { useGetAllCostGroupingsManager } from "@/features/modules/controllers/finance/costGroupingController";
 import { useGetAllFundingSources } from "@/features/modules/controllers/project/fundingSourceController";
+import { useGetAllModules } from "@/features/modules/controllers/project/moduleController";
 
 import { activityActions } from "@/store/formData/activity-memo";
 import { z } from "zod";
@@ -119,6 +120,18 @@ const EditPurchaseRequestForm = ({
     search: "",
   });
 
+  const { data: modules, isLoading: modulesLoading } = useGetAllModules({
+    page: 1,
+    size: 2000000,
+    search: "",
+  });
+
+  const { data: costGroupings, isLoading: costGroupingsLoading } = useGetAllCostGroupingsManager({
+    page: 1,
+    size: 2000000,
+    search: "",
+  });
+
   const { data: profile } = useGetUserProfile();
 
   // Create formatted options for dropdowns
@@ -201,6 +214,22 @@ const EditPurchaseRequestForm = ({
     })
   ) || [];
 
+  const modulesOptions = React.useMemo(() => {
+    const rawResults = (modules as any)?.data?.results || [];
+    return rawResults.map((item: any) => ({
+      id: item.id,
+      name: item.name || 'Unnamed Module'
+    }));
+  }, [modules]);
+
+  const costGroupingsOptions = React.useMemo(() => {
+    const rawResults = (costGroupings as any)?.results || [];
+    return rawResults.map((item: any) => ({
+      id: item.id,
+      name: item.name || item.code || item.description || 'Unnamed Cost Grouping'
+    }));
+  }, [costGroupings]);
+
   // Pre-populate form with existing data
   const form = useForm<z.infer<typeof SampleMemoSchema>>({
     resolver: zodResolver(SampleMemoSchema),
@@ -212,13 +241,15 @@ const EditPurchaseRequestForm = ({
       intervention_areas: activityMemoData?.intervention_areas || [],
       budget_line: activityMemoData?.budget_line || [],
       cost_categories: activityMemoData?.cost_categories || [],
+      cost_grouping: activityMemoData?.cost_grouping || [],
       cost_input: activityMemoData?.cost_input || [],
       funding_source: activityMemoData?.funding_source || [],
+      module: activityMemoData?.modules || [],
       comment: activityMemoData?.comment || "",
-      copy: activityMemoData?.copy || [],
+      copy: activityMemoData?.reviewed_by || [],  // Backend returns reviewed_by, not copy
       approved_by: activityMemoData?.approved_by || "",
       created_by: activityMemoData?.created_by || "",
-      through: activityMemoData?.through || [],
+      through: activityMemoData?.authorised_by || [],  // Backend returns authorised_by, not through
       expenses: activityMemoData?.expenses || [],
     },
   });
@@ -244,13 +275,15 @@ const EditPurchaseRequestForm = ({
         intervention_areas: activityMemoData.intervention_areas || [],
         budget_line: activityMemoData.budget_line || [],
         cost_categories: activityMemoData.cost_categories || [],
+        cost_grouping: activityMemoData.cost_grouping || [],
         cost_input: activityMemoData.cost_input || [],
         funding_source: activityMemoData.funding_source || [],
+        module: activityMemoData.modules || [],
         comment: activityMemoData.comment || "",
-        copy: activityMemoData.copy || [],
+        copy: activityMemoData.reviewed_by || [],  // Backend returns reviewed_by, not copy
         approved_by: activityMemoData.approved_by || "",
         created_by: activityMemoData.created_by || "",
-        through: activityMemoData.through || [],
+        through: activityMemoData.authorised_by || [],  // Backend returns authorised_by, not through
         expenses: activityMemoData.expenses || [],
       });
     }
@@ -279,8 +312,10 @@ const EditPurchaseRequestForm = ({
           intervention_areas: data.intervention_areas,
           budget_line: data.budget_line,
           cost_categories: data.cost_categories,
+          cost_grouping: data.cost_grouping,
           cost_input: data.cost_input,
           funding_source: data.funding_source,
+          modules: data.module,
           through: data.through,
           copy: data.copy,
           expenses: data.expenses,
@@ -515,6 +550,38 @@ const EditPurchaseRequestForm = ({
               )}
             </div>
             <div>
+              <Label className='font-semibold'>Module</Label>
+              {modulesLoading ? (
+                <div className="p-4 text-center text-gray-500">Loading modules...</div>
+              ) : (
+                <FormField
+                  control={form.control}
+                  name='module'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <MultiSelectFormField
+                          options={modulesOptions}
+                          defaultValue={field.value}
+                          onValueChange={field.onChange}
+                          placeholder={modulesOptions.length === 0 ? 'No modules available' : 'Select Module'}
+                          variant='inverted'
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              )}
+              {errors.module && (
+                <span className='text-sm text-red-500 font-medium'>
+                  {errors.module.message}
+                </span>
+              )}
+            </div>
+          </div>
+
+          <div className='grid grid-cols-2 gap-5'>
+            <div>
               <Label className='font-semibold'>Cost Categories</Label>
               {costCategoriesLoading ? (
                 <div className="p-4 text-center text-gray-500">Loading cost categories...</div>
@@ -540,6 +607,35 @@ const EditPurchaseRequestForm = ({
               {errors.cost_categories && (
                 <span className='text-sm text-red-500 font-medium'>
                   {errors.cost_categories.message}
+                </span>
+              )}
+            </div>
+            <div>
+              <Label className='font-semibold'>Cost Grouping</Label>
+              {costGroupingsLoading ? (
+                <div className="p-4 text-center text-gray-500">Loading cost groupings...</div>
+              ) : (
+                <FormField
+                  control={form.control}
+                  name='cost_grouping'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <MultiSelectFormField
+                          options={costGroupingsOptions}
+                          defaultValue={field.value}
+                          onValueChange={field.onChange}
+                          placeholder={costGroupingsOptions.length === 0 ? 'No cost groupings available' : 'Select Cost Grouping'}
+                          variant='inverted'
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              )}
+              {errors.cost_grouping && (
+                <span className='text-sm text-red-500 font-medium'>
+                  {errors.cost_grouping.message}
                 </span>
               )}
             </div>
