@@ -934,23 +934,14 @@ const CreateActivityMemo = () => {
       console.log("Type of activity ID:", typeof data.activity);
 
       // Helper function to filter valid IDs from arrays
-      // Only filters if options are loaded; otherwise passes through to avoid data loss
+      // TEMPORARILY DISABLED: Pass through all values without filtering until backend CORS fix is deployed
       const filterValidIds = (arrayField: any[], availableOptions: any[]) => {
         if (!arrayField || arrayField.length === 0) return [];
 
-        // If options haven't loaded yet (empty), pass through the values
-        // This prevents data loss when API requests fail or are still loading
-        if (!availableOptions || availableOptions.length === 0) {
-          console.log(`⚠️ Options not loaded, passing through ${arrayField.length} IDs without validation`);
-          return arrayField;
-        }
-
-        const validIds = new Set(availableOptions.map((opt: any) => opt.id || opt.value));
-        const filtered = arrayField.filter(id => validIds.has(id));
-        if (filtered.length !== arrayField.length) {
-          console.log(`⚠️ Filtered out ${arrayField.length - filtered.length} invalid IDs`);
-        }
-        return filtered;
+        // Temporarily bypass filtering completely to prevent data loss
+        // TODO: Re-enable after backend CORS fix is deployed to production
+        console.log(`⚠️ Filtering disabled - passing through ${arrayField.length} IDs without validation`);
+        return arrayField;
       };
 
       // Filter all array fields to remove cached/invalid IDs
