@@ -326,14 +326,22 @@ const CreateActivityMemo = () => {
   }, [backendCostGroupings, costGroupingsCount, bypassedFinanceData.costCategories, bypassSources.costCategories]);
 
   const costCategoriesOptions = React.useMemo(() => {
-    const rawResults = (costCategoriesData as any)?.results || [];
+    // Try multiple possible response structures
+    const rawResults = (costCategoriesData as any)?.results ||
+                       (costCategoriesData as any)?.data?.results ||
+                       [];
+
+    console.log('🔍 Cost Categories API Response:', costCategoriesData);
+    console.log('🔍 Cost Categories Raw Results:', rawResults);
+    console.log('🔍 Cost Categories Loading:', costCategoriesLoading);
+
     const options = rawResults.map((item: any) => ({
       id: item.id,
       name: item.name || item.description || 'Unnamed Cost Category'
     }));
     console.log(`📂 Cost Categories: Loaded ${options.length} items from finance_costcategory table`);
     return options;
-  }, [costCategoriesData]);
+  }, [costCategoriesData, costCategoriesLoading]);
 
   const costInputOptions = React.useMemo(() => {
     let rawResults = [];
