@@ -905,8 +905,9 @@ const CreateActivityMemo = () => {
       // Prepare the activity memo data according to API requirements
       console.log("About to submit with activity ID:", data.activity);
       console.log("Type of activity ID:", typeof data.activity);
-      const activityMemoData = {
-        activity: data.activity,  // ✅ Re-enabled - now works with backend aliases
+
+      // Only include activity if it has a value (field is optional)
+      const activityMemoData: any = {
         subject: data.subject,
         requested_date: data.requested_date,
         comment: data.comment,
@@ -916,14 +917,22 @@ const CreateActivityMemo = () => {
         intervention_areas: data.intervention_areas,
         budget_line: data.budget_line,
         cost_categories: data.cost_categories,
-        cost_grouping: data.cost_grouping,  // ✅ Added
+        cost_grouping: data.cost_grouping,
         cost_input: data.cost_input,
         funding_source: data.funding_source,
-        modules: data.module,  // ✅ Added (note: form uses 'module', backend expects 'modules')
-        through: data.through,  // ✅ Now mapped via backend alias
-        copy: data.copy,  // ✅ Now mapped via backend alias
+        modules: data.module,
+        through: data.through,
+        copy: data.copy,
         expenses: data.expenses,
       };
+
+      // Only add activity field if it's selected and not empty
+      if (data.activity && data.activity.trim() !== '') {
+        activityMemoData.activity = data.activity;
+        console.log("✅ Including activity field:", data.activity);
+      } else {
+        console.log("⚠️ Skipping activity field - no valid activity selected");
+      }
 
       console.log("Formatted data for API:", activityMemoData);
 
