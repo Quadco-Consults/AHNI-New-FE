@@ -906,21 +906,32 @@ const CreateActivityMemo = () => {
       console.log("About to submit with activity ID:", data.activity);
       console.log("Type of activity ID:", typeof data.activity);
 
-      // Only include activity if it has a value (field is optional)
+      // Helper function to filter valid IDs from arrays
+      const filterValidIds = (arrayField: any[], availableOptions: any[]) => {
+        if (!arrayField || arrayField.length === 0) return [];
+        const validIds = new Set(availableOptions.map((opt: any) => opt.id || opt.value));
+        const filtered = arrayField.filter(id => validIds.has(id));
+        if (filtered.length !== arrayField.length) {
+          console.log(`⚠️ Filtered out ${arrayField.length - filtered.length} invalid IDs`);
+        }
+        return filtered;
+      };
+
+      // Filter all array fields to remove cached/invalid IDs
       const activityMemoData: any = {
         subject: data.subject,
         requested_date: data.requested_date,
         comment: data.comment,
         approved_by: data.approved_by,
         created_by: data.created_by,
-        fconumber: data.fconumber,
-        intervention_areas: data.intervention_areas,
-        budget_line: data.budget_line,
-        cost_categories: data.cost_categories,
-        cost_grouping: data.cost_grouping,
-        cost_input: data.cost_input,
-        funding_source: data.funding_source,
-        modules: data.module,
+        fconumber: filterValidIds(data.fconumber, fcoOptions),
+        intervention_areas: filterValidIds(data.intervention_areas, interventionsOptions),
+        budget_line: filterValidIds(data.budget_line, budgetLinesOptions),
+        cost_categories: filterValidIds(data.cost_categories, costCategoriesOptions),
+        cost_grouping: filterValidIds(data.cost_grouping, costGroupingsOptions),
+        cost_input: filterValidIds(data.cost_input, costInputOptions),
+        funding_source: filterValidIds(data.funding_source, fundingSourceOptions),
+        modules: filterValidIds(data.module, modulesOptions),
         through: data.through,
         copy: data.copy,
         expenses: data.expenses,
@@ -928,8 +939,14 @@ const CreateActivityMemo = () => {
 
       // Only add activity field if it's selected and not empty
       if (data.activity && data.activity.trim() !== '') {
-        activityMemoData.activity = data.activity;
-        console.log("✅ Including activity field:", data.activity);
+        // Validate activity ID exists in available options
+        const validActivityIds = new Set(activitiesOptions.map((a: any) => a.value));
+        if (validActivityIds.has(data.activity)) {
+          activityMemoData.activity = data.activity;
+          console.log("✅ Including activity field:", data.activity);
+        } else {
+          console.log("⚠️ Skipping activity field - ID not found in available activities");
+        }
       } else {
         console.log("⚠️ Skipping activity field - no valid activity selected");
       }
