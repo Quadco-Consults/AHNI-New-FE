@@ -63,7 +63,6 @@ import {
   useGetInterventionAreasDropdown
 } from "@/features/modules/controllers/config/allConfigController";
 import { useGetAllFCONumbersUnrestricted } from "@/features/modules/controllers/finance/fcoNumberController";
-import { useGetSingleBudgetLine } from "@/features/finance/controllers/classificationsController";
 
 const CreateActivityMemo = () => {
   const dispatch = useDispatch();
@@ -146,22 +145,11 @@ const CreateActivityMemo = () => {
     enabled: true,
   });
 
-  // Get all users first (remove user_type filter to debug)
   const { data: users } = useGetAllUsers({
     page: 1,
     size: 2000000,
     search: "",
-    // Temporarily removed user_type filter to see all users
   });
-
-  // DEBUG: Log raw user data
-  React.useEffect(() => {
-    if (users) {
-      console.log('🔍 DEBUG: Raw users data from API:', users);
-      console.log('🔍 DEBUG: Users results:', (users as any)?.data?.results);
-      console.log('🔍 DEBUG: Number of users fetched:', (users as any)?.data?.results?.length || 0);
-    }
-  }, [users]);
 
   // Fetch modules
   const modulesQuery = useGetAllModules({
@@ -463,143 +451,19 @@ const CreateActivityMemo = () => {
   //   console.log("⏳ Some data still loading...");
   // }
 
-  // ===== APPROVAL ROUTING ROLE CONFIGURATION =====
-  // Configure which roles can perform each approval action
-  const APPROVAL_ROLES = {
-    // Reviewers (Copy/CC) - First level review: Supervisors and Managers
-    reviewers: ['SUPER ADMIN', 'SUPERVISOR', 'MANAGER'],
-    // Authorisers (Through) - Second level authorization: Managers and Directors
-    authorisers: ['SUPER ADMIN', 'MANAGER', 'DIRECTOR'],
-    // Approvers (To) - Final approval: Directors and MD
-    approvers: ['SUPER ADMIN', 'DIRECTOR', 'MD', 'MANAGING DIRECTOR'],
-  };
-
-  // Filter internal users (exclude vendors, consultants, etc.)
-  const allUsers = (users as any)?.data?.results || [];
-
-  const internalUsers = allUsers.filter((user: any) => {
-    const userType = user.user_type;
-    const isInternal = userType === 'AHNI_STAFF' || userType === 'ADMIN';
-
-    // DEBUG: Log each user's type
-    if (!isInternal) {
-      console.log(`🔍 Filtered out user: ${user.first_name} ${user.last_name} (Type: ${userType})`);
-    }
-
-    return isInternal;
-  });
-
-  // DEBUG: Log filtered results
-  React.useEffect(() => {
-    console.log('🔍 DEBUG: Total users from API:', allUsers.length);
-    console.log('🔍 DEBUG: Internal users (AHNI_STAFF + ADMIN):', internalUsers.length);
-    if (allUsers.length > 0) {
-      const userTypeCounts = allUsers.reduce((acc: any, user: any) => {
-        acc[user.user_type] = (acc[user.user_type] || 0) + 1;
-        return acc;
-      }, {});
-      console.log('🔍 DEBUG: User type breakdown:', userTypeCounts);
-    }
-  }, [allUsers, internalUsers]);
-
-  // DEBUG: Log all users and their roles to see what roles exist in the system
-  React.useEffect(() => {
-    if (internalUsers.length > 0) {
-      console.log('🔍 DEBUG: Internal Users and their roles:');
-      const rolesSummary = internalUsers.map((user: any) => ({
-        name: `${user.first_name} ${user.last_name}`,
-        user_type: user.user_type,
-        roles: user.roles?.map((r: any) => r.name || r) || [],
-        position: user.position?.name || user.position,
-      }));
-      console.table(rolesSummary);
-
-      // Get unique role names
-      const allRoles = new Set<string>();
-      internalUsers.forEach((user: any) => {
-        if (user.roles && Array.isArray(user.roles)) {
-          user.roles.forEach((role: any) => {
-            allRoles.add(role.name || role);
-          });
-        }
-      });
-      console.log('📋 All unique roles in system:', Array.from(allRoles));
-    }
-  }, [internalUsers]);
-
-  // Helper function to check if user has any of the specified roles
-  const userHasRole = (user: any, allowedRoles: string[]) => {
-    if (!user.roles || !Array.isArray(user.roles)) return false;
-    const userRoleNames = user.roles.map((role: any) =>
-      (role.name || role).toUpperCase()
-    );
-    return allowedRoles.some(allowedRole =>
-      userRoleNames.includes(allowedRole.toUpperCase())
-    );
-  };
-
-  // Filter users by role for each approval level
-  const reviewerUsers = internalUsers.filter((user: any) =>
-    userHasRole(user, APPROVAL_ROLES.reviewers)
-  );
-
-  const authoriserUsers = internalUsers.filter((user: any) =>
-    userHasRole(user, APPROVAL_ROLES.authorisers)
-  );
-
-  const approverUsers = internalUsers.filter((user: any) =>
-    userHasRole(user, APPROVAL_ROLES.approvers)
-  );
-
-  // Create options for each approval level
-  const reviewerOptions = reviewerUsers.map(
-    ({ first_name, last_name, id, position, roles }: any) => ({
-      name: `${first_name || ''} ${last_name || ''}${position ? ` (${position.name || position})` : ''}`.trim() || 'Unnamed User',
+  const usersOptions = (users as any)?.data?.results?.map(
+    ({ first_name, last_name, id }: any) => ({
+      name: `${first_name || ''} ${last_name || ''}`.trim() || 'Unnamed User',
       id,
     })
-  );
+  ) || [];
 
-  const authoriserOptions = authoriserUsers.map(
-    ({ first_name, last_name, id, position, roles }: any) => ({
-      name: `${first_name || ''} ${last_name || ''}${position ? ` (${position.name || position})` : ''}`.trim() || 'Unnamed User',
-      id,
-    })
-  );
-
-  const approverOptions = approverUsers.map(
-    ({ first_name, last_name, id, position, roles }: any) => ({
-      label: `${first_name || ''} ${last_name || ''}${position ? ` (${position.name || position})` : ''}`.trim() || 'Unnamed User',
+  const usersOptionsFn = (users as any)?.data?.results?.map(
+    ({ first_name, last_name, id }: any) => ({
+      label: `${first_name || ''} ${last_name || ''}`.trim() || 'Unnamed User',
       value: id,
     })
-  );
-
-  // Role-based filtering is now enabled with correct role names
-  const showAllInternalUsers = false; // Roles are configured correctly
-
-  const finalReviewerOptions = (showAllInternalUsers || reviewerOptions.length === 0)
-    ? internalUsers.map(({ first_name, last_name, id, position, roles }: any) => ({
-        name: `${first_name || ''} ${last_name || ''}${position ? ` (${position.name || position})` : ''}`.trim() || 'Unnamed User',
-        id,
-      }))
-    : reviewerOptions;
-
-  const finalAuthoriserOptions = (showAllInternalUsers || authoriserOptions.length === 0)
-    ? internalUsers.map(({ first_name, last_name, id, position, roles }: any) => ({
-        name: `${first_name || ''} ${last_name || ''}${position ? ` (${position.name || position})` : ''}`.trim() || 'Unnamed User',
-        id,
-      }))
-    : authoriserOptions;
-
-  const finalApproverOptions = (showAllInternalUsers || approverOptions.length === 0)
-    ? internalUsers.map(({ first_name, last_name, id, position, roles }: any) => ({
-        label: `${first_name || ''} ${last_name || ''}${position ? ` (${position.name || position})` : ''}`.trim() || 'Unnamed User',
-        value: id,
-      }))
-    : approverOptions;
-
-  // Keep these for backward compatibility
-  const usersOptions = finalReviewerOptions;
-  const usersOptionsFn = finalApproverOptions;
+  ) || [];
 
   const activitiesOptions = React.useMemo(() => {
     // Debug console.log commented to prevent render loops
@@ -639,6 +503,36 @@ const CreateActivityMemo = () => {
     return options;
   }, [activites, activitiesLoading, activitiesError]);
 
+  const interventionsOptions = React.useMemo(() => {
+    let rawResults = [];
+    let dataSource = '';
+
+    // Priority 1: New comprehensive backend endpoint
+    if (backendInterventionAreas.length > 0) {
+      rawResults = backendInterventionAreas;
+      dataSource = `🏆 REAL BACKEND DATA (${interventionAreasCount} items)`;
+    }
+    // Priority 2: Bypassed data as fallback
+    else {
+      rawResults = [];
+      dataSource = 'NO DATA AVAILABLE';
+    }
+
+    // Debug console.log commented to prevent render loops
+    // console.log(`🎯 INTERVENTION AREAS DATA SOURCE: ${dataSource}`);
+    // console.log("Intervention Areas raw results:", rawResults);
+
+    const apiOptions = rawResults.map(({ code, id }: any) => ({
+      id,
+      name: code,
+    }));
+
+    // Only apply fallback merge if using non-backend sources
+    const finalOptions = backendInterventionAreas.length > 0 ? apiOptions : mergeFallbackInterventionAreas(apiOptions);
+    // console.log(`🎯 Intervention Areas: ${apiOptions.length} from ${dataSource} + ${finalOptions.length - apiOptions.length} fallback = ${finalOptions.length} total`);
+    return finalOptions;
+  }, [backendInterventionAreas, interventionAreasCount]);
+
   // Form persistence key
   const FORM_STORAGE_KEY = 'activity_memo_form_data';
 
@@ -646,37 +540,26 @@ const CreateActivityMemo = () => {
   const loadSavedFormData = () => {
     try {
       const savedData = localStorage.getItem(FORM_STORAGE_KEY);
+      // Debug console.log commented to prevent render loops
+      // console.log('Raw saved data from localStorage:', savedData);
       if (savedData) {
         const parsedData = JSON.parse(savedData);
+        // console.log('✅ Loaded saved form data:', parsedData);
 
         // Validate the structure to ensure it's compatible
         if (parsedData && typeof parsedData === 'object') {
-          // Helper function to validate UUIDs against available options
-          const validateUUIDs = (uuids: any[], availableOptions: any[]): string[] => {
-            if (!Array.isArray(uuids)) return [];
-            const availableIds = new Set(availableOptions.map(opt => opt.id));
-            const validUuids = uuids.filter(uuid => availableIds.has(uuid));
-            const invalidUuids = uuids.filter(uuid => !availableIds.has(uuid));
-
-            if (invalidUuids.length > 0) {
-              console.warn(`⚠️ Removed ${invalidUuids.length} invalid UUIDs from localStorage draft:`, invalidUuids);
-            }
-
-            return validUuids;
-          };
-
-          // Validate all UUID array fields against available options
+          // Ensure arrays are properly formatted
           const validatedData = {
             ...parsedData,
-            fconumber: validateUUIDs(parsedData.fconumber, fcoOptions),
-            module: validateUUIDs(parsedData.module, modulesOptions),
-            intervention_areas: validateUUIDs(parsedData.intervention_areas, interventionsOptions),
-            budget_line: validateUUIDs(parsedData.budget_line, budgetLinesOptions),
-            cost_categories: validateUUIDs(parsedData.cost_categories, costGroupingsOptions),
-            cost_input: validateUUIDs(parsedData.cost_input, costInputOptions),
-            funding_source: validateUUIDs(parsedData.funding_source, fundingSourceOptions),
-            copy: validateUUIDs(parsedData.copy, finalReviewerOptions || []),
-            through: validateUUIDs(parsedData.through, finalAuthoriserOptions || []),
+            fconumber: Array.isArray(parsedData.fconumber) ? parsedData.fconumber : [],
+            module: Array.isArray(parsedData.module) ? parsedData.module : [],
+            intervention_areas: Array.isArray(parsedData.intervention_areas) ? parsedData.intervention_areas : [],
+            budget_line: Array.isArray(parsedData.budget_line) ? parsedData.budget_line : [],
+            cost_categories: Array.isArray(parsedData.cost_categories) ? parsedData.cost_categories : [],
+            cost_input: Array.isArray(parsedData.cost_input) ? parsedData.cost_input : [],
+            funding_source: Array.isArray(parsedData.funding_source) ? parsedData.funding_source : [],
+            copy: Array.isArray(parsedData.copy) ? parsedData.copy : [],
+            through: Array.isArray(parsedData.through) ? parsedData.through : [],
             expenses: Array.isArray(parsedData.expenses) ? parsedData.expenses : [],
           };
           // console.log('📋 Validated saved data:', validatedData);
@@ -739,77 +622,19 @@ const CreateActivityMemo = () => {
   // Watch all form values for auto-save
   const watchedValues = watch();
 
-  // Watch for Budget Line selection changes to filter modules and intervention areas
-  const selectedBudgetLineIds = watch('budget_line') || [];
-  const firstBudgetLineId = Array.isArray(selectedBudgetLineIds) && selectedBudgetLineIds.length > 0
-    ? selectedBudgetLineIds[0]
-    : null;
-
-  // Fetch selected Budget Line details (with related modules and intervention areas)
-  const { data: selectedBudgetLineData } = useGetSingleBudgetLine(
-    firstBudgetLineId || '',
-    !!firstBudgetLineId // Only fetch if a budget line is selected
-  );
-
-  // Module options - filter by selected Budget Line if one is selected
+  // Module options - show ALL modules (budget line filtering removed as per user feedback)
   const modulesOptions = React.useMemo(() => {
     const rawResults = (modulesData as any)?.results || (modulesData as any)?.data?.results || [];
+
+    // Show all modules regardless of budget line selection
+    // This allows users to select any module even if not explicitly linked to the budget line
     const allOptions = rawResults.map(({ name, id }: any) => ({
       id,
       name,
     }));
 
-    // If a Budget Line is selected and it has related modules, filter the options
-    const budgetLineModules = selectedBudgetLineData?.data?.modules || [];
-    if (firstBudgetLineId && budgetLineModules.length > 0) {
-      const filteredOptions = allOptions.filter((option: any) =>
-        budgetLineModules.includes(option.id)
-      );
-      console.log(`🔍 Filtering modules by Budget Line: ${filteredOptions.length}/${allOptions.length} modules`);
-      return filteredOptions;
-    }
-
-    // Otherwise show all modules
     return allOptions;
-  }, [modulesData, selectedBudgetLineData, firstBudgetLineId]);
-
-  // Intervention Areas options - filter by selected Budget Line if one is selected
-  const interventionsOptions = React.useMemo(() => {
-    let rawResults = [];
-    let dataSource = '';
-
-    // Priority 1: New comprehensive backend endpoint
-    if (backendInterventionAreas.length > 0) {
-      rawResults = backendInterventionAreas;
-      dataSource = `🏆 REAL BACKEND DATA (${interventionAreasCount} items)`;
-    }
-    // Priority 2: Bypassed data as fallback
-    else {
-      rawResults = [];
-      dataSource = 'NO DATA AVAILABLE';
-    }
-
-    const apiOptions = rawResults.map(({ code, id }: any) => ({
-      id,
-      name: code,
-    }));
-
-    // Apply fallback merge if needed
-    const allOptions = backendInterventionAreas.length > 0 ? apiOptions : mergeFallbackInterventionAreas(apiOptions);
-
-    // If a Budget Line is selected and it has related intervention areas, filter the options
-    const budgetLineInterventionAreas = selectedBudgetLineData?.data?.intervention_areas || [];
-    if (firstBudgetLineId && budgetLineInterventionAreas.length > 0) {
-      const filteredOptions = allOptions.filter((option: any) =>
-        budgetLineInterventionAreas.includes(option.id)
-      );
-      console.log(`🔍 Filtering intervention areas by Budget Line: ${filteredOptions.length}/${allOptions.length} areas`);
-      return filteredOptions;
-    }
-
-    // Otherwise show all intervention areas
-    return allOptions;
-  }, [backendInterventionAreas, interventionAreasCount, selectedBudgetLineData, firstBudgetLineId]);
+  }, [modulesData]);
 
   // Save form data to localStorage
   const saveFormData = (data: any) => {
@@ -1459,34 +1284,7 @@ const CreateActivityMemo = () => {
             <div className='grid grid-cols-3 gap-5'>
               {/* Reviewer */}
               <div>
-                <Label className='font-semibold'>Reviewer (Copy/CC)</Label>
-                <FormField
-                  control={form.control}
-                  name='copy'
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <MultiSelectFormField
-                          options={finalReviewerOptions || []}
-                          defaultValue={field.value}
-                          onValueChange={field.onChange}
-                          placeholder={finalReviewerOptions.length === 0 ? 'No reviewers available' : 'Select Reviewer(s)'}
-                          variant='inverted'
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                {finalReviewerOptions.length === 0 && (
-                  <p className="text-xs text-amber-600 mt-1">
-                    ⚠️ No users with Supervisor or Manager roles found
-                  </p>
-                )}
-              </div>
-
-              {/* Authorizer */}
-              <div>
-                <Label className='font-semibold'>Authorizer (Through)</Label>
+                <Label className='font-semibold'>Reviewer</Label>
                 <FormField
                   control={form.control}
                   name='through'
@@ -1494,36 +1292,50 @@ const CreateActivityMemo = () => {
                     <FormItem>
                       <FormControl>
                         <MultiSelectFormField
-                          options={finalAuthoriserOptions || []}
+                          options={usersOptions || []}
                           defaultValue={field.value}
                           onValueChange={field.onChange}
-                          placeholder={finalAuthoriserOptions.length === 0 ? 'No authorizers available' : 'Select Authorizer(s)'}
+                          placeholder='Select Reviewer(s)'
                           variant='inverted'
                         />
                       </FormControl>
                     </FormItem>
                   )}
                 />
-                {finalAuthoriserOptions.length === 0 && (
-                  <p className="text-xs text-amber-600 mt-1">
-                    ⚠️ No users with Manager or Director roles found
-                  </p>
-                )}
+              </div>
+
+              {/* Authorizer */}
+              <div>
+                <Label className='font-semibold'>Authorizer</Label>
+                <FormField
+                  control={form.control}
+                  name='copy'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <MultiSelectFormField
+                          options={usersOptions || []}
+                          defaultValue={field.value}
+                          onValueChange={field.onChange}
+                          placeholder='Select Authorizer(s)'
+                          variant='inverted'
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
               </div>
 
               {/* Approver (To) */}
               <div>
-                <FormSelect
-                  label='Approver (To)'
-                  name='approved_by'
-                  required
-                  placeholder={finalApproverOptions.length === 0 ? 'No approvers available' : 'Select Approver'}
-                  options={finalApproverOptions}
-                />
-                {finalApproverOptions.length === 0 && (
-                  <p className="text-xs text-amber-600 mt-1">
-                    ⚠️ No users with Director or MD roles found
-                  </p>
+                {usersOptionsFn && (
+                  <FormSelect
+                    label='Approver (To)'
+                    name='approved_by'
+                    required
+                    placeholder='Select Approver'
+                    options={usersOptionsFn}
+                  />
                 )}
               </div>
             </div>
