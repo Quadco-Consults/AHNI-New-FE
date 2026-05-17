@@ -724,25 +724,18 @@ const CreateActivityMemo = () => {
     name: "expenses",
   });
 
-  // Auto-populate financial fields when activity is selected
+  // REMOVED: Auto-population logic that was clearing manual selections
+  // Users will manually select all financial fields from dropdowns
+  // This prevents the form from clearing values when an activity is selected
+
+  // Keep activity watching for Redux store only (not for auto-population)
   const selectedActivityId = watch('activity');
-  const prevActivityIdRef = React.useRef<string | null>(null);
 
-  // Get selected activity's project ID
-  const selectedActivity = React.useMemo(() => {
-    if (selectedActivityId && activites) {
-      return (activites as any)?.data?.results?.find(
-        (activity: any) => activity.id === selectedActivityId
-      );
-    }
-    return null;
-  }, [selectedActivityId, activites]);
+  // Removed auto-population useEffect - it was causing data loss
+  // Users prefer to manually select all financial configuration fields
 
-  const projectId = selectedActivity?.project || null;
-
-  // Fetch project details when activity has a project
-  const { data: projectData } = useGetSingleProject(projectId as string, !!projectId);
-
+  /*
+  // DISABLED AUTO-POPULATION - Was clearing manual selections
   useEffect(() => {
     if (selectedActivityId && activites) {
       const selectedActivity = (activites as any)?.data?.results?.find(
