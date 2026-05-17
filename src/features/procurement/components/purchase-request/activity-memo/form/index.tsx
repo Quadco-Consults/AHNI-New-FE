@@ -910,6 +910,15 @@ const CreateActivityMemo = () => {
   const onSubmit = async (data: z.infer<typeof SampleMemoSchema>) => {
     console.log("🚀 FORM SUBMISSION STARTED!");
     console.log("Form data received:", data);
+    console.log("📊 FINANCIAL FIELDS IN FORM DATA:");
+    console.log("  - budget_line:", data.budget_line);
+    console.log("  - module:", data.module);
+    console.log("  - intervention_areas:", data.intervention_areas);
+    console.log("  - cost_categories:", data.cost_categories);
+    console.log("  - cost_grouping:", data.cost_grouping);
+    console.log("  - fconumber:", data.fconumber);
+    console.log("  - cost_input:", data.cost_input);
+    console.log("  - funding_source:", data.funding_source);
     setIsSubmitting(true);
 
     try {
@@ -926,38 +935,29 @@ const CreateActivityMemo = () => {
       console.log("About to submit with activity ID:", data.activity);
       console.log("Type of activity ID:", typeof data.activity);
 
-      // Helper function to filter valid IDs from arrays
-      // TEMPORARILY DISABLED: Pass through all values without filtering until backend CORS fix is deployed
-      const filterValidIds = (arrayField: any[], availableOptions: any[]) => {
-        if (!arrayField || arrayField.length === 0) return [];
-
-        // Temporarily bypass filtering completely to prevent data loss
-        // TODO: Re-enable after backend CORS fix is deployed to production
-        console.log(`⚠️ Filtering disabled - passing through ${arrayField.length} IDs without validation`);
-        return arrayField;
-      };
-
-      // Filter all array fields to remove cached/invalid IDs
-      // Note: Both cost_categories and cost_grouping use the same options (costGroupingsOptions)
-      // as the backend uses cost_grouping table for both fields
+      // RESTORED: Direct assignment like Oct 30th working version
+      // Removed filterValidIds to match the rollback version that was working
       const activityMemoData: any = {
         subject: data.subject,
         requested_date: data.requested_date,
         comment: data.comment,
         approved_by: data.approved_by,
         created_by: data.created_by,
-        fconumber: filterValidIds(data.fconumber, fcoOptions),
-        intervention_areas: filterValidIds(data.intervention_areas, interventionsOptions),
-        budget_line: filterValidIds(data.budget_line, budgetLinesOptions),
-        cost_categories: filterValidIds(data.cost_categories, costCategoriesOptions),
-        cost_grouping: filterValidIds(data.cost_grouping, costGroupingsOptions),
-        cost_input: filterValidIds(data.cost_input, costInputOptions),
-        funding_source: filterValidIds(data.funding_source, fundingSourceOptions),
-        modules: filterValidIds(data.module, modulesOptions),
+        // Direct assignment - no filtering (matching Oct 30th working version)
+        fconumber: data.fconumber || [],
+        intervention_areas: data.intervention_areas || [],
+        budget_line: data.budget_line || [],
+        cost_categories: data.cost_categories || [],
+        cost_grouping: data.cost_grouping || [],
+        cost_input: data.cost_input || [],
+        funding_source: data.funding_source || [],
+        modules: data.module || [],  // Note: form field is "module" (singular), API expects "modules" (plural)
         through: data.through,
         copy: data.copy,
         expenses: data.expenses,
       };
+
+      console.log("📦 Activity Memo Data prepared for API:", activityMemoData);
 
       // Only add activity field if it's selected and not empty
       if (data.activity && data.activity.trim() !== '') {
