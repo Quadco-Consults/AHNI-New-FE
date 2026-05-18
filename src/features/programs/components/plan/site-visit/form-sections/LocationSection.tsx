@@ -72,28 +72,49 @@ const LocationSection: React.FC<LocationSectionProps> = ({
     return options;
   }, [facilities]);
 
-  // Create state options for FormSelect
-  const stateOptions = nigerianStates.map(state => ({
-    label: state,
-    value: state,
-  }));
+  // Create location options from actual Location objects (with UUIDs)
+  const locationOptions = React.useMemo(() => {
+    if (!locations || locations.length === 0) return [];
 
-  // Auto-populate state field when facility is selected (only for supportive supervision)
+    return locations
+      .filter((loc: any) => loc.name.includes('State') || loc.name.includes('FCT'))
+      .map((location: any) => ({
+        label: location.name,
+        value: location.id,  // Send UUID to backend
+      }));
+  }, [locations]);
+
+  // Auto-populate state and location fields when facility is selected (only for supportive supervision)
   React.useEffect(() => {
-    if (facilityData && requiresFacility) {
+    if (facilityData && requiresFacility && locations && locations.length > 0) {
       // If facility is selected for supportive supervision, use facility's state and LGA
-      let stateValue = facilityData.state || "";
+      let stateName = facilityData.state || "";
 
       // Handle FCT name variations
-      if (stateValue === "Federal Capital Territory (FCT)" || stateValue === "Federal Capital Territory") {
-        stateValue = "FCT";
+      if (stateName === "Federal Capital Territory (FCT)" || stateName === "Federal Capital Territory") {
+        stateName = "FCT Abuja";
       }
 
-      setValue("location", stateValue);  // Location/State dropdown
-      setValue("state", stateValue);     // State dropdown
+      // Strip " State" suffix to match state dropdown values (e.g., "Borno State" -> "Borno")
+      const stateForDropdown = stateName.replace(/ State$/i, "").trim();
+
+      // Find matching Location by state name (Location names include " (External)")
+      const matchingLocation = locations.find((loc: any) => {
+        const locName = loc.name.replace(/ \(External\)$/i, "").trim();
+        return locName === stateName ||
+               locName.includes(stateForDropdown) ||
+               (stateForDropdown === "FCT" && locName.includes("FCT Abuja"));
+      });
+
+      // Set Location UUID if found
+      if (matchingLocation) {
+        setValue("location", matchingLocation.id);
+      }
+
+      setValue("state", stateForDropdown);     // State dropdown (without " State")
       setValue("lga", facilityData.lga || "");         // LGA field
     }
-  }, [facilityData, requiresFacility]); // Removed setValue to prevent infinite loop
+  }, [facilityData, requiresFacility, setValue, locations]);
 
   return (
     <Card>
@@ -189,15 +210,15 @@ const LocationSection: React.FC<LocationSectionProps> = ({
               {isLocationsLoading ? (
                 <div className="flex items-center justify-center p-4 border rounded-md">
                   <LoadingSpinner />
-                  <span className="ml-2 text-sm">Loading states...</span>
+                  <span className="ml-2 text-sm">Loading locations...</span>
                 </div>
               ) : (
                 <FormSelect
                   name="location"
                   placeholder="Select the state you're traveling to"
-                  options={stateOptions}
-                  searchPlaceholder="Search Nigerian states..."
-                  emptyMessage="No states found matching your search."
+                  options={locationOptions}
+                  searchPlaceholder="Search locations..."
+                  emptyMessage="No locations found matching your search."
                   onValueChange={field.onChange}
                 />
               )}

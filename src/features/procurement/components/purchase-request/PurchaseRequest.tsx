@@ -573,7 +573,7 @@ function PurchaseRequest({
                             <div className="flex gap-4">
                               <span className="font-bold">Module:</span>
                               <span>
-                                {detailsActivityMemoData.module_details?.map(m => m.name || m.code).filter(Boolean).join(', ') ||
+                                {detailsActivityMemoData.modules_details?.map(m => m.name || m.code).filter(Boolean).join(', ') ||
                                  'N/A'}
                               </span>
                             </div>

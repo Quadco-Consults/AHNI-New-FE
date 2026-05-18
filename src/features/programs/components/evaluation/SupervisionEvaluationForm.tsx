@@ -317,6 +317,41 @@ export default function SupervisionEvaluationForm({
     });
   };
 
+  // Handle select all criteria for a category
+  const handleSelectAllCriteria = (categoryId: string, categoryName: string) => {
+    const categoryCriteria = criteriaByCategory[categoryId] || [];
+
+    // Check if all criteria in this category are already selected
+    const allSelected = categoryCriteria.every((criteria: any) =>
+      selectedCriteria.some(c => c.id === criteria.id)
+    );
+
+    setSelectedCriteria(prev => {
+      let newCriteria;
+
+      if (allSelected) {
+        // Deselect all criteria from this category
+        newCriteria = prev.filter(c => c.category_id !== categoryId);
+      } else {
+        // Remove existing criteria from this category first, then add all
+        const withoutThisCategory = prev.filter(c => c.category_id !== categoryId);
+        const allCriteriaFromCategory = categoryCriteria.map((criteria: any) => ({
+          id: criteria.id,
+          name: criteria.name,
+          description: criteria.description,
+          category_id: categoryId,
+          category_name: categoryName,
+        }));
+        newCriteria = [...withoutThisCategory, ...allCriteriaFromCategory];
+      }
+
+      // Update the form field
+      form.setValue("selected_criteria", newCriteria.map(c => c.id));
+
+      return newCriteria;
+    });
+  };
+
   // Apply evaluation template
   const applyTemplate = (template: IEvaluationTemplate) => {
     const categoryIds = template.categories.map(c => c.id);
@@ -743,14 +778,32 @@ export default function SupervisionEvaluationForm({
                       const category = categoriesData?.find(c => c.id === categoryId);
                       const categoryCriteria = criteriaByCategory[categoryId] || [];
 
+                      // Check if all criteria in this category are selected
+                      const allSelected = categoryCriteria.length > 0 && categoryCriteria.every((criteria: any) =>
+                        selectedCriteria.some(c => c.id === criteria.id)
+                      );
+
                       return (
                         <div key={categoryId} className="border rounded-lg p-4">
-                          <h5 className="font-medium text-gray-800 mb-3 flex items-center gap-2">
-                            <Badge variant="secondary">{category?.name}</Badge>
-                            <span className="text-sm text-gray-500">
-                              ({categoryCriteria.length} criteria available)
-                            </span>
-                          </h5>
+                          <div className="flex items-center justify-between mb-3">
+                            <h5 className="font-medium text-gray-800 flex items-center gap-2">
+                              <Badge variant="secondary">{category?.name}</Badge>
+                              <span className="text-sm text-gray-500">
+                                ({categoryCriteria.length} criteria available)
+                              </span>
+                            </h5>
+                            {categoryCriteria.length > 0 && (
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleSelectAllCriteria(categoryId, category?.name || 'Unknown Category')}
+                                className="text-xs"
+                              >
+                                {allSelected ? 'Deselect All' : 'Select All'}
+                              </Button>
+                            )}
+                          </div>
 
                           {categoryCriteria.length > 0 ? (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">

@@ -239,7 +239,7 @@ const CreateActivityMemoForm = ({ editMode = false, existingData, memoId }: Crea
           return {
             ...parsedData,
             fconumber: Array.isArray(parsedData.fconumber) ? parsedData.fconumber : [],
-            module: Array.isArray(parsedData.module) ? parsedData.module : [],
+            modules: Array.isArray(parsedData.modules) ? parsedData.modules : (Array.isArray(parsedData.module) ? parsedData.module : []),
             intervention_areas: Array.isArray(parsedData.intervention_areas) ? parsedData.intervention_areas : [],
             budget_line: Array.isArray(parsedData.budget_line) ? parsedData.budget_line : [],
             cost_categories: Array.isArray(parsedData.cost_categories) ? parsedData.cost_categories : [],
@@ -270,7 +270,7 @@ const CreateActivityMemoForm = ({ editMode = false, existingData, memoId }: Crea
       subject: existingData.subject || "",
       requested_date: existingData.requested_date || "",
       fconumber: existingData.fconumber || [],
-      module: (existingData as any).module || [],
+      modules: (existingData as any).modules || (existingData as any).module || [],
       intervention_areas: existingData.intervention_areas || [],
       budget_line: existingData.budget_line || [],
       cost_categories: existingData.cost_categories || [],
@@ -302,7 +302,7 @@ const CreateActivityMemoForm = ({ editMode = false, existingData, memoId }: Crea
       subject: "",
       requested_date: "",
       fconumber: [],
-      module: [],
+      modules: [],
       intervention_areas: [],
       budget_line: [],
       cost_categories: [],
@@ -586,7 +586,7 @@ const CreateActivityMemoForm = ({ editMode = false, existingData, memoId }: Crea
         reviewed_by: data.copy, // CC = Reviewers
         authorised_by: data.through, // Through = Authorizers
         fconumber: data.fconumber,
-        module: data.module,
+        modules: data.modules, // Use plural to match backend model
         intervention_areas: data.intervention_areas,
         budget_line: data.budget_line,
         cost_categories: validCostCategories, // Use filtered cost categories
@@ -774,7 +774,7 @@ const CreateActivityMemoForm = ({ editMode = false, existingData, memoId }: Crea
                   ) : (
                     <FormField
                       control={control}
-                      name="module"
+                      name="modules"
                       render={({ field }) => (
                         <FormItem>
                           <FormControl>

@@ -612,74 +612,80 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
         console.log("👥 Set requested_by:", requestedById, "from:", createdByField);
       }
 
-      // Check both reviewed_by and reviewed_by_details
-      const reviewedByField = memoData.reviewed_by_details || memoData.reviewed_by;
-      if (reviewedByField && Array.isArray(reviewedByField) && reviewedByField.length > 0) {
-        const reviewedById = extractUserId(reviewedByField[0]);
-        console.log("👥 Setting reviewed_by:", {
-          original: reviewedByField[0],
-          extracted: reviewedById,
-          type: typeof reviewedById
-        });
+      // ❌ DO NOT auto-populate reviewed_by from activity memo
+      // Purchase Request should have its own approval workflow, not inherit from activity memo
+      // Users should manually select reviewers for the PR
+      // const reviewedByField = memoData.reviewed_by_details || memoData.reviewed_by;
+      // if (reviewedByField && Array.isArray(reviewedByField) && reviewedByField.length > 0) {
+      //   const reviewedById = extractUserId(reviewedByField[0]);
+      //   console.log("👥 Setting reviewed_by:", {
+      //     original: reviewedByField[0],
+      //     extracted: reviewedById,
+      //     type: typeof reviewedById
+      //   });
 
-        setValue("reviewed_by", String(reviewedById));
-        // Auto-populate role for reviewed_by
-        const reviewedUser = (users as any)?.data?.results?.find((user: any) => user.id === reviewedById);
-        if (reviewedUser?.position) {
-          const roleId = extractRoleId(reviewedUser.position);
-          setValue("role_reviewed_by", roleId || "");
-          console.log("👥 Set role_reviewed_by:", roleId, "from:", reviewedUser.position);
-        } else {
-          setValue("role_reviewed_by", "");
-        }
-        console.log("👥 Set reviewed_by:", reviewedById, "from:", reviewedByField[0]);
-      }
+      //   setValue("reviewed_by", String(reviewedById));
+      //   // Auto-populate role for reviewed_by
+      //   const reviewedUser = (users as any)?.data?.results?.find((user: any) => user.id === reviewedById);
+      //   if (reviewedUser?.position) {
+      //     const roleId = extractRoleId(reviewedUser.position);
+      //     setValue("role_reviewed_by", roleId || "");
+      //     console.log("👥 Set role_reviewed_by:", roleId, "from:", reviewedUser.position);
+      //   } else {
+      //     setValue("role_reviewed_by", "");
+      //   }
+      //   console.log("👥 Set reviewed_by:", reviewedById, "from:", reviewedByField[0]);
+      // }
 
-      // Check both authorised_by and authorised_by_details
-      const authorisedByField = memoData.authorised_by_details || memoData.authorised_by;
-      if (authorisedByField && Array.isArray(authorisedByField) && authorisedByField.length > 0) {
-        const authorizedById = extractUserId(authorisedByField[0]);
-        console.log("👥 Setting authorised_by:", {
-          original: authorisedByField[0],
-          extracted: authorizedById,
-          type: typeof authorizedById
-        });
+      // ❌ DO NOT auto-populate authorised_by from activity memo
+      // Purchase Request should have its own approval workflow, not inherit from activity memo
+      // Users should manually select authorizers for the PR
+      // const authorisedByField = memoData.authorised_by_details || memoData.authorised_by;
+      // if (authorisedByField && Array.isArray(authorisedByField) && authorisedByField.length > 0) {
+      //   const authorizedById = extractUserId(authorisedByField[0]);
+      //   console.log("👥 Setting authorised_by:", {
+      //     original: authorisedByField[0],
+      //     extracted: authorizedById,
+      //     type: typeof authorizedById
+      //   });
 
-        setValue("authorised_by", String(authorizedById));
-        // Auto-populate role for authorised_by
-        const authorizedUser = (users as any)?.data?.results?.find((user: any) => user.id === authorizedById);
-        if (authorizedUser?.position) {
-          const roleId = extractRoleId(authorizedUser.position);
-          setValue("role_authorised_by", roleId || "");
-          console.log("👥 Set role_authorised_by:", roleId, "from:", authorizedUser.position);
-        } else {
-          setValue("role_authorised_by", "");
-        }
-        console.log("👥 Set authorised_by:", authorizedById, "from:", authorisedByField[0]);
-      }
+      //   setValue("authorised_by", String(authorizedById));
+      //   // Auto-populate role for authorised_by
+      //   const authorizedUser = (users as any)?.data?.results?.find((user: any) => user.id === authorizedById);
+      //   if (authorizedUser?.position) {
+      //     const roleId = extractRoleId(authorizedUser.position);
+      //     setValue("role_authorised_by", roleId || "");
+      //     console.log("👥 Set role_authorised_by:", roleId, "from:", authorizedUser.position);
+      //   } else {
+      //     setValue("role_authorised_by", "");
+      //   }
+      //   console.log("👥 Set authorised_by:", authorizedById, "from:", authorisedByField[0]);
+      // }
 
-      // Check both approved_by and approved_by_details
-      const approvedByField = memoData.approved_by_details || memoData.approved_by;
-      if (approvedByField) {
-        const approvedById = extractUserId(approvedByField);
-        console.log("👥 Setting approved_by:", {
-          original: approvedByField,
-          extracted: approvedById,
-          type: typeof approvedById
-        });
+      // ❌ DO NOT auto-populate approved_by from activity memo
+      // Purchase Request should have its own approval workflow, not inherit from activity memo
+      // Users should manually select approvers for the PR
+      // const approvedByField = memoData.approved_by_details || memoData.approved_by;
+      // if (approvedByField) {
+      //   const approvedById = extractUserId(approvedByField);
+      //   console.log("👥 Setting approved_by:", {
+      //     original: approvedByField,
+      //     extracted: approvedById,
+      //     type: typeof approvedById
+      //   });
 
-        setValue("approved_by", String(approvedById));
-        // Auto-populate role for approved_by
-        const approvedUser = (users as any)?.data?.results?.find((user: any) => user.id === approvedById);
-        if (approvedUser?.position) {
-          const roleId = extractRoleId(approvedUser.position);
-          setValue("role_approved_by", roleId || "");
-          console.log("👥 Set role_approved_by:", roleId, "from:", approvedUser.position);
-        } else {
-          setValue("role_approved_by", "");
-        }
-        console.log("👥 Set approved_by:", approvedById, "from:", approvedByField);
-      }
+      //   setValue("approved_by", String(approvedById));
+      //   // Auto-populate role for approved_by
+      //   const approvedUser = (users as any)?.data?.results?.find((user: any) => user.id === approvedById);
+      //   if (approvedUser?.position) {
+      //     const roleId = extractRoleId(approvedUser.position);
+      //     setValue("role_approved_by", roleId || "");
+      //     console.log("👥 Set role_approved_by:", roleId, "from:", approvedUser.position);
+      //   } else {
+      //     setValue("role_approved_by", "");
+      //   }
+      //   console.log("👥 Set approved_by:", approvedById, "from:", approvedByField);
+      // }
 
       // Ensure all required fields have values to prevent validation errors
       setTimeout(() => {
@@ -753,9 +759,14 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
     }
   }, [activityMemoData, apiMemoData, setValue, users]);
 
+  // Use ref to track if we've already loaded expenses to prevent duplication
+  const expensesLoadedRef = React.useRef(false);
+
   useEffect(() => {
-    if (expensesData && expensesData.length > 0) {
+    // Only load expenses once when expensesData is available
+    if (expensesData && expensesData.length > 0 && !expensesLoadedRef.current) {
       console.log("✍️ Populating form with expenses data:", expensesData);
+      expensesLoadedRef.current = true; // Mark as loaded
 
       // Debug each item being set
       expensesData.forEach((item: any, index: number) => {
@@ -796,6 +807,8 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
           quantity: item.quantity || 1,
           unit_cost: item.unit_cost || 0,
           amount: item.amount || 0,
+          // ✅ UOM: Preserve unit of measurement from activity memo
+          uom: typeof item.uom === 'object' ? (item.uom?.name || item.uom?.id || "") : (item.uom || ""),
           // ✅ SERVICE SUPPORT: Preserve service fields
           is_service: item.is_service || false,
           duration: item.duration || 1,
@@ -828,11 +841,12 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
       if (finalMemoId) {
         toast.success(`Loaded ${expensesData.length} items from activity memo`);
       }
-    } else if (finalMemoId) {
+    } else if (finalMemoId && !expensesLoadedRef.current) {
       console.warn("No expenses data found for memo ID:", finalMemoId);
       toast.warning("No items found from activity memo. You may need to add items manually.");
+      expensesLoadedRef.current = true; // Mark as loaded even if no data to prevent repeated warnings
     }
-  }, [expensesData, setValue, finalMemoId, fields.length, append, remove]);
+  }, [expensesData, finalMemoId]); // Removed fields.length, append, remove from dependencies
 
   return (
     <div className='pt-5'>

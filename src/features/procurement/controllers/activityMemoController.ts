@@ -44,8 +44,10 @@ export interface ActivityMemo {
   status?: 'DRAFT' | 'PENDING' | 'SUBMITTED' | 'REVIEWED' | 'AUTHORISED' | 'APPROVED' | 'REJECTED';
   ref_number?: string;
   budget_line: string[];
-  module?: string[];
+  module?: string[]; // ⚠️ Backend accepts both 'module' and 'modules' for backward compatibility
+  modules?: string[]; // Preferred field name matching backend model
   cost_categories: string[];
+  cost_grouping?: string[]; // Cost Grouping IDs
   fconumber: string[];
   fconumber_details?: Array<{
     module_id?: string;
@@ -57,7 +59,12 @@ export interface ActivityMemo {
     module_code?: string;
     module_name?: string;
   }>;
-  module_details?: Array<{
+  module_details?: Array<{ // Deprecated: Use modules_details (plural) instead
+    id?: string;
+    name?: string;
+    code?: string;
+  }>;
+  modules_details?: Array<{ // Matches backend serializer field name
     id?: string;
     name?: string;
     code?: string;
@@ -77,6 +84,11 @@ export interface ActivityMemo {
     module_name?: string;
   }>;
   cost_categories_details?: Array<{
+    module_id?: string;
+    module_code?: string;
+    module_name?: string;
+  }>;
+  cost_grouping_details?: Array<{
     module_id?: string;
     module_code?: string;
     module_name?: string;

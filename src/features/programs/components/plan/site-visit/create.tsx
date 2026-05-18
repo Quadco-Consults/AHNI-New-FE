@@ -209,7 +209,7 @@ const SiteVisitCreate = () => {
       setValue("state", facilityData.data.state);
       setValue("lga", facilityData.data.lga || "");
     }
-  }, [facilityData]); // Removed setValue to prevent infinite loop
+  }, [facilityData, setValue]);
 
   // Handle travel fees updates from calculator
   const handleTravelFeesUpdate = useCallback((fees: TravelFees, totalCost: number) => {
@@ -463,7 +463,7 @@ const SiteVisitCreate = () => {
                       </div>
                     ) : locationsData?.data?.results?.length > 0 ? (
                       locationsData.data.results.map((location: any) => (
-                        <SelectItem key={location.id} value={location.name}>
+                        <SelectItem key={location.id} value={location.id}>
                           {location.name}
                         </SelectItem>
                       ))

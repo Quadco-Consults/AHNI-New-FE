@@ -127,6 +127,16 @@ const Preview = () => {
       budgetLine = { ...budgetLine, ...budgetLineDetails };
     }
   }
+
+  // If budget line still not found, use budget_line_details directly from API
+  if (!budgetLine && (requestsDetails?.budget_line_details || apiData?.budget_line_details)) {
+    const budgetLineDetails = requestsDetails?.budget_line_details || apiData?.budget_line_details;
+    if (Array.isArray(budgetLineDetails) && budgetLineDetails.length > 0) {
+      budgetLine = budgetLineDetails[0];
+    } else if (budgetLineDetails && typeof budgetLineDetails === 'object') {
+      budgetLine = budgetLineDetails;
+    }
+  }
   const costCategory = findCostCategory(costCategoryId);
   const costInput = findCostInput(costInputId);
   // FCO Number - use comprehensive config first, then fallback to API data
@@ -160,8 +170,8 @@ const Preview = () => {
 
   // Helper function to get Module display value
   const getModuleDisplay = () => {
-    // Get module details from the activity memo data
-    const moduleDetails = requestsDetails?.module_details || apiData?.module_details || memoData?.module_details;
+    // Get module details from the activity memo data (note: API returns "modules_details" with plural)
+    const moduleDetails = requestsDetails?.modules_details || apiData?.modules_details || memoData?.modules_details;
 
     if (Array.isArray(moduleDetails) && moduleDetails.length > 0) {
       // Extract module names from the details array
@@ -174,86 +184,71 @@ const Preview = () => {
   const interventionArea = findInterventionArea(interventionAreaId);
   const fundingSource = findFundingSource(fundingSourceId);
 
-  // Helper function for Through section - handles Activity Memo (arrays) vs Purchase Request (objects)
-  const getThroughSection = () => {
-    const throughList = [];
-
-    // Debug console.log commented to prevent render loops
-    // console.log("🔍 ENHANCED THROUGH SECTION DEBUG:");
-    // console.log("Full requestsDetails object:", requestsDetails);
-    // console.log("All keys in requestsDetails:", requestsDetails ? Object.keys(requestsDetails) : 'No requestsDetails');
-    // console.log("Direct array check - reviewed_by_details:", requestsDetails?.reviewed_by_details);
-    // console.log("Direct array check - authorised_by_details:", requestsDetails?.authorised_by_details);
-    // console.log("Direct object check - reviewed_by_detail:", requestsDetails?.reviewed_by_detail);
-    // console.log("Direct object check - authorised_by_detail:", requestsDetails?.authorised_by_detail);
-
-    // Also check in nested data structure
-    const nestedData = requestsDetails?.data;
-    // console.log("Nested data structure:", nestedData);
-    // if (nestedData) {
-    //   console.log("Nested data keys:", Object.keys(nestedData));
-    //   console.log("Nested reviewed_by_details:", nestedData.reviewed_by_details);
-    //   console.log("Nested authorised_by_details:", nestedData.authorised_by_details);
-    //   console.log("Nested reviewed_by_detail:", nestedData.reviewed_by_detail);
-    //   console.log("Nested authorised_by_detail:", nestedData.authorised_by_detail);
-    // }
+  // Helper function for CC section (reviewers only)
+  const getCCSection = () => {
+    const ccList: string[] = [];
 
     // Check if this is Activity Memo (has array fields) or Purchase Request (has object fields)
-    const isActivityMemo = Array.isArray(requestsDetails?.reviewed_by_details) || Array.isArray(requestsDetails?.data?.reviewed_by_details);
-
-    // console.log("🎯 Determined isActivityMemo:", isActivityMemo);
+    const isActivityMemo = Array.isArray(requestsDetails?.reviewed_by_details) || Array.isArray(requestsDetails?.data?.reviewed_by_details) || Array.isArray(requestsDetails?.copy_details);
 
     if (isActivityMemo) {
-      // Activity Memo - Multiple reviewers/authorizers (ManyToMany)
-      // console.log("📋 Processing as Activity Memo (arrays expected)");
-
-      // Add reviewers (multiple) - check both direct and nested paths
-      const reviewersArray = requestsDetails?.reviewed_by_details || requestsDetails?.data?.reviewed_by_details;
-      // console.log("Reviewers array found:", reviewersArray);
+      // Activity Memo - Multiple reviewers (ManyToMany)
+      // Check both 'reviewed_by_details' and 'copy_details' (alias) field names
+      const reviewersArray = requestsDetails?.reviewed_by_details || requestsDetails?.copy_details || requestsDetails?.data?.reviewed_by_details || requestsDetails?.data?.copy_details;
 
       if (reviewersArray && reviewersArray.length > 0) {
         const reviewers = reviewersArray.map((user: any) => {
           const userName = user.name || `${user.first_name || ''} ${user.last_name || ''}`.trim();
-          // console.log("Processing reviewer:", user, "-> Name:", userName);
-          return `${userName} (Reviewer)`;
+          const userPosition = user.position || 'N/A';
+          return `${userName} (${userPosition})`;
         });
-        // console.log("Formatted reviewers:", reviewers);
-        throughList.push(...reviewers);
+        ccList.push(...reviewers);
       }
+    } else {
+      // Purchase Request - Single reviewer (ForeignKey)
+      const reviewerObject = requestsDetails?.reviewed_by_detail || requestsDetails?.data?.reviewed_by_detail;
 
-      // Add authorizers (multiple) - check both direct and nested paths
-      const authorizersArray = requestsDetails?.authorised_by_details || requestsDetails?.data?.authorised_by_details;
-      // console.log("Authorizers array found:", authorizersArray);
+      if (reviewerObject) {
+        const reviewerName = reviewerObject.name || `${reviewerObject.first_name || ''} ${reviewerObject.last_name || ''}`.trim();
+        const reviewerPosition = reviewerObject.position || 'N/A';
+        ccList.push(`${reviewerName} (${reviewerPosition})`);
+      }
+    }
+
+    return {
+      ccList,
+      hasAnyCC: ccList.length > 0
+    };
+  };
+
+  // Helper function for Through section (authorizers only)
+  const getThroughSection = () => {
+    const throughList: string[] = [];
+
+    // Check if this is Activity Memo (has array fields) or Purchase Request (has object fields)
+    const isActivityMemo = Array.isArray(requestsDetails?.reviewed_by_details) || Array.isArray(requestsDetails?.data?.reviewed_by_details) || Array.isArray(requestsDetails?.copy_details);
+
+    if (isActivityMemo) {
+      // Activity Memo - Multiple authorizers (ManyToMany)
+      // Check both 'authorised_by_details' and 'through_details' (alias) field names
+      const authorizersArray = requestsDetails?.authorised_by_details || requestsDetails?.through_details || requestsDetails?.data?.authorised_by_details || requestsDetails?.data?.through_details;
 
       if (authorizersArray && authorizersArray.length > 0) {
         const authorizers = authorizersArray.map((user: any) => {
           const userName = user.name || `${user.first_name || ''} ${user.last_name || ''}`.trim();
-          // console.log("Processing authorizer:", user, "-> Name:", userName);
-          return `${userName} (Authorizer)`;
+          const userPosition = user.position || 'N/A';
+          return `${userName} (${userPosition})`;
         });
-        // console.log("Formatted authorizers:", authorizers);
         throughList.push(...authorizers);
       }
     } else {
-      // Purchase Request - Single reviewer/authorizer (ForeignKey)
-      // console.log("📋 Processing as Purchase Request (objects expected)");
-
-      const reviewerObject = requestsDetails?.reviewed_by_detail || requestsDetails?.data?.reviewed_by_detail;
-      // console.log("Reviewer object found:", reviewerObject);
-
-      if (reviewerObject) {
-        const reviewerName = reviewerObject.name || `${reviewerObject.first_name || ''} ${reviewerObject.last_name || ''}`.trim();
-        // console.log("Formatted reviewer name:", reviewerName);
-        throughList.push(`${reviewerName} (Reviewer)`);
-      }
-
+      // Purchase Request - Single authorizer (ForeignKey)
       const authorizerObject = requestsDetails?.authorised_by_detail || requestsDetails?.data?.authorised_by_detail;
-      // console.log("Authorizer object found:", authorizerObject);
 
       if (authorizerObject) {
         const authorizerName = authorizerObject.name || `${authorizerObject.first_name || ''} ${authorizerObject.last_name || ''}`.trim();
-        // console.log("Formatted authorizer name:", authorizerName);
-        throughList.push(`${authorizerName} (Authorizer)`);
+        const authorizerPosition = authorizerObject.position || 'N/A';
+        throughList.push(`${authorizerName} (${authorizerPosition})`);
       }
     }
 
@@ -263,7 +258,6 @@ const Preview = () => {
       hasAnyThrough: throughList.length > 0
     };
 
-    // console.log("🎯 Final getThroughSection result:", result);
     return result;
   };
 
@@ -569,23 +563,42 @@ const Preview = () => {
                 <div className='flex gap-2'>
                   <span className='font-bold min-w-[100px] text-lg print:text-base'>To:</span>
                   <div className='flex-1'>
-                    {/* Display approved_by (primary recipient) */}
+                    {/* Display approved_by (primary recipient only) */}
                     {requestsDetails?.approved_by_details?.name ? (
-                      <div className='text-lg leading-relaxed print:text-base'>{requestsDetails.approved_by_details.name} (MD, AHNI)</div>
+                      <div className='text-lg leading-relaxed print:text-base'>
+                        {requestsDetails.approved_by_details.name} ({requestsDetails.approved_by_details.position || 'N/A'})
+                      </div>
                     ) : (
                       <div className='text-lg leading-relaxed print:text-base text-gray-500 italic'>Please select recipient in form</div>
                     )}
-
-                    {/* Display any additional recipients */}
-                    {requestsDetails?.copy_details?.map((user: any, index: number) => (
-                      <div key={index} className='text-base text-gray-700 mt-2 print:text-sm'>
-                        {user.name || `${user.first_name} ${user.last_name}`} ({user.designation || 'Staff'})
-                      </div>
-                    ))}
                   </div>
                 </div>
 
-                {/* Through */}
+                {/* CC (Reviewers) */}
+                <div className='flex gap-2'>
+                  <span className='font-bold min-w-[100px] text-lg print:text-base'>CC:</span>
+                  <div className='flex-1 space-y-2'>
+                    {(() => {
+                      const ccSection = getCCSection();
+
+                      if (ccSection.hasAnyCC) {
+                        return ccSection.ccList.map((ccText: string, index: number) => (
+                          <div key={`cc-${index}`} className='text-lg leading-relaxed print:text-base'>
+                            {ccText}
+                          </div>
+                        ));
+                      } else {
+                        return (
+                          <div className='text-lg leading-relaxed print:text-base text-gray-500 italic'>
+                            Please select reviewers in form
+                          </div>
+                        );
+                      }
+                    })()}
+                  </div>
+                </div>
+
+                {/* Through (Authorizers) */}
                 <div className='flex gap-2'>
                   <span className='font-bold min-w-[100px] text-lg print:text-base'>Through:</span>
                   <div className='flex-1 space-y-2'>
@@ -601,7 +614,7 @@ const Preview = () => {
                       } else {
                         return (
                           <div className='text-lg leading-relaxed print:text-base text-gray-500 italic'>
-                            Please select reviewers and authorizing personnel in form
+                            Please select authorizers in form
                           </div>
                         );
                       }
@@ -617,7 +630,8 @@ const Preview = () => {
                       {requestsDetails?.created_by_details?.name ||
                        (memoData?.created_by?.first_name && memoData?.created_by?.last_name
                          ? `${memoData.created_by.first_name} ${memoData.created_by.last_name}`
-                         : <span className="text-gray-500 italic">Creator information unavailable</span>)} (STA, CCF, AHNI)
+                         : <span className="text-gray-500 italic">Creator information unavailable</span>)}
+                      {' '}({requestsDetails?.created_by_details?.position || memoData?.created_by?.position || 'N/A'})
                     </div>
                   </div>
                 </div>

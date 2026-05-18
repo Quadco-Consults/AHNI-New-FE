@@ -230,9 +230,10 @@ export default function SupervisionEvaluationDetails({
       const convertedResults = evaluation.evaluation_items.map(item => ({
         id: item.id,
         criteria_id: item.criteria,
+        compliance_status: item.compliance_status, // Use new compliance_status field
         response_value: item.rating === 'true' ? true : item.rating === 'false' ? false : null,
         text_response: item.observations,
-        comments: item.recommendations,
+        comments: item.observations, // Backend uses observations field
         rating_value: item.score,
         evidence: item.evidence,
         is_compliant: item.is_compliant,
@@ -259,11 +260,22 @@ export default function SupervisionEvaluationDetails({
     if (unifiedResponsesData?.results) {
       const responseMap: Record<string, any> = {};
       unifiedResponsesData.results.forEach((response: any) => {
+        // Map backend compliance_status to frontend format
+        let compliance_status;
+        if (response.compliance_status === "YES") {
+          compliance_status = "yes";
+        } else if (response.compliance_status === "NO") {
+          compliance_status = "no";
+        } else if (response.compliance_status === "NA") {
+          compliance_status = "na";
+        }
+
         responseMap[response.criteria_id] = {
+          compliance_status, // New field for Yes/No/NA
           response_value: response.response_value,
           rating_value: response.rating_value,
           text_response: response.text_response,
-          comments: response.comments,
+          comments: response.comments || response.text_response, // Use comments or text_response
         };
       });
       setResponses(responseMap);
@@ -288,20 +300,20 @@ export default function SupervisionEvaluationDetails({
       const responsesToSave = Object.entries(responses)
         .filter(([_, response]) => response.compliance_status || response.comments)
         .map(([criteriaId, response]) => {
-          let response_value;
+          // Map frontend "yes"/"no" to backend "YES"/"NO"/"NA"
+          let compliance_status;
           if (response.compliance_status === "yes") {
-            response_value = true;
+            compliance_status = "YES";
           } else if (response.compliance_status === "no") {
-            response_value = false;
-          } else {
-            response_value = undefined; // Don't send invalid values
+            compliance_status = "NO";
+          } else if (response.compliance_status === "na") {
+            compliance_status = "NA";
           }
 
           return {
             criteria_id: criteriaId,
-            response_value,
-            text_response: response.comments || "",
-            comments: response.comments || "",
+            compliance_status,  // New field matching backend
+            observations: response.comments || "",  // Backend field name
           };
         });
 
@@ -346,7 +358,7 @@ export default function SupervisionEvaluationDetails({
   };
 
   // Handle response updates
-  const handleResponseChange = async (criteriaId: string, field: string, value: any) => {
+  const handleResponseChange = (criteriaId: string, field: string, value: any) => {
     if (isReadOnly) return;
 
     const newResponse = {
@@ -359,16 +371,9 @@ export default function SupervisionEvaluationDetails({
       [criteriaId]: newResponse,
     }));
 
-    // Debounced save (in a real app, you'd want to implement proper debouncing)
-    try {
-      await updateResponseMutation.mutateAsync({
-        criteria_id: criteriaId,
-        ...newResponse,
-      });
-    } catch (error) {
-      // Handle error silently for now
-      console.error("Failed to save response:", error);
-    }
+    // Note: Auto-save removed - user must click "Save Progress" button
+    // This matches the physical form workflow where evaluators fill out the form
+    // and submit it all at once
   };
 
   // Action items management

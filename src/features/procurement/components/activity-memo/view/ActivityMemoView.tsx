@@ -313,15 +313,15 @@ const ActivityMemoView = () => {
               {/* Budget Information */}
               <div className="grid grid-cols-2 gap-8 mb-6 text-sm">
                 <div className="space-y-2">
-                  <div><span className="font-semibold">Budget Line #:</span> {memoData?.budget_line?.[0] ? lookupName(memoData.budget_line[0]) : "-"}</div>
-                  <div><span className="font-semibold">Module:</span> {memoData?.module?.[0] ? lookupName(memoData.module[0]) : "-"}</div>
-                  <div><span className="font-semibold">Intervention:</span> {memoData?.intervention_areas?.[0] ? lookupName(memoData.intervention_areas[0]) : "-"}</div>
-                  <div><span className="font-semibold">Cost Grouping #:</span> {memoData?.cost_categories?.[0] ? lookupName(memoData.cost_categories[0]) : "-"}</div>
+                  <div><span className="font-semibold">Budget Line #:</span> {memoData?.budget_line_details?.[0] ? (memoData.budget_line_details[0].module_name || memoData.budget_line_details[0].module_code) : "-"}</div>
+                  <div><span className="font-semibold">Module:</span> {memoData?.modules_details?.[0] ? (memoData.modules_details[0].name || memoData.modules_details[0].code) : "-"}</div>
+                  <div><span className="font-semibold">Intervention:</span> {memoData?.intervention_areas_details?.[0] ? (memoData.intervention_areas_details[0].description || memoData.intervention_areas_details[0].code) : "-"}</div>
+                  <div><span className="font-semibold">Cost Grouping #:</span> {memoData?.cost_categories_details?.[0] ? (memoData.cost_categories_details[0].module_name || memoData.cost_categories_details[0].module_code) : "-"}</div>
                 </div>
                 <div className="space-y-2">
-                  <div><span className="font-semibold">FCO#:</span> {memoData?.fconumber?.[0] ? lookupName(memoData.fconumber[0]) : "-"}</div>
-                  <div><span className="font-semibold">Cost Input #:</span> {memoData?.cost_input?.[0] ? lookupName(memoData.cost_input[0]) : "-"}</div>
-                  <div><span className="font-semibold">Funding Source:</span> {memoData?.funding_source?.[0] ? lookupName(memoData.funding_source[0]) : "-"}</div>
+                  <div><span className="font-semibold">FCO#:</span> {memoData?.fconumber_details?.[0] ? (memoData.fconumber_details[0].module_name || memoData.fconumber_details[0].module_code) : "-"}</div>
+                  <div><span className="font-semibold">Cost Input #:</span> {memoData?.cost_inputs_details?.[0] ? (memoData.cost_inputs_details[0].module_name || memoData.cost_inputs_details[0].module_code) : "-"}</div>
+                  <div><span className="font-semibold">Funding Source:</span> {memoData?.funding_sources_details?.[0] ? memoData.funding_sources_details[0].module_name : "-"}</div>
                 </div>
               </div>
 
@@ -400,7 +400,7 @@ const ActivityMemoView = () => {
                   </tr>
                   <tr className="border-b border-black">
                     <td className="border-r border-black p-4 bg-blue-100 font-semibold">FCO #:</td>
-                    <td className="p-4">{memoData.fconumber?.[0] ? lookupName(memoData.fconumber[0]) : "N/A"}</td>
+                    <td className="p-4">{memoData.fconumber_details?.[0] ? (memoData.fconumber_details[0].module_name || memoData.fconumber_details[0].module_code) : "N/A"}</td>
                   </tr>
                 </tbody>
               </table>
@@ -410,26 +410,26 @@ const ActivityMemoView = () => {
                 <tbody>
                   <tr className="border-b border-black">
                     <td className="border-r border-black p-3 bg-blue-100 font-semibold w-1/2">
-                      Budget Line #: {memoData?.budget_line?.[0] ? lookupName(memoData.budget_line[0]) : "-"}
+                      Budget Line #: {memoData?.budget_line_details?.[0] ? (memoData.budget_line_details[0].module_name || memoData.budget_line_details[0].module_code) : "-"}
                     </td>
                     <td className="p-3 bg-blue-100 font-semibold">
-                      Module: {memoData?.module?.[0] ? lookupName(memoData.module[0]) : "-"}
+                      Module: {memoData?.modules_details?.[0] ? (memoData.modules_details[0].name || memoData.modules_details[0].code) : "-"}
                     </td>
                   </tr>
                   <tr className="border-b border-black">
                     <td className="border-r border-black p-3 bg-blue-100 font-semibold">
-                      Intervention: {memoData?.intervention_areas?.[0] ? lookupName(memoData.intervention_areas[0]) : "-"}
+                      Intervention: {memoData?.intervention_areas_details?.[0] ? (memoData.intervention_areas_details[0].description || memoData.intervention_areas_details[0].code) : "-"}
                     </td>
                     <td className="p-3 bg-blue-100 font-semibold">
-                      Cost Grouping #: {memoData?.cost_categories?.[0] ? lookupName(memoData.cost_categories[0]) : "-"}
+                      Cost Grouping #: {memoData?.cost_categories_details?.[0] ? (memoData.cost_categories_details[0].module_name || memoData.cost_categories_details[0].module_code) : "-"}
                     </td>
                   </tr>
                   <tr className="border-b border-black">
                     <td className="border-r border-black p-3 bg-blue-100 font-semibold">
-                      Cost Input #: {memoData?.cost_input?.[0] ? lookupName(memoData.cost_input[0]) : "-"}
+                      Cost Input #: {memoData?.cost_inputs_details?.[0] ? (memoData.cost_inputs_details[0].module_name || memoData.cost_inputs_details[0].module_code) : "-"}
                     </td>
                     <td className="p-3 bg-blue-100 font-semibold">
-                      Funding Source: {memoData?.funding_source?.[0] ? lookupName(memoData.funding_source[0]) : "-"}
+                      Funding Source: {memoData?.funding_sources_details?.[0] ? memoData.funding_sources_details[0].module_name : "-"}
                     </td>
                   </tr>
                 </tbody>
