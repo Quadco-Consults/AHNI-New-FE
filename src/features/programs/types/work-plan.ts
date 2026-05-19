@@ -46,11 +46,12 @@ export interface TActivity {
   activity_justification: string;
   lead_dept: string;
   lead_person: string;
-  intervention_area: string;
-  cost_grouping: string;
-  cost_catergory: string;
-  cost_input: string;
-  budget_line: string;
+  intervention_area: { name: string };
+  cost_grouping: { name: string };
+  cost_category: { name: string };
+  cost_input: { name: string };
+  budget_line: { name: string };
+  module: { name: string };
   objectives_sub_objectives: string;
   description_of_output: string;
   gant_chart: {

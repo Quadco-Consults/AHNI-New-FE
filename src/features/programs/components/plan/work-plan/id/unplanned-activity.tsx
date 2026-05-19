@@ -1,15 +1,12 @@
 import { useGetAllActivityPlans } from "@/features/programs/controllers/activityPlanController";
 import { useMemo } from "react";
 import { Card } from "@/components/ui/card";
-import DataTable from "@/components/Table/DataTable";
-import { ColumnDef } from "@tanstack/react-table";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useDispatch } from "react-redux";
 import { openDialog } from "@/store/ui";
 import { DialogType } from "@/constants/dailogs";
-import { Edit2, Upload } from "lucide-react";
-import { formatNumberCurrency } from "@/utils/utls";
+import { Upload } from "lucide-react";
+import ExpandableUnplannedActivityTable from "./unplanned-activity/ExpandableUnplannedActivityTable";
 import { TMonth } from "@/features/programs/types/work-plan";
 
 type PropsType = {
@@ -17,7 +14,8 @@ type PropsType = {
   workPlanData: any;
 };
 
-const months = [
+// Month array for fiscal year (Oct - Sep)
+const months: TMonth[] = [
   "Oct", "Nov", "Dec", "Jan", "Feb", "Mar",
   "Apr", "May", "Jun", "Jul", "Aug", "Sep"
 ];
@@ -26,10 +24,11 @@ const months = [
 type TUnplannedActivity = {
   id: string;
   activity_number: string;
-  budget_line: { name: string };
+  budget_line: { name: string } | string;
   objectives_sub_objectives: string;
   activity: string;
   activity_justification: string;
+  description_of_output: string;
   lead_dept: string;
   lead_person: string;
   location: string;
@@ -43,45 +42,14 @@ type TUnplannedActivity = {
   cost_grouping: { name: string };
   cost_input: { name: string };
   intervention_area: { name: string };
+  module: { name: string };
   comments: string;
-  gant_chart: Record<TMonth, number>;
-  budget_chart: Record<TMonth, number>;
+  gant_chart: Record<any, number>;
+  budget_chart: Record<any, number>;
   activity_type: "UNPLANNED";
   canEdit?: boolean;
   original_data?: any;
 };
-
-const ganttChartColumns: ColumnDef<TUnplannedActivity>[] = months.map((month) => ({
-  id: `gantt_${month}`,
-  header: month,
-  size: 100,
-  accessorFn: (row) => {
-    const value = row.gant_chart?.[month as TMonth];
-    return value ?? "-";
-  },
-  footer: (info) => {
-    const total = info.table.getRowModel().rows.reduce((sum, row) => {
-      const val = row.original.gant_chart?.[month as TMonth] ?? 0;
-      return sum + val;
-    }, 0);
-    return total > 0 ? `${total} ✓` : "-";
-  },
-}));
-
-const budgetChartColumns: ColumnDef<TUnplannedActivity>[] = months.map((month) => ({
-  id: `budget_${month}`,
-  header: month,
-  size: 100,
-  accessorFn: (row) =>
-    formatNumberCurrency(row.budget_chart?.[month as TMonth] ?? 0, "NGN"),
-  footer: (info) => {
-    const total = info.table.getRowModel().rows.reduce((sum, row) => {
-      const val = row.original.budget_chart?.[month as TMonth] ?? 0;
-      return sum + val;
-    }, 0);
-    return formatNumberCurrency(total, "NGN");
-  },
-}));
 
 export default function UnplannedActivity({ workPlanId, workPlanData }: PropsType) {
   const dispatch = useDispatch();
@@ -346,201 +314,6 @@ export default function UnplannedActivity({ workPlanId, workPlanData }: PropsTyp
     );
   };
 
-  const unplannedActivityColumns: ColumnDef<TUnplannedActivity>[] = [
-    {
-      header: "Activity Type",
-      accessorKey: "activity_type",
-      size: 120,
-      cell: ({ row }) => (
-        <Badge className="bg-orange-500 text-white">
-          UNPLANNED
-        </Badge>
-      ),
-    },
-    {
-      header: "ACT. No.",
-      accessorKey: "activity_number",
-      size: 200,
-    },
-    {
-      header: "Budget Line",
-      accessorKey: "budget_line.name",
-      size: 250,
-    },
-    {
-      header: "Objectives/IR/Sub Objectives",
-      accessorKey: "objectives_sub_objectives",
-      size: 300,
-    },
-    {
-      header: "Activity",
-      accessorKey: "activity",
-      size: 300,
-    },
-    {
-      header: "Activity Justification",
-      accessorKey: "activity_justification",
-      size: 300,
-    },
-    {
-      header: "Lead Department",
-      accessorKey: "lead_dept",
-      size: 200,
-      cell: ({ row }) => {
-        const value = row.getValue("lead_dept") as string;
-        return value || <span className="text-gray-400 italic">Not set</span>;
-      },
-    },
-    {
-      header: "Lead Person",
-      accessorKey: "lead_person",
-      size: 200,
-      cell: ({ row }) => {
-        const value = row.getValue("lead_person") as string;
-        return value || <span className="text-gray-400 italic">Not set</span>;
-      },
-    },
-    {
-      header: "Location of Activity",
-      accessorKey: "location",
-      size: 200,
-      cell: ({ row }) => {
-        const value = row.getValue("location") as string;
-        return value || <span className="text-gray-400 italic">Not set</span>;
-      },
-    },
-    {
-      header: "Gantt Chart",
-      columns: ganttChartColumns,
-    },
-    {
-      header: "Expected Result",
-      accessorKey: "expected_result",
-      size: 250,
-      cell: ({ row }) => {
-        const value = row.getValue("expected_result") as string;
-        return value || <span className="text-gray-400 italic">Not set</span>;
-      },
-    },
-    {
-      header: "Indicator",
-      accessorKey: "indicator",
-      size: 200,
-      cell: ({ row }) => {
-        const value = row.getValue("indicator") as string;
-        return value || <span className="text-gray-400 italic">Not set</span>;
-      },
-    },
-    {
-      header: "MoV",
-      accessorKey: "mov",
-      size: 100,
-      cell: ({ row }) => {
-        const value = row.getValue("mov") as string;
-        return value || <span className="text-gray-400 italic">Not set</span>;
-      },
-    },
-    {
-      header: "Unit Cost",
-      accessorFn: (data) =>
-        data.unit_cost_ngn !== null
-          ? formatNumberCurrency(data.unit_cost_ngn, "NGN")
-          : "-",
-      size: 200,
-    },
-    {
-      header: "Budget",
-      columns: budgetChartColumns,
-    },
-    {
-      id: "total_ngn",
-      header: "Total (NGN)",
-      accessorFn: (data) => formatNumberCurrency(parseFloat(data.total_amount_ngn || "0"), "NGN"),
-      size: 250,
-      footer: (info) => {
-        const total = info.table.getRowModel().rows.reduce((sum, row) => {
-          const val = parseFloat(row.original.total_amount_ngn || "0");
-          return sum + (isNaN(val) ? 0 : val);
-        }, 0);
-        return formatNumberCurrency(total, "NGN");
-      },
-    },
-    {
-      id: "total_usd",
-      header: "Total (USD)",
-      accessorFn: (data) => formatNumberCurrency(parseFloat(data.total_amount_usd || "0"), "USD"),
-      size: 200,
-      footer: (info) => {
-        const total = info.table.getRowModel().rows.reduce((sum, row) => {
-          const val = parseFloat(row.original.total_amount_usd || "0");
-          return sum + (isNaN(val) ? 0 : val);
-        }, 0);
-        return formatNumberCurrency(total, "USD");
-      },
-    },
-    {
-      header: "Cost Category",
-      accessorKey: "cost_category.name",
-      size: 250,
-      cell: ({ row }) => {
-        const value = row.original.cost_category?.name || "";
-        return value || <span className="text-gray-400 italic">Not set</span>;
-      },
-    },
-    {
-      header: "Cost Grouping",
-      accessorKey: "cost_grouping.name",
-      size: 250,
-      cell: ({ row }) => {
-        const value = row.original.cost_grouping?.name || "";
-        return value || <span className="text-gray-400 italic">Not set</span>;
-      },
-    },
-    {
-      header: "Cost Input",
-      accessorKey: "cost_input.name",
-      size: 250,
-      cell: ({ row }) => {
-        const value = row.original.cost_input?.name || "";
-        return value || <span className="text-gray-400 italic">Not set</span>;
-      },
-    },
-    {
-      header: "Intervention Area",
-      accessorKey: "intervention_area.name",
-      size: 250,
-      cell: ({ row }) => {
-        const value = row.original.intervention_area?.name || "";
-        return value || <span className="text-gray-400 italic">Not set</span>;
-      },
-    },
-    {
-      header: "Comments",
-      accessorKey: "comments",
-      size: 250,
-      cell: ({ row }) => {
-        const value = row.getValue("comments") as string;
-        return value || <span className="text-gray-400 italic">Not set</span>;
-      },
-    },
-    {
-      id: "actions",
-      header: "Actions",
-      size: 100,
-      cell: ({ row }) => (
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => handleEditActivity(row.original)}
-          className="h-8 w-8 p-0"
-          title="Edit unplanned activity details"
-        >
-          <Edit2 className="h-4 w-4" />
-        </Button>
-      ),
-    },
-  ];
-
   return (
     <div className="space-y-4">
       {/* Header with Upload Button */}
@@ -583,10 +356,9 @@ export default function UnplannedActivity({ workPlanId, workPlanData }: PropsTyp
             </div>
           </div>
         ) : (
-          <DataTable
+          <ExpandableUnplannedActivityTable
             data={unplannedActivities}
-            columns={unplannedActivityColumns}
-            footer={true}
+            onEditActivity={handleEditActivity}
           />
         )}
       </Card>

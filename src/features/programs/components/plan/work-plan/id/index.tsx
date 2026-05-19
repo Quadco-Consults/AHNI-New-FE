@@ -37,7 +37,7 @@ export default function WorkPlanDetail() {
       <Tabs defaultValue='summary' className='space-y-10'>
         <TabsList>
           <TabsTrigger value='summary'>Summary</TabsTrigger>
-          <TabsTrigger value='activity-report'>Activity/Report</TabsTrigger>
+          <TabsTrigger value='activity-report'>Work plan</TabsTrigger>
           <TabsTrigger value='unplanned-activities'>Unplanned Activities</TabsTrigger>
         </TabsList>
         <TabsContent value='summary'>

@@ -123,56 +123,61 @@ const WorkPlanCostSheetUploadModal = ({
         }
     };
 
-    const downloadTemplate = () => {
-        // Create a comprehensive CSV template
-        const headers = [
-            "Activity Number",
-            "Sub-Activity Description",
-            "Units",
-            "Days",
-            "Frequency",
-            "Rate (NGN)",
-            "Comments"
-        ];
+    const downloadTemplate = async () => {
+        if (!workPlanId) {
+            toast.error("Work Plan ID is missing");
+            return;
+        }
 
-        const sampleData = [
-            ["ACT-001", "Staff Salaries for Project Manager", "1", "30", "3", "150000", "Monthly salary for 3 months"],
-            ["ACT-001", "Training Materials (Notebooks)", "50", "1", "1", "500", "Office supplies"],
-            ["ACT-001", "Vehicle Rental for Training", "1", "5", "2", "25000", "2 training sessions"],
-            ["", "", "", "", "", "", ""],
-            ["ACT-002", "Field Visit Coordinator Salary", "1", "20", "1", "80000", "Monthly salary"],
-            ["ACT-002", "Transportation Costs", "10", "1", "4", "5000", "4 field visits"],
-            ["ACT-002", "Accommodation", "5", "2", "4", "15000", "Hotel for field staff"],
-            ["", "", "", "", "", "", ""],
-            ["ACT-003", "Community Mobilization Staff", "2", "30", "1", "60000", "2 staff for 1 month"],
-            ["ACT-003", "Communication Costs", "1", "30", "1", "10000", "Airtime and data"],
-        ];
+        try {
+            toast.loading("Generating template...", { id: "template-download" });
 
-        const csvContent = [
-            "# COST SHEET BULK UPLOAD TEMPLATE",
-            "# Instructions:",
-            "# 1. Fill in the Activity Number (must match your work plan activities)",
-            "# 2. Add all sub-activities for each activity",
-            "# 3. You can group multiple sub-activities under the same Activity Number",
-            "# 4. Leave blank rows between different activities for better readability (optional)",
-            "# 5. Total Cost will be calculated as: Units × Days × Frequency × Rate",
-            "#",
-            headers.join(","),
-            ...sampleData.map(row => row.join(","))
-        ].join("\n");
+            // Call backend API to generate dynamic template
+            const response = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/programs/plans/activity-cost-sheets/download-template/?work_plan=${workPlanId}`,
+                {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    },
+                }
+            );
 
-        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-        const link = document.createElement("a");
-        const url = URL.createObjectURL(blob);
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error || 'Failed to generate template');
+            }
 
-        link.setAttribute("href", url);
-        link.setAttribute("download", `cost_sheet_bulk_template_${workPlanTitle?.replace(/\s+/g, '_') || 'workplan'}.csv`);
-        link.style.visibility = "hidden";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+            // Get the file blob
+            const blob = await response.blob();
 
-        toast.success("Template downloaded successfully!");
+            // Create download link
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+
+            // Extract filename from content-disposition header or use default
+            const contentDisposition = response.headers.get('content-disposition');
+            let filename = `cost_sheet_template_${workPlanTitle?.replace(/\s+/g, '_') || 'workplan'}.xlsx`;
+
+            if (contentDisposition) {
+                const filenameMatch = contentDisposition.match(/filename="?(.+)"?/);
+                if (filenameMatch) {
+                    filename = filenameMatch[1];
+                }
+            }
+
+            link.setAttribute('download', filename);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+
+            toast.success("Template downloaded successfully!", { id: "template-download" });
+        } catch (error: any) {
+            console.error("Template download error:", error);
+            toast.error(error.message || "Failed to download template", { id: "template-download" });
+        }
     };
 
     return (
@@ -187,8 +192,8 @@ const WorkPlanCostSheetUploadModal = ({
                     <div className="text-sm text-blue-700 mt-2 space-y-2">
                         <p>Upload cost sheets for <strong>all activities</strong> in this work plan using a single Excel file:</p>
                         <ul className="list-disc ml-5 space-y-1">
-                            <li><strong>Activity Number</strong> - Must match existing activity numbers in your work plan (e.g., ACT-001, ACT-002)</li>
-                            <li><strong>Sub-Activity Description</strong> - Description of the cost item (required)</li>
+                            <li><strong>Download the template</strong> - All your activities are already included with budget amounts</li>
+                            <li><strong>Item/Description</strong> - Describe each expense item for the activity (required)</li>
                             <li><strong>Units</strong> - Number of units (required, must be &gt; 0)</li>
                             <li><strong>Days</strong> - Duration in days (required, must be &gt; 0)</li>
                             <li><strong>Frequency</strong> - How many times (required, must be &gt; 0)</li>
@@ -197,7 +202,10 @@ const WorkPlanCostSheetUploadModal = ({
                         </ul>
                         <div className="mt-3 p-3 bg-white rounded-md border border-blue-200">
                             <p className="text-xs font-medium text-blue-900">
-                                💡 Tip: Group all sub-activities for each activity together using the same Activity Number
+                                💡 Tip: The template is organized by activity - just fill in the expense items under each activity section
+                            </p>
+                            <p className="text-xs text-blue-800 mt-1">
+                                Total Cost = Units × Days × Frequency × Rate (NGN)
                             </p>
                         </div>
                     </div>
