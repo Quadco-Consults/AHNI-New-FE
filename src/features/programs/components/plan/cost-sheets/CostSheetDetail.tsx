@@ -28,7 +28,7 @@ export default function CostSheetDetail() {
 
     const workPlan = workPlanData?.data;
     const activity = workPlan?.activities?.find((a) => a.id === activityId);
-    const costSheets = costSheetsData?.results || [];
+    const costSheets = costSheetsData?.data?.results || [];
 
     const breadcrumbs: TBreadcrumbList[] = [
         { name: "Programs", icon: true },
@@ -65,7 +65,7 @@ export default function CostSheetDetail() {
 
     // Calculate totals and validation status
     const budgetTotal = Number(activity.total_amount_ngn) || 0;
-    const costSheetTotal = costSheets.reduce((sum, sheet) => sum + sheet.total_cost_ngn, 0);
+    const costSheetTotal = costSheets.reduce((sum, sheet) => sum + Number(sheet.total_cost_ngn || 0), 0);
     const variance = budgetTotal - costSheetTotal;
     const variancePercentage = budgetTotal > 0 ? Math.abs((variance / budgetTotal) * 100) : 0;
 

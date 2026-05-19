@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const WorkPlanTrackerSchema = z.object({
     description_of_output: z.string().nullable().optional(), // Correct backend field
-    achieved_results: z.string().nullable().optional(), // Correct backend field for ActivityPlanFromWorkPlan
+    achieved_results: z.union([z.string(), z.number()]).transform(val => String(val)).nullable().optional(), // Accept both string and number
     amount_expended_ngn: z.union([z.string(), z.number()]).transform(val => String(val)).nullable().optional(),
     expenditure_usd_rate: z.union([z.string(), z.number()]).transform(val => String(val)).nullable().optional(),
     expenditure_ngn_rate: z.union([z.string(), z.number()]).transform(val => String(val)).nullable().optional(),

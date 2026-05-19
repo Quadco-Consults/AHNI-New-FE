@@ -76,7 +76,7 @@ export const costSheetSubActivitiesColumns = (
         ),
         footer: ({ table }) => {
             const total = table.getFilteredRowModel().rows.reduce(
-                (sum, row) => sum + row.original.total_cost_ngn,
+                (sum, row) => sum + Number(row.original.total_cost_ngn || 0),
                 0
             );
             return (

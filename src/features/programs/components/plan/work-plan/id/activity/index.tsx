@@ -63,7 +63,7 @@ export default function Activity({ activities, workPlanId }: PropsType) {
 
   return (
     <Card>
-      <ExpandableActivityTable data={allActivities} />
+      <ExpandableActivityTable data={allActivities} workPlanId={workPlanId} />
     </Card>
   );
 }

@@ -2,8 +2,7 @@
 
 import Card from "@/components/Card";
 import { useState, useMemo, useEffect } from "react";
-import DataTableWithExpansion from "@/components/Table/DataTableWithExpansion";
-import CostSheetTrackersExpanded from "../CostSheetTrackersExpanded";
+import DataTable from "@/components/Table/DataTable";
 import {
   useGetAllActivityTrackers,
 } from "@/features/programs/controllers/activityTrackerController";
@@ -17,6 +16,8 @@ import { useGetSingleWorkPlan } from "@/features/programs/controllers/workPlanCo
 import { useDebounce } from "ahooks";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
+import { useGetAllExchangeRatesManager } from "@/features/modules/controllers/config/exchangeRateController";
+import { getLatestExchangeRate } from "@/utils/currencyConverter";
 
 const breadcrumbs: TBreadcrumbList[] = [
   { name: "Programs", icon: true },
@@ -54,6 +55,21 @@ export default function ActivityTracker() {
     search: debouncedSearchQuery,
     work_plan: id as string,
   });
+
+  // Fetch exchange rates
+  const { data: exchangeRatesData } = useGetAllExchangeRatesManager({
+    page: 1,
+    size: 100,
+    enabled: true,
+  });
+
+  // Get the latest NGN -> USD exchange rate
+  const exchangeRate = useMemo(() => {
+    const rates = exchangeRatesData?.data?.results || [];
+    const rate = getLatestExchangeRate("NGN", "USD", rates);
+    console.log("Exchange Rate Debug:", { rates: rates.length, rate, type: typeof rate });
+    return rate;
+  }, [exchangeRatesData]);
 
   // Merge tracker data with activity data to fill missing fields
   const enrichedTrackers = useMemo(() => {
@@ -268,9 +284,9 @@ export default function ActivityTracker() {
         <TableFilters
           onSearchChange={(e) => setSearchController(e.target.value)}
         >
-          <DataTableWithExpansion
+          <DataTable
             data={paginatedTrackers}
-            columns={getWorkPlanTrackerDetailsColumns(id as string)}
+            columns={getWorkPlanTrackerDetailsColumns(id as string, exchangeRate)}
             isLoading={isLoading}
             pagination={
               // Only show pagination if we have more items than can fit on one page
@@ -283,19 +299,6 @@ export default function ActivityTracker() {
                   }
                 : undefined
             }
-            renderExpandedRow={(row: any) => (
-              <CostSheetTrackersExpanded
-                activityId={row.work_plan_activity}
-                activityNumber={row.activity_number || "N/A"}
-                isEditable={true}
-              />
-            )}
-            canExpand={(row: any) => {
-              // Only show expand button for PLANNED activities that have work_plan_activity ID
-              const activityType = (row.activity_type || "PLANNED").toUpperCase();
-              const hasWorkPlanActivity = !!row.work_plan_activity;
-              return activityType === "PLANNED" && hasWorkPlanActivity;
-            }}
           />
         </TableFilters>
       </Card>

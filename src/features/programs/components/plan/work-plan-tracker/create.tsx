@@ -99,8 +99,6 @@ export default function CreateActivityTracker() {
       description_of_output: "",
       achieved_results: "",
       amount_expended_ngn: "",
-      expenditure_ngn_rate: "",
-      expenditure_usd_rate: "",
       comments: "",
     },
   });
@@ -131,8 +129,6 @@ export default function CreateActivityTracker() {
           description_of_output: String(existingTracker.description_of_output || description_of_output || ""),
           achieved_results: String(existingTracker.achieved_results || existingTracker.achieved_output || ""),
           amount_expended_ngn: String(existingTracker.amount_expended_ngn || ""),
-          expenditure_ngn_rate: String(existingTracker.expenditure_ngn_rate || ""),
-          expenditure_usd_rate: String(existingTracker.expenditure_usd_rate || ""),
           comments: String(existingTracker.comments || ""),
         });
 
@@ -146,8 +142,6 @@ export default function CreateActivityTracker() {
           description_of_output: String(description_of_output || ""),
           achieved_results: "",
           amount_expended_ngn: "",
-          expenditure_ngn_rate: "",
-          expenditure_usd_rate: "",
           comments: "",
         });
       }
@@ -189,8 +183,7 @@ export default function CreateActivityTracker() {
         amount_expended_ngn: data.amount_expended_ngn,
         amount_expended_usd: amountUsd,
         implementation_usd_rate: usdRate.toString(),
-        expenditure_ngn_rate: data.expenditure_ngn_rate,
-        expenditure_usd_rate: data.expenditure_usd_rate,
+        // expenditure_ngn_rate and expenditure_usd_rate are auto-calculated on frontend
         comments: data.comments,
         work_plan_activity: activityId, // Required for creating new tracker
       };
@@ -246,10 +239,11 @@ export default function CreateActivityTracker() {
               required
             />
 
-            <FormTextArea
-              label='Achieved Results'
+            <FormInput
+              type='number'
+              label='Achieved Output (Number)'
               name='achieved_results'
-              placeholder='Enter Achieved Results'
+              placeholder='Enter number of outputs achieved (e.g., 10)'
               required
             />
 
@@ -290,21 +284,8 @@ export default function CreateActivityTracker() {
               </p>
             </div>
 
-            <FormInput
-              type='number'
-              label='Expenditure Rate NGN'
-              name='expenditure_ngn_rate'
-              placeholder='Enter Amount Expenditure Rate NGN'
-              required
-            />
-
-            <FormInput
-              type='number'
-              label='Expenditure Rate USD'
-              name='expenditure_usd_rate'
-              placeholder='Enter Amount Expenditure Rate USD'
-              required
-            />
+            {/* Expenditure Rate fields are auto-calculated and displayed in the table */}
+            {/* They are calculated as: (Amount Expended / Total Budget) × 100 */}
 
 
             <FormInput

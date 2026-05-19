@@ -19,7 +19,8 @@ import { DialogType } from "@/constants/dailogs";
 import { formatNumberCurrency } from "@/utils/utls";
 
 export const getWorkPlanTrackerDetailsColumns = (
-  workPlanId: string
+  workPlanId: string,
+  exchangeRate?: number | null
 ): ColumnDef<TWorkPlanTrackerData>[] => [
   {
     header: "Activity Type",
@@ -226,15 +227,40 @@ export const getWorkPlanTrackerDetailsColumns = (
     accessorKey: "status",
     size: 150,
     cell: ({ row }) => {
-      const status = row.original.status || "PENDING";
+      const data = row.original;
+
+      // Auto-calculate status based on achieved vs planned output
+      const achievedNum = parseFloat(data.achieved_output_number || data.achieved_output || data.achieved_results || "0");
+
+      // Get planned output from gant_chart
+      let plannedNum = 0;
+      if (data.gant_chart) {
+        plannedNum = Object.values(data.gant_chart).reduce(
+          (sum, value) => sum + (Number(value) || 0),
+          0
+        );
+      }
+
+      // Fallback to planned_output_number if gant_chart is not available
+      if (plannedNum === 0) {
+        plannedNum = parseFloat(data.planned_output_number || data.planned_output || "0");
+      }
+
+      // Determine status based on comparison
+      let status = "NOT_DONE";
+      let statusColor = "bg-red-500";
+
+      if (achievedNum >= plannedNum && plannedNum > 0) {
+        status = "DONE";
+        statusColor = "bg-green-500";
+      } else if (achievedNum > 0) {
+        status = "IN_PROGRESS";
+        statusColor = "bg-yellow-500";
+      }
 
       return (
-        <Badge
-          className={`${
-            status === "PENDING" ? "bg-yellow-500" : "bg-green-500"
-          }`}
-        >
-          {status}
+        <Badge className={statusColor}>
+          {status.replace("_", " ")}
         </Badge>
       );
     },
@@ -275,24 +301,48 @@ export const getWorkPlanTrackerDetailsColumns = (
   },
 
   {
-    header: "Implementation USD Rate",
-    accessorKey: "implementation_usd_rate",
-    accessorFn: (data) => formatNumberCurrency(data.implementation_usd_rate, "USD"),
+    header: "Exchange Rate",
+    accessorKey: "exchange_rate",
     size: 150,
+    cell: () => {
+      // Display the system-configured exchange rate (NGN -> USD)
+      if (typeof exchangeRate !== 'number' || exchangeRate === null || exchangeRate === undefined) {
+        return <span className="text-gray-400">Not configured</span>;
+      }
+      return <span className="font-medium">₦{Number(exchangeRate).toFixed(2)} = $1</span>;
+    },
   },
 
   {
     header: "Expenditure Rate (NGN)",
     accessorKey: "expenditure_ngn_rate",
-    accessorFn: (data) => formatNumberCurrency(data.expenditure_ngn_rate, "NGN"),
     size: 150,
+    cell: ({ row }) => {
+      const data = row.original;
+      const expended = parseFloat(data.amount_expended_ngn || "0");
+      const budget = parseFloat(data.total_amount_ngn || "0");
+
+      if (budget === 0) return "0%";
+
+      const rate = (expended / budget) * 100;
+      return `${rate.toFixed(2)}%`;
+    },
   },
 
   {
     header: "Expenditure Rate (USD)",
     accessorKey: "expenditure_usd_rate",
-    accessorFn: (data) => formatNumberCurrency(data.expenditure_usd_rate, "USD"),
     size: 150,
+    cell: ({ row }) => {
+      const data = row.original;
+      const expended = parseFloat(data.amount_expended_usd || "0");
+      const budget = parseFloat(data.total_amount_usd || "0");
+
+      if (budget === 0) return "0%";
+
+      const rate = (expended / budget) * 100;
+      return `${rate.toFixed(2)}%`;
+    },
   },
 
   {
@@ -300,8 +350,18 @@ export const getWorkPlanTrackerDetailsColumns = (
     accessorKey: "auto_calculated_variance_ngn",
     size: 150,
     cell: ({ row }) => {
-      const variance = row.original.auto_calculated_variance_ngn || row.original.variance_ngn || 0;
-      return formatNumberCurrency(variance, "NGN");
+      const data = row.original;
+      const budget = parseFloat(data.total_amount_ngn || "0");
+      const expended = parseFloat(data.amount_expended_ngn || "0");
+
+      // Variance = Budget - Expended Amount
+      const variance = budget - expended;
+
+      return (
+        <span className={variance < 0 ? "text-red-600 font-medium" : variance > 0 ? "text-green-600 font-medium" : ""}>
+          {formatNumberCurrency(variance, "NGN")}
+        </span>
+      );
     },
   },
 
@@ -310,8 +370,18 @@ export const getWorkPlanTrackerDetailsColumns = (
     accessorKey: "auto_calculated_variance_usd",
     size: 150,
     cell: ({ row }) => {
-      const variance = row.original.auto_calculated_variance_usd || row.original.variance_usd || 0;
-      return formatNumberCurrency(variance, "USD");
+      const data = row.original;
+      const budget = parseFloat(data.total_amount_usd || "0");
+      const expended = parseFloat(data.amount_expended_usd || "0");
+
+      // Variance = Budget - Expended Amount
+      const variance = budget - expended;
+
+      return (
+        <span className={variance < 0 ? "text-red-600 font-medium" : variance > 0 ? "text-green-600 font-medium" : ""}>
+          {formatNumberCurrency(variance, "USD")}
+        </span>
+      );
     },
   },
 
@@ -320,8 +390,21 @@ export const getWorkPlanTrackerDetailsColumns = (
     accessorKey: "auto_calculated_percentage_variance_ngn",
     size: 150,
     cell: ({ row }) => {
-      const percentage = row.original.auto_calculated_percentage_variance_ngn || row.original.percentage_variance_ngn || 0;
-      return `${percentage}%`;
+      const data = row.original;
+      const budget = parseFloat(data.total_amount_ngn || "0");
+      const expended = parseFloat(data.amount_expended_ngn || "0");
+
+      if (budget === 0) return "0%";
+
+      // % Variance = ((Budget - Expended) / Budget) × 100
+      const variance = budget - expended;
+      const percentage = (variance / budget) * 100;
+
+      return (
+        <span className={percentage < 0 ? "text-red-600 font-medium" : percentage > 0 ? "text-green-600 font-medium" : ""}>
+          {percentage.toFixed(2)}%
+        </span>
+      );
     },
   },
 
@@ -330,8 +413,21 @@ export const getWorkPlanTrackerDetailsColumns = (
     accessorKey: "auto_calculated_percentage_variance_usd",
     size: 150,
     cell: ({ row }) => {
-      const percentage = row.original.auto_calculated_percentage_variance_usd || row.original.percentage_variance_usd || 0;
-      return `${percentage}%`;
+      const data = row.original;
+      const budget = parseFloat(data.total_amount_usd || "0");
+      const expended = parseFloat(data.amount_expended_usd || "0");
+
+      if (budget === 0) return "0%";
+
+      // % Variance = ((Budget - Expended) / Budget) × 100
+      const variance = budget - expended;
+      const percentage = (variance / budget) * 100;
+
+      return (
+        <span className={percentage < 0 ? "text-red-600 font-medium" : percentage > 0 ? "text-green-600 font-medium" : ""}>
+          {percentage.toFixed(2)}%
+        </span>
+      );
     },
   },
 
