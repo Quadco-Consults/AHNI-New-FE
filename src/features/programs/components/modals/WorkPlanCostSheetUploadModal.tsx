@@ -10,6 +10,7 @@ import { useAppDispatch } from "@/hooks/useStore";
 import { closeDialog } from "@/store/ui";
 import { useUploadWorkPlanCostSheets } from "@/features/programs/controllers/activityCostSheetController";
 import { useQueryClient } from "@tanstack/react-query";
+import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 
 interface WorkPlanCostSheetUploadModalProps {
     workPlanId?: string;
@@ -132,24 +133,19 @@ const WorkPlanCostSheetUploadModal = ({
         try {
             toast.loading("Generating template...", { id: "template-download" });
 
-            // Call backend API to generate dynamic template
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/programs/plans/activity-cost-sheets/download-template/?work_plan=${workPlanId}`,
+            // Call backend API to generate dynamic template using AxiosWithToken
+            const response = await AxiosWithToken.get(
+                `/programs/plans/activity-cost-sheets/download-template/`,
                 {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                    },
+                    params: { work_plan: workPlanId },
+                    responseType: 'blob', // Important for file downloads
                 }
             );
 
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.error || 'Failed to generate template');
-            }
-
             // Get the file blob
-            const blob = await response.blob();
+            const blob = new Blob([response.data], {
+                type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            });
 
             // Create download link
             const url = window.URL.createObjectURL(blob);
@@ -157,7 +153,7 @@ const WorkPlanCostSheetUploadModal = ({
             link.href = url;
 
             // Extract filename from content-disposition header or use default
-            const contentDisposition = response.headers.get('content-disposition');
+            const contentDisposition = response.headers['content-disposition'];
             let filename = `cost_sheet_template_${workPlanTitle?.replace(/\s+/g, '_') || 'workplan'}.xlsx`;
 
             if (contentDisposition) {
@@ -176,7 +172,11 @@ const WorkPlanCostSheetUploadModal = ({
             toast.success("Template downloaded successfully!", { id: "template-download" });
         } catch (error: any) {
             console.error("Template download error:", error);
-            toast.error(error.message || "Failed to download template", { id: "template-download" });
+            const errorMessage = error?.response?.data?.message
+                || error?.response?.data?.error
+                || error?.message
+                || "Failed to download template";
+            toast.error(errorMessage, { id: "template-download" });
         }
     };
 
