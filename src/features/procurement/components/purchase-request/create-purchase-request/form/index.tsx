@@ -187,6 +187,11 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
       role_reviewed_by: "",
       role_authorised_by: "",
       role_approved_by: "",
+      // Procurement Plan Tracking Fields
+      procurement_plan_reference: "",
+      mode_of_procurement: "",
+      procurement_method: "",
+      procurement_start_date: "",
     },
   });
 
@@ -403,6 +408,11 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
         role_reviewed_by: data.role_reviewed_by,
         role_authorised_by: data.role_authorised_by,
         role_approved_by: data.role_approved_by,
+        // Procurement Plan Tracking Fields
+        ...(data.procurement_plan_reference && { procurement_plan_reference: data.procurement_plan_reference }),
+        ...(data.mode_of_procurement && { mode_of_procurement: data.mode_of_procurement }),
+        ...(data.procurement_method && { procurement_method: data.procurement_method }),
+        ...(data.procurement_start_date && { procurement_start_date: data.procurement_start_date }),
       };
 
       console.log("Formatted payload for API:", payload);
@@ -961,6 +971,63 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
                     })()}
                   </SelectContent>
                 </FormSelect>
+              </div>
+
+              {/* Procurement Plan Tracking Fields */}
+              <div className='p-4 bg-blue-50 border border-blue-200 rounded-lg'>
+                <h4 className='text-sm font-semibold text-blue-900 mb-3'>Procurement Plan Information</h4>
+
+                <div className='grid grid-cols-2 gap-5 mb-4'>
+                  <FormInput
+                    label='Procurement Plan Reference'
+                    name='procurement_plan_reference'
+                    type='text'
+                    placeholder='e.g., PHO/OODC/1.1'
+                  />
+                  <FormInput
+                    label='Procurement Start Date'
+                    name='procurement_start_date'
+                    type='date'
+                  />
+                </div>
+
+                <div className='grid grid-cols-2 gap-5'>
+                  <FormSelect
+                    label='Mode of Procurement'
+                    name='mode_of_procurement'
+                  >
+                    <SelectContent>
+                      <SelectItem value="LOCAL_PROCUREMENT">Local Procurement</SelectItem>
+                      <SelectItem value="INTERNATIONAL_PROCUREMENT">International Procurement</SelectItem>
+                      <SelectItem value="CONTRACTED_SERVICE">Contracted Service (SLA)</SelectItem>
+                      <SelectItem value="DIRECT_CONTRACTING">Direct Contracting/Single Source</SelectItem>
+                      <SelectItem value="SOLE_SOURCE">Sole Source</SelectItem>
+                    </SelectContent>
+                  </FormSelect>
+
+                  <FormSelect
+                    label='Procurement Method'
+                    name='procurement_method'
+                  >
+                    <SelectContent>
+                      <SelectItem value="ICB">International Competitive Bidding</SelectItem>
+                      <SelectItem value="ILCB">International Limited Competitive Bidding</SelectItem>
+                      <SelectItem value="NCB">National Competitive Bidding</SelectItem>
+                      <SelectItem value="NLCB">National Limited Competitive Bidding</SelectItem>
+                      <SelectItem value="NATIONAL_SHOPPING">National Shopping</SelectItem>
+                      <SelectItem value="LOCAL_SHOPPING">Local Shopping</SelectItem>
+                      <SelectItem value="MICRO_PURCHASE">Micro Purchase</SelectItem>
+                      <SelectItem value="SINGLE_SOURCE">Single Source</SelectItem>
+                      <SelectItem value="SOLE_SOURCE">Sole Source</SelectItem>
+                      <SelectItem value="RFQ">Request for Quotation</SelectItem>
+                      <SelectItem value="RFP">Request for Proposal</SelectItem>
+                    </SelectContent>
+                  </FormSelect>
+                </div>
+
+                <p className='text-xs text-blue-700 mt-3'>
+                  These fields help track procurement plan execution and compliance with AHNI standards.
+                </p>
               </div>
 
               <div>

@@ -147,7 +147,7 @@ export const useCreatePurchaseRequest = () => {
 };
 
 // Update Purchase Request (Full Update)
-export const useUpdatePurchaseRequest = (id: string) => {
+export const useUpdatePurchaseRequest = (id: string, showToast: boolean = true) => {
   const { callApi, isLoading, isSuccess, error, data } = useApiManager<
     PurchaseRequestResponse,
     Error,
@@ -161,6 +161,7 @@ export const useUpdatePurchaseRequest = (id: string) => {
     ],
     isAuth: true,
     method: "PUT",
+    showSuccessToast: showToast,
   });
 
   const updatePurchaseRequest = async (details: any) => {
@@ -168,6 +169,7 @@ export const useUpdatePurchaseRequest = (id: string) => {
       await callApi(details);
     } catch (error) {
       console.error("Purchase request update error:", error);
+      throw error; // Re-throw to allow caller to handle
     }
   };
 

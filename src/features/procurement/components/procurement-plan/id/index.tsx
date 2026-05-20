@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useParams } from "next/navigation";
 import ProcurementPlan from "./ProcurementPlan";
 import ProcurementSummary from "./ProcurementSummary";
+import OperationalCost from "./OperationalCost";
 import BreadcrumbCard from "@/components/Breadcrumb";
 import GoBack from "@/components/GoBack";
 import Card from "@/components/Card";
@@ -136,25 +137,35 @@ const ProcurementDetails = () => {
     { name: "Detail", icon: false },
   ];
 
+  // Separate operational and product items for counts in tabs
+  const operationalItems = safeData?.items?.filter((item: any) => item?.item_type === 'OPERATIONAL') || [];
+  const productItems = safeData?.items?.filter((item: any) => item?.item_type !== 'OPERATIONAL') || [];
+
   return (
-    <div className="space-y-5 relative min-h-screen">
+    <div className="space-y-3 relative min-h-screen">
       <BreadcrumbCard list={breadcrumbs} />
 
       <GoBack />
 
+      {/* Tabs Section */}
       <Tabs defaultValue="procurement_plan">
-        <div className="relative pb-2 flex justify-between items-center">
-          <TabsList>
-            <TabsTrigger value="procurement_plan">Procurement Plan</TabsTrigger>
-            <TabsTrigger value="procurement_summary">
-              Procurement Summary
+        <div className="relative pb-2 flex justify-between items-center bg-white p-4 rounded-lg shadow-sm border">
+          <TabsList className="bg-gray-100">
+            <TabsTrigger value="procurement_plan" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">
+              Procurement Plan ({productItems.length})
+            </TabsTrigger>
+            <TabsTrigger value="operational_cost" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">
+              Operational Cost ({operationalItems.length})
+            </TabsTrigger>
+            <TabsTrigger value="procurement_summary" className="data-[state=active]:bg-white data-[state=active]:shadow-sm">
+              Summary
             </TabsTrigger>
           </TabsList>
 
           <Button
             onClick={handleDownload}
             disabled={isDownloading || isLoading}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 shadow-sm"
             variant="outline"
           >
             <DownloadIcon className="h-4 w-4" />
@@ -170,6 +181,11 @@ const ProcurementDetails = () => {
         <TabsContent value="procurement_summary">
           <Card>
             <ProcurementSummary {...(safeData as ProcurementPlanResultsData)} />
+          </Card>
+        </TabsContent>
+        <TabsContent value="operational_cost">
+          <Card>
+            <OperationalCost {...(safeData as ProcurementPlanResultsData)} />
           </Card>
         </TabsContent>
       </Tabs>

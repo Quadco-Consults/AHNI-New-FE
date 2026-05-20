@@ -105,11 +105,22 @@ export type PurchaseRequestResultsData = {
     last_name: string;
     email: string;
   };
+  assigned_to?: string;
+  assigned_to_detail?: {
+    user_id: string;
+    name: string;
+    position: string;
+  };
   reviewed_date?: string;
   authorized_date?: string;
   approved_date?: string;
   specification_document?: string;
-  assigned_to?: string;
+
+  // Procurement Plan Tracking Fields
+  procurement_plan_reference?: string;
+  mode_of_procurement?: 'LOCAL_PROCUREMENT' | 'INTERNATIONAL_PROCUREMENT' | 'CONTRACTED_SERVICE' | 'DIRECT_CONTRACTING' | 'SOLE_SOURCE';
+  procurement_method?: 'ICB' | 'ILCB' | 'NCB' | 'NLCB' | 'NATIONAL_SHOPPING' | 'LOCAL_SHOPPING' | 'MICRO_PURCHASE' | 'SINGLE_SOURCE' | 'SOLE_SOURCE' | 'RFQ' | 'RFP';
+  procurement_start_date?: string;
 };
 
 export interface PurchaseRequestData {

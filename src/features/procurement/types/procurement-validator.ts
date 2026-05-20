@@ -204,6 +204,29 @@ export const PurchaseRequestSchema = z.object({
   role_approved_by: z.string().optional(),
   authorised_by: z.string().min(1, "Field is required"),
   role_authorised_by: z.string().optional(),
+  // Procurement Plan Tracking Fields
+  procurement_plan_reference: z.string().optional(),
+  mode_of_procurement: z.enum([
+    "LOCAL_PROCUREMENT",
+    "INTERNATIONAL_PROCUREMENT",
+    "CONTRACTED_SERVICE",
+    "DIRECT_CONTRACTING",
+    "SOLE_SOURCE"
+  ]).optional(),
+  procurement_method: z.enum([
+    "ICB",
+    "ILCB",
+    "NCB",
+    "NLCB",
+    "NATIONAL_SHOPPING",
+    "LOCAL_SHOPPING",
+    "MICRO_PURCHASE",
+    "SINGLE_SOURCE",
+    "SOLE_SOURCE",
+    "RFQ",
+    "RFP"
+  ]).optional(),
+  procurement_start_date: z.string().optional(),
 });
 
 export const PurchaseOrderSchema = z.object({

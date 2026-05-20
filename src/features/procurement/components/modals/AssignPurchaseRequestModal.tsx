@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import React, { FormEvent, useState, useEffect } from "react";
 import { toast } from "sonner";
 import FormButton from "@/components/FormButton";
 import {
@@ -10,11 +10,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useGetProcurementOfficers } from "@/features/auth/controllers/userController";
+import { useGetAllUsers } from "@/features/auth/controllers/userController";
 import {
   useUpdatePurchaseRequest,
   useGetPurchaseRequest
 } from "@/features/procurement/controllers/purchaseRequestController";
+import { useAppDispatch } from "@/hooks/useStore";
+import { closeDialog } from "@/store/ui";
 
 interface AssignPurchaseRequestModalProps {
   id: string;
@@ -27,22 +29,68 @@ export default function AssignPurchaseRequestModal({
   assignedTo: prevAssignedTo,
   onClose
 }: AssignPurchaseRequestModalProps) {
+  const dispatch = useAppDispatch();
   const [assignedTo, setAssignedTo] = useState(prevAssignedTo || "");
 
-  const { updatePurchaseRequest, isLoading: isUpdating } = useUpdatePurchaseRequest(id);
-  const { data: purchaseRequestData, isLoading: isFetching } = useGetPurchaseRequest(id);
-  const { data: users } = useGetProcurementOfficers({
+  // Disable default success toast since we show a custom one
+  const { updatePurchaseRequest, isLoading: isUpdating, isSuccess } = useUpdatePurchaseRequest(id, false);
+  const { data: purchaseRequestData, isLoading: isFetching, refetch } = useGetPurchaseRequest(id);
+
+  // Close modal when assignment succeeds
+  useEffect(() => {
+    if (isSuccess) {
+      // Small delay to ensure the query cache is updated
+      const timer = setTimeout(() => {
+        dispatch(closeDialog());
+        onClose?.();
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [isSuccess, dispatch, onClose]);
+  // Fetch all users and filter for procurement department on frontend
+  const { data: allUsers, isLoading: isLoadingUsers, error: usersError } = useGetAllUsers({
     page: 1,
-    size: 1000,
+    size: 10000, // Get all users
     search: "",
   });
 
-  const isLoading = isUpdating || isFetching;
+  // Filter users for procurement department or procurement-related roles
+  const procurementUsers = React.useMemo(() => {
+    const results = allUsers?.data?.results || [];
+    return results.filter((user: any) => {
+      // Check if user is from procurement department
+      const isProcurementDept =
+        user.department?.name?.toLowerCase().includes('procurement') ||
+        user.employee?.department?.name?.toLowerCase().includes('procurement') ||
+        user.email?.toLowerCase().includes('procurement');
 
-  const usersOption = users?.data?.results?.map((el: any) => ({
+      // Or if user is admin/staff (they have access to all)
+      const isAdminStaff = user.is_superuser || user.is_staff;
+
+      return isProcurementDept || isAdminStaff;
+    });
+  }, [allUsers]);
+
+  // Debug logging
+  console.log("🔍 All Users Data:", allUsers);
+  console.log("📊 Filtered Procurement Users:", procurementUsers.length);
+  console.log("📊 Users structure:", {
+    hasData: !!allUsers,
+    hasDataProp: !!allUsers?.data,
+    hasResults: !!allUsers?.data?.results,
+    totalUsers: allUsers?.data?.results?.length || 0,
+    procurementUsers: procurementUsers.length,
+    error: usersError
+  });
+
+  const isLoading = isUpdating || isFetching || isLoadingUsers;
+
+  const usersOption = procurementUsers?.map((el: any) => ({
     value: el?.id,
-    label: `${el?.first_name} ${el?.last_name}`,
+    label: `${el?.first_name} ${el?.last_name} ${el.department?.name ? `(${el.department.name})` : ''}`,
   })) || [];
+
+  console.log("👥 Users options:", usersOption);
 
   const handleChangeAssignedUser = (value: string) => {
     setAssignedTo(value);
@@ -115,7 +163,8 @@ export default function AssignPurchaseRequestModal({
 
       await updatePurchaseRequest(updatePayload);
       toast.success("Purchase Request assigned successfully");
-      onClose?.();
+
+      // Modal will close automatically via useEffect when isSuccess becomes true
     } catch (error: any) {
       console.error("Assignment error:", error);
       toast.error(error?.message || "Failed to assign purchase request");
@@ -129,6 +178,23 @@ export default function AssignPurchaseRequestModal({
       {isFetching ? (
         <div className="text-center py-4 text-gray-500">
           Loading purchase request data...
+        </div>
+      ) : isLoadingUsers ? (
+        <div className="text-center py-4 text-gray-500">
+          Loading procurement officers...
+        </div>
+      ) : usersError ? (
+        <div className="text-center py-4 text-red-500">
+          Error loading users: {(usersError as Error)?.message}
+        </div>
+      ) : usersOption.length === 0 ? (
+        <div className="space-y-2">
+          <div className="text-center py-4 text-amber-600 bg-amber-50 rounded border border-amber-200">
+            No procurement officers found in the system
+          </div>
+          <div className="text-xs text-gray-500">
+            Debug info: {allUsers?.data?.results?.length || 0} total users, {procurementUsers.length} procurement users
+          </div>
         </div>
       ) : (
         <Select
@@ -152,11 +218,17 @@ export default function AssignPurchaseRequestModal({
       )}
 
       <div className="flex justify-end gap-2">
-        {onClose && (
-          <FormButton type="button" variant="outline" onClick={onClose} disabled={isLoading}>
-            Cancel
-          </FormButton>
-        )}
+        <FormButton
+          type="button"
+          variant="outline"
+          onClick={() => {
+            dispatch(closeDialog());
+            onClose?.();
+          }}
+          disabled={isLoading}
+        >
+          Cancel
+        </FormButton>
         <FormButton type="submit" loading={isLoading} disabled={isFetching}>
           Assign
         </FormButton>

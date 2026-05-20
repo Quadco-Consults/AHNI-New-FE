@@ -181,6 +181,44 @@ function PurchaseRequest({
       },
     },
     {
+      header: "Assigned To",
+      accessorKey: "assigned_to",
+      size: 200,
+      cell: ({ row }) => {
+        // Only show for approved requests
+        if (row.original.status?.toLowerCase() !== 'approved') {
+          return <span className="text-gray-400 text-xs">N/A</span>;
+        }
+
+        if (!row.original.assigned_to) {
+          return (
+            <div className="inline-flex px-2 py-1 text-xs rounded-full bg-amber-50 text-amber-700 border border-amber-200">
+              Unassigned
+            </div>
+          );
+        }
+
+        const assignedUser = row.original.assigned_to_detail;
+        if (assignedUser) {
+          return (
+            <div className="flex flex-col">
+              <span className="text-sm font-medium">{assignedUser.name}</span>
+              {assignedUser.position && assignedUser.position !== 'N/A' && (
+                <span className="text-xs text-gray-500">{assignedUser.position}</span>
+              )}
+            </div>
+          );
+        }
+
+        // Fallback if detail not available
+        return (
+          <div className="inline-flex px-2 py-1 text-xs rounded-full bg-green-50 text-green-700 border border-green-200">
+            Assigned
+          </div>
+        );
+      },
+    },
+    {
       header: "Actions",
       id: "actions",
       cell: ({ row }) => <ActionListAction data={row.original} />,

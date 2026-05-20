@@ -174,9 +174,10 @@ const ProcurementPlan = (data: ProcurementPlanResultsData) => {
 
   // Get items from data
   // Extract items from actual API response structure based on debugging data
-  const items = data?.data?.results || data?.items || data?.line_items || data?.procurement_items || [];
+  const allItems = data?.data?.results || data?.items || data?.line_items || data?.procurement_items || [];
 
-  // Items extraction working correctly - most data now displays properly
+  // Filter for health and non-health products only (excluding operational costs)
+  const items = allItems.filter((item: any) => item?.item_type !== 'OPERATIONAL');
 
   // Field mappings have been optimized based on actual database field analysis
 
@@ -261,27 +262,42 @@ const ProcurementPlan = (data: ProcurementPlanResultsData) => {
           <div className="overflow-x-auto">
             <table className="table-auto min-w-max border border-gray-300 text-left border-collapse">
               <thead>
-                {/* Row 1: Procurement Milestones */}
+                {/* Row 1: Procurement Plan Title */}
                 <tr className="bg-gray-100">
                   <th
                     colSpan={31}
                     className="px-4 py-2 border text-center text-base font-semibold"
                   >
-                    Procurement Plan- <span>{typeof data?.project === 'object' ? data?.project?.title : safeRender(data?.project) || "Project Details"}</span>
+                    PROCUREMENT PLAN - <span>{typeof data?.project === 'object' ? data?.project?.title : safeRender(data?.project) || "Project Details"}</span>
                   </th>
                 </tr>
 
-                {/* Row 2: Date Info */}
+                {/* Row 2: Financial Year */}
                 <tr className="bg-gray-50">
                   <th
                     colSpan={31}
                     className="text-red-500 px-4 py-2 border text-center text-sm font-semibold whitespace-nowrap"
                   >
-                    FY25 (<span>{data?.financial_year?.year || safeRender(data?.financial_year) || "Current Year"}</span>)
+                    {data?.financial_year?.year || "FY25"}
+                    {data?.financial_year?.start_date && data?.financial_year?.end_date && (
+                      <span>
+                        {' '}({new Date(data.financial_year.start_date).toLocaleDateString('en-GB', { month: 'short', year: '2-digit' })} to {new Date(data.financial_year.end_date).toLocaleDateString('en-GB', { month: 'short', year: '2-digit' })})
+                      </span>
+                    )}
                   </th>
                 </tr>
 
-                {/* Row 3: Main Headers */}
+                {/* Row 3: Category */}
+                <tr className="bg-blue-50">
+                  <th
+                    colSpan={31}
+                    className="text-blue-700 px-4 py-2 border text-center text-sm font-bold"
+                  >
+                    HEALTH AND NON-HEALTH PRODUCTS
+                  </th>
+                </tr>
+
+                {/* Row 4: Main Headers */}
                 <tr className="bg-gray-100">
                   <th className="px-4 py-2 border text-sm font-semibold">Actions</th>
                   <th className="px-4 py-2 border text-sm font-semibold">SN</th>
@@ -383,7 +399,7 @@ const ProcurementPlan = (data: ProcurementPlanResultsData) => {
                   </th>
                 </tr>
 
-                {/* Row 4: Sub-Headers */}
+                {/* Row 5: Sub-Headers */}
                 <tr className="bg-gray-50">
                   <th colSpan={6}></th>
                   <th></th>
