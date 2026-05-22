@@ -98,19 +98,36 @@ export default function NewConsultancyStaffForm({
   ]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const updatedFiles = files.map((file) => {
-        if (e.target.name === file.name) {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      const maxSizeInMB = 30; // 30MB limit (to account for base64 encoding overhead + other form data)
+      const maxSizeInBytes = maxSizeInMB * 1024 * 1024;
+
+      console.log(`📁 File selected: ${file.name}, Size: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
+
+      if (file.size > maxSizeInBytes) {
+        const fileSizeMB = (file.size / 1024 / 1024).toFixed(2);
+        toast.error(`File too large! Maximum size is ${maxSizeInMB}MB. Your file is ${fileSizeMB}MB. Please compress or reduce the file size.`, {
+          duration: 6000,
+        });
+        // Clear the file input
+        e.target.value = '';
+        return;
+      }
+
+      const updatedFiles = files.map((fileItem) => {
+        if (e.target.name === fileItem.name) {
           return {
-            ...file,
-            document: e.target.files ? e.target.files[0] : null,
+            ...fileItem,
+            document: file,
           };
         }
 
-        return file;
+        return fileItem;
       });
 
       setFiles(updatedFiles);
+      toast.success(`File selected: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
     }
   };
 
@@ -639,6 +656,7 @@ export default function NewConsultancyStaffForm({
         <div className='grid grid-cols-2 gap-10'>
           <div className='flex flex-col gap-y-[1rem]'>
             <Label className='font-bold'>Upload Resume</Label>
+            <p className='text-xs text-gray-500'>Maximum file size: 30MB</p>
 
             <div className='flex items-center w-full gap-x-[1rem]'>
               <label
@@ -663,6 +681,7 @@ export default function NewConsultancyStaffForm({
 
           <div className='flex flex-col gap-y-[1rem]'>
             <Label className='font-bold'>Upload Cover Letter</Label>
+            <p className='text-xs text-gray-500'>Maximum file size: 30MB</p>
 
             <div className='flex items-center w-full gap-x-[1rem]'>
               <label

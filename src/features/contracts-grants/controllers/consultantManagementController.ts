@@ -269,6 +269,54 @@ export const useModifyConsultantManagementMutation =
 export const useDeleteConsultantManagementMutation =
   useDeleteConsultantManagement;
 
+// Approve Consultant Management
+export const useApproveConsultantManagement = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    IConsultantSingleData,
+    Error,
+    Record<string, never>
+  >({
+    endpoint: `${BASE_URL}${id}/approve/`,
+    queryKey: ["consultantManagements", "consultantManagement"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const approveConsultantManagement = async () => {
+    try {
+      await callApi({} as Record<string, never>);
+    } catch (error) {
+      console.error("Consultant management approve error:", error);
+    }
+  };
+
+  return { approveConsultantManagement, data, isLoading, isSuccess, error };
+};
+
+// Reject Consultant Management
+export const useRejectConsultantManagement = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    IConsultantSingleData,
+    Error,
+    Record<string, never>
+  >({
+    endpoint: `${BASE_URL}${id}/reject/`,
+    queryKey: ["consultantManagements", "consultantManagement"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const rejectConsultantManagement = async () => {
+    try {
+      await callApi({} as Record<string, never>);
+    } catch (error) {
+      console.error("Consultant management reject error:", error);
+    }
+  };
+
+  return { rejectConsultantManagement, data, isLoading, isSuccess, error };
+};
+
 // Missing named exports
 export const useModifyConsultantManagement = useUpdateConsultantManagement;
 export const useGetAllConsultancyStaffs = useGetAllExistingConsultants;

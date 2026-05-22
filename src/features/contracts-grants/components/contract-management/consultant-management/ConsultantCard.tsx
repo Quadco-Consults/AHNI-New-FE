@@ -21,8 +21,9 @@ import useJobAdvertType from "@/hooks/useJobAdvertType";
 import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useDeleteConsultantManagement } from "src/features/contracts-grants/controllers/consultantManagementController";
+import { useDeleteConsultantManagement, useApproveConsultantManagement } from "src/features/contracts-grants/controllers/consultantManagementController";
 import { toast } from "sonner";
+import { CheckCircle } from "lucide-react";
 
 export default function ConsultantCard({
     id,
@@ -54,9 +55,13 @@ export default function ConsultantCard({
             : CG_ROUTES.CONSULTANCY_DETAILS;
 
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
 
     const { deleteConsultantManagement, isLoading: isDeleteLoading } =
         useDeleteConsultantManagement(id);
+
+    const { approveConsultantManagement, isLoading: isApproveLoading } =
+        useApproveConsultantManagement(id);
 
     const handleDelete = async () => {
         try {
@@ -67,6 +72,18 @@ export default function ConsultantCard({
             toast.error(error?.message ?? "Something went wrong");
         }
     };
+
+    const handleApprove = async () => {
+        try {
+            await approveConsultantManagement();
+            toast.success("Job Published Successfully!");
+            setIsApproveModalOpen(false);
+        } catch (error: any) {
+            toast.error(error?.message ?? "Failed to publish job");
+        }
+    };
+
+    const isPending = status === "PENDING";
 
     return (
         <div className="w-[49.5%]">
@@ -96,7 +113,17 @@ export default function ConsultantCard({
                             {title || 'Untitled Consultant'}
                         </CardTitle>
 
-                        <div className="flex items-center">
+                        <div className="flex items-center gap-1">
+                            {isPending && (
+                                <Button
+                                    variant="ghost"
+                                    onClick={() => setIsApproveModalOpen(true)}
+                                    className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                                    title="Publish Job"
+                                >
+                                    <CheckCircle className="w-5 h-5" />
+                                </Button>
+                            )}
                             <Link
                                 href={{
                                     pathname: advertEditPath,
@@ -166,6 +193,14 @@ export default function ConsultantCard({
                 onCancel={() => setIsModalOpen(false)}
                 onOk={handleDelete}
                 loading={isDeleteLoading}
+            />
+
+            <ConfirmationDialog
+                open={isApproveModalOpen}
+                title="Publish this job advertisement?"
+                onCancel={() => setIsApproveModalOpen(false)}
+                onOk={handleApprove}
+                loading={isApproveLoading}
             />
         </div>
     );

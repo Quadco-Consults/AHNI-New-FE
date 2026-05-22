@@ -67,6 +67,31 @@ export default function ScopeOfWork() {
   //   });
 
   const handleFileChange = (files: FileList | null, name: string) => {
+    if (!files || files.length === 0) {
+      form.setValue(name as any, files);
+      return;
+    }
+
+    const file = files[0];
+    const maxSizeInMB = 30; // 30MB limit (to account for base64 encoding overhead + other form data)
+    const maxSizeInBytes = maxSizeInMB * 1024 * 1024;
+
+    console.log(`📁 File selected: ${file.name}, Size: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
+
+    if (file.size > maxSizeInBytes) {
+      const fileSizeMB = (file.size / 1024 / 1024).toFixed(2);
+      toast.error(`File too large! Maximum size is ${maxSizeInMB}MB. Your file is ${fileSizeMB}MB. Please compress or reduce the file size.`, {
+        duration: 6000,
+      });
+      // Clear the file input
+      const fileInput = document.getElementById(name) as HTMLInputElement;
+      if (fileInput) {
+        fileInput.value = '';
+      }
+      return;
+    }
+
+    toast.success(`File selected: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
     form.setValue(name as any, files);
   };
 
@@ -338,6 +363,7 @@ export default function ScopeOfWork() {
                 <Label className='font-semibold'>
                   Upload Complete Advertisement Document <span className='text-gray-500 font-normal'>(Optional)</span>
                 </Label>
+                <p className='text-xs text-gray-500'>Maximum file size: 30MB. For larger files, please compress your PDF first.</p>
                 <div className='flex items-center w-full gap-x-[1rem]'>
                   <label
                     className='cursor-pointer shrink-0 border flex items-center gap-x-[1rem] w-fit rounded-lg border-[#DBDFE9] py-[.875rem] px-[1.125rem]'

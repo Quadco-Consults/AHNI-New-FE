@@ -311,7 +311,33 @@ export default function ConsultantJobDetailsPage() {
     const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
       if (e.target.files && e.target.files.length > 0) {
         const newFiles = Array.from(e.target.files);
-        setDocuments(prev => [...prev, ...newFiles]);
+        const maxSizeInMB = 5; // 5MB limit per file
+        const maxSizeInBytes = maxSizeInMB * 1024 * 1024;
+
+        // Validate each file size
+        const validFiles: File[] = [];
+        const invalidFiles: string[] = [];
+
+        newFiles.forEach(file => {
+          if (file.size > maxSizeInBytes) {
+            invalidFiles.push(`${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
+          } else {
+            validFiles.push(file);
+          }
+        });
+
+        // Show error for invalid files
+        if (invalidFiles.length > 0) {
+          toast.error(`These files exceed the ${maxSizeInMB}MB limit: ${invalidFiles.join(', ')}`);
+        }
+
+        // Add only valid files
+        if (validFiles.length > 0) {
+          setDocuments(prev => [...prev, ...validFiles]);
+        }
+
+        // Clear the file input
+        e.target.value = '';
       }
     };
 
