@@ -1,3 +1,23 @@
+/**
+ * FilterIcon - Migrated to Lucide React
+ *
+ * MIGRATION: 2026-05-20 Phase 2
+ * Old: Custom SVG with dark fill color (#141B34)
+ * New: Lucide Filter icon with matching dark color
+ *
+ * This file now re-exports from LucideMigration.tsx for consistency
+ * across the application. The old SVG implementation is preserved
+ * below as a comment for reference.
+ */
+
+export { FilterIcon as default, FilterIconMigrated as FilterIcon } from './LucideMigration';
+
+/*
+====================================================================================================
+OLD IMPLEMENTATION (PRESERVED AS REFERENCE - Can be removed after 2026-06-20)
+====================================================================================================
+
+Original custom SVG implementation:
 
 type Props = {
     size?: string
@@ -20,3 +40,8 @@ const FilterIcon = ({size = '24'}: Props) => {
 }
 
 export default FilterIcon
+
+====================================================================================================
+END OF OLD IMPLEMENTATION
+====================================================================================================
+*/

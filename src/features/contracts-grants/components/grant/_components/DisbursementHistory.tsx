@@ -123,21 +123,24 @@ const DisbursementHistory: React.FC<any> = ({
                     ? formatNumberCurrency(total_obligation_amount, "USD")
                     : formatNumberCurrency("0", "USD"),
                 icon: <TotalIncomeSvg />,
-                color: "bg-[#107D38]"
+                borderColor: "border-l-green-600",
+                textColor: "text-green-700"
             },
             {
                 id: 2,
                 name: "Total Disbursed",
                 stat: formatNumberCurrency(disbursed.toString(), "USD"),
                 icon: <TotalExpenditureSvg />,
-                color: "bg-[#2563EB]"
+                borderColor: "border-l-blue-600",
+                textColor: "text-blue-700"
             },
             {
                 id: 3,
                 name: "Pending Disbursement",
                 stat: formatNumberCurrency(pending.toString(), "USD"),
                 icon: <TotalIncomeSvg />,
-                color: "bg-[#B42318]"
+                borderColor: "border-l-amber-600",
+                textColor: "text-amber-700"
             },
         ];
     }, [actualTotalDisbursed, total_obligation_amount]);
@@ -154,19 +157,19 @@ const DisbursementHistory: React.FC<any> = ({
 
     return (
         <section className="w-full flex flex-col px-5 space-y-[1.25rem]">
-            <div className="grid grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                 {StatsCard.map((item, index) => {
                     return (
                         <div
-                            className={`px-[1.875rem] py-[1.25rem] rounded-[.625rem] justify-between items-center flex ${item.color}`}
+                            className={`bg-white border border-gray-200 ${item.borderColor} border-l-4 px-6 py-5 rounded-lg flex items-center justify-between`}
                             key={index}
                         >
-                            <div className="border border-white p-1 rounded">
+                            <div className="flex-shrink-0 opacity-60">
                                 {item.icon}
                             </div>
-                            <div className="text-end text-white space-y-[.625rem]">
-                                <p className="text-sm">{item.name}</p>
-                                <p className="text-[1.5rem] font-semibold">
+                            <div className="text-end space-y-1">
+                                <p className="text-xs font-medium text-gray-500 uppercase">{item.name}</p>
+                                <p className={`text-2xl font-bold ${item.textColor}`}>
                                     {item.stat}
                                 </p>
                             </div>

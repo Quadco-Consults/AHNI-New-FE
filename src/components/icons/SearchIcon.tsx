@@ -1,3 +1,23 @@
+/**
+ * SearchIcon - Migrated to Lucide React
+ *
+ * MIGRATION: 2026-05-20 Phase 2
+ * Old: Custom SVG with dark stroke color (#20293A)
+ * New: Lucide Search icon with matching dark color
+ *
+ * This file now re-exports from LucideMigration.tsx for consistency
+ * across the application. The old SVG implementation is preserved
+ * below as a comment for reference.
+ */
+
+export { SearchIcon as default, SearchIconMigrated as SearchIcon } from './LucideMigration';
+
+/*
+====================================================================================================
+OLD IMPLEMENTATION (PRESERVED AS REFERENCE - Can be removed after 2026-06-20)
+====================================================================================================
+
+Original custom SVG implementation:
 
 type Props = {
     size?: string
@@ -14,3 +34,8 @@ const SearchIcon = ({size = '24'}: Props) => {
 }
 
 export default SearchIcon
+
+====================================================================================================
+END OF OLD IMPLEMENTATION
+====================================================================================================
+*/

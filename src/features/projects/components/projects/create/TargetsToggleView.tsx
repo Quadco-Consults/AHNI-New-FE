@@ -59,8 +59,8 @@ export default function TargetsToggleView({ isEditable = true, onTargetsChange, 
 
       <div className="space-y-4">
         {/* View Mode Toggle */}
-        <div className="flex justify-between items-center">
-          <div>
+        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
+          <div className="flex-1">
             <Label className="font-semibold text-lg">Step 1: Define Performance Targets</Label>
             <p className="text-sm text-gray-600 mt-1">
               Start by defining what you want to achieve. Choose between simple annual tracking or detailed quarterly breakdown.
@@ -71,13 +71,13 @@ export default function TargetsToggleView({ isEditable = true, onTargetsChange, 
             </div>
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex gap-2 lg:flex-shrink-0">
             <Button
               type="button"
               variant={viewMode === 'simple' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setViewMode('simple')}
-              className={viewMode === 'simple' ? 'bg-blue-600 text-white' : 'text-blue-600 border-blue-600'}
+              className={viewMode === 'simple' ? 'bg-blue-600 text-white hover:bg-blue-700' : 'text-blue-600 border-blue-600 hover:bg-blue-50'}
             >
               Simple View
             </Button>
@@ -86,7 +86,7 @@ export default function TargetsToggleView({ isEditable = true, onTargetsChange, 
               variant={viewMode === 'quarterly' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setViewMode('quarterly')}
-              className={viewMode === 'quarterly' ? 'bg-blue-600 text-white' : 'text-blue-600 border-blue-600'}
+              className={viewMode === 'quarterly' ? 'bg-blue-600 text-white hover:bg-blue-700' : 'text-blue-600 border-blue-600 hover:bg-blue-50'}
             >
               Quarterly View
             </Button>

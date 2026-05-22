@@ -20,6 +20,17 @@ export const costSheetsActivitiesColumns = (workPlanId: string): ColumnDef<TActi
         header: "Budget Line",
         accessorKey: "budget_line",
         size: 120,
+        cell: ({ row }) => {
+            const budgetLine = row.original.budget_line;
+            if (!budgetLine) return <span className="text-gray-400">N/A</span>;
+            // Handle both object and string formats
+            const displayName = typeof budgetLine === 'object' ? budgetLine.name : budgetLine;
+            return (
+                <div className="text-sm">
+                    {displayName || "N/A"}
+                </div>
+            );
+        },
     },
     {
         header: "Activity Description",
@@ -71,9 +82,20 @@ export const costSheetsActivitiesColumns = (workPlanId: string): ColumnDef<TActi
         header: "Cost Sheet Status",
         id: "cost_sheet_status",
         size: 150,
-        cell: () => {
-            // TODO: This will be updated once we fetch cost sheet data
-            // For now, show as "Missing" for all activities
+        cell: ({ row }) => {
+            const hasCostSheets = row.original.has_cost_sheets;
+            const costSheetsCount = row.original.cost_sheets_count || 0;
+
+            if (hasCostSheets && costSheetsCount > 0) {
+                return (
+                    <div className="text-center">
+                        <Badge variant="default" className="bg-green-100 text-green-800 border-green-200">
+                            {costSheetsCount} {costSheetsCount === 1 ? 'Cost Sheet' : 'Cost Sheets'}
+                        </Badge>
+                    </div>
+                );
+            }
+
             return (
                 <div className="text-center">
                     <Badge variant="secondary" className="bg-gray-100 text-gray-800">

@@ -42,10 +42,8 @@ import { useGetAllPartners } from "@/features/modules/controllers/project/partne
 import {
   ProjectSchema,
   TProjectFormValues,
-  ProjectTargetDefinition,
 } from "@/features/projects/types/project/index";
 import ConsortiumPartners from "./ConsortiumPartners";
-import TargetsToggleView from "./TargetsToggleView";
 import BreadcrumbCard, { TBreadcrumbList } from "@/components/Breadcrumb";
 import LongArrowLeft from "@/components/icons/LongArrowLeft";
 import { RouteEnum } from "@/constants/RouterConstants";
@@ -64,8 +62,6 @@ const breadcrumbs: TBreadcrumbList[] = [
 ];
 
 export default function ProjectSummaryPage() {
-  // State for managing project targets
-  const [projectTargets, setProjectTargets] = useState<ProjectTargetDefinition[]>([]);
   // State for tracking loaded data to force component re-render
   const [loadedLocations, setLoadedLocations] = useState<string[]>([]);
   const [loadedInterventionAreas, setLoadedInterventionAreas] = useState<string[]>([]);
@@ -210,11 +206,8 @@ export default function ProjectSummaryPage() {
         locationCount: location?.length || 0,
         hasInterventionAreas: !!intervention_areas,
         interventionAreasCount: intervention_areas?.length || 0,
-        hasTargets: !!targets,
-        targetsCount: targets?.length || 0,
         rawLocation: location,
         rawInterventionAreas: intervention_areas,
-        rawTargets: targets,
       });
 
       const projectManagers = project_managers.map((manager: any) => manager.id);
@@ -283,34 +276,8 @@ export default function ProjectSummaryPage() {
       } else {
         console.warn("⚠️ No partners found in project data!");
       }
-
-      // Load existing targets if available and map API fields to our schema
-      if (targets && targets.length > 0) {
-        console.log("🎯 Loading existing targets from API:", targets);
-
-        // Map API response fields to our frontend schema
-        const mappedTargets = targets.map((target: any) => ({
-          id: target.id,
-          indicator_code: target.indicator_code,
-          indicator_name: target.indicator_name,
-          tracking_mode: target.tracking_mode,
-          fiscal_year: target.fiscal_year,
-          annual_target: target.target_value ? parseFloat(target.target_value) : undefined, // API uses 'target_value'
-          q1_target: target.q1_target ? parseFloat(target.q1_target) : undefined,
-          q2_target: target.q2_target ? parseFloat(target.q2_target) : undefined,
-          q3_target: target.q3_target ? parseFloat(target.q3_target) : undefined,
-          q4_target: target.q4_target ? parseFloat(target.q4_target) : undefined,
-          target_notes: target.comments, // API uses 'comments'
-        }));
-
-        console.log("✅ Mapped targets for frontend:", mappedTargets);
-        setProjectTargets(mappedTargets);
-        console.log("✅ Targets loaded successfully:", mappedTargets.length);
-      } else {
-        console.warn("⚠️ No targets found in project data!");
-      }
     }
-  }, [project, partner, dispatch, reset, setProjectTargets, isFundingSourceLoading, isUserLoading]);
+  }, [project, partner, dispatch, reset, isFundingSourceLoading, isUserLoading]);
 
   const { consortiumPartners } = useAppSelector(
     (state) => state.consortiumPartner
@@ -417,31 +384,11 @@ export default function ProjectSummaryPage() {
       currency: currency,
       location,
       intervention_areas,
-      // Add the new targets data - filter out incomplete targets without indicator_code
-      targets: (() => {
-        // First, filter out incomplete targets
-        const validTargets = projectTargets.filter(target => target.indicator_code && target.indicator_code !== '');
-
-        // Group by tracking mode
-        const simpleTargets = validTargets.filter(t => t.tracking_mode === 'SIMPLE');
-        const quarterlyTargets = validTargets.filter(t => t.tracking_mode === 'QUARTERLY');
-
-        // If we have targets from BOTH modes, only send one mode (prefer QUARTERLY as it's more detailed)
-        if (simpleTargets.length > 0 && quarterlyTargets.length > 0) {
-          console.log("⚠️ MIXED MODES DETECTED: Found both SIMPLE and QUARTERLY targets. Sending only QUARTERLY targets.");
-          return quarterlyTargets;
-        }
-
-        // Otherwise, return all valid targets
-        return validTargets;
-      })(),
     };
 
     console.log("🚀 FORM SUBMISSION - Complete Data Being Sent to Backend:");
     console.log("📍 Location:", location, "| Type:", typeof location, "| Is Array:", Array.isArray(location), "| Length:", location?.length);
     console.log("🎨 Intervention Areas:", intervention_areas, "| Type:", typeof intervention_areas, "| Is Array:", Array.isArray(intervention_areas), "| Length:", intervention_areas?.length);
-    console.log("🎯 Targets (before filter):", projectTargets, "| Length:", projectTargets?.length);
-    console.log("🎯 Targets (after filter):", formData.targets, "| Length:", formData.targets?.length);
     console.log("👥 Partners:", finalPartners, "| Length:", finalPartners?.length);
     console.log("💰 Budget:", budget, "| Currency:", currency);
     console.log("📦 Full Form Data:", formData);
@@ -456,9 +403,8 @@ export default function ProjectSummaryPage() {
         if (updateResponse?.data) {
           console.log("📍 Response Location:", updateResponse.data.location);
           console.log("🎨 Response Intervention Areas:", updateResponse.data.intervention_areas);
-          console.log("🎯 Response Targets:", updateResponse.data.targets);
         }
-        toast.success("Project Updated Successfully.");
+        toast.success("Project Updated Successfully. Continue to define targets.");
         id = projectId;
       } else {
         console.log("✨ Creating new project...");
@@ -467,18 +413,16 @@ export default function ProjectSummaryPage() {
         if (res?.data) {
           console.log("📍 Response Location:", res.data.location);
           console.log("🎨 Response Intervention Areas:", res.data.intervention_areas);
-          console.log("🎯 Response Targets:", res.data.targets);
         }
-        toast.success("Project Created Successfully.");
+        toast.success("Project Created Successfully. Next: Define performance targets.");
         id = res?.data?.id;
         console.log("🆔 Extracted project ID:", id);
       }
 
-      // Navigate to uploads page
-      // Construct path correctly whether we're at /create or /create/summary
-      const uploadsPath = `/dashboard/projects/create/uploads?id=${id}`;
-      console.log("🔄 Navigating to:", uploadsPath);
-      router.push(uploadsPath);
+      // Navigate to Step 2: Define Targets
+      const targetsPath = `/dashboard/projects/create/targets?id=${id}`;
+      console.log("🔄 Navigating to Step 2 (Targets):", targetsPath);
+      router.push(targetsPath);
 
       // Only clear state when creating a new project, not when updating
       if (!projectId) {
@@ -509,7 +453,28 @@ export default function ProjectSummaryPage() {
           <Form {...form}>
             <form onSubmit={handleSubmit(onSubmit)}>
               <Card className='space-y-10 py-5'>
-                <h4 className='text-lg font-semibold'>Project Summary</h4>
+                {/* Step Header */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center text-lg font-bold">
+                      1
+                    </div>
+                    <div>
+                      <h2 className='text-2xl font-bold text-gray-900'>Create Project Summary</h2>
+                      <p className="text-sm text-gray-600 mt-1">
+                        Enter basic project information and details
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Progress Indicator */}
+                  <div className="flex items-center gap-2 ml-14">
+                    <div className="flex-1 h-2 bg-green-200 rounded-full">
+                      <div className="h-2 bg-green-600 rounded-full" style={{ width: '33%' }}></div>
+                    </div>
+                    <span className="text-xs text-gray-500 font-medium">Step 1 of 3</span>
+                  </div>
+                </div>
 
                 <div className='grid grid-cols-2 gap-10'>
                   <FormInput
@@ -551,24 +516,6 @@ export default function ProjectSummaryPage() {
                   />
                 </div>
 
-                {/* Performance Targets Section - MOVED TO TOP */}
-                <TargetsToggleView
-                  key={`targets-${projectId || 'new'}-${projectTargets.length}`}
-                  isEditable={true}
-                  onTargetsChange={setProjectTargets}
-                  initialTargets={projectTargets}
-                />
-
-                {/* Visual separator after Step 1 */}
-                <div className="border-t-2 border-blue-100 pt-6 mt-8">
-                  <div className="flex items-center gap-2 mb-4">
-                    <div className="w-6 h-6 bg-green-600 text-white rounded-full flex items-center justify-center text-xs font-bold">2</div>
-                    <span className="text-lg font-semibold text-gray-800">Project Details & Planning</span>
-                  </div>
-                  <p className="text-sm text-gray-600 mb-6">
-                    Now that you've defined your targets, provide the project details and planning information.
-                  </p>
-                </div>
 
                 <FormTextArea
                   name='goal'
@@ -788,12 +735,11 @@ export default function ProjectSummaryPage() {
                 <ConsortiumPartners />
               </Card>
 
-              <div className='flex justify-end gap-5 mt-16'>
+              <div className='flex justify-between items-center mt-16 pt-6 border-t'>
                 <Button
-                  onClick={() => router.back()}
+                  onClick={() => router.push(RouteEnum.PROJECTS)}
                   type='button'
-                  className='bg-[#FFF2F2] text-primary dark:text-gray-500'
-                  size='lg'
+                  variant='outline'
                 >
                   Cancel
                 </Button>
@@ -814,7 +760,7 @@ export default function ProjectSummaryPage() {
                     await onSubmit(formData);
                   }}
                 >
-                  Next
+                  Save & Continue to Step 2
                 </FormButton>
               </div>
             </form>

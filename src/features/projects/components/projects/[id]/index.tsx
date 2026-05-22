@@ -71,36 +71,27 @@ export default function ProjectDetail() {
       {project && (
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
           {/* Project Title & ID Card */}
-          <Card className='p-5 space-y-2 bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200'>
-            <div className='flex items-center gap-2'>
-              <Icon icon='mdi:file-document-outline' className='text-blue-600' width={24} />
-              <h4 className='font-semibold text-sm text-blue-900'>Project Info</h4>
-            </div>
-            <p className='text-xl font-bold text-blue-900 truncate' title={project.data.title}>
+          <Card className='p-5 border-l-4 border-l-blue-600'>
+            <h4 className='text-xs font-medium text-gray-500 mb-2'>PROJECT INFO</h4>
+            <p className='text-lg font-bold text-gray-900 truncate mb-1' title={project.data.title}>
               {project.data.title}
             </p>
-            <p className='text-xs text-blue-700'>ID: {project.data.project_id}</p>
-            <Badge
-              variant='outline'
-              className='bg-blue-600 text-white border-blue-700 text-xs'
-            >
+            <p className='text-xs text-gray-600 mb-2'>ID: {project.data.project_id}</p>
+            <Badge variant='outline' className='bg-blue-50 text-blue-700 border-blue-200 text-xs'>
               {project.data.status || 'Active'}
             </Badge>
           </Card>
 
           {/* Budget Card */}
-          <Card className='p-5 space-y-2 bg-gradient-to-br from-green-50 to-green-100 border-green-200'>
-            <div className='flex items-center gap-2'>
-              <Icon icon='mdi:cash-multiple' className='text-green-600' width={24} />
-              <h4 className='font-semibold text-sm text-green-900'>Total Budget</h4>
-            </div>
-            <p className='text-2xl font-bold text-green-900'>
+          <Card className='p-5 border-l-4 border-l-green-600'>
+            <h4 className='text-xs font-medium text-gray-500 mb-2'>TOTAL BUDGET</h4>
+            <p className='text-2xl font-bold text-gray-900 mb-1'>
               {formatNumberCurrency(project.data.budget, project.data.currency)}
             </p>
             {project.data.total_obligation_amount && (
-              <div className='text-xs text-green-700 space-y-1'>
+              <div className='text-xs text-gray-600 space-y-1'>
                 <p>Obligated: {formatNumberCurrency(parseFloat(project.data.total_obligation_amount), project.data.currency)}</p>
-                <div className='w-full bg-green-200 rounded-full h-1.5'>
+                <div className='w-full bg-gray-200 rounded-full h-1.5'>
                   <div
                     className='bg-green-600 h-1.5 rounded-full'
                     style={{
@@ -113,22 +104,17 @@ export default function ProjectDetail() {
           </Card>
 
           {/* Timeline Card */}
-          <Card className='p-5 space-y-2 bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200'>
-            <div className='flex items-center gap-2'>
-              <Icon icon='mdi:calendar-range' className='text-purple-600' width={24} />
-              <h4 className='font-semibold text-sm text-purple-900'>Timeline</h4>
-            </div>
-            <div className='space-y-1'>
-              <div className='flex items-center gap-2 text-xs text-purple-700'>
-                <Icon icon='mdi:calendar-start' width={14} />
-                <span>Start: {project.data.start_date}</span>
+          <Card className='p-5 border-l-4 border-l-purple-600'>
+            <h4 className='text-xs font-medium text-gray-500 mb-2'>PROJECT TIMELINE</h4>
+            <div className='space-y-1.5 mb-2'>
+              <div className='text-xs text-gray-700'>
+                <span className='font-medium'>Start:</span> {project.data.start_date}
               </div>
-              <div className='flex items-center gap-2 text-xs text-purple-700'>
-                <Icon icon='mdi:calendar-end' width={14} />
-                <span>End: {project.data.end_date}</span>
+              <div className='text-xs text-gray-700'>
+                <span className='font-medium'>End:</span> {project.data.end_date}
               </div>
             </div>
-            <p className='text-xs text-purple-700 pt-2'>
+            <p className='text-xs text-gray-600'>
               Duration: {(() => {
                 const start = new Date(project.data.start_date);
                 const end = new Date(project.data.end_date);
@@ -139,27 +125,24 @@ export default function ProjectDetail() {
           </Card>
 
           {/* Stakeholders Card */}
-          <Card className='p-5 space-y-2 bg-gradient-to-br from-amber-50 to-amber-100 border-amber-200'>
-            <div className='flex items-center gap-2'>
-              <Icon icon='mdi:account-group' className='text-amber-600' width={24} />
-              <h4 className='font-semibold text-sm text-amber-900'>Stakeholders</h4>
-            </div>
+          <Card className='p-5 border-l-4 border-l-amber-600'>
+            <h4 className='text-xs font-medium text-gray-500 mb-2'>STAKEHOLDERS</h4>
             <div className='space-y-2'>
-              <div className='flex items-center justify-between'>
-                <span className='text-xs text-amber-700'>Partners:</span>
-                <span className='text-lg font-bold text-amber-900'>
+              <div className='flex items-center justify-between text-sm'>
+                <span className='text-gray-600'>Partners:</span>
+                <span className='font-bold text-gray-900'>
                   {project.data.partners?.length || 0}
                 </span>
               </div>
-              <div className='flex items-center justify-between'>
-                <span className='text-xs text-amber-700'>Managers:</span>
-                <span className='text-lg font-bold text-amber-900'>
+              <div className='flex items-center justify-between text-sm'>
+                <span className='text-gray-600'>Managers:</span>
+                <span className='font-bold text-gray-900'>
                   {project.data.project_managers?.length || 0}
                 </span>
               </div>
-              <div className='flex items-center justify-between'>
-                <span className='text-xs text-amber-700'>Funding Sources:</span>
-                <span className='text-lg font-bold text-amber-900'>
+              <div className='flex items-center justify-between text-sm'>
+                <span className='text-gray-600'>Funding Sources:</span>
+                <span className='font-bold text-gray-900'>
                   {project.data.funding_sources?.length || 0}
                 </span>
               </div>

@@ -72,77 +72,92 @@ export default function CostSheetsActivitiesList() {
         <div className="space-y-5">
             <BreadcrumbCard list={breadcrumbs} />
 
-            {/* Action Buttons */}
-            <div className="flex items-center justify-between">
-                <Button
-                    variant="outline"
-                    onClick={() => router.push("/dashboard/programs/plan/cost-sheets")}
-                    className="flex gap-2"
-                >
-                    <ChevronLeft className="w-4 h-4" />
-                    Back to Work Plans
-                </Button>
-                <Button
-                    onClick={handleBulkUpload}
-                    className="flex gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
-                >
-                    <Upload className="w-4 h-4" />
-                    Bulk Upload All Cost Sheets
-                </Button>
-            </div>
+            {/* Header Section */}
+            <Card className="p-6">
+                <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                            <Button
+                                variant="ghost"
+                                onClick={() => router.push("/dashboard/programs/plan/cost-sheets")}
+                                className="flex items-center gap-2 -ml-2"
+                            >
+                                <ChevronLeft className="w-4 h-4" />
+                                Back to Work Plans
+                            </Button>
+                        </div>
+                        <h1 className="text-2xl font-bold text-gray-900">
+                            {workPlan.project?.title || workPlan.project}
+                        </h1>
+                        <p className="text-sm text-gray-600 mt-1">
+                            View and manage cost sheets for work plan activities. Click on an activity to view or create its detailed cost breakdown.
+                        </p>
+                    </div>
+                    <Button
+                        onClick={handleBulkUpload}
+                        className="flex items-center gap-2"
+                    >
+                        <Upload className="w-4 h-4" />
+                        Bulk Upload Cost Sheets
+                    </Button>
+                </div>
+            </Card>
 
-            <Card>
-                {/* Work Plan Summary Header */}
-                <div className="p-6 border-b bg-gradient-to-r from-blue-50 to-indigo-50">
-                    <h2 className="text-2xl font-bold text-gray-800 mb-3">
-                        {workPlan.project?.title || workPlan.project}
-                    </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
-                        <div>
-                            <p className="text-gray-600 font-medium">Financial Year</p>
-                            <Badge variant="outline" className="mt-1">
-                                {workPlan.financial_year?.year || workPlan.financial_year || "N/A"}
-                            </Badge>
-                        </div>
-                        <div>
-                            <p className="text-gray-600 font-medium">Total Budget</p>
-                            <p className="text-lg font-semibold text-gray-800 mt-1">
-                                {formatNumberCurrency(
-                                    workPlan.project?.budget || workPlan.budget || 0,
-                                    workPlan.project?.currency || workPlan.currency || "NGN"
-                                )}
-                            </p>
-                        </div>
-                        <div>
-                            <p className="text-gray-600 font-medium">Total Activities</p>
-                            <p className="text-lg font-semibold text-gray-800 mt-1">
-                                {activities.length}
-                            </p>
-                        </div>
-                        <div>
-                            <p className="text-gray-600 font-medium">Project Partners</p>
-                            <p className="text-sm text-gray-700 mt-1">
-                                {workPlan.project?.partners?.map((p: any) => p.name).join(", ") ||
-                                 workPlan.project_partners?.join(", ") || "N/A"}
-                            </p>
-                        </div>
+            {/* Work Plan Summary */}
+            <Card className="p-6">
+                <div className="border-b pb-4 mb-6">
+                    <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">
+                        Work Plan Summary
+                    </h3>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div className="space-y-1">
+                        <p className="text-xs font-medium text-gray-500 uppercase">Financial Year</p>
+                        <Badge variant="outline" className="text-sm">
+                            {workPlan.financial_year?.year || workPlan.financial_year || "N/A"}
+                        </Badge>
+                    </div>
+                    <div className="space-y-1">
+                        <p className="text-xs font-medium text-gray-500 uppercase">Total Budget</p>
+                        <p className="text-lg font-bold text-green-700">
+                            {formatNumberCurrency(
+                                workPlan.project?.budget || workPlan.budget || 0,
+                                workPlan.project?.currency || workPlan.currency || "NGN"
+                            )}
+                        </p>
+                    </div>
+                    <div className="space-y-1">
+                        <p className="text-xs font-medium text-gray-500 uppercase">Total Activities</p>
+                        <p className="text-lg font-bold text-gray-900">
+                            {activities.length}
+                        </p>
+                    </div>
+                    <div className="space-y-1">
+                        <p className="text-xs font-medium text-gray-500 uppercase">Project Partners</p>
+                        <p className="text-sm text-gray-700">
+                            {workPlan.project?.partners?.map((p: any) => p.name).join(", ") ||
+                             workPlan.project_partners?.join(", ") || "N/A"}
+                        </p>
                     </div>
                 </div>
+            </Card>
 
-                {/* Activities Instructions */}
-                <div className="p-4 border-b bg-yellow-50">
-                    <p className="text-sm text-gray-700">
-                        <strong>Instructions:</strong> Click on an activity to view or create its cost sheet.
-                        Each activity's cost sheet should break down the total cost into sub-activities with detailed calculations.
+            {/* Activities Table */}
+            <Card>
+                <div className="p-6 border-b">
+                    <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">
+                        Activities List
+                    </h3>
+                    <p className="text-sm text-gray-600 mt-1">
+                        Click on an activity to view or create its cost sheet. Each cost sheet breaks down the total cost into sub-activities with detailed calculations.
                     </p>
                 </div>
 
-                {/* Activities Table */}
-                <div className="p-4">
+                <div className="p-6">
                     {activities.length === 0 ? (
-                        <div className="text-center py-8 text-gray-500">
-                            <p>No activities found for this work plan.</p>
-                            <p className="text-sm mt-2">Please upload activities first.</p>
+                        <div className="text-center py-12">
+                            <p className="text-gray-500 font-medium">No activities found for this work plan.</p>
+                            <p className="text-sm text-gray-400 mt-2">Please upload activities first.</p>
                         </div>
                     ) : (
                         <DataTable

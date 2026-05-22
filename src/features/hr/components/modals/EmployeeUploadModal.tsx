@@ -1,5 +1,82 @@
 "use client";
 
+import { useAppDispatch } from "@/hooks/useStore";
+import { closeDialog } from "@/store/ui";
+import { useRouter } from "next/navigation";
+import { HrRoutes } from "@/constants/RouterConstants";
+import { StandardBulkUpload } from "@/components/uploads";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+
+interface EmployeeUploadModalProps {
+  onClose?: () => void;
+  onUpload?: (file: File, data: any) => void;
+}
+
+export default function EmployeeUploadModal({ onClose, onUpload }: EmployeeUploadModalProps) {
+  const dispatch = useAppDispatch();
+  const router = useRouter();
+
+  return (
+    <div className="flex flex-col gap-6">
+      <StandardBulkUpload
+        endpoint={`${process.env.NEXT_PUBLIC_API_URL}/hr/employees/bulk-upload/`}
+        templateUrl={`${process.env.NEXT_PUBLIC_API_URL}/hr/employees/bulk-upload-template/`}
+        acceptedFormats={['.xlsx', '.xls', '.csv']}
+        maxFileSizeMB={10}
+        title="Upload Employees Data"
+        description="Upload a CSV or Excel file containing multiple employee records for bulk processing."
+        onSuccess={(result) => {
+          // Call the onUpload callback if provided
+          onUpload?.(null as any, result);
+
+          toast.success(
+            `Upload completed! ${result.created_count} employees created.`
+          );
+
+          // Let user review results before manually closing
+        }}
+        onError={(error) => {
+          toast.error(error);
+        }}
+        showTemplateDownload={true}
+        validateBeforeUpload={true}
+        autoCloseDelay={0} // Don't auto-close, let user review
+      />
+
+      {/* Action Buttons */}
+      <div className="flex justify-between items-center pt-2 border-t">
+        <Button
+          type="button"
+          variant="ghost"
+          onClick={() => {
+            router.push(`${HrRoutes.WORKFORCE_DATABASE}/upload`);
+            onClose?.() || dispatch(closeDialog());
+          }}
+        >
+          View Upload History
+        </Button>
+
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onClose || (() => dispatch(closeDialog()))}
+        >
+          Close
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+/*
+===================================================================================
+OLD IMPLEMENTATION (BACKUP - DO NOT DELETE)
+Keep this for 2 weeks after successful deployment, then remove
+===================================================================================
+
+"use client";
+
 import { useState } from "react";
 import UploadIcon from "@/components/icons/UploadIcon";
 import { Button } from "@/components/ui/button";
@@ -242,7 +319,7 @@ export default function EmployeeUploadModal({ onClose, onUpload }: EmployeeUploa
         </div>
       </div>
 
-      {/* Instructions */}
+      {/* Instructions *\/}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
         <div className="flex items-start gap-2">
           <FileSpreadsheet className="w-5 h-5 text-blue-600 mt-0.5" />
@@ -258,7 +335,7 @@ export default function EmployeeUploadModal({ onClose, onUpload }: EmployeeUploa
         </div>
       </div>
 
-      {/* File Upload Section */}
+      {/* File Upload Section *\/}
       <div className="space-y-4">
         <input
           type="file"
@@ -313,7 +390,7 @@ export default function EmployeeUploadModal({ onClose, onUpload }: EmployeeUploa
         )}
       </div>
 
-      {/* Progress Section */}
+      {/* Progress Section *\/}
       {(isUploading || uploadStatus !== 'idle') && (
         <div className="space-y-3">
           <div className="flex items-center gap-2">
@@ -333,7 +410,7 @@ export default function EmployeeUploadModal({ onClose, onUpload }: EmployeeUploa
         </div>
       )}
 
-      {/* Action Buttons */}
+      {/* Action Buttons *\/}
       <div className="flex justify-between items-center pt-2">
         <Button
           type="button"
@@ -370,3 +447,8 @@ export default function EmployeeUploadModal({ onClose, onUpload }: EmployeeUploa
     </div>
   );
 }
+
+===================================================================================
+END OF OLD IMPLEMENTATION
+===================================================================================
+*/

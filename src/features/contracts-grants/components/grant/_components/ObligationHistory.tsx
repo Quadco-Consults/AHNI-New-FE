@@ -59,19 +59,20 @@ const ObligationHistory: React.FC<any> = ({
 
   return (
     <section className='w-full flex flex-col px-5 space-y-[1.25rem]'>
-      <div className='grid grid-cols-3 gap-5'>
+      <div className='grid grid-cols-1 md:grid-cols-3 gap-5'>
         {StatsCard.map((item, index) => {
+          const borderColor = index === 0 ? 'border-l-green-600' : index === 1 ? 'border-l-amber-600' : 'border-l-blue-600';
+          const textColor = index === 0 ? 'text-green-700' : index === 1 ? 'text-amber-700' : 'text-blue-700';
+
           return (
             <div
-              className={`px-[1.875rem] py-[1.25rem] rounded-[.625rem] justify-between items-center flex ${
-                index === 0 ? "bg-[#107D38]" : "bg-[#B42318]"
-              }`}
+              className={`bg-white border border-gray-200 ${borderColor} border-l-4 px-6 py-5 rounded-lg flex items-center justify-between`}
               key={index}
             >
-              <div className='border border-white p-1 rounded'>{item.icon}</div>
-              <div className='text-end text-white space-y-[.625rem]'>
-                <p className='text-sm'>{item.name}</p>
-                <p className='text-[1.5rem] font-semibold'>{item.stat}</p>
+              <div className='flex-shrink-0 opacity-60'>{item.icon}</div>
+              <div className='text-end space-y-1'>
+                <p className='text-xs font-medium text-gray-500 uppercase'>{item.name}</p>
+                <p className={`text-2xl font-bold ${textColor}`}>{item.stat}</p>
               </div>
             </div>
           );

@@ -1,3 +1,24 @@
+/**
+ * EditIcon - Migrated to Lucide React
+ *
+ * MIGRATION: 2026-05-20
+ * Old: Custom SVG with yellow/gold color (#BE8800)
+ * New: Lucide Edit icon with amber color
+ *
+ * This file now re-exports from LucideMigration.tsx for consistency
+ * across the application. The old SVG implementation is preserved
+ * below as a comment for reference.
+ */
+
+export { EditIcon as default, EditIconMigrated as EditIcon } from './LucideMigration';
+
+/*
+====================================================================================================
+OLD IMPLEMENTATION (PRESERVED AS REFERENCE - Can be removed after 2026-06-20)
+====================================================================================================
+
+Original custom SVG implementation:
+
 const EditIcon = () => {
   return (
     <svg
@@ -30,3 +51,8 @@ const EditIcon = () => {
 };
 
 export default EditIcon;
+
+====================================================================================================
+END OF OLD IMPLEMENTATION
+====================================================================================================
+*/

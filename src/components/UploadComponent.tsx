@@ -110,6 +110,7 @@ export default function UploadsComponent({
                                     key={doc.id}
                                     id={doc.id}
                                     name={doc.title}
+                                    documentType={doc.document_type?.name || doc.document_type}
                                     timestamp={doc.uploaded_datetime}
                                     file={doc.file}
                                     showDeleteIcon

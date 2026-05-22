@@ -1,5 +1,161 @@
 "use client";
 
+import { FileSpreadsheet } from "lucide-react";
+import { toast } from "sonner";
+import { useAppDispatch } from "@/hooks/useStore";
+import { closeDialog } from "@/store/ui";
+import { useQueryClient } from "@tanstack/react-query";
+import { StandardBulkUpload } from "@/components/uploads/StandardBulkUpload";
+
+interface CostSheetUploadModalProps {
+    activityId?: string;
+    activityNumber?: string;
+}
+
+const CostSheetUploadModal = ({
+    activityId,
+    activityNumber,
+}: CostSheetUploadModalProps) => {
+    const dispatch = useAppDispatch();
+    const queryClient = useQueryClient();
+
+    if (!activityId) {
+        return (
+            <div className="p-6 text-center">
+                <p className="text-red-600">Activity ID is missing. Cannot upload cost sheets.</p>
+            </div>
+        );
+    }
+
+    // Generate CSV template (client-side generation)
+    const generateTemplateUrl = () => {
+        const headers = [
+            "Description",
+            "Units",
+            "Days",
+            "Frequency",
+            "Rate (NGN)",
+            "Comments"
+        ];
+
+        const sampleData = [
+            ["Staff Salaries for Project Manager", "1", "30", "3", "150000", "Monthly salary for 3 months"],
+            ["Training Materials (Notebooks)", "50", "1", "1", "500", "Training supplies"],
+            ["Vehicle Rental", "1", "5", "2", "25000", "Field visits - 2 trips of 5 days each"],
+        ];
+
+        const csvContent = [
+            headers.join(","),
+            ...sampleData.map(row => row.join(","))
+        ].join("\n");
+
+        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+        return URL.createObjectURL(blob);
+    };
+
+    return (
+        <div className="w-full space-y-6">
+            {/* Instructions */}
+            <div className="bg-blue-50 p-4 rounded-md border-l-4 border-blue-500">
+                <h3 className="font-medium text-blue-800 flex items-center gap-2">
+                    <FileSpreadsheet className="w-5 h-5" />
+                    Bulk Upload Instructions
+                </h3>
+                <div className="text-sm text-blue-700 mt-2 space-y-2">
+                    <p>Upload an Excel/CSV file with the following columns:</p>
+                    <ul className="list-disc ml-5 space-y-1">
+                        <li><strong>Description</strong> - Sub-activity description (required)</li>
+                        <li><strong>Units</strong> - Number of units (required, must be &gt; 0)</li>
+                        <li><strong>Days</strong> - Duration in days (required, must be &gt; 0)</li>
+                        <li><strong>Frequency</strong> - How many times (required, must be &gt; 0)</li>
+                        <li><strong>Rate (NGN)</strong> - Rate in Naira (required, must be &gt; 0)</li>
+                        <li><strong>Comments</strong> - Additional notes (optional)</li>
+                    </ul>
+                    <p className="text-xs mt-2">
+                        <strong>Note:</strong> Total Cost will be calculated automatically as: Units × Days × Frequency × Rate
+                    </p>
+                </div>
+            </div>
+
+            {/* Activity Context */}
+            {activityNumber && (
+                <div className="bg-green-50 p-3 rounded-md border-l-4 border-green-500">
+                    <h3 className="font-medium text-green-800">Target Activity</h3>
+                    <p className="text-sm text-green-700 mt-1">
+                        <strong>Activity:</strong> {activityNumber}
+                    </p>
+                    <p className="text-xs text-green-600 mt-1">
+                        All sub-activities in the file will be linked to this activity.
+                    </p>
+                </div>
+            )}
+
+            {/* Standardized Bulk Upload Component */}
+            <StandardBulkUpload
+                endpoint={`${process.env.NEXT_PUBLIC_API_URL}/programs/plans/activity-cost-sheets/bulk-upload/`}
+                templateUrl={generateTemplateUrl()}
+                acceptedFormats={['.xlsx', '.xls', '.csv']}
+                maxFileSizeMB={10}
+                title="Upload Cost Sheet Sub-Activities"
+                description="Select an Excel or CSV file containing multiple sub-activities to import."
+                additionalData={{
+                    activity: activityId,
+                }}
+                onSuccess={(result) => {
+                    // Invalidate queries to refetch data
+                    queryClient.invalidateQueries({ queryKey: ["activity-cost-sheets"] });
+                    queryClient.invalidateQueries({ queryKey: ["activity-cost-sheets", activityId] });
+
+                    toast.success(
+                        `Successfully uploaded ${result.created_count} sub-${result.created_count === 1 ? 'activity' : 'activities'}!`
+                    );
+
+                    // Let user review results before manually closing
+                }}
+                onError={(error) => toast.error(error)}
+                showTemplateDownload={true}
+                validateBeforeUpload={true}
+                autoCloseDelay={0}
+                onClose={() => dispatch(closeDialog())}
+            />
+        </div>
+    );
+};
+
+export default CostSheetUploadModal;
+
+/*
+====================================================================================================
+OLD IMPLEMENTATION (PRESERVED FOR 2 WEEKS AS BACKUP - Remove after 2026-06-03)
+====================================================================================================
+
+This file was migrated to use StandardBulkUpload component on 2026-05-20.
+
+Changes made:
+- Replaced custom upload form with StandardBulkUpload
+- Removed client-side preview feature (can be added back to StandardBulkUpload later if needed)
+- Added 4-stage progress tracking (Validating → Uploading → Processing → Complete)
+- Added detailed error reporting with row/column numbers
+- Removed auto-close behavior - user manually closes after reviewing results
+- Kept instructions panel and activity context display
+- Template is now generated as a data URL for StandardBulkUpload
+
+Benefits:
+- Consistent UX across all bulk uploads
+- Better progress visibility
+- Detailed error reporting
+- Reduced code from 291 lines to ~120 lines (59% reduction)
+
+Trade-offs:
+- Removed preview feature (showed first 5 rows before upload)
+  - This feature was nice-to-have but not critical
+  - Can be re-added to StandardBulkUpload as an enhancement later
+
+OLD CODE BELOW:
+----------------------------------------------------------------------------------------------------
+
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { ChangeEvent, useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
@@ -148,7 +304,7 @@ const CostSheetUploadModal = ({
     return (
         <div className="w-full">
             <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-                {/* Instructions */}
+                {/* Instructions *\/}
                 <div className="bg-blue-50 p-4 rounded-md border-l-4 border-blue-500">
                     <h3 className="font-medium text-blue-800 flex items-center gap-2">
                         <FileSpreadsheet className="w-5 h-5" />
@@ -170,7 +326,7 @@ const CostSheetUploadModal = ({
                     </div>
                 </div>
 
-                {/* Activity Context */}
+                {/* Activity Context *\/}
                 {activityNumber && (
                     <div className="bg-green-50 p-3 rounded-md border-l-4 border-green-500">
                         <h3 className="font-medium text-green-800">Target Activity</h3>
@@ -183,7 +339,7 @@ const CostSheetUploadModal = ({
                     </div>
                 )}
 
-                {/* Download Template Button */}
+                {/* Download Template Button *\/}
                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded-md border">
                     <div className="flex items-center gap-2">
                         <FileSpreadsheet className="w-5 h-5 text-gray-600" />
@@ -203,7 +359,7 @@ const CostSheetUploadModal = ({
                     </Button>
                 </div>
 
-                {/* File Upload */}
+                {/* File Upload *\/}
                 <div className="space-y-2">
                     <label className="text-sm font-medium text-gray-700">
                         Select File <span className="text-red-500">*</span>
@@ -228,7 +384,7 @@ const CostSheetUploadModal = ({
                     )}
                 </div>
 
-                {/* Preview */}
+                {/* Preview *\/}
                 {showPreview && previewData.length > 0 && (
                     <div className="bg-purple-50 p-4 rounded-md border border-purple-200">
                         <h4 className="font-medium text-purple-800 mb-3">Preview (First 5 rows)</h4>
@@ -264,7 +420,7 @@ const CostSheetUploadModal = ({
                     </div>
                 )}
 
-                {/* Action Buttons */}
+                {/* Action Buttons *\/}
                 <div className="flex justify-between gap-5 mt-4 pt-4 border-t">
                     <Button
                         onClick={() => dispatch(closeDialog())}
@@ -288,3 +444,8 @@ const CostSheetUploadModal = ({
 };
 
 export default CostSheetUploadModal;
+
+----------------------------------------------------------------------------------------------------
+END OF OLD IMPLEMENTATION
+====================================================================================================
+*/

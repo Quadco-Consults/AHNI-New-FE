@@ -9,6 +9,7 @@ export interface TWorkPlanPaginatedResponse {
   financial_year: string;
   currency: string;
   budget: number;
+  activities_count: number;
   created_datetime: string;
   updated_datetime: string;
   created_by: string;
@@ -92,4 +93,6 @@ export interface TActivity {
   approved_ref_no: null;
   comments: string;
   work_plan: string;
+  cost_sheets_count: number;
+  has_cost_sheets: boolean;
 }

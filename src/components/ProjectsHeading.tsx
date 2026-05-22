@@ -16,7 +16,16 @@ const steps: Step[] = [
         stepName: "Project Summary",
         route: "summary",
     },
-    { step: 2, stepName: "Uploads", route: "uploads" },
+    {
+        step: 2,
+        stepName: "Performance Targets",
+        route: "targets",
+    },
+    {
+        step: 3,
+        stepName: "Uploads",
+        route: "uploads",
+    },
 ];
 
 const ProjectsHeading = () => {
@@ -61,7 +70,7 @@ const ProjectsHeading = () => {
 
     return (
         <section className="space-y-5">
-            <div className="grid justify-between w-full grid-cols-2 px-4 py-2 gap-y-4 md:w-2/3 ">
+            <div className="grid justify-between w-full grid-cols-3 px-4 py-2 gap-y-4 md:w-2/3 ">
                 {steps.map((item, i) => {
                     return (
                         <div className="flex items-center" key={i}>

@@ -1,3 +1,24 @@
+/**
+ * DownloadIcon - Migrated to Lucide React
+ *
+ * MIGRATION: 2026-05-20 Phase 2
+ * Old: Custom SVG with currentColor
+ * New: Lucide Download icon
+ *
+ * This file now re-exports from LucideMigration.tsx for consistency
+ * across the application. The old SVG implementation is preserved
+ * below as a comment for reference.
+ */
+
+export { DownloadIcon as default, DownloadIconMigrated as DownloadIcon } from './LucideMigration';
+
+/*
+====================================================================================================
+OLD IMPLEMENTATION (PRESERVED AS REFERENCE - Can be removed after 2026-06-20)
+====================================================================================================
+
+Original custom SVG implementation:
+
 import React from "react";
 
 type Props = {
@@ -26,3 +47,8 @@ const DownloadIcon = ({ size = "16" }: Props) => {
 };
 
 export default DownloadIcon;
+
+====================================================================================================
+END OF OLD IMPLEMENTATION
+====================================================================================================
+*/

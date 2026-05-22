@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import axios from 'axios';
 
 // Configuration constants
-const IDLE_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes of inactivity before logout
+const IDLE_TIMEOUT_MS = 24 * 60 * 60 * 1000; // 24 hours of inactivity before logout
 const TOKEN_REFRESH_INTERVAL_MS = 5 * 60 * 1000; // Refresh token every 5 minutes while active
 const ACTIVITY_EVENTS = ['mousedown', 'mousemove', 'keydown', 'scroll', 'touchstart', 'click'];
 

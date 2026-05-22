@@ -139,9 +139,23 @@ const TableMenu = (contractRequest: IAgreementPaginatedData) => {
   const [shouldRefresh, setShouldRefresh] = useState(false);
 
   const pathname = usePathname();
-  
-  // For now, using a mock current user - this should come from auth context
-  const currentUser = { id: "current-user-id" };
+
+  // Get current user from localStorage
+  const getCurrentUser = () => {
+    try {
+      if (typeof window !== 'undefined') {
+        const userData = localStorage.getItem('userData');
+        if (userData) {
+          return JSON.parse(userData);
+        }
+      }
+    } catch (error) {
+      console.error('Error getting current user:', error);
+    }
+    return null;
+  };
+
+  const currentUser = getCurrentUser();
 
   const { deleteContractRequest, isLoading } = useDeleteContractRequest(contractRequest.id);
 

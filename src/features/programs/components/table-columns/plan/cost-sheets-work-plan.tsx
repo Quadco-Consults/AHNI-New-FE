@@ -39,10 +39,10 @@ export const costSheetsWorkPlanColumns: ColumnDef<TWorkPlanPaginatedResponse>[] 
         accessorKey: "activities_count",
         size: 150,
         cell: ({ row }) => {
-            const count = row.original.activities?.length || 0;
+            const count = row.original.activities_count || 0;
             return (
                 <div className="text-center">
-                    <Badge variant="secondary">{count} activities</Badge>
+                    <Badge variant="secondary">{count} {count === 1 ? 'activity' : 'activities'}</Badge>
                 </div>
             );
         },

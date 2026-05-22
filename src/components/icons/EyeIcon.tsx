@@ -1,3 +1,23 @@
+/**
+ * EyeIcon - Migrated to Lucide React
+ *
+ * MIGRATION: 2026-05-20
+ * Old: Custom SVG with green color (#107D38)
+ * New: Lucide Eye icon with matching green
+ *
+ * This file now re-exports from LucideMigration.tsx for consistency
+ * across the application. The old SVG implementation is preserved
+ * below as a comment for reference.
+ */
+
+export { EyeIcon as default, EyeIconMigrated as EyeIcon } from './LucideMigration';
+
+/*
+====================================================================================================
+OLD IMPLEMENTATION (PRESERVED AS REFERENCE - Can be removed after 2026-06-20)
+====================================================================================================
+
+Original custom SVG implementation:
 
 type Props = {
     size?: string
@@ -14,3 +34,8 @@ const EyeIcon = ({size = '16'}: Props) => {
 }
 
 export default EyeIcon
+
+====================================================================================================
+END OF OLD IMPLEMENTATION
+====================================================================================================
+*/

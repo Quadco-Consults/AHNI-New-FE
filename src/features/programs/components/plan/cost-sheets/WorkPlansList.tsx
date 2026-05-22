@@ -5,11 +5,12 @@ import { useGetAllWorkPlanQuery } from "@/features/programs/controllers/workPlan
 import DataTable from "@/components/Table/DataTable";
 import BreadcrumbCard, { TBreadcrumbList } from "@/components/Breadcrumb";
 import { costSheetsWorkPlanColumns } from "@/features/programs/components/table-columns/plan/cost-sheets-work-plan";
-import TableFilters from "@/components/Table/TableFilters";
 import { useDebounce } from "ahooks";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
 
 const breadcrumbs: TBreadcrumbList[] = [
     { name: "Programs", icon: true },
@@ -45,55 +46,95 @@ export default function CostSheetsWorkPlansList() {
         financial_year: financialYear,
     });
 
+    const hasActiveFilters = searchQuery || financialYear;
+
+    const clearAllFilters = () => {
+        setSearchQuery("");
+        setFinancialYear("");
+    };
+
     return (
         <div className="space-y-5">
             <BreadcrumbCard list={breadcrumbs} />
 
-            <Card>
-                {/* Header */}
-                <div className="p-4 border-b">
-                    <h2 className="text-xl font-semibold text-gray-800">
-                        Activity Cost Sheets
-                    </h2>
+            {/* Header Section */}
+            <Card className="p-6">
+                <div>
+                    <h1 className="text-2xl font-bold text-gray-900">Activity Cost Sheets</h1>
                     <p className="text-sm text-gray-600 mt-1">
-                        Select a work plan to view and manage activity cost sheets
+                        View and manage detailed cost sheets for work plan activities. Select a work plan to explore activity-level budgets and expenses.
                     </p>
                 </div>
+            </Card>
 
-                {/* Financial Year Filter */}
-                <div className="p-4 border-b">
-                    <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-2">
-                            <Label htmlFor="financial-year">Financial Year:</Label>
-                            <Select value={financialYear || "all"} onValueChange={(value) => setFinancialYear(value === "all" ? "" : value)}>
-                                <SelectTrigger id="financial-year" className="w-48">
-                                    <SelectValue placeholder="Select financial year" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="all">All Years</SelectItem>
-                                    {financialYears.map((year) => (
-                                        <SelectItem key={year} value={year}>
-                                            {year}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+            {/* Filters and Table Section */}
+            <Card>
+                {/* Unified Filters Section */}
+                <div className="p-6 border-b bg-gray-50">
+                    <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                            <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">
+                                Filters
+                            </h3>
+                            {hasActiveFilters && (
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={clearAllFilters}
+                                    className="text-xs"
+                                >
+                                    Clear All
+                                </Button>
+                            )}
                         </div>
-                        {financialYear && (
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setFinancialYear("")}
-                            >
-                                Clear Filter
-                            </Button>
-                        )}
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {/* Search Filter */}
+                            <div className="space-y-2">
+                                <Label htmlFor="search" className="text-xs font-medium text-gray-700">
+                                    Search Projects
+                                </Label>
+                                <div className="relative">
+                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                    <Input
+                                        id="search"
+                                        type="text"
+                                        placeholder="Search by project name..."
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        className="pl-10"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Financial Year Filter */}
+                            <div className="space-y-2">
+                                <Label htmlFor="financial-year" className="text-xs font-medium text-gray-700">
+                                    Financial Year
+                                </Label>
+                                <Select
+                                    value={financialYear || "all"}
+                                    onValueChange={(value) => setFinancialYear(value === "all" ? "" : value)}
+                                >
+                                    <SelectTrigger id="financial-year">
+                                        <SelectValue placeholder="Select financial year" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">All Years</SelectItem>
+                                        {financialYears.map((year) => (
+                                            <SelectItem key={year} value={year}>
+                                                {year}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <TableFilters
-                    onSearchChange={(e) => setSearchQuery(e.target.value)}
-                >
+                {/* Table Section */}
+                <div className="p-6">
                     <DataTable
                         data={workPlan?.data.results || []}
                         columns={costSheetsWorkPlanColumns}
@@ -104,7 +145,7 @@ export default function CostSheetsWorkPlansList() {
                             onChange: (page: number) => setPage(page),
                         }}
                     />
-                </TableFilters>
+                </div>
             </Card>
         </div>
     );

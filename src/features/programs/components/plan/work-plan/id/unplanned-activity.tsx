@@ -93,7 +93,7 @@ export default function UnplannedActivity({ workPlanId, workPlanData }: PropsTyp
       });
     });
 
-    // Try different filtering approaches
+    // Try different filtering approaches - only show activities explicitly marked as unplanned
     let unplannedOnly = allActivityPlans.filter((plan: any) => plan.is_unplanned === true);
     console.log('Filter by is_unplanned === true:', unplannedOnly.length);
 
@@ -103,13 +103,14 @@ export default function UnplannedActivity({ workPlanId, workPlanData }: PropsTyp
       console.log('Filter by activity_type === "UNPLANNED":', unplannedOnly.length);
     }
 
+    // If no unplanned activities found after all filtering attempts, return empty array
+    // DO NOT show all activities as unplanned
     if (unplannedOnly.length === 0) {
-      // Maybe all activities from this API are unplanned since we're calling activity plans?
-      console.log('No unplanned filter worked, using all activities as potentially unplanned');
-      unplannedOnly = allActivityPlans;
+      console.log('No unplanned activities found - returning empty array');
+      return [];
     }
 
-    console.log('Final filtered unplanned activities:', unplannedOnly);
+    console.log('Final filtered unplanned activities:', unplannedOnly.length);
 
     const transformedActivities: TUnplannedActivity[] = unplannedOnly.map((activityPlan: any) => {
       // Debug each activity transformation - show ALL available fields
