@@ -233,35 +233,35 @@ export default function CreateSubGrantSubDetails() {
                                 required
                             />
                             <h3 className="font-semibold w-full col-span-2">
-                                1st Principal's Name & Title
+                                MD/CEO Name & Title
                             </h3>
                             <FormInput
                                 label="Name"
                                 name="principal_one_name"
-                                placeholder="Enter 1st Principal Name"
+                                placeholder="Enter MD/CEO Name"
                                 required
                             />
                             <FormInput
                                 label="Designation"
                                 name="principal_one_designaation"
-                                placeholder="Enter 1st Principal Designation"
+                                placeholder="Enter MD/CEO Designation"
                                 required
                             />
 
                             <h3 className="font-semibold w-full col-span-2">
-                                2nd Principal's Name & Title
+                                Director Name & Title
                             </h3>
 
                             <FormInput
                                 label="Name"
                                 name="principal_two_name"
-                                placeholder="Enter 2nd Principal Name"
+                                placeholder="Enter Director Name"
                                 required
                             />
                             <FormInput
                                 label="Designation"
                                 name="principal_two_designation"
-                                placeholder="Enter 2nd Principal Designation"
+                                placeholder="Enter Director Designation"
                                 required
                             />
 

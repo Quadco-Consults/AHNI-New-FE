@@ -24,6 +24,7 @@ interface ModificationData {
   description: string;
   date: string;
   created_datetime: string;
+  created_by?: any; // User object or ID
 }
 
 const modificationColumns: ColumnDef<ModificationData>[] = [
@@ -58,12 +59,33 @@ const modificationColumns: ColumnDef<ModificationData>[] = [
     size: 120,
   },
   {
-    header: "Created",
+    header: "Created By",
+    accessorKey: "created_by",
+    cell: ({ row }) => {
+      const createdBy = row.original.created_by;
+
+      // If created_by is an object with user details
+      if (createdBy && typeof createdBy === 'object') {
+        const fullName = `${createdBy.first_name || ''} ${createdBy.last_name || ''}`.trim();
+        return fullName || createdBy.email || createdBy.username || "Unknown User";
+      }
+
+      // If created_by is just an ID or string
+      if (createdBy && typeof createdBy === 'string') {
+        return createdBy;
+      }
+
+      return "N/A";
+    },
+    size: 150,
+  },
+  {
+    header: "Created Date",
     accessorKey: "created_datetime",
     cell: ({ getValue, row }) => {
       const value = getValue() as string;
-      // Try created_datetime first, then fallback to created_at or date
-      const dateValue = value || (row.original as any).created_at || (row.original as any).date;
+      // Try created_datetime first, then fallback to created_at
+      const dateValue = value || (row.original as any).created_at;
       if (!dateValue) return "N/A";
       const date = new Date(dateValue);
       return isNaN(date.getTime()) ? "N/A" : date.toLocaleDateString("en-US");

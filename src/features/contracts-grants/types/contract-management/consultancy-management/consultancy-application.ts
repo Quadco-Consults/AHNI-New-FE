@@ -2,19 +2,31 @@ import { z } from "zod";
 
 export const ConsultancyStaffSchema = z.object({
     consultancy: z.string().optional(),
-    referees: z.array(
-        z.object({
-            name: z.string().min(1, "Field Required"),
-            email: z.string().min(1, "Field Required").email("Enter a valid email address"),
-            phone_number: z.string().min(1, "Field Required"),
-        })
-    ),
+    referee_one: z.object({
+        name: z.string().min(1, "Field Required"),
+        email: z.string().min(1, "Field Required").email("Enter a valid email address"),
+        phone_number: z.string().min(1, "Field Required"),
+        designation: z.string().min(1, "Field Required"),
+        address: z.string().min(1, "Field Required"),
+    }),
+    referee_two: z.object({
+        name: z.string().min(1, "Field Required"),
+        email: z.string().min(1, "Field Required").email("Enter a valid email address"),
+        phone_number: z.string().min(1, "Field Required"),
+        designation: z.string().min(1, "Field Required"),
+        address: z.string().min(1, "Field Required"),
+    }),
+    next_of_kin: z.object({
+        name: z.string().min(1, "Field Required"),
+        address: z.string().min(1, "Field Required"),
+        phone_number: z.string().min(1, "Field Required"),
+        relationship: z.string().min(1, "Field Required"),
+    }),
     name: z.string().min(1, "Field Required"),
     contractor_name: z.string().optional(),
     email: z.string().min(1, "Field Required").email("Enter a valid email address"),
     phone_number: z.string().min(1, "Field Required"),
     position_under_contract: z.string().min(1, "Field Required"),
-    place_of_birth: z.string().min(1, "Field Required"),
     citizenship: z.string().min(1, "Field Required"),
     start_duration_date: z.string().min(1, "Field Required"),
     end_duration_date: z.string().min(1, "Field Required"),
@@ -32,6 +44,7 @@ export const ConsultancyStaffSchema = z.object({
             language: z.string().min(1, "Field Required"),
             proficiency_speaking: z.string().min(1, "Field Required"),
             proficiency_reading: z.string().min(1, "Field Required"),
+            proficiency_writing: z.string().min(1, "Field Required"),
         })
     ),
     employment_history: z.array(

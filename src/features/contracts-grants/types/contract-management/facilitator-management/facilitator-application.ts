@@ -8,6 +8,20 @@ export const FacilitatorApplicantSchema = z.object({
   qualifications: z.string().min(1, "Qualifications are required"),
   experience: z.string().min(1, "Experience is required"),
   facilitator_id: z.string().optional(),
+  referee_one: z.object({
+    name: z.string().min(1, "Field Required"),
+    email: z.string().min(1, "Field Required").email("Enter a valid email address"),
+    phone_number: z.string().min(1, "Field Required"),
+    designation: z.string().min(1, "Field Required"),
+    address: z.string().min(1, "Field Required"),
+  }),
+  referee_two: z.object({
+    name: z.string().min(1, "Field Required"),
+    email: z.string().min(1, "Field Required").email("Enter a valid email address"),
+    phone_number: z.string().min(1, "Field Required"),
+    designation: z.string().min(1, "Field Required"),
+    address: z.string().min(1, "Field Required"),
+  }),
 });
 
 export type TFacilitatorApplicantFormData = z.infer<typeof FacilitatorApplicantSchema>;

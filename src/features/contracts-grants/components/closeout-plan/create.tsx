@@ -14,12 +14,13 @@ import Card from "@/components/Card";
 import { Button } from "@/components/ui/button";
 import { CardContent } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
+import { Label } from "@/components/ui/label";
 import { CG_ROUTES } from "@/constants/RouterConstants";
 import {
   CloseOutPlanSchema,
   TCloseOutPlanFormData,
 } from "@/features/contracts-grants/types/closeout-plan";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
@@ -34,6 +35,9 @@ import { useGetAllProjectsQuery } from "@/features/projects/controllers/projectC
 import { useGetAllPositions } from "@/features/modules/controllers/config/positionController";
 import { useGetAllActivityHeadings } from "@/features/contracts-grants/controllers/activityHeadingController";
 import { toast } from "sonner";
+import { fileToBase64 } from "@/utils/fileToBase64";
+import { UploadFileSvg } from "assets/svgs/CAndGSvgs";
+import { X } from "lucide-react";
 
 export default function CreateCloseOutPlan() {
   const searchParams = useSearchParams();
@@ -41,6 +45,10 @@ export default function CreateCloseOutPlan() {
   const id = searchParams.get("id");
 
   const router = useRouter();
+
+  // State to track uploaded files for each activity
+  // Structure: { taskIndex: { activityIndex: File[] } }
+  const [activityFiles, setActivityFiles] = useState<Record<number, Record<number, File[]>>>({});
 
   const form = useForm<TCloseOutPlanFormData>({
     resolver: zodResolver(CloseOutPlanSchema),
@@ -59,6 +67,7 @@ export default function CreateCloseOutPlan() {
               start_date: "",
               end_date: "",
               status: "Pending",
+              documents: [],
             },
           ],
         },
@@ -178,23 +187,46 @@ export default function CreateCloseOutPlan() {
 
   const onSubmit: SubmitHandler<TCloseOutPlanFormData> = async (data) => {
     try {
+      // Convert all uploaded files to base64
+      let taskActivityIndex = 0;
+      const tasksWithDocuments = await Promise.all(
+        data.tasks.flatMap(async (task, taskIndex) => {
+          return Promise.all(
+            task.activities.map(async (activity, activityIndex) => {
+              const files = activityFiles[taskIndex]?.[activityIndex] || [];
+
+              // Convert files to base64
+              const documents = await Promise.all(
+                files.map(async (file) => ({
+                  name: file.name,
+                  document: await fileToBase64(file),
+                }))
+              );
+
+              return {
+                description: activity.description,
+                designation: activity.designation,
+                remarks: activity.remarks,
+                status: activity.status,
+                start_date: activity.start_date,
+                end_date: activity.end_date,
+                documents: documents.length > 0 ? documents : undefined,
+              };
+            })
+          );
+        })
+      );
+
+      // Flatten the nested arrays
+      const flatTasks = tasksWithDocuments.flat();
+
       // Transform nested structure to flat structure for backend
-      // Backend expects tasks array with activity fields directly, not nested activities
       const transformedData = {
         project: data.project,
         department: data.department,
         location: data.location,
-        key_task: data.tasks[0]?.key_task || null, // Use first task's key_task
-        tasks: data.tasks.flatMap(task =>
-          task.activities.map(activity => ({
-            description: activity.description, // Include the description field
-            designation: activity.designation,
-            remarks: activity.remarks,
-            status: activity.status,
-            start_date: activity.start_date,
-            end_date: activity.end_date,
-          }))
-        )
+        key_task: data.tasks[0]?.key_task || null,
+        tasks: flatTasks,
       };
 
       if (id) {
@@ -229,6 +261,7 @@ export default function CreateCloseOutPlan() {
           start_date: task.start_date || "",
           end_date: task.end_date || "",
           status: task.status || "Pending",
+          documents: [],
         }))
       }];
 
@@ -283,6 +316,8 @@ export default function CreateCloseOutPlan() {
                   canDelete={taskFields.length > 1}
                   positionOptions={positionOptions}
                   activityHeadingOptions={activityHeadingOptions}
+                  activityFiles={activityFiles}
+                  setActivityFiles={setActivityFiles}
                 />
               ))}
 
@@ -299,6 +334,7 @@ export default function CreateCloseOutPlan() {
                     start_date: "",
                     end_date: "",
                     status: "Pending",
+                    documents: [],
                   }]
                 })}
               >
@@ -337,6 +373,8 @@ function TaskItem({
   canDelete,
   positionOptions,
   activityHeadingOptions,
+  activityFiles,
+  setActivityFiles,
 }: {
   taskIndex: number;
   removeTask: (index: number) => void;
@@ -345,6 +383,8 @@ function TaskItem({
   canDelete: boolean;
   positionOptions: { label: string; value: string }[];
   activityHeadingOptions: { label: string; value: string }[];
+  activityFiles: Record<number, Record<number, File[]>>;
+  setActivityFiles: React.Dispatch<React.SetStateAction<Record<number, Record<number, File[]>>>>;
 }) {
   const {
     fields: activityFields,
@@ -354,6 +394,56 @@ function TaskItem({
     control,
     name: `tasks.${taskIndex}.activities`,
   });
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, activityIndex: number) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const selectedFiles = Array.from(e.target.files);
+      const maxSizeInMB = 30;
+      const maxSizeInBytes = maxSizeInMB * 1024 * 1024;
+
+      // Validate each file
+      const validFiles: File[] = [];
+      for (const file of selectedFiles) {
+        if (file.size > maxSizeInBytes) {
+          const fileSizeMB = (file.size / 1024 / 1024).toFixed(2);
+          toast.error(
+            `File "${file.name}" is too large! Maximum size is ${maxSizeInMB}MB. File size is ${fileSizeMB}MB.`,
+            { duration: 6000 }
+          );
+        } else {
+          validFiles.push(file);
+        }
+      }
+
+      if (validFiles.length > 0) {
+        setActivityFiles(prev => ({
+          ...prev,
+          [taskIndex]: {
+            ...prev[taskIndex],
+            [activityIndex]: [...(prev[taskIndex]?.[activityIndex] || []), ...validFiles],
+          },
+        }));
+        toast.success(`${validFiles.length} file(s) selected successfully`);
+      }
+
+      // Reset input
+      e.target.value = '';
+    }
+  };
+
+  const removeFile = (activityIndex: number, fileIndex: number) => {
+    setActivityFiles(prev => {
+      const currentFiles = prev[taskIndex]?.[activityIndex] || [];
+      const newFiles = currentFiles.filter((_, idx) => idx !== fileIndex);
+      return {
+        ...prev,
+        [taskIndex]: {
+          ...prev[taskIndex],
+          [activityIndex]: newFiles,
+        },
+      };
+    });
+  };
 
   return (
     <Card className='space-y-5'>
@@ -450,6 +540,61 @@ function TaskItem({
                 placeholder='Enter Remarks (optional)'
               />
             </div>
+
+            {/* Document Upload Section */}
+            <div className='mt-4'>
+              <Label className='font-semibold'>Upload Supporting Documents (Optional)</Label>
+              <p className='text-xs text-gray-500 mb-2'>Maximum file size: 30MB per file. You can upload multiple files.</p>
+
+              <div className='flex items-center gap-4'>
+                <label
+                  className='cursor-pointer shrink-0 border flex items-center gap-x-[1rem] w-fit rounded-lg border-[#DBDFE9] py-[.875rem] px-[1.125rem] hover:bg-gray-50'
+                  htmlFor={`file-activity-${taskIndex}-${activityIndex}`}
+                >
+                  <UploadFileSvg />
+                  Select Files
+                </label>
+                <input
+                  type='file'
+                  multiple
+                  name={`file-activity-${taskIndex}-${activityIndex}`}
+                  hidden
+                  id={`file-activity-${taskIndex}-${activityIndex}`}
+                  onChange={(e) => handleFileChange(e, activityIndex)}
+                />
+              </div>
+
+              {/* Display selected files */}
+              {activityFiles[taskIndex]?.[activityIndex]?.length > 0 && (
+                <div className='mt-3 space-y-2'>
+                  <p className='text-sm font-medium text-gray-700'>
+                    Selected Files ({activityFiles[taskIndex][activityIndex].length}):
+                  </p>
+                  <div className='space-y-2'>
+                    {activityFiles[taskIndex][activityIndex].map((file, fileIndex) => (
+                      <div
+                        key={fileIndex}
+                        className='flex items-center justify-between p-2 border rounded-lg bg-gray-50'
+                      >
+                        <span className='text-sm truncate flex-1'>{file.name}</span>
+                        <span className='text-xs text-gray-500 mx-2'>
+                          ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                        </span>
+                        <Button
+                          type='button'
+                          variant='ghost'
+                          size='sm'
+                          onClick={() => removeFile(activityIndex, fileIndex)}
+                          className='text-red-600 hover:text-red-700 hover:bg-red-50 h-8 w-8 p-0'
+                        >
+                          <X size={16} />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       ))}
@@ -465,6 +610,7 @@ function TaskItem({
             start_date: "",
             end_date: "",
             status: "Pending",
+            documents: [],
           })
         }
       >

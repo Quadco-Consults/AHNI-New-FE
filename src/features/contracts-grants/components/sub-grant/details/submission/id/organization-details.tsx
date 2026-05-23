@@ -134,7 +134,7 @@ export default function PartnerSubmissionDetails() {
                 <Card>
                     <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
                         <User size={20} className="text-blue-600" />
-                        1st Principal Officer
+                        MD/CEO
                     </h3>
                     <div className="space-y-4">
                         <div>
@@ -155,7 +155,7 @@ export default function PartnerSubmissionDetails() {
                 <Card>
                     <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
                         <User size={20} className="text-blue-600" />
-                        2nd Principal Officer
+                        Director
                     </h3>
                     <div className="space-y-4">
                         <div>

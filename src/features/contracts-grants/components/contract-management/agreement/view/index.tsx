@@ -34,7 +34,7 @@ export default function AgreementView() {
     const isReadOnly = searchParams.get('readonly') === 'true';
 
     const [isModificationModalOpen, setIsModificationModalOpen] = useState(false);
-    const [modificationType, setModificationType] = useState<'EXTENSION' | 'ADDENDUM' | 'AMENDMENT'>('EXTENSION');
+    const [modificationType, setModificationType] = useState<'CONTRACT_EXTENSION' | 'CONTRACT_MODIFICATION' | 'BOTH'>('CONTRACT_EXTENSION');
     const [modificationDescription, setModificationDescription] = useState("");
     const [modificationReason, setModificationReason] = useState("");
     const [newEndDate, setNewEndDate] = useState("");
@@ -43,7 +43,7 @@ export default function AgreementView() {
     const [isSubmitDialogOpen, setIsSubmitDialogOpen] = useState(false);
     const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
     const [uploadFile, setUploadFile] = useState<File | null>(null);
-    const [uploadDocumentType, setUploadDocumentType] = useState<'CONTRACT' | 'EXTENSION' | 'ADDENDUM' | 'AMENDMENT'>('CONTRACT');
+    const [uploadDocumentType, setUploadDocumentType] = useState<'CONTRACT' | 'CONTRACT_EXTENSION' | 'CONTRACT_MODIFICATION' | 'BOTH'>('CONTRACT');
     const [uploadRemarks, setUploadRemarks] = useState("");
     const [uploadTitle, setUploadTitle] = useState("");
 
@@ -265,7 +265,7 @@ export default function AgreementView() {
     }, [rejectionSuccess]);
 
     const resetModificationForm = () => {
-        setModificationType('EXTENSION');
+        setModificationType('CONTRACT_EXTENSION');
         setModificationDescription("");
         setModificationReason("");
         setNewEndDate("");
@@ -359,9 +359,9 @@ export default function AgreementView() {
             return;
         }
 
-        // Validate new end date for extensions
-        if (modificationType === 'EXTENSION' && !newEndDate) {
-            toast.error("Please provide a new end date for the extension");
+        // Validate new end date for extensions and both
+        if ((modificationType === 'CONTRACT_EXTENSION' || modificationType === 'BOTH') && !newEndDate) {
+            toast.error("Please provide a new end date");
             return;
         }
 
@@ -370,7 +370,7 @@ export default function AgreementView() {
         formData.append('description', modificationDescription);
         formData.append('reason', modificationReason);
 
-        if (modificationType === 'EXTENSION' && newEndDate) {
+        if ((modificationType === 'CONTRACT_EXTENSION' || modificationType === 'BOTH') && newEndDate) {
             formData.append('new_end_date', newEndDate);
         }
 
@@ -408,6 +408,10 @@ export default function AgreementView() {
     const getDocumentTypeColor = (type: string) => {
         switch (type) {
             case 'CONTRACT': return 'bg-blue-100 text-blue-800 border-blue-200';
+            case 'CONTRACT_EXTENSION': return 'bg-green-100 text-green-800 border-green-200';
+            case 'CONTRACT_MODIFICATION': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+            case 'BOTH': return 'bg-purple-100 text-purple-800 border-purple-200';
+            // Legacy support
             case 'EXTENSION': return 'bg-green-100 text-green-800 border-green-200';
             case 'ADDENDUM': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
             case 'AMENDMENT': return 'bg-purple-100 text-purple-800 border-purple-200';
@@ -1316,7 +1320,7 @@ export default function AgreementView() {
                                             {agreement.contract_cost ? `₦${Number(agreement.contract_cost).toLocaleString()}` : '-'}
                                         </td>
                                         <td className="px-4 py-4 text-sm text-gray-600">
-                                            Initial contract agreement
+                                            Initial Document
                                         </td>
                                         <td className="px-4 py-4">
                                             <span className={`px-2.5 py-1 rounded-full text-xs font-medium border ${getStatusColor(agreement.status || 'DRAFT')}`}>
@@ -1367,11 +1371,18 @@ export default function AgreementView() {
                                                 </td>
                                                 <td className="px-4 py-4">
                                                     <span className={`px-2.5 py-1 rounded-full text-xs font-medium border ${
-                                                        mod.modification_type === 'EXTENSION' ? 'bg-green-100 text-green-800 border-green-200' :
-                                                        mod.modification_type === 'ADDENDUM' ? 'bg-yellow-100 text-yellow-800 border-yellow-200' :
-                                                        'bg-purple-100 text-purple-800 border-purple-200'
+                                                        mod.modification_type === 'CONTRACT_EXTENSION' || mod.modification_type === 'EXTENSION' ? 'bg-green-100 text-green-800 border-green-200' :
+                                                        mod.modification_type === 'CONTRACT_MODIFICATION' || mod.modification_type === 'ADDENDUM' || mod.modification_type === 'AMENDMENT' ? 'bg-yellow-100 text-yellow-800 border-yellow-200' :
+                                                        mod.modification_type === 'BOTH' ? 'bg-purple-100 text-purple-800 border-purple-200' :
+                                                        'bg-gray-100 text-gray-800 border-gray-200'
                                                     }`}>
-                                                        {mod.modification_type}
+                                                        {mod.modification_type === 'CONTRACT_EXTENSION' ? 'Contract Extension' :
+                                                         mod.modification_type === 'CONTRACT_MODIFICATION' ? 'Contract Modification' :
+                                                         mod.modification_type === 'BOTH' ? 'Both' :
+                                                         mod.modification_type === 'EXTENSION' ? 'Contract Extension' :
+                                                         mod.modification_type === 'ADDENDUM' ? 'Contract Modification' :
+                                                         mod.modification_type === 'AMENDMENT' ? 'Contract Modification' :
+                                                         mod.modification_type}
                                                     </span>
                                                 </td>
                                                 <td className="px-4 py-4 text-sm text-gray-900">
@@ -1519,14 +1530,13 @@ export default function AgreementView() {
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="EXTENSION">Contract Extension</SelectItem>
-                                    {/* ADDENDUM and AMENDMENT disabled until backend support is added */}
-                                    {/* <SelectItem value="ADDENDUM">Addendum</SelectItem> */}
-                                    {/* <SelectItem value="AMENDMENT">Amendment</SelectItem> */}
+                                    <SelectItem value="CONTRACT_EXTENSION">Contract Extension</SelectItem>
+                                    <SelectItem value="CONTRACT_MODIFICATION">Contract Modification</SelectItem>
+                                    <SelectItem value="BOTH">Both (Extension & Modification)</SelectItem>
                                 </SelectContent>
                             </Select>
                             <p className="text-xs text-gray-500 mt-1">
-                                Currently only Contract Extension is supported
+                                Select the type of modification needed
                             </p>
                         </div>
 
@@ -1558,7 +1568,7 @@ export default function AgreementView() {
                             </p>
                         </div>
 
-                        {modificationType === 'EXTENSION' && (
+                        {(modificationType === 'CONTRACT_EXTENSION' || modificationType === 'BOTH') && (
                             <div>
                                 <Label>New End Date *</Label>
                                 <Input
@@ -1646,9 +1656,9 @@ export default function AgreementView() {
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="CONTRACT">Original Contract</SelectItem>
-                                    <SelectItem value="EXTENSION">Extension Document</SelectItem>
-                                    <SelectItem value="ADDENDUM">Addendum</SelectItem>
-                                    <SelectItem value="AMENDMENT">Amendment</SelectItem>
+                                    <SelectItem value="CONTRACT_EXTENSION">Contract Extension Document</SelectItem>
+                                    <SelectItem value="CONTRACT_MODIFICATION">Contract Modification Document</SelectItem>
+                                    <SelectItem value="BOTH">Both (Extension & Modification)</SelectItem>
                                 </SelectContent>
                             </Select>
                             <p className="text-xs text-gray-500 mt-1">

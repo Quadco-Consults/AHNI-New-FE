@@ -136,25 +136,13 @@ const SubGrantAwardDetails = (props: ISubGrantSingleData & { parent_project?: an
 
       {
         id: 9,
-        label: "Administrator",
+        label: "Grant Administrator",
         value: sub_grant_administrator?.full_name || "N/A",
       },
 
       {
         id: 10,
-        label: "Technical Staff",
-        value: technical_staff?.full_name || "N/A",
-      },
-
-      {
-        id: 11,
-        label: "Business Unit",
-        value: departmentData?.data?.name || business_unit || "N/A",
-      },
-
-      {
-        id: 12,
-        label: "Locations",
+        label: "Project Location",
         value: (() => {
           if (!displayLocations || displayLocations.length === 0) return "N/A";
 
@@ -179,13 +167,29 @@ const SubGrantAwardDetails = (props: ISubGrantSingleData & { parent_project?: an
         })(),
       },
 
-      { id: 12, label: "Start Date", value: start_date || "N/A" },
+      {
+        id: 11,
+        label: "Grant Duration",
+        value: (() => {
+          // Map duration enum values to readable labels
+          const durationMap: Record<string, string> = {
+            "3_MONTHS": "3 Months",
+            "6_MONTHS": "6 Months",
+            "9_MONTHS": "9 Months",
+            "1_YEAR": "1 Year",
+            "18_MONTHS": "18 Months",
+            "2_YEARS": "2 Years",
+            "3_YEARS": "3 Years",
+            "4_YEARS": "4 Years",
+            "5_YEARS": "5 Years",
+          };
+          return props.duration ? (durationMap[props.duration] || props.duration) : "N/A";
+        })()
+      },
 
-      { id: 13, label: "End Date", value: end_date || "N/A" },
+      { id: 12, label: "Advert Start Date", value: submission_start_date || "N/A" },
 
-      { id: 14, label: "Submission Start Date", value: submission_start_date || "N/A" },
-
-      { id: 15, label: "Submission End Date", value: submission_end_date || "N/A" },
+      { id: 13, label: "Advert End Date", value: submission_end_date || "N/A" },
 
       {
         id: 16,

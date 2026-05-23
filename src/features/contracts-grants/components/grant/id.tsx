@@ -94,7 +94,12 @@ const GrantDetails: React.FC = () => {
                       width: "max-w-lg",
                       grantId: grantId,
                       projectId: data?.data?.project_id,
-                      data: { id: grantId, title: data?.data?.title },
+                      data: {
+                        id: grantId,
+                        title: data?.data?.title,
+                        start_date: data?.data?.start_date,
+                        end_date: data?.data?.end_date,
+                      },
                     },
                   })
                 );

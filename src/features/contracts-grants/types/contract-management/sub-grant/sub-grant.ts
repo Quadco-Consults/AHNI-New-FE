@@ -17,13 +17,14 @@ export const SubGrantSchema = z.object({
         z.string().min(1, "Please enter amount in NGN"),
         z.number().positive("Amount must be positive")
     ]).transform((val) => String(val)),
-    start_date: z.string().min(1, "Please select sub-grant start date"),
-    end_date: z.string().min(1, "Please select sub-grant end date"),
-    submission_start_date: z.string().min(1, "Please select submission start date"),
-    submission_end_date: z.string().min(1, "Please select submission end date"),
-    sub_grant_administrator: z.string().min(1, "Please select administrator"),
-    technical_staff: z.string().min(1, "Please select technical staff"),
-    business_unit: z.string().min(1, "Please select department"),
+    duration: z.string().min(1, "Please select duration"),
+    start_date: z.string().optional(),
+    end_date: z.string().optional(),
+    submission_start_date: z.string().min(1, "Please select advert start date"),
+    submission_end_date: z.string().min(1, "Please select advert end date"),
+    sub_grant_administrator: z.string().min(1, "Please select grant administrator"),
+    technical_staff: z.string().optional(),
+    business_unit: z.string().optional(),
     locations: z.array(z.string()).nonempty("Please select at least one location"),
 });
 

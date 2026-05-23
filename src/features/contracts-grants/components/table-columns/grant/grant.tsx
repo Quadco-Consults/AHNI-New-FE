@@ -69,23 +69,6 @@ export const grantColumns: ColumnDef<IGrantPaginatedData>[] = [
   },
 
   {
-    header: "Modification",
-    id: "modification",
-    accessorFn: ({ modifications }) => {
-      if (!modifications || modifications.length === 0) return "N/A";
-      // Sort by date descending
-      const sorted = [...modifications].sort(
-        (a, b) =>
-          new Date(b.created_datetime).getTime() -
-          new Date(a.created_datetime).getTime()
-      );
-
-      return formatNumberCurrency(sorted[0]?.amount, "USD") || "N/A";
-    },
-    size: 200,
-  },
-
-  {
     header: "Award Amount",
     id: "award_amount",
     accessorKey: "award_amount",
@@ -94,30 +77,11 @@ export const grantColumns: ColumnDef<IGrantPaginatedData>[] = [
   },
 
   {
-    header: "Monthly Spend",
-    id: "monthly_spend",
-    accessorFn: ({ current_month_expenditure_amount }) =>
-      current_month_expenditure_amount
-        ? formatNumberCurrency(current_month_expenditure_amount, "USD")
-        : "N/A",
-    size: 200,
-  },
-  {
     header: "Total Obligations",
     id: "total_obligation_amount",
     accessorFn: ({ total_obligation_amount }) =>
       total_obligation_amount
         ? formatNumberCurrency(total_obligation_amount, "USD")
-        : "N/A",
-    size: 200,
-  },
-
-  {
-    header: "Total Expenditure",
-    id: "total_expenditure_amount",
-    accessorFn: ({ total_expenditure_amount }) =>
-      total_expenditure_amount
-        ? formatNumberCurrency(total_expenditure_amount, "USD")
         : "N/A",
     size: 200,
   },
@@ -142,6 +106,43 @@ export const grantColumns: ColumnDef<IGrantPaginatedData>[] = [
         </Badge>
       );
     },
+  },
+
+  {
+    header: "Modification",
+    id: "modification",
+    accessorFn: ({ modifications }) => {
+      if (!modifications || modifications.length === 0) return "N/A";
+      // Sort by date descending
+      const sorted = [...modifications].sort(
+        (a, b) =>
+          new Date(b.created_datetime).getTime() -
+          new Date(a.created_datetime).getTime()
+      );
+
+      return formatNumberCurrency(sorted[0]?.amount, "USD") || "N/A";
+    },
+    size: 200,
+  },
+
+  {
+    header: "Monthly Spend",
+    id: "monthly_spend",
+    accessorFn: ({ current_month_expenditure_amount }) =>
+      current_month_expenditure_amount
+        ? formatNumberCurrency(current_month_expenditure_amount, "USD")
+        : "N/A",
+    size: 200,
+  },
+
+  {
+    header: "Total Expenditure",
+    id: "total_expenditure_amount",
+    accessorFn: ({ total_expenditure_amount }) =>
+      total_expenditure_amount
+        ? formatNumberCurrency(total_expenditure_amount, "USD")
+        : "N/A",
+    size: 200,
   },
   {
     header: "",

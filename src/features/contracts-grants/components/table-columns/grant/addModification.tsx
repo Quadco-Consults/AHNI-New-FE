@@ -11,7 +11,7 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
 import { closeDialog, dailogSelector } from "@/store/ui";
 import { toast } from "sonner";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import {
   IModificationSingleData,
@@ -26,9 +26,14 @@ import { useMemo } from "react";
 
 const AddModification = () => {
   const { dialogProps } = useAppSelector(dailogSelector);
+  const [selectedModificationType, setSelectedModificationType] = useState<string>("");
 
   const result = dialogProps?.data as unknown as IModificationSingleData;
   console.log({ result });
+  console.log("Dialog Props Full:", dialogProps);
+
+  // Get project data for displaying current dates
+  const projectData = dialogProps?.data as any;
 
   const form = useForm<TModificationFormData>({
     resolver: zodResolver(ModificationSchema),
@@ -40,8 +45,9 @@ const AddModification = () => {
       reason: "",
       amount_usd: "",
       amount_ngn: "",
-      effective_date: "",
-      approval_date: "",
+      start_date: "",
+      end_date: "",
+      approval_date: "", // Will be auto-generated
       notes: "",
       approved_by: "",
     },
@@ -82,6 +88,13 @@ const AddModification = () => {
   // USD to NGN conversion rate (you can make this dynamic by fetching from an API)
   const USD_TO_NGN_RATE = 1550; // Update this rate as needed
 
+  // Watch modification_type to show/hide fields
+  const modificationType = form.watch("modification_type");
+
+  useEffect(() => {
+    setSelectedModificationType(modificationType);
+  }, [modificationType]);
+
   // Watch amount_usd and auto-convert to NGN
   const amountUsd = form.watch("amount_usd");
 
@@ -92,6 +105,22 @@ const AddModification = () => {
       form.setValue("amount_ngn", ngnValue);
     }
   }, [amountUsd, form]);
+
+  // Helper functions to determine which fields to show
+  const showAmountFields = selectedModificationType === 'INCREASE_OBLIGATION' || selectedModificationType === 'DE_OBLIGATION';
+  const showPeriodFields = selectedModificationType === 'INCREASE_PERFORMANCE_PERIOD' || selectedModificationType === 'REDUCE_PERFORMANCE_PERIOD';
+  const showScopeFields = selectedModificationType === 'SCOPE_CHANGE';
+
+  // Format date for display
+  const formatDateForDisplay = (dateStr: string) => {
+    if (!dateStr) return "Not set";
+    try {
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    } catch {
+      return dateStr;
+    }
+  };
 
   const onSubmit: SubmitHandler<TModificationFormData> = async (data) => {
     console.log({ crakcen: data });
@@ -122,34 +151,65 @@ const AddModification = () => {
       return dateValue;
     };
 
-    const formattedEffectiveDate = formatDate(submitData.effective_date);
-    const formattedApprovalDate = formatDate(submitData.approval_date);
+    // Auto-generate approval date as today's date
+    const today = new Date().toISOString().split('T')[0];
+    const formattedApprovalDate = today;
+
+    const formattedStartDate = formatDate(submitData.start_date || '');
+    const formattedEndDate = formatDate(submitData.end_date || '');
+
+    // Determine which fields to include based on modification type
+    const isObligationChange = submitData.modification_type === 'INCREASE_OBLIGATION' || submitData.modification_type === 'DE_OBLIGATION';
+    const isPerformancePeriodChange = submitData.modification_type === 'INCREASE_PERFORMANCE_PERIOD' || submitData.modification_type === 'REDUCE_PERFORMANCE_PERIOD';
 
     try {
       if (isSubGrant) {
-        // For subgrants - backend expects all fields
-        const subGrantPayload = {
+        // For subgrants - build payload based on modification type
+        const basePayload = {
           modification_number: submitData.modification_number,
           modification_type: submitData.modification_type,
           reason: submitData.reason,
-          amount_usd: submitData.amount_usd,
-          amount_ngn: submitData.amount_ngn,
-          effective_date: formattedEffectiveDate,
           approval_date: formattedApprovalDate,
           notes: submitData.notes,
           approved_by: submitData.approved_by,
         };
+
+        const subGrantPayload = {
+          ...basePayload,
+          ...(isObligationChange && {
+            amount_usd: submitData.amount_usd,
+            amount_ngn: submitData.amount_ngn,
+          }),
+          ...(isPerformancePeriodChange && {
+            start_date: formattedStartDate,
+            end_date: formattedEndDate,
+          }),
+        };
+
         console.log('SubGrant Modification Payload:', subGrantPayload);
         await createSubGrantModification(subGrantPayload as any);
       } else {
-        // For regular grants - backend expects only 4 simple fields
-        const modificationTitle = `${submitData.modification_type} - ${submitData.modification_number}`;
-        const grantPayload = {
-          amount: submitData.amount_usd,
-          description: submitData.reason,
-          date: formattedEffectiveDate,
+        // For regular grants - build payload based on modification type
+        const modificationTitle = `${submitData.modification_type.replace(/_/g, ' ')} - ${submitData.modification_number}`;
+
+        const grantPayload: any = {
           title: modificationTitle,
+          description: submitData.reason,
+          date: formattedApprovalDate,
         };
+
+        // Add amount only for obligation changes
+        if (isObligationChange && submitData.amount_usd) {
+          grantPayload.amount = submitData.amount_usd;
+        }
+
+        // Add period dates for performance period changes
+        if (isPerformancePeriodChange) {
+          grantPayload.start_date = formattedStartDate;
+          grantPayload.end_date = formattedEndDate;
+        }
+
+        console.log('Grant Modification Payload:', grantPayload);
         await createGrantModification(grantPayload as any);
       }
 
@@ -200,11 +260,11 @@ const AddModification = () => {
             required
             placeholder='Select modification type'
             options={[
-              { value: 'FUNDING_INCREASE', label: 'Funding Increase' },
-              { value: 'FUNDING_DECREASE', label: 'Funding Decrease' },
-              { value: 'TIME_EXTENSION', label: 'Time Extension' },
+              { value: 'INCREASE_OBLIGATION', label: 'Increase Obligation' },
+              { value: 'DE_OBLIGATION', label: 'De-Obligation' },
+              { value: 'INCREASE_PERFORMANCE_PERIOD', label: 'Increase Performance Period' },
+              { value: 'REDUCE_PERFORMANCE_PERIOD', label: 'Reduce Performance Period' },
               { value: 'SCOPE_CHANGE', label: 'Scope Change' },
-              { value: 'OTHER', label: 'Other' },
             ]}
           />
 
@@ -215,33 +275,66 @@ const AddModification = () => {
             placeholder='Enter reason for modification'
           />
 
-          <FormInput
-            name='amount_usd'
-            label='Amount (USD)'
-            required
-            placeholder='Enter amount in USD'
-            type='number'
-          />
+          {/* Show amount fields for obligation changes */}
+          {showAmountFields && (
+            <>
+              <FormInput
+                name='amount_usd'
+                label='Amount (USD)'
+                required
+                placeholder='Enter amount in USD'
+                type='number'
+              />
 
-          <FormInput
-            name='amount_ngn'
-            label='Amount (NGN)'
-            required
-            placeholder='Enter amount in NGN'
-            type='number'
-          />
+              <FormInput
+                name='amount_ngn'
+                label='Amount (NGN)'
+                required
+                placeholder='Enter amount in NGN'
+                type='number'
+              />
+            </>
+          )}
 
-          <DateInput
-            label='Effective Date'
-            name='effective_date'
-            required
-          />
+          {/* Show period fields for performance period changes */}
+          {showPeriodFields && (
+            <>
+              {/* Display current dates */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-3">
+                <h4 className="font-semibold text-blue-900 text-sm">Current Performance Period</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs text-gray-600 font-medium">Current Start Date</label>
+                    <p className="text-sm font-semibold text-gray-800 mt-1">
+                      {formatDateForDisplay(projectData?.start_date)}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-600 font-medium">Current End Date</label>
+                    <p className="text-sm font-semibold text-gray-800 mt-1">
+                      {formatDateForDisplay(projectData?.end_date)}
+                    </p>
+                  </div>
+                </div>
+              </div>
 
-          <DateInput
-            label='Approval Date'
-            name='approval_date'
-            required
-          />
+              {/* New dates input */}
+              <div className="space-y-4">
+                <h4 className="font-semibold text-gray-900 text-sm">New Performance Period</h4>
+                <DateInput
+                  label='New Start Date'
+                  name='start_date'
+                  required
+                />
+
+                <DateInput
+                  label='New End Date'
+                  name='end_date'
+                  required
+                />
+              </div>
+            </>
+          )}
 
           <FormTextArea
             label='Notes'

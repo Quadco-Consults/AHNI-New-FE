@@ -192,73 +192,12 @@ export const departmentalLinks: SidebarItem[] = [
         ]
       },
       {
-        name: "Adhoc Management",
+        name: "Adhoc Database",
+        path: "/dashboard/programs/adhoc-database",
         permissions: [
           {
             module: "adhoc_requisitions",
-            codenames: ["view_adhocrequisition", "view_adhocadvertisement"]
-          }
-        ],
-        children: [
-          {
-            name: "Adhoc Management",
-            path: "/dashboard/programs/adhoc-management",
-            permissions: [
-              {
-                module: "adhoc_requisitions",
-                codenames: ["view_adhocadvertisement"]
-              }
-            ]
-          },
-          {
-            name: "Adhoc Database",
-            path: "/dashboard/programs/adhoc-database",
-            permissions: [
-              {
-                module: "adhoc_requisitions",
-                codenames: ["view_adhocapplicant"]
-              }
-            ]
-          },
-          {
-            name: "Adhoc Acceptance",
-            path: "/dashboard/programs/adhoc/adhoc-acceptance",
-            permissions: [
-              {
-                module: "adhoc_requisitions",
-                codenames: ["view_adhocapplicant"]
-              }
-            ]
-          },
-          {
-            name: "Contract Recipients",
-            path: "/dashboard/programs/adhoc/contract-recipients",
-            permissions: [
-              {
-                module: "adhoc_requisitions",
-                codenames: ["view_adhocapplicant"]
-              }
-            ]
-          },
-          {
-            name: "Accepted Contracts",
-            path: "/dashboard/programs/adhoc/accepted-contracts",
-            permissions: [
-              {
-                module: "adhoc_requisitions",
-                codenames: ["view_adhocapplicant"]
-              }
-            ]
-          },
-          {
-            name: "Adhoc Staff Requisition",
-            path: "/dashboard/adhoc-requisition",
-            permissions: [
-              {
-                module: "adhoc_requisitions",
-                codenames: ["view_adhocrequisition"]
-              }
-            ]
+            codenames: ["view_adhocapplicant"]
           }
         ]
       },
@@ -729,6 +668,14 @@ export const departmentalLinks: SidebarItem[] = [
           "view_timesheet",
           "view_jobadvertisement"
         ]
+      },
+      {
+        module: "adhoc_requisitions",
+        codenames: [
+          "view_adhocrequisition",
+          "view_adhocadvertisement",
+          "view_adhocapplicant"
+        ]
       }
     ],
     children: [
@@ -1003,6 +950,67 @@ export const departmentalLinks: SidebarItem[] = [
               {
                 module: "hr",
                 codenames: ["view_leaverequest"]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        name: "Adhoc Management",
+        permissions: [
+          {
+            module: "adhoc_requisitions",
+            codenames: ["view_adhocrequisition", "view_adhocadvertisement"]
+          }
+        ],
+        children: [
+          {
+            name: "Adhoc Management",
+            path: "/dashboard/programs/adhoc-management",
+            permissions: [
+              {
+                module: "adhoc_requisitions",
+                codenames: ["view_adhocadvertisement"]
+              }
+            ]
+          },
+          {
+            name: "Adhoc Acceptance",
+            path: "/dashboard/programs/adhoc/adhoc-acceptance",
+            permissions: [
+              {
+                module: "adhoc_requisitions",
+                codenames: ["view_adhocapplicant"]
+              }
+            ]
+          },
+          {
+            name: "Contract Recipients",
+            path: "/dashboard/programs/adhoc/contract-recipients",
+            permissions: [
+              {
+                module: "adhoc_requisitions",
+                codenames: ["view_adhocapplicant"]
+              }
+            ]
+          },
+          {
+            name: "Accepted Contracts",
+            path: "/dashboard/programs/adhoc/accepted-contracts",
+            permissions: [
+              {
+                module: "adhoc_requisitions",
+                codenames: ["view_adhocapplicant"]
+              }
+            ]
+          },
+          {
+            name: "Adhoc Staff Requisition",
+            path: "/dashboard/adhoc-requisition",
+            permissions: [
+              {
+                module: "adhoc_requisitions",
+                codenames: ["view_adhocrequisition"]
               }
             ]
           }

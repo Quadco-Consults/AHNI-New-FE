@@ -351,11 +351,11 @@ export default function PreAwardAssessment() {
                             <p className="text-base font-semibold text-gray-900 mt-1">{submissionData?.data?.organisation_type?.replace(/_/g, ' ') || "N/A"}</p>
                         </div>
                         <div>
-                            <label className="text-sm font-medium text-gray-700">1st Principal's Name & Title</label>
+                            <label className="text-sm font-medium text-gray-700">MD/CEO Name & Title</label>
                             <p className="text-base font-semibold text-gray-900 mt-1">{submissionData?.data?.principal_one_name || "N/A"} - {submissionData?.data?.principal_one_designaation || "N/A"}</p>
                         </div>
                         <div>
-                            <label className="text-sm font-medium text-gray-700">2nd Principal's Name & Title</label>
+                            <label className="text-sm font-medium text-gray-700">Director Name & Title</label>
                             <p className="text-base font-semibold text-gray-900 mt-1">{submissionData?.data?.principal_two_name || "N/A"} - {submissionData?.data?.principal_two_designation || "N/A"}</p>
                         </div>
                         <div>

@@ -18,7 +18,6 @@ import { useCreateSubGrant, useUpdateSubGrant, useGetSingleSubGrant } from "@/fe
 import { usePublishSubGrant } from "@/features/contracts-grants/controllers/subGrantWorkflowController";
 import { useGetAllGrants } from "@/features/contracts-grants/controllers/grantController";
 import { useGetAllUsers } from "@/features/auth/controllers/userController";
-import { useGetAllDepartments } from "@/features/modules/controllers/config/departmentController";
 import { useGetAllLocations } from "@/features/modules/controllers/config/locationController";
 import { CG_ROUTES } from "@/constants/RouterConstants";
 import { Loading } from "@/components/Loading";
@@ -36,13 +35,14 @@ const CreateSubGrant: React.FC = () => {
       award_type: "",
       amount_usd: "",
       amount_ngn: "",
+      duration: "",
       start_date: "",
       end_date: "",
       submission_start_date: "",
       submission_end_date: "",
       sub_grant_administrator: "",
-      technical_staff: "",
-      business_unit: "",
+      technical_staff: "", // Optional - kept for backend compatibility
+      business_unit: "", // Optional - kept for backend compatibility
       locations: [],
     },
   });
@@ -61,7 +61,6 @@ const CreateSubGrant: React.FC = () => {
   // Fetch data for dropdowns
   const { data: grantsData, isLoading: grantsLoading, error: grantsError } = useGetAllGrants({ size: 100, enabled: true });
   const { data: usersData, isLoading: usersLoading, error: usersError } = useGetAllUsers({ size: 100, enabled: true });
-  const { data: departmentsData, isLoading: departmentsLoading, error: departmentsError } = useGetAllDepartments({ size: 100, enabled: true });
   const { data: locationsData, isLoading: locationsLoading, error: locationsError } = useGetAllLocations({ page: 1, size: 2000, enabled: true });
 
 
@@ -78,40 +77,31 @@ const CreateSubGrant: React.FC = () => {
       label: `${user.first_name} ${user.last_name}`
     })) || [];
 
-  const departmentOptions = (departmentsData?.data?.results || departmentsData?.results)?.map((department: any) => ({
-    value: department.id,
-    label: department.name
-  })) || [];
-
   const locationOptions = locationsData?.data?.results || [];
 
   // Temporary debugging to see API responses
   console.log("=== TEMP DEBUG ===");
   console.log("Grants API Response:", grantsData);
   console.log("Users API Response:", usersData);
-  console.log("Departments API Response:", departmentsData);
   console.log("Locations API Response:", locationsData);
-  console.log("API Loading States:", { grantsLoading, usersLoading, departmentsLoading, locationsLoading });
-  console.log("API Errors:", { grantsError, usersError, departmentsError, locationsError });
+  console.log("API Loading States:", { grantsLoading, usersLoading, locationsLoading });
+  console.log("API Errors:", { grantsError, usersError, locationsError });
   console.log("Processed Options:");
   console.log("- Grant Options:", grantOptions, `(${grantOptions.length} items)`);
   console.log("- User Options:", userOptions, `(${userOptions.length} items)`);
-  console.log("- Department Options:", departmentOptions, `(${departmentOptions.length} items)`);
   console.log("- Location Options:", locationOptions, `(${locationOptions?.length || 0} items)`);
   console.log("=== END DEBUG ===");
 
   // Populate form when editing
   useEffect(() => {
-    if (isEditMode && subGrantData?.data && !isLoadingSubGrant && !grantsLoading && !usersLoading && !departmentsLoading && !locationsLoading) {
+    if (isEditMode && subGrantData?.data && !isLoadingSubGrant && !grantsLoading && !usersLoading && !locationsLoading) {
       const data = subGrantData.data;
 
       console.log("=== EDIT MODE DEBUG ===");
       console.log("Edit ID:", editId);
       console.log("SubGrant Data (full):", data);
       console.log("Project:", data.grant);
-      console.log("Sub Grant Admin:", data.sub_grant_administrator);
-      console.log("Technical Staff:", data.technical_staff);
-      console.log("Business Unit:", data.business_unit);
+      console.log("Grant Administrator:", data.sub_grant_administrator);
       console.log("Locations from API:", data.locations);
 
       const projectId = typeof data.grant === 'string' ? data.grant : data.grant?.id || "";
@@ -122,9 +112,7 @@ const CreateSubGrant: React.FC = () => {
 
       console.log("Extracted IDs:");
       console.log("- Project ID:", projectId);
-      console.log("- Admin ID:", adminId);
-      console.log("- Tech Staff ID:", techStaffId);
-      console.log("- Business Unit ID:", businessUnitId);
+      console.log("- Grant Admin ID:", adminId);
       console.log("- Location IDs:", locationIds);
 
       const formData = {
@@ -133,13 +121,14 @@ const CreateSubGrant: React.FC = () => {
         award_type: data.award_type || "",
         amount_usd: data.amount_usd || "",
         amount_ngn: data.amount_ngn || "",
+        duration: data.duration || "",
         start_date: data.start_date || "",
         end_date: data.end_date || "",
         submission_start_date: data.submission_start_date || "",
         submission_end_date: data.submission_end_date || "",
         sub_grant_administrator: adminId,
-        technical_staff: techStaffId,
-        business_unit: businessUnitId,
+        technical_staff: techStaffId || "", // Optional field
+        business_unit: businessUnitId || "", // Optional field
         locations: locationIds,
       };
 
@@ -153,7 +142,7 @@ const CreateSubGrant: React.FC = () => {
 
       console.log("=== END EDIT MODE DEBUG ===");
     }
-  }, [isEditMode, subGrantData, isLoadingSubGrant, grantsLoading, usersLoading, departmentsLoading, locationsLoading, editId]);
+  }, [isEditMode, subGrantData, isLoadingSubGrant, grantsLoading, usersLoading, locationsLoading, editId]);
 
   // Currency conversion rate (USD to NGN) - you might want to fetch this from an API
   const USD_TO_NGN_RATE = 1600; // Example rate
@@ -244,7 +233,7 @@ const CreateSubGrant: React.FC = () => {
           </h2>
 
           {/* Display API errors */}
-          {(grantsError || usersError || departmentsError || locationsError) && (
+          {(grantsError || usersError || locationsError) && (
             <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
               <h3 className="font-medium text-red-800 mb-2">API Connection Issues:</h3>
               {grantsError && (
@@ -252,9 +241,6 @@ const CreateSubGrant: React.FC = () => {
               )}
               {usersError && (
                 <p className="text-red-600 text-sm">• Users: {usersError.message}</p>
-              )}
-              {departmentsError && (
-                <p className="text-red-600 text-sm">• Departments: {departmentsError.message}</p>
               )}
               {locationsError && (
                 <p className="text-red-600 text-sm">• Locations: {locationsError.message}</p>
@@ -264,13 +250,12 @@ const CreateSubGrant: React.FC = () => {
           )}
 
           {/* Display loading status */}
-          {(grantsLoading || usersLoading || departmentsLoading || locationsLoading) && (
+          {(grantsLoading || usersLoading || locationsLoading) && (
             <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
               <p className="text-blue-800">
                 Loading form data...
                 {grantsLoading && " • Grants"}
                 {usersLoading && " • Users"}
-                {departmentsLoading && " • Departments"}
                 {locationsLoading && " • Locations"}
               </p>
             </div>
@@ -296,53 +281,33 @@ const CreateSubGrant: React.FC = () => {
                 placeholder="Enter sub-grant title"
               />
 
-              {/* Staff Selection */}
-              <div className="grid grid-cols-2 gap-4">
-                <FormSelect
-                  label="Sub-Grant Administrator"
-                  name="sub_grant_administrator"
-                  required
-                  placeholder={usersLoading ? "Loading users..." : userOptions.length > 0 ? "Select administrator" : "No users available"}
-                  options={userOptions}
-                  disabled={usersLoading}
-                />
-                <FormSelect
-                  label="Technical Staff"
-                  name="technical_staff"
-                  required
-                  placeholder={usersLoading ? "Loading users..." : userOptions.length > 0 ? "Select technical staff" : "No users available"}
-                  options={userOptions}
-                  disabled={usersLoading}
-                />
-              </div>
+              {/* Grant Administrator */}
+              <FormSelect
+                label="Grant Administrator"
+                name="sub_grant_administrator"
+                required
+                placeholder={usersLoading ? "Loading users..." : userOptions.length > 0 ? "Select administrator" : "No users available"}
+                options={userOptions}
+                disabled={usersLoading}
+              />
 
-              {/* Award Type and Business Unit */}
-              <div className="grid grid-cols-2 gap-4">
-                <FormSelect
-                  label="Award Type"
-                  name="award_type"
-                  required
-                  placeholder="Select award type"
-                  options={[
-                    { value: "COMPETITIVE_GRANT", label: "Competitive Grant" },
-                    { value: "FIXED_AMOUNT", label: "Fixed Amount" },
-                    { value: "COST_REIMBURSEMENT", label: "Cost Reimbursement" },
-                    { value: "COOPERATIVE_AGREEMENT", label: "Cooperative Agreement" },
-                  ]}
-                />
-                <FormSelect
-                  label="Department"
-                  name="business_unit"
-                  required
-                  placeholder={departmentsLoading ? "Loading departments..." : departmentOptions.length > 0 ? "Select department" : "No departments available"}
-                  options={departmentOptions}
-                  disabled={departmentsLoading}
-                />
-              </div>
+              {/* Award Type */}
+              <FormSelect
+                label="Award Type"
+                name="award_type"
+                required
+                placeholder="Select award type"
+                options={[
+                  { value: "COMPETITIVE_GRANT", label: "Competitive Grant" },
+                  { value: "FIXED_AMOUNT", label: "Fixed Amount" },
+                  { value: "COST_REIMBURSEMENT", label: "Cost Reimbursement" },
+                  { value: "COOPERATIVE_AGREEMENT", label: "Cooperative Agreement" },
+                ]}
+              />
 
               {/* Project Locations */}
               <div>
-                <Label className="font-semibold">Project Locations <span className="text-red-500">*</span></Label>
+                <Label className="font-semibold">Project Location <span className="text-red-500">*</span></Label>
                 <FormField
                   control={form.control}
                   name="locations"
@@ -386,39 +351,40 @@ const CreateSubGrant: React.FC = () => {
                 />
               </div>
 
-              {/* Sub-Grant Period */}
-              <div className="grid grid-cols-2 gap-4">
-                <FormInput
-                  label="Sub-Grant Start Date"
-                  name="start_date"
-                  required
-                  type="date"
-                  placeholder="Select sub-grant start date"
-                />
-                <FormInput
-                  label="Sub-Grant End Date"
-                  name="end_date"
-                  required
-                  type="date"
-                  placeholder="Select sub-grant end date"
-                />
-              </div>
+              {/* Grant Duration */}
+              <FormSelect
+                label="Grant Duration"
+                name="duration"
+                required
+                placeholder="Select duration"
+                options={[
+                  { value: "3_MONTHS", label: "3 Months" },
+                  { value: "6_MONTHS", label: "6 Months" },
+                  { value: "9_MONTHS", label: "9 Months" },
+                  { value: "1_YEAR", label: "1 Year" },
+                  { value: "18_MONTHS", label: "18 Months" },
+                  { value: "2_YEARS", label: "2 Years" },
+                  { value: "3_YEARS", label: "3 Years" },
+                  { value: "4_YEARS", label: "4 Years" },
+                  { value: "5_YEARS", label: "5 Years" },
+                ]}
+              />
 
-              {/* Submission Dates */}
+              {/* Advert Dates */}
               <div className="grid grid-cols-2 gap-4">
                 <FormInput
-                  label="Submission Start Date"
+                  label="Advert Start Date"
                   name="submission_start_date"
                   required
                   type="date"
-                  placeholder="Select submission start date"
+                  placeholder="Select advert start date"
                 />
                 <FormInput
-                  label="Submission End Date"
+                  label="Advert End Date"
                   name="submission_end_date"
                   required
                   type="date"
-                  placeholder="Select submission end date"
+                  placeholder="Select advert end date"
                 />
               </div>
 

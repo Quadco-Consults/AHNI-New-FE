@@ -1,12 +1,8 @@
 "use client";
 
 import DataTable from "@/components/Table/DataTable";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { Plus } from "lucide-react";
 import { grantColumns } from "@/features/contracts-grants/components/table-columns/grant/grant";
 import TableFilters from "@/components/Table/TableFilters";
-import { CG_ROUTES } from "@/constants/RouterConstants";
 import { useState } from "react";
 import Card from "@/components/Card";
 import { useDebounce } from "ahooks";
@@ -55,13 +51,6 @@ export default function GrantHomePage() {
 
   return (
     <section className='space-y-5'>
-      <div className='flex justify-end'>
-        <Link href={CG_ROUTES.CREATE_GRANT}>
-          <Button>
-            <Plus size={20} /> New Grant
-          </Button>
-        </Link>
-      </div>
       <Card>
         <TableFilters onSearchChange={(e) => setSearchQuery(e.target.value)}>
           <DataTable

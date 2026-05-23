@@ -17,6 +17,7 @@ export const CloseOutPlanSchema = z.object({
                     start_date: z.string().optional(), // Can be empty for section headers
                     end_date: z.string().optional(), // Can be empty for section headers
                     status: z.string().optional(),
+                    documents: z.array(z.any()).optional(), // Array of document files
                 })
             ).min(1, "At least one activity is required"),
         })

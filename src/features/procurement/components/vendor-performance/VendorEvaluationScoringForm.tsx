@@ -92,10 +92,14 @@ const VendorEvaluationScoringForm = ({
   const percentage = Math.round((totalScore / maxScore) * 100);
 
   // Determine recommendation based on score
+  // 50% (12.5 points) is pass mark
+  // 40-49% (10-12.4 points) is probation
+  // Below 40% (<10 points) is barred
   const getRecommendation = (score: number) => {
-    if (score >= 16) return { label: "RETAIN", color: "bg-green-200 text-green-800" };
-    if (score >= 10) return { label: "ON_PROBATION", color: "bg-yellow-200 text-yellow-800" };
-    return { label: "BARRED", color: "bg-red-200 text-red-800" };
+    const percentage = (score / maxScore) * 100;
+    if (percentage >= 50) return { label: "RETAIN", color: "bg-green-200 text-green-800" }; // 50%+ pass
+    if (percentage >= 40) return { label: "ON_PROBATION", color: "bg-yellow-200 text-yellow-800" }; // 40-49% probation
+    return { label: "BARRED", color: "bg-red-200 text-red-800" }; // <40% barred
   };
 
   const recommendation = getRecommendation(totalScore);

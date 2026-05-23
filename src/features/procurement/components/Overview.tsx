@@ -68,200 +68,397 @@ const Overview = () => {
     po.status?.toLowerCase() === 'active' || po.status?.toLowerCase() === 'approved'
   ).length;
 
-  // Quick stats cards
-  const statsCards = [
-    {
-      title: "Total Purchase Requests",
-      value: totalPurchaseRequests,
-      icon: ShoppingCart,
-      description: "All PRs created",
-      color: "text-blue-600",
-      bgColor: "bg-blue-50",
-      link: "/dashboard/procurement/purchase-request"
-    },
-    {
-      title: "Approved PRs",
-      value: approvedRequests,
-      icon: CheckCircle,
-      description: "Ready for procurement",
-      color: "text-green-600",
-      bgColor: "bg-green-50",
-      link: "/dashboard/procurement/purchase-request"
-    },
-    {
-      title: "Pending Approval",
-      value: pendingRequests,
-      icon: Clock,
-      description: "Awaiting approval workflow",
-      color: "text-amber-600",
-      bgColor: "bg-amber-50",
-      link: "/dashboard/procurement/purchase-request"
-    },
-    {
-      title: "In Procurement",
-      value: inProcurementRequests,
-      icon: TrendingUp,
-      description: "RFQ/PO issued, awaiting completion",
-      color: "text-purple-600",
-      bgColor: "bg-purple-50",
-      link: "/dashboard/procurement/procurement-tracker"
-    },
-    {
-      title: "Closed Out",
-      value: closedOutRequests,
-      icon: FileCheck,
-      description: "Complete procurement cycle",
-      color: "text-emerald-600",
-      bgColor: "bg-emerald-50",
-      link: "/dashboard/procurement/purchase-request"
-    },
-    {
-      title: "Registered Vendors",
-      value: totalVendors,
-      icon: Users,
-      description: "Active supplier database",
-      color: "text-cyan-600",
-      bgColor: "bg-cyan-50",
-      link: "/dashboard/procurement/supplier-database"
-    }
-  ];
-
-  // Quick actions
-  const quickActions = [
-    {
-      title: "Purchase Management",
-      items: [
-        { name: "Create Purchase Request", link: "/dashboard/procurement/purchase-request", icon: ShoppingCart },
-        { name: "Manage Purchase Orders", link: "/dashboard/procurement/purchase-order", icon: FileCheck },
-        { name: "Activity Memo", link: "/dashboard/procurement/activity-memo", icon: FileText },
-        { name: "Procurement Tracker", link: "/dashboard/procurement/procurement-tracker", icon: TrendingUp }
-      ]
-    },
-    {
-      title: "Vendor Management",
-      items: [
-        { name: "Supplier Database", link: "/dashboard/procurement/supplier-database", icon: Users },
-        { name: "Vendor Prequalification", link: "/dashboard/procurement/vendor-management/prequalification", icon: ClipboardList },
-        { name: "EOI Management", link: "/dashboard/procurement/vendor-management/eoi", icon: FileText },
-        { name: "Vendor Performance", link: "/dashboard/procurement/vendor-performance", icon: BarChart }
-      ]
-    },
-    {
-      title: "Planning & Analysis",
-      items: [
-        { name: "Procurement Plan", link: "/dashboard/procurement/procurement-plan", icon: ClipboardList },
-        { name: "Price Intelligence", link: "/dashboard/procurement/price-intelligence", icon: DollarSign },
-        { name: "Competitive Bid Analysis", link: "/dashboard/procurement/competitive-bid-analysis", icon: BarChart },
-        { name: "Procurement Reports", link: "/dashboard/procurement/procurement-report", icon: FileText }
-      ]
-    }
-  ];
-
   return (
-    <div className="w-full space-y-6 p-6">
+    <div className="w-full space-y-8 p-6">
       {/* Header */}
       <div className="space-y-2">
         <h1 className="text-3xl font-bold tracking-tight">Procurement Overview</h1>
         <p className="text-muted-foreground">
-          Monitor and manage purchase requests, vendors, and procurement activities
+          Monitor and manage the complete procurement workflow from requests to orders
         </p>
       </div>
 
-      {/* Key Metrics - PR Status Breakdown */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {statsCards.map((stat, index) => {
-          const Icon = stat.icon;
-          return (
-            <Link href={stat.link} key={index}>
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-                  <div className={`${stat.bgColor} p-2 rounded-lg`}>
-                    <Icon className={`h-4 w-4 ${stat.color}`} />
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{stat.value}</div>
-                  <p className="text-xs text-muted-foreground mt-1">{stat.description}</p>
-                </CardContent>
-              </Card>
-            </Link>
-          );
-        })}
+      {/* ============ STAGE 1: PURCHASE REQUEST (PR) ============ */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-3 border-l-4 border-blue-500 pl-4 py-2 bg-blue-50/50">
+          <ShoppingCart className="h-6 w-6 text-blue-600" />
+          <div>
+            <h2 className="text-xl font-bold text-blue-900">Stage 1: Purchase Request (PR)</h2>
+            <p className="text-sm text-blue-700">Internal requisition and approval process</p>
+          </div>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <Link href="/dashboard/procurement/purchase-request">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-blue-200">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Purchase Requests</CardTitle>
+                <div className="bg-blue-50 p-2 rounded-lg">
+                  <ShoppingCart className="h-4 w-4 text-blue-600" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{totalPurchaseRequests}</div>
+                <p className="text-xs text-muted-foreground mt-1">All PRs created</p>
+              </CardContent>
+            </Card>
+          </Link>
+
+          <Link href="/dashboard/procurement/purchase-request">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-amber-200">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Pending Approval</CardTitle>
+                <div className="bg-amber-50 p-2 rounded-lg">
+                  <Clock className="h-4 w-4 text-amber-600" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{pendingRequests}</div>
+                <p className="text-xs text-muted-foreground mt-1">Awaiting approval workflow</p>
+              </CardContent>
+            </Card>
+          </Link>
+
+          <Link href="/dashboard/procurement/purchase-request">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-green-200">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Approved PRs</CardTitle>
+                <div className="bg-green-50 p-2 rounded-lg">
+                  <CheckCircle className="h-4 w-4 text-green-600" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{approvedRequests}</div>
+                <p className="text-xs text-muted-foreground mt-1">Ready for procurement</p>
+              </CardContent>
+            </Card>
+          </Link>
+
+          <Link href="/dashboard/procurement/activity-memo">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-blue-200">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Activity Memo</CardTitle>
+                <div className="bg-blue-50 p-2 rounded-lg">
+                  <FileText className="h-4 w-4 text-blue-600" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-sm font-medium mt-2">Create PR Memo</div>
+                <p className="text-xs text-muted-foreground mt-1">Authorization documents</p>
+              </CardContent>
+            </Card>
+          </Link>
+        </div>
       </div>
 
-      {/* Status Overview */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card className="border-2 border-green-200 bg-green-50/50">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Approved Requests</CardTitle>
-            <CheckCircle className="h-5 w-5 text-green-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-green-600">{approvedRequests}</div>
-            <p className="text-xs text-muted-foreground mt-1">Ready for processing</p>
-          </CardContent>
-        </Card>
+      {/* ============ STAGE 2: SOLICITATION (RFQ/RFP) ============ */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-3 border-l-4 border-purple-500 pl-4 py-2 bg-purple-50/50">
+          <FileText className="h-6 w-6 text-purple-600" />
+          <div>
+            <h2 className="text-xl font-bold text-purple-900">Stage 2: Solicitation (RFQ/RFP)</h2>
+            <p className="text-sm text-purple-700">Request quotes and proposals from vendors</p>
+          </div>
+        </div>
 
-        <Card className="border-2 border-amber-200 bg-amber-50/50">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending Approval</CardTitle>
-            <Clock className="h-5 w-5 text-amber-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-amber-600">{pendingRequests}</div>
-            <p className="text-xs text-muted-foreground mt-1">Awaiting review</p>
-          </CardContent>
-        </Card>
+        <div className="grid gap-4 md:grid-cols-3">
+          <Link href="/dashboard/procurement/solicitation-management/rfq">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-purple-200">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Request for Quotation</CardTitle>
+                <div className="bg-purple-50 p-2 rounded-lg">
+                  <FileText className="h-4 w-4 text-purple-600" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-sm font-medium mt-2">Manage RFQs</div>
+                <p className="text-xs text-muted-foreground mt-1">Price quotes from vendors</p>
+              </CardContent>
+            </Card>
+          </Link>
 
-        <Card className="border-2 border-blue-200 bg-blue-50/50">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active POs</CardTitle>
-            <Truck className="h-5 w-5 text-blue-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-blue-600">{activePurchaseOrders}</div>
-            <p className="text-xs text-muted-foreground mt-1">Purchase orders in progress</p>
-          </CardContent>
-        </Card>
+          <Link href="/dashboard/procurement/solicitation-management/rfp">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-purple-200">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Request for Proposal</CardTitle>
+                <div className="bg-purple-50 p-2 rounded-lg">
+                  <ClipboardList className="h-4 w-4 text-purple-600" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-sm font-medium mt-2">Manage RFPs</div>
+                <p className="text-xs text-muted-foreground mt-1">Detailed vendor proposals</p>
+              </CardContent>
+            </Card>
+          </Link>
+
+          <Link href="/dashboard/procurement/competitive-bid-analysis">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-purple-200">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Bid Analysis</CardTitle>
+                <div className="bg-purple-50 p-2 rounded-lg">
+                  <BarChart className="h-4 w-4 text-purple-600" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-sm font-medium mt-2">Compare Bids</div>
+                <p className="text-xs text-muted-foreground mt-1">Competitive bid analysis</p>
+              </CardContent>
+            </Card>
+          </Link>
+        </div>
       </div>
 
-      {/* Quick Actions */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {quickActions.map((section, sectionIndex) => (
-          <Card key={sectionIndex}>
-            <CardHeader>
-              <CardTitle className="text-lg">{section.title}</CardTitle>
-              <CardDescription>Quick access to common tasks</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                {section.items.map((item, itemIndex) => {
-                  const Icon = item.icon;
-                  return (
-                    <Link
-                      key={itemIndex}
-                      href={item.link}
-                      className="flex items-center gap-3 p-3 rounded-lg hover:bg-accent transition-colors group"
-                    >
-                      <div className="bg-primary/10 p-2 rounded-md group-hover:bg-primary/20 transition-colors">
-                        <Icon className="h-4 w-4 text-primary" />
-                      </div>
-                      <span className="text-sm font-medium group-hover:text-primary transition-colors">
-                        {item.name}
-                      </span>
-                    </Link>
-                  );
-                })}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+      {/* STAGE 3: PURCHASE ORDER (PO) */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-3 border-l-4 border-emerald-500 pl-4 py-2 bg-emerald-50/50">
+          <FileCheck className="h-6 w-6 text-emerald-600" />
+          <div>
+            <h2 className="text-xl font-bold text-emerald-900">Stage 3: Purchase Order (PO)</h2>
+            <p className="text-sm text-emerald-700">Create and manage purchase orders</p>
+          </div>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-3">
+          <Link href="/dashboard/procurement/purchase-order">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-emerald-200">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Purchase Orders</CardTitle>
+                <div className="bg-emerald-50 p-2 rounded-lg">
+                  <FileCheck className="h-4 w-4 text-emerald-600" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{totalPurchaseOrders}</div>
+                <p className="text-xs text-muted-foreground mt-1">All POs created</p>
+              </CardContent>
+            </Card>
+          </Link>
+
+          <Link href="/dashboard/procurement/purchase-order">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-blue-200">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Active POs</CardTitle>
+                <div className="bg-blue-50 p-2 rounded-lg">
+                  <Truck className="h-4 w-4 text-blue-600" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{activePurchaseOrders}</div>
+                <p className="text-xs text-muted-foreground mt-1">Orders in progress</p>
+              </CardContent>
+            </Card>
+          </Link>
+
+          <Link href="/dashboard/procurement/procurement-tracker">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-purple-200">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">In Procurement</CardTitle>
+                <div className="bg-purple-50 p-2 rounded-lg">
+                  <TrendingUp className="h-4 w-4 text-purple-600" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{inProcurementRequests}</div>
+                <p className="text-xs text-muted-foreground mt-1">Awaiting completion</p>
+              </CardContent>
+            </Card>
+          </Link>
+        </div>
       </div>
 
-      {/* Recent Activity / Alerts */}
+      {/* ============ COMPLETION & TRACKING ============ */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-3 border-l-4 border-teal-500 pl-4 py-2 bg-teal-50/50">
+          <Package className="h-6 w-6 text-teal-600" />
+          <div>
+            <h2 className="text-xl font-bold text-teal-900">Completion & Tracking</h2>
+            <p className="text-sm text-teal-700">Monitor completed procurements and track progress</p>
+          </div>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <Link href="/dashboard/procurement/purchase-request">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-teal-200">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Closed Out</CardTitle>
+                <div className="bg-teal-50 p-2 rounded-lg">
+                  <CheckCircle className="h-4 w-4 text-teal-600" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{closedOutRequests}</div>
+                <p className="text-xs text-muted-foreground mt-1">Complete procurement cycle</p>
+              </CardContent>
+            </Card>
+          </Link>
+
+          <Link href="/dashboard/procurement/procurement-tracker">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-teal-200">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Procurement Tracker</CardTitle>
+                <div className="bg-teal-50 p-2 rounded-lg">
+                  <TrendingUp className="h-4 w-4 text-teal-600" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-sm font-medium mt-2">Track All Items</div>
+                <p className="text-xs text-muted-foreground mt-1">Monitor procurement progress</p>
+              </CardContent>
+            </Card>
+          </Link>
+        </div>
+      </div>
+
+      {/* ============ VENDOR MANAGEMENT ============ */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-3 border-l-4 border-cyan-500 pl-4 py-2 bg-cyan-50/50">
+          <Users className="h-6 w-6 text-cyan-600" />
+          <div>
+            <h2 className="text-xl font-bold text-cyan-900">Vendor Management</h2>
+            <p className="text-sm text-cyan-700">Manage vendor database and performance</p>
+          </div>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <Link href="/dashboard/procurement/supplier-database">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-cyan-200">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Registered Vendors</CardTitle>
+                <div className="bg-cyan-50 p-2 rounded-lg">
+                  <Users className="h-4 w-4 text-cyan-600" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{totalVendors}</div>
+                <p className="text-xs text-muted-foreground mt-1">Active supplier database</p>
+              </CardContent>
+            </Card>
+          </Link>
+
+          <Link href="/dashboard/procurement/vendor-management/prequalification">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-cyan-200">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Prequalification</CardTitle>
+                <div className="bg-cyan-50 p-2 rounded-lg">
+                  <ClipboardList className="h-4 w-4 text-cyan-600" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-sm font-medium mt-2">Vendor Prequalification</div>
+                <p className="text-xs text-muted-foreground mt-1">Assess vendor capabilities</p>
+              </CardContent>
+            </Card>
+          </Link>
+
+          <Link href="/dashboard/procurement/vendor-management/eoi">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-cyan-200">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">EOI Management</CardTitle>
+                <div className="bg-cyan-50 p-2 rounded-lg">
+                  <FileText className="h-4 w-4 text-cyan-600" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-sm font-medium mt-2">Expression of Interest</div>
+                <p className="text-xs text-muted-foreground mt-1">Manage vendor interest</p>
+              </CardContent>
+            </Card>
+          </Link>
+
+          <Link href="/dashboard/procurement/vendor-performance">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-cyan-200">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Vendor Performance</CardTitle>
+                <div className="bg-cyan-50 p-2 rounded-lg">
+                  <BarChart className="h-4 w-4 text-cyan-600" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-sm font-medium mt-2">Performance Tracking</div>
+                <p className="text-xs text-muted-foreground mt-1">Monitor vendor quality</p>
+              </CardContent>
+            </Card>
+          </Link>
+        </div>
+      </div>
+
+      {/* ============ PLANNING & ANALYSIS ============ */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-3 border-l-4 border-orange-500 pl-4 py-2 bg-orange-50/50">
+          <BarChart className="h-6 w-6 text-orange-600" />
+          <div>
+            <h2 className="text-xl font-bold text-orange-900">Planning & Analysis</h2>
+            <p className="text-sm text-orange-700">Strategic planning and procurement intelligence</p>
+          </div>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <Link href="/dashboard/procurement/procurement-plan">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-orange-200">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Procurement Plan</CardTitle>
+                <div className="bg-orange-50 p-2 rounded-lg">
+                  <ClipboardList className="h-4 w-4 text-orange-600" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{totalProcurementPlans}</div>
+                <p className="text-xs text-muted-foreground mt-1">Active procurement plans</p>
+              </CardContent>
+            </Card>
+          </Link>
+
+          <Link href="/dashboard/procurement/price-intelligence">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-orange-200">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Price Intelligence</CardTitle>
+                <div className="bg-orange-50 p-2 rounded-lg">
+                  <DollarSign className="h-4 w-4 text-orange-600" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-sm font-medium mt-2">Market Prices</div>
+                <p className="text-xs text-muted-foreground mt-1">Track price trends</p>
+              </CardContent>
+            </Card>
+          </Link>
+
+          <Link href="/dashboard/procurement/competitive-bid-analysis">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-orange-200">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Bid Analysis</CardTitle>
+                <div className="bg-orange-50 p-2 rounded-lg">
+                  <BarChart className="h-4 w-4 text-orange-600" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-sm font-medium mt-2">Compare Bids</div>
+                <p className="text-xs text-muted-foreground mt-1">Analyze vendor quotes</p>
+              </CardContent>
+            </Card>
+          </Link>
+
+          <Link href="/dashboard/procurement/procurement-report">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer border-orange-200">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Reports</CardTitle>
+                <div className="bg-orange-50 p-2 rounded-lg">
+                  <FileText className="h-4 w-4 text-orange-600" />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="text-sm font-medium mt-2">Procurement Reports</div>
+                <p className="text-xs text-muted-foreground mt-1">Analytics & insights</p>
+              </CardContent>
+            </Card>
+          </Link>
+        </div>
+      </div>
+
+      {/* ============ ALERTS & SUMMARY ============ */}
       <div className="grid gap-6 md:grid-cols-2">
-        <Card>
+        <Card className="border-2 border-amber-200">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <AlertCircle className="h-5 w-5 text-amber-500" />
@@ -277,10 +474,12 @@ const Overview = () => {
                   className="flex items-center justify-between p-3 rounded-lg border hover:bg-accent transition-colors"
                 >
                   <div className="flex items-center gap-3">
-                    <ShoppingCart className="h-4 w-4 text-amber-600" />
+                    <div className="bg-amber-50 p-2 rounded-lg">
+                      <ShoppingCart className="h-4 w-4 text-amber-600" />
+                    </div>
                     <div>
                       <p className="text-sm font-medium">{pendingRequests} Pending Purchase Requests</p>
-                      <p className="text-xs text-muted-foreground">Review and approve</p>
+                      <p className="text-xs text-muted-foreground">Review and approve PRs</p>
                     </div>
                   </div>
                 </Link>
@@ -294,73 +493,36 @@ const Overview = () => {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-2 border-blue-200">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <BarChart className="h-5 w-5 text-blue-500" />
-              Quick Stats
+              Procurement Summary
             </CardTitle>
-            <CardDescription>At a glance overview</CardDescription>
+            <CardDescription>Overall procurement statistics</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Total Purchase Requests</span>
-                <span className="text-sm font-semibold">{totalPurchaseRequests}</span>
+              <div className="flex items-center justify-between p-2 rounded-lg bg-blue-50/50">
+                <span className="text-sm text-gray-700 font-medium">Total Purchase Requests</span>
+                <span className="text-sm font-bold text-blue-700">{totalPurchaseRequests}</span>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Active Purchase Orders</span>
-                <span className="text-sm font-semibold">{activePurchaseOrders}</span>
+              <div className="flex items-center justify-between p-2 rounded-lg bg-emerald-50/50">
+                <span className="text-sm text-gray-700 font-medium">Active Purchase Orders</span>
+                <span className="text-sm font-bold text-emerald-700">{activePurchaseOrders}</span>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Registered Vendors</span>
-                <span className="text-sm font-semibold">{totalVendors}</span>
+              <div className="flex items-center justify-between p-2 rounded-lg bg-cyan-50/50">
+                <span className="text-sm text-gray-700 font-medium">Registered Vendors</span>
+                <span className="text-sm font-bold text-cyan-700">{totalVendors}</span>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Procurement Plans</span>
-                <span className="text-sm font-semibold">{totalProcurementPlans}</span>
+              <div className="flex items-center justify-between p-2 rounded-lg bg-orange-50/50">
+                <span className="text-sm text-gray-700 font-medium">Procurement Plans</span>
+                <span className="text-sm font-bold text-orange-700">{totalProcurementPlans}</span>
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
-
-      {/* Solicitation Management */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Solicitation Management</CardTitle>
-          <CardDescription>Manage RFQs, RFPs, and vendor solicitations</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-2">
-            <Link
-              href="/dashboard/procurement/solicitation-management/rfq"
-              className="flex items-center gap-4 p-4 rounded-lg border hover:bg-accent transition-colors group"
-            >
-              <div className="bg-primary/10 p-3 rounded-lg group-hover:bg-primary/20 transition-colors">
-                <FileText className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <h4 className="font-semibold group-hover:text-primary transition-colors">Request for Quotation (RFQ)</h4>
-                <p className="text-xs text-muted-foreground">Manage price quotes from vendors</p>
-              </div>
-            </Link>
-
-            <Link
-              href="/dashboard/procurement/solicitation-management/rfp"
-              className="flex items-center gap-4 p-4 rounded-lg border hover:bg-accent transition-colors group"
-            >
-              <div className="bg-primary/10 p-3 rounded-lg group-hover:bg-primary/20 transition-colors">
-                <ClipboardList className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <h4 className="font-semibold group-hover:text-primary transition-colors">Request for Proposal (RFP)</h4>
-                <p className="text-xs text-muted-foreground">Manage detailed vendor proposals</p>
-              </div>
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 };

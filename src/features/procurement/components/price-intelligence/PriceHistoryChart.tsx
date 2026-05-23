@@ -93,7 +93,6 @@ export default function PriceHistoryChart({ sourcePrices, minPrice, maxPrice, av
 
   // Source color mapping
   const sourceColors: { [key: string]: string } = {
-    "Purchase Request": "#3b82f6", // Blue
     "Vendor Bid": "#10b981", // Green
     "Purchase Order": "#f59e0b", // Orange
     "Market Survey": "#8b5cf6", // Purple

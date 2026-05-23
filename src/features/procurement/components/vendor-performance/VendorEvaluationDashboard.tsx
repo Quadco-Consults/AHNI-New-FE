@@ -1,22 +1,26 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useGetAllVendorEvaluations } from "@/features/procurement/controllers/vendorPerformanceEvaluationController";
 import { useGetAllProcurementTrackers } from "@/features/procurement/controllers/procurementTrackerController";
 import Card from "@/components/Card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { AlertCircle, CheckCircle2, Clock, TrendingUp, AlertTriangle } from "lucide-react";
+import { AlertCircle, CheckCircle2, Clock, TrendingUp, AlertTriangle, Ban } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "@/components/Table/DataTable";
 import { Loading } from "@/components/Loading";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import BlacklistVendorModal from "@/features/procurement/components/modals/BlacklistVendorModal";
 
 interface VendorEvaluationSummary {
   vendor_id: string;
   vendor_name: string;
   po_count: number;
+  successful_pos: number;
+  unsuccessful_pos: number;
   last_po_date: string;
   days_since_last_po: number;
   evaluation_status: "OVERDUE" | "DUE_SOON" | "EVALUATED" | "PENDING";
@@ -25,6 +29,16 @@ interface VendorEvaluationSummary {
 }
 
 const VendorEvaluationDashboard = () => {
+  const [blacklistModal, setBlacklistModal] = useState<{
+    isOpen: boolean;
+    vendorId: string;
+    vendorName: string;
+  }>({
+    isOpen: false,
+    vendorId: "",
+    vendorName: "",
+  });
+
   const { data: evaluationsData, isLoading: evaluationsLoading } = useGetAllVendorEvaluations({
     page: 1,
     size: 100,
@@ -54,6 +68,8 @@ const VendorEvaluationDashboard = () => {
           vendor_id: item.purchase_order?.vendor_id || vendorName,
           vendor_name: vendorName,
           po_count: 0,
+          successful_pos: 0,
+          unsuccessful_pos: 0,
           last_po_date: poDate,
           days_since_last_po: 0,
           evaluation_status: "PENDING",
@@ -63,6 +79,17 @@ const VendorEvaluationDashboard = () => {
 
       const vendor = vendorMap.get(vendorName)!;
       vendor.po_count += 1;
+
+      // Track successful vs unsuccessful POs based on GRN status
+      const hasGrn = item.has_grn;
+      const grnStatus = item.grn_status?.toLowerCase();
+      const poStatus = item.purchase_order?.status?.toLowerCase();
+
+      if (hasGrn && (grnStatus === 'completed' || grnStatus === 'received')) {
+        vendor.successful_pos += 1;
+      } else if (poStatus === 'cancelled' || poStatus === 'rejected' || grnStatus === 'rejected') {
+        vendor.unsuccessful_pos += 1;
+      }
 
       // Update last PO date if this one is more recent
       if (poDate && new Date(poDate) > new Date(vendor.last_po_date)) {
@@ -159,7 +186,7 @@ const VendorEvaluationDashboard = () => {
       },
     },
     {
-      header: "POs",
+      header: "Awards",
       accessorKey: "po_count",
       size: 80,
       cell: ({ row }) => {
@@ -167,30 +194,36 @@ const VendorEvaluationDashboard = () => {
       },
     },
     {
-      header: "Last PO Date",
+      header: "Successful POs Delivered",
+      accessorKey: "successful_pos",
+      size: 100,
+      cell: ({ row }) => {
+        return (
+          <div className="text-center font-semibold text-green-700">
+            {row.original.successful_pos}
+          </div>
+        );
+      },
+    },
+    {
+      header: "Unsuccessful POs",
+      accessorKey: "unsuccessful_pos",
+      size: 100,
+      cell: ({ row }) => {
+        return (
+          <div className="text-center font-semibold text-red-700">
+            {row.original.unsuccessful_pos}
+          </div>
+        );
+      },
+    },
+    {
+      header: "Last Award Date",
       accessorKey: "last_po_date",
       size: 120,
       cell: ({ row }) => {
         const date = row.original.last_po_date;
         return <div className="text-sm">{date ? new Date(date).toLocaleDateString("en-US") : "N/A"}</div>;
-      },
-    },
-    {
-      header: "Days Since",
-      accessorKey: "days_since_last_po",
-      size: 100,
-      cell: ({ row }) => {
-        const days = row.original.days_since_last_po;
-        return (
-          <div className={cn(
-            "text-sm font-medium",
-            days > 30 && "text-red-600",
-            days > 15 && days <= 30 && "text-orange-600",
-            days > 7 && days <= 15 && "text-yellow-600"
-          )}>
-            {days} days
-          </div>
-        );
       },
     },
     {
@@ -243,13 +276,14 @@ const VendorEvaluationDashboard = () => {
     {
       header: "Actions",
       id: "actions",
-      size: 180,
+      size: 280,
       cell: ({ row }) => {
         const vendor = row.original;
         const hasEvaluation = !!vendor.latest_evaluation;
+        const isBarred = vendor.latest_evaluation?.evaluator_recommendation === "BARRED";
 
         return (
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             {hasEvaluation ? (
               <>
                 <Link href={`/dashboard/procurement/vendor-performance/${vendor.latest_evaluation.id}`}>
@@ -269,6 +303,23 @@ const VendorEvaluationDashboard = () => {
                   Create Evaluation
                 </Button>
               </Link>
+            )}
+            {!isBarred && (
+              <Button
+                size="sm"
+                variant="destructive"
+                className="text-xs flex items-center gap-1"
+                onClick={() =>
+                  setBlacklistModal({
+                    isOpen: true,
+                    vendorId: vendor.vendor_id,
+                    vendorName: vendor.vendor_name,
+                  })
+                }
+              >
+                <Ban size={14} />
+                Blacklist
+              </Button>
             )}
           </div>
         );
@@ -384,6 +435,24 @@ const VendorEvaluationDashboard = () => {
           isLoading={evaluationsLoading || trackerLoading}
         />
       </Card>
+
+      {/* Blacklist Vendor Modal */}
+      <Dialog
+        open={blacklistModal.isOpen}
+        onOpenChange={(isOpen) =>
+          setBlacklistModal({ ...blacklistModal, isOpen })
+        }
+      >
+        <DialogContent>
+          <BlacklistVendorModal
+            vendorId={blacklistModal.vendorId}
+            vendorName={blacklistModal.vendorName}
+            onClose={() =>
+              setBlacklistModal({ isOpen: false, vendorId: "", vendorName: "" })
+            }
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

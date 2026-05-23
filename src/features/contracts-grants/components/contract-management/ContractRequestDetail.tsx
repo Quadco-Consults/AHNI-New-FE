@@ -267,51 +267,6 @@ export default function ContractRequestDetail() {
               </CardContent>
             </Card>
 
-            {/* Financial Information */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Financial Information</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <strong>Total Obligation Amount:</strong>
-                    <p>${contractRequest.total_obligation_amount ? parseFloat(contractRequest.total_obligation_amount).toLocaleString() : '0'}</p>
-                  </div>
-                  <div>
-                    <strong>Total Expenditure Amount:</strong>
-                    <p>${contractRequest.total_expenditure_amount ? parseFloat(contractRequest.total_expenditure_amount).toLocaleString() : '0'}</p>
-                  </div>
-                  <div>
-                    <strong>Current Month Obligation:</strong>
-                    <p>${contractRequest.current_month_obligation_amount ? parseFloat(contractRequest.current_month_obligation_amount).toLocaleString() : '0'}</p>
-                  </div>
-                  <div>
-                    <strong>Current Month Expenditure:</strong>
-                    <p>${contractRequest.current_month_expenditure_amount ? parseFloat(contractRequest.current_month_expenditure_amount).toLocaleString() : '0'}</p>
-                  </div>
-                  {contractRequest.funding_sources && contractRequest.funding_sources.length > 0 && (
-                    <div className="col-span-2">
-                      <strong>Funding Sources:</strong>
-                      <p className="mt-2 text-gray-700">{contractRequest.funding_sources.map(source => source.name).join(', ')}</p>
-                    </div>
-                  )}
-                  {contractRequest.burn_rate && (
-                    <div>
-                      <strong>Burn Rate:</strong>
-                      <p>${parseFloat(contractRequest.burn_rate).toLocaleString()}</p>
-                    </div>
-                  )}
-                  {contractRequest.money_months_remaining && (
-                    <div>
-                      <strong>Months Remaining:</strong>
-                      <p>{contractRequest.money_months_remaining} months</p>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
             {/* Contact Information */}
             <Card>
               <CardHeader>
@@ -461,10 +416,7 @@ export default function ContractRequestDetail() {
               <CardTitle>Supporting Documents</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-center py-12">
-                <p className="text-gray-500 mb-4">No documents uploaded yet.</p>
-                <Button variant="outline">Upload Documents</Button>
-              </div>
+              {/* Documents will be displayed here when implemented */}
             </CardContent>
           </Card>
         </TabsContent>

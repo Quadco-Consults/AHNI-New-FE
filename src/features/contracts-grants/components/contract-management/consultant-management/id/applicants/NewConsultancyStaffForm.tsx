@@ -53,13 +53,31 @@ export default function NewConsultancyStaffForm({
     resolver: zodResolver(ConsultancyStaffSchema),
     defaultValues: {
       consultancy: id ?? "",
-      referees: [{ name: "", email: "", phone_number: "" }],
+      referee_one: {
+        name: "",
+        email: "",
+        phone_number: "",
+        designation: "",
+        address: "",
+      },
+      referee_two: {
+        name: "",
+        email: "",
+        phone_number: "",
+        designation: "",
+        address: "",
+      },
+      next_of_kin: {
+        name: "",
+        address: "",
+        phone_number: "",
+        relationship: "",
+      },
       name: "",
       contractor_name: "",
       email: "",
       phone_number: "",
       position_under_contract: "",
-      place_of_birth: "",
       citizenship: "",
       start_duration_date: "",
       end_duration_date: "",
@@ -69,6 +87,7 @@ export default function NewConsultancyStaffForm({
           language: "",
           proficiency_speaking: "",
           proficiency_reading: "",
+          proficiency_writing: "",
         },
       ],
       employment_history: [
@@ -173,15 +192,6 @@ export default function NewConsultancyStaffForm({
     remove: removeConsultantService,
   } = useFieldArray({
     name: "special_consultant_services",
-    control: form.control,
-  });
-
-  const {
-    fields: referees,
-    append: addReferee,
-    remove: removeReferee,
-  } = useFieldArray({
-    name: "referees",
     control: form.control,
   });
 
@@ -300,15 +310,6 @@ export default function NewConsultancyStaffForm({
             required
           />
 
-          <FormInput
-            type='date'
-            label='Date of Birth'
-            name='date_of_birth'
-            required
-          />
-
-          <FormInput label='Place of Birth' name='place_of_birth' required />
-
           <FormSelect
             label='Citizenship'
             name='citizenship'
@@ -367,7 +368,7 @@ export default function NewConsultancyStaffForm({
                 />
                 <FormInput
                   type='date'
-                  label='Date'
+                  label='Date of Graduation'
                   name={`education.${index}.date`}
                   required
                 />
@@ -411,7 +412,7 @@ export default function NewConsultancyStaffForm({
             {languageFields?.map((field, index) => (
               <div
                 key={field.id}
-                className='grid grid-cols-4 items-center gap-10'
+                className='grid grid-cols-5 items-center gap-10'
               >
                 <FormInput
                   label='Language'
@@ -426,6 +427,11 @@ export default function NewConsultancyStaffForm({
                 <FormInput
                   label='Proficency Reading'
                   name={`language_proficiency.${index}.proficiency_reading`}
+                  required
+                />
+                <FormInput
+                  label='Proficiency Writing'
+                  name={`language_proficiency.${index}.proficiency_writing`}
                   required
                 />
 
@@ -451,6 +457,7 @@ export default function NewConsultancyStaffForm({
                 language: "",
                 proficiency_speaking: "",
                 proficiency_reading: "",
+                proficiency_writing: "",
               });
             }}
           >
@@ -597,60 +604,104 @@ export default function NewConsultancyStaffForm({
           </FadedButton>
         </section>
 
-        <section className='space-y-3'>
-          <h3 className='font-bold font-lg'>Referees</h3>
+        <section className='space-y-6'>
+          <h3 className='font-bold text-lg'>Referee from previous work</h3>
 
-          <div className='space-y-5'>
-            {referees?.map((field, index) => (
-              <div
-                key={field.id}
-                className='grid grid-cols-2 items-center gap-10'
-              >
-                <FormInput
-                  label='Name'
-                  name={`referees.${index}.name`}
-                  required
-                />
-                <FormInput
-                  label='Email'
-                  name={`referees.${index}.email`}
-                  required
-                />
-                <FormInput
-                  type='tel'
-                  label='Phone Number'
-                  name={`referees.${index}.phone_number`}
-                  required
-                />
-                <Button
-                  type='button'
-                  variant='ghost'
-                  className='mt-3.5'
-                  onClick={() => {
-                    removeReferee(index);
-                  }}
-                >
-                  <DeleteIcon />
-                </Button>
-              </div>
-            ))}
+          {/* First Referee */}
+          <div className='p-6 border border-gray-200 rounded-lg bg-gray-50 space-y-4'>
+            <h4 className='font-semibold text-md text-gray-700'>Referee 1</h4>
+            <div className='grid grid-cols-2 gap-6'>
+              <FormInput
+                label='Name'
+                name='referee_one.name'
+                required
+              />
+              <FormInput
+                label='Email'
+                name='referee_one.email'
+                required
+              />
+              <FormInput
+                type='tel'
+                label='Phone Number'
+                name='referee_one.phone_number'
+                required
+              />
+              <FormInput
+                label='Designation'
+                name='referee_one.designation'
+                required
+              />
+              <FormTextArea
+                label='Address'
+                name='referee_one.address'
+                required
+              />
+            </div>
           </div>
 
-          <Button
-            type='button'
-            variant='ghost'
-            className='p-0 hover:bg-transparent'
-            onClick={() => {
-              addReferee({
-                name: "",
-                email: "",
-                phone_number: "",
-              });
-            }}
-          >
-            <PlusCircle size={24} className='text-green-500' />
-            Add Referee
-          </Button>
+          {/* Second Referee */}
+          <div className='p-6 border border-gray-200 rounded-lg bg-gray-50 space-y-4'>
+            <h4 className='font-semibold text-md text-gray-700'>Referee 2</h4>
+            <div className='grid grid-cols-2 gap-6'>
+              <FormInput
+                label='Name'
+                name='referee_two.name'
+                required
+              />
+              <FormInput
+                label='Email'
+                name='referee_two.email'
+                required
+              />
+              <FormInput
+                type='tel'
+                label='Phone Number'
+                name='referee_two.phone_number'
+                required
+              />
+              <FormInput
+                label='Designation'
+                name='referee_two.designation'
+                required
+              />
+              <FormTextArea
+                label='Address'
+                name='referee_two.address'
+                required
+              />
+            </div>
+          </div>
+        </section>
+
+        <section className='space-y-4'>
+          <h3 className='font-bold text-lg'>Next of Kin</h3>
+
+          <div className='p-6 border border-gray-200 rounded-lg bg-blue-50 space-y-4'>
+            <div className='grid grid-cols-2 gap-6'>
+              <FormInput
+                label='Name'
+                name='next_of_kin.name'
+                required
+              />
+              <FormInput
+                type='tel'
+                label='Phone Number'
+                name='next_of_kin.phone_number'
+                required
+              />
+              <FormInput
+                label='Relationship'
+                name='next_of_kin.relationship'
+                required
+              />
+              <FormTextArea
+                label='Address'
+                name='next_of_kin.address'
+                required
+              />
+            </div>
+          </div>
         </section>
 
         <div className='grid grid-cols-2 gap-10'>

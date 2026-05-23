@@ -334,6 +334,32 @@ export const useUnassignVendor = (id: string) => {
   return { unassignVendor, data, isLoading, isSuccess, error };
 };
 
+// Blacklist Vendor
+export const useBlacklistVendor = (id: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    ApiResponse<VendorsResultsData>,
+    Error,
+    any
+  >({
+    endpoint: `${BASE_URL}${id}/blacklist/`,
+    queryKey: ["vendors", "vendor-list", "vendor"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const blacklistVendor = async (details: { reason: string; comments?: string }) => {
+    try {
+      const result = await callApi(details);
+      return result;
+    } catch (error) {
+      console.error("Vendor blacklist error:", error);
+      throw error;
+    }
+  };
+
+  return { blacklistVendor, data, isLoading, isSuccess, error };
+};
+
 // Legacy exports for backward compatibility
 export const useGetVendorsQuery = useGetVendors;
 export const useGetVendorListQuery = useGetVendorList;
@@ -356,6 +382,7 @@ const VendorsAPI = {
   useBulkUploadVendors,
   useAssignVendor,
   useUnassignVendor,
+  useBlacklistVendor,
   // Legacy naming for component compatibility
   useGetVendorsQuery: useGetVendors,
   useGetVendorListQuery: useGetVendorList,
