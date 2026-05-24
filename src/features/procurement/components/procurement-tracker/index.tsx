@@ -480,11 +480,29 @@ const columns: ColumnDef<any>[] = [
       },
       {
         header: "Unit",
-        accessorKey: "purchase_order.uom",
-        size: 80,
+        accessorKey: "uom",
+        size: 120,
         cell: ({ row }) => {
-          const uom = row.original?.purchase_order?.uom;
-          return uom || "N/A";
+          const uom = row.original?.uom;
+          if (!uom) return <span className="text-gray-400 text-xs">N/A</span>;
+
+          // If it contains commas, it's multiple UOMs - display as a list
+          if (uom.includes(',')) {
+            const uoms = uom.split(',').map(u => u.trim());
+            return (
+              <div className="space-y-1">
+                {uoms.map((unit, idx) => (
+                  <div key={idx} className="text-xs flex items-start gap-1">
+                    <span className="text-blue-600 font-bold">•</span>
+                    <span className="flex-1">{unit}</span>
+                  </div>
+                ))}
+              </div>
+            );
+          }
+
+          // Single UOM - display normally
+          return <span className="text-sm" title={uom}>{uom}</span>;
         },
       },
       {
