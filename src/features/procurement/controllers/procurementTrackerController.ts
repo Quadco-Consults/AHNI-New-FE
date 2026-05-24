@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { AxiosError } from "axios";
 import { ProcurementTrackerResults } from "../types/procurementPlan";
@@ -6,6 +6,7 @@ import { TPaginatedResponse } from "definations/index";
 import { TRequest } from "definations/index";
 import { handleApiError, createErrorContext } from "@/utils/errorHandlers";
 import { useDepartmentFeatures } from "@/hooks/useDepartmentFeatures";
+import { toast } from "sonner";
 
 const BASE_URL = "procurements/procurement-tracker/";
 
@@ -93,3 +94,39 @@ export const useGetAllProcurementTrackers = ({
 
 // Legacy export for backward compatibility
 export const useGetProcurementTrackersQuery = useGetAllProcurementTrackers;
+
+// Update Procurement Tracker Remarks (works for both PR items and PO items)
+export const useUpdateProcurementTrackerRemarks = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      itemId,
+      sourceType,
+      remarks
+    }: {
+      itemId: string;
+      sourceType: "pr_item" | "po_item";
+      remarks: string
+    }) => {
+      const response = await AxiosWithToken.patch(
+        `procurements/procurement-tracker/update-remarks/`,
+        {
+          item_id: itemId,
+          source_type: sourceType,
+          remarks: remarks
+        }
+      );
+      return response.data;
+    },
+    onSuccess: () => {
+      // Invalidate and refetch procurement tracker data
+      queryClient.invalidateQueries({ queryKey: ["procurement-trackers"] });
+      toast.success("Remarks updated successfully");
+    },
+    onError: (error: AxiosError) => {
+      console.error("Failed to update remarks:", error);
+      toast.error("Failed to update remarks. Please try again.");
+    },
+  });
+};
