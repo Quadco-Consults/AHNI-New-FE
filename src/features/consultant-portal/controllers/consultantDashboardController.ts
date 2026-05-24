@@ -4,8 +4,8 @@ import { ConsultantAuthUtils } from "./consultantAuthController";
 
 // Consultant dashboard endpoints
 const CONSULTANT_DASHBOARD_ENDPOINTS = {
-  DASHBOARD: "/contract-grants/consultant-portal/dashboard/",
-  QUICK_STATS: "/contract-grants/consultant-portal/dashboard/quick-stats/",
+  DASHBOARD: "/consultant-portal/dashboard/",
+  QUICK_STATS: "/consultant-portal/dashboard/quick-stats/",
 };
 
 export interface ConsultantDashboardData {

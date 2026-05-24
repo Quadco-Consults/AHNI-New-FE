@@ -19,7 +19,7 @@ const TIMESHEET_ENDPOINTS = {
   STATISTICS: "/contract-grants/consultant-portal/timesheets/statistics/",
   ENTRIES: "/contract-grants/consultant-portal/timesheet-entries/",
   ENTRY_DETAIL: (id: string) => `/contract-grants/consultant-portal/timesheet-entries/${id}/`,
-  PROJECTS: "/contract-grants/consultant-portal/projects/",
+  PROJECTS: "/consultant-portal/projects/",
 };
 
 // List Timesheets Hook

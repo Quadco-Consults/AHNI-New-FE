@@ -13,7 +13,7 @@ const PAYMENT_REQUEST_ENDPOINTS = {
   LIST: "/contract-grants/consultant-portal/payment-requests/",
   DETAIL: (id: string) => `/contract-grants/consultant-portal/payment-requests/${id}/`,
   STATISTICS: "/contract-grants/consultant-portal/payment-requests/statistics/",
-  UPLOAD_DOCUMENT: (id: string) => `/contract-grants/consultant-portal/payment-requests/${id}/upload-document/`,
+  UPLOAD_DOCUMENT: (id: string) => `/consultant-portal/payment-requests/${id}/upload-document/`,
 };
 
 // List Payment Requests Hook

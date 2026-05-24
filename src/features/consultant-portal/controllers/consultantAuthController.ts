@@ -5,11 +5,11 @@ import { ConsultantLoginCredentials, ConsultantAuthResponse, ConsultantPortalUse
 
 // Consultant authentication endpoints
 const CONSULTANT_AUTH_ENDPOINTS = {
-  LOGIN: "/contract-grants/consultant-portal/auth/login/",
-  PROFILE: "/contract-grants/consultant-portal/auth/profile/",
-  REFRESH: "/contract-grants/consultant-portal/auth/token/refresh/",
-  LOGOUT: "/contract-grants/consultant-portal/auth/logout/",
-  PASSWORD_CHANGE: "/contract-grants/consultant-portal/auth/password/change/",
+  LOGIN: "/consultant-portal/auth/login/",
+  PROFILE: "/consultant-portal/auth/profile/",
+  REFRESH: "/consultant-portal/auth/token/refresh/",
+  LOGOUT: "/consultant-portal/auth/logout/",
+  PASSWORD_CHANGE: "/consultant-portal/auth/password/change/",
 };
 
 // Consultant Portal Authentication Utilities
