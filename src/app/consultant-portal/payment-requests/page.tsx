@@ -28,10 +28,12 @@ import { LoadingSpinner } from "@/components/Loading";
 export default function PaymentRequestsPage() {
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
-  const [statusFilter, setStatusFilter] = useState<string>("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
   const pageSize = 20;
 
-  const { data: paymentRequestsData, isLoading, error } = usePaymentRequests(currentPage, pageSize, statusFilter);
+  // Convert "all" to empty string for API call
+  const apiStatusFilter = statusFilter === "all" ? "" : statusFilter;
+  const { data: paymentRequestsData, isLoading, error } = usePaymentRequests(currentPage, pageSize, apiStatusFilter);
   const { data: statisticsData, isLoading: statsLoading } = usePaymentRequestStatistics();
 
   const paymentRequests = paymentRequestsData?.data?.results || [];
@@ -173,7 +175,7 @@ export default function PaymentRequestsPage() {
                   <SelectValue placeholder="All Statuses" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Statuses</SelectItem>
+                  <SelectItem value="all">All Statuses</SelectItem>
                   <SelectItem value="PENDING">Pending</SelectItem>
                   <SelectItem value="REVIEWED">Reviewed</SelectItem>
                   <SelectItem value="AUTHORIZED">Authorized</SelectItem>
@@ -182,8 +184,8 @@ export default function PaymentRequestsPage() {
                 </SelectContent>
               </Select>
             </div>
-            {statusFilter && (
-              <Button variant="outline" onClick={() => setStatusFilter("")}>
+            {statusFilter && statusFilter !== "all" && (
+              <Button variant="outline" onClick={() => setStatusFilter("all")}>
                 Clear Filters
               </Button>
             )}
@@ -205,7 +207,7 @@ export default function PaymentRequestsPage() {
               <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-semibold mb-2">No Payment Requests</h3>
               <p className="text-gray-600 mb-4">
-                {statusFilter
+                {statusFilter && statusFilter !== "all"
                   ? `No payment requests found with status "${statusFilter}"`
                   : "You haven't submitted any payment requests yet."}
               </p>
