@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Checkbox } from "@/components/ui/checkbox";
 import FormButton from "@/components/FormButton";
-import FormInput from "@/components/FormInput";
+import Card from "@/components/Card";
 import { Home, AlertCircle } from "lucide-react";
 import { useConsultantLogin, ConsultantAuthUtils } from "@/features/consultant-portal/controllers/consultantAuthController";
 
@@ -67,28 +67,28 @@ export default function ConsultantLoginPage() {
   };
 
   return (
-    <div className="flex flex-1 h-screen">
+    <div className="flex flex-1 h-screen relative">
+      {/* Home Button - Top Left Corner */}
+      <div className="absolute top-6 left-6 z-50">
+        <Button
+          type="button"
+          variant="outline"
+          size="default"
+          onClick={() => router.push('/')}
+          className="flex items-center gap-2 text-gray-600 hover:text-primary border-gray-300 hover:border-primary px-6 py-2"
+        >
+          <Home className="h-5 w-5" />
+          Home
+        </Button>
+      </div>
+
       <div className="flex bg-[#FEF2F2] w-full">
         {/* Left Panel - Login Form */}
-        <div className="w-full flex flex-1 items-center justify-center px-8">
-          <div className="w-full max-w-md">
-            {/* Home Button */}
-            <div className="mb-6">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => router.push('/')}
-                className="flex items-center gap-2 text-gray-600 hover:text-primary border-gray-300 hover:border-primary"
-              >
-                <Home className="h-4 w-4" />
-                Home
-              </Button>
-            </div>
-
+        <div className="w-full flex flex-1 items-center justify-center">
+          <div>
             <form onSubmit={handleSubmit}>
               <img src="/imgs/logo.png" className="w-[130px] mx-auto" />
-              <div className="flex flex-col items-center gap-y-14 mt-10 py-10">
+              <Card className="max-w-[500px] flex flex-col items-center gap-y-14 mt-10 py-10">
                 {/* Header */}
                 <div>
                   <h1 className="text-2xl font-bold text-center">Consultant Portal Login</h1>
@@ -186,7 +186,7 @@ export default function ConsultantLoginPage() {
                 </div>
 
                 {/* Help Links */}
-                <div className="text-center text-xs text-gray-400 mt-4">
+                <div className="text-center text-xs text-gray-400">
                   Need help accessing your account?{" "}
                   <a
                     href="mailto:hr@ahni.org"
@@ -195,7 +195,7 @@ export default function ConsultantLoginPage() {
                     Contact HR
                   </a>
                 </div>
-              </div>
+              </Card>
             </form>
           </div>
         </div>
