@@ -7,13 +7,30 @@ import {
   useUpdateProcurementTrackerRemarks
 } from "@/features/procurement/controllers/procurementTrackerController";
 import { useMemo, useState, useCallback } from "react";
-import { FileDown, X, Pencil, Check, XCircle } from "lucide-react";
+import {
+  FileDown,
+  X,
+  Pencil,
+  Check,
+  XCircle,
+  Settings2,
+  ChevronDown,
+  ChevronUp,
+  Filter,
+  TrendingUp,
+  TrendingDown,
+  AlertTriangle,
+  Package,
+  Star,
+  Loader2
+} from "lucide-react";
 import Card from "@/components/Card";
 import DataTable from "@/components/Table/DataTable";
 import { ColumnDef } from "@tanstack/react-table";
 import { usePathname } from "next/navigation";
 import SearchIcon from "@/components/icons/SearchIcon";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import StatusBadge from "./StatusBadge";
 
 function ProcurementTracker() {
@@ -25,6 +42,40 @@ function ProcurementTracker() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [itemTypeFilter, setItemTypeFilter] = useState("");
+
+  // UI State
+  const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(true);
+  const [isColumnSettingsOpen, setIsColumnSettingsOpen] = useState(false);
+  const [visibleColumns, setVisibleColumns] = useState<Record<string, boolean>>({
+    sn: true,
+    donor: true,
+    activity: true,
+    location: true,
+    procurement_officer: true,
+    pr_reference: true,
+    request_date: true,
+    item_category: true,
+    date_goods_required: true,
+    date_procurement_initiated: true,
+    fco: true,
+    item_name: true,
+    uom: true,
+    quantity: true,
+    procurement_process: true,
+    pr_value: true,
+    po_reference: true,
+    po_value: true,
+    actual_payment: true,
+    savings: true,
+    currency: true,
+    supplier: true,
+    delivery_due: true,
+    delivery_received: true,
+    grn_no: true,
+    vendor_rating: true,
+    status: true,
+    remarks: true,
+  });
 
   const breadcrumbs = useMemo(
     () =>
@@ -80,47 +131,136 @@ function ProcurementTracker() {
     setPage(1);
   };
 
+  const toggleColumn = (columnKey: string) => {
+    setVisibleColumns(prev => ({
+      ...prev,
+      [columnKey]: !prev[columnKey]
+    }));
+  };
+
+  const activeFilterCount = [searchQuery, statusFilter, itemTypeFilter].filter(Boolean).length;
+
   return (
     <section className='min-h-screen space-y-6'>
       <BreadcrumbCard list={breadcrumbs} />
 
-      {/* Main Title - Matching Excel Template */}
-      <div className='bg-gradient-to-r from-indigo-700 via-blue-600 to-indigo-700 rounded-lg shadow-xl border-2 border-indigo-800'>
-        <div className='px-8 py-5'>
-          <h1 className='text-3xl font-black text-white text-center tracking-wider uppercase'>
-            AHNi CONSOLIDATED PROCUREMENT TRACKER TEMPLATE
-          </h1>
+      {/* Enhanced Header with Stats */}
+      <div className='bg-gradient-to-r from-indigo-700 via-blue-600 to-indigo-700 rounded-xl shadow-2xl border border-indigo-800/50'>
+        <div className='px-6 py-6'>
+          <div className='flex items-center justify-between'>
+            <div className='flex-1'>
+              <h1 className='text-2xl font-black text-white tracking-wide uppercase mb-2'>
+                AHNi CONSOLIDATED PROCUREMENT TRACKER
+              </h1>
+              <p className='text-blue-100 text-sm'>
+                Real-time procurement monitoring and performance analytics
+              </p>
+            </div>
+
+            {/* Quick Stats */}
+            {!isLoading && data?.pagination && (
+              <div className='flex items-center gap-4'>
+                <div className='bg-white/10 backdrop-blur-sm rounded-lg px-4 py-3 border border-white/20'>
+                  <div className='text-white/80 text-xs uppercase tracking-wide mb-1'>Total Items</div>
+                  <div className='text-white text-2xl font-bold'>{data.pagination.count}</div>
+                </div>
+                <div className='bg-white/10 backdrop-blur-sm rounded-lg px-4 py-3 border border-white/20'>
+                  <div className='text-white/80 text-xs uppercase tracking-wide mb-1'>Current Page</div>
+                  <div className='text-white text-2xl font-bold'>{page}/{data.pagination.total_pages}</div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      <div className='flex items-center justify-end gap-4'>
+      {/* Action Bar */}
+      <div className='flex items-center justify-between gap-4'>
+        <div className='flex items-center gap-2'>
+          <Button
+            variant='outline'
+            size='sm'
+            onClick={() => setIsFilterPanelOpen(!isFilterPanelOpen)}
+            className='flex items-center gap-2'
+          >
+            <Filter size={16} />
+            Filters
+            {activeFilterCount > 0 && (
+              <span className='ml-1 bg-blue-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center'>
+                {activeFilterCount}
+              </span>
+            )}
+            {isFilterPanelOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+          </Button>
+
+          <Button
+            variant='outline'
+            size='sm'
+            onClick={() => setIsColumnSettingsOpen(!isColumnSettingsOpen)}
+            className='flex items-center gap-2'
+          >
+            <Settings2 size={16} />
+            Columns
+          </Button>
+        </div>
+
         <Button variant='default' className='flex gap-2'>
           <FileDown size={18} />
-          Download Excel
+          Export to Excel
         </Button>
       </div>
 
-      <Card className='space-y-5'>
-        {/* Search and Filter Controls */}
-        <div className='flex items-center justify-between gap-4'>
-          <div className='flex items-center gap-4'>
+      {/* Collapsible Filter Panel */}
+      {isFilterPanelOpen && (
+        <Card className='space-y-4 bg-gray-50/50 border-2 border-dashed'>
+          <div className='flex items-center justify-between'>
+            <h3 className='font-semibold text-gray-700 flex items-center gap-2'>
+              <Filter size={18} className='text-blue-600' />
+              Filter & Search Options
+            </h3>
+            {activeFilterCount > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={clearFilters}
+                className="flex items-center gap-2 text-red-600 hover:text-red-700"
+              >
+                <X size={16} />
+                Clear All ({activeFilterCount})
+              </Button>
+            )}
+          </div>
+
+          <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
             {/* Search Input */}
-            <div className='flex items-center w-80 px-2 py-2 border rounded-lg'>
-              <SearchIcon />
-              <input
-                placeholder='Search by item, PR number...'
-                type='text'
-                value={searchQuery}
-                onChange={handleSearchChange}
-                className='ml-2 h-full w-full border-none bg-none focus:outline-none outline-none'
-              />
+            <div className='flex flex-col gap-2'>
+              <label className='text-xs font-medium text-gray-600 uppercase tracking-wide'>
+                Search
+              </label>
+              <div className='flex items-center px-3 py-2 border-2 rounded-lg bg-white hover:border-blue-400 focus-within:border-blue-500 transition-colors'>
+                <SearchIcon />
+                <input
+                  placeholder='Search by item, PR number...'
+                  type='text'
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                  className='ml-2 h-full w-full border-none bg-none focus:outline-none outline-none'
+                />
+                {searchQuery && (
+                  <button onClick={() => setSearchQuery("")} className='text-gray-400 hover:text-gray-600'>
+                    <X size={16} />
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* Status Filter */}
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-gray-700">Status:</span>
+            <div className='flex flex-col gap-2'>
+              <label className='text-xs font-medium text-gray-600 uppercase tracking-wide'>
+                Procurement Status
+              </label>
               <Select value={statusFilter === "" ? "all" : statusFilter} onValueChange={handleStatusChange}>
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger className="w-full border-2 hover:border-blue-400">
                   <SelectValue placeholder="All Statuses" />
                 </SelectTrigger>
                 <SelectContent>
@@ -134,10 +274,12 @@ function ProcurementTracker() {
             </div>
 
             {/* Item Type Filter */}
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-gray-700">Type:</span>
+            <div className='flex flex-col gap-2'>
+              <label className='text-xs font-medium text-gray-600 uppercase tracking-wide'>
+                Item Category
+              </label>
               <Select value={itemTypeFilter === "" ? "all" : itemTypeFilter} onValueChange={handleItemTypeChange}>
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger className="w-full border-2 hover:border-blue-400">
                   <SelectValue placeholder="All Types" />
                 </SelectTrigger>
                 <SelectContent>
@@ -150,70 +292,153 @@ function ProcurementTracker() {
             </div>
           </div>
 
-          {/* Clear Filters Button */}
-          {(searchQuery || statusFilter || itemTypeFilter) && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={clearFilters}
-              className="flex items-center gap-2"
-            >
-              <X size={16} />
-              Clear Filters
-            </Button>
-          )}
-        </div>
-
-        {/* Results Summary */}
-        <div className="flex items-center justify-between">
-          <div className="text-sm text-gray-600">
-            {isLoading ? (
-              "Loading..."
-            ) : (
-              <>
-                Showing {data?.results?.length || 0} of{" "}
-                {data?.pagination?.count || 0} procurement items
-                {statusFilter && (
-                  <span className="text-blue-600 font-medium"> with status: {statusFilter}</span>
-                )}
-                {itemTypeFilter && (
-                  <span className="text-green-600 font-medium"> type: {itemTypeFilter}</span>
-                )}
-                {searchQuery && (
-                  <span className="text-purple-600 font-medium"> matching "{searchQuery}"</span>
-                )}
-              </>
-            )}
-          </div>
-
-          {/* Active Filters Indicator */}
-          {(searchQuery || statusFilter || itemTypeFilter) && (
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-500">Active filters:</span>
+          {/* Active Filters Summary */}
+          {activeFilterCount > 0 && (
+            <div className="flex items-center gap-2 pt-2 border-t">
+              <span className="text-xs font-medium text-gray-600">Active Filters:</span>
               {statusFilter && (
-                <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                <span className="text-xs bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-medium">
                   Status: {statusFilter}
                 </span>
               )}
               {itemTypeFilter && (
-                <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+                <span className="text-xs bg-green-100 text-green-800 px-3 py-1 rounded-full font-medium">
                   Type: {itemTypeFilter}
                 </span>
               )}
               {searchQuery && (
-                <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">
-                  Search: {searchQuery}
+                <span className="text-xs bg-purple-100 text-purple-800 px-3 py-1 rounded-full font-medium">
+                  Search: "{searchQuery}"
                 </span>
               )}
             </div>
           )}
+        </Card>
+      )}
+
+      {/* Column Settings Panel */}
+      {isColumnSettingsOpen && (
+        <Card className='bg-amber-50/50 border-2 border-dashed border-amber-200'>
+          <div className='flex items-center justify-between mb-4'>
+            <h3 className='font-semibold text-gray-700 flex items-center gap-2'>
+              <Settings2 size={18} className='text-amber-600' />
+              Column Visibility
+            </h3>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsColumnSettingsOpen(false)}
+              className="flex items-center gap-2"
+            >
+              <X size={16} />
+              Close
+            </Button>
+          </div>
+
+          <div className='grid grid-cols-2 md:grid-cols-4 gap-3'>
+            {Object.entries(visibleColumns).map(([key, isVisible]) => (
+              <div key={key} className='flex items-center gap-2 p-2 rounded hover:bg-white transition-colors'>
+                <Checkbox
+                  id={key}
+                  checked={isVisible}
+                  onCheckedChange={() => toggleColumn(key)}
+                />
+                <label
+                  htmlFor={key}
+                  className='text-sm cursor-pointer capitalize'
+                >
+                  {key.replace(/_/g, ' ')}
+                </label>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
+
+      <Card className='space-y-5'>
+        {/* Results Summary */}
+        <div className="flex items-center justify-between py-2 px-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-100">
+          <div className="flex items-center gap-3">
+            <Package size={20} className='text-blue-600' />
+            <div className="text-sm text-gray-700">
+              {isLoading ? (
+                <div className='flex items-center gap-2'>
+                  <Loader2 size={16} className='animate-spin text-blue-600' />
+                  <span>Loading procurement data...</span>
+                </div>
+              ) : (
+                <div>
+                  Showing <span className='font-bold text-blue-600'>{data?.results?.length || 0}</span> of{" "}
+                  <span className='font-bold text-gray-900'>{data?.pagination?.count || 0}</span> procurement items
+                  {statusFilter && (
+                    <span className="text-blue-600 font-medium"> • Status: {statusFilter}</span>
+                  )}
+                  {itemTypeFilter && (
+                    <span className="text-green-600 font-medium"> • Type: {itemTypeFilter}</span>
+                  )}
+                  {searchQuery && (
+                    <span className="text-purple-600 font-medium"> • Matching "{searchQuery}"</span>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Quick Stats Badge */}
+          {!isLoading && data?.results && data.results.length > 0 && (
+            <div className='flex items-center gap-2'>
+              <span className='text-xs bg-white px-3 py-1 rounded-full border border-blue-200 font-medium text-gray-600'>
+                Page {page} of {data.pagination.total_pages || 1}
+              </span>
+            </div>
+          )}
         </div>
 
-        <DataTable
-          data={data?.results || []}
-          columns={columns}
-          isLoading={isLoading}
-        />
+        {/* Skeleton Loading State */}
+        {isLoading ? (
+          <div className='space-y-3'>
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className='flex items-center gap-4 p-4 bg-gray-50 rounded-lg animate-pulse'>
+                <div className='h-4 w-12 bg-gray-300 rounded'></div>
+                <div className='h-4 w-32 bg-gray-300 rounded'></div>
+                <div className='h-4 w-48 bg-gray-300 rounded'></div>
+                <div className='h-4 flex-1 bg-gray-300 rounded'></div>
+                <div className='h-4 w-24 bg-gray-300 rounded'></div>
+              </div>
+            ))}
+          </div>
+        ) : data?.results && data.results.length > 0 ? (
+          <DataTable
+            data={data.results}
+            columns={columns}
+            isLoading={false}
+          />
+        ) : (
+          /* Empty State */
+          <div className='flex flex-col items-center justify-center py-16 px-4'>
+            <div className='bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full p-6 mb-6'>
+              <Package size={64} className='text-blue-600' />
+            </div>
+            <h3 className='text-xl font-bold text-gray-700 mb-2'>
+              No Procurement Items Found
+            </h3>
+            <p className='text-gray-500 text-center mb-6 max-w-md'>
+              {activeFilterCount > 0
+                ? "No items match your current filters. Try adjusting your search criteria."
+                : "No procurement items have been created yet. Create your first purchase request to get started."}
+            </p>
+            {activeFilterCount > 0 && (
+              <Button
+                variant="outline"
+                onClick={clearFilters}
+                className='flex items-center gap-2'
+              >
+                <X size={16} />
+                Clear All Filters
+              </Button>
+            )}
+          </div>
+        )}
 
         {/* Pagination Controls */}
         {data?.pagination && data.pagination.count > 0 && (
