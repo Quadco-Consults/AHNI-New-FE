@@ -28,10 +28,12 @@ import { LoadingSpinner } from "@/components/Loading";
 export default function TimesheetsPage() {
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
-  const [statusFilter, setStatusFilter] = useState<string>("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
   const pageSize = 20;
 
-  const { data: timesheetsData, isLoading, error } = useTimesheets(currentPage, pageSize, statusFilter);
+  // Convert "all" to empty string for API call
+  const apiStatusFilter = statusFilter === "all" ? "" : statusFilter;
+  const { data: timesheetsData, isLoading, error } = useTimesheets(currentPage, pageSize, apiStatusFilter);
   const { data: statisticsData, isLoading: statsLoading } = useTimesheetStatistics();
 
   const timesheets = timesheetsData?.data?.results || [];
@@ -174,7 +176,7 @@ export default function TimesheetsPage() {
                   <SelectValue placeholder="All Statuses" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Statuses</SelectItem>
+                  <SelectItem value="all">All Statuses</SelectItem>
                   <SelectItem value="draft">Draft</SelectItem>
                   <SelectItem value="submitted">Submitted</SelectItem>
                   <SelectItem value="approved">Approved</SelectItem>
@@ -182,8 +184,8 @@ export default function TimesheetsPage() {
                 </SelectContent>
               </Select>
             </div>
-            {statusFilter && (
-              <Button variant="outline" onClick={() => setStatusFilter("")}>
+            {statusFilter && statusFilter !== "all" && (
+              <Button variant="outline" onClick={() => setStatusFilter("all")}>
                 Clear Filters
               </Button>
             )}
@@ -205,7 +207,7 @@ export default function TimesheetsPage() {
               <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-semibold mb-2">No Timesheets</h3>
               <p className="text-gray-600 mb-4">
-                {statusFilter
+                {statusFilter && statusFilter !== "all"
                   ? `No timesheets found with status "${statusFilter}"`
                   : "You haven't created any timesheets yet."}
               </p>
