@@ -13,11 +13,14 @@ import { TStateData } from "@/features/admin/types/config/state";
 import { seedNigerianStates, validateStatesCompleteness, checkExistingStates } from "@/utils/seedNigerianStates";
 import { useManualStateSeeder } from "@/utils/seedStatesWorkaround";
 import { nigerianStatesStats, nigerianStatesData } from "@/data/nigerianStatesData";
+import { Upload } from "lucide-react";
+import BulkUploadDialog from "@/components/BulkUpload/BulkUploadDialog";
 
 export default function AllStates() {
   const [page, setPage] = useState(1);
   const [isSeedingStates, setIsSeedingStates] = useState(false);
   const [seedProgress, setSeedProgress] = useState({ current: 0, total: 0, stateName: "" });
+  const [bulkUploadOpen, setBulkUploadOpen] = useState(false);
   const dispatch = useAppDispatch();
 
   const { data: states, isFetching, refetch } = useGetAllStatesQuery({
@@ -160,6 +163,16 @@ export default function AllStates() {
               </Button>
             )}
             <Button
+              onClick={() => setBulkUploadOpen(true)}
+              variant='outline'
+              className='gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-[#FFFFFF] text-[#10B981] border-[1px] border-[#C7CBD5]'
+              size='sm'
+              disabled={isDeleteLoading || isSeedingStates || isManualSeedingLoading}
+            >
+              <Upload size={16} />
+              Bulk Upload
+            </Button>
+            <Button
               onClick={onAdd}
               className="bg-yellow-600 hover:bg-yellow-700"
               disabled={isDeleteLoading || isSeedingStates || isManualSeedingLoading}
@@ -203,6 +216,17 @@ export default function AllStates() {
           </div>
         )}
       </div>
+
+      <BulkUploadDialog
+        open={bulkUploadOpen}
+        onClose={() => setBulkUploadOpen(false)}
+        apiEndpoint="/config/states"
+        title="States"
+        onUploadComplete={() => {
+          refetch();
+          setBulkUploadOpen(false);
+        }}
+      />
 
       {/* Table Headers */}
       <div className="grid grid-cols-7 gap-4 bg-gray-50 p-4 font-semibold text-gray-700 rounded-t-lg">

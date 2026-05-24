@@ -9,12 +9,14 @@ import { useState } from "react";
 import { useDeleteCostInputMutation } from "@/features/modules/controllers/finance/costInputController";
 import Pagination from "@/components/Pagination";
 import { useGetAllCostGroupingsQuery } from "@/features/modules/controllers/finance/costGroupingController";
-import CostGroupingBulkImport from "./CostGroupingBulkImport";
+import { Upload } from "lucide-react";
+import BulkUploadDialog from "@/components/BulkUpload/BulkUploadDialog";
 
 export default function AllCostGroupings() {
   const [page, setPage] = useState(1);
+  const [bulkUploadOpen, setBulkUploadOpen] = useState(false);
 
-  const { data: costGrouping, isFetching } = useGetAllCostGroupingsQuery({
+  const { data: costGrouping, isFetching, refetch } = useGetAllCostGroupingsQuery({
     page,
     size: 20,
   });
@@ -53,7 +55,15 @@ export default function AllCostGroupings() {
         <h1 className='text-[#D92D20] font-semibold text-sm'>Cost Grouping</h1>
 
         <div className='flex gap-2'>
-          <CostGroupingBulkImport />
+          <Button
+            onClick={() => setBulkUploadOpen(true)}
+            variant='outline'
+            className='gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-[#FFFFFF] text-[#10B981] border-[1px] border-[#C7CBD5]'
+            size='sm'
+          >
+            <Upload size={16} />
+            Bulk Upload
+          </Button>
           <Button
             onClick={() =>
               dispatch(
@@ -73,6 +83,17 @@ export default function AllCostGroupings() {
           </Button>
         </div>
       </div>
+
+      <BulkUploadDialog
+        open={bulkUploadOpen}
+        onClose={() => setBulkUploadOpen(false)}
+        apiEndpoint="/finance/cost-groupings"
+        title="Cost Groupings"
+        onUploadComplete={() => {
+          refetch();
+          setBulkUploadOpen(false);
+        }}
+      />
       <div>
         <div className='flex justify-between text-[#756D6D] font-semibold text-sm border-b border-gray-300 pb-4'>
           <h1 className='flex-1'>Name</h1>

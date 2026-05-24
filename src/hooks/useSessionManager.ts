@@ -101,7 +101,18 @@ export const useSessionManager = (options: UseSessionManagerOptions = {}) => {
         return false;
       }
     } catch (error: any) {
-      console.error('❌ Token refresh failed:', error.response?.data || error.message);
+      // More detailed error logging
+      if (error.response) {
+        console.error('❌ Token refresh failed:', {
+          status: error.response.status,
+          data: error.response.data,
+          statusText: error.response.statusText
+        });
+      } else if (error.request) {
+        console.error('❌ Token refresh failed - no response received:', error.message);
+      } else {
+        console.error('❌ Token refresh failed:', error.message || error);
+      }
 
       // If refresh fails with 401, the refresh token is invalid
       if (error.response?.status === 401) {

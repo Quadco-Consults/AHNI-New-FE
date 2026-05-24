@@ -11,12 +11,14 @@ import {
 } from "@/features/modules/controllers/program/riskCategoryController";
 import { useState } from "react";
 import Pagination from "@/components/Pagination";
-import RiskCategoryBulkImport from "./RiskCategoryBulkImport";
+import { Upload } from "lucide-react";
+import BulkUploadDialog from "@/components/BulkUpload/BulkUploadDialog";
 
 export default function AllRiskCategory() {
   const [page, setPage] = useState(1);
+  const [bulkUploadOpen, setBulkUploadOpen] = useState(false);
 
-  const { data: riskCategory, isFetching } = useGetAllRiskCategory({
+  const { data: riskCategory, isFetching, refetch } = useGetAllRiskCategory({
     page,
     size: 20,
   });
@@ -53,7 +55,15 @@ export default function AllRiskCategory() {
       <div className='flex justify-between items-center py-6 mb-6'>
         <h1 className='text-[#D92D20] font-semibold text-sm'>Risk Categories</h1>
         <div className='flex gap-2'>
-          <RiskCategoryBulkImport />
+          <Button
+            onClick={() => setBulkUploadOpen(true)}
+            variant='outline'
+            className='gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-[#FFFFFF] text-[#10B981] border-[1px] border-[#C7CBD5]'
+            size='sm'
+          >
+            <Upload size={16} />
+            Bulk Upload
+          </Button>
           <Button
             onClick={() =>
               dispatch(
@@ -73,6 +83,17 @@ export default function AllRiskCategory() {
           </Button>
         </div>
       </div>
+
+      <BulkUploadDialog
+        open={bulkUploadOpen}
+        onClose={() => setBulkUploadOpen(false)}
+        apiEndpoint="/programs/configs/risk-categories"
+        title="Risk Categories"
+        onUploadComplete={() => {
+          refetch();
+          setBulkUploadOpen(false);
+        }}
+      />
       <div>
         <div className='flex text-[#756D6D] font-semibold text-sm mb-10'>
           <h1 className='flex-1'>Name</h1>

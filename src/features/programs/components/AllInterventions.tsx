@@ -11,12 +11,14 @@ import {
   useDeleteInterventionArea,
   useGetAllInterventionAreas,
 } from "@/features/modules/controllers/program/interventionAreaController";
-import InterventionAreaBulkImport from "./InterventionAreaBulkImport";
+import { Upload } from "lucide-react";
+import BulkUploadDialog from "@/components/BulkUpload/BulkUploadDialog";
 
 export default function AllInterventions() {
   const [page, setPage] = useState(1);
+  const [bulkUploadOpen, setBulkUploadOpen] = useState(false);
 
-  const { data: interventions, isFetching } = useGetAllInterventionAreas({
+  const { data: interventions, isFetching, refetch } = useGetAllInterventionAreas({
     page,
     size: 20,
     search: "",
@@ -54,7 +56,15 @@ export default function AllInterventions() {
           Intervention Areas
         </h1>
         <div className='flex gap-2'>
-          <InterventionAreaBulkImport />
+          <Button
+            onClick={() => setBulkUploadOpen(true)}
+            variant='outline'
+            className='gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-[#FFFFFF] text-[#10B981] border-[1px] border-[#C7CBD5]'
+            size='sm'
+          >
+            <Upload size={16} />
+            Bulk Upload
+          </Button>
           <Button
             onClick={() =>
               dispatch(
@@ -74,6 +84,17 @@ export default function AllInterventions() {
           </Button>
         </div>
       </div>
+
+      <BulkUploadDialog
+        open={bulkUploadOpen}
+        onClose={() => setBulkUploadOpen(false)}
+        apiEndpoint="/procurements/intervention-areas"
+        title="Intervention Areas"
+        onUploadComplete={() => {
+          refetch();
+          setBulkUploadOpen(false);
+        }}
+      />
       <div>
         <div className='flex text-[#756D6D] font-semibold text-sm mb-10'>
           <h1 className='flex-1'>Code</h1>

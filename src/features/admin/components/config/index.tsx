@@ -11,6 +11,7 @@ import AllDepartments from "./AllDepartments";
 import AllFinancialYear from "./AllFinancialYear";
 
 import AllLocations from "./AllLocations";
+import AllClusters from "./AllClusters";
 import AllStates from "./AllStates";
 import AllPositions from "./AllPositions";
 import AllGrades from "./AllGrades";
@@ -47,6 +48,7 @@ const Config = () => {
             <TabsTrigger value='financialYear'>Financial Year</TabsTrigger>
             {/* <TabsTrigger value="items">Items</TabsTrigger> */}
             <TabsTrigger value='locations'>Locations</TabsTrigger>
+            <TabsTrigger value='clusters'>Clusters</TabsTrigger>
             <TabsTrigger value='states'>States</TabsTrigger>
             <TabsTrigger value='position'>Positions</TabsTrigger>
             <TabsTrigger value='grade'>Grades</TabsTrigger>
@@ -91,6 +93,13 @@ const Config = () => {
             <Card className='mt-10 pb-8 px-6'>
               <ApiErrorBoundary>
                 <AllLocations />
+              </ApiErrorBoundary>
+            </Card>
+          </TabsContent>
+          <TabsContent value='clusters'>
+            <Card className='mt-10 pb-8 px-6'>
+              <ApiErrorBoundary>
+                <AllClusters />
               </ApiErrorBoundary>
             </Card>
           </TabsContent>

@@ -68,7 +68,8 @@ export default function ConsultancyReport() {
         console.log('✅ Created mappings:');
         console.log('   - ID → Name:', Object.keys(idToName).length, 'entries');
         console.log('   - Title → ID:', Object.keys(titleMap).length, 'entries');
-        console.log('📋 Sample title mappings:', Object.entries(titleMap).slice(0, 3));
+        console.log('📋 Sample ID → Name mappings:', Object.entries(idToName).slice(0, 5));
+        console.log('📋 Sample Title → ID mappings:', Object.entries(titleMap).slice(0, 5));
 
         return {
             consultantIdToName: idToName,
@@ -86,6 +87,7 @@ export default function ConsultancyReport() {
         }
 
         console.log('📊 Enriching', reports.length, 'reports');
+        console.log('📊 First report raw consultant field:', reports[0]?.consultant);
 
         const enriched = reports.map((report, index) => {
             // Get the consultant field - could be an ID or a title string

@@ -11,12 +11,14 @@ import {
   useGetAllFacility,
 } from "@/features/modules/controllers/program/facilityController";
 import Pagination from "@/components/Pagination";
-import FacilityBulkImport from "./FacilityBulkImport";
+import { Upload } from "lucide-react";
+import BulkUploadDialog from "@/components/BulkUpload/BulkUploadDialog";
 
 export default function AllFacility() {
   const [page, setPage] = useState(1);
+  const [bulkUploadOpen, setBulkUploadOpen] = useState(false);
 
-  const { data: facility, isFetching } = useGetAllFacility({
+  const { data: facility, isFetching, refetch } = useGetAllFacility({
     page,
     size: 20,
   });
@@ -60,7 +62,15 @@ export default function AllFacility() {
           Facility & Team Composition
         </h1>
         <div className='flex gap-2'>
-          <FacilityBulkImport />
+          <Button
+            onClick={() => setBulkUploadOpen(true)}
+            variant='outline'
+            className='gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-[#FFFFFF] text-[#10B981] border-[1px] border-[#C7CBD5]'
+            size='sm'
+          >
+            <Upload size={16} />
+            Bulk Upload
+          </Button>
           <Button
             onClick={() =>
               dispatch(
@@ -80,6 +90,17 @@ export default function AllFacility() {
           </Button>
         </div>
       </div>
+
+      <BulkUploadDialog
+        open={bulkUploadOpen}
+        onClose={() => setBulkUploadOpen(false)}
+        apiEndpoint="/programs/configs/facilities"
+        title="Facilities"
+        onUploadComplete={() => {
+          refetch();
+          setBulkUploadOpen(false);
+        }}
+      />
       <div>
         <div className='flex text-[#756D6D] font-semibold text-sm border-b border-gray-300 pb-4'>
           <h1 className='flex-1'>Facility Name</h1>

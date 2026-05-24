@@ -11,12 +11,14 @@ import {
 } from "@/features/modules/controllers/admin/assetConditionController";
 import { useState } from "react";
 import Pagination from "@/components/Pagination";
-import AssetConditionBulkImport from "./AssetConditionBulkImport";
+import { Upload } from "lucide-react";
+import BulkUploadDialog from "@/components/BulkUpload/BulkUploadDialog";
 
 export default function AllAssetCondition() {
   const [page, setPage] = useState(1);
+  const [bulkUploadOpen, setBulkUploadOpen] = useState(false);
 
-  const { data: assetCondition, isFetching } = useGetAllAssetConditionQuery({
+  const { data: assetCondition, isFetching, refetch } = useGetAllAssetConditionQuery({
     page,
     size: 20,
   });
@@ -55,7 +57,15 @@ export default function AllAssetCondition() {
         </h1>
 
         <div className='flex gap-2'>
-          <AssetConditionBulkImport />
+          <Button
+            onClick={() => setBulkUploadOpen(true)}
+            variant='outline'
+            className='gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-[#FFFFFF] text-[#10B981] border-[1px] border-[#C7CBD5]'
+            size='sm'
+          >
+            <Upload size={16} />
+            Bulk Upload
+          </Button>
           <Button
             onClick={() =>
               dispatch(
@@ -75,6 +85,17 @@ export default function AllAssetCondition() {
           </Button>
         </div>
       </div>
+
+      <BulkUploadDialog
+        open={bulkUploadOpen}
+        onClose={() => setBulkUploadOpen(false)}
+        apiEndpoint="/adminapp/configs/asset-conditions"
+        title="Asset Conditions"
+        onUploadComplete={() => {
+          refetch();
+          setBulkUploadOpen(false);
+        }}
+      />
       <div>
         <div className='flex justify-between text-[#756D6D] font-semibold text-sm mb-10'>
           <h1 className='flex-1'>Name</h1>

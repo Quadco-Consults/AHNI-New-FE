@@ -12,7 +12,8 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
-  Menu
+  Menu,
+  ClipboardList
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ConsultantAuthUtils, useConsultantLogout } from "../controllers/consultantAuthController";
@@ -35,6 +36,11 @@ const navItems: NavItem[] = [
     name: "Dashboard",
     path: "/consultant-portal/dashboard",
     icon: LayoutDashboard,
+  },
+  {
+    name: "Reports",
+    path: "/consultant-portal/reports",
+    icon: ClipboardList,
   },
   {
     name: "Timesheets",

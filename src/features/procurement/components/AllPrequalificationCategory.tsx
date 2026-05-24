@@ -11,11 +11,14 @@ import {
     useGetAllPrequalificationCategory,
 } from "@/features/modules/controllers/procurement/prequalificationCategoryController";
 import Pagination from "@/components/Pagination";
+import { Upload } from "lucide-react";
+import BulkUploadDialog from "@/components/BulkUpload/BulkUploadDialog";
 
 export default function AllPrequalificationCategory() {
     const [page, setPage] = useState(1);
+    const [bulkUploadOpen, setBulkUploadOpen] = useState(false);
 
-    const { data: prequalificationCategory, isFetching } =
+    const { data: prequalificationCategory, isFetching, refetch } =
         useGetAllPrequalificationCategory({
             page,
             size: 20,
@@ -53,24 +56,46 @@ export default function AllPrequalificationCategory() {
                 <h1 className="text-[#D92D20] font-semibold text-sm">
                     Pre-qualification Category
                 </h1>
-                <Button
-                    onClick={() =>
-                        dispatch(
-                            openDialog({
-                                type: DialogType.AddPrequalificationCategory,
-                                dialogProps: {
-                                    header: "Add Prequalification Category",
-                                },
-                            })
-                        )
-                    }
-                    variant="outline"
-                    className="gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-[#FFFFFF] text-[#DEA004] border-[1px] border-[#C7CBD5]"
-                    size="sm"
-                >
-                    Click to add New
-                </Button>
+                <div className="flex gap-2">
+                    <Button
+                        onClick={() => setBulkUploadOpen(true)}
+                        variant="outline"
+                        className="gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-[#FFFFFF] text-[#10B981] border-[1px] border-[#C7CBD5]"
+                        size="sm"
+                    >
+                        <Upload size={16} />
+                        Bulk Upload
+                    </Button>
+                    <Button
+                        onClick={() =>
+                            dispatch(
+                                openDialog({
+                                    type: DialogType.AddPrequalificationCategory,
+                                    dialogProps: {
+                                        header: "Add Prequalification Category",
+                                    },
+                                })
+                            )
+                        }
+                        variant="outline"
+                        className="gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-[#FFFFFF] text-[#DEA004] border-[1px] border-[#C7CBD5]"
+                        size="sm"
+                    >
+                        Click to add New
+                    </Button>
+                </div>
             </div>
+
+            <BulkUploadDialog
+                open={bulkUploadOpen}
+                onClose={() => setBulkUploadOpen(false)}
+                apiEndpoint="/procurements/prequalification-categories"
+                title="Prequalification Categories"
+                onUploadComplete={() => {
+                    refetch();
+                    setBulkUploadOpen(false);
+                }}
+            />
             <div>
                 <div className="flex justify-between text-[#756D6D] font-semibold text-sm mb-10">
                     <h1 className="flex-1">Name</h1>

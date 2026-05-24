@@ -8,7 +8,7 @@ import { LoadingSpinner } from "@/components/Loading";
 import { Button } from "@/components/ui/button";
 import { useParams } from "next/navigation";
 import { useGetSingleConsultancyReport, useApproveConsultancyReport } from "@/features/contracts-grants/controllers/consultancyReportController";
-import { Download, Printer, CheckCircle } from "lucide-react";
+import { Download, Printer, CheckCircle, FileText } from "lucide-react";
 import { useReactToPrint } from "react-to-print";
 import Image from "next/image";
 import logoImg from "@/assets/imgs/logo.png";
@@ -541,6 +541,30 @@ export default function ConsultancyReportDetails() {
                             </p>
                         </div>
                     </div>
+
+                    {/* Supporting Document Section */}
+                    {report?.document && (
+                        <div className="mb-8">
+                            <div className="bg-red-600 text-white px-4 py-2 rounded-t-lg">
+                                <h2 className="text-lg font-bold uppercase">
+                                    5. Supporting Document
+                                </h2>
+                            </div>
+                            <div className="border border-gray-200 border-t-0 rounded-b-lg p-4">
+                                <div className="flex items-center gap-3">
+                                    <FileText className="h-6 w-6 text-green-600" />
+                                    <a
+                                        href={report.document}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-green-600 hover:text-green-700 font-medium hover:underline text-sm"
+                                    >
+                                        View/Download Document
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
                     {/* Footer */}
                     <div className="border-t-2 border-gray-300 pt-6 mt-8">

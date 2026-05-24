@@ -12,11 +12,14 @@ import {
   useGetAllFinancialYearsQuery,
 } from "@/features/modules/controllers/config/financialYearController";
 import Pagination from "@/components/Pagination";
+import { Upload } from "lucide-react";
+import BulkUploadDialog from "@/components/BulkUpload/BulkUploadDialog";
 
 export default function AllFinancialYear() {
   const [page, setPage] = useState(1);
+  const [bulkUploadOpen, setBulkUploadOpen] = useState(false);
 
-  const { data: financialYear, isFetching } = useGetAllFinancialYearsQuery({
+  const { data: financialYear, isFetching, refetch } = useGetAllFinancialYearsQuery({
     page,
     size: 20,
   });
@@ -54,24 +57,46 @@ export default function AllFinancialYear() {
       <div className='flex items-center justify-between py-6 mb-6'>
         <h1 className='text-[#D92D20] font-semibold text-sm'>Financial Year</h1>
 
-        <Button
-          onClick={() =>
-            dispatch(
-              openDialog({
-                type: DialogType.AddFinancialYear,
-                dialogProps: {
-                  header: "Add Financial Year",
-                },
-              })
-            )
-          }
-          variant='outline'
-          className='gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-[#FFFFFF] text-[#DEA004] border-[1px] border-[#C7CBD5]'
-          size='sm'
-        >
-          Click to add New
-        </Button>
+        <div className="flex items-center gap-4">
+          <Button
+            onClick={() => setBulkUploadOpen(true)}
+            variant='outline'
+            className='gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-[#FFFFFF] text-[#10B981] border-[1px] border-[#C7CBD5]'
+            size='sm'
+          >
+            <Upload size={16} />
+            Bulk Upload
+          </Button>
+          <Button
+            onClick={() =>
+              dispatch(
+                openDialog({
+                  type: DialogType.AddFinancialYear,
+                  dialogProps: {
+                    header: "Add Financial Year",
+                  },
+                })
+              )
+            }
+            variant='outline'
+            className='gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-[#FFFFFF] text-[#DEA004] border-[1px] border-[#C7CBD5]'
+            size='sm'
+          >
+            Click to add New
+          </Button>
+        </div>
       </div>
+
+      <BulkUploadDialog
+        open={bulkUploadOpen}
+        onClose={() => setBulkUploadOpen(false)}
+        apiEndpoint="/config/financial-year"
+        title="Financial Years"
+        onUploadComplete={() => {
+          refetch();
+          setBulkUploadOpen(false);
+        }}
+      />
       <div>
         <div className='flex justify-between text-[#756D6D] font-semibold text-sm border-b border-gray-300 pb-4'>
           <h1 className='flex-1'>Year</h1>

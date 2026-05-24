@@ -11,12 +11,14 @@ import {
     useDeleteAssetClassificationMutation,
     useGetAllAssetClassificationsQuery,
 } from "@/features/modules/controllers/config/assetClassificationController";
-import AssetClassificationBulkImport from "./AssetClassificationBulkImport";
+import { Upload } from "lucide-react";
+import BulkUploadDialog from "@/components/BulkUpload/BulkUploadDialog";
 
 export default function AllAssetClassification() {
     const [page, setPage] = useState(1);
+    const [bulkUploadOpen, setBulkUploadOpen] = useState(false);
 
-    const { data: location, isFetching } = useGetAllAssetClassificationsQuery({
+    const { data: location, isFetching, refetch } = useGetAllAssetClassificationsQuery({
         page,
         size: 20,
     });
@@ -54,7 +56,15 @@ export default function AllAssetClassification() {
                     Asset Classifications
                 </h1>
                 <div className="flex gap-2">
-                    <AssetClassificationBulkImport />
+                    <Button
+                        onClick={() => setBulkUploadOpen(true)}
+                        variant="outline"
+                        className="gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-[#FFFFFF] text-[#10B981] border-[1px] border-[#C7CBD5]"
+                        size="sm"
+                    >
+                        <Upload size={16} />
+                        Bulk Upload
+                    </Button>
                     <Button
                         onClick={() =>
                             dispatch(
@@ -74,6 +84,17 @@ export default function AllAssetClassification() {
                     </Button>
                 </div>
             </div>
+
+            <BulkUploadDialog
+                open={bulkUploadOpen}
+                onClose={() => setBulkUploadOpen(false)}
+                apiEndpoint="/adminapp/configs/asset-classifications"
+                title="Asset Classifications"
+                onUploadComplete={() => {
+                    refetch();
+                    setBulkUploadOpen(false);
+                }}
+            />
             <div>
                 <div className="flex text-[#756D6D] font-semibold text-sm border-b border-gray-300 pb-4">
                     <h1 className="flex-1">Name</h1>

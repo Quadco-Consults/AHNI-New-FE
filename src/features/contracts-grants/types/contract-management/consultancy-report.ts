@@ -37,6 +37,7 @@ export interface IConsultancyReportPaginatedData {
     executive_summary: string;
     achievements: string;
     challenges_recommendations: string;
+    document?: string | null;
     status: string;
     approved_datetime: null;
     rejected_datetime: null;
@@ -61,6 +62,7 @@ export interface IConsultancyReportSingleData {
     executive_summary: string;
     achievements: string;
     challenges_recommendations: string;
+    document?: string | null;
     status: string;
     approved_datetime: null;
     rejected_datetime: null;

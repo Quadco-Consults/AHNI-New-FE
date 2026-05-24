@@ -70,6 +70,7 @@ const modalComponentMap: Record<string, () => Promise<{default: React.ComponentT
   [DialogType.AddFinancialYear]: () => import("@/features/admin/components/config/AddFinancialYear"),
   [DialogType.AddItems]: () => import("@/features/admin/components/config/AddItems"),
   [DialogType.AddLocations]: () => import("@/features/admin/components/config/AddLocations"),
+  [DialogType.AddClusters]: () => import("@/features/admin/components/config/AddClusters"),
   [DialogType.AddStates]: () => import("@/features/admin/components/config/AddStates"),
   [DialogType.AddLots]: () => import("@/features/procurement/components/AddLots"),
   [DialogType.AddSolicitation]: () => import("@/features/procurement/components/modals/AddSolicitationModal"),

@@ -13,11 +13,14 @@ import {
   useGetAllModules,
   useDeleteModule,
 } from "@/features/modules/controllers/project/moduleController";
+import { Upload } from "lucide-react";
+import BulkUploadDialog from "@/components/BulkUpload/BulkUploadDialog";
 
 export default function AllModules() {
   const [page, setPage] = useState(1);
+  const [bulkUploadOpen, setBulkUploadOpen] = useState(false);
 
-  const { data: modules, isFetching } = useGetAllModules({
+  const { data: modules, isFetching, refetch } = useGetAllModules({
     page,
     size: 20,
     search: "",
@@ -54,6 +57,15 @@ export default function AllModules() {
         <h1 className="text-[#D92D20] font-semibold text-sm">Modules</h1>
         <div className="flex gap-2">
           <Button
+            onClick={() => setBulkUploadOpen(true)}
+            variant="outline"
+            className="gap-x-2 shadow-[0px_3px_8px_rgba(0,0,0,0.07)] bg-[#FFFFFF] text-[#10B981] border-[1px] border-[#C7CBD5]"
+            size="sm"
+          >
+            <Upload size={16} />
+            Bulk Upload
+          </Button>
+          <Button
             onClick={() =>
               dispatch(
                 openDialog({
@@ -72,6 +84,17 @@ export default function AllModules() {
           </Button>
         </div>
       </div>
+
+      <BulkUploadDialog
+        open={bulkUploadOpen}
+        onClose={() => setBulkUploadOpen(false)}
+        apiEndpoint="/projects/modules"
+        title="Modules"
+        onUploadComplete={() => {
+          refetch();
+          setBulkUploadOpen(false);
+        }}
+      />
       <div>
         <div className="flex text-[#756D6D] font-semibold text-sm mb-10">
           <h1 className="flex-1">Name</h1>
