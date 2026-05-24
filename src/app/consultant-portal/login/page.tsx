@@ -134,7 +134,7 @@ export default function ConsultantLoginPage() {
                       placeholder="Enter email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="w-full px-3 py-2 border border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                      className="w-full px-4 py-3.5 text-base border border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                       required
                     />
                   </div>
@@ -147,7 +147,7 @@ export default function ConsultantLoginPage() {
                         placeholder="Enter password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="w-full px-3 py-2 border border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                        className="w-full px-4 py-3.5 text-base border border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                         required
                       />
                     </div>
