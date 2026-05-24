@@ -5,6 +5,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { ConsultantAuthUtils } from "@/features/consultant-portal/controllers/consultantAuthController";
 import { LoadingSpinner } from "@/components/Loading";
 import Footer from "@/components/Footer";
+import ConsultantSidebar from "@/features/consultant-portal/components/ConsultantSidebar";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -16,6 +17,7 @@ export default function ConsultantPortalLayout({ children }: ConsultantPortalLay
   const router = useRouter();
   const pathname = usePathname();
   const [isAuthLoading, setIsAuthLoading] = useState(true);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   useEffect(() => {
     // Set page title
@@ -62,8 +64,19 @@ export default function ConsultantPortalLayout({ children }: ConsultantPortalLay
 
   return (
     <div className="flex min-h-screen bg-gray-50">
+      {/* Sidebar */}
+      <ConsultantSidebar
+        collapsed={sidebarCollapsed}
+        onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
+      />
+
       {/* Main Content */}
-      <div className="flex-1">
+      <div
+        className={cn(
+          "flex-1 transition-all duration-300",
+          sidebarCollapsed ? "ml-20" : "ml-64"
+        )}
+      >
         {/* Page Content */}
         <main className="pt-6">
           <div className="p-6">
