@@ -508,8 +508,29 @@ const columns: ColumnDef<any>[] = [
       {
         header: "Quantity",
         accessorKey: "quantity",
-        size: 80,
-        cell: ({ row }) => row.original?.quantity || "N/A",
+        size: 100,
+        cell: ({ row }) => {
+          const quantity = row.original?.quantity;
+          if (!quantity) return <span className="text-gray-400 text-xs">N/A</span>;
+
+          // If it contains commas, it's multiple quantities - display as a list
+          if (String(quantity).includes(',')) {
+            const quantities = String(quantity).split(',').map(q => q.trim());
+            return (
+              <div className="space-y-1">
+                {quantities.map((qty, idx) => (
+                  <div key={idx} className="text-xs flex items-start gap-1">
+                    <span className="text-blue-600 font-bold">•</span>
+                    <span className="flex-1">{qty}</span>
+                  </div>
+                ))}
+              </div>
+            );
+          }
+
+          // Single quantity - display normally
+          return <span className="text-sm" title={String(quantity)}>{quantity}</span>;
+        },
       },
       {
         header: "Procurement Process",
