@@ -169,6 +169,15 @@ export default function HomePage() {
                 <span className="sm:hidden">Vendor</span>
               </Button>
               <Button
+                variant="outline"
+                onClick={() => router.push('/consultant-portal')}
+                className="flex items-center space-x-2 border-green-600/60 text-green-600 hover:border-green-600 hover:bg-green-600 hover:text-white font-semibold transition-all shadow-sm hover:shadow-md text-base px-5 py-3 h-auto"
+              >
+                <UserPlus className="h-5 w-5" />
+                <span className="hidden sm:inline">Consultant Portal</span>
+                <span className="sm:hidden">Consultant</span>
+              </Button>
+              <Button
                 onClick={() => router.push('/auth/login')}
                 className="flex items-center space-x-2 font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg transition-all text-base px-5 py-3 h-auto"
               >
