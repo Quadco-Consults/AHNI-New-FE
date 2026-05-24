@@ -172,7 +172,7 @@ function ProcurementTracker() {
             ) : (
               <>
                 Showing {data?.results?.length || 0} of{" "}
-                {data?.pagination?.total || 0} procurement items
+                {data?.pagination?.count || 0} procurement items
                 {statusFilter && (
                   <span className="text-blue-600 font-medium"> with status: {statusFilter}</span>
                 )}
@@ -216,12 +216,12 @@ function ProcurementTracker() {
         />
 
         {/* Pagination Controls */}
-        {data?.pagination && data.pagination.total > 0 && (
+        {data?.pagination && data.pagination.count > 0 && (
           <div className="flex items-center justify-between mt-4 pt-4 border-t">
             <div className="text-sm text-gray-600">
-              Page {page} of {data.pagination.pages || 1}
+              Page {page} of {data.pagination.total_pages || 1}
               <span className="ml-2 text-gray-500">
-                ({data.pagination.total} total items)
+                ({data.pagination.count} total items)
               </span>
             </div>
             <div className="flex gap-2">
@@ -237,7 +237,7 @@ function ProcurementTracker() {
                 variant="outline"
                 size="sm"
                 onClick={() => setPage(page + 1)}
-                disabled={page >= (data.pagination.pages || 1) || isLoading}
+                disabled={page >= (data.pagination.total_pages || 1) || isLoading}
               >
                 Next
               </Button>
