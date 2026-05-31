@@ -785,6 +785,45 @@ export default function CreatePaymentRequest() {
                       </div>
 
                       <div className='grid grid-cols-3 gap-4'>
+                        {/* Conditional fields based on payment type - MOVED TO TOP */}
+                        {paymentType === "CONSULTANT" && (
+                          <FormSelect
+                            label='Consultant'
+                            name={`payment_items.${index}.consultant`}
+                            placeholder='Select Consultant'
+                            options={consultantOptions}
+                          />
+                        )}
+
+                        {paymentType === "FACILITATOR" && (
+                          <FormSelect
+                            label='Facilitator'
+                            name={`payment_items.${index}.facilitator`}
+                            placeholder='Select Facilitator'
+                            options={facilitatorOptions}
+                          />
+                        )}
+
+                        {paymentType === "ADHOC_STAFF" && (
+                          <div>
+                            <FormSelect
+                              label='Adhoc Staff'
+                              name={`payment_items.${index}.adhoc_staff`}
+                              placeholder='Select Adhoc Staff'
+                              options={adhocOptions}
+                            />
+                            {adhocOptions.length === 0 ? (
+                              <p className='text-xs text-amber-600 mt-1'>
+                                ⚠️ No hired adhoc staff found. Staff must be hired from adhoc applications.
+                              </p>
+                            ) : (
+                              <p className='text-xs text-blue-600 mt-1'>
+                                💡 Showing hired adhoc staff. Select to auto-fill banking & contact details.
+                              </p>
+                            )}
+                          </div>
+                        )}
+
                         <FormInput
                           label='Payment To'
                           name={`payment_items.${index}.payment_to`}
@@ -858,45 +897,6 @@ export default function CreatePaymentRequest() {
                           name={`payment_items.${index}.address`}
                           placeholder='Enter Address'
                         />
-
-                        {/* Conditional fields based on payment type */}
-                        {paymentType === "CONSULTANT" && (
-                          <FormSelect
-                            label='Consultant'
-                            name={`payment_items.${index}.consultant`}
-                            placeholder='Select Consultant'
-                            options={consultantOptions}
-                          />
-                        )}
-
-                        {paymentType === "FACILITATOR" && (
-                          <FormSelect
-                            label='Facilitator'
-                            name={`payment_items.${index}.facilitator`}
-                            placeholder='Select Facilitator'
-                            options={facilitatorOptions}
-                          />
-                        )}
-
-                        {paymentType === "ADHOC_STAFF" && (
-                          <div>
-                            <FormSelect
-                              label='Adhoc Staff'
-                              name={`payment_items.${index}.adhoc_staff`}
-                              placeholder='Select Adhoc Staff'
-                              options={adhocOptions}
-                            />
-                            {adhocOptions.length === 0 ? (
-                              <p className='text-xs text-amber-600 mt-1'>
-                                ⚠️ No hired adhoc staff found. Staff must be hired from adhoc applications.
-                              </p>
-                            ) : (
-                              <p className='text-xs text-blue-600 mt-1'>
-                                💡 Showing hired adhoc staff. Select to auto-fill banking & contact details.
-                              </p>
-                            )}
-                          </div>
-                        )}
                       </div>
                     </CardContent>
                   </Card>

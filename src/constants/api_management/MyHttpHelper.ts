@@ -12,29 +12,16 @@ const Axios = axios.create({
   timeout: 60000,
 });
 
-// Add request interceptor for logging and URL normalization
+// Add request interceptor for URL normalization
 Axios.interceptors.request.use(
   (config) => {
-    // Debug logging
-    console.log('🔍 Request Interceptor Debug:', {
-      originalUrl: config.url,
-      baseURL: config.baseURL,
-      startsWithSlash: config.url?.startsWith('/'),
-    });
-
     // Remove leading slash from config.url to prevent double slashes
     if (config.url && config.url.startsWith('/')) {
-      console.log('⚠️ Stripping leading slash from:', config.url);
       config.url = config.url.substring(1);
-      console.log('✅ Result after stripping:', config.url);
     }
-
-    const url = `${config.baseURL || ''}${config.url || ''}`;
-    console.log('🌐 Final API Request:', config.method?.toUpperCase(), url);
     return config;
   },
   (error) => {
-    console.error('Request interceptor error:', error);
     return Promise.reject(error);
   }
 );
@@ -45,12 +32,6 @@ Axios.interceptors.response.use(
     return response;
   },
   (error) => {
-    console.error('Response interceptor error:', {
-      code: error.code,
-      message: error.message,
-      status: error.response?.status,
-      data: error.response?.data
-    });
     return Promise.reject(error);
   }
 );

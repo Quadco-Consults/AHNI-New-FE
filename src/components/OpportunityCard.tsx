@@ -69,6 +69,10 @@ export default function OpportunityCard({
         return "border-purple-500 text-purple-700 bg-purple-50";
       case "EOI":
         return "border-orange-500 text-orange-700 bg-orange-50";
+      case "RFQ":
+        return "border-cyan-500 text-cyan-700 bg-cyan-50";
+      case "RFP":
+        return "border-indigo-500 text-indigo-700 bg-indigo-50";
       default:
         return "border-gray-500 text-gray-700 bg-gray-50";
     }
@@ -122,6 +126,8 @@ export default function OpportunityCard({
       case "Adhoc":
         return "opportunities@ahnigeria.org";
       case "EOI":
+      case "RFQ":
+      case "RFP":
         return "procurement@ahnigeria.org";
       default:
         return "opportunities@ahnigeria.org";
@@ -224,15 +230,13 @@ export default function OpportunityCard({
             )}
           </div>
 
-          <div className="w-full flex flex-col items-center justify-center absolute bottom-0 left-0 py-[.75rem] bg-gradient-to-b from-white/50 via-white/60 to-white/90">
-            <div className="bg-white w-fit">
-              <Button
-                className="bg-white text-primary z-[99] border border-[#00000012] hover:bg-primary hover:text-white transition-all"
-                onClick={onCardClick}
-              >
-                Tap to View
-              </Button>
-            </div>
+          <div className="w-full flex flex-col items-center justify-center absolute bottom-0 left-0 py-[.75rem] bg-gradient-to-b from-white/50 via-white/70 to-white">
+            <Button
+              className="bg-primary text-primary-foreground z-[99] hover:bg-primary/90 transition-all shadow-md hover:shadow-lg font-semibold"
+              onClick={onCardClick}
+            >
+              View Details
+            </Button>
           </div>
         </div>
       </Card>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import OpportunityCard from "@/components/OpportunityCard";
@@ -21,18 +21,22 @@ import {
   ExternalLink,
   Clock,
   AlertCircle,
-  ArrowRight
+  ArrowRight,
+  X,
+  Menu
 } from "lucide-react";
 import Image from "next/image";
 import { useGetPublicEois } from "@/features/procurement/controllers/eoiController";
 
 export default function OpportunitiesPage() {
   const router = useRouter();
+  const resultsRef = useRef<HTMLElement>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [jobTypeFilter, setJobTypeFilter] = useState("all");
   const [locationFilter, setLocationFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Reset to page 1 when search or filters change
   useEffect(() => {
@@ -40,25 +44,16 @@ export default function OpportunitiesPage() {
   }, [searchTerm, categoryFilter, jobTypeFilter, locationFilter]);
 
   // Fetch all opportunities from the unified public endpoint
-  // TEMPORARY: Using size=13 (max safe size before record #14 error) until production backend fix deploys
   const { data: publicOpportunitiesData, isLoading: opportunitiesLoading, error } = useGetPublicEois({
-    page: 1,  // Fixed to page 1 to avoid pagination hitting problematic record #14
-    size: 13,  // Maximum safe size - records 1-13 work, record #14+ has project.name error
+    page: currentPage,
+    size: 20,
     search: searchTerm,
     enabled: true
   });
 
-  // Debug logging
-  console.log('=== OPPORTUNITIES DEBUG ===');
-  console.log('Raw API Data:', publicOpportunitiesData);
-  console.log('Loading:', opportunitiesLoading);
-  console.log('Error:', error);
-  console.log('Results count:', publicOpportunitiesData?.data?.results?.length || 0);
-
   // Transform unified public opportunities data to match AHNI structure
   const allOpportunities = useMemo(() => {
     const results = publicOpportunitiesData?.data?.results || [];
-    console.log('Processing results:', results.length, 'opportunities');
 
     return results.map((item: any) => {
       // Determine display type based on opportunity_type
@@ -66,7 +61,6 @@ export default function OpportunitiesPage() {
       if (item.opportunity_type === "JOB") displayType = "Full Time";
       if (item.opportunity_type === "CONSULTANT") displayType = "Consultant";
       if (item.opportunity_type === "ADHOC") displayType = "Adhoc";
-      if (item.opportunity_type === "FACILITATOR") displayType = "Facilitator";
       if (item.opportunity_type === "EOI") displayType = "EOI";
       if (item.opportunity_type === "RFQ") displayType = "RFQ";
       if (item.opportunity_type === "RFP") displayType = "RFP";
@@ -77,7 +71,7 @@ export default function OpportunitiesPage() {
         category = "Procurement & EOI";
       } else if (item.opportunity_type === "JOB") {
         category = "Employment";
-      } else if (item.opportunity_type === "CONSULTANT" || item.opportunity_type === "ADHOC" || item.opportunity_type === "FACILITATOR") {
+      } else if (item.opportunity_type === "CONSULTANT" || item.opportunity_type === "ADHOC") {
         category = "Contract & Consulting";
       }
 
@@ -87,8 +81,6 @@ export default function OpportunitiesPage() {
         applicationEmail = "procurement@ahnigeria.org";
       } else if (item.opportunity_type === "CONSULTANT") {
         applicationEmail = "consultants@ahnigeria.org";
-      } else if (item.opportunity_type === "FACILITATOR") {
-        applicationEmail = "facilitators@ahnigeria.org";
       } else if (item.opportunity_type === "ADHOC") {
         applicationEmail = "opportunities@ahnigeria.org";
       }
@@ -119,6 +111,17 @@ export default function OpportunitiesPage() {
     });
   }, [publicOpportunitiesData]);
 
+  // Extract unique locations from opportunities
+  const availableLocations = useMemo(() => {
+    const locations = new Set<string>();
+    allOpportunities.forEach(opp => {
+      if (opp.location) {
+        locations.add(opp.location);
+      }
+    });
+    return Array.from(locations).sort();
+  }, [allOpportunities]);
+
   // Filter opportunities
   const filteredOpportunities = useMemo(() => {
     return allOpportunities.filter((opportunity) => {
@@ -138,6 +141,15 @@ export default function OpportunitiesPage() {
       return matchesSearch && matchesCategory && matchesJobType && matchesLocation;
     });
   }, [allOpportunities, searchTerm, categoryFilter, jobTypeFilter, locationFilter]);
+
+  const scrollToResults = () => {
+    if (resultsRef.current) {
+      resultsRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+  };
 
   const formatDate = (dateString: string) => {
     if (!dateString) return "No deadline specified";
@@ -174,9 +186,6 @@ export default function OpportunitiesPage() {
       case 'Consultant':
       case 'CONSULTANT':
         return `/consultant-jobs/${opportunity.id}`;
-      case 'Facilitator':
-      case 'FACILITATOR':
-        return `/facilitator-jobs/${opportunity.id}`;
       case 'Adhoc':
       case 'ADHOC':
         return `/adhoc-jobs/${opportunity.id}`;
@@ -258,26 +267,76 @@ export default function OpportunitiesPage() {
             </nav>
 
             <div className="flex items-center space-x-3">
+              {/* Mobile Menu Button */}
               <Button
                 variant="outline"
-                onClick={() => router.push('/vendor-portal/login')}
-                className="flex items-center space-x-2 border-primary/60 text-primary hover:border-primary hover:bg-primary hover:text-primary-foreground font-semibold transition-all shadow-sm hover:shadow-md px-4 py-2.5"
+                size="icon"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="lg:hidden"
               >
-                <Users className="h-4 w-4" />
-                <span className="hidden sm:inline">Vendor Portal</span>
-                <span className="sm:hidden">Vendor</span>
-              </Button>
-              <Button
-                onClick={() => router.push('/auth/login')}
-                className="flex items-center space-x-2 font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg transition-all px-4 py-2.5"
-              >
-                <Users className="h-4 w-4" />
-                <span className="hidden sm:inline">Staff Portal</span>
-                <span className="sm:hidden">Staff</span>
+                {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
               </Button>
             </div>
           </div>
         </div>
+
+        {/* Mobile Menu Panel */}
+        {mobileMenuOpen && (
+          <div className="lg:hidden border-t border-border bg-white">
+            <div className="px-6 py-4 space-y-3">
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  router.push('/');
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full justify-start text-foreground/80 hover:text-primary hover:bg-primary/10 transition-all font-semibold text-base"
+              >
+                Home
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  router.push('/opportunities');
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full justify-start text-primary bg-primary/10 font-semibold text-base"
+              >
+                Opportunities
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  router.push('/about');
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full justify-start text-foreground/80 hover:text-primary hover:bg-primary/10 transition-all font-semibold text-base"
+              >
+                About
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  router.push('/focus-areas');
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full justify-start text-foreground/80 hover:text-primary hover:bg-primary/10 transition-all font-semibold text-base"
+              >
+                Focus Areas
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  router.push('/contact');
+                  setMobileMenuOpen(false);
+                }}
+                className="w-full justify-start text-foreground/80 hover:text-primary hover:bg-primary/10 transition-all font-semibold text-base"
+              >
+                Contact
+              </Button>
+            </div>
+          </div>
+        )}
       </header>
 
       {/* Main Content */}
@@ -341,7 +400,7 @@ export default function OpportunitiesPage() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 lg:gap-8 max-w-none mx-auto px-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 lg:gap-8 max-w-none mx-auto px-4">
               {/* Consultant Opportunities */}
               <Card className="hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 cursor-pointer group border-2 border-border hover:border-primary/20 bg-white">
                 <CardHeader className="text-center pb-3">
@@ -363,6 +422,7 @@ export default function OpportunitiesPage() {
                     onClick={() => {
                       setCategoryFilter("Contract & Consulting");
                       setJobTypeFilter("Consultant");
+                      setTimeout(scrollToResults, 100);
                     }}
                   >
                     View Consultant Jobs
@@ -392,6 +452,7 @@ export default function OpportunitiesPage() {
                     onClick={() => {
                       setCategoryFilter("Employment");
                       setJobTypeFilter("Full Time");
+                      setTimeout(scrollToResults, 100);
                     }}
                   >
                     View Job Openings
@@ -421,6 +482,7 @@ export default function OpportunitiesPage() {
                     onClick={() => {
                       setCategoryFilter("Contract & Consulting");
                       setJobTypeFilter("Adhoc");
+                      setTimeout(scrollToResults, 100);
                     }}
                   >
                     View Adhoc Work
@@ -450,9 +512,70 @@ export default function OpportunitiesPage() {
                     onClick={() => {
                       setCategoryFilter("Procurement & EOI");
                       setJobTypeFilter("EOI");
+                      setTimeout(scrollToResults, 100);
                     }}
                   >
                     View EOI Opportunities
+                    <ArrowRight className="h-4 w-4 ml-2" />
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* RFQ Opportunities */}
+              <Card className="hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 cursor-pointer group border-2 border-border hover:border-primary/20 bg-white">
+                <CardHeader className="text-center pb-3">
+                  <div className="bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-all duration-300 shadow-lg">
+                    <FileText className="h-10 w-10 text-white" />
+                  </div>
+                  <CardTitle className="text-xl font-bold group-hover:text-primary transition-colors tracking-tight">
+                    Request for Quote
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="text-center">
+                  <CardDescription className="text-base leading-relaxed mb-6 font-medium">
+                    Vendor quotations for procurement of goods and services. Requires vendor portal login for prequalified vendors.
+                  </CardDescription>
+                  <Button
+                    variant="outline"
+                    size="default"
+                    className="group-hover:bg-cyan-500 group-hover:text-white transition-all font-semibold shadow-sm hover:shadow-md w-full"
+                    onClick={() => {
+                      setCategoryFilter("Procurement & EOI");
+                      setJobTypeFilter("RFQ");
+                      setTimeout(scrollToResults, 100);
+                    }}
+                  >
+                    View RFQ Opportunities
+                    <ArrowRight className="h-4 w-4 ml-2" />
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* RFP Opportunities */}
+              <Card className="hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 cursor-pointer group border-2 border-border hover:border-primary/20 bg-white">
+                <CardHeader className="text-center pb-3">
+                  <div className="bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-all duration-300 shadow-lg">
+                    <FileText className="h-10 w-10 text-white" />
+                  </div>
+                  <CardTitle className="text-xl font-bold group-hover:text-primary transition-colors tracking-tight">
+                    Request for Proposal
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="text-center">
+                  <CardDescription className="text-base leading-relaxed mb-6 font-medium">
+                    Comprehensive proposals for complex projects and services. Accessible through vendor portal for qualified vendors.
+                  </CardDescription>
+                  <Button
+                    variant="outline"
+                    size="default"
+                    className="group-hover:bg-indigo-500 group-hover:text-white transition-all font-semibold shadow-sm hover:shadow-md w-full"
+                    onClick={() => {
+                      setCategoryFilter("Procurement & EOI");
+                      setJobTypeFilter("RFP");
+                      setTimeout(scrollToResults, 100);
+                    }}
+                  >
+                    View RFP Opportunities
                     <ArrowRight className="h-4 w-4 ml-2" />
                   </Button>
                 </CardContent>
@@ -510,10 +633,10 @@ export default function OpportunitiesPage() {
                       <SelectItem value="all" className="font-medium">All Types</SelectItem>
                       <SelectItem value="Full Time" className="font-medium">Full Time Jobs</SelectItem>
                       <SelectItem value="Consultant" className="font-medium">Consultant Roles</SelectItem>
-                      <SelectItem value="Facilitator" className="font-medium">Facilitator Positions</SelectItem>
                       <SelectItem value="Adhoc" className="font-medium">Adhoc Assignments</SelectItem>
                       <SelectItem value="EOI" className="font-medium">Expression of Interest</SelectItem>
                       <SelectItem value="RFQ" className="font-medium">Request for Quote</SelectItem>
+                      <SelectItem value="RFP" className="font-medium">Request for Proposal</SelectItem>
                     </SelectContent>
                   </Select>
 
@@ -524,11 +647,11 @@ export default function OpportunitiesPage() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all" className="font-medium">All Locations</SelectItem>
-                      <SelectItem value="Abuja" className="font-medium">Abuja, FCT</SelectItem>
-                      <SelectItem value="Lagos" className="font-medium">Lagos State</SelectItem>
-                      <SelectItem value="Kano" className="font-medium">Kano State</SelectItem>
-                      <SelectItem value="Nigeria" className="font-medium">Nigeria (Multiple)</SelectItem>
-                      <SelectItem value="Remote" className="font-medium">Remote Work</SelectItem>
+                      {availableLocations.map((location) => (
+                        <SelectItem key={location} value={location} className="font-medium">
+                          {location}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -539,23 +662,43 @@ export default function OpportunitiesPage() {
                     <div className="flex flex-wrap items-center gap-2 mb-3">
                       <span className="text-sm font-semibold text-foreground">Active Filters:</span>
                       {searchTerm && (
-                        <Badge variant="secondary" className="font-medium">
+                        <Badge
+                          variant="secondary"
+                          className="font-medium cursor-pointer hover:bg-destructive hover:text-destructive-foreground transition-colors flex items-center gap-1 pr-1"
+                          onClick={() => setSearchTerm("")}
+                        >
                           Search: "{searchTerm}"
+                          <X className="h-3 w-3" />
                         </Badge>
                       )}
                       {categoryFilter !== "all" && (
-                        <Badge variant="secondary" className="font-medium">
+                        <Badge
+                          variant="secondary"
+                          className="font-medium cursor-pointer hover:bg-destructive hover:text-destructive-foreground transition-colors flex items-center gap-1 pr-1"
+                          onClick={() => setCategoryFilter("all")}
+                        >
                           Category: {categoryFilter}
+                          <X className="h-3 w-3" />
                         </Badge>
                       )}
                       {jobTypeFilter !== "all" && (
-                        <Badge variant="secondary" className="font-medium">
+                        <Badge
+                          variant="secondary"
+                          className="font-medium cursor-pointer hover:bg-destructive hover:text-destructive-foreground transition-colors flex items-center gap-1 pr-1"
+                          onClick={() => setJobTypeFilter("all")}
+                        >
                           Type: {jobTypeFilter}
+                          <X className="h-3 w-3" />
                         </Badge>
                       )}
                       {locationFilter !== "all" && (
-                        <Badge variant="secondary" className="font-medium">
+                        <Badge
+                          variant="secondary"
+                          className="font-medium cursor-pointer hover:bg-destructive hover:text-destructive-foreground transition-colors flex items-center gap-1 pr-1"
+                          onClick={() => setLocationFilter("all")}
+                        >
                           Location: {locationFilter}
+                          <X className="h-3 w-3" />
                         </Badge>
                       )}
                     </div>
@@ -581,7 +724,7 @@ export default function OpportunitiesPage() {
         </section>
 
         {/* Results Section */}
-        <section className="py-16 px-6 lg:px-12 bg-background relative">
+        <section ref={resultsRef} className="py-16 px-6 lg:px-12 bg-background relative">
           {/* Background pattern */}
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-muted/10 to-transparent"></div>
           {/* Dot pattern */}
@@ -616,23 +759,75 @@ export default function OpportunitiesPage() {
                 <span className="ml-3">Loading opportunities...</span>
               </div>
             ) : filteredOpportunities.length === 0 ? (
-              <Card className="text-center py-16">
+              <Card className="text-center py-16 border-2 border-dashed">
                 <CardContent>
-                  <FileText className="h-16 w-16 mx-auto mb-4 text-gray-300" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">No Opportunities Found</h3>
-                  <p className="text-gray-600 mb-4">
-                    Try adjusting your search criteria or check back later for new openings.
+                  <FileText className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
+                  <h3 className="text-2xl font-bold text-foreground mb-2">No Opportunities Found</h3>
+                  <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                    {searchTerm ? (
+                      <>No results match your search "{searchTerm}". Try different keywords or browse all opportunities.</>
+                    ) : (
+                      <>Try adjusting your filters or check back later for new openings.</>
+                    )}
                   </p>
+
+                  {/* Suggestions based on filters */}
+                  <div className="mb-6 max-w-lg mx-auto">
+                    <p className="text-sm font-semibold text-foreground mb-3">Try these suggestions:</p>
+                    <div className="flex flex-wrap gap-2 justify-center">
+                      {categoryFilter !== "all" && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setCategoryFilter("all")}
+                          className="text-xs"
+                        >
+                          View all categories
+                        </Button>
+                      )}
+                      {jobTypeFilter !== "all" && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setJobTypeFilter("all")}
+                          className="text-xs"
+                        >
+                          View all job types
+                        </Button>
+                      )}
+                      {locationFilter !== "all" && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setLocationFilter("all")}
+                          className="text-xs"
+                        >
+                          View all locations
+                        </Button>
+                      )}
+                      {searchTerm && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setSearchTerm("")}
+                          className="text-xs"
+                        >
+                          Clear search
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+
                   <Button
-                    variant="outline"
                     onClick={() => {
                       setSearchTerm("");
                       setCategoryFilter("all");
                       setJobTypeFilter("all");
                       setLocationFilter("all");
                     }}
+                    className="font-semibold"
                   >
-                    Clear All Filters
+                    Clear All Filters & Show All
                   </Button>
                 </CardContent>
               </Card>
@@ -655,19 +850,6 @@ export default function OpportunitiesPage() {
                     onCardClick={() => router.push(getDetailRoute(opportunity))}
                   />
                 ))}
-              </div>
-            )}
-
-            {/* Pagination Controls - Temporarily disabled until backend fix deploys */}
-            {!opportunitiesLoading && filteredOpportunities.length > 0 && publicOpportunitiesData?.data?.count > 13 && (
-              <div className="mt-8 p-4 bg-amber-50 border border-amber-200 rounded-lg">
-                <div className="flex items-center gap-2 text-sm text-amber-800">
-                  <AlertCircle className="h-4 w-4" />
-                  <p>
-                    Showing first 13 of {publicOpportunitiesData?.data?.count} opportunities.
-                    Full pagination will be available after backend maintenance completes.
-                  </p>
-                </div>
               </div>
             )}
               </div>
@@ -712,6 +894,18 @@ export default function OpportunitiesPage() {
                         <span className="text-muted-foreground">EOI Opportunities</span>
                         <Badge variant="outline" className="font-bold">
                           {allOpportunities.filter(o => o.type === 'EOI').length}
+                        </Badge>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-muted-foreground">RFQ (Quotes)</span>
+                        <Badge variant="outline" className="font-bold">
+                          {allOpportunities.filter(o => o.type === 'RFQ').length}
+                        </Badge>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-muted-foreground">RFP (Proposals)</span>
+                        <Badge variant="outline" className="font-bold">
+                          {allOpportunities.filter(o => o.type === 'RFP').length}
                         </Badge>
                       </div>
                     </CardContent>

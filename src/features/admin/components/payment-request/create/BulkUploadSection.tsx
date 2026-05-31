@@ -80,7 +80,23 @@ export default function BulkUploadSection({
   const [uploadComplete, setUploadComplete] = useState(false);
 
   const { downloadTemplate } = useDownloadPaymentTemplate();
-  const { uploadTemplate, isLoading: isUploading, isSuccess, error } = useUploadPaymentTemplate();
+  const { uploadTemplate, isLoading: isUploading, isSuccess, error, data: uploadResponse } = useUploadPaymentTemplate();
+
+  // Handle successful upload - redirect to document upload page
+  useEffect(() => {
+    if (isSuccess && uploadResponse?.data?.payment_request?.id) {
+      setUploadComplete(true);
+      toast.success("Bulk payment request created successfully. Please upload supporting documents.");
+
+      // Navigate to document upload page after a short delay
+      const paymentRequestId = uploadResponse.data.payment_request.id;
+      const timer = setTimeout(() => {
+        router.push(`${AdminRoutes.PAYMENT_REQUEST}/${paymentRequestId}/upload-document`);
+      }, 1500);
+
+      return () => clearTimeout(timer);
+    }
+  }, [isSuccess, uploadResponse, router]);
 
   // Prepare location options
   const locationOptions = useMemo(
@@ -226,16 +242,7 @@ export default function BulkUploadSection({
         authorizer,
         approver,
       });
-
-      if (!error) {
-        setUploadComplete(true);
-        toast.success("Bulk payment request created successfully");
-
-        // Navigate to payment requests list after a short delay
-        setTimeout(() => {
-          router.push(AdminRoutes.PAYMENT_REQUEST);
-        }, 1500);
-      }
+      // Success handling is now done in useEffect watching isSuccess
     } catch (err) {
       toast.error("Failed to create bulk payment. Please check the file and try again.");
     }

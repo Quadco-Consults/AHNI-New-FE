@@ -424,6 +424,34 @@ export const useUploadPaymentTemplate = () => {
   return { uploadTemplate, data, isLoading, isSuccess, error };
 };
 
+// Upload Document to Payment Request
+export const useUploadPaymentDocument = (paymentRequestId: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    IPaymentRequestSingleData,
+    Error,
+    FormData
+  >({
+    endpoint: `${BASE_URL}${paymentRequestId}/upload-document/`,
+    queryKey: ["paymentRequests", "paymentRequest", paymentRequestId],
+    isAuth: true,
+    method: "POST",
+    contentType: "multipart/form-data",
+  });
+
+  const uploadDocument = async (file: File) => {
+    try {
+      const formData = new FormData();
+      formData.append("document", file);
+
+      await callApi(formData);
+    } catch (error) {
+      console.error("Document upload error:", error);
+    }
+  };
+
+  return { uploadDocument, data, isLoading, isSuccess, error };
+};
+
 // Legacy exports for backward compatibility
 export const useGetAllPaymentRequestsQuery = useGetAllPaymentRequests;
 export const useGetSinglePaymentRequestQuery = useGetSinglePaymentRequest;

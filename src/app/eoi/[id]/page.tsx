@@ -67,11 +67,11 @@ export default function PublicEOIPage() {
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       {/* Header - Matching main EOI page style */}
       <div className="bg-white border-b border-border">
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 py-6">
           <div className="text-center">
             <h1 className="text-4xl font-light text-foreground mb-4">{eoiData.name}</h1>
-            <p className="text-lg text-muted-foreground font-light max-w-3xl mx-auto mb-6">
-              {eoiData.description}
+            <p className="text-lg text-muted-foreground font-light max-w-3xl mx-auto mb-6 whitespace-pre-line text-left">
+              {eoiData.description?.replace(/\r\n/g, '\n').replace(/  +/g, ' ').trim()}
             </p>
 
             <div className="flex flex-wrap justify-center gap-4 mt-6">
@@ -101,7 +101,7 @@ export default function PublicEOIPage() {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-6">
+      <div className="container mx-auto px-4 pt-6 pb-0">
         {/* Status Alert */}
         {!isOpen && (
           <UICard className="mb-6">
@@ -158,7 +158,7 @@ export default function PublicEOIPage() {
             </div>
 
             {eoiData.categories && eoiData.categories.length > 0 && (
-              <div className="mb-4">
+              <div>
                 <h4 className="font-semibold text-foreground mb-2">Categories</h4>
                 <div className="flex flex-wrap gap-2">
                   {eoiData.categories.map((category, index) => (
@@ -174,7 +174,7 @@ export default function PublicEOIPage() {
 
         {/* Procurement Details if available */}
         {eoiData.procurement_details && (
-          <UICard className="mb-6">
+          <UICard className="mb-0">
             <CardHeader className="pb-4">
               <CardTitle className="text-xl font-semibold">Procurement Requirements</CardTitle>
             </CardHeader>
@@ -241,7 +241,7 @@ export default function PublicEOIPage() {
     return (
       <>
         <EOIDetailsSection />
-        <div className="bg-muted/20 py-8">
+        <div className="bg-muted/20 pt-6 pb-8">
           <div className="container mx-auto px-4 max-w-4xl text-center">
             <UICard>
               <CardContent className="p-8">
@@ -260,10 +260,10 @@ export default function PublicEOIPage() {
     return (
       <>
         <EOIDetailsSection />
-        <div className="bg-muted/20 py-12">
+        <div className="bg-muted/20 pt-6 pb-8">
           <div className="container mx-auto px-4 max-w-6xl">
             {/* Path Selection */}
-            <div className="mb-12">
+            <div className="mb-8">
               <h2 className="text-2xl font-light text-foreground text-center mb-8">Choose Your Participation Path</h2>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* New Vendor Path */}
@@ -354,7 +354,7 @@ export default function PublicEOIPage() {
             </div>
 
             {/* Additional Information */}
-            <Alert className="mb-8">
+            <Alert>
               <Info className="h-4 w-4" />
               <AlertDescription>
                 <strong>Important:</strong> This procurement opportunity is open to both new and existing vendors.
@@ -397,7 +397,7 @@ export default function PublicEOIPage() {
   return (
     <>
       <EOIDetailsSection />
-      <div className="bg-muted/20 py-8">
+      <div className="bg-muted/20 pt-6 pb-8">
         <div className="container mx-auto px-4 max-w-4xl">
           <UICard className="mb-6">
             <CardHeader className="pb-4">

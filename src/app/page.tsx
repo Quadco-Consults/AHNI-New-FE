@@ -5,6 +5,14 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   Building2,
   Users,
   Shield,
@@ -18,7 +26,9 @@ import {
   ChevronRight,
   Heart,
   Globe,
-  Home
+  Home,
+  LogIn,
+  ChevronDown
 } from "lucide-react";
 import { getAccessToken } from "@/utils/auth";
 import Image from "next/image";
@@ -158,33 +168,71 @@ export default function HomePage() {
               </Button>
             </nav>
 
-            <div className="flex items-center space-x-3">
-              <Button
-                variant="outline"
-                onClick={() => router.push('/vendor-portal/login')}
-                className="flex items-center space-x-2 border-primary/60 text-primary hover:border-primary hover:bg-primary hover:text-primary-foreground font-semibold transition-all shadow-sm hover:shadow-md text-base px-5 py-3 h-auto"
-              >
-                <Users className="h-5 w-5" />
-                <span className="hidden sm:inline">Vendor Portal</span>
-                <span className="sm:hidden">Vendor</span>
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => router.push('/consultant-portal')}
-                className="flex items-center space-x-2 border-green-600/60 text-green-600 hover:border-green-600 hover:bg-green-600 hover:text-white font-semibold transition-all shadow-sm hover:shadow-md text-base px-5 py-3 h-auto"
-              >
-                <UserPlus className="h-5 w-5" />
-                <span className="hidden sm:inline">Consultant Portal</span>
-                <span className="sm:hidden">Consultant</span>
-              </Button>
-              <Button
-                onClick={() => router.push('/auth/login')}
-                className="flex items-center space-x-2 font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg transition-all text-base px-5 py-3 h-auto"
-              >
-                <Shield className="h-5 w-5" />
-                <span className="hidden sm:inline">Staff Portal</span>
-                <span className="sm:hidden">Staff</span>
-              </Button>
+            <div className="flex items-center">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    className="flex items-center space-x-2 font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg transition-all text-base px-5 py-3 h-auto"
+                  >
+                    <LogIn className="h-5 w-5" />
+                    <span>Portal Login</span>
+                    <ChevronDown className="h-4 w-4 ml-1" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-72">
+                  <DropdownMenuLabel className="text-base font-semibold">Select Portal</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+
+                  <DropdownMenuItem
+                    onClick={() => router.push('/auth/login')}
+                    className="cursor-pointer py-3 focus:bg-primary/10"
+                  >
+                    <div className="flex items-start space-x-3">
+                      <div className="bg-primary/10 rounded-full p-2 mt-0.5">
+                        <Shield className="h-5 w-5 text-primary" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="font-semibold text-base text-foreground">Staff Portal</div>
+                        <div className="text-sm text-muted-foreground">For AHNi employees and staff members</div>
+                      </div>
+                    </div>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuSeparator />
+
+                  <DropdownMenuItem
+                    onClick={() => router.push('/vendor-portal/login')}
+                    className="cursor-pointer py-3 focus:bg-blue-50"
+                  >
+                    <div className="flex items-start space-x-3">
+                      <div className="bg-blue-100 rounded-full p-2 mt-0.5">
+                        <Users className="h-5 w-5 text-blue-600" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="font-semibold text-base text-foreground">Vendor Portal</div>
+                        <div className="text-sm text-muted-foreground">For registered vendors and suppliers</div>
+                      </div>
+                    </div>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuSeparator />
+
+                  <DropdownMenuItem
+                    onClick={() => router.push('/consultant-portal')}
+                    className="cursor-pointer py-3 focus:bg-green-50"
+                  >
+                    <div className="flex items-start space-x-3">
+                      <div className="bg-green-100 rounded-full p-2 mt-0.5">
+                        <UserPlus className="h-5 w-5 text-green-600" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="font-semibold text-base text-foreground">Consultant Portal</div>
+                        <div className="text-sm text-muted-foreground">For consultants and external partners</div>
+                      </div>
+                    </div>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </div>

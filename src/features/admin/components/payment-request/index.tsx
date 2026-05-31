@@ -6,7 +6,7 @@ import { paymentRequestColumns } from "@/features/admin/components/table-columns
 import Card from "@/components/Card";
 import { Button } from "@/components/ui/button";
 import { AdminRoutes } from "@/constants/RouterConstants";
-import { Plus } from "lucide-react";
+import { Plus, FileSpreadsheet, Settings } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
 import { useGetAllPaymentRequestsQuery } from "@/features/admin/controllers/paymentRequestController";
@@ -62,7 +62,19 @@ export default function PaymentRequestHome() {
 
   return (
     <>
-      <div className='flex justify-end'>
+      <div className='flex justify-between items-center'>
+        <div className='flex gap-3'>
+          <Link href='/dashboard/admin/payment-request/bulk'>
+            <Button variant='outline'>
+              <FileSpreadsheet size={20} className='mr-2' /> Bulk Payment
+            </Button>
+          </Link>
+          <Link href='/dashboard/admin/deduction-settings'>
+            <Button variant='outline'>
+              <Settings size={20} className='mr-2' /> Deduction Settings
+            </Button>
+          </Link>
+        </div>
         <Link href='/dashboard/admin/payment-request/create/'>
           <Button>
             <Plus size={20} /> Raise Payment Request

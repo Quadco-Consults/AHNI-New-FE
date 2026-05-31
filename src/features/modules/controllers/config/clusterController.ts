@@ -78,7 +78,8 @@ export const useGetClustersByLocationManager = (locationId: string, enabled: boo
     queryKey: ["clusters-by-location", locationId],
     queryFn: async () => {
       const response = await AxiosWithToken.get(`/config/clusters/by-location/${locationId}/`);
-      return response.data;
+      // Backend wraps response in {status, message, data} format for custom actions
+      return response.data.data || response.data;
     },
     enabled: enabled && !!locationId,
     refetchOnWindowFocus: false,
@@ -91,7 +92,8 @@ export const useGetActiveClustersManager = (enabled: boolean = true) => {
     queryKey: ["active-clusters"],
     queryFn: async () => {
       const response = await AxiosWithToken.get("/config/clusters/active/");
-      return response.data;
+      // Backend wraps response in {status, message, data} format for custom actions
+      return response.data.data || response.data;
     },
     enabled,
     refetchOnWindowFocus: false,

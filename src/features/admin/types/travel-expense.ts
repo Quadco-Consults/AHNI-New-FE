@@ -13,6 +13,9 @@ const ActivitySchema = z.object({
         .string()
         .optional().or(z.literal("")),
     visa_free: z.string().optional().or(z.literal("")),
+    visa_fee: z
+        .string()
+        .optional().or(z.literal("")),
     airport_taxi_fee: z
         .string()
         .optional().or(z.literal("")),
@@ -20,6 +23,22 @@ const ActivitySchema = z.object({
         .string()
         .optional().or(z.literal("")),
     inter_city_taxi_fee: z
+        .string()
+        .optional().or(z.literal("")),
+    // New expense fields
+    mileage_cost: z
+        .string()
+        .optional().or(z.literal("")),
+    hotel_accommodation: z
+        .string()
+        .optional().or(z.literal("")),
+    per_diem: z
+        .string()
+        .optional().or(z.literal("")),
+    communication_costs: z
+        .string()
+        .optional().or(z.literal("")),
+    within_city_taxi_fee: z
         .string()
         .optional().or(z.literal("")),
     total_amount: z.string().optional().or(z.literal("")),
@@ -33,7 +52,10 @@ const TravelerSchema = z.object({
 });
 
 export const TravelExpenseSchema = z.object({
-    expense_authorization: z.string().optional().or(z.literal("")), // Optional in edit mode
+    // Link to EA and Site Visit (optional)
+    expense_authorization: z.string().optional().or(z.literal("")),
+    site_visit: z.string().optional().or(z.literal("")),
+
     user: z.string().min(1, "Please select user").optional(),
     staff_id: z.string().min(1, "Please enter staff id").optional(),
     travel_purpose: z.string().min(1, "Please enter travel purpose"),
@@ -77,9 +99,16 @@ export interface IActivity {
     arrival_datetime: string;
     assignment_location: string;
     visa_free: boolean;
+    visa_fee: string;
     airport_taxi_fee: string;
     registration_fee: string;
     inter_city_taxi_fee: string;
+    // New expense fields to match manual TER form
+    mileage_cost: string;
+    hotel_accommodation: string;
+    per_diem: string;
+    communication_costs: string;
+    within_city_taxi_fee: string;
     total_amount: string;
     others: string;
 }
@@ -225,19 +254,44 @@ export interface ITravelExpenseSingleData {
     updated_by: string | null;
     approved_by: string | null;
     rejected_by: string | null;
-    // Reconciliation data
-    reconciliation?: ITravelReconciliation;
-    // Site visit reference for budget comparison
-    site_visit_id?: string;
+    // Link to EA and Site Visit
     expense_authorization?: {
         id: string;
         ta_number: string;
-        budgeted_accommodation: number;
-        budgeted_meals: number;
-        budgeted_transport: number;
-        budgeted_per_diem: number;
-        budgeted_total: number;
+        department?: any;
+        fco?: any;
+        project?: any;
+        destinations?: Array<{
+            id: string;
+            city: string;
+            state: string;
+            arrival_date: string;
+            departure_date: string;
+            purpose: string;
+        }>;
+        travel_fees?: Array<{
+            id: string;
+            lodging: number;
+            meals: number;
+            number_of_nights: number;
+            interstate: number;
+            airport_taxi: number;
+            car_hire: number;
+        }>;
+        status: string;
     };
+    site_visit?: {
+        id: string;
+        title: string;
+        visit_type: string;
+        location: any;
+        start_date: string;
+        end_date: string;
+        duration_days: number;
+        status: string;
+    };
+    // Reconciliation data
+    reconciliation?: ITravelReconciliation;
 }
 
 // Employee TER submission schema
