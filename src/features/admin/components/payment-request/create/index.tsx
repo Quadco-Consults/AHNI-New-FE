@@ -642,12 +642,15 @@ export default function CreatePaymentRequest() {
           <FormProvider {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
               <div className='grid grid-cols-3 mt-5 gap-10'>
-                <FormInput
-                  label='Payment Date'
-                  name='payment_date'
-                  type='date'
-                  required
-                />
+                {/* Payment Date - only show in single mode or for non-bulk-eligible types */}
+                {(paymentMode === "single" || (paymentType !== "CONSULTANT" && paymentType !== "ADHOC_STAFF")) && (
+                  <FormInput
+                    label='Payment Date'
+                    name='payment_date'
+                    type='date'
+                    required
+                  />
+                )}
 
                 <FormSelect
                   label='Payment Type'
