@@ -474,14 +474,14 @@ export default function CreatePaymentRequest() {
   }, [paymentType, expenseAccountOptions, getSuggestedExpenseAccount]); // Removed form to prevent infinite loop
 
   // Helper function to convert amount to words
-  const handleAmountChange = (amount: string, index: number) => {
+  const handleAmountChange = useCallback((amount: string, index: number) => {
     if (amount && !isNaN(parseFloat(amount))) {
       const wordsValue = numberToWords(amount);
       form.setValue(`payment_items.${index}.amount_in_words`, wordsValue);
     } else {
       form.setValue(`payment_items.${index}.amount_in_words`, '');
     }
-  };
+  }, [form]);
 
   // Watch for changes in staff selections and amount changes to auto-populate
   useEffect(() => {
@@ -537,10 +537,10 @@ export default function CreatePaymentRequest() {
       }
     });
     return () => subscription.unsubscribe();
-  }, [form]); // Removed options dependencies to prevent infinite re-renders
+  }, [form, handleStaffSelection, handleAmountChange]); // Added handler dependencies
 
   // Helper function to auto-populate payment item based on staff selection
-  const handleStaffSelection = (staffType: string, staffId: string, index: number) => {
+  const handleStaffSelection = useCallback((staffType: string, staffId: string, index: number) => {
     let staffData: any = null;
     let staffOptions: any[] = [];
 
@@ -639,7 +639,7 @@ export default function CreatePaymentRequest() {
         }
       }
     }
-  };
+  }, [consultantOptions, facilitatorOptions, adhocOptions, form]);
 
   return (
     <PaymentRequestLayout>
