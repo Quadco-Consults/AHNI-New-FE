@@ -535,6 +535,11 @@ export default function CreatePaymentRequest() {
           form.setValue(`payment_items.${index}.address`, `${location.name}, ${location.state || ''}`);
         }
 
+        // Auto-populate Tax ID Number
+        if (staffData.tax_identification_number) {
+          form.setValue(`payment_items.${index}.tax_identification_number`, staffData.tax_identification_number);
+        }
+
       } else if (staffType === "ADHOC_STAFF") {
         // For adhoc staff from adhoc applicants, use account_name or full_name
         const fullName = staffData.full_name || `${staffData.surname || ''} ${staffData.other_names || ''}`.trim();
@@ -570,6 +575,11 @@ export default function CreatePaymentRequest() {
         }
         if (addressParts.length > 0) {
           form.setValue(`payment_items.${index}.address`, addressParts.join(", "));
+        }
+
+        // Auto-populate Tax ID Number
+        if (staffData.tax_identification_number) {
+          form.setValue(`payment_items.${index}.tax_identification_number`, staffData.tax_identification_number);
         }
       }
     }
