@@ -370,6 +370,25 @@ export const useGetMyVisitsAsTeamMember = () => {
   });
 };
 
+// Get Eligible Team Members (AHNI + Consultants + Facilitators + Adhoc Staff)
+export const useGetEligibleTeamMembers = (search?: string) => {
+  return useQuery({
+    queryKey: ["eligible-team-members", search],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get(`${SITE_VISIT_BASE_URL}eligible_team_members/`, {
+          params: search ? { search } : {},
+        });
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    refetchOnWindowFocus: false,
+  });
+};
+
 // ===== APPROVAL ENDPOINTS =====
 
 // Get All Approvals for a Site Visit

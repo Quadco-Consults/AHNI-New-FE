@@ -25,7 +25,7 @@ import {
 } from "@/features/programs/types/site-visit";
 
 // Controllers
-import { useCreateSiteVisit } from "@/features/programs/controllers/siteVisitController";
+import { useCreateSiteVisit, useGetEligibleTeamMembers } from "@/features/programs/controllers/siteVisitController";
 import { useGetAllFacility } from "@/features/modules/controllers/program/facilityController";
 import { useGetAllUsers } from "@/features/auth/controllers/userController";
 import { useGetAllAnnualPlans } from "@/features/programs/controllers/annualSupervisionPlanController";
@@ -75,6 +75,7 @@ const SiteVisitFormNew: React.FC<SiteVisitFormNewProps> = ({
   const { data: locationsData } = useGetAllLocations({ page: 1, size: 1000 });
   const { data: projectsData } = useGetAllProjects({ page: 1, size: 1000 });
   const { data: usersData } = useGetAllUsers({ page: 1, size: 1000 });
+  const { data: eligibleTeamMembersData } = useGetEligibleTeamMembers();
 
   // Form initialization
   const form = useForm<TSiteVisitApplicationFormValues>({
@@ -160,14 +161,25 @@ const SiteVisitFormNew: React.FC<SiteVisitFormNewProps> = ({
     [annualPlansData]
   );
 
-  // IMPORTANT FIX: Only use users from user table, NOT employee database
-  // Site visit backend expects user UUIDs, not employee record IDs
-  // Mixing employee data causes UUID mismatch errors like:
-  // "Invalid pk ef7f95b2-53f1-4581-b239-e930eec334f4 - object does not exist"
+  // Merge all eligible staff types (AHNI + Consultants + Facilitators + Adhoc Staff)
+  // Site visit backend expects user UUIDs from the users table
   const allStaff = React.useMemo(() => {
-    const users = filterAhniStaffOnly((usersData?.data?.results || []) as any[]);
-    return users;
-  }, [usersData]);
+    if (!eligibleTeamMembersData?.data) {
+      return [];
+    }
+
+    const { ahni_staff, consultants, facilitators, adhoc_staff } = eligibleTeamMembersData.data;
+
+    // Merge all staff types into a single array
+    const mergedStaff = [
+      ...(ahni_staff?.members || []),
+      ...(consultants?.members || []),
+      ...(facilitators?.members || []),
+      ...(adhoc_staff?.members || []),
+    ];
+
+    return mergedStaff;
+  }, [eligibleTeamMembersData]);
 
   // Get selected plan details
   const selectedPlanData = React.useMemo(
@@ -302,7 +314,7 @@ const SiteVisitFormNew: React.FC<SiteVisitFormNewProps> = ({
                 {mode === 'create' ? 'Create Site Visit Application' : 'Edit Site Visit Application'}
               </CardTitle>
               <p className="text-gray-600 mt-2">
-                Request approval for AHNI staff travel. Complete all required sections to submit your application.
+                Request approval for staff travel. Select from AHNI staff, consultants, facilitators, and adhoc staff. Complete all required sections to submit your application.
               </p>
             </CardHeader>
 

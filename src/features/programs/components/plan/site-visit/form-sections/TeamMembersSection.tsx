@@ -106,7 +106,7 @@ const TeamMembersSection: React.FC<TeamMembersSectionProps> = ({
           Team Members
         </CardTitle>
         <p className="text-sm text-gray-600">
-          Select AHNI staff members who will participate in this site visit. At least one team member is required.
+          Select staff members who will participate in this site visit. Includes AHNI staff, consultants, facilitators, and adhoc staff. At least one team member is required.
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -135,10 +135,15 @@ const TeamMembersSection: React.FC<TeamMembersSectionProps> = ({
                             <div className="text-sm text-gray-600">
                               {staffDetails?.email || 'No email available'}
                             </div>
-                            <div className="flex items-center gap-2 mt-1">
+                            <div className="flex items-center gap-2 mt-1 flex-wrap">
                               <Badge variant="secondary" className="text-xs">
                                 {TeamMemberRoleLabels[member.role]}
                               </Badge>
+                              {staffDetails?.staff_type && (
+                                <Badge variant="outline" className="text-xs bg-blue-50 border-blue-200 text-blue-700">
+                                  {staffDetails.staff_type}
+                                </Badge>
+                              )}
                               {staffDetails?.designation && (
                                 <Badge variant="outline" className="text-xs">
                                   {staffDetails.designation}
@@ -266,7 +271,7 @@ const TeamMembersSection: React.FC<TeamMembersSectionProps> = ({
                           {availableStaff.map((staff: any) => (
                             <CommandItem
                               key={staff.id}
-                              value={`${staff.first_name} ${staff.last_name} ${staff.email} ${staff.designation || ''}`}
+                              value={`${staff.first_name} ${staff.last_name} ${staff.email} ${staff.designation || ''} ${staff.staff_type || ''}`}
                               onSelect={() => {
                                 setNewMember({...newMember, user: staff.id});
                                 setStaffPopoverOpen(false);
@@ -275,10 +280,17 @@ const TeamMembersSection: React.FC<TeamMembersSectionProps> = ({
                               <Check
                                 className={`mr-2 h-4 w-4 ${newMember.user === staff.id ? "opacity-100" : "opacity-0"}`}
                               />
-                              <div className="flex flex-col items-start">
-                                <span className="font-medium">
-                                  {`${staff.first_name} ${staff.last_name}`}
-                                </span>
+                              <div className="flex flex-col items-start flex-1">
+                                <div className="flex items-center gap-2 w-full">
+                                  <span className="font-medium">
+                                    {`${staff.first_name} ${staff.last_name}`}
+                                  </span>
+                                  {staff.staff_type && (
+                                    <Badge variant="outline" className="text-xs bg-blue-50 border-blue-200 text-blue-700">
+                                      {staff.staff_type}
+                                    </Badge>
+                                  )}
+                                </div>
                                 <span className="text-xs text-gray-600">
                                   {staff.email}
                                   {staff.designation && ` • ${staff.designation}`}
@@ -414,7 +426,8 @@ const TeamMembersSection: React.FC<TeamMembersSectionProps> = ({
         <div className="bg-gray-50 p-3 rounded-lg border">
           <h4 className="font-medium text-gray-900 mb-2">Team Selection Guidelines</h4>
           <ul className="text-sm text-gray-700 space-y-1 list-disc ml-4">
-            <li>Include all AHNI staff who will participate in the site visit</li>
+            <li>Select from AHNI staff, consultants, facilitators, and adhoc staff</li>
+            <li>Staff type badges help identify member categories (AHNI, Consultant, etc.)</li>
             <li>Assign appropriate roles based on visit objectives and responsibilities</li>
             <li>Team size affects accommodation arrangements and travel costs</li>
             <li>Individual cost overrides are optional - use standard rates if unsure</li>
