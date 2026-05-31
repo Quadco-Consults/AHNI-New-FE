@@ -286,6 +286,144 @@ export const useRejectPaymentRequest = (id: string) => {
   return { rejectPaymentRequest, data, isLoading, isSuccess, error };
 };
 
+// ===== BULK PAYMENT HOOKS =====
+
+interface BulkPaymentStaffSelection {
+  staff_id: string;
+  days_in_period?: number;
+  daily_rate?: number;
+  deduction_amount?: number;
+}
+
+interface BulkPaymentPayload {
+  payment_type: "CONSULTANT" | "ADHOC_STAFF";
+  cluster_id?: string;
+  location_id?: string;
+  payment_date: string;
+  payment_reason: string;
+  payment_period_start?: string;
+  payment_period_end?: string;
+  default_deduction?: number;
+  staff_selections: BulkPaymentStaffSelection[];
+  reviewer: string;
+  authorizer: string;
+  approver: string;
+}
+
+// Bulk Create Payment Request
+export const useBulkCreatePaymentRequest = () => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    { message: string; payment_request: IPaymentRequestSingleData },
+    Error,
+    BulkPaymentPayload
+  >({
+    endpoint: `${BASE_URL}bulk-create/`,
+    queryKey: ["paymentRequests"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const bulkCreatePaymentRequest = async (details: BulkPaymentPayload) => {
+    try {
+      await callApi(details);
+    } catch (error) {
+      console.error("Bulk payment request create error:", error);
+    }
+  };
+
+  return { bulkCreatePaymentRequest, data, isLoading, isSuccess, error };
+};
+
+// Download Payment Template
+export const useDownloadPaymentTemplate = () => {
+  const downloadTemplate = async (params: {
+    payment_type: "CONSULTANT" | "ADHOC_STAFF";
+    cluster_id?: string;
+    location_id?: string;
+  }) => {
+    try {
+      const response = await AxiosWithToken.get(
+        `${BASE_URL}download-payment-template/`,
+        {
+          params,
+          responseType: "blob",
+        }
+      );
+
+      // Create blob and download
+      const blob = new Blob([response.data], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+
+      // Extract filename from Content-Disposition header or create default
+      const contentDisposition = response.headers["content-disposition"];
+      let filename = `bulk_payment_template_${params.payment_type}.xlsx`;
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename="?(.+)"?/);
+        if (filenameMatch) filename = filenameMatch[1];
+      }
+
+      link.setAttribute("download", filename);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+      return { success: true };
+    } catch (error) {
+      console.error("Template download error:", error);
+      throw error;
+    }
+  };
+
+  return { downloadTemplate };
+};
+
+// Upload Payment Template
+export const useUploadPaymentTemplate = () => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    { message: string; payment_request: IPaymentRequestSingleData },
+    Error,
+    FormData
+  >({
+    endpoint: `${BASE_URL}upload-payment-template/`,
+    queryKey: ["paymentRequests"],
+    isAuth: true,
+    method: "POST",
+    contentType: "multipart/form-data",
+  });
+
+  const uploadTemplate = async (params: {
+    file: File;
+    payment_type: "CONSULTANT" | "ADHOC_STAFF";
+    payment_date: string;
+    payment_reason: string;
+    reviewer: string;
+    authorizer: string;
+    approver: string;
+  }) => {
+    try {
+      const formData = new FormData();
+      formData.append("file", params.file);
+      formData.append("payment_type", params.payment_type);
+      formData.append("payment_date", params.payment_date);
+      formData.append("payment_reason", params.payment_reason);
+      formData.append("reviewer", params.reviewer);
+      formData.append("authorizer", params.authorizer);
+      formData.append("approver", params.approver);
+
+      await callApi(formData);
+    } catch (error) {
+      console.error("Template upload error:", error);
+    }
+  };
+
+  return { uploadTemplate, data, isLoading, isSuccess, error };
+};
+
 // Legacy exports for backward compatibility
 export const useGetAllPaymentRequestsQuery = useGetAllPaymentRequests;
 export const useGetSinglePaymentRequestQuery = useGetSinglePaymentRequest;

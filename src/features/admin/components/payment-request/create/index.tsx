@@ -19,12 +19,19 @@ import FormSelect from "@/components/atoms/FormSelect";
 import FormTextArea from "@/components/atoms/FormTextArea";
 import FormButton from "@/components/FormButton";
 import { useGetAllPurchaseOrdersQuery, useGetSinglePurchaseOrderQuery } from "@/features/procurement/controllers/purchaseOrderController";
-import { useEffect, useMemo, useCallback } from "react";
+import { useEffect, useMemo, useCallback, useState } from "react";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useGetAllUsersQuery } from "@/features/auth/controllers/userController";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { AdminRoutes } from "@/constants/RouterConstants";
 import { useGetSinglePaymentRequestQuery } from "@/features/admin/controllers/paymentRequestController";
 import { useGetAllConsultancyApplicants } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
@@ -39,8 +46,12 @@ import {
   getApproverOptions
 } from "@/utils/approvalFilters";
 import { filterAhniStaffOnly } from "@/utils/userFilters";
+import BulkUploadSection from "./BulkUploadSection";
 
 export default function CreatePaymentRequest() {
+  // Payment mode state (single or bulk)
+  const [paymentMode, setPaymentMode] = useState<"single" | "bulk">("single");
+
   const form = useForm<TPaymentRequestFormData>({
     resolver: zodResolver(PaymentRequestSchema),
     defaultValues: {
@@ -127,6 +138,13 @@ export default function CreatePaymentRequest() {
   );
 
   const paymentType = form.watch("payment_type") || "";
+
+  // Reset payment mode when payment type changes to non-bulk-eligible types
+  useEffect(() => {
+    if (paymentType !== "CONSULTANT" && paymentType !== "ADHOC_STAFF") {
+      setPaymentMode("single");
+    }
+  }, [paymentType]);
 
   // Get hired consultants and facilitators from applicants (not job ads)
   const { data: consultants } = useGetAllConsultancyApplicants({
@@ -657,6 +675,42 @@ export default function CreatePaymentRequest() {
                   ]}
                 />
 
+
+                {/* Payment Mode Selection for CONSULTANT and ADHOC_STAFF - appears after staff/consultant selection */}
+                {(paymentType === "CONSULTANT" || paymentType === "ADHOC_STAFF") && (
+                  <div className='mt-4'>
+                    <label className='block text-sm font-medium text-gray-700 mb-2'>
+                      Request Type<span className='text-red-500'>*</span>
+                    </label>
+                    <Select
+                      value={paymentMode}
+                      onValueChange={(value: "single" | "bulk") => setPaymentMode(value)}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select request type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="single">
+                          <div className="flex flex-col">
+                            <span className="font-medium">Single Payment</span>
+                            <span className="text-xs text-gray-500">
+                              Pay one {paymentType === "CONSULTANT" ? "consultant" : "adhoc staff"} at a time
+                            </span>
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="bulk">
+                          <div className="flex flex-col">
+                            <span className="font-medium">Bulk Payment</span>
+                            <span className="text-xs text-gray-500">
+                              Upload Excel file with multiple {paymentType === "CONSULTANT" ? "consultants" : "adhoc staff"}
+                            </span>
+                          </div>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+
                 {paymentType === "PURCHASE_ORDER" && (
                   <div>
                     <FormSelect
@@ -674,29 +728,43 @@ export default function CreatePaymentRequest() {
 
               </div>
 
-              <FormTextArea
-                label='Reason for Payment'
-                name='payment_reason'
-                placeholder='Enter Payment Reason'
-                required
-                className='mt-5'
-              />
+              {/* Payment Reason - only show for single mode or non-bulk-eligible types */}
+              {(paymentMode === "single" || (paymentType !== "CONSULTANT" && paymentType !== "ADHOC_STAFF")) && (
+                <FormTextArea
+                  label='Reason for Payment'
+                  name='payment_reason'
+                  placeholder='Enter Payment Reason'
+                  required
+                  className='mt-5'
+                />
+              )}
 
-              {/* Payment Items Section */}
-              <div className='mt-8'>
-                <div className='flex items-center justify-between mb-4'>
-                  <h3 className='text-lg font-semibold'>Payment Items</h3>
-                  {(paymentType === "CONSULTANT" || paymentType === "FACILITATOR" || paymentType === "ADHOC_STAFF" || paymentType === "PURCHASE_ORDER") && (
-                    <div className='text-sm text-blue-600 bg-blue-50 px-3 py-1 rounded-md'>
-                      💡 Select {
-                        paymentType === "PURCHASE_ORDER" ? "purchase order" :
-                        paymentType === "CONSULTANT" ? "hired consultant" :
-                        paymentType === "FACILITATOR" ? "hired facilitator" :
-                        "hired adhoc staff"
-                      } to auto-fill banking & contact details
-                    </div>
-                  )}
-                </div>
+              {/* Bulk Upload Section - show when mode is bulk */}
+              {paymentMode === "bulk" && (paymentType === "CONSULTANT" || paymentType === "ADHOC_STAFF") && (
+                <BulkUploadSection
+                  paymentType={paymentType as "CONSULTANT" | "ADHOC_STAFF"}
+                  reviewer={form.watch("reviewer")}
+                  authorizer={form.watch("authorizer")}
+                  approver={form.watch("approver")}
+                />
+              )}
+
+              {/* Payment Items Section - only show for single mode */}
+              {paymentMode === "single" && (
+                <div className='mt-8'>
+                  <div className='flex items-center justify-between mb-4'>
+                    <h3 className='text-lg font-semibold'>Payment Items</h3>
+                    {(paymentType === "CONSULTANT" || paymentType === "FACILITATOR" || paymentType === "ADHOC_STAFF" || paymentType === "PURCHASE_ORDER") && (
+                      <div className='text-sm text-blue-600 bg-blue-50 px-3 py-1 rounded-md'>
+                        💡 Select {
+                          paymentType === "PURCHASE_ORDER" ? "purchase order" :
+                          paymentType === "CONSULTANT" ? "hired consultant" :
+                          paymentType === "FACILITATOR" ? "hired facilitator" :
+                          "hired adhoc staff"
+                        } to auto-fill banking & contact details
+                      </div>
+                    )}
+                  </div>
                 {fields.map((_, index) => (
                   <Card key={index} className='mb-4'>
                     <CardContent className='pt-6'>
@@ -859,6 +927,7 @@ export default function CreatePaymentRequest() {
                   Add Payment Item
                 </Button>
               </div>
+              )}
 
               <div className='grid grid-cols-3 gap-5 mt-5'>
                 <FormSelect
@@ -886,16 +955,19 @@ export default function CreatePaymentRequest() {
                 />
               </div>
 
-              <div className='flex items-center justify-end mt-10 gap-2'>
-                <Link href={AdminRoutes.INDEX_PAYMENT_REQUEST}>
-                  <Button variant='outline' type='button' size='lg'>
-                    Cancel
-                  </Button>
-                </Link>
-                <FormButton loading={false} size='lg' type='submit'>
-                  Next
-                </FormButton>
-              </div>
+              {/* Submit buttons - only show in single mode */}
+              {paymentMode === "single" && (
+                <div className='flex items-center justify-end mt-10 gap-2'>
+                  <Link href={AdminRoutes.INDEX_PAYMENT_REQUEST}>
+                    <Button variant='outline' type='button' size='lg'>
+                      Cancel
+                    </Button>
+                  </Link>
+                  <FormButton loading={false} size='lg' type='submit'>
+                    Next
+                  </FormButton>
+                </div>
+              )}
             </form>
           </FormProvider>
         </CardContent>
