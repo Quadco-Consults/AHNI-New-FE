@@ -47,6 +47,7 @@ import {
 } from "@/utils/approvalFilters";
 import { filterAhniStaffOnly } from "@/utils/userFilters";
 import BulkUploadSection from "./BulkUploadSection";
+import BackNavigation from "@/components/atoms/BackNavigation";
 
 export default function CreatePaymentRequest() {
   // Payment mode state (single or bulk)
@@ -637,11 +638,20 @@ export default function CreatePaymentRequest() {
 
   return (
     <PaymentRequestLayout>
+      {/* Header with Back Navigation */}
+      <div className='mb-6 flex items-center gap-4'>
+        <BackNavigation customBackPath={AdminRoutes.INDEX_PAYMENT_REQUEST} />
+        <div>
+          <h1 className='text-2xl font-bold text-gray-900'>Create Payment Request</h1>
+          <p className='text-sm text-gray-600 mt-1'>Fill in the details to create a new payment request</p>
+        </div>
+      </div>
+
       <Card>
         <CardContent>
           <FormProvider {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
-              <div className='grid grid-cols-3 mt-5 gap-10'>
+              <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 mt-5 gap-6'>
                 {/* Payment Date - only show in single mode or for non-bulk-eligible types */}
                 {(paymentMode === "single" || (paymentType !== "CONSULTANT" && paymentType !== "ADHOC_STAFF")) && (
                   <FormInput
@@ -681,7 +691,7 @@ export default function CreatePaymentRequest() {
 
                 {/* Payment Mode Selection for CONSULTANT and ADHOC_STAFF - appears after staff/consultant selection */}
                 {(paymentType === "CONSULTANT" || paymentType === "ADHOC_STAFF") && (
-                  <div className='mt-4'>
+                  <div>
                     <label className='block text-sm font-medium text-gray-700 mb-2'>
                       Request Type<span className='text-red-500'>*</span>
                     </label>
