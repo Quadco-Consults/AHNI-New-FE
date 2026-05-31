@@ -787,118 +787,150 @@ export default function CreatePaymentRequest() {
                         )}
                       </div>
 
-                      <div className='grid grid-cols-3 gap-4'>
-                        {/* Conditional fields based on payment type - MOVED TO TOP */}
-                        {paymentType === "CONSULTANT" && (
-                          <FormSelect
-                            label='Consultant'
-                            name={`payment_items.${index}.consultant`}
-                            placeholder='Select Consultant'
-                            options={consultantOptions}
-                          />
-                        )}
-
-                        {paymentType === "FACILITATOR" && (
-                          <FormSelect
-                            label='Facilitator'
-                            name={`payment_items.${index}.facilitator`}
-                            placeholder='Select Facilitator'
-                            options={facilitatorOptions}
-                          />
-                        )}
-
-                        {paymentType === "ADHOC_STAFF" && (
-                          <div>
+                      {/* Staff Selection - Full Width at Top */}
+                      {(paymentType === "CONSULTANT" || paymentType === "FACILITATOR" || paymentType === "ADHOC_STAFF") && (
+                        <div className='mb-6'>
+                          {paymentType === "CONSULTANT" && (
                             <FormSelect
-                              label='Adhoc Staff'
-                              name={`payment_items.${index}.adhoc_staff`}
-                              placeholder='Select Adhoc Staff'
-                              options={adhocOptions}
+                              label='Select Consultant'
+                              name={`payment_items.${index}.consultant`}
+                              placeholder='Choose a hired consultant'
+                              options={consultantOptions}
                             />
-                            {adhocOptions.length === 0 ? (
-                              <p className='text-xs text-amber-600 mt-1'>
-                                ⚠️ No hired adhoc staff found. Staff must be hired from adhoc applications.
-                              </p>
-                            ) : (
-                              <p className='text-xs text-blue-600 mt-1'>
-                                💡 Showing hired adhoc staff. Select to auto-fill banking & contact details.
+                          )}
+
+                          {paymentType === "FACILITATOR" && (
+                            <FormSelect
+                              label='Select Facilitator'
+                              name={`payment_items.${index}.facilitator`}
+                              placeholder='Choose a hired facilitator'
+                              options={facilitatorOptions}
+                            />
+                          )}
+
+                          {paymentType === "ADHOC_STAFF" && (
+                            <div>
+                              <FormSelect
+                                label='Select Adhoc Staff'
+                                name={`payment_items.${index}.adhoc_staff`}
+                                placeholder='Choose a hired adhoc staff member'
+                                options={adhocOptions}
+                              />
+                              {adhocOptions.length === 0 ? (
+                                <p className='text-xs text-amber-600 mt-1'>
+                                  ⚠️ No hired adhoc staff found. Staff must be hired from adhoc applications.
+                                </p>
+                              ) : (
+                                <p className='text-xs text-blue-600 mt-1'>
+                                  💡 Select a staff member to auto-fill their banking and contact details below
+                                </p>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Payment Information Section */}
+                      <div className='space-y-4'>
+                        <div className='border-b pb-2'>
+                          <h5 className='text-sm font-semibold text-gray-700'>Payment Information</h5>
+                        </div>
+                        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
+                          <FormInput
+                            label='Payment To'
+                            name={`payment_items.${index}.payment_to`}
+                            placeholder='Enter recipient name'
+                            required
+                          />
+
+                          <FormInput
+                            label='Amount In Figures'
+                            name={`payment_items.${index}.amount_in_figures`}
+                            placeholder='Enter amount'
+                            required
+                          />
+
+                          <div>
+                            <FormInput
+                              label='Amount In Words'
+                              name={`payment_items.${index}.amount_in_words`}
+                              placeholder='Auto-generated'
+                              required
+                              readOnly
+                              className='bg-gray-50'
+                            />
+                            <p className='text-xs text-green-600 mt-1'>
+                              ✓ Automatically converted from figures
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Banking Details Section */}
+                      <div className='space-y-4 mt-6'>
+                        <div className='border-b pb-2'>
+                          <h5 className='text-sm font-semibold text-gray-700'>Banking Details</h5>
+                        </div>
+                        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                          <div>
+                            <FormInput
+                              label='Account Number'
+                              name={`payment_items.${index}.account_number`}
+                              placeholder='Enter account number'
+                              required
+                            />
+                            {paymentType === "PURCHASE_ORDER" && (
+                              <p className='text-xs text-gray-500 mt-1'>
+                                Account number must be entered manually
                               </p>
                             )}
                           </div>
-                        )}
 
-                        <FormInput
-                          label='Payment To'
-                          name={`payment_items.${index}.payment_to`}
-                          placeholder='Enter Payment To'
-                          required
-                        />
-
-                        <FormInput
-                          label='Amount In Figures'
-                          name={`payment_items.${index}.amount_in_figures`}
-                          placeholder='Enter Amount in Figures'
-                          required
-                        />
-
-                        <div>
                           <FormInput
-                            label='Amount In Words'
-                            name={`payment_items.${index}.amount_in_words`}
-                            placeholder='Auto-generated from amount in figures'
-                            required
-                            readOnly
-                            className='bg-gray-50'
-                          />
-                          <p className='text-xs text-green-600 mt-1'>
-                            ✓ Automatically converted from amount in figures
-                          </p>
-                        </div>
-
-                        <div>
-                          <FormInput
-                            label='Account Number'
-                            name={`payment_items.${index}.account_number`}
-                            placeholder='Enter Account Number'
+                            label='Bank Name'
+                            name={`payment_items.${index}.bank_name`}
+                            placeholder='Enter bank name'
                             required
                           />
-                          {paymentType === "PURCHASE_ORDER" && (
-                            <p className='text-xs text-gray-500 mt-1'>
-                              Account number must be entered manually
-                            </p>
-                          )}
                         </div>
+                      </div>
 
-                        <FormInput
-                          label='Bank Name'
-                          name={`payment_items.${index}.bank_name`}
-                          placeholder='Enter Bank Name'
-                          required
-                        />
+                      {/* Contact Information Section */}
+                      <div className='space-y-4 mt-6'>
+                        <div className='border-b pb-2'>
+                          <h5 className='text-sm font-semibold text-gray-700'>Contact Information</h5>
+                        </div>
+                        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
+                          <FormInput
+                            label='Phone Number'
+                            name={`payment_items.${index}.phone_number`}
+                            placeholder='Enter phone number'
+                          />
 
-                        <FormInput
-                          label='Tax ID Number'
-                          name={`payment_items.${index}.tax_identification_number`}
-                          placeholder='Enter Tax ID Number'
-                        />
+                          <FormInput
+                            label='Email'
+                            name={`payment_items.${index}.email`}
+                            placeholder='Enter email address'
+                            type='email'
+                          />
 
-                        <FormInput
-                          label='Phone Number'
-                          name={`payment_items.${index}.phone_number`}
-                          placeholder='Enter Phone Number'
-                        />
+                          <FormInput
+                            label='Tax ID Number'
+                            name={`payment_items.${index}.tax_identification_number`}
+                            placeholder='Enter tax ID'
+                          />
+                        </div>
+                      </div>
 
-                        <FormInput
-                          label='Email'
-                          name={`payment_items.${index}.email`}
-                          placeholder='Enter Email'
-                          type='email'
-                        />
-
+                      {/* Address Section */}
+                      <div className='space-y-4 mt-6'>
+                        <div className='border-b pb-2'>
+                          <h5 className='text-sm font-semibold text-gray-700'>Address</h5>
+                        </div>
                         <FormInput
                           label='Address'
                           name={`payment_items.${index}.address`}
-                          placeholder='Enter Address'
+                          placeholder='Enter full address'
                         />
                       </div>
                     </CardContent>
