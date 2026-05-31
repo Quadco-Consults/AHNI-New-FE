@@ -43,6 +43,10 @@ interface ConsultancyApplicantsFilterParams {
   consultant_id?: string;
   status?: string;
   offer_accepted?: boolean;
+  type?: "CONSULTANT" | "FACILITATOR" | "ADHOC";
+  with_banking?: boolean;
+  location_id?: string;
+  project_id?: string;
   enabled?: boolean;
 }
 
@@ -72,6 +76,10 @@ export const useGetAllConsultancyApplicants = ({
   enabled = true,
   status,
   offer_accepted,
+  type,
+  with_banking,
+  location_id,
+  project_id,
 }: ConsultancyApplicantsFilterParams) => {
   return useQuery<PaginatedResponse<IConsultancyStaffPaginatedData>>({
     queryKey: [
@@ -83,6 +91,10 @@ export const useGetAllConsultancyApplicants = ({
       consultant_id,
       status,
       offer_accepted,
+      type,
+      with_banking,
+      location_id,
+      project_id,
     ],
     queryFn: async () => {
       try {
@@ -93,8 +105,12 @@ export const useGetAllConsultancyApplicants = ({
             ...(search && { search }),
             ...(consultants && { consultants }),
             ...(consultant_id && { consultant_id }),
-            status,
+            ...(status && { status }),
             ...(offer_accepted !== undefined && { offer_accepted }),
+            ...(type && { type }),
+            ...(with_banking !== undefined && { with_banking }),
+            ...(location_id && { location_id }),
+            ...(project_id && { project_id }),
             expand: 'advertisement,schedule',
           },
         });

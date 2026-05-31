@@ -34,7 +34,7 @@ import {
 } from "@/components/ui/select";
 import { AdminRoutes } from "@/constants/RouterConstants";
 import { useGetSinglePaymentRequestQuery } from "@/features/admin/controllers/paymentRequestController";
-import { useGetAllHRConsultants } from "@/features/hr/controllers/hrConsultantController";
+import { useGetAllConsultancyApplicants } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
 import { useGetAllFacilitatorApplicants } from "@/features/contracts-grants/controllers/facilitatorApplicantsController";
 import { useGetVendor } from "@/features/procurement/controllers/vendorsController";
 import { numberToWords } from "@/utils/numberToWords";
@@ -147,12 +147,14 @@ export default function CreatePaymentRequest() {
     }
   }, [paymentType]);
 
-  // Get hired consultants from HR database (not applicants)
-  const { data: consultants } = useGetAllHRConsultants({
+  // Get hired consultants from C&G consultancy applicants (who accepted offers with banking details)
+  const { data: consultants } = useGetAllConsultancyApplicants({
     page: 1,
     size: 1000,
     search: "",
-    active_only: true, // Only get active consultants with complete banking details
+    type: "CONSULTANT",
+    offer_accepted: true,
+    with_banking: true, // Only get consultants with complete banking details
     enabled: paymentType === "CONSULTANT",
   });
 
@@ -184,11 +186,13 @@ export default function CreatePaymentRequest() {
   const consultantOptions = useMemo(
     () =>
       consultants?.data?.results?.map((item: any) => {
-        // For HR consultants, show their name and designation
+        // For consultancy applicants, show their name and position
         const name = item.name;
-        const designation = item.designation || '';
-        const location = item.location || '';
-        const label = designation ? `${name} - ${designation}${location ? ` (${location})` : ''}` : name || `Consultant ${item.id}`;
+        const position = item.position_under_contract || '';
+        const location = item.location?.name || '';
+        const label = position
+          ? `${name} - ${position}${location ? ` (${location})` : ''}`
+          : name || `Consultant ${item.id}`;
 
         return {
           label,
