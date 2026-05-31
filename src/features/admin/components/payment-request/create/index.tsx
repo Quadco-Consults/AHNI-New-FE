@@ -473,72 +473,6 @@ export default function CreatePaymentRequest() {
     }
   }, [paymentType, expenseAccountOptions, getSuggestedExpenseAccount]); // Removed form to prevent infinite loop
 
-  // Helper function to convert amount to words
-  const handleAmountChange = useCallback((amount: string, index: number) => {
-    if (amount && !isNaN(parseFloat(amount))) {
-      const wordsValue = numberToWords(amount);
-      form.setValue(`payment_items.${index}.amount_in_words`, wordsValue);
-    } else {
-      form.setValue(`payment_items.${index}.amount_in_words`, '');
-    }
-  }, [form]);
-
-  // Watch for changes in staff selections and amount changes to auto-populate
-  useEffect(() => {
-    const subscription = form.watch((value, { name, type }) => {
-      if (type === 'change' && name) {
-        // Defer setState operations to avoid "setState during render" error
-        setTimeout(() => {
-          // Check if a consultant was selected
-          if (name.includes('consultant') && !name.includes('facilitator')) {
-            const match = name.match(/payment_items\.(\d+)\.consultant/);
-            if (match) {
-              const index = parseInt(match[1]);
-              const consultantId = value.payment_items?.[index]?.consultant;
-              if (consultantId) {
-                handleStaffSelection("CONSULTANT", consultantId, index);
-              }
-            }
-          }
-          // Check if a facilitator was selected
-          if (name.includes('facilitator')) {
-            const match = name.match(/payment_items\.(\d+)\.facilitator/);
-            if (match) {
-              const index = parseInt(match[1]);
-              const facilitatorId = value.payment_items?.[index]?.facilitator;
-              if (facilitatorId) {
-                handleStaffSelection("FACILITATOR", facilitatorId, index);
-              }
-            }
-          }
-          // Check if an adhoc staff was selected
-          if (name.includes('adhoc_staff')) {
-            const match = name.match(/payment_items\.(\d+)\.adhoc_staff/);
-            if (match) {
-              const index = parseInt(match[1]);
-              const adhocStaffId = value.payment_items?.[index]?.adhoc_staff;
-              if (adhocStaffId) {
-                handleStaffSelection("ADHOC_STAFF", adhocStaffId, index);
-              }
-            }
-          }
-          // Check if amount in figures was changed
-          if (name.includes('amount_in_figures')) {
-            const match = name.match(/payment_items\.(\d+)\.amount_in_figures/);
-            if (match) {
-              const index = parseInt(match[1]);
-              const amount = value.payment_items?.[index]?.amount_in_figures;
-              if (amount) {
-                handleAmountChange(String(amount), index);
-              }
-            }
-          }
-        }, 0); // Close setTimeout with 0ms delay
-      }
-    });
-    return () => subscription.unsubscribe();
-  }, [form, handleStaffSelection, handleAmountChange]); // Added handler dependencies
-
   // Helper function to auto-populate payment item based on staff selection
   const handleStaffSelection = useCallback((staffType: string, staffId: string, index: number) => {
     let staffData: any = null;
@@ -640,6 +574,72 @@ export default function CreatePaymentRequest() {
       }
     }
   }, [consultantOptions, facilitatorOptions, adhocOptions, form]);
+
+  // Helper function to convert amount to words
+  const handleAmountChange = useCallback((amount: string, index: number) => {
+    if (amount && !isNaN(parseFloat(amount))) {
+      const wordsValue = numberToWords(amount);
+      form.setValue(`payment_items.${index}.amount_in_words`, wordsValue);
+    } else {
+      form.setValue(`payment_items.${index}.amount_in_words`, '');
+    }
+  }, [form]);
+
+  // Watch for changes in staff selections and amount changes to auto-populate
+  useEffect(() => {
+    const subscription = form.watch((value, { name, type }) => {
+      if (type === 'change' && name) {
+        // Defer setState operations to avoid "setState during render" error
+        setTimeout(() => {
+          // Check if a consultant was selected
+          if (name.includes('consultant') && !name.includes('facilitator')) {
+            const match = name.match(/payment_items\.(\d+)\.consultant/);
+            if (match) {
+              const index = parseInt(match[1]);
+              const consultantId = value.payment_items?.[index]?.consultant;
+              if (consultantId) {
+                handleStaffSelection("CONSULTANT", consultantId, index);
+              }
+            }
+          }
+          // Check if a facilitator was selected
+          if (name.includes('facilitator')) {
+            const match = name.match(/payment_items\.(\d+)\.facilitator/);
+            if (match) {
+              const index = parseInt(match[1]);
+              const facilitatorId = value.payment_items?.[index]?.facilitator;
+              if (facilitatorId) {
+                handleStaffSelection("FACILITATOR", facilitatorId, index);
+              }
+            }
+          }
+          // Check if an adhoc staff was selected
+          if (name.includes('adhoc_staff')) {
+            const match = name.match(/payment_items\.(\d+)\.adhoc_staff/);
+            if (match) {
+              const index = parseInt(match[1]);
+              const adhocStaffId = value.payment_items?.[index]?.adhoc_staff;
+              if (adhocStaffId) {
+                handleStaffSelection("ADHOC_STAFF", adhocStaffId, index);
+              }
+            }
+          }
+          // Check if amount in figures was changed
+          if (name.includes('amount_in_figures')) {
+            const match = name.match(/payment_items\.(\d+)\.amount_in_figures/);
+            if (match) {
+              const index = parseInt(match[1]);
+              const amount = value.payment_items?.[index]?.amount_in_figures;
+              if (amount) {
+                handleAmountChange(String(amount), index);
+              }
+            }
+          }
+        }, 0); // Close setTimeout with 0ms delay
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [form, handleStaffSelection, handleAmountChange]); // Added handler dependencies
 
   return (
     <PaymentRequestLayout>
