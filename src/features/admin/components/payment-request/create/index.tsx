@@ -34,7 +34,7 @@ import {
 } from "@/components/ui/select";
 import { AdminRoutes } from "@/constants/RouterConstants";
 import { useGetSinglePaymentRequestQuery } from "@/features/admin/controllers/paymentRequestController";
-import { useGetAllConsultancyApplicants } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
+import { useGetAllHRConsultants } from "@/features/hr/controllers/hrConsultantController";
 import { useGetAllFacilitatorApplicants } from "@/features/contracts-grants/controllers/facilitatorApplicantsController";
 import { useGetVendor } from "@/features/procurement/controllers/vendorsController";
 import { numberToWords } from "@/utils/numberToWords";
@@ -147,12 +147,12 @@ export default function CreatePaymentRequest() {
     }
   }, [paymentType]);
 
-  // Get hired consultants and facilitators from applicants (not job ads)
-  const { data: consultants } = useGetAllConsultancyApplicants({
+  // Get hired consultants from HR database (not applicants)
+  const { data: consultants } = useGetAllHRConsultants({
     page: 1,
     size: 1000,
     search: "",
-    offer_accepted: true, // Only get applicants who accepted offers
+    active_only: true, // Only get active consultants with complete banking details
     enabled: paymentType === "CONSULTANT",
   });
 
@@ -184,15 +184,16 @@ export default function CreatePaymentRequest() {
   const consultantOptions = useMemo(
     () =>
       consultants?.data?.results?.map((item: any) => {
-        // For existing consultants, show their name and position
-        const name = item.consultant_name || `${item.first_name || ''} ${item.last_name || ''}`.trim() || item.name;
-        const position = item.position || item.title || '';
-        const label = position ? `${name} - ${position}` : name || `Consultant ${item.id}`;
+        // For HR consultants, show their name and designation
+        const name = item.name;
+        const designation = item.designation || '';
+        const location = item.location || '';
+        const label = designation ? `${name} - ${designation}${location ? ` (${location})` : ''}` : name || `Consultant ${item.id}`;
 
         return {
           label,
           value: item.id,
-          data: item, // Store full data for auto-population
+          data: item, // Store full data for auto-population (includes banking details)
         };
       }) || [],
     [consultants]
@@ -556,11 +557,11 @@ export default function CreatePaymentRequest() {
     if (staffData) {
       // Auto-populate based on staff type
       if (staffType === "CONSULTANT" || staffType === "FACILITATOR") {
-        // For existing consultants/facilitators, use their actual name
-        const fullName = staffData.consultant_name ||
+        // For HR consultants, use their actual name
+        const fullName = staffData.name ||
+                        staffData.consultant_name ||
                         staffData.facilitator_name ||
                         `${staffData.first_name || ''} ${staffData.last_name || ''}`.trim() ||
-                        staffData.name ||
                         staffData.title;
 
         // Use account_name if available, otherwise use full name
