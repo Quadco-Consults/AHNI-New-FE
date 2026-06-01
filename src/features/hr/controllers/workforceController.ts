@@ -263,6 +263,23 @@ export const useCreateWorkforceQualification = (id: string) => {
   return { createWorkforceQualification, data, isLoading, isSuccess, error };
 };
 
+// Get Users Without Employee Records
+export const useGetUsersWithoutEmployeeRecords = () => {
+  return useQuery({
+    queryKey: ["users-without-employee-records"],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get(`${BASE_URL}/users-without-employee-records/`);
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    refetchOnWindowFocus: false,
+  });
+};
+
 // Legacy exports for backward compatibility
 export const useGetWorkforcesQuery = useGetWorkforces;
 export const useGetWorkforceQuery = useGetWorkforce;
