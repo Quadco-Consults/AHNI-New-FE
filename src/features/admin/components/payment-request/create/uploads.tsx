@@ -137,10 +137,15 @@ export default function FileUploads() {
 
           // Only add reference fields based on payment_type
           if (payment_type === "CONSULTANT" && item.consultant) {
-            baseItem.consultant = item.consultant;
+            // For consultants from HR applicants, use consultant_legacy_id field
+            // since the backend expects User IDs in consultant field, not consultancy_applicants IDs
+            baseItem.consultant_legacy_id = item.consultant;
+            console.log("Setting consultant_legacy_id for consultant applicant:", item.consultant);
           }
           if (payment_type === "FACILITATOR" && item.facilitator) {
-            baseItem.facilitator = item.facilitator;
+            // For facilitators from HR applicants, use facilitator_legacy_id field
+            baseItem.facilitator_legacy_id = item.facilitator;
+            console.log("Setting facilitator_legacy_id for facilitator applicant:", item.facilitator);
           }
           if (payment_type === "ADHOC_STAFF" && item.adhoc_staff) {
             // For adhoc staff from applicants, use staff_legacy_id field
@@ -157,6 +162,13 @@ export default function FileUploads() {
         // Try as FormData array format
         cleanedPaymentItems.forEach((item, index) => {
           Object.entries(item).forEach(([key, value]) => {
+            // Skip the regular consultant/facilitator/adhoc_staff fields since we're using legacy_id fields
+            // This prevents sending both consultant and consultant_legacy_id
+            const skipFields = ['consultant', 'facilitator', 'adhoc_staff'];
+            if (skipFields.includes(key)) {
+              return; // Skip these fields as we're using the _legacy_id versions
+            }
+
             if (value !== null && value !== undefined && value !== "") {
               formData.append(`payment_items[${index}][${key}]`, String(value));
             }
