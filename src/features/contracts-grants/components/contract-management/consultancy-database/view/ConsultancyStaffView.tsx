@@ -222,11 +222,7 @@ export default function ConsultancyStaffView() {
               <div className="space-y-3">
                 <DescriptionCard
                   title="Current Status"
-                  description={
-                    <div className="flex items-center gap-2">
-                      {getStatusBadge(consultantData.status, consultantData.offer_accepted)}
-                    </div>
-                  }
+                  description={getStatusBadge(consultantData.status, consultantData.offer_accepted)}
                 />
                 <DescriptionCard
                   title="Contract Number"
