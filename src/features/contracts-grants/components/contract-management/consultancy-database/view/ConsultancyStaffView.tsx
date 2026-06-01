@@ -57,9 +57,9 @@ export default function ConsultancyStaffView() {
   // Fetch real payment data for this consultant
   const { data: paymentsResponse, isLoading: isLoadingPayments } = useGetConsultantPayments(consultantId, !!consultantId);
 
-  // Extract payments and statistics from API response
-  const payments = paymentsResponse?.data?.results || [];
-  const paymentStats = paymentsResponse?.data?.statistics || {
+  // Extract payments and statistics from API response (double nested: data.data.results)
+  const payments = paymentsResponse?.data?.data?.results || [];
+  const paymentStats = paymentsResponse?.data?.data?.statistics || {
     total_requested: 0,
     total_paid: 0,
     total_pending: 0,
