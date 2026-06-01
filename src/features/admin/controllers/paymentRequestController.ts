@@ -452,6 +452,33 @@ export const useUploadPaymentDocument = (paymentRequestId: string) => {
   return { uploadDocument, data, isLoading, isSuccess, error };
 };
 
+// Get Payments for a Specific Consultant
+export const useGetConsultantPayments = (consultantId: string, enabled: boolean = true) => {
+  return useQuery({
+    queryKey: ["consultantPayments", consultantId],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get(
+          `${BASE_URL}consultant-payments/${consultantId}/`
+        );
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        console.error("Consultant payments API Error:", {
+          status: axiosError.response?.status,
+          data: axiosError.response?.data,
+          message: axiosError.message
+        });
+        throw new Error(
+          "Failed to fetch consultant payment history"
+        );
+      }
+    },
+    enabled: enabled && !!consultantId,
+    refetchOnWindowFocus: false,
+  });
+};
+
 // Legacy exports for backward compatibility
 export const useGetAllPaymentRequestsQuery = useGetAllPaymentRequests;
 export const useGetSinglePaymentRequestQuery = useGetSinglePaymentRequest;

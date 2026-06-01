@@ -10,45 +10,9 @@ import { Badge } from "@/components/ui/badge";
 import PencilIcon from "@/components/icons/PencilIcon";
 import DescriptionCard from "@/components/DescriptionCard";
 import { useGetSingleConsultancyApplicant } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
+import { useGetConsultantPayments } from "@/features/admin/controllers/paymentRequestController";
 import { format } from "date-fns";
 import { DollarSign, Calendar, CheckCircle, Clock, XCircle, Plus, FileText, TrendingUp } from "lucide-react";
-
-// Mock payment data - Replace with actual API call when available
-const mockPayments = [
-  {
-    id: "1",
-    payment_request_id: "PR-2025-001",
-    amount: "500000",
-    currency: "NGN",
-    period: "January 2025",
-    request_date: "2025-01-05",
-    status: "PAID",
-    payment_date: "2025-01-15",
-    description: "Monthly consultant fee for January",
-  },
-  {
-    id: "2",
-    payment_request_id: "PR-2025-002",
-    amount: "500000",
-    currency: "NGN",
-    period: "February 2025",
-    request_date: "2025-02-05",
-    status: "APPROVED",
-    payment_date: null,
-    description: "Monthly consultant fee for February",
-  },
-  {
-    id: "3",
-    payment_request_id: "PR-2025-003",
-    amount: "500000",
-    currency: "NGN",
-    period: "March 2025",
-    request_date: "2025-03-05",
-    status: "PENDING",
-    payment_date: null,
-    description: "Monthly consultant fee for March",
-  },
-];
 
 const getStatusColor = (status: string) => {
   switch (status) {
@@ -90,17 +54,22 @@ export default function ConsultancyStaffView() {
 
   const applicant = applicantResponse?.data;
 
-  // Mock payments - Replace with actual API call when consultant payment API is available
-  const payments = mockPayments;
+  // Fetch real payment data for this consultant
+  const { data: paymentsResponse, isLoading: isLoadingPayments } = useGetConsultantPayments(consultantId, !!consultantId);
 
-  // Calculate payment totals
-  const totalPaid = payments
-    .filter(p => p.status === "PAID")
-    .reduce((sum, p) => sum + parseFloat(p.amount), 0);
-  const totalPending = payments
-    .filter(p => p.status !== "PAID")
-    .reduce((sum, p) => sum + parseFloat(p.amount), 0);
-  const totalRequested = payments.reduce((sum, p) => sum + parseFloat(p.amount), 0);
+  // Extract payments and statistics from API response
+  const payments = paymentsResponse?.data?.results || [];
+  const paymentStats = paymentsResponse?.data?.statistics || {
+    total_requested: 0,
+    total_paid: 0,
+    total_pending: 0,
+    count: 0,
+  };
+
+  // Calculate payment totals from API data
+  const totalPaid = paymentStats.total_paid;
+  const totalPending = paymentStats.total_pending;
+  const totalRequested = paymentStats.total_requested;
 
   if (isLoading) {
     return <LoadingSpinner />;
@@ -486,59 +455,66 @@ export default function ConsultancyStaffView() {
           {/* Payment History Table */}
           <Card>
             <h3 className="text-lg font-semibold mb-4 text-[#DEA004]">Payment History</h3>
-            <div className="space-y-4">
-              {payments.length > 0 ? (
-                payments.map((payment) => (
-                  <div key={payment.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                    <div className="grid grid-cols-1 md:grid-cols-6 gap-4 items-center">
-                      <div className="flex items-center gap-3">
-                        <div className={`p-2 rounded-lg border ${getStatusColor(payment.status)}`}>
-                          {getStatusIcon(payment.status)}
+            {isLoadingPayments ? (
+              <div className="text-center py-8">
+                <LoadingSpinner />
+                <p className="text-sm text-gray-500 mt-2">Loading payment history...</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {payments.length > 0 ? (
+                  payments.map((payment: any) => (
+                    <div key={payment.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                      <div className="grid grid-cols-1 md:grid-cols-6 gap-4 items-center">
+                        <div className="flex items-center gap-3">
+                          <div className={`p-2 rounded-lg border ${getStatusColor(payment.status)}`}>
+                            {getStatusIcon(payment.status)}
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-900">Payment Request</p>
+                            <p className="text-sm text-gray-500">{payment.payment_reason || "No description"}</p>
+                          </div>
                         </div>
+
                         <div>
-                          <p className="font-medium text-gray-900">{payment.payment_request_id}</p>
-                          <p className="text-sm text-gray-500">{payment.description}</p>
+                          <p className="text-sm text-gray-600">Type</p>
+                          <p className="font-medium">{payment.payment_type_display || payment.payment_type}</p>
                         </div>
-                      </div>
 
-                      <div>
-                        <p className="text-sm text-gray-600">Period</p>
-                        <p className="font-medium">{payment.period}</p>
-                      </div>
+                        <div>
+                          <p className="text-sm text-gray-600">Amount</p>
+                          <p className="font-bold text-gray-900">₦{Number(payment.total_amount || 0).toLocaleString()}</p>
+                        </div>
 
-                      <div>
-                        <p className="text-sm text-gray-600">Amount</p>
-                        <p className="font-bold text-gray-900">₦{Number(payment.amount).toLocaleString()}</p>
-                      </div>
+                        <div>
+                          <p className="text-sm text-gray-600">Payment Date</p>
+                          <p className="font-medium">{format(new Date(payment.payment_date), "dd MMM, yyyy")}</p>
+                        </div>
 
-                      <div>
-                        <p className="text-sm text-gray-600">Request Date</p>
-                        <p className="font-medium">{format(new Date(payment.request_date), "dd MMM, yyyy")}</p>
-                      </div>
+                        <div>
+                          <p className="text-sm text-gray-600">Created</p>
+                          <p className="font-medium">
+                            {payment.created_datetime ? format(new Date(payment.created_datetime), "dd MMM, yyyy") : "N/A"}
+                          </p>
+                        </div>
 
-                      <div>
-                        <p className="text-sm text-gray-600">Payment Date</p>
-                        <p className="font-medium">
-                          {payment.payment_date ? format(new Date(payment.payment_date), "dd MMM, yyyy") : "Pending"}
-                        </p>
-                      </div>
-
-                      <div className="flex justify-end">
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(payment.status)}`}>
-                          {payment.status}
-                        </span>
+                        <div className="flex justify-end">
+                          <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(payment.status)}`}>
+                            {payment.status}
+                          </span>
+                        </div>
                       </div>
                     </div>
+                  ))
+                ) : (
+                  <div className="text-center py-8 text-gray-500">
+                    <DollarSign className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                    <p className="text-lg font-medium">No Payment History</p>
+                    <p className="text-sm mt-2">No payment requests have been made for this consultant yet.</p>
                   </div>
-                ))
-              ) : (
-                <div className="text-center py-8 text-gray-500">
-                  <DollarSign className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                  <p className="text-lg font-medium">No Payment History</p>
-                  <p className="text-sm mt-2">No payment requests have been made for this consultant yet.</p>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+            )}
           </Card>
 
           {/* Payment Statistics */}
@@ -548,15 +524,15 @@ export default function ConsultancyStaffView() {
               <div className="space-y-3">
                 <DescriptionCard
                   title="Average Payment Amount"
-                  description={`₦${payments.length > 0 ? (totalRequested / payments.length).toLocaleString() : "0"}`}
+                  description={`₦${payments.length > 0 ? (totalRequested / payments.length).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : "0"}`}
                 />
                 <DescriptionCard
                   title="Payment Success Rate"
-                  description={`${payments.length > 0 ? ((payments.filter(p => p.status === "PAID").length / payments.length) * 100).toFixed(1) : "0"}%`}
+                  description={`${payments.length > 0 ? ((payments.filter((p: any) => p.status === "APPROVED").length / payments.length) * 100).toFixed(1) : "0"}%`}
                 />
                 <DescriptionCard
                   title="Total Payments Made"
-                  description={`${payments.filter(p => p.status === "PAID").length} of ${payments.length}`}
+                  description={`${payments.filter((p: any) => p.status === "APPROVED").length} of ${payments.length}`}
                 />
               </div>
             </Card>
@@ -564,22 +540,26 @@ export default function ConsultancyStaffView() {
             <Card>
               <h3 className="text-lg font-semibold mb-4 text-[#DEA004]">Recent Activity</h3>
               <div className="space-y-3">
-                {payments.slice(0, 3).map((payment, index) => (
-                  <div key={index} className="flex items-center gap-3 p-2 bg-gray-50 rounded-lg">
-                    <div className={`p-1 rounded ${getStatusColor(payment.status)}`}>
-                      {getStatusIcon(payment.status)}
+                {payments.length > 0 ? (
+                  payments.slice(0, 3).map((payment: any, index: number) => (
+                    <div key={index} className="flex items-center gap-3 p-2 bg-gray-50 rounded-lg">
+                      <div className={`p-1 rounded ${getStatusColor(payment.status)}`}>
+                        {getStatusIcon(payment.status)}
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium">Payment Request</p>
+                        <p className="text-xs text-gray-500">
+                          {payment.created_datetime
+                            ? `Created on ${format(new Date(payment.created_datetime), "dd MMM")}`
+                            : "Date unknown"}
+                        </p>
+                      </div>
+                      <span className="text-sm font-bold">₦{Number(payment.total_amount || 0).toLocaleString()}</span>
                     </div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium">{payment.payment_request_id}</p>
-                      <p className="text-xs text-gray-500">
-                        {payment.status === "PAID" && payment.payment_date
-                          ? `Paid on ${format(new Date(payment.payment_date), "dd MMM")}`
-                          : `Requested on ${format(new Date(payment.request_date), "dd MMM")}`}
-                      </p>
-                    </div>
-                    <span className="text-sm font-bold">₦{Number(payment.amount).toLocaleString()}</span>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <p className="text-sm text-gray-500 text-center py-4">No recent activity</p>
+                )}
               </div>
             </Card>
           </div>
