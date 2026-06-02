@@ -39,6 +39,7 @@ import { useGetAllFacilitatorApplicants } from "@/features/contracts-grants/cont
 import { useGetVendor } from "@/features/procurement/controllers/vendorsController";
 import { numberToWords } from "@/utils/numberToWords";
 import { useGetAllAdhocApplicants } from "@/features/programs/controllers/adhocApplicantController";
+import { useGetDefaultDeduction } from "@/features/admin/controllers/deductionSettingsController";
 import { useGetChartOfAccounts } from "@/features/finance/controllers/accountingController";
 import {
   getReviewerOptions,
@@ -74,6 +75,7 @@ export default function CreatePaymentRequest() {
           phone_number: "",
           email: "",
           address: "",
+          deduction_amount: "",
           expense_account: "",
           department: "",
           project: "",
@@ -139,6 +141,9 @@ export default function CreatePaymentRequest() {
   );
 
   const paymentType = form.watch("payment_type") || "";
+
+  // Fetch default deduction for the selected payment type
+  const { data: defaultDeduction, isLoading: isLoadingDeduction } = useGetDefaultDeduction(paymentType);
 
   // Reset payment mode when payment type changes to non-bulk-eligible types
   useEffect(() => {
@@ -351,6 +356,7 @@ export default function CreatePaymentRequest() {
           phone_number: item.phone_number || "",
           email: item.email || "",
           address: item.address || "",
+          deduction_amount: item.deduction_amount || "",
           // Handle different reference types for consultant/facilitator/adhoc_staff
           consultant:
             typeof item.consultant === "object" && item.consultant?.id
@@ -385,6 +391,7 @@ export default function CreatePaymentRequest() {
             phone_number: "",
             email: "",
             address: "",
+            deduction_amount: "",
             expense_account: "",
             department: "",
             project: "",
@@ -473,6 +480,20 @@ export default function CreatePaymentRequest() {
     }
   }, [paymentType, expenseAccountOptions, getSuggestedExpenseAccount]); // Removed form to prevent infinite loop
 
+  // Auto-populate deduction amount when payment type changes or deduction loads
+  useEffect(() => {
+    if (!isLoadingDeduction && defaultDeduction !== undefined && defaultDeduction !== null) {
+      const currentItems = form.getValues("payment_items");
+      currentItems.forEach((_, index) => {
+        // Only set if not already set (to avoid overwriting user edits)
+        const currentDeduction = form.getValues(`payment_items.${index}.deduction_amount`);
+        if (!currentDeduction || currentDeduction === "" || currentDeduction === "0") {
+          form.setValue(`payment_items.${index}.deduction_amount`, defaultDeduction.toString());
+        }
+      });
+    }
+  }, [paymentType, defaultDeduction, isLoadingDeduction]); // Removed form to prevent infinite loop
+
   // Helper function to auto-populate payment item based on staff selection
   const handleStaffSelection = useCallback((staffType: string, staffId: string, index: number) => {
     let staffData: any = null;
@@ -540,6 +561,11 @@ export default function CreatePaymentRequest() {
           form.setValue(`payment_items.${index}.tax_identification_number`, staffData.tax_identification_number);
         }
 
+        // Auto-populate default deduction
+        if (defaultDeduction !== undefined && defaultDeduction !== null) {
+          form.setValue(`payment_items.${index}.deduction_amount`, defaultDeduction.toString());
+        }
+
       } else if (staffType === "ADHOC_STAFF") {
         // For adhoc staff from adhoc applicants, use account_name or full_name
         const fullName = staffData.full_name || `${staffData.surname || ''} ${staffData.other_names || ''}`.trim();
@@ -581,9 +607,14 @@ export default function CreatePaymentRequest() {
         if (staffData.tax_identification_number) {
           form.setValue(`payment_items.${index}.tax_identification_number`, staffData.tax_identification_number);
         }
+
+        // Auto-populate default deduction
+        if (defaultDeduction !== undefined && defaultDeduction !== null) {
+          form.setValue(`payment_items.${index}.deduction_amount`, defaultDeduction.toString());
+        }
       }
     }
-  }, [consultantOptions, facilitatorOptions, adhocOptions, form]);
+  }, [consultantOptions, facilitatorOptions, adhocOptions, form, defaultDeduction]);
 
   // Helper function to convert amount to words
   const handleAmountChange = useCallback((amount: string, index: number) => {
@@ -888,6 +919,25 @@ export default function CreatePaymentRequest() {
                               ✓ Automatically converted from figures
                             </p>
                           </div>
+
+                          {/* Deduction Amount - Show for CONSULTANT, FACILITATOR, ADHOC_STAFF */}
+                          {(paymentType === "CONSULTANT" || paymentType === "FACILITATOR" || paymentType === "ADHOC_STAFF") && (
+                            <div>
+                              <FormInput
+                                label='Deduction Amount'
+                                name={`payment_items.${index}.deduction_amount`}
+                                placeholder={isLoadingDeduction ? 'Loading...' : 'Auto-calculated'}
+                                readOnly
+                                className='bg-amber-50'
+                              />
+                              <p className='text-xs text-amber-600 mt-1'>
+                                {isLoadingDeduction ? '⏳ Loading deduction...' :
+                                 defaultDeduction && defaultDeduction > 0
+                                   ? `✓ Default deduction: ₦${Number(defaultDeduction).toLocaleString()}`
+                                   : 'ℹ️ No default deduction set for this payment type'}
+                              </p>
+                            </div>
+                          )}
                         </div>
                       </div>
 
@@ -976,6 +1026,7 @@ export default function CreatePaymentRequest() {
                       phone_number: "",
                       email: "",
                       address: "",
+                      deduction_amount: defaultDeduction ? defaultDeduction.toString() : "",
                       expense_account: "",
                       department: "",
                       project: "",

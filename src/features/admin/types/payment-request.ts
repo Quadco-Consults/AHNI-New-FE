@@ -18,6 +18,8 @@ export const PaymentItemSchema = z.object({
     consultant_legacy_id: z.string().optional(),
     staff_legacy_id: z.string().optional(),
     facilitator_legacy_id: z.string().optional(),
+    // Deduction fields
+    deduction_amount: z.string().optional(),
     // Chart of Accounts integration fields
     expense_account: z.string().optional(),
     department: z.string().optional(),
