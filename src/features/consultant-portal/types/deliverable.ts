@@ -76,3 +76,25 @@ export interface DeliverableOverviewResponse {
   message: string;
   data: DeliverableOverview;
 }
+
+export interface DeliverableSubmissionResponse {
+  status: boolean;
+  message: string;
+  data: {
+    id: string;
+    deliverable: string;
+    submitted_by: string;
+    submitted_by_name: string;
+    submitted_by_email: string;
+    submitted_at: string;
+    submission_notes?: string;
+    attachment?: string;
+    attachment_url?: string;
+    attachment_name?: string;
+    review_status: 'pending_review' | 'approved' | 'changes_requested';
+    reviewed_by?: string;
+    reviewed_by_name?: string;
+    reviewed_at?: string;
+    review_feedback?: string;
+  };
+}
