@@ -14,11 +14,13 @@ import AddConsultantModal from "./AddConsultantModal";
 export default function ConsultancyDatabase() {
     const [page, setPage] = useState(1);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState("");
 
     // Fetch all applicants with enhanced filtering
     const { data, isLoading, error } = useGetAllConsultancyApplicants({
         page,
         size: 1000,
+        search: searchQuery,
         offer_accepted: true, // Only fetch accepted consultants for better performance
         // type: "CONSULTANT" // This might not be supported by the API
     });
@@ -94,7 +96,7 @@ export default function ConsultancyDatabase() {
 
             {/* Data Table */}
             <Card>
-                <TableFilters>
+                <TableFilters onSearchChange={(e) => setSearchQuery(e.target.value)}>
                     {!isLoading && results.length === 0 ? (
                         <div className="text-center py-12 px-6">
                             <div className="text-gray-400 text-6xl mb-4">👥</div>

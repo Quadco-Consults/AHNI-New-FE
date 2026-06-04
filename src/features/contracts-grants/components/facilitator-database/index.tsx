@@ -13,11 +13,13 @@ import Link from "next/link";
 
 export default function FacilitatorDatabase() {
     const [page, setPage] = useState(1);
+    const [searchQuery, setSearchQuery] = useState("");
 
     // Fetch all facilitator applicants (no status filter - show all)
     const { data, isLoading } = useGetAllFacilitatorApplicants({
         page,
         size: 1000,
+        search: searchQuery,
         enabled: true,
     });
 
@@ -55,7 +57,7 @@ export default function FacilitatorDatabase() {
 
             {/* Data Table */}
             <Card>
-                <TableFilters>
+                <TableFilters onSearchChange={(e) => setSearchQuery(e.target.value)}>
                     <DataTable
                         columns={facilitatorDatabaseColumns as any}
                         data={results}

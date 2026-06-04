@@ -14,12 +14,14 @@ import AddAdhocStaffModal from "./AddAdhocStaffModal";
 export default function AdhocDatabase() {
     const [page, setPage] = useState(1);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState("");
 
     // Fetch all adhoc applicants and filter for accepted contracts
     // Using applicants endpoint since staff database endpoint doesn't exist yet
     const { data, isLoading } = useGetAllAdhocApplicants({
         page: 1,
         size: 1000,
+        search: searchQuery,
     });
 
     const allApplicants = data?.data?.results || [];
@@ -90,7 +92,7 @@ export default function AdhocDatabase() {
 
             {/* Data Table */}
             <Card>
-                <TableFilters>
+                <TableFilters onSearchChange={(e) => setSearchQuery(e.target.value)}>
                     <DataTable
                         columns={adhocDatabaseColumns}
                         data={allResults}
