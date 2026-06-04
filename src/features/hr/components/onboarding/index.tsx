@@ -7,6 +7,7 @@ import SearchIcon from "@/components/icons/SearchIcon";
 import Card from "@/components/Card";
 import { Loading } from "@/components/Loading";
 import DataTable from "@/components/Table/DataTable";
+import TableFilters from "@/components/Table/TableFilters";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -35,9 +36,10 @@ const Onboarding = () => {
   const [isDialogOpen, setDialogOpen] = useState(false);
   const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const { data: employeeData, isLoading: fetchingEmployeeData } =
-    useGetEmployeeOnboardings({});
+    useGetEmployeeOnboardings({ search: searchQuery });
 
   const { deleteEmployeeOnboarding, isLoading } =
     useDeleteEmployeeOnboarding();
@@ -187,26 +189,13 @@ const Onboarding = () => {
       value: "employees",
       // @ts-ignore
       children: (
-        <>
-          <div className='flex items-center justify-start gap-2 py-4'>
-            <span className='flex items-center w-1/3 px-2 py-2 border rounded-lg'>
-              <SearchIcon />
-              <input
-                placeholder='Search'
-                type='text'
-                className='ml-2 h-6 border-none w-full bg-none focus:outline-none outline-none'
-              />
-            </span>
-            <Button className='shadow-sm' variant='ghost'>
-              <FilterIcon />
-            </Button>
-          </div>
+        <TableFilters onSearchChange={(e) => setSearchQuery(e.target.value)}>
           <DataTable
             data={employeeData?.data?.results || []}
             columns={columns}
             isLoading={fetchingEmployeeData}
           />
-        </>
+        </TableFilters>
       ),
     },
   ];
