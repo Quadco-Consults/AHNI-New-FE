@@ -5,6 +5,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import FormButton from "@/components/FormButton";
 import AddSquareIcon from "@/components/icons/AddSquareIcon";
 import DataTable from "@/components/Table/DataTable";
+import TableFilters from "@/components/Table/TableFilters";
 import React, { useState } from "react";
 
 import FilterIcon2 from "assets/svgs/FilterIcon2";
@@ -30,8 +31,9 @@ const GrievanceManagement: React.FC = () => {
   const router = useRouter();
   const [selectedId, setSelectedId] = useState<string>("");
   const [isDialogOpen, setDialogOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const { data: grievants, isLoading: isLoadingCompliants } =
-    useGetGrievances({ page: 1, size: 20 });
+    useGetGrievances({ page: 1, size: 20, search: searchQuery });
   const { deleteGrievance, isLoading: deleting } = useDeleteGrievance(
     selectedId
   );
@@ -138,39 +140,29 @@ const GrievanceManagement: React.FC = () => {
 
   return (
     <div className='flex flex-col justify-center items-center gap-y-[1rem]'>
-      <div className='w-full flex justify-between items-center'>
-        <div className='flex items-center justify-center'>
-          <SearchBar onchange={() => ""} />
-
-          <Button variant='ghost' className=''>
-            <FilterIcon2 />
-          </Button>
-        </div>
-        <div className='flex items-center'>
-          <FormButton
-            onClick={() => {
-              router.push("/dashboard/hr/grievance-management/create");
-            }}
-          >
-            <AddSquareIcon />
-            <p>Add New</p>
-          </FormButton>
-        </div>
+      <div className='w-full flex justify-end items-center'>
+        <FormButton
+          onClick={() => {
+            router.push("/dashboard/hr/grievance-management/create");
+          }}
+        >
+          <AddSquareIcon />
+          <p>Add New</p>
+        </FormButton>
       </div>
       <div className='w-full'>
-        <DataTable
-          columns={columns}
-          //   onRowClick={(row) => {
-          //     router.push("/c-and-g/grant-details/" + row?.original?.id);
-          //   }}
-          data={grievants?.data?.results ?? []}
-          isLoading={isLoadingCompliants}
-          pagination={{
-            total: 10,
-            pageSize: 10,
-            onChange: (page: number) => {},
-          }}
-        />
+        <TableFilters onSearchChange={(e) => setSearchQuery(e.target.value)}>
+          <DataTable
+            columns={columns}
+            data={grievants?.data?.results ?? []}
+            isLoading={isLoadingCompliants}
+            pagination={{
+              total: 10,
+              pageSize: 10,
+              onChange: (page: number) => {},
+            }}
+          />
+        </TableFilters>
       </div>
       <ConfirmationDialog
         open={isDialogOpen}

@@ -35,8 +35,9 @@ function PurchaseRequest({
   const [selectedPRForDetails, setSelectedPRForDetails] = useState<PurchaseRequestResultsData | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const [activeTab, setActiveTab] = useState(0); // 0: Activity Memo, 1: Expense Table, 2: Purchase Request
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const { data, isLoading, refetch } = useGetPurchaseRequests({});
+  const { data, isLoading, refetch } = useGetPurchaseRequests({ search: searchQuery });
   const { data: currentUser } = useGetUserProfile();
 
   // Handle status updates from approval workflow
@@ -385,7 +386,9 @@ function PurchaseRequest({
             <input
               placeholder='Search'
               type='text'
-              className='ml-2 h-6 border-none bg-none outline-none focus:outline-none'
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className='ml-2 h-6 w-full border-none bg-none outline-none focus:outline-none'
             />
           </span>
           <Button className='shadow-sm' variant='ghost'>
