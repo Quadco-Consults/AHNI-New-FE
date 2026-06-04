@@ -7,9 +7,13 @@ import TableFilters from "@/components/Table/TableFilters";
 import { useState } from "react";
 import { useGetAllAdhocApplicants } from "@/features/programs/controllers/adhocApplicantController";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { PlusIcon } from "lucide-react";
+import AddAdhocStaffModal from "./AddAdhocStaffModal";
 
 export default function AdhocDatabase() {
     const [page, setPage] = useState(1);
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
     // Fetch all adhoc applicants and filter for accepted contracts
     // Using applicants endpoint since staff database endpoint doesn't exist yet
@@ -59,6 +63,10 @@ export default function AdhocDatabase() {
                     <Badge className="bg-green-600 text-white px-4 py-2 text-lg">
                         {allResults.length} Active Staff
                     </Badge>
+                    <Button size="lg" onClick={() => setIsAddModalOpen(true)}>
+                        <PlusIcon className="h-4 w-4 mr-2" />
+                        Add Adhoc Staff
+                    </Button>
                 </div>
             </div>
 
@@ -95,6 +103,12 @@ export default function AdhocDatabase() {
                     />
                 </TableFilters>
             </Card>
+
+            {/* Add Adhoc Staff Modal */}
+            <AddAdhocStaffModal
+                open={isAddModalOpen}
+                onClose={() => setIsAddModalOpen(false)}
+            />
         </section>
     );
 }
