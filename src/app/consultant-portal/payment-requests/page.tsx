@@ -21,7 +21,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { FileText, Plus, Eye, Download, Filter, TrendingUp, Clock, CheckCircle, DollarSign } from "lucide-react";
+import { FileText, Plus, Eye, Download, Filter, TrendingUp, Clock, CheckCircle, DollarSign, ChevronDown, Users } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { usePaymentRequests, usePaymentRequestStatistics } from "@/features/consultant-portal/controllers/paymentRequestController";
 import { LoadingSpinner } from "@/components/Loading";
 
@@ -99,10 +105,31 @@ export default function PaymentRequestsPage() {
           <h1 className="text-3xl font-bold">Payment Requests</h1>
           <p className="text-gray-600 mt-1">Manage and track your payment requests</p>
         </div>
-        <Button onClick={() => router.push('/consultant-portal/payment-requests/create')}>
-          <Plus className="h-4 w-4 mr-2" />
-          Submit Payment Request
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button>
+              <Plus className="h-4 w-4 mr-2" />
+              Submit Payment Request
+              <ChevronDown className="h-4 w-4 ml-2" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuItem onClick={() => router.push('/consultant-portal/payment-requests/create')}>
+              <Plus className="h-4 w-4 mr-2" />
+              <div>
+                <div className="font-medium">For Myself</div>
+                <div className="text-xs text-gray-600">Submit a single payment request</div>
+              </div>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => router.push('/consultant-portal/payment-requests/bulk')}>
+              <Users className="h-4 w-4 mr-2" />
+              <div>
+                <div className="font-medium">For My Team</div>
+                <div className="text-xs text-gray-600">Bulk request for cluster members</div>
+              </div>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       {/* Statistics Cards */}

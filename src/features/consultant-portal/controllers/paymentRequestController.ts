@@ -14,6 +14,7 @@ const PAYMENT_REQUEST_ENDPOINTS = {
   DETAIL: (id: string) => `/contract-grants/consultant-portal/payment-requests/${id}/`,
   STATISTICS: "/contract-grants/consultant-portal/payment-requests/statistics/",
   UPLOAD_DOCUMENT: (id: string) => `/consultant-portal/payment-requests/${id}/upload-document/`,
+  CLUSTER_MEMBERS: "/contract-grants/consultant-portal/payment-requests/cluster-members/",
 };
 
 // List Payment Requests Hook
@@ -126,6 +127,61 @@ export const useUploadPaymentRequestDocument = () => {
     onSuccess: (data, variables) => {
       // Invalidate queries to refresh data
       queryClient.invalidateQueries({ queryKey: ['consultant-payment-request-detail', variables.paymentRequestId] });
+    },
+  });
+};
+
+// Get Cluster Members Hook
+export const useClusterMembers = () => {
+  return useQuery({
+    queryKey: ['consultant-cluster-members'],
+    queryFn: async (): Promise<any> => {
+      const response = await ConsultantAxiosWithToken.get(
+        PAYMENT_REQUEST_ENDPOINTS.CLUSTER_MEMBERS
+      );
+      return response.data;
+    },
+    enabled: ConsultantAuthUtils.isConsultantAuthenticated(),
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+};
+
+// Create Bulk Payment Request Hook
+export const useCreateBulkPaymentRequest = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: {
+      payment_reason: string;
+      payment_date: string;
+      payment_items: Array<{ user_id: string; amount: number; }>;
+      document?: File;
+    }): Promise<any> => {
+      const formData = new FormData();
+      formData.append('payment_reason', data.payment_reason);
+      formData.append('payment_date', data.payment_date);
+      formData.append('payment_items', JSON.stringify(data.payment_items));
+
+      if (data.document) {
+        formData.append('document', data.document);
+      }
+
+      const response = await ConsultantAxiosWithToken.post(
+        PAYMENT_REQUEST_ENDPOINTS.LIST,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+      return response.data;
+    },
+    onSuccess: () => {
+      // Invalidate queries to refresh data
+      queryClient.invalidateQueries({ queryKey: ['consultant-payment-requests'] });
+      queryClient.invalidateQueries({ queryKey: ['consultant-payment-request-statistics'] });
+      queryClient.invalidateQueries({ queryKey: ['consultant-dashboard'] });
     },
   });
 };
