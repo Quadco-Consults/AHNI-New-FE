@@ -7,9 +7,13 @@ import TableFilters from "@/components/Table/TableFilters";
 import { useState } from "react";
 import { useGetAllConsultancyApplicants } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { PlusIcon } from "lucide-react";
+import AddConsultantModal from "./AddConsultantModal";
 
 export default function ConsultancyDatabase() {
     const [page, setPage] = useState(1);
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
     // Fetch all applicants with enhanced filtering
     const { data, isLoading, error } = useGetAllConsultancyApplicants({
@@ -81,6 +85,10 @@ export default function ConsultancyDatabase() {
                             </span>
                         </Badge>
                     )}
+                    <Button size="lg" onClick={() => setIsAddModalOpen(true)}>
+                        <PlusIcon className="h-4 w-4 mr-2" />
+                        Add Consultant
+                    </Button>
                 </div>
             </div>
 
@@ -114,6 +122,12 @@ export default function ConsultancyDatabase() {
                     )}
                 </TableFilters>
             </Card>
+
+            {/* Add Consultant Modal */}
+            <AddConsultantModal
+                open={isAddModalOpen}
+                onClose={() => setIsAddModalOpen(false)}
+            />
         </section>
     );
 }
