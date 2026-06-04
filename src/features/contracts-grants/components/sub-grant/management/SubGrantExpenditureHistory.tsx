@@ -3,6 +3,7 @@
 import React, { useMemo, useState } from "react";
 import { TotalExpenditureSvg, TotalIncomeSvg } from "assets/svgs/CAndGSvgs";
 import DataTable from "@/components/Table/DataTable";
+import TableFilters from "@/components/Table/TableFilters";
 import { expenditureColumns } from "@/features/contracts-grants/components/table-columns/grant/expenditure";
 import { useGetAllSubGrantExpenditures } from "@/features/contracts-grants/controllers/subGrantExpenditureController";
 import { formatNumberCurrency } from "@/utils/utls";
@@ -22,12 +23,14 @@ const SubGrantExpenditureHistory: React.FC<SubGrantExpenditureHistoryProps> = ({
   subGrantId,
 }) => {
   const [page, setPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Fetch expenditures using subGrantId
   const { data, isFetching, error } = useGetAllSubGrantExpenditures({
     subGrantId: subGrantId,  // Use subGrantId, not awardId
     page,
     size: 10,
+    search: searchQuery,
     enabled: !!subGrantId,
   });
 
@@ -111,16 +114,18 @@ const SubGrantExpenditureHistory: React.FC<SubGrantExpenditureHistoryProps> = ({
             </p>
           </div>
         )}
-        <DataTable
-          columns={expenditureColumns}
-          data={data?.data?.results || []}
-          isLoading={isFetching}
-          pagination={{
-            total: data?.data?.paginator?.count ?? 0,
-            pageSize: data?.data?.paginator?.page_size ?? 0,
-            onChange: (page: number) => setPage(page),
-          }}
-        />
+        <TableFilters onSearchChange={(e) => setSearchQuery(e.target.value)}>
+          <DataTable
+            columns={expenditureColumns}
+            data={data?.data?.results || []}
+            isLoading={isFetching}
+            pagination={{
+              total: data?.data?.paginator?.count ?? 0,
+              pageSize: data?.data?.paginator?.page_size ?? 0,
+              onChange: (page: number) => setPage(page),
+            }}
+          />
+        </TableFilters>
       </div>
     </section>
   );

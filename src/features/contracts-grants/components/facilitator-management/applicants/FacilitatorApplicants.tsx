@@ -21,11 +21,13 @@ interface FacilitatorApplicantsProps {
 
 export default function FacilitatorApplicants({ facilitatorId }: FacilitatorApplicantsProps) {
   const [page, setPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Get facilitator applicants from API
   const { data: applicantsResponse, isLoading, refetch } = useGetAllFacilitatorApplicants({
     page,
     size: 10,
+    search: searchQuery,
     facilitators: facilitatorId, // Use facilitators (many-to-many field)
     enabled: !!facilitatorId,
   });
@@ -143,7 +145,7 @@ export default function FacilitatorApplicants({ facilitatorId }: FacilitatorAppl
           Manage facilitator applications. Select qualified candidates directly without interviews.
         </p>
 
-        <TableFilters>
+        <TableFilters onSearchChange={(e) => setSearchQuery(e.target.value)}>
           <DataTable
             columns={columns}
             data={applicants}

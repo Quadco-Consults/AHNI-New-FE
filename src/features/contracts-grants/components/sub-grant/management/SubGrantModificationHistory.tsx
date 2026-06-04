@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import DataTable from "@/components/Table/DataTable";
+import TableFilters from "@/components/Table/TableFilters";
 import { formatNumberCurrency } from "@/utils/utls";
 import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
@@ -168,11 +169,13 @@ const SubGrantModificationHistory: React.FC<SubGrantModificationHistoryProps> = 
   subGrantId,
 }) => {
   const [page, setPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const { data, isFetching, error } = useGetAllSubGrantModifications({
     subGrantId: subGrantId,  // Use subGrantId, not awardId
     page,
     size: 10,
+    search: searchQuery,
     enabled: !!subGrantId,
   });
 
@@ -200,16 +203,18 @@ const SubGrantModificationHistory: React.FC<SubGrantModificationHistoryProps> = 
           </div>
         )}
 
-        <DataTable
-          columns={modificationColumns}
-          data={data?.data?.results || []}
-          isLoading={isFetching}
-          pagination={{
-            total: data?.data?.paginator?.count ?? 0,
-            pageSize: data?.data?.paginator?.page_size ?? 10,
-            onChange: (page: number) => setPage(page),
-          }}
-        />
+        <TableFilters onSearchChange={(e) => setSearchQuery(e.target.value)}>
+          <DataTable
+            columns={modificationColumns}
+            data={data?.data?.results || []}
+            isLoading={isFetching}
+            pagination={{
+              total: data?.data?.paginator?.count ?? 0,
+              pageSize: data?.data?.paginator?.page_size ?? 10,
+              onChange: (page: number) => setPage(page),
+            }}
+          />
+        </TableFilters>
       </div>
     </section>
   );

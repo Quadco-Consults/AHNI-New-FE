@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { TotalExpenditureSvg, TotalIncomeSvg } from "assets/svgs/CAndGSvgs";
 import DataTable from "@/components/Table/DataTable";
+import TableFilters from "@/components/Table/TableFilters";
 import { obligationColumns } from "@/features/contracts-grants/components/table-columns/grant/obligation";
 import { useGetAllSubGrantObligations } from "@/features/contracts-grants/controllers/subGrantObligationController";
 import { formatNumberCurrency } from "@/utils/utls";
@@ -22,12 +23,14 @@ const SubGrantObligationHistory: React.FC<SubGrantObligationHistoryProps> = ({
   awardAmountUsd,
 }) => {
   const [page, setPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Fetch obligations using subGrantId
   const { data, isFetching } = useGetAllSubGrantObligations({
     subGrantId: subGrantId,  // Use subGrantId, not awardId
     page,
     size: 10,
+    search: searchQuery,
     enabled: !!subGrantId,
   });
 
@@ -111,20 +114,22 @@ const SubGrantObligationHistory: React.FC<SubGrantObligationHistoryProps> = ({
         })}
       </div>
       <div className="w-full bg-white border rounded-lg p-2">
-        <DataTable
-          columns={obligationColumns}
-          data={data?.data?.results || []}
-          isLoading={isFetching}
-          pagination={{
-            total:
-              data?.data?.pagination?.count || data?.data?.paginator?.count || 0,
-            pageSize:
-              data?.data?.pagination?.page_size ||
-              data?.data?.paginator?.page_size ||
-              0,
-            onChange: (page: number) => setPage(page),
-          }}
-        />
+        <TableFilters onSearchChange={(e) => setSearchQuery(e.target.value)}>
+          <DataTable
+            columns={obligationColumns}
+            data={data?.data?.results || []}
+            isLoading={isFetching}
+            pagination={{
+              total:
+                data?.data?.pagination?.count || data?.data?.paginator?.count || 0,
+              pageSize:
+                data?.data?.pagination?.page_size ||
+                data?.data?.paginator?.page_size ||
+                0,
+              onChange: (page: number) => setPage(page),
+            }}
+          />
+        </TableFilters>
       </div>
     </section>
   );
