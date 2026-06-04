@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "@/components/Table/DataTable";
+import TableFilters from "@/components/Table/TableFilters";
 import { useGetVendors, useDeleteVendor, useBulkUploadVendors } from "@/features/procurement/controllers/vendorsController";
 import { VendorsResultsData } from "@/definations/procurement-types/vendors";
 import Link from "next/link";
@@ -25,11 +26,13 @@ const AllVendors = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const [statusFilter, setStatusFilter] = useState<string>(""); // Empty = all statuses
+  const [searchQuery, setSearchQuery] = useState("");
 
   const { data, isLoading, refetch } = useGetVendors({
     status: statusFilter,
     page: currentPage,
     size: pageSize,
+    search: searchQuery,
   });
   const { bulkUploadVendors } = useBulkUploadVendors();
 
@@ -141,11 +144,13 @@ const AllVendors = () => {
           </div>
         </div>
 
-        <DataTable
-          data={data?.data?.results || []}
-          columns={columns}
-          isLoading={isLoading}
-        />
+        <TableFilters onSearchChange={(e) => setSearchQuery(e.target.value)}>
+          <DataTable
+            data={data?.data?.results || []}
+            columns={columns}
+            isLoading={isLoading}
+          />
+        </TableFilters>
 
         {/* Pagination Controls */}
         {pagination && pagination.total_pages > 1 && (
