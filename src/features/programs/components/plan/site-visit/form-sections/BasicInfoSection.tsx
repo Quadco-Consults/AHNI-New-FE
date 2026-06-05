@@ -28,7 +28,7 @@ const BasicInfoSection: React.FC = () => {
           Basic Information
         </CardTitle>
         <p className="text-sm text-gray-600">
-          Provide the basic details about your site visit request.
+          Provide the basic details about your travel request request.
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -41,7 +41,7 @@ const BasicInfoSection: React.FC = () => {
               <FormLabel className="required">Site Visit Title</FormLabel>
               <FormControl>
                 <Input
-                  placeholder="Enter a descriptive title for your site visit"
+                  placeholder="Enter a descriptive title for your travel request"
                   {...field}
                 />
               </FormControl>
@@ -60,7 +60,7 @@ const BasicInfoSection: React.FC = () => {
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select the type of site visit" />
+                    <SelectValue placeholder="Select the type of travel request" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
@@ -86,7 +86,7 @@ const BasicInfoSection: React.FC = () => {
                 <FormLabel className="required">Other Visit Type Description</FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder="Please describe the other type of site visit"
+                    placeholder="Please describe the other type of travel request"
                     className="min-h-[80px]"
                     {...field}
                   />
@@ -106,7 +106,7 @@ const BasicInfoSection: React.FC = () => {
               <FormLabel className="required">Purpose</FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="Explain the purpose and objectives of this site visit"
+                  placeholder="Explain the purpose and objectives of this travel request"
                   className="min-h-[100px]"
                   {...field}
                 />

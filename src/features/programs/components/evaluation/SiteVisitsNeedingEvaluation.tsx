@@ -77,7 +77,7 @@ export default function SiteVisitsNeedingEvaluation({
   // Log test data
   useEffect(() => {
     if (allSiteVisitsData) {
-      console.log("🧪 Test - All site visits (no filters):", allSiteVisitsData);
+      console.log("🧪 Test - All travel requests (no filters):", allSiteVisitsData);
       console.log("🧪 Data structure exploration:", {
         topLevel: Object.keys(allSiteVisitsData),
         dataProperty: allSiteVisitsData.data,
@@ -86,14 +86,14 @@ export default function SiteVisitsNeedingEvaluation({
         dataData: (allSiteVisitsData as any)?.data?.data
       });
 
-      // Try different paths to find the actual site visits array
+      // Try different paths to find the actual travel requests array
       const actualResults = (allSiteVisitsData as any)?.data?.results ||
                            (allSiteVisitsData as any)?.data?.data ||
                            allSiteVisitsData.results ||
                            (allSiteVisitsData as any).data;
 
       if (actualResults && Array.isArray(actualResults)) {
-        console.log("🧪 Found site visits array:", actualResults);
+        console.log("🧪 Found travel requests array:", actualResults);
         console.log("🧪 Available statuses in your system:",
           actualResults.reduce((acc: Record<string, number>, sv: any) => {
             acc[sv.status] = (acc[sv.status] || 0) + 1;
@@ -106,17 +106,17 @@ export default function SiteVisitsNeedingEvaluation({
             return acc;
           }, {} as Record<string, number>)
         );
-        console.log("🧪 Sample site visit data structure:", actualResults[0]);
+        console.log("🧪 Sample travel request data structure:", actualResults[0]);
       } else {
-        console.log("🧪 Could not find site visits array. Full data:", allSiteVisitsData);
+        console.log("🧪 Could not find travel requests array. Full data:", allSiteVisitsData);
       }
     }
   }, [allSiteVisitsData]);
 
-  // Fetch completed site visits
+  // Fetch completed travel requests
   const { data: siteVisitsData, isLoading: isLoadingSiteVisits, error: siteVisitsError } = useGetAllSiteVisits(searchParams);
 
-  // Fetch all evaluations to check which site visits already have evaluations (optional - don't fail if this doesn't work)
+  // Fetch all evaluations to check which travel requests already have evaluations (optional - don't fail if this doesn't work)
   const { data: evaluationsData, isLoading: isLoadingEvaluations, error: evaluationsError, refetch: refetchEvaluations } = useGetAllSupervisionEvaluations({
     page: 1,
     page_size: 1000, // Get all evaluations to check against
@@ -148,7 +148,7 @@ export default function SiteVisitsNeedingEvaluation({
 
   // Log API responses for debugging
   useEffect(() => {
-    console.log("🔍 Site visits query state:", {
+    console.log("🔍 Travel requests query state:", {
       isLoading: isLoadingSiteVisits,
       hasData: !!siteVisitsData,
       hasError: !!siteVisitsError,
@@ -162,7 +162,7 @@ export default function SiteVisitsNeedingEvaluation({
         SiteVisitType.EMERGENCY_SUPPORTIVE_SUPERVISION,
       ];
 
-      console.log("✅ Site visits loaded:", {
+      console.log("✅ Travel requests loaded:", {
         total: siteVisitsData.results?.length || 0,
         approved: siteVisitsData.results?.filter(sv => sv.status === "APPROVED").length || 0,
         supervisionTypes: siteVisitsData.results?.filter(sv =>
@@ -181,15 +181,15 @@ export default function SiteVisitsNeedingEvaluation({
     }
 
     if (siteVisitsError) {
-      console.error("❌ Site visits error details:", {
+      console.error("❌ Travel requests error details:", {
         error: siteVisitsError,
         message: siteVisitsError?.message,
         name: siteVisitsError?.name,
         stack: siteVisitsError?.stack,
         cause: siteVisitsError?.cause
       });
-      const errorMessage = siteVisitsError?.message || "Unknown error occurred while loading site visits";
-      toast.error("Failed to load site visits: " + errorMessage);
+      const errorMessage = siteVisitsError?.message || "Unknown error occurred while loading travel requests";
+      toast.error("Failed to load travel requests: " + errorMessage);
     }
   }, [siteVisitsData, siteVisitsError, isLoadingSiteVisits, searchParams]);
 
@@ -206,10 +206,10 @@ export default function SiteVisitsNeedingEvaluation({
         rawData: evaluationsData
       });
 
-      // Debug evaluation structure and site visit mapping
+      // Debug evaluation structure and travel request mapping
       if (evaluationsData.results && evaluationsData.results.length > 0) {
         console.log("🔍 First evaluation structure:", evaluationsData.results[0]);
-        console.log("🔍 All evaluation site visit IDs:", evaluationsData.results.map(e => ({
+        console.log("🔍 All evaluation travel request IDs:", evaluationsData.results.map(e => ({
           id: e.id,
           site_visit_id: e.site_visit_id,
           site_visit: e.site_visit,
@@ -227,20 +227,20 @@ export default function SiteVisitsNeedingEvaluation({
         cause: evaluationsError?.cause
       });
       const errorMessage = evaluationsError?.message || "Unknown error occurred while loading evaluations";
-      // Use warning toast instead of error since site visits still work
-      toast("⚠️ Warning: Failed to load evaluations data. Site visits are shown, but duplicates may appear.", {
+      // Use warning toast instead of error since travel requests still work
+      toast("⚠️ Warning: Failed to load evaluations data. Travel requests are shown, but duplicates may appear.", {
         description: errorMessage
       });
     }
   }, [evaluationsData, evaluationsError, isLoadingEvaluations]);
 
-  // Process site visits to determine which need evaluation
+  // Process travel requests to determine which need evaluation
   const siteVisitsForEvaluation = useMemo(() => {
     // Access the correct data structure: data.results
     const actualResults = (siteVisitsData as any)?.data?.results || siteVisitsData?.results;
 
     if (!actualResults || !Array.isArray(actualResults)) {
-      console.log("🔍 No site visits found. Data structure:", siteVisitsData);
+      console.log("🔍 No travel requests found. Data structure:", siteVisitsData);
       return [];
     }
 
@@ -266,7 +266,7 @@ export default function SiteVisitsNeedingEvaluation({
         const hasApprovedStatus = approvedStatuses.includes(siteVisit.status_display);
         const isSupervisionType = supervisionTypes.includes(siteVisit.visit_type_display);
 
-        console.log(`🔍 Filtering site visit "${siteVisit.title}":`, {
+        console.log(`🔍 Filtering travel request "${siteVisit.title}":`, {
           status: siteVisit.status_display,
           type: siteVisit.visit_type_display,
           hasApprovedStatus,
@@ -289,11 +289,11 @@ export default function SiteVisitsNeedingEvaluation({
       });
       // Show all sites - both with and without evaluations
 
-    console.log("🎯 Final filtered site visits for evaluation:", filtered);
+    console.log("🎯 Final filtered travel requests for evaluation:", filtered);
     return filtered;
   }, [siteVisitsData, evaluationsData]);
 
-  // Only consider site visits loading as critical - evaluations are optional
+  // Only consider travel requests loading as critical - evaluations are optional
   const isLoading = isLoadingSiteVisits;
 
   // Handle search and filters
@@ -316,13 +316,13 @@ export default function SiteVisitsNeedingEvaluation({
   };
 
   const handleViewEvaluation = (siteVisitId: string) => {
-    // Find the evaluation for this site visit
+    // Find the evaluation for this travel request
     const evaluation = evaluationsData?.results?.find(evaluation => evaluation.site_visit_id === siteVisitId);
     if (evaluation) {
       // Navigate to the evaluation conducting interface
       router.push(`/dashboard/programs/plan/supervision-evaluation/${evaluation.id}`);
     } else {
-      toast.error("Evaluation not found for this site visit");
+      toast.error("Evaluation not found for this travel request");
     }
   };
 
@@ -491,7 +491,7 @@ export default function SiteVisitsNeedingEvaluation({
               <div className="relative">
                 <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                 <Input
-                  placeholder="Search site visits..."
+                  placeholder="Search travel requests..."
                   className="pl-10"
                   value={searchParams.search}
                   onChange={(e) => handleSearch(e.target.value)}
@@ -532,18 +532,18 @@ export default function SiteVisitsNeedingEvaluation({
           {isLoading ? (
             <div className="flex justify-center items-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-              <span className="ml-2 text-gray-600">Loading site visits...</span>
+              <span className="ml-2 text-gray-600">Loading travel requests...</span>
             </div>
           ) : siteVisitsError ? (
             <div className="text-center py-8">
               <AlertCircleIcon className="mx-auto h-12 w-12 text-red-400" />
-              <h3 className="mt-2 text-sm font-medium text-gray-900">Failed to load site visits</h3>
+              <h3 className="mt-2 text-sm font-medium text-gray-900">Failed to load travel requests</h3>
               <p className="mt-1 text-sm text-gray-500">
                 {siteVisitsError?.message || "Please check your network connection and try again."}
               </p>
               {evaluationsError && (
                 <p className="mt-2 text-xs text-orange-500">
-                  Note: Evaluations data failed to load, but site visits are shown.
+                  Note: Evaluations data failed to load, but travel requests are shown.
                 </p>
               )}
               <Button

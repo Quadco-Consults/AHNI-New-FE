@@ -84,11 +84,11 @@ export const useCreateSiteVisit = () => {
         const response = await AxiosWithToken.post(SITE_VISIT_BASE_URL, data);
         return response.data;
       } catch (error: any) {
-        console.error("Site visit create error:", error);
+        console.error("Travel request create error:", error);
         throw new Error(
           error.response?.data?.message ||
           error.response?.data?.error ||
-          "Failed to create site visit"
+          "Failed to create travel request"
         );
       }
     },
@@ -108,11 +108,11 @@ export const useUpdateSiteVisit = (id: string) => {
         const response = await AxiosWithToken.put(`${SITE_VISIT_BASE_URL}${id}/`, data);
         return response.data;
       } catch (error: any) {
-        console.error("Site visit update error:", error);
+        console.error("Travel request update error:", error);
         throw new Error(
           error.response?.data?.message ||
           error.response?.data?.error ||
-          "Failed to update site visit"
+          "Failed to update travel request"
         );
       }
     },
@@ -133,11 +133,11 @@ export const useDeleteSiteVisit = (id: string) => {
         const response = await AxiosWithToken.delete(`${SITE_VISIT_BASE_URL}${id}/`);
         return response.data;
       } catch (error: any) {
-        console.error("Site visit delete error:", error);
+        console.error("Travel request delete error:", error);
         throw new Error(
           error.response?.data?.message ||
           error.response?.data?.error ||
-          "Failed to delete site visit"
+          "Failed to delete travel request"
         );
       }
     },
@@ -157,11 +157,11 @@ export const useUpdateSiteVisitStatus = (id: string) => {
         const response = await AxiosWithToken.post(`${SITE_VISIT_BASE_URL}${id}/update_status/`, data);
         return response.data;
       } catch (error: any) {
-        console.error("Site visit status update error:", error);
+        console.error("Travel request status update error:", error);
         throw new Error(
           error.response?.data?.message ||
           error.response?.data?.error ||
-          "Failed to update site visit status"
+          "Failed to update travel request status"
         );
       }
     },
@@ -186,7 +186,7 @@ export const useGenerateEAsFromSiteVisit = (id: string) => {
         throw new Error(
           error.response?.data?.message ||
           error.response?.data?.error ||
-          "Failed to generate EAs from site visit"
+          "Failed to generate EAs from travel request"
         );
       }
     },
@@ -681,7 +681,7 @@ export const useCreateSiteVisitReport = (siteVisitId: string) => {
     try {
       await callApi(reportData);
     } catch (error) {
-      console.error("Site visit report create error:", error);
+      console.error("Travel request report create error:", error);
     }
   };
 

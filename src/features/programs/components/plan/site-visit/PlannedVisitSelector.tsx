@@ -92,10 +92,10 @@ export default function PlannedVisitSelector({
     }
   };
 
-  // Handle linking site visit to planned visit
+  // Handle linking travel request to planned visit
   const handleLinkSiteVisit = async () => {
     if (!siteVisitId || !selectedPlannedVisit) {
-      toast.error("Missing site visit or planned visit information");
+      toast.error("Missing travel request or planned visit information");
       return;
     }
 
@@ -105,13 +105,13 @@ export default function PlannedVisitSelector({
         site_visit_id: siteVisitId,
       });
 
-      toast.success("Site visit successfully linked to planned visit");
+      toast.success("Travel request successfully linked to planned visit");
 
       if (onPlannedVisitSelected) {
         onPlannedVisitSelected(selectedPlannedVisit);
       }
     } catch (error: any) {
-      toast.error(error.message || "Failed to link site visit");
+      toast.error(error.message || "Failed to link travel request");
     }
   };
 
@@ -155,8 +155,8 @@ export default function PlannedVisitSelector({
           </h3>
           <p className="text-sm text-gray-600 mt-1">
             {mode === "select"
-              ? "Choose a planned visit to associate with this site visit"
-              : "Link this site visit to an existing planned visit from the annual plan"
+              ? "Choose a planned visit to associate with this travel request"
+              : "Link this travel request to an existing planned visit from the annual plan"
             }
           </p>
         </div>
@@ -374,7 +374,7 @@ export default function PlannedVisitSelector({
                     <Alert className="mt-3">
                       <AlertCircleIcon className="h-4 w-4" />
                       <AlertDescription className="text-xs">
-                        This planned visit is already linked to site visit: {plannedVisit.site_visit_title}
+                        This planned visit is already linked to travel request: {plannedVisit.site_visit_title}
                       </AlertDescription>
                     </Alert>
                   )}

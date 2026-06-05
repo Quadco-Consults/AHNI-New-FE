@@ -35,7 +35,7 @@ const SupervisionEvaluationPage = () => {
   const [selectedSiteVisitId, setSelectedSiteVisitId] = useState<string>("");
   const [activeTab, setActiveTab] = useState("site-visits");
 
-  // Site visits query parameters
+  // Travel requests query parameters
   const [siteVisitParams, setSiteVisitParams] = useState<ISiteVisitListParams>({
     page: 1,
     page_size: 20,
@@ -106,7 +106,7 @@ const SupervisionEvaluationPage = () => {
     }
   }, [evaluationsData, isLoadingEvaluations, evaluationsError]);
 
-  // Process site visits for evaluation table
+  // Process travel requests for evaluation table
   const siteVisitsForEvaluation = React.useMemo(() => {
     const actualResults = (siteVisitsData as any)?.data?.results || siteVisitsData?.results || [];
 
@@ -131,14 +131,14 @@ const SupervisionEvaluationPage = () => {
       evaluationsResults?.map(evaluation => evaluation.site_visit_id || evaluation.site_visit) || []
     );
 
-    console.log("🔍 Processing site visits for evaluation table:", {
+    console.log("🔍 Processing travel requests for evaluation table:", {
       totalEvaluations: evaluationsResults?.length || 0,
       siteVisitIds: Array.from(existingEvaluationSiteVisitIds),
       rawEvaluations: evaluationsResults,
       filteredSiteVisitsCount: actualResults?.length || 0
     });
 
-    // Debug: Log each evaluation's site visit mapping
+    // Debug: Log each evaluation's travel request mapping
     evaluationsResults?.forEach(evaluation => {
       console.log(`📋 Evaluation ${evaluation.id}:`, {
         title: evaluation.title,
@@ -168,7 +168,7 @@ const SupervisionEvaluationPage = () => {
           evaluationId: evaluation?.id || null,
         };
 
-        console.log(`🔍 Processing site visit ${siteVisit.location_name} (${siteVisit.id}):`, {
+        console.log(`🔍 Processing travel request ${siteVisit.location_name} (${siteVisit.id}):`, {
           hasEvaluation,
           evaluationId: evaluation?.id,
           status: evaluation?.status,
@@ -176,13 +176,13 @@ const SupervisionEvaluationPage = () => {
         });
 
         if (hasEvaluation) {
-          console.log(`✅ Site visit ${siteVisit.id} has evaluation:`, {
+          console.log(`✅ Travel request ${siteVisit.id} has evaluation:`, {
             evaluationId: evaluation?.id,
             status: evaluation?.status,
             hasEvaluation
           });
         } else {
-          console.log(`❌ No evaluation found for site visit ${siteVisit.location_name} (${siteVisit.id})`);
+          console.log(`❌ No evaluation found for travel request ${siteVisit.location_name} (${siteVisit.id})`);
         }
 
         return result;
@@ -224,10 +224,10 @@ const SupervisionEvaluationPage = () => {
       (evaluation.site_visit && evaluation.site_visit === siteVisitId)
     );
     if (evaluation) {
-      console.log("🎯 Navigating to evaluation:", evaluation.id, "for site visit:", siteVisitId);
+      console.log("🎯 Navigating to evaluation:", evaluation.id, "for travel request:", siteVisitId);
       router.push(`/dashboard/programs/plan/supervision-evaluation/${evaluation.id}`);
     } else {
-      console.warn("❌ No evaluation found for site visit:", siteVisitId);
+      console.warn("❌ No evaluation found for travel request:", siteVisitId);
       console.log("Available evaluations:", evaluationsArray?.map(e => ({
         id: e.id,
         site_visit_id: e.site_visit_id,
@@ -270,12 +270,12 @@ const SupervisionEvaluationPage = () => {
 
     console.log("✅ Evaluation created successfully, refreshing data...");
 
-    // Refetch both evaluations and site visits to update the table
+    // Refetch both evaluations and travel requests to update the table
     // Use a small delay to ensure backend data is consistent
     setTimeout(() => {
       refetchEvaluations();
       refetchSiteVisits();
-      console.log("🔄 Data refetch triggered for evaluations and site visits");
+      console.log("🔄 Data refetch triggered for evaluations and travel requests");
     }, 500);
 
     // Navigate to conduct evaluation if successful
@@ -304,9 +304,9 @@ const SupervisionEvaluationPage = () => {
       const evalResult = await refetchEvaluations();
       console.log("📊 Evaluations refetch result:", evalResult);
 
-      console.log("🔄 Refetching site visits...");
+      console.log("🔄 Refetching travel requests...");
       const siteVisitResult = await refetchSiteVisits();
-      console.log("📊 Site visits refetch result:", siteVisitResult);
+      console.log("📊 Travel requests refetch result:", siteVisitResult);
     } catch (error) {
       console.error("❌ Refetch error:", error);
     }
@@ -337,7 +337,7 @@ const SupervisionEvaluationPage = () => {
           <div>
             <h1 className="text-2xl font-bold">Supervision Evaluation Management</h1>
             <p className="text-gray-600 mt-1">
-              Manage evaluations for approved supervision site visits
+              Manage evaluations for approved supervision travel requests
             </p>
           </div>
 
@@ -479,7 +479,7 @@ const SupervisionEvaluationPage = () => {
               <CardHeader>
                 <CardTitle>Site Visits Requiring Evaluation</CardTitle>
                 <p className="text-sm text-gray-600">
-                  Approved supervision site visits that need evaluation assessment
+                  Approved supervision travel requests that need evaluation assessment
                 </p>
               </CardHeader>
               <CardContent>

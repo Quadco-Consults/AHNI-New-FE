@@ -84,14 +84,14 @@ export default function ProjectSummaryPage() {
     search: "",
   });
 
-  // Get employee data like in site visit creator
+  // Get employee data like in travel request creator
   const { data: employeeData } = useGetEmployeeOnboardings({
     page: 1,
     size: 2000000,
     search: "",
   });
 
-  // Combine and filter AHNI users and employees like site visit creator
+  // Combine and filter AHNI users and employees like travel request creator
   const userOptions = useMemo(() => {
     const allUsers = user?.data?.results || [];
     const allEmployees = employeeData?.data?.results || [];

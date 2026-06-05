@@ -69,7 +69,7 @@ const ReconciliationView: React.FC<ReconciliationViewProps> = ({ expenses }) => 
   const calculateReconciliationData = (expense: any) => {
     const actualTotal = calculateActualTotal(expense.activities || []);
 
-    // Get budgeted amounts from site visit or expense authorization
+    // Get budgeted amounts from travel request or expense authorization
     const budgetedTotal = expense.expense_authorization?.budgeted_total ||
                           expense.site_visit?.travel_fees?.total_cost || 0;
 
@@ -435,7 +435,7 @@ const ReconciliationDetails: React.FC<{
                   <span className="font-medium">₦{reconciliationData.budgetedTotal.toLocaleString()}</span>
                 </div>
                 <div className="text-xs text-gray-600">
-                  Based on site visit budget or expense authorization
+                  Based on travel request budget or expense authorization
                 </div>
               </div>
             </CardContent>

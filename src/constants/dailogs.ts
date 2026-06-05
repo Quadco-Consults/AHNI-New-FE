@@ -82,6 +82,7 @@ export const DialogType = {
   AddAssetClassification: "AddAssetClassification",
   AddExchangeRate: "AddExchangeRate",
   AddTravelRate: "AddTravelRate",
+  AddApprovalThreshold: "AddApprovalThreshold",
   ChangeWorkPlanStatusModal: "ChangeWorkPlanStatusModal",
   ChangeProcurementTrackerStatusModal: "ChangeProcurementTrackerStatusModal",
   ChangeProcurementTrackerRemarkModal: "ChangeProcurementTrackerRemarkModal",

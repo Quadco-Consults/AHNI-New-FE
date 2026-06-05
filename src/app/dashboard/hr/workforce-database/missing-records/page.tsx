@@ -218,7 +218,7 @@ export default function MissingEmployeeRecordsPage() {
             <AlertTriangleIcon className="h-4 w-4 text-yellow-600" />
             <AlertDescription className="text-yellow-800">
               <strong>Action Required:</strong> These AHNI staff members need employee records
-              created for payroll, benefits, and site visit participation.
+              created for payroll, benefits, and travel request participation.
             </AlertDescription>
           </Alert>
 
@@ -246,7 +246,7 @@ export default function MissingEmployeeRecordsPage() {
             <InfoIcon className="h-4 w-4 text-blue-600" />
             <AlertDescription className="text-blue-800">
               <strong>Note:</strong> Consultants use consultant profiles, not employee records.
-              They can participate in site visits through their consultant profiles.
+              They can participate in travel requests through their consultant profiles.
             </AlertDescription>
           </Alert>
 

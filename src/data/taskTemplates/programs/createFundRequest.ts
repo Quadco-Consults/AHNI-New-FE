@@ -73,7 +73,7 @@ export const createFundRequestTemplate: TaskTemplate = {
         {
           fieldName: 'MAIN Request',
           description: 'For planned activities in your approved work plan',
-          example: 'Quarterly training sessions, scheduled site visits, routine program activities',
+          example: 'Quarterly training sessions, scheduled travel requests, routine program activities',
           required: false,
           validationRules: ['Must reference approved work plan activities']
         },

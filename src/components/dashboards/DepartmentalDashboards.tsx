@@ -180,7 +180,7 @@ export const ProgramOfficerDashboard: React.FC = () => {
             {[
               { action: 'Created workplan', project: 'Clean Water Initiative', time: '2 hours ago', status: 'completed' },
               { action: 'Submitted fund request', project: 'Education Program', time: '1 day ago', status: 'pending' },
-              { action: 'Site visit completed', project: 'Health Clinic Project', time: '2 days ago', status: 'completed' },
+              { action: 'Travel request completed', project: 'Health Clinic Project', time: '2 days ago', status: 'completed' },
               { action: 'Budget revision', project: 'Agriculture Support', time: '3 days ago', status: 'under_review' }
             ].map((activity, index) => (
               <div key={index} className="flex items-start space-x-3">
@@ -204,7 +204,7 @@ export const ProgramOfficerDashboard: React.FC = () => {
           <div className="space-y-4">
             {[
               { task: 'Review Q4 workplan draft', priority: 'high', due: 'Today' },
-              { task: 'Submit monthly site visit report', priority: 'medium', due: 'Tomorrow' },
+              { task: 'Submit monthly travel request report', priority: 'medium', due: 'Tomorrow' },
               { task: 'Update project timeline', priority: 'low', due: 'This week' },
               { task: 'Prepare budget presentation', priority: 'high', due: 'Friday' }
             ].map((task, index) => (

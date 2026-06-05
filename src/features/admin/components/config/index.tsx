@@ -18,6 +18,7 @@ import AllGrades from "./AllGrades";
 import Levels from "./Levels";
 import AllExchangeRates from "./AllExchangeRates";
 import AllTravelRates from "./AllTravelRates";
+import AllApprovalThresholds from "./AllApprovalThresholds";
 
 const Config = () => {
   const router = useRouter();
@@ -55,6 +56,7 @@ const Config = () => {
             <TabsTrigger value='level'>Levels</TabsTrigger>
             <TabsTrigger value='exchangeRate'>Exchange Rates</TabsTrigger>
             <TabsTrigger value='travelRate'>Travel Rates</TabsTrigger>
+            <TabsTrigger value='approvalThresholds'>Approval Thresholds</TabsTrigger>
           </TabsList>
           <TabsContent value='categories'>
             <Card className='mt-10 pb-8 px-6'>
@@ -142,6 +144,13 @@ const Config = () => {
             <Card className='mt-10 pb-8 px-6'>
               <ApiErrorBoundary>
                 <AllTravelRates />
+              </ApiErrorBoundary>
+            </Card>
+          </TabsContent>
+          <TabsContent value='approvalThresholds'>
+            <Card className='mt-10 pb-8 px-6'>
+              <ApiErrorBoundary>
+                <AllApprovalThresholds />
               </ApiErrorBoundary>
             </Card>
           </TabsContent>

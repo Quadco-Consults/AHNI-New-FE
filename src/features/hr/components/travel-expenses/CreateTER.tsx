@@ -81,19 +81,19 @@ const CreateTER: React.FC<CreateTERProps> = ({ onSuccess, onCancel }) => {
   const watchSiteVisitId = form.watch("site_visit_id");
   const watchActivities = form.watch("activities");
 
-  // Site visit options
+  // Travel request options
   const siteVisitOptions = React.useMemo(() => {
     if (!siteVisitsData?.data?.results) return [];
 
     return siteVisitsData.data.results
-      .filter((visit: any) => visit.status === "APPROVED") // Only approved site visits
+      .filter((visit: any) => visit.status === "APPROVED") // Only approved travel requests
       .map((visit: any) => ({
         label: `${visit.location} - ${format(new Date(visit.start_date), "MMM dd, yyyy")} (${visit.purpose})`,
         value: visit.id,
       }));
   }, [siteVisitsData]);
 
-  // Update travel purpose when site visit is selected
+  // Update travel purpose when travel request is selected
   useEffect(() => {
     if (watchSiteVisitId && siteVisitsData?.data?.results) {
       const selected = siteVisitsData.data.results.find(
@@ -229,8 +229,8 @@ const CreateTER: React.FC<CreateTERProps> = ({ onSuccess, onCancel }) => {
                 name="site_visit_id"
                 placeholder={
                   isLoadingSiteVisits
-                    ? "Loading site visits..."
-                    : "Select the site visit for this expense report"
+                    ? "Loading travel requests..."
+                    : "Select the travel request for this expense report"
                 }
                 options={siteVisitOptions}
                 required

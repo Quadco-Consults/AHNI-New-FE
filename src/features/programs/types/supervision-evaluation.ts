@@ -197,7 +197,7 @@ export interface IEvaluationTemplate {
 // ===== FORM VALIDATION SCHEMAS =====
 
 export const CreateSupervisionEvaluationSchema = z.object({
-  site_visit_id: z.string().min(1, "Site visit is required"),
+  site_visit_id: z.string().min(1, "Travel request is required"),
   planned_visit_id: z.string().optional(),
   title: z.string().min(1, "Title is required"),
   description: z.string().optional(),

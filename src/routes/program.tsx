@@ -97,19 +97,19 @@ export const program = [
 
   // Site Visit routes
   {
-    path: RouteEnum.PROGRAM_SITE_VISIT,
+    path: RouteEnum.PROGRAM_TRAVEL_REQUEST,
     element: lazy(
       () => import("app/dashboard/programs/plan/site-visit/page")
     ),
   },
   {
-    path: RouteEnum.PROGRAM_SITE_VISIT_CREATE,
+    path: RouteEnum.PROGRAM_TRAVEL_REQUEST_CREATE,
     element: lazy(
       () => import("app/dashboard/programs/plan/site-visit/create/page")
     ),
   },
   {
-    path: RouteEnum.PROGRAM_SITE_VISIT_DETAILS,
+    path: RouteEnum.PROGRAM_TRAVEL_REQUEST_DETAILS,
     element: lazy(
       () => import("app/dashboard/programs/plan/site-visit/[id]/page")
     ),

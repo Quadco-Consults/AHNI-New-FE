@@ -63,7 +63,7 @@ const TableAction = ({ plan }: { plan: IAnnualSupervisionPlan }) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleActivatePlan = async () => {
-    const confirmed = confirm(`Activate the annual plan "${plan.title}"? This will make it available for site visit creation.`);
+    const confirmed = confirm(`Activate the annual plan "${plan.title}"? This will make it available for travel request creation.`);
     if (!confirmed) return;
 
     try {

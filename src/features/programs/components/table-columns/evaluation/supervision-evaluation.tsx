@@ -74,7 +74,7 @@ export const createSupervisionEvaluationColumns = ({
           <div className="font-medium text-sm">{evaluation.title}</div>
           <div className="text-xs text-gray-500 flex items-center gap-1">
             <FileText className="h-3 w-3" />
-            {evaluation.site_visit_title || "Site Visit"}
+            {evaluation.site_visit_title || "Travel Request"}
           </div>
         </div>
       );

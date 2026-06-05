@@ -75,13 +75,13 @@ export default function SupervisionEvaluationForm({
   const { data: siteVisitsData } = useGetAllSiteVisits({
     page: 1,
     page_size: 100,
-    // Remove status filter to show all site visits, then filter on frontend
+    // Remove status filter to show all travel requests, then filter on frontend
     // status: "COMPLETED", // This status doesn't exist - use frontend filtering instead
   });
   const { data: categoriesData, error: categoriesError, isLoading: isLoadingCategories } = useGetEvaluationCategories();
   const { data: templatesData } = useGetEvaluationTemplates();
 
-  // Filter site visits to show only supervision visits that are approved/authorized
+  // Filter travel requests to show only supervision visits that are approved/authorized
   const filteredSiteVisits = React.useMemo(() => {
     const results = (siteVisitsData as any)?.data?.results || siteVisitsData?.results || [];
 
@@ -107,19 +107,19 @@ export default function SupervisionEvaluationForm({
     });
   }, [siteVisitsData]);
 
-  // Debug site visits and categories loading
+  // Debug travel requests and categories loading
   useEffect(() => {
-    console.log("🔍 Site visits raw data:", siteVisitsData);
-    console.log("🔍 Filtered site visits:", filteredSiteVisits);
+    console.log("🔍 Travel requests raw data:", siteVisitsData);
+    console.log("🔍 Filtered travel requests:", filteredSiteVisits);
     if (filteredSiteVisits.length === 0 && siteVisitsData) {
-      console.log("⚠️ No filtered site visits found. Check filtering logic.");
+      console.log("⚠️ No filtered travel requests found. Check filtering logic.");
 
       // Log available data to help debug
       const results = (siteVisitsData as any)?.data?.results || siteVisitsData?.results || [];
       if (Array.isArray(results) && results.length > 0) {
-        console.log("📊 Available site visit statuses:", results.map(sv => sv.status_display).filter(Boolean));
-        console.log("📊 Available site visit types:", results.map(sv => sv.visit_type_display).filter(Boolean));
-        console.log("📊 Sample site visit:", results[0]);
+        console.log("📊 Available travel request statuses:", results.map(sv => sv.status_display).filter(Boolean));
+        console.log("📊 Available travel request types:", results.map(sv => sv.visit_type_display).filter(Boolean));
+        console.log("📊 Sample travel request:", results[0]);
       }
     }
   }, [siteVisitsData, filteredSiteVisits]);
@@ -220,18 +220,18 @@ export default function SupervisionEvaluationForm({
     loadCriteriaForCategories();
   }, [selectedCategories]);
 
-  // Auto-populate form fields when site visit is selected
+  // Auto-populate form fields when travel request is selected
   useEffect(() => {
     const watchedSiteVisitId = form.watch("site_visit_id");
     const selectedSiteVisit = filteredSiteVisits?.find(sv => sv.id === watchedSiteVisitId);
 
     if (selectedSiteVisit && watchedSiteVisitId) {
-      console.log("🔄 Auto-populating form from site visit:", selectedSiteVisit);
+      console.log("🔄 Auto-populating form from travel request:", selectedSiteVisit);
 
-      // Auto-populate evaluation title based on site visit details
+      // Auto-populate evaluation title based on travel request details
       const autoTitle = `${selectedSiteVisit.visit_type_display} Evaluation - ${selectedSiteVisit.location_name}`;
 
-      // Auto-populate description with site visit details
+      // Auto-populate description with travel request details
       const autoDescription = `Supervision evaluation for ${selectedSiteVisit.visit_type_display} conducted at ${selectedSiteVisit.location_name}` +
         (selectedSiteVisit.facility_name ? ` (${selectedSiteVisit.facility_name})` : '') +
         ` from ${formatDate(selectedSiteVisit.actual_start_date || selectedSiteVisit.start_date)} to ${formatDate(selectedSiteVisit.actual_end_date || selectedSiteVisit.end_date)}.` +
@@ -246,7 +246,7 @@ export default function SupervisionEvaluationForm({
         form.setValue("description", autoDescription);
       }
 
-      // Set evaluation date to the end date of the site visit (when evaluation would typically occur)
+      // Set evaluation date to the end date of the travel request (when evaluation would typically occur)
       const evaluationDate = formatDate(selectedSiteVisit.actual_end_date || selectedSiteVisit.end_date || new Date().toISOString());
       form.setValue("evaluation_date", evaluationDate);
 
@@ -423,7 +423,7 @@ export default function SupervisionEvaluationForm({
         console.warn("⚠️ Backend didn't return evaluation ID - attempting to fetch the created evaluation");
 
         try {
-          console.log("🔍 Attempting to find newly created evaluation for site visit:", payload.site_visit_id);
+          console.log("🔍 Attempting to find newly created evaluation for travel request:", payload.site_visit_id);
 
           // Method 1: Try to fetch evaluations with search/filtering
           const token = localStorage.getItem('token');
@@ -490,8 +490,8 @@ export default function SupervisionEvaluationForm({
           console.warn("⚠️ Failed to fetch created evaluation:", fetchError);
         }
 
-        // If all attempts fail, fall back to site visit navigation
-        console.warn("⚠️ Using site visit fallback navigation");
+        // If all attempts fail, fall back to travel request navigation
+        console.warn("⚠️ Using travel request fallback navigation");
 
         if (onSuccess) {
           // Pass a placeholder ID that the parent can handle
@@ -583,7 +583,7 @@ export default function SupervisionEvaluationForm({
                 className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                 disabled={!!siteVisitId}
               >
-                <option value="">Select a completed site visit</option>
+                <option value="">Select a completed travel request</option>
                 {filteredSiteVisits?.map((siteVisit) => (
                   <option key={siteVisit.id} value={siteVisit.id}>
                     {siteVisit.title} - {siteVisit.location_name} ({formatDate(siteVisit.actual_end_date || siteVisit.start_date)})

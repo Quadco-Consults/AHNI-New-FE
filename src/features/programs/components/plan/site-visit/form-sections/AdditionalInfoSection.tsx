@@ -41,7 +41,7 @@ const AdditionalInfoSection: React.FC<AdditionalInfoSectionProps> = ({
           Additional Information
         </CardTitle>
         <p className="text-sm text-gray-600">
-          Optional details to provide context and additional requirements for your site visit.
+          Optional details to provide context and additional requirements for your travel request.
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -185,7 +185,7 @@ const AdditionalInfoSection: React.FC<AdditionalInfoSectionProps> = ({
               <FormLabel>Additional Comments (Optional)</FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="Any other information, context, or notes about this site visit"
+                  placeholder="Any other information, context, or notes about this travel request"
                   className="min-h-[100px]"
                   {...field}
                 />

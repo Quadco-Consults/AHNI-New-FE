@@ -23,7 +23,7 @@ const SupervisionEvaluationReport = () => {
   const { data: evaluationResponses, isLoading: isResponsesLoading } =
     useGetEvaluationResponses(id as string, !!id);
 
-  // Fetch site visit data for location and facility information
+  // Fetch travel request data for location and facility information
   const { data: siteVisitData, isLoading: isSiteVisitLoading } =
     useGetSingleSiteVisit(supervisionEvaluation?.data?.site_visit_id || "", !!supervisionEvaluation?.data?.site_visit_id);
 
@@ -79,7 +79,7 @@ const SupervisionEvaluationReport = () => {
   })();
 
 
-  // Get location and facility information with fallbacks from site visit
+  // Get location and facility information with fallbacks from travel request
   const facilityName = evaluation?.facility_name ||
                        (evaluation as any)?.site_visit_location ||
                        (siteVisit as any)?.facility_name ||

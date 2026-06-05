@@ -124,7 +124,7 @@ const LocationSection: React.FC<LocationSectionProps> = ({
           Location Information
         </CardTitle>
         <p className="text-sm text-gray-600">
-          Select the destination for your site visit. For external venues (training, meetings, etc.), simply choose the state you're traveling to. For supportive supervision visits, you can optionally select a specific AHNI facility.
+          Select the destination for your travel request. For external venues (training, meetings, etc.), simply choose the state you're traveling to. For supportive supervision visits, you can optionally select a specific AHNI facility.
         </p>
       </CardHeader>
       <CardContent className="space-y-4">

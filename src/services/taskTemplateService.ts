@@ -65,17 +65,17 @@ class TaskTemplateService {
       {
         intent: 'plan_site_visit',
         patterns: [
-          'how do i plan a site visit',
-          'create site visit',
+          'how do i plan a travel request',
+          'create travel request',
           'plan field visit',
-          'schedule site visit',
+          'schedule travel request',
           'field trip planning',
           'supervision visit',
           'monitoring visit',
-          'site visit planning',
+          'travel request planning',
           'field supervision',
           'program monitoring',
-          'project site visit',
+          'project travel request',
           'supportive supervision',
           'field assessment',
           'location visit',
@@ -367,8 +367,8 @@ class TaskTemplateService {
     }
 
     if (query.includes('visit') || query.includes('field')) {
-      suggestions.push('How do I plan a site visit?');
-      suggestions.push('How do I complete a site visit?');
+      suggestions.push('How do I plan a travel request?');
+      suggestions.push('How do I complete a travel request?');
     }
 
     if (query.includes('fund') || query.includes('money') || query.includes('budget')) {
@@ -389,7 +389,7 @@ class TaskTemplateService {
     // Role-based suggestions
     if (userContext.role === 'Program Officer') {
       suggestions.push('How do I create a work plan?');
-      suggestions.push('How do I plan a site visit?');
+      suggestions.push('How do I plan a travel request?');
       suggestions.push('How do I request funds?');
     }
 

@@ -165,7 +165,7 @@ const ApprovalWorkflowSection: React.FC<ApprovalWorkflowSectionProps> = ({
           Approval Workflow
         </CardTitle>
         <p className="text-sm text-gray-600">
-          Select the AHNI staff members who will review, authorize, and approve this site visit application.
+          Select the AHNI staff members who will review, authorize, and approve this travel request application.
           A three-level approval process is required.
         </p>
       </CardHeader>

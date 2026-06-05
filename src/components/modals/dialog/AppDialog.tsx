@@ -96,6 +96,7 @@ const modalComponentMap: Record<string, () => Promise<{default: React.ComponentT
   [DialogType.AddAssetClassification]: () => import("@/features/admin/components/AddAssetClassification"),
   [DialogType.AddExchangeRate]: () => import("@/features/admin/components/config/AddExchangeRate"),
   [DialogType.AddTravelRate]: () => import("@/features/admin/components/config/AddTravelRate"),
+  [DialogType.AddApprovalThreshold]: () => import("@/features/admin/components/config/AddApprovalThreshold"),
   [DialogType.ChangeWorkPlanStatusModal]: () => import("@/features/programs/components/modals/ChangeWorkPlanStatusModal"),
   [DialogType.ChangeProcurementTrackerStatusModal]: () => import("@/features/procurement/components/modals/ChangeProcurementTrackerStatusModal"),
   [DialogType.ChangeProcurementTrackerRemarkModal]: () => import("@/features/procurement/components/modals/ChangeProcurementTrackerRemarkModal"),

@@ -188,8 +188,8 @@ export const useGetAHNIOfficeLocations = ({
 };
 
 /**
- * Hook for site visit locations (includes states + facilities + AHNI offices)
- * Use this for: Site visit creation, travel planning
+ * Hook for travel request locations (includes states + facilities + AHNI offices)
+ * Use this for: Travel request creation, travel planning
  */
 export const useGetSiteVisitLocations = ({
   page = 1,

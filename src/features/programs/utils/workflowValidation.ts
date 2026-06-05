@@ -294,7 +294,7 @@ export const getWorkflowActionMessage = (
     case 'reject_approval':
       return `Reject the final approval for "${planTitle}"? This will send it back to the authorized status.`;
     case 'activate':
-      return `Activate "${planTitle}"? This will make it available for site visit creation.`;
+      return `Activate "${planTitle}"? This will make it available for travel request creation.`;
     default:
       return `Perform action on "${planTitle}"?`;
   }

@@ -1131,11 +1131,11 @@ export const useLinkSiteVisitToPlannedVisit = () => {
         );
         return response.data;
       } catch (error: any) {
-        console.error("Site visit linking error:", error);
+        console.error("Travel request linking error:", error);
         throw new Error(
           error.response?.data?.message ||
           error.response?.data?.error ||
-          "Failed to link site visit to planned visit"
+          "Failed to link travel request to planned visit"
         );
       }
     },

@@ -264,7 +264,7 @@ const EAGenerationWorkflow = ({
                 <div>
                   <h4 className="font-medium text-yellow-800">EA Generation Not Available</h4>
                   <p className="text-sm text-yellow-700 mt-1">
-                    Expense Authorizations can only be generated after the site visit has been fully approved.
+                    Expense Authorizations can only be generated after the travel request has been fully approved.
                   </p>
                   <p className="text-xs text-yellow-600 mt-1">
                     Current Status: <Badge variant="outline">{SiteVisitStatusLabels[siteVisit.status]}</Badge>
@@ -279,7 +279,7 @@ const EAGenerationWorkflow = ({
                 <div>
                   <h4 className="font-medium text-gray-800">No Team Members</h4>
                   <p className="text-sm text-gray-700 mt-1">
-                    Add team members to this site visit before generating Expense Authorizations.
+                    Add team members to this travel request before generating Expense Authorizations.
                   </p>
                 </div>
               </div>
@@ -426,7 +426,7 @@ const EAGenerationWorkflow = ({
           <div className="space-y-3 text-sm">
             <div className="flex items-start gap-2">
               <div className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-medium mt-0.5">1</div>
-              <p>Ensure the site visit has been fully approved through all approval levels.</p>
+              <p>Ensure the travel request has been fully approved through all approval levels.</p>
             </div>
             <div className="flex items-start gap-2">
               <div className="w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-medium mt-0.5">2</div>

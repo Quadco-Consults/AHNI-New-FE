@@ -299,9 +299,9 @@ export interface IErrorResponse {
 
 // Zod Schema for form validation (Updated)
 export const SiteVisitApplicationSchema = z.object({
-  title: z.string().min(1, "Site visit title is required"),
+  title: z.string().min(1, "Travel request title is required"),
   visit_type: z.nativeEnum(SiteVisitType, {
-    required_error: "Site visit type is required"
+    required_error: "Travel request type is required"
   }),
   other_visit_type: z.string().optional(),
   purpose: z.string().min(1, "Purpose is required"),
@@ -328,7 +328,7 @@ export const SiteVisitApplicationSchema = z.object({
     comments: z.string().optional(),
   })).min(1, "At least one team member is required"),
 
-  // Travel Fees (REQUIRED for all site visits)
+  // Travel Fees (REQUIRED for all travel requests)
   travel_fees: z.object({
     lodging_per_night: z.number().min(0, "Lodging per night cannot be negative"),
     meal_allowance_per_day: z.number().min(0, "Meal allowance cannot be negative"),

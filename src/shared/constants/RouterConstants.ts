@@ -378,9 +378,9 @@ export const RouteEnum = {
     "/dashboard/programs/plan/supportive-supervision-plan/create/checklist",
 
   // Site Visit routes
-  PROGRAM_SITE_VISIT: "/dashboard/programs/plan/site-visit",
-  PROGRAM_SITE_VISIT_CREATE: "/dashboard/programs/plan/site-visit/create",
-  PROGRAM_SITE_VISIT_DETAILS: "/dashboard/programs/plan/site-visit/:id",
+  PROGRAM_TRAVEL_REQUEST: "/dashboard/programs/plan/site-visit",
+  PROGRAM_TRAVEL_REQUEST_CREATE: "/dashboard/programs/plan/site-visit/create",
+  PROGRAM_TRAVEL_REQUEST_DETAILS: "/dashboard/programs/plan/site-visit/:id",
 
   PROGRAM_FUND_REQUEST: "/dashboard/programs/fund-request",
   PROGRAM_FUND_REQUEST_DETAILS: "/dashboard/programs/fund-request/:id/",

@@ -296,7 +296,7 @@ export interface ITravelExpenseSingleData {
 
 // Employee TER submission schema
 export const EmployeeTERSchema = z.object({
-    site_visit_id: z.string().min(1, "Site visit is required"),
+    site_visit_id: z.string().min(1, "Travel request is required"),
     travel_purpose: z.string().min(1, "Travel purpose is required"),
     activities: z.array(ActivitySchema).min(1, "At least one activity is required"),
     document: z.any().optional(),

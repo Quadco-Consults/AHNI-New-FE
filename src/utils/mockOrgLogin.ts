@@ -70,9 +70,9 @@ export const mockProgramOfficerLogin = () => {
             { id: 4, name: "Can add fund request", codename: "add_fundrequest" },
             { id: 5, name: "Can change fund request", codename: "change_fundrequest" },
             { id: 6, name: "Can view fund request", codename: "view_fundrequest" },
-            { id: 7, name: "Can add site visit", codename: "add_sitevisit" },
-            { id: 8, name: "Can change site visit", codename: "change_sitevisit" },
-            { id: 9, name: "Can view site visit", codename: "view_sitevisit" }
+            { id: 7, name: "Can add travel request", codename: "add_sitevisit" },
+            { id: 8, name: "Can change travel request", codename: "change_sitevisit" },
+            { id: 9, name: "Can view travel request", codename: "view_sitevisit" }
           ]
         },
         {

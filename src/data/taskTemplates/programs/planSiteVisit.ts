@@ -8,7 +8,7 @@ export const planSiteVisitTemplate: TaskTemplate = {
   module: 'programs',
   description: 'Plan and budget for a field visit or supervision activity with complete cost estimation',
 
-  quickAnswer: 'A site visit helps you supervise, train, or monitor field activities. Go to Programs > Site Visits > Create New to plan your visit.',
+  quickAnswer: 'A travel request helps you supervise, train, or monitor field activities. Go to Programs > Site Visits > Create New to plan your visit.',
 
   timeRequired: '20-25 minutes',
 
@@ -24,7 +24,7 @@ export const planSiteVisitTemplate: TaskTemplate = {
     {
       stepNumber: 1,
       title: 'Navigate to Site Visits',
-      description: 'Access the site visit planning section',
+      description: 'Access the travel request planning section',
       action: 'From main menu: Programs → Site Visits → View All',
       successIndicator: 'You see a list of planned and completed visits with "Create New" button'
     },
@@ -33,7 +33,7 @@ export const planSiteVisitTemplate: TaskTemplate = {
       title: 'Create New Site Visit',
       description: 'Start planning your new field visit',
       action: 'Click "Create New" or "+" button (usually blue)',
-      successIndicator: 'Site visit creation form opens with empty fields'
+      successIndicator: 'Travel request creation form opens with empty fields'
     },
     {
       stepNumber: 3,
@@ -178,7 +178,7 @@ export const planSiteVisitTemplate: TaskTemplate = {
     'Once approved, system generates Expenditure Authorization (EA)',
     'Finance releases funds for advance payments if needed',
     'You can start booking transport and accommodation',
-    'After visit, complete site visit report within 48 hours',
+    'After visit, complete travel request report within 48 hours',
     'Submit actual expenses for reimbursement'
   ],
 

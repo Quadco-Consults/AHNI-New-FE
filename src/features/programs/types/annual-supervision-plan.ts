@@ -302,7 +302,7 @@ export const AnnualPlanUploadSchema = z.object({
 });
 
 export const PlannedVisitUpdateSchema = z.object({
-  site_visit_id: z.string().min(1, "Site visit ID is required"),
+  site_visit_id: z.string().min(1, "Travel request ID is required"),
   actual_start_date: z.string().min(1, "Start date is required"),
   actual_end_date: z.string().min(1, "End date is required"),
   assigned_team_members: z.array(z.string()).min(1, "At least one team member is required"),

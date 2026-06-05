@@ -35,7 +35,7 @@ const SupervisionEvaluationPage = () => {
   const [selectedSiteVisitId, setSelectedSiteVisitId] = useState<string>("");
   const [activeTab, setActiveTab] = useState("site-visits");
 
-  // Site visits query parameters
+  // Travel requests query parameters
   const [siteVisitParams, setSiteVisitParams] = useState<ISiteVisitListParams>({
     page: 1,
     page_size: 20,
@@ -63,7 +63,7 @@ const SupervisionEvaluationPage = () => {
   const { data: siteVisitsData, isLoading: isLoadingSiteVisits } = useGetAllSiteVisits(siteVisitParams);
   const { data: evaluationsData, isLoading: isLoadingEvaluations, refetch: refetchEvaluations } = useGetAllSupervisionEvaluations(evaluationParams);
 
-  // Process site visits for evaluation table
+  // Process travel requests for evaluation table
   const siteVisitsForEvaluation = React.useMemo(() => {
     const actualResults = (siteVisitsData as any)?.data?.results || siteVisitsData?.results || [];
 
@@ -175,7 +175,7 @@ const SupervisionEvaluationPage = () => {
           <div>
             <h1 className="text-2xl font-bold">Supervision Evaluation Management</h1>
             <p className="text-gray-600 mt-1">
-              Manage evaluations for approved supervision site visits
+              Manage evaluations for approved supervision travel requests
             </p>
           </div>
 
@@ -308,7 +308,7 @@ const SupervisionEvaluationPage = () => {
               <CardHeader>
                 <CardTitle>Site Visits Requiring Evaluation</CardTitle>
                 <p className="text-sm text-gray-600">
-                  Approved supervision site visits that need evaluation assessment
+                  Approved supervision travel requests that need evaluation assessment
                 </p>
               </CardHeader>
               <CardContent>

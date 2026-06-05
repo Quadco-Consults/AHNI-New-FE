@@ -278,6 +278,52 @@ export interface JobCategoryResponse {
   data: JobCategoryData[];
 }
 
+// Approval Threshold types
+export interface ApprovalThresholdData {
+  id: string;
+  transaction_type: 'PURCHASE_REQUEST' | 'PAYMENT_REQUEST' | 'PURCHASE_ORDER' | 'EXPENSE_AUTHORIZATION' | 'TRAVEL_EXPENSE';
+  transaction_type_display: string;
+  approval_level: 'STATE_HEAD' | 'DIRECTOR' | 'MD';
+  approval_level_display: string;
+  position: string;  // UUID
+  position_name: string;
+  min_amount: string;
+  max_amount: string | null;
+  location: string | null;  // UUID
+  location_name: string | null;
+  priority: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ApprovalThresholdDetailData extends ApprovalThresholdData {
+  position_detail: PositionData;
+  location_detail: LocationData | null;
+}
+
+export interface ApprovalThresholdFormValues {
+  transaction_type: string;
+  approval_level: string;
+  position: string;
+  min_amount: string;
+  max_amount?: string;
+  location?: string;
+  priority?: number;
+  is_active: boolean;
+}
+
+export interface ThresholdValidationRequest {
+  transaction_type: string;
+  location_id?: string;
+}
+
+export interface ThresholdInfoRequest {
+  transaction_type: string;
+  amount: string;
+  location_id?: string;
+}
+
 // Legacy type exports for backward compatibility
 export type TCategoryData = CategoryData;
 export type TCategoryFormValues = CategoryFormValues;
@@ -301,3 +347,5 @@ export type TMarketPriceData = MarketPriceData;
 export type TMarketPriceFormValues = MarketPriceFormValues;
 export type TJobCategoryData = JobCategoryData;
 export type TJobCategoryResponse = JobCategoryResponse;
+export type TApprovalThresholdData = ApprovalThresholdData;
+export type TApprovalThresholdFormValues = ApprovalThresholdFormValues;

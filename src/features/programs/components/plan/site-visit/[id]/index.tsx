@@ -41,7 +41,7 @@ const SiteVisitDetail = () => {
   const router = useRouter();
   const id = params?.id as string;
 
-  // Fetch site visit data
+  // Fetch travel request data
   const { data: siteVisitResponse, isFetching, error } = useGetSingleSiteVisit(id, !!id);
   const siteVisit = siteVisitResponse?.data;
 
@@ -50,7 +50,7 @@ const SiteVisitDetail = () => {
 
   const handleGenerateEAs = async () => {
     if (!id) {
-      toast.error("Site visit ID is missing");
+      toast.error("Travel request ID is missing");
       return;
     }
 
@@ -58,8 +58,8 @@ const SiteVisitDetail = () => {
       const result = await generateEAsMutation.mutateAsync();
 
       if (result.success) {
-        toast.success(`Successfully generated ${result.eas_created} EA(s) for site visit team members`);
-        // Refresh site visit data to show updated EA status
+        toast.success(`Successfully generated ${result.eas_created} EA(s) for travel request team members`);
+        // Refresh travel request data to show updated EA status
         window.location.reload();
       } else {
         toast.error(result.message || "Failed to generate EAs");
@@ -70,12 +70,12 @@ const SiteVisitDetail = () => {
     }
   };
 
-  // Debug logging for site visit detail
+  // Debug logging for travel request detail
 
   const breadcrumbs = [
     { name: "Programs", icon: true },
     { name: "Plans", icon: true },
-    { name: "Site Visit", icon: false },
+    { name: "Travel Request", icon: false },
     { name: siteVisit?.title || "Details", icon: false },
   ];
 
@@ -116,7 +116,7 @@ const SiteVisitDetail = () => {
 
   const handleDownloadReport = () => {
     // TODO: Implement download functionality
-    console.log("Download site visit report");
+    console.log("Download travel request report");
   };
 
   if (isFetching) {
@@ -134,8 +134,8 @@ const SiteVisitDetail = () => {
       <div className="p-6">
         <BreadcrumbCard list={breadcrumbs} />
         <div className="text-center py-8 text-red-600">
-          <p>Error loading site visit details</p>
-          <p className="text-sm mt-1">The site visit may not exist or you may not have permission to view it</p>
+          <p>Error loading travel request details</p>
+          <p className="text-sm mt-1">The travel request may not exist or you may not have permission to view it</p>
           <Button onClick={() => router.back()} className="mt-4">
             Go Back
           </Button>
@@ -454,7 +454,7 @@ const SiteVisitDetail = () => {
                       <CheckCircle className="h-6 w-6 text-green-600" />
                       <div>
                         <p className="font-medium text-green-800">EA Successfully Created</p>
-                        <p className="text-sm text-green-700">Expense authorizations were automatically generated when the site visit was approved</p>
+                        <p className="text-sm text-green-700">Expense authorizations were automatically generated when the travel request was approved</p>
                       </div>
                     </div>
                   ) : (
@@ -463,7 +463,7 @@ const SiteVisitDetail = () => {
                       <div>
                         <p className="font-medium text-orange-800">EA Auto-Creation May Have Failed</p>
                         <p className="text-sm text-orange-700">
-                          Site visit is approved but EA was not automatically created. This usually happens when team members have incomplete employee records.
+                          Travel request is approved but EA was not automatically created. This usually happens when team members have incomplete employee records.
                         </p>
                       </div>
                     </div>
@@ -525,7 +525,7 @@ const SiteVisitDetail = () => {
                         )}
                       </Button>
                       <p className="text-xs text-gray-600 mt-2">
-                        This will attempt to create EAs manually if auto-creation failed, or if this site visit was approved before auto-creation was implemented.
+                        This will attempt to create EAs manually if auto-creation failed, or if this travel request was approved before auto-creation was implemented.
                       </p>
                     </div>
                   )}
@@ -536,7 +536,7 @@ const SiteVisitDetail = () => {
                   <div>
                     <p className="font-medium text-yellow-800">EA Generation Pending</p>
                     <p className="text-sm text-yellow-700">
-                      Site visit must be fully approved before EA can be generated
+                      Travel request must be fully approved before EA can be generated
                     </p>
                   </div>
                 </div>
@@ -608,7 +608,7 @@ const SiteVisitDetail = () => {
                     className="flex items-center gap-2"
                     onClick={() => {
                       // TODO: Implement EA generation
-                      console.log('Generate EA for site visit:', siteVisit.id);
+                      console.log('Generate EA for travel request:', siteVisit.id);
                     }}
                   >
                     <FileText size={16} />

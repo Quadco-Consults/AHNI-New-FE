@@ -131,7 +131,7 @@ const AnnualPlanDashboard = ({ onCreateNew, onViewDetails, onUpload, onExport }:
   };
 
   const handleActivatePlan = async (planId: string, planTitle: string) => {
-    const confirmed = confirm(`Activate the annual plan "${planTitle}"? This will make it available for site visit creation.`);
+    const confirmed = confirm(`Activate the annual plan "${planTitle}"? This will make it available for travel request creation.`);
     if (!confirmed) return;
 
     try {

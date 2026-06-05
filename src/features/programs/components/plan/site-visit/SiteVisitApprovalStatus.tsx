@@ -57,7 +57,7 @@ const SiteVisitApprovalStatus = ({
         status: SiteVisitStatus.APPROVED,
         comments: "Status updated to match completed approvals"
       });
-      toast.success("Site visit status updated to APPROVED");
+      toast.success("Travel request status updated to APPROVED");
       window.location.reload();
     } catch (error: any) {
       console.error("Status update failed:", error);
@@ -148,14 +148,14 @@ const SiteVisitApprovalStatus = ({
 
         // Check if EA was automatically created by backend
         if (actionType === "approve" && result?.data?.ea_created) {
-          toast.success(`Site visit ${actionType}d successfully! EA has been automatically created.`);
+          toast.success(`Travel request ${actionType}d successfully! EA has been automatically created.`);
         } else if (actionType === "approve" && result?.data?.is_final_approval) {
-          toast.success(`Site visit ${actionType}d successfully! EA creation is in progress.`);
+          toast.success(`Travel request ${actionType}d successfully! EA creation is in progress.`);
         } else {
-          toast.success(`Site visit ${actionType}d successfully`);
+          toast.success(`Travel request ${actionType}d successfully`);
         }
 
-        // Force refresh the site visit data to show updated approval status
+        // Force refresh the travel request data to show updated approval status
         window.location.reload();
       }
       setShowCommentForm(false);
@@ -170,7 +170,7 @@ const SiteVisitApprovalStatus = ({
       });
 
       toast.error(
-        error.message || `Failed to ${actionType} site visit`
+        error.message || `Failed to ${actionType} travel request`
       );
       // Reset state even on error so user can try again
       setShowCommentForm(false);
@@ -185,7 +185,7 @@ const SiteVisitApprovalStatus = ({
     return step.approval?.status === 'PENDING';
   };
 
-  // Debug site visit data
+  // Debug travel request data
   console.log("🔍 Site Visit Approval Data:", {
     reviewer: siteVisit.reviewer,
     authorizer: siteVisit.authorizer,
@@ -280,19 +280,19 @@ const SiteVisitApprovalStatus = ({
 
         <div className="text-sm text-gray-600">
           {siteVisit.status === SiteVisitStatus.DRAFT && (
-            <p>This site visit is still in draft mode. Submit it to begin the approval process.</p>
+            <p>This travel request is still in draft mode. Submit it to begin the approval process.</p>
           )}
           {siteVisit.status === SiteVisitStatus.SUBMITTED && (
-            <p>Site visit has been submitted and is awaiting review.</p>
+            <p>Travel request has been submitted and is awaiting review.</p>
           )}
           {siteVisit.status === SiteVisitStatus.APPROVED && (
-            <p>Site visit has been fully approved and is ready for execution.</p>
+            <p>Travel request has been fully approved and is ready for execution.</p>
           )}
           {siteVisit.status === SiteVisitStatus.REJECTED && (
-            <p>Site visit has been rejected. Please review the comments and resubmit if needed.</p>
+            <p>Travel request has been rejected. Please review the comments and resubmit if needed.</p>
           )}
           {siteVisit.status === SiteVisitStatus.EA_GENERATED && (
-            <p>Site visit has been approved and an EA has been automatically created.</p>
+            <p>Travel request has been approved and an EA has been automatically created.</p>
           )}
         </div>
 
@@ -487,7 +487,7 @@ const SiteVisitApprovalStatus = ({
             <div>
               <h3 className="font-semibold text-green-800">EA Automatically Created</h3>
               <p className="text-sm text-green-700 mt-1">
-                An Expense Authorization (EA) has been automatically created for this approved site visit.
+                An Expense Authorization (EA) has been automatically created for this approved travel request.
               </p>
               {siteVisit.ea_reference && (
                 <p className="text-sm font-medium text-green-800 mt-2">

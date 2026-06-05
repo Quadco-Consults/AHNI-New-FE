@@ -39,7 +39,7 @@ const DatesSection: React.FC = () => {
           Travel Dates
         </CardTitle>
         <p className="text-sm text-gray-600">
-          Select the start and end dates for your site visit. These dates will be used for travel allowance calculations.
+          Select the start and end dates for your travel request. These dates will be used for travel allowance calculations.
         </p>
       </CardHeader>
       <CardContent className="space-y-4">

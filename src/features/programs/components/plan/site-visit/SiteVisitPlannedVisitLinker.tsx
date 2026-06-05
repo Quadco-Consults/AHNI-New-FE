@@ -44,7 +44,7 @@ export default function SiteVisitPlannedVisitLinker({
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isLinking, setIsLinking] = useState(false);
 
-  // Fetch site visit details
+  // Fetch travel request details
   const { data: siteVisitData } = useGetSingleSiteVisit(siteVisitId);
   const siteVisit = siteVisitData?.data;
 
@@ -52,13 +52,13 @@ export default function SiteVisitPlannedVisitLinker({
     setIsLinking(true);
     try {
       // The linking logic is handled in the PlannedVisitSelector component
-      toast.success("Site visit successfully linked to planned visit");
+      toast.success("Travel request successfully linked to planned visit");
       setIsDialogOpen(false);
       if (onLinkingComplete) {
         onLinkingComplete();
       }
     } catch (error: any) {
-      toast.error(error.message || "Failed to link site visit");
+      toast.error(error.message || "Failed to link travel request");
     } finally {
       setIsLinking(false);
     }
@@ -88,7 +88,7 @@ export default function SiteVisitPlannedVisitLinker({
             <Alert>
               <CheckCircleIcon className="h-4 w-4" />
               <AlertDescription>
-                This site visit is linked to a planned visit from the annual supervision plan.
+                This travel request is linked to a planned visit from the annual supervision plan.
               </AlertDescription>
             </Alert>
 
@@ -170,7 +170,7 @@ export default function SiteVisitPlannedVisitLinker({
             <Alert>
               <AlertTriangleIcon className="h-4 w-4" />
               <AlertDescription>
-                This site visit is not linked to any planned visit from the annual supervision plan.
+                This travel request is not linked to any planned visit from the annual supervision plan.
               </AlertDescription>
             </Alert>
 
@@ -179,7 +179,7 @@ export default function SiteVisitPlannedVisitLinker({
                 <LinkIcon className="h-12 w-12 text-gray-400 mx-auto mb-2" />
                 <h4 className="font-medium text-gray-900">Link to Annual Plan</h4>
                 <p className="text-sm text-gray-600 mt-1">
-                  Connect this site visit to a planned visit for better tracking and reporting
+                  Connect this travel request to a planned visit for better tracking and reporting
                 </p>
               </div>
 
@@ -194,7 +194,7 @@ export default function SiteVisitPlannedVisitLinker({
                   <DialogHeader>
                     <DialogTitle>Link Site Visit to Planned Visit</DialogTitle>
                     <DialogDescription>
-                      Select a planned visit from the annual supervision plan to link with this site visit.
+                      Select a planned visit from the annual supervision plan to link with this travel request.
                     </DialogDescription>
                   </DialogHeader>
 

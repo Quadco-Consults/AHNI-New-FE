@@ -100,7 +100,7 @@ export default function TravelExpenses() {
             <DialogHeader>
               <DialogTitle>Submit Travel Expense Report</DialogTitle>
               <DialogDescription>
-                Create a new travel expense report for your recent site visit
+                Create a new travel expense report for your recent travel request
               </DialogDescription>
             </DialogHeader>
             <CreateTER
@@ -315,15 +315,15 @@ export default function TravelExpenses() {
                 <div>
                   <h4 className="font-semibold text-lg mb-3">📝 What is a Travel Expense Report (TER)?</h4>
                   <p className="text-gray-600">
-                    A TER documents your actual travel expenses incurred during official site visits. It's used to reconcile against your pre-approved travel allowances and determine reimbursements or fund returns.
+                    A TER documents your actual travel expenses incurred during official travel requests. It's used to reconcile against your pre-approved travel allowances and determine reimbursements or fund returns.
                   </p>
                 </div>
 
                 <div>
                   <h4 className="font-semibold text-lg mb-3">⏰ When to Submit</h4>
                   <ul className="list-disc list-inside text-gray-600 space-y-1">
-                    <li>Submit within 7 days of completing your site visit</li>
-                    <li>Only submit for approved site visits</li>
+                    <li>Submit within 7 days of completing your travel request</li>
+                    <li>Only submit for approved travel requests</li>
                     <li>Ensure all receipts are collected before submission</li>
                   </ul>
                 </div>

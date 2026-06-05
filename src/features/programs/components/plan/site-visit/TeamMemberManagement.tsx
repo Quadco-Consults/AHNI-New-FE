@@ -427,7 +427,7 @@ const TeamMemberManagement = ({
           <div className="text-center py-8 text-gray-500">
             <Users className="mx-auto h-12 w-12 mb-4 opacity-50" />
             <p className="text-lg font-medium">No team members assigned</p>
-            <p className="text-sm mt-1">Add team members to this site visit</p>
+            <p className="text-sm mt-1">Add team members to this travel request</p>
             {isEditable && (
               <Button
                 variant="outline"

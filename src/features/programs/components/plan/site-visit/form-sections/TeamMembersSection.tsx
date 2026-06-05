@@ -106,7 +106,7 @@ const TeamMembersSection: React.FC<TeamMembersSectionProps> = ({
           Team Members
         </CardTitle>
         <p className="text-sm text-gray-600">
-          Select staff members who will participate in this site visit. Includes AHNI staff, consultants, facilitators, and adhoc staff. At least one team member is required.
+          Select staff members who will participate in this travel request. Includes AHNI staff, consultants, facilitators, and adhoc staff. At least one team member is required.
         </p>
       </CardHeader>
       <CardContent className="space-y-4">

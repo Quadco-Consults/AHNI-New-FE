@@ -29,7 +29,7 @@ import {
 import { formatDate } from "@/utils/date";
 import { TSiteVisitPaginatedData, SiteVisitTypeLabels, SiteVisitType } from "@/features/programs/types/site-visit";
 
-// Extended interface for site visits with evaluation status
+// Extended interface for travel requests with evaluation status
 interface SiteVisitForEvaluation extends TSiteVisitPaginatedData {
   hasEvaluation: boolean;
   evaluationStatus?: string;
