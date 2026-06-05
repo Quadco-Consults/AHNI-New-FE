@@ -26,7 +26,7 @@ import { TEngagementPlanPaginatedData } from "@/features/programs/types/engageme
 const breadcrumbs = [
     { name: "Programs", icon: true },
     { name: "Stakeholder Management", icon: true },
-    { name: "Engagement Plan", icon: false },
+    { name: "Stakeholder Engagement Plan", icon: false },
 ];
 
 export default function EngagementPlan() {
@@ -53,7 +53,7 @@ export default function EngagementPlan() {
                 <Link href="/dashboard/programs/stakeholder-management/engagement-plan/create">
                     <Button className="flex gap-2 py-6">
                         <AddSquareIcon />
-                        New Engagement Plan
+                        New Stakeholder Engagement Plan
                     </Button>
                 </Link>
             </div>
@@ -170,7 +170,7 @@ const ActionListAction = ({ data }: { data: TEngagementPlanPaginatedData }) => {
     const handleDeleteEngagementPlan = async () => {
         try {
             await deleteEngagementPlan();
-            toast.success("Engagement Plan Deleted");
+            toast.success("Stakeholder Engagement Plan Deleted");
             setDialogOpen(false);
         } catch (error: any) {
             toast.error(error?.message || "Something went wrong");
@@ -257,7 +257,7 @@ const ActionListAction = ({ data }: { data: TEngagementPlanPaginatedData }) => {
 
             <ConfirmationDialog
                 open={dialogOpen}
-                title="Are you sure you want to delete this engagement plan?"
+                title="Are you sure you want to delete this stakeholder engagement plan?"
                 onCancel={() => setDialogOpen(false)}
                 onOk={handleDeleteEngagementPlan}
                 loading={isLoading}

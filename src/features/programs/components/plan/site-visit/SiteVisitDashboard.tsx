@@ -67,15 +67,15 @@ const SiteVisitDashboard = () => {
   };
 
   const handleCreateNew = () => {
-    router.push(`${RouteEnum.PROGRAM_SITE_VISIT}/create`);
+    router.push(`${RouteEnum.PROGRAM_TRAVEL_REQUEST}/create`);
   };
 
   const handleViewAll = () => {
-    router.push(RouteEnum.PROGRAM_SITE_VISIT);
+    router.push(RouteEnum.PROGRAM_TRAVEL_REQUEST);
   };
 
   const handleViewSiteVisit = (id: string) => {
-    router.push(`${RouteEnum.PROGRAM_SITE_VISIT}/${id}`);
+    router.push(`${RouteEnum.PROGRAM_TRAVEL_REQUEST}/${id}`);
   };
 
   if (isDashboardLoading || isPendingLoading) {
@@ -111,9 +111,9 @@ const SiteVisitDashboard = () => {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">Site Visit Dashboard</h1>
+          <h1 className="text-3xl font-bold">Travel Request Dashboard</h1>
           <p className="text-gray-600 mt-1">
-            Overview of site visit applications and approvals
+            Overview of travel request applications and approvals
           </p>
         </div>
         <div className="flex gap-2">
@@ -298,7 +298,7 @@ const SiteVisitDashboard = () => {
               {stats.recentVisits.length === 0 && (
                 <div className="text-center py-6 text-gray-500">
                   <Calendar className="mx-auto h-8 w-8 mb-2 opacity-50" />
-                  <p>No recent site visits</p>
+                  <p>No recent travel requests</p>
                   <Button variant="outline" size="sm" className="mt-2" onClick={handleCreateNew}>
                     Create First Visit
                   </Button>
@@ -375,7 +375,7 @@ const SiteVisitDashboard = () => {
               <Plus className="h-6 w-6" />
               <div>
                 <div className="font-medium">New Application</div>
-                <div className="text-xs text-gray-500">Create site visit</div>
+                <div className="text-xs text-gray-500">Create travel request</div>
               </div>
             </Button>
 
@@ -394,7 +394,7 @@ const SiteVisitDashboard = () => {
             <Button
               variant="outline"
               className="flex items-center justify-center gap-2 h-20"
-              onClick={() => router.push(`${RouteEnum.PROGRAM_SITE_VISIT}?status=pending_approval`)}
+              onClick={() => router.push(`${RouteEnum.PROGRAM_TRAVEL_REQUEST}?status=pending_approval`)}
             >
               <FileText className="h-6 w-6" />
               <div>

@@ -15,7 +15,7 @@ import TableFilters from "@/components/Table/TableFilters";
 const breadcrumbs: TBreadcrumbList[] = [
     { name: "Programs", icon: true },
     { name: "Stakeholder Management", icon: true },
-    { name: "Analysis & Mapping", icon: false },
+    { name: "Stakeholder Analysis & Mapping", icon: false },
 ];
 
 export default function StakeholderAnalysisMappingPage() {

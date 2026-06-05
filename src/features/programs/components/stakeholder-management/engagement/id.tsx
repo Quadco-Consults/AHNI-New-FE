@@ -12,7 +12,7 @@ import { useGetSingleEngagementPlan } from "@/features/programs/controllers/enga
 const breadcrumbs = [
     { name: "Programs", icon: true },
     { name: "Stakeholder Management", icon: true },
-    { name: "Engagement Plan", icon: true },
+    { name: "Stakeholder Engagement Plan", icon: true },
     { name: "Details", icon: false },
 ];
 

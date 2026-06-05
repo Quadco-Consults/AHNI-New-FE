@@ -191,12 +191,12 @@ const EnhancedSiteVisitForm = ({
         travel_fees: data.travel_fees || travelFees,
       };
 
-      // Create the site visit
+      // Create the travel request
       const createResult = await createSiteVisitMutation.mutateAsync(submissionData);
       const siteVisitId = createResult.data?.id;
 
       if (!siteVisitId) {
-        throw new Error("Failed to get site visit ID from creation response");
+        throw new Error("Failed to get travel request ID from creation response");
       }
 
       // Link to planned visit if selected
@@ -206,20 +206,20 @@ const EnhancedSiteVisitForm = ({
             planned_visit_id: selectedPlannedVisit.id,
             site_visit_id: siteVisitId,
           });
-          toast.success("Site visit created and linked to annual plan!");
+          toast.success("Travel request created and linked to annual plan!");
         } catch (linkError: any) {
-          // Site visit was created but linking failed
-          toast.warning("Site visit created but could not link to planned visit: " + linkError.message);
+          // Travel request was created but linking failed
+          toast.warning("Travel request created but could not link to planned visit: " + linkError.message);
         }
       } else {
-        toast.success("Site visit created successfully!");
+        toast.success("Travel request created successfully!");
       }
 
       if (onSuccess) {
         onSuccess(siteVisitId);
       }
     } catch (error: any) {
-      toast.error(error.message || "Failed to create site visit");
+      toast.error(error.message || "Failed to create travel request");
     }
   };
 
@@ -377,7 +377,7 @@ const EnhancedSiteVisitForm = ({
       <Card>
         <CardHeader>
           <CardTitle>Site Visit Details</CardTitle>
-          <p className="text-gray-600">Fill in the site visit information</p>
+          <p className="text-gray-600">Fill in the travel request information</p>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -391,7 +391,7 @@ const EnhancedSiteVisitForm = ({
                     <FormItem>
                       <FormLabel>Title *</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder="Site visit title" />
+                        <Input {...field} placeholder="Travel request title" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -544,7 +544,7 @@ const EnhancedSiteVisitForm = ({
                     <FormControl>
                       <Textarea
                         {...field}
-                        placeholder="Describe the purpose and objectives of this site visit"
+                        placeholder="Describe the purpose and objectives of this travel request"
                         rows={3}
                       />
                     </FormControl>
@@ -725,7 +725,7 @@ const EnhancedSiteVisitForm = ({
                   ) : (
                     <>
                       <Plus className="h-4 w-4" />
-                      Create Site Visit
+                      Create Travel Request
                     </>
                   )}
                 </Button>

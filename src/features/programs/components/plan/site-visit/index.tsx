@@ -37,7 +37,7 @@ const SiteVisitList = () => {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
 
-  // Fetch site visits data
+  // Fetch travel requests data
   const { data: siteVisits, isFetching, error } = useGetAllSiteVisits({
     page,
     page_size: 20,
@@ -52,7 +52,7 @@ const SiteVisitList = () => {
   const breadcrumbs = [
     { name: "Programs", icon: true },
     { name: "Plans", icon: true },
-    { name: "Site Visit", icon: false },
+    { name: "Travel Request", icon: false },
   ];
 
   const getStatusBadge = (status: SiteVisitStatus) => {
@@ -260,32 +260,32 @@ const SiteVisitList = () => {
   ];
 
   const handleCreateNew = () => {
-    router.push(`${RouteEnum.PROGRAM_SITE_VISIT}/create` || "/dashboard/programs/plan/site-visit/create");
+    router.push(`${RouteEnum.PROGRAM_TRAVEL_REQUEST}/create` || "/dashboard/programs/plan/site-visit/create");
   };
 
   const handleRowClick = (item: TSiteVisitPaginatedData) => {
-    router.push(`${RouteEnum.PROGRAM_SITE_VISIT}/${item.id}` || `/dashboard/programs/plan/site-visit/${item.id}`);
+    router.push(`${RouteEnum.PROGRAM_TRAVEL_REQUEST}/${item.id}` || `/dashboard/programs/plan/site-visit/${item.id}`);
   };
 
   const handleExport = () => {
     // TODO: Implement export functionality
-    console.log("Export site visits");
+    console.log("Export travel requests");
   };
 
   const handleImport = () => {
     // TODO: Implement import functionality
-    console.log("Import site visits");
+    console.log("Import travel requests");
   };
 
   // Action handlers
   const handleView = (item: TSiteVisitPaginatedData, e: React.MouseEvent) => {
     e.stopPropagation();
-    router.push(`${RouteEnum.PROGRAM_SITE_VISIT}/${item.id}` || `/dashboard/programs/plan/site-visit/${item.id}`);
+    router.push(`${RouteEnum.PROGRAM_TRAVEL_REQUEST}/${item.id}` || `/dashboard/programs/plan/site-visit/${item.id}`);
   };
 
   const handleEdit = (item: TSiteVisitPaginatedData, e: React.MouseEvent) => {
     e.stopPropagation();
-    router.push(`${RouteEnum.PROGRAM_SITE_VISIT}/${item.id}/edit` || `/dashboard/programs/plan/site-visit/${item.id}/edit`);
+    router.push(`${RouteEnum.PROGRAM_TRAVEL_REQUEST}/${item.id}/edit` || `/dashboard/programs/plan/site-visit/${item.id}/edit`);
   };
 
   const handleDelete = (item: TSiteVisitPaginatedData, e: React.MouseEvent) => {
@@ -312,12 +312,11 @@ const SiteVisitList = () => {
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="text-2xl font-bold">Site Visit Applications</h1>
+            <h1 className="text-2xl font-bold">Travel Request Applications</h1>
             <p className="text-gray-600 mt-1">
-              Manage site visit applications and approvals
+              Manage travel request applications and approvals
             </p>
           </div>
-
           <div className="flex gap-2">
             <Button
               variant="outline"
@@ -354,7 +353,7 @@ const SiteVisitList = () => {
             <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
-                placeholder="Search site visits..."
+                placeholder="Search travel requests..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="pl-10"
@@ -371,7 +370,7 @@ const SiteVisitList = () => {
           </div>
         ) : error ? (
           <div className="text-center py-8 text-red-600">
-            <p>Error loading site visits</p>
+            <p>Error loading travel requests</p>
             <p className="text-sm mt-1">Please try again later</p>
           </div>
         ) : (

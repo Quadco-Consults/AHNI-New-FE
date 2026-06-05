@@ -27,7 +27,7 @@ export default function SiteVisitEdit({ siteVisitId }: SiteVisitEditProps) {
   if (error) {
     return (
       <div className="text-center py-8 text-red-600">
-        <p>Error loading site visit</p>
+        <p>Error loading travel request</p>
         <p className="text-sm mt-1">Please try again later</p>
       </div>
     );
@@ -46,9 +46,9 @@ export default function SiteVisitEdit({ siteVisitId }: SiteVisitEditProps) {
           Back
         </Button>
         <div>
-          <h1 className="text-2xl font-bold">Edit Site Visit</h1>
+          <h1 className="text-2xl font-bold">Edit Travel Request</h1>
           <p className="text-gray-600">
-            {siteVisit?.data?.title || "Site Visit"}
+            {siteVisit?.data?.title || "Travel Request"}
           </p>
         </div>
       </div>

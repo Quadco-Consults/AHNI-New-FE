@@ -162,7 +162,7 @@ const SiteVisitFormNew: React.FC<SiteVisitFormNewProps> = ({
   );
 
   // Merge all eligible staff types (AHNI + Consultants + Facilitators + Adhoc Staff)
-  // Site visit backend expects user UUIDs from the users table
+  // Travel request backend expects user UUIDs from the users table
   const allStaff = React.useMemo(() => {
     if (!eligibleTeamMembersData?.data) {
       return [];
@@ -248,14 +248,14 @@ const SiteVisitFormNew: React.FC<SiteVisitFormNewProps> = ({
       if (onSuccess) {
         onSuccess(result);
       } else {
-        router.push(RouteEnum.PROGRAM_SITE_VISIT || "/dashboard/programs/plan/site-visit");
+        router.push(RouteEnum.PROGRAM_TRAVEL_REQUEST || "/dashboard/programs/plan/site-visit");
       }
 
     } catch (error: any) {
       toast.error(
         error.response?.data?.message ||
         error.message ||
-        "Failed to submit site visit application"
+        "Failed to submit travel request application"
       );
     }
   };
@@ -297,7 +297,7 @@ const SiteVisitFormNew: React.FC<SiteVisitFormNewProps> = ({
   const breadcrumbs = [
     { name: "Programs", icon: true },
     { name: "Plans", icon: true },
-    { name: "Site Visit", icon: false },
+    { name: "Travel Request", icon: false },
     { name: mode === 'create' ? "Create" : "Edit", icon: false },
   ];
 
@@ -311,7 +311,7 @@ const SiteVisitFormNew: React.FC<SiteVisitFormNewProps> = ({
             <CardHeader className="bg-gradient-to-r from-yellow-50 to-orange-50 border-b">
               <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-2">
                 <CalendarIcon className="h-6 w-6 text-yellow-600" />
-                {mode === 'create' ? 'Create Site Visit Application' : 'Edit Site Visit Application'}
+                {mode === 'create' ? 'Create Travel Request Application' : 'Edit Travel Request Application'}
               </CardTitle>
               <p className="text-gray-600 mt-2">
                 Request approval for staff travel. Select from AHNI staff, consultants, facilitators, and adhoc staff. Complete all required sections to submit your application.

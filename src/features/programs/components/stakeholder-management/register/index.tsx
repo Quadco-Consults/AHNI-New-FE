@@ -16,7 +16,7 @@ import { useDebounce } from "ahooks";
 
 const breadcrumbs: TBreadcrumbList[] = [
     { name: "Programs", icon: true },
-    { name: "Stakeholder Managament", icon: true },
+    { name: "Stakeholder Management", icon: true },
     { name: "Stakeholder Register", icon: false },
 ];
 

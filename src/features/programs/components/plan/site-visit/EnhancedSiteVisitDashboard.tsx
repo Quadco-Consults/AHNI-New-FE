@@ -145,9 +145,9 @@ export default function EnhancedSiteVisitDashboard() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Site Visit Dashboard</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Travel Request Dashboard</h1>
           <p className="text-gray-600 mt-1">
-            Comprehensive view of site visits and annual supervision planning
+            Comprehensive view of travel requests and annual supervision planning
           </p>
         </div>
         <div className="flex gap-2">
@@ -403,7 +403,7 @@ export default function EnhancedSiteVisitDashboard() {
                 {(!siteVisitStats?.recentVisits || siteVisitStats.recentVisits.length === 0) && (
                   <div className="text-center py-6 text-gray-500">
                     <FileTextIcon className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-                    <p>No recent site visits found</p>
+                    <p>No recent travel requests found</p>
                     <Button className="mt-2" onClick={handleCreateSiteVisit}>
                       Create Your First Site Visit
                     </Button>
@@ -488,7 +488,7 @@ export default function EnhancedSiteVisitDashboard() {
                               )
                             }
                           >
-                            Create Site Visit
+                            Create Travel Request
                           </Button>
                         )}
                       </div>

@@ -130,7 +130,7 @@ export const departmentalLinks: SidebarItem[] = [
             path: "/dashboard/programs/plan/annual-supervision"
           },
           {
-            name: "Site Visit",
+            name: "Travel Request",
             path: "/dashboard/programs/plan/site-visit"
           },
           {
@@ -150,16 +150,6 @@ export const departmentalLinks: SidebarItem[] = [
         ],
         children: [
           {
-            name: "Analysis & Mapping",
-            path: "/dashboard/programs/stakeholder-management/analysis&mapping",
-            permissions: [
-              {
-                module: "programs",
-                codenames: ["view_stakeholder"]
-              }
-            ]
-          },
-          {
             name: "Stakeholder Register",
             path: "/dashboard/programs/stakeholder-management/stakeholder-register",
             permissions: [
@@ -170,12 +160,22 @@ export const departmentalLinks: SidebarItem[] = [
             ]
           },
           {
-            name: "Engagement Plan",
+            name: "Stakeholder Engagement Plan",
             path: "/dashboard/programs/stakeholder-management/engagement-plan",
             permissions: [
               {
                 module: "programs",
                 codenames: ["view_stakeholderengagementplan"]
+              }
+            ]
+          },
+          {
+            name: "Stakeholder Analysis & Mapping",
+            path: "/dashboard/programs/stakeholder-management/analysis&mapping",
+            permissions: [
+              {
+                module: "programs",
+                codenames: ["view_stakeholder"]
               }
             ]
           }
@@ -971,6 +971,16 @@ export const departmentalLinks: SidebarItem[] = [
               {
                 module: "adhoc_requisitions",
                 codenames: ["view_adhocadvertisement"]
+              }
+            ]
+          },
+          {
+            name: "Adhoc Database",
+            path: "/dashboard/programs/adhoc-database",
+            permissions: [
+              {
+                module: "adhoc_requisitions",
+                codenames: ["view_adhocapplicant"]
               }
             ]
           },

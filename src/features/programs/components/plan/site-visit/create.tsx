@@ -83,7 +83,7 @@ const SiteVisitCreate = () => {
   const { data: user } = useGetAllUsers({ page: 1, size: 2000000 });
 
   // IMPORTANT FIX: Only use users from user table, NOT employee database
-  // Site visit backend expects user UUIDs, not employee record IDs
+  // Travel request backend expects user UUIDs, not employee record IDs
   // Mixing employee data causes UUID mismatch errors
   const ahniStaffUsers = filterAhniStaffOnly((user?.data?.results || []) as any[]);
 
@@ -157,7 +157,7 @@ const SiteVisitCreate = () => {
   const endDate = watch("end_date");
   const teamMembers = watch("team_members");
 
-  // Clear plan selections when site visit type changes
+  // Clear plan selections when travel request type changes
   useEffect(() => {
     if (siteVisitType &&
         siteVisitType !== SiteVisitType.SUPPORTIVE_SUPERVISION &&
@@ -238,7 +238,7 @@ const SiteVisitCreate = () => {
         end_date: formatDate(data.end_date),
         // Handle project field - convert "none" to null
         project: data.project === "none" ? null : data.project,
-        // Set initial status for new site visits
+        // Set initial status for new travel requests
         status: SiteVisitStatus.DRAFT,
         // Add references to annual plan and planned visit
         annual_supervision_plan_id: selectedPlan || null,
@@ -252,14 +252,14 @@ const SiteVisitCreate = () => {
 
       toast.success("Site Visit application submitted successfully!");
 
-      // Redirect to site visit list
-      router.push(RouteEnum.PROGRAM_SITE_VISIT || "/dashboard/programs/plan/site-visit");
+      // Redirect to travel request list
+      router.push(RouteEnum.PROGRAM_TRAVEL_REQUEST || "/dashboard/programs/plan/site-visit");
 
     } catch (error: any) {
       toast.error(
         error.response?.data?.message ||
         error.message ||
-        "Failed to submit site visit application"
+        "Failed to submit travel request application"
       );
     }
   };
@@ -267,7 +267,7 @@ const SiteVisitCreate = () => {
   const breadcrumbs = [
     { name: "Programs", icon: true },
     { name: "Plans", icon: true },
-    { name: "Site Visit", icon: false },
+    { name: "Travel Request", icon: false },
     { name: "Create", icon: false },
   ];
 
@@ -277,7 +277,7 @@ const SiteVisitCreate = () => {
 
       <div className="mt-6">
         <Card className="p-6">
-          <h2 className="text-xl font-bold mb-6">Create Site Visit Application</h2>
+          <h2 className="text-xl font-bold mb-6">Create Travel Request Application</h2>
 
           <Form {...form}>
             <form onSubmit={handleSubmit(onSubmit, (errors) => {
@@ -290,14 +290,14 @@ const SiteVisitCreate = () => {
                 <FormInput
                   name="title"
                   label="Site Visit Title"
-                  placeholder="Enter site visit title"
+                  placeholder="Enter travel request title"
                   required
                 />
 
                 <FormSelect
                   name="visit_type"
                   label="Site Visit Type"
-                  placeholder="Select site visit type"
+                  placeholder="Select travel request type"
                   required
                 >
                   <SelectContent>
@@ -397,7 +397,7 @@ const SiteVisitCreate = () => {
                         <Label>Other Type Description *</Label>
                         <FormControl>
                           <Textarea
-                            placeholder="Please describe the other type of site visit"
+                            placeholder="Please describe the other type of travel request"
                             {...field}
                           />
                         </FormControl>
@@ -502,7 +502,7 @@ const SiteVisitCreate = () => {
                       <Label>Purpose *</Label>
                       <FormControl>
                         <Textarea
-                          placeholder="Explain the purpose of this site visit"
+                          placeholder="Explain the purpose of this travel request"
                           {...field}
                         />
                       </FormControl>
@@ -551,7 +551,7 @@ const SiteVisitCreate = () => {
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-yellow-600">Travel Fees</h3>
                 <p className="text-sm text-gray-600">
-                  Configure travel costs for this site visit. Fees will be auto-calculated based on location and dates, or you can manually override them.
+                  Configure travel costs for this travel request. Fees will be auto-calculated based on location and dates, or you can manually override them.
                 </p>
 
                 <TravelFeesCalculator
@@ -599,7 +599,7 @@ const SiteVisitCreate = () => {
                               }));
                               field.onChange(teamMembersData);
                             }, [field.onChange])}
-                            placeholder="Select team members for this site visit"
+                            placeholder="Select team members for this travel request"
                             variant="inverted"
                           />
                         </FormControl>
@@ -614,7 +614,7 @@ const SiteVisitCreate = () => {
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-yellow-600">Approval Workflow</h3>
                 <p className="text-sm text-gray-600">
-                  Select the reviewer, authorizer, and approver for this site visit application.
+                  Select the reviewer, authorizer, and approver for this travel request application.
                 </p>
 
                 <FormSelect

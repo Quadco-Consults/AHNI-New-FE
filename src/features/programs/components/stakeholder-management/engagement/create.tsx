@@ -39,7 +39,7 @@ import { RouteEnum } from "@/constants/RouterConstants";
 const breadcrumbs = [
   { name: "Programs", icon: true },
   { name: "Stakeholder Management", icon: true },
-  { name: "Engagement Plan", icon: true },
+  { name: "Stakeholder Engagement Plan", icon: true },
   { name: "Create", icon: false },
 ];
 
@@ -185,10 +185,10 @@ const CreateEngagement = () => {
     try {
       if (id) {
         await updateEngagementPlan(data);
-        toast.success("Engagement Plan Updated");
+        toast.success("Stakeholder Engagement Plan Updated");
       } else {
         await createEngagementPlan(data);
-        toast.success("Engagement Plan Created");
+        toast.success("Stakeholder Engagement Plan Created");
       }
       // router.push(RouteEnum.PROGRAM_STAKEHOLDER_MANAGEMENT_PLAN);
       goBack();
