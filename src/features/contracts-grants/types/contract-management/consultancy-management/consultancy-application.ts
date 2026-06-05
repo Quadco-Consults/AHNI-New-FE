@@ -200,6 +200,7 @@ export interface IConsultancyStaffPaginatedData {
     bank_name?: string | null;
     account_number?: string | null;
     sort_code?: string | null;
+    tax_identification_number?: string | null;
 }
 
 // Individual interviewer's score for a consultancy applicant
@@ -325,6 +326,26 @@ export interface IConsultancyStaffSingleData {
         employer_telephone: string;
         services_performed: string;
     }[];
+    // Adhoc-specific fields (optional)
+    gender?: string | null;
+    state_of_origin?: string | null;
+    health_facility?: string | null;
+    spoke_site_name?: string | null;
+    lga?: string | null;
+    qmap_backstop?: string | null;
+    programs_officer?: string | null;
+    stl?: string | null;
+    seo?: string | null;
+    lga2?: string | null;
+    cluster?: string | null;
+    account_name?: string | null;
+    bank_name?: string | null;
+    account_number?: string | null;
+    sort_code?: string | null;
+    tax_identification_number?: string | null;
+    // Facilitator-specific fields (optional)
+    qualifications?: string | null;
+    experience?: string | null;
     // Legacy single-interviewer fields (for backward compatibility)
     interview_scores?: {
         relevant_experience?: number;

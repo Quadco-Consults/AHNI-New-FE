@@ -17,12 +17,11 @@ export const AdhocStaffSchema = z.object({
   programs_officer: z.string().optional(),
   stl: z.string().optional(),
   seo: z.string().optional(),
-  lga2: z.string().optional(),
-  cluster: z.string().optional(),
   account_name: z.string().optional(),
   bank_name: z.string().optional(),
   account_number: z.string().optional(),
   sort_code: z.string().optional(),
+  tax_identification_number: z.string().optional(),
   // Project assignment
   project: z.string().optional(),
 });
@@ -53,6 +52,7 @@ export interface IAdhocStaffPaginatedData {
   bank_name?: string;
   account_number?: string;
   sort_code?: string;
+  tax_identification_number?: string;
   created_datetime: string;
   updated_datetime: string;
   user?: {

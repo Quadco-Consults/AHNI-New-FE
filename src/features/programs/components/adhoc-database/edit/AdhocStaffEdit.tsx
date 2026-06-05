@@ -16,6 +16,7 @@ import { AdhocStaffSchema, TAdhocStaffFormData } from "@/features/programs/types
 import { useGetSingleAdhocApplicant, useUpdateAdhocApplicant } from "@/features/programs/controllers/adhocApplicantController";
 import { useGetAllProjects } from "@/features/projects/controllers/projectController";
 import { useGetAllFacilities } from "@/features/modules/controllers/program/facilityController";
+import { useGetAllUsers } from "@/features/auth/controllers/userController";
 import { useEffect, useMemo } from "react";
 
 // Gender options
@@ -39,6 +40,9 @@ export default function AdhocStaffEdit() {
 
   // Fetch all facilities for dropdown
   const { data: facilitiesData } = useGetAllFacilities({ page: 1, size: 1000 });
+
+  // Fetch all users for staff dropdowns (Programs Officer, STL)
+  const { data: usersData } = useGetAllUsers({ page: 1, size: 1000 });
 
   const applicant = applicantResponse?.data;
 
@@ -65,7 +69,7 @@ export default function AdhocStaffEdit() {
     const facilities = facilitiesData?.data?.results || [];
     const uniqueLgas = new Set(
       facilities
-        .map(f => f.state)
+        .map(f => f.lga)
         .filter(Boolean)
     );
     return Array.from(uniqueLgas).map(lga => ({
@@ -73,6 +77,30 @@ export default function AdhocStaffEdit() {
       value: lga!
     }));
   }, [facilitiesData]);
+
+  // Extract unique states from facilities for dropdown
+  const stateOptions = useMemo(() => {
+    const facilities = facilitiesData?.data?.results || [];
+    const uniqueStates = new Set(
+      facilities
+        .map(f => f.state)
+        .filter(Boolean)
+    );
+    return Array.from(uniqueStates).map(state => ({
+      label: state!,
+      value: state!
+    }));
+  }, [facilitiesData]);
+
+  // Transform users for staff dropdowns (Programs Officer, STL)
+  const staffOptions = useMemo(() => {
+    const users = usersData?.data?.results || [];
+    return users.map(user => ({
+      label: `${user.first_name} ${user.last_name}${user.employee_id ? ` (${user.employee_id})` : ''}`,
+      value: user.id
+    }));
+  }, [usersData]);
+
 
   // Extract fields from applicant (handle both old and new field names)
   const surname = (applicant as any)?.surname || (applicant as any)?.sur_name || '';
@@ -98,12 +126,11 @@ export default function AdhocStaffEdit() {
       programs_officer: "",
       stl: "",
       seo: "",
-      lga2: "",
-      cluster: "",
       account_name: "",
       bank_name: "",
       account_number: "",
       sort_code: "",
+      tax_identification_number: "",
       project: "",
     },
   });
@@ -129,20 +156,40 @@ export default function AdhocStaffEdit() {
         programs_officer: app.programs_officer || "",
         stl: app.stl || "",
         seo: app.seo || "",
-        lga2: app.lga2 || "",
-        cluster: app.cluster || "",
         account_name: app.account_name || "",
         bank_name: app.bank_name || "",
         account_number: app.account_number || "",
         sort_code: app.sort_code || "",
+        tax_identification_number: app.tax_identification_number || "",
         project: app.project || "",
       });
     }
   }, [applicant, form]);
 
+  // Cascade logic: Auto-populate LGA when health facility is selected
+  useEffect(() => {
+    const subscription = form.watch((value, { name }) => {
+      if (name === 'health_facility' && value.health_facility) {
+        const facilities = facilitiesData?.data?.results || [];
+        const selectedFacility = facilities.find(f => f.name === value.health_facility);
+
+        if (selectedFacility) {
+          // Auto-populate LGA from the selected facility
+          form.setValue('lga', selectedFacility.lga || '', {
+            shouldValidate: true,
+            shouldDirty: true,
+          });
+        }
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [form, facilitiesData]);
+
   const onSubmit = async (data: TAdhocStaffFormData) => {
     try {
       // Prepare update payload with adhoc-specific fields
+      // Database uses non-prefixed field names
       const updatePayload = {
         surname: data.sur_name,
         other_names: data.other_names,
@@ -159,12 +206,11 @@ export default function AdhocStaffEdit() {
         programs_officer: data.programs_officer,
         stl: data.stl,
         seo: data.seo,
-        lga2: data.lga2,
-        cluster: data.cluster,
         account_name: data.account_name,
         bank_name: data.bank_name,
         account_number: data.account_number,
         sort_code: data.sort_code,
+        tax_identification_number: data.tax_identification_number,
         project: data.project,
       };
 
@@ -290,11 +336,12 @@ export default function AdhocStaffEdit() {
                     placeholder="Enter spoke site name"
                   />
                   <FormSelect
-                    label="LGA"
+                    label="LGA (Auto-populated from Health Facility)"
                     name="lga"
                     required
-                    placeholder="Select LGA"
+                    placeholder="Select health facility first"
                     options={lgaOptions}
+                    disabled
                   />
                   <FormInput
                     label="Status of Adhoc Staff"
@@ -369,30 +416,22 @@ export default function AdhocStaffEdit() {
                     name="qmap_backstop"
                     placeholder="Enter QMAP BACKSTOP"
                   />
-                  <FormInput
+                  <FormSelect
                     label="Programs Officer"
                     name="programs_officer"
-                    placeholder="Enter Programs Officer"
+                    placeholder="Select Programs Officer"
+                    options={staffOptions}
                   />
-                  <FormInput
+                  <FormSelect
                     label="STL"
                     name="stl"
-                    placeholder="Enter STL"
+                    placeholder="Select STL"
+                    options={staffOptions}
                   />
                   <FormInput
                     label="SEO"
                     name="seo"
                     placeholder="Enter SEO"
-                  />
-                  <FormInput
-                    label="LGA2"
-                    name="lga2"
-                    placeholder="Enter LGA2"
-                  />
-                  <FormInput
-                    label="Cluster"
-                    name="cluster"
-                    placeholder="Enter Cluster"
                   />
                 </div>
               </div>
@@ -422,6 +461,11 @@ export default function AdhocStaffEdit() {
                     label="Sort Code"
                     name="sort_code"
                     placeholder="Enter sort code"
+                  />
+                  <FormInput
+                    label="Tax Identification Number (TIN)"
+                    name="tax_identification_number"
+                    placeholder="Enter TIN"
                   />
                 </div>
               </div>

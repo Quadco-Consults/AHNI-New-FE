@@ -132,6 +132,24 @@ export default function ConsultancyStaffView() {
     contract_request: applicant.contract_request,
     created_datetime: applicant.created_datetime,
     updated_datetime: applicant.updated_datetime,
+    // Adhoc-like fields from database
+    gender: (applicant as any).gender,
+    state_of_origin: (applicant as any).state_of_origin,
+    health_facility: (applicant as any).health_facility,
+    spoke_site_name: (applicant as any).spoke_site_name,
+    lga: (applicant as any).lga,
+    cluster: (applicant as any).cluster,
+    qmap_backstop: (applicant as any).qmap_backstop,
+    programs_officer: (applicant as any).programs_officer,
+    stl: (applicant as any).stl,
+    seo: (applicant as any).seo,
+    account_name: (applicant as any).account_name,
+    bank_name: (applicant as any).bank_name,
+    account_number: (applicant as any).account_number,
+    sort_code: (applicant as any).sort_code,
+    tax_identification_number: (applicant as any).tax_identification_number,
+    qualifications: (applicant as any).qualifications,
+    experience: (applicant as any).experience,
   };
 
   const getStatusBadge = (status: string, offerAccepted: boolean) => {
@@ -204,34 +222,48 @@ export default function ConsultancyStaffView() {
             <Card>
               <h3 className="text-lg font-semibold mb-4 text-[#DEA004]">Personal Information</h3>
               <div className="space-y-3">
-                <DescriptionCard
-                  title="Full Name"
-                  description={consultantData.name || "Not provided"}
-                />
-                <DescriptionCard
-                  title="Contractor Name"
-                  description={consultantData.contractor_name || "Not provided"}
-                />
-                <DescriptionCard
-                  title="Email Address"
-                  description={consultantData.email || "Not provided"}
-                />
-                <DescriptionCard
-                  title="Phone Number"
-                  description={consultantData.phone_number || "Not provided"}
-                />
-                <DescriptionCard
-                  title="Place of Birth"
-                  description={consultantData.place_of_birth || "Not provided"}
-                />
-                <DescriptionCard
-                  title="Citizenship"
-                  description={consultantData.citizenship || "Not provided"}
-                />
-                <DescriptionCard
-                  title="Address"
-                  description={consultantData.address || "Not provided"}
-                />
+                {consultantData.name && (
+                  <DescriptionCard
+                    label="Full Name"
+                    description={consultantData.name}
+                  />
+                )}
+                {consultantData.contractor_name && (
+                  <DescriptionCard
+                    label="Contractor Name"
+                    description={consultantData.contractor_name}
+                  />
+                )}
+                {consultantData.email && (
+                  <DescriptionCard
+                    label="Email Address"
+                    description={consultantData.email}
+                  />
+                )}
+                {consultantData.phone_number && (
+                  <DescriptionCard
+                    label="Phone Number"
+                    description={consultantData.phone_number}
+                  />
+                )}
+                {consultantData.place_of_birth && (
+                  <DescriptionCard
+                    label="Place of Birth"
+                    description={consultantData.place_of_birth}
+                  />
+                )}
+                {consultantData.citizenship && (
+                  <DescriptionCard
+                    label="Citizenship"
+                    description={consultantData.citizenship}
+                  />
+                )}
+                {consultantData.address && (
+                  <DescriptionCard
+                    label="Address"
+                    description={consultantData.address}
+                  />
+                )}
               </div>
             </Card>
 
@@ -239,24 +271,28 @@ export default function ConsultancyStaffView() {
               <h3 className="text-lg font-semibold mb-4 text-[#DEA004]">Contract Status</h3>
               <div className="space-y-3">
                 <DescriptionCard
-                  title="Current Status"
+                  label="Current Status"
                   description={getStatusBadge(consultantData.status, consultantData.offer_accepted)}
                 />
+                {consultantData.contract_number && (
+                  <DescriptionCard
+                    label="Contract Number"
+                    description={consultantData.contract_number}
+                  />
+                )}
+                {consultantData.proposed_salary && (
+                  <DescriptionCard
+                    label="Proposed Salary"
+                    description={`₦${Number(consultantData.proposed_salary).toLocaleString()}`}
+                  />
+                )}
                 <DescriptionCard
-                  title="Contract Number"
-                  description={consultantData.contract_number || "Not assigned"}
-                />
-                <DescriptionCard
-                  title="Proposed Salary"
-                  description={consultantData.proposed_salary ? `₦${Number(consultantData.proposed_salary).toLocaleString()}` : "Not specified"}
-                />
-                <DescriptionCard
-                  title="Offer Accepted"
+                  label="Offer Accepted"
                   description={consultantData.offer_accepted ? "Yes" : "No"}
                 />
                 {consultantData.offer_acceptance_date && (
                   <DescriptionCard
-                    title="Acceptance Date"
+                    label="Acceptance Date"
                     description={format(new Date(consultantData.offer_acceptance_date), "dd MMM, yyyy")}
                   />
                 )}
@@ -271,60 +307,116 @@ export default function ConsultancyStaffView() {
             <Card>
               <h3 className="text-lg font-semibold mb-4 text-[#DEA004]">Contract Period</h3>
               <div className="space-y-3">
-                <DescriptionCard
-                  title="Position"
-                  description={consultantData.position_under_contract || "Not specified"}
-                />
-                <DescriptionCard
-                  title="Start Date"
-                  description={consultantData.start_duration_date ? format(new Date(consultantData.start_duration_date), "dd MMM, yyyy") : "Not set"}
-                />
-                <DescriptionCard
-                  title="End Date"
-                  description={consultantData.end_duration_date ? format(new Date(consultantData.end_duration_date), "dd MMM, yyyy") : "Not set"}
-                />
-                <DescriptionCard
-                  title="Contract Duration"
-                  description={
-                    consultantData.start_duration_date && consultantData.end_duration_date
-                      ? `${Math.ceil((new Date(consultantData.end_duration_date).getTime() - new Date(consultantData.start_duration_date).getTime()) / (1000 * 60 * 60 * 24))} days`
-                      : "Not calculated"
-                  }
-                />
+                {consultantData.position_under_contract && (
+                  <DescriptionCard
+                    label="Position"
+                    description={consultantData.position_under_contract}
+                  />
+                )}
+                {consultantData.start_duration_date && (
+                  <DescriptionCard
+                    label="Start Date"
+                    description={format(new Date(consultantData.start_duration_date), "dd MMM, yyyy")}
+                  />
+                )}
+                {consultantData.end_duration_date && (
+                  <DescriptionCard
+                    label="End Date"
+                    description={format(new Date(consultantData.end_duration_date), "dd MMM, yyyy")}
+                  />
+                )}
+                {consultantData.start_duration_date && consultantData.end_duration_date && (
+                  <DescriptionCard
+                    label="Contract Duration"
+                    description={`${Math.ceil((new Date(consultantData.end_duration_date).getTime() - new Date(consultantData.start_duration_date).getTime()) / (1000 * 60 * 60 * 24))} days`}
+                  />
+                )}
               </div>
             </Card>
 
             <Card>
               <h3 className="text-lg font-semibold mb-4 text-[#DEA004]">Assignment Details</h3>
               <div className="space-y-3">
-                <DescriptionCard
-                  title="Project"
-                  description={
-                    typeof consultantData.project === 'object' && consultantData.project?.name
-                      ? consultantData.project.name
-                      : consultantData.project || "Not assigned"
-                  }
-                />
-                <DescriptionCard
-                  title="Location"
-                  description={
-                    typeof consultantData.location === 'object' && consultantData.location?.name
-                      ? consultantData.location.name
-                      : consultantData.location || "Not specified"
-                  }
-                />
-                <DescriptionCard
-                  title="Contract Request"
-                  description={
-                    typeof consultantData.contract_request === 'object' && consultantData.contract_request?.id
-                      ? `Request #${consultantData.contract_request.id.substring(0, 8)}`
-                      : consultantData.contract_request || "Not linked"
-                  }
-                />
-                <DescriptionCard
-                  title="Type"
-                  description={consultantData.type || "Not specified"}
-                />
+                {(consultantData.project || consultantData.location || consultantData.contract_request || consultantData.type ||
+                  consultantData.health_facility || consultantData.spoke_site_name || consultantData.lga || consultantData.cluster ||
+                  consultantData.gender || consultantData.state_of_origin) ? (
+                  <>
+                    {consultantData.project && (
+                      <DescriptionCard
+                        label="Project"
+                        description={
+                          typeof consultantData.project === 'object' && consultantData.project?.name
+                            ? consultantData.project.name
+                            : consultantData.project
+                        }
+                      />
+                    )}
+                    {consultantData.location && (
+                      <DescriptionCard
+                        label="Location"
+                        description={
+                          typeof consultantData.location === 'object' && consultantData.location?.name
+                            ? consultantData.location.name
+                            : consultantData.location
+                        }
+                      />
+                    )}
+                    {consultantData.health_facility && (
+                      <DescriptionCard
+                        label="Health Facility"
+                        description={consultantData.health_facility}
+                      />
+                    )}
+                    {consultantData.spoke_site_name && (
+                      <DescriptionCard
+                        label="Spoke Site"
+                        description={consultantData.spoke_site_name}
+                      />
+                    )}
+                    {consultantData.lga && (
+                      <DescriptionCard
+                        label="LGA (Assignment Location)"
+                        description={consultantData.lga}
+                      />
+                    )}
+                    {consultantData.cluster && (
+                      <DescriptionCard
+                        label="Cluster"
+                        description={consultantData.cluster}
+                      />
+                    )}
+                    {consultantData.gender && (
+                      <DescriptionCard
+                        label="Gender"
+                        description={consultantData.gender}
+                      />
+                    )}
+                    {consultantData.state_of_origin && (
+                      <DescriptionCard
+                        label="State of Origin"
+                        description={consultantData.state_of_origin}
+                      />
+                    )}
+                    {consultantData.contract_request && (
+                      <DescriptionCard
+                        label="Contract Request"
+                        description={
+                          typeof consultantData.contract_request === 'object' && consultantData.contract_request?.id
+                            ? `Request #${consultantData.contract_request.id.substring(0, 8)}`
+                            : consultantData.contract_request
+                        }
+                      />
+                    )}
+                    {consultantData.type && (
+                      <DescriptionCard
+                        label="Type"
+                        description={consultantData.type}
+                      />
+                    )}
+                  </>
+                ) : (
+                  <p className="text-gray-500 text-sm">No assignment details available</p>
+                )}
               </div>
             </Card>
           </div>
@@ -340,11 +432,11 @@ export default function ConsultancyStaffView() {
                   {applicant.education.map((edu: any, index: number) => (
                     <div key={index} className="border border-gray-200 rounded-lg p-4">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <DescriptionCard title="Institution" description={edu.name || "Not provided"} />
-                        <DescriptionCard title="Location" description={edu.location || "Not provided"} />
-                        <DescriptionCard title="Degree" description={edu.degree || "Not provided"} />
-                        <DescriptionCard title="Major" description={edu.major || "Not provided"} />
-                        <DescriptionCard title="Date" description={edu.date || "Not provided"} />
+                        <DescriptionCard label="Institution" description={edu.name || "Not provided"} />
+                        <DescriptionCard label="Location" description={edu.location || "Not provided"} />
+                        <DescriptionCard label="Degree" description={edu.degree || "Not provided"} />
+                        <DescriptionCard label="Major" description={edu.major || "Not provided"} />
+                        <DescriptionCard label="Date" description={edu.date || "Not provided"} />
                       </div>
                     </div>
                   ))}
@@ -361,11 +453,11 @@ export default function ConsultancyStaffView() {
                   {applicant.employment_history.map((emp: any, index: number) => (
                     <div key={index} className="border border-gray-200 rounded-lg p-4">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <DescriptionCard title="Position" description={emp.position_title || "Not provided"} />
-                        <DescriptionCard title="Employer" description={emp.employer_name || "Not provided"} />
-                        <DescriptionCard title="Phone" description={emp.employer_telephone || "Not provided"} />
-                        <DescriptionCard title="From" description={emp.from || "Not provided"} />
-                        <DescriptionCard title="To" description={emp.to || "Not provided"} />
+                        <DescriptionCard label="Position" description={emp.position_title || "Not provided"} />
+                        <DescriptionCard label="Employer" description={emp.employer_name || "Not provided"} />
+                        <DescriptionCard label="Phone" description={emp.employer_telephone || "Not provided"} />
+                        <DescriptionCard label="From" description={emp.from || "Not provided"} />
+                        <DescriptionCard label="To" description={emp.to || "Not provided"} />
                       </div>
                     </div>
                   ))}
@@ -382,11 +474,11 @@ export default function ConsultancyStaffView() {
                   {applicant.special_consultant_services.map((service: any, index: number) => (
                     <div key={index} className="border border-gray-200 rounded-lg p-4">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <DescriptionCard title="Services Performed" description={service.services_performed || "Not provided"} />
-                        <DescriptionCard title="Employer" description={service.employer_name || "Not provided"} />
-                        <DescriptionCard title="Phone" description={service.employer_telephone || "Not provided"} />
-                        <DescriptionCard title="From" description={service.from || "Not provided"} />
-                        <DescriptionCard title="To" description={service.to || "Not provided"} />
+                        <DescriptionCard label="Services Performed" description={service.services_performed || "Not provided"} />
+                        <DescriptionCard label="Employer" description={service.employer_name || "Not provided"} />
+                        <DescriptionCard label="Phone" description={service.employer_telephone || "Not provided"} />
+                        <DescriptionCard label="From" description={service.from || "Not provided"} />
+                        <DescriptionCard label="To" description={service.to || "Not provided"} />
                       </div>
                     </div>
                   ))}
@@ -403,9 +495,9 @@ export default function ConsultancyStaffView() {
                   {applicant.language_proficiency.map((lang: any, index: number) => (
                     <div key={index} className="border border-gray-200 rounded-lg p-4">
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <DescriptionCard title="Language" description={lang.language || "Not provided"} />
-                        <DescriptionCard title="Speaking" description={lang.proficiency_speaking || "Not provided"} />
-                        <DescriptionCard title="Reading" description={lang.proficiency_reading || "Not provided"} />
+                        <DescriptionCard label="Language" description={lang.language || "Not provided"} />
+                        <DescriptionCard label="Speaking" description={lang.proficiency_speaking || "Not provided"} />
+                        <DescriptionCard label="Reading" description={lang.proficiency_reading || "Not provided"} />
                       </div>
                     </div>
                   ))}
@@ -651,15 +743,15 @@ export default function ConsultancyStaffView() {
               <h3 className="text-lg font-semibold mb-4 text-[#DEA004]">Payment Statistics</h3>
               <div className="space-y-3">
                 <DescriptionCard
-                  title="Average Payment Amount"
+                  label="Average Payment Amount"
                   description={`₦${payments.length > 0 ? (totalRequested / payments.length).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : "0"}`}
                 />
                 <DescriptionCard
-                  title="Payment Success Rate"
+                  label="Payment Success Rate"
                   description={`${payments.length > 0 ? ((payments.filter((p: any) => p.status === "APPROVED").length / payments.length) * 100).toFixed(1) : "0"}%`}
                 />
                 <DescriptionCard
-                  title="Total Payments Made"
+                  label="Total Payments Made"
                   description={`${payments.filter((p: any) => p.status === "APPROVED").length} of ${payments.length}`}
                 />
               </div>
@@ -700,19 +792,19 @@ export default function ConsultancyStaffView() {
               <h3 className="text-lg font-semibold mb-4 text-[#DEA004]">Technical Monitor</h3>
               <div className="space-y-3">
                 <DescriptionCard
-                  title="Monitor User"
+                  label="Monitor User"
                   description={consultantData.technical_monitor_user || "Not assigned"}
                 />
                 <DescriptionCard
-                  title="Partner Name"
+                  label="Partner Name"
                   description={consultantData.technical_monitor_partner_name || "Not provided"}
                 />
                 <DescriptionCard
-                  title="Partner Email"
+                  label="Partner Email"
                   description={consultantData.technical_monitor_partner_email || "Not provided"}
                 />
                 <DescriptionCard
-                  title="Partner Phone"
+                  label="Partner Phone"
                   description={consultantData.technical_monitor_partner_phone || "Not provided"}
                 />
               </div>
@@ -722,11 +814,11 @@ export default function ConsultancyStaffView() {
               <h3 className="text-lg font-semibold mb-4 text-[#DEA004]">Record Information</h3>
               <div className="space-y-3">
                 <DescriptionCard
-                  title="Created"
+                  label="Created"
                   description={consultantData.created_datetime ? format(new Date(consultantData.created_datetime), "dd MMM, yyyy 'at' HH:mm") : "Not available"}
                 />
                 <DescriptionCard
-                  title="Last Updated"
+                  label="Last Updated"
                   description={consultantData.updated_datetime ? format(new Date(consultantData.updated_datetime), "dd MMM, yyyy 'at' HH:mm") : "Not available"}
                 />
               </div>
@@ -741,9 +833,9 @@ export default function ConsultancyStaffView() {
                 {applicant.referees.map((referee: any, index: number) => (
                   <div key={index} className="border border-gray-200 rounded-lg p-4">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <DescriptionCard title="Name" description={referee.name || "Not provided"} />
-                      <DescriptionCard title="Email" description={referee.email || "Not provided"} />
-                      <DescriptionCard title="Phone" description={referee.phone_number || "Not provided"} />
+                      <DescriptionCard label="Name" description={referee.name || "Not provided"} />
+                      <DescriptionCard label="Email" description={referee.email || "Not provided"} />
+                      <DescriptionCard label="Phone" description={referee.phone_number || "Not provided"} />
                     </div>
                   </div>
                 ))}
