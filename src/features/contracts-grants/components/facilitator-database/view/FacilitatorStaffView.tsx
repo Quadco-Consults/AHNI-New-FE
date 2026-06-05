@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import DescriptionCard from "@/components/DescriptionCard";
+import FilePreview from "@/components/FilePreview";
 import { useGetSingleFacilitatorApplicant } from "@/features/contracts-grants/controllers/facilitatorApplicantsController";
 import { useGetConsultantPayments } from "@/features/admin/controllers/paymentRequestController";
 import { useGetAllDeliverables } from "@/features/contracts-grants/controllers/deliverableController";
@@ -161,10 +162,11 @@ export default function FacilitatorStaffView() {
 
       {/* Content Tabs */}
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="qualifications">Qualifications & Experience</TabsTrigger>
           <TabsTrigger value="deliverables">Deliverables</TabsTrigger>
+          <TabsTrigger value="documents">Documents</TabsTrigger>
           <TabsTrigger value="payments">Payment History</TabsTrigger>
         </TabsList>
 
@@ -620,6 +622,34 @@ export default function FacilitatorStaffView() {
                 </div>
               </Card>
             </div>
+          )}
+        </TabsContent>
+
+        {/* Documents Tab */}
+        <TabsContent value="documents" className="space-y-6">
+          {facilitator.documents && facilitator.documents.length > 0 ? (
+            <Card>
+              <h3 className="text-lg font-semibold mb-4 text-[#DEA004]">Uploaded Documents</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                {facilitator.documents.map((doc: any, index: number) => (
+                  <FilePreview
+                    key={doc.id || index}
+                    id={doc.id}
+                    name={doc.name || doc.title}
+                    documentType={doc.document_type}
+                    file={doc.document || doc.file}
+                    timestamp={doc.created_datetime || doc.uploaded_datetime}
+                  />
+                ))}
+              </div>
+            </Card>
+          ) : (
+            <Card>
+              <h3 className="text-lg font-semibold mb-4 text-[#DEA004]">Uploaded Documents</h3>
+              <div className="text-center py-8 text-gray-500">
+                No documents uploaded
+              </div>
+            </Card>
           )}
         </TabsContent>
       </Tabs>

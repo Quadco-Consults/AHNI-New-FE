@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import PencilIcon from "@/components/icons/PencilIcon";
 import DescriptionCard from "@/components/DescriptionCard";
+import FilePreview from "@/components/FilePreview";
 import { useGetSingleAdhocApplicant } from "@/features/programs/controllers/adhocApplicantController";
 import { format } from "date-fns";
 
@@ -582,32 +583,21 @@ export default function AdhocStaffView() {
         {/* Documents Tab */}
         <TabsContent value="documents" className="space-y-6">
           {staffData?.documents && staffData.documents.length > 0 ? (
-            <div className="grid grid-cols-1 gap-6">
-              <Card>
-                <h3 className="text-lg font-semibold mb-4 text-[#DEA004]">Uploaded Documents</h3>
-                <div className="space-y-3">
-                  {staffData.documents.map((doc: any, index: number) => (
-                    <div key={doc.id || index} className="border border-gray-200 rounded-lg p-4">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-semibold text-gray-900">{doc.document_type || doc.file_name}</p>
-                          <p className="text-sm text-gray-500">
-                            Uploaded: {doc.uploaded_at ? format(new Date(doc.uploaded_at), "PPP") : "Unknown"}
-                          </p>
-                        </div>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => window.open(doc.file_url, '_blank')}
-                        >
-                          View Document
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </Card>
-            </div>
+            <Card>
+              <h3 className="text-lg font-semibold mb-4 text-[#DEA004]">Uploaded Documents</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                {staffData.documents.map((doc: any, index: number) => (
+                  <FilePreview
+                    key={doc.id || index}
+                    id={doc.id}
+                    name={doc.title || doc.file_name}
+                    documentType={doc.document_type}
+                    file={doc.file_url || doc.file}
+                    timestamp={doc.uploaded_at || doc.created_datetime}
+                  />
+                ))}
+              </div>
+            </Card>
           ) : (
             <Card>
               <h3 className="text-lg font-semibold mb-4 text-[#DEA004]">Uploaded Documents</h3>

@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import PencilIcon from "@/components/icons/PencilIcon";
 import DescriptionCard from "@/components/DescriptionCard";
+import FilePreview from "@/components/FilePreview";
 import { useGetSingleConsultancyApplicant } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
 import { useGetConsultantPayments } from "@/features/admin/controllers/paymentRequestController";
 import { format } from "date-fns";
@@ -208,10 +209,11 @@ export default function ConsultancyStaffView() {
 
       {/* Content Tabs */}
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="contract">Contract Details</TabsTrigger>
           <TabsTrigger value="education">Education & Experience</TabsTrigger>
+          <TabsTrigger value="documents">Documents</TabsTrigger>
           <TabsTrigger value="payments">Payment History</TabsTrigger>
           <TabsTrigger value="monitoring">Monitoring</TabsTrigger>
         </TabsList>
@@ -843,28 +845,31 @@ export default function ConsultancyStaffView() {
             </Card>
           )}
 
-          {/* Documents */}
-          {applicant.documents && applicant.documents.length > 0 && (
+        </TabsContent>
+
+        {/* Documents Tab */}
+        <TabsContent value="documents" className="space-y-6">
+          {applicant.documents && applicant.documents.length > 0 ? (
             <Card>
-              <h3 className="text-lg font-semibold mb-4 text-[#DEA004]">Documents</h3>
-              <div className="space-y-3">
+              <h3 className="text-lg font-semibold mb-4 text-[#DEA004]">Uploaded Documents</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                 {applicant.documents.map((doc: any, index: number) => (
-                  <div key={index} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
-                    <div>
-                      <p className="font-medium">{doc.name}</p>
-                      <p className="text-sm text-gray-500">
-                        Uploaded: {doc.created_datetime ? format(new Date(doc.created_datetime), "dd MMM, yyyy") : "Unknown"}
-                      </p>
-                    </div>
-                    {doc.document && (
-                      <Button variant="outline" size="sm" asChild>
-                        <a href={doc.document} target="_blank" rel="noopener noreferrer">
-                          View
-                        </a>
-                      </Button>
-                    )}
-                  </div>
+                  <FilePreview
+                    key={doc.id || index}
+                    id={doc.id}
+                    name={doc.name || doc.title}
+                    documentType={doc.document_type}
+                    file={doc.document || doc.file}
+                    timestamp={doc.created_datetime || doc.uploaded_datetime}
+                  />
                 ))}
+              </div>
+            </Card>
+          ) : (
+            <Card>
+              <h3 className="text-lg font-semibold mb-4 text-[#DEA004]">Uploaded Documents</h3>
+              <div className="text-center py-8 text-gray-500">
+                No documents uploaded
               </div>
             </Card>
           )}
