@@ -1730,13 +1730,7 @@ export const globalHubLinks: GlobalHubItem[] = [
     category: "programs"
   },
   {
-    label: "Site Visit Application",
-    path: "/dashboard/programs/plan/site-visit",
-    icon: <Calendar className="w-4 h-4" />,
-    category: "programs"
-  },
-  {
-    label: "Site Visit Management",
+    label: "Travel Request",
     path: "/dashboard/programs/plan/site-visit",
     icon: <MapPin className="w-4 h-4" />,
     category: "programs"
