@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { MessageCircle, X } from 'lucide-react';
-import { ChatWindow } from './ChatWindow';
+import { ChatWindowEnhanced } from './ChatWindowEnhanced';
 import { cn } from '@/lib/utils';
 
 interface ChatButtonProps {
@@ -25,9 +25,9 @@ export const ChatButton = ({ className }: ChatButtonProps) => {
       </button>
 
       {isOpen && (
-        <ChatWindow 
-          isOpen={isOpen} 
-          onClose={() => setIsOpen(false)} 
+        <ChatWindowEnhanced
+          isOpen={isOpen}
+          onClose={() => setIsOpen(false)}
         />
       )}
     </>

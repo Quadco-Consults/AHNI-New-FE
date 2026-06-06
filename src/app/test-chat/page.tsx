@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ChatButton, ChatWindow, ConversationHistory } from '@/components/chat';
+import { ChatButton, ConversationHistory } from '@/components/chat';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
