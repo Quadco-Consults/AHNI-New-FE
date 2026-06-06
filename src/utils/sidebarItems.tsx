@@ -1290,184 +1290,290 @@ export const departmentalLinks: SidebarItem[] = [
         ]
       },
       {
-        name: "Financial Classifications",
-        path: "/dashboard/finance/classifications",
+        name: "Finance Dashboards",
         permissions: [
+        {
+          module: "finance",
+          codenames: ["view_financialdashboard"]
+        }
+      ],
+        children: [
           {
-            module: "finance",
-            codenames: ["view_chartofaccounts"]
+            name: "Grant Portfolio",
+            path: "/dashboard/finance/dashboards/grant-portfolio",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_financialdashboard"]
+            }
+          ]
+          },
+          {
+            name: "Budget vs Actuals",
+            path: "/dashboard/finance/dashboards/budget-vs-actuals",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_financialdashboard"]
+            }
+          ]
+          },
+          {
+            name: "Financial Pipeline",
+            path: "/dashboard/finance/dashboards/financial-pipeline",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_financialdashboard"]
+            }
+          ]
+          },
+          {
+            name: "Cash Flow",
+            path: "/dashboard/finance/dashboards/cash-flow",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_financialdashboard"]
+            }
+          ]
+          },
+          {
+            name: "Financial Health",
+            path: "/dashboard/finance/dashboards/financial-health",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_financialdashboard"]
+            }
+          ]
           }
         ]
       },
       {
-        name: "Chart of Accounts",
-        path: "/dashboard/finance/chart-of-accounts",
+        name: "Grant Operations",
         permissions: [
+        {
+          module: "finance",
+          codenames: ["view_financeobligation"]
+        }
+      ],
+        children: [
           {
-            module: "finance",
-            codenames: ["view_chartofaccounts"]
+            name: "Obligations",
+            path: "/dashboard/finance/obligations",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_financeobligation"]
+            }
+          ]
+          },
+          {
+            name: "Recorded Expenses",
+            path: "/dashboard/finance/expenditures",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_financeexpenditure"]
+            }
+          ]
+          },
+          {
+            name: "Payment Disbursements",
+            path: "/dashboard/finance/disbursements",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_paymentdisbursement"]
+            }
+          ]
+          },
+          {
+            name: "Honour Certificates",
+            path: "/dashboard/finance/honour-certificates",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_honourcertificate"]
+            }
+          ]
+          },
+          {
+            name: "Petty Cash",
+            path: "/dashboard/finance/petty-cash",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_pettycash"]
+            }
+          ]
           }
         ]
       },
       {
-        name: "Bank Accounts",
-        path: "/dashboard/finance/bank-accounts",
+        name: "Accounting",
         permissions: [
+        {
+          module: "finance",
+          codenames: ["view_chartofaccounts"]
+        }
+      ],
+        children: [
           {
-            module: "finance",
-            codenames: ["view_chartofaccounts"]
+            name: "Chart of Accounts",
+            path: "/dashboard/finance/chart-of-accounts",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_chartofaccounts"]
+            }
+          ]
+          },
+          {
+            name: "Journal Entries",
+            path: "/dashboard/finance/journal-entries",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_journalentry"]
+            }
+          ]
+          },
+          {
+            name: "Financial Classifications",
+            path: "/dashboard/finance/classifications",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_chartofaccounts"]
+            }
+          ]
           }
         ]
       },
       {
-        name: "Journal Entries",
-        path: "/dashboard/finance/journal-entries",
+        name: "Banking",
         permissions: [
+        {
+          module: "finance",
+          codenames: ["view_chartofaccounts"]
+        }
+      ],
+        children: [
           {
-            module: "finance",
-            codenames: ["view_journalentry"]
+            name: "Bank Accounts",
+            path: "/dashboard/finance/bank-accounts",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_chartofaccounts"]
+            }
+          ]
+          },
+          {
+            name: "Bank Reconciliation",
+            path: "/dashboard/finance/bank-reconciliation",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_bankreconcialiation"]
+            }
+          ]
           }
         ]
       },
       {
-        name: "Financial Reports",
-        path: "/dashboard/finance/financial-reports",
+        name: "Reports",
         permissions: [
+        {
+          module: "finance",
+          codenames: ["view_financialreport"]
+        }
+      ],
+        children: [
           {
-            module: "finance",  
-            codenames: ["view_financialreport"]
-          }
-        ]
-      },
-      {
-        name: "Bank Reconciliation",
-        path: "/dashboard/finance/bank-reconciliation",
-        permissions: [
+            name: "Financial Reports",
+            path: "/dashboard/finance/financial-reports",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_financialreport"]
+            }
+          ]
+          },
           {
-            module: "finance",
-            codenames: ["view_bankreconcialiation"]
-          }
-        ]
-      }, 
-      {
-        name: "Integration Dashboard",
-        path: "/dashboard/finance/integration-dashboard",
-        permissions: [
-          {
-            module: "finance",
-            codenames: ["view_integrationdashboard"]
-          }
-        ]
-      }, 
-      {
-        name: "Financial Analysis",
-        path: "/dashboard/finance/analysis",
-        permissions: [
-          {
-            module: "finance",
-            codenames: ["view_financialanalysis"]
+            name: "Budget Reports",
+            path: "/dashboard/finance/budget-reports",
+            permissions: [
+            {
+              module: "finance",
+              codenames: ["view_budgetreports"]
+            }
+          ]
           }
         ]
       },
         {
-          name: "Invoicing & Billing",
-          path: "/dashboard/finance/invoices",
+          name: "Finance Dashboards",
           permissions: [
           {
             module: "finance",
-            codenames: ["view_invoices"]
+            codenames: ["view_financialdashboard"]
           }
-        ]
-        },
-        {
-          name: "Sales Orders",
-          path: "/dashboard/finance/sales-orders",
-          permissions: [
-          {
-            module: "finance",
-            codenames: ["view_salesorders"]
-          }
-        ]
-        },
-        {
-          name: "Accounts Receivable",
-          path: "/dashboard/finance/accounts-receivable",
-          permissions: [
-          {
-            module: "finance",
-            codenames: ["view_accountsreceivable"]
-          }
-        ]
-        },
-        {
-          name: "Tax Management",
-          path: "/dashboard/finance/tax-management",
-          permissions: [
-          {
-            module: "finance",
-            codenames: ["view_taxmanagement"]
-          }
-        ]
-        },
-        {
-          name: "Accounts Payable",
-          path: "/dashboard/finance/accounts-payable",
-          permissions: [
-          {
-            module: "finance",
-            codenames: ["view_accountspayable"]
-          }
-        ]
-        },
-        {
-          name: "Fixed Assets",
-          path: "/dashboard/finance/fixed-assets",
-          permissions: [
-          {
-            module: "finance",
-            codenames: ["view_fixedassets"]
-          }
-        ]
-        },
-        {
-          name: "Expense Tracking",
-          path: "/dashboard/finance/expenses",
-          permissions: [
-          {
-            module: "finance",
-            codenames: ["view_expensetracking"]
-          }
-        ]
-        },
-        {
-          name: "Budget Reports",
-          path: "/dashboard/finance/budget-reports",
-          permissions: [
-          {
-            module: "finance",
-            codenames: ["view_budgetreports"]
-          }
-        ]
-        },
-        {
-          name: "Petty Cash",
-          path: "/dashboard/finance/petty-cash",
-          permissions: [
-          {
-            module: "finance",
-            codenames: ["view_pettycash"]
-          }
-        ]
-        },
-        {
-          name: "Travel Reconciliation",
-          path: "/dashboard/finance/travel-reconciliation",
-          permissions: [
-          {
-            module: "finance",
-            codenames: ["view_travelreconciliation"]
-          }
-        ]
+        ],
+          children: [
+            {
+              name: "Grant Portfolio",
+              path: "/dashboard/finance/dashboards/grant-portfolio",
+              permissions: [
+              {
+                module: "finance",
+                codenames: ["view_financialdashboard"]
+              }
+            ]
+            },
+            {
+              name: "Budget vs Actuals",
+              path: "/dashboard/finance/dashboards/budget-vs-actuals",
+              permissions: [
+              {
+                module: "finance",
+                codenames: ["view_financialdashboard"]
+              }
+            ]
+            },
+            {
+              name: "Financial Pipeline",
+              path: "/dashboard/finance/dashboards/financial-pipeline",
+              permissions: [
+              {
+                module: "finance",
+                codenames: ["view_financialdashboard"]
+              }
+            ]
+            },
+            {
+              name: "Cash Flow",
+              path: "/dashboard/finance/dashboards/cash-flow",
+              permissions: [
+              {
+                module: "finance",
+                codenames: ["view_financialdashboard"]
+              }
+            ]
+            },
+            {
+              name: "Financial Health",
+              path: "/dashboard/finance/dashboards/financial-health",
+              permissions: [
+              {
+                module: "finance",
+                codenames: ["view_financialdashboard"]
+              }
+            ]
+            }
+          ]
         },
     ]
   }

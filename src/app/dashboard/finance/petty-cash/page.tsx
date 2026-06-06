@@ -463,9 +463,14 @@ export default function PettyCashPage() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Petty Cash Management</h1>
+          <div className="flex items-center space-x-3">
+            <h1 className="text-3xl font-bold tracking-tight">Petty Cash Management</h1>
+            <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
+              Syncs to QB as Expenses
+            </Badge>
+          </div>
           <p className="text-gray-600">
-            ACHIEVING HEALTH NIGERIA INITIATIVE - Honour Certificate Management
+            ACHIEVING HEALTH NIGERIA INITIATIVE - Petty Cash Requests & Approvals (QuickBooks: Cash Expenses)
           </p>
         </div>
         <div className="flex items-center space-x-2">

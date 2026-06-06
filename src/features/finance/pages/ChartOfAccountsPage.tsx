@@ -96,9 +96,14 @@ export default function ChartOfAccountsPage() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Chart of Accounts</h1>
+          <div className="flex items-center space-x-3">
+            <h1 className="text-3xl font-bold tracking-tight">Chart of Accounts</h1>
+            <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+              ✓ QuickBooks Compatible
+            </Badge>
+          </div>
           <p className="text-gray-600">
-            Manage your accounting structure and account hierarchy
+            Manage your accounting structure and account hierarchy (Syncs with QuickBooks)
           </p>
         </div>
         <Button onClick={() => handleAddAccount()}>

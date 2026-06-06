@@ -265,9 +265,14 @@ export default function JournalEntriesPage() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Journal Entries</h1>
+          <div className="flex items-center space-x-3">
+            <h1 className="text-3xl font-bold tracking-tight">Journal Entries</h1>
+            <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
+              ✓ QuickBooks Compatible
+            </Badge>
+          </div>
           <p className="text-gray-600">
-            Create, review, and post journal entries to the general ledger
+            Create, review, and post journal entries to the general ledger (Syncs with QuickBooks)
           </p>
         </div>
         <Button onClick={() => setFormOpen(true)}>
