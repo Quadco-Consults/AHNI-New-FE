@@ -68,14 +68,33 @@ const CbaDetailsPage = () => {
   // Fetch vendor submissions
   const { data: submissionsData, isLoading: submissionsLoading, error: submissionsError } = useGetSolicitationSubmission(solicitationId as string, !!solicitationId);
 
-  // Debug logging
+  // Debug logging - Enhanced to show data paths
   console.log("🔍 CBA Details Debug:", {
     cbaData: cbaData?.data,
     solicitationId,
     submissionsData,
+    submissionsDataPaths: {
+      path1: submissionsData?.data?.data?.results?.length,
+      path2: submissionsData?.data?.results?.length,
+      path3: submissionsData?.results?.length,
+    },
     submissionsLoading,
     submissionsError,
-    rfqData: rfqData?.data
+    rfqData: rfqData?.data,
+    rfqItemsPaths: {
+      solicitation_items: rfqData?.data?.solicitation_items?.length,
+      items: rfqData?.data?.items?.length,
+      line_items: rfqData?.data?.line_items?.length,
+      rfq_items: rfqData?.data?.rfq_items?.length,
+    },
+    rfqDateFields: {
+      opening_date: rfqData?.data?.opening_date,
+      open_date: rfqData?.data?.open_date,
+      start_date: rfqData?.data?.start_date,
+      closing_date: rfqData?.data?.closing_date,
+      close_date: rfqData?.data?.close_date,
+      end_date: rfqData?.data?.end_date,
+    }
   });
 
   if (cbaLoading) return <LoadingSpinner />;
@@ -91,8 +110,17 @@ const CbaDetailsPage = () => {
     );
   }
 
-  const vendors = submissionsData?.data?.data?.results || [];
-  const totalItems = rfqData?.data?.solicitation_items?.length || 0;
+  // Handle multiple possible API response structures
+  const vendors = submissionsData?.data?.data?.results ||
+                  submissionsData?.data?.results ||
+                  submissionsData?.results ||
+                  [];
+
+  const totalItems = rfqData?.data?.solicitation_items?.length ||
+                     rfqData?.data?.items?.length ||
+                     rfqData?.data?.line_items?.length ||
+                     rfqData?.data?.rfq_items?.length ||
+                     0;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
@@ -225,10 +253,10 @@ const CbaDetailsPage = () => {
                         </div>
                         <div>
                           <h4 className="font-semibold text-gray-900 text-sm">
-                            {vendor.vendor?.company_name || vendor.company_name || 'Unknown Vendor'}
+                            {vendor.vendor?.company_name || vendor.vendor?.name || vendor.company_name || vendor.name || vendor.vendor_name || 'Unknown Vendor'}
                           </h4>
                           <p className="text-xs text-gray-500">
-                            {vendor.vendor?.type_of_business || 'Business Type Not Specified'}
+                            {vendor.vendor?.type_of_business || vendor.type_of_business || vendor.business_type || 'Business Type Not Specified'}
                           </p>
                         </div>
                       </div>
@@ -236,7 +264,7 @@ const CbaDetailsPage = () => {
                         variant={vendor.status === 'SUBMITTED' ? 'default' : 'secondary'}
                         className="text-xs"
                       >
-                        {vendor.status || 'Unknown'}
+                        {vendor.status || vendor.submission_status || 'Pending'}
                       </Badge>
                     </div>
 
@@ -244,18 +272,30 @@ const CbaDetailsPage = () => {
                       <div className="flex items-center justify-between">
                         <span className="text-gray-600">Registration:</span>
                         <span className="font-mono text-gray-900">
-                          {vendor.vendor?.company_registration_number || vendor.company_registration_number || 'N/A'}
+                          {vendor.vendor?.company_registration_number ||
+                           vendor.vendor?.registration_number ||
+                           vendor.company_registration_number ||
+                           vendor.registration_number ||
+                           vendor.rc_number || 'N/A'}
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-gray-600">Email:</span>
-                        <span className="text-gray-900">{vendor.vendor?.email || 'N/A'}</span>
+                        <span className="text-gray-900">
+                          {vendor.vendor?.email || vendor.email || vendor.contact_email || 'N/A'}
+                        </span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-gray-600">Bid Status:</span>
+                        <span className="text-gray-600">Items Bid:</span>
                         <Badge variant="outline" className="text-xs">
-                          {vendor.bid_details?.status || 'Unknown'}
+                          {vendor.bid_items?.length || vendor.items?.length || vendor.bid_details?.bidsubmissionitems?.length || 0} items
                         </Badge>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-gray-600">Total Amount:</span>
+                        <span className="font-semibold text-gray-900">
+                          ₦{(vendor.total_price || vendor.bid_details?.total_amount || vendor.total_amount || 0).toLocaleString()}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -299,13 +339,17 @@ const CbaDetailsPage = () => {
                 <div className="flex items-center justify-between py-2 border-b border-gray-100">
                   <span className="text-sm font-medium text-gray-600">Opening Date</span>
                   <span className="text-sm text-gray-900">
-                    {rfqData?.data?.opening_date ? new Date(rfqData.data.opening_date).toLocaleDateString() : 'N/A'}
+                    {rfqData?.data?.opening_date ? new Date(rfqData.data.opening_date).toLocaleDateString() :
+                     rfqData?.data?.open_date ? new Date(rfqData.data.open_date).toLocaleDateString() :
+                     rfqData?.data?.start_date ? new Date(rfqData.data.start_date).toLocaleDateString() : 'Not Set'}
                   </span>
                 </div>
                 <div className="flex items-center justify-between py-2 border-b border-gray-100">
                   <span className="text-sm font-medium text-gray-600">Closing Date</span>
                   <span className="text-sm text-gray-900">
-                    {rfqData?.data?.closing_date ? new Date(rfqData.data.closing_date).toLocaleDateString() : 'N/A'}
+                    {rfqData?.data?.closing_date ? new Date(rfqData.data.closing_date).toLocaleDateString() :
+                     rfqData?.data?.close_date ? new Date(rfqData.data.close_date).toLocaleDateString() :
+                     rfqData?.data?.end_date ? new Date(rfqData.data.end_date).toLocaleDateString() : 'Not Set'}
                   </span>
                 </div>
                 <div className="flex items-center justify-between py-2">
