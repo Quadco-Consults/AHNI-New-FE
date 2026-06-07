@@ -271,6 +271,13 @@ const CreateCBA = () => {
     }
   }, [isEditMode, rfqId]);
 
+  // Filter for internal AHNI staff only (exclude vendors and consultants)
+  const allUsers = users?.data?.results || [];
+  const internalUsers = allUsers.filter((user: any) =>
+    user?.user_type === 'AHNI_STAFF' || user?.user_type === 'ADMIN'
+  );
+  const procurementOfficers = internalUsers; // For backward compatibility
+
   // Auto-populate assignee from purchase request (only in create mode)
   useEffect(() => {
     if (!isEditMode && purchaseRequestData?.data?.assigned_to) {
@@ -286,13 +293,6 @@ const CreateCBA = () => {
       form.setValue("assignee", assignedOfficer);
     }
   }, [isEditMode, purchaseRequestData?.data?.assigned_to, form.setValue, procurementOfficers]);
-
-  // Filter for internal AHNI staff only (exclude vendors and consultants)
-  const allUsers = users?.data?.results || [];
-  const internalUsers = allUsers.filter((user: any) =>
-    user?.user_type === 'AHNI_STAFF' || user?.user_type === 'ADMIN'
-  );
-  const procurementOfficers = internalUsers; // For backward compatibility
 
   const matchedUsers =
     internalUsers?.filter((user) =>

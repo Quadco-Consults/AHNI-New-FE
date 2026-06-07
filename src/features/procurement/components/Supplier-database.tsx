@@ -14,23 +14,51 @@ import DataTable from "@/components/Table/DataTable";
 import TableFilters from "@/components/Table/TableFilters";
 import { useGetVendors, useDeleteVendor, useBulkUploadVendors } from "@/features/procurement/controllers/vendorsController";
 import { VendorsResultsData } from "@/definations/procurement-types/vendors";
+import { useGetAllCategories } from "@/features/modules/controllers/config/categoryController";
 import Link from "next/link";
 import { toast } from "sonner";
-import { Upload, Edit, Trash2 } from 'lucide-react';
+import { Upload, Edit, Trash2, X } from 'lucide-react';
 import VendorBulkUploadModal from "./vendor-management/VendorBulkUploadModal";
 import { VendorTemplateData } from "@/features/procurement/utils/vendorTemplateGenerator";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+// Nigerian States
+const NIGERIAN_STATES = [
+  "Abia", "Adamawa", "Akwa Ibom", "Anambra", "Bauchi", "Bayelsa", "Benue", "Borno",
+  "Cross River", "Delta", "Ebonyi", "Edo", "Ekiti", "Enugu", "Federal Capital Territory",
+  "Gombe", "Imo", "Jigawa", "Kaduna", "Kano", "Katsina", "Kebbi", "Kogi", "Kwara",
+  "Lagos", "Nasarawa", "Niger", "Ogun", "Ondo", "Osun", "Oyo", "Plateau", "Rivers",
+  "Sokoto", "Taraba", "Yobe", "Zamfara"
+];
 
 const SupplierDatabase = () => {
   const [showBulkUpload, setShowBulkUpload] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string | undefined>(undefined);
+  const [selectedState, setSelectedState] = useState<string | undefined>(undefined);
+
+  // Fetch categories for filtering
+  const { data: categoriesData } = useGetAllCategories({
+    page: 1,
+    size: 1000, // Get all categories
+    search: "",
+  });
 
   const { data, isLoading, refetch } = useGetVendors({
     status: "Approved", // Only show approved vendors in supplier database
     page: currentPage,
     size: pageSize,
     search: searchQuery,
+    approved_categories: selectedCategory, // Filter by category
+    state: selectedState, // Filter by state
   });
   const { bulkUploadVendors } = useBulkUploadVendors();
 
@@ -130,6 +158,116 @@ const SupplierDatabase = () => {
             <Upload size={18} className='mr-2' />
             Bulk Upload Vendors
           </Button>
+        </div>
+
+        {/* Category and State Filters */}
+        <div className='space-y-4'>
+          <h5 className='text-sm font-semibold text-gray-700'>Filter Vendors</h5>
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+            {/* Category Filter */}
+            <div className='space-y-2'>
+              <label className='text-sm font-medium text-gray-700'>
+                Job Category
+              </label>
+              <Select
+                value={selectedCategory}
+                onValueChange={(value) => {
+                  setSelectedCategory(value === "clear" ? undefined : value);
+                  setCurrentPage(1);
+                }}
+              >
+                <SelectTrigger className='w-full'>
+                  <SelectValue placeholder='All Categories' />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="clear">All Categories</SelectItem>
+                  {categoriesData?.data?.results
+                    ?.filter((category: any) => category.id && category.id !== "")
+                    ?.map((category: any) => (
+                      <SelectItem key={category.id} value={category.id}>
+                        {category.name}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* State Filter */}
+            <div className='space-y-2'>
+              <label className='text-sm font-medium text-gray-700'>
+                State
+              </label>
+              <Select
+                value={selectedState}
+                onValueChange={(value) => {
+                  setSelectedState(value === "clear" ? undefined : value);
+                  setCurrentPage(1);
+                }}
+              >
+                <SelectTrigger className='w-full'>
+                  <SelectValue placeholder='All States' />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="clear">All States</SelectItem>
+                  {NIGERIAN_STATES.map((state) => (
+                    <SelectItem key={state} value={state}>
+                      {state}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Active Filters Display */}
+          {(selectedCategory || selectedState) && (
+            <div className='flex items-center gap-2 flex-wrap'>
+              <span className='text-sm text-gray-600'>Active filters:</span>
+              {selectedCategory && (
+                <Badge variant='secondary' className='gap-1'>
+                  Category:{' '}
+                  {categoriesData?.data?.results?.find(
+                    (cat: any) => cat.id === selectedCategory
+                  )?.name || 'Selected'}
+                  <button
+                    onClick={() => {
+                      setSelectedCategory(undefined);
+                      setCurrentPage(1);
+                    }}
+                    className='ml-1 hover:text-primary'
+                  >
+                    <X size={14} />
+                  </button>
+                </Badge>
+              )}
+              {selectedState && (
+                <Badge variant='secondary' className='gap-1'>
+                  State: {selectedState}
+                  <button
+                    onClick={() => {
+                      setSelectedState(undefined);
+                      setCurrentPage(1);
+                    }}
+                    className='ml-1 hover:text-primary'
+                  >
+                    <X size={14} />
+                  </button>
+                </Badge>
+              )}
+              <Button
+                variant='ghost'
+                size='sm'
+                onClick={() => {
+                  setSelectedCategory(undefined);
+                  setSelectedState(undefined);
+                  setCurrentPage(1);
+                }}
+                className='text-primary hover:text-primary/80'
+              >
+                Clear all filters
+              </Button>
+            </div>
+          )}
         </div>
 
         <TableFilters onSearchChange={(e) => setSearchQuery(e.target.value)}>
