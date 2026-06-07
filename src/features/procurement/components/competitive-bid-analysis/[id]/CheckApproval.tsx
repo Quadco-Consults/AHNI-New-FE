@@ -79,7 +79,7 @@ const TableComponent = () => {
   // Fetch CBA data and committee evaluations for COMMITTEE type CBAs
   const { data: cbaData } = CbaAPI.useGetSingleCba(cba || "", !!cba);
   const isCommitteeCBA = cbaData?.data?.cba_type === 'COMMITTEE';
-  const { data: memberEvaluations } = useGetAllMemberEvaluations(cba || "", isCommitteeCBA);
+  const { data: memberEvaluations } = useGetAllMemberEvaluations(cba as string, isCommitteeCBA && !!cba);
   const { calculateConsensus } = useCalculateConsensus(memberEvaluations || []);
 
   const consensusResults = useMemo(() => {

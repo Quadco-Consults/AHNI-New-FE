@@ -67,7 +67,7 @@ export const useGetMemberEvaluation = (cbaId: string, memberId: string) => {
 };
 
 // Get all member evaluations for a CBA
-export const useGetAllMemberEvaluations = (cbaId: string) => {
+export const useGetAllMemberEvaluations = (cbaId: string, enabled: boolean = true) => {
   return useQuery<ICommitteeMemberEvaluation[]>({
     queryKey: ["all-member-evaluations", cbaId],
     queryFn: async () => {
@@ -79,13 +79,19 @@ export const useGetAllMemberEvaluations = (cbaId: string) => {
         return response.data?.results || [];
       } catch (error) {
         const axiosError = error as AxiosError;
-        if (axiosError.response?.status === 405) {
-          return []; // Method not allowed, return empty array
+        // Silently handle expected errors for non-committee CBAs
+        if (axiosError.response?.status === 404 || axiosError.response?.status === 405) {
+          return []; // No evaluations found or method not allowed
         }
-        throw new Error("Failed to fetch all member evaluations: " + (axiosError.response?.data as any)?.message);
+        // Only log unexpected errors
+        if (axiosError.response?.status !== 404 && axiosError.response?.status !== 405) {
+          console.error("Failed to fetch member evaluations:", axiosError.response?.status);
+        }
+        return [];
       }
     },
-    enabled: !!cbaId,
+    enabled: !!cbaId && enabled,
+    retry: false, // Don't retry for 404/405 errors
   });
 };
 

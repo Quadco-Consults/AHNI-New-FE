@@ -1,16 +1,17 @@
 "use client";
 
 import { useParams, useSearchParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Loading } from "@/components/Loading";
 import GoBack from "@/components/GoBack";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { FileText, Download, Award, CheckCircle, ClipboardList, ShieldCheck, FilePlus } from 'lucide-react';
+import { FileText, Download, Award, CheckCircle, ClipboardList, ShieldCheck, FilePlus, AlertTriangle } from 'lucide-react';
 import { Icon } from "@iconify/react";
 import CbaAPI from "@/features/procurement/controllers/cbaController";
 import { useGetSolicitationSubmission } from "@/features/procurement/controllers/vendorBidSubmissionsController";
+import { useGetAllMemberEvaluations, useCalculateConsensus } from "@/features/procurement/controllers/committeeEvaluationController";
 import SignatureWorkflowAPI from "@/features/procurement/controllers/signatureWorkflowController";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
@@ -87,6 +88,16 @@ const AnalysisResultsView = () => {
     recommendationNote: analysisData?.recommendation_note,
     selectedTotal: analysisData?.selected_total
   });
+
+  // Committee evaluations for COMMITTEE type CBAs
+  const isCommitteeCBA = cbaData?.data?.cba_type === 'COMMITTEE';
+  const { data: memberEvaluations } = useGetAllMemberEvaluations(cbaId as string, isCommitteeCBA);
+  const { calculateConsensus } = useCalculateConsensus(memberEvaluations || []);
+
+  const consensusResults = useMemo(() => {
+    if (!isCommitteeCBA || !memberEvaluations || memberEvaluations.length === 0) return null;
+    return calculateConsensus();
+  }, [isCommitteeCBA, memberEvaluations, calculateConsensus]);
 
   // Workflow and approval
   const { data: workflowStatus } = SignatureWorkflowAPI.useCbaWorkflowStatus(cbaId as string);
