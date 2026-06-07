@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo } from "react";
-import { LineChart } from 'lucide-react';import { Icon } from "@iconify/react";
+import { LineChart, Users } from 'lucide-react';
+import { Icon } from "@iconify/react";
 import Card from "@/components/Card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
