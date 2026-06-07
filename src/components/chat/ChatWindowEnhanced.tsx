@@ -212,12 +212,20 @@ export const ChatWindowEnhanced = ({ isOpen, onClose }: ChatWindowEnhancedProps)
   const renderConnectionStatus = () => {
     if (!isAuthenticated) return null;
 
+    // Check if using mock chat
+    const useMockChat = process.env.NEXT_PUBLIC_USE_MOCK_CHAT === 'true';
+
     return (
       <div className="flex items-center space-x-1 text-xs">
         {isConnected ? (
           <>
             <Wifi size={12} className="text-green-500" />
             <span className="text-green-600">Live</span>
+          </>
+        ) : useMockChat ? (
+          <>
+            <Bot size={12} className="text-blue-500" />
+            <span className="text-blue-600">AI Assistant</span>
           </>
         ) : (
           <>
@@ -419,7 +427,8 @@ export const ChatWindowEnhanced = ({ isOpen, onClose }: ChatWindowEnhancedProps)
             </Button>
           </form>
           <p className="text-xs text-muted-foreground mt-2 text-center">
-            {isConnected ? '🟢 Real-time updates enabled' : '🟡 Reconnecting...'}
+            {isConnected ? '🟢 Real-time updates enabled' :
+             process.env.NEXT_PUBLIC_USE_MOCK_CHAT === 'true' ? '🤖 AI Assistant Mode' : '🟡 Reconnecting...'}
           </p>
         </div>
       </Card>

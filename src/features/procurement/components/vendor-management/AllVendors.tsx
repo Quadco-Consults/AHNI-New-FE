@@ -25,7 +25,7 @@ const AllVendors = () => {
   const [showBulkUpload, setShowBulkUpload] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
-  const [statusFilter, setStatusFilter] = useState<string>(""); // Empty = all statuses
+  const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined); // undefined = all statuses
   const [searchQuery, setSearchQuery] = useState("");
 
   const { data, isLoading, refetch } = useGetVendors({
@@ -121,14 +121,14 @@ const AllVendors = () => {
           <div className="flex gap-3">
             {/* Status Filter */}
             <Select value={statusFilter} onValueChange={(value) => {
-              setStatusFilter(value);
+              setStatusFilter(value === "all" ? undefined : value);
               setCurrentPage(1); // Reset to first page when changing filter
             }}>
               <SelectTrigger className="w-[200px]">
                 <SelectValue placeholder="Filter by status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Statuses</SelectItem>
+                <SelectItem value="all">All Statuses</SelectItem>
                 <SelectItem value="Approved">Approved</SelectItem>
                 <SelectItem value="Pending">Pending</SelectItem>
                 <SelectItem value="In Progress">In Progress</SelectItem>
