@@ -475,7 +475,21 @@ const MemberEvaluationDashboard = () => {
       <div className="space-y-6">
         {vendorData.length > 0 ? (
           <div className="space-y-6">
-            {/* Vendor evaluation content removed - showing mock data */}
+            {vendorData.map((vendor, index) => {
+              const vendorEval = evaluation.vendor_evaluations.find(
+                ve => ve.vendor_id === vendor.id
+              );
+
+              return (
+                <VendorScoringCard
+                  key={vendor.id}
+                  vendor={vendor}
+                  evaluation={vendorEval}
+                  onUpdate={(field, value, itemId) => handleVendorUpdate(vendor.id, field, value, itemId)}
+                  disabled={isSubmitted}
+                />
+              );
+            })}
           </div>
         ) : (
           <Card className="p-8 text-center">
@@ -492,6 +506,26 @@ const MemberEvaluationDashboard = () => {
         )}
       </div>
 
+      {/* Overall Recommendation Section */}
+      {vendorData.length > 0 && (
+        <Card className="p-6 bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200">
+          <div className="flex items-center space-x-3 mb-4">
+            <Lightbulb size={24} className="text-amber-600" />
+            <h3 className="text-lg font-semibold text-gray-900">Overall Recommendation</h3>
+          </div>
+          <Textarea
+            value={evaluation.overall_recommendation}
+            onChange={(e) => setEvaluation(prev => ({ ...prev, overall_recommendation: e.target.value }))}
+            placeholder="Provide your overall recommendation based on your evaluation of all vendors. Explain which vendor you recommend and why..."
+            rows={5}
+            disabled={isSubmitted}
+            className="text-sm"
+          />
+          <p className="text-xs text-amber-700 mt-2">
+            This recommendation will be part of the committee consensus analysis.
+          </p>
+        </Card>
+      )}
 
       {/* Evaluator Information */}
       <Card className="p-4 bg-gradient-to-r from-gray-50 to-slate-50 border-gray-200">

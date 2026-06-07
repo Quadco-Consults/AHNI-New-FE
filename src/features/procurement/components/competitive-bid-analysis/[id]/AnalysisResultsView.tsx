@@ -327,6 +327,104 @@ const AnalysisResultsView = () => {
         </div>
       </div>
 
+      {/* Committee Consensus Section (COMMITTEE type only) */}
+      {isCommitteeCBA && consensusResults && (
+        <div className="bg-gradient-to-br from-purple-50 to-indigo-50 border-2 border-purple-300 rounded-xl p-6 space-y-4">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-12 h-12 bg-purple-600 rounded-xl flex items-center justify-center shadow-md">
+              <Icon icon="mdi:account-group" className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-gray-900">Committee Consensus Analysis</h3>
+              <p className="text-sm text-gray-600">
+                Aggregated results from {memberEvaluations?.length || 0} committee member evaluations
+              </p>
+            </div>
+          </div>
+
+          {/* Consensus Metrics */}
+          <div className="grid grid-cols-3 gap-4">
+            <div className="bg-white rounded-lg p-4 border border-purple-200">
+              <p className="text-sm text-gray-600">Recommended Vendor</p>
+              <p className="text-xl font-bold text-purple-700">
+                {consensusResults.recommended_vendor?.name || 'N/A'}
+              </p>
+            </div>
+            <div className="bg-white rounded-lg p-4 border border-purple-200">
+              <p className="text-sm text-gray-600">Consensus Score</p>
+              <p className="text-xl font-bold text-purple-700">
+                {consensusResults.recommended_vendor?.consensus_score?.toFixed(1) || 'N/A'}/100
+              </p>
+            </div>
+            <div className="bg-white rounded-lg p-4 border border-purple-200">
+              <p className="text-sm text-gray-600">Agreement Rate</p>
+              <p className="text-xl font-bold text-purple-700">
+                {consensusResults.agreement_percentage || 0}%
+              </p>
+            </div>
+          </div>
+
+          {/* Individual Member Scores */}
+          <div className="bg-white rounded-lg p-4 border border-purple-200">
+            <h4 className="font-semibold text-gray-900 mb-3">Individual Committee Member Evaluations</h4>
+            <div className="space-y-3">
+              {memberEvaluations?.map((memberEval: any) => {
+                const memberScore = memberEval.vendor_evaluations.find(
+                  (ve: any) => ve.vendor_name === consensusResults.recommended_vendor?.name
+                );
+
+                return (
+                  <div key={memberEval.member_id} className="flex items-center justify-between p-3 bg-gray-50 rounded">
+                    <div className="flex items-center gap-3">
+                      <Icon icon="mdi:account-circle" className="w-5 h-5 text-gray-600" />
+                      <div>
+                        <div className="font-medium text-gray-900">{memberEval.member_name}</div>
+                        <div className="text-xs text-gray-600">{memberEval.member_designation}</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <div className="text-right">
+                        <div className="text-sm text-gray-600">Score</div>
+                        <div className="font-bold text-purple-700">
+                          {memberScore?.overall_score || 'N/A'}/100
+                        </div>
+                      </div>
+                      {memberScore?.recommended && (
+                        <Badge className="bg-green-600 text-white">
+                          <Icon icon="mdi:star" className="w-4 h-4 mr-1" />
+                          Recommended
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Consensus vs Selection Warning */}
+          {vendorData && consensusResults.recommended_vendor &&
+           vendorData.name !== consensusResults.recommended_vendor.name && (
+            <div className="bg-red-50 border-2 border-red-300 rounded-lg p-4">
+              <div className="flex items-start gap-3">
+                <AlertTriangle size={24} className="text-red-600 flex-shrink-0" />
+                <div>
+                  <h4 className="font-bold text-red-800 mb-2">⚠️ Warning: Selection Differs from Committee Consensus</h4>
+                  <p className="text-sm text-red-700">
+                    The selected vendor <strong>{vendorData.name}</strong> differs from the committee's recommended vendor{' '}
+                    <strong>{consensusResults.recommended_vendor.name}</strong> (Consensus: {consensusResults.recommended_vendor.consensus_score?.toFixed(1)}/100,
+                    Agreement: {consensusResults.agreement_percentage}%).
+                  </p>
+                  <p className="text-sm text-red-700 mt-2">
+                    Please ensure this deviation is justified and documented in the recommendation notes.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Awarded Vendor Card */}
       <div className="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-300 rounded-xl p-6">
         <div className="flex items-center gap-3 mb-4">

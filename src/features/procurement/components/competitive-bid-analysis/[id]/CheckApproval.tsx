@@ -3,20 +3,24 @@ import GoBack from "@/components/GoBack";
 import { Loading } from "@/components/Loading";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import { RouteEnum } from "@/constants/RouterConstants";
 import useQuery from "@/hooks/useQuery";
 import { useAppDispatch } from "@/hooks/useStore";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   useGetManualBidPrequalificationsBySolicitation,
   useCreateVendorBidAnalysis,
 } from "@/features/procurement/controllers/manualBidCbaPrequalificationController";
 import { useGetSolicitationSubmission } from "@/features/procurement/controllers/vendorBidSubmissionsController";
+import { useGetAllMemberEvaluations, useCalculateConsensus } from "@/features/procurement/controllers/committeeEvaluationController";
+import CbaAPI from "@/features/procurement/controllers/cbaController";
 import { toast } from "sonner";
 import logoPng from "@/assets/svgs/logo-bg.svg";
 import Image from "next/image";
-import { FileSpreadsheet, Shield } from "lucide-react";
+import { FileSpreadsheet, Shield, AlertTriangle, Users } from "lucide-react";
+import { Icon } from "@iconify/react";
 
 const TableComponent = () => {
   console.log("🚀 CBA TableComponent is rendering!");
@@ -71,6 +75,17 @@ const TableComponent = () => {
   const summaryData = manualBidData || vendorSubmissionData;
   const isLoading = isManualLoading || isVendorLoading;
   const error = manualError || vendorError;
+
+  // Fetch CBA data and committee evaluations for COMMITTEE type CBAs
+  const { data: cbaData } = CbaAPI.useGetSingleCba(cba || "", !!cba);
+  const isCommitteeCBA = cbaData?.data?.cba_type === 'COMMITTEE';
+  const { data: memberEvaluations } = useGetAllMemberEvaluations(cba || "", isCommitteeCBA);
+  const { calculateConsensus } = useCalculateConsensus(memberEvaluations || []);
+
+  const consensusResults = useMemo(() => {
+    if (!isCommitteeCBA || !memberEvaluations || memberEvaluations.length === 0) return null;
+    return calculateConsensus();
+  }, [isCommitteeCBA, memberEvaluations, calculateConsensus]);
 
   console.log("✅ CBA Bid Data Debug:", {
     summaryData,
@@ -542,6 +557,48 @@ const TableComponent = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4">
+        {/* Committee Consensus Warning Banner (COMMITTEE type only) */}
+        {isCommitteeCBA && consensusResults && (
+          <div className="mb-6 bg-gradient-to-r from-purple-50 to-indigo-50 border-2 border-purple-300 rounded-xl p-6 shadow-lg">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 bg-purple-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
+                <Users size={24} className="text-white" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-bold text-gray-900 mb-2">Committee Consensus Analysis</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                  <div className="bg-white rounded-lg p-3 border border-purple-200">
+                    <p className="text-xs text-gray-600">Recommended Vendor</p>
+                    <p className="font-bold text-purple-700">{consensusResults.recommended_vendor?.name || 'N/A'}</p>
+                  </div>
+                  <div className="bg-white rounded-lg p-3 border border-purple-200">
+                    <p className="text-xs text-gray-600">Consensus Score</p>
+                    <p className="font-bold text-purple-700">
+                      {consensusResults.recommended_vendor?.consensus_score?.toFixed(1) || 'N/A'}/100
+                    </p>
+                  </div>
+                  <div className="bg-white rounded-lg p-3 border border-purple-200">
+                    <p className="text-xs text-gray-600">Agreement Rate</p>
+                    <p className="font-bold text-purple-700">{consensusResults.agreement_percentage || 0}%</p>
+                  </div>
+                </div>
+                <div className="bg-yellow-50 border border-yellow-300 rounded-lg p-3">
+                  <div className="flex items-center gap-2">
+                    <AlertTriangle size={18} className="text-yellow-600" />
+                    <p className="text-sm text-yellow-800 font-semibold">Important Notice</p>
+                  </div>
+                  <p className="text-sm text-yellow-700 mt-2">
+                    This CBA has committee evaluations. The committee recommends{' '}
+                    <strong>{consensusResults.recommended_vendor?.name}</strong> with{' '}
+                    <strong>{consensusResults.agreement_percentage}%</strong> agreement.
+                    If you select a different vendor below, please provide clear justification in the recommendation notes.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Logo and Title Section */}
         <div className="flex justify-center items-center flex-col mb-8 bg-white rounded-lg shadow-sm p-8">
           <Image src={logoPng.src} alt="logo" width={200} height={100} />
