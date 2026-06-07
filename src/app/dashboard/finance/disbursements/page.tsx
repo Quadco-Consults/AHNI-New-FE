@@ -55,7 +55,9 @@ export default function DisbursementsPage() {
     payment_type: paymentTypeFilter !== "all" ? paymentTypeFilter : undefined,
   });
 
-  const disbursements = disbursementsData?.data || [];
+  const disbursements = Array.isArray(disbursementsData?.data)
+    ? disbursementsData.data
+    : [];
   const pagination = disbursementsData?.pagination;
 
   // Calculate summary statistics

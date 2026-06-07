@@ -38,6 +38,50 @@ const ProjectBatchApproval: React.FC<ProjectBatchApprovalProps> = ({
     enabled: !!projectId,
   });
 
+  // Fetch actual batch status and batch ID from backend
+  const [actualBatchStatus, setActualBatchStatus] = React.useState<string | null>(null);
+  const [actualBatchId, setActualBatchId] = React.useState<string | null>(null);
+  const [isFetchingBatch, setIsFetchingBatch] = React.useState(false);
+
+  const fetchBatchData = React.useCallback(async () => {
+    if (!projectId) return;
+
+    setIsFetchingBatch(true);
+    try {
+      const AxiosWithToken = (
+        await import("@/constants/api_management/MyHttpHelperWithToken")
+      ).default;
+
+      const response = await AxiosWithToken.get(
+        "/programs/fund-request-batches/",
+        {
+          params: {
+            project: projectId,
+          },
+        }
+      );
+
+      const batches =
+        response.data?.data?.results ||
+        response.data?.results ||
+        [];
+
+      if (batches.length > 0) {
+        // Use the most recent batch
+        setActualBatchStatus(batches[0].status);
+        setActualBatchId(batches[0].id);
+      }
+    } catch (error) {
+      console.error("Error fetching batch data:", error);
+    } finally {
+      setIsFetchingBatch(false);
+    }
+  }, [projectId]);
+
+  React.useEffect(() => {
+    fetchBatchData();
+  }, [fetchBatchData]);
+
   // Filter fund requests that are ready for HQ approval (LOCATION_AUTHORIZED or higher)
   const hqPendingRequests = React.useMemo(() => {
     return (
@@ -50,8 +94,8 @@ const ProjectBatchApproval: React.FC<ProjectBatchApprovalProps> = ({
     );
   }, [fundRequests?.data?.results]);
 
-  // Group requests by status to determine batch status
-  const batchStatus = React.useMemo((): string => {
+  // Use actual batch status from backend, fall back to computed status if not available
+  const computedBatchStatus = React.useMemo((): string => {
     if (hqPendingRequests.length === 0) return "NO_REQUESTS";
 
     const statuses = hqPendingRequests.map((req: any) => req.status);
@@ -67,6 +111,9 @@ const ProjectBatchApproval: React.FC<ProjectBatchApprovalProps> = ({
     return "HQ_AUTHORIZED";
   }, [hqPendingRequests]);
 
+  // Use actual batch status from backend, or fall back to computed status
+  const batchStatus = actualBatchStatus || computedBatchStatus;
+
   // Calculate total amount for the batch
   const totalBatchAmount = hqPendingRequests.reduce(
     (sum: number, request: any) => sum + (request.total_amount || 0),
@@ -80,6 +127,11 @@ const ProjectBatchApproval: React.FC<ProjectBatchApprovalProps> = ({
       return;
     }
 
+    if (!actualBatchId) {
+      toast.error("Batch ID not found. Please refresh the page.");
+      return;
+    }
+
     setIsProcessing(true);
 
     try {
@@ -88,75 +140,7 @@ const ProjectBatchApproval: React.FC<ProjectBatchApprovalProps> = ({
         await import("@/constants/api_management/MyHttpHelperWithToken")
       ).default;
 
-      // First, get the actual batch ID from the backend
-      // Search for batches that can be processed based on current action
-      let batchStatus: string;
-      switch (status) {
-        case "HQ_REVIEWED":
-          batchStatus = "PENDING_HQ_REVIEW";
-          break;
-        case "HQ_AUTHORIZED":
-          batchStatus = "HQ_REVIEWED"; // Look for batches that have been reviewed and are ready for authorization
-          break;
-        case "HQ_APPROVED":
-          batchStatus = "HQ_AUTHORIZED"; // Look for batches that have been authorized and are ready for approval
-          break;
-        case "REJECTED":
-          // For rejection, we need to determine what stage we're rejecting at
-          // This will be handled in the fallback logic
-          batchStatus = "PENDING_HQ_REVIEW";
-          break;
-        default:
-          batchStatus = "PENDING_HQ_REVIEW";
-      }
-
-      const batchesResponse = await AxiosWithToken.get(
-        "/programs/fund-request-batches/",
-        {
-          params: {
-            project: projectId,
-            status: batchStatus,
-          },
-        }
-      );
-
-      const batches =
-        batchesResponse.data?.data?.results ||
-        batchesResponse.data?.results ||
-        [];
-
-      if (batches.length === 0) {
-        // If no batches found with specific status, try to get any active batch for this project
-        const fallbackResponse = await AxiosWithToken.get(
-          "/programs/fund-request-batches/",
-          {
-            params: {
-              project: projectId,
-            },
-          }
-        );
-
-        const fallbackBatches =
-          fallbackResponse.data?.data?.results ||
-          fallbackResponse.data?.results ||
-          [];
-
-        if (fallbackBatches.length === 0) {
-          toast.error(
-            `No batches found for this project that can be ${status
-              .toLowerCase()
-              .replace("_", " ")}`
-          );
-          return;
-        }
-
-        // Use the most recent batch
-        batches.push(fallbackBatches[0]);
-      }
-
-      // Use the first batch (there should typically be only one per project/month/year)
-      const batch = batches[0];
-      const batchId = batch.id;
+      const batchId = actualBatchId;
 
       // console.log('Batch approval request:', {
       //   batchId,
@@ -195,7 +179,10 @@ const ProjectBatchApproval: React.FC<ProjectBatchApprovalProps> = ({
         `Project batch ${statusDisplayName} successfully - ${hqPendingRequests.length} fund requests updated`
       );
 
-      // Refresh the data by refetching
+      // Refresh the batch data
+      await fetchBatchData();
+
+      // Refresh the page to reload fund requests
       window.location.reload(); // Simple refresh - could be optimized with proper data refetching
     } catch (error: any) {
       const errorMessage =
@@ -328,7 +315,7 @@ const ProjectBatchApproval: React.FC<ProjectBatchApprovalProps> = ({
     }
   };
 
-  if (isLoading) {
+  if (isLoading || isFetchingBatch) {
     return <LoadingSpinner />;
   }
 

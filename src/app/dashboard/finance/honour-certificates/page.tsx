@@ -533,7 +533,7 @@ export default function HonourCertificatesPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-yellow-600">
-              {summary?.by_status.pending_approval || 0}
+              {summary?.by_status?.pending_approval || 0}
             </div>
             <p className="text-xs text-muted-foreground">
               {formatCurrencyAmount(summary?.pending_approval_amount || 0)}
@@ -548,7 +548,7 @@ export default function HonourCertificatesPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">
-              {summary?.by_status.approved || 0}
+              {summary?.by_status?.approved || 0}
             </div>
             <p className="text-xs text-muted-foreground">
               {formatCurrencyAmount(summary?.approved_amount || 0)}
@@ -563,7 +563,7 @@ export default function HonourCertificatesPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-purple-600">
-              {summary?.by_status.paid || 0}
+              {summary?.by_status?.paid || 0}
             </div>
             <p className="text-xs text-muted-foreground">
               {formatCurrencyAmount(summary?.total_net_paid || 0)}
@@ -1247,7 +1247,7 @@ export default function HonourCertificatesPage() {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="">No Project</SelectItem>
+                            <SelectItem value="none">No Project</SelectItem>
                             {metadata?.projects?.map((project) => (
                               <SelectItem key={project.id} value={project.id}>
                                 {project.title}

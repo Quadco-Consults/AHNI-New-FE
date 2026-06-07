@@ -175,8 +175,12 @@ export default function RecordedExpensesPage() {
     },
   });
 
-  const expenditures = expendituresData?.data || [];
-  const pendingApprovals = pendingApprovalsData?.data || [];
+  const expenditures = Array.isArray(expendituresData?.data)
+    ? expendituresData.data
+    : [];
+  const pendingApprovals = Array.isArray(pendingApprovalsData?.data)
+    ? pendingApprovalsData.data
+    : [];
   const summary = summaryData?.data;
   const metadata = metadataData?.data;
 
@@ -563,7 +567,7 @@ export default function RecordedExpensesPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-yellow-600">
-              {summary?.by_status.pending_approval || 0}
+              {summary?.by_status?.pending_approval || 0}
             </div>
             <p className="text-xs text-muted-foreground">
               {formatCurrencyAmount(summary?.pending_approval_amount || 0)}
@@ -578,7 +582,7 @@ export default function RecordedExpensesPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">
-              {summary?.by_status.posted || 0}
+              {summary?.by_status?.posted || 0}
             </div>
             <p className="text-xs text-muted-foreground">
               {formatCurrencyAmount(summary?.posted_amount || 0)}

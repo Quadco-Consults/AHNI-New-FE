@@ -59,8 +59,8 @@ export default function PlannedVisitSelector({
 }: PlannedVisitSelectorProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedLocationId, setSelectedLocationId] = useState(locationId || "");
-  const [selectedVisitType, setSelectedVisitType] = useState(visitType || "");
-  const [selectedQuarter, setSelectedQuarter] = useState("");
+  const [selectedVisitType, setSelectedVisitType] = useState(visitType || undefined);
+  const [selectedQuarter, setSelectedQuarter] = useState<string | undefined>(undefined);
   const [selectedPlannedVisit, setSelectedPlannedVisit] = useState<IPlannedVisit | null>(null);
 
   // API hooks
@@ -206,14 +206,14 @@ export default function PlannedVisitSelector({
               <Label htmlFor="visit-type">Visit Type</Label>
               <Select
                 value={selectedVisitType}
-                onValueChange={setSelectedVisitType}
+                onValueChange={(value) => setSelectedVisitType(value === "all" ? undefined : value)}
                 disabled={!!visitType} // Disable if pre-selected
               >
                 <SelectTrigger>
                   <SelectValue placeholder="All types" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Types</SelectItem>
+                  <SelectItem value="all">All Types</SelectItem>
                   <SelectItem value="SUPPORTIVE_SUPERVISION">Supportive Supervision</SelectItem>
                   <SelectItem value="INTEGRATED_SUPPORTIVE_SUPERVISION">Integrated Supportive Supervision</SelectItem>
                 </SelectContent>
@@ -223,12 +223,12 @@ export default function PlannedVisitSelector({
             {/* Quarter Filter */}
             <div>
               <Label htmlFor="quarter">Quarter</Label>
-              <Select value={selectedQuarter} onValueChange={setSelectedQuarter}>
+              <Select value={selectedQuarter} onValueChange={(value) => setSelectedQuarter(value === "all" ? undefined : value)}>
                 <SelectTrigger>
                   <SelectValue placeholder="All quarters" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Quarters</SelectItem>
+                  <SelectItem value="all">All Quarters</SelectItem>
                   {Object.entries(QuarterLabels).map(([key, label]) => (
                     <SelectItem key={key} value={key}>
                       {label}

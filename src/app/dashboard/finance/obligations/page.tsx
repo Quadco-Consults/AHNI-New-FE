@@ -162,8 +162,12 @@ export default function ObligationsPage() {
     },
   });
 
-  const obligations = obligationsData?.data || [];
-  const pendingApprovals = pendingApprovalsData?.data || [];
+  const obligations = Array.isArray(obligationsData?.data)
+    ? obligationsData.data
+    : [];
+  const pendingApprovals = Array.isArray(pendingApprovalsData?.data)
+    ? pendingApprovalsData.data
+    : [];
   const summary = summaryData?.data;
   const metadata = metadataData?.data;
 
@@ -543,7 +547,7 @@ export default function ObligationsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-yellow-600">
-              {summary?.by_status.active || 0}
+              {summary?.by_status?.active || 0}
             </div>
             <p className="text-xs text-muted-foreground">
               {formatCurrencyAmount(summary?.active_obligations_amount || 0)}
@@ -584,7 +588,7 @@ export default function ObligationsPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">
-              {summary?.by_status.fully_liquidated || 0}
+              {summary?.by_status?.fully_liquidated || 0}
             </div>
             <p className="text-xs text-muted-foreground">Completed</p>
           </CardContent>
@@ -1190,7 +1194,7 @@ export default function ObligationsPage() {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="">No Project</SelectItem>
+                            <SelectItem value="none">No Project</SelectItem>
                             {metadata?.projects?.map((project) => (
                               <SelectItem key={project.id} value={project.id}>
                                 {project.title}
@@ -1216,7 +1220,7 @@ export default function ObligationsPage() {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="">No Budget Line</SelectItem>
+                            <SelectItem value="none">No Budget Line</SelectItem>
                             {metadata?.budget_line_items?.map((item) => (
                               <SelectItem key={item.id} value={item.id}>
                                 {item.code} - {item.name}

@@ -136,6 +136,7 @@ export interface CreatePaymentDisbursement {
   payment_date: string;
   payment_method: PaymentMethod;
   bank_account_id: string;
+  chart_account_id: string; // Chart of Account for expense allocation
   payment_reference: string;
   total_amount: number;
   currency?: Currency;
@@ -177,6 +178,28 @@ export interface PendingPaymentRequest {
   status: string;
   created_datetime: string;
   items_count: number;
+
+  // Project & Fund Allocation
+  project?: {
+    id: string;
+    project_id: string;
+    title: string;
+    donor?: string;
+  };
+  fund_source?: string;
+  budget_line?: {
+    id: string;
+    code: string;
+    name: string;
+  };
+
+  // Payment Items
+  items?: Array<{
+    id?: string;
+    description: string;
+    amount: number;
+    recipient?: string;
+  }>;
 }
 
 // Filters

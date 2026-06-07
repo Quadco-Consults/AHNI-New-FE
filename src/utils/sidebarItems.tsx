@@ -18,7 +18,8 @@ import {
   Clock,
   Calendar,
   MapPin,
-  ClipboardList
+  ClipboardList,
+  MessageSquare
 } from "lucide-react";
 import ProgramsIcon from "@/components/icons/sidebar-icons/ProgramsIcon";
 import ProcurementManagementIcon from "@/components/icons/sidebar-icons/ProcurementManagementIcon";
@@ -1513,68 +1514,7 @@ export const departmentalLinks: SidebarItem[] = [
           ]
           }
         ]
-      },
-        {
-          name: "Finance Dashboards",
-          permissions: [
-          {
-            module: "finance",
-            codenames: ["view_financialdashboard"]
-          }
-        ],
-          children: [
-            {
-              name: "Grant Portfolio",
-              path: "/dashboard/finance/dashboards/grant-portfolio",
-              permissions: [
-              {
-                module: "finance",
-                codenames: ["view_financialdashboard"]
-              }
-            ]
-            },
-            {
-              name: "Budget vs Actuals",
-              path: "/dashboard/finance/dashboards/budget-vs-actuals",
-              permissions: [
-              {
-                module: "finance",
-                codenames: ["view_financialdashboard"]
-              }
-            ]
-            },
-            {
-              name: "Financial Pipeline",
-              path: "/dashboard/finance/dashboards/financial-pipeline",
-              permissions: [
-              {
-                module: "finance",
-                codenames: ["view_financialdashboard"]
-              }
-            ]
-            },
-            {
-              name: "Cash Flow",
-              path: "/dashboard/finance/dashboards/cash-flow",
-              permissions: [
-              {
-                module: "finance",
-                codenames: ["view_financialdashboard"]
-              }
-            ]
-            },
-            {
-              name: "Financial Health",
-              path: "/dashboard/finance/dashboards/financial-health",
-              permissions: [
-              {
-                module: "finance",
-                codenames: ["view_financialdashboard"]
-              }
-            ]
-            }
-          ]
-        },
+      }
     ]
   }
 ];
@@ -1592,6 +1532,14 @@ export const globalHubLinks: GlobalHubItem[] = [
     label: "Announcements",
     path: "/dashboard/global-hub/announcements",
     icon: <FileBarChart className="w-4 h-4" />,
+    category: "communication"
+    // No permissions = universal access
+  },
+
+  {
+    label: "Messages",
+    path: "/dashboard/global-hub/messages",
+    icon: <MessageSquare className="w-4 h-4" />,
     category: "communication"
     // No permissions = universal access
   },

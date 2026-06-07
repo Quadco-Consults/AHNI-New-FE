@@ -73,7 +73,7 @@ export default function CustomersPage() {
   const deleteCustomerMutation = useDeleteCustomer();
   const toggleStatusMutation = useToggleCustomerStatus();
 
-  const customers = customersData?.data || [];
+  const customers = Array.isArray(customersData?.data) ? customersData.data : [];
   const totalCustomers = customersData?.meta?.total || 0;
 
   // Handlers

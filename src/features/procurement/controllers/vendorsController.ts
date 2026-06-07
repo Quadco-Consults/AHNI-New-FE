@@ -37,6 +37,8 @@ interface VendorFilterParams {
   enabled?: boolean;
   status?: string;
   approved_categories?: string;
+  starts_with?: string; // Filter by first letter of company name
+  state?: string; // NEW: Filter by state
 }
 
 const BASE_URL = "procurements/vendors/";
@@ -51,9 +53,11 @@ export const useGetVendors = ({
   enabled = true,
   status = "",
   approved_categories = "",
+  starts_with = "",
+  state = "",
 }: VendorFilterParams) => {
   return useQuery<PaginatedResponse<VendorsResultsData>>({
-    queryKey: ["vendors", page, size, search, status, approved_categories],
+    queryKey: ["vendors", page, size, search, status, approved_categories, starts_with, state],
     queryFn: async () => {
       try {
         const response = await AxiosWithToken.get(BASE_URL, {
@@ -62,6 +66,8 @@ export const useGetVendors = ({
             size,
             status,
             ...(search && { search }),
+            ...(starts_with && { starts_with }),
+            ...(state && { state }),
             approved_categories,
           },
         });

@@ -47,20 +47,17 @@ import {
   useCreatePaymentDisbursement,
   formatCurrencyAmount,
 } from "@/features/finance/controllers/paymentDisbursementController";
+import { useGetBankAccounts } from "@/features/finance/controllers/accountingController";
+import { useGetChartOfAccounts } from "@/features/finance/controllers/accountingController";
 import type { PendingPaymentRequest } from "@/features/finance/types/payment-disbursement.types";
-
-// TODO: Replace with actual bank accounts fetch
-const mockBankAccounts = [
-  { id: "1", bank_name: "GTBank", account_number: "0123456789", current_balance: 5000000 },
-  { id: "2", bank_name: "Access Bank", account_number: "9876543210", current_balance: 3000000 },
-  { id: "3", bank_name: "Zenith Bank", account_number: "1122334455", current_balance: 10000000 },
-];
 
 const formSchema = z.object({
   payment_date: z.string().min(1, "Payment date is required"),
   payment_method: z.string().min(1, "Payment method is required"),
   bank_account_id: z.string().min(1, "Bank account is required"),
+  chart_account_id: z.string().min(1, "Chart of account is required"),
   payment_reference: z.string().min(1, "Payment reference is required"),
+  notes: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -80,13 +77,26 @@ export default function ProcessPaymentRequestDialog({
 }: ProcessPaymentRequestDialogProps) {
   const { createDisbursement, isLoading, isSuccess } = useCreatePaymentDisbursement();
 
+  // Fetch real bank accounts
+  const { data: bankAccountsData } = useGetBankAccounts({ is_active: true });
+  const bankAccounts = Array.isArray(bankAccountsData?.data) ? bankAccountsData.data : [];
+
+  // Fetch chart of accounts (active expense accounts)
+  const { data: chartAccountsData } = useGetChartOfAccounts({
+    is_active: true,
+    account_type: 'EXPENSE'
+  });
+  const chartAccounts = Array.isArray(chartAccountsData?.data) ? chartAccountsData.data : [];
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       payment_date: new Date().toISOString().split("T")[0],
       payment_method: "BANK_TRANSFER",
       bank_account_id: "",
+      chart_account_id: "",
       payment_reference: "",
+      notes: "",
     },
   });
 
@@ -97,7 +107,9 @@ export default function ProcessPaymentRequestDialog({
         payment_date: new Date().toISOString().split("T")[0],
         payment_method: "BANK_TRANSFER",
         bank_account_id: "",
+        chart_account_id: "",
         payment_reference: "",
+        notes: "",
       });
     }
   }, [open, form]);
@@ -126,8 +138,10 @@ export default function ProcessPaymentRequestDialog({
         payment_date: data.payment_date,
         payment_method: data.payment_method as any,
         bank_account_id: data.bank_account_id,
+        chart_account_id: data.chart_account_id,
         payment_reference: data.payment_reference,
         total_amount: paymentRequest.total_amount,
+        notes: data.notes || '',
       });
     } catch (error: any) {
       toast.error(error.message || "Failed to process payment");
@@ -135,7 +149,7 @@ export default function ProcessPaymentRequestDialog({
   };
 
   // Get selected bank account
-  const selectedBankAccount = mockBankAccounts.find(
+  const selectedBankAccount = bankAccounts.find(
     (acc) => acc.id === form.watch("bank_account_id")
   );
 
@@ -204,6 +218,47 @@ export default function ProcessPaymentRequestDialog({
                 <span className="text-green-600">
                   ₦{paymentRequest.total_amount.toLocaleString()}
                 </span>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Project & Fund Allocation */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Project & Fund Allocation</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-muted-foreground mb-1">Project</p>
+                  {paymentRequest.project ? (
+                    <div>
+                      <p className="font-medium">{paymentRequest.project.project_id}</p>
+                      <p className="text-xs text-muted-foreground">{paymentRequest.project.title}</p>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-orange-600">⚠ Not assigned</p>
+                  )}
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground mb-1">Fund Source</p>
+                  {paymentRequest.fund_source ? (
+                    <Badge variant="secondary">{paymentRequest.fund_source}</Badge>
+                  ) : (
+                    <p className="text-sm text-orange-600">⚠ Not assigned</p>
+                  )}
+                </div>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Budget Line</p>
+                {paymentRequest.budget_line ? (
+                  <div>
+                    <p className="font-medium text-sm">{paymentRequest.budget_line.code}</p>
+                    <p className="text-xs text-muted-foreground">{paymentRequest.budget_line.name}</p>
+                  </div>
+                ) : (
+                  <p className="text-sm text-orange-600">⚠ Not assigned</p>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -308,26 +363,62 @@ export default function ProcessPaymentRequestDialog({
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select bank account" />
+                          <SelectValue placeholder="Select bank account to pay from" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {mockBankAccounts.map((account) => (
-                          <SelectItem key={account.id} value={account.id}>
-                            <div className="flex flex-col">
-                              <span className="font-medium">
-                                {account.bank_name} - {account.account_number}
-                              </span>
-                              <span className="text-xs text-muted-foreground">
-                                Balance: ₦{account.current_balance.toLocaleString()}
-                              </span>
-                            </div>
+                        {bankAccounts.length === 0 ? (
+                          <SelectItem value="none" disabled>
+                            No bank accounts available
                           </SelectItem>
-                        ))}
+                        ) : (
+                          bankAccounts.map((account: any) => (
+                            <SelectItem key={account.id} value={account.id}>
+                              {account.bank_name} - {account.account_number} (₦{(account.current_balance || 0).toLocaleString()})
+                            </SelectItem>
+                          ))
+                        )}
                       </SelectContent>
                     </Select>
                     <FormDescription>
-                      Select the bank account to debit
+                      Select the bank account to debit for this payment
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="chart_account_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Chart of Account (Expense Type) *</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select expense account" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {chartAccounts.length === 0 ? (
+                          <SelectItem value="none" disabled>
+                            No expense accounts available
+                          </SelectItem>
+                        ) : (
+                          chartAccounts.map((account: any) => (
+                            <SelectItem key={account.id} value={account.id}>
+                              {account.account_code} - {account.account_name}
+                            </SelectItem>
+                          ))
+                        )}
+                      </SelectContent>
+                    </Select>
+                    <FormDescription>
+                      Select the expense account to allocate this payment to
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -363,6 +454,23 @@ export default function ProcessPaymentRequestDialog({
                     <FormDescription>
                       Bank transaction reference or cheque number
                     </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="notes"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Notes (Optional)</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Any additional notes about this payment"
+                        {...field}
+                      />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}

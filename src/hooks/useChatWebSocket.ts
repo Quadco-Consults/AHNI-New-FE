@@ -56,6 +56,13 @@ export function useChatWebSocket(options: UseChatWebSocketOptions = {}) {
    * Initialize WebSocket connection.
    */
   const connect = useCallback(() => {
+    // Skip WebSocket connection if using mock chat
+    if (process.env.NEXT_PUBLIC_USE_MOCK_CHAT === 'true') {
+      console.log('[ChatWebSocket] Mock chat enabled - skipping WebSocket connection');
+      setIsConnected(false);
+      return;
+    }
+
     try {
       const token = localStorage.getItem('access_token');
       if (!token) {

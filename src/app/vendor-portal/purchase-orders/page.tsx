@@ -27,7 +27,7 @@ import { LoadingSpinner } from "@/components/Loading";
 export default function VendorPurchaseOrdersPage() {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("");
+  const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
 
   const { data: purchaseOrders, isLoading, error } = useVendorPurchaseOrders({
     status: statusFilter || undefined
@@ -94,12 +94,12 @@ export default function VendorPurchaseOrdersPage() {
               </div>
             </div>
             <div className="sm:w-48">
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value === "all" ? undefined : value)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Filter by Status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Status</SelectItem>
+                  <SelectItem value="all">All Status</SelectItem>
                   <SelectItem value="PENDING">Pending</SelectItem>
                   <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
                   <SelectItem value="PARTIALLY_DELIVERED">Partially Delivered</SelectItem>

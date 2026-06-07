@@ -22,7 +22,7 @@ import { format } from "date-fns";
 export default function AssessmentsList() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
   const [showFilters, setShowFilters] = useState(false);
 
   const params = useParams();
@@ -124,12 +124,12 @@ export default function AssessmentsList() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t">
               <div>
                 <label className="text-sm font-medium mb-2 block">Status</label>
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value === "all" ? undefined : value)}>
                   <SelectTrigger>
                     <SelectValue placeholder="All statuses" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All statuses</SelectItem>
+                    <SelectItem value="all">All statuses</SelectItem>
                     <SelectItem value="DRAFT">Draft</SelectItem>
                     <SelectItem value="SUBMITTED">Submitted</SelectItem>
                     <SelectItem value="REVIEWED">Reviewed</SelectItem>

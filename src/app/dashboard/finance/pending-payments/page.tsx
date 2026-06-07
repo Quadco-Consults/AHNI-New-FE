@@ -7,6 +7,13 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Search,
   Filter,
   DollarSign,
@@ -45,6 +52,8 @@ export default function PendingPaymentsPage() {
   const [selectedPayroll, setSelectedPayroll] = useState<any>(null);
   const [showPaymentRequestDialog, setShowPaymentRequestDialog] = useState(false);
   const [showPayrollDialog, setShowPayrollDialog] = useState(false);
+  const [selectedProject, setSelectedProject] = useState<string>("all");
+  const [selectedFund, setSelectedFund] = useState<string>("all");
 
   // Fetch data
   const { data: paymentRequestsData, isLoading: isLoadingPaymentRequests, refetch: refetchPaymentRequests } =
@@ -52,19 +61,58 @@ export default function PendingPaymentsPage() {
   const { data: payrollsData, isLoading: isLoadingPayrolls, refetch: refetchPayrolls } =
     useGetPendingPayrolls();
 
-  const paymentRequests = paymentRequestsData?.data || [];
-  const payrolls = payrollsData?.data || [];
+  const paymentRequests = Array.isArray(paymentRequestsData?.data)
+    ? paymentRequestsData.data
+    : [];
+  const payrolls = Array.isArray(payrollsData?.data)
+    ? payrollsData.data
+    : [];
+
+  // Filter payment requests
+  const filteredPaymentRequests = paymentRequests.filter((pr: any) => {
+    // Filter by project
+    if (selectedProject !== "all" && pr.project?.id !== selectedProject) {
+      return false;
+    }
+    // Filter by fund
+    if (selectedFund !== "all" && pr.fund_source !== selectedFund) {
+      return false;
+    }
+    // Filter by search term
+    if (searchTerm) {
+      const searchLower = searchTerm.toLowerCase();
+      return (
+        pr.payment_reason?.toLowerCase().includes(searchLower) ||
+        pr.payment_type?.toLowerCase().includes(searchLower) ||
+        pr.project?.project_id?.toLowerCase().includes(searchLower)
+      );
+    }
+    return true;
+  });
+
+  // Filter payrolls
+  const filteredPayrolls = payrolls.filter((p: any) => {
+    // Filter by project
+    if (selectedProject !== "all" && p.project?.id !== selectedProject) {
+      return false;
+    }
+    // Filter by fund
+    if (selectedFund !== "all" && p.fund_source !== selectedFund) {
+      return false;
+    }
+    return true;
+  });
 
   // Calculate summary statistics
-  const totalPaymentRequests = paymentRequests.length;
-  const totalPaymentRequestsValue = paymentRequests.reduce(
-    (sum: number, pr: any) => sum + pr.total_amount,
+  const totalPaymentRequests = filteredPaymentRequests.length;
+  const totalPaymentRequestsValue = filteredPaymentRequests.reduce(
+    (sum: number, pr: any) => sum + (pr.total_amount || 0),
     0
   );
 
-  const totalPayrolls = payrolls.length;
-  const totalPayrollsValue = payrolls.reduce(
-    (sum: number, p: any) => sum + p.total_net_payment,
+  const totalPayrolls = filteredPayrolls.length;
+  const totalPayrollsValue = filteredPayrolls.reduce(
+    (sum: number, p: any) => sum + (p.total_net_payment || 0),
     0
   );
 
@@ -89,6 +137,51 @@ export default function PendingPaymentsPage() {
       accessorKey: "payment_type",
       cell: ({ row }: any) => (
         <Badge variant="outline">{row.original.payment_type}</Badge>
+      ),
+    },
+    {
+      header: "Project",
+      accessorKey: "project",
+      cell: ({ row }: any) => (
+        <div className="max-w-xs">
+          {row.original.project ? (
+            <>
+              <p className="font-medium text-sm truncate">{row.original.project.project_id}</p>
+              <p className="text-xs text-muted-foreground truncate">{row.original.project.title}</p>
+            </>
+          ) : (
+            <span className="text-xs text-muted-foreground">Not assigned</span>
+          )}
+        </div>
+      ),
+    },
+    {
+      header: "Fund Source",
+      accessorKey: "fund_source",
+      cell: ({ row }: any) => (
+        <div>
+          {row.original.fund_source ? (
+            <Badge variant="secondary" className="text-xs">{row.original.fund_source}</Badge>
+          ) : (
+            <span className="text-xs text-muted-foreground">Not assigned</span>
+          )}
+        </div>
+      ),
+    },
+    {
+      header: "Budget Line",
+      accessorKey: "budget_line",
+      cell: ({ row }: any) => (
+        <div className="max-w-xs">
+          {row.original.budget_line ? (
+            <>
+              <p className="font-medium text-xs">{row.original.budget_line.code}</p>
+              <p className="text-xs text-muted-foreground truncate">{row.original.budget_line.name}</p>
+            </>
+          ) : (
+            <span className="text-xs text-muted-foreground">Not assigned</span>
+          )}
+        </div>
       ),
     },
     {
@@ -162,6 +255,35 @@ export default function PendingPaymentsPage() {
       ),
     },
     {
+      header: "Project",
+      accessorKey: "project",
+      cell: ({ row }: any) => (
+        <div className="max-w-xs">
+          {row.original.project ? (
+            <>
+              <p className="font-medium text-sm truncate">{row.original.project.project_id}</p>
+              <p className="text-xs text-muted-foreground truncate">{row.original.project.title}</p>
+            </>
+          ) : (
+            <span className="text-xs text-muted-foreground">Not assigned</span>
+          )}
+        </div>
+      ),
+    },
+    {
+      header: "Fund Source",
+      accessorKey: "fund_source",
+      cell: ({ row }: any) => (
+        <div>
+          {row.original.fund_source ? (
+            <Badge variant="secondary" className="text-xs">{row.original.fund_source}</Badge>
+          ) : (
+            <span className="text-xs text-muted-foreground">Not assigned</span>
+          )}
+        </div>
+      ),
+    },
+    {
       header: "Employees",
       accessorKey: "total_employees",
       cell: ({ row }: any) => (
@@ -196,17 +318,6 @@ export default function PendingPaymentsPage() {
         <span className="font-semibold text-green-600">
           {formatCurrency(row.original.total_net_payment)}
         </span>
-      ),
-    },
-    {
-      header: "Projects",
-      id: "projects",
-      cell: ({ row }: any) => (
-        <div className="max-w-xs">
-          <p className="text-xs text-muted-foreground truncate">
-            {getProjectAllocationSummary(row.original.project_breakdown)}
-          </p>
-        </div>
       ),
     },
     {
@@ -319,6 +430,38 @@ export default function PendingPaymentsPage() {
               </TabsList>
 
               <div className="flex items-center gap-2">
+                <Select value={selectedProject} onValueChange={setSelectedProject}>
+                  <SelectTrigger className="w-[200px]">
+                    <SelectValue placeholder="All Projects" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Projects</SelectItem>
+                    {/* Projects will be populated from API */}
+                    {Array.from(new Set(paymentRequests.filter((pr: any) => pr.project).map((pr: any) => pr.project.id))).map((projectId: any) => {
+                      const pr = paymentRequests.find((p: any) => p.project?.id === projectId);
+                      return pr?.project ? (
+                        <SelectItem key={projectId} value={projectId}>
+                          {pr.project.project_id}
+                        </SelectItem>
+                      ) : null;
+                    })}
+                  </SelectContent>
+                </Select>
+
+                <Select value={selectedFund} onValueChange={setSelectedFund}>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="All Funds" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Funds</SelectItem>
+                    <SelectItem value="GF">Global Fund</SelectItem>
+                    <SelectItem value="USAID">USAID</SelectItem>
+                    <SelectItem value="CORE">Core Funds</SelectItem>
+                    <SelectItem value="GOV">Government</SelectItem>
+                    <SelectItem value="PRIVATE">Private</SelectItem>
+                  </SelectContent>
+                </Select>
+
                 <div className="relative">
                   <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input
@@ -338,18 +481,20 @@ export default function PendingPaymentsPage() {
               <div className="flex items-center justify-center h-64">
                 <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
               </div>
-            ) : paymentRequests.length === 0 ? (
+            ) : filteredPaymentRequests.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-64 text-center">
                 <FileText className="h-12 w-12 text-muted-foreground mb-4" />
                 <h3 className="text-lg font-semibold">No pending payment requests</h3>
                 <p className="text-sm text-muted-foreground">
-                  All payment requests have been processed
+                  {paymentRequests.length === 0
+                    ? "All payment requests have been processed"
+                    : "No payment requests match the selected filters"}
                 </p>
               </div>
             ) : (
               <DataTable
                 columns={paymentRequestColumns}
-                data={paymentRequests}
+                data={filteredPaymentRequests}
                 searchPlaceholder="Search payment requests..."
               />
             )}
@@ -361,18 +506,20 @@ export default function PendingPaymentsPage() {
               <div className="flex items-center justify-center h-64">
                 <RefreshCw className="h-8 w-8 animate-spin text-muted-foreground" />
               </div>
-            ) : payrolls.length === 0 ? (
+            ) : filteredPayrolls.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-64 text-center">
                 <Users className="h-12 w-12 text-muted-foreground mb-4" />
                 <h3 className="text-lg font-semibold">No pending payrolls</h3>
                 <p className="text-sm text-muted-foreground">
-                  All payrolls have been processed
+                  {payrolls.length === 0
+                    ? "All payrolls have been processed"
+                    : "No payrolls match the selected filters"}
                 </p>
               </div>
             ) : (
               <DataTable
                 columns={payrollColumns}
-                data={payrolls}
+                data={filteredPayrolls}
                 searchPlaceholder="Search payrolls..."
               />
             )}

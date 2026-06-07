@@ -429,24 +429,10 @@ class ChatService {
 
     console.log('📤 Sending payload to backend:', payload);
 
-    // Use mock service in development or when backend is not available
+    // Use mock service directly if enabled
     if (this.isDevelopment) {
-      try {
-        const result = await this.makeRequest<any>('POST', 'chat/sessions/chat/', payload);
-
-        console.log('✅ Backend response:', result);
-
-        // Transform backend response to frontend format
-        return this.transformApiResponse(result);
-      } catch (error) {
-        // Check if it's an authentication error
-        if (axios.isAxiosError(error) && error.response?.status === 401) {
-          console.error('🔐 Authentication required for chat service');
-          throw new Error('Authentication required. Please log in to use chat.');
-        }
-        console.warn('Backend not available, using mock service');
-        return mockChatService.sendMessage(request);
-      }
+      console.log('🔧 Using mock chat service (NEXT_PUBLIC_USE_MOCK_CHAT=true)');
+      return mockChatService.sendMessage(request);
     }
 
     // Try the Django backend endpoint first
