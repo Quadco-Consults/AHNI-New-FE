@@ -23,6 +23,15 @@ export default function ConsultantPortalLayout({ children }: ConsultantPortalLay
     // Set page title
     document.title = "AHNI Consultant Portal";
 
+    // CRITICAL: Ensure we're on a consultant portal route
+    // This prevents consultants from accessing staff routes
+    if (typeof window !== 'undefined' && !pathname?.startsWith('/consultant-portal')) {
+      console.error('🚫 CRITICAL: Attempted to access non-consultant route from consultant portal!');
+      console.log('🚀 Force redirecting to consultant portal login');
+      window.location.href = "/consultant-portal/login";
+      return;
+    }
+
     // Skip auth check for login page
     if (pathname === "/consultant-portal/login") {
       setIsAuthLoading(false);

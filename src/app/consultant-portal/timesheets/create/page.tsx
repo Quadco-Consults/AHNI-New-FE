@@ -6,8 +6,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ArrowLeft, Calendar, Info } from "lucide-react";
+import { ArrowLeft, Calendar, Info, Send } from "lucide-react";
 import { useCreateTimesheet } from "@/features/consultant-portal/controllers/timesheetController";
 import { LoadingSpinner } from "@/components/Loading";
 import { toast } from "sonner";
@@ -18,51 +19,9 @@ export default function CreateTimesheetPage() {
 
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [activity, setActivity] = useState("");
+  const [description, setDescription] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
-
-  // Helper function to get start of week (Monday)
-  const getWeekStart = (date: Date) => {
-    const d = new Date(date);
-    const day = d.getDay();
-    const diff = d.getDate() - day + (day === 0 ? -6 : 1); // Adjust when day is Sunday
-    return new Date(d.setDate(diff));
-  };
-
-  // Helper function to get end of week (Sunday)
-  const getWeekEnd = (start: Date) => {
-    const end = new Date(start);
-    end.setDate(start.getDate() + 6);
-    return end;
-  };
-
-  const handleQuickSelect = (type: 'current' | 'previous' | 'next') => {
-    const today = new Date();
-    let weekStart: Date;
-
-    switch (type) {
-      case 'current':
-        weekStart = getWeekStart(today);
-        break;
-      case 'previous':
-        const prevWeek = new Date(today);
-        prevWeek.setDate(today.getDate() - 7);
-        weekStart = getWeekStart(prevWeek);
-        break;
-      case 'next':
-        const nextWeek = new Date(today);
-        nextWeek.setDate(today.getDate() + 7);
-        weekStart = getWeekStart(nextWeek);
-        break;
-      default:
-        weekStart = getWeekStart(today);
-    }
-
-    const weekEnd = getWeekEnd(weekStart);
-
-    setStartDate(weekStart.toISOString().split('T')[0]);
-    setEndDate(weekEnd.toISOString().split('T')[0]);
-    setErrors({});
-  };
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -75,28 +34,16 @@ export default function CreateTimesheetPage() {
       newErrors.endDate = "End date is required";
     }
 
+    if (!activity.trim()) {
+      newErrors.activity = "Activity/work done is required";
+    }
+
     if (startDate && endDate) {
       const start = new Date(startDate);
       const end = new Date(endDate);
 
-      if (end <= start) {
-        newErrors.endDate = "End date must be after start date";
-      }
-
-      // Check if it's a valid week (7 days)
-      const diffDays = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
-      if (diffDays !== 6) {
-        newErrors.endDate = "Timesheet must be for a one-week period (Monday to Sunday)";
-      }
-
-      // Check if start is Monday
-      if (start.getDay() !== 1) {
-        newErrors.startDate = "Start date must be a Monday";
-      }
-
-      // Check if end is Sunday
-      if (end.getDay() !== 0) {
-        newErrors.endDate = "End date must be a Sunday";
+      if (end < start) {
+        newErrors.endDate = "End date must be on or after start date";
       }
     }
 
@@ -116,11 +63,20 @@ export default function CreateTimesheetPage() {
       {
         start_date: startDate,
         end_date: endDate,
+        period_type: 'custom',
+        activities: [
+          {
+            activity: activity.trim(),
+            description: description.trim(),
+            hours: 8, // Default hours
+          }
+        ],
+        submit_immediately: true, // Auto-submit for supervisor approval
       },
       {
         onSuccess: (data) => {
-          toast.success(data.message || "Timesheet created successfully!");
-          router.push(`/consultant-portal/timesheets/${data.data.id}`);
+          toast.success(data.message || "Timesheet submitted for approval!");
+          router.push(`/consultant-portal/timesheets`);
         },
         onError: (error: any) => {
           const errorMessage = error?.response?.data?.message ||
@@ -145,104 +101,97 @@ export default function CreateTimesheetPage() {
         </Button>
         <div>
           <h1 className="text-3xl font-bold">Create Timesheet</h1>
-          <p className="text-gray-600 mt-1">Start a new weekly timesheet</p>
+          <p className="text-gray-600 mt-1">Submit your work for the period</p>
         </div>
       </div>
-
-      {/* Quick Week Selection */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Quick Week Selection</CardTitle>
-          <CardDescription>Select a predefined week to get started</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-3 gap-4">
-            <Button
-              variant="outline"
-              onClick={() => handleQuickSelect('previous')}
-              className="h-auto py-4 flex flex-col"
-            >
-              <Calendar className="h-6 w-6 mb-2" />
-              <span className="font-semibold">Previous Week</span>
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => handleQuickSelect('current')}
-              className="h-auto py-4 flex flex-col border-blue-500"
-            >
-              <Calendar className="h-6 w-6 mb-2 text-blue-500" />
-              <span className="font-semibold">Current Week</span>
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => handleQuickSelect('next')}
-              className="h-auto py-4 flex flex-col"
-            >
-              <Calendar className="h-6 w-6 mb-2" />
-              <span className="font-semibold">Next Week</span>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Timesheet Form */}
       <Card>
         <CardHeader>
-          <CardTitle>Timesheet Period</CardTitle>
+          <CardTitle>Timesheet Details</CardTitle>
           <CardDescription>
-            Timesheets must be for a full week (Monday to Sunday)
+            Enter the date range and describe what you did during this period
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Start Date */}
+            {/* Date Range */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="startDate">Start Date *</Label>
+                <Input
+                  id="startDate"
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => {
+                    setStartDate(e.target.value);
+                    setErrors({ ...errors, startDate: "" });
+                  }}
+                  className={errors.startDate ? "border-red-500" : ""}
+                />
+                {errors.startDate && (
+                  <p className="text-sm text-red-500">{errors.startDate}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="endDate">End Date *</Label>
+                <Input
+                  id="endDate"
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => {
+                    setEndDate(e.target.value);
+                    setErrors({ ...errors, endDate: "" });
+                  }}
+                  className={errors.endDate ? "border-red-500" : ""}
+                />
+                {errors.endDate && (
+                  <p className="text-sm text-red-500">{errors.endDate}</p>
+                )}
+              </div>
+            </div>
+
+            {/* Activity */}
             <div className="space-y-2">
-              <Label htmlFor="startDate">Start Date (Monday) *</Label>
+              <Label htmlFor="activity">What did you work on? *</Label>
               <Input
-                id="startDate"
-                type="date"
-                value={startDate}
+                id="activity"
+                type="text"
+                placeholder="e.g., Project coordination, Field research, Report writing"
+                value={activity}
                 onChange={(e) => {
-                  setStartDate(e.target.value);
-                  setErrors({ ...errors, startDate: "" });
+                  setActivity(e.target.value);
+                  setErrors({ ...errors, activity: "" });
                 }}
-                className={errors.startDate ? "border-red-500" : ""}
+                className={errors.activity ? "border-red-500" : ""}
               />
-              {errors.startDate && (
-                <p className="text-sm text-red-500">{errors.startDate}</p>
+              {errors.activity && (
+                <p className="text-sm text-red-500">{errors.activity}</p>
               )}
             </div>
 
-            {/* End Date */}
+            {/* Description */}
             <div className="space-y-2">
-              <Label htmlFor="endDate">End Date (Sunday) *</Label>
-              <Input
-                id="endDate"
-                type="date"
-                value={endDate}
-                onChange={(e) => {
-                  setEndDate(e.target.value);
-                  setErrors({ ...errors, endDate: "" });
-                }}
-                className={errors.endDate ? "border-red-500" : ""}
+              <Label htmlFor="description">Additional Details (Optional)</Label>
+              <Textarea
+                id="description"
+                rows={4}
+                placeholder="Provide more details about your work during this period..."
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
               />
-              {errors.endDate && (
-                <p className="text-sm text-red-500">{errors.endDate}</p>
-              )}
             </div>
 
             {/* Info Alert */}
             <Alert>
               <Info className="h-4 w-4" />
               <AlertDescription>
-                <div className="space-y-2">
-                  <div className="font-semibold">Important Notes:</div>
+                <div className="space-y-1">
+                  <div className="font-semibold">Note:</div>
                   <ul className="list-disc list-inside text-sm space-y-1">
-                    <li>Timesheets must start on Monday and end on Sunday</li>
-                    <li>You can only have one timesheet per week</li>
-                    <li>After creation, you'll be able to add time entries for each day</li>
-                    <li>Weekends and leave days will be automatically blocked</li>
-                    <li>Submit your timesheet for approval once all entries are added</li>
+                    <li>Your timesheet will be automatically submitted to your supervisor for approval</li>
+                    <li>You'll receive a notification once it's been reviewed</li>
                   </ul>
                 </div>
               </AlertDescription>
@@ -266,12 +215,12 @@ export default function CreateTimesheetPage() {
                 {isPending ? (
                   <>
                     <LoadingSpinner className="mr-2" />
-                    Creating...
+                    Submitting...
                   </>
                 ) : (
                   <>
-                    <Calendar className="h-4 w-4 mr-2" />
-                    Create Timesheet
+                    <Send className="h-4 w-4 mr-2" />
+                    Submit Timesheet
                   </>
                 )}
               </Button>

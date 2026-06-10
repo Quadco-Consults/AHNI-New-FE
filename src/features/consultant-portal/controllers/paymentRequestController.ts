@@ -15,6 +15,8 @@ const PAYMENT_REQUEST_ENDPOINTS = {
   STATISTICS: "/contract-grants/consultant-portal/payment-requests/statistics/",
   UPLOAD_DOCUMENT: (id: string) => `/consultant-portal/payment-requests/${id}/upload-document/`,
   CLUSTER_MEMBERS: "/contract-grants/consultant-portal/payment-requests/cluster-members/",
+  DOWNLOAD_TEMPLATE: "/contract-grants/consultant-portal/payment-requests/download-payment-template/",
+  UPLOAD_TEMPLATE: "/contract-grants/consultant-portal/payment-requests/upload-payment-template/",
 };
 
 // List Payment Requests Hook
@@ -168,6 +170,32 @@ export const useCreateBulkPaymentRequest = () => {
 
       const response = await ConsultantAxiosWithToken.post(
         PAYMENT_REQUEST_ENDPOINTS.LIST,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+      return response.data;
+    },
+    onSuccess: () => {
+      // Invalidate queries to refresh data
+      queryClient.invalidateQueries({ queryKey: ['consultant-payment-requests'] });
+      queryClient.invalidateQueries({ queryKey: ['consultant-payment-request-statistics'] });
+      queryClient.invalidateQueries({ queryKey: ['consultant-dashboard'] });
+    },
+  });
+};
+
+// Upload Bulk Payment Template Hook
+export const useUploadBulkPaymentTemplate = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (formData: FormData): Promise<any> => {
+      const response = await ConsultantAxiosWithToken.post(
+        PAYMENT_REQUEST_ENDPOINTS.UPLOAD_TEMPLATE,
         formData,
         {
           headers: {

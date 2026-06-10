@@ -41,7 +41,7 @@ export default function ConsultantTravelRequestsPage() {
 
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
   const [activeTab, setActiveTab] = useState<"my-requests" | "assigned">("my-requests");
 
   const pageSize = 10;
@@ -51,7 +51,7 @@ export default function ConsultantTravelRequestsPage() {
     data: travelRequestsData,
     isLoading: isLoadingRequests,
     error: requestsError,
-  } = useGetConsultantTravelRequests(page, pageSize, search, statusFilter);
+  } = useGetConsultantTravelRequests(page, pageSize, search, statusFilter === "all" ? "" : statusFilter);
 
   // Get visits where consultant is assigned as team member
   const {
@@ -157,7 +157,7 @@ export default function ConsultantTravelRequestsPage() {
                     <SelectValue placeholder="All Status" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Status</SelectItem>
+                    <SelectItem value="all">All Status</SelectItem>
                     {Object.entries(SiteVisitStatusLabels).map(([key, label]) => (
                       <SelectItem key={key} value={key}>
                         {label}

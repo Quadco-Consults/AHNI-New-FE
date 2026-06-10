@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,7 +10,6 @@ import {
   ArrowLeft,
   FileText,
   Download,
-  Upload,
   Calendar,
   DollarSign,
   User,
@@ -20,9 +18,10 @@ import {
   AlertCircle,
   Building2
 } from "lucide-react";
-import { usePaymentRequestDetail, useUploadPaymentRequestDocument } from "@/features/consultant-portal/controllers/paymentRequestController";
+import { usePaymentRequestDetail } from "@/features/consultant-portal/controllers/paymentRequestController";
 import { LoadingSpinner } from "@/components/Loading";
 import { toast } from "sonner";
+import FileUploadManager from "@/components/FileUploadManager";
 
 export default function PaymentRequestDetailPage() {
   const router = useRouter();
@@ -30,9 +29,6 @@ export default function PaymentRequestDetailPage() {
   const paymentRequestId = params.id as string;
 
   const { data: paymentRequestData, isLoading, error } = usePaymentRequestDetail(paymentRequestId);
-  const { mutate: uploadDocument, isPending: uploadPending } = useUploadPaymentRequestDocument();
-
-  const [uploadFile, setUploadFile] = useState<File | null>(null);
 
   const paymentRequest = paymentRequestData?.data;
 
@@ -84,31 +80,6 @@ export default function PaymentRequestDetailPage() {
     });
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 10 * 1024 * 1024) {
-        toast.error("File size must be less than 10MB");
-        return;
-      }
-
-      uploadDocument(
-        { paymentRequestId, document: file },
-        {
-          onSuccess: (data) => {
-            toast.success(data.message || "Document uploaded successfully!");
-            setUploadFile(null);
-          },
-          onError: (error: any) => {
-            const errorMessage = error?.response?.data?.message ||
-                               error?.message ||
-                               "Failed to upload document";
-            toast.error(errorMessage);
-          },
-        }
-      );
-    }
-  };
 
   if (isLoading) {
     return (
@@ -134,8 +105,6 @@ export default function PaymentRequestDetailPage() {
       </div>
     );
   }
-
-  const canUploadDocument = ['PENDING', 'REVIEWED'].includes(paymentRequest.status);
 
   return (
     <div className="space-y-6 max-w-5xl">
@@ -362,68 +331,43 @@ export default function PaymentRequestDetailPage() {
             <FileText className="h-5 w-5" />
             Supporting Documents
           </CardTitle>
+          <CardDescription>
+            Upload invoices, timesheets, receipts, and other supporting documents
+          </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          {paymentRequest.document ? (
-            <div className="flex items-center justify-between p-4 border rounded-lg">
-              <div className="flex items-center gap-3">
-                <FileText className="h-8 w-8 text-blue-500" />
-                <div>
-                  <div className="font-semibold">Primary Document</div>
-                  <div className="text-sm text-gray-600">Submitted with payment request</div>
+        <CardContent>
+          {/* Primary Document from old system */}
+          {paymentRequest.document && (
+            <div className="mb-4">
+              <div className="flex items-center justify-between p-4 border rounded-lg bg-blue-50">
+                <div className="flex items-center gap-3">
+                  <FileText className="h-8 w-8 text-blue-500" />
+                  <div>
+                    <div className="font-semibold">Primary Document</div>
+                    <div className="text-sm text-gray-600">Original submission document</div>
+                  </div>
                 </div>
+                <Button
+                  variant="outline"
+                  onClick={() => window.open(paymentRequest.document!, '_blank')}
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Download
+                </Button>
               </div>
-              <Button
-                variant="outline"
-                onClick={() => window.open(paymentRequest.document!, '_blank')}
-              >
-                <Download className="h-4 w-4 mr-2" />
-                Download
-              </Button>
             </div>
-          ) : (
-            <p className="text-gray-600">No documents attached</p>
           )}
 
-          {/* Upload Additional Document */}
-          {canUploadDocument && (
-            <div className="border-t pt-4">
-              <h4 className="font-semibold mb-2">Upload Additional Document</h4>
-              <p className="text-sm text-gray-600 mb-4">
-                You can upload additional supporting documents while your request is in PENDING or REVIEWED status.
-              </p>
-              <div className="flex items-center gap-4">
-                <input
-                  type="file"
-                  id="uploadDocument"
-                  className="hidden"
-                  onChange={handleFileUpload}
-                  accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
-                  disabled={uploadPending}
-                />
-                <label htmlFor="uploadDocument">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    disabled={uploadPending}
-                    onClick={() => document.getElementById('uploadDocument')?.click()}
-                  >
-                    {uploadPending ? (
-                      <>
-                        <LoadingSpinner className="mr-2" />
-                        Uploading...
-                      </>
-                    ) : (
-                      <>
-                        <Upload className="h-4 w-4 mr-2" />
-                        Upload Document
-                      </>
-                    )}
-                  </Button>
-                </label>
-              </div>
-            </div>
-          )}
+          {/* Multiple File Upload Manager */}
+          <FileUploadManager
+            contentType="adminapp.paymentrequest"
+            objectId={paymentRequestId}
+            maxFiles={10}
+            maxFileSize={50}
+            allowedFileTypes={['.pdf', '.doc', '.docx', '.xls', '.xlsx', '.jpg', '.jpeg', '.png']}
+            showCategorySelect={true}
+            defaultCategory="INVOICE"
+          />
         </CardContent>
       </Card>
 

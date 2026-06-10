@@ -21,7 +21,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Clock, Plus, Eye, Filter, Calendar, TrendingUp, CheckCircle, FileText } from "lucide-react";
+import { Clock, Plus, Eye, Filter, Calendar, TrendingUp, CheckCircle, FileText, Upload } from "lucide-react";
 import { useTimesheets, useTimesheetStatistics } from "@/features/consultant-portal/controllers/timesheetController";
 import { LoadingSpinner } from "@/components/Loading";
 
@@ -100,10 +100,19 @@ export default function TimesheetsPage() {
           <h1 className="text-3xl font-bold">Timesheets</h1>
           <p className="text-gray-600 mt-1">Track and manage your time entries</p>
         </div>
-        <Button onClick={() => router.push('/consultant-portal/timesheets/create')}>
-          <Plus className="h-4 w-4 mr-2" />
-          Create Timesheet
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={() => router.push('/consultant-portal/timesheets/bulk')}
+          >
+            <Upload className="h-4 w-4 mr-2" />
+            Bulk Upload
+          </Button>
+          <Button onClick={() => router.push('/consultant-portal/timesheets/create')}>
+            <Plus className="h-4 w-4 mr-2" />
+            Create Timesheet
+          </Button>
+        </div>
       </div>
 
       {/* Statistics Cards */}

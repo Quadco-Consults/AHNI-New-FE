@@ -6,10 +6,12 @@ import { LoadingSpinner } from "@/components/Loading";
 import { Button } from "@/components/ui/button";
 import { useParams, useRouter } from "next/navigation";
 import { useGetSingleConsultantReport } from "@/features/consultant-portal/controllers/consultantReportsController";
-import { Download, Printer, ArrowLeft } from "lucide-react";
+import { Download, Printer, ArrowLeft, FileText } from "lucide-react";
 import { useReactToPrint } from "react-to-print";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import FileUploadManager from "@/components/FileUploadManager";
+import { CardDescription } from "@/components/ui/card";
 
 export default function ConsultantReportDetailPage() {
     const { id } = useParams();
@@ -250,27 +252,52 @@ export default function ConsultantReportDetailPage() {
                     </CardContent>
                 </Card>
 
-                {/* Supporting Document */}
-                {report.document && (
-                    <Card className="mb-6">
-                        <CardHeader>
-                            <CardTitle>Supporting Document</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="flex items-center gap-3">
-                                <Download className="h-5 w-5 text-green-600" />
-                                <a
-                                    href={report.document}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-green-600 hover:text-green-700 font-medium hover:underline"
-                                >
-                                    View Document
-                                </a>
+                {/* Supporting Documents */}
+                <Card className="mb-6 no-print">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <FileText className="h-5 w-5" />
+                            Supporting Documents
+                        </CardTitle>
+                        <CardDescription>
+                            Upload report documents, appendices, and supporting materials
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        {/* Original Document from submission */}
+                        {report.document && (
+                            <div className="mb-4">
+                                <div className="flex items-center justify-between p-4 border rounded-lg bg-blue-50">
+                                    <div className="flex items-center gap-3">
+                                        <FileText className="h-8 w-8 text-blue-500" />
+                                        <div>
+                                            <div className="font-semibold">Original Report Document</div>
+                                            <div className="text-sm text-gray-600">Submitted with report</div>
+                                        </div>
+                                    </div>
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => window.open(report.document!, '_blank')}
+                                    >
+                                        <Download className="h-4 w-4 mr-2" />
+                                        Download
+                                    </Button>
+                                </div>
                             </div>
-                        </CardContent>
-                    </Card>
-                )}
+                        )}
+
+                        {/* Multiple File Upload Manager */}
+                        <FileUploadManager
+                            contentType="contract_grants.consultancyreport"
+                            objectId={id as string}
+                            maxFiles={15}
+                            maxFileSize={50}
+                            allowedFileTypes={['.pdf', '.doc', '.docx', '.xls', '.xlsx', '.jpg', '.jpeg', '.png', '.ppt', '.pptx']}
+                            showCategorySelect={true}
+                            defaultCategory="REPORT"
+                        />
+                    </CardContent>
+                </Card>
 
                 {/* Submission Info */}
                 <Card>

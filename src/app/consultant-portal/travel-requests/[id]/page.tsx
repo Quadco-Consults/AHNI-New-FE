@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -30,6 +30,7 @@ import {
   ApprovalStatus,
   ApprovalStatusLabels,
 } from "@/features/programs/types/site-visit";
+import FileUploadManager from "@/components/FileUploadManager";
 
 export default function ConsultantTravelRequestDetailPage() {
   const params = useParams();
@@ -336,6 +337,30 @@ export default function ConsultantTravelRequestDetailPage() {
             </CardContent>
           </Card>
         )}
+
+        {/* Travel Documents */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FileTextIcon className="h-5 w-5 text-green-600" />
+              Travel Documents
+            </CardTitle>
+            <CardDescription>
+              Upload itineraries, receipts, approval documents, and other travel-related files
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <FileUploadManager
+              contentType="programs.sitevisit"
+              objectId={id}
+              maxFiles={10}
+              maxFileSize={50}
+              allowedFileTypes={['.pdf', '.doc', '.docx', '.jpg', '.jpeg', '.png']}
+              showCategorySelect={true}
+              defaultCategory="ITINERARY"
+            />
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

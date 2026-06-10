@@ -6,7 +6,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   ArrowLeft,
@@ -14,37 +13,41 @@ import {
   Download,
   AlertCircle,
   CheckCircle,
-  Users,
   FileSpreadsheet,
-  Info
+  Info,
+  Calendar
 } from "lucide-react";
-import {
-  useClusterMembers,
-  useUploadBulkPaymentTemplate
-} from "@/features/consultant-portal/controllers/paymentRequestController";
+import { useUploadBulkTimesheetTemplate } from "@/features/consultant-portal/controllers/timesheetController";
 import { LoadingSpinner } from "@/components/Loading";
 import { toast } from "sonner";
 import ConsultantAxiosWithToken from "@/constants/api_management/ConsultantHttpHelper";
 
-export default function BulkPaymentRequestPage() {
+export default function BulkTimesheetUploadPage() {
   const router = useRouter();
-  const { data: clusterData, isLoading: clusterLoading } = useClusterMembers();
-  const { mutate: uploadTemplate, isPending } = useUploadBulkPaymentTemplate();
+  const { mutate: uploadTemplate, isPending } = useUploadBulkTimesheetTemplate();
 
-  const [paymentReason, setPaymentReason] = useState("");
-  const [paymentDate, setPaymentDate] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [templateFile, setTemplateFile] = useState<File | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isDownloading, setIsDownloading] = useState(false);
 
-  const clusterMembers = clusterData?.data?.members || [];
-  const cluster = clusterData?.data?.cluster;
-
   const handleDownloadTemplate = async () => {
+    // Validate dates before downloading
+    if (!startDate || !endDate) {
+      toast.error("Please select start and end dates");
+      return;
+    }
+
+    if (new Date(startDate) > new Date(endDate)) {
+      toast.error("Start date must be before end date");
+      return;
+    }
+
     setIsDownloading(true);
     try {
       const response = await ConsultantAxiosWithToken.get(
-        'contract-grants/consultant-portal/payment-requests/download-payment-template/',
+        `contract-grants/consultant-portal/timesheets/download-template/?start_date=${startDate}&end_date=${endDate}`,
         {
           responseType: 'blob',
         }
@@ -57,7 +60,7 @@ export default function BulkPaymentRequestPage() {
 
       // Extract filename from content-disposition header or use default
       const contentDisposition = response.headers['content-disposition'];
-      let filename = 'bulk_payment_template.xlsx';
+      let filename = 'timesheet_template.xlsx';
       if (contentDisposition) {
         const filenameMatch = contentDisposition.match(/filename="?(.+)"?/);
         if (filenameMatch) {
@@ -85,14 +88,6 @@ export default function BulkPaymentRequestPage() {
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
-    if (!paymentReason.trim()) {
-      newErrors.paymentReason = "Payment reason is required";
-    }
-
-    if (!paymentDate) {
-      newErrors.paymentDate = "Payment date is required";
-    }
-
     if (!templateFile) {
       newErrors.templateFile = "Please upload the filled template";
     }
@@ -111,19 +106,18 @@ export default function BulkPaymentRequestPage() {
 
     const formData = new FormData();
     formData.append('file', templateFile!);
-    formData.append('payment_date', paymentDate);
-    formData.append('payment_reason', paymentReason);
+    formData.append('submit_immediately', 'true');
 
     uploadTemplate(formData, {
       onSuccess: (data) => {
-        const recipientCount = data.number_of_recipients || data.recipients?.length || 0;
-        toast.success(data.message || `Bulk payment request created for ${recipientCount} team members!`);
-        router.push('/consultant-portal/payment-requests');
+        const entryCount = data.data?.entries?.length || 0;
+        toast.success(data.message || `Timesheet submitted with ${entryCount} entries!`);
+        router.push('/consultant-portal/timesheets');
       },
       onError: (error: any) => {
         const errorMessage = error?.response?.data?.message ||
                            error?.message ||
-                           "Failed to create bulk payment request";
+                           "Failed to upload timesheet";
         toast.error(errorMessage);
       },
     });
@@ -155,42 +149,6 @@ export default function BulkPaymentRequestPage() {
     }
   };
 
-  if (clusterLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-96">
-        <LoadingSpinner />
-        <span className="ml-2">Loading cluster information...</span>
-      </div>
-    );
-  }
-
-  // Check if consultant has a cluster
-  if (!cluster) {
-    return (
-      <div className="space-y-6 max-w-4xl">
-        <div className="flex items-center gap-4">
-          <Button variant="outline" size="icon" onClick={() => router.back()}>
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold">Bulk Payment Request</h1>
-          </div>
-        </div>
-
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            <div className="font-semibold">No Cluster Assigned</div>
-            <div className="text-sm mt-1">
-              You need to be assigned to a cluster to create bulk payment requests for your team.
-              Please contact your supervisor or HR.
-            </div>
-          </AlertDescription>
-        </Alert>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6 max-w-5xl">
       {/* Header */}
@@ -199,26 +157,10 @@ export default function BulkPaymentRequestPage() {
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div className="flex-1">
-          <h1 className="text-3xl font-bold">Bulk Payment Request</h1>
-          <p className="text-gray-600 mt-1">Request payment for multiple team members using Excel template</p>
+          <h1 className="text-3xl font-bold">Bulk Timesheet Upload</h1>
+          <p className="text-gray-600 mt-1">Upload multiple timesheet entries using Excel template</p>
         </div>
       </div>
-
-      {/* Cluster Info */}
-      <Card className="border-blue-200 bg-blue-50">
-        <CardContent className="pt-6">
-          <div className="flex items-center gap-2 text-blue-800">
-            <Users className="h-5 w-5" />
-            <div>
-              <span className="font-semibold">Your Cluster:</span> {cluster.name}
-              {cluster.location && ` (${cluster.location})`}
-            </div>
-          </div>
-          <div className="text-blue-700 text-sm mt-1">
-            {clusterMembers.length} team member{clusterMembers.length !== 1 ? 's' : ''} available
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Instructions Alert */}
       <Alert>
@@ -226,23 +168,18 @@ export default function BulkPaymentRequestPage() {
         <AlertDescription>
           <div className="font-semibold mb-2">How it works</div>
           <ol className="text-sm space-y-2 list-decimal list-inside">
-            <li>Download the Excel template pre-populated with your team members</li>
+            <li>Select the start and end dates for your timesheet period</li>
+            <li>Download the Excel template with all working days in that period</li>
             <li>Fill in the green-highlighted columns:
               <ul className="ml-6 mt-1 list-disc">
-                <li><span className="font-semibold text-green-700">"Number of Days Worked"</span> - actual days worked</li>
-                <li><span className="font-semibold text-green-700">"Reporting Period"</span> (e.g., "01-04-2026 to 30-04-2026")</li>
+                <li><span className="font-semibold text-green-700">"Activity"</span> - What you worked on</li>
+                <li><span className="font-semibold text-green-700">"Description"</span> - Additional details (optional)</li>
+                <li><span className="font-semibold text-green-700">"Hours Worked"</span> - Hours spent (default 8)</li>
               </ul>
             </li>
-            <li>Deductions are calculated automatically:
-              <ul className="ml-6 mt-1 list-disc text-xs">
-                <li>Total Gross Pay = Days Worked × Daily Rate</li>
-                <li>Less 5% WHT (Withholding Tax)</li>
-                <li>Stamp Duty (₦50)</li>
-                <li>Total Net Pay (final amount)</li>
-              </ul>
-            </li>
+            <li>Remove rows for days you didn't work (optional)</li>
             <li>Save the Excel file</li>
-            <li>Upload the filled template along with payment details below</li>
+            <li>Upload the filled template below</li>
           </ol>
         </AlertDescription>
       </Alert>
@@ -252,17 +189,47 @@ export default function BulkPaymentRequestPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <FileSpreadsheet className="h-5 w-5" />
-            Step 1: Download Template
+            Step 1: Select Date Range & Download Template
           </CardTitle>
           <CardDescription>
-            Download Excel template with your team members' information
+            Choose the period for your timesheet and download the Excel template
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
+          {/* Date Range Selection */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="start_date">Start Date *</Label>
+              <Input
+                id="start_date"
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className={errors.startDate ? "border-red-500" : ""}
+              />
+              {errors.startDate && (
+                <p className="text-sm text-red-600 mt-1">{errors.startDate}</p>
+              )}
+            </div>
+            <div>
+              <Label htmlFor="end_date">End Date *</Label>
+              <Input
+                id="end_date"
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className={errors.endDate ? "border-red-500" : ""}
+              />
+              {errors.endDate && (
+                <p className="text-sm text-red-600 mt-1">{errors.endDate}</p>
+              )}
+            </div>
+          </div>
+
           <Button
             type="button"
             onClick={handleDownloadTemplate}
-            disabled={isDownloading || clusterMembers.length === 0}
+            disabled={isDownloading || !startDate || !endDate}
             className="w-full sm:w-auto"
           >
             {isDownloading ? (
@@ -278,32 +245,17 @@ export default function BulkPaymentRequestPage() {
             )}
           </Button>
 
-          {clusterMembers.length === 0 && (
-            <Alert variant="destructive" className="mt-4">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                No team members with complete banking information found in your cluster.
-                Team members must have their banking details set up before they can be included in bulk payments.
-              </AlertDescription>
-            </Alert>
-          )}
-
           <div className="mt-4 p-4 bg-gray-50 rounded-lg border">
             <p className="text-sm font-semibold text-gray-700 mb-2">Template will include:</p>
             <ul className="text-sm text-gray-600 space-y-1 list-disc list-inside">
-              <li>Staff ID, Name, Account Name, Designation for each team member</li>
-              <li>Approved Number of Consultancy Days & Daily Rate (₦)</li>
-              <li>Bank Name and Account Number</li>
+              <li>All working days in your selected date range (excluding weekends)</li>
+              <li>Read-only columns: Date, Day of Week</li>
               <li>Editable columns (highlighted in green):</li>
               <ul className="ml-6 mt-1 space-y-1">
-                <li><span className="font-semibold text-green-700">"Number of Days Worked"</span> - days actually worked</li>
-                <li><span className="font-semibold text-green-700">"Reporting Period"</span> - e.g., "01-04-2026 to 30-04-2026"</li>
+                <li><span className="font-semibold text-green-700">"Activity"</span> - description of work performed</li>
+                <li><span className="font-semibold text-green-700">"Description"</span> - additional details</li>
+                <li><span className="font-semibold text-green-700">"Hours Worked"</span> - hours spent</li>
               </ul>
-              <li>Auto-calculated deductions columns:</li>
-              <ul className="ml-6 mt-1 space-y-1">
-                <li>Total Gross Pay, Less 5% WHT, Total Net Pay after Tax, Stamp Duty, Total Net Pay</li>
-              </ul>
-              <li>Only team members with complete banking information are included</li>
             </ul>
           </div>
         </CardContent>
@@ -318,7 +270,7 @@ export default function BulkPaymentRequestPage() {
               Step 2: Upload Filled Template
             </CardTitle>
             <CardDescription>
-              Upload the completed Excel template and provide payment details
+              Upload the completed Excel template with your timesheet entries
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -345,39 +297,8 @@ export default function BulkPaymentRequestPage() {
                 <p className="text-sm text-red-600 mt-1">{errors.templateFile}</p>
               )}
               <p className="text-xs text-gray-500 mt-1">
-                Upload the Excel template after filling in the payment amounts
+                Upload the Excel template after filling in your timesheet entries
               </p>
-            </div>
-
-            {/* Payment Date */}
-            <div>
-              <Label htmlFor="payment_date">Payment Date *</Label>
-              <Input
-                id="payment_date"
-                type="date"
-                value={paymentDate}
-                onChange={(e) => setPaymentDate(e.target.value)}
-                className={errors.paymentDate ? "border-red-500" : ""}
-              />
-              {errors.paymentDate && (
-                <p className="text-sm text-red-600 mt-1">{errors.paymentDate}</p>
-              )}
-            </div>
-
-            {/* Payment Reason */}
-            <div>
-              <Label htmlFor="payment_reason">Payment Reason *</Label>
-              <Textarea
-                id="payment_reason"
-                placeholder="e.g., Monthly consultancy fee for April 2026"
-                value={paymentReason}
-                onChange={(e) => setPaymentReason(e.target.value)}
-                rows={3}
-                className={errors.paymentReason ? "border-red-500" : ""}
-              />
-              {errors.paymentReason && (
-                <p className="text-sm text-red-600 mt-1">{errors.paymentReason}</p>
-              )}
             </div>
           </CardContent>
         </Card>
@@ -403,7 +324,7 @@ export default function BulkPaymentRequestPage() {
                 Submitting...
               </>
             ) : (
-              <>Submit Bulk Payment Request</>
+              <>Submit Timesheet</>
             )}
           </Button>
         </div>

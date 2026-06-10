@@ -134,6 +134,7 @@ export default function ConsultantLoginPage() {
                       placeholder="Enter email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
+                      autoComplete="email"
                       className="w-full px-4 py-3.5 text-base border border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                       required
                     />
@@ -147,6 +148,7 @@ export default function ConsultantLoginPage() {
                         placeholder="Enter password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
+                        autoComplete="current-password"
                         className="w-full px-4 py-3.5 text-base border border-primary rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
                         required
                       />

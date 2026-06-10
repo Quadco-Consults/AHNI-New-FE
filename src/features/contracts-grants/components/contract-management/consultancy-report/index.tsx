@@ -6,19 +6,30 @@ import DataTable from "@/components/Table/DataTable";
 import TableFilters from "@/components/Table/TableFilters";
 import { Button } from "@/components/ui/button";
 import { CG_ROUTES } from "@/constants/RouterConstants";
-import { Plus } from "lucide-react";
+import { Plus, Search, Filter as FilterIcon } from "lucide-react";
 import { useState, useMemo } from "react";
 import Link from "next/link";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useGetAllConsultancyReports } from "@/features/contracts-grants/controllers/consultancyReportController";
 import { useGetAllConsultancyApplicants } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
 import { useGetAllConsultantManagements } from "@/features/contracts-grants/controllers/consultantManagementController";
 
 export default function ConsultancyReport() {
     const [page, setPage] = useState(1);
+    const [statusFilter, setStatusFilter] = useState<string>("");
+    const [consultantFilter, setConsultantFilter] = useState<string>("");
 
     const { data, isFetching } = useGetAllConsultancyReports({
         page,
         size: 10,
+        status: statusFilter,
     });
 
     // Fetch consultancy applicants to map consultant names
@@ -77,7 +88,7 @@ export default function ConsultancyReport() {
         };
     }, [applicantsData, consultantManagementsData]);
 
-    // Enrich report data with consultant names
+    // Enrich report data with consultant names and apply filters
     const enrichedReports = useMemo(() => {
         const reports = data?.data.results || [];
 
@@ -89,7 +100,7 @@ export default function ConsultancyReport() {
         console.log('📊 Enriching', reports.length, 'reports');
         console.log('📊 First report raw consultant field:', reports[0]?.consultant);
 
-        const enriched = reports.map((report, index) => {
+        let enriched = reports.map((report, index) => {
             // Get the consultant field - could be an ID or a title string
             let consultantIdOrTitle = typeof report.consultant === 'object'
                 ? (report.consultant as any)?.id
@@ -154,19 +165,88 @@ export default function ConsultancyReport() {
             });
         }
 
+        // Apply client-side consultant name filter
+        if (consultantFilter) {
+            enriched = enriched.filter((report) => {
+                const consultantName = typeof report.consultant === 'object' && report.consultant !== null
+                    ? (report.consultant as any).name
+                    : null;
+                return consultantName && consultantName.toLowerCase().includes(consultantFilter.toLowerCase());
+            });
+        }
+
         return enriched;
-    }, [data?.data.results, consultantIdToName, titleToId]);
+    }, [data?.data.results, consultantIdToName, titleToId, consultantFilter]);
 
     return (
-        <section className="space-y-10">
-            <div className="flex items-center justify-end">
+        <section className="space-y-6">
+            {/* Header */}
+            <div className="flex items-center justify-between">
+                <div>
+                    <h1 className="text-3xl font-bold">All Consultant Reports</h1>
+                    <p className="text-gray-600 mt-1">Manage and review all consultancy reports</p>
+                </div>
                 <Link href={CG_ROUTES.CREATE_CONSULTANCY_REPORT}>
                     <Button>
                         <Plus size={20} />
-                        Add New
+                        Add New Report
                     </Button>
                 </Link>
             </div>
+
+            {/* Filters Card */}
+            <Card>
+                <div className="p-6">
+                    <div className="flex items-center gap-2 mb-4">
+                        <FilterIcon className="h-5 w-5 text-gray-600" />
+                        <h3 className="text-lg font-semibold">Filters</h3>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="relative">
+                            <label className="text-sm font-medium mb-2 block">Search by Consultant Name</label>
+                            <div className="relative">
+                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                                <Input
+                                    placeholder="Search consultant..."
+                                    value={consultantFilter}
+                                    onChange={(e) => setConsultantFilter(e.target.value)}
+                                    className="pl-10"
+                                />
+                            </div>
+                        </div>
+                        <div>
+                            <label className="text-sm font-medium mb-2 block">Status</label>
+                            <Select value={statusFilter} onValueChange={setStatusFilter}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="All Statuses" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="">All Statuses</SelectItem>
+                                    <SelectItem value="PENDING">Pending</SelectItem>
+                                    <SelectItem value="APPROVED">Approved</SelectItem>
+                                    <SelectItem value="REJECTED">Rejected</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </div>
+                    {(consultantFilter || statusFilter) && (
+                        <div className="mt-4">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                    setConsultantFilter("");
+                                    setStatusFilter("");
+                                }}
+                            >
+                                Clear All Filters
+                            </Button>
+                        </div>
+                    )}
+                </div>
+            </Card>
+
+            {/* Reports Table */}
             <Card>
                 <TableFilters>
                     <DataTable

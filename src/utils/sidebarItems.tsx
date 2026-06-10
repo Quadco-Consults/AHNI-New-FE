@@ -1226,6 +1226,16 @@ export const departmentalLinks: SidebarItem[] = [
             ]
           },
           {
+            name: "Deliverables",
+            path: "/dashboard/c-and-g/deliverables",
+            permissions: [
+              {
+                module: "contract_grants",
+                codenames: ["view_deliverable"]
+              }
+            ]
+          },
+          {
             name: "Service Level Agreement",
             path: "/dashboard/c-and-g/agreements",
             permissions: [
@@ -1722,6 +1732,18 @@ export const globalHubLinks: GlobalHubItem[] = [
       {
         module: "contract_grants",
         codenames: ["view_consultancyreport"]
+      }
+    ]
+  },
+  {
+    label: "Deliverables",
+    path: "/dashboard/c-and-g/deliverables",
+    icon: <ClipboardList className="w-4 h-4" />,
+    category: "contracts",
+    permissions: [
+      {
+        module: "contract_grants",
+        codenames: ["view_deliverable"]
       }
     ]
   },

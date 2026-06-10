@@ -24,6 +24,13 @@ ConsultantAxiosWithToken.interceptors.request.use(
     // Get consultant-specific token
     const consultantToken = localStorage.getItem("consultant_access_token");
 
+    // CRITICAL: Warn if staff tokens are present - potential token contamination
+    const staffToken = localStorage.getItem("token");
+    if (staffToken) {
+      console.warn('⚠️ CRITICAL: Staff token detected while using ConsultantHttpHelper!');
+      console.warn('⚠️ This could indicate portal mixing. Consultant and staff sessions should be separate.');
+    }
+
     console.log('👨‍💼 Consultant API Request:', {
       url: config.url,
       method: config.method,
@@ -115,8 +122,8 @@ ConsultantAxiosWithToken.interceptors.response.use(
         return Promise.reject(error);
       }
 
-      // For consultant portal routes, handle consultant-specific auth failure
-      if (currentPath.startsWith('/consultant-portal') && !originalRequest._retry) {
+      // Handle 401 authentication errors - ALWAYS redirect to consultant login
+      if (error.response.status === 401 && !originalRequest._retry) {
         originalRequest._retry = true;
 
         const consultantRefreshToken = localStorage.getItem('consultant_refresh_token');
@@ -160,7 +167,8 @@ ConsultantAxiosWithToken.interceptors.response.use(
             localStorage.removeItem('consultant_refresh_token');
             localStorage.removeItem('consultant_user');
 
-            // Redirect to consultant login
+            // CRITICAL: Always redirect to consultant portal login, never to staff login
+            console.log('🚀 Redirecting to consultant portal login from ANY path');
             window.location.href = "/consultant-portal/login";
             return Promise.reject(refreshError);
           }
@@ -169,9 +177,11 @@ ConsultantAxiosWithToken.interceptors.response.use(
 
           // Clear consultant tokens
           localStorage.removeItem('consultant_access_token');
+          localStorage.removeItem('consultant_refresh_token');
           localStorage.removeItem('consultant_user');
 
-          // Redirect to consultant login
+          // CRITICAL: Always redirect to consultant portal login, never to staff login
+          console.log('🚀 Redirecting to consultant portal login from ANY path');
           window.location.href = "/consultant-portal/login";
         }
       }

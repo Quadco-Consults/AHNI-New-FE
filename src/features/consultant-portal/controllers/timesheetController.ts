@@ -19,7 +19,9 @@ const TIMESHEET_ENDPOINTS = {
   STATISTICS: "/contract-grants/consultant-portal/timesheets/statistics/",
   ENTRIES: "/contract-grants/consultant-portal/timesheet-entries/",
   ENTRY_DETAIL: (id: string) => `/contract-grants/consultant-portal/timesheet-entries/${id}/`,
-  PROJECTS: "/consultant-portal/projects/",
+  PROJECTS: "/contract-grants/consultant-portal/projects/",
+  DOWNLOAD_TEMPLATE: "/contract-grants/consultant-portal/timesheets/download-template/",
+  UPLOAD_TEMPLATE: "/contract-grants/consultant-portal/timesheets/upload-template/",
 };
 
 // List Timesheets Hook
@@ -182,6 +184,31 @@ export const useDeleteTimesheetEntry = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['consultant-timesheet-detail'] });
       queryClient.invalidateQueries({ queryKey: ['consultant-timesheets'] });
+    },
+  });
+};
+
+// Upload Bulk Timesheet Template Hook
+export const useUploadBulkTimesheetTemplate = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (formData: FormData): Promise<any> => {
+      const response = await ConsultantAxiosWithToken.post(
+        TIMESHEET_ENDPOINTS.UPLOAD_TEMPLATE,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+      return response.data;
+    },
+    onSuccess: () => {
+      // Invalidate queries to refresh data
+      queryClient.invalidateQueries({ queryKey: ['consultant-timesheets'] });
+      queryClient.invalidateQueries({ queryKey: ['consultant-timesheet-statistics'] });
     },
   });
 };

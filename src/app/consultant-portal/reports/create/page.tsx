@@ -10,30 +10,33 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import FormTextArea from "@/components/atoms/FormTextArea";
-import { Upload, X, FileText } from "lucide-react";
+import { Upload, X, FileText, MapPin, CheckCircle2, AlertCircle } from "lucide-react";
+import { useGeolocation } from "@/hooks/useGeolocation";
+import { useQuery } from "@tanstack/react-query";
 import {
     ConsultancyReportSchema,
     TConsultancyReportFormData,
 } from "@/features/contracts-grants/types/contract-management/consultancy-report";
-import {
-    useCreateConsultancyReport,
-} from "@/features/contracts-grants/controllers/consultancyReportController";
 import FormButton from "@/components/FormButton";
 import FormCombobox from "@/components/atoms/FormCombobox";
-import { useGetAllUsers } from "@/features/auth/controllers/userController";
-import { useGetAllConsultancyApplicants } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
-import { useGetAllProjects } from "@/features/projects/controllers/projectController";
 import { ConsultantAuthUtils } from "@/features/consultant-portal/controllers/consultantAuthController";
 import { ArrowLeft } from "lucide-react";
+import ConsultantAxiosWithToken from "@/constants/api_management/ConsultantHttpHelper";
 
 export default function CreateConsultantReportPage() {
+    // Get today's date in YYYY-MM-DD format for report_date default
+    const getTodayDate = () => {
+        const today = new Date();
+        return today.toISOString().split('T')[0];
+    };
+
     const form = useForm<TConsultancyReportFormData>({
         resolver: zodResolver(ConsultancyReportSchema),
         defaultValues: {
             project: "",
             supervisor: "",
             consultant: "",
-            report_date: "",
+            report_date: getTodayDate(), // Auto-populate with today's date
             consultancy_start_date: "",
             consultancy_end_date: "",
             consultancy_duration: "",
@@ -45,72 +48,112 @@ export default function CreateConsultantReportPage() {
     });
 
     const router = useRouter();
-    const [document, setDocument] = useState<File | null>(null);
+    const [documents, setDocuments] = useState<File[]>([]);
+    const { coords, loading: locationLoading, error: locationError, getCurrentLocation } = useGeolocation();
 
     // Get consultant data
     const consultantData = ConsultantAuthUtils.getConsultantData();
     const consultantEmail = consultantData.email;
 
-    const { data: project } = useGetAllProjects({
-        page: 1,
-        size: 2000000,
+    // Fetch projects using consultant HTTP client
+    const { data: project } = useQuery({
+        queryKey: ['consultant-projects'],
+        queryFn: async () => {
+            const response = await ConsultantAxiosWithToken.get('projects/projects/', {
+                params: { page: 1, size: 2000000 }
+            });
+            return response.data;
+        },
     });
 
     const projectOptions = useMemo(
         () =>
-            project?.data.results.map(({ title, id }) => ({
-                label: title,
-                value: id,
-            })),
+            project?.data?.results?.map((proj: any) => ({
+                label: proj.title,
+                value: proj.id,
+            })) || [],
         [project]
     );
 
-    const { data: user } = useGetAllUsers({
-        page: 1,
-        size: 2000000,
+    // Fetch users/supervisors using consultant HTTP client
+    const { data: user } = useQuery({
+        queryKey: ['consultant-users'],
+        queryFn: async () => {
+            const response = await ConsultantAxiosWithToken.get('users/users/', {
+                params: { page: 1, size: 2000000 }
+            });
+            return response.data;
+        },
     });
 
     const userOptions = useMemo(
         () =>
-            user?.data.results.map(({ first_name, last_name, id }) => ({
-                label: `${first_name} ${last_name}`,
-                value: id,
-            })),
+            user?.data?.results?.map((u: any) => ({
+                label: `${u.first_name} ${u.last_name}`,
+                value: u.id,
+            })) || [],
         [user]
     );
 
     // Fetch consultants to find the current logged-in consultant's management ID
-    const { data: consultantDataAPI } = useGetAllConsultancyApplicants({
-        page: 1,
-        size: 2000000,
+    const { data: consultantDataAPI } = useQuery({
+        queryKey: ['consultant-applicants-for-report'],
+        queryFn: async () => {
+            const response = await ConsultantAxiosWithToken.get('contract-grants/consultancy/applicants/', {
+                params: { page: 1, size: 2000000 }
+            });
+            return response.data;
+        },
     });
 
-    const currentConsultantManagementId = useMemo(() => {
+    const { currentConsultantManagementId, currentApplicant } = useMemo(() => {
         const allApplicants = consultantDataAPI?.data?.results || [];
 
         // Find the applicant matching the logged-in consultant's email
-        const currentApplicant = allApplicants.find(
+        const applicant = allApplicants.find(
             applicant => applicant.email.toLowerCase() === consultantEmail.toLowerCase()
         );
 
-        if (currentApplicant) {
+        if (applicant) {
             // Get the consultant management ID
-            const managementId = Array.isArray(currentApplicant.consultants)
-                ? currentApplicant.consultants[0]
-                : currentApplicant.consultants || currentApplicant.consultancy;
+            const managementId = Array.isArray(applicant.consultants)
+                ? applicant.consultants[0]
+                : applicant.consultants || applicant.consultancy;
 
-            console.log('✅ Found consultant management ID:', {
+            console.log('✅ Found consultant data:', {
                 email: consultantEmail,
-                applicantName: currentApplicant.name,
+                applicantName: applicant.name,
                 managementId,
+                project: applicant.project,
             });
 
-            return managementId;
+            return {
+                currentConsultantManagementId: managementId,
+                currentApplicant: applicant
+            };
         }
 
-        console.warn('⚠️ Could not find consultant management ID for:', consultantEmail);
-        return null;
+        console.warn('⚠️ Could not find consultant data for:', consultantEmail);
+        return {
+            currentConsultantManagementId: null,
+            currentApplicant: null
+        };
     }, [consultantDataAPI, consultantEmail]);
+
+    // Fetch consultant management details to get supervisor and project
+    const { data: consultantManagementData } = useQuery({
+        queryKey: ['consultant-management-details', currentConsultantManagementId],
+        queryFn: async () => {
+            if (!currentConsultantManagementId) return null;
+            const response = await ConsultantAxiosWithToken.get(
+                `contract-grants/consultants/${currentConsultantManagementId}/`
+            );
+            return response.data;
+        },
+        enabled: !!currentConsultantManagementId,
+    });
+
+    const consultantManagement = consultantManagementData?.data;
 
     // Auto-fill consultant field when management ID is found
     useEffect(() => {
@@ -119,16 +162,58 @@ export default function CreateConsultantReportPage() {
         }
     }, [currentConsultantManagementId, form]);
 
-    const { createConsultancyReport, isLoading: isCreateLoading } =
-        useCreateConsultancyReport();
+    // Auto-fill supervisor when consultant management data loads
+    useEffect(() => {
+        if (consultantManagement?.supervisor) {
+            console.log('✅ Auto-filling supervisor:', consultantManagement.supervisor);
+            form.setValue("supervisor", consultantManagement.supervisor);
+        }
+    }, [consultantManagement, form]);
+
+    // Auto-fill project and consultancy dates when consultant applicant data loads
+    useEffect(() => {
+        if (currentApplicant) {
+            if (currentApplicant.project) {
+                console.log('✅ Auto-filling project:', currentApplicant.project);
+                form.setValue("project", currentApplicant.project);
+            }
+
+            // Auto-fill consultancy start date if available
+            if (currentApplicant.start_duration_date) {
+                console.log('✅ Auto-filling start date:', currentApplicant.start_duration_date);
+                form.setValue("consultancy_start_date", currentApplicant.start_duration_date);
+            }
+
+            // Auto-fill consultancy end date if available
+            if (currentApplicant.end_duration_date) {
+                console.log('✅ Auto-filling end date:', currentApplicant.end_duration_date);
+                form.setValue("consultancy_end_date", currentApplicant.end_duration_date);
+            }
+        }
+    }, [currentApplicant, form]);
+
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const onSubmit: SubmitHandler<TConsultancyReportFormData> = async (
         data
     ) => {
+        setIsSubmitting(true);
         try {
             if (!currentConsultantManagementId) {
                 toast.error('Unable to identify your consultant record. Please contact support.');
+                setIsSubmitting(false);
                 return;
+            }
+
+            // Capture geolocation before submitting
+            toast.loading("Capturing your location...", { id: "location-capture" });
+            let locationCoords;
+            try {
+                locationCoords = await getCurrentLocation();
+                toast.success("Location captured successfully", { id: "location-capture" });
+            } catch (locationErr: any) {
+                toast.error(locationErr.message || "Failed to get location. Report will be submitted without location verification.", { id: "location-capture" });
+                // Continue with submission even if location fails
             }
 
             // Create FormData for file upload
@@ -145,16 +230,22 @@ export default function CreateConsultantReportPage() {
             formData.append('achievements', data.achievements);
             formData.append('challenges_recommendations', data.challenges_recommendations);
 
-            // Add document if uploaded
-            if (document) {
-                formData.append('document', document);
+            // Add geolocation coordinates if available
+            if (locationCoords) {
+                formData.append('submission_latitude', locationCoords.latitude.toString());
+                formData.append('submission_longitude', locationCoords.longitude.toString());
+                console.log('📍 Location captured:', locationCoords);
             }
 
-            console.log('📤 Submitting consultant report with document');
+            // Add first document if uploaded (backend expects single file for now)
+            if (documents.length > 0) {
+                formData.append('document', documents[0]);
+            }
 
-            // Use AxiosWithToken directly to send FormData
-            const AxiosWithToken = (await import("@/constants/api_management/MyHttpHelperWithToken")).default;
-            await AxiosWithToken.post("contract-grants/consultancy/reports/", formData, {
+            console.log('📤 Submitting consultant report with document and location');
+
+            // Use ConsultantAxiosWithToken to send FormData with consultant authentication
+            await ConsultantAxiosWithToken.post("contract-grants/consultant-portal/reports/", formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
@@ -166,23 +257,38 @@ export default function CreateConsultantReportPage() {
             console.error('❌ Report submission error:', error);
             const errorMessage = error?.response?.data?.message ?? error?.message ?? "Something went wrong";
             toast.error(errorMessage);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-        if (file) {
-            // Validate file size (max 10MB)
+        const files = Array.from(event.target.files || []);
+
+        if (files.length === 0) return;
+
+        const validFiles: File[] = [];
+
+        for (const file of files) {
+            // Validate file size (max 10MB each)
             if (file.size > 10 * 1024 * 1024) {
-                toast.error("File size must be less than 10MB");
-                return;
+                toast.error(`${file.name} exceeds 10MB limit`);
+                continue;
             }
-            setDocument(file);
+            validFiles.push(file);
         }
+
+        if (validFiles.length > 0) {
+            setDocuments([...documents, ...validFiles]);
+            toast.success(`${validFiles.length} file(s) added`);
+        }
+
+        // Reset input
+        event.target.value = '';
     };
 
-    const removeDocument = () => {
-        setDocument(null);
+    const removeDocument = (index: number) => {
+        setDocuments(documents.filter((_, i) => i !== index));
     };
 
     // Watch start and end dates to auto-calculate duration
@@ -246,6 +352,7 @@ export default function CreateConsultantReportPage() {
                                     emptyMessage="No project found."
                                     required
                                     options={projectOptions}
+                                    helperText="Auto-populated from your assignment"
                                 />
 
                                 <FormCombobox
@@ -256,6 +363,7 @@ export default function CreateConsultantReportPage() {
                                     emptyMessage="No supervisor found."
                                     required
                                     options={userOptions}
+                                    helperText="Auto-populated from your assignment"
                                 />
 
                                 <FormInput
@@ -263,6 +371,7 @@ export default function CreateConsultantReportPage() {
                                     label="Report Date"
                                     name="report_date"
                                     required
+                                    helperText="Defaults to today's date"
                                 />
                             </div>
 
@@ -275,6 +384,7 @@ export default function CreateConsultantReportPage() {
                                         label="Start Date"
                                         name="consultancy_start_date"
                                         required
+                                        helperText="Auto-populated from your contract"
                                     />
 
                                     <FormInput
@@ -282,6 +392,7 @@ export default function CreateConsultantReportPage() {
                                         label="End Date"
                                         name="consultancy_end_date"
                                         required
+                                        helperText="Auto-populated from your contract"
                                     />
 
                                     <FormInput
@@ -291,6 +402,7 @@ export default function CreateConsultantReportPage() {
                                         required
                                         disabled
                                         className="bg-gray-50"
+                                        helperText="Automatically calculated"
                                     />
                                 </div>
                             </div>
@@ -300,48 +412,55 @@ export default function CreateConsultantReportPage() {
 
                                 <div className="space-y-4">
                                     <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 hover:border-gray-400 transition-colors">
-                                        {!document ? (
-                                            <div className="text-center">
-                                                <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                                                <div className="mt-4">
-                                                    <label
-                                                        htmlFor="document-upload"
-                                                        className="cursor-pointer text-sm font-medium text-green-600 hover:text-green-700"
-                                                    >
-                                                        Click to upload
-                                                        <input
-                                                            id="document-upload"
-                                                            type="file"
-                                                            className="sr-only"
-                                                            onChange={handleFileChange}
-                                                            accept=".pdf,.doc,.docx,.xls,.xlsx"
-                                                        />
-                                                    </label>
-                                                    <span className="text-sm text-gray-500"> or drag and drop</span>
-                                                </div>
-                                                <p className="text-xs text-gray-500 mt-2">
-                                                    PDF, DOC, DOCX, XLS, XLSX up to 10MB
-                                                </p>
-                                            </div>
-                                        ) : (
-                                            <div className="flex items-center justify-between">
-                                                <div className="flex items-center gap-3">
-                                                    <FileText className="h-8 w-8 text-green-600" />
-                                                    <div>
-                                                        <p className="text-sm font-medium text-gray-900">{document.name}</p>
-                                                        <p className="text-xs text-gray-500">
-                                                            {(document.size / 1024 / 1024).toFixed(2)} MB
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                                <Button
-                                                    type="button"
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    onClick={removeDocument}
+                                        <div className="text-center">
+                                            <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                                            <div className="mt-4">
+                                                <label
+                                                    htmlFor="document-upload"
+                                                    className="cursor-pointer text-sm font-medium text-green-600 hover:text-green-700"
                                                 >
-                                                    <X className="h-4 w-4" />
-                                                </Button>
+                                                    Click to upload {documents.length > 0 && `(${documents.length} selected)`}
+                                                    <input
+                                                        id="document-upload"
+                                                        type="file"
+                                                        className="sr-only"
+                                                        onChange={handleFileChange}
+                                                        accept=".pdf,.doc,.docx,.xls,.xlsx"
+                                                        multiple
+                                                    />
+                                                </label>
+                                                <span className="text-sm text-gray-500"> or drag and drop</span>
+                                            </div>
+                                            <p className="text-xs text-gray-500 mt-2">
+                                                PDF, DOC, DOCX, XLS, XLSX up to 10MB each • Multiple files supported
+                                            </p>
+                                        </div>
+
+                                        {/* Selected Files List */}
+                                        {documents.length > 0 && (
+                                            <div className="mt-4 space-y-2">
+                                                <p className="text-sm font-medium text-gray-700">Selected Files:</p>
+                                                {documents.map((file, index) => (
+                                                    <div key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded">
+                                                        <div className="flex items-center gap-3">
+                                                            <FileText className="h-8 w-8 text-green-600" />
+                                                            <div>
+                                                                <p className="text-sm font-medium text-gray-900">{file.name}</p>
+                                                                <p className="text-xs text-gray-500">
+                                                                    {(file.size / 1024 / 1024).toFixed(2)} MB
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                        <Button
+                                                            type="button"
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            onClick={() => removeDocument(index)}
+                                                        >
+                                                            <X className="h-4 w-4" />
+                                                        </Button>
+                                                    </div>
+                                                ))}
                                             </div>
                                         )}
                                     </div>
@@ -384,6 +503,35 @@ export default function CreateConsultantReportPage() {
                                 />
                             </div>
 
+                            {/* Location Status */}
+                            {coords && (
+                                <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                                    <div className="flex items-center gap-2">
+                                        <CheckCircle2 className="h-5 w-5 text-green-600" />
+                                        <div>
+                                            <p className="font-medium text-green-900">Location Verified</p>
+                                            <p className="text-sm text-green-700">
+                                                Your location will be recorded with this submission for verification.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {locationError && (
+                                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+                                    <div className="flex items-center gap-2">
+                                        <AlertCircle className="h-5 w-5 text-yellow-600" />
+                                        <div>
+                                            <p className="font-medium text-yellow-900">Location Not Available</p>
+                                            <p className="text-sm text-yellow-700">
+                                                {locationError}. Your report will still be submitted but may require additional verification.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
                             <div className="flex items-center justify-end gap-4 pt-6 border-t">
                                 <Button
                                     type="button"
@@ -396,9 +544,10 @@ export default function CreateConsultantReportPage() {
                                 <FormButton
                                     type="submit"
                                     size="lg"
-                                    loading={isCreateLoading}
-                                    disabled={!currentConsultantManagementId}
+                                    loading={isSubmitting}
+                                    disabled={!currentConsultantManagementId || isSubmitting}
                                 >
+                                    <MapPin className="h-4 w-4 mr-2" />
                                     Submit Report
                                 </FormButton>
                             </div>

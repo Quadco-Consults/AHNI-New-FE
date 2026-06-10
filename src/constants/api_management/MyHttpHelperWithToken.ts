@@ -321,7 +321,10 @@ AxiosWithToken.interceptors.response.use(
             localStorage.removeItem('user');
 
             // Redirect to appropriate login based on current context
-            if (currentPath.startsWith('/vendor-portal')) {
+            if (currentPath.startsWith('/consultant-portal')) {
+              console.log('👨‍💼 Consultant context detected - redirecting to consultant login');
+              window.location.href = "/consultant-portal/login";
+            } else if (currentPath.startsWith('/vendor-portal')) {
               console.log('🏪 Vendor context detected - redirecting to vendor login');
               window.location.href = "/vendor-portal/login";
             } else {
@@ -337,7 +340,10 @@ AxiosWithToken.interceptors.response.use(
           localStorage.removeItem('user');
 
           // Redirect to appropriate login based on current context
-          if (currentPath.startsWith('/vendor-portal')) {
+          if (currentPath.startsWith('/consultant-portal')) {
+            console.log('👨‍💼 Consultant context detected - redirecting to consultant login');
+            window.location.href = "/consultant-portal/login";
+          } else if (currentPath.startsWith('/vendor-portal')) {
             console.log('🏪 Vendor context detected - redirecting to vendor login');
             window.location.href = "/vendor-portal/login";
           } else {

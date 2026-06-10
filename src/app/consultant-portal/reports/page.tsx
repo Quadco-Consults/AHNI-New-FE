@@ -23,9 +23,6 @@ import {
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { FileText, Plus, Eye, Filter, CheckCircle, Clock, ClipboardList } from "lucide-react";
 import { useGetConsultantReports } from "@/features/consultant-portal/controllers/consultantReportsController";
-import { useGetAllConsultancyApplicants } from "@/features/contracts-grants/controllers/consultancyApplicantsController";
-import { useGetAllConsultantManagements } from "@/features/contracts-grants/controllers/consultantManagementController";
-import { ConsultantAuthUtils } from "@/features/consultant-portal/controllers/consultantAuthController";
 import { LoadingSpinner } from "@/components/Loading";
 
 export default function ConsultantReportsPage() {
@@ -34,105 +31,28 @@ export default function ConsultantReportsPage() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const pageSize = 20;
 
-  // Get consultant data
-  const consultantData = ConsultantAuthUtils.getConsultantData();
-  const consultantEmail = consultantData.email;
-
   // Convert "all" to empty string for API call
   const apiStatusFilter = statusFilter === "all" ? "" : statusFilter;
+
+  // Backend already filters reports by logged-in consultant
   const { data: reportsData, isLoading, error } = useGetConsultantReports({
     page: currentPage,
     size: pageSize,
     status: apiStatusFilter,
   });
 
-  // Fetch consultancy applicants to map consultant names
-  const { data: applicantsData } = useGetAllConsultancyApplicants({
-    page: 1,
-    size: 2000000,
-  });
+  const reports = reportsData?.data?.results || [];
+  const totalCount = reportsData?.data?.paginator?.count || 0;
 
-  // Fetch consultant management records to match titles to IDs
-  const { data: consultantManagementsData } = useGetAllConsultantManagements({
-    page: 1,
-    size: 2000000,
-    type: "",
-  });
-
-  // Create mappings for consultant identification
-  const { consultantIdToEmail, titleToId } = useMemo(() => {
-    const idToEmail: Record<string, string> = {};
-    const titleMap: Record<string, string> = {};
-
-    // Map consultant management ID → applicant email
-    const applicants = applicantsData?.data?.results || [];
-    applicants.forEach((applicant) => {
-      const consultantIds = Array.isArray(applicant.consultants)
-        ? applicant.consultants
-        : applicant.consultants
-        ? [applicant.consultants]
-        : applicant.consultancy
-        ? [applicant.consultancy]
-        : [];
-
-      consultantIds.forEach((consultantId) => {
-        if (consultantId && !idToEmail[consultantId]) {
-          idToEmail[consultantId] = applicant.email;
-        }
-      });
-    });
-
-    // Map consultant management title → consultant management ID
-    const consultantManagements = consultantManagementsData?.data?.results || [];
-    consultantManagements.forEach((cm) => {
-      if (cm.title && cm.id) {
-        titleMap[cm.title] = cm.id;
-      }
-    });
-
+  // Calculate statistics from reports
+  const statistics = useMemo(() => {
     return {
-      consultantIdToEmail: idToEmail,
-      titleToId: titleMap,
+      total_reports: reports.length,
+      pending: reports.filter(r => r.status?.toUpperCase() === 'PENDING').length,
+      approved: reports.filter(r => r.status?.toUpperCase() === 'APPROVED').length,
+      rejected: reports.filter(r => r.status?.toUpperCase() === 'REJECTED').length,
     };
-  }, [applicantsData, consultantManagementsData]);
-
-  // Filter reports for this consultant and calculate statistics
-  const { filteredReports, statistics } = useMemo(() => {
-    const reports = reportsData?.data?.results || [];
-
-    // Filter reports where consultant matches logged-in user's email
-    const myReports = reports.filter((report) => {
-      // Get the consultant field - could be an ID or a title string
-      let consultantIdOrTitle = typeof report.consultant === 'object'
-        ? (report.consultant as any)?.id
-        : report.consultant;
-
-      // Check if it's a title (not a UUID format) and convert to ID
-      let consultantId = consultantIdOrTitle;
-      const isTitle = consultantIdOrTitle && !consultantIdOrTitle.match(/^[0-9a-f-]{36}$/i);
-
-      if (isTitle && titleToId[consultantIdOrTitle]) {
-        consultantId = titleToId[consultantIdOrTitle];
-      }
-
-      // Check if this report belongs to the logged-in consultant
-      const reportEmail = consultantId ? consultantIdToEmail[consultantId] : null;
-      return reportEmail && reportEmail.toLowerCase() === consultantEmail.toLowerCase();
-    });
-
-    // Calculate statistics
-    const stats = {
-      total_reports: myReports.length,
-      pending: myReports.filter(r => r.status.toUpperCase() === 'PENDING').length,
-      approved: myReports.filter(r => r.status.toUpperCase() === 'APPROVED').length,
-      rejected: myReports.filter(r => r.status.toUpperCase() === 'REJECTED').length,
-    };
-
-    return {
-      filteredReports: myReports,
-      statistics: stats,
-    };
-  }, [reportsData?.data?.results, consultantIdToEmail, titleToId, consultantEmail]);
+  }, [reports]);
 
   const getStatusBadge = (status: string) => {
     switch (status.toUpperCase()) {
@@ -208,7 +128,7 @@ export default function ConsultantReportsPage() {
             <CardContent>
               <div className="flex items-center gap-2">
                 <ClipboardList className="h-8 w-8 text-blue-500" />
-                <div className="text-2xl font-bold">{statistics.total_reports}</div>
+                <div className="text-2xl font-bold">{totalCount}</div>
               </div>
             </CardContent>
           </Card>
@@ -289,11 +209,11 @@ export default function ConsultantReportsPage() {
         <CardHeader>
           <CardTitle>Reports</CardTitle>
           <CardDescription>
-            Showing {filteredReports.length} report{filteredReports.length !== 1 ? 's' : ''}
+            Showing {reports.length} report{reports.length !== 1 ? 's' : ''}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {filteredReports.length === 0 ? (
+          {reports.length === 0 ? (
             <div className="text-center py-12">
               <ClipboardList className="h-12 w-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-semibold mb-2">No Reports</h3>
@@ -322,7 +242,7 @@ export default function ConsultantReportsPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredReports.map((report) => (
+                  {reports.map((report) => (
                     <TableRow key={report.id}>
                       <TableCell className="font-medium max-w-xs truncate">
                         {report.purpose}
@@ -356,10 +276,10 @@ export default function ConsultantReportsPage() {
               </Table>
 
               {/* Pagination - only show if we have paginated API response */}
-              {reportsData?.data?.pagination && reportsData.data.pagination.total_pages > 1 && (
+              {reportsData?.data?.paginator && reportsData.data.paginator.total_pages > 1 && (
                 <div className="flex items-center justify-between mt-4">
                   <div className="text-sm text-gray-600">
-                    Page {reportsData.data.pagination.page} of {reportsData.data.pagination.total_pages}
+                    Page {reportsData.data.paginator.page} of {reportsData.data.paginator.total_pages}
                   </div>
                   <div className="flex gap-2">
                     <Button
@@ -374,7 +294,7 @@ export default function ConsultantReportsPage() {
                       variant="outline"
                       size="sm"
                       onClick={() => setCurrentPage(currentPage + 1)}
-                      disabled={currentPage === reportsData.data.pagination.total_pages}
+                      disabled={currentPage === reportsData.data.paginator.total_pages}
                     >
                       Next
                     </Button>

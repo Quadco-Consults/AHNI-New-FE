@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
+import ConsultantAxiosWithToken from "@/constants/api_management/ConsultantHttpHelper";
 import { AxiosError } from "axios";
 import {
   IConsultancyReportPaginatedData,
@@ -40,9 +40,8 @@ interface ConsultantReportFilterParams {
   enabled?: boolean;
 }
 
-// Note: Consultant portal uses the same consultancy reports API as the main app
-// We filter on the frontend to show only the logged-in consultant's reports
-const BASE_URL = "contract-grants/consultancy/reports/";
+// Consultant portal has its own dedicated reports endpoint
+const BASE_URL = "contract-grants/consultant-portal/reports/";
 
 // Get All Consultant Reports (Paginated and filtered for current consultant)
 export const useGetConsultantReports = ({
@@ -56,7 +55,7 @@ export const useGetConsultantReports = ({
     queryKey: ["consultantReports", page, size, search, status],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get(BASE_URL, {
+        const response = await ConsultantAxiosWithToken.get(BASE_URL, {
           params: {
             page,
             size,
@@ -81,7 +80,7 @@ export const useGetSingleConsultantReport = (id: string, enabled: boolean = true
     queryKey: ["consultantReport", id],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get(`${BASE_URL}${id}/`);
+        const response = await ConsultantAxiosWithToken.get(`${BASE_URL}${id}/`);
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
@@ -100,7 +99,7 @@ export const useGetConsultantReportStatistics = (consultantEmail: string, enable
     queryFn: async () => {
       try {
         // Fetch all reports and calculate stats on frontend
-        const response = await AxiosWithToken.get(BASE_URL, {
+        const response = await ConsultantAxiosWithToken.get(BASE_URL, {
           params: {
             page: 1,
             size: 1000, // Get all reports for stats calculation

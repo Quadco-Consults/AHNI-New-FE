@@ -22,7 +22,7 @@ export default function CreatePaymentRequestPage() {
   const [paymentReason, setPaymentReason] = useState("");
   const [paymentDate, setPaymentDate] = useState("");
   const [amount, setAmount] = useState("");
-  const [document, setDocument] = useState<File | null>(null);
+  const [documents, setDocuments] = useState<File[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const validateForm = () => {
@@ -40,8 +40,8 @@ export default function CreatePaymentRequestPage() {
       newErrors.amount = "Valid amount is required";
     }
 
-    if (!document) {
-      newErrors.document = "Supporting document is required (invoice, timesheet, report, etc.)";
+    if (documents.length === 0) {
+      newErrors.document = "At least one supporting document is required (invoice, timesheet, report, etc.)";
     }
 
     setErrors(newErrors);
@@ -61,7 +61,7 @@ export default function CreatePaymentRequestPage() {
         payment_reason: paymentReason,
         payment_date: paymentDate,
         amount: parseFloat(amount),
-        document: document!,
+        document: documents[0], // Send the first file for now
       },
       {
         onSuccess: (data) => {
@@ -79,34 +79,52 @@ export default function CreatePaymentRequestPage() {
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      // Validate file size (max 10MB)
+    const files = Array.from(e.target.files || []);
+
+    if (files.length === 0) return;
+
+    // Validate file type (common document types)
+    const allowedTypes = [
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'image/jpeg',
+      'image/png',
+      'image/jpg'
+    ];
+
+    const validFiles: File[] = [];
+
+    for (const file of files) {
+      // Validate file size (max 10MB each)
       if (file.size > 10 * 1024 * 1024) {
-        setErrors({ ...errors, document: "File size must be less than 10MB" });
-        return;
+        toast.error(`${file.name} exceeds 10MB limit`);
+        continue;
       }
 
-      // Validate file type (common document types)
-      const allowedTypes = [
-        'application/pdf',
-        'application/msword',
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'application/vnd.ms-excel',
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        'image/jpeg',
-        'image/png',
-        'image/jpg'
-      ];
-
+      // Validate file type
       if (!allowedTypes.includes(file.type)) {
-        setErrors({ ...errors, document: "Only PDF, Word, Excel, and image files are allowed" });
-        return;
+        toast.error(`${file.name} is not a supported file type`);
+        continue;
       }
 
-      setDocument(file);
-      setErrors({ ...errors, document: "" });
+      validFiles.push(file);
     }
+
+    if (validFiles.length > 0) {
+      setDocuments([...documents, ...validFiles]);
+      setErrors({ ...errors, document: "" });
+      toast.success(`${validFiles.length} file(s) added`);
+    }
+
+    // Reset input
+    e.target.value = '';
+  };
+
+  const removeDocument = (index: number) => {
+    setDocuments(documents.filter((_, i) => i !== index));
   };
 
   if (profileLoading) {
@@ -287,9 +305,9 @@ export default function CreatePaymentRequestPage() {
             <div className="space-y-2">
               <Label htmlFor="document" className="flex items-center gap-2">
                 <Upload className="h-4 w-4" />
-                Supporting Document *
+                Supporting Documents * ({documents.length} selected)
               </Label>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6">
                 <Input
                   id="document"
                   type="file"
@@ -297,34 +315,53 @@ export default function CreatePaymentRequestPage() {
                   className="hidden"
                   accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
                   disabled={!hasBankingInfo || !canSubmitRequest}
+                  multiple
                 />
                 <label
                   htmlFor="document"
-                  className={`cursor-pointer ${!hasBankingInfo || !canSubmitRequest ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  className={`cursor-pointer block text-center ${!hasBankingInfo || !canSubmitRequest ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
                   <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  {document ? (
-                    <div>
-                      <p className="text-sm font-medium text-green-600">{document.name}</p>
-                      <p className="text-xs text-gray-500 mt-1">
-                        {(document.size / 1024 / 1024).toFixed(2)} MB
-                      </p>
-                    </div>
-                  ) : (
-                    <div>
-                      <p className="text-sm font-medium">Click to upload document</p>
-                      <p className="text-xs text-gray-500 mt-1">
-                        PDF, Word, Excel, or Image (Max 10MB)
-                      </p>
-                    </div>
-                  )}
+                  <p className="text-sm font-medium">Click to upload documents</p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    PDF, Word, Excel, or Image (Max 10MB each) • Multiple files supported
+                  </p>
                 </label>
+
+                {/* Selected Files List */}
+                {documents.length > 0 && (
+                  <div className="mt-4 space-y-2">
+                    <p className="text-sm font-medium text-gray-700">Selected Files:</p>
+                    {documents.map((file, index) => (
+                      <div key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded">
+                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                          <FileText className="h-5 w-5 text-blue-500 flex-shrink-0" />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium truncate">{file.name}</p>
+                            <p className="text-xs text-gray-500">
+                              {(file.size / 1024 / 1024).toFixed(2)} MB
+                            </p>
+                          </div>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeDocument(index)}
+                          className="flex-shrink-0"
+                        >
+                          <span className="text-red-600">×</span>
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
               {errors.document && (
                 <p className="text-sm text-red-500">{errors.document}</p>
               )}
               <p className="text-sm text-gray-600">
-                Upload invoice, timesheet, report, or any supporting document
+                Upload invoice, timesheet, report, or any supporting documents (you can select multiple files)
               </p>
             </div>
 

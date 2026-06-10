@@ -69,6 +69,13 @@ export interface TimesheetStatistics {
 export interface CreateTimesheetData {
   start_date: string;
   end_date: string;
+  period_type?: 'daily' | 'weekly' | 'monthly' | 'custom';
+  activities?: Array<{
+    activity: string;
+    description?: string;
+    hours?: number;
+  }>;
+  submit_immediately?: boolean;
 }
 
 export interface CreateTimesheetEntryData {

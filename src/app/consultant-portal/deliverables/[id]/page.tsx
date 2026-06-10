@@ -25,33 +25,31 @@ import {
 } from "@/features/consultant-portal/controllers/deliverablesController";
 import { LoadingSpinner } from "@/components/Loading";
 import { toast } from "sonner";
+import FileUploadManager from "@/components/FileUploadManager";
 
 export default function DeliverableDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
   const [submissionNotes, setSubmissionNotes] = useState("");
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const { data: deliverableData, isLoading } = useDeliverableDetail(id);
   const submitMutation = useSubmitDeliverable(id);
 
   const deliverable = deliverableData?.data;
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setSelectedFile(e.target.files[0]);
-    }
-  };
-
   const handleSubmit = async () => {
+    if (!submissionNotes.trim()) {
+      toast.error("Please provide submission notes");
+      return;
+    }
+
     try {
       await submitMutation.mutateAsync({
         submission_notes: submissionNotes,
-        attachment: selectedFile || undefined,
+        attachment: undefined, // Files are managed by FileUploadManager separately
       });
       toast.success("Deliverable submitted successfully!");
       setSubmissionNotes("");
-      setSelectedFile(null);
     } catch (error) {
       toast.error("Failed to submit deliverable");
     }
@@ -72,26 +70,60 @@ export default function DeliverableDetailPage({ params }: { params: Promise<{ id
       
       <Card>
         <CardHeader>
-          <CardTitle>{deliverable.title}</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <FileText className="h-5 w-5" />
+            {deliverable.title}
+          </CardTitle>
           <CardDescription>{deliverable.description}</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-6">
+          {/* Submission Notes */}
           <div>
-            <Label>Submission Notes</Label>
+            <Label className="text-base font-semibold">Submission Notes</Label>
+            <p className="text-sm text-gray-600 mb-2">Provide details about your deliverable submission</p>
             <Textarea
               value={submissionNotes}
               onChange={(e) => setSubmissionNotes(e.target.value)}
               rows={4}
+              placeholder="Enter notes about this submission..."
             />
           </div>
-          <div>
-            <Label>Attach File</Label>
-            <Input type="file" onChange={handleFileChange} />
+
+          {/* File Attachments */}
+          <div className="border-t pt-6">
+            <Label className="text-base font-semibold mb-2 block">Deliverable Files</Label>
+            <p className="text-sm text-gray-600 mb-4">Upload all files related to this deliverable (reports, presentations, data files, etc.)</p>
+
+            <FileUploadManager
+              contentType="contract_grants.deliverable"
+              objectId={id}
+              maxFiles={20}
+              maxFileSize={100}
+              showCategorySelect={true}
+              defaultCategory="SUPPORTING_DOC"
+            />
           </div>
-          <Button onClick={handleSubmit} disabled={submitMutation.isPending}>
-            <Send className="h-4 w-4 mr-2" />
-            Submit
-          </Button>
+
+          {/* Submit Button */}
+          <div className="flex justify-end pt-4 border-t">
+            <Button
+              onClick={handleSubmit}
+              disabled={submitMutation.isPending}
+              size="lg"
+            >
+              {submitMutation.isPending ? (
+                <>
+                  <LoadingSpinner className="mr-2" />
+                  Submitting...
+                </>
+              ) : (
+                <>
+                  <Send className="h-4 w-4 mr-2" />
+                  Submit Deliverable
+                </>
+              )}
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>
