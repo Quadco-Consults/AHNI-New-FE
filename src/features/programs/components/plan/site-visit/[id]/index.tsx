@@ -355,12 +355,14 @@ const SiteVisitDetail = () => {
                     <p className="mt-1">{formatDate(siteVisit.updated_datetime)}</p>
                   </div>
 
-                  {siteVisit.estimated_budget && (
-                    <div>
-                      <label className="text-sm font-medium text-gray-500">Estimated Budget</label>
-                      <p className="mt-1">₦{siteVisit.estimated_budget?.toLocaleString()}</p>
-                    </div>
-                  )}
+                  <div>
+                    <label className="text-sm font-medium text-gray-500">Estimated Budget</label>
+                    <p className="mt-1">
+                      ₦{(siteVisit.estimated_budget ||
+                         siteVisit.team_members?.reduce((sum, member) => sum + (member.estimated_total_cost || member.total_estimated_cost || 0), 0) ||
+                         0).toLocaleString()}
+                    </p>
+                  </div>
                 </div>
               </div>
 
@@ -415,9 +417,9 @@ const SiteVisitDetail = () => {
                         </h4>
                         <p className="text-sm text-gray-600">{email || 'No email provided'}</p>
                         <p className="text-xs text-gray-500">{roleLabel}</p>
-                        {member.per_day_allowance && (
+                        {(member.estimated_per_day_allowance && member.estimated_per_day_allowance > 0) && (
                           <p className="text-xs text-green-600">
-                            Daily Allowance: ₦{member.per_day_allowance?.toLocaleString()}
+                            Daily Allowance: ₦{member.estimated_per_day_allowance?.toLocaleString()}
                           </p>
                         )}
                       </div>
@@ -582,12 +584,12 @@ const SiteVisitDetail = () => {
                           </div>
                         )}
 
-                        {(member.per_day_allowance > 0 || member.transport_cost > 0 || member.accommodation_cost > 0) && (
+                        {(member.estimated_total_cost && member.estimated_total_cost > 0) && (
                           <div className="text-xs text-gray-600 mt-1">
-                            <p>Daily: ₦{parseFloat(member.per_day_allowance || '0').toLocaleString()}</p>
-                            <p>Transport: ₦{parseFloat(member.transport_cost || '0').toLocaleString()}</p>
-                            <p>Accommodation: ₦{parseFloat(member.accommodation_cost || '0').toLocaleString()}</p>
-                            <p className="font-medium">Total: ₦{member.total_estimated_cost?.toLocaleString() || '0'}</p>
+                            <p>Daily: ₦{parseFloat(member.estimated_per_day_allowance || '0').toLocaleString()}</p>
+                            <p>Transport: ₦{parseFloat(member.estimated_transport_cost || '0').toLocaleString()}</p>
+                            <p>Accommodation: ₦{parseFloat(member.estimated_accommodation_cost || '0').toLocaleString()}</p>
+                            <p className="font-medium">Total: ₦{member.estimated_total_cost?.toLocaleString() || '0'}</p>
                           </div>
                         )}
                       </div>
@@ -639,7 +641,7 @@ const SiteVisitDetail = () => {
                   <div className="bg-yellow-50 p-4 rounded-lg">
                     <p className="text-sm text-gray-600">Total Estimated Cost</p>
                     <p className="text-xl font-bold text-yellow-600">
-                      ₦{siteVisit.team_members.reduce((sum, member) => sum + (member.total_estimated_cost || 0), 0).toLocaleString()}
+                      ₦{siteVisit.team_members.reduce((sum, member) => sum + (member.estimated_total_cost || member.total_estimated_cost || 0), 0).toLocaleString()}
                     </p>
                   </div>
                   <div className="bg-purple-50 p-4 rounded-lg">

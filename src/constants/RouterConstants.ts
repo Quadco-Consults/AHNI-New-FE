@@ -283,17 +283,19 @@ export const RouteEnum = {
 
   //competitive bid analysis routes
   COMPETITIVE_BID_ANALYSIS:
-    "/dashboard/procurement-management/competitive-bid-analysis",
+    "/dashboard/procurement/competitive-bid-analysis",
   COMPETITIVE_BID_ANALYSIS_DETAILS:
-    "/dashboard/procurement-management/competitive-bid-analysis/:id",
+    "/dashboard/procurement/competitive-bid-analysis/:id",
   COMPETITIVE_BID_ANALYSIS_DETAILS_APPROVAL_CHECK:
-    "/dashboard/procurement-management/competitive-bid-analysis/:id/check-approval",
+    "/dashboard/procurement/competitive-bid-analysis/:id/check-approval",
   COMPETITIVE_BID_ANALYSIS_DETAILS_START:
-    "/dashboard/procurement-management/competitive-bid-analysis/:id/start/:appID",
-  COMPETITIVE_BID_ANALYSIS_DETAILS_FINANCIAL_BID_OPENING:
-    "/dashboard/procurement-management/competitive-bid-analysis/:id/financial-bid-opening",
-  SUMMARY_OF_TECHNICAL_PREQUALIFICATION:
-    "/dashboard/procurement-management/competitive-bid-analysis/:id/summary-of-technical-prequalification",
+    "/dashboard/procurement/competitive-bid-analysis/:id/start/:appID",
+  COMPETITIVE_BID_ANALYSIS_VENDOR_ANALYSIS:
+    "/dashboard/procurement/competitive-bid-analysis/:id/vendor-analysis",
+  COMPETITIVE_BID_ANALYSIS_ANALYSIS_RESULTS:
+    "/dashboard/procurement/competitive-bid-analysis/:id/analysis-results",
+  COMPETITIVE_BID_ANALYSIS_REPORT:
+    "/dashboard/procurement/competitive-bid-analysis/:id/report",
   //eoi routes
   EOI: "/dashboard/procurement-management/vendor-management/eoi",
   EOI_VIEW: "/dashboard/procurement-management/vendor-management/eoi/:id",

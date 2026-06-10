@@ -166,7 +166,7 @@ const ApprovalWorkflowSection: React.FC<ApprovalWorkflowSectionProps> = ({
         </CardTitle>
         <p className="text-sm text-gray-600">
           Select the AHNI staff members who will review, authorize, and approve this travel request application.
-          A three-level approval process is required.
+          You can leave this empty and an administrator will assign approvers later.
         </p>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -224,19 +224,19 @@ const ApprovalWorkflowSection: React.FC<ApprovalWorkflowSectionProps> = ({
 
         {/* Reviewer Selection */}
         <div className="space-y-2">
-          <label className="required flex items-center gap-2 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+          <label className="flex items-center gap-2 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
             <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
               <span className="text-xs font-medium text-blue-600">1</span>
             </div>
-            Reviewer
+            Reviewer (Optional)
           </label>
           <FormSelect
             name="reviewer"
-            placeholder="Select the first-level reviewer"
+            placeholder="Select the first-level reviewer (optional)"
             options={reviewerOptions}
             searchPlaceholder="Search reviewers..."
             emptyMessage="No reviewers found."
-            required={true}
+            required={false}
           />
           {reviewer && (
             <div className="mt-2">
@@ -249,19 +249,19 @@ const ApprovalWorkflowSection: React.FC<ApprovalWorkflowSectionProps> = ({
 
         {/* Authorizer Selection */}
         <div className="space-y-2">
-          <label className="required flex items-center gap-2 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+          <label className="flex items-center gap-2 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
             <div className="w-6 h-6 bg-orange-100 rounded-full flex items-center justify-center">
               <span className="text-xs font-medium text-orange-600">2</span>
             </div>
-            Authorizer
+            Authorizer (Optional)
           </label>
           <FormSelect
             name="authorizer"
-            placeholder="Select the second-level authorizer"
+            placeholder="Select the second-level authorizer (optional)"
             options={authorizerOptions}
             searchPlaceholder="Search authorizers..."
             emptyMessage="No authorizers found."
-            required={true}
+            required={false}
           />
           {authorizer && (
             <div className="mt-2">
@@ -274,19 +274,19 @@ const ApprovalWorkflowSection: React.FC<ApprovalWorkflowSectionProps> = ({
 
         {/* Final Approver Selection */}
         <div className="space-y-2">
-          <label className="required flex items-center gap-2 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+          <label className="flex items-center gap-2 text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
             <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
               <CheckCircleIcon className="h-4 w-4 text-green-600" />
             </div>
-            Final Approver
+            Final Approver (Optional)
           </label>
           <FormSelect
             name="approver"
-            placeholder="Select the final approver"
+            placeholder="Select the final approver (optional)"
             options={approverOptions}
             searchPlaceholder="Search approvers..."
             emptyMessage="No approvers found."
-            required={true}
+            required={false}
           />
           {approver && (
             <div className="mt-2">

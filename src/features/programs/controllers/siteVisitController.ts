@@ -376,12 +376,30 @@ export const useGetEligibleTeamMembers = (search?: string) => {
     queryKey: ["eligible-team-members", search],
     queryFn: async () => {
       try {
+        console.log('🔍 FETCHING ELIGIBLE TEAM MEMBERS:', {
+          url: `${SITE_VISIT_BASE_URL}eligible_team_members/`,
+          search,
+          hasToken: !!localStorage.getItem('token')
+        });
+
         const response = await AxiosWithToken.get(`${SITE_VISIT_BASE_URL}eligible_team_members/`, {
           params: search ? { search } : {},
         });
+
+        console.log('✅ ELIGIBLE TEAM MEMBERS RESPONSE:', {
+          status: response.status,
+          data: response.data,
+          totalCount: response.data?.data?.total_count
+        });
+
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
+        console.error('❌ ELIGIBLE TEAM MEMBERS ERROR:', {
+          message: axiosError.message,
+          status: axiosError.response?.status,
+          data: axiosError.response?.data
+        });
         throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
       }
     },

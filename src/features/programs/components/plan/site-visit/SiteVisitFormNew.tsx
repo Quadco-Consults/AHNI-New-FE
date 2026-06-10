@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { CalendarIcon, UsersIcon, MapPinIcon, DollarSignIcon } from "lucide-react";
+import { CalendarIcon, UsersIcon, MapPinIcon, DollarSignIcon, ArrowLeft } from "lucide-react";
 import BreadcrumbCard from "@/components/Breadcrumb";
 import { RouteEnum } from "@/constants/RouterConstants";
 
@@ -75,7 +75,11 @@ const SiteVisitFormNew: React.FC<SiteVisitFormNewProps> = ({
   const { data: locationsData } = useGetAllLocations({ page: 1, size: 1000 });
   const { data: projectsData } = useGetAllProjects({ page: 1, size: 1000 });
   const { data: usersData } = useGetAllUsers({ page: 1, size: 1000 });
-  const { data: eligibleTeamMembersData } = useGetEligibleTeamMembers();
+  const {
+    data: eligibleTeamMembersData,
+    isLoading: isLoadingTeamMembers,
+    error: teamMembersError
+  } = useGetEligibleTeamMembers();
 
   // Form initialization
   const form = useForm<TSiteVisitApplicationFormValues>({
@@ -164,11 +168,38 @@ const SiteVisitFormNew: React.FC<SiteVisitFormNewProps> = ({
   // Merge all eligible staff types (AHNI + Consultants + Facilitators + Adhoc Staff)
   // Travel request backend expects user UUIDs from the users table
   const allStaff = React.useMemo(() => {
+    console.log('🔍 ELIGIBLE TEAM MEMBERS DEBUG:', {
+      hasData: !!eligibleTeamMembersData,
+      dataStructure: eligibleTeamMembersData,
+      isLoading: isLoadingTeamMembers,
+      error: teamMembersError
+    });
+
     if (!eligibleTeamMembersData?.data) {
+      console.warn('⚠️ No eligible team members data available');
       return [];
     }
 
-    const { ahni_staff, consultants, facilitators, adhoc_staff } = eligibleTeamMembersData.data;
+    // Handle double-wrapped response from APIResponseViewSetMixin
+    // Response can be either:
+    // 1. Direct: { data: { ahni_staff: {...}, consultants: {...} } }
+    // 2. Wrapped: { data: { data: { ahni_staff: {...}, consultants: {...} } } }
+    let staffData = eligibleTeamMembersData.data;
+
+    // If data is double-wrapped (has nested 'data' property), unwrap it
+    if (staffData.data && typeof staffData.data === 'object' && 'ahni_staff' in staffData.data) {
+      console.log('📦 Detected double-wrapped response, unwrapping...');
+      staffData = staffData.data;
+    }
+
+    const { ahni_staff, consultants, facilitators, adhoc_staff } = staffData;
+
+    console.log('📊 STAFF BREAKDOWN:', {
+      ahniCount: ahni_staff?.count || 0,
+      consultantsCount: consultants?.count || 0,
+      facilitatorsCount: facilitators?.count || 0,
+      adhocCount: adhoc_staff?.count || 0
+    });
 
     // Merge all staff types into a single array
     const mergedStaff = [
@@ -178,8 +209,10 @@ const SiteVisitFormNew: React.FC<SiteVisitFormNewProps> = ({
       ...(adhoc_staff?.members || []),
     ];
 
+    console.log('✅ MERGED STAFF TOTAL:', mergedStaff.length);
+
     return mergedStaff;
-  }, [eligibleTeamMembersData]);
+  }, [eligibleTeamMembersData, isLoadingTeamMembers, teamMembersError]);
 
   // Get selected plan details
   const selectedPlanData = React.useMemo(
@@ -228,8 +261,31 @@ const SiteVisitFormNew: React.FC<SiteVisitFormNewProps> = ({
         return d.toISOString().split('T')[0];
       };
 
+      // Auto-add current user as team member if no team members added
+      let teamMembers = data.team_members || [];
+      if (teamMembers.length === 0) {
+        try {
+          const userString = localStorage.getItem('user');
+          if (userString) {
+            const currentUser = JSON.parse(userString);
+            teamMembers = [{
+              user: currentUser.id,
+              role: TeamMemberRole.TEAM_LEAD,
+              per_day_allowance: 0,
+              transport_cost: 0,
+              accommodation_cost: 0,
+              comments: "Auto-added as requester"
+            }];
+            console.log('✅ Auto-added current user as team member:', currentUser.email);
+          }
+        } catch (error) {
+          console.warn('⚠️ Could not auto-add current user as team member:', error);
+        }
+      }
+
       const submissionData = {
         ...data,
+        team_members: teamMembers,
         start_date: formatDate(data.start_date),
         end_date: formatDate(data.end_date),
         project: data.project === "none" ? null : data.project,
@@ -273,11 +329,11 @@ const SiteVisitFormNew: React.FC<SiteVisitFormNewProps> = ({
       case 'dates':
         return !!(values.start_date && values.end_date);
       case 'team':
-        return values.team_members.length > 0;
+        return true; // Team members are optional - requester is auto-added
       case 'travel':
         return values.travel_fees.total_per_person > 0;
       case 'approval':
-        return !!(values.reviewer && values.authorizer && values.approver);
+        return true; // Approval workflow is optional - can be assigned later
       case 'additional':
         return true; // Optional section
       default:
@@ -301,10 +357,32 @@ const SiteVisitFormNew: React.FC<SiteVisitFormNewProps> = ({
     { name: mode === 'create' ? "Create" : "Edit", icon: false },
   ];
 
+  const handleBack = () => {
+    if (onCancel) {
+      onCancel();
+    } else {
+      router.push(RouteEnum.PROGRAM_TRAVEL_REQUEST || "/dashboard/programs/plan/site-visit");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 py-6">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <BreadcrumbCard list={breadcrumbs} />
+
+        {/* Back Button */}
+        <div className="mt-4">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handleBack}
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back
+          </Button>
+        </div>
 
         <div className="mt-6">
           <Card className="shadow-lg">
@@ -428,6 +506,8 @@ const SiteVisitFormNew: React.FC<SiteVisitFormNewProps> = ({
                       <TabsContent value="team" className="space-y-6 mt-0">
                         <TeamMembersSection
                           allStaff={allStaff}
+                          isLoading={isLoadingTeamMembers}
+                          error={teamMembersError?.message}
                         />
                       </TabsContent>
 

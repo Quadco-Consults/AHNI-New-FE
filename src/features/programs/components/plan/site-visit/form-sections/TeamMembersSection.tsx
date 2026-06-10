@@ -35,16 +35,21 @@ import {
 
 interface TeamMembersSectionProps {
   allStaff: any[];
+  isLoading?: boolean;
+  error?: string;
 }
 
 const TeamMembersSection: React.FC<TeamMembersSectionProps> = ({
   allStaff,
+  isLoading = false,
+  error = "",
 }) => {
   const { control, watch, setValue, getValues } = useFormContext<TSiteVisitApplicationFormValues>();
   const teamMembers = watch("team_members") || [];
   const [showAddForm, setShowAddForm] = useState(false);
   const [staffPopoverOpen, setStaffPopoverOpen] = useState(false);
   const [rolePopoverOpen, setRolePopoverOpen] = useState(false);
+  const [staffTypeFilter, setStaffTypeFilter] = useState<string>("");
   const [newMember, setNewMember] = useState({
     user: "",
     role: TeamMemberRole.SUPPORT_STAFF,
@@ -98,6 +103,14 @@ const TeamMembersSection: React.FC<TeamMembersSectionProps> = ({
     !teamMembers.find(member => member.user === staff.id)
   );
 
+  // Filter available staff by selected staff type
+  const filteredStaff = staffTypeFilter
+    ? availableStaff.filter(staff => staff.staff_type === staffTypeFilter)
+    : availableStaff;
+
+  // Get unique staff types from available staff
+  const staffTypes = Array.from(new Set(allStaff.map(staff => staff.staff_type).filter(Boolean)));
+
   return (
     <Card>
       <CardHeader>
@@ -106,7 +119,7 @@ const TeamMembersSection: React.FC<TeamMembersSectionProps> = ({
           Team Members
         </CardTitle>
         <p className="text-sm text-gray-600">
-          Select staff members who will participate in this travel request. Includes AHNI staff, consultants, facilitators, and adhoc staff. At least one team member is required.
+          Select staff members who will participate in this travel request. You (the requester) will be automatically added. Additional team members are optional.
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -218,19 +231,40 @@ const TeamMembersSection: React.FC<TeamMembersSectionProps> = ({
         {/* Add Team Member Section */}
         {!showAddForm ? (
           <div className="text-center py-6">
-            <Button
-              type="button"
-              onClick={() => setShowAddForm(true)}
-              className="bg-yellow-600 hover:bg-yellow-700 text-white"
-              disabled={availableStaff.length === 0}
-            >
-              <PlusIcon className="h-4 w-4 mr-2" />
-              Add Team Member
-            </Button>
-            {availableStaff.length === 0 && (
-              <p className="text-sm text-gray-500 mt-2">
-                All available staff members have been added
-              </p>
+            {isLoading ? (
+              <div className="flex flex-col items-center gap-2">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-600"></div>
+                <p className="text-sm text-gray-600">Loading staff members...</p>
+              </div>
+            ) : error ? (
+              <Alert className="border-red-200 bg-red-50">
+                <AlertDescription className="text-red-800">
+                  <strong>Error loading staff:</strong> {error}
+                </AlertDescription>
+              </Alert>
+            ) : allStaff.length === 0 ? (
+              <Alert className="border-amber-200 bg-amber-50">
+                <AlertDescription className="text-amber-800">
+                  <strong>No staff members found.</strong> Please ensure there are users with AHNI Staff, Consultant, Facilitator, or Adhoc Staff user types in the system.
+                </AlertDescription>
+              </Alert>
+            ) : (
+              <>
+                <Button
+                  type="button"
+                  onClick={() => setShowAddForm(true)}
+                  className="bg-yellow-600 hover:bg-yellow-700 text-white"
+                  disabled={availableStaff.length === 0}
+                >
+                  <PlusIcon className="h-4 w-4 mr-2" />
+                  Add Team Member
+                </Button>
+                {availableStaff.length === 0 && teamMembers.length > 0 && (
+                  <p className="text-sm text-gray-500 mt-2">
+                    All available staff members have been added
+                  </p>
+                )}
+              </>
             )}
           </div>
         ) : (
@@ -239,6 +273,35 @@ const TeamMembersSection: React.FC<TeamMembersSectionProps> = ({
               <CardTitle className="text-lg">Add Team Member</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
+              {/* Staff Type Filter */}
+              <div>
+                <label className="text-sm font-medium mb-2 block">Staff Type *</label>
+                <Select
+                  value={staffTypeFilter}
+                  onValueChange={(value) => {
+                    setStaffTypeFilter(value);
+                    // Reset selected user when changing staff type
+                    setNewMember({...newMember, user: ""});
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select staff type first" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {staffTypes.map((type) => (
+                      <SelectItem key={type} value={type}>
+                        {type}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {staffTypeFilter && (
+                  <p className="text-xs text-gray-600 mt-1">
+                    Showing only {staffTypeFilter} members
+                  </p>
+                )}
+              </div>
+
               {/* Staff Selection */}
               <div>
                 <label className="text-sm font-medium mb-2 block">Select Staff Member *</label>
@@ -249,14 +312,15 @@ const TeamMembersSection: React.FC<TeamMembersSectionProps> = ({
                       role="combobox"
                       aria-expanded={staffPopoverOpen}
                       className="w-full justify-between font-normal"
+                      disabled={!staffTypeFilter}
                     >
                       <span className="truncate">
                         {newMember.user ?
                           (() => {
-                            const staff = availableStaff.find(s => s.id === newMember.user);
+                            const staff = filteredStaff.find(s => s.id === newMember.user);
                             return staff ? `${staff.first_name} ${staff.last_name}` : 'Choose a staff member';
                           })() :
-                          'Choose a staff member'
+                          staffTypeFilter ? 'Choose a staff member' : 'Select staff type first'
                         }
                       </span>
                       <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -266,12 +330,14 @@ const TeamMembersSection: React.FC<TeamMembersSectionProps> = ({
                     <Command>
                       <CommandInput placeholder="Search staff members..." />
                       <CommandList>
-                        <CommandEmpty>No staff members found.</CommandEmpty>
+                        <CommandEmpty>
+                          No {staffTypeFilter} members available.
+                        </CommandEmpty>
                         <CommandGroup>
-                          {availableStaff.map((staff: any) => (
+                          {filteredStaff.map((staff: any) => (
                             <CommandItem
                               key={staff.id}
-                              value={`${staff.first_name} ${staff.last_name} ${staff.email} ${staff.designation || ''} ${staff.staff_type || ''}`}
+                              value={`${staff.first_name} ${staff.last_name} ${staff.email} ${staff.designation || ''}`}
                               onSelect={() => {
                                 setNewMember({...newMember, user: staff.id});
                                 setStaffPopoverOpen(false);
@@ -285,15 +351,14 @@ const TeamMembersSection: React.FC<TeamMembersSectionProps> = ({
                                   <span className="font-medium">
                                     {`${staff.first_name} ${staff.last_name}`}
                                   </span>
-                                  {staff.staff_type && (
-                                    <Badge variant="outline" className="text-xs bg-blue-50 border-blue-200 text-blue-700">
-                                      {staff.staff_type}
+                                  {staff.designation && (
+                                    <Badge variant="outline" className="text-xs">
+                                      {staff.designation}
                                     </Badge>
                                   )}
                                 </div>
                                 <span className="text-xs text-gray-600">
                                   {staff.email}
-                                  {staff.designation && ` • ${staff.designation}`}
                                 </span>
                               </div>
                             </CommandItem>
@@ -374,6 +439,7 @@ const TeamMembersSection: React.FC<TeamMembersSectionProps> = ({
                   variant="outline"
                   onClick={() => {
                     setShowAddForm(false);
+                    setStaffTypeFilter("");
                     setNewMember({
                       user: "",
                       role: TeamMemberRole.SUPPORT_STAFF,
@@ -414,11 +480,10 @@ const TeamMembersSection: React.FC<TeamMembersSectionProps> = ({
         />
 
         {/* Guidelines */}
-        {teamMembers.length === 0 && (
-          <Alert className="border-yellow-200 bg-yellow-50">
-            <AlertDescription className="text-yellow-800">
-              <strong>Required:</strong> You must add at least one team member to proceed.
-              Team size affects travel cost calculations.
+        {teamMembers.length === 0 && !isLoading && !error && (
+          <Alert className="border-blue-200 bg-blue-50">
+            <AlertDescription className="text-blue-800">
+              <strong>Note:</strong> You (the requester) will be automatically added as a team member when you submit this request. Additional team members are optional and can be added here or later by an administrator.
             </AlertDescription>
           </Alert>
         )}

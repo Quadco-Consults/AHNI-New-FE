@@ -152,6 +152,10 @@ export interface ISiteVisit {
   ea_created_date?: string;
   ea_created?: boolean;
 
+  // Relations (populated in detail views)
+  team_members?: ISiteVisitTeamMember[];
+  approvals?: ISiteVisitApproval[];
+
   // Timestamps
   created_datetime: string;
   updated_datetime: string;
@@ -173,6 +177,11 @@ export interface ISiteVisitTeamMember {
   transport_cost?: number;
   accommodation_cost?: number;
   total_estimated_cost?: number;
+  // Estimated costs from state travel rates (calculated by backend)
+  estimated_per_day_allowance?: number;
+  estimated_accommodation_cost?: number;
+  estimated_transport_cost?: number;
+  estimated_total_cost?: number;
   notification_sent: boolean;
   ea_generated: boolean;
   comments?: string;
@@ -318,7 +327,7 @@ export const SiteVisitApplicationSchema = z.object({
   expected_outcomes: z.string().optional(),
   comments: z.string().optional(),
 
-  // Team Members
+  // Team Members (optional - creator is auto-added by backend)
   team_members: z.array(z.object({
     user: z.string().min(1, "User is required"),
     role: z.nativeEnum(TeamMemberRole),
@@ -326,7 +335,7 @@ export const SiteVisitApplicationSchema = z.object({
     transport_cost: z.number().optional(),
     accommodation_cost: z.number().optional(),
     comments: z.string().optional(),
-  })).min(1, "At least one team member is required"),
+  })).optional().default([]),
 
   // Travel Fees (REQUIRED for all travel requests)
   travel_fees: z.object({
@@ -342,10 +351,10 @@ export const SiteVisitApplicationSchema = z.object({
     location: z.string().min(1, "Location is required for travel fee calculation"),
   }),
 
-  // Approval Workflow
-  reviewer: z.string().min(1, "Reviewer is required"),
-  authorizer: z.string().min(1, "Authorizer is required"),
-  approver: z.string().min(1, "Approver is required"),
+  // Approval Workflow (optional - can be assigned later by admin)
+  reviewer: z.string().optional().default(""),
+  authorizer: z.string().optional().default(""),
+  approver: z.string().optional().default(""),
 }).refine((data) => {
   // If visit type is "OTHER", other_visit_type is required
   if (data.visit_type === SiteVisitType.OTHER) {
@@ -446,6 +455,7 @@ export type {
   TSiteVisitApplicationFormValues as SiteVisitFormData,
   ISiteVisit as SiteVisitData,
   ISiteVisit as SiteVisit,
+  ISiteVisit as ISiteVisitData,
   TSiteVisitPaginatedData as SiteVisitListItem,
   ISiteVisitApproval as SiteVisitApproval,
   ISiteVisitTeamMember as SiteVisitTeamMember,

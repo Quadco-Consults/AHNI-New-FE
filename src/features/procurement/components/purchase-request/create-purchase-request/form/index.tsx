@@ -474,6 +474,7 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
             amount: exp?.total_cost ? Number(exp.total_cost) : 0,
             item: typeof exp?.item === 'object' ? (exp?.item?.id || "") : (exp?.item || ""), // Ensure we get the ID, not the object
             fco_number: Array.isArray(latestActivityMemo?.fconumber) ? latestActivityMemo.fconumber : [], // FCO numbers from memo level
+            uom: exp?.uom || exp?.unit || "pieces", // Get UOM from expense, default to "pieces"
             // ✅ SERVICE SUPPORT: Preserve service-specific fields
             is_service: exp?.is_service || false,
             duration: exp?.duration || 1,
@@ -504,6 +505,7 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
             amount: exp?.total_cost ? Number(exp.total_cost) : 0,
             item: typeof exp?.item === 'object' ? (exp?.item?.id || "") : (exp?.item || ""), // Ensure we get the ID, not the object
             fco_number: Array.isArray(apiMemoData.data?.fconumber) ? apiMemoData.data.fconumber : [], // FCO numbers from memo level
+            uom: exp?.uom || exp?.unit || "pieces", // Get UOM from expense, default to "pieces"
             // ✅ SERVICE SUPPORT: Preserve service-specific fields
             is_service: exp?.is_service || false,
             duration: exp?.duration || 1,
@@ -622,80 +624,74 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
         console.log("👥 Set requested_by:", requestedById, "from:", createdByField);
       }
 
-      // ❌ DO NOT auto-populate reviewed_by from activity memo
-      // Purchase Request should have its own approval workflow, not inherit from activity memo
-      // Users should manually select reviewers for the PR
-      // const reviewedByField = memoData.reviewed_by_details || memoData.reviewed_by;
-      // if (reviewedByField && Array.isArray(reviewedByField) && reviewedByField.length > 0) {
-      //   const reviewedById = extractUserId(reviewedByField[0]);
-      //   console.log("👥 Setting reviewed_by:", {
-      //     original: reviewedByField[0],
-      //     extracted: reviewedById,
-      //     type: typeof reviewedById
-      //   });
+      // ✅ Auto-populate reviewed_by from activity memo
+      const reviewedByField = memoData.reviewed_by_details || memoData.reviewed_by;
+      if (reviewedByField && Array.isArray(reviewedByField) && reviewedByField.length > 0) {
+        const reviewedById = extractUserId(reviewedByField[0]);
+        console.log("👥 Setting reviewed_by:", {
+          original: reviewedByField[0],
+          extracted: reviewedById,
+          type: typeof reviewedById
+        });
 
-      //   setValue("reviewed_by", String(reviewedById));
-      //   // Auto-populate role for reviewed_by
-      //   const reviewedUser = (users as any)?.data?.results?.find((user: any) => user.id === reviewedById);
-      //   if (reviewedUser?.position) {
-      //     const roleId = extractRoleId(reviewedUser.position);
-      //     setValue("role_reviewed_by", roleId || "");
-      //     console.log("👥 Set role_reviewed_by:", roleId, "from:", reviewedUser.position);
-      //   } else {
-      //     setValue("role_reviewed_by", "");
-      //   }
-      //   console.log("👥 Set reviewed_by:", reviewedById, "from:", reviewedByField[0]);
-      // }
+        setValue("reviewed_by", String(reviewedById));
+        // Auto-populate role for reviewed_by
+        const reviewedUser = (users as any)?.data?.results?.find((user: any) => user.id === reviewedById);
+        if (reviewedUser?.position) {
+          const roleId = extractRoleId(reviewedUser.position);
+          setValue("role_reviewed_by", roleId || "");
+          console.log("👥 Set role_reviewed_by:", roleId, "from:", reviewedUser.position);
+        } else {
+          setValue("role_reviewed_by", "");
+        }
+        console.log("👥 Set reviewed_by:", reviewedById, "from:", reviewedByField[0]);
+      }
 
-      // ❌ DO NOT auto-populate authorised_by from activity memo
-      // Purchase Request should have its own approval workflow, not inherit from activity memo
-      // Users should manually select authorizers for the PR
-      // const authorisedByField = memoData.authorised_by_details || memoData.authorised_by;
-      // if (authorisedByField && Array.isArray(authorisedByField) && authorisedByField.length > 0) {
-      //   const authorizedById = extractUserId(authorisedByField[0]);
-      //   console.log("👥 Setting authorised_by:", {
-      //     original: authorisedByField[0],
-      //     extracted: authorizedById,
-      //     type: typeof authorizedById
-      //   });
+      // ✅ Auto-populate authorised_by from activity memo
+      const authorisedByField = memoData.authorised_by_details || memoData.authorised_by;
+      if (authorisedByField && Array.isArray(authorisedByField) && authorisedByField.length > 0) {
+        const authorizedById = extractUserId(authorisedByField[0]);
+        console.log("👥 Setting authorised_by:", {
+          original: authorisedByField[0],
+          extracted: authorizedById,
+          type: typeof authorizedById
+        });
 
-      //   setValue("authorised_by", String(authorizedById));
-      //   // Auto-populate role for authorised_by
-      //   const authorizedUser = (users as any)?.data?.results?.find((user: any) => user.id === authorizedById);
-      //   if (authorizedUser?.position) {
-      //     const roleId = extractRoleId(authorizedUser.position);
-      //     setValue("role_authorised_by", roleId || "");
-      //     console.log("👥 Set role_authorised_by:", roleId, "from:", authorizedUser.position);
-      //   } else {
-      //     setValue("role_authorised_by", "");
-      //   }
-      //   console.log("👥 Set authorised_by:", authorizedById, "from:", authorisedByField[0]);
-      // }
+        setValue("authorised_by", String(authorizedById));
+        // Auto-populate role for authorised_by
+        const authorizedUser = (users as any)?.data?.results?.find((user: any) => user.id === authorizedById);
+        if (authorizedUser?.position) {
+          const roleId = extractRoleId(authorizedUser.position);
+          setValue("role_authorised_by", roleId || "");
+          console.log("👥 Set role_authorised_by:", roleId, "from:", authorizedUser.position);
+        } else {
+          setValue("role_authorised_by", "");
+        }
+        console.log("👥 Set authorised_by:", authorizedById, "from:", authorisedByField[0]);
+      }
 
-      // ❌ DO NOT auto-populate approved_by from activity memo
-      // Purchase Request should have its own approval workflow, not inherit from activity memo
-      // Users should manually select approvers for the PR
-      // const approvedByField = memoData.approved_by_details || memoData.approved_by;
-      // if (approvedByField) {
-      //   const approvedById = extractUserId(approvedByField);
-      //   console.log("👥 Setting approved_by:", {
-      //     original: approvedByField,
-      //     extracted: approvedById,
-      //     type: typeof approvedById
-      //   });
+      // ✅ Auto-populate approved_by from activity memo
+      const approvedByField = memoData.approved_by_details || memoData.approved_by;
+      if (approvedByField) {
+        const approvedById = extractUserId(approvedByField);
+        console.log("👥 Setting approved_by:", {
+          original: approvedByField,
+          extracted: approvedById,
+          type: typeof approvedById
+        });
 
-      //   setValue("approved_by", String(approvedById));
-      //   // Auto-populate role for approved_by
-      //   const approvedUser = (users as any)?.data?.results?.find((user: any) => user.id === approvedById);
-      //   if (approvedUser?.position) {
-      //     const roleId = extractRoleId(approvedUser.position);
-      //     setValue("role_approved_by", roleId || "");
-      //     console.log("👥 Set role_approved_by:", roleId, "from:", approvedUser.position);
-      //   } else {
-      //     setValue("role_approved_by", "");
-      //   }
-      //   console.log("👥 Set approved_by:", approvedById, "from:", approvedByField);
-      // }
+        setValue("approved_by", String(approvedById));
+        // Auto-populate role for approved_by
+        const approvedUser = (users as any)?.data?.results?.find((user: any) => user.id === approvedById);
+        if (approvedUser?.position) {
+          const roleId = extractRoleId(approvedUser.position);
+          setValue("role_approved_by", roleId || "");
+          console.log("👥 Set role_approved_by:", roleId, "from:", approvedUser.position);
+        } else {
+          setValue("role_approved_by", "");
+        }
+        console.log("👥 Set approved_by:", approvedById, "from:", approvedByField);
+      }
 
       // Ensure all required fields have values to prevent validation errors
       setTimeout(() => {
@@ -771,12 +767,22 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
 
   // Use ref to track if we've already loaded expenses to prevent duplication
   const expensesLoadedRef = React.useRef(false);
+  const loadedMemoIdRef = React.useRef<string | null>(null);
+
+  // Reset the loaded flag when memo ID changes
+  useEffect(() => {
+    if (finalMemoId !== loadedMemoIdRef.current) {
+      console.log("🔄 Memo ID changed, resetting loaded flag");
+      expensesLoadedRef.current = false;
+      loadedMemoIdRef.current = finalMemoId;
+    }
+  }, [finalMemoId]);
 
   useEffect(() => {
     // Only load expenses once when expensesData is available
     if (expensesData && expensesData.length > 0 && !expensesLoadedRef.current) {
       console.log("✍️ Populating form with expenses data:", expensesData);
-      expensesLoadedRef.current = true; // Mark as loaded
+      expensesLoadedRef.current = true; // Mark as loaded FIRST to prevent race conditions
 
       // Debug each item being set
       expensesData.forEach((item: any, index: number) => {
@@ -817,8 +823,8 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
           quantity: item.quantity || 1,
           unit_cost: item.unit_cost || 0,
           amount: item.amount || 0,
-          // ✅ UOM: Preserve unit of measurement from activity memo
-          uom: typeof item.uom === 'object' ? (item.uom?.name || item.uom?.id || "") : (item.uom || ""),
+          // ✅ UOM: Preserve unit of measurement from activity memo, default to "pieces" if missing
+          uom: typeof item.uom === 'object' ? (item.uom?.name || item.uom?.id || "pieces") : (item.uom || "pieces"),
           // ✅ SERVICE SUPPORT: Preserve service fields
           is_service: item.is_service || false,
           duration: item.duration || 1,
@@ -851,12 +857,13 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
       if (finalMemoId) {
         toast.success(`Loaded ${expensesData.length} items from activity memo`);
       }
-    } else if (finalMemoId && !expensesLoadedRef.current) {
+    } else if (finalMemoId && !expensesLoadedRef.current && expensesData.length === 0) {
       console.warn("No expenses data found for memo ID:", finalMemoId);
       toast.warning("No items found from activity memo. You may need to add items manually.");
       expensesLoadedRef.current = true; // Mark as loaded even if no data to prevent repeated warnings
     }
-  }, [expensesData, finalMemoId]); // Removed fields.length, append, remove from dependencies
+    // CRITICAL: Only depend on expensesData, NOT on finalMemoId to prevent duplicate runs
+  }, [expensesData]); // Removed finalMemoId, fields.length, append, remove from dependencies
 
   return (
     <div className='pt-5'>
@@ -1100,10 +1107,15 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
 
                                       // Auto-populate UOM when item is selected
                                       const selected = (items as any)?.data?.results?.find((item: any) => item.id === value);
-                                      if (selected?.uom) {
-                                        const uomValue = typeof selected.uom === 'object'
-                                          ? (selected.uom?.name || selected.uom?.id || "")
-                                          : selected.uom;
+                                      if (selected) {
+                                        let uomValue = "pieces"; // Default value
+
+                                        if (selected.uom) {
+                                          uomValue = typeof selected.uom === 'object'
+                                            ? (selected.uom?.name || selected.uom?.id || "pieces")
+                                            : (selected.uom || "pieces");
+                                        }
+
                                         setValue(`items.${index}.uom`, uomValue);
                                         console.log(`✅ Auto-populated UOM for item ${index}:`, uomValue);
                                       }
@@ -1310,7 +1322,7 @@ const CreatePurchaseRequestForm = ({ expenses }) => {
                     item: "",
                     fco_number: [],
                     amount: 0,
-                    uom: "",
+                    uom: "pieces", // Default UOM value
                     unit_cost: 0,
                     quantity: 1,
                   });

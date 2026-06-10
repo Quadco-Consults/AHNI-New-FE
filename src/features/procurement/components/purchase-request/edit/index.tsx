@@ -22,7 +22,12 @@ function PurchaseRequestEdit() {
   console.log("Purchase Request ID:", id);
   console.log("Purchase Request Data:", purchaseRequest);
   console.log("Activity Memo ID:", activityMemoId);
-  console.log("Activity Memo Data:", activityMemo);
+  console.log("Activity Memo Data (raw):", activityMemo);
+  console.log("Activity Memo Data structure check:", {
+    hasData: !!activityMemo,
+    isObject: typeof activityMemo === 'object',
+    keys: activityMemo ? Object.keys(activityMemo).slice(0, 5) : []
+  });
 
 
   const breadcrumbs = [
@@ -43,16 +48,21 @@ function PurchaseRequestEdit() {
 
       <span className='block space-y-2'>
         <h3 className='font-semibold text-xl text-black text-[24px]'>
-          Edit Purchase Request
+          Edit Purchase Request & Activity Memo
         </h3>
         <p className='text-gray-600'>
-          REF: {purchaseRequest?.data?.ref_number || 'N/A'}
+          PR REF: {purchaseRequest?.data?.ref_number || 'N/A'}
         </p>
+        {activityMemo && (
+          <p className='text-gray-600 text-sm'>
+            Activity Memo: {activityMemo.subject || 'N/A'}
+          </p>
+        )}
       </span>
 
       <EditPurchaseRequestForm
         purchaseRequestData={purchaseRequest?.data}
-        activityMemoData={activityMemo?.data}
+        activityMemoData={activityMemo}
         purchaseRequestId={id as string}
       />
     </section>

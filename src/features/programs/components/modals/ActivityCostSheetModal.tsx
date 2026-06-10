@@ -18,9 +18,22 @@ export default function ActivityCostSheetModal() {
     const dispatch = useAppDispatch();
     const queryClient = useQueryClient();
 
-    const activityId = dailog?.dialogProps?.activityId || "";
     const costSheet = dailog?.dialogProps?.costSheet || null;
     const mode = dailog?.dialogProps?.mode || "create";
+
+    // Get activityId with proper fallback
+    const activityId = dailog?.dialogProps?.activityId ||
+                       dailog?.dialogProps?.activityPlanId ||
+                       costSheet?.activity ||
+                       "";
+
+    // Debug logging on mount
+    console.log("ActivityCostSheetModal opened:", {
+        mode,
+        activityId,
+        costSheet,
+        dialogProps: dailog?.dialogProps
+    });
 
     // API hooks
     const { createCostSheet, isLoading: isCreating, isSuccess: createSuccess } = useCreateActivityCostSheet();
@@ -34,6 +47,18 @@ export default function ActivityCostSheetModal() {
     const [rateNgn, setRateNgn] = useState<number>(costSheet?.rate_ngn || 0);
     const [comments, setComments] = useState(costSheet?.comments || "");
 
+    // Update form state when costSheet changes (for edit mode)
+    useEffect(() => {
+        if (costSheet && mode === "edit") {
+            setDescription(costSheet.description || "");
+            setUnits(costSheet.units || 1);
+            setDays(costSheet.days || 1);
+            setFrequency(costSheet.frequency || 1);
+            setRateNgn(costSheet.rate_ngn || 0);
+            setComments(costSheet.comments || "");
+        }
+    }, [costSheet, mode]);
+
     // Calculated total
     const totalCost = calculateTotalCost(units, days, frequency, rateNgn);
 
@@ -41,9 +66,10 @@ export default function ActivityCostSheetModal() {
     useEffect(() => {
         if (createSuccess || editSuccess) {
             toast.success(`Sub-activity ${mode === "create" ? "created" : "updated"} successfully`);
-            // Invalidate queries to refetch data
+            // Invalidate all related queries to ensure data refresh
             queryClient.invalidateQueries({ queryKey: ["activity-cost-sheets"] });
-            queryClient.invalidateQueries({ queryKey: ["activity-cost-sheets", activityId] });
+            queryClient.invalidateQueries({ queryKey: ["activity-cost-sheets", "activity", activityId] });
+            queryClient.invalidateQueries({ queryKey: ["activity-cost-sheet-stats"] });
             dispatch(closeDialog());
         }
     }, [createSuccess, editSuccess, mode, dispatch, queryClient, activityId]);
@@ -67,24 +93,51 @@ export default function ActivityCostSheetModal() {
             return;
         }
 
-        try {
-            const payload = {
-                activity: activityId,
-                description: description.trim(),
-                units,
-                days,
-                frequency,
-                rate_ngn: rateNgn,
-                comments: comments.trim(),
-            };
+        // Validate activityId for create mode
+        if (mode === "create" && !activityId) {
+            toast.error("Activity ID is missing. Please try again.");
+            console.error("Missing activityId in create mode");
+            return;
+        }
 
+        // Validate costSheet ID for edit mode
+        if (mode === "edit" && !costSheet?.id) {
+            toast.error("Cost sheet ID is missing. Please try again.");
+            console.error("Missing cost sheet ID in edit mode");
+            return;
+        }
+
+        try {
             if (mode === "create") {
-                await createCostSheet(payload);
+                const createPayload = {
+                    activity: activityId,  // Create uses 'activity'
+                    description: description.trim(),
+                    units,
+                    days,
+                    frequency,
+                    rate_ngn: rateNgn,
+                    comments: comments.trim(),
+                };
+
+                console.log("Creating cost sheet:", createPayload);
+                await createCostSheet(createPayload);
             } else {
-                await editCostSheet(payload);
+                const updatePayload = {
+                    activity_id: activityId,  // Update uses 'activity_id'
+                    description: description.trim(),
+                    units,
+                    days,
+                    frequency,
+                    rate_ngn: rateNgn,
+                    comments: comments.trim(),
+                };
+
+                console.log("Updating cost sheet:", updatePayload);
+                await editCostSheet(updatePayload);
             }
         } catch (error: any) {
-            toast.error(error?.message || "Something went wrong");
+            console.error(`Cost sheet ${mode} error:`, error);
+            toast.error(error?.message || `Failed to ${mode} sub-activity`);
         }
     };
 

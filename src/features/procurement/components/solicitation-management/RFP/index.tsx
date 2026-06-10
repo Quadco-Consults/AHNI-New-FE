@@ -97,7 +97,7 @@ const RFP = () => {
 
                 <div className='flex items-center gap-3'>
                   <Icon icon='ooui:reference' fontSize={18} />{" "}
-                  <h6>{item.rfp_id || item.rfq_id || "N/A"}</h6>
+                  <h6>{item.rfp_id || "N/A"}</h6>
                 </div>
                 <div className='flex items-center gap-3'>
                   <Icon icon='iconamoon:location-pin-duotone' fontSize={18} />

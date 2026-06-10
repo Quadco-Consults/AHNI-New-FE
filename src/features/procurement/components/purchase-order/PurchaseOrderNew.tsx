@@ -816,7 +816,7 @@ const PurchaseOrderNew = () => {
                 <FormItem>
                   <Label className="font-semibold">
                     Purchase Request
-                    <span className="text-red-500">*</span>
+                    {!cbaId && <span className="text-red-500">*</span>}
                   </Label>
                   <FormControl>
                     <Popover open={opensPurchase} onOpenChange={setOpensPurchase} modal={!cbaId}>

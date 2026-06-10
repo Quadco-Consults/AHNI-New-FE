@@ -59,21 +59,19 @@ const Preview = () => {
       </div>
 
       <div>
-        <h2>To: {requestsDetails?.approved_by_details?.name}</h2>
+        <h2>To: {requestsDetails?.approved_by_details?.name} ({requestsDetails?.approved_by_details?.position || 'N/A'})</h2>
         <h2 className='my-8'>
           THROUGH:{"  "}
-          {requestsDetails?.reviewed_by_details?.map(({ name }, idx) => {
+          {(requestsDetails?.through_details || requestsDetails?.reviewed_by_details || [])?.map(({ name, position }, idx, arr) => {
             return (
               <span key={idx} className='mr-1'>
-                {name}
-                {idx + 1 < requestsDetails?.reviewed_by_details.length
-                  ? ","
-                  : ""}
+                {name} ({position || 'N/A'})
+                {idx + 1 < arr.length ? ", " : ""}
               </span>
             );
           })}
         </h2>
-        <h2>FROM: {requestsDetails?.created_by_details?.name}</h2>
+        <h2>FROM: {requestsDetails?.created_by_details?.name} ({requestsDetails?.created_by_details?.position || 'N/A'})</h2>
 
         <div className='mt-8'>
           <div className='flex gap-8'>

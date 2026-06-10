@@ -53,7 +53,10 @@ export const useGetMemberEvaluation = (cbaId: string, memberId: string) => {
 
         // Return the first evaluation for this member if it exists
         const evaluations = response.data?.results || [];
-        return evaluations.find((evaluation: any) => evaluation.member_id === memberId) || null;
+        // Backend uses "member" field, not "member_id"
+        return evaluations.find((evaluation: any) =>
+          evaluation.member === memberId || evaluation.member_id === memberId
+        ) || null;
       } catch (error) {
         const axiosError = error as AxiosError;
         if (axiosError.response?.status === 404 || axiosError.response?.status === 405) {
@@ -73,10 +76,11 @@ export const useGetAllMemberEvaluations = (cbaId: string, enabled: boolean = tru
     queryFn: async () => {
       try {
         const response = await AxiosWithToken.get(
-          `${CBA_ANALYSIS_BASE_URL}?cba_id=${cbaId}`
+          `${CBA_BASE_URL}${cbaId}/member-evaluations/`
         );
 
-        return response.data?.results || [];
+        console.log("📊 Member Evaluations Response:", response.data);
+        return response.data?.data || response.data?.results || [];
       } catch (error) {
         const axiosError = error as AxiosError;
         // Silently handle expected errors for non-committee CBAs
@@ -84,7 +88,7 @@ export const useGetAllMemberEvaluations = (cbaId: string, enabled: boolean = tru
           return []; // No evaluations found or method not allowed
         }
         // Only log unexpected errors
-        if (axiosError.response?.status !== 404 && axiosError.response?.status !== 405) {
+        if (axiosError.response?.status !== 404 && axiosError.response?.status === 405) {
           console.error("Failed to fetch member evaluations:", axiosError.response?.status);
         }
         return [];
@@ -175,36 +179,32 @@ export const useSubmitMemberEvaluation = (cbaId: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (evaluationData: Partial<ICommitteeMemberEvaluation>) => {
+    mutationFn: async (evaluationData: any) => {
       try {
         const payload = {
-          cba_id: cbaId,
-          member_id: evaluationData.member_id,
-          member_name: evaluationData.member_name,
-          member_designation: evaluationData.member_designation,
-          vendor_evaluations: evaluationData.vendor_evaluations,
+          cba: cbaId,
+          selected_bid_submission: evaluationData.selected_bid_submission,
+          selected_items: evaluationData.selected_items,
+          selected_total: evaluationData.selected_total,
           overall_recommendation: evaluationData.overall_recommendation,
-          status: evaluationData.status || 'submitted'
+          technical_score: evaluationData.technical_score,
+          commercial_score: evaluationData.commercial_score,
+          evaluation_criteria_data: evaluationData.evaluation_criteria_data,
+          status: evaluationData.status || 'SUBMITTED'
         };
 
-        let response;
-        if (evaluationData.id) {
-          // Update existing evaluation
-          response = await AxiosWithToken.put(
-            `${CBA_ANALYSIS_BASE_URL}${evaluationData.id}/`,
-            payload
-          );
-        } else {
-          // Create new evaluation
-          response = await AxiosWithToken.post(
-            CBA_ANALYSIS_BASE_URL,
-            payload
-          );
-        }
+        console.log("📤 Submitting committee member evaluation:", payload);
+
+        // Use the committee member evaluation endpoint
+        const response = await AxiosWithToken.post(
+          `${CBA_BASE_URL}${cbaId}/member-evaluations/`,
+          payload
+        );
 
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
+        console.error("❌ Error submitting member evaluation:", axiosError.response?.data);
         throw new Error("Failed to submit evaluation: " + (axiosError.response?.data as any)?.message);
       }
     },
@@ -213,6 +213,7 @@ export const useSubmitMemberEvaluation = (cbaId: string) => {
       queryClient.invalidateQueries({ queryKey: ["member-evaluation", cbaId] });
       queryClient.invalidateQueries({ queryKey: ["all-member-evaluations", cbaId] });
       queryClient.invalidateQueries({ queryKey: ["member-participation", cbaId] });
+      queryClient.invalidateQueries({ queryKey: ["cba", cbaId] });
     },
     onError: (error) => {
       console.error("Error submitting evaluation:", error);
@@ -222,9 +223,10 @@ export const useSubmitMemberEvaluation = (cbaId: string) => {
 };
 
 // Calculate consensus from all member evaluations
-export const useCalculateConsensus = (memberEvaluations: ICommitteeMemberEvaluation[]) => {
+export const useCalculateConsensus = (memberEvaluations: ICommitteeMemberEvaluation[] | undefined) => {
   const calculateConsensus = (): IConsensusResults => {
-    if (!memberEvaluations || memberEvaluations.length === 0) {
+    // Ensure memberEvaluations is an array
+    if (!memberEvaluations || !Array.isArray(memberEvaluations) || memberEvaluations.length === 0) {
       return {
         vendor_scores: [],
         recommended_vendor: {} as IVendorConsensusScore,
@@ -235,29 +237,68 @@ export const useCalculateConsensus = (memberEvaluations: ICommitteeMemberEvaluat
 
     const vendorScores: { [key: string]: any } = {};
 
-    // Aggregate scores by vendor
+    // Aggregate scores by vendor using evaluation_criteria_data
     memberEvaluations.forEach(evaluation => {
-      evaluation.vendor_evaluations.forEach(vendorEval => {
-        if (!vendorScores[vendorEval.vendor_id]) {
-          vendorScores[vendorEval.vendor_id] = {
-            id: vendorEval.vendor_id,
+      // Get the selected vendor from this evaluation
+      const selectedVendorId = evaluation.selected_bid_submission || '';
+      const evaluationCriteria = evaluation.evaluation_criteria_data || [];
+
+      // Process each vendor's evaluation criteria
+      evaluationCriteria.forEach((vendorEval: any) => {
+        const vendorId = vendorEval.vendor_id;
+
+        if (!vendorScores[vendorId]) {
+          vendorScores[vendorId] = {
+            id: vendorId,
             name: vendorEval.vendor_name,
             technical_scores: [],
             price_scores: [],
+            commercial_scores: [],
             recommendations: [],
-            member_scores: []
+            member_scores: [],
+            criteria_details: [] // Store detailed criteria for each member
           };
         }
 
-        vendorScores[vendorEval.vendor_id].technical_scores.push(vendorEval.technical_score);
-        vendorScores[vendorEval.vendor_id].price_scores.push(vendorEval.price_score);
-        vendorScores[vendorEval.vendor_id].recommendations.push(vendorEval.recommended);
-        vendorScores[vendorEval.vendor_id].member_scores.push({
-          member_id: evaluation.member_id,
+        // Calculate technical score from quality score range
+        let technicalScore = 0;
+        if (vendorEval.quality_score) {
+          const scores = vendorEval.quality_score.split('-').map(Number);
+          technicalScore = scores.length === 2 ? (scores[0] + scores[1]) / 2 : 0;
+        }
+
+        // Calculate commercial score from price responsiveness (1st = 100, 2nd = 90, 3rd = 80, 4th = 70)
+        let commercialScore = 0;
+        if (vendorEval.price_responsiveness) {
+          const rank = parseInt(vendorEval.price_responsiveness.charAt(0));
+          commercialScore = Math.max(110 - (rank * 10), 70);
+        }
+
+        vendorScores[vendorId].technical_scores.push(technicalScore);
+        vendorScores[vendorId].commercial_scores.push(commercialScore);
+        vendorScores[vendorId].price_scores.push(commercialScore); // For backward compatibility
+        vendorScores[vendorId].recommendations.push(vendorId === selectedVendorId);
+        vendorScores[vendorId].member_scores.push({
+          member_id: evaluation.member || evaluation.member_id || '',  // Backend uses "member", not "member_id"
           member_name: evaluation.member_name,
-          technical: vendorEval.technical_score,
-          price: vendorEval.price_score,
-          recommended: vendorEval.recommended
+          technical: technicalScore,
+          price: commercialScore,
+          recommended: vendorId === selectedVendorId
+        });
+
+        // Store detailed criteria
+        vendorScores[vendorId].criteria_details.push({
+          member_id: evaluation.member || evaluation.member_id || '',  // Backend uses "member", not "member_id"
+          member_name: evaluation.member_name,
+          quality_score: vendorEval.quality_score,
+          approved_models: vendorEval.approved_models,
+          price_responsiveness: vendorEval.price_responsiveness,
+          technical_eligibility: vendorEval.technical_eligibility,
+          bank_account_evaluation: vendorEval.bank_account_evaluation,
+          experience_evaluation: vendorEval.experience_evaluation,
+          grand_total: vendorEval.grand_total,
+          delivery_time: vendorEval.delivery_time,
+          payment_terms: vendorEval.payment_terms
         });
       });
     });
@@ -266,12 +307,14 @@ export const useCalculateConsensus = (memberEvaluations: ICommitteeMemberEvaluat
     const vendorScoresList = Object.values(vendorScores).map((vendor: any) => ({
       ...vendor,
       avg_technical_score: vendor.technical_scores.reduce((a: number, b: number) => a + b, 0) / vendor.technical_scores.length,
-      avg_price_score: vendor.price_scores.reduce((a: number, b: number) => a + b, 0) / vendor.price_scores.length,
+      avg_commercial_score: vendor.commercial_scores.reduce((a: number, b: number) => a + b, 0) / vendor.commercial_scores.length,
+      avg_price_score: vendor.price_scores.reduce((a: number, b: number) => a + b, 0) / vendor.price_scores.length, // For backward compatibility
       consensus_score: 0, // Will calculate below
       recommendation_rate: vendor.recommendations.filter((r: boolean) => r).length / vendor.recommendations.length
     })).map((vendor: any) => ({
       ...vendor,
-      consensus_score: (vendor.avg_technical_score * 0.7) + (vendor.avg_price_score * 0.3)
+      // AHNI uses 60% technical + 40% commercial
+      consensus_score: (vendor.avg_technical_score * 0.6) + (vendor.avg_commercial_score * 0.4)
     }));
 
     // Find recommended vendor (highest consensus score)

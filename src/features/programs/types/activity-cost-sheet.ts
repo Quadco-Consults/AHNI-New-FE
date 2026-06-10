@@ -32,11 +32,12 @@ export interface TActivityCostSheetCreate {
 }
 
 export interface TActivityCostSheetUpdate {
-  description?: string;
-  units?: number;
-  days?: number;
-  frequency?: number;
-  rate_ngn?: number;
+  activity_id: string; // Backend requires this field for updates
+  description: string;
+  units: number;
+  days: number;
+  frequency: number;
+  rate_ngn: number;
   comments?: string;
 }
 

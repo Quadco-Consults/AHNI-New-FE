@@ -10,16 +10,40 @@ export type CommitteeMemberData = {
 // Committee Individual Evaluation Types
 export interface ICommitteeMemberEvaluation {
   id: string;
-  cba_id: string;
-  member_id: string;
+  cba: string;  // Backend sends "cba" not "cba_id"
+  member: string;  // Backend sends "member" not "member_id"
   member_name: string;
   member_designation: string;
-  vendor_evaluations: IVendorEvaluation[];
+  selected_bid_submission?: string;
+  selected_rfp_submission?: string | null;
+  selected_vendor_name?: string;
+  selected_items?: string[];
+  selected_total?: string;
   overall_recommendation: string;
-  status: 'pending' | 'submitted' | 'approved';
-  submitted_at?: Date;
-  created_at: Date;
-  updated_at: Date;
+  technical_score?: number;
+  commercial_score?: number;
+  evaluation_criteria_data?: Array<{  // Backend sends this instead of vendor_evaluations
+    vendor_id: string;
+    vendor_name: string;
+    quality_score?: string;  // e.g., "71-80"
+    approved_models?: string;  // e.g., "Dell, HP, Lenovo"
+    price_responsiveness?: string;  // e.g., "1st-most-responsive"
+    technical_eligibility?: string;  // "YES" or "NO"
+    bank_account_evaluation?: string;  // "YES" or "NO"
+    experience_evaluation?: string;  // "YES" or "NO"
+    delivery_time?: string;
+    payment_terms?: string;
+    grand_total?: number;
+    tin?: string;
+    currency?: string;
+    warranty?: string;
+    validity_period?: string;
+  }>;
+  status: 'PENDING' | 'SUBMITTED' | 'APPROVED' | 'REJECTED';  // Backend uses uppercase
+  submitted_at?: string | null;  // Backend sends ISO string or null
+  created_datetime: string;  // Backend sends "created_datetime" not "created_at"
+  updated_datetime: string;  // Backend sends "updated_datetime" not "updated_at"
+  bid_item_selections?: any[];
 }
 
 export interface IVendorEvaluation {
@@ -48,9 +72,11 @@ export interface IMemberParticipation {
   members: Array<{
     id: string;
     name: string;
-    designation: string;
+    email?: string;
+    designation?: string;
     submitted: boolean;
-    submitted_at?: Date;
+    status?: string;
+    submitted_at?: string | Date;
   }>;
 }
 

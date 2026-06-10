@@ -7,6 +7,8 @@ import { LoadingSpinner } from "@/components/Loading";
 // import { SolicitationResultsData } from "definations/procurement-types/solicitation";
 import DetailsContent from "./tab-contents/Details-content";
 import VendorSubmission from "./tab-contents/Vendor-submission";
+import ApprovalWorkflowContent from "./tab-contents/ApprovalWorkflow";
+import CommitteeEvaluation from "./tab-contents/CommitteeEvaluation";
 import BreadcrumbCard from "@/components/Breadcrumb";
 import { useGetSingleSolicitation } from "@/features/procurement/controllers/solicitationController";
 import { skipToken } from "@reduxjs/toolkit/query/react";
@@ -88,8 +90,14 @@ const RFPDetails = () => {
             </TabsTrigger>
           )}
           <TabsTrigger value='vendor-submission'>Vendor Submission</TabsTrigger>
+          <TabsTrigger value='committee-evaluation'>
+            Committee Evaluation
+          </TabsTrigger>
           <TabsTrigger value='vendor-submission-evaluation'>
             Vendor Submission Evaluation
+          </TabsTrigger>
+          <TabsTrigger value='approval-workflow'>
+            Approval Workflow
           </TabsTrigger>
         </TabsList>
         <TabsContent value='rfp-details'>
@@ -103,9 +111,17 @@ const RFPDetails = () => {
           {data && <VendorSubmission {...data?.data} />}
         </TabsContent>
 
+        <TabsContent value='committee-evaluation'>
+          <CommitteeEvaluation solicitationId={solicitationId} rfpData={data?.data} />
+        </TabsContent>
+
         <TabsContent value='vendor-submission-evaluation'>
           {/* @ts-ignore */}
           <SummaryOfTechnicalPrequalification id={id} />
+        </TabsContent>
+
+        <TabsContent value='approval-workflow'>
+          <ApprovalWorkflowContent solicitationId={solicitationId} />
         </TabsContent>
       </Tabs>
     </div>

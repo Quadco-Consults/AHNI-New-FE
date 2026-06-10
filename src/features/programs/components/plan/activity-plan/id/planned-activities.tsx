@@ -5,8 +5,6 @@ import { useState, useMemo } from "react";
 import DataTableWithExpansion from "@/components/Table/DataTableWithExpansion";
 import BreadcrumbCard, { TBreadcrumbList } from "@/components/Breadcrumb";
 import CostSheetTrackersExpanded from "@/features/programs/components/plan/work-plan-tracker/CostSheetTrackersExpanded";
-import { useDebounce } from "ahooks";
-import TableFilters from "@/components/Table/TableFilters";
 import { getActivityPlanDetailsColumns } from "@/features/programs/components/table-columns/plan/activity-plan";
 import { useParams, useRouter } from "next/navigation";
 import { useGetAllActivityPlans } from "@/features/programs/controllers/activityPlanController";
@@ -14,18 +12,7 @@ import { useGetSingleWorkPlan } from "@/features/programs/controllers/workPlanCo
 import { skipToken } from "@reduxjs/toolkit/query";
 import { LoadingSpinner } from "@/components/Loading";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { RouteEnum } from "@/constants/RouterConstants";
-import AddSquareIcon from "@/components/icons/AddSquareIcon";
-import UploadIcon from "@/components/icons/UploadIcon";
-import ArrowDownIcon from "@/components/icons/ArrowDownIcon";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { useAppDispatch } from "@/hooks/useStore";
-import { openDialog } from "@/store/ui";
-import { DialogType } from "@/constants/dailogs";
-import { toast } from "sonner";
-import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
-import { DownloadIcon, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
 const breadcrumbs: TBreadcrumbList[] = [
   { name: "Programs", icon: true },
@@ -38,13 +25,7 @@ const breadcrumbs: TBreadcrumbList[] = [
 export default function PlannedActivities() {
   const router = useRouter();
   const [page, setPage] = useState(1);
-  const [searchQuery, setSearchQuery] = useState("");
   const { id } = useParams();
-  const dispatch = useAppDispatch();
-
-  const debouncedSearchQuery = useDebounce(searchQuery, {
-    wait: 1000,
-  });
 
   // Fetch work plan with activities
   const { data: workPlan, isLoading: workPlanLoading } = useGetSingleWorkPlan(id ?? skipToken);
@@ -53,7 +34,7 @@ export default function PlannedActivities() {
   const { data: activityPlans, isFetching } = useGetAllActivityPlans({
     page,
     size: 100,
-    search: debouncedSearchQuery,
+    search: "",
     work_plan: id as string,
     is_unplanned: false, // Filter for planned activities at API level
   });
@@ -115,40 +96,6 @@ export default function PlannedActivities() {
     return plannedActivities;
   }, [workPlan, activityPlans, id]);
 
-  // Download template functionality
-  const [isDownloading, setIsDownloading] = useState(false);
-
-  const handleDownloadTemplate = async () => {
-    try {
-      setIsDownloading(true);
-      console.log("Downloading template...");
-
-      const response = await AxiosWithToken.get(
-        "/programs/plans/activity/sheet/template/",
-        {
-          responseType: "blob",
-        }
-      );
-
-      // Create download link
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", "activity-plan-template.xlsx");
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
-
-      toast.success("Activity Plan Template downloaded successfully");
-    } catch (error: any) {
-      console.error("Download error:", error);
-      toast.error(error?.response?.data?.message || error?.message || "Something went wrong");
-    } finally {
-      setIsDownloading(false);
-    }
-  };
-
   if (workPlanLoading) return <LoadingSpinner />;
 
   return (
@@ -180,97 +127,27 @@ export default function PlannedActivities() {
         </Card>
       )}
 
-      {/* Action Buttons */}
-      <div className="flex justify-end gap-3">
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button className='flex gap-2 py-6'>
-              Add Planned Activities
-              <ArrowDownIcon />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className='w-fit'>
-            <div className='flex flex-col items-start justify-between gap-1'>
-              <Link
-                href={{
-                  pathname: RouteEnum.PROGRAM_CREATE_ACTIVITY_PLAN,
-                  search: `?plan=${id}&type=planned`,
-                }}
-                className="w-full"
-              >
-                <Button
-                  className='flex gap-2 py-6 w-full justify-start'
-                  variant='ghost'
-                  type='button'
-                >
-                  <AddSquareIcon fillColor='#3b82f6' />
-                  Create Manually
-                </Button>
-              </Link>
-
-              <Button
-                className='flex gap-2 py-6 w-full justify-start'
-                variant='ghost'
-                type='button'
-                onClick={() => {
-                  console.log("Opening upload modal for planned activities");
-                  dispatch(
-                    openDialog({
-                      type: DialogType.ActivityUpload,
-                      dialogProps: {
-                        header: "Upload Planned Activities",
-                        width: "max-w-2xl",
-                        workPlanId: id,
-                        activityType: "PLANNED",
-                        projectId: workPlan?.data?.project?.id,
-                        financialYearId: workPlan?.data?.financial_year?.id,
-                      },
-                    })
-                  );
-                }}
-              >
-                <UploadIcon />
-                Upload from File
-              </Button>
-
-              <Button
-                className='flex items-center gap-2 justify-start w-full'
-                variant='ghost'
-                onClick={handleDownloadTemplate}
-                disabled={isDownloading}
-              >
-                <DownloadIcon className='text-green-500' />
-                {isDownloading ? "Downloading..." : "Download Template"}
-              </Button>
-            </div>
-          </PopoverContent>
-        </Popover>
-      </div>
 
       <Card>
-        <TableFilters
-          onSearchChange={(e) => setSearchQuery(e.target.value)}
-        >
-          <DataTableWithExpansion
-            data={plannedData}
-            columns={getActivityPlanDetailsColumns(id as string)}
-            isLoading={isFetching || workPlanLoading}
-            pagination={{
-              onChange: (page: number) => setPage(page),
-            }}
-            renderExpandedRow={(row: any) => (
-              <CostSheetTrackersExpanded
-                activityId={row.work_plan_activity}
-                activityNumber={row.activity_code || "N/A"}
-                isEditable={true}
-              />
-            )}
-            canExpand={(row: any) => {
-              // Show expand button for activities with work_plan_activity ID
-              return !!row.work_plan_activity;
-            }}
-          />
-        </TableFilters>
+        <DataTableWithExpansion
+          data={plannedData}
+          columns={getActivityPlanDetailsColumns(id as string)}
+          isLoading={isFetching || workPlanLoading}
+          pagination={{
+            onChange: (page: number) => setPage(page),
+          }}
+          renderExpandedRow={(row: any) => (
+            <CostSheetTrackersExpanded
+              activityId={row.work_plan_activity}
+              activityNumber={row.activity_code || "N/A"}
+              isEditable={true}
+            />
+          )}
+          canExpand={(row: any) => {
+            // Show expand button for activities with work_plan_activity ID
+            return !!row.work_plan_activity;
+          }}
+        />
       </Card>
     </div>
   );

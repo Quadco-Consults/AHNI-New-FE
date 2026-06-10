@@ -43,6 +43,9 @@ const Items = () => {
   const router = useRouter();
   const [quotationData, setQuotationData] = useState<any>(null);
   const [isPopulating, setIsPopulating] = useState(false);
+  // Use ref to track if items have been loaded to prevent duplication
+  const itemsLoadedRef = React.useRef(false);
+  const loadedPRIdRef = React.useRef<string | null>(null);
 
   const form = useForm<RFQItemsFormData>({
     resolver: zodResolver(RFQItemsFormSchema),
@@ -102,12 +105,24 @@ const Items = () => {
     }
   }, []);
 
+  // Reset loaded flag when PR ID changes
+  useEffect(() => {
+    if (purchaseRequestId !== loadedPRIdRef.current) {
+      console.log("🔄 Purchase Request ID changed, resetting loaded flag");
+      itemsLoadedRef.current = false;
+      loadedPRIdRef.current = purchaseRequestId;
+    }
+  }, [purchaseRequestId]);
+
   // Populate items when purchase request data is loaded
   useEffect(() => {
-    if (purchaseRequestData?.data?.items && !isPopulating) {
-      setIsPopulating(true);
-
+    // CRITICAL: Check ref first to prevent duplicate loading, even if state/props change
+    if (purchaseRequestData?.data?.items && !itemsLoadedRef.current && !isPopulating) {
       console.log("🔄 Populating items from Purchase Request:", purchaseRequestData.data.items);
+
+      // Mark as loaded FIRST to prevent race conditions
+      itemsLoadedRef.current = true;
+      setIsPopulating(true);
 
       // Clear existing items first
       form.setValue("items", []);
@@ -133,7 +148,8 @@ const Items = () => {
       toast.success(`Populated ${transformedItems.length} items from Purchase Request!`);
       setIsPopulating(false);
     }
-  }, [purchaseRequestData, form, isPopulating]);
+    // CRITICAL: Only depend on purchaseRequestData, NOT on form or isPopulating to prevent duplicate runs
+  }, [purchaseRequestData, itemsData]);
 
   // Create solicitation hook
   const { createSolicitation, isLoading: isCreating } = useCreateSolicitation();

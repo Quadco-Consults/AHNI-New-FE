@@ -24,12 +24,13 @@ const SupervisionEvaluationReport = () => {
     useGetEvaluationResponses(id as string, !!id);
 
   // Fetch travel request data for location and facility information
+  // Note: retrieve endpoint returns data directly (not wrapped in .data)
   const { data: siteVisitData, isLoading: isSiteVisitLoading } =
-    useGetSingleSiteVisit(supervisionEvaluation?.data?.site_visit_id || "", !!supervisionEvaluation?.data?.site_visit_id);
+    useGetSingleSiteVisit(supervisionEvaluation?.site_visit_id || "", !!supervisionEvaluation?.site_visit_id);
 
   const handlePrint = useReactToPrint({
     content: () => reportRef.current,
-    documentTitle: `Supervision_Evaluation_Report_${supervisionEvaluation?.data?.facility_name}_${new Date(supervisionEvaluation?.data?.evaluation_date || "").toLocaleDateString("en-US", { month: "short", year: "numeric" })}`,
+    documentTitle: `Supervision_Evaluation_Report_${supervisionEvaluation?.facility_name}_${new Date(supervisionEvaluation?.evaluation_date || "").toLocaleDateString("en-US", { month: "short", year: "numeric" })}`,
   });
 
   const handleDownloadPDF = () => {
@@ -48,7 +49,8 @@ const SupervisionEvaluationReport = () => {
     );
   }
 
-  const evaluation = supervisionEvaluation?.data;
+  // Note: supervision evaluation retrieve endpoint returns data directly (not wrapped in .data)
+  const evaluation = supervisionEvaluation;
   const responses = evaluationResponses?.results || evaluationResponses?.data?.results || [];
   const siteVisit = siteVisitData?.data;
 
@@ -66,12 +68,18 @@ const SupervisionEvaluationReport = () => {
         criteria_id: item.criteria,
         criteria_name: item.criteria_name,
         category_name: item.category_name,
-        response_value: item.rating === 'true' ? true : false,
-        text_response: item.observations,
-        comments: item.recommendations,
+        // Map compliance_status and is_compliant correctly
+        compliance_status: item.compliance_status,        // 'YES'/'NO'/'NA'
+        is_compliant: item.is_compliant,                  // boolean
+        response_value: item.is_compliant,                // legacy support
+        // Map comment fields correctly
+        observations: item.observations,                  // primary comment field
+        text_response: item.observations,                 // legacy support
+        comments: item.observations,                      // legacy support
+        recommendations: item.recommendations,
         rating_value: item.score,
         evidence: item.evidence,
-        is_compliant: item.is_compliant
+        rating: item.rating,
       }));
     }
 
@@ -119,7 +127,7 @@ const SupervisionEvaluationReport = () => {
                          "Not specified";
 
   // Debug logging (after all variables are declared)
-  console.log("🔍 Report Debug Data:", {
+  console.log("🔍 REPORT DEBUG DATA:", {
     evaluation: {
       id: evaluation?.id,
       site_visit_id: evaluation?.site_visit_id,
@@ -128,12 +136,25 @@ const SupervisionEvaluationReport = () => {
       evaluator_name: evaluation?.evaluator_name,
       overall_score: evaluation?.overall_score,
       status: evaluation?.status,
-      selected_criteria: evaluation?.selected_categories,
-      selected_categories: evaluation?.selected_categories,
+      // FIX: Log the correct fields
+      selected_categories: (evaluation as any)?.selected_categories || [],
+      selected_categories_count: ((evaluation as any)?.selected_categories || []).length,
+      selected_criteria: (evaluation as any)?.selected_criteria || [],
+      selected_criteria_count: ((evaluation as any)?.selected_criteria || []).length,
+      // Also log the raw categories/criteria arrays
+      categories: (evaluation as any)?.categories || [],
+      categories_count: ((evaluation as any)?.categories || []).length,
+      criteria_names: (evaluation as any)?.criteria_names || [],
+      criteria_names_count: ((evaluation as any)?.criteria_names || []).length,
+      evaluation_items: (evaluation as any)?.evaluation_items || [],
+      evaluation_items_count: ((evaluation as any)?.evaluation_items || []).length,
     },
     responses: {
+      rawResponses: responses,
       originalLength: responses.length,
+      unifiedResponses: unifiedResponses,
       unifiedLength: unifiedResponses.length,
+      hasCategoryNames: responses.length > 0 && responses.some((r: any) => r.category_name),
     },
     siteVisit: {
       id: siteVisit?.id,
@@ -148,6 +169,15 @@ const SupervisionEvaluationReport = () => {
       facilityRepDate,
     },
   });
+
+  // Additional diagnostic logging
+  if (unifiedResponses.length === 0) {
+    console.warn("⚠️ NO UNIFIED RESPONSES AVAILABLE!");
+    console.warn("   - Evaluation responses:", responses.length);
+    console.warn("   - Evaluation items:", ((evaluation as any)?.evaluation_items || []).length);
+    console.warn("   - Selected categories:", ((evaluation as any)?.selected_categories || []).length);
+    console.warn("   - Selected criteria:", ((evaluation as any)?.selected_criteria || []).length);
+  }
 
   return (
     <div className="space-y-6">
@@ -248,8 +278,12 @@ const SupervisionEvaluationReport = () => {
               <tr>
                 <td className="border border-black px-3 py-2 font-semibold bg-gray-100">Completion Rate:</td>
                 <td className="border border-black px-3 py-2">
-                  {responses.length > 0
-                    ? `${Math.round((responses.filter(r => r.response_value !== null && r.response_value !== undefined).length / responses.length) * 100)}%`
+                  {unifiedResponses.length > 0
+                    ? `${Math.round((unifiedResponses.filter((r: any) =>
+                        r.compliance_status !== null && r.compliance_status !== undefined ||
+                        r.response_value !== null && r.response_value !== undefined ||
+                        r.is_compliant !== null && r.is_compliant !== undefined
+                      ).length / unifiedResponses.length) * 100)}%`
                     : '0%'}
                 </td>
                 <td className="border border-black px-3 py-2 font-semibold bg-gray-100">Status:</td>
@@ -294,8 +328,17 @@ const SupervisionEvaluationReport = () => {
                     <tbody>
                       {categoryResponses.map((response: any, idx: number) => {
                         const itemNumber = `${catIdx + 1}.${idx + 1}`;
-                        // Determine compliance status - could be stored as 'yes'/'no' or boolean
-                        const isCompliant = response.compliance_status === 'yes' || response.response_value === true || response.response_value === 'yes';
+
+                        // Determine compliance status - handle multiple formats
+                        // Backend sends: compliance_status = 'YES'/'NO'/'NA' (uppercase)
+                        // Also check is_compliant boolean and legacy response_value
+                        const isCompliant =
+                          response.compliance_status === 'YES' ||           // Backend uppercase
+                          response.compliance_status === 'yes' ||           // Legacy lowercase
+                          response.is_compliant === true ||                 // Boolean field
+                          response.response_value === true ||               // Legacy field
+                          response.response_value === 'yes' ||
+                          response.response_value === 'YES';
 
                         return (
                           <tr key={response.id}>
@@ -310,7 +353,7 @@ const SupervisionEvaluationReport = () => {
                               {!isCompliant ? "✓" : ""}
                             </td>
                             <td className="border border-black px-2 py-2 text-xs">
-                              {response.comments || response.text_response || "-"}
+                              {response.observations || response.comments || response.text_response || "-"}
                             </td>
                           </tr>
                         );

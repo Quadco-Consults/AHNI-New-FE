@@ -6,7 +6,7 @@ import { useGetActivityCostSheets } from "@/features/programs/controllers/activi
 import BreadcrumbCard, { TBreadcrumbList } from "@/components/Breadcrumb";
 import { LoadingSpinner } from "@/components/Loading";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, Plus, Upload } from "lucide-react";
+import { ChevronLeft, Plus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useAppDispatch } from "@/hooks/useStore";
 import { openDialog } from "@/store/ui";
@@ -83,33 +83,6 @@ export default function CostSheetDetail() {
 
     const statusStyling = getCostSheetStatusStyling(validationStatus);
 
-    const handleAddCostSheet = () => {
-        dispatch(
-            openDialog({
-                type: DialogType.ACTIVITY_COST_SHEET_MODAL,
-                dialogProps: {
-                    header: "Add Sub-Activity",
-                    width: "max-w-2xl",
-                    activityId,
-                    workPlanId,
-                },
-            })
-        );
-    };
-
-    const handleUploadCostSheet = () => {
-        dispatch(
-            openDialog({
-                type: DialogType.COST_SHEET_UPLOAD_MODAL,
-                dialogProps: {
-                    header: "Bulk Upload Sub-Activities",
-                    width: "max-w-4xl",
-                    activityId,
-                    activityNumber: activity?.activity_number,
-                },
-            })
-        );
-    };
 
     return (
         <div className="space-y-5">
@@ -229,29 +202,12 @@ export default function CostSheetDetail() {
 
             {/* Cost Sheet Sub-Activities */}
             <Card>
-                <div className="p-6 border-b flex items-center justify-between">
+                <div className="p-6 border-b">
                     <div>
                         <h3 className="text-lg font-semibold text-gray-800">Cost Sheet Breakdown</h3>
                         <p className="text-sm text-gray-600 mt-1">
                             {costSheets.length} sub-{costSheets.length === 1 ? 'activity' : 'activities'}
                         </p>
-                    </div>
-                    <div className="flex gap-3">
-                        <Button
-                            onClick={handleUploadCostSheet}
-                            variant="outline"
-                            className="flex gap-2"
-                        >
-                            <Upload className="w-4 h-4" />
-                            Bulk Upload
-                        </Button>
-                        <Button
-                            onClick={handleAddCostSheet}
-                            className="flex gap-2"
-                        >
-                            <Plus className="w-4 h-4" />
-                            Add Sub-Activity
-                        </Button>
                     </div>
                 </div>
 
@@ -274,13 +230,9 @@ export default function CostSheetDetail() {
                                 </svg>
                             </div>
                             <p className="text-gray-600 font-medium mb-2">No cost sheet created yet</p>
-                            <p className="text-sm text-gray-500 mb-4">
-                                Create sub-activities to break down the total cost
+                            <p className="text-sm text-gray-500">
+                                Sub-activities are required to break down the total cost
                             </p>
-                            <Button onClick={handleAddCostSheet}>
-                                <Plus className="w-4 h-4 mr-2" />
-                                Add First Sub-Activity
-                            </Button>
                         </div>
                     ) : (
                         <DataTable

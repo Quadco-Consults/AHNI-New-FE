@@ -132,8 +132,9 @@ const ApprovalWorkflow = ({
         if (data.authorization_status === 'rejected') return 'rejected';
         // If the whole request is approved, all steps are complete
         if (mainStatus === 'approved') return 'approved';
-        if (data.authorized_by && data.authorized_date) return 'approved';
-        // Handle both American and British spelling
+        // Handle both American and British spelling of field names
+        if ((data.authorized_by || data.authorised_by) && (data.authorized_date || data.authorised_date)) return 'approved';
+        // Handle both American and British spelling of status
         if (mainStatus === 'authorized' || mainStatus === 'authorised') return 'approved';
         if (data.authorization_status === 'in_progress') return 'in_progress';
         // Only available after review
@@ -146,7 +147,7 @@ const ApprovalWorkflow = ({
         if (mainStatus === 'approved') return 'approved';
         if (data.approval_status === 'in_progress') return 'in_progress';
         // Only available after authorization (handle both spellings)
-        const authCompleted = data.authorized_by || mainStatus === 'authorized' || mainStatus === 'authorised';
+        const authCompleted = data.authorized_by || data.authorised_by || mainStatus === 'authorized' || mainStatus === 'authorised';
         return authCompleted ? 'pending' : 'pending';
 
       default:
@@ -349,7 +350,8 @@ const ApprovalWorkflow = ({
         personDetail = data.reviewed_by_detail;
         break;
       case 'authorization':
-        personDetail = data.authorized_by_detail;
+        // Handle both American and British spelling
+        personDetail = data.authorized_by_detail || data.authorised_by_detail;
         break;
       case 'approval':
         personDetail = data.approved_by_detail;
@@ -372,7 +374,12 @@ const ApprovalWorkflow = ({
     }
 
     // Fallback to assignee field if detailed info not available
-    const assignee = data[step.assigneeField];
+    // For authorization, check both American and British spellings
+    let assignee = data[step.assigneeField];
+    if (!assignee && step.id === 'authorization') {
+      assignee = data['authorised_by']; // Try British spelling as fallback
+    }
+
     if (assignee) {
       if (typeof assignee === 'object' && assignee.first_name && assignee.last_name) {
         personName = `${assignee.first_name} ${assignee.last_name}`;
@@ -406,7 +413,35 @@ const ApprovalWorkflow = ({
 
   const getStepDate = (step: ApprovalStep): string => {
     const data = purchaseRequestData?.data;
-    return data?.[step.dateField] || 'N/A';
+    let dateValue = data?.[step.dateField];
+
+    // For authorization, check British spelling as fallback
+    if (!dateValue && step.id === 'authorization' && step.dateField === 'authorized_date') {
+      dateValue = data?.['authorised_date'];
+    }
+
+    // Check if date is valid
+    if (!dateValue || dateValue === 'null' || dateValue === 'undefined') {
+      return 'N/A';
+    }
+
+    try {
+      const date = new Date(dateValue);
+
+      // Check if date is valid (not NaN and not epoch zero)
+      if (isNaN(date.getTime()) || date.getTime() === 0 || date.getFullYear() < 1971) {
+        return 'N/A';
+      }
+
+      // Format the date nicely
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    } catch {
+      return 'N/A';
+    }
   };
 
   const getPersonDetails = (step: ApprovalStep): { name: string; role: string; email?: string; id?: string } => {

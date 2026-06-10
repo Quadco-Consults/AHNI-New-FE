@@ -12,8 +12,7 @@ import CbaAPI from "@/features/procurement/controllers/cbaController";
 import { useGetSolicitationSubmission } from "@/features/procurement/controllers/vendorBidSubmissionsController";
 import { useGetSingleSolicitation } from "@/features/procurement/controllers/solicitationController";
 import {
-
-Users,
+  Users,
   Building2,
   FileText,
   BarChart,
@@ -31,6 +30,9 @@ Users,
 } from 'lucide-react';
 import { RouteEnum } from "@/constants/RouterConstants";
 import { useState, useMemo } from "react";
+import { WorkflowStepper, getCBAWorkflowSteps } from "@/features/procurement/components/competitive-bid-analysis/WorkflowStepper";
+import { CBALoadingState } from "@/features/procurement/components/competitive-bid-analysis/LoadingStates";
+import { CBAErrorBoundary } from "@/features/procurement/components/competitive-bid-analysis/ErrorBoundary";
 
 const generatePath = (route: string, params?: Record<string, any>): string => {
   let path = route;
@@ -52,6 +54,92 @@ const getStatusVariant = (status: string) => {
   }
 };
 
+/**
+ * Get the appropriate CBA workflow route based on current status
+ */
+const getCBAWorkflowRoute = (cbaId: string, status: string, solicitationId: string, cbaType: string) => {
+  // For COMMITTEE type CBAs, follow the 4-stage workflow
+  if (cbaType === 'COMMITTEE') {
+    switch (status) {
+      case 'PENDING':
+      case 'IN_PROGRESS':
+        // Committee members are scoring vendors
+        return `/dashboard/procurement/competitive-bid-analysis/${cbaId}/vendor-analysis?id=${solicitationId}&cba=${cbaId}`;
+
+      case 'DONE':
+        // Committee scoring complete, show consensus
+        return `/dashboard/procurement/competitive-bid-analysis/${cbaId}/committee-consensus`;
+
+      case 'UNDER_REVIEW':
+        // First approval stage
+        return `/dashboard/procurement/competitive-bid-analysis/${cbaId}/review-approval`;
+
+      case 'AUTHORISING':
+        // Second approval stage
+        return `/dashboard/procurement/competitive-bid-analysis/${cbaId}/authorise-approval`;
+
+      case 'AWAITING_APPROVAL':
+        // Final approval stage
+        return `/dashboard/procurement/competitive-bid-analysis/${cbaId}/final-approval`;
+
+      case 'APPROVED':
+      case 'COMPLETED':
+        // Show analysis results
+        return `/dashboard/procurement/competitive-bid-analysis/${cbaId}/analysis-results`;
+
+      default:
+        return `/dashboard/procurement/competitive-bid-analysis/${cbaId}/vendor-analysis?id=${solicitationId}&cba=${cbaId}`;
+    }
+  }
+
+  // For NON_COMMITTEE type, go directly to vendor analysis or check approval
+  if (status === 'APPROVED' || status === 'COMPLETED') {
+    return `/dashboard/procurement/competitive-bid-analysis/${cbaId}/analysis-results`;
+  }
+
+  if (status === 'DONE') {
+    return `/dashboard/procurement/competitive-bid-analysis/${cbaId}/check-approval?id=${solicitationId}&cba=${cbaId}`;
+  }
+
+  return `/dashboard/procurement/competitive-bid-analysis/${cbaId}/vendor-analysis?id=${solicitationId}&cba=${cbaId}`;
+};
+
+/**
+ * Get action button text based on current status
+ */
+const getCBAActionText = (status: string, cbaType: string) => {
+  if (cbaType === 'COMMITTEE') {
+    switch (status) {
+      case 'PENDING':
+      case 'IN_PROGRESS':
+        return 'Conduct Analysis';
+      case 'DONE':
+        return 'View Consensus';
+      case 'UNDER_REVIEW':
+        return 'Review Approval';
+      case 'AUTHORISING':
+        return 'Authorise';
+      case 'AWAITING_APPROVAL':
+        return 'Final Approval';
+      case 'APPROVED':
+      case 'COMPLETED':
+        return 'View Results';
+      default:
+        return 'Start Analysis';
+    }
+  }
+
+  if (status === 'APPROVED' || status === 'COMPLETED') {
+    return 'View Results';
+  }
+
+  if (status === 'DONE') {
+    return 'Approve Results';
+  }
+
+  return 'Conduct Analysis';
+};
+
 const CbaDetailsPage = () => {
   const { id } = useParams();
 
@@ -68,42 +156,24 @@ const CbaDetailsPage = () => {
   // Fetch vendor submissions
   const { data: submissionsData, isLoading: submissionsLoading, error: submissionsError } = useGetSolicitationSubmission(solicitationId as string, !!solicitationId);
 
-  // Debug logging - Enhanced to show data paths
-  console.log("🔍 CBA Details Debug:", {
-    cbaData: cbaData?.data,
-    solicitationId,
-    submissionsData,
-    submissionsDataPaths: {
-      path1: submissionsData?.data?.data?.results?.length,
-      path2: submissionsData?.data?.results?.length,
-      path3: submissionsData?.results?.length,
-    },
-    submissionsLoading,
-    submissionsError,
-    rfqData: rfqData?.data,
-    rfqItemsPaths: {
-      solicitation_items: rfqData?.data?.solicitation_items?.length,
-      items: rfqData?.data?.items?.length,
-      line_items: rfqData?.data?.line_items?.length,
-      rfq_items: rfqData?.data?.rfq_items?.length,
-    },
-    rfqDateFields: {
-      opening_date: rfqData?.data?.opening_date,
-      open_date: rfqData?.data?.open_date,
-      start_date: rfqData?.data?.start_date,
-      closing_date: rfqData?.data?.closing_date,
-      close_date: rfqData?.data?.close_date,
-      end_date: rfqData?.data?.end_date,
-    }
-  });
+  const workflowSteps = useMemo(() => {
+    if (!cbaData?.data) return [];
+    return getCBAWorkflowSteps(
+      cbaData.data.status || "PENDING",
+      cbaData.data.cba_type || "NON_COMMITTEE"
+    );
+  }, [cbaData?.data]);
 
-  if (cbaLoading) return <LoadingSpinner />;
+  if (cbaLoading) return <CBALoadingState message="Loading CBA details..." />;
 
   if (!cbaData?.data) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
-          <p className="text-gray-500">CBA not found</p>
+          <p className="text-slate-500 text-lg font-medium mb-4">CBA not found</p>
+          <p className="text-slate-400 text-sm mb-6">
+            The requested competitive bid analysis could not be found.
+          </p>
           <GoBack />
         </div>
       </div>
@@ -123,42 +193,50 @@ const CbaDetailsPage = () => {
                      0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
-      {/* Navigation Header */}
-      <div className="bg-white shadow-sm border-b sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <GoBack />
-              <div className="h-8 w-px bg-gray-300" />
-              <div>
-                <h1 className="text-xl font-bold text-gray-900">CBA Details & Analysis</h1>
-                <p className="text-sm text-gray-500">Complete vendor participation and workflow management</p>
+    <CBAErrorBoundary>
+      <div className="min-h-screen bg-slate-50">
+        {/* Navigation Header */}
+        <div className="bg-white shadow-sm border-b sticky top-0 z-50">
+          <div className="max-w-7xl mx-auto px-4 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <GoBack />
+                <div className="h-8 w-px bg-slate-300" />
+                <div>
+                  <h1 className="text-xl font-bold text-slate-900">CBA Details & Analysis</h1>
+                  <p className="text-sm text-slate-600">Complete vendor participation and workflow management</p>
+                </div>
               </div>
-            </div>
-            <div className="flex items-center space-x-3">
-              <Badge variant={getStatusVariant(cbaData?.data?.status) as any} className="px-4 py-2 text-sm font-medium">
-                {cbaData?.data?.status || 'PENDING'}
-              </Badge>
+              <div className="flex items-center space-x-3">
+                <Badge variant={getStatusVariant(cbaData?.data?.status) as any} className="px-4 py-2 text-sm font-medium">
+                  {cbaData?.data?.status || 'PENDING'}
+                </Badge>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 py-6 space-y-8">
+        {/* Workflow Progress */}
+        <div className="bg-white border-b">
+          <div className="max-w-7xl mx-auto px-4 py-6">
+            <WorkflowStepper steps={workflowSteps} />
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
 
         {/* CBA Overview */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          <div className="lg:col-span-3 bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="lg:col-span-3 bg-white rounded-xl shadow-sm border border-slate-200 p-6">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center space-x-4">
                 <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
                   <BarChart size={24} className="text-blue-600" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900">{cbaData.data.title || 'Competitive Bid Analysis'}</h2>
-                  <p className="text-gray-600 text-sm">Analysis ID: {(id as string).slice(0, 13)}...</p>
+                  <h2 className="text-2xl font-bold text-slate-900">{cbaData.data.title || 'Competitive Bid Analysis'}</h2>
+                  <p className="text-slate-600 text-sm">Analysis ID: {(id as string).slice(0, 13)}...</p>
                 </div>
               </div>
             </div>
@@ -189,25 +267,27 @@ const CbaDetailsPage = () => {
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
               <PlayCircle size={20} className="mr-2 text-blue-600" />
-              Quick Actions
+              Next Action
             </h3>
             <div className="space-y-3">
-              <Link href={`/dashboard/procurement/competitive-bid-analysis/${id}/vendor-analysis?id=${solicitationId}&cba=${id}`} className="w-full">
+              <Link
+                href={getCBAWorkflowRoute(
+                  id as string,
+                  cbaData.data.status || 'PENDING',
+                  solicitationId as string,
+                  cbaData.data.cba_type || 'NON_COMMITTEE'
+                )}
+                className="w-full"
+              >
                 <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
                   <ClipboardCheck size={16} />
-                  Conduct Analysis
+                  {getCBAActionText(cbaData.data.status || 'PENDING', cbaData.data.cba_type || 'NON_COMMITTEE')}
                 </Button>
               </Link>
               <Link href={`/dashboard/procurement/competitive-bid-analysis/${id}/analysis-results`} className="w-full">
-                <Button variant="outline" className="w-full border-green-600 text-green-600 hover:bg-green-50">
+                <Button variant="outline" className="w-full border-slate-600 text-slate-600 hover:bg-slate-50">
                   <BarChart size={16} />
                   View Results
-                </Button>
-              </Link>
-              <Link href={`/dashboard/procurement/competitive-bid-analysis/${id}/check-approval?id=${solicitationId}&cba=${id}`} className="w-full">
-                <Button variant="outline" className="w-full border-purple-600 text-purple-600 hover:bg-purple-50">
-                  <Shield size={16} />
-                  Approve Results
                 </Button>
               </Link>
             </div>
@@ -215,21 +295,21 @@ const CbaDetailsPage = () => {
         </div>
 
         {/* Vendor Participation */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <div className="bg-gradient-to-r from-emerald-50 to-teal-50 p-6 border-b">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+          <div className="bg-slate-50 p-6 border-b border-slate-200">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center">
-                  <Users size={24} className="text-emerald-600" />
+                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <Users size={24} className="text-blue-600" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-gray-900">Vendor Participation</h3>
-                  <p className="text-gray-600 text-sm">
+                  <h3 className="text-xl font-bold text-slate-900">Vendor Participation</h3>
+                  <p className="text-slate-600 text-sm">
                     {vendors.length} vendors participated in RFQ: {rfqData?.data?.rfq_id || 'N/A'}
                   </p>
                 </div>
               </div>
-              <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-300 px-4 py-2">
+              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-300 px-4 py-2">
                 {vendors.length} Submissions
               </Badge>
             </div>
@@ -306,15 +386,15 @@ const CbaDetailsPage = () => {
         </div>
 
         {/* RFQ Information */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-          <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-6 border-b">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+          <div className="bg-slate-50 p-6 border-b border-slate-200">
             <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
-                <FileText size={24} className="text-indigo-600" />
+              <div className="w-12 h-12 bg-slate-100 rounded-lg flex items-center justify-center">
+                <FileText size={24} className="text-slate-700" />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-gray-900">RFQ Information</h3>
-                <p className="text-gray-600 text-sm">Details of the Request for Quotation</p>
+                <h3 className="text-xl font-bold text-slate-900">RFQ Information</h3>
+                <p className="text-slate-600 text-sm">Details of the Request for Quotation</p>
               </div>
             </div>
           </div>
@@ -361,28 +441,42 @@ const CbaDetailsPage = () => {
           </div>
         </div>
 
-        {/* Analysis Workflow */}
+        {/* Current Stage */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <div className="flex items-center space-x-4 mb-6">
-            <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-              <TrendingUp size={24} className="text-orange-600" />
+            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+              <TrendingUp size={24} className="text-blue-600" />
             </div>
             <div>
-              <h3 className="text-xl font-bold text-gray-900">Analysis Workflow</h3>
-              <p className="text-gray-600 text-sm">Manage the complete bid analysis process</p>
+              <h3 className="text-xl font-bold text-gray-900">Current Stage</h3>
+              <p className="text-gray-600 text-sm">
+                {cbaData.data.cba_type === 'COMMITTEE' ? 'Committee-based approval workflow' : 'Direct approval workflow'}
+              </p>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Link href={`/dashboard/procurement/competitive-bid-analysis/${id}/vendor-analysis?id=${solicitationId}&cba=${id}`} className="block">
-              <div className="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-all duration-200 hover:border-blue-300">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Link
+              href={getCBAWorkflowRoute(
+                id as string,
+                cbaData.data.status || 'PENDING',
+                solicitationId as string,
+                cbaData.data.cba_type || 'NON_COMMITTEE'
+              )}
+              className="block"
+            >
+              <div className="border-2 border-blue-300 bg-blue-50 rounded-lg p-6 hover:shadow-lg transition-all duration-200">
                 <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
                   <ClipboardCheck size={24} className="text-blue-600" />
                 </div>
-                <h4 className="text-lg font-semibold text-gray-900 mb-2">Conduct Analysis</h4>
-                <p className="text-gray-600 text-sm mb-4">Evaluate vendor submissions and perform comparative analysis</p>
-                <Button className="w-full">
-                  Start Analysis
+                <h4 className="text-lg font-semibold text-gray-900 mb-2">
+                  {getCBAActionText(cbaData.data.status || 'PENDING', cbaData.data.cba_type || 'NON_COMMITTEE')}
+                </h4>
+                <p className="text-gray-600 text-sm mb-4">
+                  Current step in the procurement workflow
+                </p>
+                <Button className="w-full bg-blue-600 hover:bg-blue-700">
+                  Continue
                 </Button>
               </div>
             </Link>
@@ -399,23 +493,11 @@ const CbaDetailsPage = () => {
                 </Button>
               </div>
             </Link>
-
-            <Link href={`/dashboard/procurement/competitive-bid-analysis/${id}/check-approval?id=${solicitationId}&cba=${id}`} className="block">
-              <div className="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-all duration-200 hover:border-purple-300">
-                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
-                  <Shield size={24} className="text-purple-600" />
-                </div>
-                <h4 className="text-lg font-semibold text-gray-900 mb-2">Approve Results</h4>
-                <p className="text-gray-600 text-sm mb-4">Final approval and authorization of analysis results</p>
-                <Button variant="outline" className="w-full border-purple-600 text-purple-600 hover:bg-purple-50">
-                  Review for Approval
-                </Button>
-              </div>
-            </Link>
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </CBAErrorBoundary>
   );
 };
 

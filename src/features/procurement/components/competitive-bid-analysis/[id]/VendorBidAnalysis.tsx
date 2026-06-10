@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams, useSearchParams, useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Loading } from "@/components/Loading";
 import GoBack from "@/components/GoBack";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import CbaAPI from "@/features/procurement/controllers/cbaController";
+import * as CommitteeEvaluationController from "@/features/procurement/controllers/committeeEvaluationController";
+import { CommitteeMemberData } from "@/features/procurement/types/cba";
 import { useGetSolicitationSubmission, useGetVendorBidSubmissions } from "@/features/procurement/controllers/vendorBidSubmissionsController";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
@@ -72,7 +74,6 @@ const VendorBidAnalysis = () => {
 
   // Committee evaluation state
   const [qualityScores, setQualityScores] = useState<{[vendorId: string]: string}>({});
-  const [approvedModels, setApprovedModels] = useState<{[vendorId: string]: string}>({});
   const [priceResponsiveness, setPriceResponsiveness] = useState<{[vendorId: string]: string}>({});
   const [technicalEligibility, setTechnicalEligibility] = useState<{[vendorId: string]: string}>({});
   const [bankAccountEvaluation, setBankAccountEvaluation] = useState<{[vendorId: string]: string}>({});
@@ -95,51 +96,20 @@ const VendorBidAnalysis = () => {
     enabled: !!solicitationId // Enable when solicitation ID is available
   });
 
-  // Additional debug logging with error handling
+  // Debug logging (development only)
   useEffect(() => {
-    console.log("🔧 CBA Analysis Debug Info:", {
-      cbaId,
-      solicitationId,
-      cbaData: cbaData?.data,
-      submissionData,
-      submissionResults: (submissionData as any)?.data?.data?.results || (submissionData as any)?.data?.results,
-      submissionCount: ((submissionData as any)?.data?.data?.results || (submissionData as any)?.data?.results || []).length,
-      apiEndpoint: `/api/v1/procurements/manual-bid/by-solicitation/${solicitationId}/`,
-      submissionError: submissionError?.message,
-      allBidError: allBidError?.message,
-    });
-
-    // Log individual submissions for API structure analysis
-    if ((submissionData as any)?.data?.results) {
-      (submissionData as any).data.results.forEach((submission: any, index: number) => {
-        console.log(`📋 Submission ${index + 1}:`, {
-          id: submission.id,
-          vendor: submission.vendor,
-          bid_items: submission.bid_items,
-          evaluations: submission.evaluations,
-          total_amount: submission.total_amount
-        });
+    if (process.env.NODE_ENV === 'development') {
+      console.log("CBA Analysis:", {
+        cbaId,
+        solicitationId,
+        vendorCount: ((submissionData as any)?.data?.data?.results || (submissionData as any)?.data?.results || []).length
       });
     }
-  }, [cbaId, solicitationId, cbaData, submissionData]);
+  }, [cbaId, solicitationId, submissionData]);
 
   // Process real vendor submission data
   useEffect(() => {
-    console.log("🔥 =================================================================");
-    console.log("🔥 VENDOR BID ANALYSIS - DETAILED DEBUG");
-    console.log("🔥 =================================================================");
-    console.log("🔍 Raw Submission Data:", submissionData);
-    console.log("🔍 Submission Loading Status:", submissionLoading);
-    console.log("🔍 Submission Error:", submissionError);
-    console.log("🔍 All Bid Data:", allBidData);
-    console.log("🔍 All Bid Loading Status:", allBidLoading);
-    console.log("🔍 Solicitation ID:", solicitationId);
-    console.log("🔍 CBA ID:", cbaId);
-
-    // Check if hook is enabled
     if (!solicitationId) {
-      console.log("❌ Solicitation ID is missing - API call won't be made");
-      console.log("❌ Using sample data due to missing solicitation ID");
       const processedSampleData = sampleVendorData.map((vendor, vendorIndex) => ({
         ...vendor,
         id: vendor.id || `vendor-${vendorIndex + 1}`,
@@ -152,116 +122,61 @@ const VendorBidAnalysis = () => {
       return;
     }
 
-    // Check data structure
-    console.log("🔍 Submission Data Structure Analysis:");
-    console.log("🔍 - submissionData exists:", !!submissionData);
-    console.log("🔍 - submissionData.data exists:", !!(submissionData as any)?.data);
-    console.log("🔍 - submissionData.data structure:", (submissionData as any)?.data);
-    console.log("🔍 - submissionData.data keys:", (submissionData as any)?.data ? Object.keys((submissionData as any).data) : null);
-    console.log("🔍 - submissionData.data.results exists:", !!(submissionData as any)?.data?.results);
-    console.log("🔍 - submissionData.data.data exists:", !!(submissionData as any)?.data?.data);
-    console.log("🔍 - submissionData.data.data structure:", (submissionData as any)?.data?.data);
-
-    // Check if data.data.results exists (nested structure)
     const apiResults = (submissionData as any)?.data?.data?.results || (submissionData as any)?.data?.results;
     const fallbackResults = (allBidData as any)?.results;
-    console.log("🔍 API Results (primary - checking both paths):", apiResults);
-    console.log("🔍 API Results (fallback):", fallbackResults);
 
-    // Try primary API results first, then fallback
     let dataSource = null;
-    let sourceType = "";
-
     if (apiResults && apiResults.length > 0) {
       dataSource = apiResults;
-      sourceType = "Primary API";
     } else if (fallbackResults && fallbackResults.length > 0) {
       dataSource = fallbackResults;
-      sourceType = "Fallback API";
     }
 
-    console.log("🔍 Selected Data Source:", sourceType, dataSource);
-
     if (dataSource && dataSource.length > 0) {
-      console.log("✅ Processing real vendor data from", sourceType, ":", dataSource.length, "submissions");
-
-      // Filter submissions for the current solicitation only
       const currentSolicitationSubmissions = dataSource.filter((submission: any) =>
         submission.solicitation?.id === solicitationId
       );
 
-      console.log(`🎯 Found ${currentSolicitationSubmissions.length} submissions for solicitation ${solicitationId}`);
-
       if (currentSolicitationSubmissions.length > 0) {
         const processedVendors: VendorData[] = currentSolicitationSubmissions.map((submission: any) => {
-        console.log("📄 Processing submission:", submission);
+          const items = submission.bid_items?.map((bidItem: any, index: number) => ({
+            id: bidItem.id || `item-${submission.id}-${index}`,
+            description: bidItem.solicitation_item_name || `Item ${index + 1}`,
+            specification: `Quantity: ${bidItem.solicitation_item_quantity} units`,
+            qty: parseInt(bidItem.solicitation_item_quantity || 0),
+            brand: bidItem.brand || "Generic",
+            unitPrice: parseFloat(bidItem.unit_price || 0),
+            total: parseFloat(bidItem.total_price || 0),
+            selected: false
+          })) || [];
 
-        // Map bid_items according to REAL API structure
-        const items = submission.bid_items?.map((bidItem: any, index: number) => ({
-          id: bidItem.id || `item-${submission.id}-${index}`,
-          description: bidItem.solicitation_item_name || `Item ${index + 1}`,
-          specification: `Quantity: ${bidItem.solicitation_item_quantity} units`,
-          qty: parseInt(bidItem.solicitation_item_quantity || 0),
-          brand: bidItem.brand || "Generic",
-          unitPrice: parseFloat(bidItem.unit_price || 0),
-          total: parseFloat(bidItem.total_price || 0),
-          selected: false
-        })) || [];
+          const technicalEvaluations: TechnicalEvaluation[] = submission.evaluations?.map((evaluation: any) => ({
+            criteria: evaluation.evaluation_criteria?.name || "Technical Criteria",
+            response: evaluation.response || "No response provided"
+          })) || [];
 
-        console.log("📦 Processed items for", submission.vendor?.company_name, ":", items);
-
-        // Process technical evaluations according to API structure
-        const technicalEvaluations: TechnicalEvaluation[] = submission.evaluations?.map((evaluation: any) => ({
-          criteria: evaluation.evaluation_criteria?.name || "Technical Criteria",
-          response: evaluation.response || "No response provided"
-        })) || [];
-
-        console.log("📝 Technical evaluations for", submission.vendor?.company_name, ":", technicalEvaluations);
-
-        return {
-          id: submission.id,
-          vendorId: submission.vendor?.id, // Store actual vendor ID
-          name: submission.vendor?.company_name || `Vendor ${submission.id?.slice(0, 8)}`,
-          items,
-          grandTotal: parseFloat(submission.bid_details?.total_amount || items.reduce((sum: number, item: VendorItem) => sum + item.total, 0)),
-          deliveryTime: submission.delivery_time || "2-3 Weeks",
-          paymentTerms: submission.payment_terms || "100% Payment After Delivery",
-          tin: submission.vendor?.company_registration_number || "N/A",
-          validityPeriod: submission.validity_period || "30 Days",
-          bankAccount: submission.vendor?.status === "Approved" ? "YES" : "NO",
-          cacRegistration: submission.vendor?.company_registration_number ? "YES" : "NO",
-          workExperience: submission.vendor?.type_of_business ? "YES" : "NO",
-          currency: submission.currency || "Naira",
-          warranty: submission.warranty || "Standard Warranty",
-          technicalEvaluations
-        };
-      });
-
-        console.log("🎯 Final processed vendors:", processedVendors);
-        console.log("✅ Vendor Names Extracted:");
-        processedVendors.forEach((v, idx) => {
-          console.log(`  ${idx + 1}. ${v.name} (ID: ${v.id}, Vendor ID: ${v.vendorId})`);
-          console.log(`     - Items: ${v.items.length}`);
-          console.log(`     - Grand Total: ₦${v.grandTotal.toLocaleString()}`);
+          return {
+            id: submission.id,
+            vendorId: submission.vendor?.id,
+            name: submission.vendor?.company_name || `Vendor ${submission.id?.slice(0, 8)}`,
+            items,
+            grandTotal: parseFloat(submission.bid_details?.total_amount || items.reduce((sum: number, item: VendorItem) => sum + item.total, 0)),
+            deliveryTime: submission.delivery_time || "2-3 Weeks",
+            paymentTerms: submission.payment_terms || "100% Payment After Delivery",
+            tin: submission.vendor?.company_registration_number || "N/A",
+            validityPeriod: submission.validity_period || "30 Days",
+            bankAccount: submission.vendor?.status === "Approved" ? "YES" : "NO",
+            cacRegistration: submission.vendor?.company_registration_number ? "YES" : "NO",
+            workExperience: submission.vendor?.type_of_business ? "YES" : "NO",
+            currency: submission.currency || "Naira",
+            warranty: submission.warranty || "Standard Warranty",
+            technicalEvaluations
+          };
         });
+
         setVendorData(processedVendors);
       }
     } else {
-      console.log("❌ NO REAL DATA AVAILABLE - COMPREHENSIVE ANALYSIS:");
-      console.log("❌ - Primary API Results exists:", !!apiResults);
-      console.log("❌ - Primary API Results length:", apiResults?.length);
-      console.log("❌ - Primary API Results value:", apiResults);
-      console.log("❌ - Fallback API Results exists:", !!fallbackResults);
-      console.log("❌ - Fallback API Results length:", fallbackResults?.length);
-      console.log("❌ - Fallback API Results value:", fallbackResults);
-      console.log("❌ - Submission Data:", submissionData);
-      console.log("❌ - All Bid Data:", allBidData);
-      console.log("❌ - Primary API Loading:", submissionLoading);
-      console.log("❌ - Fallback API Loading:", allBidLoading);
-      console.log("❌ - Primary API Error:", submissionError);
-      console.log("❌ FALLING BACK TO SAMPLE DATA");
-
-      // Ensure all sample data items have unique IDs
       const processedSampleData = sampleVendorData.map((vendor, vendorIndex) => ({
         ...vendor,
         id: vendor.id || `vendor-${vendorIndex + 1}`,
@@ -271,7 +186,6 @@ const VendorBidAnalysis = () => {
         }))
       }));
 
-      console.log("🔧 Processed sample data with IDs:", processedSampleData);
       setVendorData(processedSampleData);
     }
   }, [submissionData, allBidData, solicitationId, submissionLoading, allBidLoading]);
@@ -317,21 +231,14 @@ const VendorBidAnalysis = () => {
         : v
     ));
 
-    console.log(`${newSelectionState ? 'Selected' : 'Deselected'} all items from vendor: ${vendor.name}`);
   };
 
   // Handle checkbox selection
   const handleItemSelection = (vendorId: string, itemId: string, checked: boolean) => {
-    console.log("🔘 Checkbox selection:", { vendorId, itemId, checked });
-
     const vendor = vendorData.find(v => v.id === vendorId);
     const item = vendor?.items.find(i => i.id === itemId);
 
-    console.log("🔍 Found vendor:", vendor?.name);
-    console.log("🔍 Found item:", item?.description, "with id:", item?.id);
-
     if (!vendor || !item) {
-      console.log("❌ Vendor or item not found!", { vendor: !!vendor, item: !!item });
       return;
     }
 
@@ -615,6 +522,22 @@ const VendorBidAnalysis = () => {
   const { modifyCba, isLoading: submittingAnalysis } = CbaAPI.useModifyCba(cbaId as string);
   const { evaluateCba, isLoading: submittingEvaluation } = CbaAPI.useCbaEvaluation(cbaId as string);
 
+  // Import committee evaluation controller
+  const currentUser = CommitteeEvaluationController.useCurrentUser();
+  const { mutateAsync: submitMemberEvaluation, isPending: submittingMemberEval } =
+    CommitteeEvaluationController.useSubmitMemberEvaluation(cbaId as string);
+
+  // Check if current user is a committee member (with proper type safety)
+  const isCommitteeMember = useMemo(() => {
+    if (!cbaData?.data?.committee_members || !currentUser.id) {
+      return false;
+    }
+
+    return cbaData.data.committee_members.some(
+      (member: CommitteeMemberData) => member.id === currentUser.id
+    );
+  }, [cbaData?.data?.committee_members, currentUser.id]);
+
   const handleSubmitAnalysis = async () => {
     if (selectedItems.length === 0) {
       toast.error("Please select at least one item from vendors before submitting");
@@ -633,46 +556,39 @@ const VendorBidAnalysis = () => {
       return acc;
     }, {} as Record<string, { vendorName: string; items: SelectedItem[] }>);
 
-    console.log("📊 Analysis Data - Items grouped by vendor:", itemsByVendor);
-
-    // If multiple vendors are selected, show a warning
     const vendorIds = Object.keys(itemsByVendor);
-    if (vendorIds.length > 1) {
-      toast.error("Currently, the system only supports selecting items from a single vendor. Please select items from only one vendor.");
-      return;
-    }
 
-    const selectedSubmissionId = vendorIds[0];
-    const selectedVendorItems = itemsByVendor[selectedSubmissionId];
-
-    // Get the vendor data for display purposes
-    const selectedVendor = vendorData.find(v => v.id === selectedSubmissionId);
-
-    console.log("🔍 Submission Debug:", {
-      selectedSubmissionId,
-      selectedVendor: selectedVendor?.name,
-      itemCount: selectedItems.length,
-      total: selectedTotal
-    });
+    // Support multi-vendor selection
+    const allSelectedVendorItems = Object.values(itemsByVendor).flatMap(v => v.items);
+    const allSelectedVendors = vendorIds.map(id => vendorData.find(v => v.id === id)).filter(Boolean);
 
     // Prepare comprehensive evaluation data for each vendor
-    const vendorEvaluations = vendorData.map(vendor => ({
-      vendor_id: vendor.vendorId || vendor.id,
-      vendor_name: vendor.name,
-      quality_score: qualityScores[vendor.id] || null,
-      approved_models: approvedModels[vendor.id] || null,
-      price_responsiveness: priceResponsiveness[vendor.id] || null,
-      technical_eligibility: technicalEligibility[vendor.id] || null,
-      bank_account_evaluation: bankAccountEvaluation[vendor.id] || null,
-      experience_evaluation: experienceEvaluation[vendor.id] || null,
-      grand_total: vendor.grandTotal,
-      delivery_time: vendor.deliveryTime,
-      payment_terms: vendor.paymentTerms,
-      tin: vendor.tin,
-      validity_period: vendor.validityPeriod,
-      currency: vendor.currency,
-      warranty: vendor.warranty
-    }));
+    const vendorEvaluations = vendorData.map(vendor => {
+      // Extract unique brands from vendor items
+      const brands = vendor.items
+        .map(item => item.brand)
+        .filter((brand): brand is string => !!brand && brand.trim() !== '');
+      const uniqueBrands = [...new Set(brands)];
+      const brandsText = uniqueBrands.length > 0 ? uniqueBrands.join(', ') : null;
+
+      return {
+        vendor_id: vendor.vendorId || vendor.id,
+        vendor_name: vendor.name,
+        quality_score: qualityScores[vendor.id] || null,
+        approved_models: brandsText, // Auto-extracted from vendor items
+        price_responsiveness: priceResponsiveness[vendor.id] || null,
+        technical_eligibility: technicalEligibility[vendor.id] || null,
+        bank_account_evaluation: bankAccountEvaluation[vendor.id] || null,
+        experience_evaluation: experienceEvaluation[vendor.id] || null,
+        grand_total: vendor.grandTotal,
+        delivery_time: vendor.deliveryTime,
+        payment_terms: vendor.paymentTerms,
+        tin: vendor.tin,
+        validity_period: vendor.validityPeriod,
+        currency: vendor.currency,
+        warranty: vendor.warranty
+      };
+    });
 
     // Prepare the payload to update CBA with analysis results
     // Backend now expects selected_bid_submission (submission ID) instead of selected_vendor_id
@@ -690,25 +606,101 @@ const VendorBidAnalysis = () => {
       }
     };
 
-    console.log("📤 Submitting CBA Analysis:", {
-      ...analysisPayload,
-      vendorName: selectedVendor?.name
-    });
-
     try {
+      // If user is a committee member, submit as member evaluation
+      if (isCommitteeMember) {
+        // Build evaluation_criteria_data with all vendor analysis criteria
+        const evaluationCriteriaData = vendorEvaluations.map(vendorEval => ({
+          vendor_id: vendorEval.vendor_id,
+          vendor_name: vendorEval.vendor_name,
+          // Criterion A: Quality score
+          quality_score: vendorEval.quality_score,
+          // Criterion B: Approved models
+          approved_models: vendorEval.approved_models,
+          // Criterion C: Price responsiveness (1st, 2nd, 3rd, 4th)
+          price_responsiveness: vendorEval.price_responsiveness,
+          // Criterion D: Technical eligibility (YES/NO)
+          technical_eligibility: vendorEval.technical_eligibility,
+          // Criterion I: Bank account evaluation (YES/NO)
+          bank_account_evaluation: vendorEval.bank_account_evaluation,
+          // Criterion J: Experience evaluation (YES/NO)
+          experience_evaluation: vendorEval.experience_evaluation,
+          // Additional vendor data
+          grand_total: vendorEval.grand_total,
+          delivery_time: vendorEval.delivery_time,
+          payment_terms: vendorEval.payment_terms,
+          tin: vendorEval.tin,
+          validity_period: vendorEval.validity_period,
+          currency: vendorEval.currency,
+          warranty: vendorEval.warranty
+        }));
+
+        // Calculate technical and commercial scores
+        const selectedVendorEval = vendorEvaluations.find(v => v.vendor_id === selectedSubmissionId);
+        let technicalScore = 0;
+        let commercialScore = 0;
+
+        if (selectedVendorEval?.quality_score) {
+          const scores = selectedVendorEval.quality_score.split('-').map(Number);
+          technicalScore = scores.length === 2 ? Math.round((scores[0] + scores[1]) / 2) : 0;
+        }
+
+        // Commercial score based on price responsiveness (1st = 100, 2nd = 90, 3rd = 80, 4th = 70)
+        if (selectedVendorEval?.price_responsiveness) {
+          const rank = parseInt(selectedVendorEval.price_responsiveness.charAt(0));
+          commercialScore = Math.max(110 - (rank * 10), 70);
+        }
+
+        const memberEvaluationPayload = {
+          selected_bid_submission: selectedSubmissionId,
+          selected_items: selectedItems.map(item => item.itemId),
+          selected_total: selectedTotal,
+          overall_recommendation: awardRecommendation || `Award recommended to ${selectedVendorItems.vendorName}`,
+          technical_score: technicalScore,
+          commercial_score: commercialScore,
+          evaluation_criteria_data: evaluationCriteriaData,
+          status: 'SUBMITTED'
+        };
+
+        await submitMemberEvaluation(memberEvaluationPayload);
+
+        toast.success(`Committee evaluation submitted successfully!`);
+
+        // Invalidate queries
+        await queryClient.invalidateQueries({ queryKey: ["cba", cbaId] });
+        await queryClient.invalidateQueries({ queryKey: ["member-evaluation", cbaId] });
+        await queryClient.invalidateQueries({ queryKey: ["all-member-evaluations", cbaId] });
+
+        // Redirect to analysis results page
+        setTimeout(() => {
+          router.push(`/dashboard/procurement/competitive-bid-analysis/${cbaId}/analysis-results?id=${solicitationId}&cba=${cbaId}`);
+        }, 1500);
+
+        return; // Exit early for committee member submission
+      }
+
+      // Non-committee member (procurement officer) submission
       // Submit the main analysis payload (selection and recommendation)
       await modifyCba(analysisPayload);
 
       // Also submit the evaluation data if backend has the evaluate endpoint
       // This ensures all evaluation criteria are saved
       try {
+        // Extract all unique brands from all vendors
+        const allBrands = vendorData.flatMap(vendor =>
+          vendor.items
+            .map(item => item.brand)
+            .filter((brand): brand is string => !!brand && brand.trim() !== '')
+        );
+        const uniqueAllBrands = [...new Set(allBrands)];
+
         const evaluationPayload = {
           cba_id: cbaId as string,
           solicitation_id: solicitationId as string,
           evaluation_criteria: {
             technical_evaluation_percentage: 60,
             price_reasonableness_percentage: 40,
-            approved_models: Object.values(approvedModels).filter(Boolean)
+            approved_models: uniqueAllBrands
           },
           vendor_evaluations: vendorData.map(vendor => {
             // Extract numeric scores from quality score ranges (e.g., "60-70" -> 65)
@@ -738,11 +730,11 @@ const VendorBidAnalysis = () => {
           })
         };
 
-        console.log("📤 Submitting CBA Evaluation Data:", evaluationPayload);
         await evaluateCba(evaluationPayload);
-        console.log("✅ Evaluation data saved successfully");
       } catch (evalError) {
-        console.warn("⚠️ Could not save evaluation data (endpoint may not exist):", evalError);
+        if (process.env.NODE_ENV === 'development') {
+          console.warn("⚠️ Could not save evaluation data (endpoint may not exist):", evalError);
+        }
         // Don't fail the whole submission if evaluation endpoint doesn't work
       }
 
@@ -946,23 +938,31 @@ const VendorBidAnalysis = () => {
                 ))}
               </tr>
 
-              {/* List of Approved Models Row */}
+              {/* List of Approved Models Row - Auto-populated from vendor items */}
               <tr className="bg-blue-50">
                 <td className="border border-gray-300 p-2 font-bold text-center">B</td>
                 <td className="border border-gray-300 p-2 font-medium">
                   List of Approved Models and Brands(If Applicable)
                 </td>
                 <td className="border border-gray-300 p-2 text-center">N/A</td>
-                {vendorData.map((vendor, index) => (
-                  <td key={index} className="border border-gray-300 p-2">
-                    <Input
-                      value={approvedModels[vendor.id] || ""}
-                      onChange={(e) => setApprovedModels(prev => ({...prev, [vendor.id]: e.target.value}))}
-                      placeholder="Enter approved models/brands"
-                      className="w-full text-xs"
-                    />
-                  </td>
-                ))}
+                {vendorData.map((vendor, index) => {
+                  // Extract unique brands from vendor items
+                  const brands = vendor.items
+                    .map(item => item.brand)
+                    .filter((brand): brand is string => !!brand && brand.trim() !== '');
+                  const uniqueBrands = [...new Set(brands)];
+                  const brandsText = uniqueBrands.length > 0
+                    ? uniqueBrands.join(', ')
+                    : 'N/A';
+
+                  return (
+                    <td key={index} className="border border-gray-300 p-2">
+                      <div className="text-sm bg-gray-50 p-2 rounded border border-gray-300">
+                        {brandsText}
+                      </div>
+                    </td>
+                  );
+                })}
               </tr>
 
               {/* Price Responsiveness Rating Row */}
@@ -1116,11 +1116,13 @@ const VendorBidAnalysis = () => {
             <Button
               onClick={handleSubmitAnalysis}
               className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-2"
-              disabled={selectedItems.length === 0 || submittingAnalysis || submittingEvaluation}
+              disabled={selectedItems.length === 0 || submittingAnalysis || submittingEvaluation || submittingMemberEval}
             >
-              {submittingAnalysis || submittingEvaluation
-                ? "Submitting Analysis..."
-                : `Submit Analysis (${selectedItems.length} items selected)`}
+              {submittingAnalysis || submittingEvaluation || submittingMemberEval
+                ? isCommitteeMember ? "Submitting Evaluation..." : "Submitting Analysis..."
+                : isCommitteeMember
+                  ? `Submit Evaluation (${selectedItems.length} items selected)`
+                  : `Submit Analysis (${selectedItems.length} items selected)`}
             </Button>
           </div>
         </div>

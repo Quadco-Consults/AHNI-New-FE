@@ -70,28 +70,35 @@ const Questionnaire = (data: VendorsResultsData) => {
 
         <hr />
 
-        <div className='p-5 grid grid-cols-2 gap-5'>
-          {data?.branches.map((branch: TVendors, index: number) => (
-            <Card key={index} className='border-yellow-darker space-y-3'>
-              <div className='flex items-center gap-5'>
-                <h4 className='w-full max-w-[140px] font-medium '>
-                  Branch Address :
-                </h4>
-                <h4>{branch.address}</h4>
-              </div>
-              <div className='flex items-center gap-5'>
-                <h4 className='w-full max-w-[140px] font-medium'>
-                  Contact Person :
-                </h4>
-                <h4>{branch.name}</h4>
-              </div>
-              <div className='flex items-center gap-5'>
-                <h4 className='w-full max-w-[140px] font-medium'>Tel :</h4>
-                <h4>{branch.phone_number}</h4>
-              </div>
-            </Card>
-          ))}
-        </div>
+        {data?.branches && data.branches.length > 0 ? (
+          <div className='p-5 grid grid-cols-2 gap-5'>
+            {data?.branches.map((branch: TVendors, index: number) => (
+              <Card key={index} className='border-yellow-darker space-y-3'>
+                <div className='flex items-center gap-5'>
+                  <h4 className='w-full max-w-[140px] font-medium '>
+                    Branch Address :
+                  </h4>
+                  <h4>{branch.address}</h4>
+                </div>
+                <div className='flex items-center gap-5'>
+                  <h4 className='w-full max-w-[140px] font-medium'>
+                    Contact Person :
+                  </h4>
+                  <h4>{branch.name}</h4>
+                </div>
+                <div className='flex items-center gap-5'>
+                  <h4 className='w-full max-w-[140px] font-medium'>Tel :</h4>
+                  <h4>{branch.phone_number}</h4>
+                </div>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <div className='p-5 text-center space-y-4'>
+            <img src={welcomePng} alt='img' className='mx-auto' width={150} />
+            <h6>No branch offices registered</h6>
+          </div>
+        )}
       </div>
 
       <div className='bg-white border shadow-sm rounded-2xl dark:bg-[hsl(15,13%,6%)]'>

@@ -48,54 +48,60 @@ const ApprovalHistory = ({ purchaseRequestData }: ApprovalHistoryProps) => {
       });
     }
 
-    // Review step
-    if (data.reviewed_by || data.reviewed_date) {
+    // Review step - only include if date is valid
+    if (data.reviewed_date && data.reviewed_date !== null && new Date(data.reviewed_date).getFullYear() >= 1971) {
       events.push({
         id: 'reviewed',
         action: 'reviewed',
         user: {
-          id: data.reviewed_by?.id || data.reviewed_by || 'unknown',
-          name: data.reviewed_by?.name ||
+          id: data.reviewed_by_detail?.user_id || data.reviewed_by?.id || data.reviewed_by || 'unknown',
+          name: data.reviewed_by_detail?.name ||
+                data.reviewed_by?.name ||
                 (data.reviewed_by?.first_name && data.reviewed_by?.last_name
                   ? `${data.reviewed_by.first_name} ${data.reviewed_by.last_name}`
                   : data.reviewed_by || 'Unknown Reviewer'),
-          role: 'Reviewer'
+          role: data.reviewed_by_detail?.position || 'Reviewer'
         },
         timestamp: data.reviewed_date,
         status: data.review_status === 'rejected' ? 'rejected' : 'approved'
       });
     }
 
-    // Authorization step
-    if (data.authorized_by || data.authorized_date) {
+    // Authorization step - only include if date is valid (handle both spellings)
+    const authDate = data.authorised_date || data.authorized_date;
+    if (authDate && authDate !== null && new Date(authDate).getFullYear() >= 1971) {
       events.push({
         id: 'authorized',
         action: 'authorized',
         user: {
-          id: data.authorized_by?.id || data.authorized_by || 'unknown',
-          name: data.authorized_by?.name ||
+          id: data.authorised_by_detail?.user_id || data.authorized_by_detail?.user_id || data.authorized_by?.id || data.authorised_by?.id || data.authorized_by || data.authorised_by || 'unknown',
+          name: data.authorised_by_detail?.name ||
+                data.authorized_by_detail?.name ||
+                data.authorized_by?.name ||
+                data.authorised_by?.name ||
                 (data.authorized_by?.first_name && data.authorized_by?.last_name
                   ? `${data.authorized_by.first_name} ${data.authorized_by.last_name}`
-                  : data.authorized_by || 'Unknown Authorizer'),
-          role: 'Authorizer'
+                  : data.authorised_by || data.authorized_by || 'Unknown Authorizer'),
+          role: data.authorised_by_detail?.position || data.authorized_by_detail?.position || 'Authorizer'
         },
-        timestamp: data.authorized_date,
+        timestamp: authDate,
         status: data.authorization_status === 'rejected' ? 'rejected' : 'approved'
       });
     }
 
-    // Final approval step
-    if (data.approved_by || data.approved_date) {
+    // Final approval step - only include if date is valid
+    if (data.approved_date && data.approved_date !== null && new Date(data.approved_date).getFullYear() >= 1971) {
       events.push({
         id: 'approved',
         action: 'approved',
         user: {
-          id: data.approved_by?.id || data.approved_by || 'unknown',
-          name: data.approved_by?.name ||
+          id: data.approved_by_detail?.user_id || data.approved_by?.id || data.approved_by || 'unknown',
+          name: data.approved_by_detail?.name ||
+                data.approved_by?.name ||
                 (data.approved_by?.first_name && data.approved_by?.last_name
                   ? `${data.approved_by.first_name} ${data.approved_by.last_name}`
                   : data.approved_by || 'Unknown Approver'),
-          role: 'Final Approver'
+          role: data.approved_by_detail?.position || 'Final Approver'
         },
         timestamp: data.approved_date,
         status: data.approval_status === 'rejected' ? 'rejected' : 'approved'
@@ -157,13 +163,24 @@ const ApprovalHistory = ({ purchaseRequestData }: ApprovalHistoryProps) => {
   };
 
   const formatTimestamp = (timestamp: string) => {
+    // Check if timestamp is valid
+    if (!timestamp || timestamp === 'null' || timestamp === 'undefined') {
+      return { formatted: 'N/A', relative: '' };
+    }
+
     try {
       const date = new Date(timestamp);
-      const formatted = format(date, 'MMM dd, yyyy at HH:mm');
+
+      // Check if date is valid (not NaN and not epoch zero)
+      if (isNaN(date.getTime()) || date.getTime() === 0 || date.getFullYear() < 1971) {
+        return { formatted: 'N/A', relative: '' };
+      }
+
+      const formatted = format(date, 'MMM dd, yyyy \'at\' hh:mm a');
       const relative = formatDistanceToNow(date, { addSuffix: true });
       return { formatted, relative };
     } catch {
-      return { formatted: timestamp, relative: '' };
+      return { formatted: 'N/A', relative: '' };
     }
   };
 

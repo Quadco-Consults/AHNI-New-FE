@@ -8,7 +8,9 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import FormSelect from "@/components/atoms/FormSelectField";
 import { Textarea } from "@/components/ui/textarea";
-import { MapPinIcon } from "lucide-react";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { MapPinIcon, Building2, MapPin } from "lucide-react";
 import { LoadingSpinner } from "@/components/Loading";
 
 import { TSiteVisitApplicationFormValues, SiteVisitType } from "@/features/programs/types/site-visit";
@@ -30,6 +32,18 @@ const LocationSection: React.FC<LocationSectionProps> = ({
   const selectedFacility = watch("facility");
   const visitType = watch("visit_type");
 
+  // Check if visit type requires facility selection (supportive supervision types)
+  const requiresFacility = React.useMemo(() => {
+    return visitType === SiteVisitType.SUPPORTIVE_SUPERVISION ||
+           visitType === SiteVisitType.INTEGRATED_SUPPORTIVE_SUPERVISION ||
+           visitType === SiteVisitType.EMERGENCY_SUPPORTIVE_SUPERVISION;
+  }, [visitType]);
+
+  // New state to track venue type selection - default based on visit type
+  const [venueType, setVenueType] = React.useState<"ahni_facility" | "external_venue">(
+    requiresFacility ? "ahni_facility" : "external_venue"
+  );
+
   // Get facility details when one is selected
   const facilityData = React.useMemo(() => {
     if (selectedFacility && selectedFacility !== "no-facility") {
@@ -40,12 +54,16 @@ const LocationSection: React.FC<LocationSectionProps> = ({
 
   const selectedLocation = watch("location");
 
-  // Check if visit type requires facility selection (supportive supervision types)
-  const requiresFacility = React.useMemo(() => {
-    return visitType === SiteVisitType.SUPPORTIVE_SUPERVISION ||
-           visitType === SiteVisitType.INTEGRATED_SUPPORTIVE_SUPERVISION ||
-           visitType === SiteVisitType.EMERGENCY_SUPPORTIVE_SUPERVISION;
-  }, [visitType]);
+  // Auto-switch venue type when visit type changes
+  React.useEffect(() => {
+    if (requiresFacility) {
+      setVenueType("ahni_facility");
+      setValue("facility", "");
+    } else {
+      setVenueType("external_venue");
+      setValue("facility", "no-facility");
+    }
+  }, [requiresFacility, setValue]);
 
   // Nigerian states list for validation
   const nigerianStates = [
@@ -84,10 +102,10 @@ const LocationSection: React.FC<LocationSectionProps> = ({
       }));
   }, [locations]);
 
-  // Auto-populate state and location fields when facility is selected (only for supportive supervision)
+  // Auto-populate state and location fields when facility is selected
   React.useEffect(() => {
-    if (facilityData && requiresFacility && locations && locations.length > 0) {
-      // If facility is selected for supportive supervision, use facility's state and LGA
+    if (facilityData && venueType === "ahni_facility" && locations && locations.length > 0) {
+      // If facility is selected, use facility's state and LGA
       let stateName = facilityData.state || "";
 
       // Handle FCT name variations
@@ -114,7 +132,31 @@ const LocationSection: React.FC<LocationSectionProps> = ({
       setValue("state", stateForDropdown);     // State dropdown (without " State")
       setValue("lga", facilityData.lga || "");         // LGA field
     }
-  }, [facilityData, requiresFacility, setValue, locations]);
+  }, [facilityData, venueType, setValue, locations]);
+
+  // Handle venue type change
+  const handleVenueTypeChange = (value: "ahni_facility" | "external_venue") => {
+    // Don't allow switching to external venue if facility is required
+    if (value === "external_venue" && requiresFacility) {
+      return;
+    }
+
+    setVenueType(value);
+
+    // Clear fields when switching venue type
+    if (value === "ahni_facility") {
+      // Switching to AHNI facility - clear manual state/lga/address, set facility to placeholder
+      setValue("facility", "");
+      setValue("specific_address", "");
+    } else {
+      // Switching to external venue - clear facility selection
+      setValue("facility", "no-facility");
+      setValue("location", "");
+      setValue("state", "");
+      setValue("lga", "");
+      setValue("specific_address", "");
+    }
+  };
 
   return (
     <Card>
@@ -124,18 +166,58 @@ const LocationSection: React.FC<LocationSectionProps> = ({
           Location Information
         </CardTitle>
         <p className="text-sm text-gray-600">
-          Select the destination for your travel request. For external venues (training, meetings, etc.), simply choose the state you're traveling to. For supportive supervision visits, you can optionally select a specific AHNI facility.
+          Select where you're traveling to - either an AHNI facility or an external venue.
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Facility Selection (Only for Supportive Supervision) */}
-        {requiresFacility && (
+        {/* Venue Type Selection */}
+        <div className="space-y-3">
+          <Label className="text-base font-medium">Where are you traveling to?</Label>
+          <RadioGroup
+            value={venueType}
+            onValueChange={(value) => handleVenueTypeChange(value as "ahni_facility" | "external_venue")}
+            className="grid grid-cols-2 gap-4"
+          >
+            <div className="flex items-center space-x-2 border rounded-lg p-4 cursor-pointer hover:bg-gray-50">
+              <RadioGroupItem value="ahni_facility" id="ahni_facility" />
+              <Label htmlFor="ahni_facility" className="flex items-center gap-2 cursor-pointer flex-1">
+                <Building2 className="h-4 w-4 text-blue-600" />
+                <div>
+                  <div className="font-medium">AHNI Facility</div>
+                  <div className="text-xs text-gray-500">Health facility managed by AHNI</div>
+                </div>
+              </Label>
+            </div>
+            <div className={`flex items-center space-x-2 border rounded-lg p-4 ${requiresFacility ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:bg-gray-50'}`}>
+              <RadioGroupItem value="external_venue" id="external_venue" disabled={requiresFacility} />
+              <Label htmlFor="external_venue" className={`flex items-center gap-2 flex-1 ${requiresFacility ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
+                <MapPin className="h-4 w-4 text-green-600" />
+                <div>
+                  <div className="font-medium">External Venue</div>
+                  <div className="text-xs text-gray-500">
+                    {requiresFacility
+                      ? "Not available for supportive supervision visits"
+                      : "Hotel, office, training center, etc."}
+                  </div>
+                </div>
+              </Label>
+            </div>
+          </RadioGroup>
+          {requiresFacility && (
+            <p className="text-xs text-blue-600 bg-blue-50 p-2 rounded border border-blue-200">
+              ℹ️ Supportive supervision visits must be conducted at AHNI facilities
+            </p>
+          )}
+        </div>
+
+        {/* Facility Selection (Only when AHNI Facility is selected) */}
+        {venueType === "ahni_facility" && (
           <FormField
             control={control}
             name="facility"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Facility (Optional)</FormLabel>
+                <FormLabel className="required">Select AHNI Facility</FormLabel>
                 {isFacilitiesLoading ? (
                   <div className="flex items-center justify-center p-4 border rounded-md">
                     <LoadingSpinner />
@@ -144,8 +226,8 @@ const LocationSection: React.FC<LocationSectionProps> = ({
                 ) : (
                   <FormSelect
                     name="facility"
-                    placeholder="Select a facility if visit is facility-specific"
-                    options={facilityOptions}
+                    placeholder="Search and select the AHNI facility you're visiting"
+                    options={facilityOptions.filter(opt => opt.value !== "no-facility")}
                     searchPlaceholder="Search facilities by name, state, or LGA..."
                     emptyMessage="No facilities found matching your search."
                     onValueChange={field.onChange}
@@ -157,11 +239,14 @@ const LocationSection: React.FC<LocationSectionProps> = ({
           />
         )}
 
-        {/* Facility Details Display */}
-        {facilityData && (
-          <Card className="bg-yellow-50 border-yellow-200">
+        {/* Facility Details Display (AHNI Facility Only) */}
+        {venueType === "ahni_facility" && facilityData && (
+          <Card className="bg-blue-50 border-blue-200">
             <CardContent className="p-4">
-              <h4 className="font-medium text-yellow-900 mb-2">Selected Facility Details</h4>
+              <h4 className="font-medium text-blue-900 mb-3 flex items-center gap-2">
+                <Building2 className="h-4 w-4" />
+                Selected Facility Information
+              </h4>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
                   <span className="text-gray-600">Name:</span>
@@ -196,55 +281,60 @@ const LocationSection: React.FC<LocationSectionProps> = ({
                   </div>
                 )}
               </div>
+              <p className="text-xs text-blue-700 mt-3 italic">
+                ✓ Location details automatically set from this facility
+              </p>
             </CardContent>
           </Card>
         )}
 
-        {/* Location */}
-        <FormField
-          control={control}
-          name="location"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="required">Location/State</FormLabel>
-              {isLocationsLoading ? (
-                <div className="flex items-center justify-center p-4 border rounded-md">
-                  <LoadingSpinner />
-                  <span className="ml-2 text-sm">Loading locations...</span>
-                </div>
-              ) : (
-                <FormSelect
-                  name="location"
-                  placeholder="Select the state you're traveling to"
-                  options={locationOptions}
-                  searchPlaceholder="Search locations..."
-                  emptyMessage="No locations found matching your search."
-                  onValueChange={field.onChange}
-                />
+        {/* External Venue Fields - Only show when External Venue is selected */}
+        {venueType === "external_venue" && (
+          <>
+            {/* Location */}
+            <FormField
+              control={control}
+              name="location"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="required">Location/State</FormLabel>
+                  {isLocationsLoading ? (
+                    <div className="flex items-center justify-center p-4 border rounded-md">
+                      <LoadingSpinner />
+                      <span className="ml-2 text-sm">Loading locations...</span>
+                    </div>
+                  ) : (
+                    <FormSelect
+                      name="location"
+                      placeholder="Select the state you're traveling to"
+                      options={locationOptions}
+                      searchPlaceholder="Search locations..."
+                      emptyMessage="No locations found matching your search."
+                      onValueChange={field.onChange}
+                    />
+                  )}
+                  <FormMessage />
+                </FormItem>
               )}
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+            />
 
-        {/* State and LGA */}
-        <div className="grid grid-cols-2 gap-4">
-          <FormField
-            control={control}
-            name="state"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="required">State</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  value={field.value}
-                  disabled={!!facilityData && requiresFacility}
-                >
-                  <FormControl>
-                    <SelectTrigger className={facilityData && requiresFacility ? "bg-gray-50" : ""}>
-                      <SelectValue placeholder="Select destination state" />
-                    </SelectTrigger>
-                  </FormControl>
+            {/* State and LGA */}
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={control}
+                name="state"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="required">State</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select destination state" />
+                        </SelectTrigger>
+                      </FormControl>
                   <SelectContent>
                     <SelectItem value="Abia">Abia</SelectItem>
                     <SelectItem value="Adamawa">Adamawa</SelectItem>
@@ -283,76 +373,74 @@ const LocationSection: React.FC<LocationSectionProps> = ({
                     <SelectItem value="Taraba">Taraba</SelectItem>
                     <SelectItem value="Yobe">Yobe</SelectItem>
                     <SelectItem value="Zamfara">Zamfara</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-                {facilityData && requiresFacility && (
-                  <p className="text-xs text-blue-600 mt-1">
-                    State auto-selected from facility
-                  </p>
-                )}
-              </FormItem>
-            )}
-          />
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
+            <FormField
+              control={control}
+              name="lga"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>LGA (Optional)</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Enter LGA"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          {/* Specific Address */}
           <FormField
             control={control}
-            name="lga"
+            name="specific_address"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>LGA (Optional)</FormLabel>
+                <FormLabel className="required">Specific Address</FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder="Enter LGA"
+                  <Textarea
+                    placeholder={`Enter venue details, e.g.:\n• Hotel: "Excellence Hotel Conference Center, Bank Road"\n• Ministry: "Kano State Ministry of Health Training Hall"\n• Meeting venue: "Lagos State Secretariat, Alausa"`}
+                    className="min-h-[80px]"
                     {...field}
-                    readOnly={!!facilityData && requiresFacility}
-                    className={facilityData && requiresFacility ? "bg-gray-50" : ""}
                   />
                 </FormControl>
                 <FormMessage />
-                {facilityData && requiresFacility && (
-                  <p className="text-xs text-blue-600 mt-1">
-                    LGA auto-filled from facility
-                  </p>
-                )}
+                <p className="text-xs text-gray-600 mt-1">
+                  Provide the full address of the hotel, office, or venue you'll be visiting
+                </p>
               </FormItem>
             )}
           />
-        </div>
-
-        {/* Specific Address */}
-        <FormField
-          control={control}
-          name="specific_address"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Specific Address (Optional)</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder={`Enter specific venue details, e.g.:\n• Hotel name: "Excellence Hotel Conference Center, Bank Road"\n• Ministry office: "Kano State Ministry of Health Training Hall"\n• Meeting venue: "Lagos State Secretariat, Alausa"`}
-                  className="min-h-[80px]"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        </>
+        )}
 
         {/* Location Guidelines */}
         <div className="bg-gray-50 p-3 rounded-lg border">
-          <h4 className="font-medium text-gray-900 mb-2">Location Selection Guide</h4>
+          <h4 className="font-medium text-gray-900 mb-2">📍 Location Selection Guide</h4>
           <ul className="text-sm text-gray-700 space-y-1 list-disc ml-4">
-            {requiresFacility ? (
-              <li><strong>Facility:</strong> Select the specific healthcare facility for supportive supervision visits. This will auto-populate state and LGA.</li>
+            {venueType === "ahni_facility" ? (
+              <>
+                <li><strong>AHNI Facility:</strong> Select the specific health facility you're visiting. All location details will be automatically set from the facility record.</li>
+                <li><strong>Auto-populated:</strong> State, LGA, and contact information are automatically filled from the selected facility.</li>
+                <li><strong>Travel Rates:</strong> Determined by the facility's state location.</li>
+              </>
             ) : (
-              <li><strong>External Venues:</strong> For {visitType === SiteVisitType.TRAINING_WORKSHOP ? 'training workshops' : visitType === SiteVisitType.STAKEHOLDER_ENGAGEMENT ? 'stakeholder engagement' : 'non-supervision visits'}, the system automatically handles external venue locations.</li>
+              <>
+                <li><strong>External Venue:</strong> For hotels, training centers, ministry offices, conference halls, or any non-AHNI location.</li>
+                <li><strong>State (Required):</strong> Select the Nigerian state you're traveling to. This determines your travel allowances and rates.</li>
+                <li><strong>LGA (Optional):</strong> Add Local Government Area for more specific location tracking.</li>
+                <li><strong>Specific Address (Required):</strong> Provide the full venue address including hotel name, street, landmarks, or office location.</li>
+                <li><strong>Travel Rates:</strong> Automatically calculated based on the selected state.</li>
+              </>
             )}
-            <li><strong>Location/State:</strong> General location reference - selecting a state will automatically create an external venue location.</li>
-            <li><strong>State (Required):</strong> Select the Nigerian state you're traveling to. This determines travel rates and allowances.</li>
-            <li><strong>LGA (Optional):</strong> Add Local Government Area for more specific location details.</li>
-            <li><strong>Specific Address:</strong> Add detailed address, landmarks, hotels, conference centers, or meeting venues for external visits.</li>
-            <li><strong>Important:</strong> Travel rates are determined by the selected state. External venue locations are automatically managed by the system.</li>
           </ul>
         </div>
       </CardContent>

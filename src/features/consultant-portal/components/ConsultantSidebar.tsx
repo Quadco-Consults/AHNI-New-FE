@@ -13,7 +13,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Menu,
-  ClipboardList
+  ClipboardList,
+  Plane
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ConsultantAuthUtils, useConsultantLogout } from "../controllers/consultantAuthController";
@@ -36,6 +37,11 @@ const navItems: NavItem[] = [
     name: "Dashboard",
     path: "/consultant-portal/dashboard",
     icon: LayoutDashboard,
+  },
+  {
+    name: "Travel Requests",
+    path: "/consultant-portal/travel-requests",
+    icon: Plane,
   },
   {
     name: "Reports",

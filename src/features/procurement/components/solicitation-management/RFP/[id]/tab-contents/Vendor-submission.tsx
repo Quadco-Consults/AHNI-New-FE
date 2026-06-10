@@ -303,6 +303,16 @@ const columns: ColumnDef<SolicitationSubmissionResultsData>[] = [
 const ActionListAction = ({ data }: any) => {
   return (
     <div className='flex gap-1'>
+      {/* Document Compliance Check */}
+      <Link
+        href={`/dashboard/procurement/rfp-document-compliance/${data?.id}?rfp=${data?.solicitation?.id}`}
+        title="Check Document Compliance (Required Documents Submitted)"
+      >
+        <IconButton className='bg-[#F3E5F5] hover:bg-[#E1BEE7] text-purple-600 hover:text-purple-800'>
+          <Icon icon='material-symbols:checklist' fontSize={14} />
+        </IconButton>
+      </Link>
+
       {/* View Submitted Documents */}
       <Link
         href={generatePath(RouteEnum.VENDOR_MANAGEMENT_DETAILS, { id: data?.id })}
@@ -313,10 +323,10 @@ const ActionListAction = ({ data }: any) => {
         </IconButton>
       </Link>
 
-      {/* Experience & Financial Capacity Review */}
+      {/* Technical, Financial & Commercial Evaluation */}
       <Link
         href={`/dashboard/procurement/rfp-evaluation/${data?.id}?rfp=${data?.solicitation?.id}`}
-        title="Review Technical Experience & Financial Capacity"
+        title="Score Technical (40), Financial (20), Commercial (30), Documents (10) = 100 points"
       >
         <IconButton className='bg-[#FFF3E0] hover:bg-[#FFE0B2] text-orange-600 hover:text-orange-800'>
           <Icon icon='material-symbols:fact-check-outline' fontSize={14} />
@@ -326,7 +336,7 @@ const ActionListAction = ({ data }: any) => {
       {/* AHNI Committee Decision */}
       <Link
         href={`/dashboard/procurement/rfp-committee-review/${data?.id}?rfp=${data?.solicitation?.id}`}
-        title="AHNI Committee Pass/Fail Decision"
+        title="Committee Multi-Member Voting (Pass/Fail Decision)"
       >
         <IconButton className='bg-[#E8F5E8] hover:bg-[#C8E6C9] text-green-600 hover:text-green-800'>
           <Icon icon='material-symbols:how-to-vote-outline' fontSize={14} />

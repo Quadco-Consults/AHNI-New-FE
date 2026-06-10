@@ -2,24 +2,27 @@
 
 export const dynamic = "force-dynamic";
 import { Suspense } from "react";
-import { Loading } from "@/components/Loading";
 import dynamicImport from "next/dynamic";
+import { CBAErrorBoundary } from "@/features/procurement/components/competitive-bid-analysis/ErrorBoundary";
+import { CBALoadingState } from "@/features/procurement/components/competitive-bid-analysis/LoadingStates";
 
 const CheckApproval = dynamicImport(
   () =>
     import(
-      "@/features/procurement/components/competitive-bid-analysis/[id]/CheckApproval"
+      "@/features/procurement/components/competitive-bid-analysis/[id]/CheckApprovalRedesigned"
     ).catch(() => ({ default: () => <div>Failed to load CBA Analysis component</div> })),
   {
     ssr: false,
-    loading: () => <Loading />,
+    loading: () => <CBALoadingState message="Loading CBA approval page..." />,
   }
 );
 
 export default function CheckApprovalPage() {
   return (
-    <Suspense fallback={<Loading />}>
-      <CheckApproval />
-    </Suspense>
+    <CBAErrorBoundary>
+      <Suspense fallback={<CBALoadingState message="Loading CBA approval page..." />}>
+        <CheckApproval />
+      </Suspense>
+    </CBAErrorBoundary>
   );
 }

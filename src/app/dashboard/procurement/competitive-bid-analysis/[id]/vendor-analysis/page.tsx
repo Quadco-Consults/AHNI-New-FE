@@ -4,6 +4,7 @@ export const dynamic = "force-dynamic";
 import { Suspense } from "react";
 import { Loading } from "@/components/Loading";
 import dynamicImport from "next/dynamic";
+import { CBAErrorBoundary } from "@/features/procurement/components/competitive-bid-analysis/ErrorBoundary";
 
 const VendorBidAnalysis = dynamicImport(
   () =>
@@ -18,8 +19,10 @@ const VendorBidAnalysis = dynamicImport(
 
 export default function VendorBidAnalysisPage() {
   return (
-    <Suspense fallback={<Loading />}>
-      <VendorBidAnalysis />
-    </Suspense>
+    <CBAErrorBoundary>
+      <Suspense fallback={<Loading />}>
+        <VendorBidAnalysis />
+      </Suspense>
+    </CBAErrorBoundary>
   );
 }

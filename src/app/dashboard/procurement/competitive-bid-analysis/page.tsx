@@ -1,5 +1,5 @@
-import CompetitiveBidAnalysisIndex from "@/features/procurement/components/competitive-bid-analysis/index";
+import CBAListRedesigned from "@/features/procurement/components/competitive-bid-analysis/CBAListRedesigned";
 
 export default function CompetitiveBidAnalysisPage() {
-  return <CompetitiveBidAnalysisIndex />;
+  return <CBAListRedesigned />;
 }

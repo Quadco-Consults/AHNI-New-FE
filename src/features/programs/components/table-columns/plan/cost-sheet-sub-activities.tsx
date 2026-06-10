@@ -1,14 +1,10 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { TActivityCostSheet } from "@/features/programs/types/activity-cost-sheet";
 import { Button } from "@/components/ui/button";
-import { Edit, Trash2 } from "lucide-react";
+import { Edit } from "lucide-react";
 import { useAppDispatch } from "@/hooks/useStore";
 import { openDialog } from "@/store/ui";
 import { DialogType } from "@/constants/dailogs";
-import { useDeleteActivityCostSheet } from "@/features/programs/controllers/activityCostSheetController";
-import { toast } from "sonner";
-import { useState } from "react";
-import ConfirmationDialog from "@/components/ConfirmationDialog";
 
 export const costSheetSubActivitiesColumns = (
     activityId?: string,
@@ -116,8 +112,6 @@ const TableActions = ({
     activityPlanId?: string;
 }) => {
     const dispatch = useAppDispatch();
-    const [dialogOpen, setDialogOpen] = useState(false);
-    const { deleteCostSheet, isLoading } = useDeleteActivityCostSheet(data.id);
 
     const handleEdit = () => {
         dispatch(
@@ -137,16 +131,6 @@ const TableActions = ({
         );
     };
 
-    const handleDelete = async () => {
-        try {
-            await deleteCostSheet();
-            toast.success("Sub-activity deleted successfully");
-            setDialogOpen(false);
-        } catch (error: any) {
-            toast.error(error?.message || "Failed to delete sub-activity");
-        }
-    };
-
     return (
         <div className="flex items-center gap-2">
             <Button
@@ -157,25 +141,6 @@ const TableActions = ({
             >
                 <Edit className="w-4 h-4" />
             </Button>
-            <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setDialogOpen(true)}
-                className="flex gap-1 text-red-600 hover:text-red-700"
-            >
-                <Trash2 className="w-4 h-4" />
-            </Button>
-
-            <ConfirmationDialog
-                open={dialogOpen}
-                setOpen={setDialogOpen}
-                title="Delete Sub-Activity"
-                description="Are you sure you want to delete this sub-activity? This action cannot be undone."
-                onConfirm={handleDelete}
-                confirmText="Delete"
-                cancelText="Cancel"
-                isLoading={isLoading}
-            />
         </div>
     );
 };

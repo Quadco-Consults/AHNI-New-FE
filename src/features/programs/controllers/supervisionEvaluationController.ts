@@ -87,8 +87,9 @@ export const useGetAllSupervisionEvaluations = (params: ISupervisionEvaluationLi
 };
 
 // Get Single Supervision Evaluation
+// Note: Backend blacklists "retrieve" action, so response is not wrapped in TResponse
 export const useGetSingleSupervisionEvaluation = (id: string, enabled: boolean = true) => {
-  return useQuery<TResponse<ISupervisionEvaluation>>({
+  return useQuery<ISupervisionEvaluation>({
     queryKey: ["supervision-evaluation", id],
     queryFn: async () => {
       try {

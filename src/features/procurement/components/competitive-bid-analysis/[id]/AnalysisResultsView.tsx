@@ -62,10 +62,14 @@ const AnalysisResultsView = () => {
   const [isDownloading, setIsDownloading] = useState(false);
 
   const cbaId = searchParams?.get('cba') || id;
-  const solicitationId = searchParams?.get('id');
+  const solicitationIdFromParams = searchParams?.get('id');
 
   // Fetch data
   const { data: cbaData, isLoading: cbaLoading } = CbaAPI.useGetSingleCba(cbaId as string);
+
+  // Get solicitation ID from URL params OR from CBA data
+  const solicitationId = solicitationIdFromParams || cbaData?.data?.solicitation?.id;
+
   const { data: submissionData, isLoading: submissionLoading } = useGetSolicitationSubmission(
     solicitationId || "",
     !!solicitationId
@@ -91,13 +95,17 @@ const AnalysisResultsView = () => {
 
   // Committee evaluations for COMMITTEE type CBAs
   const isCommitteeCBA = cbaData?.data?.cba_type === 'COMMITTEE';
-  const { data: memberEvaluations } = useGetAllMemberEvaluations(cbaId as string, isCommitteeCBA);
-  const { calculateConsensus } = useCalculateConsensus(memberEvaluations || []);
+  const { data: memberEvaluations, isLoading: memberEvalsLoading } = useGetAllMemberEvaluations(cbaId as string, isCommitteeCBA);
+
+  // Ensure memberEvaluations is an array
+  const memberEvaluationsArray = Array.isArray(memberEvaluations) ? memberEvaluations : [];
+
+  const { calculateConsensus } = useCalculateConsensus(memberEvaluationsArray);
 
   const consensusResults = useMemo(() => {
-    if (!isCommitteeCBA || !memberEvaluations || memberEvaluations.length === 0) return null;
+    if (!isCommitteeCBA || !memberEvaluationsArray || memberEvaluationsArray.length === 0) return null;
     return calculateConsensus();
-  }, [isCommitteeCBA, memberEvaluations, calculateConsensus]);
+  }, [isCommitteeCBA, memberEvaluationsArray, calculateConsensus]);
 
   // Workflow and approval
   const { data: workflowStatus } = SignatureWorkflowAPI.useCbaWorkflowStatus(cbaId as string);
@@ -348,7 +356,7 @@ const AnalysisResultsView = () => {
             <div>
               <h3 className="text-lg font-bold text-gray-900">Committee Consensus Analysis</h3>
               <p className="text-sm text-gray-600">
-                Aggregated results from {memberEvaluations?.length || 0} committee member evaluations
+                Aggregated results from {memberEvaluationsArray?.length || 0} committee member evaluations
               </p>
             </div>
           </div>
@@ -375,38 +383,217 @@ const AnalysisResultsView = () => {
             </div>
           </div>
 
-          {/* Individual Member Scores */}
-          <div className="bg-white rounded-lg p-4 border border-purple-200">
-            <h4 className="font-semibold text-gray-900 mb-3">Individual Committee Member Evaluations</h4>
-            <div className="space-y-3">
-              {memberEvaluations?.map((memberEval: any) => {
-                const memberScore = memberEval.vendor_evaluations.find(
-                  (ve: any) => ve.vendor_name === consensusResults.recommended_vendor?.name
-                );
+          {/* Vendor Comparison Table */}
+          {consensusResults.vendor_scores && consensusResults.vendor_scores.length > 0 && (
+            <div className="bg-white rounded-lg p-6 border border-purple-200">
+              <h4 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <Icon icon="mdi:chart-bar" className="w-5 h-5 text-purple-600" />
+                All Vendors Comparison
+              </h4>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-purple-100 border-b border-purple-200">
+                      <th className="text-left p-3 font-semibold text-gray-900">Vendor</th>
+                      <th className="text-center p-3 font-semibold text-gray-900">Avg Technical</th>
+                      <th className="text-center p-3 font-semibold text-gray-900">Avg Commercial</th>
+                      <th className="text-center p-3 font-semibold text-gray-900">Consensus Score</th>
+                      <th className="text-center p-3 font-semibold text-gray-900">Members Recommended</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {consensusResults.vendor_scores
+                      .sort((a: any, b: any) => b.consensus_score - a.consensus_score)
+                      .map((vendor: any, idx: number) => {
+                        const isRecommended = vendor.id === consensusResults.recommended_vendor?.id;
+                        return (
+                          <tr
+                            key={vendor.id}
+                            className={cn(
+                              "border-b border-gray-200 hover:bg-purple-50 transition-colors",
+                              isRecommended && "bg-green-50 font-semibold"
+                            )}
+                          >
+                            <td className="p-3">
+                              <div className="flex items-center gap-2">
+                                {isRecommended && (
+                                  <Icon icon="mdi:check-circle" className="w-5 h-5 text-green-600" />
+                                )}
+                                <span className={isRecommended ? "text-green-800" : "text-gray-900"}>
+                                  {vendor.name}
+                                </span>
+                              </div>
+                            </td>
+                            <td className="text-center p-3">
+                              <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded font-medium">
+                                {vendor.avg_technical_score?.toFixed(1) || 'N/A'}
+                              </span>
+                            </td>
+                            <td className="text-center p-3">
+                              <span className="bg-green-100 text-green-800 px-2 py-1 rounded font-medium">
+                                {vendor.avg_commercial_score?.toFixed(1) || vendor.avg_price_score?.toFixed(1) || 'N/A'}
+                              </span>
+                            </td>
+                            <td className="text-center p-3">
+                              <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded font-bold">
+                                {vendor.consensus_score?.toFixed(1) || 'N/A'}/100
+                              </span>
+                            </td>
+                            <td className="text-center p-3">
+                              <span className="text-gray-700">
+                                {vendor.recommendations?.filter((r: boolean) => r).length || 0} / {vendor.recommendations?.length || 0}
+                                <span className="text-xs text-gray-500 ml-1">
+                                  ({Math.round((vendor.recommendation_rate || 0) * 100)}%)
+                                </span>
+                              </span>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* Individual Member Evaluations */}
+          <div className="bg-white rounded-lg p-6 border border-purple-200">
+            <h4 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <Icon icon="mdi:account-group" className="w-5 h-5 text-purple-600" />
+              Individual Committee Member Evaluations
+            </h4>
+            <div className="space-y-4">
+              {memberEvaluationsArray?.map((memberEval: any) => {
+                const technicalScore = memberEval.technical_score || 0;
+                const commercialScore = memberEval.commercial_score || 0;
+                const combinedScore = ((technicalScore * 0.6) + (commercialScore * 0.4)).toFixed(1);
 
                 return (
-                  <div key={memberEval.member_id} className="flex items-center justify-between p-3 bg-gray-50 rounded">
-                    <div className="flex items-center gap-3">
-                      <Icon icon="mdi:account-circle" className="w-5 h-5 text-gray-600" />
-                      <div>
-                        <div className="font-medium text-gray-900">{memberEval.member_name}</div>
-                        <div className="text-xs text-gray-600">{memberEval.member_designation}</div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <div className="text-right">
-                        <div className="text-sm text-gray-600">Score</div>
-                        <div className="font-bold text-purple-700">
-                          {memberScore?.overall_score || 'N/A'}/100
+                  <div key={memberEval.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                    {/* Member Header */}
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                          <Icon icon="mdi:account" className="w-6 h-6 text-purple-600" />
+                        </div>
+                        <div>
+                          <div className="font-semibold text-gray-900">{memberEval.member_name}</div>
+                          <div className="text-sm text-gray-600">{memberEval.member_designation || 'Committee Member'}</div>
                         </div>
                       </div>
-                      {memberScore?.recommended && (
-                        <Badge className="bg-green-600 text-white">
-                          <Icon icon="mdi:star" className="w-4 h-4 mr-1" />
-                          Recommended
-                        </Badge>
-                      )}
+                      <div className="text-right">
+                        <div className="text-xs text-gray-500">Submitted</div>
+                        <div className="text-sm font-medium text-gray-700">
+                          {memberEval.submitted_at ? new Date(memberEval.submitted_at).toLocaleDateString() : 'N/A'}
+                        </div>
+                      </div>
                     </div>
+
+                    {/* Scores Grid */}
+                    <div className="grid grid-cols-3 gap-3 mb-3">
+                      <div className="bg-blue-50 rounded-lg p-3 text-center">
+                        <div className="text-xs text-blue-600 font-medium mb-1">Technical</div>
+                        <div className="text-xl font-bold text-blue-700">{technicalScore}</div>
+                        <div className="text-xs text-gray-500">/100</div>
+                      </div>
+                      <div className="bg-green-50 rounded-lg p-3 text-center">
+                        <div className="text-xs text-green-600 font-medium mb-1">Commercial</div>
+                        <div className="text-xl font-bold text-green-700">{commercialScore}</div>
+                        <div className="text-xs text-gray-500">/100</div>
+                      </div>
+                      <div className="bg-purple-50 rounded-lg p-3 text-center">
+                        <div className="text-xs text-purple-600 font-medium mb-1">Combined</div>
+                        <div className="text-xl font-bold text-purple-700">{combinedScore}</div>
+                        <div className="text-xs text-gray-500">/100</div>
+                      </div>
+                    </div>
+
+                    {/* Selected Vendor */}
+                    {memberEval.selected_vendor_name && (
+                      <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-3">
+                        <div className="flex items-center gap-2">
+                          <Icon icon="mdi:check-circle" className="w-5 h-5 text-amber-600" />
+                          <div>
+                            <div className="text-xs text-amber-700 font-medium">Selected Vendor</div>
+                            <div className="text-sm font-semibold text-amber-900">{memberEval.selected_vendor_name}</div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Detailed Evaluation Criteria */}
+                    {memberEval.evaluation_criteria_data && memberEval.evaluation_criteria_data.length > 0 && (
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-3">
+                        <div className="flex items-center gap-2 mb-3">
+                          <Icon icon="mdi:clipboard-list" className="w-5 h-5 text-blue-600" />
+                          <div className="text-sm font-semibold text-blue-900">Evaluation Criteria Details</div>
+                        </div>
+                        <div className="space-y-2">
+                          {memberEval.evaluation_criteria_data.map((criteria: any, idx: number) => (
+                            <div key={idx} className="bg-white rounded-lg p-3 border border-blue-100">
+                              <div className="font-medium text-sm text-gray-900 mb-2">{criteria.vendor_name}</div>
+                              <div className="grid grid-cols-2 gap-2 text-xs">
+                                {criteria.quality_score && (
+                                  <div className="flex justify-between">
+                                    <span className="text-gray-600">Quality Score:</span>
+                                    <span className="font-medium text-blue-700">{criteria.quality_score}</span>
+                                  </div>
+                                )}
+                                {criteria.price_responsiveness && (
+                                  <div className="flex justify-between">
+                                    <span className="text-gray-600">Price Rank:</span>
+                                    <span className="font-medium text-green-700">{criteria.price_responsiveness}</span>
+                                  </div>
+                                )}
+                                {criteria.technical_eligibility && (
+                                  <div className="flex justify-between">
+                                    <span className="text-gray-600">Technical Eligible:</span>
+                                    <span className={`font-medium ${criteria.technical_eligibility === 'YES' ? 'text-green-700' : 'text-red-700'}`}>
+                                      {criteria.technical_eligibility}
+                                    </span>
+                                  </div>
+                                )}
+                                {criteria.bank_account_evaluation && (
+                                  <div className="flex justify-between">
+                                    <span className="text-gray-600">Bank Account:</span>
+                                    <span className={`font-medium ${criteria.bank_account_evaluation === 'YES' ? 'text-green-700' : 'text-red-700'}`}>
+                                      {criteria.bank_account_evaluation}
+                                    </span>
+                                  </div>
+                                )}
+                                {criteria.experience_evaluation && (
+                                  <div className="flex justify-between">
+                                    <span className="text-gray-600">Experience:</span>
+                                    <span className={`font-medium ${criteria.experience_evaluation === 'YES' ? 'text-green-700' : 'text-red-700'}`}>
+                                      {criteria.experience_evaluation}
+                                    </span>
+                                  </div>
+                                )}
+                                {criteria.approved_models && (
+                                  <div className="col-span-2">
+                                    <span className="text-gray-600">Models/Brands:</span>
+                                    <span className="ml-2 font-medium text-gray-800">{criteria.approved_models}</span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Recommendation/Justification */}
+                    {memberEval.overall_recommendation && (
+                      <div className="bg-gray-50 rounded-lg p-3">
+                        <div className="flex items-start gap-2">
+                          <Icon icon="mdi:message-text" className="w-5 h-5 text-gray-600 flex-shrink-0 mt-0.5" />
+                          <div className="flex-1">
+                            <div className="text-xs text-gray-600 font-medium mb-1">Justification</div>
+                            <p className="text-sm text-gray-700 leading-relaxed">{memberEval.overall_recommendation}</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 );
               })}

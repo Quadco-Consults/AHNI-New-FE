@@ -183,7 +183,7 @@ export const PurchaseRequestSchema = z.object({
         z.string().optional(),
         z.number().optional(),
       ]).default("0"),
-      uom: z.string().min(1, "Unit of Measure is required"),
+      uom: z.string().min(1, "Unit of Measure is required").default("pieces"),
       item: z.string().min(1, "Field is required"),
       description: z.string().optional(),
       fco_number: z.array(z.string()).optional().default([]),
@@ -271,7 +271,7 @@ export const PurchaseOrderListSchema = z.object({
       fco_number: z.array(z.string()).optional(),
     })
   ).min(1, "At least one item is required"),
-  purchase_request: z.string().min(1, "Field is required"),
+  purchase_request: z.string().optional(), // Made optional - not required when creating from CBA
   vendor: z.string().min(1, "Field is required"),
   payment_terms: z.string().optional(),
   delivery_lead_time: z.string().optional(),

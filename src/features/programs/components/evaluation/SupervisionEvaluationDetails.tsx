@@ -83,10 +83,22 @@ export default function SupervisionEvaluationDetails({
   const [responses, setResponses] = useState<Record<string, any>>({});
 
   // API hooks
-  const { data: evaluationData, isLoading } = useGetSingleSupervisionEvaluation(evaluationId);
+  const { data: evaluationData, isLoading, error: evaluationError } = useGetSingleSupervisionEvaluation(evaluationId);
   const { data: responsesData, isLoading: isLoadingResponses, error: responsesError } = useGetEvaluationResponses(evaluationId);
   const updateResponseMutation = useUpdateEvaluationResponse(evaluationId);
   const completeEvaluationMutation = useCompleteSupervisionEvaluation(evaluationId);
+
+  // Debug: Log API fetch status
+  React.useEffect(() => {
+    console.log("🔍 API Fetch Status:", {
+      evaluationId,
+      isLoading,
+      hasEvaluationData: !!evaluationData,
+      evaluationData: evaluationData,
+      evaluationError: evaluationError,
+      hasError: !!evaluationError,
+    });
+  }, [evaluationId, isLoading, evaluationData, evaluationError]);
 
 
   // Fetch categories and criteria for the evaluation
@@ -106,29 +118,10 @@ export default function SupervisionEvaluationDetails({
   // Create a map of criteria ID to criteria data
   const [criteriaMap, setCriteriaMap] = useState<Map<string, any>>(new Map());
 
-  // Debug: Log evaluation data
-  React.useEffect(() => {
-    console.log("🔍 SupervisionEvaluationDetails Debug:", {
-      evaluationData,
-      evaluation: evaluationData?.data,
-      evaluationCategories: evaluationData?.data?.categories,
-      evaluationCriteria: evaluationData?.data?.criteria,
-      evaluationSelectedCategories: evaluationData?.data?.selected_categories,
-      evaluationSelectedCriteria: evaluationData?.data?.selected_criteria,
-      categoriesData,
-      isLoading
-    });
-
-    // Log the full evaluation object to see all available fields
-    if (evaluationData?.data) {
-      console.log("📋 Full evaluation object fields:", Object.keys(evaluationData.data));
-      console.log("📋 Full evaluation object:", evaluationData.data);
-    }
-  }, [evaluationData, categoriesData, isLoading]);
-
   // Fetch criteria for all selected categories
   React.useEffect(() => {
-    const currentEvaluation = evaluationData?.data;
+    // Note: retrieve endpoint returns data directly (not wrapped in .data)
+    const currentEvaluation = evaluationData;
 
     // Try both field names: selected_categories/criteria and categories/criteria
     const evaluationCategories = currentEvaluation?.selected_categories || currentEvaluation?.categories;
@@ -203,7 +196,7 @@ export default function SupervisionEvaluationDetails({
     };
 
     fetchCriteria();
-  }, [evaluationData?.data?.selected_categories, evaluationData?.data?.categories]);
+  }, [evaluationData?.selected_categories, evaluationData?.categories]);
 
   // Form for completion
   const completionForm = useForm<CompleteEvaluationFormData>({
@@ -216,7 +209,8 @@ export default function SupervisionEvaluationDetails({
     },
   });
 
-  const evaluation = evaluationData?.data;
+  // Note: retrieve endpoint returns data directly (not wrapped in .data)
+  const evaluation = evaluationData;
 
   // Create unified responses data - use evaluation_items if responses endpoint is empty
   const unifiedResponsesData = useMemo(() => {
@@ -230,13 +224,18 @@ export default function SupervisionEvaluationDetails({
       const convertedResults = evaluation.evaluation_items.map(item => ({
         id: item.id,
         criteria_id: item.criteria,
-        compliance_status: item.compliance_status, // Use new compliance_status field
-        response_value: item.rating === 'true' ? true : item.rating === 'false' ? false : null,
-        text_response: item.observations,
-        comments: item.observations, // Backend uses observations field
+        // Map all compliance-related fields
+        compliance_status: item.compliance_status,     // 'YES'/'NO'/'NA'
+        is_compliant: item.is_compliant,               // boolean
+        response_value: item.is_compliant,             // for legacy support
+        // Map all comment fields
+        observations: item.observations,               // primary field
+        text_response: item.observations,              // legacy support
+        comments: item.observations,                   // legacy support
+        recommendations: item.recommendations,
         rating_value: item.score,
         evidence: item.evidence,
-        is_compliant: item.is_compliant,
+        rating: item.rating,
         created_datetime: item.created_datetime,
         updated_datetime: item.updated_datetime
       }));
@@ -251,6 +250,61 @@ export default function SupervisionEvaluationDetails({
 
     return null;
   }, [responsesData, evaluation?.evaluation_items]);
+
+  // Debug: Log evaluation and response data
+  React.useEffect(() => {
+    // Note: retrieve endpoint returns data directly (not wrapped in .data)
+    const evalData = evaluationData;
+    console.log("🔍 DETAILS PAGE DEBUG:", {
+      evaluation: {
+        id: evalData?.id,
+        status: evalData?.status,
+        overall_score: evalData?.overall_score,
+        selected_categories: evalData?.selected_categories || [],
+        selected_categories_count: (evalData?.selected_categories || []).length,
+        selected_criteria: evalData?.selected_criteria || [],
+        selected_criteria_count: (evalData?.selected_criteria || []).length,
+        categories: evalData?.categories || [],
+        criteria_names: evalData?.criteria_names || [],
+        evaluation_items: evalData?.evaluation_items || [],
+        evaluation_items_count: (evalData?.evaluation_items || []).length,
+        // Sample first evaluation item to check data structure
+        firstEvaluationItem: (evalData?.evaluation_items || [])[0],
+      },
+      responses: {
+        rawResponses: responsesData?.results || [],
+        rawCount: responsesData?.results?.length || 0,
+        unifiedResponses: unifiedResponsesData?.results || [],
+        unifiedCount: unifiedResponsesData?.results?.length || 0,
+        // Sample first unified response to check conversion
+        firstUnifiedResponse: (unifiedResponsesData?.results || [])[0],
+      },
+      maps: {
+        categoriesMapSize: categoriesMap.size,
+        criteriaMapSize: criteriaMap.size,
+      }
+    });
+
+    // Warning if no responses
+    if (!unifiedResponsesData?.results || unifiedResponsesData.results.length === 0) {
+      console.warn("⚠️ NO UNIFIED RESPONSES AVAILABLE!");
+      console.warn("   - Raw responses:", responsesData?.results?.length || 0);
+      console.warn("   - Evaluation items:", (evalData?.evaluation_items || []).length);
+      console.warn("   - Selected categories:", (evalData?.selected_categories || []).length);
+      console.warn("   - Selected criteria:", (evalData?.selected_criteria || []).length);
+    } else {
+      // Log detailed info about the first few responses
+      console.log("📊 Sample Unified Responses:", unifiedResponsesData.results.slice(0, 3).map((r: any) => ({
+        criteria_id: r.criteria_id,
+        compliance_status: r.compliance_status,
+        is_compliant: r.is_compliant,
+        observations: r.observations,
+        text_response: r.text_response,
+        comments: r.comments,
+      })));
+    }
+  }, [evaluationData, responsesData, unifiedResponsesData, categoriesMap, criteriaMap]);
+
   const isReadOnly = evaluation?.status === SupervisionEvaluationStatus.COMPLETED;
   const canEdit = evaluation?.status === SupervisionEvaluationStatus.IN_PROGRESS ||
                   evaluation?.status === SupervisionEvaluationStatus.PENDING;
@@ -270,14 +324,24 @@ export default function SupervisionEvaluationDetails({
           compliance_status = "na";
         }
 
+        // Use observations field (primary backend field) for comments
+        const comments = response.observations || response.comments || response.text_response || "";
+
         responseMap[response.criteria_id] = {
-          compliance_status, // New field for Yes/No/NA
+          compliance_status, // Converted to lowercase for RadioGroup
           response_value: response.response_value,
           rating_value: response.rating_value,
-          text_response: response.text_response,
-          comments: response.comments || response.text_response, // Use comments or text_response
+          text_response: comments,  // Use observations as primary source
+          comments: comments,       // Also set comments field
         };
       });
+
+      console.log("📝 Responses Map Populated:", {
+        totalResponses: Object.keys(responseMap).length,
+        sampleResponse: Object.values(responseMap)[0],
+        criteriaIds: Object.keys(responseMap).slice(0, 5)
+      });
+
       setResponses(responseMap);
     }
   }, [unifiedResponsesData]);
@@ -444,8 +508,18 @@ export default function SupervisionEvaluationDetails({
 
   if (!evaluation) {
     return (
-      <div className="text-center py-8">
+      <div className="text-center py-8 space-y-4">
         <p className="text-gray-500">Evaluation not found</p>
+        {evaluationError && (
+          <div className="text-red-600 text-sm">
+            <p className="font-semibold">Error Details:</p>
+            <p>{String(evaluationError)}</p>
+          </div>
+        )}
+        <div className="text-xs text-gray-400">
+          <p>Evaluation ID: {evaluationId}</p>
+          <p>Check browser console for more details</p>
+        </div>
         <Button className="mt-4" onClick={() => router.back()}>
           Go Back
         </Button>
@@ -471,9 +545,9 @@ export default function SupervisionEvaluationDetails({
             >
               {SupervisionEvaluationStatusLabels[evaluation.status]}
             </Badge>
-            {evaluation.overall_score && (
+            {evaluation.overall_score !== null && evaluation.overall_score !== undefined && (
               <Badge variant="outline">
-                Score: {Math.round(evaluation.overall_score * 10) / 10}/5
+                Score: {Math.round(evaluation.overall_score * 10) / 10}%
               </Badge>
             )}
           </div>
@@ -712,6 +786,18 @@ export default function SupervisionEvaluationDetails({
                   const criteriaId = criterion.id;
                   const response = responses[criteriaId] || {};
 
+                  // Debug: Log first criterion to check response mapping
+                  if (criteriaIndex === 0 && categoryIndex === 0) {
+                    console.log("🔍 First Criterion Debug:", {
+                      criteriaId,
+                      criterionName: criterion?.name || criterion?.title,
+                      hasResponse: !!responses[criteriaId],
+                      response: responses[criteriaId],
+                      allResponseKeys: Object.keys(responses).slice(0, 5),
+                      totalResponses: Object.keys(responses).length
+                    });
+                  }
+
                   return (
                     <Card key={criteriaId} className="space-y-3 border-yellow-600">
                       {/* Criterion Title - Yellow like SSP */}
@@ -812,16 +898,20 @@ export default function SupervisionEvaluationDetails({
                     <div className="text-center">
                       <div className="text-2xl font-bold text-green-600">
                         {evaluation.overall_score !== null && evaluation.overall_score !== undefined
-                          ? `${Math.round(evaluation.overall_score * 10) / 10}/5`
-                          : 'Completed'}
+                          ? `${Math.round(evaluation.overall_score * 10) / 10}%`
+                          : 'Not Calculated'}
                       </div>
                       <p className="text-sm text-gray-600">Overall Score</p>
                     </div>
                     <div className="text-center">
                       <div className="text-2xl font-bold text-blue-600">
-                        {responsesData?.results ?
-                          Math.round((responsesData.results.filter(r => r.response_value !== null && r.response_value !== undefined).length /
-                          (evaluation.selected_criteria?.length || responsesData.results.length || 1)) * 100) :
+                        {unifiedResponsesData?.results ?
+                          Math.round((unifiedResponsesData.results.filter((r: any) =>
+                            r.compliance_status !== null && r.compliance_status !== undefined ||
+                            r.is_compliant !== null && r.is_compliant !== undefined ||
+                            r.response_value !== null && r.response_value !== undefined
+                          ).length /
+                          (evaluation.selected_criteria?.length || unifiedResponsesData.results.length || 1)) * 100) :
                           Math.round(progress)}%
                       </div>
                       <p className="text-sm text-gray-600">Completion Rate</p>
@@ -906,15 +996,39 @@ export default function SupervisionEvaluationDetails({
                                   );
                                 }
 
-                                // Convert boolean response_value to Yes/No
+                                // Debug: Log first response to check data
+                                if (categoryResponses.indexOf(response) === 0) {
+                                  console.log("🔍 First Response in Category:", {
+                                    categoryName: category?.name,
+                                    response: response,
+                                    compliance_status: response.compliance_status,
+                                    is_compliant: response.is_compliant,
+                                    observations: response.observations,
+                                    text_response: response.text_response,
+                                    comments: response.comments,
+                                  });
+                                }
+
+                                // Determine compliance status from multiple possible fields
                                 let complianceStatus = '';
-                                if (response.response_value === true) {
+                                if (
+                                  response.compliance_status === 'YES' ||
+                                  response.compliance_status === 'yes' ||
+                                  response.is_compliant === true ||
+                                  response.response_value === true
+                                ) {
                                   complianceStatus = 'yes';
-                                } else if (response.response_value === false) {
+                                } else if (
+                                  response.compliance_status === 'NO' ||
+                                  response.compliance_status === 'no' ||
+                                  response.is_compliant === false ||
+                                  response.response_value === false
+                                ) {
                                   complianceStatus = 'no';
                                 }
 
-                                const comments = response.text_response || response.comments;
+                                // Get comments from observations field (primary) or fallback fields
+                                const comments = response.observations || response.text_response || response.comments;
 
                                 return (
                                   <div key={response.criteria_id} className="bg-gray-50 rounded p-3">

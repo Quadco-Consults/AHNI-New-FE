@@ -21,10 +21,10 @@ import logoPng from "@/assets/svgs/logo-bg.svg";
 import Image from "next/image";
 import { FileSpreadsheet, Shield, AlertTriangle, Users } from "lucide-react";
 import { Icon } from "@iconify/react";
+import { NoBidDataEmptyState } from "@/features/procurement/components/competitive-bid-analysis/EmptyStates";
+import { CBALoadingState } from "@/features/procurement/components/competitive-bid-analysis/LoadingStates";
 
 const TableComponent = () => {
-  console.log("🚀 CBA TableComponent is rendering!");
-
   const searchParams = useSearchParams();
   const id = searchParams?.get("id");
   const cba = searchParams?.get("cba");
@@ -32,12 +32,14 @@ const TableComponent = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
 
-  console.log("🔍 CBA CheckApproval Debug:", {
-    solicitationId: id,
-    cbaId: cba,
-    searchParams: Object.fromEntries(searchParams?.entries() || []),
-    windowLocation: typeof window !== 'undefined' ? window.location.href : 'server'
-  });
+  if (process.env.NODE_ENV === 'development') {
+    console.log("🔍 CBA CheckApproval Debug:", {
+      solicitationId: id,
+      cbaId: cba,
+      searchParams: Object.fromEntries(searchParams?.entries() || []),
+      windowLocation: typeof window !== 'undefined' ? window.location.href : 'server'
+    });
+  }
 
   // Handle missing parameters with user-friendly error
   if (!id || !cba) {
@@ -71,8 +73,24 @@ const TableComponent = () => {
   const { data: vendorSubmissionData, isLoading: isVendorLoading, error: vendorError } =
     useGetSolicitationSubmission(id || "", !!id);
 
-  // Use whichever data source has results
-  const summaryData = manualBidData || vendorSubmissionData;
+  // Use whichever data source has results (check actual results arrays, not just truthiness)
+  const getResultsCount = (data: any) => {
+    return data?.data?.data?.results?.length ||
+           data?.data?.results?.length ||
+           data?.results?.length ||
+           0;
+  };
+
+  const manualResultsCount = getResultsCount(manualBidData);
+  const vendorResultsCount = getResultsCount(vendorSubmissionData);
+
+  // Prioritize the data source that actually has results
+  const summaryData = manualResultsCount > 0
+    ? manualBidData
+    : vendorResultsCount > 0
+    ? vendorSubmissionData
+    : (manualBidData || vendorSubmissionData);
+
   const isLoading = isManualLoading || isVendorLoading;
   const error = manualError || vendorError;
 
@@ -87,27 +105,26 @@ const TableComponent = () => {
     return calculateConsensus();
   }, [isCommitteeCBA, memberEvaluations, calculateConsensus]);
 
-  console.log("✅ CBA Bid Data Debug:", {
-    summaryData,
-    id,
-    isLoading,
-    error,
-    manualBidData,
-    vendorSubmissionData,
-    // Check all possible data paths
-    summaryDataKeys: summaryData ? Object.keys(summaryData) : null,
-    summaryDataDataKeys: summaryData?.data ? Object.keys(summaryData.data) : null,
-    possibleResults1: summaryData?.data?.results,
-    possibleResults2: summaryData?.data?.data?.results,
-    possibleResults3: (summaryData as any)?.results,
-    // Detailed data inspection
-    fullManualBidData: manualBidData,
-    fullVendorSubmissionData: vendorSubmissionData,
-    manualResultsLength: manualBidData?.data?.results?.length,
-    vendorResultsLength: vendorSubmissionData?.data?.results?.length || vendorSubmissionData?.data?.data?.results?.length,
-    // Check if results are in different paths
-    vendorDataStructure: vendorSubmissionData?.data
-  });
+  if (process.env.NODE_ENV === 'development') {
+    console.log("✅ CBA Bid Data Debug:", {
+      summaryData,
+      id,
+      isLoading,
+      error,
+      manualBidData,
+      vendorSubmissionData,
+      summaryDataKeys: summaryData ? Object.keys(summaryData) : null,
+      summaryDataDataKeys: summaryData?.data ? Object.keys(summaryData.data) : null,
+      possibleResults1: summaryData?.data?.results,
+      possibleResults2: summaryData?.data?.data?.results,
+      possibleResults3: (summaryData as any)?.results,
+      fullManualBidData: manualBidData,
+      fullVendorSubmissionData: vendorSubmissionData,
+      manualResultsLength: manualBidData?.data?.results?.length,
+      vendorResultsLength: vendorSubmissionData?.data?.results?.length || vendorSubmissionData?.data?.data?.results?.length,
+      vendorDataStructure: vendorSubmissionData?.data
+    });
+  }
 
   const { createVendorBidAnalysis, isLoading: submissionLoading } =
     useCreateVendorBidAnalysis();
@@ -115,28 +132,30 @@ const TableComponent = () => {
   const [recommendationNote, setRecommendationNote] = useState("");
 
   function formatBidData(inputData: any) {
-    console.log("🔧 formatBidData called with:", inputData);
+    if (process.env.NODE_ENV === 'development') {
+      console.log("🔧 formatBidData called with:", inputData);
 
-    // Log the complete data structure to understand what we're receiving
-    if (inputData) {
-      console.log("🔧 formatBidData - Complete data structure:", {
-        topLevelKeys: Object.keys(inputData),
-        status: inputData.status,
-        message: inputData.message,
-        hasData: !!inputData.data,
-        dataKeys: inputData.data ? Object.keys(inputData.data) : null,
-        dataDataKeys: inputData.data?.data ? Object.keys(inputData.data.data) : null,
-        resultsAtLevel1: inputData.results?.length || 'Not found',
-        resultsAtLevel2: inputData.data?.results?.length || 'Not found',
-        resultsAtLevel3: inputData.data?.data?.results?.length || 'Not found',
-        actualDataContent: inputData.data,
-        nestedDataContent: inputData.data?.data,
-        allResults: {
-          level1: inputData.results,
-          level2: inputData.data?.results,
-          level3: inputData.data?.data?.results
-        }
-      });
+      // Log the complete data structure to understand what we're receiving
+      if (inputData) {
+        console.log("🔧 formatBidData - Complete data structure:", {
+          topLevelKeys: Object.keys(inputData),
+          status: inputData.status,
+          message: inputData.message,
+          hasData: !!inputData.data,
+          dataKeys: inputData.data ? Object.keys(inputData.data) : null,
+          dataDataKeys: inputData.data?.data ? Object.keys(inputData.data.data) : null,
+          resultsAtLevel1: inputData.results?.length || 'Not found',
+          resultsAtLevel2: inputData.data?.results?.length || 'Not found',
+          resultsAtLevel3: inputData.data?.data?.results?.length || 'Not found',
+          actualDataContent: inputData.data,
+          nestedDataContent: inputData.data?.data,
+          allResults: {
+            level1: inputData.results,
+            level2: inputData.data?.results,
+            level3: inputData.data?.data?.results
+          }
+        });
+      }
     }
 
     // Try multiple possible data paths - prioritize the correct API structure
@@ -157,10 +176,14 @@ const TableComponent = () => {
       dataPath = "inputData.data.data.results";
     }
 
-    console.log("🔧 formatBidData results found at:", dataPath, "with length:", results?.length);
+    if (process.env.NODE_ENV === 'development') {
+      console.log("🔧 formatBidData results found at:", dataPath, "with length:", results?.length);
+    }
 
     if (!results || !Array.isArray(results) || results.length === 0) {
-      console.log("❌ formatBidData: No valid results found");
+      if (process.env.NODE_ENV === 'development') {
+        console.log("❌ formatBidData: No valid results found");
+      }
       return {
         data: {
           companies: [],
@@ -170,8 +193,10 @@ const TableComponent = () => {
       };
     }
 
-    console.log("🔧 formatBidData processing", results.length, "results");
-    console.log("🔧 Sample result structure:", results[0]);
+    if (process.env.NODE_ENV === 'development') {
+      console.log("🔧 formatBidData processing", results.length, "results");
+      console.log("🔧 Sample result structure:", results[0]);
+    }
 
     try {
       const companies = [];
@@ -254,18 +279,22 @@ const TableComponent = () => {
         extraData: Array.from(extraDataMap.values()),
       };
 
-      console.log("✅ formatBidData success:", {
-        companiesCount: companies.length,
-        itemsCount: itemsMap.size,
-        extraDataCount: extraDataMap.size,
-        companies: companies.map(c => c.name),
-        items: Array.from(itemsMap.values()).map(i => i.title)
-      });
+      if (process.env.NODE_ENV === 'development') {
+        console.log("✅ formatBidData success:", {
+          companiesCount: companies.length,
+          itemsCount: itemsMap.size,
+          extraDataCount: extraDataMap.size,
+          companies: companies.map(c => c.name),
+          items: Array.from(itemsMap.values()).map(i => i.title)
+        });
+      }
 
       return formattedResult;
 
     } catch (error) {
-      console.error("❌ formatBidData error:", error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error("❌ formatBidData error:", error);
+      }
       return {
         data: {
           companies: [],
@@ -477,13 +506,15 @@ const TableComponent = () => {
 
     } catch (error) {
       toast.dismiss(loadingToast);
-      console.error("Error submitting analysis:", error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error("Error submitting analysis:", error);
+      }
       toast.error("Failed to submit analysis. Please try again.");
     }
   };
 
   if (isLoading) {
-    return <Loading />;
+    return <CBALoadingState message="Loading bid data..." />;
   }
 
   if (error) {
@@ -511,26 +542,28 @@ const TableComponent = () => {
   };
 
   // Enhanced debugging for missing data
-  console.log("🔧 CBA Data Analysis:", {
-    hasSummaryData: !!summaryData,
-    hasFormattedData: !!formattedData,
-    formattedDataStructure: formattedData ? Object.keys(formattedData) : null,
-    formattedDataFull: formattedData,
-    formattedDataData: formattedData?.data ? {
-      hasCompanies: !!formattedData?.data?.companies,
-      companiesCount: formattedData?.data?.companies?.length,
-      hasItems: !!formattedData?.data?.items,
-      itemsCount: formattedData?.data?.items?.length,
-      companies: formattedData?.data?.companies?.map(c => c.name),
-      items: formattedData?.data?.items?.map(i => i.title)
-    } : null,
-    rawSummaryDataPaths: {
-      path1: summaryData?.data?.results?.length,
-      path2: (summaryData?.data as any)?.results?.length,
-      path3: (summaryData as any)?.results?.length
-    },
-    summaryDataFull: summaryData
-  });
+  if (process.env.NODE_ENV === 'development') {
+    console.log("🔧 CBA Data Analysis:", {
+      hasSummaryData: !!summaryData,
+      hasFormattedData: !!formattedData,
+      formattedDataStructure: formattedData ? Object.keys(formattedData) : null,
+      formattedDataFull: formattedData,
+      formattedDataData: formattedData?.data ? {
+        hasCompanies: !!formattedData?.data?.companies,
+        companiesCount: formattedData?.data?.companies?.length,
+        hasItems: !!formattedData?.data?.items,
+        itemsCount: formattedData?.data?.items?.length,
+        companies: formattedData?.data?.companies?.map(c => c.name),
+        items: formattedData?.data?.items?.map(i => i.title)
+      } : null,
+      rawSummaryDataPaths: {
+        path1: summaryData?.data?.results?.length,
+        path2: (summaryData?.data as any)?.results?.length,
+        path3: (summaryData as any)?.results?.length
+      },
+      summaryDataFull: summaryData
+    });
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 pb-10">
@@ -621,52 +654,18 @@ const TableComponent = () => {
 
         {/* Show user-friendly message when no formatted data */}
         {!formattedData?.data?.companies || formattedData?.data?.companies?.length === 0 || !formattedData?.data?.items || formattedData?.data?.items?.length === 0 ? (
-        <div className="bg-blue-50 border border-blue-300 rounded-lg p-8 mb-6 text-center">
-          <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <FileSpreadsheet size={32} className="text-blue-600" />
-          </div>
-          <h3 className="text-blue-900 font-semibold mb-2 text-lg">No Bid Data Available</h3>
-          <p className="text-blue-700 mb-4">
-            {!formattedData?.data?.companies?.length && !formattedData?.data?.items?.length
-              ? "There are no vendor bids or items to display for this analysis."
-              : !formattedData?.data?.companies?.length
-              ? "No vendors have submitted bids for this solicitation yet."
-              : "No items found in the vendor bids."}
-          </p>
-          <div className="flex gap-3 justify-center">
-            <Button
-              variant="outline"
-              onClick={() => router.push(`/dashboard/procurement/competitive-bid-analysis/${cba}/details`)}
-            >
-              Back to CBA Details
-            </Button>
-            <Button onClick={() => window.location.reload()}>
-              Refresh Data
-            </Button>
-          </div>
-
-          {/* Optional debug section - can be removed in production */}
-          <details className="mt-6 text-left">
-            <summary className="text-sm text-blue-600 cursor-pointer hover:text-blue-800">
-              Show technical details
-            </summary>
-            <div className="mt-3 bg-white rounded p-4 text-xs">
-              <div className="space-y-2">
-                <div><strong>Solicitation ID:</strong> {id}</div>
-                <div><strong>CBA ID:</strong> {cba}</div>
-                <div><strong>Manual Bid Data:</strong> {manualBidData ? '✅ Available' : '❌ Not Available'}</div>
-                <div><strong>Vendor Submission Data:</strong> {vendorSubmissionData ? '✅ Available' : '❌ Not Available'}</div>
-                {(manualError || vendorError) && (
-                  <div className="text-red-600 mt-2">
-                    <strong>Errors:</strong>
-                    {manualError && <div>• Manual Bid: {String(manualError)}</div>}
-                    {vendorError && <div>• Vendor Submission: {String(vendorError)}</div>}
-                  </div>
-                )}
-              </div>
-            </div>
-          </details>
-        </div>
+          <NoBidDataEmptyState
+            hasCompanies={!!formattedData?.data?.companies?.length}
+            hasItems={!!formattedData?.data?.items?.length}
+            cbaId={cba as string}
+            solicitationId={id as string}
+            manualBidData={manualBidData}
+            vendorSubmissionData={vendorSubmissionData}
+            manualError={manualError}
+            vendorError={vendorError}
+            onBackToCBA={() => router.push(`/dashboard/procurement/competitive-bid-analysis/${cba}/details`)}
+            onRefresh={() => window.location.reload()}
+          />
         ) : null}
 
         {/* Bid Analysis Table */}

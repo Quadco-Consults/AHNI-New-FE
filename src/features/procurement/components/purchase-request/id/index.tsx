@@ -427,16 +427,16 @@ const PurchaseRequesttDetails = () => {
               <div className='flex items-center gap-2'>
                 <span className='font-medium text-xs w-12 text-gray-700'>Name:</span>
                 <span className='text-xs text-gray-900 font-medium'>
-                  {data?.data?.authorised_by_detail?.name ||
-                   (data?.data?.authorised_by_detail?.first_name && data?.data?.authorised_by_detail?.last_name
-                    ? `${data.data.authorised_by_detail.first_name} ${data.data.authorised_by_detail.last_name}`
-                    : data?.data?.authorised_by_detail?.email || 'N/A')
+                  {(data?.data?.authorized_by_detail || data?.data?.authorised_by_detail)?.name ||
+                   ((data?.data?.authorized_by_detail || data?.data?.authorised_by_detail)?.first_name && (data?.data?.authorized_by_detail || data?.data?.authorised_by_detail)?.last_name
+                    ? `${(data.data.authorized_by_detail || data.data.authorised_by_detail).first_name} ${(data.data.authorized_by_detail || data.data.authorised_by_detail).last_name}`
+                    : (data?.data?.authorized_by_detail || data?.data?.authorised_by_detail)?.email || 'N/A')
                   }
                 </span>
               </div>
               <div className='flex items-center gap-2'>
                 <span className='font-medium text-xs w-12 text-gray-700'>Date:</span>
-                <span className='text-xs text-gray-900'>{formatDate(data?.data?.authorised_date)}</span>
+                <span className='text-xs text-gray-900'>{formatDate(data?.data?.authorized_date || data?.data?.authorised_date)}</span>
               </div>
               <div className='flex items-center gap-2'>
                 <span className='font-medium text-xs w-12 text-gray-700'>Sign:</span>

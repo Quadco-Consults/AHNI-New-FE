@@ -47,7 +47,6 @@ import {
   TSolicitationQuotationFormData,
 } from "@/features/procurement/types/procurement-validator";
 import FormTextArea from "@/components/atoms/FormTextArea";
-import { useGetAllEois } from "@/features/procurement/controllers/eoiController";
 import { VendorsResultsData } from "@/features/procurement/types/vendors";
 import { useGetVendors } from "@/features/procurement/controllers/vendorsController";
 import { useGetAllCategories } from "@/features/modules/controllers/config/categoryController";
@@ -82,25 +81,11 @@ const Quotation = () => {
   const solicitationType = searchParams.get("solicitation_type");
   const eoiCategories = searchParams.get("eoi_categories");
 
-  const { data: eoiData } = useGetAllEois(
-    useMemo(() => ({ type: eoiType || "OPEN_TENDER" }), [eoiType])
-  );
-
   const categoryQueryResult = useGetAllCategories(
     useMemo(
       () => ({ no_paginate: true, search: categorySearchParams }),
       [categorySearchParams]
     )
-  );
-
-  const eoiOptions = useMemo(
-    () =>
-      // @ts-ignore
-      eoiData?.data.results.map(({ name, id }) => ({
-        label: name,
-        value: id,
-      })),
-    [eoiData]
   );
 
   const form = useForm<TSolicitationQuotationFormData>({
@@ -190,37 +175,6 @@ const Quotation = () => {
     }
   }, [eoiType, eoiName, eoiDescription, eoiNumber, solicitationType, eoiCategories, eoiId, form]);
 
-  // After eoiOptions - for cases where EOI ID is available (not needed when URL params provide all details)
-  useEffect(() => {
-    // @ts-ignore - accessing eoiData structure
-    if (!eoiId || !eoiOptions?.length || !eoiData?.data?.results) return;
-
-    console.log("🔍 EOI ID-based Inheritance Debug:", {
-      eoiId,
-      eoiOptions,
-      // @ts-ignore - accessing eoiData structure
-      eoiDataResults: eoiData?.data?.results,
-      searchParams: searchParams ? Object.fromEntries(searchParams.entries()) : null
-    });
-
-    // @ts-ignore
-    const matchedEoi = eoiOptions?.find((option) => option?.value === eoiId);
-    // @ts-ignore - accessing eoiData structure
-    const matchedEoiData = eoiData?.data?.results?.find((eoi) => eoi?.id === eoiId);
-
-    console.log("🎯 EOI Match Results:", {
-      matchedEoi,
-      matchedEoiData,
-      willInheritTitle: !!(matchedEoi && matchedEoiData)
-    });
-
-    if (matchedEoi && matchedEoiData) {
-      form.setValue("eoi_tender", matchedEoi.value); // set EOI
-      form.setValue("tender_type", "NATIONAL OPEN TENDER"); // set Tender Type
-      form.setValue("title", matchedEoiData.name); // inherit EOI title
-      console.log("✅ EOI Title Inherited:", matchedEoiData.name);
-    }
-  }, [eoiId, eoiOptions, eoiData, form, searchParams]);
 
   const { data: purchaseRequest, isLoading: isPurchaseRequestLoading } =
     useGetPurchaseRequests({});
@@ -370,6 +324,18 @@ const Quotation = () => {
   return (
     <RfqLayout>
       <div className="p-5">
+        <div className="flex items-center gap-4 mb-4">
+          <Button
+            onClick={() => router.back()}
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="flex items-center gap-2"
+          >
+            <Icon icon="mdi:arrow-left" className="w-5 h-5" />
+            Back
+          </Button>
+        </div>
         <h4 className="font-semibold text-lg">
           Initiate New Request for Quotation
         </h4>
@@ -422,16 +388,6 @@ const Quotation = () => {
                     ))}
                   </SelectContent>
                 </FormSelect>
-              )}
-
-              {/* Only show EOI selection if NOT coming from an EOI */}
-              {eoiType !== "OPEN_TENDER" && (
-                <FormSelect
-                  label="EOI"
-                  name="eoi_tender"
-                  placeholder="Select EOI"
-                  options={eoiOptions}
-                />
               )}
 
               {/* Show EOI info when coming from EOI */}
@@ -522,7 +478,6 @@ const Quotation = () => {
                   <SelectContent>
                     {[
                       "REQUEST FOR QUOTATION",
-                      "REQUEST FOR PROPOSAL",
                       "INVITATION TO TENDER",
                     ].map((value: string, index: number) => (
                       <SelectItem key={index} value={value}>

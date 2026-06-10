@@ -184,34 +184,34 @@ const Preview = () => {
   const interventionArea = findInterventionArea(interventionAreaId);
   const fundingSource = findFundingSource(fundingSourceId);
 
-  // Helper function for CC section (reviewers only)
+  // Helper function for CC section (authorizers)
   const getCCSection = () => {
     const ccList: string[] = [];
 
     // Check if this is Activity Memo (has array fields) or Purchase Request (has object fields)
-    const isActivityMemo = Array.isArray(requestsDetails?.reviewed_by_details) || Array.isArray(requestsDetails?.data?.reviewed_by_details) || Array.isArray(requestsDetails?.copy_details);
+    const isActivityMemo = Array.isArray(requestsDetails?.copy_details) || Array.isArray(requestsDetails?.data?.copy_details) || Array.isArray(requestsDetails?.authorised_by_details);
 
     if (isActivityMemo) {
-      // Activity Memo - Multiple reviewers (ManyToMany)
-      // Check both 'reviewed_by_details' and 'copy_details' (alias) field names
-      const reviewersArray = requestsDetails?.reviewed_by_details || requestsDetails?.copy_details || requestsDetails?.data?.reviewed_by_details || requestsDetails?.data?.copy_details;
+      // Activity Memo - Multiple authorizers (ManyToMany)
+      // CORRECT MAPPING: CC uses 'copy_details' or 'authorised_by_details' (authorizers)
+      const authorizersArray = requestsDetails?.copy_details || requestsDetails?.authorised_by_details || requestsDetails?.data?.copy_details || requestsDetails?.data?.authorised_by_details;
 
-      if (reviewersArray && reviewersArray.length > 0) {
-        const reviewers = reviewersArray.map((user: any) => {
+      if (authorizersArray && authorizersArray.length > 0) {
+        const authorizers = authorizersArray.map((user: any) => {
           const userName = user.name || `${user.first_name || ''} ${user.last_name || ''}`.trim();
           const userPosition = user.position || 'N/A';
           return `${userName} (${userPosition})`;
         });
-        ccList.push(...reviewers);
+        ccList.push(...authorizers);
       }
     } else {
-      // Purchase Request - Single reviewer (ForeignKey)
-      const reviewerObject = requestsDetails?.reviewed_by_detail || requestsDetails?.data?.reviewed_by_detail;
+      // Purchase Request - Single authorizer (ForeignKey)
+      const authorizerObject = requestsDetails?.authorized_by_detail || requestsDetails?.authorised_by_detail || requestsDetails?.data?.authorized_by_detail || requestsDetails?.data?.authorised_by_detail;
 
-      if (reviewerObject) {
-        const reviewerName = reviewerObject.name || `${reviewerObject.first_name || ''} ${reviewerObject.last_name || ''}`.trim();
-        const reviewerPosition = reviewerObject.position || 'N/A';
-        ccList.push(`${reviewerName} (${reviewerPosition})`);
+      if (authorizerObject) {
+        const authorizerName = authorizerObject.name || `${authorizerObject.first_name || ''} ${authorizerObject.last_name || ''}`.trim();
+        const authorizerPosition = authorizerObject.position || 'N/A';
+        ccList.push(`${authorizerName} (${authorizerPosition})`);
       }
     }
 
@@ -221,34 +221,34 @@ const Preview = () => {
     };
   };
 
-  // Helper function for Through section (authorizers only)
+  // Helper function for Through section (reviewers)
   const getThroughSection = () => {
     const throughList: string[] = [];
 
     // Check if this is Activity Memo (has array fields) or Purchase Request (has object fields)
-    const isActivityMemo = Array.isArray(requestsDetails?.reviewed_by_details) || Array.isArray(requestsDetails?.data?.reviewed_by_details) || Array.isArray(requestsDetails?.copy_details);
+    const isActivityMemo = Array.isArray(requestsDetails?.through_details) || Array.isArray(requestsDetails?.data?.through_details) || Array.isArray(requestsDetails?.reviewed_by_details);
 
     if (isActivityMemo) {
-      // Activity Memo - Multiple authorizers (ManyToMany)
-      // Check both 'authorised_by_details' and 'through_details' (alias) field names
-      const authorizersArray = requestsDetails?.authorised_by_details || requestsDetails?.through_details || requestsDetails?.data?.authorised_by_details || requestsDetails?.data?.through_details;
+      // Activity Memo - Multiple reviewers (ManyToMany)
+      // CORRECT MAPPING: Through uses 'through_details' or 'reviewed_by_details' (reviewers)
+      const reviewersArray = requestsDetails?.through_details || requestsDetails?.reviewed_by_details || requestsDetails?.data?.through_details || requestsDetails?.data?.reviewed_by_details;
 
-      if (authorizersArray && authorizersArray.length > 0) {
-        const authorizers = authorizersArray.map((user: any) => {
+      if (reviewersArray && reviewersArray.length > 0) {
+        const reviewers = reviewersArray.map((user: any) => {
           const userName = user.name || `${user.first_name || ''} ${user.last_name || ''}`.trim();
           const userPosition = user.position || 'N/A';
           return `${userName} (${userPosition})`;
         });
-        throughList.push(...authorizers);
+        throughList.push(...reviewers);
       }
     } else {
-      // Purchase Request - Single authorizer (ForeignKey)
-      const authorizerObject = requestsDetails?.authorised_by_detail || requestsDetails?.data?.authorised_by_detail;
+      // Purchase Request - Single reviewer (ForeignKey)
+      const reviewerObject = requestsDetails?.reviewed_by_detail || requestsDetails?.data?.reviewed_by_detail;
 
-      if (authorizerObject) {
-        const authorizerName = authorizerObject.name || `${authorizerObject.first_name || ''} ${authorizerObject.last_name || ''}`.trim();
-        const authorizerPosition = authorizerObject.position || 'N/A';
-        throughList.push(`${authorizerName} (${authorizerPosition})`);
+      if (reviewerObject) {
+        const reviewerName = reviewerObject.name || `${reviewerObject.first_name || ''} ${reviewerObject.last_name || ''}`.trim();
+        const reviewerPosition = reviewerObject.position || 'N/A';
+        throughList.push(`${reviewerName} (${reviewerPosition})`);
       }
     }
 
@@ -267,13 +267,14 @@ const Preview = () => {
     // console.log("🔍 REVIEWER FOR SIGNATURE DEBUG:");
 
     // Check if this is Activity Memo (has array fields) or Purchase Request (has object fields)
-    const isActivityMemo = Array.isArray(requestsDetails?.reviewed_by_details) || Array.isArray(requestsDetails?.data?.reviewed_by_details);
+    const isActivityMemo = Array.isArray(requestsDetails?.through_details) || Array.isArray(requestsDetails?.data?.through_details) || Array.isArray(requestsDetails?.reviewed_by_details);
 
     // console.log("Signature reviewer - isActivityMemo:", isActivityMemo);
 
     if (isActivityMemo) {
       // Activity Memo - Multiple reviewers (take first one for signature)
-      const reviewersArray = requestsDetails?.reviewed_by_details || requestsDetails?.data?.reviewed_by_details;
+      // Use through_details (primary) or reviewed_by_details (fallback)
+      const reviewersArray = requestsDetails?.through_details || requestsDetails?.reviewed_by_details || requestsDetails?.data?.through_details || requestsDetails?.data?.reviewed_by_details;
       // console.log("Signature reviewer - reviewers array:", reviewersArray);
 
       if (reviewersArray && reviewersArray.length > 0) {
