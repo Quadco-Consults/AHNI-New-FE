@@ -216,12 +216,15 @@ const AnalysisResultsView = () => {
       // Header
       doc.setFontSize(18);
       doc.setFont("helvetica", "bold");
-      doc.text("ACHIEVING HEALTH INITIATIVE NIGERIA (AHNI)", pageWidth / 2, yPosition, { align: "center" });
+      doc.text("Achieving Health Nigeria Initiative (AHNI)", pageWidth / 2, yPosition, { align: "center" });
 
       yPosition += 8;
-      doc.setFontSize(10);
+      doc.setFontSize(8);
       doc.setFont("helvetica", "normal");
-      doc.text("Building Sustainable Health Systems Across Nigeria", pageWidth / 2, yPosition, { align: "center" });
+      doc.text("No. 30 Anthony Enahoro Street, Utako District, Abuja, Nigeria", pageWidth / 2, yPosition, { align: "center" });
+
+      yPosition += 5;
+      doc.text("Tel: +234-09-4615555 / +234-09-461500 | Fax: +234-09-4615511 | Email: info@ahnigeria.org.ng", pageWidth / 2, yPosition, { align: "center" });
 
       yPosition += 15;
       doc.setFontSize(14);

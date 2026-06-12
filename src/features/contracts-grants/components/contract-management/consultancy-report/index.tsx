@@ -23,13 +23,13 @@ import { useGetAllConsultantManagements } from "@/features/contracts-grants/cont
 
 export default function ConsultancyReport() {
     const [page, setPage] = useState(1);
-    const [statusFilter, setStatusFilter] = useState<string>("");
+    const [statusFilter, setStatusFilter] = useState<string>("all");
     const [consultantFilter, setConsultantFilter] = useState<string>("");
 
     const { data, isFetching } = useGetAllConsultancyReports({
         page,
         size: 10,
-        status: statusFilter,
+        status: statusFilter === "all" ? "" : statusFilter,
     });
 
     // Fetch consultancy applicants to map consultant names
@@ -221,7 +221,7 @@ export default function ConsultancyReport() {
                                     <SelectValue placeholder="All Statuses" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="">All Statuses</SelectItem>
+                                    <SelectItem value="all">All Statuses</SelectItem>
                                     <SelectItem value="PENDING">Pending</SelectItem>
                                     <SelectItem value="APPROVED">Approved</SelectItem>
                                     <SelectItem value="REJECTED">Rejected</SelectItem>
@@ -229,14 +229,14 @@ export default function ConsultancyReport() {
                             </Select>
                         </div>
                     </div>
-                    {(consultantFilter || statusFilter) && (
+                    {(consultantFilter || statusFilter !== "all") && (
                         <div className="mt-4">
                             <Button
                                 variant="outline"
                                 size="sm"
                                 onClick={() => {
                                     setConsultantFilter("");
-                                    setStatusFilter("");
+                                    setStatusFilter("all");
                                 }}
                             >
                                 Clear All Filters

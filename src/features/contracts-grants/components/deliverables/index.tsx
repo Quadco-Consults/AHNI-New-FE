@@ -14,6 +14,7 @@ import {
 import { deliverableColumns } from "../table-columns/deliverables/deliverables";
 import CreateDeliverableModal from "./CreateDeliverableModal";
 import ReviewSubmissionModal from "./ReviewSubmissionModal";
+import ViewDeliverableModal from "./ViewDeliverableModal";
 
 export default function DeliverablesIndex() {
   const [page, setPage] = useState(1);
@@ -21,6 +22,7 @@ export default function DeliverablesIndex() {
   const [statusFilter, setStatusFilter] = useState("");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [selectedSubmissionId, setSelectedSubmissionId] = useState<string | null>(null);
+  const [selectedDeliverableId, setSelectedDeliverableId] = useState<string | null>(null);
 
   // Fetch deliverables
   const { data, isFetching } = useGetAllDeliverables({
@@ -43,6 +45,10 @@ export default function DeliverablesIndex() {
 
   const handleReviewSubmission = (submissionId: string) => {
     setSelectedSubmissionId(submissionId);
+  };
+
+  const handleViewDeliverable = (deliverableId: string) => {
+    setSelectedDeliverableId(deliverableId);
   };
 
   return (
@@ -181,7 +187,10 @@ export default function DeliverablesIndex() {
       <Card>
         <TableFilters searchValue={search} onSearchChange={setSearch}>
           <DataTable
-            columns={deliverableColumns({ onReview: handleReviewSubmission })}
+            columns={deliverableColumns({
+              onReview: handleReviewSubmission,
+              onView: handleViewDeliverable,
+            })}
             data={data?.data?.deliverables || []}
             isLoading={isFetching}
             pagination={{
@@ -204,6 +213,14 @@ export default function DeliverablesIndex() {
           submissionId={selectedSubmissionId}
           open={!!selectedSubmissionId}
           onClose={() => setSelectedSubmissionId(null)}
+        />
+      )}
+
+      {selectedDeliverableId && (
+        <ViewDeliverableModal
+          deliverableId={selectedDeliverableId}
+          open={!!selectedDeliverableId}
+          onClose={() => setSelectedDeliverableId(null)}
         />
       )}
     </section>

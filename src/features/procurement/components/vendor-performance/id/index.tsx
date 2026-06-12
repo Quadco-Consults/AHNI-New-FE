@@ -144,7 +144,7 @@ const VendorPerformance = () => {
       </div>
 
       <div id='vendor-performance-content'>
-        <div className='flex justify-center items-center flex-col mb-6'>
+        <div className='flex justify-center items-center flex-col mb-6 border-b-2 pb-4'>
           <Image
             src={logoPng}
             alt='AHNI Logo'
@@ -152,7 +152,10 @@ const VendorPerformance = () => {
             height={200}
             className='mb-4'
           />
-          <h1 className='text-2xl font-bold'>Achieving Health Nigeria Initiative (AHNI)</h1>
+          <h1 className='text-2xl font-bold text-gray-900'>Achieving Health Nigeria Initiative (AHNI)</h1>
+          <p className='text-xs text-gray-600 mt-2'>No. 30 Anthony Enahoro Street, Utako District, Abuja, Nigeria</p>
+          <p className='text-xs text-gray-600'>Tel: +234-09-4615555 / +234-09-461500 | Fax: +234-09-4615511 | Email: info@ahnigeria.org.ng</p>
+          <h2 className='text-xl font-semibold mt-3'>VENDOR PERFORMANCE EVALUATION</h2>
         </div>
         <div className='mt-8'>
           <div className='flex justify-end action-buttons'>

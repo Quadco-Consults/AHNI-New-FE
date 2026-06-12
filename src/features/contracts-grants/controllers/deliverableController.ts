@@ -140,13 +140,130 @@ export const useGetAllSubmissions = ({
   });
 };
 
-// Get My Consultants
-export const useGetMyConsultants = (enabled: boolean = true) => {
-  return useQuery<IConsultantsListResponse>({
-    queryKey: ["my-consultants"],
+// Get Consultant Locations
+export const useGetConsultantLocations = (enabled: boolean = true) => {
+  return useQuery<ApiResponse<Array<{id: string; name: string; has_clusters: boolean}>>>({
+    queryKey: ["consultant-locations"],
     queryFn: async () => {
       try {
-        const response = await AxiosWithToken.get(`${BASE_URL}my_consultants/`);
+        const response = await AxiosWithToken.get(`${BASE_URL}locations/`);
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    enabled: enabled,
+    refetchOnWindowFocus: false,
+  });
+};
+
+// Get Clusters for a Location
+export const useGetClustersForLocation = (locationId?: string, enabled: boolean = true) => {
+  return useQuery<ApiResponse<Array<{id: string; name: string; code: string}>>>({
+    queryKey: ["consultant-clusters", locationId],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get(`${BASE_URL}clusters/`, {
+          params: { location: locationId },
+        });
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    enabled: enabled && !!locationId,
+    refetchOnWindowFocus: false,
+  });
+};
+
+// Get My Consultants
+export const useGetMyConsultants = (locationId?: string, clusterId?: string, enabled: boolean = true) => {
+  return useQuery<IConsultantsListResponse>({
+    queryKey: ["my-consultants", locationId, clusterId],
+    queryFn: async () => {
+      try {
+        // Don't send empty location/cluster params - fetch all consultants instead
+        const params: any = {};
+        // Only add params if they have actual values (not empty strings)
+        if (clusterId && clusterId.trim()) {
+          params.cluster = clusterId;
+        } else if (locationId && locationId.trim()) {
+          params.location = locationId;
+        }
+        // If no params, fetch all consultants
+
+        const response = await AxiosWithToken.get(`${BASE_URL}my_consultants/`, { params });
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    enabled: enabled,
+    refetchOnWindowFocus: false,
+  });
+};
+
+// Get My Facilitators
+export const useGetMyFacilitators = (locationId?: string, clusterId?: string, enabled: boolean = true) => {
+  return useQuery<ApiResponse<Array<{
+    id: string;
+    title: string;
+    grade_level: string;
+    status: string;
+    commencement_date: string | null;
+    end_date: string | null;
+    locations: Array<{id: string; name: string}>;
+    cluster: {id: string; name: string; code: string} | null;
+  }>>>({
+    queryKey: ["my-facilitators", locationId, clusterId],
+    queryFn: async () => {
+      try {
+        const params: any = {};
+        if (clusterId) {
+          params.cluster = clusterId;
+        } else if (locationId) {
+          params.location = locationId;
+        }
+
+        const response = await AxiosWithToken.get(`${BASE_URL}my_facilitators/`, { params });
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    enabled: enabled,
+    refetchOnWindowFocus: false,
+  });
+};
+
+// Get My Adhoc Staff
+export const useGetMyAdhocStaff = (locationId?: string, clusterId?: string, enabled: boolean = true) => {
+  return useQuery<ApiResponse<Array<{
+    id: number;
+    name: string;
+    email: string;
+    designation: string;
+    assignment_location: string;
+    start_date: string | null;
+    end_date: string | null;
+    cluster: {id: string; name: string; code: string} | null;
+    location: {id: string; name: string} | null;
+  }>>>({
+    queryKey: ["my-adhoc-staff", locationId, clusterId],
+    queryFn: async () => {
+      try {
+        const params: any = {};
+        if (clusterId) {
+          params.cluster = clusterId;
+        } else if (locationId) {
+          params.location = locationId;
+        }
+
+        const response = await AxiosWithToken.get(`${BASE_URL}my_adhoc_staff/`, { params });
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
@@ -253,6 +370,51 @@ export const useReviewSubmission = (submissionId: string) => {
   };
 
   return { reviewSubmission, data, isLoading, isSuccess, error };
+};
+
+// ===== CONSULTANT/STAFF DELIVERABLE HOOKS =====
+
+// Get My Deliverables (assigned to me)
+export const useGetMyDeliverables = (enabled: boolean = true) => {
+  return useQuery<IDeliverablesListResponse>({
+    queryKey: ["my-deliverables"],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get(`${BASE_URL}my_deliverables/`);
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    enabled: enabled,
+    refetchOnWindowFocus: false,
+  });
+};
+
+// Submit Deliverable
+export const useSubmitDeliverable = (deliverableId: string) => {
+  const { callApi, isLoading, isSuccess, error, data } = useApiManager<
+    ApiResponse<IDeliverableSubmissionDetailed>,
+    Error,
+    FormData
+  >({
+    endpoint: `${BASE_URL}${deliverableId}/submit/`,
+    queryKey: ["my-deliverables", "deliverable-submissions"],
+    isAuth: true,
+    method: "POST",
+  });
+
+  const submitDeliverable = async (formData: FormData) => {
+    try {
+      await callApi(formData);
+    } catch (error) {
+      console.error("Deliverable submission error:", error);
+      throw error;
+    }
+  };
+
+  return { submitDeliverable, data, isLoading, isSuccess, error };
 };
 
 // Legacy exports for backward compatibility

@@ -137,7 +137,8 @@ const EmployeePayrollBreakdown = () => {
             <div>
               <h1 className="text-xl font-bold text-gray-900">Achieving Health Nigeria Initiative (AHNi)</h1>
               <p className="text-xs text-gray-600 mt-1">30 Anthony Enahoro Street, Utako District, Abuja, Nigeria</p>
-              <p className="text-xs text-gray-600 mt-0.5">Tel: +234.94615555 | Email: AHNiOperations@ahnigeria.org</p>
+              <p className="text-xs text-gray-600 mt-0.5">No. 30 Anthony Enahoro Street, Utako District, Abuja, Nigeria</p>
+              <p className="text-xs text-gray-600 mt-0.5">Tel: +234-09-4615555 / +234-09-461500 | Fax: +234-09-4615511 | Email: AHNiOperations@ahnigeria.org</p>
             </div>
           </div>
           <div className="flex justify-between items-center mt-4">

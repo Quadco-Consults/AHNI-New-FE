@@ -172,12 +172,14 @@ const Order = () => {
             <div className='text-center space-y-2'>
               <h1 className='text-4xl font-bold mb-3 text-gray-900'>Achieving Health Nigeria Initiative (AHNI)</h1>
               <p className='text-base text-gray-700 leading-relaxed max-w-3xl font-medium'>
-                23 Celina Ayom Crescent, Cadastral Zone B09, behind NAF Conference Center, Jabi, Abuja
+                No. 30 Anthony Enahoro Street, Utako District, Abuja, Nigeria
               </p>
               <div className='flex items-center justify-center gap-6 text-base text-gray-700 font-medium'>
                 <span>Tel: +234-09-4615555 / +234-09-461500</span>
                 <span className='text-primary font-bold'>•</span>
                 <span>Fax: +234-09-4615511</span>
+                <span className='text-primary font-bold'>•</span>
+                <span>Email: info@ahnigeria.org.ng</span>
               </div>
             </div>
           </div>

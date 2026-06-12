@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import AxiosWithToken from '@/lib/axios';
 import { useToast } from '@/hooks/use-toast';
 
@@ -72,26 +72,48 @@ export const useMessaging = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const { toast } = useToast();
+  const isRequestInFlight = useRef(false);
 
   // Fetch all conversations
   const fetchConversations = useCallback(async () => {
+    // Prevent multiple simultaneous requests
+    if (isRequestInFlight.current) {
+      console.log('Request already in flight, skipping...');
+      return;
+    }
+
+    isRequestInFlight.current = true;
     setIsLoading(true);
     try {
       const response = await AxiosWithToken.get('/messaging/conversations/');
-      // Ensure we always set an array
-      const data = response.data.results || response.data;
-      setConversations(Array.isArray(data) ? data : []);
+
+      // Handle different response structures
+      let data;
+      if (Array.isArray(response.data)) {
+        data = response.data;
+      } else if (response.data?.results && Array.isArray(response.data.results)) {
+        data = response.data.results;
+      } else if (response.data?.data?.results && Array.isArray(response.data.data.results)) {
+        data = response.data.data.results;
+      } else {
+        console.warn('Unexpected response structure:', response.data);
+        data = [];
+      }
+
+      setConversations(data);
     } catch (error: any) {
       console.error('Error fetching conversations:', error);
+      console.error('Error details:', error.response?.data);
       toast({
-        title: 'Error',
-        description: 'Failed to load conversations',
+        title: 'Unable to load messages',
+        description: 'The messaging service is currently unavailable. Please try again later.',
         variant: 'destructive',
       });
       // Set empty array on error
       setConversations([]);
     } finally {
       setIsLoading(false);
+      isRequestInFlight.current = false;
     }
   }, [toast]);
 
@@ -265,10 +287,121 @@ export const useMessaging = () => {
     [toast]
   );
 
-  // Load conversations on mount
+  // Send message with files
+  const sendMessageWithFiles = useCallback(
+    async (conversationId: string, content: string, files: File[]) => {
+      setIsSending(true);
+      try {
+        // First send the message
+        const messageResponse = await AxiosWithToken.post(
+          `/messaging/conversations/${conversationId}/send_message/`,
+          {
+            content: content || 'Sent attachments',
+            type: files.length > 0 ? 'file' : 'text',
+          }
+        );
+
+        const messageId = messageResponse.data.id;
+
+        // Upload files if any
+        if (files.length > 0) {
+          const uploadPromises = files.map((file) => uploadAttachment(messageId, file));
+          await Promise.all(uploadPromises);
+        }
+
+        // Refresh messages to show the updated message with attachments
+        await fetchMessages(conversationId);
+
+        // Update conversations list
+        await fetchConversations();
+
+        toast({
+          title: 'Success',
+          description: 'Message sent successfully',
+        });
+
+        return messageResponse.data;
+      } catch (error: any) {
+        console.error('Error sending message with files:', error);
+        toast({
+          title: 'Error',
+          description: 'Failed to send message',
+          variant: 'destructive',
+        });
+        throw error;
+      } finally {
+        setIsSending(false);
+      }
+    },
+    [toast, uploadAttachment, fetchMessages, fetchConversations]
+  );
+
+  // Delete a message
+  const deleteMessage = useCallback(
+    async (conversationId: string, messageId: string) => {
+      try {
+        await AxiosWithToken.delete(`/messaging/messages/${messageId}/`);
+
+        // Remove the message from the local state
+        setMessages((prev) => prev.filter((msg) => msg.id !== messageId));
+
+        // Update conversations list to reflect the deletion
+        await fetchConversations();
+
+        toast({
+          title: 'Success',
+          description: 'Message deleted successfully',
+        });
+      } catch (error: any) {
+        console.error('Error deleting message:', error);
+        toast({
+          title: 'Error',
+          description: 'Failed to delete message',
+          variant: 'destructive',
+        });
+        throw error;
+      }
+    },
+    [toast, fetchConversations]
+  );
+
+  // Delete a conversation
+  const deleteConversation = useCallback(
+    async (conversationId: string) => {
+      try {
+        await AxiosWithToken.delete(`/messaging/conversations/${conversationId}/`);
+
+        // Remove the conversation from the local state
+        setConversations((prev) => prev.filter((conv) => conv.id !== conversationId));
+
+        // If the deleted conversation was the current one, clear it
+        if (currentConversation?.id === conversationId) {
+          setCurrentConversation(null);
+          setMessages([]);
+        }
+
+        toast({
+          title: 'Success',
+          description: 'Conversation deleted successfully',
+        });
+      } catch (error: any) {
+        console.error('Error deleting conversation:', error);
+        toast({
+          title: 'Error',
+          description: 'Failed to delete conversation',
+          variant: 'destructive',
+        });
+        throw error;
+      }
+    },
+    [toast, currentConversation]
+  );
+
+  // Load conversations on mount (only once)
   useEffect(() => {
     fetchConversations();
-  }, [fetchConversations]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty dependency array to run only once on mount
 
   return {
     // State
@@ -282,6 +415,9 @@ export const useMessaging = () => {
     fetchConversations,
     fetchMessages,
     sendMessage,
+    sendMessageWithFiles,
+    deleteMessage,
+    deleteConversation,
     createConversation,
     loadConversation,
     markConversationAsRead,

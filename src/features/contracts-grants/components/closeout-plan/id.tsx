@@ -209,7 +209,10 @@ export default function CloseOutPlan() {
                             className="object-contain"
                         />
                         <div className="text-center">
-                            <h1 className="text-2xl font-bold text-red-600">Close-Out Plan</h1>
+                            <h1 className="text-2xl font-bold text-gray-900">Achieving Health Nigeria Initiative (AHNI)</h1>
+                            <p className="text-xs text-gray-600 mt-1">No. 30 Anthony Enahoro Street, Utako District, Abuja, Nigeria</p>
+                            <p className="text-xs text-gray-600 mb-3">Tel: +234-09-4615555 / +234-09-461500 | Fax: +234-09-4615511 | Email: info@ahnigeria.org.ng</p>
+                            <h2 className="text-xl font-bold text-red-600 mt-3">Close-Out Plan</h2>
                             <p className="text-gray-600 mt-2">Pre Closeout and Close Out Activities</p>
                         </div>
                     </div>

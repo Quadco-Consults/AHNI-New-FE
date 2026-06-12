@@ -19,7 +19,8 @@ import {
   Calendar,
   MapPin,
   ClipboardList,
-  MessageSquare
+  MessageSquare,
+  CheckSquare
 } from "lucide-react";
 import ProgramsIcon from "@/components/icons/sidebar-icons/ProgramsIcon";
 import ProcurementManagementIcon from "@/components/icons/sidebar-icons/ProcurementManagementIcon";
@@ -1550,6 +1551,14 @@ export const globalHubLinks: GlobalHubItem[] = [
     label: "Messages",
     path: "/dashboard/global-hub/messages",
     icon: <MessageSquare className="w-4 h-4" />,
+    category: "communication"
+    // No permissions = universal access
+  },
+
+  {
+    label: "Tasks",
+    path: "/dashboard/global-hub/tasks",
+    icon: <CheckSquare className="w-4 h-4" />,
     category: "communication"
     // No permissions = universal access
   },

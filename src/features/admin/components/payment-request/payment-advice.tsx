@@ -86,11 +86,18 @@ export default function PaymentAdvice() {
       {/* Payment Advice Document */}
       <div className='bg-white border-2 border-black rounded-lg overflow-hidden print:border print:rounded-none'>
         {/* Logo Header */}
-        <div className='border-b-2 border-black p-6 bg-white flex items-center justify-between print:p-4'>
-          <img src={(logoPng as any).src || logoPng} alt='logo' width={140} className='print:w-32' />
-          <div className='text-right'>
-            <h1 className='text-3xl font-bold text-gray-900 print:text-2xl'>PAYMENT ADVICE</h1>
-            <p className='text-sm text-gray-600 mt-1'>Ref: {paymentRequest.id.substring(0, 8).toUpperCase()}</p>
+        <div className='border-b-2 border-black p-6 bg-white print:p-4'>
+          <div className='flex items-center justify-between mb-4'>
+            <img src={(logoPng as any).src || logoPng} alt='logo' width={140} className='print:w-32' />
+            <div className='text-right'>
+              <h1 className='text-3xl font-bold text-gray-900 print:text-2xl'>PAYMENT ADVICE</h1>
+              <p className='text-sm text-gray-600 mt-1'>Ref: {paymentRequest.id.substring(0, 8).toUpperCase()}</p>
+            </div>
+          </div>
+          <div className='text-center border-t pt-3'>
+            <h2 className='text-xl font-bold text-gray-900'>Achieving Health Nigeria Initiative (AHNI)</h2>
+            <p className='text-xs text-gray-600 mt-1'>No. 30 Anthony Enahoro Street, Utako District, Abuja, Nigeria</p>
+            <p className='text-xs text-gray-600'>Tel: +234-09-4615555 / +234-09-461500 | Fax: +234-09-4615511 | Email: info@ahnigeria.org.ng</p>
           </div>
         </div>
 

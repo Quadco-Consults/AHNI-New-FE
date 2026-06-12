@@ -68,27 +68,46 @@ export const useGetAllProcurementTrackers = ({
         return response.data;
       } catch (error) {
         const axiosError = error as AxiosError;
-        console.error("Procurement Tracker API Error:", axiosError);
 
-        // Create error context for better handling
-        const errorContext = createErrorContext(
-          'fetch procurement tracker data',
-          'PROCUREMENT',
-          'Procurement Tracker'
-        );
+        // Don't log errors for aborted requests (common with large responses)
+        if (axiosError.code !== 'ERR_CANCELED' && axiosError.name !== 'CanceledError') {
+          console.error("Procurement Tracker API Error:", axiosError);
 
-        // Use enhanced error handling
-        handleApiError(axiosError, errorContext);
+          // Create error context for better handling
+          const errorContext = createErrorContext(
+            'fetch procurement tracker data',
+            'PROCUREMENT',
+            'Procurement Tracker'
+          );
 
-        // Still throw for React Query error boundary
-        throw new Error(
-          "Failed to load procurement tracker data: " +
-          ((axiosError.response?.data as any)?.message || axiosError.message)
-        );
+          // Use enhanced error handling
+          handleApiError(axiosError, errorContext);
+        }
+
+        // Still throw for React Query error boundary (but not for canceled requests)
+        if (axiosError.code !== 'ERR_CANCELED' && axiosError.name !== 'CanceledError') {
+          throw new Error(
+            "Failed to load procurement tracker data: " +
+            ((axiosError.response?.data as any)?.message || axiosError.message)
+          );
+        }
+
+        // Return empty data for canceled requests instead of throwing
+        return { results: [], pagination: {} };
       }
     },
     enabled: enabled,
     refetchOnWindowFocus: false,
+    staleTime: 5 * 60 * 1000, // Keep data fresh for 5 minutes to prevent unnecessary refetches
+    retry: (failureCount, error) => {
+      // Don't retry on canceled requests
+      const axiosError = error as AxiosError;
+      if (axiosError.code === 'ERR_CANCELED' || axiosError.name === 'CanceledError') {
+        return false;
+      }
+      // Retry other errors up to 2 times
+      return failureCount < 2;
+    },
   });
 };
 

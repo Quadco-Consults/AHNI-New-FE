@@ -295,8 +295,9 @@ const TableMenu = (fuelData: IFuelRequestPaginatedData) => {
           <div class="header">
             <img src="/imgs/logo.png" alt="AHNI Logo" class="logo" />
             <div class="company-info">
-              <h1 class="company-name">ACHIEVING HEALTH NIGERIA INITIATIVE</h1>
-              <p class="company-tagline">(AHNI) - Excellence in Healthcare Delivery</p>
+              <h1 class="company-name">Achieving Health Nigeria Initiative (AHNI)</h1>
+              <p class="company-tagline" style="font-size: 11px; margin: 3px 0;">No. 30 Anthony Enahoro Street, Utako District, Abuja, Nigeria</p>
+              <p class="company-tagline" style="font-size: 10px; margin: 3px 0;">Tel: +234-09-4615555 / +234-09-461500 | Fax: +234-09-4615511 | Email: info@ahnigeria.org.ng</p>
             </div>
             <div class="status-badge">${data.status || 'PENDING'}</div>
           </div>
@@ -386,6 +387,8 @@ const TableMenu = (fuelData: IFuelRequestPaginatedData) => {
 
           <div class="footer">
             <p><strong>Achieving Health Nigeria Initiative (AHNI)</strong></p>
+            <p style="font-size: 10px; margin: 2px 0;">No. 30 Anthony Enahoro Street, Utako District, Abuja, Nigeria</p>
+            <p style="font-size: 10px; margin: 2px 0 8px 0;">Tel: +234-09-4615555 / +234-09-461500 | Fax: +234-09-4615511 | Email: info@ahnigeria.org.ng</p>
             <p>Fleet Management System - Fuel Consumption Request</p>
             <p>This is a computer-generated document and does not require a signature.</p>
           </div>

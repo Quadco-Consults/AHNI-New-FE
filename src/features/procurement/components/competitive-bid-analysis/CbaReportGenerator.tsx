@@ -67,11 +67,17 @@ const CbaReportGenerator: React.FC<CbaReportGeneratorProps> = ({ cbaId }) => {
       {/* Report Document */}
       <Card className="p-8 print:shadow-none print:border-none">
         {/* Document Header */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-8 border-b-2 border-gray-200 pb-6">
           <h1 className="text-2xl font-bold mb-2">
-            {document?.title || "COMPARATIVE BID ANALYSIS (CBA)"}
+            Achieving Health Nigeria Initiative (AHNI)
           </h1>
-          <p className="text-lg mb-4">
+          <p className="text-xs text-gray-600 mb-1">No. 30 Anthony Enahoro Street, Utako District, Abuja, Nigeria</p>
+          <p className="text-xs text-gray-600 mb-4">Tel: +234-09-4615555 / +234-09-461500 | Fax: +234-09-4615511 | Email: info@ahnigeria.org.ng</p>
+
+          <h2 className="text-xl font-bold mb-2 mt-4">
+            {document?.title || "COMPARATIVE BID ANALYSIS (CBA)"}
+          </h2>
+          <p className="text-base mb-4">
             {document?.subject || `Subject: ${cba?.title || "CBA Analysis"}`}
           </p>
           <div className="flex justify-between text-sm">

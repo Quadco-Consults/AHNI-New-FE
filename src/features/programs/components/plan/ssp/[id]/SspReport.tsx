@@ -107,11 +107,16 @@ const SspReport = () => {
         className="bg-white p-8 space-y-6 print:p-12 print:shadow-none"
         style={{ fontFamily: 'Arial, sans-serif' }}
       >
-        {/* Header */}
-        <div className="text-center border-2 border-black pb-4">
-          <h1 className="text-2xl font-bold mb-1">
-            INTEGRATED FACILITY VISIT CHECKLIST
+        {/* Organization Header */}
+        <div className="text-center border-b-2 border-black pb-4">
+          <h1 className="text-2xl font-bold text-gray-900 mb-1">
+            Achieving Health Nigeria Initiative (AHNI)
           </h1>
+          <p className="text-xs text-gray-600 mt-1">No. 30 Anthony Enahoro Street, Utako District, Abuja, Nigeria</p>
+          <p className="text-xs text-gray-600 mb-3">Tel: +234-09-4615555 / +234-09-461500 | Fax: +234-09-4615511 | Email: info@ahnigeria.org.ng</p>
+          <h2 className="text-xl font-bold mt-3 mb-1">
+            INTEGRATED FACILITY VISIT CHECKLIST
+          </h2>
           <p className="text-sm font-semibold">
             SUPPORTIVE SUPERVISION PLAN
           </p>

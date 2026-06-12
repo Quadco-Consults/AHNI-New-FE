@@ -1188,8 +1188,8 @@ function PurchaseRequest({
                         </div>
                         <div>
                           <h1 className="text-xl font-bold">Achieving Health Nigeria Initiative (AHNI)</h1>
-                          <p className="text-sm">23 Celina Ayom Crescent, Cadastral Zone B09, behind NAF Conference Center, Jabi, Abuja</p>
-                          <p className="text-sm">Tel: +234-09-4615555 / +234-09-461500    Fax: +234-09-4615511</p>
+                          <p className="text-sm">No. 30 Anthony Enahoro Street, Utako District, Abuja, Nigeria</p>
+                          <p className="text-sm">Tel: +234-09-4615555 / +234-09-461500 | Fax: +234-09-4615511 | Email: info@ahnigeria.org.ng</p>
                         </div>
                       </div>
                       <h2 className="text-lg font-bold underline">PURCHASE REQUEST FORM</h2>

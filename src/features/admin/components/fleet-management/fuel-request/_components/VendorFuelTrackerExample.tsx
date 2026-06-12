@@ -410,6 +410,8 @@ export default function VendorFuelTrackerExample() {
 
             <div class="footer">
               <p class="footer-text" style="font-size: 12px; font-weight: 700;">Achieving Health Nigeria Initiative (AHNI)</p>
+              <p class="footer-text" style="font-size: 10px; margin: 3px 0;">No. 30 Anthony Enahoro Street, Utako District, Abuja, Nigeria</p>
+              <p class="footer-text" style="font-size: 10px; margin: 3px 0 8px 0;">Tel: +234-09-4615555 / +234-09-461500 | Fax: +234-09-4615511 | Email: info@ahnigeria.org.ng</p>
               <p class="footer-text">Fleet Management System - Vendor Fuel Consumption Report</p>
               <p class="footer-text" style="font-style: italic;">This is a computer-generated document and does not require a signature.</p>
             </div>

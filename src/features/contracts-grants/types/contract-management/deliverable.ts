@@ -4,9 +4,13 @@ export interface IDeliverable {
   id: string;
   title: string;
   description: string;
+  staff_type: 'consultant' | 'facilitator' | 'adhoc_staff';
+  staff_type_display: string;
   consultant: string;
-  consultant_name: string;
-  consultant_email: string;
+  assigned_to_name: string;
+  assigned_to_email: string;
+  consultant_name: string;  // Deprecated, use assigned_to_name
+  consultant_email: string;  // Deprecated, use assigned_to_email
   supervisor: string;
   supervisor_name: string;
   supervisor_email: string;
@@ -74,13 +78,16 @@ export interface IConsultant {
   email: string;
   contract_start: string | null;
   contract_end: string | null;
+  locations?: Array<{id: string; name: string}>;
+  cluster?: {id: string; name: string; code: string} | null;
 }
 
 // Form Data Types
 export interface TDeliverableFormData {
   title: string;
   description: string;
-  consultant: string;
+  staff_type: 'consultant' | 'facilitator' | 'adhoc_staff';
+  consultant: string;  // Note: This field is used for all staff types despite the name
   deadline: string;
   comments?: string;
 }

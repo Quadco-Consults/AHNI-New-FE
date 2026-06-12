@@ -9,10 +9,12 @@ import { AlertCircle, CheckCircle, Clock, Eye } from "lucide-react";
 
 interface DeliverableColumnsProps {
   onReview?: (submissionId: string) => void;
+  onView?: (deliverableId: string) => void;
 }
 
 export const deliverableColumns = ({
   onReview,
+  onView,
 }: DeliverableColumnsProps): ColumnDef<IDeliverable>[] => [
   {
     header: "Title",
@@ -175,7 +177,11 @@ export const deliverableColumns = ({
 
       return (
         <div className="flex gap-2">
-          <Button variant="outline" size="sm">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onView?.(row.original.id)}
+          >
             <Eye className="h-4 w-4" />
             View
           </Button>

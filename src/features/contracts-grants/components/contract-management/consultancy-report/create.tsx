@@ -51,38 +51,46 @@ export default function CreateConsultancyReport() {
 
     const router = useRouter();
 
-    const { data: project } = useGetAllProjects({
+    const { data: project, isLoading: isProjectsLoading } = useGetAllProjects({
         page: 1,
-        size: 2000000,
+        size: 1000,
     });
 
-    const projectOptions = useMemo(
-        () =>
-            project?.data.results.map(({ title, id }) => ({
-                label: title,
-                value: id,
-            })),
-        [project]
-    );
+    const projectOptions = useMemo(() => {
+        const options = project?.data.results.map(({ title, id }) => ({
+            label: title,
+            value: id,
+        })) || [];
+        console.log('📋 Projects loaded:', {
+            count: options.length,
+            isLoading: isProjectsLoading,
+            sample: options.slice(0, 3)
+        });
+        return options;
+    }, [project, isProjectsLoading]);
 
-    const { data: user } = useGetAllUsers({
+    const { data: user, isLoading: isUsersLoading } = useGetAllUsers({
         page: 1,
-        size: 2000000,
+        size: 1000,
     });
 
-    const userOptions = useMemo(
-        () =>
-            user?.data.results.map(({ first_name, last_name, id }) => ({
-                label: `${first_name} ${last_name}`,
-                value: id,
-            })),
-        [user]
-    );
+    const userOptions = useMemo(() => {
+        const options = user?.data.results.map(({ first_name, last_name, id }) => ({
+            label: `${first_name} ${last_name}`,
+            value: id,
+        })) || [];
+        console.log('📋 Users (Supervisors) loaded:', {
+            count: options.length,
+            isLoading: isUsersLoading,
+            sample: options.slice(0, 3)
+        });
+        return options;
+    }, [user, isUsersLoading]);
 
     // Fetch consultants from the consultancy database (accepted consultants only)
     const { data: consultantData } = useGetAllConsultancyApplicants({
         page: 1,
-        size: 2000000,
+        size: 1000,
     });
 
     const consultantOptions = useMemo(() => {

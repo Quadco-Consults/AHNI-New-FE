@@ -172,8 +172,8 @@ const PurchaseRequesttDetails = () => {
             className='mb-4 print:mb-2'
           />
           <h1 className='text-lg font-bold text-gray-800 mb-2 print:text-base print:mb-1'>Achieving Health Nigeria Initiative (AHNI)</h1>
-          <p className='text-gray-600 text-xs text-center'>23 Celina Ayom Crescent, Cadastral Zone B09, behind NAF Conference Center, Jabi, Abuja</p>
-          <p className='text-gray-600 text-xs'>Tel: +234-09-4615555 / +234-09-461500 | Fax: +234-09-4615511</p>
+          <p className='text-gray-600 text-xs text-center'>No. 30 Anthony Enahoro Street, Utako District, Abuja, Nigeria</p>
+          <p className='text-gray-600 text-xs'>Tel: +234-09-4615555 / +234-09-461500 | Fax: +234-09-4615511 | Email: info@ahnigeria.org.ng</p>
         </div>
         <div className='mt-6 text-center print:mt-3'>
           <h2 className='text-lg font-bold text-gray-800 py-2 px-4 border border-gray-300 rounded inline-block print:text-base print:py-1 print:px-2'>

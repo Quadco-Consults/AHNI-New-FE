@@ -715,9 +715,11 @@ export default function VehicleRequestDetails() {
               </table>
 
               {/* Footer */}
-              <div className="mt-8 pt-4 border-t border-gray-300 text-center text-xs text-gray-500">
-                <p>This is a computer-generated document. Generated on {format(new Date(), "dd MMMM yyyy 'at' hh:mm aa")}</p>
-                <p>Achieving Health Nigeria Initiative (AHNI) - Vehicle Request Management System</p>
+              <div className="mt-8 pt-4 border-t border-gray-300 text-center text-xs text-gray-500 space-y-2">
+                <p className="font-semibold text-gray-700">Achieving Health Nigeria Initiative (AHNI)</p>
+                <p>No. 30 Anthony Enahoro Street, Utako District, Abuja, Nigeria</p>
+                <p>Tel: +234-09-4615555 / +234-09-461500 | Fax: +234-09-4615511 | Email: info@ahnigeria.org.ng</p>
+                <p className="mt-2">This is a computer-generated document. Generated on {format(new Date(), "dd MMMM yyyy 'at' hh:mm aa")}</p>
               </div>
 
               {/* Vehicle Assignment Section - Only for Approvers (Hidden in PDF) */}

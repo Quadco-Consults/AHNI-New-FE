@@ -238,6 +238,8 @@ export default function ViewFundRequestActivity() {
       <body>
         <div class="header">
           <h1>Achieving Health Nigeria Initiative (AHNI)</h1>
+          <p style="font-size: 12px; color: #666; margin: 5px 0;">No. 30 Anthony Enahoro Street, Utako District, Abuja, Nigeria</p>
+          <p style="font-size: 11px; color: #666; margin: 5px 0 15px 0;">Tel: +234-09-4615555 / +234-09-461500 | Fax: +234-09-4615511 | Email: info@ahnigeria.org.ng</p>
           <h2>${data.project?.title || 'Project Title'}</h2>
           <p><strong>Downloaded on:</strong> ${new Date().toLocaleDateString()}</p>
           <p><strong>State:</strong> ${state}</p>

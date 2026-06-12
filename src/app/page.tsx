@@ -545,7 +545,9 @@ export default function HomePage() {
                   <Phone className="h-10 w-10 text-white" />
                 </div>
                 <h3 className="font-bold text-2xl mb-3">Phone</h3>
-                <p className="text-muted-foreground font-semibold text-lg">+234.94615555</p>
+                <p className="text-muted-foreground font-semibold text-lg">+234-09-4615555 / +234-09-461500</p>
+                <p className="text-muted-foreground text-sm">Fax: +234-09-4615511</p>
+                <p className="text-muted-foreground text-sm">No. 30 Anthony Enahoro Street, Utako District, Abuja, Nigeria</p>
               </div>
 
               <div className="flex flex-col items-center p-8 bg-white rounded-xl shadow-lg hover:shadow-xl transition-all">

@@ -59,6 +59,8 @@ export default function ContactPage() {
       icon: <Phone className="h-8 w-8" />,
       title: "Phone",
       primary: "+234.94615555",
+      alt: "+234-09-4615555 / +234-09-461500",
+      fax: "+234-09-4615511",
       secondary: "8:00am – 5:30pm Mon – Thu, 8:00am – 2:00pm Friday",
       description: "Direct contact during business hours"
     },

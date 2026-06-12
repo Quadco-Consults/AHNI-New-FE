@@ -141,6 +141,14 @@ export default function TimesheetDetailPage() {
 
       {/* Printable Content */}
       <div ref={printRef}>
+        {/* Organization Header - Visible in Print */}
+        <div className="mb-6 text-center border-b-2 pb-4 print:block hidden">
+          <h1 className="text-2xl font-bold text-gray-900">Achieving Health Nigeria Initiative (AHNI)</h1>
+          <p className="text-xs text-gray-600 mt-1">No. 30 Anthony Enahoro Street, Utako District, Abuja, Nigeria</p>
+          <p className="text-xs text-gray-600">Tel: +234-09-4615555 / +234-09-461500 | Fax: +234-09-4615511 | Email: info@ahnigeria.org.ng</p>
+          <h2 className="text-xl font-semibold text-gray-800 mt-3">CONSULTANT TIMESHEET</h2>
+        </div>
+
         {/* Status Card */}
         <Card className="mb-6 no-print">
           <CardContent className="pt-6">
@@ -271,6 +279,12 @@ export default function TimesheetDetailPage() {
             </CardContent>
           </Card>
         )}
+
+        {/* Footer - Visible in Print */}
+        <div className="mt-8 pt-4 border-t text-center text-xs text-gray-500 print:block hidden">
+          <p>This is a computer-generated document. Generated on {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+          <p className="mt-1">Achieving Health Nigeria Initiative - Consultant Portal</p>
+        </div>
       </div>
 
       {/* Action Buttons */}

@@ -416,7 +416,8 @@ export default function ConsultancyReportDetails() {
                                 30 Anthony Enahoro Street, Utako District, Abuja, Nigeria
                             </p>
                             <p className="text-xs text-gray-600">
-                                Tel: +234.94615555 | Email: AHNiOperations@ahnigeria.org
+                                No. 30 Anthony Enahoro Street, Utako District, Abuja, Nigeria<br/>
+                                Tel: +234-09-4615555 / +234-09-461500 | Fax: +234-09-4615511 | Email: AHNiOperations@ahnigeria.org
                             </p>
                             <div className="flex justify-center mt-4">
                                 <div className="bg-red-600 text-white px-4 py-2 rounded-lg">
