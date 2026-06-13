@@ -308,7 +308,7 @@ export default function BankReconciliationPage() {
   };
 
   // Filter reconciliations
-  const filteredReconciliations = reconciliations.filter(rec => {
+  const filteredReconciliations = reconciliations.filter((rec: any) => {
     if (selectedAccount && selectedAccount !== "all" && !rec.accountName.includes(selectedAccount)) return false;
     if (selectedStatus !== "all" && rec.status !== selectedStatus) return false;
     if (selectedPeriod && selectedPeriod !== "all") {
@@ -429,7 +429,7 @@ export default function BankReconciliationPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">
-              {reconciliations.filter(r => r.status === "approved").length}
+              {reconciliations.filter((r: any) => r.status === "approved").length}
             </div>
             <p className="text-xs text-muted-foreground">Ready for audit</p>
           </CardContent>
@@ -442,7 +442,7 @@ export default function BankReconciliationPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-yellow-600">
-              {reconciliations.filter(r => r.status === "pending_review").length}
+              {reconciliations.filter((r: any) => r.status === "pending_review").length}
             </div>
             <p className="text-xs text-muted-foreground">Awaiting finance manager</p>
           </CardContent>

@@ -21,7 +21,7 @@ import { skipToken } from "@reduxjs/toolkit/query";
 import { LoadingSpinner } from "@/components/Loading";
 import { useState } from "react";
 import { openDialog } from "@/store/ui";
-import { DialogType } from "@/constants/dailogs";
+import { DialogType } from "@/constants/dialogs";
 import { useAppDispatch } from "@/hooks/useStore";
 import { toast } from "sonner";
 

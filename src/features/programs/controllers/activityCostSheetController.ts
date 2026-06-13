@@ -10,7 +10,7 @@ import {
   TActivityCostSheetStats,
   TActivityCostSheetSummary,
 } from "../types/activity-cost-sheet";
-import { TRequest, TResponse } from "definations/index";
+import { TRequest, TResponse } from "definitions/index";
 
 // ===== ACTIVITY COST SHEET HOOKS =====
 

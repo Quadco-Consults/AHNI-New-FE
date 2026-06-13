@@ -110,17 +110,17 @@ export default function AnnouncementsPage() {
     }
   };
 
-  const filteredAnnouncements = announcements.filter(announcement => {
+  const filteredAnnouncements = announcements.filter((announcement: any) => {
     const matchesSearch = announcement.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          announcement.content.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === "all" || announcement.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
-  const pinnedAnnouncements = filteredAnnouncements.filter(a => a.is_pinned);
-  const regularAnnouncements = filteredAnnouncements.filter(a => !a.is_pinned);
+  const pinnedAnnouncements = filteredAnnouncements.filter((a: any) => a.is_pinned);
+  const regularAnnouncements = filteredAnnouncements.filter((a: any) => !a.is_pinned);
 
-  const categories = ["all", ...Array.from(new Set(announcements.map(a => a.category)))];
+  const categories = ["all", ...Array.from(new Set(announcements.map((a: any) => a.category)))];
 
   if (isLoading) {
     return (
@@ -132,7 +132,7 @@ export default function AnnouncementsPage() {
           </div>
         </div>
         <div className="grid gap-4">
-          {[1, 2, 3].map(i => (
+          {[1, 2, 3].map((i: any) => (
             <Card key={i} className="animate-pulse">
               <CardContent className="p-6">
                 <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
@@ -176,7 +176,7 @@ export default function AnnouncementsPage() {
               onChange={(e) => setSelectedCategory(e.target.value)}
               className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm"
             >
-              {categories.map(category => (
+              {categories.map((category: any) => (
                 <option key={category} value={category}>
                   {category === "all" ? "All Categories" : category}
                 </option>
@@ -197,7 +197,7 @@ export default function AnnouncementsPage() {
             <Pin className="w-4 h-4 text-blue-600" />
             <h2 className="text-lg font-semibold">Pinned Announcements</h2>
           </div>
-          {pinnedAnnouncements.map(announcement => (
+          {pinnedAnnouncements.map((announcement: any) => (
             <Card key={announcement.id} className="border-l-4 border-l-blue-500">
               <CardHeader>
                 <div className="flex items-start justify-between">
@@ -251,7 +251,7 @@ export default function AnnouncementsPage() {
             </CardContent>
           </Card>
         ) : (
-          regularAnnouncements.map(announcement => (
+          regularAnnouncements.map((announcement: any) => (
             <Card key={announcement.id} className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <div className="flex items-start justify-between">

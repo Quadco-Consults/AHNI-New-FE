@@ -111,7 +111,7 @@ export default function CreateConsultantReportPage() {
 
         // Find the applicant matching the logged-in consultant's email
         const applicant = allApplicants.find(
-            applicant => applicant.email.toLowerCase() === consultantEmail.toLowerCase()
+            (applicant: any) => applicant.email.toLowerCase() === consultantEmail.toLowerCase()
         );
 
         if (applicant) {

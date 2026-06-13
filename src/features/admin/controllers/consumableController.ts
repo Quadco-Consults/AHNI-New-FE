@@ -7,7 +7,7 @@ import {
   TConsumablePaginatedData,
   TConsumableSingleData,
 } from "../types/inventory-management/consumable";
-import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
+import { TPaginatedResponse, TRequest, TResponse } from "definitions/index";
 
 const BASE_URL = "/admins/inventory/consumables/";
 const ENHANCED_CONSUMABLES_URL = "/config/items/consumables/";

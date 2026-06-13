@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { HrRoutes } from "@/constants/RouterConstants";
-import { TOnboarding } from "definations/hr-types/hr-beneficiary";
+import { TOnboarding } from "definitions/hr-types/hr-beneficiary";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";

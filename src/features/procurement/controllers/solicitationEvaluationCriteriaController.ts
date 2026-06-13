@@ -4,7 +4,7 @@ import { AxiosError } from "axios";
 import {
   SolicitationCriteriaResultsData,
 } from "../types/solicitation-criteria";
-import { TRequest } from "definations/index";
+import { TRequest } from "definitions/index";
 
 const BASE_URL = "procurements/solicitation-evaluation-criteria/";
 

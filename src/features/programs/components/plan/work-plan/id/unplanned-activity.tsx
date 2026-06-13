@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useDispatch } from "react-redux";
 import { openDialog } from "@/store/ui";
-import { DialogType } from "@/constants/dailogs";
+import { DialogType } from "@/constants/dialogs";
 import { Upload } from "lucide-react";
 import ExpandableUnplannedActivityTable from "./unplanned-activity/ExpandableUnplannedActivityTable";
 import { TMonth } from "@/features/programs/types/work-plan";

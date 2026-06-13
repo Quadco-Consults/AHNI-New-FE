@@ -8,7 +8,7 @@ import { CardContent } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
-import { closeDialog, dailogSelector } from "@/store/ui";
+import { closeDialog, dialogSelector } from "@/store/ui";
 import { toast } from "sonner";
 import {
   FinancialYearSchema,
@@ -21,7 +21,7 @@ import {
 } from "@/features/modules/controllers/config/financialYearController";
 
 const AddFinancialYear = () => {
-  const { dialogProps } = useAppSelector(dailogSelector);
+  const { dialogProps } = useAppSelector(dialogSelector);
 
   const data = dialogProps?.data as unknown as TFinancialYearData;
   const form = useForm<TFinancialYearFormValues>({

@@ -14,7 +14,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "@/components/Table/DataTable";
 import TableFilters from "@/components/Table/TableFilters";
 import { useGetVendors, useDeleteVendor, useBulkUploadVendors } from "@/features/procurement/controllers/vendorsController";
-import { VendorsResultsData } from "@/definations/procurement-types/vendors";
+import { VendorsResultsData } from "@/definitions/procurement-types/vendors";
 import Link from "next/link";
 import { toast } from "sonner";
 import { Upload } from 'lucide-react';

@@ -291,21 +291,21 @@ export default function VendorKnowledgeBasePage() {
   };
 
   const getCategoryColor = (categoryId: string) => {
-    const category = categories.find(c => c.id === categoryId);
+    const category = categories.find((c: any) => c.id === categoryId);
     return category?.color || 'gray';
   };
 
   const filteredArticles = articles.filter((article) => {
     const matchesSearch = article.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          article.summary.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         article.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+                         article.tags.some((tag: any) => tag.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesCategory = categoryFilter === "all" || article.category === categoryFilter;
     const matchesDifficulty = difficultyFilter === "all" || article.difficulty === difficultyFilter;
     return matchesSearch && matchesCategory && matchesDifficulty;
   });
 
-  const featuredArticles = articles.filter(article => article.is_featured);
-  const popularArticles = articles.filter(article => article.is_popular);
+  const featuredArticles = articles.filter((article: any) => article.is_featured);
+  const popularArticles = articles.filter((article: any) => article.is_popular);
 
   return (
     <div className="space-y-6">
@@ -408,7 +408,7 @@ export default function VendorKnowledgeBasePage() {
                 <CardContent className="p-6">
                   <div className="flex items-start justify-between mb-3">
                     <Badge variant="outline" className="text-xs capitalize">
-                      {categories.find(c => c.id === article.category)?.name}
+                      {categories.find((c: any) => c.id === article.category)?.name}
                     </Badge>
                     <Badge variant={getDifficultyBadgeVariant(article.difficulty)} className="text-xs capitalize">
                       {article.difficulty}
@@ -469,7 +469,7 @@ export default function VendorKnowledgeBasePage() {
 
                       <div className="flex flex-wrap items-center gap-4 text-xs text-gray-500 mb-3">
                         <Badge variant="outline" className="text-xs">
-                          {categories.find(c => c.id === article.category)?.name}
+                          {categories.find((c: any) => c.id === article.category)?.name}
                         </Badge>
                         <Badge variant={getDifficultyBadgeVariant(article.difficulty)} className="text-xs capitalize">
                           {article.difficulty}

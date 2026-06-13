@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
-import { ProjectDocumentSchema } from "definations/project-validator";
+import { ProjectDocumentSchema } from "definitions/project-validator";
 import React, { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useGetAllDocumentTypes } from "@/features/modules/controllers/project/documentTypeController";
@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Upload as UploadFile } from "lucide-react";
 import { z } from "zod";
 import { LoadingSpinner } from "@/components/Loading";
-import { ProjectDocumentTypesResultsData } from "definations/project-types/project-document-types";
+import { ProjectDocumentTypesResultsData } from "definitions/project-types/project-document-types";
 import { toast } from "sonner";
 import FormButton from "@/components/atoms/FormButton";
 import { useCreateProjectDocument } from "../../controllers";

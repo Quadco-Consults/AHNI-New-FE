@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { IRole } from "definations/auth/permission";
+import { IRole } from "definitions/auth/permission";
 import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
 import { cn } from "@/lib/utils";
 import { Search } from "lucide-react";
@@ -15,7 +15,7 @@ import {
     useGetSingleUser,
 } from "@/features/auth/controllers/userController";
 import { toast } from "sonner";
-import { closeDialog, dailogSelector } from "@/store/ui";
+import { closeDialog, dialogSelector } from "@/store/ui";
 
 const RoleCheckbox: React.FC<{
     role: IRole;
@@ -94,7 +94,7 @@ const SearchMembers = () => {
 const AssignRole = () => {
     const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
 
-    const { dialogProps } = useAppSelector(dailogSelector);
+    const { dialogProps } = useAppSelector(dialogSelector);
 
     const userId = dialogProps?.id;
     const { addUserToRole, isLoading } = useAddUserToRole(userId as string);

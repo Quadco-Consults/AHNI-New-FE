@@ -6,7 +6,7 @@ import { useState } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { AdminRoutes } from "@/constants/RouterConstants";
 import ConfirmationDialog from "@/components/ConfirmationDialog";
-import { ITravelExpensePaginatedData } from "definations/admin/travel-expense";
+import { ITravelExpensePaginatedData } from "definitions/admin/travel-expense";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { formatDate } from "date-fns";

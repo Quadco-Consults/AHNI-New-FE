@@ -1,6 +1,6 @@
-// import { IAssetClassificationData } from "definations/modules/admin/asset-classification";
-// import { TAssetConditionData } from "definations/modules/admin/asset-condition";
-// import { TLocationData } from "definations/modules/config/location";
+// import { IAssetClassificationData } from "definitions/modules/admin/asset-classification";
+// import { TAssetConditionData } from "definitions/modules/admin/asset-condition";
+// import { TLocationData } from "definitions/modules/config/location";
 import {
   IAssetClassificationData,
   TAssetConditionData,
@@ -11,9 +11,9 @@ import {
 import { IProjectSingleData } from "@/features/projects/types/project";
 import { IUser } from "@/features/auth/types/user";
 import { z } from "zod";
-// import { TAssetTypeData } from "definations/modules/admin/asset-type";
-// import { TFundingSourceData } from "definations/modules/project/funding-source";
-// import { IProjectSingleData } from "definations/project";
+// import { TAssetTypeData } from "definitions/modules/admin/asset-type";
+// import { TFundingSourceData } from "definitions/modules/project/funding-source";
+// import { IProjectSingleData } from "definitions/project";
 
 // export const AssetSchema = z.object({
 //     name: z.string().min(1, "Please enter a name"),

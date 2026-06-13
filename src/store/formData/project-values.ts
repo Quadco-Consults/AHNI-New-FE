@@ -1,5 +1,5 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
-import { TPartnerData } from "definations/modules/project/partners";
+import { TPartnerData } from "definitions/modules/project/partners";
 
 type TInitialState = {
     consortiumPartners: TPartnerData[];

@@ -27,7 +27,7 @@ const FundRequestRejectModal: React.FC<FundRequestRejectModalProps> = ({
   fundRequestId
 }) => {
   const dispatch = useAppDispatch();
-  const { isOpen } = useAppSelector((state) => state.ui.dailog);
+  const { isOpen } = useAppSelector((state) => state.ui.dialog);
   
   const form = useForm<TRejectFormValues>({
     resolver: zodResolver(RejectSchema),

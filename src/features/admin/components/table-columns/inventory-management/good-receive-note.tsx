@@ -1,5 +1,5 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { IGoodReceiveNotePaginatedData } from "definations/admin/inventory-management/good-receive-note";
+import { IGoodReceiveNotePaginatedData } from "definitions/admin/inventory-management/good-receive-note";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import Link from "next/link";
 import MoreOptionsHorizontalIcon from "@/components/icons/MoreOptionsHorizontalIcon";

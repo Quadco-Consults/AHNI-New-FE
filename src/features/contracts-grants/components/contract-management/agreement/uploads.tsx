@@ -4,7 +4,7 @@ import AddSquareIcon from "@/components/icons/AddSquareIcon";
 import FormButton from "@/components/FormButton";
 import { useAppDispatch } from "@/hooks/useStore";
 import { openDialog } from "@/store/ui";
-import { DialogType } from "@/constants/dailogs";
+import { DialogType } from "@/constants/dialogs";
 import { useCreateAgreement, useUploadContractDocument } from "@/features/contracts-grants/controllers/agreementController";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";

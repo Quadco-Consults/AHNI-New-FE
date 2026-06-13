@@ -9,7 +9,7 @@ import { CardContent } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
-import { closeDialog, dailogSelector } from "@/store/ui";
+import { closeDialog, dialogSelector } from "@/store/ui";
 import { toast } from "sonner";
 import {
   useAddClusterMutation,
@@ -30,7 +30,7 @@ const ClusterSchema = z.object({
 });
 
 const AddClusters = () => {
-  const { dialogProps } = useAppSelector(dailogSelector);
+  const { dialogProps } = useAppSelector(dialogSelector);
   const result = dialogProps?.data as unknown as ClusterData;
 
   // Fetch all locations for dropdown

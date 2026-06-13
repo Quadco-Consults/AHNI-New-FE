@@ -24,7 +24,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import BreadcrumbCard from "@/components/Breadcrumb";
-import { PriceIntelligenceDetail } from "definations/procurement-types/price-intelligence";
+import { PriceIntelligenceDetail } from "definitions/procurement-types/price-intelligence";
 import { format, parseISO } from "date-fns";
 import { skipToken } from "@reduxjs/toolkit/query";
 

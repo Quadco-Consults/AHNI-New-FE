@@ -16,7 +16,7 @@ import UploadIcon from "@/components/icons/UploadIcon";
 import { DownloadIcon } from "lucide-react";
 import { useAppDispatch } from "@/hooks/useStore";
 import { openDialog } from "@/store/ui";
-import { DialogType, mediumDailogScreen } from "@/constants/dailogs";
+import { DialogType, mediumDailogScreen } from "@/constants/dialogs";
 import { toast } from "sonner";
 
 const breadcrumbs: TBreadcrumbList[] = [

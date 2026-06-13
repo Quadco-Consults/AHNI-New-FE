@@ -9,7 +9,7 @@ import FormSelect from "@/components/atoms/FormSelect";
 import FormCheckBox from "@/components/FormCheckBox";
 import { Form } from "@/components/ui/form";
 import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
-import { closeDialog, dailogSelector } from "@/store/ui";
+import { closeDialog, dialogSelector } from "@/store/ui";
 import { StateSchema, TStateFormValues, TStateData } from "@/features/admin/types/config/state";
 import { useAddStateMutation, useUpdateStateMutation } from "@/features/modules/controllers/config/stateController";
 
@@ -25,7 +25,7 @@ const geopoliticalZones = [
 
 const AddStates = () => {
   const dispatch = useAppDispatch();
-  const { dialogProps } = useAppSelector(dailogSelector);
+  const { dialogProps } = useAppSelector(dialogSelector);
   const result = dialogProps?.data as TStateData;
 
   const form = useForm<TStateFormValues>({

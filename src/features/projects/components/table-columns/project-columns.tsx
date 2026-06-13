@@ -13,10 +13,10 @@ import { useDeleteProject } from "@/features/projects/controllers/projectControl
 import PencilIcon from "@/components/icons/PencilIcon";
 import { useAppDispatch } from "@/hooks/useStore";
 import { openDialog } from "@/store/ui";
-import { DialogType } from "@/constants/dailogs";
+import { DialogType } from "@/constants/dialogs";
 import ConfirmationDialog from "@/components/ConfirmationDialog";
 import { useState } from "react";
-// import { IProjectSingleData } from "definations/project";
+// import { IProjectSingleData } from "definitions/project";
 import { formatNumberCurrency } from "@/utils/utls";
 import { IProjectSingleData } from "../../types/project";
 

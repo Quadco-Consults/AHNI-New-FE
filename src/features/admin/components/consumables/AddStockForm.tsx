@@ -8,7 +8,7 @@ import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useSearchParams } from "next/navigation"; 
-import { dailogSelector } from "@/store/ui";
+import { dialogSelector } from "@/store/ui";
 
 // const options = [
 //     {
@@ -24,7 +24,7 @@ import { dailogSelector } from "@/store/ui";
 const AddStockForm = () => {
     const form = useForm({});
 
-    const { dialogProps } = useAppSelector(dailogSelector);
+    const { dialogProps } = useAppSelector(dialogSelector);
 
     useEffect(() => {
         if (dialogProps?.data) {

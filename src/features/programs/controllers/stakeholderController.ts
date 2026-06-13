@@ -7,8 +7,8 @@ import {
   StakeholderResultsData,
   StakeholderResponse,
 } from "../types/stakeholder";
-import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
-import { TStakeholderRegisterFormValues } from "definations/program-validator";
+import { TPaginatedResponse, TRequest, TResponse } from "definitions/index";
+import { TStakeholderRegisterFormValues } from "definitions/program-validator";
 
 const BASE_URL = "/programs/stakeholders/";
 

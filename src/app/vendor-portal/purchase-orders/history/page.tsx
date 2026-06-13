@@ -149,7 +149,7 @@ export default function PurchaseOrderHistoryPage() {
     const headers = Object.keys(csvData[0] || {});
     const csvContent = [
       headers.join(','),
-      ...csvData.map(row => headers.map(header => `"${(row as any)[header] || ''}"`).join(','))
+      ...csvData.map((row: any) => headers.map((header: any) => `"${(row as any)[header] || ''}"`).join(','))
     ].join('\n');
 
     // Download

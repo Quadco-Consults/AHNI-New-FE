@@ -12,7 +12,7 @@ import Link from "next/link";
 import { RouteEnum } from "@/constants/RouterConstants";
 import DataTable from "@/components/Table/DataTable";
 import { ColumnDef } from "@tanstack/react-table";
-import { SolicitationSubmissionResultsData } from "definations/procurement-types/solicitation";
+import { SolicitationSubmissionResultsData } from "definitions/procurement-types/solicitation";
 import {
   useGetVendorBidSubmissions,
   useGetSolicitationSubmission,

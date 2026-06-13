@@ -18,10 +18,10 @@ import { Badge } from "@/components/ui/badge";
 import Card from "@/components/Card";
 
 const SspApproveModal = () => {
-    const { dailog } = useAppSelector((state) => state.ui);
+    const { dialog } = useAppSelector((state) => state.ui);
     const dispatch = useAppDispatch();
 
-    const id = dailog?.dialogProps?.id as string;
+    const id = dialog?.dialogProps?.id as string;
 
     const [action, setAction] = useState<"approve" | "reject" | "">("");
 

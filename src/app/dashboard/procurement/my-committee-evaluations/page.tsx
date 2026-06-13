@@ -173,7 +173,7 @@ export default function MyCommitteeEvaluationsPage() {
             <div>
               <p className="text-sm text-yellow-600 font-medium">In Progress</p>
               <p className="text-3xl font-bold text-yellow-700 mt-1">
-                {assignedRFPs.filter(r => r.evaluation_status === "IN_PROGRESS").length}
+                {assignedRFPs.filter((r: any) => r.evaluation_status === "IN_PROGRESS").length}
               </p>
             </div>
             <div className="w-12 h-12 bg-yellow-600 rounded-full flex items-center justify-center">
@@ -187,7 +187,7 @@ export default function MyCommitteeEvaluationsPage() {
             <div>
               <p className="text-sm text-green-600 font-medium">Completed</p>
               <p className="text-3xl font-bold text-green-700 mt-1">
-                {assignedRFPs.filter(r => r.evaluation_status === "COMPLETED").length}
+                {assignedRFPs.filter((r: any) => r.evaluation_status === "COMPLETED").length}
               </p>
             </div>
             <div className="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center">

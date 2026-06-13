@@ -12,7 +12,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { generatePath } from "@/utils/generatePath"; 
 import { openDialog } from "@/store/ui";
-import { DialogType } from "@/constants/dailogs";
+import { DialogType } from "@/constants/dialogs";
 import { useAppDispatch } from "@/hooks/useStore";
 import { HrRoutes } from "@/constants/RouterConstants";
 import Card from "@/components/Card";

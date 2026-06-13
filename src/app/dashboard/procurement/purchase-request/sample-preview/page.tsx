@@ -9,8 +9,8 @@ export default function SamplePreviewRedirect() {
 
   useEffect(() => {
     // Get the request ID from the URL parameters
-    const requestId = searchParams.get('request');
-    const id = searchParams.get('id');
+    const requestId = searchParams?.get('request');
+    const id = searchParams?.get('id');
 
     if (requestId) {
       // Redirect to the details page

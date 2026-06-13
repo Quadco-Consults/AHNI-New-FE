@@ -16,7 +16,7 @@ import { Switch } from "@/components/ui/switch";
 import EditIcon from "@/components/icons/EditIcon";
 import { useAppDispatch } from "@/hooks/useStore";
 import { openDialog } from "@/store/ui";
-import { DialogType } from "@/constants/dailogs";
+import { DialogType } from "@/constants/dialogs";
 
 export default function LeaveSettings() {
   const form = useForm<{ submitted_employees: string[] }>({

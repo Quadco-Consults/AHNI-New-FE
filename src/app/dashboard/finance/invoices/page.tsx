@@ -383,12 +383,12 @@ export default function InvoicesPage() {
   const stats = {
     total: invoices.length,
     totalAmount: invoices.reduce((sum, inv) => sum + inv.total_amount, 0),
-    paidAmount: invoices.filter(inv => inv.status === 'PAID').reduce((sum, inv) => sum + inv.total_amount, 0),
+    paidAmount: invoices.filter((inv: any) => inv.status === 'PAID').reduce((sum, inv) => sum + inv.total_amount, 0),
     outstandingAmount: invoices.reduce((sum, inv) => sum + inv.balance_due, 0),
-    overdue: invoices.filter(inv => inv.status === 'OVERDUE').length,
-    draft: invoices.filter(inv => inv.status === 'DRAFT').length,
-    sent: invoices.filter(inv => inv.status === 'SENT').length,
-    paid: invoices.filter(inv => inv.status === 'PAID').length,
+    overdue: invoices.filter((inv: any) => inv.status === 'OVERDUE').length,
+    draft: invoices.filter((inv: any) => inv.status === 'DRAFT').length,
+    sent: invoices.filter((inv: any) => inv.status === 'SENT').length,
+    paid: invoices.filter((inv: any) => inv.status === 'PAID').length,
   };
 
   return (

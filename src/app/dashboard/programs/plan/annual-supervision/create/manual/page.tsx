@@ -14,7 +14,7 @@ const ManualAnnualSupervisionPlanPage = () => {
   const searchParams = useSearchParams();
 
   // Check if we're in edit mode
-  const planId = searchParams.get('id');
+  const planId = searchParams?.get('id');
   const isEditMode = !!planId;
 
   // Fetch plan data if in edit mode

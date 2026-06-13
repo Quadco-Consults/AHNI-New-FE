@@ -3,7 +3,7 @@ import { useState } from "react";
 import AddSquareIcon from "@/components/icons/AddSquareIcon";
 import { Button } from "@/components/ui/button";
 import { openDialog } from "@/store/ui";
-import { DialogType } from "@/constants/dailogs";
+import { DialogType } from "@/constants/dialogs";
 import { useAppDispatch } from "@/hooks/useStore";
 import { useParams } from "next/navigation";
 import { LoadingSpinner } from "@/components/Loading";

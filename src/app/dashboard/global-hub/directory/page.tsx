@@ -366,7 +366,7 @@ export default function DirectoryPage() {
     }
   };
 
-  const filteredLocations = locations.filter(location => {
+  const filteredLocations = locations.filter((location: any) => {
     const matchesSearch = location.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          location.address.city.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          location.address.state.toLowerCase().includes(searchTerm.toLowerCase());
@@ -374,10 +374,10 @@ export default function DirectoryPage() {
     return matchesSearch && matchesType;
   });
 
-  const filteredServices = services.filter(service => {
+  const filteredServices = services.filter((service: any) => {
     const matchesSearch = service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          service.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         service.services.some(s => s.toLowerCase().includes(searchTerm.toLowerCase()));
+                         service.services.some((s: any) => s.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesType = selectedType === "all" || service.category === selectedType;
     return matchesSearch && matchesType;
   });
@@ -392,7 +392,7 @@ export default function DirectoryPage() {
           </div>
         </div>
         <div className="space-y-4">
-          {[1, 2, 3].map(i => (
+          {[1, 2, 3].map((i: any) => (
             <Card key={i} className="animate-pulse">
               <CardContent className="p-6">
                 <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
@@ -499,7 +499,7 @@ export default function DirectoryPage() {
               </CardContent>
             </Card>
           ) : (
-            filteredLocations.map(location => (
+            filteredLocations.map((location: any) => (
               <Card key={location.id} className="hover:shadow-md transition-shadow">
                 <CardHeader>
                   <div className="flex items-start justify-between">
@@ -648,7 +648,7 @@ export default function DirectoryPage() {
               </CardContent>
             </Card>
           ) : (
-            filteredServices.map(service => (
+            filteredServices.map((service: any) => (
               <Card key={service.id} className="hover:shadow-md transition-shadow">
                 <CardHeader>
                   <div className="flex items-start justify-between">

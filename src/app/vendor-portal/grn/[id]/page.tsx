@@ -38,7 +38,7 @@ type GRNResponseForm = z.infer<typeof GRNResponseSchema>;
 export default function GRNDetailsPage() {
   const params = useParams();
   const router = useRouter();
-  const grnId = Array.isArray(params?.id) ? params.id[0] : params?.id || '';
+  const grnId = Array.isArray(params?.id) ? params?.id[0] : params?.id || '';
 
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
@@ -101,7 +101,7 @@ export default function GRNDetailsPage() {
   const toggleItemSelection = (itemId: string) => {
     setSelectedItems(prev =>
       prev.includes(itemId)
-        ? prev.filter(id => id !== itemId)
+        ? prev.filter((id: any) => id !== itemId)
         : [...prev, itemId]
     );
   };
@@ -135,7 +135,7 @@ export default function GRNDetailsPage() {
   }
 
   const acceptanceRate = POGRNUtils.calculateGRNAcceptanceRate(grn);
-  const hasRejectedItems = grn.received_items.some(item => item.quantity_rejected > 0);
+  const hasRejectedItems = grn.received_items.some((item: any) => item.quantity_rejected > 0);
   const requiresResponse = ['RECEIVED', 'INSPECTED'].includes(grn.status);
 
   return (

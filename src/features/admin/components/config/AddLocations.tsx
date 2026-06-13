@@ -9,7 +9,7 @@ import { CardContent } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
-import { closeDialog, dailogSelector } from "@/store/ui";
+import { closeDialog, dialogSelector } from "@/store/ui";
 import { toast } from "sonner";
 import { nigerianStates } from "@/lib/index";
 import {
@@ -23,7 +23,7 @@ import {
 } from "@/features/modules/controllers/config/locationController";
 
 const AddLocations = () => {
-  const { dialogProps } = useAppSelector(dailogSelector);
+  const { dialogProps } = useAppSelector(dialogSelector);
 
   const result = dialogProps?.data as unknown as TLocationData;
 

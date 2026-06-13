@@ -4,7 +4,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
-// import { TConsumablePaginatedData } from "definations/admin/inventory-management/consumable";
+// import { TConsumablePaginatedData } from "definitions/admin/inventory-management/consumable";
 import { Button } from "@/components/ui/button";
 import MoreOptionsHorizontalIcon from "@/components/icons/MoreOptionsHorizontalIcon";
 import Link from "next/link";

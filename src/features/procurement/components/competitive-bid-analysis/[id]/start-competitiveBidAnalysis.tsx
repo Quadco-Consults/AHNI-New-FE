@@ -22,7 +22,7 @@ import { RouteEnum } from "@/constants/RouterConstants";
 import {
   SubmissionData,
   VendorSubmissionData,
-} from "definations/procurement-types/cba";
+} from "definitions/procurement-types/cba";
 import { ChangeEvent, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import CbaAPI from "@/features/procurement/controllers/cbaController";

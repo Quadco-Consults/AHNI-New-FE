@@ -370,10 +370,10 @@ export default function TaxManagementPage() {
   // Statistics
   const stats = {
     totalTaxCodes: mockTaxCodes.length,
-    activeTaxCodes: mockTaxCodes.filter(tc => tc.status === 'ACTIVE').length,
+    activeTaxCodes: mockTaxCodes.filter((tc: any) => tc.status === 'ACTIVE').length,
     totalCalculations: mockTaxCalculations.length,
     totalTaxCollected: mockTaxCalculations.reduce((sum, calc) => sum + calc.tax_amount, 0),
-    pendingReports: mockTaxReports.filter(report => report.status === 'DRAFT').length,
+    pendingReports: mockTaxReports.filter((report: any) => report.status === 'DRAFT').length,
     avgTaxRate: mockTaxCodes.reduce((sum, tc) => sum + tc.tax_rate, 0) / mockTaxCodes.length,
   };
 

@@ -17,7 +17,7 @@ import Link from "next/link";
 import { RouteEnum } from "@/constants/RouterConstants";
 import { useAppDispatch } from "@/hooks/useStore";
 import { openDialog } from "@/store/ui";
-import { DialogType } from "@/constants/dailogs";
+import { DialogType } from "@/constants/dialogs";
 import { toast } from "sonner";
 import {
   useDownloadActivityPlanTemplate,

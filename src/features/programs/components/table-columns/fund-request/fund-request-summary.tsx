@@ -2,7 +2,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { RouteEnum } from "@/constants/RouterConstants";
-import { FundRequestPaginatedData } from "definations/program-types/fund-request";
+import { FundRequestPaginatedData } from "definitions/program-types/fund-request";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { formatNumberCurrency } from "@/utils/utls";

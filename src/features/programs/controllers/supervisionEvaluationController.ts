@@ -12,7 +12,7 @@ import {
   ISupervisionEvaluationListParams,
   SupervisionEvaluationStatus,
 } from "../types/supervision-evaluation";
-import { TPaginatedResponse, TResponse } from "definations/index";
+import { TPaginatedResponse, TResponse } from "definitions/index";
 
 // Base URLs for API endpoints
 // Separate endpoints: create evaluation vs submit reviews

@@ -10,7 +10,7 @@ function usePaginationParams() {
 
   const setState = useCallback(
     (args: any) => {
-      setSearchParams((searchParams) => {
+      setSearchParams((searchParams: any) => {
         const {
           offset = PaginationParamsDefault.offset,
           limit = PaginationParamsDefault.limit,

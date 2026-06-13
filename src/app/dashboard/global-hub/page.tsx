@@ -41,7 +41,7 @@ export default function GlobalHubPage() {
   const getAccessibleItems = () => {
     if (!isHydrated) return [];
 
-    return globalHubLinks.filter(item => {
+    return globalHubLinks.filter((item: any) => {
       // Universal access items (no permissions required)
       if (!item.permissions || item.permissions.length === 0) {
         return true;
@@ -67,7 +67,7 @@ export default function GlobalHubPage() {
     const accessibleItems = getAccessibleItems();
     const grouped: { [key: string]: any[] } = {};
 
-    accessibleItems.forEach(item => {
+    accessibleItems.forEach((item: any) => {
       if (!grouped[item.category]) {
         grouped[item.category] = [];
       }

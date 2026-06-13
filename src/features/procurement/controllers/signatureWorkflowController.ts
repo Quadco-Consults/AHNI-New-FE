@@ -9,7 +9,7 @@ import {
   SignatureSubmissionPayload,
   SignatureWorkflowStatus 
 } from "../types/cba";
-import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
+import { TPaginatedResponse, TRequest, TResponse } from "definitions/index";
 
 const BASE_URL = "procurements/cba-signature-workflow/";
 

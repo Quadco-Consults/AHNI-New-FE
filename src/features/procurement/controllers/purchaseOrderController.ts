@@ -3,12 +3,12 @@ import { useQuery } from "@tanstack/react-query";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { AxiosError } from "axios";
 import { z } from "zod";
-// import { PurchaseOrderSchema } from "definations/procurement-validator";
+// import { PurchaseOrderSchema } from "definitions/procurement-validator";
 import {
   IPurchaseOrderPaginatedData,
   IPurchaseOrderSingleData,
 } from "../types/purchase-order";
-import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
+import { TPaginatedResponse, TRequest, TResponse } from "definitions/index";
 import { PurchaseOrderSchema } from "../types/procurement-validator";
 
 const BASE_URL = "procurements/purchase-order/";

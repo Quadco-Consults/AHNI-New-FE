@@ -7,7 +7,7 @@ import ManualSubGrantStepWrapper from "./Layout";
 import { Button } from "@/components/ui/button";
 import { useAppDispatch } from "@/hooks/useStore";
 import { openDialog } from "@/store/ui";
-import { DialogType } from "@/constants/dailogs";
+import { DialogType } from "@/constants/dialogs";
 import { useParams, useSearchParams } from "next/navigation";
 import {
     useDeleteSubGrantUpload,

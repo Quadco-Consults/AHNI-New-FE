@@ -1,7 +1,7 @@
 import { IUser } from "@/features/auth/types/user";
-import { TDepartmentData } from "definations/modules/config/department";
-import { TFCONumberData } from "definations/modules/finance/fco-number";
-import { IProjectSingleData } from "definations/project";
+import { TDepartmentData } from "definitions/modules/config/department";
+import { TFCONumberData } from "definitions/modules/finance/fco-number";
+import { IProjectSingleData } from "definitions/project";
 import { z } from "zod";
 
 // Travel fee schema for reuse

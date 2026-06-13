@@ -13,5 +13,5 @@ interface SiteVisitEditPageProps {
 export default function SiteVisitEditPage({
   params
 }: SiteVisitEditPageProps) {
-  return <SiteVisitEdit siteVisitId={params.id} />;
+  return <SiteVisitEdit siteVisitId={params?.id} />;
 }

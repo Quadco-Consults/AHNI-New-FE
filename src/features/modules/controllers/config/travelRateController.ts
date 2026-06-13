@@ -2,7 +2,7 @@ import useApiManager from "@/constants/mainController";
 import { useQuery } from "@tanstack/react-query";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { ITravelRate, TravelRateFormData } from "@/features/admin/types/config/travel-rate";
-import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
+import { TPaginatedResponse, TRequest, TResponse } from "definitions/index";
 import { AxiosError } from "axios";
 
 // Helper function to transform backend response to frontend format

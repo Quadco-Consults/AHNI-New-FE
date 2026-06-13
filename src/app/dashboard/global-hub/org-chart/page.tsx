@@ -256,7 +256,7 @@ export default function OrganizationChartPage() {
   };
 
   const renderOrgNode = (nodeId: string, indent: number = 0) => {
-    const node = orgData.find(n => n.id === nodeId);
+    const node = orgData.find((n: any) => n.id === nodeId);
     if (!node) return null;
 
     const hasChildren = node.direct_reports.length > 0;
@@ -330,14 +330,14 @@ export default function OrganizationChartPage() {
 
         {isExpanded && hasChildren && (
           <div className="space-y-2">
-            {node.direct_reports.map(childId => renderOrgNode(childId, indent + 1))}
+            {node.direct_reports.map((childId: any) => renderOrgNode(childId, indent + 1))}
           </div>
         )}
       </div>
     );
   };
 
-  const filteredOrgData = orgData.filter(person => {
+  const filteredOrgData = orgData.filter((person: any) => {
     const matchesSearch = person.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          person.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          person.department.toLowerCase().includes(searchTerm.toLowerCase());
@@ -355,7 +355,7 @@ export default function OrganizationChartPage() {
           </div>
         </div>
         <div className="space-y-4">
-          {[1, 2, 3, 4].map(i => (
+          {[1, 2, 3, 4].map((i: any) => (
             <Card key={i} className="animate-pulse">
               <CardContent className="p-4">
                 <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
@@ -413,7 +413,7 @@ export default function OrganizationChartPage() {
             className="px-3 py-2 border border-gray-300 rounded-md text-sm"
           >
             <option value="all">All Departments</option>
-            {departments.map(dept => (
+            {departments.map((dept: any) => (
               <option key={dept.id} value={dept.name}>
                 {dept.name}
               </option>
@@ -424,7 +424,7 @@ export default function OrganizationChartPage() {
 
       {/* Department Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {departments.map(dept => (
+        {departments.map((dept: any) => (
           <Card key={dept.id} className="hover:shadow-md transition-shadow">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
@@ -474,7 +474,7 @@ export default function OrganizationChartPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {filteredOrgData.map(person => (
+              {filteredOrgData.map((person: any) => (
                 <div key={person.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">

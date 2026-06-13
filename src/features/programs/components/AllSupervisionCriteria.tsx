@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import TableAction from "@/components/TableAction";
 import { toast } from "sonner";
 import { useAppDispatch } from "@/hooks/useStore";
-import { DialogType } from "@/constants/dailogs";
+import { DialogType } from "@/constants/dialogs";
 import { openDialog } from "@/store/ui";
 import { LoadingSpinner } from "@/components/Loading";
 import {

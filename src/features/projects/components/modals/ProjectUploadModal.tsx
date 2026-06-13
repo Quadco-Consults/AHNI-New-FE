@@ -46,7 +46,7 @@ const ProjectUploadModal = () => {
     },
   });
 
-  const { dialogProps } = useAppSelector((state) => state.ui.dailog);
+  const { dialogProps } = useAppSelector((state) => state.ui.dialog);
   const projectId = dialogProps?.projectId as string;
 
   const { handleSubmit, setValue } = form;

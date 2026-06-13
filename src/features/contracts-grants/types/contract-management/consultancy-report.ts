@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { IConsultantSingleData } from "./consultancy-management/consultancy-management";
-import { IUser } from "definations/auth/user";
+import { IUser } from "definitions/auth/user";
 
 export const ConsultancyReportSchema = z.object({
     project: z.string().min(1, "Please select project"),

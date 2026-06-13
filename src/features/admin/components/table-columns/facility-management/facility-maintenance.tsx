@@ -1,7 +1,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-// import { IFacilityMaintenancePaginatedData } from "definations/admin/facility-management/facility-maintenance";
+// import { IFacilityMaintenancePaginatedData } from "definitions/admin/facility-management/facility-maintenance";
 import { useDeleteFacilityMaintenanceMutation } from "@/features/admin/controllers/facilityMaintenanceController";
 import { useState } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";

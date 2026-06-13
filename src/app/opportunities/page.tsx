@@ -114,7 +114,7 @@ export default function OpportunitiesPage() {
   // Extract unique locations from opportunities
   const availableLocations = useMemo(() => {
     const locations = new Set<string>();
-    allOpportunities.forEach(opp => {
+    allOpportunities.forEach((opp: any) => {
       if (opp.location) {
         locations.add(opp.location);
       }
@@ -875,37 +875,37 @@ export default function OpportunitiesPage() {
                       <div className="flex justify-between items-center">
                         <span className="text-muted-foreground">Full-Time Jobs</span>
                         <Badge variant="outline" className="font-bold">
-                          {allOpportunities.filter(o => o.type === 'Full Time').length}
+                          {allOpportunities.filter((o: any) => o.type === 'Full Time').length}
                         </Badge>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-muted-foreground">Consultant Roles</span>
                         <Badge variant="outline" className="font-bold">
-                          {allOpportunities.filter(o => o.type === 'Consultant').length}
+                          {allOpportunities.filter((o: any) => o.type === 'Consultant').length}
                         </Badge>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-muted-foreground">Adhoc Work</span>
                         <Badge variant="outline" className="font-bold">
-                          {allOpportunities.filter(o => o.type === 'Adhoc').length}
+                          {allOpportunities.filter((o: any) => o.type === 'Adhoc').length}
                         </Badge>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-muted-foreground">EOI Opportunities</span>
                         <Badge variant="outline" className="font-bold">
-                          {allOpportunities.filter(o => o.type === 'EOI').length}
+                          {allOpportunities.filter((o: any) => o.type === 'EOI').length}
                         </Badge>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-muted-foreground">RFQ (Quotes)</span>
                         <Badge variant="outline" className="font-bold">
-                          {allOpportunities.filter(o => o.type === 'RFQ').length}
+                          {allOpportunities.filter((o: any) => o.type === 'RFQ').length}
                         </Badge>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-muted-foreground">RFP (Proposals)</span>
                         <Badge variant="outline" className="font-bold">
-                          {allOpportunities.filter(o => o.type === 'RFP').length}
+                          {allOpportunities.filter((o: any) => o.type === 'RFP').length}
                         </Badge>
                       </div>
                     </CardContent>

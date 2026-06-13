@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction, createSelector } from "@reduxjs/toolkit";
 import { z } from "zod";
 import { RootState } from "..";
-import { uiSchema } from "definations/schema";
+import { uiSchema } from "definitions/schema";
 
 type intialState = z.infer<typeof uiSchema>;
 
@@ -9,7 +9,7 @@ type Sheet = { type: string; sheetProps?: Record<string, string | Object> };
 type Dailog = { type: string; dialogProps?: any };
 
 const initialState: intialState = {
-    dailog: {
+    dialog: {
         isOpen: false,
         type: "",
         dialogProps: {},
@@ -35,12 +35,12 @@ const uiSlice = createSlice({
             state.sheet = initialState.sheet;
         },
         openDialog: (state, { payload }: PayloadAction<Dailog>) => {
-            state.dailog.isOpen = true;
-            state.dailog.type = payload.type;
-            state.dailog.dialogProps = payload.dialogProps;
+            state.dialog.isOpen = true;
+            state.dialog.type = payload.type;
+            state.dialog.dialogProps = payload.dialogProps;
         },
         closeDialog: (state) => {
-            state.dailog = initialState.dailog;
+            state.dialog = initialState.dialog;
         },
 
         resetUiState: () => {
@@ -55,7 +55,7 @@ export const { openDialog, closeDialog, openSheet, closeSheet, resetUiState } =
 export default uiSlice.reducer;
 
 const sheet = ({ ui: { sheet } }: RootState) => sheet;
-const dailog = ({ ui: { dailog } }: RootState) => dailog;
+const dialog = ({ ui: { dialog } }: RootState) => dialog;
 
 export const sheetSelector = createSelector([sheet], (sheet) => sheet);
-export const dailogSelector = createSelector([dailog], (dailog) => ({ ...dailog }));
+export const dialogSelector = createSelector([dialog], (dialog) => ({ ...dialog }));

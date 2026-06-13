@@ -136,7 +136,7 @@ export default function VendorSupportPage() {
   ];
 
   // Filter FAQs based on search query
-  const filteredFaqs = faqs.filter(faq =>
+  const filteredFaqs = faqs.filter((faq: any) =>
     faq.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
     faq.answer.toLowerCase().includes(searchQuery.toLowerCase()) ||
     faq.category.toLowerCase().includes(searchQuery.toLowerCase())

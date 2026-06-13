@@ -9,7 +9,7 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { useEffect } from "react";
 import { toast } from "sonner";
 import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
-import { closeDialog, dailogSelector } from "@/store/ui";
+import { closeDialog, dialogSelector } from "@/store/ui";
 import {
     FundingSourceSchema,
     TFundingSourceData,
@@ -22,7 +22,7 @@ import {
 import FormTextArea from "@/components/atoms/FormTextArea";
 
 const AddFundingSource = () => {
-    const { dialogProps } = useAppSelector(dailogSelector);
+    const { dialogProps } = useAppSelector(dialogSelector);
 
     const data = dialogProps?.data as unknown as TFundingSourceData;
 

@@ -10,7 +10,7 @@ import IconButton from "@/components/IconButton";
 import { Icon } from "@iconify/react";
 import { openDialog } from "@/store/ui";
 import { useAppDispatch } from "@/hooks/useStore";
-import { DialogType } from "@/constants/dailogs";
+import { DialogType } from "@/constants/dialogs";
 import TableFilters from "@/components/TableFilters";
 import { useDebounce } from "ahooks";
 import { FilterForm } from "@/components/FilterForm";

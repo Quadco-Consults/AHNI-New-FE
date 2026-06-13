@@ -48,9 +48,9 @@ export default function ConsultantReportsPage() {
   const statistics = useMemo(() => {
     return {
       total_reports: reports.length,
-      pending: reports.filter(r => r.status?.toUpperCase() === 'PENDING').length,
-      approved: reports.filter(r => r.status?.toUpperCase() === 'APPROVED').length,
-      rejected: reports.filter(r => r.status?.toUpperCase() === 'REJECTED').length,
+      pending: reports.filter((r: any) => r.status?.toUpperCase() === 'PENDING').length,
+      approved: reports.filter((r: any) => r.status?.toUpperCase() === 'APPROVED').length,
+      rejected: reports.filter((r: any) => r.status?.toUpperCase() === 'REJECTED').length,
     };
   }, [reports]);
 

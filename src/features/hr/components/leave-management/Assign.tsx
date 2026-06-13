@@ -21,7 +21,7 @@ import { useEffect } from "react";
 import { useGetEmployeeOnboardings } from "../../controllers/employeeOnboardingController";
 
 import { LoadingSpinner } from "@/components/Loading";
-import { EmployeeOnboarding } from "definations/hr-types/employee-onboarding";
+import { EmployeeOnboarding } from "definitions/hr-types/employee-onboarding";
 
 // import ItemsAPI from "@/features/modules/controllers/config/itemsController";
 

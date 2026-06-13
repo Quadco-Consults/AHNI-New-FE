@@ -1,11 +1,11 @@
 import { TBasePaginatedResponse } from "@/features/auth/types/auth";
-import { CostCategory } from "definations/module-finance";
+import { CostCategory } from "definitions/module-finance";
 import { TFundRequestActivity } from "@/features/programs/types/program-validator";
 import {
   TFundRequestBackendResponse,
   TFundRequestActivityBackendResponse,
   FundRequestStatus,
-} from "definations/program-validator";
+} from "definitions/program-validator";
 
 export interface FundRequestPaginatedData {
     id: string;

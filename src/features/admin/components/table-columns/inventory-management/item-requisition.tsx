@@ -1,6 +1,6 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
-import { TItemRequisitionPaginatedData } from "definations/admin/inventory-management/item-requisition";
+import { TItemRequisitionPaginatedData } from "definitions/admin/inventory-management/item-requisition";
 import ApproveIcon from "@/components/icons/ApproveIcon";
 import DeleteIcon from "@/components/icons/DeleteIcon";
 import EyeIcon from "@/components/icons/EyeIcon";

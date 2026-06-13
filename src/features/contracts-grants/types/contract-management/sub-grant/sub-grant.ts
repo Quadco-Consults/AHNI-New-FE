@@ -1,8 +1,8 @@
 import { z } from "zod";
 import { IGrantSingleData } from "../../grants";
-import { TPartnerData } from "definations/modules/project/partners";
-import { IUser } from "definations/auth/user";
-import { TLocationData } from "definations/modules/config/location";
+import { TPartnerData } from "definitions/modules/project/partners";
+import { IUser } from "definitions/auth/user";
+import { TLocationData } from "definitions/modules/config/location";
 import { IProjectSingleData } from "@/features/projects/types/project";
 
 export const SubGrantSchema = z.object({

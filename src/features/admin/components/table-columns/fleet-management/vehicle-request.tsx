@@ -1,7 +1,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { toast } from "sonner";
-import { IVehicleRequestPaginatedData } from "definations/admin/fleet-management/vehicle-request";
+import { IVehicleRequestPaginatedData } from "definitions/admin/fleet-management/vehicle-request";
 import { formatDate } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";

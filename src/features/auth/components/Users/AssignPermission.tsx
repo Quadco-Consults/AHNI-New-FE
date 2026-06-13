@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
-import { IPermission } from "definations/auth/permission";
+import { IPermission } from "definitions/auth/permission";
 import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
 import { cn } from "@/lib/utils";
 import { capitalize } from "lodash";
@@ -17,7 +17,7 @@ import {
     useUpdateRole,
 } from "@/features/auth/controllers/roleController";
 import { toast } from "sonner";
-import { closeDialog, dailogSelector } from "@/store/ui";
+import { closeDialog, dialogSelector } from "@/store/ui";
 import { ShieldCheck, Info, Search } from "lucide-react";
 
 interface Permission {
@@ -273,7 +273,7 @@ const AssignPermission = () => {
     );
     const [searchQuery, setSearchQuery] = useState("");
 
-    const { dialogProps } = useAppSelector(dailogSelector);
+    const { dialogProps } = useAppSelector(dialogSelector);
 
     const dispatch = useAppDispatch();
 

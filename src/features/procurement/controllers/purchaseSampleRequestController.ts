@@ -6,7 +6,7 @@ import {
   SampleMemoResultsData,
   SampleMemoResponse,
 } from "../types/sample-memo";
-import { TResponse } from "definations/index";
+import { TResponse } from "definitions/index";
 
 const BASE_URL = "procurements/purchase-request-memo/";
 

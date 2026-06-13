@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { formatNumberCurrency } from "@/utils/utls";
 import { useAppDispatch } from "@/hooks/useStore";
 import { openDialog } from "@/store/ui";
-import { DialogType } from "@/constants/dailogs";
+import { DialogType } from "@/constants/dialogs";
 
 export default function CostSheetsActivitiesList() {
     const params = useParams();

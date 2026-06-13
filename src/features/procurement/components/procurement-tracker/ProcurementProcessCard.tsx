@@ -5,7 +5,7 @@ import DataTable from "@/components/Table/DataTable";
 // import { Button } from "@/components/ui/button";
 // import { SearchIcon } from "lucide-react";
 // import React from "react";
-import { TPaginatedResponse } from "definations/index";
+import { TPaginatedResponse } from "definitions/index";
 import { ProcurementTrackerResults } from "../../types/procurementPlan";
 
 interface ProcurementProcessCardProps {

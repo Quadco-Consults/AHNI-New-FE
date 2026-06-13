@@ -303,7 +303,7 @@ export default function PettyCashPage() {
   const pendingApprovals = pendingApprovalsData?.data?.map(convertToLegacy) || [];
 
   // Filter requests
-  const filteredRequests = requests.filter(req => {
+  const filteredRequests = requests.filter((req: any) => {
     if (selectedProject !== "all" && req.project !== selectedProject) return false;
     if (selectedStatus !== "all" && req.status !== selectedStatus) return false;
     if (selectedPeriod && !req.date.includes(selectedPeriod.replace("-", "-"))) return false;
@@ -458,7 +458,7 @@ export default function PettyCashPage() {
 
   const calculateTotalByStatus = (status: string) => {
     return requests
-      .filter(req => req.status === status)
+      .filter((req: any) => req.status === status)
       .reduce((total, req) => total + req.amountFigures, 0);
   };
 
@@ -509,7 +509,7 @@ export default function PettyCashPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-yellow-600">
-              {requests.filter(r => r.status === "pending_approval").length}
+              {requests.filter((r: any) => r.status === "pending_approval").length}
             </div>
             <p className="text-xs text-muted-foreground">
               {formatCurrency(calculateTotalByStatus("pending_approval"))}
@@ -524,7 +524,7 @@ export default function PettyCashPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">
-              {requests.filter(r => r.status === "approved").length}
+              {requests.filter((r: any) => r.status === "approved").length}
             </div>
             <p className="text-xs text-muted-foreground">
               {formatCurrency(calculateTotalByStatus("approved"))}
@@ -539,7 +539,7 @@ export default function PettyCashPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-blue-600">
-              {requests.filter(r => r.status === "paid").length}
+              {requests.filter((r: any) => r.status === "paid").length}
             </div>
             <p className="text-xs text-muted-foreground">
               {formatCurrency(calculateTotalByStatus("paid"))}
@@ -830,7 +830,7 @@ export default function PettyCashPage() {
                 </TableHeader>
                 <TableBody>
                   {filteredRequests
-                    .filter(req => req.requestedBy.name === "Current User") // This should be dynamic
+                    .filter((req: any) => req.requestedBy.name === "Current User") // This should be dynamic
                     .map((request) => (
                     <TableRow key={request.id}>
                       <TableCell className="font-mono">{request.certificateNumber}</TableCell>

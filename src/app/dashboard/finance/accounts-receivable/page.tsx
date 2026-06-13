@@ -382,13 +382,13 @@ export default function AccountsReceivablePage() {
   // Statistics
   const stats = {
     totalOutstanding: accountsReceivable.reduce((sum, ar) => sum + ar.amount_due, 0),
-    totalOverdue: accountsReceivable.filter(ar => ar.status === 'OVERDUE').reduce((sum, ar) => sum + ar.amount_due, 0),
-    current: accountsReceivable.filter(ar => ar.aging_bucket === 'CURRENT').reduce((sum, ar) => sum + ar.amount_due, 0),
-    pastDue30: accountsReceivable.filter(ar => ar.aging_bucket === 'PAST_DUE_30').reduce((sum, ar) => sum + ar.amount_due, 0),
-    pastDue60: accountsReceivable.filter(ar => ar.aging_bucket === 'PAST_DUE_60').reduce((sum, ar) => sum + ar.amount_due, 0),
-    pastDue90: accountsReceivable.filter(ar => ar.aging_bucket === 'PAST_DUE_90').reduce((sum, ar) => sum + ar.amount_due, 0),
-    pastDue120: accountsReceivable.filter(ar => ar.aging_bucket === 'PAST_DUE_120').reduce((sum, ar) => sum + ar.amount_due, 0),
-    totalCustomers: new Set(accountsReceivable.map(ar => ar.customer_id)).size,
+    totalOverdue: accountsReceivable.filter((ar: any) => ar.status === 'OVERDUE').reduce((sum, ar) => sum + ar.amount_due, 0),
+    current: accountsReceivable.filter((ar: any) => ar.aging_bucket === 'CURRENT').reduce((sum, ar) => sum + ar.amount_due, 0),
+    pastDue30: accountsReceivable.filter((ar: any) => ar.aging_bucket === 'PAST_DUE_30').reduce((sum, ar) => sum + ar.amount_due, 0),
+    pastDue60: accountsReceivable.filter((ar: any) => ar.aging_bucket === 'PAST_DUE_60').reduce((sum, ar) => sum + ar.amount_due, 0),
+    pastDue90: accountsReceivable.filter((ar: any) => ar.aging_bucket === 'PAST_DUE_90').reduce((sum, ar) => sum + ar.amount_due, 0),
+    pastDue120: accountsReceivable.filter((ar: any) => ar.aging_bucket === 'PAST_DUE_120').reduce((sum, ar) => sum + ar.amount_due, 0),
+    totalCustomers: new Set(accountsReceivable.map((ar: any) => ar.customer_id)).size,
     averageDays: Math.round(accountsReceivable.reduce((sum, ar) => sum + ar.days_outstanding, 0) / accountsReceivable.length),
   };
 
@@ -409,7 +409,7 @@ export default function AccountsReceivablePage() {
           </Button>
           <Button onClick={() => {
             // For demo purposes, select the first overdue receivable
-            const overdueReceivable = accountsReceivable.find(ar => ar.status === 'OVERDUE') || accountsReceivable[0];
+            const overdueReceivable = accountsReceivable.find((ar: any) => ar.status === 'OVERDUE') || accountsReceivable[0];
             if (overdueReceivable) {
               setSelectedReceivable(overdueReceivable);
               setShowPaymentForm(true);

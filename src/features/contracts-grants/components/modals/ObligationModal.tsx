@@ -24,7 +24,7 @@ import { toast } from "sonner";
 import { closeDialog } from "@/store/ui";
 
 export default function ObligationModal() {
-  const { dialogProps } = useAppSelector((state) => state.ui.dailog);
+  const { dialogProps } = useAppSelector((state) => state.ui.dialog);
 
   const obligation =
     dialogProps?.obligation as unknown as IObligationPaginatedData;

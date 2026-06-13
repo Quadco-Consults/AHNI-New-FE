@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { TConsumableSingleData } from "./consumable";
-import { TDepartmentData } from "definations/modules/config/department";
+import { TDepartmentData } from "definitions/modules/config/department";
 import { IUser } from "@/features/auth/types/user";
 import { TStoreSingleData } from "./store";
 

@@ -7,7 +7,7 @@ import ApproveIcon from "@/components/icons/ApproveIcon";
 import ApprovalStatusIcon from "@/components/icons/ApprovalStatusIcon";
 import MoreOptionsHorizontalIcon from "@/components/icons/MoreOptionsHorizontalIcon";
 import { toast } from "sonner";
-// import { TSupervisionPlanPaginatedData } from "definations/program/plan/supervision-plan/supervision-plan";
+// import { TSupervisionPlanPaginatedData } from "definitions/program/plan/supervision-plan/supervision-plan";
 import Link from "next/link";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
@@ -18,7 +18,7 @@ import { useState } from "react";
 import PencilIcon from "@/components/icons/PencilIcon";
 import { useAppDispatch } from "@/hooks/useStore";
 import { openDialog } from "@/store/ui";
-import { DialogType } from "@/constants/dailogs";
+import { DialogType } from "@/constants/dialogs";
 import { TSupervisionPlanPaginatedData } from "@/features/programs/types/program/plan/supervision-plan/supervision-plan";
 import ApprovalSummary from "@/components/ApprovalSummary";
 

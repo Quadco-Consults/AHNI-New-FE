@@ -6,7 +6,7 @@ import {
   ICreateSiteVisitRequest,
   TSiteVisitPaginatedData,
 } from "@/features/programs/types/site-visit";
-import { TPaginatedResponse, TResponse } from "definations/index";
+import { TPaginatedResponse, TResponse } from "definitions/index";
 
 const SITE_VISIT_BASE_URL = "programs/site-visits/";
 

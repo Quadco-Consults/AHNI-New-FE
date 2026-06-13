@@ -5,7 +5,7 @@ import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
 import LocationSvg from "assets/svgs/LocationSvg";
 import { Button } from "@/components/ui/button";
 import { openDialog } from "@/store/ui";
-import { DialogType } from "@/constants/dailogs";
+import { DialogType } from "@/constants/dialogs";
 import { useFormContext } from "react-hook-form";
 
 export default function ConsortiumPartners() {

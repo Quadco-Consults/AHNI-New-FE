@@ -1,5 +1,5 @@
-import { IUser } from "definations/auth/user";
-import { TLocationData } from "definations/modules/config/location";
+import { IUser } from "definitions/auth/user";
+import { TLocationData } from "definitions/modules/config/location";
 import { z } from "zod";
 
 export const FacilitatorManagementDetailSchema = z.object({

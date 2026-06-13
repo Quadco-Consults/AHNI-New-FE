@@ -28,7 +28,7 @@ import { LoadingSpinner } from "@/components/Loading";
 export default function VendorRFQDetailsPage() {
   const params = useParams();
   const router = useRouter();
-  const rfqId = Array.isArray(params.id) ? params.id[0] : params.id;
+  const rfqId = Array.isArray(params?.id) ? params?.id[0] : params?.id;
   const [activeTab, setActiveTab] = useState("overview");
 
   const { data: rfqDetails, isLoading, error } = useVendorRFQDetails(rfqId as string);

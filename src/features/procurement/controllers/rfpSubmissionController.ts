@@ -6,7 +6,7 @@ import {
   IRFPVendorSubmission,
   RFPVendorSubmissionResponse,
 } from "../types/solicitation";
-import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
+import { TPaginatedResponse, TRequest, TResponse } from "definitions/index";
 
 const BASE_URL = "procurements/rfp-submissions/";
 

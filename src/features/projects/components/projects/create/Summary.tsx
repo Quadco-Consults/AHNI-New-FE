@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import FormButton from "@/components/FormButton";
 import { Label } from "@/components/ui/label";
 import { openDialog } from "@/store/ui";
-import { DialogType, mediumDailogScreen } from "@/constants/dailogs";
+import { DialogType, mediumDailogScreen } from "@/constants/dialogs";
 import { FormField, FormItem, Form, FormControl } from "@/components/ui/form";
 import Card from "@/components/Card";
 import FormInput from "@/components/atoms/FormInput";

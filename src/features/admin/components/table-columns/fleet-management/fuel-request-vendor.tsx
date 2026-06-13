@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
-import { VendorsResultsData } from "definations/procurement-types/vendors";
+import { VendorsResultsData } from "definitions/procurement-types/vendors";
 import { useGetVendorFuelStatistics } from "@/features/admin/controllers/fuelConsumptionController";
 
 export const fuelRequestVendorColumns: ColumnDef<VendorsResultsData>[] = [

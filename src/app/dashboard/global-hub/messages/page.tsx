@@ -75,9 +75,9 @@ export default function MessagesPage() {
       }
 
       // Validate file sizes
-      const oversizedFiles = newFiles.filter(file => file.size > MAX_FILE_SIZE);
+      const oversizedFiles = newFiles.filter((file: any) => file.size > MAX_FILE_SIZE);
       if (oversizedFiles.length > 0) {
-        alert(`Some files are too large. Maximum file size is 10MB.\nOversized files: ${oversizedFiles.map(f => f.name).join(', ')}`);
+        alert(`Some files are too large. Maximum file size is 10MB.\nOversized files: ${oversizedFiles.map((f: any) => f.name).join(', ')}`);
         return;
       }
 
@@ -173,7 +173,7 @@ export default function MessagesPage() {
   const toggleUserSelection = (userId: string) => {
     setSelectedUsers(prev => {
       if (prev.includes(userId)) {
-        return prev.filter(id => id !== userId);
+        return prev.filter((id: any) => id !== userId);
       } else {
         // For direct messages, only allow one user
         if (conversationType === 'direct') {

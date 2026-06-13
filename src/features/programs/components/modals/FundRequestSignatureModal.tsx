@@ -2,14 +2,14 @@
 
 import React from "react";
 import { useAppSelector, useAppDispatch } from "@/hooks/useStore";
-import { dailogSelector, closeDialog } from "@/store/ui";
+import { dialogSelector, closeDialog } from "@/store/ui";
 import { BaseDialog } from "@/components/modals/dialog/BaseDialog";
 import FundRequestApprovalSignatureForm from "../fund-request/components/FundRequestApprovalSignatureForm";
 import { useGetSingleFundRequest } from "@/features/programs/controllers/fundRequestController";
 
 const FundRequestSignatureModal: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { dialogProps } = useAppSelector(dailogSelector);
+  const { dialogProps } = useAppSelector(dialogSelector);
   const { fundRequestId, currentStatus, width = "max-w-4xl" } = dialogProps || {};
 
   const { data: fundRequestData, isLoading } = useGetSingleFundRequest(fundRequestId);

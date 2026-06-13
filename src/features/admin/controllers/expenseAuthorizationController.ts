@@ -7,7 +7,7 @@ import {
   IExpenseAuthorizationPaginatedData,
   IExpenseAuthorizationSingleData,
 } from "../types/expense-authorization";
-import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
+import { TPaginatedResponse, TRequest, TResponse } from "definitions/index";
 
 const BASE_URL = "/admins/authorization/expenses/";
 

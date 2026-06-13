@@ -1,7 +1,7 @@
 // src/pages/ProjectUploads.tsx
 import { useParams } from "next/navigation";
 import { openDialog } from "@/store/ui";
-import { DialogType } from "@/constants/dailogs";
+import { DialogType } from "@/constants/dialogs";
 import { useAppDispatch } from "@/hooks/useStore";
 import {
   useDeleteProjectDocument,

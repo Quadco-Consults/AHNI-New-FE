@@ -1,5 +1,5 @@
 import { ColumnDef } from "@tanstack/react-table";
-// import { IPaymentRequestPaginatedData } from "definations/admin/payment-request";
+// import { IPaymentRequestPaginatedData } from "definitions/admin/payment-request";
 import { useState } from "react";
 import { useDeletePaymentRequest } from "@/features/admin/controllers/paymentRequestController";
 import { toast } from "sonner";

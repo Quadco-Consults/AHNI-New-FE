@@ -241,9 +241,9 @@ export default function CustomersPage() {
   // Statistics
   const stats = {
     total: customers.length,
-    active: customers.filter(c => c.is_active).length,
-    companies: customers.filter(c => c.customer_type === 'COMPANY').length,
-    individuals: customers.filter(c => c.customer_type === 'INDIVIDUAL').length,
+    active: customers.filter((c: any) => c.is_active).length,
+    companies: customers.filter((c: any) => c.customer_type === 'COMPANY').length,
+    individuals: customers.filter((c: any) => c.customer_type === 'INDIVIDUAL').length,
     totalSales: customers.reduce((sum, c) => sum + c.total_sales, 0),
     outstanding: customers.reduce((sum, c) => sum + c.outstanding_balance, 0),
   };

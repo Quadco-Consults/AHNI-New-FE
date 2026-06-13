@@ -25,7 +25,7 @@ import {
 export default function RFQDetailsPage() {
   const params = useParams();
   const router = useRouter();
-  const id = Array.isArray(params.id) ? params.id[0] : params.id;
+  const id = Array.isArray(params?.id) ? params?.id[0] : params?.id;
 
   const { data, isLoading, error } = useGetPublicOpportunity(id as string);
 

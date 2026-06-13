@@ -3,13 +3,13 @@ import { useQuery } from "@tanstack/react-query";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { AxiosError } from "axios";
 import { z } from "zod";
-import { QuestionairSchema } from "definations/procurement-validator";
+import { QuestionairSchema } from "definitions/procurement-validator";
 import {
   QuestionairData,
   QuestionairResponse,
 } from "../types/questionairs";
-import { TBasePaginatedResponse } from "definations/auth/auth";
-import { TRequest, TResponse } from "definations/index";
+import { TBasePaginatedResponse } from "definitions/auth/auth";
+import { TRequest, TResponse } from "definitions/index";
 
 const BASE_URL = "procurements/questionaire/";
 

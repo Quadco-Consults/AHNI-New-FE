@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import Card from "@/components/Card";
 import { useAppDispatch } from "@/hooks/useStore";
 import { openDialog } from "@/store/ui";
-import { DialogType } from "@/constants/dailogs";
+import { DialogType } from "@/constants/dialogs";
 import { useRouter, useParams } from "next/navigation";
 import { HrRoutes } from "@/constants/RouterConstants";
 import { useUpdatePerformanceAssesment } from "@/features/hr/controllers/hrPerformanceAssessmentController";

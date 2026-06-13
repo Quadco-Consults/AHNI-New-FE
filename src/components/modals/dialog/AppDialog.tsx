@@ -1,10 +1,10 @@
 "use client";
 
 import { useAppSelector } from "@/hooks/useStore";
-import { dailogSelector } from "@/store/ui";
+import { dialogSelector } from "@/store/ui";
 import { BaseDialog } from "./BaseDialog";
 import React, { useState, useEffect } from "react";
-import { DialogType } from "@/constants/dailogs";
+import { DialogType } from "@/constants/dialogs";
 import dynamic from "next/dynamic";
 
 import { LoadingSpinner } from "@/components/Loading";
@@ -125,7 +125,7 @@ const modalComponentMap: Record<string, () => Promise<{default: React.ComponentT
 };
 
 const AppDialog = () => {
-  const { type, dialogProps } = useAppSelector(dailogSelector);
+  const { type, dialogProps } = useAppSelector(dialogSelector);
   const [ModalComponent, setModalComponent] = useState<React.ComponentType<any> | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 

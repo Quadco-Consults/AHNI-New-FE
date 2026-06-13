@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { AxiosError } from "axios";
 import { TProjectFormValues, IProjectSingleData } from "../types/project/index";
-import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
+import { TPaginatedResponse, TRequest, TResponse } from "definitions/index";
 
 const BASE_URL = "/projects/";
 

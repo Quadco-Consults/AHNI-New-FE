@@ -37,12 +37,12 @@ const FixedAssetsPage = () => {
   // Convert admin assets to fixed assets with financial calculations
   const fixedAssets = useMemo(() => {
     if (!assetsData?.data?.results) return [];
-    return assetsData.data.results.map(item => convertItemToFixedAsset(item));
+    return assetsData.data.results.map((item: any) => convertItemToFixedAsset(item));
   }, [assetsData]);
 
   // Filter assets based on current filters
   const filteredAssets = useMemo(() => {
-    return fixedAssets.filter(asset => {
+    return fixedAssets.filter((asset: any) => {
       if (selectedCategory !== "all") {
         const categoryName = typeof asset.category === "string"
           ? asset.category
@@ -73,9 +73,9 @@ const FixedAssetsPage = () => {
     const currentPeriod = currentDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short' });
 
     return filteredAssets
-      .filter(asset => !asset.isFullyDepreciated)
+      .filter((asset: any) => !asset.isFullyDepreciated)
       .slice(0, 10) // Limit to first 10 for performance
-      .map(asset => ({
+      .map((asset: any) => ({
         id: asset.id,
         assetNumber: asset.assetNumber,
         assetName: asset.name,
@@ -83,16 +83,16 @@ const FixedAssetsPage = () => {
         depreciationAmount: Math.round(asset.monthlyDepreciation),
         accumulatedDepreciation: Math.round(asset.accumulatedDepreciation + asset.monthlyDepreciation),
         netBookValue: Math.round(asset.currentBookValue - asset.monthlyDepreciation),
-        method: asset.depreciationMethod.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()),
+        method: asset.depreciationMethod.replace('_', ' ').replace(/\b\w/g, (l: string) => l.toUpperCase()),
       }));
   }, [filteredAssets]);
 
   // Get disposed assets (for now, using mock data since we don't have disposal tracking yet)
   const disposedAssets = useMemo(() => {
     return filteredAssets
-      .filter(asset => asset.assetStatus === "disposed" || asset.isFullyDepreciated)
+      .filter((asset: any) => asset.assetStatus === "disposed" || asset.isFullyDepreciated)
       .slice(0, 5) // Limit for demo
-      .map(asset => ({
+      .map((asset: any) => ({
         id: asset.id,
         assetNumber: asset.assetNumber,
         assetName: asset.name,

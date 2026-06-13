@@ -2,7 +2,7 @@ import { useParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import AddSquareIcon from "@/components/icons/AddSquareIcon";
 import { Button } from "@/components/ui/button";
-import { DialogType, mediumDailogScreen } from "@/constants/dailogs";
+import { DialogType, mediumDailogScreen } from "@/constants/dialogs";
 import { useAppDispatch } from "@/hooks/useStore";
 import { openDialog } from "@/store/ui";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

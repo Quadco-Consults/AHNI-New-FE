@@ -1,6 +1,6 @@
 import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
-import { TWorkPlanPaginatedResponse } from "definations/program-types/work-plan";
+import { TWorkPlanPaginatedResponse } from "definitions/program-types/work-plan";
 import { Button } from "@/components/ui/button";
 import { formatNumberCurrency } from "@/utils/utls";
 import { ChevronRight } from "lucide-react";

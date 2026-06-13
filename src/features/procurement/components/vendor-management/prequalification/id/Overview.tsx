@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { VendorsResultsData } from "definations/procurement-types/vendors";
+import { VendorsResultsData } from "definitions/procurement-types/vendors";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { toast } from "sonner";

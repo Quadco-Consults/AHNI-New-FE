@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { AxiosError } from "axios";
 import { PayGroup } from "../types/pay-group";
-import { TPaginatedResponse } from "definations/index";
+import { TPaginatedResponse } from "definitions/index";
 
 const BASE_URL = "/hr/employee-benefits/pay-groups/";
 

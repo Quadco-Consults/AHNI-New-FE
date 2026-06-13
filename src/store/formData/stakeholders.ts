@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { TStakeholderRegisterData } from "definations/program-validator";
+import { TStakeholderRegisterData } from "definitions/program-validator";
 
 type TInitialState = {
     selectedStakeholders: TStakeholderRegisterData[];

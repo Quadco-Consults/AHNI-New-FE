@@ -5,7 +5,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { SolicitationSubmissionData } from "definations/procurement-types/solicitation";
+import { SolicitationSubmissionData } from "definitions/procurement-types/solicitation";
 import React from "react";
 
 const VendorSelect = ({

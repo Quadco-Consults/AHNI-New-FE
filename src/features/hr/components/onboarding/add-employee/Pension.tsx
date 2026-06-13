@@ -11,7 +11,7 @@ import { Save } from "lucide-react";
 import { HrRoutes } from "@/constants/RouterConstants";
 import { useAppDispatch } from "@/hooks/useStore";
 import { openDialog } from "@/store/ui";
-import { DialogType } from "@/constants/dailogs";
+import { DialogType } from "@/constants/dialogs";
 import Card from "@/components/Card";
 import {
   WorkforcePensionFormValues,

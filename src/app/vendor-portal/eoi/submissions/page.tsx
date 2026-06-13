@@ -102,7 +102,7 @@ export default function VendorEOISubmissionsPage() {
     const matchesSearch = searchTerm === "" ||
       submission.eoi_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       submission.eoi_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      submission.categories_applied.some(cat => cat.toLowerCase().includes(searchTerm.toLowerCase()));
+      submission.categories_applied.some((cat: any) => cat.toLowerCase().includes(searchTerm.toLowerCase()));
 
     const matchesStatus = statusFilter === "all" || submission.status === statusFilter;
 
@@ -162,8 +162,8 @@ export default function VendorEOISubmissionsPage() {
 
   // Calculate statistics
   const totalSubmissions = mockSubmissions.length;
-  const approvedSubmissions = mockSubmissions.filter(s => s.status === 'APPROVED').length;
-  const pendingSubmissions = mockSubmissions.filter(s => ['UNDER_REVIEW', 'REQUIRES_CLARIFICATION'].includes(s.status)).length;
+  const approvedSubmissions = mockSubmissions.filter((s: any) => s.status === 'APPROVED').length;
+  const pendingSubmissions = mockSubmissions.filter((s: any) => ['UNDER_REVIEW', 'REQUIRES_CLARIFICATION'].includes(s.status)).length;
   const successRate = totalSubmissions > 0 ? Math.round((approvedSubmissions / totalSubmissions) * 100) : 0;
 
   return (

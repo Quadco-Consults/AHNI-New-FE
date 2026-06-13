@@ -12,7 +12,7 @@ import {
   IUploadProcessingResult,
   ITemplateDownloadResult,
 } from "../types/annual-supervision-plan";
-import { TPaginatedResponse, TResponse } from "definations/index";
+import { TPaginatedResponse, TResponse } from "definitions/index";
 
 // Fallback template creation function
 const createFallbackTemplate = (): ITemplateDownloadResult => {

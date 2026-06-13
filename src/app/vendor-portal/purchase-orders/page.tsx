@@ -267,13 +267,13 @@ export default function VendorPurchaseOrdersPage() {
               </div>
               <div className="text-center">
                 <p className="text-2xl font-bold text-orange-600">
-                  {filteredOrders.filter(order => POGRNUtils.isPOOverdue(order)).length}
+                  {filteredOrders.filter((order: any) => POGRNUtils.isPOOverdue(order)).length}
                 </p>
                 <p className="text-sm text-orange-800">Overdue</p>
               </div>
               <div className="text-center">
                 <p className="text-2xl font-bold text-green-600">
-                  {filteredOrders.filter(order => order.status === 'COMPLETED').length}
+                  {filteredOrders.filter((order: any) => order.status === 'COMPLETED').length}
                 </p>
                 <p className="text-sm text-green-800">Completed</p>
               </div>

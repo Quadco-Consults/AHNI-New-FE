@@ -26,7 +26,7 @@ import FileUploadManager from "@/components/FileUploadManager";
 export default function PaymentRequestDetailPage() {
   const router = useRouter();
   const params = useParams();
-  const paymentRequestId = params.id as string;
+  const paymentRequestId = params?.id as string;
 
   const { data: paymentRequestData, isLoading, error } = usePaymentRequestDetail(paymentRequestId);
 

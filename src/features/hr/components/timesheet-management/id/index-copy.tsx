@@ -6,7 +6,7 @@ import GoBack from "@/components/GoBack";
 import DataTable from "@/components/Table/DataTable";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { DialogType } from "@/constants/dailogs";
+import { DialogType } from "@/constants/dialogs";
 import { HrRoutes } from "@/constants/RouterConstants";
 import { useAppDispatch } from "@/hooks/useStore";
 import { generatePath, Link, useParams } from "react-router-dom"; 

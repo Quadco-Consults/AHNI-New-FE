@@ -8,7 +8,7 @@ export const uiSchema = z.object({
       .record(z.string(), z.union([z.string(), z.object({})]))
       .optional(),
   }),
-  dailog: z.object({
+  dialog: z.object({
     isOpen: z.boolean(),
     type: z.string(),
     dialogProps: z

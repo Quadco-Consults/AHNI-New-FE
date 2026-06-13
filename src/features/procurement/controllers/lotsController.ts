@@ -3,13 +3,13 @@ import { useQuery } from "@tanstack/react-query";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { AxiosError } from "axios";
 import { z } from "zod";
-import { LotsSchema } from "definations/procurement-validator";
+import { LotsSchema } from "definitions/procurement-validator";
 import {
   LotsData,
   LotsResponse,
   LotsResultsData,
 } from "../types/lots";
-import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
+import { TPaginatedResponse, TRequest, TResponse } from "definitions/index";
 
 const BASE_URL = "procurements/lots/";
 

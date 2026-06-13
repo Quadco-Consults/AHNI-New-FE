@@ -53,7 +53,7 @@ import { cn } from "@/lib/utils";
 export default function AdhocRequisitionDetailPage() {
   const router = useRouter();
   const params = useParams();
-  const id = params.id as string;
+  const id = params?.id as string;
 
   const [showApprovalForm, setShowApprovalForm] = useState(false);
   const [comments, setComments] = useState("");

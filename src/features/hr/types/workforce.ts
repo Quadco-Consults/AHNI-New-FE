@@ -1,5 +1,5 @@
-import { DepartmentsResultsData } from "definations/configs/departments";
-import { LocationResultsData } from "definations/configs/location";
+import { DepartmentsResultsData } from "definitions/configs/departments";
+import { LocationResultsData } from "definitions/configs/location";
 import { HrGradeResults } from "./hr-grades";
 
 export type WorkforceEmergencyContactOne = {

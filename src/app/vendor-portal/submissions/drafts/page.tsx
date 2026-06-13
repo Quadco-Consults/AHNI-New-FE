@@ -200,13 +200,13 @@ export default function DraftSubmissionsPage() {
               </div>
               <div className="text-center">
                 <p className="text-2xl font-bold text-green-600">
-                  {draftSubmissions.filter(d => d.completion_percentage >= 80).length}
+                  {draftSubmissions.filter((d: any) => d.completion_percentage >= 80).length}
                 </p>
                 <p className="text-sm text-green-800">Nearly Complete</p>
               </div>
               <div className="text-center">
                 <p className="text-2xl font-bold text-orange-600">
-                  {draftSubmissions.filter(d => getDaysRemaining(d.closing_date) <= 3).length}
+                  {draftSubmissions.filter((d: any) => getDaysRemaining(d.closing_date) <= 3).length}
                 </p>
                 <p className="text-sm text-orange-800">Urgent</p>
               </div>

@@ -17,7 +17,7 @@ import { RouteEnum } from "@/constants/RouterConstants";
 import { ColumnDef } from "@tanstack/react-table";
 import DataTable from "@/components/Table/DataTable";
 import { useGetVendors, useDeleteVendor, useAssignVendor, useUnassignVendor } from "@/features/procurement/controllers/vendorsController";
-import { VendorsResultsData } from "definations/procurement-types/vendors";
+import { VendorsResultsData } from "definitions/procurement-types/vendors";
 import { toast } from "sonner";
 import { useGetCurrentUser } from "@/features/auth/controllers/userController";
 

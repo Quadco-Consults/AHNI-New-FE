@@ -13,7 +13,7 @@ import { useParams } from "next/navigation";
 import { RouteEnum } from "@/constants/RouterConstants";
 import VendorsAPI from "@/features/procurement/controllers/vendorsController";
 import { LoadingSpinner } from "@/components/Loading";
-import { VendorsResultsData } from "definations/procurement-types/vendors";
+import { VendorsResultsData } from "definitions/procurement-types/vendors";
 import {
   Breadcrumb,
   BreadcrumbItem,

@@ -3,7 +3,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
 import { FC, ReactNode } from "react";
-import { closeDialog, dailogSelector } from "@/store/ui";
+import { closeDialog, dialogSelector } from "@/store/ui";
 
 type PageProps = {
     children: ReactNode;
@@ -11,7 +11,7 @@ type PageProps = {
 
 export const BaseDialog: FC<PageProps> = ({ children }) => {
     const dispatch = useAppDispatch();
-    const { isOpen, dialogProps } = useAppSelector(dailogSelector);
+    const { isOpen, dialogProps } = useAppSelector(dialogSelector);
 
     const handleClose = () => {
         dispatch(closeDialog());

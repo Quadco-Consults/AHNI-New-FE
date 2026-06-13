@@ -4,7 +4,7 @@ import RoleList from "./RoleList";
 import { Button } from "@/components/ui/button";
 import { openDialog } from "@/store/ui";
 import AddSquareIcon from "@/components/icons/AddSquareIcon";
-import { DialogType } from "@/constants/dailogs";
+import { DialogType } from "@/constants/dialogs";
 import { useAppDispatch } from "@/hooks/useStore";
 import { useState } from "react";
 import { Shield, Users, Key, Info } from "lucide-react";

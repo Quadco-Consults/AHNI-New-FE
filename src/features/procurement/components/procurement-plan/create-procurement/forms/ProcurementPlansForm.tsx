@@ -12,7 +12,7 @@ export default function ProcurementPlansForm() {
 // import FormSelect from "@/components/atoms/FormSelectField";
 // import { SelectContent, SelectItem } from "@/components/ui/select";
 // import { LoadingSpinner } from "@/components/Loading";
-// import { WorkPlanResultsData } from "definations/program-types/program-workplan";
+// import { WorkPlanResultsData } from "definitions/program-types/program-workplan";
 // import { Form, FormMessage } from "@/components/ui/form";
 // import FormTextArea from "@/components/atoms/FormTextArea";
 // import FormInput from "@/components/atoms/FormInput";
@@ -20,7 +20,7 @@ export default function ProcurementPlansForm() {
 // import { ProcurementPlanSchema } from "@/features/procurement/types/procurement-validator";
 // import { zodResolver } from "@hookform/resolvers/zod";
 // import VendorsAPI from "@/features/procurement/controllers/vendorsController";
-// import { VendorsResultsData } from "definations/procurement-types/vendors";
+// import { VendorsResultsData } from "definitions/procurement-types/vendors";
 // import FormButton from "@/components/FormButton";
 // import { MinusCircle } from "lucide-react";
 // import AddSquareIcon from "@/components/icons/AddSquareIcon";

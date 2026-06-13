@@ -7,7 +7,7 @@ import { CardContent } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { useAppSelector } from "@/hooks/useStore";
-import { dailogSelector } from "@/store/ui";
+import { dialogSelector } from "@/store/ui";
 // import { toast } from "sonner";
 import {
   CostCategorySchema,
@@ -22,7 +22,7 @@ import FormInput from "@/components/atoms/FormInput";
 // } from "@/features/modules/finance/cost-categoryController";
 
 const NewLeaveForm = () => {
-  const { dialogProps } = useAppSelector(dailogSelector);
+  const { dialogProps } = useAppSelector(dialogSelector);
 
   const data = dialogProps?.data as unknown as TCostCategoryData;
 

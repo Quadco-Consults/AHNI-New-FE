@@ -53,7 +53,7 @@ const STEPS = [
 export default function EditAdhocRequisitionPage() {
   const router = useRouter();
   const params = useParams();
-  const id = params.id as string;
+  const id = params?.id as string;
   const [currentStep, setCurrentStep] = useState(1);
 
   const { data: requisitionData, isLoading: isLoadingRequisition } = useGetSingleAdhocRequisition(id);

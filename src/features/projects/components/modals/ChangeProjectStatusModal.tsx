@@ -18,10 +18,10 @@ const statusOptions = ["PENDING", "IN_PROGRESS", "CLOSED"].map((option) => ({
 }));
 
 export default function ChangeProjectStatusModal() {
-    const { dailog } = useAppSelector((state) => state.ui);
+    const { dialog } = useAppSelector((state) => state.ui);
 
-    const id = dailog?.dialogProps?.id as string;
-    const prevStatus = dailog?.dialogProps?.status as string;
+    const id = dialog?.dialogProps?.id as string;
+    const prevStatus = dialog?.dialogProps?.status as string;
 
     const [status, setStatus] = useState(prevStatus);
 

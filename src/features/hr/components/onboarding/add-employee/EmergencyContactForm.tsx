@@ -10,7 +10,7 @@ import FormTextArea from "@/components/atoms/FormTextArea";
 import { Separator } from "@/components/ui/separator";
 
 import { openDialog } from "@/store/ui";
-import { DialogType } from "@/constants/dailogs";
+import { DialogType } from "@/constants/dialogs";
 import { useAppDispatch } from "@/hooks/useStore";
 
 import {
@@ -25,7 +25,7 @@ import {
   useUpdateHrEmergency,
   useCreateHrEmergency,
 } from "@/features/hr/controllers/hrEmployeeOnboardingAddInfoController";
-import { HrEmergencyResults } from "definations/hr-types/employee-onboarding";
+import { HrEmergencyResults } from "definitions/hr-types/employee-onboarding";
 import { Save } from "lucide-react";
 import { updateStepCompletion } from "@/store/stepTracker";
 import { HrRoutes } from "@/constants/RouterConstants";

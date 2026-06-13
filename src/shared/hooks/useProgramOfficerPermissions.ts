@@ -2,7 +2,7 @@ import { useAppSelector } from '../store/hooks';
 import { useMemo } from 'react';
 
 export function useProgramOfficerPermissions() {
-  const authState = useAppSelector((state) => state.auth);
+  const authState = useAppSelector((state: any) => state.auth);
   const { user: currentUser, isAuthenticated, loading } = authState;
 
   // Check for permissions at root level (new structure) or user level (fallback)
@@ -73,8 +73,8 @@ export function useProgramOfficerPermissions() {
 
     // Helper function to check if user has a specific permission
     const hasPermission = (module: string, codename: string): boolean => {
-      const modulePerms = userPermissions.find(p => p.module === module);
-      return modulePerms?.permissions.some(p => p.codename === codename) || false;
+      const modulePerms = userPermissions.find((p: any) => p.module === module);
+      return modulePerms?.permissions.some((p: any) => p.codename === codename) || false;
     };
 
     // Programs Module permissions

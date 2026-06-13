@@ -3,13 +3,13 @@ import { useQuery } from "@tanstack/react-query";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { AxiosError } from "axios";
 import { z } from "zod";
-import { ProcurementPlanListSchema } from "definations/procurement-validator";
+import { ProcurementPlanListSchema } from "definitions/procurement-validator";
 import {
   ProcurementPlanData,
   ProcurementPlanResponse,
   ProcurementPlanResultsData,
 } from "../types/procurementPlan";
-import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
+import { TPaginatedResponse, TRequest, TResponse } from "definitions/index";
 
 const BASE_URL = "procurements/procurement-plans-new/";
 

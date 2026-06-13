@@ -1,6 +1,6 @@
 import LocationSvg from "assets/svgs/LocationSvg";
 import { Badge } from "@/components/ui/badge";
-import { IProjectSingleData } from "definations/project";
+import { IProjectSingleData } from "definitions/project";
 import { formatNumberCurrency } from "@/utils/utls";
 
 export default function ProjectSummary(props: IProjectSingleData) {

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { AdminRoutes } from "@/constants/RouterConstants";
 import Link from "next/link";
-import { TAssetPaginatedData } from "definations/admin/inventory-management/asset";
+import { TAssetPaginatedData } from "definitions/admin/inventory-management/asset";
 
 export const fuelRequestAssetColumns: ColumnDef<TAssetPaginatedData>[] = [
     {

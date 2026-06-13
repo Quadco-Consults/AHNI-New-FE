@@ -11,7 +11,7 @@ import {
 import {
   SupportiveSupervisionResponseDataSchema,
   SupportiveSupervisionSchema,
-} from "definations/program-validator";
+} from "definitions/program-validator";
 import { z } from "zod";
 
 const BASE_URL = "/programs/supportive-supervisions/";

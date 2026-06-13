@@ -5,7 +5,7 @@ import {
   ManualBidCbaPrequalificationData,
   ManualBidCbaPrequalificationResultsData,
 } from "../types/manual-bid-cba-prequalification";
-import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
+import { TPaginatedResponse, TRequest, TResponse } from "definitions/index";
 
 const BASE_URL = "procurements/vendor-bid-prequalification-summary/";
 

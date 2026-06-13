@@ -22,7 +22,7 @@ import {
 
 import { SelectHTMLAttributes } from "react";
 import { IOptions } from "./schema";
-// import { IOptions } from "definations/schema";
+// import { IOptions } from "definitions/schema";
 
 interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   name: string;

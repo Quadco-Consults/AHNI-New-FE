@@ -9,7 +9,7 @@ import PrinterIcon from "@/components/icons/PrinterIcon";
 import { ChevronRight, Save } from "lucide-react";
 import { useAppDispatch } from "@/hooks/useStore";
 import { openDialog } from "@/store/ui";
-import { DialogType } from "@/constants/dailogs";
+import { DialogType } from "@/constants/dialogs";
 import { HrRoutes } from "@/constants/RouterConstants";
 import Card from "@/components/Card";
 import { updateStepCompletion } from "@/store/stepTracker";

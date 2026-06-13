@@ -12,7 +12,7 @@ import {
   WorkforceBankAccountFormValues,
   WorkforcePensionFormValues,
 } from "../types/hr-validator";
-import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
+import { TPaginatedResponse, TRequest, TResponse } from "definitions/index";
 
 const BASE_URL = "/hr/employees";
 

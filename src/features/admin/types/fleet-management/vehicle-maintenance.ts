@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { TAssetSingleData } from "../inventory-management/asset";
-import { TFCONumberData } from "definations/modules/finance/fco-number";
+import { TFCONumberData } from "definitions/modules/finance/fco-number";
 import { IUser } from "@/features/auth/types/user";
 
 export const VehicleMaintenanceSchema = z.object({

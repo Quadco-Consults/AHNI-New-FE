@@ -14,16 +14,16 @@ import { useQueryClient } from "@tanstack/react-query";
 import { calculateTotalCost } from "@/features/programs/types/activity-cost-sheet";
 
 export default function ActivityCostSheetModal() {
-    const { dailog } = useAppSelector((state) => state.ui);
+    const { dialog } = useAppSelector((state) => state.ui);
     const dispatch = useAppDispatch();
     const queryClient = useQueryClient();
 
-    const costSheet = dailog?.dialogProps?.costSheet || null;
-    const mode = dailog?.dialogProps?.mode || "create";
+    const costSheet = dialog?.dialogProps?.costSheet || null;
+    const mode = dialog?.dialogProps?.mode || "create";
 
     // Get activityId with proper fallback
-    const activityId = dailog?.dialogProps?.activityId ||
-                       dailog?.dialogProps?.activityPlanId ||
+    const activityId = dialog?.dialogProps?.activityId ||
+                       dialog?.dialogProps?.activityPlanId ||
                        costSheet?.activity ||
                        "";
 
@@ -32,7 +32,7 @@ export default function ActivityCostSheetModal() {
         mode,
         activityId,
         costSheet,
-        dialogProps: dailog?.dialogProps
+        dialogProps: dialog?.dialogProps
     });
 
     // API hooks

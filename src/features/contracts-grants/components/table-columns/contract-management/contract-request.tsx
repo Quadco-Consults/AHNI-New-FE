@@ -13,7 +13,7 @@ import EyeIcon from "@/components/icons/EyeIcon";
 import ConfirmationDialog from "@/components/ConfirmationDialog";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { IAgreementPaginatedData } from "definations/c&g/contract-management/agreement";
+import { IAgreementPaginatedData } from "definitions/c&g/contract-management/agreement";
 import { useDeleteContractRequest } from "@/features/contracts-grants/controllers/contractController";
 import { CG_ROUTES } from "@/constants/RouterConstants";
 import WorkflowActions from "../../contract-management/WorkflowActions";

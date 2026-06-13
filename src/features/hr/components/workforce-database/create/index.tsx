@@ -11,7 +11,7 @@ import FormSelect from "@/components/atoms/FormSelectField";
 import GoBack from "@/components/GoBack";
 import { Save } from "lucide-react";
 import { openDialog } from "@/store/ui";
-import { DialogType } from "@/constants/dailogs";
+import { DialogType } from "@/constants/dialogs";
 import { useAppDispatch } from "@/hooks/useStore";
 import { WorkforceFormValues, workforceSchema } from "@/features/hr/types/hr-validator";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -22,18 +22,18 @@ import FileUpload from "@/components/atoms/FileUpload";
 import { toast } from "sonner";
 import { useGetLocationList } from "@/features/modules/controllers/config/locationController";
 import { useGetDepartmentPaginate } from "@/features/modules/controllers/config/departmentController";
-import { LocationResultsData } from "definations/configs/location";
-import { DepartmentsResultsData } from "definations/configs/departments";
+import { LocationResultsData } from "definitions/configs/location";
+import { DepartmentsResultsData } from "definitions/configs/departments";
 import FormButton from "@/components/FormButton";
 
 import { HrRoutes } from "@/constants/RouterConstants";
 import { updateStepCompletion } from "@/store/stepTracker";
 import FormCheckBox from "@/components/atoms/FormCheckBox";
 import { useGetAllProjects } from "@/features/projects/controllers/projectController";
-import { IProjectSingleData } from "definations/project";
+import { IProjectSingleData } from "definitions/project";
 import { useCreateEmployeeOnboarding } from "@/features/hr/controllers/employeeOnboardingController";
 import { useGetPositionPaginate } from "@/features/modules/controllers/config/positionController";
-import { PositionsResultsData } from "definations/configs/positions";
+import { PositionsResultsData } from "definitions/configs/positions";
 
 const CreateEmployee = () => {
   const router = useRouter();

@@ -13,7 +13,7 @@ import { formatNumberCurrency } from "@/utils/utls";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { openDialog } from "@/store/ui";
-import { DialogType } from "@/constants/dailogs";
+import { DialogType } from "@/constants/dialogs";
 import { useAppDispatch } from "@/hooks/useStore";
 
 export const grantColumns: ColumnDef<IGrantPaginatedData>[] = [

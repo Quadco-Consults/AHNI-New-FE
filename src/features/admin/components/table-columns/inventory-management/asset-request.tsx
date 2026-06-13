@@ -8,7 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { useState } from "react";
 import Link from "next/link";
 import { ColumnDef } from "@tanstack/react-table";
-import { IAssetRequestPaginatedData } from "definations/admin/inventory-management/asset-request";
+import { IAssetRequestPaginatedData } from "definitions/admin/inventory-management/asset-request";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";

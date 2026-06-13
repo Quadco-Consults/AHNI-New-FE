@@ -4,7 +4,7 @@ import React from "react";
 import { Form } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import FormInput from "@/components/atoms/FormInput";
-import { DialogType } from "@/constants/dailogs";
+import { DialogType } from "@/constants/dialogs";
 import { useAppDispatch } from "@/hooks/useStore";
 import FormCheckBox from "@/components/atoms/FormCheckBox";
 import { openDialog } from "@/store/ui";

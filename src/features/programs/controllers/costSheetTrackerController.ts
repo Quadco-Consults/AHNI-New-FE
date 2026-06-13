@@ -2,7 +2,7 @@ import useApiManager from "@/constants/mainController";
 import { useQuery } from "@tanstack/react-query";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { AxiosError } from "axios";
-import { TResponse } from "definations/index";
+import { TResponse } from "definitions/index";
 
 // Types
 export interface CostSheetTracker {

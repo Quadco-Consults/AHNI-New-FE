@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { AdminRoutes } from "@/constants/RouterConstants";
-import { IExpenseAuthorizationPaginatedData } from "definations/admin/expense-authorization";
+import { IExpenseAuthorizationPaginatedData } from "definitions/admin/expense-authorization";
 import { cn } from "@/lib/utils";
 import { Shield } from "lucide-react";
 import { useState } from "react";

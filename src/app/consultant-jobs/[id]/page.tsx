@@ -100,7 +100,7 @@ const DetailsTag = ({
 export default function ConsultantJobDetailsPage() {
   const params = useParams();
   const router = useRouter();
-  const id = Array.isArray(params.id) ? params.id[0] : params.id;
+  const id = Array.isArray(params?.id) ? params?.id[0] : params?.id;
   const [showApplicationForm, setShowApplicationForm] = useState(false);
 
   const { data, isLoading, error } = useGetPublicOpportunity(id as string);
@@ -318,7 +318,7 @@ export default function ConsultantJobDetailsPage() {
         const validFiles: File[] = [];
         const invalidFiles: string[] = [];
 
-        newFiles.forEach(file => {
+        newFiles.forEach((file: any) => {
           if (file.size > maxSizeInBytes) {
             invalidFiles.push(`${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
           } else {

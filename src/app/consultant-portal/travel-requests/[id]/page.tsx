@@ -35,7 +35,7 @@ import FileUploadManager from "@/components/FileUploadManager";
 export default function ConsultantTravelRequestDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const id = params.id as string;
+  const id = params?.id as string;
 
   const {
     data: travelRequestData,

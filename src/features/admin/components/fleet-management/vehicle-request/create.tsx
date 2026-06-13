@@ -12,7 +12,7 @@ import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
 import { openDialog } from "@/store/ui";
-import { DialogType, largeDailogScreen } from "@/constants/dailogs";
+import { DialogType, largeDailogScreen } from "@/constants/dialogs";
 // import { userSelector } from "@/store/assets";
 import { toast } from "sonner";
 import { useGetAllUsersQuery, useGetUserProfile } from "@/features/auth/controllers/userController";

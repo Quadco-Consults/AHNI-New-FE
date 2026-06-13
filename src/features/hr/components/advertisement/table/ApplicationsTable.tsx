@@ -52,7 +52,7 @@ import {
 } from "@/components/ui/select";
 import SearchBar from "@/components/SearchBar";
 import { openDialog } from "@/store/ui";
-import { DialogType, mediumDailogScreen } from "@/constants/dailogs";
+import { DialogType, mediumDailogScreen } from "@/constants/dialogs";
 import { useAppDispatch } from "@/hooks/useStore";
 import { useGetInterviews } from "@/features/hr/controllers/hrInterviewController";
 

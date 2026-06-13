@@ -3,13 +3,13 @@ import { useQuery } from "@tanstack/react-query";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { AxiosError } from "axios";
 import { z } from "zod";
-import { PrequalificationStagesSchema } from "definations/procurement-validator";
+import { PrequalificationStagesSchema } from "definitions/procurement-validator";
 import {
   PrequalificationStagesData,
   PrequalificationStagesResponse,
   PrequalificationStagesResultsData,
 } from "../types/prequalification-stages";
-import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
+import { TPaginatedResponse, TRequest, TResponse } from "definitions/index";
 
 const BASE_URL = "procurements/config/prequalification-stages/";
 

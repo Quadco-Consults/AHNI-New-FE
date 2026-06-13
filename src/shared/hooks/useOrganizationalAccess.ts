@@ -28,7 +28,7 @@ interface IOrganizationalContext {
  * Handles department, role, position, location-based permissions
  */
 export function useOrganizationalAccess() {
-  const authState = useAppSelector((state) => state.auth);
+  const authState = useAppSelector((state: any) => state.auth);
   const { user, isAuthenticated, loading } = authState;
 
   return useMemo(() => {
@@ -66,14 +66,14 @@ export function useOrganizationalAccess() {
       const userPermissions = authState.permissions || orgUser.permissions || [];
 
       // Check module permissions
-      const modulePerms = userPermissions.find(p => p.module === module);
+      const modulePerms = userPermissions.find((p: any) => p.module === module);
       if (!modulePerms) return false;
 
       // Check specific action permission
       const actionCodename = `${action}_${module.toLowerCase().replace('s', '')}` ||
                             `${action}_${module.toLowerCase()}`;
 
-      const hasActionPerm = modulePerms.permissions.some(p =>
+      const hasActionPerm = modulePerms.permissions.some((p: any) =>
         p.codename === actionCodename ||
         p.codename.includes(action)
       );

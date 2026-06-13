@@ -20,7 +20,7 @@ import { useUpdateVendor } from "@/features/procurement/controllers/vendorsContr
 import { useUpdateEmployeeOnboarding } from "@/features/hr/controllers/employeeOnboardingController";
 import { useCreateEmployeeOnboardingBankAcct, useUpdateEmployeeOnboardingBankAcct } from "@/features/hr/controllers/hrEmployeeOnboardingBankAccountController";
 import { toast } from "sonner";
-import { closeDialog, dailogSelector } from "@/store/ui";
+import { closeDialog, dialogSelector } from "@/store/ui";
 import { TUpdateUserFormValues, UpdateUserSchema } from "@/features/auth/types/user";
 import { useGetAllRoles } from "../../controllers/roleController";
 import FormMultiSelect from "@/components/atoms/FormMultiSelect";
@@ -41,7 +41,7 @@ const userTypeOptions = [
 ];
 
 export default function EditUserModal() {
-  const { dialogProps } = useAppSelector(dailogSelector) as {
+  const { dialogProps } = useAppSelector(dialogSelector) as {
     dialogProps: {
       data: {
         id: string;

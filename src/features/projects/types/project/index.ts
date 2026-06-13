@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { TBeneficiaryData } from "definations/modules/project/beneficiaries";
-import { TFundingSourceData } from "definations/modules/project/funding-source";
-import { TPartnerData } from "definations/modules/project/partners";
+import { TBeneficiaryData } from "definitions/modules/project/beneficiaries";
+import { TFundingSourceData } from "definitions/modules/project/funding-source";
+import { TPartnerData } from "definitions/modules/project/partners";
 import { IUser } from "@/features/auth/types/user";
 // import { IGrantSingleData } from "@/features/contracts-grants/types/grants";
 

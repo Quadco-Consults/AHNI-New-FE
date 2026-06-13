@@ -31,12 +31,12 @@ import { useQueryClient } from "@tanstack/react-query";
 const months = ["Oct", "Nov", "Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep"];
 
 export default function EditUnplannedActivityModal() {
-    const { dailog } = useAppSelector((state) => state.ui);
+    const { dialog } = useAppSelector((state) => state.ui);
     const dispatch = useAppDispatch();
     const queryClient = useQueryClient();
 
-    const activityData = dailog?.dialogProps?.activityData || {};
-    const onSuccess = dailog?.dialogProps?.onSuccess;
+    const activityData = dialog?.dialogProps?.activityData || {};
+    const onSuccess = dialog?.dialogProps?.onSuccess;
 
     // Debug the actual data structure being passed to the modal
     console.log('=== EDIT MODAL DEBUG ===');

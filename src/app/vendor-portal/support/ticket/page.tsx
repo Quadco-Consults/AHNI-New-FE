@@ -223,9 +223,9 @@ export default function VendorSupportTicketsPage() {
     return matchesSearch && matchesStatus && matchesCategory;
   });
 
-  const openTicketsCount = tickets.filter(t => t.status === 'open').length;
-  const inProgressCount = tickets.filter(t => t.status === 'in_progress').length;
-  const waitingResponseCount = tickets.filter(t => t.status === 'waiting_response').length;
+  const openTicketsCount = tickets.filter((t: any) => t.status === 'open').length;
+  const inProgressCount = tickets.filter((t: any) => t.status === 'in_progress').length;
+  const waitingResponseCount = tickets.filter((t: any) => t.status === 'waiting_response').length;
 
   const handleCreateTicket = () => {
     // Handle ticket creation here
@@ -299,7 +299,7 @@ export default function VendorSupportTicketsPage() {
               <CheckCircle className="h-8 w-8 text-green-600" />
             </div>
             <p className="text-2xl font-bold text-green-600">
-              {tickets.filter(t => t.status === 'resolved' || t.status === 'closed').length}
+              {tickets.filter((t: any) => t.status === 'resolved' || t.status === 'closed').length}
             </p>
             <p className="text-sm text-green-800">Resolved</p>
           </CardContent>

@@ -10,7 +10,7 @@ import { useFieldArray, useForm } from "react-hook-form";
 import VendorsAPI from "@/features/procurement/controllers/vendorsController";
 import FormSelect from "@/components/atoms/FormSelectField";
 import { LoadingSpinner } from "@/components/Loading";
-import { VendorsResultsData } from "definations/procurement-types/vendors";
+import { VendorsResultsData } from "definitions/procurement-types/vendors";
 import FormInput from "@/components/atoms/FormInput";
 import { useEffect, useMemo, useState } from "react";
 import { z } from "zod";

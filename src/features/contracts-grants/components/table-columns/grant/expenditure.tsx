@@ -13,7 +13,7 @@ import ConfirmationDialog from "@/components/ConfirmationDialog";
 import { useParams } from "next/navigation";
 import { useAppDispatch } from "@/hooks/useStore";
 import { openDialog } from "@/store/ui";
-import { DialogType } from "@/constants/dailogs";
+import { DialogType } from "@/constants/dialogs";
 import { useDeleteExpenditure } from "@/features/contracts-grants/controllers/expenditureController";
 import { formatNumberCurrency } from "@/utils/utls";
 import { format } from "date-fns";

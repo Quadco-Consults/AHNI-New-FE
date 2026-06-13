@@ -9,7 +9,7 @@ import { ChevronLeft, Plus, Upload } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useAppDispatch } from "@/hooks/useStore";
 import { openDialog } from "@/store/ui";
-import { DialogType } from "@/constants/dailogs";
+import { DialogType } from "@/constants/dialogs";
 import { getCostSheetStatusStyling } from "@/features/programs/types/activity-cost-sheet";
 import DataTable from "@/components/Table/DataTable";
 import { costSheetSubActivitiesColumns } from "@/features/programs/components/table-columns/plan/cost-sheet-sub-activities";

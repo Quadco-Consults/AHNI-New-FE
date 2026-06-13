@@ -6,7 +6,7 @@ import { CardContent } from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
-import { closeDialog, dailogSelector } from "@/store/ui";
+import { closeDialog, dialogSelector } from "@/store/ui";
 import { toast } from "sonner";
 import FormSelect from "@/components/atoms/FormSelect";
 
@@ -27,7 +27,7 @@ const AddCBAVendor = () => {
     value: cat.id,
   }));
 
-  const { dialogProps } = useAppSelector(dailogSelector);
+  const { dialogProps } = useAppSelector(dialogSelector);
 
   const data = dialogProps?.data as any;
   const form = useForm({

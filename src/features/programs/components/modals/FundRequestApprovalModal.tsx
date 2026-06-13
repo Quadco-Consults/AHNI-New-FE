@@ -33,7 +33,7 @@ const FundRequestApprovalModal: React.FC<FundRequestApprovalModalProps> = ({
   actionType
 }) => {
   const dispatch = useAppDispatch();
-  const { isOpen } = useAppSelector((state) => state.ui.dailog);
+  const { isOpen } = useAppSelector((state) => state.ui.dialog);
   
   const form = useForm<TApprovalFormValues>({
     resolver: zodResolver(ApprovalSchema),

@@ -1,6 +1,6 @@
-import { FinancialYearResultsData } from "definations/configs/financial-year";
-import { PartnerResultsData } from "definations/project-types/partners";
-import { ProjectsResultsData } from "definations/project-types/projects";
+import { FinancialYearResultsData } from "definitions/configs/financial-year";
+import { PartnerResultsData } from "definitions/project-types/partners";
+import { ProjectsResultsData } from "definitions/project-types/projects";
 
 export interface WorkPlanResultsData {
   id: string;

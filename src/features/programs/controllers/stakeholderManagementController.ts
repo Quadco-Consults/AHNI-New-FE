@@ -8,7 +8,7 @@ import {
   StakeholderManagementResponse,
   StakeholderMgtProjectsData,
 } from "../types/stakeholder-management";
-import { StakeholderManagementSchema, StakeholderMappingSchema } from "definations/program-validator";
+import { StakeholderManagementSchema, StakeholderMappingSchema } from "definitions/program-validator";
 import { z } from "zod";
 
 const BASE_URL = "/programs/stakeholder-mgts/";

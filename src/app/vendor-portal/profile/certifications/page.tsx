@@ -322,7 +322,7 @@ export default function VendorCertificationsPage() {
               </div>
               <h3 className="font-medium text-gray-900">Valid Certifications</h3>
               <p className="text-2xl font-bold text-green-600">
-                {certifications.filter(c => c.status === 'VALID').length}
+                {certifications.filter((c: any) => c.status === 'VALID').length}
               </p>
             </div>
             <div className="text-center">
@@ -331,7 +331,7 @@ export default function VendorCertificationsPage() {
               </div>
               <h3 className="font-medium text-gray-900">Expiring Soon</h3>
               <p className="text-2xl font-bold text-yellow-600">
-                {certifications.filter(c => isExpiringSoon(c.expiry_date)).length}
+                {certifications.filter((c: any) => isExpiringSoon(c.expiry_date)).length}
               </p>
             </div>
             <div className="text-center">
@@ -340,7 +340,7 @@ export default function VendorCertificationsPage() {
               </div>
               <h3 className="font-medium text-gray-900">Expired</h3>
               <p className="text-2xl font-bold text-red-600">
-                {certifications.filter(c => c.status === 'EXPIRED').length}
+                {certifications.filter((c: any) => c.status === 'EXPIRED').length}
               </p>
             </div>
           </div>

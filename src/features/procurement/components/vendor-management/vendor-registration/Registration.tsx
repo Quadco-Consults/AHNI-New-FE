@@ -32,7 +32,7 @@ import logoPng from "@/assets/imgs/logo.png";
 import { Input } from "@/components/ui/input";
 import { Icon } from "@iconify/react";
 import { LoadingSpinner } from "@/components/Loading";
-import { CategoryResultsData } from "definations/configs/category";
+import { CategoryResultsData } from "definitions/configs/category";
 import { Checkbox } from "@/components/ui/checkbox";
 import { VendorsRegistrationSchema } from "@/features/procurement/types/procurement-validator";
 import { z } from "zod";

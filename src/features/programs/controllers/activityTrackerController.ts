@@ -6,7 +6,7 @@ import {
   TWorkPlanTrackerData,
   TWorkPlanTrackerFormValues,
 } from "../types/activity-tracker";
-import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
+import { TPaginatedResponse, TRequest, TResponse } from "definitions/index";
 
 // ===== ACTIVITY TRACKER HOOKS =====
 

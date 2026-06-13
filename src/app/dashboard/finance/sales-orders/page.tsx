@@ -441,12 +441,12 @@ export default function SalesOrdersPage() {
   const stats = {
     total: salesOrders.length,
     totalAmount: salesOrders.reduce((sum, order) => sum + order.total_amount, 0),
-    draft: salesOrders.filter(order => order.status === 'DRAFT').length,
-    confirmed: salesOrders.filter(order => order.status === 'CONFIRMED').length,
-    inProgress: salesOrders.filter(order => order.status === 'IN_PROGRESS').length,
-    shipped: salesOrders.filter(order => order.status === 'SHIPPED').length,
-    delivered: salesOrders.filter(order => order.status === 'DELIVERED').length,
-    completed: salesOrders.filter(order => order.status === 'COMPLETED').length,
+    draft: salesOrders.filter((order: any) => order.status === 'DRAFT').length,
+    confirmed: salesOrders.filter((order: any) => order.status === 'CONFIRMED').length,
+    inProgress: salesOrders.filter((order: any) => order.status === 'IN_PROGRESS').length,
+    shipped: salesOrders.filter((order: any) => order.status === 'SHIPPED').length,
+    delivered: salesOrders.filter((order: any) => order.status === 'DELIVERED').length,
+    completed: salesOrders.filter((order: any) => order.status === 'COMPLETED').length,
   };
 
   return (

@@ -1,4 +1,4 @@
-import { ICloseOutPlanTask } from "definations/c&g/closeout-plan";
+import { ICloseOutPlanTask } from "definitions/c&g/closeout-plan";
 import { ColumnDef } from "@tanstack/react-table";
 
 export const closeOutPlanTaskColumns: ColumnDef<ICloseOutPlanTask>[] = [

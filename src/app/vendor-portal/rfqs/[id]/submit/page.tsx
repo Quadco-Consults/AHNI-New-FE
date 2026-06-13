@@ -52,7 +52,7 @@ type BidSubmissionFormData = z.infer<typeof BidSubmissionSchema>;
 export default function VendorBidSubmissionPage() {
   const params = useParams();
   const router = useRouter();
-  const rfqId = Array.isArray(params.id) ? params.id[0] : params.id;
+  const rfqId = Array.isArray(params?.id) ? params?.id[0] : params?.id;
 
   const [documents, setDocuments] = useState<FileList | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);

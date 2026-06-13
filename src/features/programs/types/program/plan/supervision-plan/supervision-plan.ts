@@ -1,7 +1,7 @@
 import { IUser } from "@/features/auth/types/user";
-import { TPrequalificationCategoryData } from "definations/modules/procurement/prequalification-category";
-import { TSolicitationEvaluationCriteriaData } from "definations/modules/procurement/solicitation-evaluation-criteria";
-import { TFacilityData } from "definations/modules/program/facility";
+import { TPrequalificationCategoryData } from "definitions/modules/procurement/prequalification-category";
+import { TSolicitationEvaluationCriteriaData } from "definitions/modules/procurement/solicitation-evaluation-criteria";
+import { TFacilityData } from "definitions/modules/program/facility";
 import { z } from "zod";
 
 export const SSPCompositionSchema = z.object({

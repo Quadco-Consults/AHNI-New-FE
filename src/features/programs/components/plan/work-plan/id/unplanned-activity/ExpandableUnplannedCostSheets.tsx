@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, Upload } from "lucide-react";
 import { useAppDispatch } from "@/hooks/useStore";
 import { openDialog } from "@/store/ui";
-import { DialogType } from "@/constants/dailogs";
+import { DialogType } from "@/constants/dialogs";
 
 interface ExpandableUnplannedCostSheetsProps {
   activityPlanId: string;

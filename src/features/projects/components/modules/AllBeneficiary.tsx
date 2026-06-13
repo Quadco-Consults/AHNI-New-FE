@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { useAppDispatch } from "@/hooks/useStore";
 import { openDialog } from "@/store/ui";
-import { DialogType } from "@/constants/dailogs";
+import { DialogType } from "@/constants/dialogs";
 import TableAction from "@/components/TableAction";
 
 import { LoadingSpinner } from "@/components/Loading";

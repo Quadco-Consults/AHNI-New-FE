@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import TableAction from "@/components/TableAction";
 import Pagination from "@/components/Pagination";
-import { DialogType } from "@/constants/dailogs";
+import { DialogType } from "@/constants/dialogs";
 import { useAppDispatch } from "@/hooks/useStore";
 import { openDialog } from "@/store/ui";
 import { useGetAllStatesQuery, useDeleteStateMutation } from "@/features/modules/controllers/config/stateController";

@@ -1,5 +1,5 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { IVehicleMaintenancePaginatedData } from "definations/admin/fleet-management/vehicle-maintenance";
+import { IVehicleMaintenancePaginatedData } from "definitions/admin/fleet-management/vehicle-maintenance";
 import DeleteIcon from "@/components/icons/DeleteIcon";
 import EditIcon from "@/components/icons/EditIcon";
 import EyeIcon from "@/components/icons/EyeIcon";

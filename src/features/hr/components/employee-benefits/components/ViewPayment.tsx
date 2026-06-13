@@ -1,5 +1,5 @@
 import { useAppSelector } from "@/hooks/useStore";
-import { dailogSelector } from "@/store/ui";
+import { dialogSelector } from "@/store/ui";
 import { z } from "zod";
 
 import { CardContent } from "@/components/ui/card";
@@ -19,7 +19,7 @@ export type TGoalFormValues = z.infer<typeof GoalSchema>;
 const ViewPaymentModal = () => {
   // const dispatch = useAppDispatch();
 
-  const { dialogProps } = useAppSelector(dailogSelector);
+  const { dialogProps } = useAppSelector(dialogSelector);
 
   const urlId = typeof dialogProps?.data === "string" ? dialogProps.data : "";
   console.log({ urlId });

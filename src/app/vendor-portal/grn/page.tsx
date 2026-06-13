@@ -119,15 +119,15 @@ export default function VendorGRNPage() {
     );
   };
 
-  const pendingGRNs = grnsArray.filter(grn => ['PENDING', 'PARTIALLY_RECEIVED'].includes(grn.status));
-  const receivedGRNs = grnsArray.filter(grn => ['RECEIVED', 'INSPECTED', 'ACCEPTED'].includes(grn.status));
-  const issuesGRNs = grnsArray.filter(grn => ['REJECTED', 'RETURNED'].includes(grn.status));
+  const pendingGRNs = grnsArray.filter((grn: any) => ['PENDING', 'PARTIALLY_RECEIVED'].includes(grn.status));
+  const receivedGRNs = grnsArray.filter((grn: any) => ['RECEIVED', 'INSPECTED', 'ACCEPTED'].includes(grn.status));
+  const issuesGRNs = grnsArray.filter((grn: any) => ['REJECTED', 'RETURNED'].includes(grn.status));
 
   // Calculate summary stats
   const totalValue = grnsArray.reduce((sum, grn) => sum + grn.value_received, 0);
   const acceptedValue = grnsArray.reduce((sum, grn) => sum + grn.value_accepted, 0);
   const averageRating = grnsArray.length ?
-    grnsArray.reduce((sum, grn) => sum + (grn.quality_rating || 0), 0) / grnsArray.filter(grn => grn.quality_rating).length : 0;
+    grnsArray.reduce((sum, grn) => sum + (grn.quality_rating || 0), 0) / grnsArray.filter((grn: any) => grn.quality_rating).length : 0;
 
   return (
     <div className="space-y-6">

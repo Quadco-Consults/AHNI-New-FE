@@ -10,9 +10,9 @@ import Card from "@/components/Card";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, FileText, BarChart, Briefcase, CalendarDays, Layers, ClipboardList, ClipboardCheck, Eye, ShieldCheck, CheckCircle, Package, Users, User, UserCheck, Lock, XCircle } from 'lucide-react';
 import { Icon } from "@iconify/react";
-import { SolicitationItems } from "definations/procurement-types/solicitation";
+import { SolicitationItems } from "definitions/procurement-types/solicitation";
 import GoBack from "@/components/GoBack";
-import { CommitteeMemberData } from "definations/procurement-types/cba";
+import { CommitteeMemberData } from "definitions/procurement-types/cba";
 import { RouteEnum } from "@/constants/RouterConstants";
 import { cn } from "@/lib/utils";
 import {

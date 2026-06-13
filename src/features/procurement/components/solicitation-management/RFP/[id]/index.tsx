@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useParams } from "next/navigation";
 
 import { LoadingSpinner } from "@/components/Loading";
-// import { SolicitationResultsData } from "definations/procurement-types/solicitation";
+// import { SolicitationResultsData } from "definitions/procurement-types/solicitation";
 import DetailsContent from "./tab-contents/Details-content";
 import VendorSubmission from "./tab-contents/Vendor-submission";
 import ApprovalWorkflowContent from "./tab-contents/ApprovalWorkflow";

@@ -9,7 +9,7 @@ import { Form } from "@/components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
-import { closeDialog, dailogSelector } from "@/store/ui";
+import { closeDialog, dialogSelector } from "@/store/ui";
 import FormTextArea from "@/components/atoms/FormTextArea";
 import FormMultiSelect from "@/components/atoms/FormMultiSelect";
 import { useAddModule, useUpdateModule } from "@/features/modules/controllers/project/moduleController";
@@ -26,7 +26,7 @@ const ModuleSchema = z.object({
 type ModuleFormValues = z.infer<typeof ModuleSchema>;
 
 const AddModule = () => {
-  const { dialogProps } = useAppSelector(dailogSelector);
+  const { dialogProps } = useAppSelector(dialogSelector);
   const data = dialogProps?.data as unknown as ModuleData;
   const isUpdateMode = dialogProps?.type === "update";
 

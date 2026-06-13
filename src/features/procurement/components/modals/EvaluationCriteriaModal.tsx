@@ -28,7 +28,7 @@ export default function EvaluationCriteriaModal() {
 
   const [evaluationCategory, setEvaluationCategory] = useState("");
 
-  const dialogProps = useAppSelector((state) => state.ui.dailog.dialogProps);
+  const dialogProps = useAppSelector((state) => state.ui.dialog.dialogProps);
 
   const { data: category, isLoading: isCategoryLoading } =
     useGetAllSupervisionCategory({

@@ -17,7 +17,7 @@ import { supportColumn } from "@/features/support/components/support";
 import { useGetAllTickets } from "@/features/support/controllers/supportController";
 import { useAppDispatch } from "@/hooks/useStore";
 import { openDialog } from "@/store/ui";
-import { DialogType } from "@/constants/dailogs";
+import { DialogType } from "@/constants/dialogs";
 
 export default function Notifications() {
     const [isClosed, setIsClosed] = useState(false)

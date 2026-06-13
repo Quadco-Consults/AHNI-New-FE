@@ -13,7 +13,7 @@ import DeleteIcon from "@/components/icons/DeleteIcon";
 import ConfirmationDialog from "@/components/ConfirmationDialog";
 import { toast } from "sonner";
 import { openDialog } from "@/store/ui";
-import { DialogType } from "@/constants/dailogs";
+import { DialogType } from "@/constants/dialogs";
 import { useAppDispatch } from "@/hooks/useStore";
 import {
   useGetAllSubGrantDisbursements,

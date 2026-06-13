@@ -28,7 +28,7 @@ import {
   DialogType,
   largeDailogScreen,
   mediumDailogScreen,
-} from "@/constants/dailogs";
+} from "@/constants/dialogs";
 import { useState } from "react";
 import {
   useActivateUser,

@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { CardContent } from "@/components/ui/card";
 import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
-import { closeDialog, dailogSelector } from "@/store/ui";
+import { closeDialog, dialogSelector } from "@/store/ui";
 
 type Activity = {
   name: string;
@@ -24,7 +24,7 @@ const availableTimesheets: Activity[] = [
 
 export default function CopyActivitiesModal() {
   const dispatch = useAppDispatch();
-  const { dialogProps } = useAppSelector(dailogSelector) as {
+  const { dialogProps } = useAppSelector(dialogSelector) as {
     dialogProps: DialogProps;
   };
 

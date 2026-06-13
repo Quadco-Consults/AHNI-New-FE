@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { CardTitle } from "@/components/ui/card";
 import { CG_ROUTES, ProgramRoutes } from "@/constants/RouterConstants";
 import { format, isValid } from "date-fns";
-import { IConsultantPaginatedData } from "definations/c&g/contract-management/consultancy-management/consultancy-management";
+import { IConsultantPaginatedData } from "definitions/c&g/contract-management/consultancy-management/consultancy-management";
 import useJobAdvertType from "@/hooks/useJobAdvertType";
 import React, { useState } from "react";
 import Link from "next/link";

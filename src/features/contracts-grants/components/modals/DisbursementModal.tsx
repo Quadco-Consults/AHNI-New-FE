@@ -25,7 +25,7 @@ import { queryClient } from "@/constants/mainController";
 
 
 export default function DisbursementModal() {
-  const { dialogProps } = useAppSelector((state) => state.ui.dailog);
+  const { dialogProps } = useAppSelector((state) => state.ui.dialog);
 
   const disbursement =
     dialogProps?.disbursement as unknown as IDisbursementPaginatedData;

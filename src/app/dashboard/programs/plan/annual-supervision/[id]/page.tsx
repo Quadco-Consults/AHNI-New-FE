@@ -85,7 +85,7 @@ import { getCurrentUser } from "@/utils/auth";
 const AnnualSupervisionPlanDetailPage = () => {
   const router = useRouter();
   const params = useParams();
-  const planId = params.id as string;
+  const planId = params?.id as string;
 
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [tempAssignments, setTempAssignments] = useState({
@@ -420,7 +420,7 @@ const AnnualSupervisionPlanDetailPage = () => {
     }
 
     if (!userId) return "Not assigned";
-    const user = users.find(u => u.id === userId);
+    const user = users.find((u: any) => u.id === userId);
     if (!user) {
       return "Unknown user";
     }

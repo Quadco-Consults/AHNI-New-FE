@@ -9,7 +9,7 @@ import ConfirmationDialog from "@/components/ConfirmationDialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { DialogType } from "@/constants/dailogs";
+import { DialogType } from "@/constants/dialogs";
 import { CG_ROUTES } from "@/constants/RouterConstants";
 import { ICloseOutPlanPaginatedData } from "@/features/contracts-grants/types/closeout-plan";
 import { useAppDispatch } from "@/hooks/useStore";

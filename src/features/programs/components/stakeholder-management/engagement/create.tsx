@@ -2,7 +2,7 @@
 import { useRouter } from "next/navigation";
 import FormButton from "@/components/FormButton";
 import { openDialog } from "@/store/ui";
-import { DialogType } from "@/constants/dailogs";
+import { DialogType } from "@/constants/dialogs";
 import { Label } from "@/components/ui/label";
 import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
 import { Button } from "@/components/ui/button";

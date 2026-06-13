@@ -32,14 +32,14 @@ import { LoadingSpinner } from "@/components/Loading";
 import { Checkbox } from "@/components/ui/checkbox";
 
 import { z } from "zod";
-// import { CbaSchema } from "definations/procurement-validator";
+// import { CbaSchema } from "definitions/procurement-validator";
 // import { TUser } from "@/features/auth/types/user";
 // import CbaAPI from "@/features/procurementApi/cbaController";
 import { toast } from "sonner";
 import { RouteEnum } from "@/constants/RouterConstants";
 import { Badge } from "@/components/ui/badge";
 // import LotsAPI from "@/features/procurementApi/lotsController";
-// import { LotsResultsData } from "definations/procurement-types/lots";
+// import { LotsResultsData } from "definitions/procurement-types/lots";
 // import { useGetAllUsers } from "@/features/auth/user";
 
 import { zodResolver } from "@hookform/resolvers/zod";

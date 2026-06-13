@@ -4,7 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import SupportiveSupervisionPlanLayout from "./SupportiveSupervisionPlanLayout";
 import FormButton from "@/components/FormButton";
 import { openDialog } from "@/store/ui";
-import { DialogType, largeDailogScreen } from "@/constants/dailogs";
+import { DialogType, largeDailogScreen } from "@/constants/dialogs";
 import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
@@ -14,7 +14,7 @@ import {
   useGetSingleSupervisionPlan,
   useModifySupervisionPlan,
 } from "@/features/programs/controllers/supervisionPlanController";
-import { TSSPCompositionFormValues } from "definations/program/plan/supervision-plan/supervision-plan";
+import { TSSPCompositionFormValues } from "definitions/program/plan/supervision-plan/supervision-plan";
 import { formatDate } from "@/utils/date";
 import { RouteEnum } from "@/constants/RouterConstants";
 import { skipToken } from "@reduxjs/toolkit/query";
@@ -35,7 +35,7 @@ export default function EvaluationCheckList() {
 
   const dispatch = useAppDispatch();
 
-  const { isOpen } = useAppSelector((state) => state.ui.dailog);
+  const { isOpen } = useAppSelector((state) => state.ui.dialog);
 
   useEffect(() => {
     let prevFormData = {};

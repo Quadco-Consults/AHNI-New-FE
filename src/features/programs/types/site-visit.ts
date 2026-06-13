@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { IUser } from "@/features/auth/types/user";
-import { TFacilityData } from "definations/modules/program/facility";
+import { TFacilityData } from "definitions/modules/program/facility";
 
 // ===== BACKEND-ALIGNED ENUMS AND TYPES =====
 

@@ -233,8 +233,8 @@ AHNI IT Team`,
     return matchesSearch && matchesStatus && matchesType;
   });
 
-  const unreadCount = messages.filter(m => m.status === 'unread').length;
-  const starredCount = messages.filter(m => m.status === 'starred').length;
+  const unreadCount = messages.filter((m: any) => m.status === 'unread').length;
+  const starredCount = messages.filter((m: any) => m.status === 'starred').length;
 
   return (
     <div className="space-y-6">
@@ -559,13 +559,13 @@ AHNI IT Team`,
             </div>
             <div>
               <p className="text-2xl font-bold text-green-600">
-                {messages.filter(m => m.type === 'rfq_clarification').length}
+                {messages.filter((m: any) => m.type === 'rfq_clarification').length}
               </p>
               <p className="text-sm text-green-800">RFQ Related</p>
             </div>
             <div>
               <p className="text-2xl font-bold text-purple-600">
-                {messages.filter(m => m.priority === 'urgent' || m.priority === 'high').length}
+                {messages.filter((m: any) => m.priority === 'urgent' || m.priority === 'high').length}
               </p>
               <p className="text-sm text-purple-800">High Priority</p>
             </div>

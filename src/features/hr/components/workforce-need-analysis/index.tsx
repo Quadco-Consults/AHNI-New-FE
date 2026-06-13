@@ -30,8 +30,8 @@ import {
 import { SelectContent, SelectItem } from "@/components/ui/select";
 import { useGetLocationList } from "@/features/modules/controllers/config/locationController";
 import { useGetPositionPaginate } from "@/features/modules/controllers/config/positionController";
-import { LocationResultsData } from "definations/configs/location";
-import { PositionsResultsData } from "definations/configs/positions";
+import { LocationResultsData } from "definitions/configs/location";
+import { PositionsResultsData } from "definitions/configs/positions";
 import { SubmitHandler, useForm } from "react-hook-form";
 import FormSelect from "@/components/FormSelectField";
 import { Form } from "@/components/ui/form";

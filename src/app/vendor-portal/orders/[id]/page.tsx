@@ -80,8 +80,8 @@ export default function PurchaseOrderDetailsPage() {
   const params = useParams();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const poId = Array.isArray(params.id) ? params.id[0] : params.id;
-  const action = searchParams.get('action');
+  const poId = Array.isArray(params?.id) ? params?.id[0] : params?.id;
+  const action = searchParams?.get('action');
 
   const [activeTab, setActiveTab] = useState("overview");
   const [showAcknowledgment, setShowAcknowledgment] = useState(false);
@@ -126,7 +126,7 @@ export default function PurchaseOrderDetailsPage() {
 
   useEffect(() => {
     if (purchaseOrder && !acknowledgmentForm.getValues().line_item_confirmations.length) {
-      const confirmations = purchaseOrder.line_items.map(item => ({
+      const confirmations = purchaseOrder.line_items.map((item: any) => ({
         po_line_item_id: item.id,
         can_fulfill: true,
         confirmed_quantity: item.quantity_ordered,

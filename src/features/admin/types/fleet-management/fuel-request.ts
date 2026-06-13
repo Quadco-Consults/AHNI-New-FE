@@ -1,8 +1,8 @@
 import { z } from "zod";
 import { TAssetSingleData } from "../inventory-management/asset";
 import { IUser } from "@/features/auth/types/user";
-import { TLocationData } from "definations/modules/config/location";
-import { TFCONumberData } from "definations/modules/finance/fco-number";
+import { TLocationData } from "definitions/modules/config/location";
+import { TFCONumberData } from "definitions/modules/finance/fco-number";
 
 export const FuelRequestSchema = z.object({
     asset: z.string().min(1, "Please select asset"),

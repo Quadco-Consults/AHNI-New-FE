@@ -9,7 +9,7 @@ import { AdminRoutes } from "@/constants/RouterConstants";
 import EyeIcon from "@/components/icons/EyeIcon";
 import DeleteIcon from "@/components/icons/DeleteIcon";
 import ConfirmationDialog from "@/components/ConfirmationDialog";
-import { IAssetMaintenancePaginatedData } from "definations/admin/asset-maintenance";
+import { IAssetMaintenancePaginatedData } from "definitions/admin/asset-maintenance";
 import { format } from "date-fns";
 import { useDeleteAssetMaintenanceMutation } from "@/features/admin/controllers/assetMaintenanceController";
 import { Badge } from "@/components/ui/badge";

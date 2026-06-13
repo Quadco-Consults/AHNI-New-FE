@@ -1,5 +1,5 @@
-import { TCategoryData } from "definations/modules/config/category";
-import { TItemData } from "definations/modules/config/item";
+import { TCategoryData } from "definitions/modules/config/category";
+import { TItemData } from "definitions/modules/config/item";
 import { TItemStoreStockData } from "./item-store-stock";
 import { z } from "zod";
 

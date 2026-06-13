@@ -8,7 +8,7 @@ import {
   TFundRequestActivityBackendResponse,
   FundRequestStatusLabels,
   transformBackendResponseToDisplayData,
-} from "definations/program-validator";
+} from "definitions/program-validator";
 import { IExchangeRate } from "@/features/admin/types/config/exchange-rate";
 import { validateCrossCurrencyAmounts, convertCurrency, formatCurrencyAmount } from "@/utils/currencyConverter";
 

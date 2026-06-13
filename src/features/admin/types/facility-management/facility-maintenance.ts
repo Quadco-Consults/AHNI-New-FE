@@ -1,7 +1,7 @@
 import { IUser } from "@/features/auth/types/user";
-import { TDepartmentData } from "definations/modules/config/department";
-import { TLocationData } from "definations/modules/config/location";
-import { TFacilityData } from "definations/modules/program/facility";
+import { TDepartmentData } from "definitions/modules/config/department";
+import { TLocationData } from "definitions/modules/config/location";
+import { TFacilityData } from "definitions/modules/program/facility";
 import { z } from "zod";
 
 export const FacilityMaintenanceSchema = z.object({

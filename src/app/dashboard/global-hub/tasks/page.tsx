@@ -94,7 +94,7 @@ export default function TasksPage() {
   };
 
   // Filter tasks
-  const filteredTasks = tasks.filter(task => {
+  const filteredTasks = tasks.filter((task: any) => {
     const matchesSearch =
       task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       task.description.toLowerCase().includes(searchQuery.toLowerCase());
@@ -105,12 +105,12 @@ export default function TasksPage() {
     return matchesSearch && matchesModule && matchesPriority;
   });
 
-  const highPriorityTasks = filteredTasks.filter(t => t.priority === 'high');
-  const mediumPriorityTasks = filteredTasks.filter(t => t.priority === 'medium');
-  const lowPriorityTasks = filteredTasks.filter(t => t.priority === 'low');
+  const highPriorityTasks = filteredTasks.filter((t: any) => t.priority === 'high');
+  const mediumPriorityTasks = filteredTasks.filter((t: any) => t.priority === 'medium');
+  const lowPriorityTasks = filteredTasks.filter((t: any) => t.priority === 'low');
 
   // Check for overdue tasks
-  const overdueTasks = filteredTasks.filter(t => {
+  const overdueTasks = filteredTasks.filter((t: any) => {
     if (!t.dueDate) return false;
     return new Date(t.dueDate) < new Date();
   });
@@ -315,7 +315,7 @@ export default function TasksPage() {
               <div>
                 <p className="text-sm text-gray-600">This Week</p>
                 <p className="text-2xl font-bold text-green-600">
-                  {filteredTasks.filter(t => {
+                  {filteredTasks.filter((t: any) => {
                     const weekAgo = new Date();
                     weekAgo.setDate(weekAgo.getDate() - 7);
                     return new Date(t.createdAt) > weekAgo;
@@ -395,7 +395,7 @@ export default function TasksPage() {
               </CardContent>
             </Card>
           ) : (
-            filteredTasks.map(task => <TaskCard key={task.id} task={task} />)
+            filteredTasks.map((task: any) => <TaskCard key={task.id} task={task} />)
           )}
         </TabsContent>
 
@@ -408,7 +408,7 @@ export default function TasksPage() {
               </CardContent>
             </Card>
           ) : (
-            highPriorityTasks.map(task => <TaskCard key={task.id} task={task} />)
+            highPriorityTasks.map((task: any) => <TaskCard key={task.id} task={task} />)
           )}
         </TabsContent>
 
@@ -421,7 +421,7 @@ export default function TasksPage() {
               </CardContent>
             </Card>
           ) : (
-            mediumPriorityTasks.map(task => <TaskCard key={task.id} task={task} />)
+            mediumPriorityTasks.map((task: any) => <TaskCard key={task.id} task={task} />)
           )}
         </TabsContent>
 
@@ -434,7 +434,7 @@ export default function TasksPage() {
               </CardContent>
             </Card>
           ) : (
-            lowPriorityTasks.map(task => <TaskCard key={task.id} task={task} />)
+            lowPriorityTasks.map((task: any) => <TaskCard key={task.id} task={task} />)
           )}
         </TabsContent>
       </Tabs>

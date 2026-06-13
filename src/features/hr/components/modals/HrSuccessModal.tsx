@@ -2,10 +2,10 @@ import SuccessfulIcon from "@/components/icons/SuccessfulIcon";
 import { Button } from "@/components/ui/button";
 import { useAppSelector } from "@/hooks/useStore";
 import { useDispatch } from "react-redux";
-import { closeDialog, dailogSelector } from "@/store/ui";
+import { closeDialog, dialogSelector } from "@/store/ui";
 
 const HrSuccessModal = () => {
-  const { dialogProps } = useAppSelector(dailogSelector);
+  const { dialogProps } = useAppSelector(dialogSelector);
   const dispatch = useDispatch();
 
   const label = dialogProps?.label;

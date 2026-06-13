@@ -1,4 +1,4 @@
-// import { IProjectSingleData } from "definations/project";
+// import { IProjectSingleData } from "definitions/project";
 import { z } from "zod";
 
 export const GrantSchema = z.object({

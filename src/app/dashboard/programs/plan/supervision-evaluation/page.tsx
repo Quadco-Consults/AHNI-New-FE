@@ -128,7 +128,7 @@ const SupervisionEvaluationPage = () => {
     const evaluationsResults = evaluationsData?.data?.results || evaluationsData?.results || [];
 
     const existingEvaluationSiteVisitIds = new Set(
-      evaluationsResults?.map(evaluation => evaluation.site_visit_id || evaluation.site_visit) || []
+      evaluationsResults?.map((evaluation: any) => evaluation.site_visit_id || evaluation.site_visit) || []
     );
 
     console.log("🔍 Processing travel requests for evaluation table:", {
@@ -139,7 +139,7 @@ const SupervisionEvaluationPage = () => {
     });
 
     // Debug: Log each evaluation's travel request mapping
-    evaluationsResults?.forEach(evaluation => {
+    evaluationsResults?.forEach((evaluation: any) => {
       console.log(`📋 Evaluation ${evaluation.id}:`, {
         title: evaluation.title,
         site_visit_field: evaluation.site_visit,
@@ -156,7 +156,7 @@ const SupervisionEvaluationPage = () => {
       })
       .map((siteVisit: any) => {
         const hasEvaluation = existingEvaluationSiteVisitIds.has(siteVisit.id);
-        const evaluation = evaluationsResults?.find(evaluation =>
+        const evaluation = evaluationsResults?.find((evaluation: any) =>
           (evaluation.site_visit_id && evaluation.site_visit_id === siteVisit.id) ||
           (evaluation.site_visit && evaluation.site_visit === siteVisit.id)
         );
@@ -195,9 +195,9 @@ const SupervisionEvaluationPage = () => {
   // Calculate statistics
   const stats = React.useMemo(() => {
     const totalSiteVisits = siteVisitsForEvaluation.length;
-    const pendingEvaluations = siteVisitsForEvaluation.filter(sv => !sv.hasEvaluation).length;
-    const inProgressEvaluations = evaluations.filter(e => e.status === SupervisionEvaluationStatus.IN_PROGRESS).length;
-    const completedEvaluations = evaluations.filter(e => e.status === SupervisionEvaluationStatus.COMPLETED).length;
+    const pendingEvaluations = siteVisitsForEvaluation.filter((sv: any) => !sv.hasEvaluation).length;
+    const inProgressEvaluations = evaluations.filter((e: any) => e.status === SupervisionEvaluationStatus.IN_PROGRESS).length;
+    const completedEvaluations = evaluations.filter((e: any) => e.status === SupervisionEvaluationStatus.COMPLETED).length;
 
     return {
       totalSiteVisits,
@@ -219,7 +219,7 @@ const SupervisionEvaluationPage = () => {
   const handleViewEvaluation = (siteVisitId: string) => {
     // Use the correct evaluations array that handles nested structure
     const evaluationsArray = evaluationsData?.data?.results || evaluationsData?.results || [];
-    const evaluation = evaluationsArray.find(evaluation =>
+    const evaluation = evaluationsArray.find((evaluation: any) =>
       (evaluation.site_visit_id && evaluation.site_visit_id === siteVisitId) ||
       (evaluation.site_visit && evaluation.site_visit === siteVisitId)
     );
@@ -228,7 +228,7 @@ const SupervisionEvaluationPage = () => {
       router.push(`/dashboard/programs/plan/supervision-evaluation/${evaluation.id}`);
     } else {
       console.warn("❌ No evaluation found for travel request:", siteVisitId);
-      console.log("Available evaluations:", evaluationsArray?.map(e => ({
+      console.log("Available evaluations:", evaluationsArray?.map((e: any) => ({
         id: e.id,
         site_visit_id: e.site_visit_id,
         site_visit: e.site_visit,

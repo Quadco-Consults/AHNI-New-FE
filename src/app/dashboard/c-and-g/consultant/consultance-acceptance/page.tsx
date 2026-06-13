@@ -13,7 +13,7 @@ export default function ConsultantContractDashboardPage() {
 
             // Also try to manipulate the title element directly
             const titleElements = document.querySelectorAll('title');
-            titleElements.forEach(el => {
+            titleElements.forEach((el: any) => {
                 el.textContent = targetTitle;
                 el.innerHTML = targetTitle;
             });

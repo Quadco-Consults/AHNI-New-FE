@@ -4,7 +4,7 @@ import ProjectLayout from "./ProjectLayout";
 import Card from "@/components/Card";
 import { Button } from "@/components/ui/button";
 import { openDialog } from "@/store/ui";
-import { DialogType } from "@/constants/dailogs";
+import { DialogType } from "@/constants/dialogs";
 import AddSquareIcon from "@/components/icons/AddSquareIcon";
 import { useAppDispatch } from "@/hooks/useStore";
 import {

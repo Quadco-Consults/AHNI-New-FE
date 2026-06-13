@@ -82,7 +82,7 @@ const SupervisionEvaluationPage = () => {
     ];
 
     const existingEvaluationSiteVisitIds = new Set(
-      evaluationsData?.results?.map(evaluation => evaluation.site_visit_id) || []
+      evaluationsData?.results?.map((evaluation: any) => evaluation.site_visit_id) || []
     );
 
     return actualResults
@@ -93,7 +93,7 @@ const SupervisionEvaluationPage = () => {
       })
       .map((siteVisit: any) => {
         const hasEvaluation = existingEvaluationSiteVisitIds.has(siteVisit.id);
-        const evaluation = evaluationsData?.results?.find(evaluation => evaluation.site_visit_id === siteVisit.id);
+        const evaluation = evaluationsData?.results?.find((evaluation: any) => evaluation.site_visit_id === siteVisit.id);
 
         return {
           ...siteVisit,
@@ -110,9 +110,9 @@ const SupervisionEvaluationPage = () => {
   // Calculate statistics
   const stats = React.useMemo(() => {
     const totalSiteVisits = siteVisitsForEvaluation.length;
-    const pendingEvaluations = siteVisitsForEvaluation.filter(sv => !sv.hasEvaluation).length;
-    const inProgressEvaluations = evaluations.filter(e => e.status === SupervisionEvaluationStatus.IN_PROGRESS).length;
-    const completedEvaluations = evaluations.filter(e => e.status === SupervisionEvaluationStatus.COMPLETED).length;
+    const pendingEvaluations = siteVisitsForEvaluation.filter((sv: any) => !sv.hasEvaluation).length;
+    const inProgressEvaluations = evaluations.filter((e: any) => e.status === SupervisionEvaluationStatus.IN_PROGRESS).length;
+    const completedEvaluations = evaluations.filter((e: any) => e.status === SupervisionEvaluationStatus.COMPLETED).length;
 
     return {
       totalSiteVisits,
@@ -132,7 +132,7 @@ const SupervisionEvaluationPage = () => {
   };
 
   const handleViewEvaluation = (siteVisitId: string) => {
-    const evaluation = evaluations.find(evaluation => evaluation.site_visit_id === siteVisitId);
+    const evaluation = evaluations.find((evaluation: any) => evaluation.site_visit_id === siteVisitId);
     if (evaluation) {
       router.push(`/dashboard/programs/plan/supervision-evaluation/${evaluation.id}`);
     }

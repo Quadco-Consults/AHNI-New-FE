@@ -144,7 +144,7 @@ export default function PublicOpportunitiesPage() {
 
   const opportunities = useMemo(() => {
     if (typeFilter === "procurement") {
-      return finalOpportunities.filter(op =>
+      return finalOpportunities.filter((op: any) =>
         ["EOI", "RFQ", "RFP"].includes(getOpportunityType(op))
       );
     }

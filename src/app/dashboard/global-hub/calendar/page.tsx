@@ -200,13 +200,13 @@ export default function CalendarPage() {
   };
 
   const getEventsForDate = (date: Date) => {
-    return events.filter(event => {
+    return events.filter((event: any) => {
       const eventDate = new Date(event.start_time);
       return eventDate.toDateString() === date.toDateString();
     });
   };
 
-  const filteredEvents = events.filter(event => {
+  const filteredEvents = events.filter((event: any) => {
     const matchesSearch = event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          event.description?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === "all" || event.category === selectedCategory;
@@ -244,7 +244,7 @@ export default function CalendarPage() {
             {day}
           </div>
           <div className="space-y-1">
-            {dayEvents.slice(0, 3).map(event => (
+            {dayEvents.slice(0, 3).map((event: any) => (
               <div
                 key={event.id}
                 className={`text-xs p-1 rounded truncate cursor-pointer ${getCategoryColor(event.category)}`}
@@ -371,7 +371,7 @@ export default function CalendarPage() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-7 gap-0 mb-4">
-              {DAYS.map(day => (
+              {DAYS.map((day: any) => (
                 <div key={day} className="p-2 text-center font-medium text-gray-600 bg-gray-50">
                   {day}
                 </div>
@@ -402,7 +402,7 @@ export default function CalendarPage() {
                   </p>
                 </div>
               ) : (
-                filteredEvents.map(event => (
+                filteredEvents.map((event: any) => (
                   <Card key={event.id} className="hover:shadow-md transition-shadow">
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between">

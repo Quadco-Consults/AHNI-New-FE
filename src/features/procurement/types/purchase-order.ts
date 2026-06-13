@@ -1,4 +1,4 @@
-import { TItemData } from "definations/modules/config/item";
+import { TItemData } from "definitions/modules/config/item";
 
 export type PurchaseOrderItems = {
     id: string;

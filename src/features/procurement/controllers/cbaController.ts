@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { AxiosError } from "axios";
 import { z } from "zod";
-import { CbaApprovalSchema, CbaSchema } from "definations/procurement-validator";
+import { CbaApprovalSchema, CbaSchema } from "definitions/procurement-validator";
 import {
   CbaData,
   CbaResponse,
@@ -14,7 +14,7 @@ import {
   CbaEvaluationPayload,
   CbaScoreCalculation,
 } from "../types/cba";
-import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
+import { TPaginatedResponse, TRequest, TResponse } from "definitions/index";
 
 const BASE_URL = "procurements/cba/";
 

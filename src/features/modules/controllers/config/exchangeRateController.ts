@@ -2,7 +2,7 @@ import useApiManager from "@/constants/mainController";
 import { useQuery } from "@tanstack/react-query";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { IExchangeRate, ExchangeRateFormData } from "@/features/admin/types/config/exchange-rate";
-import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
+import { TPaginatedResponse, TRequest, TResponse } from "definitions/index";
 import { AxiosError } from "axios";
 
 // GET Operations (Queries)

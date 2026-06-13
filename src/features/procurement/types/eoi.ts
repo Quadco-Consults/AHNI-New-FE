@@ -1,4 +1,4 @@
-import { CategoryResultsData } from "definations/configs/category";
+import { CategoryResultsData } from "definitions/configs/category";
 
 export type EOIType = 'NEW_VENDOR' | 'OPEN_TENDER' | 'PROCUREMENT_WITH_REGISTRATION';
 

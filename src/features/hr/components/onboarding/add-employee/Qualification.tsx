@@ -7,7 +7,7 @@ import { Form } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
 import { Save } from "lucide-react";
 import { openDialog } from "@/store/ui";
-import { DialogType } from "@/constants/dailogs";
+import { DialogType } from "@/constants/dialogs";
 import { useAppDispatch } from "@/hooks/useStore";
 import FormInput from "@/components/atoms/FormInput";
 import FileUpload from "@/components/atoms/FileUpload";
@@ -22,7 +22,7 @@ import {
   useCreateEmployeeOnboardingQualifications,
   useUpdateEmployeeOnboardingQualifications,
 } from "@/features/hr/controllers/hrEmployeeOnboardingQualificationsController";
-import { EmployeeOnboardingQualifications } from "definations/hr-types/employee-onboarding";
+import { EmployeeOnboardingQualifications } from "definitions/hr-types/employee-onboarding";
 
 import { createFileObjectFromUrl } from "@/utils/get-file-extension";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";

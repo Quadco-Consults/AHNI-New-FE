@@ -9,7 +9,7 @@ import { Form } from "@/components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
-import { closeDialog, dailogSelector } from "@/store/ui";
+import { closeDialog, dialogSelector } from "@/store/ui";
 import {
   ApprovalThresholdSchema,
   TApprovalThresholdFormValues,
@@ -24,7 +24,7 @@ import { ApprovalThresholdData } from "@/features/modules/types/config";
 import { useMemo } from "react";
 
 const AddApprovalThreshold = () => {
-  const { dialogProps } = useAppSelector(dailogSelector);
+  const { dialogProps } = useAppSelector(dialogSelector);
   const data = dialogProps?.data as unknown as ApprovalThresholdData;
 
   // Fetch positions and locations for dropdowns

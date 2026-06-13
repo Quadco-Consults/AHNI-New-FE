@@ -16,7 +16,7 @@ import {
   ISiteVisitListParams,
   IErrorResponse,
 } from "../types/site-visit";
-import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
+import { TPaginatedResponse, TRequest, TResponse } from "definitions/index";
 
 // Updated Base URLs for Backend Alignment
 const SITE_VISIT_BASE_URL = "programs/site-visits/";

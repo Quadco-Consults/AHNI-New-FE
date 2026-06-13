@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import { IProjectSingleData } from "definations/project";
+import { IProjectSingleData } from "definitions/project";
 import { useGetAllFundRequests } from "@/features/programs/controllers/fundRequestController";
 import { useMemo } from "react";
 

@@ -432,7 +432,7 @@ const BudgetReportsPage = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <DataTable columns={workplanColumns} data={budgetCategories.filter(cat => cat.annualWorkplan > 0)} />
+              <DataTable columns={workplanColumns} data={budgetCategories.filter((cat: any) => cat.annualWorkplan > 0)} />
 
               {/* Workplan Summary */}
               <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -469,7 +469,7 @@ const BudgetReportsPage = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {budgetCategories.filter(cat => cat.cdcApprovedBudget > 0).map((category) => {
+                {budgetCategories.filter((cat: any) => cat.cdcApprovedBudget > 0).map((category) => {
                   const variance = category.cumulativeExpenses - (category.cdcApprovedBudget * 0.25); // Expected 25% utilization
                   const variancePercent = (variance / (category.cdcApprovedBudget * 0.25)) * 100;
 

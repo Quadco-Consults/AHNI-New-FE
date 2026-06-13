@@ -153,7 +153,7 @@ export default function BankAccountsPage() {
   const deleteBankAccount = useDeleteBankAccount();
 
   // Filter bank accounts
-  const filteredAccounts = bankAccounts.filter(account => {
+  const filteredAccounts = bankAccounts.filter((account: any) => {
     if (searchTerm && !account.account_name.toLowerCase().includes(searchTerm.toLowerCase()) &&
         !account.account_number.includes(searchTerm) &&
         !account.bank_name.toLowerCase().includes(searchTerm.toLowerCase())) return false;
@@ -212,9 +212,9 @@ export default function BankAccountsPage() {
     return sum + (account.current_balance * 1600); // Convert USD to NGN at approx rate
   }, 0);
 
-  const activeAccounts = bankAccounts.filter(a => a.is_active).length;
-  const ngnAccounts = bankAccounts.filter(a => a.currency === "NGN").length;
-  const usdAccounts = bankAccounts.filter(a => a.currency === "USD").length;
+  const activeAccounts = bankAccounts.filter((a: any) => a.is_active).length;
+  const ngnAccounts = bankAccounts.filter((a: any) => a.currency === "NGN").length;
+  const usdAccounts = bankAccounts.filter((a: any) => a.currency === "USD").length;
 
   return (
     <div className="space-y-6">

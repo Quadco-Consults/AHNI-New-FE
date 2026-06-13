@@ -12,7 +12,7 @@ import { useParams } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useState, useMemo } from "react";
 import { openDialog } from "@/store/ui";
-import { DialogType } from "@/constants/dailogs";
+import { DialogType } from "@/constants/dialogs";
 import { useAppDispatch } from "@/hooks/useStore";
 import { useGetSingleSubGrant } from "@/features/contracts-grants/controllers/subGrantController";
 import { useGetAllSubGrantObligations } from "@/features/contracts-grants/controllers/subGrantObligationController";

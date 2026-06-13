@@ -3,13 +3,13 @@ import { useQuery } from "@tanstack/react-query";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { AxiosError } from "axios";
 import { z } from "zod";
-import { ManualBidCbaPrequalificationSchema } from "definations/procurement-validator";
+import { ManualBidCbaPrequalificationSchema } from "definitions/procurement-validator";
 import {
   ManualBidCbaPrequalificationData,
   ManualBidCbaPrequalificationResponse,
   ManualBidCbaPrequalificationResultsData,
 } from "../types/manual-bid-cba-prequalification";
-import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
+import { TPaginatedResponse, TRequest, TResponse } from "definitions/index";
 
 const BASE_URL = "procurements/manual-bid-cba-prequalification/"; // FIXED SPELLING
 const SOLICITATION_URL = "/procurements/manual-bid/by-solicitation/"; // Updated to correct spelling after backend fix

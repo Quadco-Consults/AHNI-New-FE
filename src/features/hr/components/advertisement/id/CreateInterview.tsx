@@ -7,7 +7,7 @@ import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
 
 import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
-import { closeDialog, dailogSelector } from "@/store/ui";
+import { closeDialog, dialogSelector } from "@/store/ui";
 import { toast } from "sonner";
 // import {
 //   useAddLot,
@@ -57,7 +57,7 @@ export interface TInterviewData {
 }
 
 const CreateInterviewModal = () => {
-  const { dialogProps } = useAppSelector(dailogSelector);
+  const { dialogProps } = useAppSelector(dialogSelector);
 
   const urlId = dialogProps?.data as unknown as string;
 

@@ -33,7 +33,7 @@ export default function SubGrantSubUploadModal() {
 
     const dispatch = useAppDispatch();
 
-    const { dialogProps } = useAppSelector((state) => state.ui.dailog);
+    const { dialogProps } = useAppSelector((state) => state.ui.dialog);
 
     const submissionId = dialogProps?.partnerSubId as string;
 

@@ -12,7 +12,7 @@ import DeleteIcon from "@/components/icons/DeleteIcon";
 import ConfirmationDialog from "@/components/ConfirmationDialog";
 import { useAppDispatch } from "@/hooks/useStore";
 import { openDialog } from "@/store/ui";
-import { DialogType } from "@/constants/dailogs";
+import { DialogType } from "@/constants/dialogs";
 import { useParams } from "next/navigation";
 import PencilIcon from "@/components/icons/PencilIcon";
 import { useDeleteObligation } from "@/features/contracts-grants/controllers/obligationController";

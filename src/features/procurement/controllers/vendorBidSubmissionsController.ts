@@ -2,12 +2,12 @@ import useApiManager from "@/constants/mainController";
 import { useQuery } from "@tanstack/react-query";
 import AxiosWithToken from "@/constants/api_management/MyHttpHelperWithToken";
 import { AxiosError } from "axios";
-import { TSolicitationQuotationFormData } from "definations/procurement-validator";
+import { TSolicitationQuotationFormData } from "definitions/procurement-validator";
 import {
   SolicitationResponse,
   SolicitationSubmissionData,
 } from "../types/solicitation";
-import { TResponse } from "definations/index";
+import { TResponse } from "definitions/index";
 
 const BASE_URL = "procurements/manual-bid/"; // Updated to correct spelling after backend fix
 

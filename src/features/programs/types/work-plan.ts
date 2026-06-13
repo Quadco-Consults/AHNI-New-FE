@@ -1,6 +1,6 @@
-import { TFinancialYearData } from "definations/modules/config/financial-year";
-// import { TPartnerData } from "definations/modules/project/partners";
-import { IProjectSingleData } from "definations/project";
+import { TFinancialYearData } from "definitions/modules/config/financial-year";
+// import { TPartnerData } from "definitions/modules/project/partners";
+import { IProjectSingleData } from "definitions/project";
 
 export interface TWorkPlanPaginatedResponse {
   id: string;

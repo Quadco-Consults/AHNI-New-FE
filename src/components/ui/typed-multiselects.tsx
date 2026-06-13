@@ -1,6 +1,6 @@
 import React from "react";
 import { UnifiedMultiSelect, MultiSelectOption } from "./unified-multiselect";
-import { SolicitationCriteriaResultsData } from "definations/procurement-types/solicitation-criteria";
+import { SolicitationCriteriaResultsData } from "definitions/procurement-types/solicitation-criteria";
 
 // Generic option interface (already in unified-multiselect)
 interface BasicOption extends MultiSelectOption {

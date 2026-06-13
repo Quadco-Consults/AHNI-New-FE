@@ -26,7 +26,7 @@ Building2,
 
 export default function PublicEOIPage() {
   const params = useParams();
-  const id = Array.isArray(params.id) ? params.id[0] : params.id;
+  const id = Array.isArray(params?.id) ? params?.id[0] : params?.id;
   const [selectedPath, setSelectedPath] = useState<'new_vendor' | 'existing_vendor' | null>(null);
   const { data, isLoading, error } = useGetPublicOpportunity(id as string);
 

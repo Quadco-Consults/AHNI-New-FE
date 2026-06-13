@@ -1,5 +1,5 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { TWorkPlanTrackerData } from "definations/program-types/activity-tracker";
+import { TWorkPlanTrackerData } from "definitions/program-types/activity-tracker";
 import MoreOptionsHorizontalIcon from "@/components/icons/MoreOptionsHorizontalIcon";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import Link from "next/link";

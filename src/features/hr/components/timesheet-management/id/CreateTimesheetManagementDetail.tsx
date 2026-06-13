@@ -7,7 +7,7 @@ import Card from "@/components/Card";
 import GoBack from "@/components/GoBack";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
-import { DialogType } from "@/constants/dailogs";
+import { DialogType } from "@/constants/dialogs";
 import { useAppDispatch } from "@/hooks/useStore";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";

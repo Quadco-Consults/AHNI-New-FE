@@ -6,7 +6,7 @@ import Card from "@/components/Card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FindingsGrievianceManagementSchema, ResolutionGrievianceManagementSchema } from "@/features/hr/types/grieviance-management";
-import { VendorsResultsData } from "definations/procurement-types/vendors";
+import { VendorsResultsData } from "definitions/procurement-types/vendors";
 import { useAppDispatch } from "@/hooks/useStore";
 
 import { EditIcon, CheckCircle2, XCircle } from "lucide-react";

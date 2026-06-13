@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
-import { TPaginatedResponse } from "definations/index";
+import { TPaginatedResponse } from "definitions/index";
 import { ProcurementTrackerResults } from "../../types/procurementPlan";
 
 interface EnhancedViewCardProps {

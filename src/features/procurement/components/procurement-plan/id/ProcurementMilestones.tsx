@@ -3,7 +3,7 @@ import PendingIcon from "assets/svgs/PendingIcon";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
-import { ProcurementPlanResultsData } from "definations/procurement-types/procurementPlan";
+import { ProcurementPlanResultsData } from "definitions/procurement-types/procurementPlan";
 import React, { useState } from "react";
 
 const ProcurementMilestones = (data: ProcurementPlanResultsData) => {

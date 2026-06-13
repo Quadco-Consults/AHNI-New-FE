@@ -5,7 +5,7 @@ import WriteDialog from "@/components/modals/dialog/WriteDialog";
 import Card from "@/components/Card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { DialogType } from "@/constants/dailogs";
+import { DialogType } from "@/constants/dialogs";
 import {
   FindingsGrievianceManagementSchema,
   GrievianceManagementSchema,

@@ -1,5 +1,5 @@
 import { TAssetSingleData } from "@/features/admin/types/inventory-management/asset";
-import { LocationResultsData } from "definations/configs/location";
+import { LocationResultsData } from "definitions/configs/location";
 
 export type SolicitationItems = {
   id: string;

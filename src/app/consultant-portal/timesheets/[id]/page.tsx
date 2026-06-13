@@ -25,7 +25,7 @@ import { useReactToPrint } from "react-to-print";
 export default function TimesheetDetailPage() {
   const router = useRouter();
   const params = useParams();
-  const timesheetId = params.id as string;
+  const timesheetId = params?.id as string;
   const printRef = useRef<HTMLDivElement>(null);
 
   const { data: timesheetData, isLoading, error } = useTimesheetDetail(timesheetId);

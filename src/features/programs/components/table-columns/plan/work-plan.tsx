@@ -3,7 +3,7 @@ import EyeIcon from "@/components/icons/EyeIcon";
 import DeleteIcon from "@/components/icons/DeleteIcon";
 import { ColumnDef } from "@tanstack/react-table";
 import Link from "next/link";
-import { TWorkPlanPaginatedResponse } from "definations/program-types/work-plan";
+import { TWorkPlanPaginatedResponse } from "definitions/program-types/work-plan";
 import { useDeleteWorkPlan } from "@/features/programs/controllers/workPlanController";
 import { RouteEnum } from "@/constants/RouterConstants";
 import ConfirmationDialog from "@/components/ConfirmationDialog";

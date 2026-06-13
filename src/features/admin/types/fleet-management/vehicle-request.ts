@@ -1,5 +1,5 @@
 import { IUser } from "@/features/auth/types/user";
-import { TLocationData } from "definations/modules/config/location";
+import { TLocationData } from "definitions/modules/config/location";
 import { z } from "zod";
 
 export const VehicleRequestSchema = z.object({

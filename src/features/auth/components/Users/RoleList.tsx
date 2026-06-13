@@ -3,7 +3,7 @@ import { LoadingSpinner } from "@/components/Loading";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { DialogType, largeDailogScreen } from "@/constants/dailogs";
+import { DialogType, largeDailogScreen } from "@/constants/dialogs";
 import { useAppDispatch } from "@/hooks/useStore";
 import { Shield, Key, Trash2, Users, ShieldCheck } from "lucide-react";
 import { useState } from "react";

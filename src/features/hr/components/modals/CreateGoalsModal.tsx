@@ -11,7 +11,7 @@ import AddSquareIcon from "@/components/icons/AddSquareIcon";
 import FormInput from "@/components/FormInput";
 import { MinusCircle } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
-import { closeDialog, dailogSelector } from "@/store/ui";
+import { closeDialog, dialogSelector } from "@/store/ui";
 import { useCreateGoal, CreateGoalPayload } from "@/features/hr/controllers/goalsController";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -30,7 +30,7 @@ export const GoalSchema = z.object({
 export type TGoalFormValues = z.infer<typeof GoalSchema>;
 
 const CreateGoalsModal = () => {
-  const { dialogProps } = useAppSelector(dailogSelector);
+  const { dialogProps } = useAppSelector(dialogSelector);
   const dispatch = useAppDispatch();
   const employeeId = dialogProps?.data as string;
   const queryClient = useQueryClient();

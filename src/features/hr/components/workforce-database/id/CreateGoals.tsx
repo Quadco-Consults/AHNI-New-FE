@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import { useAppDispatch, useAppSelector } from "@/hooks/useStore";
-import { closeDialog, dailogSelector } from "@/store/ui";
+import { closeDialog, dialogSelector } from "@/store/ui";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -38,7 +38,7 @@ export const GoalSchema = z.object({
 export type TGoalFormValues = z.infer<typeof GoalSchema>;
 
 const CreateGoalsModal = () => {
-  const { dialogProps } = useAppSelector(dailogSelector);
+  const { dialogProps } = useAppSelector(dialogSelector);
   const dispatch = useAppDispatch();
   const { createGoal, isLoading, isSuccess, error } = useCreateGoal();
 

@@ -18,13 +18,13 @@ import { Form } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
 import { HrRoutes } from "@/constants/RouterConstants";
 import { SelectContent, SelectItem } from "@/components/ui/select";
-import { LocationResultsData } from "definations/configs/location";
-import { PositionsResultsData } from "definations/configs/positions";
+import { LocationResultsData } from "definitions/configs/location";
+import { PositionsResultsData } from "definitions/configs/positions";
 import { workforceNeedAnalysisSchema } from "@/features/hr/types/hr-validator";
 
 import { UploadIcon } from "lucide-react";
-// import { ItemsResultsData } from "definations/configs/itmes";
-// import { SampleMemoSchema } from "definations/procurement-validator";
+// import { ItemsResultsData } from "definitions/configs/itmes";
+// import { SampleMemoSchema } from "definitions/procurement-validator";
 // import { MinusCircle } from "lucide-react";
 import { SubmitHandler, useForm } from "react-hook-form";
 

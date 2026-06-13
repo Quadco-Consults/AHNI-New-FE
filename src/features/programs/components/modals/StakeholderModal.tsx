@@ -10,7 +10,7 @@ import { addStakeholders } from "@/store/formData/stakeholders";
 import { CheckedState } from "@radix-ui/react-checkbox";
 import { useState } from "react";
 import { closeDialog } from "@/store/ui";
-import { TStakeholderRegisterData } from "definations/program-validator";
+import { TStakeholderRegisterData } from "definitions/program-validator";
 import { useDebounce } from "ahooks";
 
 const StakeholderModal = () => {

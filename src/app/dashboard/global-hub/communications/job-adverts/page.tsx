@@ -104,7 +104,7 @@ export default function JobAdvertsPage() {
               <div>
                 <p className="text-sm text-muted-foreground">New (Applied)</p>
                 <p className="text-2xl font-bold text-blue-600">
-                  {applications.filter(a => a.status === 'APPLIED').length}
+                  {applications.filter((a: any) => a.status === 'APPLIED').length}
                 </p>
               </div>
               <Mail className="h-8 w-8 text-blue-600" />
@@ -118,7 +118,7 @@ export default function JobAdvertsPage() {
               <div>
                 <p className="text-sm text-muted-foreground">Shortlisted</p>
                 <p className="text-2xl font-bold text-green-600">
-                  {applications.filter(a => a.status === 'SHORTLISTED').length}
+                  {applications.filter((a: any) => a.status === 'SHORTLISTED').length}
                 </p>
               </div>
               <UserCheck className="h-8 w-8 text-green-600" />
@@ -132,7 +132,7 @@ export default function JobAdvertsPage() {
               <div>
                 <p className="text-sm text-muted-foreground">Accepted</p>
                 <p className="text-2xl font-bold text-purple-600">
-                  {applications.filter(a => a.status === 'ACCEPTED').length}
+                  {applications.filter((a: any) => a.status === 'ACCEPTED').length}
                 </p>
               </div>
               <UserCheck className="h-8 w-8 text-purple-600" />

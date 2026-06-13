@@ -6,7 +6,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { useDeleteStakeholderRegister } from "@/features/programs/controllers/stakeholderController";
 import { toast } from "sonner";
 import ConfirmationDialog from "@/components/ConfirmationDialog";
-import { TStakeholderRegisterData } from "definations/program-validator";
+import { TStakeholderRegisterData } from "definitions/program-validator";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";

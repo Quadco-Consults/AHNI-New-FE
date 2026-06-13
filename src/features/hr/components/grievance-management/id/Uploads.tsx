@@ -4,7 +4,7 @@
 /* eslint-disable react/no-unknown-property */
 
 import { LoadingSpinner } from "@/components/Loading";
-import { VendorsResultsData } from "definations/procurement-types/vendors";
+import { VendorsResultsData } from "definitions/procurement-types/vendors";
 import { Document, Page } from "react-pdf";
 import { pdfjs } from "react-pdf";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/dialog";
 import { useState } from "react";
 import { useGetGrievianceManagementDocuments, useDeleteGrievianceManagementDocument, useCreateGrievianceManagementDocument } from "@/features/hr/controllers/hrGrievianceManagementDocumentController";
-import { VendorsDocumentResultsData } from "definations/procurement-types/vendors-document";
+import { VendorsDocumentResultsData } from "definitions/procurement-types/vendors-document";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import DeleteIcon from "@/components/icons/DeleteIcon";

@@ -8,8 +8,8 @@ import {
   RiskPlansResultsData,
   RiskPlansResponse,
 } from "../types/risk-plans";
-import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
-import { TRiskManagementPlanData, TRiskPlanManagementFormValues } from "definations/program-validator";
+import { TPaginatedResponse, TRequest, TResponse } from "definitions/index";
+import { TRiskManagementPlanData, TRiskPlanManagementFormValues } from "definitions/program-validator";
 
 const BASE_URL = "programs/plans/risk-management/";
 

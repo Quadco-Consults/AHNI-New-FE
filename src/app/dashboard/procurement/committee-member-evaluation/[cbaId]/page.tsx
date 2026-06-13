@@ -293,7 +293,7 @@ export default function CommitteeMemberEvaluationPage() {
             <Select
               value={selectedVendor?.id}
               onValueChange={(value) => {
-                const vendor = vendors.find(v => v.id === value);
+                const vendor = vendors.find((v: any) => v.id === value);
                 if (vendor) setSelectedVendor(vendor);
               }}
             >

@@ -15,10 +15,10 @@ import { useDeletePartnerMutation } from "@/features/modules/controllers/project
 import PencilIcon from "@/components/icons/PencilIcon";
 import { useAppDispatch } from "@/hooks/useStore";
 import { openDialog } from "@/store/ui";
-import { DialogType } from "@/constants/dailogs";
+import { DialogType } from "@/constants/dialogs";
 import ConfirmationDialog from "@/components/ConfirmationDialog";
 import { useState } from "react";
-import { IProjectSingleData } from "definations/project";
+import { IProjectSingleData } from "definitions/project";
 import { TPartnerData } from "@/features/projects/types/project/partners";
 import { useDeletePartner } from "@/features/modules/controllers/project/partnerController";
 

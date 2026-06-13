@@ -59,7 +59,7 @@ export const useProgramAdmin = (): ProgramAdminCapabilities => {
 
       // Method 2: Department + Role combination
       const department = user.department?.name;
-      const hasProgAdminRole = user.roles?.some(role =>
+      const hasProgAdminRole = user.roles?.some((role: any) =>
         role.name?.toLowerCase().includes('program admin') ||
         role.name?.toLowerCase().includes('program manager')
       );

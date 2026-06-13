@@ -8,7 +8,7 @@ import {
   VendorPrequalificationResponse,
   VendorPrequalificationSchema,
 } from "../types/vendor-prequalification";
-import { TPaginatedResponse, TRequest } from "definations/index";
+import { TPaginatedResponse, TRequest } from "definitions/index";
 
 const BASE_URL = "procurements/vendor-prequalification/";
 

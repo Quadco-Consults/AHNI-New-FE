@@ -5,7 +5,7 @@ import AddSquareIcon from "@/components/icons/AddSquareIcon";
 import { useState } from "react";
 import { useAppDispatch } from "@/hooks/useStore";
 import { openDialog } from "@/store/ui";
-import { DialogType } from "@/constants/dailogs";
+import { DialogType } from "@/constants/dialogs";
 import {
     useGetAllWorkPlanQuery,
     useLazyDownloadWorkPlanTemplateQuery,

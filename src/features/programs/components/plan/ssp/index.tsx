@@ -7,7 +7,7 @@ import AddSquareIcon from "@/components/icons/AddSquareIcon";
 import { RouteEnum } from "@/constants/RouterConstants";
 import ArrowDownIcon from "@/components/icons/ArrowDownIcon";
 import { useAppDispatch } from "@/hooks/useStore";
-import { DialogType } from "@/constants/dailogs";
+import { DialogType } from "@/constants/dialogs";
 import { openDialog } from "@/store/ui";
 import UploadIcon from "@/components/icons/UploadIcon";
 import DataTable from "@/components/Table/DataTable";

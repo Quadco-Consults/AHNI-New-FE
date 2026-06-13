@@ -9,7 +9,7 @@ import EditIcon from "@/components/icons/EditIcon";
 import PencilIcon from "@/components/icons/PencilIcon";
 import { useAppDispatch } from "@/hooks/useStore";
 import { openDialog } from "@/store/ui";
-import { DialogType } from "@/constants/dailogs";
+import { DialogType } from "@/constants/dialogs";
 import ConfirmationDialog from "@/components/ConfirmationDialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useState } from "react";

@@ -14,7 +14,7 @@ import {
   CommandList,
   CommandSeparator,
 } from "@/components/ui/command";
-import { SolicitationCriteriaResultsData } from "definations/procurement-types/solicitation-criteria";
+import { SolicitationCriteriaResultsData } from "definitions/procurement-types/solicitation-criteria";
 
 const multiSelectVariants = cva("m-1", {
   variants: {

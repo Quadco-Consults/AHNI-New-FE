@@ -6,7 +6,7 @@ import {
   TWorkPlanPaginatedResponse,
   TWorkPlanSingleResponse,
 } from "../types/work-plan";
-import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
+import { TPaginatedResponse, TRequest, TResponse } from "definitions/index";
 
 // Note: No leading slash because baseURL already has trailing slash
 const BASE_URL = "programs/plans/works/";

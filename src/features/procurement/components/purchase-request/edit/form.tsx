@@ -45,7 +45,7 @@ import { useUpdatePurchaseRequest } from "@/features/procurement/controllers/pur
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { openDialog } from "@/store/ui";
-import { DialogType } from "@/constants/dailogs";
+import { DialogType } from "@/constants/dialogs";
 import { toast } from "sonner";
 
 interface EditPurchaseRequestFormProps {

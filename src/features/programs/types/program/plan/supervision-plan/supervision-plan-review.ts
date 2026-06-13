@@ -1,5 +1,5 @@
 import { IUser } from "@/features/auth/types/user";
-import { TSolicitationEvaluationCriteriaData } from "definations/modules/procurement/solicitation-evaluation-criteria";
+import { TSolicitationEvaluationCriteriaData } from "definitions/modules/procurement/solicitation-evaluation-criteria";
 import { z } from "zod";
 
 // export const SupervisionPlanReviewSchema = z.object({

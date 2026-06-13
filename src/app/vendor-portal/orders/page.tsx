@@ -106,8 +106,8 @@ export default function VendorOrdersPage() {
     }
   };
 
-  const overdueOrders = allOrders?.filter(order => POGRNUtils.isPOOverdue(order)) || [];
-  const activeOrders = allOrders?.filter(order =>
+  const overdueOrders = allOrders?.filter((order: any) => POGRNUtils.isPOOverdue(order)) || [];
+  const activeOrders = allOrders?.filter((order: any) =>
     ['ISSUED', 'ACKNOWLEDGED', 'IN_PROGRESS', 'PARTIALLY_DELIVERED'].includes(order.status)
   ) || [];
 

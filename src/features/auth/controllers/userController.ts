@@ -7,7 +7,7 @@ import {
   TCreateUserFormValues,
   TUpdateUserFormValues,
 } from "../types/user";
-import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
+import { TPaginatedResponse, TRequest, TResponse } from "definitions/index";
 
 // ===== USER HOOKS =====
 

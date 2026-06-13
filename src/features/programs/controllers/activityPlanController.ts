@@ -7,7 +7,7 @@ import {
   TActivityPlanData,
   TActivityPlanFormValues,
 } from "../types/activity-plan";
-import { TPaginatedResponse, TRequest, TResponse } from "definations/index";
+import { TPaginatedResponse, TRequest, TResponse } from "definitions/index";
 
 // ===== ACTIVITY PLAN HOOKS =====
 

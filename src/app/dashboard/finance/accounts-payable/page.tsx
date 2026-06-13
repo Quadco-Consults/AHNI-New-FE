@@ -441,11 +441,11 @@ export default function AccountsPayablePage() {
     totalBills: mockVendorBills.length,
     totalAmount: mockVendorBills.reduce((sum, bill) => sum + bill.total_amount, 0),
     totalDue: mockVendorBills.reduce((sum, bill) => sum + bill.balance_due, 0),
-    overdueBills: mockVendorBills.filter(bill => {
+    overdueBills: mockVendorBills.filter((bill: any) => {
       const dueDate = new Date(bill.due_date);
       return dueDate < new Date() && bill.status !== 'PAID';
     }).length,
-    paidBills: mockVendorBills.filter(bill => bill.status === 'PAID').length,
+    paidBills: mockVendorBills.filter((bill: any) => bill.status === 'PAID').length,
     totalVendors: mockVendors.length,
     totalPayments: mockVendorPayments.length,
     avgPaymentAmount: mockVendorPayments.reduce((sum, payment) => sum + payment.amount, 0) / mockVendorPayments.length || 0,

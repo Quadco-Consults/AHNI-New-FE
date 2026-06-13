@@ -17,7 +17,7 @@ import IconButton from "@/components/IconButton";
 import PayGroupModal from "./components/PayGroupModal";
 import CompensationSpreadModal from "./components/CompensationSpreadModal";
 import { useAppDispatch } from "@/hooks/useStore";
-import { DialogType, mediumDailogScreen } from "@/constants/dailogs";
+import { DialogType, mediumDailogScreen } from "@/constants/dialogs";
 import { openDialog } from "@/store/ui";
 import { useGetCompensationsSpread } from "@/features/hr/controllers/hrCompensationSpreadController";
 import { CompensationSpreadItem } from "@/features/hr/types/compensation-spread";

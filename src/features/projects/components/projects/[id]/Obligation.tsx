@@ -6,7 +6,7 @@ import MoreOptionsHorizontalIcon from "@/components/icons/MoreOptionsHorizontalI
 import DeleteIcon from "@/components/icons/DeleteIcon";
 import ConfirmationDialog from "@/components/ConfirmationDialog";
 import { useState } from "react";
-import { IProjectSingleData } from "definations/project";
+import { IProjectSingleData } from "definitions/project";
 
 export default function ProjectObligation({}: IProjectSingleData) {
   return (

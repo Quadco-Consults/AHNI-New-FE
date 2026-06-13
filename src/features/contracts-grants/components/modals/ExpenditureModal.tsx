@@ -32,7 +32,7 @@ import { useMemo } from "react";
 import { formatNumberCurrency } from "@/utils/utls";
 
 export default function ExpenditureModal() {
-  const { dialogProps } = useAppSelector((state) => state.ui.dailog);
+  const { dialogProps } = useAppSelector((state) => state.ui.dialog);
 
   const expenditure =
     dialogProps?.expenditure as unknown as IExpenditurePaginatedData;

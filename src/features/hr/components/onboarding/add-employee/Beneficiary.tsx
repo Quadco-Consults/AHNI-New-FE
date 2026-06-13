@@ -11,7 +11,7 @@ import FormInput from "@/components/atoms/FormInput";
 import { ChevronRight, Save } from "lucide-react";
 import Link from "next/link";
 import { openDialog } from "@/store/ui";
-import { DialogType } from "@/constants/dailogs";
+import { DialogType } from "@/constants/dialogs";
 import { useAppDispatch } from "@/hooks/useStore";
 import { HrRoutes } from "@/constants/RouterConstants";
 import { generatePath } from "@/utils/generatePath";

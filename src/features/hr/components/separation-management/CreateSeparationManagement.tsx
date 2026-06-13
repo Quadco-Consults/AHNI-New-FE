@@ -13,7 +13,7 @@ import { Form } from "@/components/ui/form";
 import { LoadingSpinner } from "@/components/Loading";
 import { SelectContent, SelectItem } from "@/components/ui/select";
 
-import { EmployeeOnboarding } from "definations/hr-types/employee-onboarding";
+import { EmployeeOnboarding } from "definitions/hr-types/employee-onboarding";
 import { useGetEmployeeOnboardings } from "@/features/hr/controllers/employeeOnboardingController";
 import { useGetAllProjects } from "@/features/projects/controllers/projectController";
 import { useCreateSeparationManagement } from "@/features/hr/controllers/separationManagementController";

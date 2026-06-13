@@ -7,7 +7,7 @@ import {
   MarketItemCreate,
   MarketItemResponse,
 } from "../types/price-intelligence";
-import { TRequest, TResponse } from "definations/index";
+import { TRequest, TResponse } from "definitions/index";
 
 const BASE_URL = "procurements/price-intelligence/";
 const MARKET_ITEM_URL = "procurements/market-item/";
