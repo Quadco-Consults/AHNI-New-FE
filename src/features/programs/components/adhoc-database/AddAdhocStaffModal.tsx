@@ -18,6 +18,9 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import AxiosWithToken from "@/lib/axios";
+import { useGetAllFacilities } from "@/features/modules/controllers/program/facilityController";
+import { useGetAllUsers } from "@/features/auth/controllers/userController";
 
 // Validation schema
 const AddAdhocStaffSchema = z.object({
@@ -59,9 +62,10 @@ const AddAdhocStaffSchema = z.object({
   bank_name: z.string().optional(),
   account_number: z.string().optional(),
   sort_code: z.string().optional(),
+  tax_identification_number: z.string().optional(),
 
   // Contract Information
-  monthly_pay: z.string().optional(),
+  monthly_pay: z.union([z.string(), z.number()]).optional().transform((val) => val?.toString()),
   contract_start_date: z.string().optional(),
   contract_end_date: z.string().optional(),
 });
@@ -78,6 +82,10 @@ export default function AddAdhocStaffModal({
   onClose,
 }: AddAdhocStaffModalProps) {
   const router = useRouter();
+
+  // Fetch facilities and users for dropdowns
+  const { data: facilitiesData } = useGetAllFacilities({ page: 1, size: 1000, enabled: open });
+  const { data: usersData } = useGetAllUsers({ page: 1, size: 1000, enabled: open });
 
   const form = useForm<TAddAdhocStaffFormData>({
     resolver: zodResolver(AddAdhocStaffSchema),
@@ -109,6 +117,7 @@ export default function AddAdhocStaffModal({
       bank_name: "",
       account_number: "",
       sort_code: "",
+      tax_identification_number: "",
       monthly_pay: "",
       contract_start_date: "",
       contract_end_date: "",
@@ -120,31 +129,23 @@ export default function AddAdhocStaffModal({
   const onSubmit: SubmitHandler<TAddAdhocStaffFormData> = async (data) => {
     setIsLoading(true);
     try {
-      const response = await fetch(
-        "/api/v1/users/adhoc-staff-profiles/create-direct/",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-          },
-          body: JSON.stringify(data),
-        }
+      const response = await AxiosWithToken.post(
+        "users/adhoc-staff-profiles/create-direct/",
+        data
       );
 
-      const result = await response.json();
-
-      if (result.status) {
+      if (response.data.status) {
         toast.success("Adhoc staff added successfully");
         form.reset();
         onClose();
         router.refresh();
       } else {
-        toast.error(result.message || "Failed to add adhoc staff");
+        toast.error(response.data.message || "Failed to add adhoc staff");
       }
-    } catch (error) {
-      toast.error("An error occurred while adding adhoc staff");
-      console.error(error);
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || error.response?.data?.errors || "An error occurred while adding adhoc staff";
+      toast.error(typeof errorMessage === 'string' ? errorMessage : JSON.stringify(errorMessage));
+      console.error("Error creating adhoc staff:", error.response?.data || error);
     } finally {
       setIsLoading(false);
     }
@@ -171,6 +172,58 @@ export default function AddAdhocStaffModal({
     { label: "Lab Optimizer", value: "LAB_OPTIMIZER" },
     { label: "Operations Support", value: "OPERATIONS_SUPPORT" },
   ];
+
+  const stateOptions = [
+    { label: "Abia", value: "Abia" },
+    { label: "Adamawa", value: "Adamawa" },
+    { label: "Akwa Ibom", value: "Akwa Ibom" },
+    { label: "Anambra", value: "Anambra" },
+    { label: "Bauchi", value: "Bauchi" },
+    { label: "Bayelsa", value: "Bayelsa" },
+    { label: "Benue", value: "Benue" },
+    { label: "Borno", value: "Borno" },
+    { label: "Cross River", value: "Cross River" },
+    { label: "Delta", value: "Delta" },
+    { label: "Ebonyi", value: "Ebonyi" },
+    { label: "Edo", value: "Edo" },
+    { label: "Ekiti", value: "Ekiti" },
+    { label: "Enugu", value: "Enugu" },
+    { label: "FCT", value: "FCT" },
+    { label: "Gombe", value: "Gombe" },
+    { label: "Imo", value: "Imo" },
+    { label: "Jigawa", value: "Jigawa" },
+    { label: "Kaduna", value: "Kaduna" },
+    { label: "Kano", value: "Kano" },
+    { label: "Katsina", value: "Katsina" },
+    { label: "Kebbi", value: "Kebbi" },
+    { label: "Kogi", value: "Kogi" },
+    { label: "Kwara", value: "Kwara" },
+    { label: "Lagos", value: "Lagos" },
+    { label: "Nasarawa", value: "Nasarawa" },
+    { label: "Niger", value: "Niger" },
+    { label: "Ogun", value: "Ogun" },
+    { label: "Ondo", value: "Ondo" },
+    { label: "Osun", value: "Osun" },
+    { label: "Oyo", value: "Oyo" },
+    { label: "Plateau", value: "Plateau" },
+    { label: "Rivers", value: "Rivers" },
+    { label: "Sokoto", value: "Sokoto" },
+    { label: "Taraba", value: "Taraba" },
+    { label: "Yobe", value: "Yobe" },
+    { label: "Zamfara", value: "Zamfara" },
+  ];
+
+  // Create facility options from API data
+  const facilityOptions = facilitiesData?.data?.results?.map((facility: any) => ({
+    label: facility.name,
+    value: facility.id,
+  })) || [];
+
+  // Create staff options from API data
+  const staffOptions = usersData?.data?.results?.map((user: any) => ({
+    label: `${user.first_name} ${user.last_name}`,
+    value: user.id,
+  })) || [];
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -230,29 +283,12 @@ export default function AddAdhocStaffModal({
             <div className="border rounded-lg p-4 space-y-4">
               <h3 className="text-lg font-semibold">Personal Information</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormInput
-                  form={form}
-                  name="surname"
-                  label="Surname"
-                  placeholder="Family name"
-                />
-                <FormInput
-                  form={form}
-                  name="other_names"
-                  label="Other Names"
-                  placeholder="Middle names"
-                />
-                <FormInput
+                <FormSelect
                   form={form}
                   name="state_of_origin"
                   label="State of Origin"
-                  placeholder="e.g., Lagos"
-                />
-                <FormInput
-                  form={form}
-                  name="gender"
-                  label="Gender (Profile)"
-                  placeholder="Gender for profile"
+                  placeholder="Select state"
+                  options={stateOptions}
                 />
               </div>
             </div>
@@ -266,15 +302,9 @@ export default function AddAdhocStaffModal({
                 <FormSelect
                   form={form}
                   name="adhoc_role"
-                  label="Adhoc Role"
+                  label="Adhoc Role / Designation"
                   placeholder="Select role"
                   options={adhocRoleOptions}
-                />
-                <FormInput
-                  form={form}
-                  name="designation"
-                  label="Designation"
-                  placeholder="Job designation"
                 />
                 <FormTextArea
                   form={form}
@@ -283,11 +313,12 @@ export default function AddAdhocStaffModal({
                   placeholder="Education and certifications"
                   rows={3}
                 />
-                <FormInput
+                <FormSelect
                   form={form}
                   name="health_facility"
                   label="Health Facility Assignment"
-                  placeholder="Assignment location"
+                  placeholder="Select facility"
+                  options={facilityOptions}
                 />
                 <FormInput
                   form={form}
@@ -326,13 +357,20 @@ export default function AddAdhocStaffModal({
                   label="QMAP Backstop"
                   placeholder="QMAP backstop name"
                 />
-                <FormInput
+                <FormSelect
                   form={form}
                   name="programs_officer"
                   label="Programs Officer"
-                  placeholder="Programs officer name"
+                  placeholder="Select programs officer"
+                  options={staffOptions}
                 />
-                <FormInput form={form} name="stl" label="STL" placeholder="STL name" />
+                <FormSelect
+                  form={form}
+                  name="stl"
+                  label="STL"
+                  placeholder="Select STL"
+                  options={staffOptions}
+                />
                 <FormInput form={form} name="seo" label="SEO" placeholder="SEO name" />
               </div>
             </div>
@@ -384,6 +422,12 @@ export default function AddAdhocStaffModal({
                   label="Sort Code"
                   placeholder="Bank sort code"
                 />
+                <FormInput
+                  form={form}
+                  name="tax_identification_number"
+                  label="Tax ID Number (TIN)"
+                  placeholder="Tax identification number"
+                />
               </div>
             </div>
 
@@ -423,7 +467,7 @@ export default function AddAdhocStaffModal({
               >
                 Cancel
               </FormButton>
-              <FormButton type="submit" isLoading={isLoading}>
+              <FormButton type="submit" loading={isLoading}>
                 Add Adhoc Staff
               </FormButton>
             </div>

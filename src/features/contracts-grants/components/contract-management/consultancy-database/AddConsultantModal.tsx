@@ -18,6 +18,9 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import AxiosWithToken from "@/lib/axios";
+import { useGetAllFacilities } from "@/features/modules/controllers/program/facilityController";
+import { useGetAllUsers } from "@/features/auth/controllers/userController";
 
 // Validation schema
 const AddConsultantSchema = z.object({
@@ -55,7 +58,7 @@ const AddConsultantSchema = z.object({
   tax_identification_number: z.string().optional(),
 
   // Contract Information
-  monthly_pay: z.string().optional(),
+  monthly_pay: z.union([z.string(), z.number()]).optional().transform((val) => val?.toString()),
   contract_start_date: z.string().optional(),
   contract_end_date: z.string().optional(),
 });
@@ -72,6 +75,10 @@ export default function AddConsultantModal({
   onClose,
 }: AddConsultantModalProps) {
   const router = useRouter();
+
+  // Fetch facilities and users for dropdowns
+  const { data: facilitiesData } = useGetAllFacilities({ page: 1, size: 1000, enabled: open });
+  const { data: usersData } = useGetAllUsers({ page: 1, size: 1000, enabled: open });
 
   const form = useForm<TAddConsultantFormData>({
     resolver: zodResolver(AddConsultantSchema),
@@ -110,31 +117,23 @@ export default function AddConsultantModal({
   const onSubmit: SubmitHandler<TAddConsultantFormData> = async (data) => {
     setIsLoading(true);
     try {
-      const response = await fetch(
-        "/api/v1/users/consultant-profiles/create-direct/",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-          },
-          body: JSON.stringify(data),
-        }
+      const response = await AxiosWithToken.post(
+        "users/consultant-profiles/create-direct/",
+        data
       );
 
-      const result = await response.json();
-
-      if (result.status) {
+      if (response.data.status) {
         toast.success("Consultant added successfully");
         form.reset();
         onClose();
         router.refresh();
       } else {
-        toast.error(result.message || "Failed to add consultant");
+        toast.error(response.data.message || "Failed to add consultant");
       }
-    } catch (error) {
-      toast.error("An error occurred while adding consultant");
-      console.error(error);
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || error.response?.data?.errors || "An error occurred while adding consultant";
+      toast.error(typeof errorMessage === 'string' ? errorMessage : JSON.stringify(errorMessage));
+      console.error("Error creating consultant:", error.response?.data || error);
     } finally {
       setIsLoading(false);
     }
@@ -151,6 +150,58 @@ export default function AddConsultantModal({
     { label: "Male", value: "M" },
     { label: "Female", value: "F" },
   ];
+
+  const stateOptions = [
+    { label: "Abia", value: "Abia" },
+    { label: "Adamawa", value: "Adamawa" },
+    { label: "Akwa Ibom", value: "Akwa Ibom" },
+    { label: "Anambra", value: "Anambra" },
+    { label: "Bauchi", value: "Bauchi" },
+    { label: "Bayelsa", value: "Bayelsa" },
+    { label: "Benue", value: "Benue" },
+    { label: "Borno", value: "Borno" },
+    { label: "Cross River", value: "Cross River" },
+    { label: "Delta", value: "Delta" },
+    { label: "Ebonyi", value: "Ebonyi" },
+    { label: "Edo", value: "Edo" },
+    { label: "Ekiti", value: "Ekiti" },
+    { label: "Enugu", value: "Enugu" },
+    { label: "FCT", value: "FCT" },
+    { label: "Gombe", value: "Gombe" },
+    { label: "Imo", value: "Imo" },
+    { label: "Jigawa", value: "Jigawa" },
+    { label: "Kaduna", value: "Kaduna" },
+    { label: "Kano", value: "Kano" },
+    { label: "Katsina", value: "Katsina" },
+    { label: "Kebbi", value: "Kebbi" },
+    { label: "Kogi", value: "Kogi" },
+    { label: "Kwara", value: "Kwara" },
+    { label: "Lagos", value: "Lagos" },
+    { label: "Nasarawa", value: "Nasarawa" },
+    { label: "Niger", value: "Niger" },
+    { label: "Ogun", value: "Ogun" },
+    { label: "Ondo", value: "Ondo" },
+    { label: "Osun", value: "Osun" },
+    { label: "Oyo", value: "Oyo" },
+    { label: "Plateau", value: "Plateau" },
+    { label: "Rivers", value: "Rivers" },
+    { label: "Sokoto", value: "Sokoto" },
+    { label: "Taraba", value: "Taraba" },
+    { label: "Yobe", value: "Yobe" },
+    { label: "Zamfara", value: "Zamfara" },
+  ];
+
+  // Create facility options from API data
+  const facilityOptions = facilitiesData?.data?.results?.map((facility: any) => ({
+    label: facility.name,
+    value: facility.id,
+  })) || [];
+
+  // Create staff options from API data
+  const staffOptions = usersData?.data?.results?.map((user: any) => ({
+    label: `${user.first_name} ${user.last_name}`,
+    value: user.id,
+  })) || [];
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -210,23 +261,12 @@ export default function AddConsultantModal({
             <div className="border rounded-lg p-4 space-y-4">
               <h3 className="text-lg font-semibold">Personal Information</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FormInput
-                  form={form}
-                  name="surname"
-                  label="Surname"
-                  placeholder="Family name"
-                />
-                <FormInput
-                  form={form}
-                  name="other_names"
-                  label="Other Names"
-                  placeholder="Middle names"
-                />
-                <FormInput
+                <FormSelect
                   form={form}
                   name="state_of_origin"
                   label="State of Origin"
-                  placeholder="e.g., Lagos"
+                  placeholder="Select state"
+                  options={stateOptions}
                 />
               </div>
             </div>
@@ -244,11 +284,12 @@ export default function AddConsultantModal({
                   placeholder="Education and certifications"
                   rows={3}
                 />
-                <FormInput
+                <FormSelect
                   form={form}
                   name="health_facility_assignment"
                   label="Health Facility Assignment"
-                  placeholder="Assignment location"
+                  placeholder="Select facility"
+                  options={facilityOptions}
                 />
                 <FormInput
                   form={form}
@@ -277,13 +318,20 @@ export default function AddConsultantModal({
                   label="QMAP Backstop"
                   placeholder="QMAP backstop name"
                 />
-                <FormInput
+                <FormSelect
                   form={form}
                   name="programs_officer"
                   label="Programs Officer"
-                  placeholder="Programs officer name"
+                  placeholder="Select programs officer"
+                  options={staffOptions}
                 />
-                <FormInput form={form} name="stl" label="STL" placeholder="STL name" />
+                <FormSelect
+                  form={form}
+                  name="stl"
+                  label="STL"
+                  placeholder="Select STL"
+                  options={staffOptions}
+                />
                 <FormInput form={form} name="seo" label="SEO" placeholder="SEO name" />
               </div>
             </div>
@@ -361,7 +409,7 @@ export default function AddConsultantModal({
               >
                 Cancel
               </FormButton>
-              <FormButton type="submit" isLoading={isLoading}>
+              <FormButton type="submit" loading={isLoading}>
                 Add Consultant
               </FormButton>
             </div>

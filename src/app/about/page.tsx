@@ -27,24 +27,22 @@ export default function AboutPage() {
       <header className="bg-white/95 backdrop-blur-sm border-b border-border/50 sticky top-0 z-50 shadow-sm">
         <div className="w-full px-6 lg:px-12 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-3">
-                <Image
-                  src="/imgs/logo.png"
-                  alt="AHNI Logo"
-                  width={45}
-                  height={45}
-                  className="h-11 w-auto"
-                  style={{ width: 'auto', height: '44px' }}
-                />
-                <div className="hidden md:block">
-                  <h1 className="font-bold text-2xl text-foreground tracking-tight">AHNi Portal</h1>
-                  <p className="text-base text-muted-foreground font-medium">Achieving Health Nigeria initiative</p>
-                </div>
+            <div className="flex items-center space-x-3">
+              <Image
+                src="/imgs/logo.png"
+                alt="AHNI Logo"
+                width={45}
+                height={45}
+                className="h-11 w-auto"
+                style={{ width: 'auto', height: '44px' }}
+              />
+              <div className="hidden md:block">
+                <h1 className="font-bold text-2xl text-foreground tracking-tight">AHNi Portal</h1>
+                <p className="text-base text-muted-foreground font-medium">Achieving Health Nigeria initiative</p>
               </div>
             </div>
 
-            <nav className="hidden lg:flex items-center space-x-2">
+            <nav className="flex items-center space-x-2">
               <Button
                 variant="ghost"
                 onClick={() => router.push('/')}
@@ -81,26 +79,6 @@ export default function AboutPage() {
                 Contact
               </Button>
             </nav>
-
-            <div className="flex items-center space-x-3">
-              <Button
-                variant="outline"
-                onClick={() => router.push('/vendor-portal/login')}
-                className="flex items-center space-x-2 border-primary/60 text-primary hover:border-primary hover:bg-primary hover:text-primary-foreground font-semibold transition-all shadow-sm hover:shadow-md text-base px-5 py-3 h-auto"
-              >
-                <Users className="h-5 w-5" />
-                <span className="hidden sm:inline">Vendor Portal</span>
-                <span className="sm:hidden">Vendor</span>
-              </Button>
-              <Button
-                onClick={() => router.push('/auth/login')}
-                className="flex items-center space-x-2 font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg transition-all text-base px-5 py-3 h-auto"
-              >
-                <Shield className="h-5 w-5" />
-                <span className="hidden sm:inline">Staff Portal</span>
-                <span className="sm:hidden">Staff</span>
-              </Button>
-            </div>
           </div>
         </div>
       </header>
@@ -347,18 +325,8 @@ export default function AboutPage() {
             </div>
 
             <div>
-              <h3 className="font-bold text-lg mb-6">Portals</h3>
+              <h3 className="font-bold text-lg mb-6">Resources</h3>
               <ul className="space-y-3 text-muted-foreground">
-                <li>
-                  <button onClick={() => router.push('/auth/login')} className="hover:text-primary transition-colors font-medium">
-                    Staff Portal
-                  </button>
-                </li>
-                <li>
-                  <button onClick={() => router.push('/vendor-portal/login')} className="hover:text-primary transition-colors font-medium">
-                    Vendor Portal
-                  </button>
-                </li>
                 <li>
                   <button onClick={() => router.push('/opportunities')} className="hover:text-primary transition-colors font-medium">
                     Job Opportunities
