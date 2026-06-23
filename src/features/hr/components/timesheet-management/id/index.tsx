@@ -650,7 +650,7 @@ const TimesheetManagementFull = () => {
   // Display Components for Read-Only View
   const ProjectDisplay = ({ entry }: { entry: TimesheetEntry }) => {
     const { data: projectsData } = useGetAvailableProjects();
-    const allProjects = projectsData?.data || [];
+    const allProjects = Array.isArray(projectsData?.data) ? projectsData.data : [];
     const project = allProjects.find((p: any) => p.id === entry.project);
     const projectName = project?.title || project?.project_name || project?.project_id || entry.project_name || "Unknown Project";
 
@@ -672,7 +672,7 @@ const TimesheetManagementFull = () => {
     if (entry.workplan_activity || entry.activity_plan) {
       const activityId = entry.workplan_activity || entry.activity_plan;
       const { data: activitiesData } = useGetAvailableActivities(undefined, !!activityId);
-      const activities = activitiesData?.data || [];
+      const activities = Array.isArray(activitiesData?.data) ? activitiesData.data : [];
       const activity = activities.find((a: any) => a.id === activityId);
 
       if (activity) {
