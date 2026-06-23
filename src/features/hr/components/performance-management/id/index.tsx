@@ -534,8 +534,12 @@ const PerformanceDetails = () => {
                   </div>
                 </div>
                 <div className='flex flex-col space-y-1'>
-                  <label className='text-xs font-medium text-gray-500 uppercase tracking-wide'>Cycle Name</label>
+                  <label className='text-xs font-medium text-gray-500 uppercase tracking-wide'>Appraisal Type</label>
                   <p className='text-sm text-gray-900'>{assessmentWithGoals.cycle_name || 'N/A'}</p>
+                </div>
+                <div className='flex flex-col space-y-1'>
+                  <label className='text-xs font-medium text-gray-500 uppercase tracking-wide'>Cycle Period</label>
+                  <p className='text-sm text-gray-900'>{assessmentWithGoals.cycle_period || 'N/A'}</p>
                 </div>
                 <div className='flex flex-col space-y-1'>
                   <label className='text-xs font-medium text-gray-500 uppercase tracking-wide'>Start Date</label>
