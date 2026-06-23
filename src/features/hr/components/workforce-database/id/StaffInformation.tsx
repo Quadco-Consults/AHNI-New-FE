@@ -62,6 +62,7 @@ const StaffInformation = ({ info }: { info: EmployeeOnboarding }) => {
 
   console.log("StaffInformation - info prop:", info);
   console.log("StaffInformation - data:", data);
+  console.log("StaffInformation - data structure:", JSON.stringify(data, null, 2));
   console.log("StaffInformation - qualifications:", qualifications);
   console.log("🔍 Workforce - Employee Onboarding:", {
     employeeOnboarding,
@@ -86,7 +87,21 @@ const StaffInformation = ({ info }: { info: EmployeeOnboarding }) => {
   });
 
   // Use job title from the advertisement if available, otherwise fallback to existing data
-  const displayDesignation = advertisement?.data?.title || data?.position?.name || data?.designation?.name || data?.position || "N/A";
+  const displayDesignation = advertisement?.data?.title
+    || (typeof data?.designation === 'object' && data?.designation?.name)
+    || (typeof data?.designation === 'object' && data?.designation?.title)
+    || (typeof data?.position === 'object' && data?.position?.name)
+    || (typeof data?.position === 'object' && data?.position?.title)
+    || (typeof data?.position === 'string' ? data?.position : null)
+    || (typeof data?.designation === 'string' ? data?.designation : null)
+    || "N/A";
+
+  console.log("🔍 Workforce - Designation resolution:", {
+    advertisementTitle: advertisement?.data?.title,
+    designationObj: data?.designation,
+    positionObj: data?.position,
+    finalDisplay: displayDesignation
+  });
 
   if (!data && !info) {
     return <div className="p-4">No employee information available</div>;
@@ -105,6 +120,10 @@ const StaffInformation = ({ info }: { info: EmployeeOnboarding }) => {
           label='Designation'
           description={displayDesignation}
         />
+        <DescriptionCard
+          label='Address'
+          description={data?.address || "---"}
+        />
       </div>
       <Separator />
       <div className='grid grid-cols-1 gap-8 md:grid-cols-2'>
@@ -114,7 +133,7 @@ const StaffInformation = ({ info }: { info: EmployeeOnboarding }) => {
         />
         <DescriptionCard
           label='Mobile/Other'
-          description={data?.other_number}
+          description={data?.other_number || "---"}
         />
       </div>
 
@@ -130,7 +149,7 @@ const StaffInformation = ({ info }: { info: EmployeeOnboarding }) => {
           </div>
 
           {data?.passport_file?.endsWith("pdf") ? (
-            <div className='bg-[#0000001A] py-2 w-full h-56 rounded-2xl flex items-center justify-center overflow-hidden'>
+            <div className='bg-black/10 py-2 w-full h-56 rounded-2xl flex items-center justify-center overflow-hidden'>
               <Dialog>
                 <DialogTrigger>
                   <Document
@@ -190,7 +209,7 @@ const StaffInformation = ({ info }: { info: EmployeeOnboarding }) => {
           </div>
 
           {data?.signature_file?.endsWith("pdf") ? (
-            <div className='bg-[#0000001A] py-2 w-full h-56 rounded-2xl flex items-center justify-center overflow-hidden'>
+            <div className='bg-black/10 py-2 w-full h-56 rounded-2xl flex items-center justify-center overflow-hidden'>
               <Dialog>
                 <DialogTrigger>
                   <Document
@@ -246,15 +265,31 @@ const StaffInformation = ({ info }: { info: EmployeeOnboarding }) => {
       <Separator />
 
       <div className='grid grid-cols-1 items-center gap-x-5 gap-y-8 md:grid-cols-2 lg:grid-cols-2'>
-        <DescriptionCard label='Department/Unit' description={data?.group} />
-        <DescriptionCard label='Location' description={data?.location?.state} />
+        <DescriptionCard
+          label='Department/Unit'
+          description={
+            (typeof data?.department === 'object' && data?.department?.name) ||
+            (typeof data?.department === 'string' ? data?.department : null) ||
+            data?.group ||
+            (data?.address ? "" : "---") // Temporary check to ensure data is present
+          }
+        />
+        <DescriptionCard
+          label='Location'
+          description={
+            data?.location?.state ||
+            data?.location?.name ||
+            (typeof data?.location === 'string' ? data?.location : null) ||
+            "---"
+          }
+        />
         <DescriptionCard
           label='Employment Type'
-          description={data?.employment_type}
+          description={data?.employment_type || "---"}
         />
         <DescriptionCard
           label='Employment Status'
-          description={data?.employment_status}
+          description={data?.employment_status || "---"}
         />
       </div>
 
@@ -289,7 +324,7 @@ const StaffInformation = ({ info }: { info: EmployeeOnboarding }) => {
                   </div>
 
                   {qualification.certificate_file?.endsWith("pdf") ? (
-                    <div className='bg-[#0000001A] py-2 w-full h-56 rounded-2xl flex items-center justify-center overflow-hidden'>
+                    <div className='bg-black/10 py-2 w-full h-56 rounded-2xl flex items-center justify-center overflow-hidden'>
                       <Dialog>
                         <DialogTrigger>
                           <Document

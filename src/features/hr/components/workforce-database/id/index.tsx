@@ -24,31 +24,34 @@ const WorkforceDetail = () => {
   // Use employee data if available, otherwise transform user data to employee format
   const data = employeeData || (userData ? {
     data: {
-      id: userData.data.id,
-      legal_firstname: userData.data.first_name,
-      legal_lastname: userData.data.last_name,
-      email: userData.data.email,
+      id: userData.data?.id,
+      legal_firstname: userData.data?.first_name,
+      legal_lastname: userData.data?.last_name,
+      email: userData.data?.email,
       employment_type: "Staff",
-      position: userData.data.position,
-      serial_id_code: `AHNI-${userData.data.id.slice(0, 8)}`,
-      designation: { name: userData.data.position },
-      location: { email: userData.data.email },
-      department: userData.data.department
+      position: userData.data?.position,
+      serial_id_code: `AHNI-${userData.data?.id?.slice(0, 8)}`,
+      designation: userData.data?.position ? { name: userData.data.position } : null,
+      location: userData.data?.email ? { email: userData.data.email } : null,
+      department: userData.data?.department
     }
   } : null);
 
   const isLoading = employeeLoading || userLoading;
+  // Only show error if both APIs fail
   const error = employeeError && userError ? userError : null;
 
   console.log("🔍 WorkforceDetail Debug:");
   console.log("  ID from params:", id);
   console.log("  Employee data:", employeeData);
+  console.log("  Employee data structure:", JSON.stringify(employeeData, null, 2));
   console.log("  Employee loading:", employeeLoading);
   console.log("  Employee error:", employeeError);
   console.log("  User data:", userData);
   console.log("  User loading:", userLoading);
   console.log("  User error:", userError);
   console.log("  Combined data:", data);
+  console.log("  Combined data structure:", JSON.stringify(data, null, 2));
 
   if (employeeError) {
     console.error("❌ Employee onboarding API error:", employeeError);

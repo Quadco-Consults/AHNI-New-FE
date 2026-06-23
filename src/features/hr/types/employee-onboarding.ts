@@ -75,47 +75,83 @@ export type HrQualifications = {
 
 export interface EmployeeOnboarding {
   id: string;
-  passport_url: string;
-  signature_url: string;
+  passport_url?: string;
+  signature_url?: string;
+  passport_file?: string;
+  signature_file?: string;
 
-  beneficiaries: beneficiary[];
-  emergency_contacts: emergency_contact[];
-  system_authorization: HrSystemAuthorization;
-  bank_accounts: bank_accounts;
-  pfas: pfas;
-  qualifications: HrQualifications;
+  beneficiaries?: beneficiary[];
+  emergency_contacts?: emergency_contact[];
+  system_authorization?: HrSystemAuthorization;
+  bank_accounts?: bank_accounts;
+  pfas?: pfas;
+  qualifications?: HrQualifications;
 
-  created_datetime: string;
-  updated_datetime: string;
+  created_datetime?: string;
+  updated_datetime?: string;
   legal_firstname: string;
-  legal_middlename: string;
+  legal_middlename?: string;
   legal_lastname: string;
-  phone_number: string;
-  other_number: string;
-  email: string;
-  date_of_birth: string;
-  date_of_hire: string;
-  ssnumber: string;
-  serial_id_code: string;
-  marital_status: string;
-  own_computer: true;
-  require_email_access: true;
-  employment_type: string;
-  department: string;
-  project: string;
-  group_membership: number[];
+  phone_number?: string;
+  other_number?: string;
+  email?: string;
+  address?: string;
+  date_of_birth?: string;
+  date_of_hire?: string;
+  ssnumber?: string;
+  ss_number?: string;
+  serial_id_code?: string;
+  marital_status?: string;
+  own_computer?: boolean;
+  require_email_access?: boolean;
+  employment_type?: string;
+  employment_status?: string;
+  department?: string | {
+    id: string;
+    name: string;
+    description?: string;
+    code?: string;
+  };
+  project?: string;
+  group?: string;
+  group_membership?: number[];
 
   // Additional fields for workforce database display
-  position?: string;
-  designation?: {
+  position?: string | {
+    id: string;
     name: string;
+    description?: string;
+  };
+  designation?: {
+    id?: string;
+    name?: string;
     title?: string;
+    description?: string;
   };
   location?: {
-    email: string;
+    id?: string;
+    name?: string;
+    email?: string;
+    state?: string;
+    city?: string;
+  };
+  grade?: {
+    id?: string;
+    name?: string;
+  };
+  level?: {
+    id?: string;
+    name?: string;
+  };
+  user?: {
+    id?: string;
+    email?: string;
+    phone?: string;
   };
   user_type?: string;
   is_from_user_table?: boolean;
+  full_name?: string;
+  effective_email?: string;
 }
 export interface EmployeeOnboardingQualifications {
   certificate_name: "string";
