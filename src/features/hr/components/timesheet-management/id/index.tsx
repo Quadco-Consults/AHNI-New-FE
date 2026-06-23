@@ -13,8 +13,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { useGetAllProjects } from "@/features/projects/controllers/projectController";
-import { useGetAllActivityPlans } from "@/features/programs/controllers/activityPlanController";
 import {
   useGetTimesheetById,
   useGetTimesheets,
@@ -25,6 +23,8 @@ import {
   useRejectTimesheet,
   useValidateTimesheet,
   useGetBlockedDates,
+  useGetAvailableProjects,
+  useGetAvailableActivities,
 } from "@/features/hr/controllers/timesheetController";
 import { useGetEmployeeOnboardings } from "@/features/hr/controllers/employeeOnboardingController";
 import { toast } from "sonner";
@@ -382,9 +382,9 @@ const TimesheetManagementFull = () => {
 
   // Project Select Component
   const ProjectSelect = ({ value, onChange, rowIndex }: any) => {
-    const { data: projectsData, isLoading } = useGetAllProjects({ page: 1, size: 1000 });
-    // Handle API wrapper structure - projects API returns {data: {results: []}}
-    const allProjects = (projectsData as any)?.data?.results || [];
+    const { data: projectsData, isLoading } = useGetAvailableProjects();
+    // Handle API wrapper structure - timesheet API returns {data: [...]}
+    const allProjects = projectsData?.data || [];
     // Filter out empty IDs
     const projects = allProjects.filter((project: any) => project?.id && project.id.trim() !== '');
 
@@ -463,17 +463,15 @@ const TimesheetManagementFull = () => {
       entry?.custom_activity ? "custom" :
       "custom";
 
-    // For planned activities: fetch activities directly by project ID
-    const { data: activitiesData, isLoading: isLoadingActivities, refetch: refetchActivities } = useGetAllActivityPlans({
-      project: selectedProjectId || "",
-      page: 1,
-      size: 100,
-      enabled: !!selectedProjectId && activityType === "planned"
-    });
+    // For planned activities: fetch activities directly by project ID using timesheet-specific endpoint
+    const { data: activitiesData, isLoading: isLoadingActivities, refetch: refetchActivities } = useGetAvailableActivities(
+      selectedProjectId || undefined,
+      !!selectedProjectId && activityType === "planned"
+    );
 
     // Extract activities from response
-    // Response structure: {data: {results: [], pagination: {}}}
-    const activities = activitiesData?.data?.results || [];
+    // Response structure: {data: [...]} - direct array from timesheet endpoint
+    const activities = activitiesData?.data || [];
 
     // Function to refresh ActivityPlan cache
     const refreshActivityPlans = useCallback(async () => {
@@ -649,10 +647,10 @@ const TimesheetManagementFull = () => {
 
   // Display Components for Read-Only View
   const ProjectDisplay = ({ entry }: { entry: TimesheetEntry }) => {
-    const { data: projectsData } = useGetAllProjects({ page: 1, size: 1000 });
-    const allProjects = (projectsData as any)?.data?.results || [];
+    const { data: projectsData } = useGetAvailableProjects();
+    const allProjects = projectsData?.data || [];
     const project = allProjects.find((p: any) => p.id === entry.project);
-    const projectName = project?.project_name || project?.title || project?.project_id || entry.project_name || "Unknown Project";
+    const projectName = project?.title || project?.project_name || project?.project_id || entry.project_name || "Unknown Project";
 
     return <span className="text-sm">{projectName}</span>;
   };
@@ -671,16 +669,12 @@ const TimesheetManagementFull = () => {
     // For workplan activities - try to fetch the name
     if (entry.workplan_activity || entry.activity_plan) {
       const activityId = entry.workplan_activity || entry.activity_plan;
-      const { data: activitiesData } = useGetAllActivityPlans({
-        page: 1,
-        size: 1000,
-        enabled: !!activityId
-      });
-      const activities = activitiesData?.data?.results || [];
+      const { data: activitiesData } = useGetAvailableActivities(undefined, !!activityId);
+      const activities = activitiesData?.data || [];
       const activity = activities.find((a: any) => a.id === activityId);
 
       if (activity) {
-        return <span className="text-sm text-green-600">{activity.activity_code}: {activity.activity_name}</span>;
+        return <span className="text-sm text-green-600">{activity.activity_code}: {activity.activity_description || activity.activity_name}</span>;
       }
 
       return <span className="text-sm text-gray-500">Workplan Activity: {activityId}</span>;

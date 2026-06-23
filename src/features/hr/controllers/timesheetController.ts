@@ -385,6 +385,68 @@ export const useGetTimesheetDashboard = (enabled: boolean = true) => {
   });
 };
 
+// Get Available Projects (for timesheet entries)
+// Returns only projects the employee is assigned to
+export const useGetAvailableProjects = (enabled: boolean = true) => {
+  interface ProjectData {
+    id: string;
+    title: string;
+    code: string;
+    start_date: string;
+    end_date: string;
+    status: string;
+  }
+
+  return useQuery<ApiResponse<ProjectData[]>>({
+    queryKey: ["timesheet-available-projects"],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get(`${BASE_URL}available-projects/`);
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    enabled: enabled,
+    refetchOnWindowFocus: false,
+  });
+};
+
+// Get Available Activities (for timesheet entries)
+// Returns ActivityPlanFromWorkPlan filtered by project
+export const useGetAvailableActivities = (projectId?: string, enabled: boolean = true) => {
+  interface ActivityData {
+    id: string;
+    activity_code: string;
+    activity_description: string;
+    work_plan_id: string;
+    work_plan__project_id: string;
+    work_plan__title: string;
+    is_unplanned: boolean;
+    status: string;
+  }
+
+  return useQuery<ApiResponse<ActivityData[]>>({
+    queryKey: ["timesheet-available-activities", projectId],
+    queryFn: async () => {
+      try {
+        const response = await AxiosWithToken.get(`${BASE_URL}available-activities/`, {
+          params: {
+            ...(projectId && { project_id: projectId }),
+          },
+        });
+        return response.data;
+      } catch (error) {
+        const axiosError = error as AxiosError;
+        throw new Error("Sorry: " + (axiosError.response?.data as any)?.message);
+      }
+    },
+    enabled: enabled,
+    refetchOnWindowFocus: false,
+  });
+};
+
 // Legacy exports for backward compatibility
 export const useGetTimesheetsQuery = useGetTimesheets;
 export const useGetTimesheetQuery = useGetTimesheetById;

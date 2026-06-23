@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { openDialog } from "@/store/ui";
 import { DialogType } from "@/constants/dialogs";
 import { useAppDispatch } from "@/hooks/useStore";
-import { useGetAllProjects } from "@/features/projects/controllers/projectController";
+import { useGetAvailableProjects } from "@/features/hr/controllers/timesheetController";
 import { useGetAllWorkPlan, useGetSingleWorkPlan } from "@/features/programs/controllers/workPlanController";
 import { ArrowLeft, Save, X } from "lucide-react";
 import Link from "next/link";
@@ -206,8 +206,8 @@ const TimesheetEdit = () => {
 
   // Project Select Component
   const ProjectSelect = ({ onValueChange, rowIndex }: { value: string; onValueChange: (value: string) => void; rowIndex: number }) => {
-    const { data: projectsData, isLoading } = useGetAllProjects({ page: 1, size: 100 });
-    const projects = projectsData?.results || [];
+    const { data: projectsData, isLoading } = useGetAvailableProjects();
+    const projects = projectsData?.data || [];
 
     const handleProjectChange = (projectId: string) => {
       const selectedProject = projects.find(p => p.id === projectId);
