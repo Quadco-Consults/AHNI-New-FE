@@ -384,7 +384,8 @@ const TimesheetManagementFull = () => {
   const ProjectSelect = ({ value, onChange, rowIndex }: any) => {
     const { data: projectsData, isLoading } = useGetAvailableProjects();
     // Handle API wrapper structure - timesheet API returns {data: [...]}
-    const allProjects = projectsData?.data || [];
+    // Ensure allProjects is always an array
+    const allProjects = Array.isArray(projectsData?.data) ? projectsData.data : [];
     // Filter out empty IDs
     const projects = allProjects.filter((project: any) => project?.id && project.id.trim() !== '');
 
@@ -471,7 +472,8 @@ const TimesheetManagementFull = () => {
 
     // Extract activities from response
     // Response structure: {data: [...]} - direct array from timesheet endpoint
-    const activities = activitiesData?.data || [];
+    // Ensure activities is always an array
+    const activities = Array.isArray(activitiesData?.data) ? activitiesData.data : [];
 
     // Function to refresh ActivityPlan cache
     const refreshActivityPlans = useCallback(async () => {
