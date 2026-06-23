@@ -17,10 +17,20 @@ export type AssessmentStatus =
   | 'approved'           // Final approval by HR/Manager
   | 'cancelled';
 
+// Appraisal type choices (matching backend)
+export type AppraisalType =
+  | 'Annual performance review'
+  | 'Introductory probation review'
+  | 'Promotion probation review';
+
+// Cycle period choices (matching backend)
+export type CyclePeriod = '3 months' | '12 months';
+
 export interface PerformanceAssesment {
   id?: string;
   description?: string;
-  cycle_name?: string;
+  cycle_name?: AppraisalType;  // Changed to use AppraisalType
+  cycle_period?: CyclePeriod;   // New field - auto-populated by backend
   employee?: string | Employee;
   employee_name?: string;       // Employee full name from backend
   employee_email?: string;      // Employee email from backend

@@ -69,14 +69,39 @@ const NewPerformance = () => {
     }
   }, [watchedEmployee]);
 
-  const cycleOptions = useMemo(
+  const appraisalTypeOptions = useMemo(
     () =>
-      ["365 Appraisal Cycle", "Probationary Cycle"].map((title) => ({
+      [
+        "Annual performance review",
+        "Introductory probation review",
+        "Promotion probation review"
+      ].map((title) => ({
         label: title,
         value: title,
       })),
     []
   );
+
+  // Map appraisal type to cycle period
+  const getCyclePeriod = (appraisalType: string): string => {
+    const cyclePeriodMap: Record<string, string> = {
+      'Annual performance review': '12 months',
+      'Introductory probation review': '3 months',
+      'Promotion probation review': '3 months',
+    };
+    return cyclePeriodMap[appraisalType] || '';
+  };
+
+  // Watch cycle_name to auto-populate cycle period
+  const watchedCycleName = watch("cycle_name");
+  const [cyclePeriod, setCyclePeriod] = useState<string>("");
+
+  useEffect(() => {
+    if (watchedCycleName) {
+      const period = getCyclePeriod(watchedCycleName);
+      setCyclePeriod(period);
+    }
+  }, [watchedCycleName]);
 
   const evaluatorTypeOptions = useMemo<{ label: string; value: EvaluatorType }[]>(
     () => [
@@ -258,13 +283,27 @@ const NewPerformance = () => {
               />
 
               <FormSelect
-                label='Cycle Name'
+                label='Appraisal Type'
                 name='cycle_name'
-                placeholder='Select Cycle'
+                placeholder='Select appraisal type'
                 required
-                options={cycleOptions}
+                options={appraisalTypeOptions}
               />
             </div>
+
+            {/* Display Cycle Period (Auto-populated) */}
+            {cyclePeriod && (
+              <div className='grid gap-5 grid-cols-2'>
+                <div className='flex flex-col gap-2'>
+                  <label className='text-sm font-medium'>
+                    Cycle Period <span className='text-gray-500'>(Auto-populated)</span>
+                  </label>
+                  <div className='h-10 px-3 py-2 bg-gray-100 border rounded-md flex items-center text-gray-700'>
+                    {cyclePeriod}
+                  </div>
+                </div>
+              </div>
+            )}
 
             <div className='grid gap-5 grid-cols-2'>
               <FormInput
