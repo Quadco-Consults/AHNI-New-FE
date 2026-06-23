@@ -135,6 +135,14 @@ const StaffInformation = ({ info }: { info: EmployeeOnboarding }) => {
           label='Mobile/Other'
           description={data?.other_number || "---"}
         />
+        <DescriptionCard
+          label='Tax Identification Number (TIN)'
+          description={data?.ss_number || data?.ssnumber || "---"}
+        />
+        <DescriptionCard
+          label='Employee ID'
+          description={data?.serial_id_code || "---"}
+        />
       </div>
 
       <Separator />
