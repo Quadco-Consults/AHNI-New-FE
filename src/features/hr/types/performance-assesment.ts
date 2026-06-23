@@ -28,6 +28,7 @@ export type CyclePeriod = '3 months' | '12 months';
 
 export interface PerformanceAssesment {
   id?: string;
+  assessment_number?: string;   // Human-readable assessment number (e.g., PA-2026-001)
   description?: string;
   cycle_name?: AppraisalType;  // Changed to use AppraisalType
   cycle_period?: CyclePeriod;   // New field - auto-populated by backend

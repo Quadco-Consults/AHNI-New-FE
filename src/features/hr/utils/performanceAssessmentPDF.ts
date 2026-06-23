@@ -585,7 +585,7 @@ export const generateIndividualEvaluatorPDF = async (data: {
       startY: yPos,
       head: [],
       body: [
-        ['Assessment ID', assessment.id, 'Cycle', assessment.cycle_name || 'N/A'],
+        ['Assessment ID', assessment.assessment_number || assessment.id, 'Cycle', assessment.cycle_name || 'N/A'],
         ['Employee', assessment.employee_name || 'N/A', 'Status', evaluator.status?.toUpperCase() || 'PENDING'],
         ['Evaluator Type', evaluator.evaluator_type === 'self' ? 'Self Evaluation' : 'Manager Evaluation', 'Final Rating', evaluator.final_rating ? parseFloat(evaluator.final_rating.toString()).toFixed(2) + '/5' : 'N/A'],
       ],
@@ -682,7 +682,7 @@ export const generateIndividualEvaluatorPDF = async (data: {
 
       const competencyRows = evaluator.competency_ratings.map((comp: any, index: number) => [
         (index + 1).toString(),
-        comp.competency_id || 'Unknown Competency',
+        comp.competency || 'Unknown Competency',
         comp.rating?.toString() || 'N/A',
         comp.comments || 'No comments',
       ]);

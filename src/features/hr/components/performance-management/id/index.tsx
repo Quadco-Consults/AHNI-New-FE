@@ -14,6 +14,8 @@ import { useGetEmployeeGoals } from "@/features/hr/controllers/goalsController";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { areAllEvaluationsComplete } from "@/features/hr/utils/performanceCalculations";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
@@ -26,6 +28,8 @@ const PerformanceDetails = () => {
   const queryClient = useQueryClient();
   const [currentUserId, setCurrentUserId] = useState<string>("");
   const [isEvaluating, setIsEvaluating] = useState(false);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [selectedEvaluator, setSelectedEvaluator] = useState<any>(null);
 
   // Get current user ID
   useEffect(() => {
@@ -515,6 +519,10 @@ const PerformanceDetails = () => {
             <CardContent className="pt-6">
               <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
                 <div className='flex flex-col space-y-1'>
+                  <label className='text-xs font-medium text-gray-500 uppercase tracking-wide'>Assessment ID</label>
+                  <p className='text-sm text-gray-900 font-semibold'>{assessmentWithGoals.assessment_number || 'N/A'}</p>
+                </div>
+                <div className='flex flex-col space-y-1'>
                   <label className='text-xs font-medium text-gray-500 uppercase tracking-wide'>Description</label>
                   <p className='text-sm text-gray-900'>{assessmentWithGoals.description || 'N/A'}</p>
                 </div>
@@ -810,9 +818,8 @@ const PerformanceDetails = () => {
                                   size="sm"
                                   variant="outline"
                                   onClick={() => {
-                                    // Create a detailed view of the evaluation
-                                    const evaluationDetails = formatEvaluationDetails(evaluator, assessmentWithGoals);
-                                    alert(evaluationDetails);
+                                    setSelectedEvaluator(evaluator);
+                                    setShowReviewModal(true);
                                   }}
                                   className="flex-1 text-xs"
                                 >
@@ -848,6 +855,212 @@ const PerformanceDetails = () => {
           </div>
         </>
       )}
+
+      {/* Review Details Modal */}
+      <Dialog open={showReviewModal} onOpenChange={setShowReviewModal}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold flex items-center gap-2">
+              <Eye size={20} />
+              Evaluation Details
+            </DialogTitle>
+          </DialogHeader>
+
+          {selectedEvaluator && (
+            <div className="space-y-6 mt-4">
+              {/* Evaluator Information */}
+              <Card>
+                <CardHeader className="bg-gray-50">
+                  <CardTitle className="text-lg">Evaluator Information</CardTitle>
+                </CardHeader>
+                <CardContent className="pt-6">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-xs font-medium text-gray-500 uppercase">Evaluator Name</label>
+                      <p className="text-sm font-semibold mt-1">
+                        {selectedEvaluator.evaluator_name ||
+                          (typeof selectedEvaluator.evaluator === 'object'
+                            ? `${selectedEvaluator.evaluator.first_name} ${selectedEvaluator.evaluator.last_name}`
+                            : 'Unknown')}
+                      </p>
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-gray-500 uppercase">Evaluator Type</label>
+                      <p className="text-sm mt-1 capitalize">{selectedEvaluator.evaluator_type}</p>
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-gray-500 uppercase">Status</label>
+                      <Badge variant="outline" className="mt-1 bg-green-50 text-green-700 border-green-200">
+                        {selectedEvaluator.status?.toUpperCase()}
+                      </Badge>
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-gray-500 uppercase">Final Rating</label>
+                      <div className="flex items-center gap-1 mt-1">
+                        <Star size={16} className="text-yellow-500 fill-yellow-500" />
+                        <span className="text-lg font-bold">
+                          {selectedEvaluator.final_rating ? parseFloat(selectedEvaluator.final_rating.toString()).toFixed(2) : 'N/A'}
+                        </span>
+                        <span className="text-sm text-gray-500">/5</span>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Goal Ratings */}
+              {selectedEvaluator.goal_ratings && selectedEvaluator.goal_ratings.length > 0 && (
+                <Card>
+                  <CardHeader className="bg-blue-50">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Target size={18} />
+                      Goal Evaluations
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-6">
+                    <div className="space-y-6">
+                      {selectedEvaluator.goal_ratings.map((goalRating: any, index: number) => {
+                        const goal = assessmentWithGoals.goals?.find((g: any) => g.id === goalRating.goal_id);
+
+                        return (
+                          <div key={index} className="border rounded-lg p-4 bg-gray-50">
+                            <h4 className="font-semibold text-base mb-3 flex items-center gap-2">
+                              <span className="bg-blue-100 text-blue-700 rounded-full w-6 h-6 flex items-center justify-center text-xs">
+                                {index + 1}
+                              </span>
+                              {goal?.title || 'Goal'}
+                            </h4>
+
+                            {/* Narrative Ratings Table */}
+                            {goalRating.narratives && goalRating.narratives.length > 0 && (
+                              <Table>
+                                <TableHeader>
+                                  <TableRow>
+                                    <TableHead className="w-[50%]">Task/Narrative</TableHead>
+                                    <TableHead className="w-[15%] text-center">Weight</TableHead>
+                                    <TableHead className="w-[15%] text-center">Rating</TableHead>
+                                    <TableHead className="w-[20%]">Comment</TableHead>
+                                  </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                  {goalRating.narratives.map((narrative: any, nIdx: number) => {
+                                    // Find the matching narrative from the goal
+                                    const goalNarrative = goal?.narratives?.find((gn: any) =>
+                                      gn.description === narrative.description
+                                    );
+
+                                    return (
+                                      <TableRow key={nIdx}>
+                                        <TableCell className="font-medium">{narrative.description}</TableCell>
+                                        <TableCell className="text-center">
+                                          {goalNarrative?.weight ? parseFloat(goalNarrative.weight.toString()).toFixed(0) : '0'}%
+                                        </TableCell>
+                                        <TableCell className="text-center">
+                                          <Badge variant="outline" className="font-semibold">
+                                            {narrative.rating}/5
+                                          </Badge>
+                                        </TableCell>
+                                        <TableCell className="text-sm text-gray-600">
+                                          {narrative.comment || '-'}
+                                        </TableCell>
+                                      </TableRow>
+                                    );
+                                  })}
+                                </TableBody>
+                              </Table>
+                            )}
+
+                            {/* Manager Comments */}
+                            {goalRating.manager_comment && (
+                              <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded">
+                                <label className="text-xs font-semibold text-yellow-800 uppercase">Manager Comments:</label>
+                                <p className="text-sm mt-1 text-gray-700">{goalRating.manager_comment}</p>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Competency Ratings */}
+              {selectedEvaluator.competency_ratings && selectedEvaluator.competency_ratings.length > 0 && (
+                <Card>
+                  <CardHeader className="bg-purple-50">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <CheckCircle size={18} />
+                      Competency Evaluations
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-6">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="w-[5%]">#</TableHead>
+                          <TableHead className="w-[30%]">Competency</TableHead>
+                          <TableHead className="w-[15%]">Category</TableHead>
+                          <TableHead className="w-[15%] text-center">Rating</TableHead>
+                          <TableHead className="w-[35%]">Comments</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {selectedEvaluator.competency_ratings.map((comp: any, index: number) => (
+                          <TableRow key={index}>
+                            <TableCell className="font-medium">{index + 1}</TableCell>
+                            <TableCell className="font-semibold">{comp.competency || 'N/A'}</TableCell>
+                            <TableCell className="capitalize text-sm">{comp.evaluation_category || 'N/A'}</TableCell>
+                            <TableCell className="text-center">
+                              <Badge variant="outline" className="font-semibold">
+                                {comp.rating}/5
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="text-sm text-gray-600">
+                              {comp.comments || 'No comments'}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Overall Comments */}
+              {selectedEvaluator.overall_comments && (
+                <Card>
+                  <CardHeader className="bg-green-50">
+                    <CardTitle className="text-lg">Overall Comments</CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-6">
+                    <p className="text-sm text-gray-700 whitespace-pre-wrap">
+                      {selectedEvaluator.overall_comments}
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex justify-end gap-2 pt-4 border-t">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowReviewModal(false)}
+                >
+                  Close
+                </Button>
+                <Button
+                  onClick={() => handleGenerateIndividualPDF(selectedEvaluator)}
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  <FileDown size={16} className="mr-2" />
+                  Download PDF
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -127,15 +127,7 @@ const getColumns = (refetch: () => void): ColumnDef<InterviewedCandidate>[] => [
     ),
   },
   {
-    header: "Advertisement",
-    accessorKey: "advertisementTitle",
-    size: 200,
-    cell: ({ row }) => (
-      <p>{row?.original?.advertisementTitle || 'N/A'}</p>
-    ),
-  },
-  {
-    header: "Employment Type",
+    header: "Advertisement status",
     accessorKey: "employment_type",
     size: 150,
     cell: ({ row }) => (
