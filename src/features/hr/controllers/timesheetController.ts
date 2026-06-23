@@ -418,11 +418,11 @@ export const useGetAvailableProjects = (enabled: boolean = true) => {
 export const useGetAvailableActivities = (projectId?: string, enabled: boolean = true) => {
   interface ActivityData {
     id: string;
-    activity_code: string;
+    activity_name: string;
     activity_description: string;
     work_plan_id: string;
     work_plan__project_id: string;
-    work_plan__title: string;
+    project_id: string;
     is_unplanned: boolean;
     status: string;
   }

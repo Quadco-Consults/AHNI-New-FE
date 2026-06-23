@@ -509,7 +509,7 @@ const TimesheetManagementFull = () => {
         hasValidActivity: activities.some((a: any) => a.id === "9096f675-aa94-45c4-a725-00fc6db81679"),
         staleActivityId: "879d94c8-2f03-4ede-b336-ea51f6ffe9cf",
         hasStaleActivity: activities.some((a: any) => a.id === "879d94c8-2f03-4ede-b336-ea51f6ffe9cf"),
-        availableActivities: activities.map((a: any) => ({ id: a.id, code: a.activity_code, name: a.activity_name })),
+        availableActivities: activities.map((a: any) => ({ id: a.id, code: a.activity_name, name: a.activity_name })),
         context: 'timesheet_activity_dropdown'
       });
     }, [selectedProjectId, activityType, isLoadingActivities, activities]);
@@ -570,7 +570,7 @@ const TimesheetManagementFull = () => {
             ) : (
               activities.map((activity: any) => (
                 <SelectItem key={activity.id} value={activity.id}>
-                  {activity.activity_code}: {activity.activity_name}
+                  {activity.activity_name || activity.activity_description}
                 </SelectItem>
               ))
             )}
@@ -674,7 +674,7 @@ const TimesheetManagementFull = () => {
       const activity = activities.find((a: any) => a.id === activityId);
 
       if (activity) {
-        return <span className="text-sm text-green-600">{activity.activity_code}: {activity.activity_description || activity.activity_name}</span>;
+        return <span className="text-sm text-green-600">{activity.activity_name || activity.activity_description}</span>;
       }
 
       return <span className="text-sm text-gray-500">Workplan Activity: {activityId}</span>;
